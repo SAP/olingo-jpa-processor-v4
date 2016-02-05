@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestJPAPath" time="0.013" tests="10" errors="0" skipped="0" failures="0">
+<testsuite name="TestCriteriaBuilder" time="0.06" tests="1" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
     <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk1.8.0_45\jre\bin"/>
@@ -62,14 +62,5 @@
     <property name="sun.desktop" value="windows"/>
     <property name="sun.cpu.isalist" value="amd64"/>
   </properties>
-  <testcase name="checkTwoPathElementPathElements" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestJPAPath" time="0.002"/>
-  <testcase name="checkThreePathElementAlias" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestJPAPath" time="0.001"/>
-  <testcase name="checkOnePathElementAlias" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestJPAPath" time="0.01"/>
-  <testcase name="checkOnePathElementPathSize" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestJPAPath" time="0"/>
-  <testcase name="checkTwoPathElementAlias" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestJPAPath" time="0"/>
-  <testcase name="checkTwoPathElementPathSize" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestJPAPath" time="0"/>
-  <testcase name="checkThreePathElementPathElements" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestJPAPath" time="0"/>
-  <testcase name="checkOnePathElementElement" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestJPAPath" time="0"/>
-  <testcase name="checkOnePathElementFromSuperTypeAlias" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestJPAPath" time="0"/>
-  <testcase name="checkThreePathElementPathSize" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestJPAPath" time="0"/>
+  <testcase name="testSubSelect" classname="TestCriteriaBuilder" time="0.06"/>
 </testsuite>

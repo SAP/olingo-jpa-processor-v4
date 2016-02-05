@@ -29,24 +29,22 @@ import org.apache.olingo.server.api.uri.UriResourcePartTyped;
  */
 public class JPANavigationQuery extends JPAAbstractQuery {
   private final List<UriParameter> keyPredicates;
-  private final AbstractQuery<?> parent;
   private final JPAAssociationPath association;
   private Root<?> queryRoot;
   private Subquery<?> subQuery;
   private JPAAbstractQuery parentQuery;
 
-  public JPANavigationQuery(final ServicDocument sd, final UriResource uriResourceItem, final AbstractQuery<?> parent,
+  public JPANavigationQuery(final ServicDocument sd, final UriResource uriResourceItem, 
       final EntityManager em, JPAAssociationPath association) throws ODataApplicationException {
     super(sd, ((UriResourcePartTyped) uriResourceItem).getType(), em);
-    this.parent = parent;
     this.keyPredicates = determineKeyPredicates(uriResourceItem);
     this.association = association;
   }
 
-  public <T extends Object> JPANavigationQuery(ServicDocument sd, UriResource uriResourceItem, JPAAbstractQuery parent,
-      EntityManager em, JPAAssociationPath association) throws ODataApplicationException {
+  public <T extends Object> JPANavigationQuery(final ServicDocument sd, final UriResource uriResourceItem, final JPAAbstractQuery parent,
+     final EntityManager em, final JPAAssociationPath association) throws ODataApplicationException {
+    
     super(sd, ((UriResourcePartTyped) uriResourceItem).getType(), em);
-    this.parent = null;
     this.keyPredicates = determineKeyPredicates(uriResourceItem);
     this.association = association;
     this.parentQuery = parent;
@@ -75,11 +73,7 @@ public class JPANavigationQuery extends JPAAbstractQuery {
    */
   @SuppressWarnings("unchecked")
   public <T extends Object> Subquery<T> getSubQueryExists(Subquery<?> childQuery) throws ODataApplicationException {
-    Subquery<T> subQuery = (Subquery<T>) this.subQuery; // parent.subquery(this.jpaEntity.getKeyType());
-// https://stackoverflow.com/questions/29719321/combining-conditional-expressions-with-and-and-or-predicates-using-the-jpa-c
-//    Subquery<Long> subquery = criteriaQuery.subquery(Long.class);
-//    Root<Bookings> subRoot = subquery.from(metamodel.entity(Bookings.class));
-//    subquery.select(criteriaBuilder.literal(1L));
+    Subquery<T> subQuery = (Subquery<T>) this.subQuery; 
 
     List<JPAOnConditionItem> conditionItems;
     try {
@@ -88,7 +82,6 @@ public class JPANavigationQuery extends JPAAbstractQuery {
       for (JPAElement jpaPathElement : conditionItems.get(0).getLeftPath().getPath())
         p = p.get(jpaPathElement.getInternalName());
       subQuery.select((Expression<T>) p);
-      // subQuery.select(cb.literal(1L));
     } catch (ODataJPAModelException e) {
       // TODO Update error handling
       throw new ODataApplicationException("Unknown navigation property", HttpStatusCode.INTERNAL_SERVER_ERROR.ordinal(),
@@ -106,44 +99,6 @@ public class JPANavigationQuery extends JPAAbstractQuery {
       whereCondition = cb.and(whereCondition, cb.exists(childQuery));
     subQuery.where(whereCondition);
     return (Subquery<T>) subQuery;
-  }
-
-  /**
-   * Creates a sub query that can be used within an IN condition. As of now the SELECT clause contain only one field
-   * even if the association has multiple join columns.
-   * @return
-   * @throws ODataApplicationException
-   */
-  @SuppressWarnings("unchecked")
-  public <T extends Object> Subquery<T> getSubQueryIn() throws ODataApplicationException {
-    /*
-     * As of now I didn't manage to generate select for multiple fields.
-     * select(cb.construct(...) lead to a TypeCastError
-     * select(subRoot) generates a query SELECT 1 FROM
-     * https://stackoverflow.com/questions/22034650/jpa-criteriabuilder-subquery-multiselect
-     * https://en.wikibooks.org/wiki/Java_Persistence/Criteria#subQuery_examples
-     */
-    Subquery<T> subQuery = (Subquery<T>) parent.subquery(this.jpaEntity.getKeyType());
-    queryRoot = (Root<T>) subQuery.from(this.jpaEntity.getTypeClass());
-//    try {
-//      List<JPAOnConditionItem> conditionItems = ((JPAAssociationAttribute) association.getLeaf()).getJoinColumns();
-////    Selection<T>[] sel = (Selection<T>[]) new Selection<?>[conditionItems.size()];
-////    for (int i = 0; i < conditionItems.size(); i++) {
-////      sel[i] = subRoot.get(conditionItems.get(i).getLeftAttribute().getInternalName());
-////    }
-////    subQuery.select((Expression<T>) cb.construct(this.jpaEntity.getKeyType(), sel));
-////    subQuery.select(subRoot);
-//      subQuery.select((Expression<T>) queryRoot.get(conditionItems.get(0).getLeftPath().getInternalName()));
-
-//    } catch (ODataJPAModelException e1) {
-//      // TODO Update error handling
-//      throw new ODataApplicationException("Unknown navigation property", HttpStatusCode.INTERNAL_SERVER_ERROR.ordinal(),
-//          Locale.ENGLISH, e1);
-//    }
-
-    subQuery.where(createWhereByKey(queryRoot, null, this.keyPredicates));
-    return subQuery;
-
   }
 
   private Expression<Boolean> createWhereByAssociation(From<?, ?> parentFrom, Root<?> subRoot,

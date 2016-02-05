@@ -43,6 +43,7 @@ public class TestCriteriaBuilder {
 
   @Test
   public void testSubSelect() {
+    //https://stackoverflow.com/questions/29719321/combining-conditional-expressions-with-and-and-or-predicates-using-the-jpa-c
     CriteriaQuery<Tuple> adminQ1 = cb.createTupleQuery();
     Subquery<Long> adminQ2 = adminQ1.subquery(Long.class);
     Subquery<Long> adminQ3 = adminQ2.subquery(Long.class);

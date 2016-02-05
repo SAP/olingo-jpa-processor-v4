@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: org.apache.olingo.jpa.processor.core.query.TestJPAResultConverterCompoundKey
 -------------------------------------------------------------------------------
-Tests run: 2, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0.008 sec - in org.apache.olingo.jpa.processor.core.query.TestJPAResultConverterCompoundKey
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0.009 sec - in org.apache.olingo.jpa.processor.core.query.TestJPAResultConverterCompoundKey

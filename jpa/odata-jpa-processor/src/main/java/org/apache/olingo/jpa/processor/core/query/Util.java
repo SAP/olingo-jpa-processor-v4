@@ -1,5 +1,6 @@
-package org.apache.olingo.jpa.processor.core.api;
+package org.apache.olingo.jpa.processor.core.query;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -126,8 +127,8 @@ public class Util {
   }
 
   public static Map<ExpandItem, JPAAssociationPath> determineAssoziations(ServicDocument sd,
-      List<UriResource> startResourceList,
-      ExpandOption expandOption) throws ODataApplicationException {
+      List<UriResource> startResourceList, ExpandOption expandOption) throws ODataApplicationException {
+
     Map<ExpandItem, JPAAssociationPath> pathList = new HashMap<ExpandItem, JPAAssociationPath>();
     StringBuffer associationName = new StringBuffer();
 
@@ -162,5 +163,56 @@ public class Util {
       }
     }
     return pathList;
+  }
+
+  public static List<JPANavigationProptertyInfo> determineAssoziations(ServicDocument sd,
+      List<UriResource> resourceParts) throws ODataApplicationException {
+
+    final List<JPANavigationProptertyInfo> pathList = new ArrayList<JPANavigationProptertyInfo>();
+
+    StringBuffer associationName = null;
+    UriResourceNavigation navigation = null;
+
+    for (int i = resourceParts.size() - 1; i >= 0; i--) {
+      if (resourceParts.get(i) instanceof UriResourceNavigation && navigation == null) {
+        navigation = (UriResourceNavigation) resourceParts.get(i);
+        associationName = new StringBuffer();
+        associationName.insert(0, navigation.getProperty().getName());
+      } else {
+        if (resourceParts.get(i) instanceof UriResourceComplexProperty) {
+          associationName.insert(0, JPAPath.PATH_SEPERATOR);
+          associationName.insert(0, ((UriResourceComplexProperty) resourceParts.get(i)).getProperty().getName());
+        }
+        if (resourceParts.get(i) instanceof UriResourceNavigation
+            || resourceParts.get(i) instanceof UriResourceEntitySet) {
+          pathList.add(new JPANavigationProptertyInfo((UriResourcePartTyped) resourceParts.get(i),
+              determineAssoziationPath(sd, ((UriResourcePartTyped) resourceParts.get(i)), associationName)));
+          if (resourceParts.get(i) instanceof UriResourceNavigation) {
+            navigation = (UriResourceNavigation) resourceParts.get(i);
+            associationName = new StringBuffer();
+            associationName.insert(0, navigation.getProperty().getName());
+          }
+        }
+      }
+    }
+    return pathList;
+  }
+
+  protected static JPAAssociationPath determineAssoziationPath(ServicDocument sd, UriResourcePartTyped naviStart,
+      StringBuffer associationName)
+          throws ODataApplicationException {
+
+    JPAEntityType naviStartType;
+    try {
+      if (naviStart instanceof UriResourceEntitySet)
+        naviStartType = sd.getEntity(((UriResourceEntitySet) naviStart).getType());
+      else
+        naviStartType = sd.getEntity(((UriResourceNavigation) naviStart).getProperty().getType());
+      return naviStartType.getAssociationPath(associationName.toString());
+    } catch (ODataJPAModelException e) {
+      // TODO Update error handling
+      throw new ODataApplicationException("Unknown navigation property", HttpStatusCode.INTERNAL_SERVER_ERROR
+          .ordinal(), Locale.ENGLISH, e);
+    }
   }
 }

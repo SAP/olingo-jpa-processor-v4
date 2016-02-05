@@ -1,8 +1,8 @@
 -------------------------------------------------------------------------------
 Test set: org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand
 -------------------------------------------------------------------------------
-Tests run: 17, Failures: 2, Errors: 0, Skipped: 6, Time elapsed: 0.601 sec <<< FAILURE! - in org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand
-testNestedExpandNestedExpand2LevelsSelf(org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand)  Time elapsed: 0.047 sec  <<< FAILURE!
+Tests run: 17, Failures: 2, Errors: 0, Skipped: 6, Time elapsed: 0.609 sec <<< FAILURE! - in org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand
+testNestedExpandNestedExpand2LevelsSelf(org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand)  Time elapsed: 0.051 sec  <<< FAILURE!
 java.lang.AssertionError: {"error":{"code":null,"message":"OData Library: An exception without message text was thrown."}} expected:<200> but was:<500>
 	at org.junit.Assert.fail(Assert.java:88)
 	at org.junit.Assert.failNotEquals(Assert.java:834)
@@ -10,7 +10,7 @@ java.lang.AssertionError: {"error":{"code":null,"message":"OData Library: An exc
 	at org.apache.olingo.jpa.processor.core.util.IntegrationTestHelper.assertStatus(IntegrationTestHelper.java:100)
 	at org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand.testNestedExpandNestedExpand2LevelsSelf(TestJPAProcessorExpand.java:182)
 
-testNestedExpandNestedExpand2LevelsMixed(org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand)  Time elapsed: 0.027 sec  <<< FAILURE!
+testNestedExpandNestedExpand2LevelsMixed(org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand)  Time elapsed: 0.023 sec  <<< FAILURE!
 java.lang.AssertionError: {"error":{"code":null,"message":"Element CodePublisher does not correspond to an element in the query result."}} expected:<200> but was:<500>
 	at org.junit.Assert.fail(Assert.java:88)
 	at org.junit.Assert.failNotEquals(Assert.java:834)

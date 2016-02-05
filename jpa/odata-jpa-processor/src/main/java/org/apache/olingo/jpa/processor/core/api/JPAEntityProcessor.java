@@ -5,12 +5,14 @@ import java.util.Locale;
 import javax.persistence.EntityManager;
 
 import org.apache.olingo.commons.api.data.ContextURL;
+import org.apache.olingo.commons.api.data.ContextURL.Suffix;
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
+import org.apache.olingo.jpa.processor.core.query.Util;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataLibraryException;
@@ -151,7 +153,7 @@ public class JPAEntityProcessor extends JPAAbstractProcessor implements EntityCo
       EdmEntitySet targetEdmEntitySet, EntityCollection result, UriInfo uriInfo) throws SerializerException {
     EdmEntityType entityType = targetEdmEntitySet.getEntityType();
     ContextURL contextUrl = ContextURL.with()
-        .entitySet(targetEdmEntitySet)
+        .entitySet(targetEdmEntitySet).suffix(Suffix.ENTITY)
         .build();
     EntitySerializerOptions options = EntitySerializerOptions.with()
         .contextURL(contextUrl)

@@ -35,7 +35,6 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
-import org.apache.olingo.jpa.processor.core.api.Util;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriParameter;
@@ -253,53 +252,35 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     return whereCondition;
   }
 
+  /**
+   * Generate sub-queries in order to select the target of a navigation to a different entity<p>
+   * In case of multiple navigation steps a inner navigation has a dependency in both directions, to the upper and to
+   * the lower query:<p>
+   * <code>SELECT * FROM upper WHERE EXISTS( <p>
+   * SELECT ... FROM inner WHERE upper = inner<p>
+   * AND EXISTS( SELECT ... FROM lower<p>
+   * WHERE inner = lower))</code><p>
+   * This is solved by a three steps approach
+   */
   Subquery<?> buildNavigationSubQueries(Root<?> root) throws ODataApplicationException {
-    Subquery<?> s = null;
-    // AbstractQuery<?> parent = cq;
 
+    Subquery<?> s = null;
     List<UriResource> resourceParts = uriResource.getUriResourceParts();
-    JPAAssociationPath association = null;
-    UriResourceNavigation navigation = null;
 
     // No navigation
     if (!hasNavigation(resourceParts))
       return s;
-
-    /*
-     * In case of multiple navigation steps a inner navigation has a dependency to the upper and to the lower query:
-     * SELECT * FROM upper WHERE EXISTS(
-     * SELECT ... FROM inner WHERE upper = inner
-     * AND EXISTS( SELECT ... FROM lower
-     * WHERE inner = lower))
-     * This is solved by a two steps approach
-     */
-    StringBuffer associationName = null;
+    // 1. Determine all relevant associations
+    List<JPANavigationProptertyInfo> pathList = Util.determineAssoziations(sd, resourceParts);
     JPAAbstractQuery parent = this;
     List<JPANavigationQuery> queryList = new ArrayList<JPANavigationQuery>();
-    for (int i = resourceParts.size() - 1; i >= 0; i--) {
-      if (resourceParts.get(i) instanceof UriResourceNavigation && navigation == null) {
-        navigation = (UriResourceNavigation) resourceParts.get(i);
-        associationName = new StringBuffer();
-        associationName.insert(0, navigation.getProperty().getName());
-      } else {
-        if (resourceParts.get(i) instanceof UriResourceComplexProperty) {
-          associationName.insert(0, JPAPath.PATH_SEPERATOR);
-          associationName.insert(0, ((UriResourceComplexProperty) resourceParts.get(i)).getProperty().getName());
-        }
-        if (resourceParts.get(i) instanceof UriResourceNavigation
-            || resourceParts.get(i) instanceof UriResourceEntitySet) {
-          association = determineAssoziation(((UriResourcePartTyped) resourceParts.get(i)), // navigation,
-              associationName);
-          queryList.add(new JPANavigationQuery(sd, resourceParts.get(i), parent, em, association));
-          parent = queryList.get(queryList.size() - 1);
-          if (resourceParts.get(i) instanceof UriResourceNavigation) {
-            navigation = (UriResourceNavigation) resourceParts.get(i);
-            associationName = new StringBuffer();
-            associationName.insert(0, navigation.getProperty().getName());
-          }
-        }
-      }
+
+    // 2. Create the queries and roots
+    for (JPANavigationProptertyInfo naviInfo : pathList) {
+      queryList.add(new JPANavigationQuery(sd, naviInfo.getUriResiource(), parent, em, naviInfo.getAssociationPath()));
+      parent = queryList.get(queryList.size() - 1);
     }
+    // 3. Create select statements
     Subquery<?> childQuery = null;
     for (int i = queryList.size() - 1; i >= 0; i--) {
       childQuery = queryList.get(i).getSubQueryExists(childQuery);
@@ -317,8 +298,9 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     return false;
   }
 
-  protected JPAAssociationPath determineAssoziation(UriResourcePartTyped naviStart,
-      StringBuffer associationName) throws ODataApplicationException {
+  protected JPAAssociationPath determineAssoziation(UriResourcePartTyped naviStart, StringBuffer associationName)
+      throws ODataApplicationException {
+
     JPAEntityType naviStartType;
     try {
       if (naviStart instanceof UriResourceEntitySet)
