@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.apache.olingo.jpa.processor.core.query.TestJPAQueryOrderByClause" time="0.091" tests="8" errors="0" skipped="0" failures="0">
+  <properties>
+    <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
+    <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk1.8.0_45\jre\bin"/>
+    <property name="java.vm.version" value="25.45-b02"/>
+    <property name="user.country.format" value="DE"/>
+    <property name="java.vm.vendor" value="Oracle Corporation"/>
+    <property name="maven.multiModuleProjectDirectory" value="C:\Users\D023143\workspace_olingo\jpa"/>
+    <property name="java.vendor.url" value="http://java.oracle.com/"/>
+    <property name="path.separator" value=";"/>
+    <property name="guice.disable.misplaced.annotation.check" value="true"/>
+    <property name="java.vm.name" value="Java HotSpot(TM) 64-Bit Server VM"/>
+    <property name="file.encoding.pkg" value="sun.io"/>
+    <property name="user.script" value=""/>
+    <property name="user.country" value="US"/>
+    <property name="sun.java.launcher" value="SUN_STANDARD"/>
+    <property name="sun.os.patch.level" value=""/>
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
+    <property name="user.dir" value="C:\Users\D023143\workspace_olingo\jpa"/>
+    <property name="java.runtime.version" value="1.8.0_45-b15"/>
+    <property name="java.awt.graphicsenv" value="sun.awt.Win32GraphicsEnvironment"/>
+    <property name="java.endorsed.dirs" value="C:\Program Files\Java\jdk1.8.0_45\jre\lib\endorsed"/>
+    <property name="os.arch" value="amd64"/>
+    <property name="java.io.tmpdir" value="C:\Users\D023143\AppData\Local\Temp\"/>
+    <property name="line.separator" value="&#10;"/>
+    <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
+    <property name="user.variant" value=""/>
+    <property name="os.name" value="Windows 8.1"/>
+    <property name="classworlds.conf" value="C:\Users\D023143\workspace_olingo\.metadata\.plugins\org.eclipse.m2e.launching\launches\m2conf4801782177873350585.tmp"/>
+    <property name="sun.jnu.encoding" value="Cp1252"/>
+    <property name="java.library.path" value="C:\Program Files\Java\jdk1.8.0_45\bin;C:\WINDOWS\Sun\Java\bin;C:\WINDOWS\system32;C:\WINDOWS;C:/Program Files/Java/jre1.8.0_45/bin/server;C:/Program Files/Java/jre1.8.0_45/bin;C:/Program Files/Java/jre1.8.0_45/lib/amd64;C:\Program Files\HP_Fortify\HP_Fortify_SCA_and_Apps_4.30\bin;C:\ProgramData\Oracle\Java\javapath;C:\Program Files (x86)\PC ConnectivitySolution\;C:\WINDOWS\system32; C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\Windows\CCM;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\apache-maven-3.2.5\bin;C:\Program Files\Java\jdk1.8.0_45\bin; C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\WindowsPowerShell\v1.0; C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\WindowsPowerShell\v1.0; C:\Go\bin; C:\Users\D023143\work_go\bin;C:\Users\D023143\Nodeclips\nodejs\;C:\Users\D023143\AppData\Roaming\npm;C:\Users\D023143\EclipseMars\eclipse;;."/>
+    <property name="java.specification.name" value="Java Platform API Specification"/>
+    <property name="java.class.version" value="52.0"/>
+    <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
+    <property name="os.version" value="6.3"/>
+    <property name="user.home" value="C:\Users\D023143"/>
+    <property name="user.timezone" value="Europe/Berlin"/>
+    <property name="java.awt.printerjob" value="sun.awt.windows.WPrinterJob"/>
+    <property name="java.specification.version" value="1.8"/>
+    <property name="file.encoding" value="Cp1252"/>
+    <property name="user.name" value="D023143"/>
+    <property name="java.class.path" value="/C:/Users/D023143/EclipseMars/eclipse/plugins/org.eclipse.m2e.maven.runtime_1.6.2.20150902-0001/jars/plexus-classworlds-2.5.2.jar"/>
+    <property name="java.vm.specification.version" value="1.8"/>
+    <property name="sun.arch.data.model" value="64"/>
+    <property name="java.home" value="C:\Program Files\Java\jdk1.8.0_45\jre"/>
+    <property name="sun.java.command" value="org.codehaus.plexus.classworlds.launcher.Launcher -B clean install"/>
+    <property name="java.specification.vendor" value="Oracle Corporation"/>
+    <property name="user.language" value="en"/>
+    <property name="user.language.format" value="de"/>
+    <property name="awt.toolkit" value="sun.awt.windows.WToolkit"/>
+    <property name="java.vm.info" value="mixed mode"/>
+    <property name="java.version" value="1.8.0_45"/>
+    <property name="java.ext.dirs" value="C:\Program Files\Java\jdk1.8.0_45\jre\lib\ext;C:\WINDOWS\Sun\Java\lib\ext"/>
+    <property name="sun.boot.class.path" value="C:\Program Files\Java\jdk1.8.0_45\jre\lib\resources.jar;C:\Program Files\Java\jdk1.8.0_45\jre\lib\rt.jar;C:\Program Files\Java\jdk1.8.0_45\jre\lib\sunrsasign.jar;C:\Program Files\Java\jdk1.8.0_45\jre\lib\jsse.jar;C:\Program Files\Java\jdk1.8.0_45\jre\lib\jce.jar;C:\Program Files\Java\jdk1.8.0_45\jre\lib\charsets.jar;C:\Program Files\Java\jdk1.8.0_45\jre\lib\jfr.jar;C:\Program Files\Java\jdk1.8.0_45\jre\classes"/>
+    <property name="java.vendor" value="Oracle Corporation"/>
+    <property name="maven.home" value="C:\Users\D023143\workspace_olingo\jpa\EMBEDDED"/>
+    <property name="file.separator" value="\"/>
+    <property name="java.vendor.url.bug" value="http://bugreport.sun.com/bugreport/"/>
+    <property name="sun.cpu.endian" value="little"/>
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
+    <property name="sun.desktop" value="windows"/>
+    <property name="sun.cpu.isalist" value="amd64"/>
+  </properties>
+  <testcase name="testOrderByOneComplexPropertyDesc" classname="org.apache.olingo.jpa.processor.core.query.TestJPAQueryOrderByClause" time="0.016"/>
+  <testcase name="testOrderBy$CountDescComplexPropertyAcs" classname="org.apache.olingo.jpa.processor.core.query.TestJPAQueryOrderByClause" time="0.013"/>
+  <testcase name="testOrderByOneComplexPropertyAsc" classname="org.apache.olingo.jpa.processor.core.query.TestJPAQueryOrderByClause" time="0.01"/>
+  <testcase name="testOrderBy$CountDesc" classname="org.apache.olingo.jpa.processor.core.query.TestJPAQueryOrderByClause" time="0.009"/>
+  <testcase name="testOrderBy$CountAsc" classname="org.apache.olingo.jpa.processor.core.query.TestJPAQueryOrderByClause" time="0.01"/>
+  <testcase name="testOrderByTwoPropertiesDescAsc" classname="org.apache.olingo.jpa.processor.core.query.TestJPAQueryOrderByClause" time="0.011"/>
+  <testcase name="testOrderByTwoPropertiesDescDesc" classname="org.apache.olingo.jpa.processor.core.query.TestJPAQueryOrderByClause" time="0.014"/>
+  <testcase name="testOrderByOneProperty" classname="org.apache.olingo.jpa.processor.core.query.TestJPAQueryOrderByClause" time="0.008"/>
+</testsuite>

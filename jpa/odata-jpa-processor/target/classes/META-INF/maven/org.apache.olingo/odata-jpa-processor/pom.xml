@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.apache.olingo</groupId>
+		<artifactId>odata-jpa</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>odata-jpa-processor</artifactId>
+
+	<name>odata-jpa-processor</name>
+	<url>http://maven.apache.org</url>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<javax.version>2.5</javax.version>
+		<jackson.version>2.4.2</jackson.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.olingo</groupId>
+			<artifactId>odata-jpa-test</artifactId>
+			<scope>test</scope>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.olingo</groupId>
+			<artifactId>odata-jpa-annotation</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.olingo</groupId>
+			<artifactId>odata-server-core</artifactId>
+			<version>${odata.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.olingo</groupId>
+			<artifactId>odata-server-api</artifactId>
+			<version>${odata.version}</version>
+		</dependency>		
+		<dependency>
+			<groupId>org.eclipse.persistence</groupId>
+			<artifactId>javax.persistence</artifactId>
+			<version>2.1.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.olingo</groupId>
+			<artifactId>odata-jpa-metadata</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>${javax.version}</version>
+			<scope>test</scope>
+		</dependency>		
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<scope>test</scope>
+			<version>${jackson.version}</version>
+		</dependency>		
+	</dependencies>
+</project>

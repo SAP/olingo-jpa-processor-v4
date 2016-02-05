@@ -1,0 +1,820 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Model xmi:version="20131001" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_-eT6EL6xEeWSaOdZFwB7MQ" name="RootElement">
+  <packageImport xmi:type="uml:PackageImport" xmi:id="_-obfYL6xEeWSaOdZFwB7MQ">
+    <importedPackage xmi:type="uml:Model" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#_0"/>
+  </packageImport>
+  <packagedElement xmi:type="uml:Model" xmi:id="_DYXZQL6yEeWSaOdZFwB7MQ" name="generated">
+    <packagedElement xmi:type="uml:Package" xmi:id="_DYwa0L6yEeWSaOdZFwB7MQ" name="org">
+      <packagedElement xmi:type="uml:Package" xmi:id="_DYwa0b6yEeWSaOdZFwB7MQ" name="apache">
+        <packagedElement xmi:type="uml:Package" xmi:id="_DYwa0r6yEeWSaOdZFwB7MQ" name="olingo">
+          <packagedElement xmi:type="uml:Package" xmi:id="_DYxB4L6yEeWSaOdZFwB7MQ" name="jpa">
+            <packagedElement xmi:type="uml:Package" xmi:id="_DYxB4b6yEeWSaOdZFwB7MQ" name="metadata">
+              <packagedElement xmi:type="uml:Package" xmi:id="_DYxB4r6yEeWSaOdZFwB7MQ" name="api">
+                <packagedElement xmi:type="uml:Class" xmi:id="_DYy3EL6yEeWSaOdZFwB7MQ" name="JPAEntityManagerFactory" visibility="public">
+                  <ownedAttribute xmi:type="uml:Property" xmi:id="_DY1TUL6yEeWSaOdZFwB7MQ" name="ENTITY_MANAGER_DATA_SOURCE" visibility="private" isLeaf="true" isStatic="true" type="_DY0sQ76yEeWSaOdZFwB7MQ" isUnique="false"/>
+                  <ownedAttribute xmi:type="uml:Property" xmi:id="_DY16Yr6yEeWSaOdZFwB7MQ" name="emfMap" visibility="private" isStatic="true" type="_DY16Yb6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                  <ownedOperation xmi:type="uml:Operation" xmi:id="_DY4WoL6yEeWSaOdZFwB7MQ" name="getEntityManagerFactory" visibility="public" isStatic="true">
+                    <ownedParameter xmi:type="uml:Parameter" xmi:id="_DY5kwL6yEeWSaOdZFwB7MQ" type="_DY4Wor6yEeWSaOdZFwB7MQ" direction="return"/>
+                    <ownedParameter xmi:type="uml:Parameter" xmi:id="_DY6L0L6yEeWSaOdZFwB7MQ" name="pUnit" type="_DY0sQ76yEeWSaOdZFwB7MQ"/>
+                    <ownedParameter xmi:type="uml:Parameter" xmi:id="_DY6L0b6yEeWSaOdZFwB7MQ" name="ds" type="_DY2hcr6yEeWSaOdZFwB7MQ"/>
+                  </ownedOperation>
+                </packagedElement>
+                <packagedElement xmi:type="uml:Class" xmi:id="_DY8oEL6yEeWSaOdZFwB7MQ" name="JPAEdmPostProcessor" visibility="public" isAbstract="true">
+                  <ownedOperation xmi:type="uml:Operation" xmi:id="_DY9PJL6yEeWSaOdZFwB7MQ" name="processNavigationProperty" visibility="public">
+                    <ownedParameter xmi:type="uml:Parameter" xmi:id="_DY92ML6yEeWSaOdZFwB7MQ" name="property" type="_DuL4QL6yEeWSaOdZFwB7MQ"/>
+                    <ownedParameter xmi:type="uml:Parameter" xmi:id="_DY92Mb6yEeWSaOdZFwB7MQ" name="jpaManagedTypeClassName" type="_DY0sQ76yEeWSaOdZFwB7MQ"/>
+                  </ownedOperation>
+                  <ownedOperation xmi:type="uml:Operation" xmi:id="_DY-dQL6yEeWSaOdZFwB7MQ" name="processProperty" visibility="public">
+                    <ownedParameter xmi:type="uml:Parameter" xmi:id="_DY-dQb6yEeWSaOdZFwB7MQ" name="property" type="_DpXCoL6yEeWSaOdZFwB7MQ"/>
+                    <ownedParameter xmi:type="uml:Parameter" xmi:id="_DY_EUL6yEeWSaOdZFwB7MQ" name="jpaManagedTypeClassName" type="_DY0sQ76yEeWSaOdZFwB7MQ"/>
+                  </ownedOperation>
+                </packagedElement>
+                <packagedElement xmi:type="uml:Class" xmi:id="_DZEj4L6yEeWSaOdZFwB7MQ" name="JPAEdmProvider" visibility="public">
+                  <generalization xmi:type="uml:Generalization" xmi:id="_DZFyAr6yEeWSaOdZFwB7MQ" general="_DZFyAb6yEeWSaOdZFwB7MQ"/>
+                  <ownedAttribute xmi:type="uml:Property" xmi:id="_DZHnML6yEeWSaOdZFwB7MQ" name="nameBuilder" visibility="private" isLeaf="true" type="_DZHAIb6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                  <ownedAttribute xmi:type="uml:Property" xmi:id="_DZHnMr6yEeWSaOdZFwB7MQ" name="serviceDocument" visibility="private" isLeaf="true" type="_DZHnMb6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                  <ownedOperation xmi:type="uml:Operation" xmi:id="_DZIOQb6yEeWSaOdZFwB7MQ" name="getComplexType" visibility="public">
+                    <ownedParameter xmi:type="uml:Parameter" xmi:id="_DZIOQ76yEeWSaOdZFwB7MQ" type="_DZIOQr6yEeWSaOdZFwB7MQ" direction="return"/>
+                    <ownedParameter xmi:type="uml:Parameter" xmi:id="_DZI1UL6yEeWSaOdZFwB7MQ" name="complexTypeName" type="_DZIOQL6yEeWSaOdZFwB7MQ"/>
+                  </ownedOperation>
+                  <ownedOperation xmi:type="uml:Operation" xmi:id="_DZI1Ub6yEeWSaOdZFwB7MQ" name="getEntityContainer" visibility="public">
+                    <ownedParameter xmi:type="uml:Parameter" xmi:id="_DZI1U76yEeWSaOdZFwB7MQ" type="_DZI1Ur6yEeWSaOdZFwB7MQ" direction="return"/>
+                  </ownedOperation>
+                  <ownedOperation xmi:type="uml:Operation" xmi:id="_DZI1VL6yEeWSaOdZFwB7MQ" name="getEntityContainerInfo" visibility="public">
+                    <ownedParameter xmi:type="uml:Parameter" xmi:id="_DZJcYb6yEeWSaOdZFwB7MQ" type="_DZJcYL6yEeWSaOdZFwB7MQ" direction="return"/>
+                    <ownedParameter xmi:type="uml:Parameter" xmi:id="_DZJcYr6yEeWSaOdZFwB7MQ" name="entityContainerName" type="_DZIOQL6yEeWSaOdZFwB7MQ"/>
+                  </ownedOperation>
+                  <ownedOperation xmi:type="uml:Operation" xmi:id="_DZJcY76yEeWSaOdZFwB7MQ" name="getEntitySet" visibility="public">
+                    <ownedParameter xmi:type="uml:Parameter" xmi:id="_DZKDcb6yEeWSaOdZFwB7MQ" type="_DZKDcL6yEeWSaOdZFwB7MQ" direction="return"/>
+                    <ownedParameter xmi:type="uml:Parameter" xmi:id="_DZKDcr6yEeWSaOdZFwB7MQ" name="entityContainerFQN" type="_DZIOQL6yEeWSaOdZFwB7MQ"/>
+                    <ownedParameter xmi:type="uml:Parameter" xmi:id="_DZKqgL6yEeWSaOdZFwB7MQ" name="entitySetName" type="_DY0sQ76yEeWSaOdZFwB7MQ"/>
+                  </ownedOperation>
+                  <ownedOperation xmi:type="uml:Operation" xmi:id="_DZKqgb6yEeWSaOdZFwB7MQ" name="getEntityType" visibility="public">
+                    <ownedParameter xmi:type="uml:Parameter" xmi:id="_DZKqg76yEeWSaOdZFwB7MQ" type="_DZKqgr6yEeWSaOdZFwB7MQ" direction="return"/>
+                    <ownedParameter xmi:type="uml:Parameter" xmi:id="_DZLRkL6yEeWSaOdZFwB7MQ" name="entityTypeName" type="_DZIOQL6yEeWSaOdZFwB7MQ"/>
+                  </ownedOperation>
+                  <ownedOperation xmi:type="uml:Operation" xmi:id="_DZLRkb6yEeWSaOdZFwB7MQ" name="getFunctionImport" visibility="public">
+                    <ownedParameter xmi:type="uml:Parameter" xmi:id="_DZL4oL6yEeWSaOdZFwB7MQ" type="_DZLRkr6yEeWSaOdZFwB7MQ" direction="return"/>
+                    <ownedParameter xmi:type="uml:Parameter" xmi:id="_DZL4ob6yEeWSaOdZFwB7MQ" name="entityContainerFQN" type="_DZIOQL6yEeWSaOdZFwB7MQ"/>
+                    <ownedParameter xmi:type="uml:Parameter" xmi:id="_DZL4or6yEeWSaOdZFwB7MQ" name="functionImportName" type="_DY0sQ76yEeWSaOdZFwB7MQ"/>
+                  </ownedOperation>
+                  <ownedOperation xmi:type="uml:Operation" xmi:id="_DZMfsL6yEeWSaOdZFwB7MQ" name="getFunctions" visibility="public">
+                    <ownedParameter xmi:type="uml:Parameter" xmi:id="_DZMfsr6yEeWSaOdZFwB7MQ" type="_DZMfsb6yEeWSaOdZFwB7MQ" direction="return">
+                      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_DZNGwL6yEeWSaOdZFwB7MQ"/>
+                      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_DZNt0L6yEeWSaOdZFwB7MQ" value="*"/>
+                    </ownedParameter>
+                    <ownedParameter xmi:type="uml:Parameter" xmi:id="_DZNt0b6yEeWSaOdZFwB7MQ" name="functionName" type="_DZIOQL6yEeWSaOdZFwB7MQ"/>
+                  </ownedOperation>
+                  <ownedOperation xmi:type="uml:Operation" xmi:id="_DZOU4L6yEeWSaOdZFwB7MQ" name="getSchemas" visibility="public">
+                    <ownedParameter xmi:type="uml:Parameter" xmi:id="_DZOU4r6yEeWSaOdZFwB7MQ" type="_DZOU4b6yEeWSaOdZFwB7MQ" direction="return">
+                      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_DZOU476yEeWSaOdZFwB7MQ"/>
+                      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_DZO78L6yEeWSaOdZFwB7MQ" value="*"/>
+                    </ownedParameter>
+                  </ownedOperation>
+                  <ownedOperation xmi:type="uml:Operation" xmi:id="_DZO78b6yEeWSaOdZFwB7MQ" name="getServiceDocument" visibility="public" isLeaf="true">
+                    <ownedParameter xmi:type="uml:Parameter" xmi:id="_DZO78r6yEeWSaOdZFwB7MQ" type="_DZHnMb6yEeWSaOdZFwB7MQ" direction="return"/>
+                  </ownedOperation>
+                </packagedElement>
+              </packagedElement>
+              <packagedElement xmi:type="uml:Package" xmi:id="_DY8oEb6yEeWSaOdZFwB7MQ" name="core">
+                <packagedElement xmi:type="uml:Package" xmi:id="_DY9PIL6yEeWSaOdZFwB7MQ" name="edm">
+                  <packagedElement xmi:type="uml:Package" xmi:id="_DY9PIb6yEeWSaOdZFwB7MQ" name="mapper">
+                    <packagedElement xmi:type="uml:Package" xmi:id="_DY9PIr6yEeWSaOdZFwB7MQ" name="extention">
+                      <packagedElement xmi:type="uml:Interface" xmi:id="_DuL4QL6yEeWSaOdZFwB7MQ" name="IntermediateNavigationPropertyAccess" visibility="public">
+                        <generalization xmi:type="uml:Generalization" xmi:id="_DuMfUL6yEeWSaOdZFwB7MQ" general="_DkslEL6yEeWSaOdZFwB7MQ"/>
+                      </packagedElement>
+                      <packagedElement xmi:type="uml:Interface" xmi:id="_DpXCoL6yEeWSaOdZFwB7MQ" name="IntermediatePropertyAccess" visibility="public">
+                        <generalization xmi:type="uml:Generalization" xmi:id="_DpXpsL6yEeWSaOdZFwB7MQ" general="_DkslEL6yEeWSaOdZFwB7MQ"/>
+                      </packagedElement>
+                      <packagedElement xmi:type="uml:Interface" xmi:id="_DkslEL6yEeWSaOdZFwB7MQ" name="IntermediateModelItemAccess" visibility="public">
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DkslEb6yEeWSaOdZFwB7MQ" name="getExternalName">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DkslEr6yEeWSaOdZFwB7MQ" type="_DY0sQ76yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DkslE76yEeWSaOdZFwB7MQ" name="getInternalName">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DktMIL6yEeWSaOdZFwB7MQ" type="_DY0sQ76yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DktMIb6yEeWSaOdZFwB7MQ" name="ignore">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DktMIr6yEeWSaOdZFwB7MQ" type="_DZT0cb6yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DktMI76yEeWSaOdZFwB7MQ" name="setExternalName">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DktMJL6yEeWSaOdZFwB7MQ" name="externalName" type="_DY0sQ76yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DktMJb6yEeWSaOdZFwB7MQ" name="setIgnore">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DktzML6yEeWSaOdZFwB7MQ" name="ignore" type="_DZT0cb6yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                      </packagedElement>
+                    </packagedElement>
+                    <packagedElement xmi:type="uml:Package" xmi:id="_DZHAIL6yEeWSaOdZFwB7MQ" name="impl">
+                      <packagedElement xmi:type="uml:Class" xmi:id="_DZHAIb6yEeWSaOdZFwB7MQ" name="JPAEdmNameBuilder" visibility="public">
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DvjxQL6yEeWSaOdZFwB7MQ" name="ENTITY_CONTAINER_SUFFIX" visibility="private" isLeaf="true" isStatic="true" type="_DY0sQ76yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DvjxQb6yEeWSaOdZFwB7MQ" name="ENTITY_SET_SUFFIX" visibility="private" isLeaf="true" isStatic="true" type="_DY0sQ76yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DvkYUb6yEeWSaOdZFwB7MQ" name="namespace" visibility="private" isLeaf="true" type="_DY0sQ76yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvjxQr6yEeWSaOdZFwB7MQ" name="firstToUpper" visibility="public" isStatic="true">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvjxQ76yEeWSaOdZFwB7MQ" type="_DY0sQ76yEeWSaOdZFwB7MQ" direction="return"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvkYUL6yEeWSaOdZFwB7MQ" name="jpaAttributeName" type="_DY0sQ76yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvkYUr6yEeWSaOdZFwB7MQ" name="buildComplexTypeName" visibility="public" isLeaf="true">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Dvk_YL6yEeWSaOdZFwB7MQ" type="_DY0sQ76yEeWSaOdZFwB7MQ" direction="return"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Dvk_Yb6yEeWSaOdZFwB7MQ" name="jpaAttribute" type="_Duidkb6yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_Dvk_Y76yEeWSaOdZFwB7MQ" name="buildComplexTypeName" visibility="public" isLeaf="true">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Dvk_ZL6yEeWSaOdZFwB7MQ" type="_DY0sQ76yEeWSaOdZFwB7MQ" direction="return"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvlmcL6yEeWSaOdZFwB7MQ" name="jpaEnbeddedType" type="_Dvk_Yr6yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_Dvlmcb6yEeWSaOdZFwB7MQ" name="buildContainerName" visibility="public">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Dvlmcr6yEeWSaOdZFwB7MQ" type="_DY0sQ76yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_Dvlmc76yEeWSaOdZFwB7MQ" name="buildEntitySetName" visibility="public" isLeaf="true">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvmNgL6yEeWSaOdZFwB7MQ" type="_DY0sQ76yEeWSaOdZFwB7MQ" direction="return"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvmNgb6yEeWSaOdZFwB7MQ" name="entityType" type="_DZKqgr6yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvmNgr6yEeWSaOdZFwB7MQ" name="buildEntitySetName" visibility="public" isLeaf="true">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvmNg76yEeWSaOdZFwB7MQ" type="_DY0sQ76yEeWSaOdZFwB7MQ" direction="return"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Dvm0kL6yEeWSaOdZFwB7MQ" name="entityTypeFQName" type="_DZIOQL6yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_Dvm0kb6yEeWSaOdZFwB7MQ" name="buildEntitySetName" visibility="public" isLeaf="true">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Dvm0kr6yEeWSaOdZFwB7MQ" type="_DY0sQ76yEeWSaOdZFwB7MQ" direction="return"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Dvm0k76yEeWSaOdZFwB7MQ" name="entityTypeName" type="_DY0sQ76yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_Dvm0lL6yEeWSaOdZFwB7MQ" name="buildEntityTypeName" visibility="public">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvnboL6yEeWSaOdZFwB7MQ" type="_DY0sQ76yEeWSaOdZFwB7MQ" direction="return"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Dvnbob6yEeWSaOdZFwB7MQ" name="jpaEntityType" type="_Duuq0b6yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_Dvnbor6yEeWSaOdZFwB7MQ" name="buildFQN" visibility="public" isLeaf="true">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Dvnbo76yEeWSaOdZFwB7MQ" type="_DZIOQL6yEeWSaOdZFwB7MQ" direction="return"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvnbpL6yEeWSaOdZFwB7MQ" name="name" type="_DY0sQ76yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_Dvnbpb6yEeWSaOdZFwB7MQ" name="buildNamespace" visibility="public" isLeaf="true">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvoCsL6yEeWSaOdZFwB7MQ" type="_DY0sQ76yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvoCsb6yEeWSaOdZFwB7MQ" name="buildNaviPropertyName" visibility="public" isLeaf="true">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvoCsr6yEeWSaOdZFwB7MQ" type="_DY0sQ76yEeWSaOdZFwB7MQ" direction="return"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvoCs76yEeWSaOdZFwB7MQ" name="jpaAttribute" type="_Duidkb6yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvoCtL6yEeWSaOdZFwB7MQ" name="buildPropertyFQN" visibility="public" isLeaf="true">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvoCtb6yEeWSaOdZFwB7MQ" type="_DZIOQL6yEeWSaOdZFwB7MQ" direction="return"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvopwL6yEeWSaOdZFwB7MQ" name="jpaAttributeName" type="_DY0sQ76yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_Dvopwb6yEeWSaOdZFwB7MQ" name="buildPropertyName" visibility="public" isLeaf="true">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Dvopwr6yEeWSaOdZFwB7MQ" type="_DY0sQ76yEeWSaOdZFwB7MQ" direction="return"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Dvopw76yEeWSaOdZFwB7MQ" name="jpaAttributeName" type="_DY0sQ76yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                      </packagedElement>
+                      <packagedElement xmi:type="uml:Class" xmi:id="_DZHnMb6yEeWSaOdZFwB7MQ" name="ServicDocument" visibility="public">
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DvrGAL6yEeWSaOdZFwB7MQ" name="jpaMetamodel" visibility="private" isLeaf="true" type="_DvLWwL6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DvrtEL6yEeWSaOdZFwB7MQ" name="nameBuilder" visibility="private" isLeaf="true" type="_DZHAIb6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DvrtEb6yEeWSaOdZFwB7MQ" name="container" visibility="private" isLeaf="true" type="_DvL90b6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DvrtEr6yEeWSaOdZFwB7MQ" name="schemaListInternalKey" visibility="private" isLeaf="true" type="_DY16Yb6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvsUIL6yEeWSaOdZFwB7MQ" name="getEdmEntityContainer" visibility="public">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvsUIb6yEeWSaOdZFwB7MQ" type="_DZI1Ur6yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvsUIr6yEeWSaOdZFwB7MQ" name="getEdmSchemas" visibility="public">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvsUI76yEeWSaOdZFwB7MQ" type="_DZOU4b6yEeWSaOdZFwB7MQ" direction="return">
+                            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_Dvs7ML6yEeWSaOdZFwB7MQ"/>
+                            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_Dvs7Mb6yEeWSaOdZFwB7MQ" value="*"/>
+                          </ownedParameter>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_Dvs7M76yEeWSaOdZFwB7MQ" name="getEntity" visibility="public">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Dvs7NL6yEeWSaOdZFwB7MQ" type="_DkctcL6yEeWSaOdZFwB7MQ" direction="return"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Dvs7Nb6yEeWSaOdZFwB7MQ" name="edmEntitySet" type="_Dvs7Mr6yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvtiQL6yEeWSaOdZFwB7MQ" name="buildIntermediateSchemas" visibility="private">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvtiQb6yEeWSaOdZFwB7MQ" type="_DY16Yb6yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvtiQr6yEeWSaOdZFwB7MQ" name="extractEdmSchemas" visibility="private">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvtiQ76yEeWSaOdZFwB7MQ" type="_DZOU4b6yEeWSaOdZFwB7MQ" direction="return">
+                            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_DvtiRL6yEeWSaOdZFwB7MQ"/>
+                            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_DvtiRb6yEeWSaOdZFwB7MQ" value="*"/>
+                          </ownedParameter>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvuJUL6yEeWSaOdZFwB7MQ" name="setContainer" visibility="private"/>
+                      </packagedElement>
+                      <packagedElement xmi:type="uml:Class" xmi:id="_DuO7kL6yEeWSaOdZFwB7MQ" name="IntermediateModelElement" visibility="public" isAbstract="true">
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DuZTob6yEeWSaOdZFwB7MQ" name="postProcessor" visibility="protected" isStatic="true" type="_DY8oEL6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DuZ6sr6yEeWSaOdZFwB7MQ" name="nameBuilder" visibility="protected" isLeaf="true" type="_DZHAIb6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DuahwL6yEeWSaOdZFwB7MQ" name="internalName" visibility="protected" isLeaf="true" type="_DY0sQ76yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_Duahwb6yEeWSaOdZFwB7MQ" name="ignore" visibility="private" type="_DZT0cb6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_Duahwr6yEeWSaOdZFwB7MQ" name="externalName" visibility="private" type="_DY0sQ76yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="_DuZToL6yEeWSaOdZFwB7MQ" name="IntermediateModelElement implements IntermediateModelItemAccess" client="_DuO7kL6yEeWSaOdZFwB7MQ" supplier="_DkslEL6yEeWSaOdZFwB7MQ" contract="_DkslEL6yEeWSaOdZFwB7MQ"/>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DuZ6sL6yEeWSaOdZFwB7MQ" name="SetPostProcessor" isStatic="true">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DuZ6sb6yEeWSaOdZFwB7MQ" name="pP" type="_DY8oEL6yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_Duahw76yEeWSaOdZFwB7MQ" name="getExternalName" visibility="public">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DuahxL6yEeWSaOdZFwB7MQ" type="_DY0sQ76yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DubI0L6yEeWSaOdZFwB7MQ" name="getInternalName" visibility="public">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DubI0b6yEeWSaOdZFwB7MQ" type="_DY0sQ76yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DubI0r6yEeWSaOdZFwB7MQ" name="ignore" visibility="public">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DubI076yEeWSaOdZFwB7MQ" type="_DZT0cb6yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DubI1L6yEeWSaOdZFwB7MQ" name="setExternalName" visibility="public">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DubI1b6yEeWSaOdZFwB7MQ" name="externalName" type="_DY0sQ76yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DubI1r6yEeWSaOdZFwB7MQ" name="setIgnore" visibility="public">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Dubv4L6yEeWSaOdZFwB7MQ" name="ignore" type="_DZT0cb6yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_Dubv4b6yEeWSaOdZFwB7MQ" name="buildEdmItem" visibility="protected" isAbstract="true"/>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_Dubv4r6yEeWSaOdZFwB7MQ" name="extractEdmModelElements" visibility="protected">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Dubv476yEeWSaOdZFwB7MQ" type="_Dkd7kL6yEeWSaOdZFwB7MQ" direction="return">
+                            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_Dubv5L6yEeWSaOdZFwB7MQ"/>
+                            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_DucW8L6yEeWSaOdZFwB7MQ" value="*"/>
+                          </ownedParameter>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DucW8b6yEeWSaOdZFwB7MQ" name="mappingBuffer" type="_DY16Yb6yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DucW8r6yEeWSaOdZFwB7MQ" name="findModelElementByEdmItem" visibility="protected">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DucW876yEeWSaOdZFwB7MQ" type="_DuO7kL6yEeWSaOdZFwB7MQ" direction="return"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DucW9L6yEeWSaOdZFwB7MQ" name="edmEntityItemName" type="_DY0sQ76yEeWSaOdZFwB7MQ"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Duc-AL6yEeWSaOdZFwB7MQ" name="buffer" type="_DY16Yb6yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_Duc-Ar6yEeWSaOdZFwB7MQ" name="returnNullIfEmpty" visibility="protected">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Duc-A76yEeWSaOdZFwB7MQ" type="_Duc-Ab6yEeWSaOdZFwB7MQ" direction="return">
+                            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_DudlEL6yEeWSaOdZFwB7MQ"/>
+                            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_DudlEb6yEeWSaOdZFwB7MQ" value="*"/>
+                          </ownedParameter>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DudlEr6yEeWSaOdZFwB7MQ" name="list" type="_Duc-Ab6yEeWSaOdZFwB7MQ">
+                            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_DudlE76yEeWSaOdZFwB7MQ"/>
+                            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_DudlFL6yEeWSaOdZFwB7MQ" value="*"/>
+                          </ownedParameter>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DudlFb6yEeWSaOdZFwB7MQ" name="getEdmItem" isAbstract="true">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DueMIb6yEeWSaOdZFwB7MQ" type="_DueMIL6yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                      </packagedElement>
+                      <packagedElement xmi:type="uml:Class" xmi:id="_Duc-Ab6yEeWSaOdZFwB7MQ" name="T"/>
+                      <packagedElement xmi:type="uml:Class" xmi:id="_DuhPcL6yEeWSaOdZFwB7MQ" name="IntermediateProperty">
+                        <ownedComment xmi:type="uml:Comment" xmi:id="_DuhPcb6yEeWSaOdZFwB7MQ">
+                          <body>&#xD;
+ * A Property contains on the one hand of the attributes Name and Type and on the other hand of the Property Facets. A&#xD;
+ * type is either a&#xD;
+ * primitive type, a complex type or a enumeration type. Primitive types are mapped by&#xD;
+ * {@link org.apache.olingo.odata4.jpa.processor.core.edm.mapper.impl.JPATypeConvertor}.&#xD;
+ * &#xD;
+ * &lt;p>For details about Property metadata see:&#xD;
+ * &lt;a href=&#xD;
+ * &quot;https://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406397954&quot;&#xD;
+ * >OData Version 4.0 Part 3 - 6 Structural Property &lt;/a>&#xD;
+ * &#xD;
+ * &#xD;
+ * @author Oliver Grande&#xD;
+ *&#xD;
+ </body>
+                        </ownedComment>
+                        <generalization xmi:type="uml:Generalization" xmi:id="_Duh2gL6yEeWSaOdZFwB7MQ" general="_DuO7kL6yEeWSaOdZFwB7MQ"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_Duidkr6yEeWSaOdZFwB7MQ" name="jpaAttribute" visibility="protected" isLeaf="true" type="_Duidkb6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DujEob6yEeWSaOdZFwB7MQ" name="schema" visibility="protected" isLeaf="true" type="_DujEoL6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DujEo76yEeWSaOdZFwB7MQ" name="edmProperty" visibility="protected" type="_DujEor6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_Dujrsb6yEeWSaOdZFwB7MQ" name="type" visibility="private" type="_DujrsL6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_Dujrsr6yEeWSaOdZFwB7MQ" name="valueConverter" visibility="private" type="_DZR_QL6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="_Duh2gb6yEeWSaOdZFwB7MQ" name="IntermediateProperty implements IntermediatePropertyAccess" client="_DuhPcL6yEeWSaOdZFwB7MQ" supplier="_DpXCoL6yEeWSaOdZFwB7MQ" contract="_DpXCoL6yEeWSaOdZFwB7MQ"/>
+                        <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="_Duh2gr6yEeWSaOdZFwB7MQ" name="IntermediateProperty implements JPAAttribute" client="_DuhPcL6yEeWSaOdZFwB7MQ" supplier="_DZRYML6yEeWSaOdZFwB7MQ" contract="_DZRYML6yEeWSaOdZFwB7MQ"/>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DukSwL6yEeWSaOdZFwB7MQ" name="getConverter" visibility="public">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DukSwb6yEeWSaOdZFwB7MQ" type="_DZR_QL6yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DukSwr6yEeWSaOdZFwB7MQ" name="getStructuredType" visibility="public">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DukSw76yEeWSaOdZFwB7MQ" type="_DkZqIL6yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DukSxL6yEeWSaOdZFwB7MQ" name="getType" visibility="public">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DukSxb6yEeWSaOdZFwB7MQ" type="_DZTNYb6yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_Duk50L6yEeWSaOdZFwB7MQ" name="isComplex" visibility="public">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Duk50b6yEeWSaOdZFwB7MQ" type="_DZT0cb6yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_Duk50r6yEeWSaOdZFwB7MQ" name="isKey" visibility="public">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Duk5076yEeWSaOdZFwB7MQ" type="_DZT0cb6yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_Duk51L6yEeWSaOdZFwB7MQ" name="buildEdmItem" visibility="protected"/>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_Dulg4L6yEeWSaOdZFwB7MQ" name="getEdmItem">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Dulg4b6yEeWSaOdZFwB7MQ" type="_DujEor6yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_Dulg4r6yEeWSaOdZFwB7MQ" name="buildProperty" visibility="private">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Dulg476yEeWSaOdZFwB7MQ" name="nameBuilder" type="_DZHAIb6yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                      </packagedElement>
+                      <packagedElement xmi:type="uml:Class" xmi:id="_DujEoL6yEeWSaOdZFwB7MQ" name="IntermediateSchema">
+                        <ownedComment xmi:type="uml:Comment" xmi:id="_DvKvsL6yEeWSaOdZFwB7MQ">
+                          <body>&#xD;
+ * &lt;p>For details about Schema metadata see:&#xD;
+ * &lt;a href=&#xD;
+ * &quot;https://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406397946&quot;&#xD;
+ * >OData Version 4.0 Part 3 - 5 Schema &lt;/a>&#xD;
+ * @author Oliver Grande&#xD;
+ *&#xD;
+ </body>
+                        </ownedComment>
+                        <generalization xmi:type="uml:Generalization" xmi:id="_DvKvsb6yEeWSaOdZFwB7MQ" general="_DuO7kL6yEeWSaOdZFwB7MQ"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DvLWwb6yEeWSaOdZFwB7MQ" name="jpaMetamodel" visibility="private" isLeaf="true" type="_DvLWwL6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DvLWwr6yEeWSaOdZFwB7MQ" name="complexTypeListInternalKey" visibility="private" isLeaf="true" type="_DY16Yb6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DvLWw76yEeWSaOdZFwB7MQ" name="entityTypeListInternalKey" visibility="private" isLeaf="true" type="_DY16Yb6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DvL90L6yEeWSaOdZFwB7MQ" name="functionListInternalKey" visibility="private" isLeaf="true" type="_DY16Yb6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DvL90r6yEeWSaOdZFwB7MQ" name="container" visibility="private" type="_DvL90b6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DvL9076yEeWSaOdZFwB7MQ" name="edmSchema" visibility="private" type="_DZOU4b6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvMk4L6yEeWSaOdZFwB7MQ" name="buildEdmItem" visibility="protected"/>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvMk4b6yEeWSaOdZFwB7MQ" name="getEdmItem">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvMk4r6yEeWSaOdZFwB7MQ" type="_DZOU4b6yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvMk476yEeWSaOdZFwB7MQ" name="getEntityType">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvMk5L6yEeWSaOdZFwB7MQ" type="_DujrsL6yEeWSaOdZFwB7MQ" direction="return"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvMk5b6yEeWSaOdZFwB7MQ" name="jpaAttribute" type="_Duidkb6yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvMk5r6yEeWSaOdZFwB7MQ" name="getEntityType">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvNL8L6yEeWSaOdZFwB7MQ" type="_DujrsL6yEeWSaOdZFwB7MQ" direction="return"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvNL8b6yEeWSaOdZFwB7MQ" name="targetClass" type="_DZTNYb6yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvNL8r6yEeWSaOdZFwB7MQ" name="getEntityTypes">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvNL876yEeWSaOdZFwB7MQ" type="_DuzjUL6yEeWSaOdZFwB7MQ" direction="return">
+                            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_DvNL9L6yEeWSaOdZFwB7MQ"/>
+                            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_DvNL9b6yEeWSaOdZFwB7MQ" value="*"/>
+                          </ownedParameter>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvNzAL6yEeWSaOdZFwB7MQ" name="setContainer">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvNzAb6yEeWSaOdZFwB7MQ" name="container" type="_DvL90b6yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvNzAr6yEeWSaOdZFwB7MQ" name="buildComplexTypeList" visibility="private">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvNzA76yEeWSaOdZFwB7MQ" type="_DY16Yb6yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvNzBL6yEeWSaOdZFwB7MQ" name="buildEntityTypeList" visibility="private">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvNzBb6yEeWSaOdZFwB7MQ" type="_DY16Yb6yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvNzBr6yEeWSaOdZFwB7MQ" name="buildFunctionList" visibility="private">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvOaEL6yEeWSaOdZFwB7MQ" type="_DY16Yb6yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                      </packagedElement>
+                      <packagedElement xmi:type="uml:Class" xmi:id="_DujrsL6yEeWSaOdZFwB7MQ" name="IntermediateStructuredType" isAbstract="true">
+                        <generalization xmi:type="uml:Generalization" xmi:id="_DupyUL6yEeWSaOdZFwB7MQ" general="_DuO7kL6yEeWSaOdZFwB7MQ"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DupyUr6yEeWSaOdZFwB7MQ" name="propertyListInternalKey" visibility="protected" isLeaf="true" type="_DY16Yb6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DuqZYL6yEeWSaOdZFwB7MQ" name="naviPropertyListInternalKey" visibility="protected" isLeaf="true" type="_DY16Yb6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DuqZYr6yEeWSaOdZFwB7MQ" name="jpaManagedType" visibility="protected" isLeaf="true" type="_DuqZYb6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DurAcL6yEeWSaOdZFwB7MQ" name="schema" visibility="protected" isLeaf="true" type="_DujEoL6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="_DupyUb6yEeWSaOdZFwB7MQ" name="IntermediateStructuredType implements JPAStructuredType" client="_DujrsL6yEeWSaOdZFwB7MQ" supplier="_DkZqIL6yEeWSaOdZFwB7MQ" contract="_DkZqIL6yEeWSaOdZFwB7MQ"/>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DurAcb6yEeWSaOdZFwB7MQ" name="getAttribute" visibility="public">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DurAcr6yEeWSaOdZFwB7MQ" type="_DZRYML6yEeWSaOdZFwB7MQ" direction="return"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DurAc76yEeWSaOdZFwB7MQ" name="internalName" type="_DY0sQ76yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DurngL6yEeWSaOdZFwB7MQ" name="getAttributes" visibility="public">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Durngb6yEeWSaOdZFwB7MQ" type="_DZRYML6yEeWSaOdZFwB7MQ" direction="return">
+                            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_Durngr6yEeWSaOdZFwB7MQ"/>
+                            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_Durng76yEeWSaOdZFwB7MQ" value="*"/>
+                          </ownedParameter>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DurnhL6yEeWSaOdZFwB7MQ" name="getExternalFQN" visibility="public">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DusOkL6yEeWSaOdZFwB7MQ" type="_DZIOQL6yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DusOkb6yEeWSaOdZFwB7MQ" name="getTypeClass" visibility="public">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DusOkr6yEeWSaOdZFwB7MQ" type="_DZTNYb6yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DusOk76yEeWSaOdZFwB7MQ" name="buildPropertyList" visibility="protected"/>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DusOlL6yEeWSaOdZFwB7MQ" name="getEdmItem" isAbstract="true">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Dus1oL6yEeWSaOdZFwB7MQ" type="_DusOlb6yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                      </packagedElement>
+                      <packagedElement xmi:type="uml:Class" xmi:id="_Duuq0L6yEeWSaOdZFwB7MQ" name="IntermediateFunctionFactory">
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DuvR4L6yEeWSaOdZFwB7MQ" name="create">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DuvR4r6yEeWSaOdZFwB7MQ" type="_DuvR4b6yEeWSaOdZFwB7MQ" direction="return"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DuvR476yEeWSaOdZFwB7MQ" name="nameBuilder" type="_DZHAIb6yEeWSaOdZFwB7MQ"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DuvR5L6yEeWSaOdZFwB7MQ" name="jpaEntityType" type="_Duuq0b6yEeWSaOdZFwB7MQ"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Duv48L6yEeWSaOdZFwB7MQ" name="schema" type="_DujEoL6yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_Duv4876yEeWSaOdZFwB7MQ" name="putFunction" visibility="private">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Duv49L6yEeWSaOdZFwB7MQ" name="nameBuilder" type="_DZHAIb6yEeWSaOdZFwB7MQ"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Duv49b6yEeWSaOdZFwB7MQ" name="jpaEntityType" type="_Duuq0b6yEeWSaOdZFwB7MQ"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DuwgAL6yEeWSaOdZFwB7MQ" name="schema" type="_DujEoL6yEeWSaOdZFwB7MQ"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DuwgAb6yEeWSaOdZFwB7MQ" name="funcList" type="_DY16Yb6yEeWSaOdZFwB7MQ"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DuwgAr6yEeWSaOdZFwB7MQ" name="jpaStoredProcedure" type="_Duv48r6yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                      </packagedElement>
+                      <packagedElement xmi:type="uml:Class" xmi:id="_Duy8QL6yEeWSaOdZFwB7MQ" name="IntermediateEntitySet">
+                        <ownedComment xmi:type="uml:Comment" xmi:id="_Duy8Qb6yEeWSaOdZFwB7MQ">
+                          <body>&#xD;
+ * &#xD;
+ * @author Oliver Grande&#xD;
+ *&#xD;
+ </body>
+                        </ownedComment>
+                        <generalization xmi:type="uml:Generalization" xmi:id="_Duy8Qr6yEeWSaOdZFwB7MQ" general="_DuO7kL6yEeWSaOdZFwB7MQ"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DuzjUb6yEeWSaOdZFwB7MQ" name="entityType" visibility="private" isLeaf="true" type="_DuzjUL6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DuzjUr6yEeWSaOdZFwB7MQ" name="edmEntitySet" visibility="private" type="_DZKDcL6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DuzjU76yEeWSaOdZFwB7MQ" name="getEntityType" visibility="public">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Du0KYL6yEeWSaOdZFwB7MQ" type="_DkctcL6yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_Du0KYb6yEeWSaOdZFwB7MQ" name="buildEdmItem" visibility="protected"/>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_Du0KYr6yEeWSaOdZFwB7MQ" name="getEdmItem">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Du0KY76yEeWSaOdZFwB7MQ" type="_DZKDcL6yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                      </packagedElement>
+                      <packagedElement xmi:type="uml:Class" xmi:id="_DuzjUL6yEeWSaOdZFwB7MQ" name="IntermediateEntityType">
+                        <ownedComment xmi:type="uml:Comment" xmi:id="_Dvb1cL6yEeWSaOdZFwB7MQ">
+                          <body>&#xD;
+ * &lt;a href=&#xD;
+ * &quot;https://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406397974&quot;&#xD;
+ * >OData Version 4.0 Part 3 - 8 Entity Type&lt;/a>&#xD;
+ * @author Oliver Grande&#xD;
+ *&#xD;
+ </body>
+                        </ownedComment>
+                        <generalization xmi:type="uml:Generalization" xmi:id="_DvccgL6yEeWSaOdZFwB7MQ" general="_DujrsL6yEeWSaOdZFwB7MQ"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_Dvccgr6yEeWSaOdZFwB7MQ" name="edmEntityType" visibility="private" type="_DZKqgr6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="_Dvccgb6yEeWSaOdZFwB7MQ" name="IntermediateEntityType implements JPAEntityType" client="_DuzjUL6yEeWSaOdZFwB7MQ" supplier="_DkctcL6yEeWSaOdZFwB7MQ" contract="_DkctcL6yEeWSaOdZFwB7MQ"/>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvdDkL6yEeWSaOdZFwB7MQ" name="getAttributeByExternalName" visibility="public">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvdDkb6yEeWSaOdZFwB7MQ" type="_DZRYML6yEeWSaOdZFwB7MQ" direction="return"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvdqoL6yEeWSaOdZFwB7MQ" name="externalName" type="_DY0sQ76yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_Dvdqob6yEeWSaOdZFwB7MQ" name="getKey" visibility="public">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Dvdqor6yEeWSaOdZFwB7MQ" type="_Dkd7kL6yEeWSaOdZFwB7MQ" direction="return">
+                            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_Dvdqo76yEeWSaOdZFwB7MQ"/>
+                            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_DveRsL6yEeWSaOdZFwB7MQ" value="*"/>
+                          </ownedParameter>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DveRsb6yEeWSaOdZFwB7MQ" name="buildEdmItem" visibility="protected"/>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DveRsr6yEeWSaOdZFwB7MQ" name="getEdmItem">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DveRs76yEeWSaOdZFwB7MQ" type="_DZKqgr6yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DveRtL6yEeWSaOdZFwB7MQ" name="determineAbstract" visibility="private">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Dve4wL6yEeWSaOdZFwB7MQ" type="_DZT0cb6yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_Dve4wb6yEeWSaOdZFwB7MQ" name="determineBaseType" visibility="private">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Dve4wr6yEeWSaOdZFwB7MQ" type="_DZIOQL6yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_Dve4w76yEeWSaOdZFwB7MQ" name="extractEdmKeyElements" visibility="private">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Dvff0b6yEeWSaOdZFwB7MQ" type="_Dvff0L6yEeWSaOdZFwB7MQ" direction="return">
+                            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_Dvff0r6yEeWSaOdZFwB7MQ"/>
+                            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_Dvff076yEeWSaOdZFwB7MQ" value="*"/>
+                          </ownedParameter>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Dvff1L6yEeWSaOdZFwB7MQ" name="propertyList" type="_DY16Yb6yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                      </packagedElement>
+                      <packagedElement xmi:type="uml:Class" xmi:id="_Du1YgL6yEeWSaOdZFwB7MQ" name="DefaultEdmPostProcessor">
+                        <generalization xmi:type="uml:Generalization" xmi:id="_Du1Ygb6yEeWSaOdZFwB7MQ" general="_DY8oEL6yEeWSaOdZFwB7MQ"/>
+                      </packagedElement>
+                      <packagedElement xmi:type="uml:Class" xmi:id="_Du64EL6yEeWSaOdZFwB7MQ" name="IntermediateFunction">
+                        <ownedComment xmi:type="uml:Comment" xmi:id="_Du7fIL6yEeWSaOdZFwB7MQ">
+                          <body>&#xD;
+ * Mapper, that is able to convert different metadata resources into a edm function metadata. It is important to know&#xD;
+ * that:&#xD;
+ * &lt;cite>Functions MUST NOT have observable side effects and MUST return a single instance or a collection of instances&#xD;
+ * of any type.&lt;/cite>&#xD;
+ * &lt;p>For details about Function metadata see:&#xD;
+ * &lt;a href=&#xD;
+ * &quot;https://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406398010&quot;&#xD;
+ * >OData Version 4.0 Part 3 - 12.2 Element edm:Function &lt;/a>&#xD;
+ * @author Oliver Grande&#xD;
+ *&#xD;
+ </body>
+                        </ownedComment>
+                        <generalization xmi:type="uml:Generalization" xmi:id="_Du7fIb6yEeWSaOdZFwB7MQ" general="_DuO7kL6yEeWSaOdZFwB7MQ"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_Du7fIr6yEeWSaOdZFwB7MQ" name="edmFunction" visibility="private" type="_DZMfsb6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_Du7fI76yEeWSaOdZFwB7MQ" name="jpaStoredProcedure" visibility="private" isLeaf="true" type="_Duv48r6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_Du8GML6yEeWSaOdZFwB7MQ" name="schema" visibility="private" isLeaf="true" type="_DujEoL6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_Du8GMb6yEeWSaOdZFwB7MQ" name="jpaDefiningPOJO" visibility="private" isLeaf="true" type="_DZTNYb6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_Du8GMr6yEeWSaOdZFwB7MQ" name="buildEdmItem" visibility="protected"/>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_Du8tQL6yEeWSaOdZFwB7MQ" name="getEdmItem">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Du8tQb6yEeWSaOdZFwB7MQ" type="_DZMfsb6yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_Du8tQr6yEeWSaOdZFwB7MQ" name="getStoredProcedure">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Du8tQ76yEeWSaOdZFwB7MQ" type="_DY0sQ76yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_Du8tRL6yEeWSaOdZFwB7MQ" name="determineEdmInputParameter" visibility="private">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Du9UUb6yEeWSaOdZFwB7MQ" type="_Du9UUL6yEeWSaOdZFwB7MQ" direction="return">
+                            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_Du9UUr6yEeWSaOdZFwB7MQ"/>
+                            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_Du9UU76yEeWSaOdZFwB7MQ" value="*"/>
+                          </ownedParameter>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_Du97YL6yEeWSaOdZFwB7MQ" name="determineEdmResultType" visibility="private">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Du97Yr6yEeWSaOdZFwB7MQ" type="_Du97Yb6yEeWSaOdZFwB7MQ" direction="return"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Du-icL6yEeWSaOdZFwB7MQ" name="returnType" type="_Du9UVb6yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                      </packagedElement>
+                      <packagedElement xmi:type="uml:Class" xmi:id="_DvA-sL6yEeWSaOdZFwB7MQ" name="IntermediateComplexType">
+                        <ownedComment xmi:type="uml:Comment" xmi:id="_DvBlwL6yEeWSaOdZFwB7MQ">
+                          <body>&#xD;
+ * Complex Types are used to structure Entity Types by grouping properties that belong together. Complex Types can&#xD;
+ * contain of&#xD;
+ * &lt;ul> &lt;li> Properties &lt;li> Navigation Properties&lt;/ul>&#xD;
+ * This means that they can contain of primitive, complex, or enumeration type, or a collection of primitive, complex,&#xD;
+ * or enumeration types.&lt;p>&#xD;
+ * &lt;b>Limitation:&lt;/b> As of now the attributes BaseType, Abstract and OpenType are not supported. There is also no&#xD;
+ * support for nested complex types &lt;p>&#xD;
+ * Complex Types are generated from JPA Embeddable Types.&#xD;
+ * &lt;p>For details about Complex Type metadata see:&#xD;
+ * &lt;a href=&#xD;
+ * &quot;http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406397985&quot;&#xD;
+ * >OData Version 4.0 Part 3 - 9 Complex Type&lt;/a>&#xD;
+ * @author Oliver Grande&#xD;
+ *&#xD;
+ </body>
+                        </ownedComment>
+                        <generalization xmi:type="uml:Generalization" xmi:id="_DvBlwb6yEeWSaOdZFwB7MQ" general="_DujrsL6yEeWSaOdZFwB7MQ"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DvBlwr6yEeWSaOdZFwB7MQ" name="edmComplexType" visibility="private" type="_DZIOQr6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvBlw76yEeWSaOdZFwB7MQ" name="buildEdmItem" visibility="protected"/>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvBlxL6yEeWSaOdZFwB7MQ" name="getEdmItem">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvCM0L6yEeWSaOdZFwB7MQ" type="_DZIOQr6yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvCM0b6yEeWSaOdZFwB7MQ" name="getProperty">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvCM0r6yEeWSaOdZFwB7MQ" type="_DpXCoL6yEeWSaOdZFwB7MQ" direction="return"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvCM076yEeWSaOdZFwB7MQ" name="internalName" type="_DY0sQ76yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                      </packagedElement>
+                      <packagedElement xmi:type="uml:Class" xmi:id="_DvEpEL6yEeWSaOdZFwB7MQ" name="IntermediateNavigationProperty">
+                        <ownedComment xmi:type="uml:Comment" xmi:id="_DvFQIL6yEeWSaOdZFwB7MQ">
+                          <body>&#xD;
+ * http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-&#xD;
+ * complete.html#_Toc406397962&#xD;
+ * @author Oliver Grande&#xD;
+ *&#xD;
+ </body>
+                        </ownedComment>
+                        <generalization xmi:type="uml:Generalization" xmi:id="_DvFQIb6yEeWSaOdZFwB7MQ" general="_DuO7kL6yEeWSaOdZFwB7MQ"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DvFQI76yEeWSaOdZFwB7MQ" name="jpaAttribute" visibility="private" isLeaf="true" type="_Duidkb6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DvF3Mb6yEeWSaOdZFwB7MQ" name="edmNaviProperty" visibility="private" type="_DvF3ML6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DvF3Mr6yEeWSaOdZFwB7MQ" name="targetType" visibility="private" type="_DujrsL6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DvF3M76yEeWSaOdZFwB7MQ" name="schema" visibility="private" isLeaf="true" type="_DujEoL6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="_DvFQIr6yEeWSaOdZFwB7MQ" name="IntermediateNavigationProperty implements IntermediateNavigationPropertyAccess" client="_DvEpEL6yEeWSaOdZFwB7MQ" supplier="_DuL4QL6yEeWSaOdZFwB7MQ" contract="_DuL4QL6yEeWSaOdZFwB7MQ"/>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvF3NL6yEeWSaOdZFwB7MQ" name="buildEdmItem" visibility="protected"/>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvF3Nb6yEeWSaOdZFwB7MQ" name="getEdmItem">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvGeQL6yEeWSaOdZFwB7MQ" type="_DvF3ML6yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvGeQb6yEeWSaOdZFwB7MQ" name="buildNaviProperty" visibility="private"/>
+                      </packagedElement>
+                      <packagedElement xmi:type="uml:Class" xmi:id="_DvITcL6yEeWSaOdZFwB7MQ" name="IntermediateDescriptionProperty">
+                        <generalization xmi:type="uml:Generalization" xmi:id="_DvI6gL6yEeWSaOdZFwB7MQ" general="_DuhPcL6yEeWSaOdZFwB7MQ"/>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvI6gb6yEeWSaOdZFwB7MQ" name="buildEdmItem" visibility="protected"/>
+                      </packagedElement>
+                      <packagedElement xmi:type="uml:Class" xmi:id="_DvL90b6yEeWSaOdZFwB7MQ" name="IntermediateEntityContainer">
+                        <generalization xmi:type="uml:Generalization" xmi:id="_DvRdYL6yEeWSaOdZFwB7MQ" general="_DuO7kL6yEeWSaOdZFwB7MQ"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DvSEcL6yEeWSaOdZFwB7MQ" name="schemaList" visibility="private" isLeaf="true" type="_DY16Yb6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DvSEcb6yEeWSaOdZFwB7MQ" name="entitySetListInternalKey" visibility="private" isLeaf="true" type="_DY16Yb6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DvSEcr6yEeWSaOdZFwB7MQ" name="edmContainer" visibility="private" type="_DZI1Ur6yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvSEc76yEeWSaOdZFwB7MQ" name="buildEdmItem" visibility="protected"/>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvSrgL6yEeWSaOdZFwB7MQ" name="getEdmItem">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvSrgb6yEeWSaOdZFwB7MQ" type="_DZI1Ur6yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvSrgr6yEeWSaOdZFwB7MQ" name="getEntityTypeSet">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvSrg76yEeWSaOdZFwB7MQ" type="_Duy8QL6yEeWSaOdZFwB7MQ" direction="return"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvSrhL6yEeWSaOdZFwB7MQ" name="edmEntitySetName" type="_DY0sQ76yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvTSkL6yEeWSaOdZFwB7MQ" name="buildEntitySets" visibility="private">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvTSkb6yEeWSaOdZFwB7MQ" type="_DZKDcL6yEeWSaOdZFwB7MQ" direction="return">
+                            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_DvTSkr6yEeWSaOdZFwB7MQ"/>
+                            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_DvTSk76yEeWSaOdZFwB7MQ" value="*"/>
+                          </ownedParameter>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvTSlL6yEeWSaOdZFwB7MQ" name="buildFunctionImport" visibility="private">
+                          <ownedComment xmi:type="uml:Comment" xmi:id="_DvTSlb6yEeWSaOdZFwB7MQ">
+                            <body>&#xD;
+   * Entity Sets are described in &lt;a href=&#xD;
+   * &quot; https://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406398042&quot;&#xD;
+   * >OData Version 4.0 Part 3 - 13.6 Element edm:FunctionImport&lt;/a>&#xD;
+   * @param Entity Type&#xD;
+   * @return Entity Set&#xD;
+   </body>
+                          </ownedComment>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvTSlr6yEeWSaOdZFwB7MQ" type="_DZLRkr6yEeWSaOdZFwB7MQ" direction="return"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvT5oL6yEeWSaOdZFwB7MQ" name="edmFu" type="_DZMfsb6yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvT5ob6yEeWSaOdZFwB7MQ" name="buildFunctionImports" visibility="private">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvT5or6yEeWSaOdZFwB7MQ" type="_DZLRkr6yEeWSaOdZFwB7MQ" direction="return">
+                            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_DvT5o76yEeWSaOdZFwB7MQ"/>
+                            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_DvT5pL6yEeWSaOdZFwB7MQ" value="*"/>
+                          </ownedParameter>
+                        </ownedOperation>
+                      </packagedElement>
+                      <packagedElement xmi:type="uml:Class" xmi:id="_DvW88L6yEeWSaOdZFwB7MQ" name="JPATypeConvertor" visibility="public">
+                        <ownedComment xmi:type="uml:Comment" xmi:id="_DvW88b6yEeWSaOdZFwB7MQ">
+                          <body>&#xD;
+ * This class holds utility methods for Type conversions between JPA and OData Types. First step support V2 Types&#xD;
+ * &#xD;
+ * &#xD;
+ </body>
+                        </ownedComment>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvW88r6yEeWSaOdZFwB7MQ" name="convertToEdmSimpleType" visibility="public" isStatic="true">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvXkAb6yEeWSaOdZFwB7MQ" type="_DvXkAL6yEeWSaOdZFwB7MQ" direction="return"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvXkAr6yEeWSaOdZFwB7MQ" name="type" type="_DZTNYb6yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvYLEL6yEeWSaOdZFwB7MQ" name="convertToEdmSimpleType" visibility="public" isStatic="true">
+                          <ownedComment xmi:type="uml:Comment" xmi:id="_DvYLEb6yEeWSaOdZFwB7MQ">
+                            <body>&#xD;
+   * This utility method converts a given jpa Type to equivalent EdmPrimitiveTypeKind for maintaining compatibility&#xD;
+   * between Java and OData Types.&#xD;
+   * &#xD;
+   * @param jpaType&#xD;
+   * The JPA Type input.&#xD;
+   * @return The corresponding EdmPrimitiveTypeKind.&#xD;
+   * @throws ODataJPAModelException&#xD;
+   * @throws org.apache.olingo.odata2.jpa.processor.api.exception.ODataJPARuntimeException&#xD;
+   * &#xD;
+   * @see EdmPrimitiveTypeKind&#xD;
+   </body>
+                          </ownedComment>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvYLEr6yEeWSaOdZFwB7MQ" type="_DvXkAL6yEeWSaOdZFwB7MQ" direction="return"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvYyIL6yEeWSaOdZFwB7MQ" name="jpaType" type="_DZTNYb6yEeWSaOdZFwB7MQ"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvYyIb6yEeWSaOdZFwB7MQ" name="currentAttribute" type="_Duidkb6yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvYyIr6yEeWSaOdZFwB7MQ" name="determineTemporalType" visibility="private" isStatic="true">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvYyJL6yEeWSaOdZFwB7MQ" type="_DvYyI76yEeWSaOdZFwB7MQ" direction="return"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvZZML6yEeWSaOdZFwB7MQ" name="currentAttribute" type="_Duidkb6yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DvZZMb6yEeWSaOdZFwB7MQ" name="isBlob" visibility="private" isStatic="true">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvZZMr6yEeWSaOdZFwB7MQ" type="_DZT0cb6yEeWSaOdZFwB7MQ" direction="return"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DvZZM76yEeWSaOdZFwB7MQ" name="currentAttribute" type="_Duidkb6yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                      </packagedElement>
+                    </packagedElement>
+                    <packagedElement xmi:type="uml:Package" xmi:id="_DZQxIL6yEeWSaOdZFwB7MQ" name="api">
+                      <packagedElement xmi:type="uml:Interface" xmi:id="_DZRYML6yEeWSaOdZFwB7MQ" name="JPAAttribute" visibility="public">
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DZRYMb6yEeWSaOdZFwB7MQ" name="getConverter" visibility="public">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DZR_Qb6yEeWSaOdZFwB7MQ" type="_DZR_QL6yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DZR_Qr6yEeWSaOdZFwB7MQ" name="getExternalName" visibility="public">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DZR_Q76yEeWSaOdZFwB7MQ" type="_DY0sQ76yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DZSmUL6yEeWSaOdZFwB7MQ" name="getInternalName" visibility="public">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DZSmUb6yEeWSaOdZFwB7MQ" type="_DY0sQ76yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DZSmUr6yEeWSaOdZFwB7MQ" name="getStructuredType" visibility="public">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DZSmVL6yEeWSaOdZFwB7MQ" type="_DkZqIL6yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DZTNYL6yEeWSaOdZFwB7MQ" name="getType" visibility="public">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DZTNYr6yEeWSaOdZFwB7MQ" type="_DZTNYb6yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DZTNY76yEeWSaOdZFwB7MQ" name="isComplex" visibility="public">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DZT0cr6yEeWSaOdZFwB7MQ" type="_DZT0cb6yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DZT0c76yEeWSaOdZFwB7MQ" name="isKey" visibility="public">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DZT0dL6yEeWSaOdZFwB7MQ" type="_DZT0cb6yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                      </packagedElement>
+                      <packagedElement xmi:type="uml:Interface" xmi:id="_DkZqIL6yEeWSaOdZFwB7MQ" name="JPAStructuredType" visibility="public">
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DkaRML6yEeWSaOdZFwB7MQ" name="getAttributes" visibility="public">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DkaRMb6yEeWSaOdZFwB7MQ" type="_DZRYML6yEeWSaOdZFwB7MQ" direction="return">
+                            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_Dka4QL6yEeWSaOdZFwB7MQ"/>
+                            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_Dka4Qb6yEeWSaOdZFwB7MQ" value="*"/>
+                          </ownedParameter>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_Dka4Qr6yEeWSaOdZFwB7MQ" name="getExternalFQN" visibility="public">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Dka4Q76yEeWSaOdZFwB7MQ" type="_DZIOQL6yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_Dka4RL6yEeWSaOdZFwB7MQ" name="getTypeClass" visibility="public">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Dka4Rb6yEeWSaOdZFwB7MQ" type="_DZTNYb6yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DkbfUL6yEeWSaOdZFwB7MQ" name="getAttribute">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DkbfUb6yEeWSaOdZFwB7MQ" type="_DZRYML6yEeWSaOdZFwB7MQ" direction="return"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DkbfUr6yEeWSaOdZFwB7MQ" name="internalName" type="_DY0sQ76yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                      </packagedElement>
+                      <packagedElement xmi:type="uml:Interface" xmi:id="_DkctcL6yEeWSaOdZFwB7MQ" name="JPAEntityType" visibility="public">
+                        <generalization xmi:type="uml:Generalization" xmi:id="_DkdUgL6yEeWSaOdZFwB7MQ" general="_DkZqIL6yEeWSaOdZFwB7MQ"/>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DkdUgb6yEeWSaOdZFwB7MQ" name="getAttributeByExternalName">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DkdUgr6yEeWSaOdZFwB7MQ" type="_DZRYML6yEeWSaOdZFwB7MQ" direction="return"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DkdUg76yEeWSaOdZFwB7MQ" name="externalName" type="_DY0sQ76yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DkdUhL6yEeWSaOdZFwB7MQ" name="getKey">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Dkd7kb6yEeWSaOdZFwB7MQ" type="_Dkd7kL6yEeWSaOdZFwB7MQ" direction="return">
+                            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_Dkd7kr6yEeWSaOdZFwB7MQ"/>
+                            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_Dkd7k76yEeWSaOdZFwB7MQ" value="*"/>
+                          </ownedParameter>
+                        </ownedOperation>
+                      </packagedElement>
+                    </packagedElement>
+                    <packagedElement xmi:type="uml:Package" xmi:id="_Dkg-4L6yEeWSaOdZFwB7MQ" name="exception">
+                      <packagedElement xmi:type="uml:Class" xmi:id="_Dkhl8L6yEeWSaOdZFwB7MQ" name="ODataJPAModelException" visibility="public">
+                        <generalization xmi:type="uml:Generalization" xmi:id="_DkiNAr6yEeWSaOdZFwB7MQ" general="_DkiNAb6yEeWSaOdZFwB7MQ"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_Dki0Eb6yEeWSaOdZFwB7MQ" name="serialVersionUID" visibility="private" isLeaf="true" isStatic="true" type="_Dki0EL6yEeWSaOdZFwB7MQ" isUnique="false">
+                          <ownedComment xmi:type="uml:Comment" xmi:id="_Dki0Er6yEeWSaOdZFwB7MQ">
+                            <body>&#xD;
+   * &#xD;
+   </body>
+                          </ownedComment>
+                        </ownedAttribute>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DkjbIL6yEeWSaOdZFwB7MQ" name="INVALID_ENTITY_TYPE" visibility="public" isLeaf="true" isStatic="true" type="_DY0sQ76yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DkkCML6yEeWSaOdZFwB7MQ" name="INVALID_COMPLEX_TYPE" visibility="public" isLeaf="true" isStatic="true" type="_DY0sQ76yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DkkCMb6yEeWSaOdZFwB7MQ" name="INVALID_ASSOCIATION" visibility="public" isLeaf="true" isStatic="true" type="_DY0sQ76yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DkkpQL6yEeWSaOdZFwB7MQ" name="INVALID_ENTITYSET" visibility="public" isLeaf="true" isStatic="true" type="_DY0sQ76yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DkkpQb6yEeWSaOdZFwB7MQ" name="INVALID_ENTITYCONTAINER" visibility="public" isLeaf="true" isStatic="true" type="_DY0sQ76yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DklQUL6yEeWSaOdZFwB7MQ" name="INVALID_ASSOCIATION_SET" visibility="public" isLeaf="true" isStatic="true" type="_DY0sQ76yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DklQUb6yEeWSaOdZFwB7MQ" name="INVALID_FUNC_IMPORT" visibility="public" isLeaf="true" isStatic="true" type="_DY0sQ76yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DklQUr6yEeWSaOdZFwB7MQ" name="BUILDER_NULL" visibility="public" isLeaf="true" isStatic="true" type="_DY0sQ76yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_Dkl3YL6yEeWSaOdZFwB7MQ" name="TYPE_NOT_SUPPORTED" visibility="public" isLeaf="true" isStatic="true" type="_DY0sQ76yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_Dkl3Yb6yEeWSaOdZFwB7MQ" name="FUNC_ENTITYSET_EXP" visibility="public" isLeaf="true" isStatic="true" type="_DY0sQ76yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DkmecL6yEeWSaOdZFwB7MQ" name="FUNC_RETURN_TYPE_EXP" visibility="public" isLeaf="true" isStatic="true" type="_DY0sQ76yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_Dkmecb6yEeWSaOdZFwB7MQ" name="FUNC_RETURN_TYPE_ENTITY_NOT_FOUND" visibility="public" isLeaf="true" isStatic="true" type="_DY0sQ76yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DknFgL6yEeWSaOdZFwB7MQ" name="GENERAL" visibility="public" isLeaf="true" isStatic="true" type="_DY0sQ76yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DknFgb6yEeWSaOdZFwB7MQ" name="INNER_EXCEPTION" visibility="public" isLeaf="true" isStatic="true" type="_DY0sQ76yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DknskL6yEeWSaOdZFwB7MQ" name="FUNC_PARAM_NAME_EXP" visibility="public" isLeaf="true" isStatic="true" type="_DY0sQ76yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_Dknskb6yEeWSaOdZFwB7MQ" name="FUNC_PARAM_OUT_WRONG_TYPE" visibility="public" isLeaf="true" isStatic="true" type="_DY0sQ76yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_Dknskr6yEeWSaOdZFwB7MQ" name="FUNC_PARAM_OUT_MISSING" visibility="public" isLeaf="true" isStatic="true" type="_DY0sQ76yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DkoToL6yEeWSaOdZFwB7MQ" name="FUNC_PARAM_OUT_TO_MANY" visibility="public" isLeaf="true" isStatic="true" type="_DY0sQ76yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_DkoTob6yEeWSaOdZFwB7MQ" name="REF_ATTRIBUTE_NOT_FOUND" visibility="public" isLeaf="true" isStatic="true" type="_DY0sQ76yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_Dko6sL6yEeWSaOdZFwB7MQ" name="TYPE_MAPPER_COULD_NOT_INSANTIATE" visibility="public" isLeaf="true" isStatic="true" type="_DY0sQ76yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedAttribute xmi:type="uml:Property" xmi:id="_Dkqv4r6yEeWSaOdZFwB7MQ" name="id" visibility="private" type="_DY0sQ76yEeWSaOdZFwB7MQ" isUnique="false"/>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_Dko6sr6yEeWSaOdZFwB7MQ" name="throwException" visibility="public" isStatic="true">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Dko6s76yEeWSaOdZFwB7MQ" type="_Dkhl8L6yEeWSaOdZFwB7MQ" direction="return"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DkphwL6yEeWSaOdZFwB7MQ" name="id" type="_DY0sQ76yEeWSaOdZFwB7MQ"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Dkphwb6yEeWSaOdZFwB7MQ" name="message" type="_DY0sQ76yEeWSaOdZFwB7MQ"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Dkphwr6yEeWSaOdZFwB7MQ" name="e" type="_Dko6sb6yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DkqI0L6yEeWSaOdZFwB7MQ" name="throwException" visibility="public" isStatic="true">
+                          <ownedComment xmi:type="uml:Comment" xmi:id="_DkqI0b6yEeWSaOdZFwB7MQ">
+                            <body>&#xD;
+   * The method creates an exception object of type ODataJPAModelException with localized error texts.&#xD;
+   * &#xD;
+   * @param messageReference&#xD;
+   * is a &lt;b>mandatory&lt;/b> parameter referring to a literal that could be translated to localized error&#xD;
+   * texts.&#xD;
+   * @param e&#xD;
+   * is an optional parameter representing the previous exception in the call stack&#xD;
+   * @return an instance of ODataJPAModelException which can be then raised.&#xD;
+   * @throws ODataJPARuntimeException&#xD;
+   </body>
+                          </ownedComment>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DkqI0r6yEeWSaOdZFwB7MQ" type="_Dkhl8L6yEeWSaOdZFwB7MQ" direction="return"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Dkqv4L6yEeWSaOdZFwB7MQ" name="message" type="_DY0sQ76yEeWSaOdZFwB7MQ"/>
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_Dkqv4b6yEeWSaOdZFwB7MQ" name="e" type="_Dko6sb6yEeWSaOdZFwB7MQ"/>
+                        </ownedOperation>
+                        <ownedOperation xmi:type="uml:Operation" xmi:id="_DkrW8L6yEeWSaOdZFwB7MQ" name="getId" visibility="public">
+                          <ownedParameter xmi:type="uml:Parameter" xmi:id="_DkrW8b6yEeWSaOdZFwB7MQ" type="_DY0sQ76yEeWSaOdZFwB7MQ" direction="return"/>
+                        </ownedOperation>
+                      </packagedElement>
+                    </packagedElement>
+                  </packagedElement>
+                  <packagedElement xmi:type="uml:Package" xmi:id="_Duv48b6yEeWSaOdZFwB7MQ" name="annotation">
+                    <packagedElement xmi:type="uml:Class" xmi:id="_Duv48r6yEeWSaOdZFwB7MQ" name="EdmFunction"/>
+                    <packagedElement xmi:type="uml:Package" xmi:id="_Du9UVL6yEeWSaOdZFwB7MQ" name="EdmFunction">
+                      <packagedElement xmi:type="uml:Class" xmi:id="_Du9UVb6yEeWSaOdZFwB7MQ" name="ReturnType"/>
+                    </packagedElement>
+                  </packagedElement>
+                </packagedElement>
+              </packagedElement>
+            </packagedElement>
+          </packagedElement>
+          <packagedElement xmi:type="uml:Package" xmi:id="_DZFK8L6yEeWSaOdZFwB7MQ" name="commons">
+            <packagedElement xmi:type="uml:Package" xmi:id="_DZFK8b6yEeWSaOdZFwB7MQ" name="api">
+              <packagedElement xmi:type="uml:Package" xmi:id="_DZFK8r6yEeWSaOdZFwB7MQ" name="edm">
+                <packagedElement xmi:type="uml:Class" xmi:id="_DZIOQL6yEeWSaOdZFwB7MQ" name="FullQualifiedName"/>
+                <packagedElement xmi:type="uml:Package" xmi:id="_DZFyAL6yEeWSaOdZFwB7MQ" name="provider">
+                  <packagedElement xmi:type="uml:Class" xmi:id="_DZFyAb6yEeWSaOdZFwB7MQ" name="CsdlAbstractEdmProvider"/>
+                  <packagedElement xmi:type="uml:Class" xmi:id="_DZIOQr6yEeWSaOdZFwB7MQ" name="CsdlComplexType"/>
+                  <packagedElement xmi:type="uml:Class" xmi:id="_DZI1Ur6yEeWSaOdZFwB7MQ" name="CsdlEntityContainer"/>
+                  <packagedElement xmi:type="uml:Class" xmi:id="_DZJcYL6yEeWSaOdZFwB7MQ" name="CsdlEntityContainerInfo"/>
+                  <packagedElement xmi:type="uml:Class" xmi:id="_DZKDcL6yEeWSaOdZFwB7MQ" name="CsdlEntitySet"/>
+                  <packagedElement xmi:type="uml:Class" xmi:id="_DZKqgr6yEeWSaOdZFwB7MQ" name="CsdlEntityType"/>
+                  <packagedElement xmi:type="uml:Class" xmi:id="_DZLRkr6yEeWSaOdZFwB7MQ" name="CsdlFunctionImport"/>
+                  <packagedElement xmi:type="uml:Class" xmi:id="_DZMfsb6yEeWSaOdZFwB7MQ" name="CsdlFunction"/>
+                  <packagedElement xmi:type="uml:Class" xmi:id="_DZOU4b6yEeWSaOdZFwB7MQ" name="CsdlSchema"/>
+                  <packagedElement xmi:type="uml:Class" xmi:id="_DueMIL6yEeWSaOdZFwB7MQ" name="CsdlAbstractEdmItem"/>
+                  <packagedElement xmi:type="uml:Class" xmi:id="_DujEor6yEeWSaOdZFwB7MQ" name="CsdlProperty"/>
+                  <packagedElement xmi:type="uml:Class" xmi:id="_DusOlb6yEeWSaOdZFwB7MQ" name="CsdlStructuralType"/>
+                  <packagedElement xmi:type="uml:Class" xmi:id="_Du9UUL6yEeWSaOdZFwB7MQ" name="CsdlParameter"/>
+                  <packagedElement xmi:type="uml:Class" xmi:id="_Du97Yb6yEeWSaOdZFwB7MQ" name="CsdlReturnType"/>
+                  <packagedElement xmi:type="uml:Class" xmi:id="_DvF3ML6yEeWSaOdZFwB7MQ" name="CsdlNavigationProperty"/>
+                  <packagedElement xmi:type="uml:Class" xmi:id="_Dvff0L6yEeWSaOdZFwB7MQ" name="CsdlPropertyRef"/>
+                </packagedElement>
+                <packagedElement xmi:type="uml:Class" xmi:id="_DvXkAL6yEeWSaOdZFwB7MQ" name="EdmPrimitiveTypeKind"/>
+                <packagedElement xmi:type="uml:Class" xmi:id="_Dvs7Mr6yEeWSaOdZFwB7MQ" name="EdmEntitySet"/>
+              </packagedElement>
+              <packagedElement xmi:type="uml:Package" xmi:id="_DkiNAL6yEeWSaOdZFwB7MQ" name="ex">
+                <packagedElement xmi:type="uml:Class" xmi:id="_DkiNAb6yEeWSaOdZFwB7MQ" name="ODataException"/>
+              </packagedElement>
+            </packagedElement>
+          </packagedElement>
+        </packagedElement>
+      </packagedElement>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Package" xmi:id="_DY2hcL6yEeWSaOdZFwB7MQ" name="javax">
+      <packagedElement xmi:type="uml:Package" xmi:id="_DY2hcb6yEeWSaOdZFwB7MQ" name="sql">
+        <packagedElement xmi:type="uml:Class" xmi:id="_DY2hcr6yEeWSaOdZFwB7MQ" name="DataSource"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Package" xmi:id="_DY4Wob6yEeWSaOdZFwB7MQ" name="persistence">
+        <packagedElement xmi:type="uml:Class" xmi:id="_DY4Wor6yEeWSaOdZFwB7MQ" name="EntityManagerFactory"/>
+        <packagedElement xmi:type="uml:Class" xmi:id="_DZR_QL6yEeWSaOdZFwB7MQ" name="AttributeConverter"/>
+        <packagedElement xmi:type="uml:Package" xmi:id="_DuidkL6yEeWSaOdZFwB7MQ" name="metamodel">
+          <packagedElement xmi:type="uml:Class" xmi:id="_Duidkb6yEeWSaOdZFwB7MQ" name="Attribute"/>
+          <packagedElement xmi:type="uml:Class" xmi:id="_DuqZYb6yEeWSaOdZFwB7MQ" name="ManagedType"/>
+          <packagedElement xmi:type="uml:Class" xmi:id="_Duuq0b6yEeWSaOdZFwB7MQ" name="EntityType"/>
+          <packagedElement xmi:type="uml:Class" xmi:id="_DvLWwL6yEeWSaOdZFwB7MQ" name="Metamodel"/>
+          <packagedElement xmi:type="uml:Class" xmi:id="_Dvk_Yr6yEeWSaOdZFwB7MQ" name="EmbeddableType"/>
+        </packagedElement>
+        <packagedElement xmi:type="uml:Class" xmi:id="_DvYyI76yEeWSaOdZFwB7MQ" name="TemporalType"/>
+      </packagedElement>
+    </packagedElement>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Model" xmi:id="_DY0sQL6yEeWSaOdZFwB7MQ" name="java">
+    <packagedElement xmi:type="uml:Package" xmi:id="_DY0sQb6yEeWSaOdZFwB7MQ" name="java">
+      <packagedElement xmi:type="uml:Package" xmi:id="_DY0sQr6yEeWSaOdZFwB7MQ" name="lang">
+        <packagedElement xmi:type="uml:Class" xmi:id="_DY0sQ76yEeWSaOdZFwB7MQ" name="String"/>
+        <packagedElement xmi:type="uml:Class" xmi:id="_DZTNYb6yEeWSaOdZFwB7MQ" name="Class"/>
+        <packagedElement xmi:type="uml:Class" xmi:id="_Dko6sb6yEeWSaOdZFwB7MQ" name="Throwable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Package" xmi:id="_DY16YL6yEeWSaOdZFwB7MQ" name="util">
+        <packagedElement xmi:type="uml:Class" xmi:id="_DY16Yb6yEeWSaOdZFwB7MQ" name="HashMap"/>
+        <packagedElement xmi:type="uml:Class" xmi:id="_Dkd7kL6yEeWSaOdZFwB7MQ" name="List"/>
+        <packagedElement xmi:type="uml:Class" xmi:id="_DuvR4b6yEeWSaOdZFwB7MQ" name="Map"/>
+      </packagedElement>
+    </packagedElement>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Model" xmi:id="_DZTNZL6yEeWSaOdZFwB7MQ" name="datatype">
+    <packagedElement xmi:type="uml:Package" xmi:id="_DZT0cL6yEeWSaOdZFwB7MQ" name="datatype">
+      <packagedElement xmi:type="uml:PrimitiveType" xmi:id="_DZT0cb6yEeWSaOdZFwB7MQ" name="Boolean"/>
+      <packagedElement xmi:type="uml:PrimitiveType" xmi:id="_Dki0EL6yEeWSaOdZFwB7MQ" name="Long"/>
+    </packagedElement>
+  </packagedElement>
+</uml:Model>
