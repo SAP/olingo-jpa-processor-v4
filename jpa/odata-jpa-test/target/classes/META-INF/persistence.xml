@@ -16,6 +16,7 @@
 
 		<properties>
 			<property name="eclipselink.logging.level.sql" value="FINEST" />
+			<property name="eclipselink.logging.level" value="FINEST"/>
 			<property name="eclipselink.logging.parameters" value="true" />
 			<property name="eclipselink.logging.timestamp" value="true" />
 			<property name="eclipselink.weaving" value="static" />

@@ -66,14 +66,14 @@ public class JPAQuery extends JPAExecutableQuery {
     final HashMap<String, From<?, ?>> joinTables = new HashMap<String, From<?, ?>>();
 
     CriteriaQuery<Long> cq = cb.createQuery(Long.class);
-    Root<?> root = cq.from(jpaEntity.getTypeClass());
+    // root = cq.from(jpaEntity.getTypeClass());
 
     joinTables.put(jpaEntity.getTypeClass().getCanonicalName(), root);
-    cq.multiselect(cb.count(root));
 
     javax.persistence.criteria.Expression<Boolean> whereClause = createWhere(joinTables);
     if (whereClause != null)
       cq.where(whereClause);
+    cq.select(cb.count(root));
     return em.createQuery(cq).getSingleResult();
   }
 

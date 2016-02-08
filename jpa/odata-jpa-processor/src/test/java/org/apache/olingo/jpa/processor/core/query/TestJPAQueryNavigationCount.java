@@ -14,9 +14,9 @@ public class TestJPAQueryNavigationCount extends TestBase {
   public void testEntitySetCount() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper("Organizations/$count");
-    // assertEquals(200, helper.getStatus());
+    assertEquals(200, helper.getStatus());
 
-    // assertEquals("10", helper.getRawResult());
+    assertEquals("10", helper.getRawResult());
   }
 
   @Test
@@ -25,7 +25,7 @@ public class TestJPAQueryNavigationCount extends TestBase {
     IntegrationTestHelper helper = new IntegrationTestHelper("Organizations('3')/Roles/$count");
     assertEquals(200, helper.getStatus());
 
-    // assertEquals("3", helper.getRawResult());
+    assertEquals("3", helper.getRawResult());
   }
 
 }
