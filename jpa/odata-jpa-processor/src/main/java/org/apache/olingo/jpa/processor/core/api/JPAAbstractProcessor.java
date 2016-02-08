@@ -17,10 +17,11 @@ import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
-import org.apache.olingo.jpa.processor.core.query.JPAExecutableQuery;
-import org.apache.olingo.jpa.processor.core.query.JPAExpandItemWrapper;
+import org.apache.olingo.jpa.processor.core.query.JPAExpandItemInfo;
+import org.apache.olingo.jpa.processor.core.query.JPAExpandItemInfoFactory;
 import org.apache.olingo.jpa.processor.core.query.JPAExpandQuery;
 import org.apache.olingo.jpa.processor.core.query.JPAExpandResult;
+import org.apache.olingo.jpa.processor.core.query.JPANavigationProptertyInfo;
 import org.apache.olingo.jpa.processor.core.query.JPAQuery;
 import org.apache.olingo.jpa.processor.core.query.JPAResultConverter;
 import org.apache.olingo.jpa.processor.core.query.Util;
@@ -35,7 +36,6 @@ import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.queryoption.CountOption;
-import org.apache.olingo.server.api.uri.queryoption.ExpandItem;
 
 public abstract class JPAAbstractProcessor {
   public static final String ACCESS_MODIFIER_GET = "get";
@@ -74,8 +74,8 @@ public abstract class JPAAbstractProcessor {
   }
 
   protected final EntityCollection readEntityInternal(final ODataRequest request, final ODataResponse response,
-      final UriInfo uriInfo,
-      final ContentType responseFormat) throws SerializerException, ODataApplicationException {
+      final UriInfo uriInfo, final ContentType responseFormat) throws SerializerException, ODataApplicationException {
+
     final List<UriResource> resourceParts = uriInfo.getUriResourceParts();
     final EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(resourceParts);
 
@@ -83,7 +83,7 @@ public abstract class JPAAbstractProcessor {
     final JPAQuery query = new JPAQuery(targetEdmEntitySet, sd, uriInfo, em, request.getAllHeaders());
     final List<Tuple> result = query.execute();
 
-    Map<JPAAssociationPath, JPAExpandResult> allExpResults = readExpandEntities(request.getAllHeaders(), query,
+    Map<JPAAssociationPath, JPAExpandResult> allExpResults = readExpandEntities(request.getAllHeaders(), null,
         uriInfo);
 
     // Convert tuple result into an OData Result
@@ -104,6 +104,19 @@ public abstract class JPAAbstractProcessor {
     return entityCollection;
   }
 
+  protected final EntityCollection countEntities(final ODataRequest request, final ODataResponse response,
+      final UriInfo uriInfo) throws SerializerException, ODataApplicationException {
+
+    EntityCollection entityCollection = new EntityCollection();
+    final List<UriResource> resourceParts = uriInfo.getUriResourceParts();
+    final EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(resourceParts);
+
+    final JPAQuery query = new JPAQuery(targetEdmEntitySet, sd, uriInfo, em, request.getAllHeaders());
+
+    entityCollection.setCount(Integer.valueOf(query.countResults().intValue()));
+    return entityCollection;
+  }
+
   /**
    * $expand is implemented as a recursively processing of all expands with a DB round trip per expand item.
    * Alternatively also a <i>big</i> join could be created. This would lead to a transport of redundant data, but has
@@ -119,32 +132,28 @@ public abstract class JPAAbstractProcessor {
    * >OData Version 4.0 Part 2 - 5.1.2 System Query Option $expand</a>
    * @param headers
    * @param naviStartEdmEntitySet
-   * @param parentQuery
+   * @param parentHops
    * @param uriResourceInfo
    * @return
    * @throws ODataApplicationException
    */
   private Map<JPAAssociationPath, JPAExpandResult> readExpandEntities(Map<String, List<String>> headers,
-      JPAExecutableQuery parentQuery, UriInfoResource uriResourceInfo)
+      List<JPANavigationProptertyInfo> parentHops, UriInfoResource uriResourceInfo)
           throws ODataApplicationException {
     Map<JPAAssociationPath, JPAExpandResult> allExpResults =
         new HashMap<JPAAssociationPath, JPAExpandResult>();
-        // x/a?$expand=b/c($expand=d,e/f)
+    // x/a?$expand=b/c($expand=d,e/f)
 
-    // TODO $expand=*
-    Map<ExpandItem, JPAAssociationPath> associations = Util.determineAssoziations(sd, uriResourceInfo
-        .getUriResourceParts(), uriResourceInfo.getExpandOption());
+    List<JPAExpandItemInfo> itemInfoList = new JPAExpandItemInfoFactory()
+        .buildExpandItemInfo(sd, uriResourceInfo.getUriResourceParts(), uriResourceInfo.getExpandOption(), parentHops);
 
-    if (!associations.isEmpty()) {
-      for (ExpandItem expandItem : uriResourceInfo.getExpandOption().getExpandItems()) {
-        UriInfoResource uriInfo = new JPAExpandItemWrapper(expandItem);
-        JPAExpandQuery expandQuery = new JPAExpandQuery(sd, em, uriInfo, associations.get(expandItem), parentQuery,
-            headers);
-        JPAExpandResult expandResult = expandQuery.execute();
-        allExpResults.put(associations.get(expandItem), expandResult);
+    for (JPAExpandItemInfo item : itemInfoList) {
+      JPAExpandQuery expandQuery = new JPAExpandQuery(sd, em, item, headers);
+      JPAExpandResult expandResult = expandQuery.execute();
+      expandResult.putChildren(
+          readExpandEntities(headers, item.getHops(), item.getUriInfo()));
 
-        expandResult.putChildren(readExpandEntities(headers, expandQuery, uriInfo));
-      }
+      allExpResults.put(item.getExpandAssociation(), expandResult);
     }
     return allExpResults;
   }

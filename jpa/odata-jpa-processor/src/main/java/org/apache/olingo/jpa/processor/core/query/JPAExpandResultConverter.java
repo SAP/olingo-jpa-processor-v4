@@ -43,18 +43,15 @@ public class JPAExpandResultConverter extends JPAAbstractConverter {
     link.setTitle(assoziation.getLeaf().getExternalName());
     link.setRel(Constants.NS_ASSOCIATION_LINK_REL + link.getTitle());
     link.setType(Constants.ENTITY_NAVIGATION_LINK_TYPE);
+    EntityCollection expandCollection = createEntityCollection();
     if (assoziation.getLeaf().isCollection()) {
-      EntityCollection expandCollection = createEntityCollection();
       link.setInlineEntitySet(expandCollection);
-      link.setHref(parentUri.toASCIIString());
-
+      expandCollection.setCount(new Integer(5));
+      // TODO link.setHref(parentUri.toASCIIString());
     } else {
-
-      EntityCollection expandCollection = createEntityCollection();
       Entity expandEntity = expandCollection.getEntities().get(0);
-
       link.setInlineEntity(expandEntity);
-      // link.setHref(expandCollection.getId().toASCIIString());
+      // TODO link.setHref(expandCollection.getId().toASCIIString());
     }
     return link;
   }
@@ -66,7 +63,7 @@ public class JPAExpandResultConverter extends JPAAbstractConverter {
 
     List<Tuple> subResult = null;
     try {
-      subResult = map.get(buildConcatenatedKey(parentRow, assoziation.getJoinColumnsList()).toString());
+      subResult = map.getResult(buildConcatenatedKey(parentRow, assoziation.getJoinColumnsList()).toString());
     } catch (ODataJPAModelException e) {
       throw new ODataApplicationException("Mapping Error", 500, Locale.ENGLISH, e);
     }
@@ -115,7 +112,7 @@ public class JPAExpandResultConverter extends JPAAbstractConverter {
           } else
             s = jpaConversionTargetEntity;
           if (s.getDeclaredAssociation(associationPath.getLeaf().getExternalName()) != null) {
-            Link expand = new JPAExpandResultConverter(uri, children.get(associationPath), parentRow,
+            Link expand = new JPAExpandResultConverter(uri, children.get(associationPath), row,
                 associationPath).getResult();
             entityExpandLinks.add(expand);
           }

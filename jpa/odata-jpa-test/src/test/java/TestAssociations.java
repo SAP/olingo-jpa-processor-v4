@@ -125,15 +125,15 @@ public class TestAssociations {
     cq.multiselect(root.get("parent").alias("P"));
     // cq.select((Selection<? extends Tuple>) root);
     cq.where(cb.and(
-        cb.equal(root.get("codePublisher"), "NUTS"),
+        cb.equal(root.get("codePublisher"), "Eurostat"),
         cb.and(
-            cb.equal(root.get("codeID"), "3"),
+            cb.equal(root.get("codeID"), "NUTS3"),
             cb.equal(root.get("divisionCode"), "BE251"))));
     TypedQuery<Tuple> tq = em.createQuery(cq);
     List<Tuple> result = tq.getResultList();
     AdministrativeDivision act = (AdministrativeDivision) result.get(0).get("P");
     assertNotNull(act);
-    assertEquals("2", act.getCodeID());
+    assertEquals("NUTS2", act.getCodeID());
     assertEquals("BE25", act.getDivisionCode());
   }
 
@@ -144,9 +144,9 @@ public class TestAssociations {
     root.alias("Source");
     cq.multiselect(root.get("children").alias("C"));
     cq.where(cb.and(
-        cb.equal(root.get("codePublisher"), "NUTS"),
+        cb.equal(root.get("codePublisher"), "Eurostat"),
         cb.and(
-            cb.equal(root.get("codeID"), "2"),
+            cb.equal(root.get("codeID"), "NUTS2"),
             cb.equal(root.get("divisionCode"), "BE25"))));
     cq.orderBy(cb.desc(root.get("divisionCode")));
     TypedQuery<Tuple> tq = em.createQuery(cq);
@@ -154,7 +154,7 @@ public class TestAssociations {
     AdministrativeDivision act = (AdministrativeDivision) result.get(0).get("C");
     assertNotNull(act);
     assertEquals(8, result.size());
-    assertEquals("3", act.getCodeID());
+    assertEquals("NUTS3", act.getCodeID());
     assertEquals("BE251", act.getDivisionCode());
   }
 }

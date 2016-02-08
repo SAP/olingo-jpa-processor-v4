@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand" time="0.596" tests="17" errors="0" skipped="6" failures="2">
+<testsuite name="org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand" time="0.606" tests="22" errors="0" skipped="6" failures="0">
   <properties>
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
     <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk1.8.0_45\jre\bin"/>
@@ -27,9 +27,9 @@
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="user.variant" value=""/>
     <property name="os.name" value="Windows 8.1"/>
-    <property name="classworlds.conf" value="C:\Users\D023143\workspace_ov4\.metadata\.plugins\org.eclipse.m2e.launching\launches\m2conf5611189626691791399.tmp"/>
+    <property name="classworlds.conf" value="C:\Users\D023143\workspace_ov4\.metadata\.plugins\org.eclipse.m2e.launching\launches\m2conf3903652519899554739.tmp"/>
     <property name="sun.jnu.encoding" value="Cp1252"/>
-    <property name="java.library.path" value="C:\Program Files\Java\jdk1.8.0_45\bin;C:\WINDOWS\Sun\Java\bin;C:\WINDOWS\system32;C:\WINDOWS;C:/Program Files/Java/jre1.8.0_45/bin/server;C:/Program Files/Java/jre1.8.0_45/bin;C:/Program Files/Java/jre1.8.0_45/lib/amd64;C:\Program Files\HP_Fortify\HP_Fortify_SCA_and_Apps_4.30\bin;C:\ProgramData\Oracle\Java\javapath;C:\Program Files (x86)\PC ConnectivitySolution\;C:\WINDOWS\system32; C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\Windows\CCM;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\apache-maven-3.2.5\bin;C:\Program Files\Java\jdk1.8.0_45\bin; C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\WindowsPowerShell\v1.0; C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\WindowsPowerShell\v1.0; C:\Go\bin; C:\Users\D023143\work_go\bin;C:\Users\D023143\Nodeclips\nodejs\;C:\Users\D023143\AppData\Roaming\npm;C:\Users\D023143\EclipseMars\eclipse;;."/>
+    <property name="java.library.path" value="C:\Program Files\Java\jdk1.8.0_45\bin;C:\WINDOWS\Sun\Java\bin;C:\WINDOWS\system32;C:\WINDOWS;C:/Program Files/Java/jre1.8.0_45/bin/server;C:/Program Files/Java/jre1.8.0_45/bin;C:/Program Files/Java/jre1.8.0_45/lib/amd64;C:\Program Files\HP_Fortify\HP_Fortify_SCA_and_Apps_4.30\bin;C:\ProgramData\Oracle\Java\javapath;C:\Program Files (x86)\PC ConnectivitySolution\;C:\WINDOWS\system32; C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\Windows\CCM;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\apache-maven-3.2.5\bin;C:\Program Files\Java\jdk1.8.0_45\bin; C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\WindowsPowerShell\v1.0; C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\WindowsPowerShell\v1.0; C:\Go\bin; C:\Users\D023143\work_go\bin;C:\Users\D023143\Nodeclips\nodejs\;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\Users\D023143\AppData\Roaming\npm;C:\Users\D023143\EclipseMars\eclipse;;."/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
     <property name="java.class.version" value="52.0"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
@@ -64,9 +64,9 @@
   </properties>
   <testcase name="testExpandEntitySetViaNonKeyFieldNavi0Hops" classname="org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand" time="0">
     <skipped/>
-    <system-err><![CDATA[Feb 05, 2016 10:41:36 AM com.googlecode.flyway.core.command.DbMigrate migrate
+    <system-err><![CDATA[Feb 08, 2016 9:17:13 AM com.googlecode.flyway.core.command.DbMigrate migrate
 INFO: Current version of schema "OLINGO": 1.0
-Feb 05, 2016 10:41:36 AM com.googlecode.flyway.core.command.DbMigrate logSummary
+Feb 08, 2016 9:17:13 AM com.googlecode.flyway.core.command.DbMigrate logSummary
 INFO: Schema "OLINGO" is up to date. No migration necessary.
 ]]></system-err>
   </testcase>
@@ -76,54 +76,29 @@ INFO: Schema "OLINGO" is up to date. No migration necessary.
   <testcase name="testExpandWithNavigationToEntity" classname="org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand" time="0">
     <skipped/>
   </testcase>
-  <testcase name="testExpandEntityViaComplexProperty" classname="org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand" time="0.414"/>
-  <testcase name="testExpandOneEntityCompoundKey" classname="org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand" time="0.015"/>
-  <testcase name="testExpandOneEntity" classname="org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand" time="0.013"/>
+  <testcase name="testExpandEntityViaComplexProperty" classname="org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand" time="0.357"/>
+  <testcase name="testExpandWithOrderByDescTopSkipAndExternalOrderBy" classname="org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand" time="0.04"/>
+  <testcase name="testExpandWithCount" classname="org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand" time="0.017"/>
+  <testcase name="testExpandOneEntityCompoundKey" classname="org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand" time="0.012"/>
+  <testcase name="testExpandOneEntity" classname="org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand" time="0.008"/>
   <testcase name="testExpandEntitySetViaNonKeyField_FieldNotSelected" classname="org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand" time="0">
     <skipped/>
   </testcase>
-  <testcase name="testExpandWithOrderByDesc" classname="org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand" time="0.015"/>
-  <testcase name="testNestedExpandNestedExpand2LevelsSelf" classname="org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand" time="0.051">
-    <failure message="{&quot;error&quot;:{&quot;code&quot;:null,&quot;message&quot;:&quot;OData Library: An exception without message text was thrown.&quot;}} expected:&lt;200&gt; but was:&lt;500&gt;" type="java.lang.AssertionError"><![CDATA[java.lang.AssertionError: {"error":{"code":null,"message":"OData Library: An exception without message text was thrown."}} expected:<200> but was:<500>
-	at org.junit.Assert.fail(Assert.java:88)
-	at org.junit.Assert.failNotEquals(Assert.java:834)
-	at org.junit.Assert.assertEquals(Assert.java:645)
-	at org.apache.olingo.jpa.processor.core.util.IntegrationTestHelper.assertStatus(IntegrationTestHelper.java:100)
-	at org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand.testNestedExpandNestedExpand2LevelsSelf(TestJPAProcessorExpand.java:182)
-]]></failure>
-    <system-out><![CDATA[[EL Fine]: sql: 2016-02-05 10:41:36.952--ServerSession(112302969)--Connection(1338958728)--SELECT "AlternativeCode", "CodeID", "CodePublisher", "CountryISOCode", "DivisionCode", "ParentCodeID", "ParentDivisionCode" FROM "OLINGO"."org.apache.olingo.jpa::AdministrativeDivision" WHERE ((("DivisionCode" = ?) AND ("CodeID" = ?)) AND ("CodePublisher" = ?))
-	bind => [BE253, 3, NUTS]
-[EL Fine]: sql: 2016-02-05 10:41:36.953--ServerSession(112302969)--Connection(1497268815)--SELECT t0."AlternativeCode", t0."CodeID", t0."CodePublisher", t0."CountryISOCode", t0."DivisionCode", t0."ParentCodeID", t0."ParentDivisionCode" FROM "OLINGO"."org.apache.olingo.jpa::AdministrativeDivision" t0 WHERE EXISTS (SELECT t1."CodePublisher" FROM "OLINGO"."org.apache.olingo.jpa::AdministrativeDivision" t1 WHERE ((((t1."DivisionCode" = ?) AND (t1."CodeID" = ?)) AND (t1."CodePublisher" = ?)) AND (((t0."CodePublisher" = t1."CodePublisher") AND (t0."CodeID" = t1."ParentCodeID")) AND (t0."DivisionCode" = t1."ParentDivisionCode")))) 
-	bind => [BE253, 3, NUTS]
-[EL Fine]: sql: 2016-02-05 10:41:36.957--ServerSession(112302969)--Connection(532677950)--SELECT t0."ParentCodeID", t0."CodeID", t0."CodePublisher", t0."AlternativeCode", t0."DivisionCode", t0."CountryISOCode", t0."ParentDivisionCode" FROM "OLINGO"."org.apache.olingo.jpa::AdministrativeDivision" t0 WHERE EXISTS (SELECT t1."CodePublisher" FROM "OLINGO"."org.apache.olingo.jpa::AdministrativeDivision" t2, "OLINGO"."org.apache.olingo.jpa::AdministrativeDivision" t1 WHERE ((((t0."CodePublisher" = t1."CodePublisher") AND (t0."ParentCodeID" = t1."CodeID")) AND (t0."ParentDivisionCode" = t1."DivisionCode")) AND EXISTS (SELECT t3."CodePublisher" FROM "OLINGO"."org.apache.olingo.jpa::AdministrativeDivision" t3 WHERE ((((t3."DivisionCode" = ?) AND (t3."CodeID" = ?)) AND (t3."CodePublisher" = ?)) AND (((t2."CodePublisher" = t3."CodePublisher") AND (t2."CodeID" = t3."ParentCodeID")) AND (t2."DivisionCode" = t3."ParentDivisionCode")))) )) 
-	bind => [BE253, 3, NUTS]
-]]></system-out>
-  </testcase>
-  <testcase name="testExpandEntitySetWithOutParentKeySelection" classname="org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand" time="0.014"/>
+  <testcase name="testExpandWithOrderByDescTop" classname="org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand" time="0.011"/>
+  <testcase name="testExpandWithOrderByDesc" classname="org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand" time="0.01"/>
+  <testcase name="testNestedExpandNestedExpand2LevelsSelf" classname="org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand" time="0.013"/>
+  <testcase name="testExpandEntitySetWithOutParentKeySelection" classname="org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand" time="0.011"/>
   <testcase name="testExpandWithNavigationToProperty" classname="org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand" time="0.01"/>
   <testcase name="testExpandEntitySetViaNonKeyFieldNavi0HopsCollection" classname="org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand" time="0">
     <skipped/>
   </testcase>
-  <testcase name="testNestedExpandNestedExpand2LevelsMixed" classname="org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand" time="0.023">
-    <failure message="{&quot;error&quot;:{&quot;code&quot;:null,&quot;message&quot;:&quot;Element CodePublisher does not correspond to an element in the query result.&quot;}} expected:&lt;200&gt; but was:&lt;500&gt;" type="java.lang.AssertionError"><![CDATA[java.lang.AssertionError: {"error":{"code":null,"message":"Element CodePublisher does not correspond to an element in the query result."}} expected:<200> but was:<500>
-	at org.junit.Assert.fail(Assert.java:88)
-	at org.junit.Assert.failNotEquals(Assert.java:834)
-	at org.junit.Assert.assertEquals(Assert.java:645)
-	at org.apache.olingo.jpa.processor.core.util.IntegrationTestHelper.assertStatus(IntegrationTestHelper.java:100)
-	at org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand.testNestedExpandNestedExpand2LevelsMixed(TestJPAProcessorExpand.java:194)
-]]></failure>
-    <system-out><![CDATA[[EL Fine]: sql: 2016-02-05 10:41:37.027--ServerSession(112302969)--Connection(2093319848)--SELECT t0."Address.City", t0."Address.Country", t1."Name", t0."Address.StreetNumber", t0."Address.PostOfficeBox", t0."Address.PostalCode", t0."Address.Region", t2."Name", t0."Address.RegionCodeID", t0."Address.RegionCodePublisher", t0."Address.StreetName", t0."ID" FROM {oj "OLINGO"."org.apache.olingo.jpa::BusinessPartner" t0 LEFT OUTER JOIN "OLINGO"."org.apache.olingo.jpa::Country" t1 ON ((t1."ISOCode" = t0."Address.Country") AND (t1."LanguageISO" = ?)) LEFT OUTER JOIN "OLINGO"."org.apache.olingo.jpa::Region" t2 ON (((t2."RegionISOCode" = t0."Address.Region") AND (t2."CountryISOCode" = t0."Address.Country")) AND (t2."LanguageISO" = ?))} WHERE ((t0."ID" = ?) AND (t0."Type" = ?))
-	bind => [de, de, 3, 2]
-[EL Fine]: sql: 2016-02-05 10:41:37.029--ServerSession(112302969)--Connection(121678773)--SELECT t0."AlternativeCode", t0."CodeID", t0."CodePublisher", t0."CountryISOCode", t0."DivisionCode", t0."ParentCodeID", t0."ParentDivisionCode" FROM "OLINGO"."org.apache.olingo.jpa::AdministrativeDivision" t0 WHERE EXISTS (SELECT t1."Address.RegionCodePublisher" FROM "OLINGO"."org.apache.olingo.jpa::BusinessPartner" t1 WHERE (((t1."ID" = ?) AND (((t0."CodePublisher" = t1."Address.RegionCodePublisher") AND (t0."CodeID" = t1."Address.RegionCodeID")) AND (t0."DivisionCode" = t1."Address.Region"))) AND (t1."Type" = ?))) 
-	bind => [3, 2]
-[EL Fine]: sql: 2016-02-05 10:41:37.032--ServerSession(112302969)--Connection(156711739)--SELECT t0."ParentCodeID", t0."CodeID", t0."CodePublisher", t0."AlternativeCode", t0."DivisionCode", t0."CountryISOCode", t0."ParentDivisionCode" FROM "OLINGO"."org.apache.olingo.jpa::AdministrativeDivision" t0 WHERE EXISTS (SELECT t1."CodePublisher" FROM "OLINGO"."org.apache.olingo.jpa::AdministrativeDivision" t2, "OLINGO"."org.apache.olingo.jpa::AdministrativeDivision" t1 WHERE ((((t0."CodePublisher" = t1."CodePublisher") AND (t0."CodeID" = t1."ParentCodeID")) AND (t0."DivisionCode" = t1."ParentDivisionCode")) AND EXISTS (SELECT t3."Address.RegionCodePublisher" FROM "OLINGO"."org.apache.olingo.jpa::BusinessPartner" t3 WHERE (((t3."ID" = ?) AND (((t2."CodePublisher" = t3."Address.RegionCodePublisher") AND (t2."CodeID" = t3."Address.RegionCodeID")) AND (t2."DivisionCode" = t3."Address.Region"))) AND (t3."Type" = ?))) )) 
-	bind => [3, 2]
-]]></system-out>
-  </testcase>
-  <testcase name="testExpandWithOrderByAsc" classname="org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand" time="0.011"/>
-  <testcase name="testExpandEntitySet" classname="org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand" time="0.019"/>
-  <testcase name="testExpandOneEntityCompoundKeyCollection" classname="org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand" time="0.011"/>
+  <testcase name="testExpandWithOrderByDescTopSkip" classname="org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand" time="0.011"/>
+  <testcase name="testNestedExpandNestedExpand2LevelsMixed" classname="org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand" time="0.023"/>
+  <testcase name="testExpandWithOrderByAsc" classname="org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand" time="0.01"/>
+  <testcase name="testExpandEntitySet" classname="org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand" time="0.018"/>
+  <testcase name="testExpandOneEntityCompoundKeyCollection" classname="org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand" time="0.007"/>
   <testcase name="testExpandEntitySetViaNonKeyFieldNavi1Hop" classname="org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand" time="0">
     <skipped/>
   </testcase>
+  <testcase name="testNestedExpandNestedExpand3LevelsSelf" classname="org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand" time="0.048"/>
 </testsuite>

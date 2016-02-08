@@ -82,11 +82,11 @@ public class TestJPAQueryNavigation extends TestBase {
   public void testNavigationSelfToOneOneHops() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(
-        "AdministrativeDivisions(DivisionCode='BE352',CodeID='3',CodePublisher='NUTS')/Parent");
+        "AdministrativeDivisions(DivisionCode='BE352',CodeID='NUTS3',CodePublisher='Eurostat')/Parent");
     assertEquals(200, helper.getStatus());
 
     ObjectNode org = helper.getValue();
-    assertEquals("2", org.get("CodeID").asText());
+    assertEquals("NUTS2", org.get("CodeID").asText());
     assertEquals("BE35", org.get("DivisionCode").asText());
   }
 
@@ -94,11 +94,11 @@ public class TestJPAQueryNavigation extends TestBase {
   public void testNavigationSelfToOneTwoHops() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(
-        "AdministrativeDivisions(DivisionCode='BE352',CodeID='3',CodePublisher='NUTS')/Parent/Parent");
+        "AdministrativeDivisions(DivisionCode='BE352',CodeID='NUTS3',CodePublisher='Eurostat')/Parent/Parent");
     assertEquals(200, helper.getStatus());
 
     ObjectNode org = helper.getValue();
-    assertEquals("1", org.get("CodeID").asText());
+    assertEquals("NUTS1", org.get("CodeID").asText());
     assertEquals("BE3", org.get("DivisionCode").asText());
   }
 
@@ -106,12 +106,12 @@ public class TestJPAQueryNavigation extends TestBase {
   public void testNavigationSelfToManyOneHops() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(
-        "AdministrativeDivisions(DivisionCode='BE2',CodeID='1',CodePublisher='NUTS')/Children?$orderby=DivisionCode desc");
+        "AdministrativeDivisions(DivisionCode='BE2',CodeID='NUTS1',CodePublisher='Eurostat')/Children?$orderby=DivisionCode desc");
     assertEquals(200, helper.getStatus());
 
     ArrayNode orgs = helper.getValues();
     assertEquals(5, orgs.size());
-    assertEquals("2", orgs.get(0).get("CodeID").asText());
+    assertEquals("NUTS2", orgs.get(0).get("CodeID").asText());
     assertEquals("BE25", orgs.get(0).get("DivisionCode").asText());
   }
 
@@ -119,12 +119,12 @@ public class TestJPAQueryNavigation extends TestBase {
   public void testNavigationSelfToManyTwoHops() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(
-        "AdministrativeDivisions(DivisionCode='BE2',CodeID='1',CodePublisher='NUTS')/Children(DivisionCode='BE25',CodeID='2',CodePublisher='NUTS')/Children?$orderby=DivisionCode desc");
+        "AdministrativeDivisions(DivisionCode='BE2',CodeID='NUTS1',CodePublisher='Eurostat')/Children(DivisionCode='BE25',CodeID='NUTS2',CodePublisher='Eurostat')/Children?$orderby=DivisionCode desc");
     assertEquals(200, helper.getStatus());
 
     ArrayNode orgs = helper.getValues();
     assertEquals(8, orgs.size());
-    assertEquals("3", orgs.get(0).get("CodeID").asText());
+    assertEquals("NUTS3", orgs.get(0).get("CodeID").asText());
     assertEquals("BE258", orgs.get(0).get("DivisionCode").asText());
   }
 

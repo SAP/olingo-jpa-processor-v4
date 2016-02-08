@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.From;
@@ -49,6 +50,8 @@ import org.apache.olingo.server.api.uri.queryoption.ExpandItem;
 import org.apache.olingo.server.api.uri.queryoption.OrderByItem;
 import org.apache.olingo.server.api.uri.queryoption.OrderByOption;
 import org.apache.olingo.server.api.uri.queryoption.SelectOption;
+import org.apache.olingo.server.api.uri.queryoption.SkipOption;
+import org.apache.olingo.server.api.uri.queryoption.TopOption;
 import org.apache.olingo.server.api.uri.queryoption.expression.Expression;
 import org.apache.olingo.server.api.uri.queryoption.expression.Member;
 
@@ -229,11 +232,11 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     javax.persistence.criteria.Expression<Boolean> whereCondition = null;
 
     List<UriResource> resources = uriResource.getUriResourceParts();
-    UriResourcePartTyped resourceItem = null;
+    UriResource resourceItem = null;
     // Given key: Organizations('1')
     if (resources != null) {
       for (int i = resources.size() - 1; i >= 0; i--) {
-        resourceItem = (UriResourcePartTyped) (resources.get(i));
+        resourceItem = (UriResource) (resources.get(i));
         if (resourceItem instanceof UriResourceEntitySet || resourceItem instanceof UriResourceNavigation)
           break;
       }
@@ -271,12 +274,12 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     if (!hasNavigation(resourceParts))
       return s;
     // 1. Determine all relevant associations
-    List<JPANavigationProptertyInfo> pathList = Util.determineAssoziations(sd, resourceParts);
+    List<JPANavigationProptertyInfo> naviPathList = Util.determineAssoziations(sd, resourceParts);
     JPAAbstractQuery parent = this;
     List<JPANavigationQuery> queryList = new ArrayList<JPANavigationQuery>();
 
     // 2. Create the queries and roots
-    for (JPANavigationProptertyInfo naviInfo : pathList) {
+    for (JPANavigationProptertyInfo naviInfo : naviPathList) {
       queryList.add(new JPANavigationQuery(sd, naviInfo.getUriResiource(), parent, em, naviInfo.getAssociationPath()));
       parent = queryList.get(queryList.size() - 1);
     }
@@ -314,12 +317,6 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
           .ordinal(), Locale.ENGLISH, e);
     }
   }
-
-  protected abstract List<JPANavigationQuery> asSubQueries(JPAAbstractQuery superordinateQuery,
-      JPAAssociationPath assoziation) throws ODataApplicationException;
-
-  protected abstract <T extends Object> Subquery<T> asSubQuery(JPAAbstractQuery parent, JPAAssociationPath assoziation)
-      throws ODataApplicationException;
 
   protected List<JPAPath> extractDescriptionAttributes(final List<JPAPath> jpaPathList)
       throws ODataApplicationException {
@@ -475,5 +472,51 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
       }
     }
     return orders;
+  }
+
+  /**
+   * Applies the $skip and $top options of the OData request to the query. The values are defined as follows:
+   * <ul>
+   * <li> The $top system query option specifies a non-negative integer n that limits the number of items returned from
+   * a collection.
+   * <li> The $skip system query option specifies a non-negative integer n that excludes the first n items of the
+   * queried collection from the result.
+   * </ul>
+   * For details see:
+   * <a href=
+   * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398306"
+   * >OData Version 4.0 Part 1 - 11.2.5.3 System Query Option $top</a>
+   * 
+   * @throws ODataApplicationException
+   */
+  protected void addTopSkip(TypedQuery<Tuple> tq) throws ODataApplicationException {
+    /*
+     * Where $top and $skip are used together, $skip MUST be applied before $top, regardless of the order in which they
+     * appear in the request.
+     * If no unique ordering is imposed through an $orderby query option, the service MUST impose a stable ordering
+     * across requests that include $skip.
+     * 
+     * URL example: http://localhost:8080/BuPa/BuPa.svc/Organizations?$count=true&$skip=5
+     */
+
+    TopOption topOption = uriResource.getTopOption();
+    if (topOption != null) {
+      int topNumber = topOption.getValue();
+      if (topNumber >= 0)
+        tq.setMaxResults(topNumber);
+      else
+        throw new ODataApplicationException("Invalid value for $top", HttpStatusCode.BAD_REQUEST.getStatusCode(),
+            Locale.ROOT);
+    }
+
+    SkipOption skipOption = uriResource.getSkipOption();
+    if (skipOption != null) {
+      int skipNumber = skipOption.getValue();
+      if (skipNumber >= 0)
+        tq.setFirstResult(skipNumber);
+      else
+        throw new ODataApplicationException("Invalid value for $skip", HttpStatusCode.BAD_REQUEST.getStatusCode(),
+            Locale.ROOT);
+    }
   }
 }

@@ -16,6 +16,7 @@ C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\test\java\org\apac
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\test\java\org\apache\olingo\jpa\processor\core\util\UriInfoDouble.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\test\java\org\apache\olingo\jpa\processor\core\query\TestJPAExpandQueryCreateResult.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\test\java\org\apache\olingo\jpa\processor\core\util\TupleElementDouble.java
+C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\test\java\org\apache\olingo\jpa\processor\core\query\TestJPAQueryNavigationCount.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\test\java\org\apache\olingo\jpa\processor\core\util\HttpRequestHeaderDouble.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\test\java\org\apache\olingo\jpa\processor\core\util\UriResourcePropertyDouble.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\test\java\org\apache\olingo\jpa\processor\core\util\EdmPropertyDouble.java

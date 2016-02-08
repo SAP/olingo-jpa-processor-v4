@@ -1,4 +1,5 @@
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
@@ -14,6 +15,7 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
 import org.apache.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
+import org.apache.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
 import org.apache.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import org.apache.olingo.jpa.processor.core.testmodel.Organization;
 import org.junit.Before;
@@ -43,7 +45,7 @@ public class TestCriteriaBuilder {
 
   @Test
   public void testSubSelect() {
-    //https://stackoverflow.com/questions/29719321/combining-conditional-expressions-with-and-and-or-predicates-using-the-jpa-c
+    // https://stackoverflow.com/questions/29719321/combining-conditional-expressions-with-and-and-or-predicates-using-the-jpa-c
     CriteriaQuery<Tuple> adminQ1 = cb.createTupleQuery();
     Subquery<Long> adminQ2 = adminQ1.subquery(Long.class);
     Subquery<Long> adminQ3 = adminQ2.subquery(Long.class);
@@ -70,6 +72,35 @@ public class TestCriteriaBuilder {
     tq.getResultList();
   }
 
+  @Test
+  public void TestExpandCount() {
+    CriteriaQuery<Tuple> count = cb.createTupleQuery();
+    Root<?> roles = count.from(BusinessPartnerRole.class);
+
+    count.multiselect(roles.get("businessPartnerID"), cb.count(roles).alias("$count"));
+    count.groupBy(roles.get("businessPartnerID"));
+    count.orderBy(cb.desc(cb.count(roles)));
+    TypedQuery<Tuple> tq = em.createQuery(count);
+    List<Tuple> act = tq.getResultList();
+    tq.getFirstResult();
+  }
+
+  @Test
+  public void TestAnd() {
+    CriteriaQuery<Tuple> count = cb.createTupleQuery();
+    Root<?> adminDiv = count.from(AdministrativeDivision.class);
+
+    count.multiselect(adminDiv);
+    Predicate[] restrictions = new Predicate[3];
+    restrictions[0] = cb.equal(adminDiv.get("codeID"), "NUTS2");
+    restrictions[1] = cb.equal(adminDiv.get("divisionCode"), "BE34");
+    restrictions[2] = cb.equal(adminDiv.get("codePublisher"), "Eurostat");
+    count.where(cb.and(restrictions));
+    TypedQuery<Tuple> tq = em.createQuery(count);
+    List<Tuple> act = tq.getResultList();
+    tq.getFirstResult();
+  }
+
   private Expression<Boolean> createParentAdmin(Root<AdministrativeDivision> subQuery,
       Root<AdministrativeDivision> query) {
     return cb.and(cb.equal(query.get("codePublisher"), subQuery.get("codePublisher")),
@@ -82,4 +113,5 @@ public class TestCriteriaBuilder {
         cb.and(cb.equal(adminRoot3.get("codeID"), org1.get("address").get("regionCodeID")),
             cb.equal(adminRoot3.get("divisionCode"), org1.get("address").get("region"))));
   }
+
 }

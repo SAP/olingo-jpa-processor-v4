@@ -43,7 +43,7 @@ public class TestJPAExpandQueryCreateResult extends TestBase {
     Tuple t = new TupleDouble(oneResult);
     result.add(t);
 
-    Map<String, List<Tuple>> act = cut.convertResult(result, exp);
+    Map<String, List<Tuple>> act = cut.convertResult(result, exp, 0, Long.MAX_VALUE);
 
     assertNotNull(act.get("1"));
     assertEquals(1, act.get("1").size());
@@ -68,12 +68,64 @@ public class TestJPAExpandQueryCreateResult extends TestBase {
     t = new TupleDouble(oneResult);
     result.add(t);
 
-    Map<String, List<Tuple>> act = cut.convertResult(result, exp);
+    Map<String, List<Tuple>> act = cut.convertResult(result, exp, 0, Long.MAX_VALUE);
 
     assertEquals(1, act.size());
     assertNotNull(act.get("2"));
     assertEquals(2, act.get("2").size());
     assertEquals("2", act.get("2").get(0).get("BusinessPartnerID"));
+  }
+
+  @Test
+  public void checkConvertTwoResultOneParentTop1() throws ODataJPAModelException, ODataApplicationException {
+    JPAAssociationPath exp = helper.getJPAAssociationPath("Organizations", "Roles");
+    List<Tuple> result = new ArrayList<Tuple>();
+    HashMap<String, Object> oneResult;
+    Tuple t;
+
+    oneResult = new HashMap<String, Object>();
+    oneResult.put("BusinessPartnerID", "2");
+    oneResult.put("RoleCategory", "A");
+    t = new TupleDouble(oneResult);
+    result.add(t);
+    oneResult = new HashMap<String, Object>();
+    oneResult.put("BusinessPartnerID", "2");
+    oneResult.put("RoleCategory", "C");
+    t = new TupleDouble(oneResult);
+    result.add(t);
+
+    Map<String, List<Tuple>> act = cut.convertResult(result, exp, 0, 1);
+
+    assertEquals(1, act.size());
+    assertNotNull(act.get("2"));
+    assertEquals(1, act.get("2").size());
+    assertEquals("A", act.get("2").get(0).get("RoleCategory"));
+  }
+
+  @Test
+  public void checkConvertTwoResultOneParentSkip1() throws ODataJPAModelException, ODataApplicationException {
+    JPAAssociationPath exp = helper.getJPAAssociationPath("Organizations", "Roles");
+    List<Tuple> result = new ArrayList<Tuple>();
+    HashMap<String, Object> oneResult;
+    Tuple t;
+
+    oneResult = new HashMap<String, Object>();
+    oneResult.put("BusinessPartnerID", "2");
+    oneResult.put("RoleCategory", "A");
+    t = new TupleDouble(oneResult);
+    result.add(t);
+    oneResult = new HashMap<String, Object>();
+    oneResult.put("BusinessPartnerID", "2");
+    oneResult.put("RoleCategory", "C");
+    t = new TupleDouble(oneResult);
+    result.add(t);
+
+    Map<String, List<Tuple>> act = cut.convertResult(result, exp, 1, 1000);
+
+    assertEquals(1, act.size());
+    assertNotNull(act.get("2"));
+    assertEquals(1, act.get("2").size());
+    assertEquals("C", act.get("2").get(0).get("RoleCategory"));
   }
 
   @Test
@@ -94,7 +146,7 @@ public class TestJPAExpandQueryCreateResult extends TestBase {
     t = new TupleDouble(oneResult);
     result.add(t);
 
-    Map<String, List<Tuple>> act = cut.convertResult(result, exp);
+    Map<String, List<Tuple>> act = cut.convertResult(result, exp, 0, Long.MAX_VALUE);
 
     assertEquals(2, act.size());
     assertNotNull(act.get("1"));
@@ -116,7 +168,7 @@ public class TestJPAExpandQueryCreateResult extends TestBase {
     Tuple t = new TupleDouble(oneResult);
     result.add(t);
 
-    Map<String, List<Tuple>> act = cut.convertResult(result, exp);
+    Map<String, List<Tuple>> act = cut.convertResult(result, exp, 0, Long.MAX_VALUE);
 
     assertNotNull(act.get("NUTS/2/BE25"));
     assertEquals(1, act.get("NUTS/2/BE25").size());
@@ -148,7 +200,7 @@ public class TestJPAExpandQueryCreateResult extends TestBase {
     t = new TupleDouble(oneResult);
     result.add(t);
 
-    Map<String, List<Tuple>> act = cut.convertResult(result, exp);
+    Map<String, List<Tuple>> act = cut.convertResult(result, exp, 0, Long.MAX_VALUE);
 
     assertEquals(2, act.size());
     assertNotNull(act.get("NUTS/2/BE25"));

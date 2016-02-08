@@ -17,14 +17,19 @@ import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
 
 public class JPAExpandItemInfoFactory {
   public List<JPAExpandItemInfo> buildExpandItemInfo(ServicDocument sd, List<UriResource> startResourceList,
-      ExpandOption expandOption) throws ODataApplicationException {
+      ExpandOption expandOption, List<JPANavigationProptertyInfo> grandParentHops) throws ODataApplicationException {
 
+    // TODO $expand=*
     List<JPAExpandItemInfo> itemList = new ArrayList<JPAExpandItemInfo>();
     StringBuffer associationName = new StringBuffer();
     UriResource startResourceItem = null;
 
-    List<JPANavigationProptertyInfo> parentHops = Util.determineAssoziations(sd, startResourceList);
-
+    List<JPANavigationProptertyInfo> parentHops = new ArrayList<JPANavigationProptertyInfo>();
+    if (grandParentHops != null) {
+      parentHops.addAll(grandParentHops);
+      parentHops.addAll(Util.determineAssoziations(sd, startResourceList));
+    } else
+      parentHops = Util.determineAssoziations(sd, startResourceList);
     if (startResourceList != null && expandOption != null) {
       for (int i = startResourceList.size() - 1; i >= 0; i--) {
         startResourceItem = startResourceList.get(i);
@@ -53,6 +58,7 @@ public class JPAExpandItemInfoFactory {
         }
         itemList.add(new JPAExpandItemInfo(
             new JPAExpandItemWrapper(item),
+            (UriResourcePartTyped) startResourceItem,
             Util.determineAssoziation(sd, ((UriResourcePartTyped) startResourceItem).getType(), associationName),
             parentHops));
       }

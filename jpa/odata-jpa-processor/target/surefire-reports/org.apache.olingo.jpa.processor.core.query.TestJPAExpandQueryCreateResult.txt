@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: org.apache.olingo.jpa.processor.core.query.TestJPAExpandQueryCreateResult
 -------------------------------------------------------------------------------
-Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.943 sec - in org.apache.olingo.jpa.processor.core.query.TestJPAExpandQueryCreateResult
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.816 sec - in org.apache.olingo.jpa.processor.core.query.TestJPAExpandQueryCreateResult

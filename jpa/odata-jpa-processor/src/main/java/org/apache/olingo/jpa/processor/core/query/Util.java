@@ -9,7 +9,6 @@ import java.util.Map;
 import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
-import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -108,24 +107,6 @@ public class Util {
     }
   }
 
-  public static JPAAssociationPath determineAssoziation(ServicDocument sd, EdmType naviStart,
-      EdmNavigationProperty naviTarget, List<UriResource> uriResourceParts) throws ODataApplicationException {
-
-    return determineAssoziation(sd, naviStart, determineAssociationPathName(uriResourceParts, naviTarget));
-  }
-
-  public static StringBuffer determineAssociationPathName(List<UriResource> uriResourceParts,
-      EdmNavigationProperty naviTarget) {
-    StringBuffer associationName = new StringBuffer();
-    for (int i = uriResourceParts.size() - 1; i > 0; i--) {
-      associationName.insert(0, JPAAssociationPath.PATH_SEPERATOR);
-      associationName.insert(0, ((UriResourceProperty) uriResourceParts.get(i)).getProperty()
-          .getName());
-    }
-    associationName.append(naviTarget.getName());
-    return associationName;
-  }
-
   public static Map<ExpandItem, JPAAssociationPath> determineAssoziations(ServicDocument sd,
       List<UriResource> startResourceList, ExpandOption expandOption) throws ODataApplicationException {
 
@@ -172,30 +153,41 @@ public class Util {
 
     StringBuffer associationName = null;
     UriResourceNavigation navigation = null;
-
-    for (int i = resourceParts.size() - 1; i >= 0; i--) {
-      if (resourceParts.get(i) instanceof UriResourceNavigation && navigation == null) {
-        navigation = (UriResourceNavigation) resourceParts.get(i);
-        associationName = new StringBuffer();
-        associationName.insert(0, navigation.getProperty().getName());
-      } else {
-        if (resourceParts.get(i) instanceof UriResourceComplexProperty) {
-          associationName.insert(0, JPAPath.PATH_SEPERATOR);
-          associationName.insert(0, ((UriResourceComplexProperty) resourceParts.get(i)).getProperty().getName());
-        }
-        if (resourceParts.get(i) instanceof UriResourceNavigation
-            || resourceParts.get(i) instanceof UriResourceEntitySet) {
-          pathList.add(new JPANavigationProptertyInfo((UriResourcePartTyped) resourceParts.get(i),
-              determineAssoziationPath(sd, ((UriResourcePartTyped) resourceParts.get(i)), associationName)));
-          if (resourceParts.get(i) instanceof UriResourceNavigation) {
-            navigation = (UriResourceNavigation) resourceParts.get(i);
-            associationName = new StringBuffer();
-            associationName.insert(0, navigation.getProperty().getName());
+    if (resourceParts != null && hasNavigation(resourceParts)) {
+      for (int i = resourceParts.size() - 1; i >= 0; i--) {
+        if (resourceParts.get(i) instanceof UriResourceNavigation && navigation == null) {
+          navigation = (UriResourceNavigation) resourceParts.get(i);
+          associationName = new StringBuffer();
+          associationName.insert(0, navigation.getProperty().getName());
+        } else {
+          if (resourceParts.get(i) instanceof UriResourceComplexProperty) {
+            associationName.insert(0, JPAPath.PATH_SEPERATOR);
+            associationName.insert(0, ((UriResourceComplexProperty) resourceParts.get(i)).getProperty().getName());
+          }
+          if (resourceParts.get(i) instanceof UriResourceNavigation
+              || resourceParts.get(i) instanceof UriResourceEntitySet) {
+            pathList.add(new JPANavigationProptertyInfo((UriResourcePartTyped) resourceParts.get(i),
+                determineAssoziationPath(sd, ((UriResourcePartTyped) resourceParts.get(i)), associationName)));
+            if (resourceParts.get(i) instanceof UriResourceNavigation) {
+              navigation = (UriResourceNavigation) resourceParts.get(i);
+              associationName = new StringBuffer();
+              associationName.insert(0, navigation.getProperty().getName());
+            }
           }
         }
       }
     }
     return pathList;
+  }
+
+  public static boolean hasNavigation(List<UriResource> uriResourceParts) {
+    if (uriResourceParts != null) {
+      for (int i = uriResourceParts.size() - 1; i >= 0; i--) {
+        if (uriResourceParts.get(i) instanceof UriResourceNavigation)
+          return true;
+      }
+    }
+    return false;
   }
 
   protected static JPAAssociationPath determineAssoziationPath(ServicDocument sd, UriResourcePartTyped naviStart,
