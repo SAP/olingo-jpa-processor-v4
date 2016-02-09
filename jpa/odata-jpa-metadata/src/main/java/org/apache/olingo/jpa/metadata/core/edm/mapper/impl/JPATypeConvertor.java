@@ -15,6 +15,7 @@ import javax.persistence.TemporalType;
 import javax.persistence.metamodel.Attribute;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 /**
@@ -26,6 +27,10 @@ public final class JPATypeConvertor {
 
   public static EdmPrimitiveTypeKind convertToEdmSimpleType(Class<?> type) throws ODataJPAModelException {
     return convertToEdmSimpleType(type, null);
+  }
+
+  public static EdmPrimitiveTypeKind convertToEdmSimpleType(JPAAttribute attribute) throws ODataJPAModelException {
+    return convertToEdmSimpleType(attribute.getType(), null);
   }
 
   /**

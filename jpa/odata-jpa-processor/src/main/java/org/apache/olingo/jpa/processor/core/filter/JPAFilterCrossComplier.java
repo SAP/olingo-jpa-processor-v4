@@ -46,17 +46,24 @@ public class JPAFilterCrossComplier {
 
   public JPAFilterCrossComplier(final JPAEntityType jpaEntityType, final Root<?> root,
       final JPAOperationConverter converter,
-      final FilterOption filterTree) {
+      final UriInfoResource uriResource) {
     super();
     this.converter = converter;
-    this.filterTree = filterTree;
+    if (uriResource != null)
+      this.filterTree = uriResource.getFilterOption();
+    else
+      this.filterTree = null;
     this.root = root;
     this.jpaEntityType = jpaEntityType;
   }
 
   @SuppressWarnings("unchecked")
   public Expression<Boolean> compile() throws ExpressionVisitException, ODataApplicationException {
+
     ExpressionVisitor<JPAOperator> v = new visitor();
+
+    if (filterTree == null)
+      return null;
 
     org.apache.olingo.server.api.uri.queryoption.expression.Expression e = filterTree.getExpression();
     filterTree.getKind();
@@ -81,8 +88,14 @@ public class JPAFilterCrossComplier {
         return new JPAComparisonOperator(converter, operator, left, right);
       else if (operator == BinaryOperatorKind.AND || operator == BinaryOperatorKind.OR)
         return new JPABooleanOperator(converter, operator, (JPAExpressionOperator) left, (JPAExpressionOperator) right);
+      else if (operator == BinaryOperatorKind.ADD
+          || operator == BinaryOperatorKind.SUB
+          || operator == BinaryOperatorKind.MUL
+          || operator == BinaryOperatorKind.DIV
+          || operator == BinaryOperatorKind.MOD)
+        return new JPAArithmeticOperator(converter, operator, left, right);
       else
-        throw new ODataApplicationException("Unsupported Operator" + operator, HttpStatusCode.BAD_REQUEST
+        throw new ODataApplicationException("Unsupported Operator " + operator, HttpStatusCode.BAD_REQUEST
             .getStatusCode(), Locale.ENGLISH);
     }
 
@@ -94,7 +107,7 @@ public class JPAFilterCrossComplier {
       if (operator == UnaryOperatorKind.NOT)
         return new JPAUnaryBooleanOperator(converter, operator, (JPAExpressionOperator) operand);
       else
-        throw new ODataApplicationException("Unsupported Operator" + operator, HttpStatusCode.BAD_REQUEST
+        throw new ODataApplicationException("Unsupported Operator " + operator, HttpStatusCode.BAD_REQUEST
             .getStatusCode(), Locale.ENGLISH);
     }
 
@@ -104,7 +117,7 @@ public class JPAFilterCrossComplier {
         ODataApplicationException {
       count += 1;
       System.out.println("Count: " + count + " Method " + methodCall.name());
-      return null;
+      return new JPAFunctionCall(converter, methodCall, parameters);
     }
 
     @Override

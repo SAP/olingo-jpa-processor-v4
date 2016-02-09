@@ -40,6 +40,8 @@ public class AdministrativeDivision {
   private String alternativeCode;
   @Column(name = "\"Area\"", precision = 34, scale = 0)
   private BigDecimal area;
+  @Column(name = "\"Population\"", precision = 34, scale = 0)
+  private long population;
 
   @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumns({
@@ -91,5 +93,9 @@ public class AdministrativeDivision {
 
   public BigDecimal getArea() {
     return area;
+  }
+
+  public long getPopulation() {
+    return population;
   }
 }

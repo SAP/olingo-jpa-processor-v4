@@ -33,23 +33,41 @@ class JPAComparisonOperator<T extends Comparable<T>> implements JPAExpressionOpe
   }
 
   @SuppressWarnings("unchecked")
-  public Expression<T> getLeft() {
+  public Expression<T> getLeft() throws ODataApplicationException {
     if (left instanceof JPALiteralOperator)
-      return (Expression<T>) ((JPAMemberOperator) right).get();
-    return (Expression<T>) ((JPAMemberOperator) left).get();
+      return (Expression<T>) right.get();
+    return (Expression<T>) left.get();
+  }
+
+  public Object getRight() {
+    if (left instanceof JPALiteralOperator)
+      return left;
+    return right;
   }
 
   @SuppressWarnings("unchecked")
-  public Comparable<T> getRight() {
-    if (left instanceof JPALiteralOperator)
-      return (Comparable<T>) ((JPALiteralOperator) left).get((JPAAttribute) ((JPAMemberOperator) right)
-          .determineAttributePath()
-          .getLeaf());
-    if (right instanceof JPALiteralOperator)
-      return (Comparable<T>) ((JPALiteralOperator) right).get((JPAAttribute) ((JPAMemberOperator) left)
-          .determineAttributePath()
-          .getLeaf());
-    return (Comparable<T>) ((JPAMemberOperator) right).get();
+  public Comparable<T> getRightAsComparable() throws ODataApplicationException {
+    if (left instanceof JPALiteralOperator) {
+      if (right instanceof JPAMemberOperator)
+        return (Comparable<T>) ((JPALiteralOperator) left).get((JPAAttribute) ((JPAMemberOperator) right)
+            .determineAttributePath()
+            .getLeaf());
+      else
+        return (Comparable<T>) left.get();
+    }
+    if (right instanceof JPALiteralOperator) {
+      if (left instanceof JPAMemberOperator)
+        return (Comparable<T>) ((JPALiteralOperator) right).get((JPAAttribute) ((JPAMemberOperator) left)
+            .determineAttributePath()
+            .getLeaf());
+      else
+        return (Comparable<T>) right.get();
+    }
+    return (Comparable<T>) right.get();
   }
 
+  @SuppressWarnings("unchecked")
+  public Expression<T> getRightAsExpression() throws ODataApplicationException {
+    return (Expression<T>) right.get();
+  }
 }

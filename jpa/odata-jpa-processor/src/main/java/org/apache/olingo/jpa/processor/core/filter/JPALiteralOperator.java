@@ -2,9 +2,12 @@ package org.apache.olingo.jpa.processor.core.filter;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeException;
+import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
+import org.apache.olingo.commons.core.edm.primitivetype.EdmPrimitiveTypeFactory;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPATypeConvertor;
 import org.apache.olingo.server.api.uri.queryoption.expression.Literal;
 
 public class JPALiteralOperator implements JPAOperator {
@@ -16,15 +19,26 @@ public class JPALiteralOperator implements JPAOperator {
 
   @Override
   public Object get() {
+    EdmPrimitiveType edmType = ((EdmPrimitiveType) literal.getType());
+    try {
+      return edmType.fromUriLiteral(literal.getText());
+    } catch (EdmPrimitiveTypeException e) {
+      // TODO Error handling
+      e.printStackTrace();
+    }
     return null;
   }
 
   public Object get(JPAAttribute attribute) {
-    EdmPrimitiveType edmType = ((EdmPrimitiveType) literal.getType());
+
     String value = null;
     try {
-      value = edmType.fromUriLiteral(literal.getText());
       CsdlProperty edmProperty = (CsdlProperty) attribute.getProperty();
+      EdmPrimitiveTypeKind edmTypeKind = JPATypeConvertor.convertToEdmSimpleType(attribute);
+      // TODO literal does not convert decimals without scale properly
+      // EdmPrimitiveType edmType = ((EdmPrimitiveType) literal.getType());
+      EdmPrimitiveType edmType = EdmPrimitiveTypeFactory.getInstance(edmTypeKind);
+      value = edmType.fromUriLiteral(literal.getText());
       return edmType.valueOfString(value, edmProperty.isNullable(), edmProperty.getMaxLength(),
           edmProperty.getPrecision(), edmProperty.getScale(), true, attribute.getType());
     } catch (EdmPrimitiveTypeException e) {

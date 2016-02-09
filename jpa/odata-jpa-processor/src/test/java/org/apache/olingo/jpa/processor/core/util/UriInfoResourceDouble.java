@@ -43,7 +43,6 @@ public class UriInfoResourceDouble implements UriInfoResource {
 
   @Override
   public FilterOption getFilterOption() {
-    fail();
     return null;
   }
 

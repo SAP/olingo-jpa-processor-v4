@@ -75,8 +75,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     this.uriResource = uriResource;
     this.cq = cb.createTupleQuery();
     this.root = cq.from(jpaEntity.getTypeClass());
-    this.filter = new JPAFilterCrossComplier(jpaEntity, root, new JPAOperationConverter(cb), uriResource
-        .getFilterOption());
+    this.filter = new JPAFilterCrossComplier(jpaEntity, root, new JPAOperationConverter(cb), uriResource);
   }
 
   protected Locale determineLocale(Map<String, List<String>> headers) {
