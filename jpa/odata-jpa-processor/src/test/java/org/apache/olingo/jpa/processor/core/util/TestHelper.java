@@ -1,4 +1,4 @@
-package org.apache.olingo.jpa.processor.core.query;
+package org.apache.olingo.jpa.processor.core.util;
 
 import java.lang.reflect.AnnotatedElement;
 

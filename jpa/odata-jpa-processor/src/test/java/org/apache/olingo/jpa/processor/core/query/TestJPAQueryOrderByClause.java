@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.jpa.processor.core.util.IntegrationTestHelper;
+import org.apache.olingo.jpa.processor.core.util.TestBase;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;

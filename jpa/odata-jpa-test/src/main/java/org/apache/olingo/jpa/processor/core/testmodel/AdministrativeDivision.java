@@ -1,5 +1,6 @@
 package org.apache.olingo.jpa.processor.core.testmodel;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -37,6 +38,8 @@ public class AdministrativeDivision {
   private String parentDivisionCode;
   @Column(name = "\"AlternativeCode\"", length = 10)
   private String alternativeCode;
+  @Column(name = "\"Area\"", precision = 34, scale = 0)
+  private BigDecimal area;
 
   @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumns({
@@ -84,5 +87,9 @@ public class AdministrativeDivision {
 
   public AdministrativeDivision getParent() {
     return parent;
+  }
+
+  public BigDecimal getArea() {
+    return area;
   }
 }

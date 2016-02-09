@@ -36,7 +36,7 @@ public abstract class JPAAbstractQuery {
     try {
       this.jpaEntity = sd.getEntity(edmType);
     } catch (ODataJPAModelException e) {
-      throw new ODataApplicationException("Property not found", HttpStatusCode.BAD_REQUEST.ordinal(),
+      throw new ODataApplicationException("Property not found", HttpStatusCode.BAD_REQUEST.getStatusCode(),
           Locale.ENGLISH, e);
     }
   }
@@ -53,7 +53,7 @@ public abstract class JPAAbstractQuery {
         equalCondition = cb.equal(root.get(jpaEntity.getPath(keyPredicate.getName()).getLeaf()
             .getInternalName()), eliminateApostrophe(keyPredicate.getText()));
       } catch (ODataJPAModelException e) {
-        throw new ODataApplicationException("Property not found", HttpStatusCode.BAD_REQUEST.ordinal(),
+        throw new ODataApplicationException("Property not found", HttpStatusCode.BAD_REQUEST.getStatusCode(),
             Locale.ENGLISH, e);
       }
       if (whereCondition == null)
@@ -77,8 +77,7 @@ public abstract class JPAAbstractQuery {
       return ((UriResourceNavigation) uriResourceItem).getKeyPredicates();
     else
       throw new ODataApplicationException("Unsupported Resource Kind '" + uriResourceItem.getKind().name() + "'",
-          HttpStatusCode.BAD_REQUEST.ordinal(),
-          Locale.ENGLISH);
+          HttpStatusCode.BAD_REQUEST.getStatusCode(), Locale.ENGLISH);
   }
 
   protected abstract Root<?> getRoot();

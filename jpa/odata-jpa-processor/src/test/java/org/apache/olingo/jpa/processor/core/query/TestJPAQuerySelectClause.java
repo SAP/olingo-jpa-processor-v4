@@ -24,6 +24,8 @@ import org.apache.olingo.jpa.processor.core.util.EdmPropertyDouble;
 import org.apache.olingo.jpa.processor.core.util.ExpandItemDouble;
 import org.apache.olingo.jpa.processor.core.util.ExpandOptionDouble;
 import org.apache.olingo.jpa.processor.core.util.SelectOptionDouble;
+import org.apache.olingo.jpa.processor.core.util.TestBase;
+import org.apache.olingo.jpa.processor.core.util.TestHelper;
 import org.apache.olingo.jpa.processor.core.util.UriInfoDouble;
 import org.apache.olingo.jpa.processor.core.util.UriResourceNavigationDouble;
 import org.apache.olingo.jpa.processor.core.util.UriResourcePropertyDouble;

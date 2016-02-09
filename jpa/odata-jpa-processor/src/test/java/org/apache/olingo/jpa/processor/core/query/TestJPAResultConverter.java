@@ -14,6 +14,8 @@ import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.ValueType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.processor.core.util.EdmEntitySetDouble;
+import org.apache.olingo.jpa.processor.core.util.TestBase;
+import org.apache.olingo.jpa.processor.core.util.TestHelper;
 import org.apache.olingo.jpa.processor.core.util.TupleDouble;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.junit.Before;

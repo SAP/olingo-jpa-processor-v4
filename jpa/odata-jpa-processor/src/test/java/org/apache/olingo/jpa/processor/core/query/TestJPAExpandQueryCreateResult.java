@@ -15,6 +15,8 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExc
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
 import org.apache.olingo.jpa.processor.core.util.EdmEntityTypeDouble;
 import org.apache.olingo.jpa.processor.core.util.ExpandItemDouble;
+import org.apache.olingo.jpa.processor.core.util.TestBase;
+import org.apache.olingo.jpa.processor.core.util.TestHelper;
 import org.apache.olingo.jpa.processor.core.util.TupleDouble;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.junit.Before;

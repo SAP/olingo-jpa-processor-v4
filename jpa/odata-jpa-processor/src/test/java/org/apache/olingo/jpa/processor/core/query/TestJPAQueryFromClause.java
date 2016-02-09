@@ -21,6 +21,8 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.processor.core.testmodel.Organization;
 import org.apache.olingo.jpa.processor.core.util.EdmEntitySetDouble;
+import org.apache.olingo.jpa.processor.core.util.TestBase;
+import org.apache.olingo.jpa.processor.core.util.TestHelper;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.junit.Before;
 import org.junit.Test;

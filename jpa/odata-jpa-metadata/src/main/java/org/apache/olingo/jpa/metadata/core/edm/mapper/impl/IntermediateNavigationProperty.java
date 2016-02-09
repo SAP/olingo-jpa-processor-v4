@@ -177,4 +177,9 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
   public boolean isCollection() {
     return jpaAttribute.isCollection();
   }
+
+  @Override
+  public CsdlNavigationProperty getProperty() throws ODataJPAModelException {
+    return getEdmItem();
+  }
 }

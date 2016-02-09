@@ -36,6 +36,8 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
+import org.apache.olingo.jpa.processor.core.filter.JPAFilterCrossComplier;
+import org.apache.olingo.jpa.processor.core.filter.JPAOperationConverter;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriParameter;
@@ -53,22 +55,28 @@ import org.apache.olingo.server.api.uri.queryoption.SelectOption;
 import org.apache.olingo.server.api.uri.queryoption.SkipOption;
 import org.apache.olingo.server.api.uri.queryoption.TopOption;
 import org.apache.olingo.server.api.uri.queryoption.expression.Expression;
+import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitException;
 import org.apache.olingo.server.api.uri.queryoption.expression.Member;
 
 public abstract class JPAExecutableQuery extends JPAAbstractQuery {
+  private static final String SELECT_ITEM_SEPERATOR = ",";
   protected final Locale locale;
   protected final UriInfoResource uriResource;
   protected static final String SELECT_ALL = "*";
   protected final CriteriaQuery<Tuple> cq;
   protected final Root<?> root;
+  protected final JPAFilterCrossComplier filter;
 
   public JPAExecutableQuery(ServicDocument sd, EdmType edmType, EntityManager em,
       Map<String, List<String>> requestHeaders, UriInfoResource uriResource) throws ODataApplicationException {
+
     super(sd, edmType, em);
     this.locale = determineLocale(requestHeaders);
     this.uriResource = uriResource;
     this.cq = cb.createTupleQuery();
     this.root = cq.from(jpaEntity.getTypeClass());
+    this.filter = new JPAFilterCrossComplier(jpaEntity, root, new JPAOperationConverter(cb), uriResource
+        .getFilterOption());
   }
 
   protected Locale determineLocale(Map<String, List<String>> headers) {
@@ -79,7 +87,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     if (languageHeaders != null) {
       String languageHeader = languageHeaders.get(0);
       if (languageHeader != null) {
-        String[] localeList = languageHeader.split(",");
+        String[] localeList = languageHeader.split(SELECT_ITEM_SEPERATOR);
         String locale = localeList[0];
         String[] languCountry = locale.split("-");
         if (languCountry.length == 2)
@@ -109,7 +117,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     String[] selectList;
     try {
       List<? extends JPAAttribute> jpaKeyList = jpaEntity.getKey();
-      selectList = select.split(","); // OData separator for $select
+      selectList = select.split(SELECT_ITEM_SEPERATOR); // OData separator for $select
 
       for (String selectItem : selectList) {
         JPAPath selectItemPath = jpaEntity.getPath(selectItem);
@@ -252,6 +260,22 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
         whereCondition = cb.and(whereCondition, cb.exists(subQuery));
     }
     // TODO Given filter:
+    // http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398301
+    // http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part2-url-conventions/odata-v4.0-errata02-os-part2-url-conventions-complete.html#_Toc406398094
+    // https://tools.oasis-open.org/version-control/browse/wsvn/odata/trunk/spec/ABNF/odata-abnf-construction-rules.txt
+    javax.persistence.criteria.Expression<Boolean> filterExpression;
+    try {
+      filterExpression = filter.compile();
+    } catch (ExpressionVisitException e) {
+      throw new ODataApplicationException("Unable to parth filter expression", HttpStatusCode.BAD_REQUEST
+          .getStatusCode(),
+          Locale.ENGLISH, e);
+    }
+    if (filterExpression != null)
+      if (whereCondition == null)
+      whereCondition = filterExpression;
+    else
+      whereCondition = cb.and(whereCondition, filterExpression);
     return whereCondition;
   }
 
@@ -434,7 +458,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
                 JPAAttribute attribute = (JPAAttribute) type.getPath(edmProperty.getName()).getLeaf();
                 p = p.get(attribute.getInternalName());
               } catch (ODataJPAModelException e) {
-                throw new ODataApplicationException("Property not found", HttpStatusCode.BAD_REQUEST.ordinal(),
+                throw new ODataApplicationException("Property not found", HttpStatusCode.BAD_REQUEST.getStatusCode(),
                     Locale.ENGLISH, e);
               }
               if (orderByItem.isDescending())
@@ -448,7 +472,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
                 p = p.get(attribute.getInternalName());
                 type = attribute.getStructuredType();
               } catch (ODataJPAModelException e) {
-                throw new ODataApplicationException("Property not found", HttpStatusCode.BAD_REQUEST.ordinal(),
+                throw new ODataApplicationException("Property not found", HttpStatusCode.BAD_REQUEST.getStatusCode(),
                     Locale.ENGLISH, e);
               }
             } else if (uriResource instanceof UriResourceNavigation) {
@@ -458,7 +482,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
                 join = joinTables.get(jpaEntity.getAssociationPath(edmNaviProperty.getName()).getLeaf()
                     .getInternalName());
               } catch (ODataJPAModelException e) {
-                throw new ODataApplicationException("Property not found", HttpStatusCode.BAD_REQUEST.ordinal(),
+                throw new ODataApplicationException("Property not found", HttpStatusCode.BAD_REQUEST.getStatusCode(),
                     Locale.ENGLISH, e);
               }
               if (orderByItem.isDescending())

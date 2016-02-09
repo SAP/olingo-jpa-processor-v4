@@ -31,6 +31,7 @@ import org.apache.olingo.server.api.uri.queryoption.OrderByItem;
 import org.apache.olingo.server.api.uri.queryoption.OrderByOption;
 import org.apache.olingo.server.api.uri.queryoption.SelectOption;
 import org.apache.olingo.server.api.uri.queryoption.expression.Expression;
+import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitException;
 import org.apache.olingo.server.api.uri.queryoption.expression.Member;
 
 public class JPAQuery extends JPAExecutableQuery {
@@ -54,6 +55,7 @@ public class JPAQuery extends JPAExecutableQuery {
    * 
    * @return Number of results
    * @throws ODataApplicationException
+   * @throws ExpressionVisitException
    */
   public Long countResults() throws ODataApplicationException {
     /*
@@ -120,7 +122,7 @@ public class JPAQuery extends JPAExecutableQuery {
         groupBy.add(root.get(key.getInternalName()));
       }
     } catch (ODataJPAModelException e) {
-      throw new ODataApplicationException("Property not found", HttpStatusCode.BAD_REQUEST.ordinal(),
+      throw new ODataApplicationException("Property not found", HttpStatusCode.BAD_REQUEST.getStatusCode(),
           Locale.ENGLISH, e);
     }
     return groupBy; // joinTables.get(jpaEntity.getInternalName());
@@ -142,7 +144,7 @@ public class JPAQuery extends JPAExecutableQuery {
                 naviAttributes.add((JPAAssociationAttribute) jpaEntity.getAssociationPath(edmNaviProperty.getName())
                     .getLeaf());
               } catch (ODataJPAModelException e) {
-                throw new ODataApplicationException("Property not found", HttpStatusCode.BAD_REQUEST.ordinal(),
+                throw new ODataApplicationException("Property not found", HttpStatusCode.BAD_REQUEST.getStatusCode(),
                     Locale.ENGLISH, e);
               }
             }

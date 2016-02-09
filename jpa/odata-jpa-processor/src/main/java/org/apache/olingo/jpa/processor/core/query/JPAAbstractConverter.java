@@ -66,7 +66,7 @@ public abstract class JPAAbstractConverter {
     try {
       odataEntity.setId(createId(jpaConversionTargetEntity.getKey(), row));
     } catch (ODataJPAModelException e) {
-      throw new ODataApplicationException("Property not found", HttpStatusCode.BAD_REQUEST.ordinal(),
+      throw new ODataApplicationException("Property not found", HttpStatusCode.BAD_REQUEST.getStatusCode(),
           Locale.ENGLISH, e);
     }
     for (String attribute : complexValueBuffer.keySet()) {

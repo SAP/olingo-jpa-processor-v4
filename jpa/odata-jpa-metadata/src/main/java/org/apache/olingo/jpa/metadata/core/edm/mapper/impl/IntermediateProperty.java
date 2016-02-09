@@ -183,4 +183,9 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
     return JPATypeConvertor.convertToEdmSimpleType(jpaAttribute.getJavaType());
   }
 
+  @Override
+  public CsdlProperty getProperty() throws ODataJPAModelException {
+    return getEdmItem();
+  }
+
 }
