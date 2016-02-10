@@ -166,17 +166,22 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
 
     // Build select clause
     for (JPAPath jpaPath : jpaPathList) {
-      Path<?> p = root;
-      for (JPAElement jpaPathElement : jpaPath.getPath())
-        if (jpaPathElement instanceof JPADescriptionAttribute) {
-          Join<?, ?> join = (Join<?, ?>) joinTables.get(jpaPathElement.getInternalName());
-          p = join.get(((JPADescriptionAttribute) jpaPathElement).getDescriptionAttribute().getInternalName());
-        } else
-          p = p.get(jpaPathElement.getInternalName());
+      Path<?> p = convertToCriteriaPath(joinTables, jpaPath);
       p.alias(jpaPath.getAlias());
       selections.add(p);
     }
     return selections;
+  }
+
+  final Path<?> convertToCriteriaPath(final HashMap<String, From<?, ?>> joinTables, JPAPath jpaPath) {
+    Path<?> p = root;
+    for (JPAElement jpaPathElement : jpaPath.getPath())
+      if (jpaPathElement instanceof JPADescriptionAttribute) {
+        Join<?, ?> join = (Join<?, ?>) joinTables.get(jpaPathElement.getInternalName());
+        p = join.get(((JPADescriptionAttribute) jpaPathElement).getDescriptionAttribute().getInternalName());
+      } else
+        p = p.get(jpaPathElement.getInternalName());
+    return p;
   }
 
   @Override

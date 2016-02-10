@@ -34,12 +34,12 @@ import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;;
 @EdmFunctions({
     @EdmFunction(
         name = "CountRoles",
-        procedureName = "COUNT_ROLES",
+        functionName = "COUNT_ROLES",
         returnType = @EdmFunction.ReturnType(isCollection = true) ,
         parameter = { @EdmFunctionParameter(name = "Amount", parameterName = "a", type = Integer.class) }),
     @EdmFunction(
         name = "IsPrime",
-        procedureName = "IS_PRIME",
+        functionName = "IS_PRIME",
         returnType = @ReturnType(type = Boolean.class, isNullable = false) ,
         parameter = { @EdmFunctionParameter(name = "Number", type = BigDecimal.class, precision = 32, scale = 0) }),
 
@@ -86,10 +86,6 @@ public abstract class BusinessPartner {
   protected CommunicationData communicationData = new CommunicationData();
   @Embedded
   @AssociationOverrides({
-      // @AssociationOverride(name = "administrativeDivision",
-      // joinColumns = { @JoinColumn(name = "\"CodePublisher\"", referencedColumnName = "\"CodePublisher\""),
-      // @JoinColumn(name = "\"CodeID\"", referencedColumnName = "\"CodeID\""),
-      // @JoinColumn(name = "\"Address.Region\"", referencedColumnName = "\"DivisionCode\"") }),
       @AssociationOverride(name = "countryName",
           joinColumns = @JoinColumn(referencedColumnName = "\"Address.Country\"", name = "\"ISOCode\"") ),
       @AssociationOverride(name = "regionName",

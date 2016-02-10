@@ -63,6 +63,7 @@ public class JPAOperationConverter {
       String searchString = ((String) ((JPALiteralOperator) jpaFunction.getParameter(1)).get());
       return cb.locate((Expression<String>) (jpaFunction.getParameter(0).get()), searchString);
     case SUBSTRING:
+      // Substring worked fine with H2 and HANA, but had problems with HSQLDB
       Integer start = new Integer(((String) ((JPALiteralOperator) jpaFunction.getParameter(1)).get()));
       if (jpaFunction.noParameters() == 3) {
         Integer length = new Integer(((String) ((JPALiteralOperator) jpaFunction.getParameter(2)).get()));
@@ -71,7 +72,7 @@ public class JPAOperationConverter {
         return cb.substring((Expression<String>) (jpaFunction.getParameter(0).get()), start);
 
     case TOLOWER:
-      // TODO Locale!!
+      // TODO Locale!! and inverted parameter sequence
       if (jpaFunction.getParameter(0).get() instanceof String)
         return jpaFunction.getParameter(0).get().toString().toLowerCase();
       return cb.lower((Expression<String>) (jpaFunction.getParameter(0).get()));

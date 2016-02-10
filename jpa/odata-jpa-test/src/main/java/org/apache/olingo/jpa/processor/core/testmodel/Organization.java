@@ -11,7 +11,7 @@ import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmFunctionParameter;
 
 @EdmFunction(
     name = "AllCustomersByABC",
-    procedureName = "CUSTOMER_BY_ABC",
+    functionName = "CUSTOMER_BY_ABC",
     returnType = @ReturnType(type = Organization.class, isCollection = true) ,
     parameter = { @EdmFunctionParameter(name = "Class", type = Character.class) })
 

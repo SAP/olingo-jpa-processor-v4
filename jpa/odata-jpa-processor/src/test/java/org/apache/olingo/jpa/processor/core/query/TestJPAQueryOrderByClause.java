@@ -17,7 +17,7 @@ public class TestJPAQueryOrderByClause extends TestBase {
   public void testOrderByOneProperty() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper("Organizations?$orderby=Name1");
-    assertEquals(200, helper.getStatus());
+    helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
     assertEquals("Eighth Org.", orgs.get(0).get("Name1").asText());
@@ -28,7 +28,7 @@ public class TestJPAQueryOrderByClause extends TestBase {
   public void testOrderByOneComplexPropertyAsc() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper("Organizations?$orderby=Address/Region");
-    assertEquals(200, helper.getStatus());
+    helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
     assertEquals("US-CA", orgs.get(0).get("Address").get("Region").asText());
@@ -41,7 +41,7 @@ public class TestJPAQueryOrderByClause extends TestBase {
     IntegrationTestHelper helper = new IntegrationTestHelper("Organizations?$orderby=Address/Region desc");
     if (helper.getStatus() != 200)
       System.out.println(helper.getRawResult());
-    assertEquals(200, helper.getStatus());
+    helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
     assertEquals("US-UT", orgs.get(0).get("Address").get("Region").asText());
@@ -52,7 +52,7 @@ public class TestJPAQueryOrderByClause extends TestBase {
   public void testOrderByTwoPropertiesDescAsc() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper("Organizations?$orderby=Address/Region desc,Name1 asc");
-    assertEquals(200, helper.getStatus());
+    helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
     assertEquals("US-UT", orgs.get(0).get("Address").get("Region").asText());
@@ -64,7 +64,7 @@ public class TestJPAQueryOrderByClause extends TestBase {
   public void testOrderByTwoPropertiesDescDesc() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper("Organizations?$orderby=Address/Region desc,Name1 desc");
-    assertEquals(200, helper.getStatus());
+    helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
     assertEquals("US-UT", orgs.get(0).get("Address").get("Region").asText());
@@ -84,10 +84,23 @@ public class TestJPAQueryOrderByClause extends TestBase {
   }
 
   @Test
+  public void testOrderBy$CountAndSelectAsc() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(
+        "Organizations?$select=ID,Name1,Name2,Address/CountryName&$orderby=Roles/$count asc");
+    helper.assertStatus(200);
+
+    ArrayNode orgs = helper.getValues();
+    assertEquals("3", orgs.get(9).get("ID").asText());
+    assertEquals("2", orgs.get(8).get("ID").asText());
+  }
+
+  @Test
   public void testOrderBy$CountAsc() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper("Organizations?$orderby=Roles/$count asc");
-    assertEquals(200, helper.getStatus());
+    IntegrationTestHelper helper = new IntegrationTestHelper(
+        "Organizations?$orderby=Roles/$count asc");
+    helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
     assertEquals("3", orgs.get(9).get("ID").asText());
@@ -99,7 +112,7 @@ public class TestJPAQueryOrderByClause extends TestBase {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(
         "Organizations?$orderby=Roles/$count desc, Address/Region desc");
-    assertEquals(200, helper.getStatus());
+    helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
     assertEquals("3", orgs.get(0).get("ID").asText());

@@ -60,7 +60,7 @@ class IntermediateFunction extends IntermediateModelElement {
   }
 
   String getStoredProcedure() {
-    return jpaStoredProcedure.procedureName();
+    return jpaStoredProcedure.functionName();
   }
 
   private List<CsdlParameter> determineEdmInputParameter() throws ODataJPAModelException {

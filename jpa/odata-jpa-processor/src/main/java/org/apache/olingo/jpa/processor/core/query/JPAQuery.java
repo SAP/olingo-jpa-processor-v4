@@ -11,13 +11,11 @@ import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.From;
-import javax.persistence.criteria.Root;
 
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
-import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -96,7 +94,7 @@ public class JPAQuery extends JPAExecutableQuery {
     cq.orderBy(createOrderList(joinTables, uriResource.getOrderByOption()));
 
     if (orderByNaviAttributes.size() > 0)
-      cq.groupBy(createGroupBy(joinTables));
+      cq.groupBy(createGroupBy(joinTables, selectionPath));
 
     TypedQuery<Tuple> tq = em.createQuery(cq);
     addTopSkip(tq);
@@ -112,20 +110,16 @@ public class JPAQuery extends JPAExecutableQuery {
     return uriResource.getSelectOption();
   }
 
-  private List<javax.persistence.criteria.Expression<?>> createGroupBy(HashMap<String, From<?, ?>> joinTables)
-      throws ODataApplicationException {
+  private List<javax.persistence.criteria.Expression<?>> createGroupBy(HashMap<String, From<?, ?>> joinTables,
+      List<JPAPath> selectionPathList)
+          throws ODataApplicationException {
     List<javax.persistence.criteria.Expression<?>> groupBy = new ArrayList<javax.persistence.criteria.Expression<?>>();
-    Root<?> root = (Root<?>) joinTables.get(jpaEntity.getInternalName());
 
-    try {
-      for (JPAAttribute key : jpaEntity.getKey()) {
-        groupBy.add(root.get(key.getInternalName()));
-      }
-    } catch (ODataJPAModelException e) {
-      throw new ODataApplicationException("Property not found", HttpStatusCode.BAD_REQUEST.getStatusCode(),
-          Locale.ENGLISH, e);
+    for (JPAPath jpaPath : selectionPathList) {
+      groupBy.add(convertToCriteriaPath(joinTables, jpaPath));
     }
-    return groupBy; // joinTables.get(jpaEntity.getInternalName());
+
+    return groupBy;
   }
 
   private List<JPAAssociationAttribute> extractOrderByNaviAttributes() throws ODataApplicationException {

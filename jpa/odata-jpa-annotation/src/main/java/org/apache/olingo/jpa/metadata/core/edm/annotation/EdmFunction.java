@@ -58,7 +58,7 @@ public @interface EdmFunction {
    * Defines the name of a stored procedure to be called
    * @return
    */
-  String procedureName() default "";
+  String functionName() default "";
 
   /**
    * Define the return type of this function import

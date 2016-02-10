@@ -1,4 +1,4 @@
-
+--CREATE ALIAS IS_PRIME FOR "org.apache.olingo.jpa.processor.core.test_udf.UserDefinedFunctions.isPrime";
 SET schema "OLINGO";
     
 CREATE TABLE "org.apache.olingo.jpa::BusinessPartner" (
