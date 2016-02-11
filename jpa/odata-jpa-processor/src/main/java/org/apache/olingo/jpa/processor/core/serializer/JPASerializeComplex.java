@@ -3,51 +3,59 @@ package org.apache.olingo.jpa.processor.core.serializer;
 import org.apache.olingo.commons.api.data.ContextURL;
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.Property;
+import org.apache.olingo.commons.api.edm.EdmComplexType;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
-import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
-import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.jpa.processor.core.api.JPASerializer;
 import org.apache.olingo.jpa.processor.core.query.Util;
-import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ServiceMetadata;
+import org.apache.olingo.server.api.serializer.ComplexSerializerOptions;
 import org.apache.olingo.server.api.serializer.ODataSerializer;
-import org.apache.olingo.server.api.serializer.PrimitiveSerializerOptions;
 import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.serializer.SerializerResult;
+import org.apache.olingo.server.api.uri.UriHelper;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
 
-public class JPASerializeComplex implements JPASerializer {
-  private ServiceMetadata serviceMetadata;
-  private OData odata;
+class JPASerializeComplex implements JPASerializer {
+  private final ServiceMetadata serviceMetadata;
+  private final UriInfo uriInfo;
+  private final UriHelper uriHelper;
+  private final ODataSerializer serializer;
 
-  @Override
-  public final void init(final OData odata, final ServiceMetadata serviceMetadata) {
-    this.odata = odata;
+  JPASerializeComplex(ServiceMetadata serviceMetadata, ODataSerializer serializer, UriHelper uriHelper,
+      UriInfo uriInfo) {
+    this.uriInfo = uriInfo;
+    this.serializer = serializer;
     this.serviceMetadata = serviceMetadata;
+    this.uriHelper = uriHelper;
   }
 
   @Override
-  public SerializerResult serialize(ODataRequest request, ContentType responseFormat,
-      EntityCollection result, UriInfo uriInfo) throws SerializerException {
-    ODataSerializer serializer = odata.createSerializer(responseFormat);
+  public SerializerResult serialize(ODataRequest request, EntityCollection result) throws SerializerException {
 
     EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(uriInfo.getUriResourceParts());
+
     Property property = result.getEntities().get(0).getProperties().get(0);
 
-    UriResourceProperty uriProperty = (UriResourceProperty) uriInfo.getUriResourceParts().get(uriInfo
-        .getUriResourceParts().size() - 1);
-    EdmPrimitiveType edmPropertyType = (EdmPrimitiveType) uriProperty.getProperty().getType();
+    UriResourceProperty uriProperty = Util.determineStartNavigationPath(uriInfo.getUriResourceParts());
+    EdmComplexType edmPropertyType = (EdmComplexType) uriProperty.getProperty().getType();
+
+    String selectList = uriHelper.buildContextURLSelectList(targetEdmEntitySet.getEntityType(),
+        null, uriInfo.getSelectOption());
 
     ContextURL contextUrl = ContextURL.with()
         .entitySet(targetEdmEntitySet)
-        .navOrPropertyPath(property.getName())
+        .navOrPropertyPath(Util.determineProptertyNavigationPath(uriInfo.getUriResourceParts()))
+        .selectList(selectList)
+        .build();
+    ComplexSerializerOptions options = ComplexSerializerOptions.with()
+        .contextURL(contextUrl)
+        .select(uriInfo.getSelectOption())
+        .expand(uriInfo.getExpandOption())
         .build();
 
-    PrimitiveSerializerOptions options = PrimitiveSerializerOptions.with().contextURL(contextUrl).build();
-
-    SerializerResult serializerResult = serializer.primitive(serviceMetadata, edmPropertyType, property, options);
+    SerializerResult serializerResult = serializer.complex(serviceMetadata, edmPropertyType, property, options);
     return serializerResult;
   }
 }

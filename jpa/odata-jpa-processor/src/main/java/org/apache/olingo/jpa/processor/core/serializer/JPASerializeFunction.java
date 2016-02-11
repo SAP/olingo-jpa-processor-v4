@@ -3,9 +3,7 @@ package org.apache.olingo.jpa.processor.core.serializer;
 import org.apache.olingo.commons.api.data.ContextURL;
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
-import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.jpa.processor.core.api.JPASerializer;
-import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.serializer.EntityCollectionSerializerOptions;
@@ -13,22 +11,26 @@ import org.apache.olingo.server.api.serializer.EntitySerializerOptions;
 import org.apache.olingo.server.api.serializer.ODataSerializer;
 import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.serializer.SerializerResult;
+import org.apache.olingo.server.api.uri.UriHelper;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriResourceFunction;
 
-public class JPASerializeFunction implements JPASerializer {
-  private ServiceMetadata serviceMetadata;
-  private OData odata;
+class JPASerializeFunction implements JPASerializer {
+  private final ServiceMetadata serviceMetadata;
+  private final UriInfo uriInfo;
+  private final UriHelper uriHelper;
+  private final ODataSerializer serializer;
 
-  @Override
-  public final void init(final OData odata, final ServiceMetadata serviceMetadata) {
-    this.odata = odata;
+  JPASerializeFunction(ServiceMetadata serviceMetadata, ODataSerializer serializer, UriHelper uriHelper,
+      UriInfo uriInfo) {
+    this.uriInfo = uriInfo;
+    this.serializer = serializer;
     this.serviceMetadata = serviceMetadata;
+    this.uriHelper = uriHelper;
   }
 
   @Override
-  public SerializerResult serialize(ODataRequest request, ContentType responseFormat,
-      EntityCollection result, UriInfo uriInfo) throws SerializerException {
+  public SerializerResult serialize(ODataRequest request, EntityCollection result) throws SerializerException {
 
     UriResourceFunction uriResource = (UriResourceFunction) uriInfo.getUriResourceParts().get(0);
     EdmEntityType edmEntityType = (EdmEntityType) uriResource.getFunction().getReturnType().getType();
@@ -37,7 +39,6 @@ public class JPASerializeFunction implements JPASerializer {
         .type(edmEntityType)
         .build();
 
-    ODataSerializer serializer = odata.createSerializer(responseFormat);
     if (uriResource.isCollection()) {
       EntityCollectionSerializerOptions options = EntityCollectionSerializerOptions.with()
           .contextURL(contextURL)

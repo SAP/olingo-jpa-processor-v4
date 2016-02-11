@@ -5,33 +5,34 @@ import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.Property;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
-import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.jpa.processor.core.api.JPASerializer;
 import org.apache.olingo.jpa.processor.core.query.Util;
-import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.serializer.ODataSerializer;
 import org.apache.olingo.server.api.serializer.PrimitiveSerializerOptions;
 import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.serializer.SerializerResult;
+import org.apache.olingo.server.api.uri.UriHelper;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
 
-public class JPASerializePrimitive implements JPASerializer {
-  private ServiceMetadata serviceMetadata;
-  private OData odata;
+class JPASerializePrimitive implements JPASerializer {
+  private final ServiceMetadata serviceMetadata;
+  private final UriInfo uriInfo;
+  private final UriHelper uriHelper;
+  private final ODataSerializer serializer;
 
-  @Override
-  public final void init(final OData odata, final ServiceMetadata serviceMetadata) {
-    this.odata = odata;
+  JPASerializePrimitive(ServiceMetadata serviceMetadata, ODataSerializer serializer, UriHelper uriHelper,
+      UriInfo uriInfo) {
+    this.uriInfo = uriInfo;
+    this.serializer = serializer;
     this.serviceMetadata = serviceMetadata;
+    this.uriHelper = uriHelper;
   }
 
   @Override
-  public SerializerResult serialize(ODataRequest request, ContentType responseFormat,
-      EntityCollection result, UriInfo uriInfo) throws SerializerException {
-    ODataSerializer serializer = odata.createSerializer(responseFormat);
+  public SerializerResult serialize(ODataRequest request, EntityCollection result) throws SerializerException {
 
     EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(uriInfo.getUriResourceParts());
     Property property = result.getEntities().get(0).getProperties().get(0);

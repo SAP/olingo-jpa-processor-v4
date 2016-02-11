@@ -28,7 +28,6 @@ import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.serializer.SerializerResult;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriResource;
-import org.apache.olingo.server.api.uri.UriResourceComplexProperty;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
 
@@ -63,16 +62,12 @@ public class JPAPropertyProcessor extends JPAAbstractProcessor implements Primit
   @Override
   public void readComplex(ODataRequest request, ODataResponse response, UriInfo uriInfo, ContentType responseFormat)
       throws ODataApplicationException, ODataLibraryException {
+
     UriResource uriResource = uriInfo.getUriResourceParts().get(0);
+    JPASerializer serializer = factory.createSerializer(responseFormat, uriInfo);
+
     if (uriResource instanceof UriResourceEntitySet) {
-      EntityCollection result = readEntityInternal(request, response, uriInfo, responseFormat);
-      if (result.getEntities() != null) {
-        EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(uriInfo.getUriResourceParts());
-        SerializerResult serializerResult = serializeComplexResult(request, responseFormat, targetEdmEntitySet,
-            result, uriInfo);
-        createSuccessResonce(response, responseFormat, serializerResult);
-      } else
-        response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
+      readEntityInternal(request, response, uriInfo, responseFormat, serializer);
     } else {
       throw new ODataApplicationException("Unsupported resource type", HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(),
           Locale.ENGLISH);
@@ -82,25 +77,13 @@ public class JPAPropertyProcessor extends JPAAbstractProcessor implements Primit
   @Override
   public void readPrimitive(ODataRequest request, ODataResponse response, UriInfo uriInfo, ContentType responseFormat)
       throws ODataApplicationException, ODataLibraryException {
-    SerializerResult serializerResult = null;
+
     List<UriResource> resources = uriInfo.getUriResourceParts();
-
     UriResource uriResource = resources.get(0);
-    if (uriResource instanceof UriResourceEntitySet) {
-      EntityCollection result = readEntityInternal(request, response, uriInfo, responseFormat);
-      if (result.getEntities() != null) {
-        EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(uriInfo.getUriResourceParts());
-        // TODO Check if this is correct. Wouldn't it make sense to always call "serializePrimitiveResult"
-        if (resources.get(resources.size() - 2) instanceof UriResourceComplexProperty)
-          serializerResult = serializeComplexResult(request, responseFormat, targetEdmEntitySet,
-              result, uriInfo);
-        else
-          serializerResult = serializePrimitiveResult(request, responseFormat, targetEdmEntitySet,
-              result, uriInfo);
 
-        createSuccessResonce(response, responseFormat, serializerResult);
-      } else
-        response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
+    if (uriResource instanceof UriResourceEntitySet) {
+      JPASerializer serializer = factory.createSerializer(responseFormat, uriInfo);
+      readEntityInternal(request, response, uriInfo, responseFormat, serializer);
     } else {
       throw new ODataApplicationException("Unsupported resource type", HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(),
           Locale.ENGLISH);

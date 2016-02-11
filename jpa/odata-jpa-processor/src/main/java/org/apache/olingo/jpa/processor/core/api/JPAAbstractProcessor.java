@@ -25,6 +25,7 @@ import org.apache.olingo.jpa.processor.core.query.JPANavigationProptertyInfo;
 import org.apache.olingo.jpa.processor.core.query.JPAQuery;
 import org.apache.olingo.jpa.processor.core.query.JPAResultConverter;
 import org.apache.olingo.jpa.processor.core.query.Util;
+import org.apache.olingo.jpa.processor.core.serializer.JPASerializerFactory;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataRequest;
@@ -48,6 +49,7 @@ public abstract class JPAAbstractProcessor {
   protected CriteriaBuilder cb;
   protected OData odata;
   protected ServiceMetadata serviceMetadata;
+  protected JPASerializerFactory factory;
 
   public JPAAbstractProcessor(ServicDocument sd, EntityManager em) {
     super();
@@ -59,6 +61,7 @@ public abstract class JPAAbstractProcessor {
   public void init(OData odata, ServiceMetadata serviceMetadata) {
     this.odata = odata;
     this.serviceMetadata = serviceMetadata;
+    this.factory = new JPASerializerFactory(odata, serviceMetadata);
   }
 
   /**
@@ -73,8 +76,9 @@ public abstract class JPAAbstractProcessor {
     response.setHeader(HttpHeader.CONTENT_TYPE, responseFormat.toContentTypeString());
   }
 
-  protected final EntityCollection readEntityInternal(final ODataRequest request, final ODataResponse response,
-      final UriInfo uriInfo, final ContentType responseFormat) throws SerializerException, ODataApplicationException {
+  protected final void readEntityInternal(final ODataRequest request, final ODataResponse response,
+      final UriInfo uriInfo, final ContentType responseFormat, JPASerializer serializer) throws SerializerException,
+          ODataApplicationException {
 
     final List<UriResource> resourceParts = uriInfo.getUriResourceParts();
     final EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(resourceParts);
@@ -101,7 +105,13 @@ public abstract class JPAAbstractProcessor {
     if (countOption != null && countOption.getValue())
       // TODO SetCount expects an Integer why not a Long?
       entityCollection.setCount(Integer.valueOf(query.countResults().intValue()));
-    return entityCollection;
+    // return entityCollection;
+
+    if (entityCollection.getEntities() != null && entityCollection.getEntities().size() > 0) {
+      SerializerResult serializerResult = serializer.serialize(request, entityCollection);
+      createSuccessResonce(response, responseFormat, serializerResult);
+    } else
+      response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
   }
 
   protected final EntityCollection countEntities(final ODataRequest request, final ODataResponse response,
