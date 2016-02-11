@@ -15,6 +15,24 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
+import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmFunctionParameter;
+import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
+
+@EdmFunctions({
+    @EdmFunction(
+        name = "Siblings",
+        functionName = "Siblings",
+        isBound = true,
+        returnType = @EdmFunction.ReturnType(isCollection = true) ,
+        parameter = {
+            @EdmFunctionParameter(name = "CodePublisher", parameterName = "\"CodePublisher\"",
+                type = String.class, maxLength = 10),
+            @EdmFunctionParameter(name = "CodeID", parameterName = "\"CodeID\"", type = String.class, maxLength = 10),
+            @EdmFunctionParameter(name = "DivisionCode", parameterName = "\"DivisionCode\"", type = String.class,
+                maxLength = 10) })
+})
+
 @IdClass(AdministrativeDivisionKey.class)
 @Entity(name = "AdministrativeDivision")
 @Table(schema = "\"OLINGO\"", name = "\"org.apache.olingo.jpa::AdministrativeDivision\"")

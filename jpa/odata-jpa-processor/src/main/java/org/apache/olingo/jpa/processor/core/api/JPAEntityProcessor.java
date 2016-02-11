@@ -11,6 +11,7 @@ import org.apache.olingo.commons.api.data.ContextURL.Suffix;
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
+import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
@@ -31,6 +32,7 @@ import org.apache.olingo.server.api.serializer.SerializerResult;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
+import org.apache.olingo.server.api.uri.UriResourceFunction;
 
 public class JPAEntityProcessor extends JPAAbstractProcessor implements CountEntityCollectionProcessor,
     EntityProcessor {
@@ -110,20 +112,36 @@ public class JPAEntityProcessor extends JPAAbstractProcessor implements CountEnt
   public void readEntityCollection(ODataRequest request, ODataResponse response, UriInfo uriInfo,
       ContentType responseFormat) throws ODataApplicationException, ODataLibraryException {
 
+    EntityCollection result = null;
+    EdmEntitySet targetEdmEntitySet = null;
     UriResource uriResource = uriInfo.getUriResourceParts().get(0);
     if (uriResource instanceof UriResourceEntitySet) {
-      EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(uriInfo.getUriResourceParts());
-      EntityCollection result = readEntityInternal(request, response, uriInfo, responseFormat);
-      if (result.getEntities() != null && result.getEntities().size() > 0) {
-        SerializerResult serializerResult = serializeCollectionResult(request, responseFormat, targetEdmEntitySet,
-            result, uriInfo);
-        createSuccessResonce(response, responseFormat, serializerResult);
-      } else
-        response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
+      targetEdmEntitySet = Util.determineTargetEntitySet(uriInfo.getUriResourceParts());
+      result = readEntityInternal(request, response, uriInfo, responseFormat);
+    } else if (uriResource instanceof UriResourceFunction) {
+      result = executeFunction(request, response, uriInfo, responseFormat);
     } else {
       throw new ODataApplicationException("Unsupported resource type", HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(),
           Locale.ENGLISH);
     }
+    if (result.getEntities() != null && result.getEntities().size() > 0) {
+      SerializerResult serializerResult = serializeCollectionResult(request, responseFormat, targetEdmEntitySet,
+          result, uriInfo);
+      createSuccessResonce(response, responseFormat, serializerResult);
+    } else
+      response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
+  }
+
+  private EntityCollection executeFunction(ODataRequest request, ODataResponse response, UriInfo uriInfo,
+      ContentType responseFormat) throws ODataApplicationException {
+
+    UriResource uriResource = uriInfo.getUriResourceParts().get(0);
+    EdmType type = ((UriResourceFunction) uriResource).getFunction().getReturnType().getType();
+    if (!(uriResource instanceof UriResourceFunction)) {
+      throw new ODataApplicationException("Not implemented",
+          HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+    }
+    return null;
   }
 
   /**
@@ -158,8 +176,7 @@ public class JPAEntityProcessor extends JPAAbstractProcessor implements CountEnt
 
     ODataSerializer serializer = odata.createSerializer(responseFormat);
     SerializerResult serializerResult = serializer.entityCollection(this.serviceMetadata, resultEdmEntitySet
-        .getEntityType(),
-        responseEntityCollection, opts);
+        .getEntityType(), responseEntityCollection, opts);
     return serializerResult;
   }
 

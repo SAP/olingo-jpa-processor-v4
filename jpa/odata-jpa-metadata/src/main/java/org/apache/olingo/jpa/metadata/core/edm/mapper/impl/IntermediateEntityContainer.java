@@ -78,11 +78,12 @@ class IntermediateEntityContainer extends IntermediateModelElement {
   }
 
   /**
-   * Entity Sets are described in <a href=
+   * Creates the FunctionImports. Function Imports have to be created for <i>unbound</i> functions. These are functions,
+   * which do not depend on an entity set. E.g. .../MyFunction(). <p>
+   * Details are described in : <a href=
    * " https://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406398042"
    * >OData Version 4.0 Part 3 - 13.6 Element edm:FunctionImport</a>
-   * @param Entity Type
-   * @return Entity Set
+   * @param CsdlFunction edmFu
    */
   private CsdlFunctionImport buildFunctionImport(CsdlFunction edmFu) {
     CsdlFunctionImport edmFuImport = new CsdlFunctionImport();

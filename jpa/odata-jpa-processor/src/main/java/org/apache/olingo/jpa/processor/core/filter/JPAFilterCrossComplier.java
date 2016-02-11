@@ -36,6 +36,7 @@ import org.apache.olingo.server.api.uri.queryoption.expression.UnaryOperatorKind
  * @author Oliver Grande
  *
  */
+//TODO handle $it ...
 public class JPAFilterCrossComplier {
   private final JPAOperationConverter converter;
   private final FilterOption filterTree;
