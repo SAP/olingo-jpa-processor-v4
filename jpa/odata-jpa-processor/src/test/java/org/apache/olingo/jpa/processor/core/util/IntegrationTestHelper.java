@@ -14,8 +14,7 @@ import javax.persistence.EntityManagerFactory;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.jpa.metadata.api.JPAEdmProvider;
 import org.apache.olingo.jpa.metadata.api.JPAEntityManagerFactory;
-import org.apache.olingo.jpa.processor.core.api.JPAEntityProcessor;
-import org.apache.olingo.jpa.processor.core.api.JPAPropertyProcessor;
+import org.apache.olingo.jpa.processor.core.api.JPAOdataRequestProcessor;
 import org.apache.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataHttpHandler;
@@ -49,8 +48,7 @@ public class IntegrationTestHelper {
 
     ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(jpaEdm,
         new ArrayList<EdmxReference>()));
-    handler.register(new JPAEntityProcessor(jpaEdm.getServiceDocument(), localEmf.createEntityManager()));
-    handler.register(new JPAPropertyProcessor(jpaEdm.getServiceDocument(), localEmf.createEntityManager()));
+    handler.register(new JPAOdataRequestProcessor(jpaEdm.getServiceDocument(), localEmf.createEntityManager()));
     handler.process(req, resp);
   }
 

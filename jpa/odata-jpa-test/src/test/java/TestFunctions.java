@@ -26,6 +26,7 @@ import org.apache.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import org.apache.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class TestFunctions {
@@ -69,6 +70,7 @@ public class TestFunctions {
     Path<?> p;
   }
 
+  @Ignore
   @Test
   public void TestProcedure() throws SQLException {
     StoredProcedureQuery pc = em.createStoredProcedureQuery("\"OLINGO\".\"org.apache.olingo.jpa::Siblings\"");
@@ -79,8 +81,6 @@ public class TestFunctions {
     pc.setParameter("CodeID", "NUTS2");
     pc.registerStoredProcedureParameter("DivisionCode", String.class, ParameterMode.IN);
     pc.setParameter("DivisionCode", "BE25");
-    pc.registerStoredProcedureParameter("RT", ArrayList.class, ParameterMode.IN);
-    pc.setParameter("RT", res);
 //    pc.setParameter("CodePublisher", "Eurostat");  
 //    pc.setParameter("CodeID", "NUTS2");
 //    pc.setParameter("DivisionCode", "BE25");

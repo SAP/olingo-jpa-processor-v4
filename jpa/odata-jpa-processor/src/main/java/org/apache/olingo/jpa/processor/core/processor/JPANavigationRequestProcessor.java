@@ -22,7 +22,7 @@ import org.apache.olingo.jpa.processor.core.query.JPAExpandQuery;
 import org.apache.olingo.jpa.processor.core.query.JPAExpandResult;
 import org.apache.olingo.jpa.processor.core.query.JPANavigationProptertyInfo;
 import org.apache.olingo.jpa.processor.core.query.JPAQuery;
-import org.apache.olingo.jpa.processor.core.query.JPAResultConverter;
+import org.apache.olingo.jpa.processor.core.query.JPATupleResultConverter;
 import org.apache.olingo.jpa.processor.core.query.Util;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataLibraryException;
@@ -57,7 +57,7 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
     // Convert tuple result into an OData Result
     EntityCollection entityCollection;
     try {
-      entityCollection = new JPAResultConverter(targetEdmEntitySet, sd, result, allExpResults)
+      entityCollection = new JPATupleResultConverter(targetEdmEntitySet, sd, result, allExpResults)
           .getResult();
     } catch (ODataJPAModelException e) {
       throw new ODataApplicationException("Convertion error", HttpStatusCode.INTERNAL_SERVER_ERROR.ordinal(),

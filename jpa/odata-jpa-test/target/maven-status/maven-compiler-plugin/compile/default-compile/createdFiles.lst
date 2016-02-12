@@ -2,6 +2,7 @@ org\apache\olingo\jpa\processor\core\testmodel\AdministrativeDivisionKey.class
 org\apache\olingo\jpa\processor\core\testmodel\BusinessPartnerRole.class
 org\apache\olingo\jpa\processor\core\testmodel\TestDataConstants.class
 org\apache\olingo\jpa\processor\core\testmodel\AdministrativeDivision.class
+org\apache\olingo\jpa\processor\core\test_udf\UserDefinedFunctions.class
 org\apache\olingo\jpa\processor\core\testmodel\AdministrativeInformation.class
 org\apache\olingo\jpa\processor\core\testmodel\Person.class
 org\apache\olingo\jpa\processor\core\testmodel\Country.class

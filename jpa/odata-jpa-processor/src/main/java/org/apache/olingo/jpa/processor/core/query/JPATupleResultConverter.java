@@ -28,18 +28,18 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
 import org.apache.olingo.server.api.ODataApplicationException;
 
-public class JPAResultConverter extends JPAAbstractConverter {
-  final List<Tuple> jpaQueryResult;
+public class JPATupleResultConverter extends JPAAbstractConverter {
+  private final List<Tuple> jpaQueryResult;
   // final JPAEntityType jpaEntity;
   private final EdmEntitySet edmEntitySet;
   private final Map<JPAAssociationPath, JPAExpandResult> jpaExpandResult;
 
-  public JPAResultConverter(EdmEntitySet entitySet, final ServicDocument sd, List<Tuple> jpaQueryResult)
+  public JPATupleResultConverter(EdmEntitySet entitySet, final ServicDocument sd, List<Tuple> jpaQueryResult)
       throws ODataApplicationException, ODataJPAModelException {
     this(entitySet, sd, jpaQueryResult, new HashMap<JPAAssociationPath, JPAExpandResult>());
   }
 
-  public JPAResultConverter(EdmEntitySet entitySet, ServicDocument sd, List<Tuple> jpaQueryResult,
+  public JPATupleResultConverter(EdmEntitySet entitySet, ServicDocument sd, List<Tuple> jpaQueryResult,
       Map<JPAAssociationPath, JPAExpandResult> allExpResults) throws ODataJPAModelException {
     super(sd.getEntity(entitySet.getName()));
     this.jpaQueryResult = jpaQueryResult;

@@ -1,5 +1,6 @@
 org\apache\olingo\jpa\metadata\core\edm\mapper\impl\IntermediateEntityContainer.class
 org\apache\olingo\jpa\metadata\api\JPAEdmProvider.class
+org\apache\olingo\jpa\metadata\core\edm\mapper\impl\IntermediateFunction$IntermediatFunctionParameter.class
 org\apache\olingo\jpa\metadata\core\edm\mapper\api\JPAStructuredType.class
 org\apache\olingo\jpa\metadata\core\edm\mapper\impl\IntermediateEntityType.class
 org\apache\olingo\jpa\metadata\core\edm\mapper\extention\IntermediateNavigationPropertyAccess.class
@@ -31,8 +32,10 @@ org\apache\olingo\jpa\metadata\core\edm\mapper\impl\JPATypeConvertor.class
 org\apache\olingo\jpa\metadata\core\edm\mapper\impl\IntermediateEntitySet.class
 org\apache\olingo\jpa\metadata\core\edm\mapper\impl\IntermediateStructuredType$1.class
 org\apache\olingo\jpa\metadata\core\edm\mapper\impl\ServicDocument.class
+org\apache\olingo\jpa\metadata\core\edm\mapper\api\JPAFunctionParameter.class
 org\apache\olingo\jpa\metadata\core\edm\mapper\impl\IntermediateFunctionFactory.class
 org\apache\olingo\jpa\metadata\core\edm\mapper\impl\IntermediateNavigationProperty$1.class
+org\apache\olingo\jpa\metadata\core\edm\mapper\api\JPAFunction.class
 org\apache\olingo\jpa\metadata\core\edm\mapper\impl\IntermediateModelElement.class
 org\apache\olingo\jpa\metadata\core\edm\mapper\impl\JPAEdmNameBuilder.class
 org\apache\olingo\jpa\metadata\core\edm\mapper\api\JPAOnConditionItem.class

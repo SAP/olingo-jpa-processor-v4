@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand
--------------------------------------------------------------------------------
-Tests run: 22, Failures: 0, Errors: 0, Skipped: 6, Time elapsed: 0.286 sec - in org.apache.olingo.jpa.processor.core.query.TestJPAProcessorExpand

@@ -33,10 +33,11 @@ public class TestJPAFunction extends TestBase {
     helper.assertStatus(501);
   }
 
+  @Ignore
   @Test
   public void testFunctionGenerateQueryString() throws IOException, ODataException {
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Siblings(DivisionCode='BE25',CodeID='NUTS2',CodePublisher='Eurostat')");
-    helper.assertStatus(501);
+    helper.assertStatus(200);
   }
 }

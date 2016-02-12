@@ -24,7 +24,7 @@ import org.junit.Test;
 public class TestJPAResultConverterCompoundKey extends TestBase {
   public static final int NO_POSTAL_ADDRESS_FIELDS = 8;
   public static final int NO_ADMIN_INFO_FIELDS = 2;
-  private JPAResultConverter cut;
+  private JPATupleResultConverter cut;
   private List<Tuple> jpaQueryResult;
 
   @Before
@@ -37,7 +37,7 @@ public class TestJPAResultConverterCompoundKey extends TestBase {
   @Test
   public void checkConvertsOneResultsTwoKeys() throws ODataApplicationException, ODataJPAModelException {
     // .../BusinessPartnerRoles(BusinessPartnerID='3',RoleCategory='C')
-    cut = new JPAResultConverter(new EdmEntitySetDouble(nameBuilder, "BusinessPartnerRoles"), helper.sd,
+    cut = new JPATupleResultConverter(new EdmEntitySetDouble(nameBuilder, "BusinessPartnerRoles"), helper.sd,
         jpaQueryResult);
     HashMap<String, Object> result;
 
@@ -46,7 +46,7 @@ public class TestJPAResultConverterCompoundKey extends TestBase {
     result.put("RoleCategory", new String("C"));
     jpaQueryResult.add(new TupleDouble(result));
 
-    EntityCollection act = ((JPAResultConverter) cut).getResult();
+    EntityCollection act = ((JPATupleResultConverter) cut).getResult();
     assertEquals(1, act.getEntities().size());
     assertEquals("3", act.getEntities().get(0).getProperty("BusinessPartnerID").getValue().toString());
     assertEquals("C", act.getEntities().get(0).getProperty("RoleCategory").getValue().toString());
@@ -59,7 +59,7 @@ public class TestJPAResultConverterCompoundKey extends TestBase {
   @Test
   public void checkConvertsOneResultsEmbeddedKey() throws ODataApplicationException, ODataJPAModelException {
     // .../Regions(RegionKey/CountryCode='DE', RegionKey/RegionCode='DE-HB', RegionKey/Language = 'en')
-    cut = new JPAResultConverter(new EdmEntitySetDouble(nameBuilder, "Regions"), helper.sd, jpaQueryResult);
+    cut = new JPATupleResultConverter(new EdmEntitySetDouble(nameBuilder, "Regions"), helper.sd, jpaQueryResult);
 
     RegionKey region = new RegionKey();
     region.setCountryCode("DE");
@@ -72,7 +72,7 @@ public class TestJPAResultConverterCompoundKey extends TestBase {
     result.put("RegionKey", region);
     jpaQueryResult.add(new TupleDouble(result));
 
-    EntityCollection act = ((JPAResultConverter) cut).getResult();
+    EntityCollection act = ((JPATupleResultConverter) cut).getResult();
     assertEquals(1, act.getEntities().size());
     assertEquals(ValueType.COMPLEX, act.getEntities().get(0).getProperty("RegionKey").getValueType());
 

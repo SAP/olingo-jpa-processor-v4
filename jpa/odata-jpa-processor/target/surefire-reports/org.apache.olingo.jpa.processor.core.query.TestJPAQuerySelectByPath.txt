@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: org.apache.olingo.jpa.processor.core.query.TestJPAQuerySelectByPath
--------------------------------------------------------------------------------
-Tests run: 8, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0.043 sec - in org.apache.olingo.jpa.processor.core.query.TestJPAQuerySelectByPath

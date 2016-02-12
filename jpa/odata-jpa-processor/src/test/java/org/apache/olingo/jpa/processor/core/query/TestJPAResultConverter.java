@@ -24,14 +24,14 @@ import org.junit.Test;
 public class TestJPAResultConverter extends TestBase {
   public static final int NO_POSTAL_ADDRESS_FIELDS = 8;
   public static final int NO_ADMIN_INFO_FIELDS = 2;
-  private JPAResultConverter cut;
+  private JPATupleResultConverter cut;
   private List<Tuple> jpaQueryResult;
 
   @Before
   public void setup() throws ODataJPAModelException, ODataApplicationException {
     helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
     jpaQueryResult = new ArrayList<Tuple>();
-    cut = new JPAResultConverter(new EdmEntitySetDouble(nameBuilder, "Organizations"), helper.sd, jpaQueryResult);
+    cut = new JPATupleResultConverter(new EdmEntitySetDouble(nameBuilder, "Organizations"), helper.sd, jpaQueryResult);
   }
 
   @Test
