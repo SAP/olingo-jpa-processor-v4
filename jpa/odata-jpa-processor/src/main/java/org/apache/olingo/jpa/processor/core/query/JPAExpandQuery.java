@@ -25,18 +25,19 @@ import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
+import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitException;
 
 /**
  * A query to retrieve the expand entities.<p> According to
  * <a href=
  * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part2-url-conventions/odata-v4.0-errata02-os-part2-url-conventions-complete.html#_Toc406398162"
- * >OData Version 4.0 Part 2 - 5.1.2 System Query Option $expand</a> the following query options have are allowed:
+ * >OData Version 4.0 Part 2 - 5.1.2 System Query Option $expand</a> the following query options are allowed:
  * <ul>
  * <li>expandCountOption = <b>filter</b>/ search<p>
  * <li>expandRefOption = expandCountOption/ <b>orderby</b> / <b>skip</b> / <b>top</b> / inlinecount
  * <li>expandOption = expandRefOption/ <b>select</b>/ <b>expand</b> / levels <p>
- * 
- * As of now only the bold once are planed to be supported
+ * </ul>
+ * As of now only the bold once are supported
  * 
  * @author Oliver Grande
  *
@@ -181,7 +182,13 @@ public class JPAExpandQuery extends JPAExecutableQuery {
   @Override
   protected Expression<Boolean> createWhere(HashMap<String, From<?, ?>> joinTables) throws ODataApplicationException {
 
-    javax.persistence.criteria.Expression<Boolean> whereCondition = null;// super.createWhere(joinTables);
+    javax.persistence.criteria.Expression<Boolean> whereCondition = null;
+    try {
+      whereCondition = filter.compile();
+    } catch (ExpressionVisitException e) {
+      throw new ODataApplicationException("Unable to parth filter expression", HttpStatusCode.BAD_REQUEST
+          .getStatusCode(), Locale.ENGLISH, e);
+    }
 
     if (whereCondition == null)
       whereCondition = cb.exists(buildSubQueries());// parentQuery.asSubQuery(this, assoziation));

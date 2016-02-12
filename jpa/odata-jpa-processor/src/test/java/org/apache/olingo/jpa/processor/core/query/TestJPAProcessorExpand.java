@@ -132,7 +132,7 @@ public class TestJPAProcessorExpand extends TestBase {
     assertEquals("USA", created.get("ParentDivisionCode").asText());
   }
 
-  @Ignore // TODO Chcek if metadata are generated correct
+  @Ignore // TODO Check if metadata are generated correct
   @Test
   public void testExpandEntitySetViaNonKeyFieldNavi0Hops() throws IOException, ODataException {
 
@@ -330,4 +330,19 @@ public class TestJPAProcessorExpand extends TestBase {
     assertEquals("C", firstRole.get("RoleCategory").asText());
   }
 
+  @Test
+  public void testExpandWithFilter() throws IOException, ODataException {
+    IntegrationTestHelper helper = new IntegrationTestHelper(
+        "AdministrativeDivisions(DivisionCode='BE25',CodeID='NUTS2',CodePublisher='Eurostat')?$expand=Children($filter=DivisionCode eq 'BE252')");
+
+    helper.assertStatus(200);
+
+    ObjectNode division = helper.getValue();
+    assertEquals("BE25", division.get("DivisionCode").asText());
+    assertNotNull(division.get("Children"));
+    ArrayNode children = (ArrayNode) division.get("Children");
+    assertEquals(1, children.size());
+    ObjectNode firstChild = (ObjectNode) children.get(0);
+    assertEquals("BE252", firstChild.get("DivisionCode").asText());
+  }
 }

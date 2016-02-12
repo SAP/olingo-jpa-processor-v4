@@ -73,6 +73,7 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
       SerializerResult serializerResult = serializer.serialize(request, entityCollection);
       createSuccessResonce(response, responseFormat, serializerResult);
     } else
+      // TODO more fine gain response handling e.g. 204 vs. 404
       response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
 
   }
