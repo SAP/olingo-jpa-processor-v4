@@ -4,83 +4,45 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.persistence.Tuple;
 
 import org.apache.olingo.commons.api.data.Entity;
 import org.apache.olingo.commons.api.data.EntityCollection;
-import org.apache.olingo.commons.api.data.Link;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.ex.ODataRuntimeException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
-import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
 import org.apache.olingo.server.api.ODataApplicationException;
 
 public class JPATupleResultConverter extends JPATupleAbstractConverter {
-  private final List<Tuple> jpaQueryResult;
-  // final JPAEntityType jpaEntity;
+  private final JPAExpandResult jpaQueryResult;
   private final EdmEntitySet edmEntitySet;
-  private final Map<JPAAssociationPath, JPAExpandResult> jpaExpandResult;
 
-  public JPATupleResultConverter(EdmEntitySet entitySet, final ServicDocument sd, List<Tuple> jpaQueryResult)
-      throws ODataApplicationException, ODataJPAModelException {
-    this(entitySet, sd, jpaQueryResult, new HashMap<JPAAssociationPath, JPAExpandResult>());
-  }
-
-  public JPATupleResultConverter(EdmEntitySet entitySet, ServicDocument sd, List<Tuple> jpaQueryResult,
-      Map<JPAAssociationPath, JPAExpandResult> allExpResults) throws ODataJPAModelException {
-    super(sd.getEntity(entitySet.getName()));
+  public JPATupleResultConverter(EdmEntitySet entitySet, ServicDocument sd, JPAExpandResult jpaQueryResult)
+      throws ODataJPAModelException {
+    super(sd.getEntity(entitySet.getName()), jpaQueryResult);
     this.jpaQueryResult = jpaQueryResult;
     this.edmEntitySet = entitySet;
-    this.jpaExpandResult = allExpResults;
   }
 
   public EntityCollection getResult() throws ODataApplicationException {
     EntityCollection odataEntityCollection = new EntityCollection();
     List<Entity> odataResults = odataEntityCollection.getEntities();
 
-    for (Tuple row : jpaQueryResult) {
+    for (Tuple row : jpaQueryResult.getResult("root")) {
       Entity odataEntity = convertRow(jpaConversionTargetEntity, row);
       odataResults.add(odataEntity);
     }
     return odataEntityCollection;
-  }
-
-  @Override
-  protected List<Link> createExpand(Tuple parentRow, URI uri, String attributeName) throws ODataApplicationException {
-    List<Link> entityExpandLinks = new ArrayList<Link>();
-    // jpaConversionTargetEntity.
-    for (JPAAssociationPath associationPath : jpaExpandResult.keySet()) {
-      try {
-        JPAStructuredType s;
-        if (attributeName != null && !attributeName.isEmpty()) {
-          s = ((JPAAttribute) jpaConversionTargetEntity.getPath(attributeName).getPath().get(0)).getStructuredType();
-        } else
-          s = jpaConversionTargetEntity;
-        if (s.getDeclaredAssociation(associationPath.getLeaf().getExternalName()) != null) {
-          Link expand = new JPATupleExpandResultConverter(uri, jpaExpandResult.get(associationPath), parentRow,
-              associationPath).getResult();
-          entityExpandLinks.add(expand);
-        }
-      } catch (ODataJPAModelException e) {
-        throw new ODataApplicationException("Navigation property not found", HttpStatusCode.INTERNAL_SERVER_ERROR
-            .ordinal(), Locale.ENGLISH, e);
-      }
-    }
-    return entityExpandLinks;
-
   }
 
   @Override
@@ -184,47 +146,4 @@ public class JPATupleResultConverter extends JPATupleAbstractConverter {
       createIdOneValue(keyAttribute, uriString, value);
     }
   }
-
-//  private EntityCollection getSubCollection(JPAEntityType jpaStructuredType, Map<String, List<Tuple>> map,
-//      Tuple parentRow,
-//      JPAAssociationPath a)
-//          throws ODataApplicationException {
-//    EntityCollection odataEntityCollection = new EntityCollection();
-//    List<Entity> odataResults = odataEntityCollection.getEntities();
-//
-//    List<Tuple> subResult = null;
-//    try {
-//      subResult = map.get(buildConcatenatedKey(parentRow, a.getJoinColumnsList()).toString());
-//    } catch (ODataJPAModelException e) {
-//      throw new ODataApplicationException("Mapping Error", 500, Locale.ENGLISH, e);
-//    }
-//
-//    if (subResult != null) {
-//      for (Tuple row : subResult) {
-//        Entity odataEntity = convertRow(jpaStructuredType, row);
-//        odataResults.add(odataEntity);
-//      }
-//    }
-//    return odataEntityCollection;
-//  }
-
-//  private Entity getSubEntity(JPAEntityType rowEntity, Map<String, List<Tuple>> map, Tuple parentRow,
-//      JPAAssociationPath a)
-//          throws ODataApplicationException {
-//    Entity odataEntity = null;
-//
-//    List<Tuple> subResult = null;
-//    try {
-//      subResult = map.get(buildConcatenatedKey(parentRow, a.getJoinColumnsList()).toString());
-//    } catch (ODataJPAModelException e) {
-//      throw new ODataApplicationException("Mapping Error", 500, Locale.ENGLISH, e);
-//    }
-//
-//    if (subResult != null) {
-//      for (Tuple row : subResult) {
-//        odataEntity = convertRow(rowEntity, row);
-//      }
-//    }
-//    return odataEntity;
-//  }
 }

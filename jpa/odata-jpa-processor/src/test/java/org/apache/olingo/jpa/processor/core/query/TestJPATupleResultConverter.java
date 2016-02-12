@@ -31,7 +31,13 @@ public class TestJPATupleResultConverter extends TestBase {
   public void setup() throws ODataJPAModelException, ODataApplicationException {
     helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
     jpaQueryResult = new ArrayList<Tuple>();
-    cut = new JPATupleResultConverter(new EdmEntitySetDouble(nameBuilder, "Organizations"), helper.sd, jpaQueryResult);
+    HashMap<String, List<Tuple>> result = new HashMap<String, List<Tuple>>(1);
+    result.put("root", jpaQueryResult);
+
+    cut = new JPATupleResultConverter(
+        new EdmEntitySetDouble(nameBuilder, "Organizations"),
+        helper.sd,
+        new JPAExpandResult(result, Long.parseLong("0")));
   }
 
   @Test

@@ -78,7 +78,7 @@ public class JPAQuery extends JPAExecutableQuery {
     return em.createQuery(cq).getSingleResult();
   }
 
-  public List<Tuple> execute() throws ODataApplicationException {
+  public JPAExpandResult execute() throws ODataApplicationException {
     // Pre-process URI parameter, so they can be used at different places
     // TODO check if Path is also required for OrderBy Attributes, as it is for descriptions
     final List<JPAAssociationAttribute> orderByNaviAttributes = extractOrderByNaviAttributes();
@@ -99,8 +99,9 @@ public class JPAQuery extends JPAExecutableQuery {
 
     TypedQuery<Tuple> tq = em.createQuery(cq);
     addTopSkip(tq);
-
-    return tq.getResultList();
+    HashMap<String, List<Tuple>> result = new HashMap<String, List<Tuple>>(1);
+    result.put("root", tq.getResultList());
+    return new JPAExpandResult(result, Long.parseLong("0"));// count()););
   }
 
   public JPAStructuredType getEntityType() {

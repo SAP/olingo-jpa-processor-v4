@@ -37,8 +37,15 @@ public class TestJPATupleResultConverterCompoundKey extends TestBase {
   @Test
   public void checkConvertsOneResultsTwoKeys() throws ODataApplicationException, ODataJPAModelException {
     // .../BusinessPartnerRoles(BusinessPartnerID='3',RoleCategory='C')
-    cut = new JPATupleResultConverter(new EdmEntitySetDouble(nameBuilder, "BusinessPartnerRoles"), helper.sd,
-        jpaQueryResult);
+
+    HashMap<String, List<Tuple>> resultContainer = new HashMap<String, List<Tuple>>(1);
+    resultContainer.put("root", jpaQueryResult);
+
+    cut = new JPATupleResultConverter(
+        new EdmEntitySetDouble(nameBuilder, "BusinessPartnerRoles"),
+        helper.sd,
+        new JPAExpandResult(resultContainer, Long.parseLong("0")));
+
     HashMap<String, Object> result;
 
     result = new HashMap<String, Object>();
@@ -59,7 +66,14 @@ public class TestJPATupleResultConverterCompoundKey extends TestBase {
   @Test
   public void checkConvertsOneResultsEmbeddedKey() throws ODataApplicationException, ODataJPAModelException {
     // .../Regions(RegionKey/CountryCode='DE', RegionKey/RegionCode='DE-HB', RegionKey/Language = 'en')
-    cut = new JPATupleResultConverter(new EdmEntitySetDouble(nameBuilder, "Regions"), helper.sd, jpaQueryResult);
+
+    HashMap<String, List<Tuple>> resultContainer = new HashMap<String, List<Tuple>>(1);
+    resultContainer.put("root", jpaQueryResult);
+
+    cut = new JPATupleResultConverter(
+        new EdmEntitySetDouble(nameBuilder, "Regions"),
+        helper.sd,
+        new JPAExpandResult(resultContainer, Long.parseLong("0")));
 
     RegionKey region = new RegionKey();
     region.setCountryCode("DE");

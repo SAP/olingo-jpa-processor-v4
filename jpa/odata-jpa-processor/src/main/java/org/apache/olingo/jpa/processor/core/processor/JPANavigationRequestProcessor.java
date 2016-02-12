@@ -6,7 +6,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Tuple;
 
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
@@ -51,16 +50,14 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
 
     // Create a JPQL Query and execute it
     final JPAQuery query = new JPAQuery(odata, targetEdmEntitySet, sd, uriInfo, em, request.getAllHeaders());
-    final List<Tuple> result = query.execute();
+    final JPAExpandResult result = query.execute();
 
-    Map<JPAAssociationPath, JPAExpandResult> allExpResults = readExpandEntities(request.getAllHeaders(), null,
-        uriInfo);
+    result.putChildren(readExpandEntities(request.getAllHeaders(), null, uriInfo));
 
     // Convert tuple result into an OData Result
     EntityCollection entityCollection;
     try {
-      entityCollection = new JPATupleResultConverter(targetEdmEntitySet, sd, result, allExpResults)
-          .getResult();
+      entityCollection = new JPATupleResultConverter(targetEdmEntitySet, sd, result).getResult();
     } catch (ODataJPAModelException e) {
       throw new ODataApplicationException("Convertion error", HttpStatusCode.INTERNAL_SERVER_ERROR.ordinal(),
           Locale.ENGLISH, e);
@@ -71,7 +68,6 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
     if (countOption != null && countOption.getValue())
       // TODO SetCount expects an Integer why not a Long?
       entityCollection.setCount(Integer.valueOf(query.countResults().intValue()));
-    // return entityCollection;
 
     if (entityCollection.getEntities() != null && entityCollection.getEntities().size() > 0) {
       SerializerResult serializerResult = serializer.serialize(request, entityCollection);

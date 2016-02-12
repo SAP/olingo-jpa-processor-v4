@@ -2,6 +2,7 @@ package org.apache.olingo.jpa.processor.core.query;
 
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +25,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
 import org.apache.olingo.server.api.ODataApplicationException;
 
 public abstract class JPATupleAbstractConverter {
@@ -34,10 +36,12 @@ public abstract class JPATupleAbstractConverter {
   private static final HashMap<String, HashMap<String, Method>> methodsBuffer =
       new HashMap<String, HashMap<String, Method>>();
   protected final JPAEntityType jpaConversionTargetEntity;
+  protected final JPAExpandResult jpaQueryResult;
 
-  public JPATupleAbstractConverter(JPAEntityType jpaEntity) {
+  public JPATupleAbstractConverter(JPAEntityType jpaEntity, JPAExpandResult jpaQueryResult) {
     super();
     this.jpaConversionTargetEntity = jpaEntity;
+    this.jpaQueryResult = jpaQueryResult;
   }
 
   protected String buildConcatenatedKey(Tuple row, List<JPAOnConditionItem> joinColumns) {
@@ -77,8 +81,32 @@ public abstract class JPATupleAbstractConverter {
     return odataEntity;
   }
 
-  protected abstract Collection<? extends Link> createExpand(Tuple row, URI id, String attribute)
-      throws ODataApplicationException;
+  protected Collection<? extends Link> createExpand(Tuple row, URI uri, String attributeName)
+      throws ODataApplicationException {
+    List<Link> entityExpandLinks = new ArrayList<Link>();
+    // jpaConversionTargetEntity.
+    Map<JPAAssociationPath, JPAExpandResult> children = jpaQueryResult.getChildren();
+    if (children != null) {
+      for (JPAAssociationPath associationPath : children.keySet()) {
+        try {
+          JPAStructuredType s;
+          if (attributeName != null && !attributeName.isEmpty()) {
+            s = ((JPAAttribute) jpaConversionTargetEntity.getPath(attributeName).getPath().get(0)).getStructuredType();
+          } else
+            s = jpaConversionTargetEntity;
+          if (s.getDeclaredAssociation(associationPath.getLeaf().getExternalName()) != null) {
+            Link expand = new JPATupleExpandResultConverter(uri, children.get(associationPath), row,
+                associationPath).getResult();
+            entityExpandLinks.add(expand);
+          }
+        } catch (ODataJPAModelException e) {
+          throw new ODataApplicationException("Navigation property not found", HttpStatusCode.INTERNAL_SERVER_ERROR
+              .ordinal(), Locale.ENGLISH, e);
+        }
+      }
+    }
+    return entityExpandLinks;
+  }
 
   protected abstract URI createId(List<? extends JPAAttribute> keyAttributes, Tuple row)
       throws ODataApplicationException, ODataRuntimeException;
