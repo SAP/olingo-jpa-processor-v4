@@ -6,11 +6,14 @@ import java.util.List;
 
 import javax.persistence.metamodel.Metamodel;
 
+import org.apache.olingo.commons.api.edm.EdmFunction;
 import org.apache.olingo.commons.api.edm.EdmType;
+import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.jpa.metadata.api.JPAEdmPostProcessor;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 /*
@@ -47,15 +50,29 @@ public class ServicDocument {
     return extractEdmSchemas();
   }
 
+  public JPAEntityType getEntity(EdmType edmType) throws ODataJPAModelException {
+    IntermediateSchema schema = schemaListInternalKey.get(edmType.getNamespace());
+    if (schema != null)
+      return schema.getEntityType(edmType.getName());
+    return null;
+  }
+
+  public JPAEntityType getEntity(FullQualifiedName typeName) {
+    IntermediateSchema schema = schemaListInternalKey.get(typeName.getNamespace());
+    if (schema != null)
+      return schema.getEntityType(typeName.getName());
+    return null;
+  }
+
   public JPAEntityType getEntity(String edmEntitySetName) throws ODataJPAModelException {
     IntermediateEntitySet entitySet = container.getEntityTypeSet(edmEntitySetName);
     return entitySet != null ? entitySet.getEntityType() : null;
   }
 
-  public JPAEntityType getEntity(EdmType edmType) throws ODataJPAModelException {
-    IntermediateSchema schema = schemaListInternalKey.get(edmType.getNamespace());
+  public JPAFunction getFunction(EdmFunction function) {
+    IntermediateSchema schema = schemaListInternalKey.get(function.getNamespace());
     if (schema != null)
-      return schema.getEntityType(edmType.getName());
+      return schema.getFunction(function.getName());
     return null;
   }
 

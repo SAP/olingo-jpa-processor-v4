@@ -14,6 +14,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 /**
@@ -89,6 +90,14 @@ class IntermediateSchema extends IntermediateModelElement {
       entityTypes.add(entityTypeListInternalKey.get(internalName));
     }
     return entityTypes;
+  }
+
+  JPAFunction getFunction(String externalName) {
+    for (String internalName : functionListInternalKey.keySet()) {
+      if (functionListInternalKey.get(internalName).getExternalName().equals(externalName))
+        return functionListInternalKey.get(internalName);
+    }
+    return null;
   }
 
   void setContainer(IntermediateEntityContainer container) {

@@ -113,16 +113,4 @@ public class TestCriteriaBuilder {
         cb.and(cb.equal(adminRoot3.get("codeID"), org1.get("address").get("regionCodeID")),
             cb.equal(adminRoot3.get("divisionCode"), org1.get("address").get("region"))));
   }
-
-  @Test
-  public void TestFunctions() {
-    CriteriaQuery<Tuple> count = cb.createTupleQuery();
-    Root<?> adminDiv = count.from(AdministrativeDivision.class);
-    count.multiselect(adminDiv);
-    count.where(cb.function("IS_PRIME", Boolean.class, adminDiv.get("area")));
-    // cb.literal
-    TypedQuery<Tuple> tq = em.createQuery(count);
-    List<Tuple> act = tq.getResultList();
-    tq.getFirstResult();
-  }
 }

@@ -10,6 +10,8 @@ import org.apache.olingo.commons.api.edm.provider.CsdlReturnType;
 import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
 import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmFunctionParameter;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionParameter;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 /**
@@ -25,9 +27,9 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExc
  *
  */
 
-class IntermediateFunction extends IntermediateModelElement {
+class IntermediateFunction extends IntermediateModelElement implements JPAFunction {
   private CsdlFunction edmFunction = null;
-  private final EdmFunction jpaStoredProcedure;
+  private final EdmFunction jpaUserDefinedFunction;
   private final IntermediateSchema schema;
   private final Class<?> jpaDefiningPOJO;
 
@@ -36,9 +38,28 @@ class IntermediateFunction extends IntermediateModelElement {
           throws ODataJPAModelException {
     super(nameBuilder, intNameBuilder.buildFunctionName(jpaFunction));
     this.setExternalName(jpaFunction.name());
-    this.jpaStoredProcedure = jpaFunction;
+    this.jpaUserDefinedFunction = jpaFunction;
     this.jpaDefiningPOJO = definingPOJO;
     this.schema = schema;
+  }
+
+  @Override
+  public String getDBName() {
+    return jpaUserDefinedFunction.functionName();
+  }
+
+  @Override
+  public List<JPAFunctionParameter> getParameter() {
+    List<JPAFunctionParameter> parameterList = new ArrayList<JPAFunctionParameter>();
+    for (EdmFunctionParameter jpaParameter : jpaUserDefinedFunction.parameter()) {
+      parameterList.add(new IntermediatFunctionParameter(jpaParameter));
+    }
+    return parameterList;
+  }
+
+  @Override
+  public FullQualifiedName getReturnType() {
+    return edmFunction.getReturnType().getTypeFQN();
   }
 
   @Override
@@ -47,9 +68,11 @@ class IntermediateFunction extends IntermediateModelElement {
       edmFunction = new CsdlFunction();
       edmFunction.setName(getExternalName());
       edmFunction.setParameters(returnNullIfEmpty(determineEdmInputParameter()));
-      edmFunction.setReturnType(determineEdmResultType(jpaStoredProcedure.returnType()));
-      // TODO edmFunction.setBound(isBound)
-      // edmFunction.setComposable(isComposable)
+      edmFunction.setReturnType(determineEdmResultType(jpaUserDefinedFunction.returnType()));
+      edmFunction.setBound(jpaUserDefinedFunction.isBound());
+      // TODO edmFunction.setComposable(isComposable)
+      edmFunction.setComposable(false);
+
     }
   }
 
@@ -59,13 +82,13 @@ class IntermediateFunction extends IntermediateModelElement {
     return edmFunction;
   }
 
-  String getStoredProcedure() {
-    return jpaStoredProcedure.functionName();
+  String getUserDefinedFunction() {
+    return jpaUserDefinedFunction.functionName();
   }
 
   private List<CsdlParameter> determineEdmInputParameter() throws ODataJPAModelException {
     List<CsdlParameter> edmInputParameterList = new ArrayList<CsdlParameter>();
-    for (EdmFunctionParameter jpaParameter : jpaStoredProcedure.parameter()) {
+    for (EdmFunctionParameter jpaParameter : jpaUserDefinedFunction.parameter()) {
 
       CsdlParameter edmInputParameter = new CsdlParameter();
       edmInputParameter.setName(jpaParameter.name());
@@ -110,6 +133,45 @@ class IntermediateFunction extends IntermediateModelElement {
       edmResultType.setScale(returnType.scale());
     // TODO edmResultType.setSrid(srid);
     return edmResultType;
+  }
+
+  private class IntermediatFunctionParameter implements JPAFunctionParameter {
+    private final EdmFunctionParameter jpaParameter;
+
+    IntermediatFunctionParameter(EdmFunctionParameter jpaParameter) {
+      this.jpaParameter = jpaParameter;
+    }
+
+    @Override
+    public String getDBName() {
+      return jpaParameter.parameterName();
+    }
+
+    @Override
+    public Class<?> getType() {
+      return jpaParameter.type();
+    }
+
+    @Override
+    public String getName() {
+      return jpaParameter.name();
+    }
+
+    @Override
+    public Integer maxLength() {
+      return jpaParameter.maxLength();
+    }
+
+    @Override
+    public Integer precision() {
+      return jpaParameter.precision();
+    }
+
+    @Override
+    public Integer scale() {
+      return jpaParameter.scale();
+    }
+
   }
 
 }

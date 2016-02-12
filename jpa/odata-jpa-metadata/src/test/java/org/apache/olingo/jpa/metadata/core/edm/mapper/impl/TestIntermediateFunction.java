@@ -43,7 +43,7 @@ public class TestIntermediateFunction extends TestMappingRoot {
         helper.getEntityType(
             "BusinessPartner"),
         "CountRoles"), BusinessPartner.class, helper.schema);
-    assertEquals("COUNT_ROLES", func.getStoredProcedure());
+    assertEquals("COUNT_ROLES", func.getUserDefinedFunction());
   }
 
   @Test

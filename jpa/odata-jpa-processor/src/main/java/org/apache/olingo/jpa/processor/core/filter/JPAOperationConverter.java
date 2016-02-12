@@ -17,6 +17,41 @@ public class JPAOperationConverter {
     this.cb = cb;
   }
 
+  @SuppressWarnings("unchecked")
+  final public <T extends Number> Expression<T> convert(JPAArithmeticOperator jpaOperator)
+      throws ODataApplicationException {
+    switch (jpaOperator.getOperator()) {
+    case ADD:
+      if (jpaOperator.getRight() instanceof JPALiteralOperator)
+        return (Expression<T>) cb.sum(jpaOperator.getLeft(), jpaOperator.getRightAsNumber());
+      else
+        return (Expression<T>) cb.sum(jpaOperator.getLeft(), jpaOperator.getRightAsExpression());
+    case SUB:
+      if (jpaOperator.getRight() instanceof JPALiteralOperator)
+        return (Expression<T>) cb.diff(jpaOperator.getLeft(), jpaOperator.getRightAsNumber());
+      else
+        return (Expression<T>) cb.diff(jpaOperator.getLeft(), jpaOperator.getRightAsExpression());
+    case DIV:
+      if (jpaOperator.getRight() instanceof JPALiteralOperator)
+        return (Expression<T>) cb.quot(jpaOperator.getLeft(), jpaOperator.getRightAsNumber());
+      else
+        return (Expression<T>) cb.quot(jpaOperator.getLeft(), jpaOperator.getRightAsExpression());
+    case MUL:
+      if (jpaOperator.getRight() instanceof JPALiteralOperator)
+        return (Expression<T>) cb.prod(jpaOperator.getLeft(), jpaOperator.getRightAsNumber());
+      else
+        return (Expression<T>) cb.prod(jpaOperator.getLeft(), jpaOperator.getRightAsExpression());
+    case MOD:
+      if (jpaOperator.getRight() instanceof JPALiteralOperator)
+        return (Expression<T>) cb.mod(jpaOperator.getLeftAsIntExpression(), new Integer(jpaOperator.getRightAsNumber()
+            .toString()));
+      else
+        return (Expression<T>) cb.mod(jpaOperator.getLeftAsIntExpression(), jpaOperator.getRightAsIntExpression());
+    default:
+      return convertSpecific(jpaOperator);
+    }
+  }
+
   final public Expression<Boolean> convert(JPABooleanOperator jpaOperator) throws ODataApplicationException {
     switch (jpaOperator.getOperator()) {
     case AND:
@@ -28,10 +63,40 @@ public class JPAOperationConverter {
     }
   }
 
-  final public Expression<Boolean> convert(JPAUnaryBooleanOperator jpaOperator) throws ODataApplicationException {
+  // TODO check generics!
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  final public Expression<Boolean> convert(JPAComparisonOperator jpaOperator) throws ODataApplicationException {
     switch (jpaOperator.getOperator()) {
-    case NOT:
-      return cb.not(jpaOperator.getLeft());
+    case EQ:
+      if (jpaOperator.getRight() instanceof JPALiteralOperator)
+        return cb.equal(jpaOperator.getLeft(), jpaOperator.getRightAsComparable());
+      else
+        return cb.equal(jpaOperator.getLeft(), jpaOperator.getRightAsExpression());
+    case NE:
+      if (jpaOperator.getRight() instanceof JPALiteralOperator)
+        return cb.notEqual(jpaOperator.getLeft(), jpaOperator.getRightAsComparable());
+      else
+        return cb.notEqual(jpaOperator.getLeft(), jpaOperator.getRightAsExpression());
+    case GE:
+      if (jpaOperator.getRight() instanceof JPALiteralOperator)
+        return cb.greaterThanOrEqualTo(jpaOperator.getLeft(), jpaOperator.getRightAsComparable());
+      else
+        return cb.greaterThanOrEqualTo(jpaOperator.getLeft(), jpaOperator.getRightAsExpression());
+    case GT:
+      if (jpaOperator.getRight() instanceof JPALiteralOperator)
+        return cb.greaterThan(jpaOperator.getLeft(), jpaOperator.getRightAsComparable());
+      else
+        return cb.greaterThan(jpaOperator.getLeft(), jpaOperator.getRightAsExpression());
+    case LT:
+      if (jpaOperator.getRight() instanceof JPALiteralOperator)
+        return cb.lessThan(jpaOperator.getLeft(), jpaOperator.getRightAsComparable());
+      else
+        return cb.lessThan(jpaOperator.getLeft(), jpaOperator.getRightAsExpression());
+    case LE:
+      if (jpaOperator.getRight() instanceof JPALiteralOperator)
+        return cb.lessThanOrEqualTo(jpaOperator.getLeft(), jpaOperator.getRightAsComparable());
+      else
+        return cb.lessThanOrEqualTo(jpaOperator.getLeft(), jpaOperator.getRightAsExpression());
     default:
       return convertSpecific(jpaOperator);
     }
@@ -100,36 +165,10 @@ public class JPAOperationConverter {
     }
   }
 
-  @SuppressWarnings("unchecked")
-  final public <T extends Number> Expression<T> convert(JPAArithmeticOperator jpaOperator)
-      throws ODataApplicationException {
+  final public Expression<Boolean> convert(JPAUnaryBooleanOperator jpaOperator) throws ODataApplicationException {
     switch (jpaOperator.getOperator()) {
-    case ADD:
-      if (jpaOperator.getRight() instanceof JPALiteralOperator)
-        return (Expression<T>) cb.sum(jpaOperator.getLeft(), jpaOperator.getRightAsNumber());
-      else
-        return (Expression<T>) cb.sum(jpaOperator.getLeft(), jpaOperator.getRightAsExpression());
-    case SUB:
-      if (jpaOperator.getRight() instanceof JPALiteralOperator)
-        return (Expression<T>) cb.diff(jpaOperator.getLeft(), jpaOperator.getRightAsNumber());
-      else
-        return (Expression<T>) cb.diff(jpaOperator.getLeft(), jpaOperator.getRightAsExpression());
-    case DIV:
-      if (jpaOperator.getRight() instanceof JPALiteralOperator)
-        return (Expression<T>) cb.quot(jpaOperator.getLeft(), jpaOperator.getRightAsNumber());
-      else
-        return (Expression<T>) cb.quot(jpaOperator.getLeft(), jpaOperator.getRightAsExpression());
-    case MUL:
-      if (jpaOperator.getRight() instanceof JPALiteralOperator)
-        return (Expression<T>) cb.prod(jpaOperator.getLeft(), jpaOperator.getRightAsNumber());
-      else
-        return (Expression<T>) cb.prod(jpaOperator.getLeft(), jpaOperator.getRightAsExpression());
-    case MOD:
-      if (jpaOperator.getRight() instanceof JPALiteralOperator)
-        return (Expression<T>) cb.mod(jpaOperator.getLeftAsIntExpression(), new Integer(jpaOperator.getRightAsNumber()
-            .toString()));
-      else
-        return (Expression<T>) cb.mod(jpaOperator.getLeftAsIntExpression(), jpaOperator.getRightAsIntExpression());
+    case NOT:
+      return cb.not(jpaOperator.getLeft());
     default:
       return convertSpecific(jpaOperator);
     }
@@ -138,68 +177,29 @@ public class JPAOperationConverter {
   protected <T extends Number> Expression<T> convertSpecific(JPAArithmeticOperator jpaOperator)
       throws ODataApplicationException {
     throw new ODataApplicationException("Operator " + jpaOperator.getOperator() + " not supported",
-        HttpStatusCode.BAD_REQUEST.ordinal(), Locale.ENGLISH);
-  }
-
-  // TODO check generics!
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  final public Expression<Boolean> convert(JPAComparisonOperator jpaOperator) throws ODataApplicationException {
-    switch (jpaOperator.getOperator()) {
-    case EQ:
-      if (jpaOperator.getRight() instanceof JPALiteralOperator)
-        return cb.equal(jpaOperator.getLeft(), jpaOperator.getRightAsComparable());
-      else
-        return cb.equal(jpaOperator.getLeft(), jpaOperator.getRightAsExpression());
-    case NE:
-      if (jpaOperator.getRight() instanceof JPALiteralOperator)
-        return cb.notEqual(jpaOperator.getLeft(), jpaOperator.getRightAsComparable());
-      else
-        return cb.notEqual(jpaOperator.getLeft(), jpaOperator.getRightAsExpression());
-    case GE:
-      if (jpaOperator.getRight() instanceof JPALiteralOperator)
-        return cb.greaterThanOrEqualTo(jpaOperator.getLeft(), jpaOperator.getRightAsComparable());
-      else
-        return cb.greaterThanOrEqualTo(jpaOperator.getLeft(), jpaOperator.getRightAsExpression());
-    case GT:
-      if (jpaOperator.getRight() instanceof JPALiteralOperator)
-        return cb.greaterThan(jpaOperator.getLeft(), jpaOperator.getRightAsComparable());
-      else
-        return cb.greaterThan(jpaOperator.getLeft(), jpaOperator.getRightAsExpression());
-    case LT:
-      if (jpaOperator.getRight() instanceof JPALiteralOperator)
-        return cb.lessThan(jpaOperator.getLeft(), jpaOperator.getRightAsComparable());
-      else
-        return cb.lessThan(jpaOperator.getLeft(), jpaOperator.getRightAsExpression());
-    case LE:
-      if (jpaOperator.getRight() instanceof JPALiteralOperator)
-        return cb.lessThanOrEqualTo(jpaOperator.getLeft(), jpaOperator.getRightAsComparable());
-      else
-        return cb.lessThanOrEqualTo(jpaOperator.getLeft(), jpaOperator.getRightAsExpression());
-    default:
-      return convertSpecific(jpaOperator);
-    }
+        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
   }
 
   protected Predicate convertSpecific(JPABooleanOperator jpaOperator)
       throws ODataApplicationException {
     throw new ODataApplicationException("Operator " + jpaOperator.getOperator() + " not supported",
-        HttpStatusCode.BAD_REQUEST.ordinal(), Locale.ENGLISH);
+        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
   }
 
   protected Expression<Boolean> convertSpecific(JPAExpressionOperator jpaOperator) throws ODataApplicationException {
     throw new ODataApplicationException("Operator " + jpaOperator.getOperator() + " not supported",
-        HttpStatusCode.BAD_REQUEST.getStatusCode(), Locale.ENGLISH);
+        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+  }
+
+  protected Object convertSpecific(JPAFunctionCall jpaFunction) throws ODataApplicationException {
+    throw new ODataApplicationException("Operator " + jpaFunction.getFunction() + " not supported",
+        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
   }
 
   protected Predicate convertSpecific(JPAUnaryBooleanOperator jpaOperator)
       throws ODataApplicationException {
     throw new ODataApplicationException("Operator " + jpaOperator.getOperator() + " not supported",
-        HttpStatusCode.BAD_REQUEST.ordinal(), Locale.ENGLISH);
-  }
-
-  protected Object convertSpecific(JPAFunctionCall jpaFunction) throws ODataApplicationException {
-    throw new ODataApplicationException("Operator " + jpaFunction.getFunction() + " not supported",
-        HttpStatusCode.BAD_REQUEST.ordinal(), Locale.ENGLISH);
+        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
   }
 
 }

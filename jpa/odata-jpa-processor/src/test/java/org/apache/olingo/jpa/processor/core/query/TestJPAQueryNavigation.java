@@ -18,7 +18,7 @@ public class TestJPAQueryNavigation extends TestBase {
   public void testNavigationOneHop() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper("Organizations('3')/Roles");
-    assertEquals(200, helper.getStatus());
+    helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
     assertEquals(3, orgs.size());
@@ -28,7 +28,7 @@ public class TestJPAQueryNavigation extends TestBase {
   public void testNoNavigationOneEntity() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper("Organizations('3')");
-    assertEquals(200, helper.getStatus());
+    helper.assertStatus(200);
 
     ObjectNode org = helper.getValue();
     assertEquals("Third Org.", org.get("Name1").asText());
@@ -38,7 +38,7 @@ public class TestJPAQueryNavigation extends TestBase {
   public void testNavigationOneHopAndOrderBy() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper("Organizations('3')/Roles?$orderby=RoleCategory desc");
-    assertEquals(200, helper.getStatus());
+    helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
     assertEquals(3, orgs.size());
@@ -51,7 +51,7 @@ public class TestJPAQueryNavigation extends TestBase {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(
         "BusinessPartnerRoles(BusinessPartnerID='2',RoleCategory='A')/BusinessPartner");
-    assertEquals(200, helper.getStatus());
+    helper.assertStatus(200);
 
     ObjectNode org = helper.getValue();
     assertEquals("2", org.get("ID").asText());
@@ -62,7 +62,7 @@ public class TestJPAQueryNavigation extends TestBase {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(
         "Organizations('3')/AdministrativeInformation/Created/User");
-    assertEquals(200, helper.getStatus());
+    helper.assertStatus(200);
 
     ObjectNode org = helper.getValue();
     assertEquals("99", org.get("ID").asText());
@@ -73,7 +73,7 @@ public class TestJPAQueryNavigation extends TestBase {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(
         "Organizations('3')/AdministrativeInformation/Created/User/Address/AdministrativeDivision");
-    assertEquals(200, helper.getStatus());
+    helper.assertStatus(200);
 
     ObjectNode org = helper.getValue();
     assertEquals("3166-1", org.get("ParentCodeID").asText());
@@ -84,7 +84,7 @@ public class TestJPAQueryNavigation extends TestBase {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(
         "AdministrativeDivisions(DivisionCode='BE352',CodeID='NUTS3',CodePublisher='Eurostat')/Parent");
-    assertEquals(200, helper.getStatus());
+    helper.assertStatus(200);
 
     ObjectNode org = helper.getValue();
     assertEquals("NUTS2", org.get("CodeID").asText());
@@ -96,7 +96,7 @@ public class TestJPAQueryNavigation extends TestBase {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(
         "AdministrativeDivisions(DivisionCode='BE352',CodeID='NUTS3',CodePublisher='Eurostat')/Parent/Parent");
-    assertEquals(200, helper.getStatus());
+    helper.assertStatus(200);
 
     ObjectNode org = helper.getValue();
     assertEquals("NUTS1", org.get("CodeID").asText());
@@ -108,7 +108,7 @@ public class TestJPAQueryNavigation extends TestBase {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(
         "AdministrativeDivisions(DivisionCode='BE2',CodeID='NUTS1',CodePublisher='Eurostat')/Children?$orderby=DivisionCode desc");
-    assertEquals(200, helper.getStatus());
+    helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
     assertEquals(5, orgs.size());
@@ -121,7 +121,7 @@ public class TestJPAQueryNavigation extends TestBase {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(
         "AdministrativeDivisions(DivisionCode='BE2',CodeID='NUTS1',CodePublisher='Eurostat')/Children(DivisionCode='BE25',CodeID='NUTS2',CodePublisher='Eurostat')/Children?$orderby=DivisionCode desc");
-    assertEquals(200, helper.getStatus());
+    helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
     assertEquals(8, orgs.size());

@@ -22,8 +22,8 @@ import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
 @EdmFunctions({
     @EdmFunction(
         name = "Siblings",
-        functionName = "Siblings",
-        isBound = true,
+        functionName = "\"OLINGO\".\"org.apache.olingo.jpa::Siblings\"",
+        isBound = false,
         returnType = @EdmFunction.ReturnType(isCollection = true) ,
         parameter = {
             @EdmFunctionParameter(name = "CodePublisher", parameterName = "\"CodePublisher\"",

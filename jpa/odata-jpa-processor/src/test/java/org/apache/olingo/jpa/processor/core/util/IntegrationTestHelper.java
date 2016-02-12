@@ -32,29 +32,25 @@ public class IntegrationTestHelper {
   public final HttpServletResponseDouble resp;
   private static final String uriPrefix = "http://localhost:8080/Test/Olingo.svc/";
   private static final String PUNIT_NAME = "org.apache.olingo.jpa";
-  private static final EntityManagerFactory emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME,
-      DataSourceHelper.createDataSource(
-          DataSourceHelper.DB_H2));
-
-  /**
-   * Example: Organizations?$orderby=Roles/$count%20desc,Address/Region%20asc&$select=ID,Name1
-   * @param urlPath
-   * @throws IOException
-   * @throws ODataException
-   */
+  private static EntityManagerFactory emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME,
+      DataSourceHelper.createDataSource(DataSourceHelper.DB_H2));
 
   public IntegrationTestHelper(String urlPath) throws IOException, ODataException {
+    this(emf, urlPath);
+  }
+
+  public IntegrationTestHelper(EntityManagerFactory localEmf, String urlPath) throws IOException, ODataException {
     super();
     this.req = new HttpServletRequestDouble(uriPrefix + urlPath);
     this.resp = new HttpServletResponseDouble();
     OData odata = OData.newInstance();
 
-    JPAEdmProvider jpaEdm = new JPAEdmProvider(PUNIT_NAME, emf, null);
+    JPAEdmProvider jpaEdm = new JPAEdmProvider(PUNIT_NAME, localEmf, null);
 
     ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(jpaEdm,
         new ArrayList<EdmxReference>()));
-    handler.register(new JPAEntityProcessor(jpaEdm.getServiceDocument(), emf.createEntityManager()));
-    handler.register(new JPAPropertyProcessor(jpaEdm.getServiceDocument(), emf.createEntityManager()));
+    handler.register(new JPAEntityProcessor(jpaEdm.getServiceDocument(), localEmf.createEntityManager()));
+    handler.register(new JPAPropertyProcessor(jpaEdm.getServiceDocument(), localEmf.createEntityManager()));
     handler.process(req, resp);
   }
 

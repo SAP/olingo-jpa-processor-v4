@@ -1,5 +1,10 @@
 import static org.junit.Assert.assertNotNull;
 
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +20,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
+import javax.sql.DataSource;
 
 import org.apache.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import org.apache.olingo.jpa.processor.core.testmodel.DataSourceHelper;
@@ -28,12 +34,16 @@ public class TestFunctions {
   private static EntityManagerFactory emf;
   private EntityManager em;
   private CriteriaBuilder cb;
+  private static DataSource ds;
 
   @BeforeClass
   public static void setupClass() {
+
     Map<String, Object> properties = new HashMap<String, Object>();
-    properties.put(ENTITY_MANAGER_DATA_SOURCE, DataSourceHelper.createDataSource(
-        DataSourceHelper.DB_HANA));
+
+    ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HANA);
+
+    properties.put(ENTITY_MANAGER_DATA_SOURCE, ds);
     emf = Persistence.createEntityManagerFactory(PUNIT_NAME, properties);
   }
 
@@ -60,17 +70,83 @@ public class TestFunctions {
   }
 
   @Test
-  public void TestProcedure() {
+  public void TestProcedure() throws SQLException {
     StoredProcedureQuery pc = em.createStoredProcedureQuery("\"OLINGO\".\"org.apache.olingo.jpa::Siblings\"");
+    List<AdministrativeDivision> res = new ArrayList<AdministrativeDivision>();
     pc.registerStoredProcedureParameter("CodePublisher", String.class, ParameterMode.IN);
+    pc.setParameter("CodePublisher", "Eurostat");
     pc.registerStoredProcedureParameter("CodeID", String.class, ParameterMode.IN);
-    pc.registerStoredProcedureParameter("DivisionCode", String.class, ParameterMode.IN);
-    // pc.registerStoredProcedureParameter("?", ArrayList.class, ParameterMode.OUT);
-    pc.setParameter("CodePublisher", "Eurostat"); // nvarchar(10), IN nvarchar(10), IN nvarchar(10))
     pc.setParameter("CodeID", "NUTS2");
+    pc.registerStoredProcedureParameter("DivisionCode", String.class, ParameterMode.IN);
     pc.setParameter("DivisionCode", "BE25");
+    pc.registerStoredProcedureParameter("RT", ArrayList.class, ParameterMode.IN);
+    pc.setParameter("RT", res);
+//    pc.setParameter("CodePublisher", "Eurostat");  
+//    pc.setParameter("CodeID", "NUTS2");
+//    pc.setParameter("DivisionCode", "BE25");
+
+    Connection conn = ds.getConnection();
+    DatabaseMetaData meta = conn.getMetaData();
+    ResultSet metaR = meta.getProcedures(conn.getCatalog(), "OLINGO", "%");
+
+    while (metaR.next()) {
+      String procedureCatalog = metaR.getString(1);
+      String procedureSchema = metaR.getString(2);
+      String procedureName = metaR.getString(3);
+//          reserved for future use
+//          reserved for future use
+//          reserved for future use
+      String remarks = metaR.getString(7);
+      Short procedureTYpe = metaR.getShort(8);
+//      String specificName = metaR.getString(9);
+
+      System.out.println("procedureCatalog=" + procedureCatalog);
+      System.out.println("procedureSchema=" + procedureSchema);
+      System.out.println("procedureName=" + procedureName);
+      System.out.println("remarks=" + remarks);
+      System.out.println("procedureType=" + procedureTYpe);
+//      System.out.println("specificName=" + specificName);
+    }
+    ResultSet rs = meta.getProcedureColumns(conn.getCatalog(),
+        "OLINGO",
+        "%",
+        "%");
+
+    while (rs.next()) {
+      // get stored procedure metadata
+      String procedureCatalog = rs.getString(1);
+      String procedureSchema = rs.getString(2);
+      String procedureName = rs.getString(3);
+      String columnName = rs.getString(4);
+      short columnReturn = rs.getShort(5);
+      int columnDataType = rs.getInt(6);
+      String columnReturnTypeName = rs.getString(7);
+      int columnPrecision = rs.getInt(8);
+      int columnByteLength = rs.getInt(9);
+      short columnScale = rs.getShort(10);
+      short columnRadix = rs.getShort(11);
+      short columnNullable = rs.getShort(12);
+      String columnRemarks = rs.getString(13);
+
+      System.out.println("stored Procedure name=" + procedureName);
+      System.out.println("procedureCatalog=" + procedureCatalog);
+      System.out.println("procedureSchema=" + procedureSchema);
+      System.out.println("procedureName=" + procedureName);
+      System.out.println("columnName=" + columnName);
+      System.out.println("columnReturn=" + columnReturn);
+      System.out.println("columnDataType=" + columnDataType);
+      System.out.println("columnReturnTypeName=" + columnReturnTypeName);
+      System.out.println("columnPrecision=" + columnPrecision);
+      System.out.println("columnByteLength=" + columnByteLength);
+      System.out.println("columnScale=" + columnScale);
+      System.out.println("columnRadix=" + columnRadix);
+      System.out.println("columnNullable=" + columnNullable);
+      System.out.println("columnRemarks=" + columnRemarks);
+    }
+    conn.close();
     pc.execute();
     List<?> r = pc.getResultList();
+
     Object[] one = (Object[]) r.get(0);
     assertNotNull(one);
   }

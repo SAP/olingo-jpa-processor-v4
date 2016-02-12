@@ -19,7 +19,7 @@ public @interface EdmFunctionParameter {
   String name();
 
   /**
-   * Defines the name of of the input parameter at a stored procedure.
+   * Defines the name of of the input parameter at a stored procedure or User defined Function.
    * It is required in case the function shall be executed as a stored
    * procedure
    * @return Parameter name
