@@ -116,4 +116,45 @@ public class AdministrativeDivision {
   public long getPopulation() {
     return population;
   }
+
+  public void setCodePublisher(String codePublisher) {
+    this.codePublisher = codePublisher;
+  }
+
+  public void setCodeID(String codeID) {
+    this.codeID = codeID;
+  }
+
+  public void setDivisionCode(String divisionCode) {
+    this.divisionCode = divisionCode;
+  }
+
+  public void setCountryCode(String countryCode) {
+    this.countryCode = countryCode;
+  }
+
+  public void setParentDivisionCode(String parentDivisionCode) {
+    this.parentDivisionCode = parentDivisionCode;
+  }
+
+  public void setAlternativeCode(String alternativeCode) {
+    this.alternativeCode = alternativeCode;
+  }
+
+  public void setArea(BigDecimal area) {
+    this.area = area;
+  }
+
+  public void setPopulation(long population) {
+    this.population = population;
+  }
+
+  public String getParentCodeID() {
+    return parentCodeID;
+  }
+
+  public void setParentCodeID(String parentCodeID) {
+    this.parentCodeID = parentCodeID;
+  }
+
 }

@@ -8,6 +8,7 @@ import org.apache.olingo.commons.api.http.HttpHeader;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
 import org.apache.olingo.jpa.processor.core.api.JPASerializer;
+import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.serializer.SerializerResult;
 import org.apache.olingo.server.api.uri.UriInfo;
@@ -20,14 +21,17 @@ abstract class JPAAbstractRequestProcessor implements JPARequestProcessor {
   protected final CriteriaBuilder cb;
   protected final UriInfo uriInfo;
   protected final JPASerializer serializer;
+  protected final OData odata;
 
-  public JPAAbstractRequestProcessor(ServicDocument sd, EntityManager em, UriInfo uriInfo, JPASerializer serializer) {
+  public JPAAbstractRequestProcessor(OData odata, ServicDocument sd, EntityManager em, UriInfo uriInfo,
+      JPASerializer serializer) {
     super();
     this.em = em;
     this.cb = em.getCriteriaBuilder();
     this.sd = sd;
     this.uriInfo = uriInfo;
     this.serializer = serializer;
+    this.odata = odata;
   }
 
   protected final void createSuccessResonce(ODataResponse response, ContentType responseFormat,

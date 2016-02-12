@@ -30,7 +30,8 @@ public class TestJPAExpandQueryCreateResult extends TestBase {
     helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
     createHeaders();
     EdmEntityType targetEntity = new EdmEntityTypeDouble(nameBuilder, "BusinessPartnerRole");
-    cut = new JPAExpandQuery(helper.sd, emf.createEntityManager(), new ExpandItemDouble(targetEntity).getResourcePath(),
+    cut = new JPAExpandQuery(null, helper.sd, emf.createEntityManager(), new ExpandItemDouble(targetEntity)
+        .getResourcePath(),
         helper.getJPAAssociationPath("Organizations", "Roles"), null, new HashMap<String, List<String>>());
     // new EdmEntitySetDouble(nameBuilder, "Organisations"), null, new HashMap<String, List<String>>());
   }

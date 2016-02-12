@@ -20,6 +20,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
+import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriInfoResource;
@@ -35,9 +36,9 @@ import org.apache.olingo.server.api.uri.queryoption.expression.Member;
 public class JPAQuery extends JPAExecutableQuery {
   // private final EdmEntitySet edmEntitySet;
 
-  public JPAQuery(EdmEntitySet entitySet, final ServicDocument sd, final UriInfo uriInfo,
+  public JPAQuery(OData odata, EdmEntitySet entitySet, final ServicDocument sd, final UriInfo uriInfo,
       final EntityManager em, Map<String, List<String>> requestHeaders) throws ODataApplicationException {
-    super(sd, entitySet.getEntityType(), em, requestHeaders, uriInfo);
+    super(odata, sd, entitySet.getEntityType(), em, requestHeaders, uriInfo);
 
     // this.edmEntitySet = entitySet;
   }

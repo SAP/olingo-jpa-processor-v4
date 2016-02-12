@@ -39,7 +39,7 @@ public class JPASerializeEntity implements JPASerializer {
     EdmEntityType entityType = targetEdmEntitySet.getEntityType();
 
     String selectList = uriHelper.buildContextURLSelectList(targetEdmEntitySet.getEntityType(),
-        null, uriInfo.getSelectOption());
+        uriInfo.getExpandOption(), uriInfo.getSelectOption());
 
     ContextURL contextUrl = ContextURL.with()
         .entitySet(targetEdmEntitySet).suffix(Suffix.ENTITY)

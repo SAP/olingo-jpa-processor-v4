@@ -36,7 +36,8 @@ public class TestJPAQueryFromClause extends TestBase {
     helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
     jpaEntityType = helper.getJPAEntityType("Organizations");
     createHeaders();
-    cut = new JPAQuery(new EdmEntitySetDouble(nameBuilder, "Organizations"), helper.sd, null, emf.createEntityManager(),
+    cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "Organizations"), helper.sd, null, emf
+        .createEntityManager(),
         headers);
   }
 

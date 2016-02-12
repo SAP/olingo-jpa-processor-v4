@@ -21,7 +21,7 @@ import org.apache.olingo.server.api.ODataApplicationException;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestJPAResultConverter extends TestBase {
+public class TestJPATupleResultConverter extends TestBase {
   public static final int NO_POSTAL_ADDRESS_FIELDS = 8;
   public static final int NO_ADMIN_INFO_FIELDS = 2;
   private JPATupleResultConverter cut;

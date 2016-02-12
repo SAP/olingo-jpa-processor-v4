@@ -1,8 +1,9 @@
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\query\JPAExecutableQuery.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\query\Util.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\processor\JPAAbstractRequestProcessor.java
+C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\query\JPATupleExpandResultConverter.java
+C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\query\JPATupleAbstractConverter.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\filter\JPAUnaryBooleanOperator.java
-C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\query\JPAExpandResultConverter.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\filter\JPAExpressionOperator.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\filter\JPAComparisonOperator.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\query\JPAAbstractQuery.java
@@ -11,7 +12,6 @@ C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apac
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\query\JPAExpandQuery.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\query\JPANavigationQuery.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\serializer\JPASerializeFunction.java
-C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\api\JPAEntityProcessor.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\filter\JPABooleanOperator.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\serializer\JPASerializeCollection.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\query\JPAStandardExtention.java
@@ -20,9 +20,7 @@ C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apac
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\filter\JPAArithmeticOperator.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\serializer\JPASerializeEntity.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\filter\JPAFunctionCall.java
-C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\api\JPAAbstractProcessor.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\filter\JPAOperationConverter.java
-C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\query\JPAAbstractConverter.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\filter\JPALiteralOperator.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\serializer\JPASerializeCount.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\api\JPASerializer.java
@@ -39,7 +37,6 @@ C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apac
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\processor\JPARequestProcessor.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\api\JPAOdataRequestProcessor.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\serializer\JPASerializerFactory.java
-C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\api\JPAPropertyProcessor.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\query\JPATupleResultConverter.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\serializer\JPASerializePrimitive.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\filter\JPAFilterCrossComplier.java

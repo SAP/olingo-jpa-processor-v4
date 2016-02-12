@@ -21,6 +21,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
+import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
@@ -44,19 +45,20 @@ public class JPAExpandQuery extends JPAExecutableQuery {
   private final JPAAssociationPath assoziation;
   private final JPAExpandItemInfo item;
 
-  public JPAExpandQuery(ServicDocument sd, EntityManager em, UriInfoResource uriInfo, JPAAssociationPath assoziation,
+  public JPAExpandQuery(OData odata, ServicDocument sd, EntityManager em, UriInfoResource uriInfo,
+      JPAAssociationPath assoziation,
       JPAExecutableQuery parentQuery, Map<String, List<String>> requestHeaders)
           throws ODataApplicationException {
-    super(sd, Util.determineTargetEntityType(uriInfo.getUriResourceParts()), em, requestHeaders,
+    super(odata, sd, Util.determineTargetEntityType(uriInfo.getUriResourceParts()), em, requestHeaders,
         uriInfo);
     this.assoziation = assoziation;
     this.item = null;
   }
 
-  public JPAExpandQuery(ServicDocument sd, EntityManager em, JPAExpandItemInfo item,
+  public JPAExpandQuery(OData odata, ServicDocument sd, EntityManager em, JPAExpandItemInfo item,
       Map<String, List<String>> requestHeaders) throws ODataApplicationException {
 
-    super(sd, Util.determineTargetEntityType(item.getUriInfo().getUriResourceParts()), em, requestHeaders,
+    super(odata, sd, Util.determineTargetEntityType(item.getUriInfo().getUriResourceParts()), em, requestHeaders,
         item.getUriInfo());
     this.assoziation = item.getExpandAssociation();
     this.item = item;

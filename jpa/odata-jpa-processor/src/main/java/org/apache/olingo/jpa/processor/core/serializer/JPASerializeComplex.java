@@ -42,7 +42,7 @@ class JPASerializeComplex implements JPASerializer {
     EdmComplexType edmPropertyType = (EdmComplexType) uriProperty.getProperty().getType();
 
     String selectList = uriHelper.buildContextURLSelectList(targetEdmEntitySet.getEntityType(),
-        null, uriInfo.getSelectOption());
+        uriInfo.getExpandOption(), uriInfo.getSelectOption());
 
     ContextURL contextUrl = ContextURL.with()
         .entitySet(targetEdmEntitySet)

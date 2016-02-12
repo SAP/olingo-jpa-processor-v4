@@ -38,6 +38,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
 import org.apache.olingo.jpa.processor.core.filter.JPAFilterCrossComplier;
 import org.apache.olingo.jpa.processor.core.filter.JPAOperationConverter;
+import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriParameter;
@@ -67,7 +68,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
   protected final Root<?> root;
   protected final JPAFilterCrossComplier filter;
 
-  public JPAExecutableQuery(ServicDocument sd, EdmType edmType, EntityManager em,
+  public JPAExecutableQuery(OData odata, ServicDocument sd, EdmType edmType, EntityManager em,
       Map<String, List<String>> requestHeaders, UriInfoResource uriResource) throws ODataApplicationException {
 
     super(sd, edmType, em);
@@ -75,7 +76,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     this.uriResource = uriResource;
     this.cq = cb.createTupleQuery();
     this.root = cq.from(jpaEntity.getTypeClass());
-    this.filter = new JPAFilterCrossComplier(jpaEntity, root, new JPAOperationConverter(cb), uriResource);
+    this.filter = new JPAFilterCrossComplier(odata, jpaEntity, root, new JPAOperationConverter(cb), uriResource);
   }
 
   protected Locale determineLocale(Map<String, List<String>> headers) {

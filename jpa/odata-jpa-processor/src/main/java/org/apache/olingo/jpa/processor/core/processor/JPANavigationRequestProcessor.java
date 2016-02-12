@@ -24,6 +24,7 @@ import org.apache.olingo.jpa.processor.core.query.JPANavigationProptertyInfo;
 import org.apache.olingo.jpa.processor.core.query.JPAQuery;
 import org.apache.olingo.jpa.processor.core.query.JPATupleResultConverter;
 import org.apache.olingo.jpa.processor.core.query.Util;
+import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataLibraryException;
 import org.apache.olingo.server.api.ODataRequest;
@@ -36,8 +37,9 @@ import org.apache.olingo.server.api.uri.queryoption.CountOption;
 
 public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor implements JPARequestProcessor {
 
-  public JPANavigationRequestProcessor(ServicDocument sd, EntityManager em, UriInfo uriInfo, JPASerializer serializer) {
-    super(sd, em, uriInfo, serializer);
+  public JPANavigationRequestProcessor(OData odata, ServicDocument sd, EntityManager em, UriInfo uriInfo,
+      JPASerializer serializer) {
+    super(odata, sd, em, uriInfo, serializer);
   }
 
   @Override
@@ -48,7 +50,7 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
     final EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(resourceParts);
 
     // Create a JPQL Query and execute it
-    final JPAQuery query = new JPAQuery(targetEdmEntitySet, sd, uriInfo, em, request.getAllHeaders());
+    final JPAQuery query = new JPAQuery(odata, targetEdmEntitySet, sd, uriInfo, em, request.getAllHeaders());
     final List<Tuple> result = query.execute();
 
     Map<JPAAssociationPath, JPAExpandResult> allExpResults = readExpandEntities(request.getAllHeaders(), null,
@@ -110,7 +112,7 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
         .buildExpandItemInfo(sd, uriResourceInfo.getUriResourceParts(), uriResourceInfo.getExpandOption(), parentHops);
 
     for (JPAExpandItemInfo item : itemInfoList) {
-      JPAExpandQuery expandQuery = new JPAExpandQuery(sd, em, item, headers);
+      JPAExpandQuery expandQuery = new JPAExpandQuery(odata, sd, em, item, headers);
       JPAExpandResult expandResult = expandQuery.execute();
       expandResult.putChildren(
           readExpandEntities(headers, item.getHops(), item.getUriInfo()));

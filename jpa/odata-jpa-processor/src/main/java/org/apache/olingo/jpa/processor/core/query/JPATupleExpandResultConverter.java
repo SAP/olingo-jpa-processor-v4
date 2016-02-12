@@ -23,13 +23,13 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExc
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
 import org.apache.olingo.server.api.ODataApplicationException;
 
-public class JPAExpandResultConverter extends JPAAbstractConverter {
+public class JPATupleExpandResultConverter extends JPATupleAbstractConverter {
   private final JPAExpandResult map;
   private final Tuple parentRow;
   private final JPAAssociationPath assoziation;
   private final URI parentUri;
 
-  public JPAExpandResultConverter(URI uri, JPAExpandResult jpaExpandResult, Tuple parentRow,
+  public JPATupleExpandResultConverter(URI uri, JPAExpandResult jpaExpandResult, Tuple parentRow,
       JPAAssociationPath assoziation) {
     super((JPAEntityType) assoziation.getTargetType());
     this.map = jpaExpandResult;
@@ -112,7 +112,7 @@ public class JPAExpandResultConverter extends JPAAbstractConverter {
           } else
             s = jpaConversionTargetEntity;
           if (s.getDeclaredAssociation(associationPath.getLeaf().getExternalName()) != null) {
-            Link expand = new JPAExpandResultConverter(uri, children.get(associationPath), row,
+            Link expand = new JPATupleExpandResultConverter(uri, children.get(associationPath), row,
                 associationPath).getResult();
             entityExpandLinks.add(expand);
           }

@@ -20,11 +20,13 @@ import org.apache.olingo.server.api.uri.UriResourceKind;
 public class JPAProcessorFactory {
   private final ServicDocument sd;
   private final JPASerializerFactory serializerFactory;
+  private final OData odata;
 
   public JPAProcessorFactory(OData odata, ServiceMetadata serviceMetadata, ServicDocument sd) {
     super();
     this.sd = sd;
     this.serializerFactory = new JPASerializerFactory(odata, serviceMetadata);
+    this.odata = odata;
   }
 
   public JPARequestProcessor createProcessor(EntityManager em, UriInfo uriInfo, ContentType responseFormat)
@@ -35,18 +37,19 @@ public class JPAProcessorFactory {
 
     switch (lastItem.getKind()) {
     case count:
-      return new JPACountRequestProcessor(sd, em, uriInfo, serializerFactory.createSerializer(responseFormat,
+      return new JPACountRequestProcessor(odata, sd, em, uriInfo, serializerFactory.createSerializer(responseFormat,
           uriInfo));
     case function:
       checkFunctionPathSupported(resourceParts);
-      return new JPAFunctionRequestProcessor(sd, em, uriInfo, serializerFactory.createSerializer(responseFormat,
+      return new JPAFunctionRequestProcessor(odata, sd, em, uriInfo, serializerFactory.createSerializer(responseFormat,
           uriInfo));
     case complexProperty:
     case primitiveProperty:
     case navigationProperty:
     case entitySet:
       checkNavigationPathSupported(resourceParts);
-      return new JPANavigationRequestProcessor(sd, em, uriInfo, serializerFactory.createSerializer(responseFormat,
+      return new JPANavigationRequestProcessor(odata, sd, em, uriInfo, serializerFactory.createSerializer(
+          responseFormat,
           uriInfo));
     default:
       throw new ODataApplicationException("Not implemented",

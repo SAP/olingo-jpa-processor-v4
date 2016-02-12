@@ -28,7 +28,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
 import org.apache.olingo.server.api.ODataApplicationException;
 
-public class JPATupleResultConverter extends JPAAbstractConverter {
+public class JPATupleResultConverter extends JPATupleAbstractConverter {
   private final List<Tuple> jpaQueryResult;
   // final JPAEntityType jpaEntity;
   private final EdmEntitySet edmEntitySet;
@@ -70,7 +70,7 @@ public class JPATupleResultConverter extends JPAAbstractConverter {
         } else
           s = jpaConversionTargetEntity;
         if (s.getDeclaredAssociation(associationPath.getLeaf().getExternalName()) != null) {
-          Link expand = new JPAExpandResultConverter(uri, jpaExpandResult.get(associationPath), parentRow,
+          Link expand = new JPATupleExpandResultConverter(uri, jpaExpandResult.get(associationPath), parentRow,
               associationPath).getResult();
           entityExpandLinks.add(expand);
         }

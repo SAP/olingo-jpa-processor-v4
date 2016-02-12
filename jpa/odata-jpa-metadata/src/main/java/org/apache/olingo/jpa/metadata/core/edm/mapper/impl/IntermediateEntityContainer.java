@@ -90,6 +90,14 @@ class IntermediateEntityContainer extends IntermediateModelElement {
     edmFuImport.setName(edmFu.getName());
     edmFuImport.setFunction(nameBuilder.buildFQN(edmFu.getName()));
     edmFuImport.setIncludeInServiceDocument(true);
+
+    for (String internalName : entitySetListInternalKey.keySet()) {
+      IntermediateEntitySet entitySet = entitySetListInternalKey.get(internalName);
+      if (entitySet.getEntityType().getExternalFQN().equals(edmFu.getReturnType().getTypeFQN())) {
+        edmFuImport.setEntitySet(entitySet.getExternalName());
+        break;
+      }
+    }
     return edmFuImport;
   }
 

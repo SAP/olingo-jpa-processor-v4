@@ -72,6 +72,7 @@ class IntermediateFunction extends IntermediateModelElement implements JPAFuncti
       edmFunction.setBound(jpaUserDefinedFunction.isBound());
       // TODO edmFunction.setComposable(isComposable)
       edmFunction.setComposable(false);
+      // TODO edmFunction.setEntitySetPath(entitySetPath) for bound functions
 
     }
   }

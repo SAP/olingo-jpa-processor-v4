@@ -49,7 +49,7 @@ public class TestJPAQuerySelectClause extends TestBase {
     nameBuilder = new JPAEdmNameBuilder(PUNIT_NAME);
     jpaEntityType = helper.getJPAEntityType("BusinessPartners");
     createHeaders();
-    cut = new JPAQuery(new EdmEntitySetDouble(nameBuilder, "BusinessPartners"), helper.sd, null, emf
+    cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "BusinessPartners"), helper.sd, null, emf
         .createEntityManager(), headers);
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
     joinTables = new HashMap<String, From<?, ?>>();
@@ -130,7 +130,7 @@ public class TestJPAQuerySelectClause extends TestBase {
   @Test
   public void checkSelectOnePropertyPartKey() throws ODataApplicationException, ODataJPAModelException {
     jpaEntityType = helper.getJPAEntityType("Regions");
-    cut = new JPAQuery(new EdmEntitySetDouble(nameBuilder, "Regions"), helper.sd, null, emf.createEntityManager(),
+    cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "Regions"), helper.sd, null, emf.createEntityManager(),
         headers);
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
     joinTables.put(jpaEntityType.getInternalName(), root);
@@ -160,7 +160,8 @@ public class TestJPAQuerySelectClause extends TestBase {
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
     joinTables.put(jpaEntityType.getInternalName(), root);
 
-    cut = new JPAQuery(new EdmEntitySetDouble(nameBuilder, "Organizations"), helper.sd, null, emf.createEntityManager(),
+    cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "Organizations"), helper.sd, null, emf
+        .createEntityManager(),
         headers);
 
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
@@ -179,7 +180,8 @@ public class TestJPAQuerySelectClause extends TestBase {
     joinTables.put(jpaEntityType.getInternalName(), root);
     fillJoinTable(root);
 
-    cut = new JPAQuery(new EdmEntitySetDouble(nameBuilder, "Organizations"), helper.sd, null, emf.createEntityManager(),
+    cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "Organizations"), helper.sd, null, emf
+        .createEntityManager(),
         headers);
 
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
@@ -196,7 +198,8 @@ public class TestJPAQuerySelectClause extends TestBase {
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
     joinTables.put(jpaEntityType.getInternalName(), root);
 
-    cut = new JPAQuery(new EdmEntitySetDouble(nameBuilder, "Organizations"), helper.sd, null, emf.createEntityManager(),
+    cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "Organizations"), helper.sd, null, emf
+        .createEntityManager(),
         headers);
 
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
@@ -214,7 +217,7 @@ public class TestJPAQuerySelectClause extends TestBase {
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
     joinTables.put(jpaEntityType.getInternalName(), root);
 
-    cut = new JPAQuery(new EdmEntitySetDouble(nameBuilder, "Organizations"), helper.sd, null, emf
+    cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "Organizations"), helper.sd, null, emf
         .createEntityManager(), headers);
 
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
@@ -234,7 +237,8 @@ public class TestJPAQuerySelectClause extends TestBase {
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
     joinTables.put(jpaEntityType.getInternalName(), root);
 
-    cut = new JPAQuery(new EdmEntitySetDouble(nameBuilder, "Organizations"), helper.sd, null, emf.createEntityManager(),
+    cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "Organizations"), helper.sd, null, emf
+        .createEntityManager(),
         headers);
 
     // SELECT c.address.geocode FROM Company c WHERE c.name = 'Random House'
@@ -249,7 +253,8 @@ public class TestJPAQuerySelectClause extends TestBase {
   public void checkSelectTextJoinSingleAttribute() throws ODataApplicationException, ODataJPAModelException {
     jpaEntityType = helper.getJPAEntityType("Organizations");
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
-    cut = new JPAQuery(new EdmEntitySetDouble(nameBuilder, "Organizations"), helper.sd, null, emf.createEntityManager(),
+    cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "Organizations"), helper.sd, null, emf
+        .createEntityManager(),
         headers);
     joinTables.put(jpaEntityType.getInternalName(), root);
     fillJoinTable(root);
@@ -265,7 +270,8 @@ public class TestJPAQuerySelectClause extends TestBase {
   public void checkSelectTextJoinCompextType() throws ODataApplicationException, ODataJPAModelException {
     jpaEntityType = helper.getJPAEntityType("Organizations");
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
-    cut = new JPAQuery(new EdmEntitySetDouble(nameBuilder, "Organizations"), helper.sd, null, emf.createEntityManager(),
+    cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "Organizations"), helper.sd, null, emf
+        .createEntityManager(),
         headers);
     joinTables.put(jpaEntityType.getInternalName(), root);
     fillJoinTable(root);

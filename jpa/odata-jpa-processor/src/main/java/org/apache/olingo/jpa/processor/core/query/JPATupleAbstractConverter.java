@@ -26,7 +26,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.server.api.ODataApplicationException;
 
-public abstract class JPAAbstractConverter {
+public abstract class JPATupleAbstractConverter {
 
   public static final String ACCESS_MODIFIER_GET = "get";
   public static final String ACCESS_MODIFIER_SET = "set";
@@ -35,7 +35,7 @@ public abstract class JPAAbstractConverter {
       new HashMap<String, HashMap<String, Method>>();
   protected final JPAEntityType jpaConversionTargetEntity;
 
-  public JPAAbstractConverter(JPAEntityType jpaEntity) {
+  public JPATupleAbstractConverter(JPAEntityType jpaEntity) {
     super();
     this.jpaConversionTargetEntity = jpaEntity;
   }

@@ -21,7 +21,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class TestJPAResultConverterCompoundKey extends TestBase {
+public class TestJPATupleResultConverterCompoundKey extends TestBase {
   public static final int NO_POSTAL_ADDRESS_FIELDS = 8;
   public static final int NO_ADMIN_INFO_FIELDS = 2;
   private JPATupleResultConverter cut;

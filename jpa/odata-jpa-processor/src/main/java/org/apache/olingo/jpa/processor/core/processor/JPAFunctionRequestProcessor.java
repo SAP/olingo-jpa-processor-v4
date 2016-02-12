@@ -1,5 +1,6 @@
 package org.apache.olingo.jpa.processor.core.processor;
 
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Locale;
 
@@ -7,20 +8,21 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import org.apache.olingo.commons.api.data.EntityCollection;
+import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmFunction;
 import org.apache.olingo.commons.api.edm.EdmParameter;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeException;
-import org.apache.olingo.commons.api.edm.EdmReturnType;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionParameter;
-import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
 import org.apache.olingo.jpa.processor.core.api.JPASerializer;
+import org.apache.olingo.jpa.processor.core.query.JPAInstanceResultConverter;
+import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataLibraryException;
 import org.apache.olingo.server.api.ODataRequest;
@@ -41,9 +43,9 @@ public class JPAFunctionRequestProcessor extends JPAAbstractRequestProcessor {
   private static String FUNC_NAME_PLACEHOLDER = "$FUNCTIONNAME$";
   private static String PARAMETER_PLACEHOLDER = "$PARAMETER$";
 
-  public JPAFunctionRequestProcessor(ServicDocument sd, EntityManager em,
+  public JPAFunctionRequestProcessor(OData odata, ServicDocument sd, EntityManager em,
       UriInfo uriInfo, JPASerializer serializer) {
-    super(sd, em, uriInfo, serializer);
+    super(odata, sd, em, uriInfo, serializer);
   }
 
   @Override
@@ -65,18 +67,18 @@ public class JPAFunctionRequestProcessor extends JPAAbstractRequestProcessor {
       nq.setParameter(count, value);
       count += 1;
     }
-//    nq.setParameter(1, "Eurostat");
-//    nq.setParameter(2, "NUTS2");
-//    nq.setParameter(3, "BE25");
-//  pc.execute();
     EntityCollection entityCollection;
-    List<Object> nr = nq.getResultList();
-
-    entityCollection = new EntityCollection();
-
-    for (Object row : nr) {
-//      Entity odataEntity = convertRow(jpaConversionTargetEntity, row);
-//      odataResults.add(odataEntity);
+    List<?> nr = nq.getResultList();
+    EdmEntitySet returnEntitySet = uriResourceFunction.getFunctionImport().getReturnedEntitySet();
+    try {
+      entityCollection = new JPAInstanceResultConverter(odata.createUriHelper(), sd, nr, returnEntitySet, returnType
+          .getTypeClass()).getResult();
+    } catch (ODataJPAModelException e) {
+      throw new ODataApplicationException("Result could not be created", HttpStatusCode.INTERNAL_SERVER_ERROR
+          .getStatusCode(), Locale.ENGLISH, e);
+    } catch (URISyntaxException e) {
+      throw new ODataApplicationException("Result could not be created", HttpStatusCode.INTERNAL_SERVER_ERROR
+          .getStatusCode(), Locale.ENGLISH, e);
     }
 
     if (entityCollection.getEntities() != null && entityCollection.getEntities().size() > 0) {
@@ -109,39 +111,6 @@ public class JPAFunctionRequestProcessor extends JPAAbstractRequestProcessor {
     }
     throw new ODataApplicationException("Parameter not found " + parameter.getName(), HttpStatusCode.BAD_REQUEST
         .getStatusCode(), Locale.ENGLISH);
-  }
-
-  /**
-   * Assumption: Values of one row are returned
-   * @param resultList
-   * @param edmReturnType
-   * @return
-   * @throws ODataApplicationException
-   */
-  private EntityCollection convertObjectBaseResult(List<Object[]> resultList, EdmReturnType edmReturnType)
-      throws ODataApplicationException {
-    EntityCollection convertedResult = new EntityCollection();
-    // TODO non EntityTypes
-    JPAEntityType jpaEntityType;
-    try {
-      jpaEntityType = sd.getEntity(edmReturnType.getType());
-    } catch (ODataJPAModelException e) {
-      throw new ODataApplicationException("Unsupported result type " + edmReturnType.getType().getName(),
-          HttpStatusCode.BAD_REQUEST
-              .getStatusCode(), Locale.ENGLISH, e);
-    }
-    List<JPAPath> pathList;
-    try {
-      pathList = jpaEntityType.getPathList();
-    } catch (ODataJPAModelException e) {
-      throw new ODataApplicationException("Unsupported result type " + edmReturnType.getType().getName(),
-          HttpStatusCode.BAD_REQUEST
-              .getStatusCode(), Locale.ENGLISH, e);
-    }
-    for (Object[] result : resultList) {
-
-    }
-    return convertedResult;
   }
 
   private Object getValue(EdmFunction edmFunction, JPAFunctionParameter parameter, String uriValue)

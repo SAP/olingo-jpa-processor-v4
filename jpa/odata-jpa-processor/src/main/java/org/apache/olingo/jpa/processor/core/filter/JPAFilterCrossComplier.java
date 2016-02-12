@@ -10,6 +10,7 @@ import org.apache.olingo.commons.api.edm.EdmEnumType;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.queryoption.FilterOption;
@@ -44,10 +45,10 @@ public class JPAFilterCrossComplier {
   // ...Organizations?$select=Roles/RoleCategory eq 'C'
   private final Root<?> root;
   private final JPAEntityType jpaEntityType;
+  private final OData odata;
 
-  public JPAFilterCrossComplier(final JPAEntityType jpaEntityType, final Root<?> root,
-      final JPAOperationConverter converter,
-      final UriInfoResource uriResource) {
+  public JPAFilterCrossComplier(final OData odata, final JPAEntityType jpaEntityType, final Root<?> root,
+      final JPAOperationConverter converter, final UriInfoResource uriResource) {
     super();
     this.converter = converter;
     if (uriResource != null)
@@ -56,6 +57,7 @@ public class JPAFilterCrossComplier {
       this.filterTree = null;
     this.root = root;
     this.jpaEntityType = jpaEntityType;
+    this.odata = odata;
   }
 
   @SuppressWarnings("unchecked")
@@ -127,7 +129,7 @@ public class JPAFilterCrossComplier {
     @Override
     public JPAOperator visitLiteral(Literal literal) throws ExpressionVisitException, ODataApplicationException {
       // TODO Logging
-      return new JPALiteralOperator(literal);
+      return new JPALiteralOperator(odata, literal);
     }
 
     @Override
