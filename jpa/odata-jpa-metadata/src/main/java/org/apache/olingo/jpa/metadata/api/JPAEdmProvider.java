@@ -25,7 +25,7 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
   // final private List<CsdlSchema> schemas;
   final private ServicDocument serviceDocument;
 
-  public JPAEdmProvider(String namespace, EntityManagerFactory emf, JPAEdmPostProcessor postProcessor)
+  public JPAEdmProvider(String namespace, EntityManagerFactory emf, JPAEdmMetadataPostProcessor postProcessor)
       throws ODataException {
     super();
     this.nameBuilder = new JPAEdmNameBuilder(namespace);

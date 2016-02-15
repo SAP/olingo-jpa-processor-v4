@@ -16,7 +16,6 @@ public class ServletInputStreamDouble extends ServletInputStream {
 
   @Override
   public int read() throws IOException {
-    // TODO
     fail();
     return stream.read();
   }

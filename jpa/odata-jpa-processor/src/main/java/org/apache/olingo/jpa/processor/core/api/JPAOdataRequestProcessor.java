@@ -25,27 +25,29 @@ public class JPAOdataRequestProcessor implements PrimitiveValueProcessor,
     ComplexProcessor, CountEntityCollectionProcessor, EntityProcessor {
   private final EntityManager em;
   private final ServicDocument sd;
+  private final JPAODataContextAccess context;
   private OData odata;
   private ServiceMetadata serviceMetadata;
   private JPAProcessorFactory factory;
 
-  public JPAOdataRequestProcessor(ServicDocument sd, EntityManager em) {
+  public JPAOdataRequestProcessor(JPAODataContextAccess context, EntityManager em) {
     super();
     this.em = em;
-    this.sd = sd;
+    this.sd = context.getEdmProvider().getServiceDocument();
+    this.context = context;
   }
 
   @Override
   public void init(OData odata, ServiceMetadata serviceMetadata) {
     this.odata = odata;
     this.serviceMetadata = serviceMetadata;
-    this.factory = new JPAProcessorFactory(odata, serviceMetadata, sd);
+    this.factory = new JPAProcessorFactory(odata, serviceMetadata, context);
   }
 
   @Override
   public void countEntityCollection(ODataRequest request, ODataResponse response, UriInfo uriInfo)
       throws ODataApplicationException, ODataLibraryException {
-    JPARequestProcessor p = new JPAProcessorFactory(odata, serviceMetadata, sd).createProcessor(em, uriInfo,
+    JPARequestProcessor p = new JPAProcessorFactory(odata, serviceMetadata, context).createProcessor(em, uriInfo,
         ContentType.TEXT_PLAIN);
     p.retrieveData(request, response, ContentType.TEXT_PLAIN);
   }

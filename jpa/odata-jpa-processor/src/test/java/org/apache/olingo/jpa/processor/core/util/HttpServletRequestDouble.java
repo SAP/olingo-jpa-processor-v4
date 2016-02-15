@@ -286,7 +286,6 @@ public class HttpServletRequestDouble implements HttpServletRequest {
 
   @Override
   public String getQueryString() {
-    // TODO;
     // $orderby=Roles/$count%20desc,Address/Region%20asc&$select=ID,Name1
     return queryString;
   }
@@ -323,7 +322,6 @@ public class HttpServletRequestDouble implements HttpServletRequest {
 
   @Override
   public StringBuffer getRequestURL() {
-    // TODO
     // http://localhost:8090/BuPa/BuPa.svc/AdministrativeDivisions(DivisionCode='BE252',CodeID='3',CodePublisher='NUTS')/Parent/Parent
     // http://localhost:8090/BuPa/BuPa.svc/Organizations
     return url;

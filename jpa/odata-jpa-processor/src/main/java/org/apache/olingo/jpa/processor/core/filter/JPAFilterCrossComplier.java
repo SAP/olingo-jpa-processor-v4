@@ -43,6 +43,7 @@ public class JPAFilterCrossComplier {
   private final FilterOption filterTree;
   // TODO Check if it is allowed to select via navigation
   // ...Organizations?$select=Roles/RoleCategory eq 'C'
+  // see also https://issues.apache.org/jira/browse/OLINGO-414
   private final Root<?> root;
   private final JPAEntityType jpaEntityType;
   private final OData odata;

@@ -7,7 +7,7 @@ import javax.persistence.EntityManager;
 
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
-import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
+import org.apache.olingo.jpa.processor.core.api.JPAODataContextAccess;
 import org.apache.olingo.jpa.processor.core.serializer.JPASerializerFactory;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
@@ -18,13 +18,13 @@ import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceKind;
 
 public class JPAProcessorFactory {
-  private final ServicDocument sd;
+  private final JPAODataContextAccess context;
   private final JPASerializerFactory serializerFactory;
   private final OData odata;
 
-  public JPAProcessorFactory(OData odata, ServiceMetadata serviceMetadata, ServicDocument sd) {
+  public JPAProcessorFactory(OData odata, ServiceMetadata serviceMetadata, JPAODataContextAccess context) {
     super();
-    this.sd = sd;
+    this.context = context;
     this.serializerFactory = new JPASerializerFactory(odata, serviceMetadata);
     this.odata = odata;
   }
@@ -37,20 +37,22 @@ public class JPAProcessorFactory {
 
     switch (lastItem.getKind()) {
     case count:
-      return new JPACountRequestProcessor(odata, sd, em, uriInfo, serializerFactory.createSerializer(responseFormat,
-          uriInfo));
+      return new JPACountRequestProcessor(odata, context.getEdmProvider().getServiceDocument(), em, uriInfo,
+          serializerFactory.createSerializer(responseFormat, uriInfo));
     case function:
       checkFunctionPathSupported(resourceParts);
-      return new JPAFunctionRequestProcessor(odata, sd, em, uriInfo, serializerFactory.createSerializer(responseFormat,
+      return new JPAFunctionRequestProcessor(odata, context, em, uriInfo, serializerFactory.createSerializer(
+          responseFormat,
           uriInfo));
     case complexProperty:
     case primitiveProperty:
     case navigationProperty:
     case entitySet:
       checkNavigationPathSupported(resourceParts);
-      return new JPANavigationRequestProcessor(odata, sd, em, uriInfo, serializerFactory.createSerializer(
-          responseFormat,
-          uriInfo));
+      return new JPANavigationRequestProcessor(odata, context.getEdmProvider().getServiceDocument(), em, uriInfo,
+          serializerFactory.createSerializer(
+              responseFormat,
+              uriInfo));
     default:
       throw new ODataApplicationException("Not implemented",
           HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);

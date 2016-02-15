@@ -63,7 +63,6 @@
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
 			<version>${javax.version}</version>
-			<scope>test</scope>
 		</dependency>		
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>

@@ -18,7 +18,7 @@ public class TestJPAQuerySelectByPath extends TestBase {
   @Test
   public void testNavigationToOwnPrimitiveProperty() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper("Organizations('3')/Name1");
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('3')/Name1");
     helper.assertStatus(200);
 
     ObjectNode org = helper.getValue();
@@ -28,7 +28,7 @@ public class TestJPAQuerySelectByPath extends TestBase {
   @Test
   public void testNavigationToOwnPrimitiveDescriptionProperty() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper("Organizations('3')/LocationName");
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('3')/LocationName");
     helper.assertStatus(200);
 
     ObjectNode org = helper.getValue();
@@ -38,7 +38,7 @@ public class TestJPAQuerySelectByPath extends TestBase {
   @Test
   public void testNavigationToComplexProperty() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper("Organizations('4')/Address");
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('4')/Address");
     helper.assertStatus(200);
 
     ObjectNode org = helper.getValue();
@@ -48,7 +48,8 @@ public class TestJPAQuerySelectByPath extends TestBase {
   @Test
   public void testNavigationToNestedComplexProperty() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper("Organizations('4')/AdministrativeInformation/Created");
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations('4')/AdministrativeInformation/Created");
     helper.assertStatus(200);
 
     ObjectNode org = helper.getValue();
@@ -59,7 +60,7 @@ public class TestJPAQuerySelectByPath extends TestBase {
   @Test
   public void testNavigationViaComplexAndNaviPropertyToPrimitive() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations('3')/AdministrativeInformation/Created/User/FirstName");
     helper.assertStatus(200);
 
@@ -70,7 +71,7 @@ public class TestJPAQuerySelectByPath extends TestBase {
   @Test
   public void testNavigationToComplexPropertySelect() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations('4')/Address?$select=Country,Region");
     helper.assertStatus(200);
 
@@ -84,7 +85,7 @@ public class TestJPAQuerySelectByPath extends TestBase {
   @Test
   public void testNavigationToComplexPropertyExpand() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper("Organizations('4')/Address");
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('4')/Address");
     helper.assertStatus(200);
 
     ObjectNode org = helper.getValue();
@@ -94,7 +95,7 @@ public class TestJPAQuerySelectByPath extends TestBase {
   @Test
   public void testNavigationToComplexPrimitiveProperty() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper("Organizations('4')/Address/Region");
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('4')/Address/Region");
     helper.assertStatus(200);
 
     ObjectNode org = helper.getValue();

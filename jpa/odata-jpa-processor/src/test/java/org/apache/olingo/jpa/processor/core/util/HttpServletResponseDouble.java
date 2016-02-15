@@ -33,7 +33,6 @@ public class HttpServletResponseDouble implements HttpServletResponse {
 
   @Override
   public ServletOutputStream getOutputStream() throws IOException {
-    // TODO
     return this.outputStream;
   }
 
@@ -184,7 +183,6 @@ public class HttpServletResponseDouble implements HttpServletResponse {
   @Override
   public void addHeader(String name, String value) {
     // TODO
-
   }
 
   @Override

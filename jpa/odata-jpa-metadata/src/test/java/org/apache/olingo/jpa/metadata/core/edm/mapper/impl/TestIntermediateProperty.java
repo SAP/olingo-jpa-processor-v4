@@ -9,7 +9,7 @@ import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.EmbeddableType;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
-import org.apache.olingo.jpa.metadata.api.JPAEdmPostProcessor;
+import org.apache.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
 import org.junit.Before;
@@ -175,7 +175,7 @@ public class TestIntermediateProperty extends TestMappingRoot {
     assertNotNull(property.getConverter());
   }
 
-  private class PostProcessorSpy extends JPAEdmPostProcessor {
+  private class PostProcessorSpy extends JPAEdmMetadataPostProcessor {
     boolean called = false;
 
     @Override
@@ -184,7 +184,7 @@ public class TestIntermediateProperty extends TestMappingRoot {
     }
   }
 
-  private class PostProcessorSetName extends JPAEdmPostProcessor {
+  private class PostProcessorSetName extends JPAEdmMetadataPostProcessor {
 
     @Override
     public void processProperty(IntermediatePropertyAccess property, String jpaManagedTypeClassName) {

@@ -18,7 +18,6 @@ import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 import javax.sql.DataSource;
 
@@ -42,7 +41,7 @@ public class TestFunctions {
 
     Map<String, Object> properties = new HashMap<String, Object>();
 
-    ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HANA);
+    ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_REMOTE);
 
     properties.put(ENTITY_MANAGER_DATA_SOURCE, ds);
     emf = Persistence.createEntityManagerFactory(PUNIT_NAME, properties);
@@ -54,20 +53,19 @@ public class TestFunctions {
     cb = em.getCriteriaBuilder();
   }
 
+  @Ignore
   @Test
   public void TestScalarFunctionsWhere() {
     CriteriaQuery<Tuple> count = cb.createTupleQuery();
     Root<?> adminDiv = count.from(AdministrativeDivision.class);
     count.multiselect(adminDiv);
     count.where(cb.equal(
-        cb.function("\"GRANDEO\".\"tmp.d023143.mri::IsPrime\"", Integer.class, cb.literal(5)),
+        cb.function("", Integer.class, cb.literal(5)),
         new Integer(1)));
     // cb.literal
     TypedQuery<Tuple> tq = em.createQuery(count);
     List<Tuple> act = tq.getResultList();
     tq.getFirstResult();
-
-    Path<?> p;
   }
 
   @Ignore

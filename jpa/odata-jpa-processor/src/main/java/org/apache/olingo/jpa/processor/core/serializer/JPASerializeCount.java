@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 import org.apache.olingo.commons.api.data.EntityCollection;
-import org.apache.olingo.jpa.processor.core.api.JPASerializer;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.serializer.SerializerResult;

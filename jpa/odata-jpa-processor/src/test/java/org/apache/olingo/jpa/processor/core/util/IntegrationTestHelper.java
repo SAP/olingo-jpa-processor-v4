@@ -10,12 +10,12 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 import javax.persistence.EntityManagerFactory;
+import javax.sql.DataSource;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.jpa.metadata.api.JPAEdmProvider;
-import org.apache.olingo.jpa.metadata.api.JPAEntityManagerFactory;
+import org.apache.olingo.jpa.processor.core.api.JPAODataContextAccess;
 import org.apache.olingo.jpa.processor.core.api.JPAOdataRequestProcessor;
-import org.apache.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataHttpHandler;
 import org.apache.olingo.server.api.edmx.EdmxReference;
@@ -31,24 +31,23 @@ public class IntegrationTestHelper {
   public final HttpServletResponseDouble resp;
   private static final String uriPrefix = "http://localhost:8080/Test/Olingo.svc/";
   private static final String PUNIT_NAME = "org.apache.olingo.jpa";
-  private static EntityManagerFactory emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME,
-      DataSourceHelper.createDataSource(DataSourceHelper.DB_H2));
 
-  public IntegrationTestHelper(String urlPath) throws IOException, ODataException {
-    this(emf, urlPath);
+  public IntegrationTestHelper(EntityManagerFactory localEmf, String urlPath) throws IOException,
+      ODataException {
+    this(localEmf, null, urlPath);
   }
 
-  public IntegrationTestHelper(EntityManagerFactory localEmf, String urlPath) throws IOException, ODataException {
+  public IntegrationTestHelper(EntityManagerFactory localEmf, DataSource ds, String urlPath) throws IOException,
+      ODataException {
     super();
     this.req = new HttpServletRequestDouble(uriPrefix + urlPath);
     this.resp = new HttpServletResponseDouble();
     OData odata = OData.newInstance();
+    JPAODataContextAccess context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, localEmf, null), ds);
 
-    JPAEdmProvider jpaEdm = new JPAEdmProvider(PUNIT_NAME, localEmf, null);
-
-    ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(jpaEdm,
+    ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(context.getEdmProvider(),
         new ArrayList<EdmxReference>()));
-    handler.register(new JPAOdataRequestProcessor(jpaEdm.getServiceDocument(), localEmf.createEntityManager()));
+    handler.register(new JPAOdataRequestProcessor(context, localEmf.createEntityManager()));
     handler.process(req, resp);
   }
 

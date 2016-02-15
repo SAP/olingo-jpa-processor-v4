@@ -10,7 +10,7 @@ import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
 
 public class JPAOperationConverter {
-  private final CriteriaBuilder cb;
+  protected final CriteriaBuilder cb;
 
   public JPAOperationConverter(CriteriaBuilder cb) {
     super();

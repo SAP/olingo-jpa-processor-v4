@@ -11,7 +11,7 @@ import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
-import org.apache.olingo.jpa.metadata.api.JPAEdmPostProcessor;
+import org.apache.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -30,7 +30,7 @@ public class ServicDocument {
   final private HashMap<String, IntermediateSchema> schemaListInternalKey;
   // final private HashMap<String, IntermediateSchema> schemaListExternalKey;
 
-  public ServicDocument(String namespace, Metamodel jpaMetamodel, JPAEdmPostProcessor postProcessor)
+  public ServicDocument(String namespace, Metamodel jpaMetamodel, JPAEdmMetadataPostProcessor postProcessor)
       throws ODataJPAModelException {
 
     IntermediateModelElement.SetPostProcessor(postProcessor != null ? postProcessor : new DefaultEdmPostProcessor());

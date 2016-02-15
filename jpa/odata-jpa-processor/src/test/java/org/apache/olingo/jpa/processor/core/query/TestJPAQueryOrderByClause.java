@@ -16,7 +16,7 @@ public class TestJPAQueryOrderByClause extends TestBase {
   @Test
   public void testOrderByOneProperty() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper("Organizations?$orderby=Name1");
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$orderby=Name1");
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
@@ -27,7 +27,7 @@ public class TestJPAQueryOrderByClause extends TestBase {
   @Test
   public void testOrderByOneComplexPropertyAsc() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper("Organizations?$orderby=Address/Region");
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$orderby=Address/Region");
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
@@ -38,7 +38,7 @@ public class TestJPAQueryOrderByClause extends TestBase {
   @Test
   public void testOrderByOneComplexPropertyDesc() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper("Organizations?$orderby=Address/Region desc");
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$orderby=Address/Region desc");
     if (helper.getStatus() != 200)
       System.out.println(helper.getRawResult());
     helper.assertStatus(200);
@@ -51,7 +51,8 @@ public class TestJPAQueryOrderByClause extends TestBase {
   @Test
   public void testOrderByTwoPropertiesDescAsc() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper("Organizations?$orderby=Address/Region desc,Name1 asc");
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$orderby=Address/Region desc,Name1 asc");
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
@@ -63,7 +64,8 @@ public class TestJPAQueryOrderByClause extends TestBase {
   @Test
   public void testOrderByTwoPropertiesDescDesc() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper("Organizations?$orderby=Address/Region desc,Name1 desc");
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$orderby=Address/Region desc,Name1 desc");
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
@@ -75,7 +77,7 @@ public class TestJPAQueryOrderByClause extends TestBase {
   @Test
   public void testOrderBy$CountDesc() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper("Organizations?$orderby=Roles/$count desc");
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$orderby=Roles/$count desc");
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
@@ -86,7 +88,7 @@ public class TestJPAQueryOrderByClause extends TestBase {
   @Test
   public void testOrderBy$CountAndSelectAsc() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations?$select=ID,Name1,Name2,Address/CountryName&$orderby=Roles/$count asc");
     helper.assertStatus(200);
 
@@ -98,7 +100,7 @@ public class TestJPAQueryOrderByClause extends TestBase {
   @Test
   public void testOrderBy$CountAsc() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations?$orderby=Roles/$count asc");
     helper.assertStatus(200);
 
@@ -110,7 +112,7 @@ public class TestJPAQueryOrderByClause extends TestBase {
   @Test
   public void testOrderBy$CountDescComplexPropertyAcs() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations?$orderby=Roles/$count desc, Address/Region desc");
     helper.assertStatus(200);
 

@@ -5,7 +5,6 @@ import java.util.Locale;
 
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
-import org.apache.olingo.jpa.processor.core.api.JPASerializer;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ServiceMetadata;

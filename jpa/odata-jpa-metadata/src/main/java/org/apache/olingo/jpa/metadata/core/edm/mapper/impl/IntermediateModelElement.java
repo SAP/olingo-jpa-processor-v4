@@ -5,15 +5,15 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlAbstractEdmItem;
-import org.apache.olingo.jpa.metadata.api.JPAEdmPostProcessor;
+import org.apache.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateModelItemAccess;
 
 abstract class IntermediateModelElement implements IntermediateModelItemAccess {
-  protected static JPAEdmPostProcessor postProcessor = new DefaultEdmPostProcessor();
+  protected static JPAEdmMetadataPostProcessor postProcessor = new DefaultEdmPostProcessor();
   protected static final JPANameBuilder intNameBuilder = new JPANameBuilder();
 
-  static void SetPostProcessor(JPAEdmPostProcessor pP) {
+  static void SetPostProcessor(JPAEdmMetadataPostProcessor pP) {
     postProcessor = pP;
   }
 

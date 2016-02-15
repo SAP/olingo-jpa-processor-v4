@@ -17,7 +17,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterOneEquals() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper("Organizations?$filter=ID eq '3'");
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$filter=ID eq '3'");
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
@@ -28,7 +28,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterOneEqualsTwoProperties() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions?$filter=DivisionCode eq CountryCode");
     helper.assertStatus(200);
 
@@ -39,7 +39,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterOneEqualsInvert() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper("Organizations?$filter='3' eq ID");
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$filter='3' eq ID");
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
@@ -50,7 +50,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterOneNotEqual() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper("Organizations?$filter=ID ne '3'");
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$filter=ID ne '3'");
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
@@ -60,7 +60,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterOneGreaterEqualsString() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper("Organizations?$filter=ID ge '5'");
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$filter=ID ge '5'");
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
@@ -70,7 +70,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterOneLowerThanTwoProperties() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions?$filter=DivisionCode lt CountryCode");
     helper.assertStatus(200);
 
@@ -81,7 +81,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterOneGreaterThanString() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper("Organizations?$filter=ID gt '5'");
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$filter=ID gt '5'");
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
@@ -91,7 +91,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterOneLowerThanString() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper("Organizations?$filter=ID lt '5'");
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$filter=ID lt '5'");
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
@@ -101,7 +101,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterOneLowerEqualsString() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper("Organizations?$filter=ID le '5'");
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$filter=ID le '5'");
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
@@ -111,7 +111,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterOneGreaterEqualsNumber() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper("AdministrativeDivisions?$filter=Area ge 119330610");
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "AdministrativeDivisions?$filter=Area ge 119330610");
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
@@ -121,7 +121,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterOneAndEquals() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions?$filter=CodePublisher eq 'Eurostat' and CodeID eq 'NUTS2'");
     helper.assertStatus(200);
 
@@ -132,7 +132,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterOneOrEquals() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations?$filter=ID eq '5' or ID eq '10'");
     helper.assertStatus(200);
 
@@ -143,7 +143,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterOneNotLower() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions?$filter=not (Area lt 50000000)");
     helper.assertStatus(200);
 
@@ -154,7 +154,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterTwoAndEquals() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions?$filter=CodePublisher eq 'Eurostat' and CodeID eq 'NUTS2' and DivisionCode eq 'BE25'");
     helper.assertStatus(200);
 
@@ -166,7 +166,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterAndOrEqualsParenthesis() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions?$filter=CodePublisher eq 'Eurostat' and (DivisionCode eq 'BE25' or  DivisionCode eq 'BE24')&$orderby=DivisionCode desc");
     helper.assertStatus(200);
 
@@ -178,7 +178,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterAndOrEqualsNoParenthesis() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions?$filter=CodePublisher eq 'Eurostat' and DivisionCode eq 'BE25' or  CodeID eq '3166-1'&$orderby=DivisionCode desc");
     helper.assertStatus(200);
 
@@ -190,7 +190,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterAddGreater() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions?$filter=Area add 7000000 ge 50000000");
     helper.assertStatus(200);
 
@@ -201,7 +201,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterSubGreater() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions?$filter=Area sub 7000000 ge 60000000");
     helper.assertStatus(200);
 
@@ -212,7 +212,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterDivGreater() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions?$filter=Area gt 0 and Area div Population ge 6000");
     helper.assertStatus(200);
 
@@ -223,7 +223,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterMulGreater() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions?$filter=Area mul Population gt 0");
     helper.assertStatus(200);
 
@@ -234,7 +234,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterMod() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions?$filter=Area gt 0 and Area mod 3578335 eq 0");
     helper.assertStatus(200);
 
@@ -245,7 +245,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterLength() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Regions?$filter=length(Name) eq 10");
     helper.assertStatus(200);
 
@@ -256,7 +256,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterNow() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Persons?$filter=AdministrativeInformation/Created/At lt now()");
     helper.assertStatus(200);
 
@@ -267,7 +267,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterContains() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions?$filter=contains(CodeID, '166')");
     helper.assertStatus(200);
 
@@ -278,7 +278,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterEndswith() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions?$filter=endswith(CodeID, '166-1')");
     helper.assertStatus(200);
 
@@ -289,7 +289,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterStartswith() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions?$filter=startswith(DivisionCode, 'DE-')");
     helper.assertStatus(200);
 
@@ -300,7 +300,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterIndexOf() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions?$filter=indexof(DivisionCode,'3') eq 4");
     helper.assertStatus(200);
 
@@ -311,7 +311,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterSubstringStartIndex() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Regions?$filter=Language eq 'de' and substring(Name,7) eq 'Dakota'");
     helper.assertStatus(200);
 
@@ -322,7 +322,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterSubstringStartEndIndex() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Regions?$filter=Language eq 'de' and substring(Name,0,5) eq 'North'");
 
     helper.assertStatus(200);
@@ -334,7 +334,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterSubstringToLower() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Regions?$filter=Language eq 'de' and tolower(Name) eq 'brandenburg'");
 
     helper.assertStatus(200);
@@ -346,7 +346,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterSubstringToUpper() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Regions?$filter=Language eq 'de' and toupper(Name) eq 'HESSEN'");
 
     helper.assertStatus(200);
@@ -359,7 +359,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterSubstringToUpperInvers() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions?$filter=toupper('nuts1') eq CodeID");
 
     helper.assertStatus(200);
@@ -371,7 +371,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterTrim() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Regions?$filter=Language eq 'de' and trim(Name) eq 'Sachsen'");
 
     helper.assertStatus(200);
@@ -383,7 +383,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterConcat() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Persons?$filter=concat(concat(LastName, ','), FirstName) eq 'Mustermann,Max'");
 
     helper.assertStatus(200);
@@ -397,7 +397,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterNavigationPropertyValue() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "/Organizations?$filter=Roles/RoleCategory eq 'C'");
 
     helper.assertStatus(200);
@@ -408,7 +408,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterSubstringStartEndIndexToLower() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Regions?$filter=Language eq 'de' and tolower(substring(Name,0,5)) eq 'north'");
 
     helper.assertStatus(200);

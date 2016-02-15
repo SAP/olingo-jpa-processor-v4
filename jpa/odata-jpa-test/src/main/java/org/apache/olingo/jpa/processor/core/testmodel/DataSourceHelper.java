@@ -16,12 +16,11 @@ public class DataSourceHelper {
   private static final String H2_DRIVER_CLASS_NAME = "org.h2.Driver";
   private static final String HSQLDB_URL = "jdbc:hsqldb:mem:com.sample";
   private static final String HSQLDB_DRIVER_CLASS_NAME = "org.hsqldb.jdbcDriver";
-  private static final String HANA_URL = "jdbc:sap://$Host$:$Port$";
-  private static final String HANA_DRIVER_CLASS_NAME = "com.sap.db.jdbc.Driver";
+  private static final String REMOTE_URL = "jdbc:$DBNAME$:$Host$:$Port$";
 
   public static final int DB_H2 = 1;
   public static final int DB_HSQLDB = 2;
-  public static final int DB_HANA = 3;
+  public static final int DB_REMOTE = 3;
 
   public static DataSource createDataSource(int database) {
     DriverDataSource ds = null;
@@ -33,8 +32,8 @@ public class DataSourceHelper {
     case DB_HSQLDB:
       ds = new DriverDataSource(HSQLDB_DRIVER_CLASS_NAME, HSQLDB_URL, null, null, new String[0]);
       break;
-    case DB_HANA:
-      String env = System.getenv().get("HANA_LOGON");
+    case DB_REMOTE:
+      String env = System.getenv().get("REMOTE_DB_LOGON");
       ObjectMapper mapper = new ObjectMapper();
       ObjectNode hanaInfo;
       try {
@@ -44,10 +43,12 @@ public class DataSourceHelper {
       } catch (IOException e) {
         return null;
       }
-      String url = HANA_URL;
+      String url = REMOTE_URL;
       url = url.replace("$Host$", hanaInfo.get("hostname").asText());
       url = url.replace("$Port$", hanaInfo.get("port").asText());
-      ds = new DriverDataSource(HANA_DRIVER_CLASS_NAME, url, hanaInfo.get("username").asText(), hanaInfo.get(
+      url = url.replace("$DBNAME$", hanaInfo.get("dbname").asText());
+      String driver = hanaInfo.get("driver").asText();
+      ds = new DriverDataSource(driver, url, hanaInfo.get("username").asText(), hanaInfo.get(
           "password").asText(), new String[0]);
       return ds;
     default:
@@ -55,6 +56,7 @@ public class DataSourceHelper {
     }
 
     Flyway flyway = new Flyway();
+    // flyway.
     flyway.setDataSource(ds);
     flyway.setInitOnMigrate(true);
     flyway.setSchemas(DB_SCHEMA);

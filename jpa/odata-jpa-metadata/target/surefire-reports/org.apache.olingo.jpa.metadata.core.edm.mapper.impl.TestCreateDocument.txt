@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestCreateDocument
 -------------------------------------------------------------------------------
-Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.606 sec - in org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestCreateDocument
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.397 sec - in org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestCreateDocument

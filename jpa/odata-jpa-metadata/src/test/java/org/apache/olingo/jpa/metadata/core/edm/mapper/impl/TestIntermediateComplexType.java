@@ -9,7 +9,7 @@ import java.util.Set;
 
 import javax.persistence.metamodel.EmbeddableType;
 
-import org.apache.olingo.jpa.metadata.api.JPAEdmPostProcessor;
+import org.apache.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
@@ -178,7 +178,7 @@ public class TestIntermediateComplexType extends TestMappingRoot {
 
   }
 
-  private class PostProcessorSetIgnore extends JPAEdmPostProcessor {
+  private class PostProcessorSetIgnore extends JPAEdmMetadataPostProcessor {
 
     @Override
     public void processProperty(IntermediatePropertyAccess property, String jpaManagedTypeClassName) {

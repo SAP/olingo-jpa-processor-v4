@@ -10,7 +10,7 @@ import java.util.Set;
 
 import javax.persistence.metamodel.EntityType;
 
-import org.apache.olingo.jpa.metadata.api.JPAEdmPostProcessor;
+import org.apache.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -235,7 +235,7 @@ public class TestIntermediateEntityType extends TestMappingRoot {
 
   }
 
-  private class PostProcessorSetIgnore extends JPAEdmPostProcessor {
+  private class PostProcessorSetIgnore extends JPAEdmMetadataPostProcessor {
 
     @Override
     public void processProperty(IntermediatePropertyAccess property, String jpaManagedTypeClassName) {

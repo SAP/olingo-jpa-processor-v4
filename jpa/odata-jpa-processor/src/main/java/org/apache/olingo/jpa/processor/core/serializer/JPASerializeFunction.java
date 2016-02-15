@@ -3,7 +3,6 @@ package org.apache.olingo.jpa.processor.core.serializer;
 import org.apache.olingo.commons.api.data.ContextURL;
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
-import org.apache.olingo.jpa.processor.core.api.JPASerializer;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.serializer.EntityCollectionSerializerOptions;

@@ -48,7 +48,7 @@
 		<dependency>
 			<groupId>org.hsqldb</groupId>
 			<artifactId>hsqldb</artifactId>
-			<version>2.2.8</version>
+			<version>2.3.3</version>
 		</dependency>		
 		<dependency>
 			<groupId>com.googlecode.flyway</groupId>
@@ -83,6 +83,7 @@
 						<target>${project.build.source}</target>
 						<showWarnings>true</showWarnings>
 						<showDeprecation>true</showDeprecation>
+						
 						<compilerArgument>-Xlint:unchecked</compilerArgument>
 						<encoding>${project.build.sourceEncoding}</encoding>
 					</configuration>

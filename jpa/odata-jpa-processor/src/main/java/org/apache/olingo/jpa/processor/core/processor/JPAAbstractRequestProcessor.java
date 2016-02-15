@@ -7,7 +7,7 @@ import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpHeader;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
-import org.apache.olingo.jpa.processor.core.api.JPASerializer;
+import org.apache.olingo.jpa.processor.core.serializer.JPASerializer;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.serializer.SerializerResult;

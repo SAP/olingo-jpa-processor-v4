@@ -8,7 +8,7 @@ import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.EmbeddableType;
 import javax.persistence.metamodel.EntityType;
 
-import org.apache.olingo.jpa.metadata.api.JPAEdmPostProcessor;
+import org.apache.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 import org.junit.Before;
@@ -179,7 +179,7 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
     assertEquals("Wrong name", "RoleAssignment", property.getExternalName());
   }
 
-  private class PostProcessorSpy extends JPAEdmPostProcessor {
+  private class PostProcessorSpy extends JPAEdmMetadataPostProcessor {
     boolean called = false;
 
     @Override
@@ -190,7 +190,7 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
 
   }
 
-  private class PostProcessorSetName extends JPAEdmPostProcessor {
+  private class PostProcessorSetName extends JPAEdmMetadataPostProcessor {
     @Override
     public void processNavigationProperty(IntermediateNavigationPropertyAccess property,
         String jpaManagedTypeClassName) {

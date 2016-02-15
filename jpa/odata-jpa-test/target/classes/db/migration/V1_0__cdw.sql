@@ -333,3 +333,17 @@ insert into "org.apache.olingo.jpa::AdministrativeDivision" values( 'Eurostat', 
 insert into "org.apache.olingo.jpa::AdministrativeDivision" values( 'Eurostat', 'LAU2', '33039','BEL','NUTS3','BE253',null,94235304,7888);
 insert into "org.apache.olingo.jpa::AdministrativeDivision" values( 'Eurostat', 'LAU2', '33040','BEL','NUTS3','BE253',null,52529046,8144);
 insert into "org.apache.olingo.jpa::AdministrativeDivision" values( 'Eurostat', 'LAU2', '33041','BEL','NUTS3','BE253',null,38148241,3625);
+
+/*create function "org.apache.olingo.jpa::Siblings" --"OLINGO".
+	(CodePublisher nvarchar(10), CodeID nvarchar(10), DivisionCode nvarchar(10))
+	RETURNS TABLE ( "CodePublisher" nvarchar(10), "CodeID" nvarchar(10), "DivisionCode" nvarchar(10),
+					"CountryISOCode"  NVARCHAR(4), "ParentCodeID"  NVARCHAR(10), "ParentDivisionCode"  NVARCHAR(10),
+					"AlternativeCode"  NVARCHAR(10),  "Area"  DECIMAL(34,0), "Population"  BIGINT )
+	LANGUAGE SQL
+	SPECIFIC "OLINGO"."org.apache.olingo.jpa::Siblings"
+	READS SQL  DATA 
+		
+		RETURN TABLE (SELECT 
+						a."CodePublisher", a."CodeID", a."DivisionCode", a."CountryISOCode",a."ParentCodeID"
+						,a."ParentDivisionCode", a."AlternativeCode",a."Area", a."Population"
+						FROM "OLINGO"."org.apache.olingo.jpa::AdministrativeDivision" as a); 

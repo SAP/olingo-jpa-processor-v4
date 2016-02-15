@@ -1,4 +1,4 @@
-package org.apache.olingo.jpa.processor.core.api;
+package org.apache.olingo.jpa.processor.core.serializer;
 
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.server.api.ODataRequest;
