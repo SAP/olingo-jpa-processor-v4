@@ -1,4 +1,5 @@
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-metadata\src\main\java\org\apache\olingo\jpa\metadata\core\edm\mapper\api\JPAAssociationAttribute.java
+C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-metadata\src\main\java\org\apache\olingo\jpa\metadata\core\edm\mapper\impl\IntermediateJoinColumn.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-metadata\src\main\java\org\apache\olingo\jpa\metadata\core\edm\mapper\extention\IntermediateNavigationPropertyAccess.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-metadata\src\main\java\org\apache\olingo\jpa\metadata\core\edm\mapper\impl\IntermediateEntitySet.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-metadata\src\main\java\org\apache\olingo\jpa\metadata\core\edm\mapper\impl\IntermediateSchema.java

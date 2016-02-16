@@ -9,6 +9,7 @@ org\apache\olingo\jpa\metadata\core\edm\mapper\impl\JPANameBuilder.class
 org\apache\olingo\jpa\metadata\core\edm\mapper\impl\IntermediateStructuredType.class
 org\apache\olingo\jpa\metadata\core\edm\mapper\impl\IntermediateDescriptionProperty.class
 org\apache\olingo\jpa\metadata\core\edm\mapper\impl\IntermediateNavigationProperty.class
+org\apache\olingo\jpa\metadata\core\edm\mapper\impl\IntermediateJoinColumn.class
 org\apache\olingo\jpa\metadata\core\edm\mapper\api\JPAAttribute.class
 org\apache\olingo\jpa\metadata\core\edm\mapper\impl\DefaultEdmPostProcessor.class
 org\apache\olingo\jpa\metadata\core\edm\mapper\api\JPAPath.class

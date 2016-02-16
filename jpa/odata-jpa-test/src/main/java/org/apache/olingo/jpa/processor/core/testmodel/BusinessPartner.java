@@ -15,7 +15,6 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Version;
@@ -79,11 +78,11 @@ public abstract class BusinessPartner {
   @EdmDescriptionAssozation(languageAttribute = "language", descriptionAttribute = "name")
   @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "\"ISOCode\"", referencedColumnName = "\"Country\"")
-  // , nullable = true, insertable = false, updatable = false)
   private Collection<Country> locationName;
 
   @Embedded
   protected CommunicationData communicationData = new CommunicationData();
+
   @Embedded
   @AssociationOverrides({
       @AssociationOverride(name = "countryName",
@@ -95,12 +94,13 @@ public abstract class BusinessPartner {
               @JoinColumn(referencedColumnName = "\"Address.Region\"", name = "\"DivisionCode\"") })
   })
   private PostalAddressData address = new PostalAddressData();
+
   @Embedded
   private AdministrativeInformation administrativeInformation = new AdministrativeInformation();
 
-  @OneToMany(fetch = FetchType.LAZY)
-  @JoinColumns({
-      @JoinColumn(name = "\"BusinessPartnerID\"", referencedColumnName = "\"ID\"", nullable = true) })
+  @OneToMany(mappedBy = "businessPartner", fetch = FetchType.LAZY)
+//  @JoinColumns({
+//      @JoinColumn(name = "\"BusinessPartnerID\"", referencedColumnName = "\"ID\"", nullable = true) })
   private Collection<BusinessPartnerRole> roles;
 
   public void setID(String iD) {

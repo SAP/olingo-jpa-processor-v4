@@ -8,6 +8,7 @@ import javax.persistence.AttributeConverter;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.Attribute.PersistentAttributeType;
@@ -22,8 +23,10 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExc
 import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 
 /**
- * http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-
- * complete.html#_Toc406397962
+ * <a
+ * href=
+ * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406397962"
+ * >OData Version 4.0 Part 3 - 7 Navigation Property</a>
  * @author Oliver Grande
  *
  */
@@ -32,18 +35,17 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
 
   private final Attribute<?, ?> jpaAttribute;
   private CsdlNavigationProperty edmNaviProperty = null;
-  // private final IntermediateStructuredType sourceType;
+  private final IntermediateStructuredType sourceType;
   private IntermediateStructuredType targetType;
   private final IntermediateSchema schema;
-  private final List<JoinColumn> joinColumns = new ArrayList<JoinColumn>();
+  private final List<IntermediateJoinColumn> joinColumns = new ArrayList<IntermediateJoinColumn>();
 
   IntermediateNavigationProperty(JPAEdmNameBuilder nameBuilder, IntermediateStructuredType parent,
-      Attribute<?, ?> jpaAttribute,
-      IntermediateSchema schema) {
+      Attribute<?, ?> jpaAttribute, IntermediateSchema schema) {
     super(nameBuilder, intNameBuilder.buildAssociationName(jpaAttribute));
     this.jpaAttribute = jpaAttribute;
     this.schema = schema;
-    // this.sourceType = parent;
+    this.sourceType = parent;
     buildNaviProperty();
 
   }
@@ -51,6 +53,8 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
   @Override
   protected void lazyBuildEdmItem() throws ODataJPAModelException {
     if (edmNaviProperty == null) {
+      String mappedBy = null;
+      boolean isSourceOne = false;
       edmNaviProperty = new CsdlNavigationProperty();
       edmNaviProperty.setName(getExternalName());
       edmNaviProperty.setType(nameBuilder.buildFQN(targetType.getExternalName()));
@@ -60,11 +64,15 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
         AnnotatedElement annotatedElement = (AnnotatedElement) jpaAttribute.getJavaMember();
         switch (jpaAttribute.getPersistentAttributeType()) {
         case ONE_TO_MANY:
-          // OneToMany cardinalityOtM = annotatedElement.getAnnotation(OneToMany.class);
+          OneToMany cardinalityOtM = annotatedElement.getAnnotation(OneToMany.class);
+          mappedBy = cardinalityOtM.mappedBy();
+          isSourceOne = true;
           break;
         case ONE_TO_ONE:
           OneToOne cardinalityOtO = annotatedElement.getAnnotation(OneToOne.class);
           edmNaviProperty.setNullable(cardinalityOtO.optional());
+          mappedBy = cardinalityOtO.mappedBy();
+          isSourceOne = true;
           break;
         case MANY_TO_ONE:
           ManyToOne cardinalityMtO = annotatedElement.getAnnotation(ManyToOne.class);
@@ -74,26 +82,106 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
           break;
         }
 
+        int implicitColumns = 0;
         JoinColumns columns = annotatedElement.getAnnotation(JoinColumns.class);
         if (columns != null) {
           for (JoinColumn column : columns.value()) {
-            joinColumns.add(column);
+            IntermediateJoinColumn intermediateColumn = new IntermediateJoinColumn(column);
+            String refColumnName = intermediateColumn.getReferencedColumnName();
+            String name = intermediateColumn.getName();
+            if (refColumnName == null || refColumnName.isEmpty() ||
+                name == null || name.isEmpty()) {
+              implicitColumns += 1;
+              if (implicitColumns > 1)
+                throw ODataJPAModelException.throwException(
+                    ODataJPAModelException.NOT_SUPPORTED_NO_IMPLICIT_COLUMNS,
+                    "Relationship " + getInternalName() + ": Only one implicit column name supported");
+              fillMissingName(isSourceOne, intermediateColumn);
+            }
+            joinColumns.add(intermediateColumn);
           }
-          // TODO Attribute Nullable
-          // edmNaviProperty.setNullable(column.nullable());
-        } else {
+        }
+
+        else {
           JoinColumn column = annotatedElement.getAnnotation(JoinColumn.class);
           if (column != null) {
-            joinColumns.add(column);
+            IntermediateJoinColumn intermediateColumn = new IntermediateJoinColumn(column);
+            fillMissingName(isSourceOne, intermediateColumn);
+            joinColumns.add(intermediateColumn);
+
+          } else if (mappedBy != null && !mappedBy.isEmpty()) {
+            joinColumns.addAll(targetType.getJoinColumns(sourceType));
+            for (IntermediateJoinColumn intermediateColumn : joinColumns) {
+              String refColumnName = intermediateColumn.getReferencedColumnName();
+              if (refColumnName == null || refColumnName.isEmpty()) {
+                implicitColumns += 1;
+                if (implicitColumns > 1)
+                  throw ODataJPAModelException.throwException(
+                      ODataJPAModelException.NOT_SUPPORTED_NO_IMPLICIT_COLUMNS,
+                      "Relationship " + getInternalName() + ": Only one implicit column name supported");
+                intermediateColumn.setReferencedColumnName(((IntermediateProperty) ((IntermediateEntityType) sourceType)
+                    .getKey().get(0)).getDBFieldName());
+              }
+            }
           }
         }
       }
       // TODO determine ContainsTarget
       // TODO determine Partner --> mappedBy Attribute
+      if (sourceType instanceof IntermediateEntityType) {
+        // Partner Attribute must not be defined at Complex Types.
+        // JPA bi-directional associations are defined at both sides, e.g.
+        // at the BusinessPartner and at the Roles. JPA only defines the
+        // "mappedBy" at the Parent.
+        if (mappedBy != null && !mappedBy.isEmpty()) {
+          edmNaviProperty.setPartner(targetType.getCorrespondingNavigationProperty(sourceType).getExternalName());
+        } else {
+          IntermediateNavigationProperty partner = targetType.getCorrespondingNavigationProperty(sourceType);
+          if (partner != null) {
+            if (partner.isMapped())
+              edmNaviProperty.setPartner(partner.getExternalName());
+          }
+        }
+      }
       // TODO determine ReferentialConstraint
-      // TODO determine OnDelete
+      // TODO determine OnDelete --> From Cascade?
+
     }
 
+  }
+
+  boolean isMapped() {
+    if (jpaAttribute.getPersistentAttributeType() == PersistentAttributeType.ONE_TO_ONE) {
+      AnnotatedElement annotatedElement = (AnnotatedElement) jpaAttribute.getJavaMember();
+      OneToOne cardinalityOtO = annotatedElement.getAnnotation(OneToOne.class);
+      return cardinalityOtO.mappedBy() != null && !cardinalityOtO.mappedBy().isEmpty() ? true : false;
+    }
+    if (jpaAttribute.getPersistentAttributeType() == PersistentAttributeType.ONE_TO_MANY) {
+      AnnotatedElement annotatedElement = (AnnotatedElement) jpaAttribute.getJavaMember();
+      OneToMany cardinalityOtM = annotatedElement.getAnnotation(OneToMany.class);
+      return cardinalityOtM.mappedBy() != null && !cardinalityOtM.mappedBy().isEmpty() ? true : false;
+    }
+    return false;
+  }
+
+  private void fillMissingName(boolean isSourceOne, IntermediateJoinColumn intermediateColumn)
+      throws ODataJPAModelException {
+
+    String refColumnName = intermediateColumn.getReferencedColumnName();
+    String name = intermediateColumn.getName();
+
+    if (isSourceOne && (refColumnName == null || refColumnName.isEmpty()))
+      intermediateColumn.setReferencedColumnName(((IntermediateProperty) ((IntermediateEntityType) sourceType)
+          .getKey().get(0)).getDBFieldName());
+    else if (isSourceOne && (name == null || name.isEmpty()))
+      intermediateColumn.setReferencedColumnName(((IntermediateProperty) ((IntermediateEntityType) targetType)
+          .getKey().get(0)).getDBFieldName());
+    else if (!isSourceOne && (refColumnName == null || refColumnName.isEmpty()))
+      intermediateColumn.setReferencedColumnName(((IntermediateProperty) ((IntermediateEntityType) targetType)
+          .getKey().get(0)).getDBFieldName());
+    else if (!isSourceOne && (name == null || name.isEmpty()))
+      intermediateColumn.setReferencedColumnName(((IntermediateProperty) ((IntermediateEntityType) sourceType)
+          .getKey().get(0)).getDBFieldName());
   }
 
   @Override
@@ -164,7 +252,7 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
     return null;
   }
 
-  List<JoinColumn> getJoinColumns() throws ODataJPAModelException {
+  List<IntermediateJoinColumn> getJoinColumns() throws ODataJPAModelException {
     lazyBuildEdmItem();
     return joinColumns;
   }

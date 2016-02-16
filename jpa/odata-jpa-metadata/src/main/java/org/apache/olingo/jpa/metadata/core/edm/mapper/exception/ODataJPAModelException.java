@@ -35,6 +35,7 @@ public class ODataJPAModelException extends ODataException {
   public static final String TYPE_MAPPER_COULD_NOT_INSANTIATE = "TYPE_MAPPER_COULD_NOT_INSANTIATE";
   public static final String NOT_SUPPORTED_EMBEDDED_KEY = "EMBEDDED_KEY_NOT_SUPPORTED";
   public static final String NOT_SUPPORTED_ATTRIBUTE_TYPE = "ATTRIBUTE_TYPE_NOT_SUPPORTED";
+  public static final String NOT_SUPPORTED_NO_IMPLICIT_COLUMNS = "NOT_SUPPORTED_NO_IMPLICIT_COLUMNS";
   public static final String DESCRIPTION_LOCALE_FIELD_MISSING = "DESCRIPTION_LOCALE_FIELD_MISSING";
 
   public static ODataJPAModelException throwException(final String id, final String message, final Throwable e) {

@@ -2,6 +2,7 @@ package org.apache.olingo.jpa.processor.core.testmodel;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
@@ -19,12 +20,14 @@ public class BusinessPartnerRole {
   @Column(name = "\"BusinessPartnerID\"")
   private String businessPartnerID;
   @Id
-  @Column(name = "\"BusinessPartnerRoleCategoryCode\"")
+  @Column(name = "\"BusinessPartnerRole\"")
   private String roleCategory;
 
-  @ManyToOne(optional = false)
-  @JoinColumn(referencedColumnName = "\"ID\"", name = "\"BusinessPartnerID\"", insertable = false,
-      updatable = false)
+//  @ManyToOne(optional = false)
+//  @JoinColumn(referencedColumnName = "\"ID\"", name = "\"BusinessPartnerID\"", insertable = false,
+//      updatable = false)
+  @ManyToOne(optional = false, fetch = FetchType.LAZY)
+  @JoinColumn(name = "\"BusinessPartnerID\"", insertable = false, updatable = false)
   private BusinessPartner businessPartner;
 
   public String getBusinessPartnerID() {

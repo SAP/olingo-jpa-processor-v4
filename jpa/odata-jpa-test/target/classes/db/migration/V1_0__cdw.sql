@@ -47,8 +47,8 @@ insert into "org.apache.olingo.jpa::BusinessPartner" values ('99', 0, 1, '','',n
 
 CREATE TABLE "org.apache.olingo.jpa::BusinessPartnerRole" ( 
 	"BusinessPartnerID" NVARCHAR(32) NOT NULL ,
-	"BusinessPartnerRoleCategoryCode" NVARCHAR(10) NOT NULL, 
-     PRIMARY KEY ("BusinessPartnerID","BusinessPartnerRoleCategoryCode"));
+	"BusinessPartnerRole" NVARCHAR(10) NOT NULL, 
+     PRIMARY KEY ("BusinessPartnerID","BusinessPartnerRole"));
 
 insert into "org.apache.olingo.jpa::BusinessPartnerRole" values ('1',  'A');
 insert into "org.apache.olingo.jpa::BusinessPartnerRole" values ('3',  'A');
@@ -58,18 +58,18 @@ insert into "org.apache.olingo.jpa::BusinessPartnerRole" values ('2',  'A');
 insert into "org.apache.olingo.jpa::BusinessPartnerRole" values ('2',  'C');
 insert into "org.apache.olingo.jpa::BusinessPartnerRole" values ('7',  'C');
 
-CREATE TABLE "org.apache.olingo.jpa::Country" ( 
+CREATE TABLE "org.apache.olingo.jpa::CountryDescription" ( 
 	"ISOCode" NVARCHAR(4) NOT NULL ,
 	"LanguageISO" NVARCHAR(4) NOT NULL ,
 	"Name" NVARCHAR(100) NOT NULL, 
      PRIMARY KEY ("ISOCode","LanguageISO"));
  
-insert into "org.apache.olingo.jpa::Country" values( 'DEU','de','Deutschland');    
-insert into "org.apache.olingo.jpa::Country" values( 'USA','de','Vereinigte Staaten von Amerika');   
-insert into "org.apache.olingo.jpa::Country" values( 'DEU','en','Germany');
-insert into "org.apache.olingo.jpa::Country" values( 'USA','en','United States of America');
-insert into "org.apache.olingo.jpa::Country" values( 'BEL','de','Belgien');
-insert into "org.apache.olingo.jpa::Country" values( 'BEL','en','Belgium');
+insert into "org.apache.olingo.jpa::CountryDescription" values( 'DEU','de','Deutschland');    
+insert into "org.apache.olingo.jpa::CountryDescription" values( 'USA','de','Vereinigte Staaten von Amerika');   
+insert into "org.apache.olingo.jpa::CountryDescription" values( 'DEU','en','Germany');
+insert into "org.apache.olingo.jpa::CountryDescription" values( 'USA','en','United States of America');
+insert into "org.apache.olingo.jpa::CountryDescription" values( 'BEL','de','Belgien');
+insert into "org.apache.olingo.jpa::CountryDescription" values( 'BEL','en','Belgium');
 
 
 CREATE TABLE "org.apache.olingo.jpa::AdministrativeDivisionDescription"(

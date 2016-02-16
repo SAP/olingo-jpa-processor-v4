@@ -68,8 +68,12 @@ class IntermediateSchema extends IntermediateModelElement {
     return edmSchema;
   }
 
-  IntermediateStructuredType getEntityType(Attribute<?, ?> jpaAttribute) {
-    return complexTypeListInternalKey.get(intNameBuilder.buildStructuredTypeName(jpaAttribute.getJavaType()));
+  IntermediateStructuredType getStructuredType(Attribute<?, ?> jpaAttribute) {
+    IntermediateStructuredType type = complexTypeListInternalKey.get(intNameBuilder.buildStructuredTypeName(jpaAttribute
+        .getJavaType()));
+    if (type == null)
+      type = entityTypeListInternalKey.get(intNameBuilder.buildStructuredTypeName(jpaAttribute.getJavaType()));
+    return type;
   }
 
   IntermediateStructuredType getEntityType(Class<?> targetClass) {

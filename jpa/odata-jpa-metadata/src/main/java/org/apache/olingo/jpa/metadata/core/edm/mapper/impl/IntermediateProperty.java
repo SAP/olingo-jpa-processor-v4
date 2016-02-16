@@ -140,7 +140,7 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
         this.setIgnore(true);
       }
       if (jpaAttribute.getPersistentAttributeType() == PersistentAttributeType.EMBEDDED)
-        type = schema.getEntityType(jpaAttribute);
+        type = schema.getStructuredType(jpaAttribute);
       else
         type = null;
       Convert jpaConverter = ((AnnotatedElement) this.jpaAttribute.getJavaMember()).getAnnotation(

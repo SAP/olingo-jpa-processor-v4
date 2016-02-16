@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.persistence.JoinColumn;
 import javax.persistence.metamodel.Attribute.PersistentAttributeType;
 
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
@@ -19,11 +18,12 @@ class JPAAssociationPathImpl implements JPAAssociationPath {
   final private List<JPAElement> pathElements;
   private IntermediateStructuredType sourceType;
   private IntermediateStructuredType targetType;
-  private List<JoinColumn> joinColumns;
+  private List<IntermediateJoinColumn> joinColumns;
   private final PersistentAttributeType cardinality;
 
   JPAAssociationPathImpl(String externalName, IntermediateStructuredType sourceType,
-      IntermediateStructuredType targetType, List<JoinColumn> joinColumns, PersistentAttributeType jpaAttributeType) {
+      IntermediateStructuredType targetType, List<IntermediateJoinColumn> joinColumns,
+      PersistentAttributeType jpaAttributeType) {
     alias = externalName;
     this.sourceType = sourceType;
     this.targetType = targetType;
@@ -33,7 +33,7 @@ class JPAAssociationPathImpl implements JPAAssociationPath {
   }
 
   JPAAssociationPathImpl(JPAEdmNameBuilder namebuilder, JPAAssociationPath associationPath,
-      IntermediateStructuredType source, List<JoinColumn> joinColumns, JPAAttribute attribute) {
+      IntermediateStructuredType source, List<IntermediateJoinColumn> joinColumns, JPAAttribute attribute) {
 
     List<JPAElement> pathElementsBuffer = new ArrayList<JPAElement>();
     pathElementsBuffer.add(attribute);
@@ -63,7 +63,7 @@ class JPAAssociationPathImpl implements JPAAssociationPath {
     this.cardinality = association.getJoinCardinality();
   }
 
-  private List<JoinColumn> getJoinColumns() {
+  private List<IntermediateJoinColumn> getJoinColumns() {
     return joinColumns;
   }
 
@@ -89,17 +89,17 @@ class JPAAssociationPathImpl implements JPAAssociationPath {
   @Override
   public List<JPAOnConditionItem> getJoinColumnsList() throws ODataJPAModelException {
     List<JPAOnConditionItem> joinColumns = new ArrayList<JPAOnConditionItem>();
-    for (JoinColumn column : this.joinColumns) {
+    for (IntermediateJoinColumn column : this.joinColumns) {
       // ManyToOne
       if (cardinality == PersistentAttributeType.MANY_TO_ONE
           || cardinality == PersistentAttributeType.MANY_TO_MANY)
         joinColumns.add(new JPAOnConditionItemImpl(
-            sourceType.getAttributeByDBField(column.name()),
-            targetType.getAttributeByDBField(column.referencedColumnName())));
+            sourceType.getAttributeByDBField(column.getName()),
+            targetType.getAttributeByDBField(column.getReferencedColumnName())));
       else
         joinColumns.add(new JPAOnConditionItemImpl(
-            sourceType.getAttributeByDBField(column.referencedColumnName()),
-            targetType.getAttributeByDBField(column.name())));
+            sourceType.getAttributeByDBField(column.getReferencedColumnName()),
+            targetType.getAttributeByDBField(column.getName())));
     }
     return joinColumns;
   }
