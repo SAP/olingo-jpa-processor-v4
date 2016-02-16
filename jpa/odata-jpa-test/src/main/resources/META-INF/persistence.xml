@@ -10,7 +10,7 @@
 		<class>org.apache.olingo.jpa.processor.core.testmodel.BusinessPartnerRole</class>
 		<class>org.apache.olingo.jpa.processor.core.testmodel.Country</class>
 		<class>org.apache.olingo.jpa.processor.core.testmodel.BusinessPartner</class>
-		<class>org.apache.olingo.jpa.processor.core.testmodel.Region</class>
+		<class>org.apache.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescription</class>
 		<class>org.apache.olingo.jpa.processor.core.testmodel.DateConverter</class>
 		<class>org.apache.olingo.jpa.processor.core.testmodel.AdministrativeDivision</class>
 

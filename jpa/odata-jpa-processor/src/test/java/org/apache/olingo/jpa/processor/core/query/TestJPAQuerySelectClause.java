@@ -129,17 +129,19 @@ public class TestJPAQuerySelectClause extends TestBase {
 
   @Test
   public void checkSelectOnePropertyPartKey() throws ODataApplicationException, ODataJPAModelException {
-    jpaEntityType = helper.getJPAEntityType("Regions");
-    cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "Regions"), helper.sd, null, emf.createEntityManager(),
+    jpaEntityType = helper.getJPAEntityType("AdministrativeDivisionDescriptions");
+    cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "AdministrativeDivisionDescriptions"), helper.sd, null,
+        emf.createEntityManager(),
         headers);
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
     joinTables.put(jpaEntityType.getInternalName(), root);
 
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble((new SelectOptionDouble("CountryCode")))));
-    assertEquals(3, selectClause.size());
-    assertContains(selectClause, "CountryCode");
-    assertContains(selectClause, "RegionCode");
+        new UriInfoDouble((new SelectOptionDouble("CodePublisher")))));
+    assertEquals(4, selectClause.size());
+    assertContains(selectClause, "CodePublisher");
+    assertContains(selectClause, "CodeID");
+    assertContains(selectClause, "DivisionCode");
     assertContains(selectClause, "Language");
   }
 

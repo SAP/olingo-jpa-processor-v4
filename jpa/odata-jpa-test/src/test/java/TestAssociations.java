@@ -19,7 +19,7 @@ import org.apache.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import org.apache.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
 import org.apache.olingo.jpa.processor.core.testmodel.Country;
 import org.apache.olingo.jpa.processor.core.testmodel.DataSourceHelper;
-import org.apache.olingo.jpa.processor.core.testmodel.Region;
+import org.apache.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescription;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -101,7 +101,7 @@ public class TestAssociations {
     cq.multiselect(root.get("address").get("regionName").alias("RN"));
     TypedQuery<Tuple> tq = em.createQuery(cq);
     List<Tuple> result = tq.getResultList();
-    Region region = (Region) result.get(0).get("RN");
+    AdministrativeDivisionDescription region = (AdministrativeDivisionDescription) result.get(0).get("RN");
     assertNotNull(region);
   }
 

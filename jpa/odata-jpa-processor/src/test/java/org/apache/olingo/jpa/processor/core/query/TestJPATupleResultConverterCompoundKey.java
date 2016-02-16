@@ -11,7 +11,7 @@ import javax.persistence.Tuple;
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.ValueType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import org.apache.olingo.jpa.processor.core.testmodel.RegionKey;
+import org.apache.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescriptionKey;
 import org.apache.olingo.jpa.processor.core.util.EdmEntitySetDouble;
 import org.apache.olingo.jpa.processor.core.util.TestBase;
 import org.apache.olingo.jpa.processor.core.util.TestHelper;
@@ -75,9 +75,7 @@ public class TestJPATupleResultConverterCompoundKey extends TestBase {
         helper.sd,
         new JPAExpandResult(resultContainer, Long.parseLong("0")));
 
-    RegionKey region = new RegionKey();
-    region.setCountryCode("DE");
-    region.setRegionCode("DE-HB");
+    AdministrativeDivisionDescriptionKey region = new AdministrativeDivisionDescriptionKey();
     region.setLanguage("en");
 
     HashMap<String, Object> result;

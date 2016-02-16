@@ -75,7 +75,7 @@ public class TestJPAQueryWhereClause extends TestBase {
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
-    assertEquals(96, orgs.size());
+    assertEquals(146, orgs.size());
   }
 
   @Test
@@ -246,11 +246,14 @@ public class TestJPAQueryWhereClause extends TestBase {
   public void testFilterLength() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Regions?$filter=length(Name) eq 10");
+        "AdministrativeDivisionDescriptions?$filter=length(Name) eq 10");
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
-    assertEquals(7, orgs.size());
+    assertEquals(9, orgs.size());
+//    for (JsonNode n : orgs) {
+//      System.out.println(n.get("Name").asText());
+//    }
   }
 
   @Test
@@ -272,7 +275,7 @@ public class TestJPAQueryWhereClause extends TestBase {
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
-    assertEquals(33, orgs.size());
+    assertEquals(83, orgs.size());
   }
 
   @Test
@@ -312,7 +315,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   public void testFilterSubstringStartIndex() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Regions?$filter=Language eq 'de' and substring(Name,7) eq 'Dakota'");
+        "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and substring(Name,7) eq 'Dakota'");
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
@@ -323,7 +326,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   public void testFilterSubstringStartEndIndex() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Regions?$filter=Language eq 'de' and substring(Name,0,5) eq 'North'");
+        "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and substring(Name,0,5) eq 'North'");
 
     helper.assertStatus(200);
 
@@ -335,7 +338,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   public void testFilterSubstringToLower() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Regions?$filter=Language eq 'de' and tolower(Name) eq 'brandenburg'");
+        "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and tolower(Name) eq 'brandenburg'");
 
     helper.assertStatus(200);
 
@@ -347,7 +350,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   public void testFilterSubstringToUpper() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Regions?$filter=Language eq 'de' and toupper(Name) eq 'HESSEN'");
+        "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and toupper(Name) eq 'HESSEN'");
 
     helper.assertStatus(200);
 
@@ -372,7 +375,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   public void testFilterTrim() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Regions?$filter=Language eq 'de' and trim(Name) eq 'Sachsen'");
+        "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and trim(Name) eq 'Sachsen'");
 
     helper.assertStatus(200);
 
@@ -409,7 +412,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   public void testFilterSubstringStartEndIndexToLower() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Regions?$filter=Language eq 'de' and tolower(substring(Name,0,5)) eq 'north'");
+        "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and tolower(substring(Name,0,5)) eq 'north'");
 
     helper.assertStatus(200);
 

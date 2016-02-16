@@ -118,28 +118,8 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
     Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(et, "regionName");
     IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
         schema.getEntityType(helper.getEntityType("BusinessPartner").getJavaType()), jpaAttribute, schema);
-    assertEquals(2, property.getJoinColumns().size());
+    assertEquals(3, property.getJoinColumns().size());
   }
-
-//  @Test
-//  public void checkGetJoinColumnsLeft() throws ODataJPAModelException {
-//    EntityType<?> et = helper.getEntityType("BusinessPartner");
-//
-//    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(et, "roles");
-//    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
-//        schema.getEntityType(et.getJavaType()), jpaAttribute, schema);
-//    assertEquals("ID", property.getJoinColumns().get(0).getLeftPath().getLeaf().getInternalName());
-//  }
-//
-//  @Test
-//  public void checkGetJoinColumnsRight() throws ODataJPAModelException {
-//    EntityType<?> et = helper.getEntityType("BusinessPartner");
-//
-//    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(et, "roles");
-//    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
-//        schema.getEntityType(et.getJavaType()), jpaAttribute, schema);
-//    assertEquals("businessPartnerID", property.getJoinColumns().get(0).getRightPath().getLeaf().getInternalName());
-//  }
 
   @Test
   public void checkPostProcessorCalled() throws ODataJPAModelException {

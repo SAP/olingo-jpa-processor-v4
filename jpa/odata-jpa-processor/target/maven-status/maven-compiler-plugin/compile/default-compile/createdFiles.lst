@@ -16,7 +16,9 @@ org\apache\olingo\jpa\processor\core\processor\JPAFunctionRequestProcessor.class
 org\apache\olingo\jpa\processor\core\processor\JPAProcessorFactory.class
 org\apache\olingo\jpa\processor\core\filter\JPAComparisonOperator.class
 org\apache\olingo\jpa\processor\core\serializer\JPASerializerFactory$1.class
+org\apache\olingo\jpa\processor\core\database\JPADefaultDatabaseProcessor.class
 org\apache\olingo\jpa\processor\core\serializer\JPASerializeCount$PlainTextCountResult.class
+org\apache\olingo\jpa\processor\core\database\JPA_HSQLDB_DatabaseProcessor.class
 org\apache\olingo\jpa\processor\core\filter\JPAFilterCrossComplier.class
 org\apache\olingo\jpa\processor\core\filter\JPAMemberOperator.class
 org\apache\olingo\jpa\processor\core\filter\JPAOperationConverter.class
@@ -39,8 +41,8 @@ org\apache\olingo\jpa\processor\core\query\JPAExpandItemInfo.class
 org\apache\olingo\jpa\processor\core\serializer\JPASerializeCount.class
 org\apache\olingo\jpa\processor\core\serializer\JPASerializeCollection.class
 org\apache\olingo\jpa\processor\core\serializer\JPASerializePrimitive.class
+org\apache\olingo\jpa\processor\core\database\JPAODataDatabaseProcessorFactory.class
 org\apache\olingo\jpa\processor\core\api\JPAODataGetHandler$JPAODataContextImpl.class
-org\apache\olingo\jpa\processor\core\api\JPAODataGetHandler$1.class
 org\apache\olingo\jpa\processor\core\query\JPANavigationQuery.class
 org\apache\olingo\jpa\processor\core\query\JPATupleExpandResultConverter.class
 org\apache\olingo\jpa\processor\core\filter\JPALiteralOperator.class
@@ -51,4 +53,5 @@ org\apache\olingo\jpa\processor\core\serializer\JPASerializeEntity.class
 org\apache\olingo\jpa\processor\core\query\JPAExecutableQuery.class
 org\apache\olingo\jpa\processor\core\query\JPAAbstractQuery.class
 org\apache\olingo\jpa\processor\core\filter\JPAOperator.class
+org\apache\olingo\jpa\processor\core\api\JPAODataDatabaseProcessor.class
 org\apache\olingo\jpa\processor\core\filter\JPAArithmeticOperator.class

@@ -9,13 +9,13 @@ org\apache\olingo\jpa\metadata\core\edm\mapper\impl\JPANameBuilder.class
 org\apache\olingo\jpa\metadata\core\edm\mapper\impl\IntermediateStructuredType.class
 org\apache\olingo\jpa\metadata\core\edm\mapper\impl\IntermediateDescriptionProperty.class
 org\apache\olingo\jpa\metadata\core\edm\mapper\impl\IntermediateNavigationProperty.class
-org\apache\olingo\jpa\metadata\api\JPAEdmPostProcessor.class
 org\apache\olingo\jpa\metadata\core\edm\mapper\api\JPAAttribute.class
 org\apache\olingo\jpa\metadata\core\edm\mapper\impl\DefaultEdmPostProcessor.class
 org\apache\olingo\jpa\metadata\core\edm\mapper\api\JPAPath.class
 org\apache\olingo\jpa\metadata\core\edm\mapper\impl\IntermediateSchema.class
 org\apache\olingo\jpa\metadata\core\edm\mapper\impl\JPAAssociationPathImpl.class
 org\apache\olingo\jpa\metadata\core\edm\mapper\impl\JPAPathImpl.class
+org\apache\olingo\jpa\metadata\api\JPAEdmMetadataPostProcessor.class
 org\apache\olingo\jpa\metadata\core\edm\mapper\api\JPADescriptionAttribute.class
 org\apache\olingo\jpa\metadata\core\edm\mapper\impl\IntermediateProperty.class
 org\apache\olingo\jpa\metadata\core\edm\mapper\impl\IntermediateFunction.class

@@ -3,14 +3,14 @@ C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-test\src\main\java\org\apache\ol
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-test\src\main\java\org\apache\olingo\jpa\processor\core\testmodel\CommunicationData.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-test\src\main\java\org\apache\olingo\jpa\processor\core\test_udf\UserDefinedFunctions.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-test\src\main\java\org\apache\olingo\jpa\processor\core\testmodel\AdministrativeDivision.java
+C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-test\src\main\java\org\apache\olingo\jpa\processor\core\testmodel\AdministrativeDivisionDescription.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-test\src\main\java\org\apache\olingo\jpa\processor\core\testmodel\AdministrativeInformation.java
-C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-test\src\main\java\org\apache\olingo\jpa\processor\core\testmodel\Region.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-test\src\main\java\org\apache\olingo\jpa\processor\core\testmodel\Country.java
-C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-test\src\main\java\org\apache\olingo\jpa\processor\core\testmodel\RegionKey.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-test\src\main\java\org\apache\olingo\jpa\processor\core\testmodel\BusinessPartner.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-test\src\main\java\org\apache\olingo\jpa\processor\core\testmodel\CountryKey.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-test\src\main\java\org\apache\olingo\jpa\processor\core\testmodel\Person.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-test\src\main\java\org\apache\olingo\jpa\processor\core\testmodel\PostalAddressData.java
+C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-test\src\main\java\org\apache\olingo\jpa\processor\core\testmodel\AdministrativeDivisionDescriptionKey.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-test\src\main\java\org\apache\olingo\jpa\processor\core\testmodel\DateConverter.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-test\src\main\java\org\apache\olingo\jpa\processor\core\testmodel\AdministrativeDivisionKey.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-test\src\main\java\org\apache\olingo\jpa\processor\core\testmodel\Organization.java

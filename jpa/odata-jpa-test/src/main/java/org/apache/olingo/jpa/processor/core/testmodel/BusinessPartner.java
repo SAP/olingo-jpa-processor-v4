@@ -89,8 +89,10 @@ public abstract class BusinessPartner {
       @AssociationOverride(name = "countryName",
           joinColumns = @JoinColumn(referencedColumnName = "\"Address.Country\"", name = "\"ISOCode\"") ),
       @AssociationOverride(name = "regionName",
-          joinColumns = { @JoinColumn(referencedColumnName = "\"Address.Country\"", name = "\"CountryISOCode\""),
-              @JoinColumn(referencedColumnName = "\"Address.Region\"", name = "\"RegionISOCode\"") })
+          joinColumns = {
+              @JoinColumn(referencedColumnName = "\"Address.RegionCodePublisher\"", name = "\"CodePublisher\""),
+              @JoinColumn(referencedColumnName = "\"Address.RegionCodeID\"", name = "\"CodeID\""),
+              @JoinColumn(referencedColumnName = "\"Address.Region\"", name = "\"DivisionCode\"") })
   })
   private PostalAddressData address = new PostalAddressData();
   @Embedded

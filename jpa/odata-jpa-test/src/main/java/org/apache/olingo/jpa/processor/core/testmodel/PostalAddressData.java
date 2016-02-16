@@ -45,10 +45,11 @@ public class PostalAddressData {
   @EdmDescriptionAssozation(languageAttribute = "language", descriptionAttribute = "name")
   @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumns({
-      @JoinColumn(name = "\"CountryISOCode\"", referencedColumnName = "\"Address.Country\""),
-      @JoinColumn(name = "\"RegionISOCode\"", referencedColumnName = "\"Address.Region\"")
+      @JoinColumn(name = "\"CodePublisher\"", referencedColumnName = "\"Address.RegionCodePublisher\""),
+      @JoinColumn(name = "\"CodeID\"", referencedColumnName = "\"Address.RegionCodeID\""),
+      @JoinColumn(name = "\"DivisionCode\"", referencedColumnName = "\"Address.Region\"")
   })
-  private Collection<Region> regionName;
+  private Collection<AdministrativeDivisionDescription> regionName;
 
   @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumns({
