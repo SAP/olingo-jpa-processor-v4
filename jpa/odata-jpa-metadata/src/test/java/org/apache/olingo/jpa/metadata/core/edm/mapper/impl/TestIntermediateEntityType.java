@@ -38,6 +38,15 @@ public class TestIntermediateEntityType extends TestMappingRoot {
   }
 
   @Test
+  public void checkEntityTypeIgnoreSet() throws ODataJPAModelException {
+
+    IntermediateStructuredType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "DummyToBeIgnored"), schema);
+    et.getEdmItem();
+    assertTrue(et.ignore());
+  }
+
+  @Test
   public void checkGetAllProperties() throws ODataJPAModelException {
     IntermediateStructuredType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
         "BusinessPartner"), schema);

@@ -217,18 +217,21 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
     return null;
   }
 
-  IntermediateNavigationProperty getCorrespondingNavigationProperty(IntermediateStructuredType sourceType) {
-    Attribute<?, ?> jpaAttribute = findCorrespondingRelationship(sourceType);
+  IntermediateNavigationProperty getCorrespondingNavigationProperty(IntermediateStructuredType sourceType,
+      String sourceRelationshipName) {
+    Attribute<?, ?> jpaAttribute = findCorrespondingRelationship(sourceType, sourceRelationshipName);
     return jpaAttribute == null ? null : new IntermediateNavigationProperty(nameBuilder, sourceType, jpaAttribute,
         schema);
   }
 
-  private Attribute<?, ?> findCorrespondingRelationship(IntermediateStructuredType sourceType) {
+  private Attribute<?, ?> findCorrespondingRelationship(IntermediateStructuredType sourceType,
+      String sourceRelationshipName) {
     Class<?> targetClass = null;
 
     for (Attribute<?, ?> jpaAttribute : jpaManagedType.getAttributes()) {
-      if (jpaAttribute.getPersistentAttributeType() != null &&
-          jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
+      if (jpaAttribute.getPersistentAttributeType() != null
+          && jpaAttribute.getJavaMember() instanceof AnnotatedElement
+          && !sourceRelationshipName.equals(intNameBuilder.buildAssociationName(jpaAttribute))) {
         if (jpaAttribute.isCollection()) {
           targetClass = ((PluralAttribute<?, ?, ?>) jpaAttribute).getElementType().getJavaType();
         } else {
@@ -251,10 +254,10 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
     return intermediatePathMap;
   }
 
-  List<IntermediateJoinColumn> getJoinColumns(IntermediateStructuredType sourceType) {
+  List<IntermediateJoinColumn> getJoinColumns(IntermediateStructuredType sourceType, String sourceRelationshipName) {
 
     List<IntermediateJoinColumn> result = new ArrayList<IntermediateJoinColumn>();
-    Attribute<?, ?> jpaAttribute = findCorrespondingRelationship(sourceType);
+    Attribute<?, ?> jpaAttribute = findCorrespondingRelationship(sourceType, sourceRelationshipName);
 
     if (jpaAttribute != null) {
       AnnotatedElement annotatedElement = (AnnotatedElement) jpaAttribute.getJavaMember();

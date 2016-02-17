@@ -70,8 +70,10 @@ class IntermediateEntityContainer extends IntermediateModelElement {
       // Build Entity Sets
       IntermediateSchema schema = schemaList.get(namespace);
       for (IntermediateEntityType et : schema.getEntityTypes()) {
-        IntermediateEntitySet es = new IntermediateEntitySet(nameBuilder, et);
-        entitySetListInternalKey.put(es.internalName, es);
+        if (!et.ignore()) {
+          IntermediateEntitySet es = new IntermediateEntitySet(nameBuilder, et);
+          entitySetListInternalKey.put(es.internalName, es);
+        }
       }
     }
     return (List<CsdlEntitySet>) extractEdmModelElements(entitySetListInternalKey);

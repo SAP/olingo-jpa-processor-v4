@@ -118,6 +118,26 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
   }
 
   @Test
+  public void checkGetPartnerAdmin_Parent() throws ODataJPAModelException {
+    EntityType<?> et = helper.getEntityType("AdministrativeDivision");
+
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(et, "parent");
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+        schema.getEntityType(et.getJavaType()), jpaAttribute, schema);
+    assertEquals("Children", property.getEdmItem().getPartner());
+  }
+
+  @Test
+  public void checkGetPartnerAdmin_Children() throws ODataJPAModelException {
+    EntityType<?> et = helper.getEntityType("AdministrativeDivision");
+
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(et, "children");
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+        schema.getEntityType(et.getJavaType()), jpaAttribute, schema);
+    assertEquals("Parent", property.getEdmItem().getPartner());
+  }
+
+  @Test
   public void checkGetPartnerBP_Roles() throws ODataJPAModelException {
     EntityType<?> et = helper.getEntityType("BusinessPartner");
 

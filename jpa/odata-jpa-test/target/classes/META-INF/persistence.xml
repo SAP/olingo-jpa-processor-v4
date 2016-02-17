@@ -13,6 +13,7 @@
 		<class>org.apache.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescription</class>
 		<class>org.apache.olingo.jpa.processor.core.testmodel.DateConverter</class>
 		<class>org.apache.olingo.jpa.processor.core.testmodel.AdministrativeDivision</class>
+		<class>org.apache.olingo.jpa.processor.core.testmodel.DummyToBeIgnored</class>
 
 		<properties>
 			<property name="eclipselink.logging.level.sql" value="FINEST" />

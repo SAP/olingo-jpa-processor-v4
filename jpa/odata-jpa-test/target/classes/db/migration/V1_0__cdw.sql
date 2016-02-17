@@ -504,3 +504,6 @@ insert into "org.apache.olingo.jpa::AdministrativeDivision" values( 'Eurostat', 
 insert into "org.apache.olingo.jpa::AdministrativeDivision" values( 'Eurostat', 'LAU2', '33040','BEL','NUTS3','BE253',null,52529046,8144);
 insert into "org.apache.olingo.jpa::AdministrativeDivision" values( 'Eurostat', 'LAU2', '33041','BEL','NUTS3','BE253',null,38148241,3625);
 
+CREATE TABLE "org.apache.olingo.jpa::DummyToBeIgnored" (
+	"ID" NVARCHAR(32) NOT NULL ,
+	 PRIMARY KEY ("ID"));

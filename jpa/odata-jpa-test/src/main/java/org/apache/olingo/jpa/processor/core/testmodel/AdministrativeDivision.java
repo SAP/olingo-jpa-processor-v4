@@ -61,7 +61,7 @@ public class AdministrativeDivision {
   @Column(name = "\"Population\"", precision = 34, scale = 0)
   private long population;
 
-  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, optional = true)
   @JoinColumns({
       @JoinColumn(referencedColumnName = "\"CodePublisher\"", name = "\"CodePublisher\"", nullable = false,
           insertable = false, updatable = false),
@@ -71,7 +71,7 @@ public class AdministrativeDivision {
           insertable = false, updatable = false) })
   private AdministrativeDivision parent;
 
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumns({
       @JoinColumn(referencedColumnName = "\"CodePublisher\"", name = "\"CodePublisher\"", nullable = false,
           insertable = false, updatable = false),

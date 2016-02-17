@@ -110,7 +110,7 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
             joinColumns.add(intermediateColumn);
 
           } else if (mappedBy != null && !mappedBy.isEmpty()) {
-            joinColumns.addAll(targetType.getJoinColumns(sourceType));
+            joinColumns.addAll(targetType.getJoinColumns(sourceType, getInternalName()));
             for (IntermediateJoinColumn intermediateColumn : joinColumns) {
               String refColumnName = intermediateColumn.getReferencedColumnName();
               if (refColumnName == null || refColumnName.isEmpty()) {
@@ -127,16 +127,17 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
         }
       }
       // TODO determine ContainsTarget
-      // TODO determine Partner --> mappedBy Attribute
       if (sourceType instanceof IntermediateEntityType) {
         // Partner Attribute must not be defined at Complex Types.
         // JPA bi-directional associations are defined at both sides, e.g.
         // at the BusinessPartner and at the Roles. JPA only defines the
         // "mappedBy" at the Parent.
         if (mappedBy != null && !mappedBy.isEmpty()) {
-          edmNaviProperty.setPartner(targetType.getCorrespondingNavigationProperty(sourceType).getExternalName());
+          edmNaviProperty.setPartner(targetType.getCorrespondingNavigationProperty(sourceType, getInternalName())
+              .getExternalName());
         } else {
-          IntermediateNavigationProperty partner = targetType.getCorrespondingNavigationProperty(sourceType);
+          IntermediateNavigationProperty partner = targetType.getCorrespondingNavigationProperty(sourceType,
+              getInternalName());
           if (partner != null) {
             if (partner.isMapped())
               edmNaviProperty.setPartner(partner.getExternalName());
