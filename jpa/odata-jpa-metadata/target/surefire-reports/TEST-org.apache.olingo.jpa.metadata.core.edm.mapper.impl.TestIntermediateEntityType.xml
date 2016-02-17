@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0.014" tests="25" errors="0" skipped="1" failures="0">
+<testsuite name="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0.022" tests="26" errors="0" skipped="1" failures="0">
   <properties>
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
     <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk1.8.0_45\jre\bin"/>
@@ -27,7 +27,7 @@
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="user.variant" value=""/>
     <property name="os.name" value="Windows 8.1"/>
-    <property name="classworlds.conf" value="C:\Users\D023143\workspace_ov4\.metadata\.plugins\org.eclipse.m2e.launching\launches\m2conf3946193543813146178.tmp"/>
+    <property name="classworlds.conf" value="C:\Users\D023143\workspace_ov4\.metadata\.plugins\org.eclipse.m2e.launching\launches\m2conf7802882693638339829.tmp"/>
     <property name="sun.jnu.encoding" value="Cp1252"/>
     <property name="java.library.path" value="C:\Program Files\Java\jdk1.8.0_45\bin;C:\WINDOWS\Sun\Java\bin;C:\WINDOWS\system32;C:\WINDOWS;C:/Program Files/Java/jre1.8.0_45/bin/server;C:/Program Files/Java/jre1.8.0_45/bin;C:/Program Files/Java/jre1.8.0_45/lib/amd64;C:\Program Files (x86)\PC Connectivity Solution\;C:\Program Files\HP_Fortify\HP_Fortify_SCA_and_Apps_4.30\bin;C:\ProgramData\Oracle\Java\javapath;C:\Program Files (x86)\PC ConnectivitySolution\;C:\WINDOWS\system32; C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\Windows\CCM;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\apache-maven-3.2.5\bin;C:\Program Files\Java\jdk1.8.0_45\bin; C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\WindowsPowerShell\v1.0; C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\WindowsPowerShell\v1.0; C:\Go\bin; C:\Users\D023143\work_go\bin;C:\Users\D023143\Nodeclips\nodejs\;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\Users\D023143\AppData\Roaming\npm;C:\Users\D023143\EclipseMars\eclipse;;."/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
@@ -62,29 +62,30 @@
     <property name="sun.desktop" value="windows"/>
     <property name="sun.cpu.isalist" value="amd64"/>
   </properties>
-  <testcase name="checkGetIsNotAbstract" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0.002"/>
-  <testcase name="checkGetPropertyByNameNotNull" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0"/>
-  <testcase name="checkGetPropertyByNameCorrectEntityID" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0"/>
-  <testcase name="checkGetAllAttributeIDWithBaseType" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0"/>
-  <testcase name="checkGetAssoziationOfComplexTypeByNameCorrectEntity" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0.001"/>
+  <testcase name="checkGetIsNotAbstract" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0"/>
+  <testcase name="checkGetPropertyByNameNotNull" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0.002"/>
+  <testcase name="checkGetPropertyByNameCorrectEntityID" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0.001"/>
+  <testcase name="checkGetAllAttributeIDWithBaseType" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0.001"/>
+  <testcase name="checkGetAssoziationOfComplexTypeByNameCorrectEntity" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0.003"/>
   <testcase name="checkGetNaviPropertyByNameCorrectEntity" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0"/>
-  <testcase name="checkGetKeyProperties" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0.001"/>
-  <testcase name="checkGetInheritedAttributeByNameCorrectEntityID" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0.001"/>
-  <testcase name="checkGetKeyWithBaseType" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0.001"/>
-  <testcase name="checkGetPathByNameIgnore" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0.001"/>
-  <testcase name="checkGetHasBaseType" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0"/>
+  <testcase name="checkGetKeyProperties" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0"/>
+  <testcase name="checkGetInheritedAttributeByNameCorrectEntityID" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0.003"/>
+  <testcase name="checkEntityTypeIgnoreSet" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0"/>
+  <testcase name="checkGetKeyWithBaseType" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0.002"/>
+  <testcase name="checkGetPathByNameIgnore" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0"/>
+  <testcase name="checkGetHasBaseType" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0.001"/>
   <testcase name="checkGetAllProperties" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0"/>
   <testcase name="checkGetAllNaviProperties" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0"/>
-  <testcase name="checkGetNaviPropertyByNameNotNull" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0"/>
-  <testcase name="checkGetPropertyByNameCorrectEntity" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0"/>
-  <testcase name="checkGetIsAbstract" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0"/>
+  <testcase name="checkGetNaviPropertyByNameNotNull" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0.001"/>
+  <testcase name="checkGetPropertyByNameCorrectEntity" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0.001"/>
+  <testcase name="checkGetIsAbstract" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0.001"/>
   <testcase name="checkGetAllAttributesWithBaseTypeFields" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0.001"/>
-  <testcase name="checkGetPathByNameCorrectEntityID" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0.001"/>
+  <testcase name="checkGetPathByNameCorrectEntityID" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0.003"/>
   <testcase name="checkEntityTypeCanBeCreated" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0"/>
-  <testcase name="checkGetPathByNameIgnoreCompexType" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0.001"/>
-  <testcase name="checkGetAllAttributes" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0.001"/>
+  <testcase name="checkGetPathByNameIgnoreCompexType" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0"/>
+  <testcase name="checkGetAllAttributes" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0"/>
   <testcase name="checkGetPropertiesSkipIgnored" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0"/>
-  <testcase name="checkGetAllAttributesWithBaseType" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0.001"/>
+  <testcase name="checkGetAllAttributesWithBaseType" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0"/>
   <testcase name="checkGetPropertyWithEnumerationType" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateEntityType" time="0">
     <skipped/>
   </testcase>

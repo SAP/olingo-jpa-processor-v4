@@ -88,6 +88,14 @@ public class TestIntermediateProperty extends TestMappingRoot {
   }
 
   @Test
+  public void checkGetProptertyFacetsNullableTrueComplex() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEmbeddedableType("PostalAddressData"), "POBox");
+    IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
+        helper.schema);
+    assertTrue(property.getEdmItem().isNullable());
+  }
+
+  @Test
   public void checkGetProptertyFacetsNullableFalse() throws ODataJPAModelException {
     Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType("BusinessPartner"), "eTag");
     IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
@@ -173,6 +181,15 @@ public class TestIntermediateProperty extends TestMappingRoot {
         helper.schema);
 
     assertNotNull(property.getConverter());
+  }
+
+  @Test
+  public void checkGetProptertyDefaultValue() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEmbeddedableType("PostalAddressData"),
+        "regionCodePublisher");
+    IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
+        helper.schema);
+    assertEquals("ISO", property.getEdmItem().getDefaultValue());
   }
 
   private class PostProcessorSpy extends JPAEdmMetadataPostProcessor {

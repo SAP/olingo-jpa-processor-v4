@@ -16,26 +16,26 @@ import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 
 @Embeddable
 public class PostalAddressData {
-  @Column(name = "\"Address.StreetName\"")
+  @Column(name = "\"Address.StreetName\"", nullable = true)
   private String streetName;
-  @Column(name = "\"Address.StreetNumber\"")
+  @Column(name = "\"Address.StreetNumber\"", nullable = true)
   private String houseNumber;
-  @Column(name = "\"Address.PostOfficeBox\"")
+  @Column(name = "\"Address.PostOfficeBox\"", nullable = true)
   private String POBox;
-  @Column(name = "\"Address.City\"")
-  private String cityName;
   @Column(name = "\"Address.PostalCode\"")
   private String postalCode;
-  @EdmIgnore
-  @Column(name = "\"Address.RegionCodePublisher\"", length = 10)
-  private String regionCodePublisher;
-  @EdmIgnore
-  @Column(name = "\"Address.RegionCodeID\"", length = 10)
-  private String regionCodeID;
-  @Column(name = "\"Address.Region\"")
-  private String region;
+  @Column(name = "\"Address.City\"")
+  private String cityName;
   @Column(name = "\"Address.Country\"")
   private String country;
+  @EdmIgnore
+  @Column(name = "\"Address.RegionCodePublisher\"", length = 10)
+  private String regionCodePublisher = "ISO";
+  @EdmIgnore
+  @Column(name = "\"Address.RegionCodeID\"", length = 10)
+  private String regionCodeID = "3166-2";
+  @Column(name = "\"Address.Region\"")
+  private String region;
 
   @EdmDescriptionAssozation(languageAttribute = "language", descriptionAttribute = "name")
   @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)

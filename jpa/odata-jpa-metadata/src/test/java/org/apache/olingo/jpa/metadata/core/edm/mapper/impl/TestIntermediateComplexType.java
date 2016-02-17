@@ -66,6 +66,17 @@ public class TestIntermediateComplexType extends TestMappingRoot {
   }
 
   @Test
+  public void checkGetPropertyIsNullable() throws ODataJPAModelException {
+    PostProcessorSetIgnore pPDouble = new PostProcessorSetIgnore();
+    IntermediateModelElement.SetPostProcessor(pPDouble);
+
+    IntermediateComplexType ct = new IntermediateComplexType(new JPAEdmNameBuilder(PUNIT_NAME), getEmbeddedableType(
+        "PostalAddressData"), schema);
+    // TODO nullable not jet in $metadata: problem of Olingo?
+    assertTrue(ct.getEdmItem().getProperty("POBox").isNullable());
+  }
+
+  @Test
   public void checkGetAllNaviProperties() throws ODataJPAModelException {
     PostProcessorSetIgnore pPDouble = new PostProcessorSetIgnore();
     IntermediateModelElement.SetPostProcessor(pPDouble);

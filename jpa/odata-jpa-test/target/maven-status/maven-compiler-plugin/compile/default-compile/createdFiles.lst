@@ -7,6 +7,7 @@ org\apache\olingo\jpa\processor\core\testmodel\AdministrativeInformation.class
 org\apache\olingo\jpa\processor\core\testmodel\Person.class
 org\apache\olingo\jpa\processor\core\testmodel\Country.class
 org\apache\olingo\jpa\processor\core\testmodel\BusinessPartnerRoleKey.class
+org\apache\olingo\jpa\processor\core\testmodel\DummyToBeIgnored.class
 org\apache\olingo\jpa\processor\core\testmodel\AdministrativeDivisionDescription.class
 org\apache\olingo\jpa\processor\core\testmodel\ChangeInformation.class
 org\apache\olingo\jpa\processor\core\testmodel\Organization.class

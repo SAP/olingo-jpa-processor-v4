@@ -1,6 +1,9 @@
 package org.apache.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Column;
@@ -97,7 +100,7 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
         if (jpaColumn != null) {
           edmProperty.setNullable(jpaColumn.nullable());
           // TODO Attribute SRID
-          // TODO Attribute DefaultValue
+          edmProperty.setDefaultValue(getDeafultValue());
           // TODO Attribute Unicode
           if (edmProperty.getTypeAsFQNObject().equals(EdmPrimitiveTypeKind.String.getFullQualifiedName()) || edmProperty
               .getTypeAsFQNObject().equals(EdmPrimitiveTypeKind.Binary.getFullQualifiedName())) {
@@ -122,6 +125,38 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
         }
       }
     }
+  }
+
+  private String getDeafultValue() {
+    String valueString = null;
+    if (jpaAttribute.getJavaMember() instanceof Field
+        && jpaAttribute.getPersistentAttributeType() == PersistentAttributeType.BASIC) {
+      // It is not possible to get the default value directly from the Field,
+      // only from an instance field.get(Object obj).toString();
+      try {
+        Field field = (Field) jpaAttribute.getJavaMember();
+        Constructor<?> c = jpaAttribute.getDeclaringType().getJavaType().getConstructor();
+        Object pojo = c.newInstance();
+        // TODO check replacement by calling getter!!
+        field.setAccessible(true);
+        Object value = field.get(pojo);
+        if (value != null)
+          valueString = value.toString();
+      } catch (NoSuchMethodException e) {
+
+      } catch (SecurityException e) {
+
+      } catch (InstantiationException e) {
+
+      } catch (IllegalAccessException e) {
+
+      } catch (IllegalArgumentException e) {
+
+      } catch (InvocationTargetException e) {
+
+      }
+    }
+    return valueString;
   }
 
   @Override
