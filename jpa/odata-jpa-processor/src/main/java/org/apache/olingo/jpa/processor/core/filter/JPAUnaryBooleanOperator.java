@@ -11,8 +11,8 @@ public class JPAUnaryBooleanOperator implements JPAExpressionOperator {
   private final UnaryOperatorKind operator;
   private final JPAExpressionOperator left;
 
-  public JPAUnaryBooleanOperator(JPAOperationConverter converter, UnaryOperatorKind operator,
-      JPAExpressionOperator left) {
+  public JPAUnaryBooleanOperator(final JPAOperationConverter converter, final UnaryOperatorKind operator,
+      final JPAExpressionOperator left) {
     super();
     this.converter = converter;
     this.operator = operator;

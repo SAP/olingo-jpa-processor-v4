@@ -21,8 +21,9 @@ public class JPASerializeEntity implements JPASerializer {
   private final UriHelper uriHelper;
   private final ODataSerializer serializer;
 
-  public JPASerializeEntity(ServiceMetadata serviceMetadata, ODataSerializer serializer, UriHelper uriHelper,
-      UriInfo uriInfo) throws SerializerException {
+  public JPASerializeEntity(final ServiceMetadata serviceMetadata, final ODataSerializer serializer,
+      final UriHelper uriHelper,
+      final UriInfo uriInfo) throws SerializerException {
     this.uriInfo = uriInfo;
     this.serializer = serializer;
     this.serviceMetadata = serviceMetadata;
@@ -33,25 +34,25 @@ public class JPASerializeEntity implements JPASerializer {
   public SerializerResult serialize(final ODataRequest request, final EntityCollection result)
       throws SerializerException {
 
-    EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(uriInfo.getUriResourceParts());
+    final EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(uriInfo.getUriResourceParts());
 
-    EdmEntityType entityType = targetEdmEntitySet.getEntityType();
+    final EdmEntityType entityType = targetEdmEntitySet.getEntityType();
 
-    String selectList = uriHelper.buildContextURLSelectList(targetEdmEntitySet.getEntityType(),
+    final String selectList = uriHelper.buildContextURLSelectList(targetEdmEntitySet.getEntityType(),
         uriInfo.getExpandOption(), uriInfo.getSelectOption());
 
-    ContextURL contextUrl = ContextURL.with()
+    final ContextURL contextUrl = ContextURL.with()
         .entitySet(targetEdmEntitySet).suffix(Suffix.ENTITY)
         .selectList(selectList)
         .build();
 
-    EntitySerializerOptions options = EntitySerializerOptions.with()
+    final EntitySerializerOptions options = EntitySerializerOptions.with()
         .contextURL(contextUrl)
         .select(uriInfo.getSelectOption())
         .expand(uriInfo.getExpandOption())
         .build();
 
-    SerializerResult serializerResult = serializer.entity(serviceMetadata, entityType, result
+    final SerializerResult serializerResult = serializer.entity(serviceMetadata, entityType, result
         .getEntities()
         .get(0),
         options);

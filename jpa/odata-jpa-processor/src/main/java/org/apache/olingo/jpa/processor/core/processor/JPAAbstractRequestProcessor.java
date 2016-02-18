@@ -23,8 +23,9 @@ abstract class JPAAbstractRequestProcessor implements JPARequestProcessor {
   protected final JPASerializer serializer;
   protected final OData odata;
 
-  public JPAAbstractRequestProcessor(OData odata, ServicDocument sd, EntityManager em, UriInfo uriInfo,
-      JPASerializer serializer) {
+  public JPAAbstractRequestProcessor(final OData odata, final ServicDocument sd, final EntityManager em,
+      final UriInfo uriInfo,
+      final JPASerializer serializer) {
     super();
     this.em = em;
     this.cb = em.getCriteriaBuilder();
@@ -34,8 +35,8 @@ abstract class JPAAbstractRequestProcessor implements JPARequestProcessor {
     this.odata = odata;
   }
 
-  protected final void createSuccessResonce(ODataResponse response, ContentType responseFormat,
-      SerializerResult serializerResult) {
+  protected final void createSuccessResonce(final ODataResponse response, final ContentType responseFormat,
+      final SerializerResult serializerResult) {
     response.setContent(serializerResult.getContent());
     response.setStatusCode(HttpStatusCode.OK.getStatusCode());
     response.setHeader(HttpHeader.CONTENT_TYPE, responseFormat.toContentTypeString());

@@ -3,6 +3,7 @@ package org.apache.olingo.jpa.metadata.core.edm.mapper.impl;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
@@ -19,12 +20,12 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExc
  */
 //TODO How to handle multiple schemas
 class IntermediateEntityContainer extends IntermediateModelElement {
-  final private HashMap<String, IntermediateSchema> schemaList;
-  final private HashMap<String, IntermediateEntitySet> entitySetListInternalKey;
+  final private Map<String, IntermediateSchema> schemaList;
+  final private Map<String, IntermediateEntitySet> entitySetListInternalKey;
 
   private CsdlEntityContainer edmContainer;
 
-  IntermediateEntityContainer(JPAEdmNameBuilder nameBuilder, HashMap<String, IntermediateSchema> schemaList)
+  IntermediateEntityContainer(final JPAEdmNameBuilder nameBuilder, final Map<String, IntermediateSchema> schemaList)
       throws ODataJPAModelException {
     super(nameBuilder, nameBuilder.buildContainerName());
     this.schemaList = schemaList;
@@ -52,7 +53,7 @@ class IntermediateEntityContainer extends IntermediateModelElement {
     return edmContainer;
   }
 
-  IntermediateEntitySet getEntityTypeSet(String edmEntitySetName) throws ODataJPAModelException {
+  IntermediateEntitySet getEntityTypeSet(final String edmEntitySetName) throws ODataJPAModelException {
     return (IntermediateEntitySet) findModelElementByEdmItem(edmEntitySetName,
         entitySetListInternalKey);
   }
@@ -66,12 +67,12 @@ class IntermediateEntityContainer extends IntermediateModelElement {
    */
   @SuppressWarnings("unchecked")
   private List<CsdlEntitySet> buildEntitySets() throws ODataJPAModelException {
-    for (String namespace : schemaList.keySet()) {
+    for (final String namespace : schemaList.keySet()) {
       // Build Entity Sets
-      IntermediateSchema schema = schemaList.get(namespace);
-      for (IntermediateEntityType et : schema.getEntityTypes()) {
+      final IntermediateSchema schema = schemaList.get(namespace);
+      for (final IntermediateEntityType et : schema.getEntityTypes()) {
         if (!et.ignore()) {
-          IntermediateEntitySet es = new IntermediateEntitySet(nameBuilder, et);
+          final IntermediateEntitySet es = new IntermediateEntitySet(nameBuilder, et);
           entitySetListInternalKey.put(es.internalName, es);
         }
       }
@@ -87,14 +88,14 @@ class IntermediateEntityContainer extends IntermediateModelElement {
    * >OData Version 4.0 Part 3 - 13.6 Element edm:FunctionImport</a>
    * @param CsdlFunction edmFu
    */
-  private CsdlFunctionImport buildFunctionImport(CsdlFunction edmFu) {
-    CsdlFunctionImport edmFuImport = new CsdlFunctionImport();
+  private CsdlFunctionImport buildFunctionImport(final CsdlFunction edmFu) {
+    final CsdlFunctionImport edmFuImport = new CsdlFunctionImport();
     edmFuImport.setName(edmFu.getName());
     edmFuImport.setFunction(nameBuilder.buildFQN(edmFu.getName()));
     edmFuImport.setIncludeInServiceDocument(true);
 
-    for (String internalName : entitySetListInternalKey.keySet()) {
-      IntermediateEntitySet entitySet = entitySetListInternalKey.get(internalName);
+    for (final String internalName : entitySetListInternalKey.keySet()) {
+      final IntermediateEntitySet entitySet = entitySetListInternalKey.get(internalName);
       if (entitySet.getEntityType().getExternalFQN().equals(edmFu.getReturnType().getTypeFQN())) {
         edmFuImport.setEntitySet(entitySet.getExternalName());
         break;
@@ -104,14 +105,14 @@ class IntermediateEntityContainer extends IntermediateModelElement {
   }
 
   private List<CsdlFunctionImport> buildFunctionImports() throws ODataJPAModelException {
-    List<CsdlFunctionImport> edmFunctionImports = new ArrayList<CsdlFunctionImport>();
+    final List<CsdlFunctionImport> edmFunctionImports = new ArrayList<CsdlFunctionImport>();
 
-    for (String namespace : schemaList.keySet()) {
+    for (final String namespace : schemaList.keySet()) {
       // Build Entity Sets
-      IntermediateSchema schema = schemaList.get(namespace);
-      List<CsdlFunction> functions = schema.getEdmItem().getFunctions();
+      final IntermediateSchema schema = schemaList.get(namespace);
+      final List<CsdlFunction> functions = schema.getEdmItem().getFunctions();
       if (functions != null) {
-        for (CsdlFunction edmFu : functions) {
+        for (final CsdlFunction edmFu : functions) {
           edmFunctionImports.add(buildFunctionImport(edmFu));
         }
       }

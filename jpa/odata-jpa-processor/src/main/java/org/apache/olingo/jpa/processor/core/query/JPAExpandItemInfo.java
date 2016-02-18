@@ -12,7 +12,7 @@ public class JPAExpandItemInfo {
   private final JPAAssociationPath expandAssociation;
   private final List<JPANavigationProptertyInfo> hops;
 
-  JPAExpandItemInfo(final UriInfoResource uriInfo, UriResourcePartTyped startResourceItem,
+  JPAExpandItemInfo(final UriInfoResource uriInfo, final UriResourcePartTyped startResourceItem,
       final JPAAssociationPath expandAssociation, final List<JPANavigationProptertyInfo> hops) {
     super();
     this.uriInfo = uriInfo;

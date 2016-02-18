@@ -31,8 +31,8 @@ public class TestJPAExpandQueryCreateResult extends TestBase {
     createHeaders();
     EdmEntityType targetEntity = new EdmEntityTypeDouble(nameBuilder, "BusinessPartnerRole");
     cut = new JPAExpandQuery(null, helper.sd, emf.createEntityManager(), new ExpandItemDouble(targetEntity)
-        .getResourcePath(),
-        helper.getJPAAssociationPath("Organizations", "Roles"), null, new HashMap<String, List<String>>());
+        .getResourcePath(), helper.getJPAAssociationPath("Organizations", "Roles"),
+        new HashMap<String, List<String>>());
     // new EdmEntitySetDouble(nameBuilder, "Organisations"), null, new HashMap<String, List<String>>());
   }
 

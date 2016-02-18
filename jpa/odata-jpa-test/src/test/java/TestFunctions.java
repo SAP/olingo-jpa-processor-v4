@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +64,7 @@ public class TestFunctions {
     // cb.literal
     TypedQuery<Tuple> tq = em.createQuery(count);
     List<Tuple> act = tq.getResultList();
+    assertNotNull(act);
     tq.getFirstResult();
   }
 
@@ -72,7 +72,7 @@ public class TestFunctions {
   @Test
   public void TestProcedure() throws SQLException {
     StoredProcedureQuery pc = em.createStoredProcedureQuery("\"OLINGO\".\"org.apache.olingo.jpa::Siblings\"");
-    List<AdministrativeDivision> res = new ArrayList<AdministrativeDivision>();
+
     pc.registerStoredProcedureParameter("CodePublisher", String.class, ParameterMode.IN);
     pc.setParameter("CodePublisher", "Eurostat");
     pc.registerStoredProcedureParameter("CodeID", String.class, ParameterMode.IN);
@@ -106,9 +106,7 @@ public class TestFunctions {
 //      System.out.println("specificName=" + specificName);
     }
     ResultSet rs = meta.getProcedureColumns(conn.getCatalog(),
-        "OLINGO",
-        "%",
-        "%");
+        "OLINGO", "%", "%");
 
     while (rs.next()) {
       // get stored procedure metadata

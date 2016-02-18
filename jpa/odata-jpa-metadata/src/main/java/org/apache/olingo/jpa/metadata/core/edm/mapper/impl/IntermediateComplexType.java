@@ -27,10 +27,10 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateProp
  *
  */
 class IntermediateComplexType extends IntermediateStructuredType {
-  private CsdlComplexType edmComplexType = null;
+  private CsdlComplexType edmComplexType;
 
-  IntermediateComplexType(JPAEdmNameBuilder nameBuilder, EmbeddableType<?> jpaEmbeddable,
-      IntermediateSchema schema) throws ODataJPAModelException {
+  IntermediateComplexType(final JPAEdmNameBuilder nameBuilder, final EmbeddableType<?> jpaEmbeddable,
+      final IntermediateSchema schema) throws ODataJPAModelException {
 
     super(nameBuilder, jpaEmbeddable, schema);
     this.setExternalName(nameBuilder.buildComplexTypeName(jpaEmbeddable));
@@ -62,7 +62,7 @@ class IntermediateComplexType extends IntermediateStructuredType {
     return edmComplexType;
   }
 
-  IntermediatePropertyAccess getProperty(String internalName) throws ODataJPAModelException {
+  IntermediatePropertyAccess getProperty(final String internalName) throws ODataJPAModelException {
     lazyBuildEdmItem();
     return declaredPropertiesList.get(internalName);
   }

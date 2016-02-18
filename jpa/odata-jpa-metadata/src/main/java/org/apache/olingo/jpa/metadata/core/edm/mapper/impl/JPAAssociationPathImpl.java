@@ -16,14 +16,14 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExc
 class JPAAssociationPathImpl implements JPAAssociationPath {
   final private String alias;
   final private List<JPAElement> pathElements;
-  private IntermediateStructuredType sourceType;
-  private IntermediateStructuredType targetType;
+  final private IntermediateStructuredType sourceType;
+  final private IntermediateStructuredType targetType;
   private List<IntermediateJoinColumn> joinColumns;
   private final PersistentAttributeType cardinality;
 
-  JPAAssociationPathImpl(String externalName, IntermediateStructuredType sourceType,
-      IntermediateStructuredType targetType, List<IntermediateJoinColumn> joinColumns,
-      PersistentAttributeType jpaAttributeType) {
+  JPAAssociationPathImpl(final String externalName, final IntermediateStructuredType sourceType,
+      final IntermediateStructuredType targetType, final List<IntermediateJoinColumn> joinColumns,
+      final PersistentAttributeType jpaAttributeType) {
     alias = externalName;
     this.sourceType = sourceType;
     this.targetType = targetType;
@@ -32,10 +32,11 @@ class JPAAssociationPathImpl implements JPAAssociationPath {
     this.cardinality = jpaAttributeType;
   }
 
-  JPAAssociationPathImpl(JPAEdmNameBuilder namebuilder, JPAAssociationPath associationPath,
-      IntermediateStructuredType source, List<IntermediateJoinColumn> joinColumns, JPAAttribute attribute) {
+  JPAAssociationPathImpl(final JPAEdmNameBuilder namebuilder, final JPAAssociationPath associationPath,
+      final IntermediateStructuredType source, final List<IntermediateJoinColumn> joinColumns,
+      final JPAAttribute attribute) {
 
-    List<JPAElement> pathElementsBuffer = new ArrayList<JPAElement>();
+    final List<JPAElement> pathElementsBuffer = new ArrayList<JPAElement>();
     pathElementsBuffer.add(attribute);
     pathElementsBuffer.addAll(associationPath.getPath());
 
@@ -50,9 +51,9 @@ class JPAAssociationPathImpl implements JPAAssociationPath {
     this.cardinality = ((JPAAssociationPathImpl) associationPath).getCardinality();
   }
 
-  JPAAssociationPathImpl(IntermediateNavigationProperty association,
-      IntermediateStructuredType source) throws ODataJPAModelException {
-    List<JPAElement> pathElementsBuffer = new ArrayList<JPAElement>();
+  JPAAssociationPathImpl(final IntermediateNavigationProperty association,
+      final IntermediateStructuredType source) throws ODataJPAModelException {
+    final List<JPAElement> pathElementsBuffer = new ArrayList<JPAElement>();
     pathElementsBuffer.add(association);
 
     alias = association.getExternalName();
@@ -88,8 +89,8 @@ class JPAAssociationPathImpl implements JPAAssociationPath {
    */
   @Override
   public List<JPAOnConditionItem> getJoinColumnsList() throws ODataJPAModelException {
-    List<JPAOnConditionItem> joinColumns = new ArrayList<JPAOnConditionItem>();
-    for (IntermediateJoinColumn column : this.joinColumns) {
+    final List<JPAOnConditionItem> joinColumns = new ArrayList<JPAOnConditionItem>();
+    for (final IntermediateJoinColumn column : this.joinColumns) {
       // ManyToOne
       if (cardinality == PersistentAttributeType.MANY_TO_ONE
           || cardinality == PersistentAttributeType.MANY_TO_MANY)

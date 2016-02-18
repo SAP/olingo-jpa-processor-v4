@@ -12,20 +12,19 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExc
 
 class IntermediateFunctionFactory {
 
-  Map<? extends String, ? extends IntermediateFunction> create(JPAEdmNameBuilder nameBuilder,
-      EntityType<?> jpaEntityType,
-      IntermediateSchema schema) throws ODataJPAModelException {
-    HashMap<String, IntermediateFunction> funcList = new HashMap<String, IntermediateFunction>();
+  Map<? extends String, ? extends IntermediateFunction> create(final JPAEdmNameBuilder nameBuilder,
+      final EntityType<?> jpaEntityType, final IntermediateSchema schema) throws ODataJPAModelException {
+    final Map<String, IntermediateFunction> funcList = new HashMap<String, IntermediateFunction>();
 
     if (jpaEntityType.getJavaType() instanceof AnnotatedElement) {
-      EdmFunctions jpaStoredProcedureList = ((AnnotatedElement) jpaEntityType.getJavaType())
+      final EdmFunctions jpaStoredProcedureList = ((AnnotatedElement) jpaEntityType.getJavaType())
           .getAnnotation(EdmFunctions.class);
       if (jpaStoredProcedureList != null) {
-        for (EdmFunction jpaStoredProcedure : jpaStoredProcedureList.value()) {
+        for (final EdmFunction jpaStoredProcedure : jpaStoredProcedureList.value()) {
           putFunction(nameBuilder, jpaEntityType, schema, funcList, jpaStoredProcedure);
         }
       } else {
-        EdmFunction jpaStoredProcedure = ((AnnotatedElement) jpaEntityType.getJavaType())
+        final EdmFunction jpaStoredProcedure = ((AnnotatedElement) jpaEntityType.getJavaType())
             .getAnnotation(EdmFunction.class);
         if (jpaStoredProcedure != null)
           putFunction(nameBuilder, jpaEntityType, schema, funcList, jpaStoredProcedure);
@@ -34,9 +33,11 @@ class IntermediateFunctionFactory {
     return funcList;
   }
 
-  private void putFunction(JPAEdmNameBuilder nameBuilder, EntityType<?> jpaEntityType, IntermediateSchema schema,
-      HashMap<String, IntermediateFunction> funcList, EdmFunction jpaStoredProcedure) throws ODataJPAModelException {
-    IntermediateFunction func = new IntermediateFunction(nameBuilder, jpaStoredProcedure, jpaEntityType
+  private void putFunction(final JPAEdmNameBuilder nameBuilder, final EntityType<?> jpaEntityType,
+      final IntermediateSchema schema,
+      final Map<String, IntermediateFunction> funcList, final EdmFunction jpaStoredProcedure)
+          throws ODataJPAModelException {
+    final IntermediateFunction func = new IntermediateFunction(nameBuilder, jpaStoredProcedure, jpaEntityType
         .getJavaType(), schema);
     funcList.put(func.getInternalName(), func);
   }

@@ -7,7 +7,7 @@ class JPAOnConditionItemImpl implements JPAOnConditionItem {
   private final JPAPath jpaLeftAttribute;
   private final JPAPath jpaRightAttribute;
 
-  JPAOnConditionItemImpl(JPAPath jpaLeftAttribute, JPAPath jpaRightAttribute) {
+  JPAOnConditionItemImpl(final JPAPath jpaLeftAttribute, final JPAPath jpaRightAttribute) {
     super();
     this.jpaLeftAttribute = jpaLeftAttribute;
     this.jpaRightAttribute = jpaRightAttribute;

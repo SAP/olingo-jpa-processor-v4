@@ -11,6 +11,7 @@ import javax.persistence.metamodel.EntityType;
 import org.apache.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
 import org.apache.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -205,7 +206,7 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
   @Test
   public void checkPostProcessorCalled() throws ODataJPAModelException {
     PostProcessorSpy spy = new PostProcessorSpy();
-    IntermediateModelElement.SetPostProcessor(spy);
+    IntermediateModelElement.setPostProcessor(spy);
 
     Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(
         "BusinessPartner"), "roles");
@@ -219,7 +220,7 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
   @Test
   public void checkPostProcessorNameChanged() throws ODataJPAModelException {
     PostProcessorSetName pPDouble = new PostProcessorSetName();
-    IntermediateModelElement.SetPostProcessor(pPDouble);
+    IntermediateModelElement.setPostProcessor(pPDouble);
 
     Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("BusinessPartner"), "roles");
     IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
@@ -231,7 +232,7 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
   @Test
   public void checkPostProcessorExternalNameChanged() throws ODataJPAModelException {
     PostProcessorSetName pPDouble = new PostProcessorSetName();
-    IntermediateModelElement.SetPostProcessor(pPDouble);
+    IntermediateModelElement.setPostProcessor(pPDouble);
 
     Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("BusinessPartner"), "roles");
     IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
@@ -249,6 +250,11 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
       called = true;
     }
 
+    @Override
+    public void processProperty(IntermediatePropertyAccess property, String jpaManagedTypeClassName) {
+
+    }
+
   }
 
   private class PostProcessorSetName extends JPAEdmMetadataPostProcessor {
@@ -256,11 +262,16 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
     public void processNavigationProperty(IntermediateNavigationPropertyAccess property,
         String jpaManagedTypeClassName) {
       if (jpaManagedTypeClassName.equals(
-          BuPa_CANONICAL_NAME)) {
+          BUPA_CANONICAL_NAME)) {
         if (property.getInternalName().equals("roles")) {
           property.setExternalName("RoleAssignment");
         }
       }
+    }
+
+    @Override
+    public void processProperty(IntermediatePropertyAccess property, String jpaManagedTypeClassName) {
+
     }
   }
 }

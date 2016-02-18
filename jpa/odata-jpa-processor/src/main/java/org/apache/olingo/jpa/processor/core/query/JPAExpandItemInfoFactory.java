@@ -16,12 +16,13 @@ import org.apache.olingo.server.api.uri.queryoption.ExpandItem;
 import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
 
 public class JPAExpandItemInfoFactory {
-  public List<JPAExpandItemInfo> buildExpandItemInfo(ServicDocument sd, List<UriResource> startResourceList,
-      ExpandOption expandOption, List<JPANavigationProptertyInfo> grandParentHops) throws ODataApplicationException {
+  public List<JPAExpandItemInfo> buildExpandItemInfo(final ServicDocument sd, final List<UriResource> startResourceList,
+      final ExpandOption expandOption, final List<JPANavigationProptertyInfo> grandParentHops)
+          throws ODataApplicationException {
 
     // TODO $expand=*
-    List<JPAExpandItemInfo> itemList = new ArrayList<JPAExpandItemInfo>();
-    StringBuffer associationName = new StringBuffer();
+    final List<JPAExpandItemInfo> itemList = new ArrayList<JPAExpandItemInfo>();
+    final StringBuffer associationName = new StringBuffer();
     UriResource startResourceItem = null;
 
     List<JPANavigationProptertyInfo> parentHops = new ArrayList<JPANavigationProptertyInfo>();
@@ -42,8 +43,8 @@ public class JPAExpandItemInfoFactory {
 
       // Example1 : ?$expand=Created/User (Property/NavigationProperty)
       // Example2 : ?$expand=Parent/CodeID (NavigationProperty/Property)
-      for (ExpandItem item : expandOption.getExpandItems()) {
-        List<UriResource> targetResourceList = item.getResourcePath().getUriResourceParts();
+      for (final ExpandItem item : expandOption.getExpandItems()) {
+        final List<UriResource> targetResourceList = item.getResourcePath().getUriResourceParts();
         UriResource targetResourceItem = null;
         for (int i = 0; i < targetResourceList.size(); i++) {
           targetResourceItem = targetResourceList.get(i);

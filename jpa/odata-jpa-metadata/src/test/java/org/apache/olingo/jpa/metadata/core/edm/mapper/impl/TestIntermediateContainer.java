@@ -17,7 +17,7 @@ public class TestIntermediateContainer extends TestMappingRoot {
 
   @Before
   public void setup() throws ODataJPAModelException {
-    IntermediateModelElement.SetPostProcessor(new DefaultEdmPostProcessor());
+    IntermediateModelElement.setPostProcessor(new DefaultEdmPostProcessor());
     IntermediateSchema schema = new IntermediateSchema(new JPAEdmNameBuilder(PUNIT_NAME), emf.getMetamodel());
     schemas.put(PUNIT_NAME, schema);
   }

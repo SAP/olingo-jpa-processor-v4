@@ -23,7 +23,7 @@ import org.apache.olingo.server.api.uri.queryoption.TopOption;
 public class JPAExpandItemWrapper implements UriInfoResource {
   private final ExpandItem item;
 
-  public JPAExpandItemWrapper(ExpandItem item) {
+  public JPAExpandItemWrapper(final ExpandItem item) {
     super();
     this.item = item;
   }
@@ -94,7 +94,7 @@ public class JPAExpandItemWrapper implements UriInfoResource {
   }
 
   @Override
-  public String getValueForAlias(String alias) {
+  public String getValueForAlias(final String alias) {
     return null;
   }
 

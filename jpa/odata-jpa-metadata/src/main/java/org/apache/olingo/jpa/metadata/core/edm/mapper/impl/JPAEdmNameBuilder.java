@@ -17,17 +17,17 @@ public final class JPAEdmNameBuilder {
   // private static final String UNDERSCORE = "_";
   // private static final String FK_PREFIX = "FK";
 
-  public static String firstToLower(String substring) {
+  public static String firstToLower(final String substring) {
     return Character.toLowerCase(substring.charAt(0)) + substring.substring(1);
   }
 
-  public static String firstToUpper(String jpaAttributeName) {
+  public static String firstToUpper(final String jpaAttributeName) {
     return Character.toUpperCase(jpaAttributeName.charAt(0)) + jpaAttributeName.substring(1);
   }
 
   final private String namespace;
 
-  public JPAEdmNameBuilder(String namespace) {
+  public JPAEdmNameBuilder(final String namespace) {
     super();
     this.namespace = namespace;
   }
@@ -41,11 +41,11 @@ public final class JPAEdmNameBuilder {
    * EDM Complex Type Name - RULES
    * ************************************************************************
    */
-  final public String buildComplexTypeName(Attribute<?, ?> jpaAttribute) {
+  final public String buildComplexTypeName(final Attribute<?, ?> jpaAttribute) {
     return jpaAttribute.getJavaType().getSimpleName();
   }
 
-  final public String buildComplexTypeName(EmbeddableType<?> jpaEnbeddedType) {
+  final public String buildComplexTypeName(final EmbeddableType<?> jpaEnbeddedType) {
     return jpaEnbeddedType.getJavaType().getSimpleName();
   }
 
@@ -64,9 +64,9 @@ public final class JPAEdmNameBuilder {
    * ************************************************************************
    */
   public String buildContainerName() {
-    StringBuffer containerName = new StringBuffer();
-    String[] elements = namespace.split("\\.");
-    for (String element : elements) {
+    final StringBuffer containerName = new StringBuffer();
+    final String[] elements = namespace.split("\\.");
+    for (final String element : elements) {
       containerName.append(firstToUpper(element));
     }
     containerName.append(ENTITY_CONTAINER_SUFFIX);
@@ -84,15 +84,15 @@ public final class JPAEdmNameBuilder {
    * EDM EntitySet Name - RULES
    * ************************************************************************
    */
-  final public String buildEntitySetName(CsdlEntityType entityType) {
+  final public String buildEntitySetName(final CsdlEntityType entityType) {
     return buildEntitySetName(entityType.getName());
   }
 
-  final public String buildEntitySetName(FullQualifiedName entityTypeFQName) {
+  final public String buildEntitySetName(final FullQualifiedName entityTypeFQName) {
     return buildEntitySetName(entityTypeFQName.getName());
   }
 
-  final public String buildEntitySetName(String entityTypeName) {
+  final public String buildEntitySetName(final String entityTypeName) {
     if (entityTypeName.charAt(entityTypeName.length() - 1) == 'y'
         && entityTypeName.charAt(entityTypeName.length() - 2) != 'a'
         && entityTypeName.charAt(entityTypeName.length() - 2) != 'e'
@@ -114,12 +114,12 @@ public final class JPAEdmNameBuilder {
    * EDM Entity Type Name - RULES
    * ************************************************************************
    */
-  public String buildEntityTypeName(EntityType<?> jpaEntityType) {
+  public String buildEntityTypeName(final EntityType<?> jpaEntityType) {
     return jpaEntityType.getName();
   }
 
   final public FullQualifiedName buildFQN(final String name) {
-    FullQualifiedName fqName = new FullQualifiedName(buildNamespace(), name);
+    final FullQualifiedName fqName = new FullQualifiedName(buildNamespace(), name);
     return fqName;
   }
 
@@ -159,12 +159,12 @@ public final class JPAEdmNameBuilder {
    * ************************************************************************
    */
   // TODO respect subtype name
-  final public String buildNaviPropertyBindingName(JPAAssociationPath associationPath,
-      JPAAttribute parent) {
+  final public String buildNaviPropertyBindingName(final JPAAssociationPath associationPath,
+      final JPAAttribute parent) {
     final StringBuffer name = new StringBuffer();
 
     name.append(parent.getExternalName());
-    for (JPAElement pathElement : associationPath.getPath()) {
+    for (final JPAElement pathElement : associationPath.getPath()) {
       name.append(JPAPath.PATH_SEPERATOR);
       name.append(pathElement.getExternalName());
 
@@ -191,15 +191,15 @@ public final class JPAEdmNameBuilder {
    * EDM Navigation Property Name - RULES
    * ************************************************************************
    */
-  final public String buildNaviPropertyName(Attribute<?, ?> jpaAttribute) {
+  final public String buildNaviPropertyName(final Attribute<?, ?> jpaAttribute) {
     return buildPropertyName(jpaAttribute.getName());
   }
 
-  final public String buildPath(String pathRoot, String pathElement) {
+  final public String buildPath(final String pathRoot, final String pathElement) {
     return pathRoot + JPAPath.PATH_SEPERATOR + pathElement;
   }
 
-  final public FullQualifiedName buildPropertyFQN(String jpaAttributeName) {
+  final public FullQualifiedName buildPropertyFQN(final String jpaAttributeName) {
     return buildFQN(buildPropertyName(jpaAttributeName));
   }
 
@@ -216,7 +216,7 @@ public final class JPAEdmNameBuilder {
    * EDM Property Name - RULES
    * ************************************************************************
    */
-  final public String buildPropertyName(String jpaAttributeName) {
+  final public String buildPropertyName(final String jpaAttributeName) {
     return firstToUpper(jpaAttributeName);
   }
 

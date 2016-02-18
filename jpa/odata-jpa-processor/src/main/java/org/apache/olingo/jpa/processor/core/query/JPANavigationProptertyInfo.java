@@ -7,7 +7,7 @@ public class JPANavigationProptertyInfo {
   private final UriResourcePartTyped navigationTarget;
   private final JPAAssociationPath associationPath;
 
-  public JPANavigationProptertyInfo(UriResourcePartTyped uriResiource, JPAAssociationPath associationPath) {
+  public JPANavigationProptertyInfo(final UriResourcePartTyped uriResiource, final JPAAssociationPath associationPath) {
     super();
     this.navigationTarget = uriResiource;
     this.associationPath = associationPath;

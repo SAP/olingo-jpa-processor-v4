@@ -25,8 +25,9 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
   // final private List<CsdlSchema> schemas;
   final private ServicDocument serviceDocument;
 
-  public JPAEdmProvider(String namespace, EntityManagerFactory emf, JPAEdmMetadataPostProcessor postProcessor)
-      throws ODataException {
+  public JPAEdmProvider(final String namespace, final EntityManagerFactory emf,
+      final JPAEdmMetadataPostProcessor postProcessor)
+          throws ODataException {
     super();
     this.nameBuilder = new JPAEdmNameBuilder(namespace);
 
@@ -35,8 +36,8 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
   }
 
   @Override
-  public CsdlComplexType getComplexType(FullQualifiedName complexTypeName) throws ODataException {
-    for (CsdlSchema schema : serviceDocument.getEdmSchemas()) {
+  public CsdlComplexType getComplexType(final FullQualifiedName complexTypeName) throws ODataException {
+    for (final CsdlSchema schema : serviceDocument.getEdmSchemas()) {
       if (schema.getNamespace().equals(complexTypeName.getNamespace())) {
         return schema.getComplexType(complexTypeName.getName());
       }
@@ -50,11 +51,13 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
   }
 
   @Override
-  public CsdlEntityContainerInfo getEntityContainerInfo(FullQualifiedName entityContainerName) throws ODataException {
+  public CsdlEntityContainerInfo getEntityContainerInfo(final FullQualifiedName entityContainerName)
+      throws ODataException {
     // This method is invoked when displaying the Service Document at e.g.
-    // http://localhost:8080/DemoService/DemoService.svc
-    if (entityContainerName == null || entityContainerName.equals(nameBuilder.buildContainerName())) {
-      CsdlEntityContainerInfo entityContainerInfo = new CsdlEntityContainerInfo();
+    // .../DemoService.svc
+    if (entityContainerName == null
+        || entityContainerName.equals(nameBuilder.buildFQN(nameBuilder.buildContainerName()))) {
+      final CsdlEntityContainerInfo entityContainerInfo = new CsdlEntityContainerInfo();
       entityContainerInfo.setContainerName(nameBuilder.buildFQN(nameBuilder.buildContainerName()));
       return entityContainerInfo;
     }
@@ -62,8 +65,9 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
   }
 
   @Override
-  public CsdlEntitySet getEntitySet(FullQualifiedName entityContainerFQN, String entitySetName) throws ODataException {
-    CsdlEntityContainer container = serviceDocument.getEdmEntityContainer();
+  public CsdlEntitySet getEntitySet(final FullQualifiedName entityContainerFQN, final String entitySetName)
+      throws ODataException {
+    final CsdlEntityContainer container = serviceDocument.getEdmEntityContainer();
     if (entityContainerFQN.equals(nameBuilder.buildFQN(container.getName()))) {
       return container.getEntitySet(entitySetName);
     }
@@ -71,9 +75,9 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
   }
 
   @Override
-  public CsdlEntityType getEntityType(FullQualifiedName entityTypeName) throws ODataException {
+  public CsdlEntityType getEntityType(final FullQualifiedName entityTypeName) throws ODataException {
 
-    for (CsdlSchema schema : serviceDocument.getEdmSchemas()) {
+    for (final CsdlSchema schema : serviceDocument.getEdmSchemas()) {
       if (schema.getNamespace().equals(entityTypeName.getNamespace())) {
         return schema.getEntityType(entityTypeName.getName());
       }
@@ -82,9 +86,10 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
   }
 
   @Override
-  public CsdlFunctionImport getFunctionImport(FullQualifiedName entityContainerFQN, String functionImportName)
-      throws ODataException {
-    CsdlEntityContainer container = serviceDocument.getEdmEntityContainer();
+  public CsdlFunctionImport getFunctionImport(final FullQualifiedName entityContainerFQN,
+      final String functionImportName)
+          throws ODataException {
+    final CsdlEntityContainer container = serviceDocument.getEdmEntityContainer();
     if (entityContainerFQN.equals(nameBuilder.buildFQN(container.getName()))) {
       return container.getFunctionImport(functionImportName);
     }
@@ -92,8 +97,8 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
   }
 
   @Override
-  public List<CsdlFunction> getFunctions(FullQualifiedName functionName) throws ODataException {
-    for (CsdlSchema schema : serviceDocument.getEdmSchemas()) {
+  public List<CsdlFunction> getFunctions(final FullQualifiedName functionName) throws ODataException {
+    for (final CsdlSchema schema : serviceDocument.getEdmSchemas()) {
       if (schema.getNamespace().equals(functionName.getNamespace())) {
         return schema.getFunctions(functionName.getName());
       }

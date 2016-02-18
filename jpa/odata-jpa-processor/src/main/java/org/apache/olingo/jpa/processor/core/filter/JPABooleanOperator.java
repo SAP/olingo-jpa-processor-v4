@@ -12,8 +12,9 @@ class JPABooleanOperator implements JPAExpressionOperator {
   private final JPAExpressionOperator left;
   private final JPAExpressionOperator right;
 
-  public JPABooleanOperator(JPAOperationConverter converter, BinaryOperatorKind operator, JPAExpressionOperator left,
-      JPAExpressionOperator right) {
+  public JPABooleanOperator(final JPAOperationConverter converter, final BinaryOperatorKind operator,
+      final JPAExpressionOperator left,
+      final JPAExpressionOperator right) {
     super();
     this.converter = converter;
     this.operator = operator;

@@ -3,7 +3,6 @@ package org.apache.olingo.jpa.metadata.core.edm.mapper.impl;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,13 +27,13 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExc
  *
  */
 class IntermediateEntityType extends IntermediateStructuredType implements JPAEntityType {
-  CsdlEntityType edmEntityType = null;
+  CsdlEntityType edmEntityType;
 
-  IntermediateEntityType(JPAEdmNameBuilder nameBuilder, EntityType<?> et,
-      IntermediateSchema schema) throws ODataJPAModelException {
+  IntermediateEntityType(final JPAEdmNameBuilder nameBuilder, final EntityType<?> et, final IntermediateSchema schema)
+      throws ODataJPAModelException {
     super(nameBuilder, et, schema);
     this.setExternalName(nameBuilder.buildEntityTypeName(et));
-    EdmIgnore jpaIgnore = ((AnnotatedElement) this.jpaManagedType.getJavaType()).getAnnotation(
+    final EdmIgnore jpaIgnore = ((AnnotatedElement) this.jpaManagedType.getJavaType()).getAnnotation(
         EdmIgnore.class);
     if (jpaIgnore != null) {
       this.setIgnore(true);
@@ -44,20 +43,20 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
   @Override
   public List<? extends JPAAttribute> getKey() throws ODataJPAModelException {
     lazyBuildEdmItem();
-    List<JPAAttribute> key = new ArrayList<JPAAttribute>();
+    final List<JPAAttribute> key = new ArrayList<JPAAttribute>();
 
-    for (String internalName : this.declaredPropertiesList.keySet()) {
-      JPAAttribute attribute = this.declaredPropertiesList.get(internalName);
+    for (final String internalName : this.declaredPropertiesList.keySet()) {
+      final JPAAttribute attribute = this.declaredPropertiesList.get(internalName);
       if (attribute.isKey())
         key.add(attribute);
     }
-    IntermediateStructuredType baseType = getBaseType();
+    final IntermediateStructuredType baseType = getBaseType();
     if (baseType != null) {
-      Map<String, JPAPathImpl> baseAttributes = baseType.getResolvedPathMap();
-      for (String baseExternalName : baseAttributes.keySet()) {
-        JPAPath baseAttributePath = baseAttributes.get(baseExternalName);
+      final Map<String, JPAPathImpl> baseAttributes = baseType.getResolvedPathMap();
+      for (final String baseExternalName : baseAttributes.keySet()) {
+        final JPAPath baseAttributePath = baseAttributes.get(baseExternalName);
         // TODO Embbeded Ids!!
-        JPAAttribute baseAttribute = (JPAAttribute) baseAttributePath.getPath().get(0);
+        final JPAAttribute baseAttribute = (JPAAttribute) baseAttributePath.getPath().get(0);
         if (baseAttribute.isKey())
           key.add(baseAttribute);
       }
@@ -92,21 +91,21 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
   }
 
   boolean determineAbstract() {
-    int modifiers = jpaManagedType.getJavaType().getModifiers();
+    final int modifiers = jpaManagedType.getJavaType().getModifiers();
     return Modifier.isAbstract(modifiers);
   }
 
-  List<CsdlPropertyRef> extractEdmKeyElements(HashMap<String, IntermediateProperty> propertyList)
+  List<CsdlPropertyRef> extractEdmKeyElements(final Map<String, IntermediateProperty> propertyList)
       throws ODataJPAModelException {
 
-    List<CsdlPropertyRef> keyList = new ArrayList<CsdlPropertyRef>();
-    for (String internalName : propertyList.keySet()) {
+    final List<CsdlPropertyRef> keyList = new ArrayList<CsdlPropertyRef>();
+    for (final String internalName : propertyList.keySet()) {
       if (propertyList.get(internalName).isKey()) {
         if (propertyList.get(internalName).isComplex())
           // TODO Clarify if it is correct that OData or Olingo do not support complex Types as key
           throw ODataJPAModelException.throwException(ODataJPAModelException.NOT_SUPPORTED_EMBEDDED_KEY,
               "Embedded Ids are not supported");
-        CsdlPropertyRef key = new CsdlPropertyRef();
+        final CsdlPropertyRef key = new CsdlPropertyRef();
         key.setName(propertyList.get(internalName).getExternalName());
         // TODO setAlias
         keyList.add(key);
@@ -116,10 +115,10 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
   }
 
   @Override
-  public List<JPAPath> searchChildPath(JPAPath selectItemPath) {
-    List<JPAPath> result = new ArrayList<JPAPath>();
-    for (String pathName : this.resolvedPathMap.keySet()) {
-      JPAPath p = resolvedPathMap.get(pathName);
+  public List<JPAPath> searchChildPath(final JPAPath selectItemPath) {
+    final List<JPAPath> result = new ArrayList<JPAPath>();
+    for (final String pathName : this.resolvedPathMap.keySet()) {
+      final JPAPath p = resolvedPathMap.get(pathName);
       // if (p.getPath().get(0) == selectItemPath.getPath().get(0))
       if (!p.ignore() && p.getAlias().startsWith(selectItemPath.getAlias()))
         result.add(p);

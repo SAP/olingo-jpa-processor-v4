@@ -12,13 +12,13 @@ import org.apache.olingo.server.api.ODataApplicationException;
 public class JPAOperationConverter {
   protected final CriteriaBuilder cb;
 
-  public JPAOperationConverter(CriteriaBuilder cb) {
+  public JPAOperationConverter(final CriteriaBuilder cb) {
     super();
     this.cb = cb;
   }
 
   @SuppressWarnings("unchecked")
-  final public <T extends Number> Expression<T> convert(JPAArithmeticOperator jpaOperator)
+  final public <T extends Number> Expression<T> convert(final JPAArithmeticOperator jpaOperator)
       throws ODataApplicationException {
     switch (jpaOperator.getOperator()) {
     case ADD:
@@ -52,7 +52,7 @@ public class JPAOperationConverter {
     }
   }
 
-  final public Expression<Boolean> convert(JPABooleanOperator jpaOperator) throws ODataApplicationException {
+  final public Expression<Boolean> convert(final JPABooleanOperator jpaOperator) throws ODataApplicationException {
     switch (jpaOperator.getOperator()) {
     case AND:
       return cb.and(jpaOperator.getLeft(), jpaOperator.getRight());
@@ -65,7 +65,7 @@ public class JPAOperationConverter {
 
   // TODO check generics!
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  final public Expression<Boolean> convert(JPAComparisonOperator jpaOperator) throws ODataApplicationException {
+  final public Expression<Boolean> convert(final JPAComparisonOperator jpaOperator) throws ODataApplicationException {
     switch (jpaOperator.getOperator()) {
     case EQ:
       if (jpaOperator.getRight() instanceof JPALiteralOperator)
@@ -103,35 +103,35 @@ public class JPAOperationConverter {
   }
 
   @SuppressWarnings("unchecked")
-  public Object convert(JPAFunctionCall jpaFunction) throws ODataApplicationException {
+  public Object convert(final JPAFunctionCall jpaFunction) throws ODataApplicationException {
     switch (jpaFunction.getFunction()) {
     // First String functions
     case LENGTH:
       return cb.length((Expression<String>) (jpaFunction.getParameter(0).get()));
     case CONTAINS:
-      StringBuffer contains = new StringBuffer();
+      final StringBuffer contains = new StringBuffer();
       contains.append('%');
       contains.append((String) ((JPALiteralOperator) jpaFunction.getParameter(1)).get());
       contains.append('%');
       return cb.like((Expression<String>) (jpaFunction.getParameter(0).get()), contains.toString());
     case ENDSWITH:
-      StringBuffer ends = new StringBuffer();
+      final StringBuffer ends = new StringBuffer();
       ends.append('%');
       ends.append((String) ((JPALiteralOperator) jpaFunction.getParameter(1)).get());
       return cb.like((Expression<String>) (jpaFunction.getParameter(0).get()), ends.toString());
     case STARTSWITH:
-      StringBuffer starts = new StringBuffer();
+      final StringBuffer starts = new StringBuffer();
       starts.append((String) ((JPALiteralOperator) jpaFunction.getParameter(1)).get());
       starts.append('%');
       return cb.like((Expression<String>) (jpaFunction.getParameter(0).get()), starts.toString());
     case INDEXOF:
-      String searchString = ((String) ((JPALiteralOperator) jpaFunction.getParameter(1)).get());
+      final String searchString = ((String) ((JPALiteralOperator) jpaFunction.getParameter(1)).get());
       return cb.locate((Expression<String>) (jpaFunction.getParameter(0).get()), searchString);
     case SUBSTRING:
       // Substring worked fine with H2 and HANA, but had problems with HSQLDB
-      Integer start = new Integer(((String) ((JPALiteralOperator) jpaFunction.getParameter(1)).get()));
+      final Integer start = new Integer(((String) ((JPALiteralOperator) jpaFunction.getParameter(1)).get()));
       if (jpaFunction.noParameters() == 3) {
-        Integer length = new Integer(((String) ((JPALiteralOperator) jpaFunction.getParameter(2)).get()));
+        final Integer length = new Integer(((String) ((JPALiteralOperator) jpaFunction.getParameter(2)).get()));
         return cb.substring((Expression<String>) (jpaFunction.getParameter(0).get()), start, length);
       } else
         return cb.substring((Expression<String>) (jpaFunction.getParameter(0).get()), start);
@@ -165,7 +165,7 @@ public class JPAOperationConverter {
     }
   }
 
-  final public Expression<Boolean> convert(JPAUnaryBooleanOperator jpaOperator) throws ODataApplicationException {
+  final public Expression<Boolean> convert(final JPAUnaryBooleanOperator jpaOperator) throws ODataApplicationException {
     switch (jpaOperator.getOperator()) {
     case NOT:
       return cb.not(jpaOperator.getLeft());
@@ -174,29 +174,30 @@ public class JPAOperationConverter {
     }
   }
 
-  protected <T extends Number> Expression<T> convertSpecific(JPAArithmeticOperator jpaOperator)
+  protected <T extends Number> Expression<T> convertSpecific(final JPAArithmeticOperator jpaOperator)
       throws ODataApplicationException {
     throw new ODataApplicationException("Operator " + jpaOperator.getOperator() + " not supported",
         HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
   }
 
-  protected Predicate convertSpecific(JPABooleanOperator jpaOperator)
+  protected Predicate convertSpecific(final JPABooleanOperator jpaOperator)
       throws ODataApplicationException {
     throw new ODataApplicationException("Operator " + jpaOperator.getOperator() + " not supported",
         HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
   }
 
-  protected Expression<Boolean> convertSpecific(JPAExpressionOperator jpaOperator) throws ODataApplicationException {
+  protected Expression<Boolean> convertSpecific(final JPAExpressionOperator jpaOperator)
+      throws ODataApplicationException {
     throw new ODataApplicationException("Operator " + jpaOperator.getOperator() + " not supported",
         HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
   }
 
-  protected Object convertSpecific(JPAFunctionCall jpaFunction) throws ODataApplicationException {
+  protected Object convertSpecific(final JPAFunctionCall jpaFunction) throws ODataApplicationException {
     throw new ODataApplicationException("Operator " + jpaFunction.getFunction() + " not supported",
         HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
   }
 
-  protected Predicate convertSpecific(JPAUnaryBooleanOperator jpaOperator)
+  protected Predicate convertSpecific(final JPAUnaryBooleanOperator jpaOperator)
       throws ODataApplicationException {
     throw new ODataApplicationException("Operator " + jpaOperator.getOperator() + " not supported",
         HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);

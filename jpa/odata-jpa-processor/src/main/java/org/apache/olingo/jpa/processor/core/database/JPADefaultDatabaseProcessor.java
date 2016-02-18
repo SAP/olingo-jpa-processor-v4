@@ -20,44 +20,44 @@ import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResourceFunction;
 
 class JPADefaultDatabaseProcessor implements JPAODataDatabaseProcessor {
-  private static String SELECT_BASE_PATTERN = "SELECT * FROM $FUNCTIONNAME$($PARAMETER$)";
-  private static String FUNC_NAME_PLACEHOLDER = "$FUNCTIONNAME$";
-  private static String PARAMETER_PLACEHOLDER = "$PARAMETER$";
+  private static final String SELECT_BASE_PATTERN = "SELECT * FROM $FUNCTIONNAME$($PARAMETER$)";
+  private static final String FUNC_NAME_PLACEHOLDER = "$FUNCTIONNAME$";
+  private static final String PARAMETER_PLACEHOLDER = "$PARAMETER$";
 
   @Override
-  public List<?> executeFunctionQuery(UriResourceFunction uriResourceFunction, JPAFunction jpaFunction,
-      JPAEntityType returnType, EntityManager em) throws ODataApplicationException {
+  public List<?> executeFunctionQuery(final UriResourceFunction uriResourceFunction, final JPAFunction jpaFunction,
+      final JPAEntityType returnType, final EntityManager em) throws ODataApplicationException {
 
-    String queryString = generateQueryString(jpaFunction);
-    Query nq = em.createNativeQuery(queryString, returnType.getTypeClass());
+    final String queryString = generateQueryString(jpaFunction);
+    final Query functionQuery = em.createNativeQuery(queryString, returnType.getTypeClass());
     int count = 1;
-    for (JPAFunctionParameter parameter : jpaFunction.getParameter()) {
-      UriParameter uriParameter = findParameterByExternalName(parameter, uriResourceFunction.getParameters());
-      Object value = getValue(uriResourceFunction.getFunction(), parameter, uriParameter.getText());
-      nq.setParameter(count, value);
+    for (final JPAFunctionParameter parameter : jpaFunction.getParameter()) {
+      final UriParameter uriParameter = findParameterByExternalName(parameter, uriResourceFunction.getParameters());
+      final Object value = getValue(uriResourceFunction.getFunction(), parameter, uriParameter.getText());
+      functionQuery.setParameter(count, value);
       count += 1;
     }
-    List<?> nr = nq.getResultList();
-    return nr;
+    return functionQuery.getResultList();
   }
 
-  private String generateQueryString(JPAFunction jpaFunction) {
-    StringBuffer parameterList = new StringBuffer();
+  private String generateQueryString(final JPAFunction jpaFunction) {
+    final StringBuffer parameterList = new StringBuffer();
     String queryString = SELECT_BASE_PATTERN;
 
     queryString = queryString.replace(FUNC_NAME_PLACEHOLDER, jpaFunction.getDBName());
     for (int i = 1; i <= jpaFunction.getParameter().size(); i++) {
-      parameterList.append(",");
-      parameterList.append("?");
+      parameterList.append(',');
+      parameterList.append('?');
       parameterList.append(i);
     }
     parameterList.deleteCharAt(0);
     return queryString.replace(PARAMETER_PLACEHOLDER, parameterList.toString());
   }
 
-  private UriParameter findParameterByExternalName(JPAFunctionParameter parameter, List<UriParameter> uriParameters)
-      throws ODataApplicationException {
-    for (UriParameter uriParameter : uriParameters) {
+  private UriParameter findParameterByExternalName(final JPAFunctionParameter parameter,
+      final List<UriParameter> uriParameters)
+          throws ODataApplicationException {
+    for (final UriParameter uriParameter : uriParameters) {
       if (uriParameter.getName().equals(parameter.getName()))
         return uriParameter;
     }
@@ -65,10 +65,10 @@ class JPADefaultDatabaseProcessor implements JPAODataDatabaseProcessor {
         .getStatusCode(), Locale.ENGLISH);
   }
 
-  private Object getValue(EdmFunction edmFunction, JPAFunctionParameter parameter, String uriValue)
+  private Object getValue(final EdmFunction edmFunction, final JPAFunctionParameter parameter, final String uriValue)
       throws ODataApplicationException {
-    String value = uriValue.replaceAll("'", "");
-    EdmParameter edmParam = edmFunction.getParameter(parameter.getName());
+    final String value = uriValue.replaceAll("'", "");
+    final EdmParameter edmParam = edmFunction.getParameter(parameter.getName());
     try {
       return ((EdmPrimitiveType) edmParam.getType()).valueOfString(value, false, parameter.maxLength(),
           parameter.precision(), parameter.scale(), true, parameter.getType());

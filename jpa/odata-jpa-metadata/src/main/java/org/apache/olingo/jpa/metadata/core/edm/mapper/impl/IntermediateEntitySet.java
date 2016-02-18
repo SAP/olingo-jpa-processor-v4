@@ -18,8 +18,9 @@ class IntermediateEntitySet extends IntermediateModelElement {
   private final IntermediateEntityType entityType;
   private CsdlEntitySet edmEntitySet;
 
-  IntermediateEntitySet(JPAEdmNameBuilder nameBuilder, IntermediateEntityType et) throws ODataJPAModelException {
-    super(nameBuilder, intNameBuilder.buildEntitySetName(nameBuilder, et));
+  IntermediateEntitySet(final JPAEdmNameBuilder nameBuilder, final IntermediateEntityType et)
+      throws ODataJPAModelException {
+    super(nameBuilder, IntNameBuilder.buildEntitySetName(nameBuilder, et));
     entityType = et;
     setExternalName(nameBuilder.buildEntitySetName(et.getEdmItem()));
   }
@@ -32,7 +33,7 @@ class IntermediateEntitySet extends IntermediateModelElement {
   protected void lazyBuildEdmItem() throws ODataJPAModelException {
     if (edmEntitySet == null) {
       edmEntitySet = new CsdlEntitySet();
-      CsdlEntityType edmEt = entityType.getEdmItem();
+      final CsdlEntityType edmEt = entityType.getEdmItem();
 
       edmEntitySet.setName(getExternalName());
       edmEntitySet.setType(nameBuilder.buildFQN(edmEt.getName()));
@@ -42,17 +43,18 @@ class IntermediateEntitySet extends IntermediateModelElement {
       // property of its entity type, including navigation properties defined on complex typed properties.
       // If omitted, clients MUST assume that the target entity set or singleton can vary per related entity.
 
-      List<JPAAssociationPath> naviPropertyList = entityType.getAssociationPathList();
+      final List<JPAAssociationPath> naviPropertyList = entityType.getAssociationPathList();
 
       if (naviPropertyList != null && !naviPropertyList.isEmpty()) {
         // http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406398035
-        List<CsdlNavigationPropertyBinding> navPropBindingList = new ArrayList<CsdlNavigationPropertyBinding>();
-        for (JPAAssociationPath naviPropertyPath : naviPropertyList) {
-          CsdlNavigationPropertyBinding navPropBinding = new CsdlNavigationPropertyBinding();
+        final List<CsdlNavigationPropertyBinding> navPropBindingList = new ArrayList<CsdlNavigationPropertyBinding>();
+        for (final JPAAssociationPath naviPropertyPath : naviPropertyList) {
+          final CsdlNavigationPropertyBinding navPropBinding = new CsdlNavigationPropertyBinding();
           navPropBinding.setPath(naviPropertyPath.getAlias());
 
           // TODO Check is FQN is better here
-          IntermediateNavigationProperty naviProperty = ((IntermediateNavigationProperty) naviPropertyPath.getLeaf());
+          final IntermediateNavigationProperty naviProperty = ((IntermediateNavigationProperty) naviPropertyPath
+              .getLeaf());
           navPropBinding.setTarget(nameBuilder.buildEntitySetName(naviProperty.getTargetEntity().getExternalName()));
           navPropBindingList.add(navPropBinding);
         }

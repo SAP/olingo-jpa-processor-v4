@@ -11,6 +11,7 @@ import javax.persistence.metamodel.EmbeddableType;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
 import org.junit.Before;
 import org.junit.Test;
@@ -138,7 +139,7 @@ public class TestIntermediateProperty extends TestMappingRoot {
   @Test
   public void checkPostProcessorCalled() throws ODataJPAModelException {
     PostProcessorSpy spy = new PostProcessorSpy();
-    IntermediateModelElement.SetPostProcessor(spy);
+    IntermediateModelElement.setPostProcessor(spy);
     Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType("BusinessPartner"), "creationDateTime");
     IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
         helper.schema);
@@ -150,7 +151,7 @@ public class TestIntermediateProperty extends TestMappingRoot {
   @Test
   public void checkPostProcessorNameChanged() throws ODataJPAModelException {
     PostProcessorSetName pPDouble = new PostProcessorSetName();
-    IntermediateModelElement.SetPostProcessor(pPDouble);
+    IntermediateModelElement.setPostProcessor(pPDouble);
 
     Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType("BusinessPartner"), "customString1");
     IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
@@ -162,7 +163,7 @@ public class TestIntermediateProperty extends TestMappingRoot {
   @Test
   public void checkPostProcessorExternalNameChanged() throws ODataJPAModelException {
     PostProcessorSetName pPDouble = new PostProcessorSetName();
-    IntermediateModelElement.SetPostProcessor(pPDouble);
+    IntermediateModelElement.setPostProcessor(pPDouble);
 
     Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType("BusinessPartner"), "customString1");
     IntermediatePropertyAccess property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
@@ -174,7 +175,7 @@ public class TestIntermediateProperty extends TestMappingRoot {
   @Test
   public void checkConverterGet() throws ODataJPAModelException {
     PostProcessorSetName pPDouble = new PostProcessorSetName();
-    IntermediateModelElement.SetPostProcessor(pPDouble);
+    IntermediateModelElement.setPostProcessor(pPDouble);
 
     Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType("Person"), "birthDay");
     IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
@@ -199,6 +200,10 @@ public class TestIntermediateProperty extends TestMappingRoot {
     public void processProperty(IntermediatePropertyAccess property, String jpaManagedTypeClassName) {
       called = true;
     }
+
+    @Override
+    public void processNavigationProperty(IntermediateNavigationPropertyAccess property,
+        String jpaManagedTypeClassName) {}
   }
 
   private class PostProcessorSetName extends JPAEdmMetadataPostProcessor {
@@ -212,5 +217,9 @@ public class TestIntermediateProperty extends TestMappingRoot {
         }
       }
     }
+
+    @Override
+    public void processNavigationProperty(IntermediateNavigationPropertyAccess property,
+        String jpaManagedTypeClassName) {}
   }
 }

@@ -22,18 +22,19 @@ public class JPAProcessorFactory {
   private final JPASerializerFactory serializerFactory;
   private final OData odata;
 
-  public JPAProcessorFactory(OData odata, ServiceMetadata serviceMetadata, JPAODataContextAccess context) {
+  public JPAProcessorFactory(final OData odata, final ServiceMetadata serviceMetadata,
+      final JPAODataContextAccess context) {
     super();
     this.context = context;
     this.serializerFactory = new JPASerializerFactory(odata, serviceMetadata);
     this.odata = odata;
   }
 
-  public JPARequestProcessor createProcessor(EntityManager em, UriInfo uriInfo, ContentType responseFormat)
-      throws ODataApplicationException,
-      ODataLibraryException {
-    List<UriResource> resourceParts = uriInfo.getUriResourceParts();
-    UriResource lastItem = resourceParts.get(resourceParts.size() - 1);
+  public JPARequestProcessor createProcessor(final EntityManager em, final UriInfo uriInfo,
+      final ContentType responseFormat)
+          throws ODataApplicationException, ODataLibraryException {
+    final List<UriResource> resourceParts = uriInfo.getUriResourceParts();
+    final UriResource lastItem = resourceParts.get(resourceParts.size() - 1);
 
     switch (lastItem.getKind()) {
     case count:
@@ -59,14 +60,14 @@ public class JPAProcessorFactory {
     }
   }
 
-  private void checkFunctionPathSupported(List<UriResource> resourceParts) throws ODataApplicationException {
+  private void checkFunctionPathSupported(final List<UriResource> resourceParts) throws ODataApplicationException {
     if (resourceParts.size() > 1)
       throw new ODataApplicationException("Functions within a navigation path not supported",
           HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
   }
 
-  private void checkNavigationPathSupported(List<UriResource> resourceParts) throws ODataApplicationException {
-    for (UriResource resourceItem : resourceParts) {
+  private void checkNavigationPathSupported(final List<UriResource> resourceParts) throws ODataApplicationException {
+    for (final UriResource resourceItem : resourceParts) {
       if (resourceItem.getKind() != UriResourceKind.complexProperty
           && resourceItem.getKind() != UriResourceKind.primitiveProperty
           && resourceItem.getKind() != UriResourceKind.navigationProperty

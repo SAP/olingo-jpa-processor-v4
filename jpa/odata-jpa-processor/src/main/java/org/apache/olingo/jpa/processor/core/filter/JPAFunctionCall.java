@@ -10,7 +10,8 @@ public class JPAFunctionCall implements JPAOperator {
   private final List<JPAOperator> parameters;
   private final JPAOperationConverter converter;
 
-  public JPAFunctionCall(JPAOperationConverter converter, MethodKind methodCall, List<JPAOperator> parameters) {
+  public JPAFunctionCall(final JPAOperationConverter converter, final MethodKind methodCall,
+      final List<JPAOperator> parameters) {
     super();
     this.methodCall = methodCall;
     this.parameters = parameters;
@@ -26,8 +27,8 @@ public class JPAFunctionCall implements JPAOperator {
     return methodCall;
   }
 
-  public JPAOperator getParameter(int i) {
-    return parameters.get(i);
+  public JPAOperator getParameter(final int index) {
+    return parameters.get(index);
   }
 
   public int noParameters() {

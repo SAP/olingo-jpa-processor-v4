@@ -29,8 +29,8 @@ public class JPASerializerFactory {
   public JPASerializer createSerializer(final ContentType responseFormat, final UriInfo uriInfo)
       throws ODataApplicationException, SerializerException {
     // Assumption: Type of last resource path item rules the type of the response
-    List<UriResource> resourceParts = uriInfo.getUriResourceParts();
-    UriResource lastItem = resourceParts.get(resourceParts.size() - 1);
+    final List<UriResource> resourceParts = uriInfo.getUriResourceParts();
+    final UriResource lastItem = resourceParts.get(resourceParts.size() - 1);
 
     switch (lastItem.getKind()) {
     case entitySet:

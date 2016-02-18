@@ -4,9 +4,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.persistence.Tuple;
 
@@ -27,31 +27,33 @@ public class JPATupleResultConverter extends JPATupleAbstractConverter {
   private final JPAExpandResult jpaQueryResult;
   private final EdmEntitySet edmEntitySet;
 
-  public JPATupleResultConverter(EdmEntitySet entitySet, ServicDocument sd, JPAExpandResult jpaQueryResult)
-      throws ODataJPAModelException {
+  public JPATupleResultConverter(final EdmEntitySet entitySet, final ServicDocument sd,
+      final JPAExpandResult jpaQueryResult)
+          throws ODataJPAModelException {
     super(sd.getEntity(entitySet.getName()), jpaQueryResult);
     this.jpaQueryResult = jpaQueryResult;
     this.edmEntitySet = entitySet;
   }
 
   public EntityCollection getResult() throws ODataApplicationException {
-    EntityCollection odataEntityCollection = new EntityCollection();
-    List<Entity> odataResults = odataEntityCollection.getEntities();
+    final EntityCollection odataEntityCollection = new EntityCollection();
+    final List<Entity> odataResults = odataEntityCollection.getEntities();
 
-    for (Tuple row : jpaQueryResult.getResult("root")) {
-      Entity odataEntity = convertRow(jpaConversionTargetEntity, row);
+    for (final Tuple row : jpaQueryResult.getResult("root")) {
+      final Entity odataEntity = convertRow(jpaConversionTargetEntity, row);
       odataResults.add(odataEntity);
     }
     return odataEntityCollection;
   }
 
   @Override
-  protected URI createId(List<? extends JPAAttribute> keyAttributes, Tuple row) throws ODataApplicationException,
+  protected URI createId(final List<? extends JPAAttribute> keyAttributes, final Tuple row)
+      throws ODataApplicationException,
       ODataRuntimeException {
 
     try {
-      StringBuffer uriString = new StringBuffer(edmEntitySet.getName());
-      uriString.append("(");
+      final StringBuffer uriString = new StringBuffer(edmEntitySet.getName());
+      uriString.append('(');
       if (keyAttributes.size() == 1)
         try {
           createIdSimple(keyAttributes.get(0), uriString, row.get(keyAttributes.get(0).getExternalName()));
@@ -61,7 +63,7 @@ public class JPATupleResultConverter extends JPATupleAbstractConverter {
         }
       else if (keyAttributes.size() >= 1)
         createIdCompund(keyAttributes, uriString, row);
-      uriString.append(")");
+      uriString.append(')');
       return new URI(uriString.toString());
 
     } catch (URISyntaxException e) {
@@ -75,39 +77,41 @@ public class JPATupleResultConverter extends JPATupleAbstractConverter {
 
   }
 
-  private void createIdCompund(List<? extends JPAAttribute> keyAttributes, StringBuffer uriString, Tuple row)
-      throws ODataJPAModelException, ODataApplicationException {
+  private void createIdCompund(final List<? extends JPAAttribute> keyAttributes, final StringBuffer uriString,
+      final Tuple row)
+          throws ODataJPAModelException, ODataApplicationException {
 
-    for (JPAAttribute attribute : keyAttributes) {
+    for (final JPAAttribute attribute : keyAttributes) {
       uriString.append(attribute.getExternalName());
-      uriString.append("=");
+      uriString.append('=');
       createIdSimple(attribute, uriString, row.get(attribute.getExternalName()));
-      uriString.append(",");
+      uriString.append(',');
     }
     uriString.delete(uriString.length() - 1, uriString.length());
   }
 
-  private void createIdCompundEmbedded(JPAAttribute keyAttribute, StringBuffer uriString, Object value,
-      String prefix) throws ODataApplicationException {
-    HashMap<String, Method> methodList = getGetter(keyAttribute);
+  private void createIdCompundEmbedded(final JPAAttribute keyAttribute, final StringBuffer uriString,
+      final Object value,
+      final String prefix) throws ODataApplicationException {
+    final Map<String, Method> methodList = getGetter(keyAttribute);
 
     try {
-      for (JPAPath keyPath : keyAttribute.getStructuredType().getPathList()) {
-        JPAAttribute keySubAttribute = (JPAAttribute) keyPath.getLeaf();
+      for (final JPAPath keyPath : keyAttribute.getStructuredType().getPathList()) {
+        final JPAAttribute keySubAttribute = (JPAAttribute) keyPath.getLeaf();
         uriString.append(prefix);
         uriString.append(JPAPath.PATH_SEPERATOR);
         uriString.append(keySubAttribute.getExternalName());
-        uriString.append("=");
+        uriString.append('=');
         // TODO Nested embedded keys and mixed embedded - not embedded Keys
-        String getter = ACCESS_MODIFIER_GET + JPAEdmNameBuilder.firstToUpper(keySubAttribute.getInternalName());
-        Method get = methodList.get(getter);
+        final String getter = ACCESS_MODIFIER_GET + JPAEdmNameBuilder.firstToUpper(keySubAttribute.getInternalName());
+        final Method get = methodList.get(getter);
         if (get == null)
           throw new ODataApplicationException("Getter not found for " + keySubAttribute.getExternalName(),
               HttpStatusCode.INTERNAL_SERVER_ERROR.ordinal(),
               Locale.ENGLISH);
 
         createIdSimple(keySubAttribute, uriString, get.invoke(value));
-        uriString.append(",");
+        uriString.append(',');
       }
     } catch (ODataJPAModelException e) {
       throw new ODataApplicationException("Mapping Error", 500, Locale.ENGLISH, e);
@@ -122,22 +126,22 @@ public class JPATupleResultConverter extends JPATupleAbstractConverter {
 
   }
 
-  private void createIdOneValue(JPAAttribute keyAttribute, final StringBuffer uriString, final Object value)
+  private void createIdOneValue(final JPAAttribute keyAttribute, final StringBuffer uriString, final Object value)
       throws ODataJPAModelException {
     if (keyAttribute.getEdmType() == EdmPrimitiveTypeKind.String) {
       // TODO Check which types have to be in "'"
-      uriString.append("'");
+      uriString.append('\'');
       uriString.append(value);
-      uriString.append("'");
+      uriString.append('\'');
     } else
       uriString.append(value);
   }
 
-  private void createIdSimple(JPAAttribute keyAttribute, final StringBuffer uriString, final Object value)
+  private void createIdSimple(final JPAAttribute keyAttribute, final StringBuffer uriString, final Object value)
       throws ODataJPAModelException, ODataApplicationException {
 
     if (keyAttribute.isComplex()) {
-      List<JPAPath> attributes = keyAttribute.getStructuredType().getPathList();
+      final List<JPAPath> attributes = keyAttribute.getStructuredType().getPathList();
       if (attributes.size() == 1)
         createIdSimple((JPAAttribute) attributes.get(0).getLeaf(), uriString, value);
       else

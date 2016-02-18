@@ -41,8 +41,8 @@ public class JPAODataGetHandler {
     return context;
   }
 
-  public void process(HttpServletRequest request, HttpServletResponse response) {
-    ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(context.getEdmProvider(), context
+  public void process(final HttpServletRequest request, final HttpServletResponse response) {
+    final ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(context.getEdmProvider(), context
         .getReferences()));
     handler.register(context.getDebugSupport());
     handler.register(new JPAOdataRequestProcessor(context, emf.createEntityManager()));
@@ -86,22 +86,22 @@ public class JPAODataGetHandler {
     }
 
     @Override
-    public void register(DebugSupport debugSupport) {
+    public void register(final DebugSupport debugSupport) {
       this.debugSupport = debugSupport;
     }
 
     @Override
-    public void setOperationConverter(JPAOperationConverter jpaOperationConverter) {
+    public void setOperationConverter(final JPAOperationConverter jpaOperationConverter) {
       operationConverter = jpaOperationConverter;
     }
 
     @Override
-    public void setReferences(List<EdmxReference> references) {
+    public void setReferences(final List<EdmxReference> references) {
       this.references = references;
     }
 
     @Override
-    public void setMetadataPostProcessor(JPAEdmMetadataPostProcessor postProcessor) throws ODataException {
+    public void setMetadataPostProcessor(final JPAEdmMetadataPostProcessor postProcessor) throws ODataException {
       jpaEdm = new JPAEdmProvider(namespace, emf, postProcessor);
     }
 
@@ -116,7 +116,7 @@ public class JPAODataGetHandler {
     }
 
     @Override
-    public void setDatabaseProcessor(JPAODataDatabaseProcessor databaseProcessor) {
+    public void setDatabaseProcessor(final JPAODataDatabaseProcessor databaseProcessor) {
       this.databaseProcessor = databaseProcessor;
     }
   }

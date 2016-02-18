@@ -3,6 +3,7 @@ package org.apache.olingo.jpa.metadata.core.edm.mapper.impl;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.EmbeddableType;
@@ -27,13 +28,13 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExc
  */
 class IntermediateSchema extends IntermediateModelElement {
   final private Metamodel jpaMetamodel;
-  final private HashMap<String, IntermediateComplexType> complexTypeListInternalKey;
-  final private HashMap<String, IntermediateEntityType> entityTypeListInternalKey;
-  final private HashMap<String, IntermediateFunction> functionListInternalKey;
+  final private Map<String, IntermediateComplexType> complexTypeListInternalKey;
+  final private Map<String, IntermediateEntityType> entityTypeListInternalKey;
+  final private Map<String, IntermediateFunction> functionListInternalKey;
   private IntermediateEntityContainer container;
-  private CsdlSchema edmSchema = null;
+  private CsdlSchema edmSchema;
 
-  IntermediateSchema(JPAEdmNameBuilder nameBuilder, Metamodel jpaMetamodel) throws ODataJPAModelException {
+  IntermediateSchema(final JPAEdmNameBuilder nameBuilder, final Metamodel jpaMetamodel) throws ODataJPAModelException {
     super(nameBuilder, nameBuilder.buildNamespace());
     this.jpaMetamodel = jpaMetamodel;
     this.complexTypeListInternalKey = buildComplexTypeList();
@@ -68,20 +69,20 @@ class IntermediateSchema extends IntermediateModelElement {
     return edmSchema;
   }
 
-  IntermediateStructuredType getStructuredType(Attribute<?, ?> jpaAttribute) {
-    IntermediateStructuredType type = complexTypeListInternalKey.get(intNameBuilder.buildStructuredTypeName(jpaAttribute
+  IntermediateStructuredType getStructuredType(final Attribute<?, ?> jpaAttribute) {
+    IntermediateStructuredType type = complexTypeListInternalKey.get(IntNameBuilder.buildStructuredTypeName(jpaAttribute
         .getJavaType()));
     if (type == null)
-      type = entityTypeListInternalKey.get(intNameBuilder.buildStructuredTypeName(jpaAttribute.getJavaType()));
+      type = entityTypeListInternalKey.get(IntNameBuilder.buildStructuredTypeName(jpaAttribute.getJavaType()));
     return type;
   }
 
-  IntermediateStructuredType getEntityType(Class<?> targetClass) {
-    return entityTypeListInternalKey.get(intNameBuilder.buildStructuredTypeName(targetClass));
+  IntermediateStructuredType getEntityType(final Class<?> targetClass) {
+    return entityTypeListInternalKey.get(IntNameBuilder.buildStructuredTypeName(targetClass));
   }
 
-  JPAEntityType getEntityType(String externalName) {
-    for (String internalName : entityTypeListInternalKey.keySet()) {
+  JPAEntityType getEntityType(final String externalName) {
+    for (final String internalName : entityTypeListInternalKey.keySet()) {
       if (entityTypeListInternalKey.get(internalName).getExternalName().equals(externalName))
         return entityTypeListInternalKey.get(internalName);
     }
@@ -89,50 +90,50 @@ class IntermediateSchema extends IntermediateModelElement {
   }
 
   List<IntermediateEntityType> getEntityTypes() {
-    List<IntermediateEntityType> entityTypes = new ArrayList<IntermediateEntityType>();
-    for (String internalName : entityTypeListInternalKey.keySet()) {
+    final List<IntermediateEntityType> entityTypes = new ArrayList<IntermediateEntityType>();
+    for (final String internalName : entityTypeListInternalKey.keySet()) {
       entityTypes.add(entityTypeListInternalKey.get(internalName));
     }
     return entityTypes;
   }
 
-  JPAFunction getFunction(String externalName) {
-    for (String internalName : functionListInternalKey.keySet()) {
+  JPAFunction getFunction(final String externalName) {
+    for (final String internalName : functionListInternalKey.keySet()) {
       if (functionListInternalKey.get(internalName).getExternalName().equals(externalName))
         return functionListInternalKey.get(internalName);
     }
     return null;
   }
 
-  void setContainer(IntermediateEntityContainer container) {
+  void setContainer(final IntermediateEntityContainer container) {
     this.container = container;
   }
 
-  private HashMap<String, IntermediateComplexType> buildComplexTypeList() throws ODataJPAModelException {
-    HashMap<String, IntermediateComplexType> ctList = new HashMap<String, IntermediateComplexType>();
+  private Map<String, IntermediateComplexType> buildComplexTypeList() throws ODataJPAModelException {
+    final HashMap<String, IntermediateComplexType> ctList = new HashMap<String, IntermediateComplexType>();
 
-    for (EmbeddableType<?> embeddable : this.jpaMetamodel.getEmbeddables()) {
-      IntermediateComplexType ct = new IntermediateComplexType(nameBuilder, embeddable, this);
+    for (final EmbeddableType<?> embeddable : this.jpaMetamodel.getEmbeddables()) {
+      final IntermediateComplexType ct = new IntermediateComplexType(nameBuilder, embeddable, this);
       ctList.put(ct.internalName, ct);
     }
     return ctList;
   }
 
-  private HashMap<String, IntermediateEntityType> buildEntityTypeList() throws ODataJPAModelException {
-    HashMap<String, IntermediateEntityType> etList = new HashMap<String, IntermediateEntityType>();
+  private Map<String, IntermediateEntityType> buildEntityTypeList() throws ODataJPAModelException {
+    final HashMap<String, IntermediateEntityType> etList = new HashMap<String, IntermediateEntityType>();
 
-    for (EntityType<?> entity : this.jpaMetamodel.getEntities()) {
-      IntermediateEntityType et = new IntermediateEntityType(nameBuilder, entity, this);
+    for (final EntityType<?> entity : this.jpaMetamodel.getEntities()) {
+      final IntermediateEntityType et = new IntermediateEntityType(nameBuilder, entity, this);
       etList.put(et.internalName, et);
     }
     return etList;
   }
 
-  private HashMap<String, IntermediateFunction> buildFunctionList() throws ODataJPAModelException {
-    HashMap<String, IntermediateFunction> funcList = new HashMap<String, IntermediateFunction>();
+  private Map<String, IntermediateFunction> buildFunctionList() throws ODataJPAModelException {
+    final HashMap<String, IntermediateFunction> funcList = new HashMap<String, IntermediateFunction>();
     // 1. Option: Create Function from Entity Annotations
-    IntermediateFunctionFactory factory = new IntermediateFunctionFactory();
-    for (EntityType<?> entity : this.jpaMetamodel.getEntities()) {
+    final IntermediateFunctionFactory factory = new IntermediateFunctionFactory();
+    for (final EntityType<?> entity : this.jpaMetamodel.getEntities()) {
 
       funcList.putAll(factory.create(nameBuilder, entity, this));
     }

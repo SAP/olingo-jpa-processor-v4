@@ -38,6 +38,8 @@ public class ODataJPAModelException extends ODataException {
   public static final String NOT_SUPPORTED_NO_IMPLICIT_COLUMNS = "NOT_SUPPORTED_NO_IMPLICIT_COLUMNS";
   public static final String DESCRIPTION_LOCALE_FIELD_MISSING = "DESCRIPTION_LOCALE_FIELD_MISSING";
 
+  private String id;
+
   public static ODataJPAModelException throwException(final String id, final String message, final Throwable e) {
 
     // ODataJPAMessageService messageService;
@@ -67,13 +69,11 @@ public class ODataJPAModelException extends ODataException {
     return new ODataJPAModelException(message, e);
   }
 
-  public static ODataJPAModelException throwException(final String id, String message) {
+  public static ODataJPAModelException throwException(final String id, final String message) {
     return new ODataJPAModelException(message);
   }
 
-  private String id;
-
-  public ODataJPAModelException(String id, String localizedMessage, Throwable e) {
+  public ODataJPAModelException(final String id, final String localizedMessage, final Throwable e) {
     super(localizedMessage, e);
     this.id = id;
   }
@@ -82,7 +82,7 @@ public class ODataJPAModelException extends ODataException {
     super(localizedMessage, e);
   }
 
-  private ODataJPAModelException(String message) {
+  private ODataJPAModelException(final String message) {
     super(message);
   }
 

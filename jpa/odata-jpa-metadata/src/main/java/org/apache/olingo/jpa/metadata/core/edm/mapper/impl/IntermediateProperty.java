@@ -38,16 +38,16 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateProp
 class IntermediateProperty extends IntermediateModelElement implements IntermediatePropertyAccess, JPAAttribute {
   protected final Attribute<?, ?> jpaAttribute;
   protected final IntermediateSchema schema;
-  protected CsdlProperty edmProperty = null;
+  protected CsdlProperty edmProperty;
   private IntermediateStructuredType type;
   // TODO Store a type @Convert
-  private AttributeConverter<?, ?> valueConverter = null;
-  private String dbFieldName = null;
+  private AttributeConverter<?, ?> valueConverter;
+  private String dbFieldName;
 
-  IntermediateProperty(JPAEdmNameBuilder nameBuilder, Attribute<?, ?> jpaAttribute,
-      IntermediateSchema schema) throws ODataJPAModelException {
+  IntermediateProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,
+      final IntermediateSchema schema) throws ODataJPAModelException {
 
-    super(nameBuilder, intNameBuilder.buildAttributeName(jpaAttribute));
+    super(nameBuilder, IntNameBuilder.buildAttributeName(jpaAttribute));
     this.jpaAttribute = jpaAttribute;
     this.schema = schema;
 
@@ -96,7 +96,7 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
 
       if (jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
         ((AnnotatedElement) jpaAttribute.getJavaMember()).getAnnotations();
-        Column jpaColumn = ((AnnotatedElement) jpaAttribute.getJavaMember()).getAnnotation(Column.class);
+        final Column jpaColumn = ((AnnotatedElement) jpaAttribute.getJavaMember()).getAnnotation(Column.class);
         if (jpaColumn != null) {
           edmProperty.setNullable(jpaColumn.nullable());
           // TODO Attribute SRID
@@ -134,12 +134,12 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
       // It is not possible to get the default value directly from the Field,
       // only from an instance field.get(Object obj).toString();
       try {
-        Field field = (Field) jpaAttribute.getJavaMember();
-        Constructor<?> c = jpaAttribute.getDeclaringType().getJavaType().getConstructor();
-        Object pojo = c.newInstance();
+        final Field field = (Field) jpaAttribute.getJavaMember();
+        final Constructor<?> constructor = jpaAttribute.getDeclaringType().getJavaType().getConstructor();
+        final Object pojo = constructor.newInstance();
         // TODO check replacement by calling getter!!
         field.setAccessible(true);
-        Object value = field.get(pojo);
+        final Object value = field.get(pojo);
         if (value != null)
           valueString = value.toString();
       } catch (NoSuchMethodException e) {
@@ -165,11 +165,11 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
     return edmProperty;
   }
 
-  private void buildProperty(JPAEdmNameBuilder nameBuilder) throws ODataJPAModelException {
+  private void buildProperty(final JPAEdmNameBuilder nameBuilder) throws ODataJPAModelException {
     // Set element specific attributes of super type
     this.setExternalName(nameBuilder.buildPropertyName(internalName));
     if (this.jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
-      EdmIgnore jpaIgnore = ((AnnotatedElement) this.jpaAttribute.getJavaMember()).getAnnotation(
+      final EdmIgnore jpaIgnore = ((AnnotatedElement) this.jpaAttribute.getJavaMember()).getAnnotation(
           EdmIgnore.class);
       if (jpaIgnore != null) {
         this.setIgnore(true);
@@ -178,7 +178,7 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
         type = schema.getStructuredType(jpaAttribute);
       else
         type = null;
-      Convert jpaConverter = ((AnnotatedElement) this.jpaAttribute.getJavaMember()).getAnnotation(
+      final Convert jpaConverter = ((AnnotatedElement) this.jpaAttribute.getJavaMember()).getAnnotation(
           Convert.class);
       if (jpaConverter != null) {
         try {
@@ -191,7 +191,7 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
               "Type mapper could not be insantated", e);
         }
       }
-      Column jpaColunnDetails = ((AnnotatedElement) this.jpaAttribute.getJavaMember()).getAnnotation(
+      final Column jpaColunnDetails = ((AnnotatedElement) this.jpaAttribute.getJavaMember()).getAnnotation(
           Column.class);
       if (jpaColunnDetails != null)
         dbFieldName = jpaColunnDetails.name();

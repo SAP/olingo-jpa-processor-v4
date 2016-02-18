@@ -21,7 +21,7 @@ public class JPALiteralOperator implements JPAOperator {
 
   @Override
   public Object get() {
-    EdmPrimitiveType edmType = ((EdmPrimitiveType) literal.getType());
+    final EdmPrimitiveType edmType = ((EdmPrimitiveType) literal.getType());
     try {
       return edmType.fromUriLiteral(literal.getText());
     } catch (EdmPrimitiveTypeException e) {
@@ -31,15 +31,15 @@ public class JPALiteralOperator implements JPAOperator {
     return null;
   }
 
-  public Object get(JPAAttribute attribute) {
+  public Object get(final JPAAttribute attribute) {
 
     String value = null;
     try {
-      CsdlProperty edmProperty = (CsdlProperty) attribute.getProperty();
-      EdmPrimitiveTypeKind edmTypeKind = JPATypeConvertor.convertToEdmSimpleType(attribute);
+      final CsdlProperty edmProperty = (CsdlProperty) attribute.getProperty();
+      final EdmPrimitiveTypeKind edmTypeKind = JPATypeConvertor.convertToEdmSimpleType(attribute);
       // TODO literal does not convert decimals without scale properly
       // EdmPrimitiveType edmType = ((EdmPrimitiveType) literal.getType());
-      EdmPrimitiveType edmType = odata.createPrimitiveTypeInstance(edmTypeKind);
+      final EdmPrimitiveType edmType = odata.createPrimitiveTypeInstance(edmTypeKind);
       value = edmType.fromUriLiteral(literal.getText());
       return edmType.valueOfString(value, edmProperty.isNullable(), edmProperty.getMaxLength(),
           edmProperty.getPrecision(), edmProperty.getScale(), true, attribute.getType());

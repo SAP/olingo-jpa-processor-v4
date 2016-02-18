@@ -11,23 +11,23 @@ import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
  *
  */
 final class JPANameBuilder {
-  public String buildStructuredTypeName(Class<?> clazz) {
+  public String buildStructuredTypeName(final Class<?> clazz) {
     return clazz.getCanonicalName();
   }
 
-  public String buildAttributeName(Attribute<?, ?> jpaAttribute) {
+  public String buildAttributeName(final Attribute<?, ?> jpaAttribute) {
     return jpaAttribute.getName();
   }
 
-  public String buildAssociationName(Attribute<?, ?> jpaAttribute) {
+  public String buildAssociationName(final Attribute<?, ?> jpaAttribute) {
     return jpaAttribute.getName();
   }
 
-  public String buildFunctionName(EdmFunction jpaFunction) {
+  public String buildFunctionName(final EdmFunction jpaFunction) {
     return jpaFunction.name();
   }
 
-  public String buildEntitySetName(JPAEdmNameBuilder nameBuilder, IntermediateEntityType et) {
-    return nameBuilder.buildFQN(et.getInternalName()).getFullQualifiedNameAsString();
+  public String buildEntitySetName(final JPAEdmNameBuilder nameBuilder, final IntermediateEntityType entityType) {
+    return nameBuilder.buildFQN(entityType.getInternalName()).getFullQualifiedNameAsString();
   }
 }

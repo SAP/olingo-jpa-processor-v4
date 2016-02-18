@@ -6,10 +6,10 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateProp
 class DefaultEdmPostProcessor extends org.apache.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor {
 
   @Override
-  public void processNavigationProperty(IntermediateNavigationPropertyAccess property,
-      String jpaManagedTypeClassName) {}
+  public void processNavigationProperty(final IntermediateNavigationPropertyAccess property,
+      final String jpaManagedTypeClassName) {}
 
   @Override
-  public void processProperty(IntermediatePropertyAccess property, String jpaManagedTypeClassName) {}
+  public void processProperty(final IntermediatePropertyAccess property, final String jpaManagedTypeClassName) {}
 
 }

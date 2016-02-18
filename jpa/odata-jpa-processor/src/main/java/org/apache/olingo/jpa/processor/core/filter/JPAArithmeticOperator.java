@@ -12,8 +12,9 @@ public class JPAArithmeticOperator implements JPAOperator {
   private final JPAOperator left;
   private final JPAOperator right;
 
-  public JPAArithmeticOperator(JPAOperationConverter converter, BinaryOperatorKind operator, JPAOperator left,
-      JPAOperator right) {
+  public JPAArithmeticOperator(final JPAOperationConverter converter, final BinaryOperatorKind operator,
+      final JPAOperator left,
+      final JPAOperator right) {
     super();
     this.converter = converter;
     this.operator = operator;

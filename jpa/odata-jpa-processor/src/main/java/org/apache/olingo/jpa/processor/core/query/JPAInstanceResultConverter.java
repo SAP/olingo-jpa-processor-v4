@@ -8,6 +8,7 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.apache.olingo.commons.api.data.Entity;
 import org.apache.olingo.commons.api.data.EntityCollection;
@@ -27,12 +28,12 @@ public class JPAInstanceResultConverter {
   public static final String ACCESS_MODIFIER_GET = "get";
   public static final String ACCESS_MODIFIER_SET = "set";
   public static final String ACCESS_MODIFIER_IS = "is";
-  private final static HashMap<String, HashMap<String, Method>> messageBuffer =
+  private final static Map<String, HashMap<String, Method>> MESSAGE_BUFFER =
       new HashMap<String, HashMap<String, Method>>();
 
   private final List<?> jpaQueryResult;
   private final EdmEntitySet edmEntitySet;
-  private final HashMap<String, Method> messageMap;
+  private final Map<String, Method> messageMap;
   private final List<JPAPath> pathList;
   private final UriHelper odataUriHelper;
 
@@ -47,37 +48,39 @@ public class JPAInstanceResultConverter {
     this.odataUriHelper = uriHelper;
   }
 
-  private HashMap<String, Method> getMethods(Class<?> clazz) {
-    HashMap<String, Method> methods = messageBuffer.get(clazz.getName());
+  private Map<String, Method> getMethods(final Class<?> clazz) {
+    HashMap<String, Method> methods = MESSAGE_BUFFER.get(clazz.getName());
     if (methods == null) {
       methods = new HashMap<String, Method>();
 
-      Method[] allMethods = clazz.getMethods();
-      for (Method m : allMethods) {
+      final Method[] allMethods = clazz.getMethods();
+      for (final Method m : allMethods) {
         if (m.getReturnType().getName() != "void"
             && Modifier.isPublic(m.getModifiers()))
           methods.put(m.getName(), m);
       }
-      messageBuffer.put(clazz.getName(), methods);
+      MESSAGE_BUFFER.put(clazz.getName(), methods);
     }
     return methods;
   }
 
   public EntityCollection getResult() throws ODataApplicationException, SerializerException, URISyntaxException {
-    EntityCollection odataEntityCollection = new EntityCollection();
-    List<Entity> odataResults = odataEntityCollection.getEntities();
+    final EntityCollection odataEntityCollection = new EntityCollection();
+    final List<Entity> odataResults = odataEntityCollection.getEntities();
 
-    for (Object row : jpaQueryResult) {
-      Entity odataEntity = new Entity();
+    for (final Object row : jpaQueryResult) {
+      final Entity odataEntity = new Entity();
       odataEntity.setType(edmEntitySet.getEntityType().getFullQualifiedName().getFullQualifiedNameAsString());
-      List<Property> properties = odataEntity.getProperties();
-      for (JPAPath path : pathList) {
-        String attributeName = path.getLeaf().getInternalName();
-        String getterName = ACCESS_MODIFIER_GET + JPAEdmNameBuilder.firstToUpper(attributeName);
-        Method getMethod;
+      final List<Property> properties = odataEntity.getProperties();
+      for (final JPAPath path : pathList) {
+        final String attributeName = path.getLeaf().getInternalName();
+        final String getterName = ACCESS_MODIFIER_GET + JPAEdmNameBuilder.firstToUpper(attributeName);
+
         if (messageMap.get(getterName) == null)
           throw new ODataApplicationException("Access method not found", HttpStatusCode.INTERNAL_SERVER_ERROR
               .getStatusCode(), Locale.ENGLISH);
+
+        Method getMethod;
         getMethod = messageMap.get(getterName);
         try {
           properties.add(new Property(

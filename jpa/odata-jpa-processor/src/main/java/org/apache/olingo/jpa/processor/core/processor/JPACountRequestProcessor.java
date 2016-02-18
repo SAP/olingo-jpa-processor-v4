@@ -29,18 +29,19 @@ import org.apache.olingo.server.api.uri.UriResourceEntitySet;
  */
 public class JPACountRequestProcessor extends JPAAbstractRequestProcessor {
 
-  public JPACountRequestProcessor(OData odata, ServicDocument sd, EntityManager em, UriInfo uriInfo,
-      JPASerializer serializer) {
+  public JPACountRequestProcessor(final OData odata, final ServicDocument sd, final EntityManager em,
+      final UriInfo uriInfo,
+      final JPASerializer serializer) {
     super(odata, sd, em, uriInfo, serializer);
   }
 
   @Override
-  public void retrieveData(ODataRequest request, ODataResponse response, ContentType responseFormat)
+  public void retrieveData(final ODataRequest request, final ODataResponse response, final ContentType responseFormat)
       throws ODataApplicationException, SerializerException {
-    UriResource uriResource = uriInfo.getUriResourceParts().get(0);
+    final UriResource uriResource = uriInfo.getUriResourceParts().get(0);
 
     if (uriResource instanceof UriResourceEntitySet) {
-      EntityCollection result = countEntities(request, response, uriInfo);
+      final EntityCollection result = countEntities(request, response, uriInfo);
       createSuccessResonce(response, ContentType.TEXT_PLAIN, serializer.serialize(request, result));
     } else {
       throw new ODataApplicationException("Unsupported resource type", HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(),
@@ -51,7 +52,7 @@ public class JPACountRequestProcessor extends JPAAbstractRequestProcessor {
   protected final EntityCollection countEntities(final ODataRequest request, final ODataResponse response,
       final UriInfo uriInfo) throws SerializerException, ODataApplicationException {
 
-    EntityCollection entityCollection = new EntityCollection();
+    final EntityCollection entityCollection = new EntityCollection();
     final List<UriResource> resourceParts = uriInfo.getUriResourceParts();
     final EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(resourceParts);
 

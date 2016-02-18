@@ -14,8 +14,8 @@ class JPAPathImpl implements JPAPath {
   final private String dbFieldName;
   final private boolean ignore;
 
-  JPAPathImpl(String alias, String dbFieldName, IntermediateProperty element) {
-    List<JPAElement> pathElementsBuffer = new ArrayList<JPAElement>();
+  JPAPathImpl(final String alias, final String dbFieldName, final IntermediateProperty element) {
+    final List<JPAElement> pathElementsBuffer = new ArrayList<JPAElement>();
 
     this.alias = alias;
     pathElementsBuffer.add(element);
@@ -24,7 +24,7 @@ class JPAPathImpl implements JPAPath {
     this.ignore = element.ignore();
   }
 
-  JPAPathImpl(final String selection, String dbFieldName, final List<JPAElement> attribute)
+  JPAPathImpl(final String selection, final String dbFieldName, final List<JPAElement> attribute)
       throws ODataJPAModelException {
     this.alias = selection;
     this.pathElements = Collections.unmodifiableList(attribute);
@@ -33,11 +33,11 @@ class JPAPathImpl implements JPAPath {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) return true;
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
-    JPAPathImpl other = (JPAPathImpl) obj;
+    final JPAPathImpl other = (JPAPathImpl) obj;
     if (alias == null) {
       if (other.alias != null) return false;
     } else if (!alias.equals(other.alias)) return false;
@@ -107,7 +107,7 @@ class JPAPathImpl implements JPAPath {
   }
 
   @Override
-  public int compareTo(JPAPath o) {
+  public int compareTo(final JPAPath o) {
     return this.alias.compareTo(o.getAlias());
   }
 }

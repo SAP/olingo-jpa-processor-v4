@@ -9,5 +9,5 @@ public interface JPAExtention {
    * the first/least/max row per group in SQL</a>
    * @return query result
    */
-  public JPAExpandResult executeExpandTopSkipQuery();
+  JPAExpandResult executeExpandTopSkipQuery();
 }

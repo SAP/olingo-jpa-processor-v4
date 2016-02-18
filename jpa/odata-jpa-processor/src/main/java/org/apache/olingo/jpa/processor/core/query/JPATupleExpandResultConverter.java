@@ -23,8 +23,8 @@ public class JPATupleExpandResultConverter extends JPATupleAbstractConverter {
   private final JPAAssociationPath assoziation;
   private final URI parentUri;
 
-  public JPATupleExpandResultConverter(URI uri, JPAExpandResult jpaExpandResult, Tuple parentRow,
-      JPAAssociationPath assoziation) {
+  public JPATupleExpandResultConverter(final URI uri, final JPAExpandResult jpaExpandResult, final Tuple parentRow,
+      final JPAAssociationPath assoziation) {
     super((JPAEntityType) assoziation.getTargetType(), jpaExpandResult);
     this.parentRow = parentRow;
     this.assoziation = assoziation;
@@ -32,17 +32,18 @@ public class JPATupleExpandResultConverter extends JPATupleAbstractConverter {
   }
 
   public Link getResult() throws ODataApplicationException {
-    Link link = new Link();
+    final Link link = new Link();
     link.setTitle(assoziation.getLeaf().getExternalName());
     link.setRel(Constants.NS_ASSOCIATION_LINK_REL + link.getTitle());
     link.setType(Constants.ENTITY_NAVIGATION_LINK_TYPE);
-    EntityCollection expandCollection = createEntityCollection();
+    final EntityCollection expandCollection = createEntityCollection();
     if (assoziation.getLeaf().isCollection()) {
       link.setInlineEntitySet(expandCollection);
+      // TODO $count@$expand
       expandCollection.setCount(new Integer(5));
       // TODO link.setHref(parentUri.toASCIIString());
     } else {
-      Entity expandEntity = expandCollection.getEntities().get(0);
+      final Entity expandEntity = expandCollection.getEntities().get(0);
       link.setInlineEntity(expandEntity);
       // TODO link.setHref(expandCollection.getId().toASCIIString());
     }
@@ -50,9 +51,6 @@ public class JPATupleExpandResultConverter extends JPATupleAbstractConverter {
   }
 
   private EntityCollection createEntityCollection() throws ODataApplicationException {
-
-    EntityCollection odataEntityCollection = new EntityCollection();
-    List<Entity> odataResults = odataEntityCollection.getEntities();
 
     List<Tuple> subResult = null;
     try {
@@ -62,9 +60,11 @@ public class JPATupleExpandResultConverter extends JPATupleAbstractConverter {
       throw new ODataApplicationException("Mapping Error", 500, Locale.ENGLISH, e);
     }
 
+    final EntityCollection odataEntityCollection = new EntityCollection();
     if (subResult != null) {
-      for (Tuple row : subResult) {
-        Entity odataEntity = convertRow(jpaConversionTargetEntity, row);
+      for (final Tuple row : subResult) {
+        final Entity odataEntity = convertRow(jpaConversionTargetEntity, row);
+        final List<Entity> odataResults = odataEntityCollection.getEntities();
         odataResults.add(odataEntity);
       }
     }
@@ -73,7 +73,7 @@ public class JPATupleExpandResultConverter extends JPATupleAbstractConverter {
   }
 
   private URI createId() {
-    StringBuffer id = new StringBuffer();
+    final StringBuffer id = new StringBuffer();
     id.append(parentUri.toString());
     id.append(JPAAssociationPath.PATH_SEPERATOR);
     id.append(assoziation.getAlias());
@@ -86,7 +86,8 @@ public class JPATupleExpandResultConverter extends JPATupleAbstractConverter {
   }
 
   @Override
-  protected URI createId(List<? extends JPAAttribute> keyAttributes, Tuple row) throws ODataApplicationException,
+  protected URI createId(final List<? extends JPAAttribute> keyAttributes, final Tuple row)
+      throws ODataApplicationException,
       ODataRuntimeException {
     return null;
   }

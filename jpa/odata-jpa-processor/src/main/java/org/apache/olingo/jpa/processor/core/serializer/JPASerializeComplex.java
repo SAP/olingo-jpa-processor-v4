@@ -22,8 +22,9 @@ class JPASerializeComplex implements JPASerializer {
   private final UriHelper uriHelper;
   private final ODataSerializer serializer;
 
-  JPASerializeComplex(ServiceMetadata serviceMetadata, ODataSerializer serializer, UriHelper uriHelper,
-      UriInfo uriInfo) {
+  JPASerializeComplex(final ServiceMetadata serviceMetadata, final ODataSerializer serializer,
+      final UriHelper uriHelper,
+      final UriInfo uriInfo) {
     this.uriInfo = uriInfo;
     this.serializer = serializer;
     this.serviceMetadata = serviceMetadata;
@@ -31,30 +32,31 @@ class JPASerializeComplex implements JPASerializer {
   }
 
   @Override
-  public SerializerResult serialize(ODataRequest request, EntityCollection result) throws SerializerException {
+  public SerializerResult serialize(final ODataRequest request, final EntityCollection result)
+      throws SerializerException {
 
-    EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(uriInfo.getUriResourceParts());
+    final EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(uriInfo.getUriResourceParts());
 
-    Property property = result.getEntities().get(0).getProperties().get(0);
+    final Property property = result.getEntities().get(0).getProperties().get(0);
 
-    UriResourceProperty uriProperty = Util.determineStartNavigationPath(uriInfo.getUriResourceParts());
-    EdmComplexType edmPropertyType = (EdmComplexType) uriProperty.getProperty().getType();
+    final UriResourceProperty uriProperty = Util.determineStartNavigationPath(uriInfo.getUriResourceParts());
+    final EdmComplexType edmPropertyType = (EdmComplexType) uriProperty.getProperty().getType();
 
-    String selectList = uriHelper.buildContextURLSelectList(targetEdmEntitySet.getEntityType(),
+    final String selectList = uriHelper.buildContextURLSelectList(targetEdmEntitySet.getEntityType(),
         uriInfo.getExpandOption(), uriInfo.getSelectOption());
 
-    ContextURL contextUrl = ContextURL.with()
+    final ContextURL contextUrl = ContextURL.with()
         .entitySet(targetEdmEntitySet)
         .navOrPropertyPath(Util.determineProptertyNavigationPath(uriInfo.getUriResourceParts()))
         .selectList(selectList)
         .build();
-    ComplexSerializerOptions options = ComplexSerializerOptions.with()
+    final ComplexSerializerOptions options = ComplexSerializerOptions.with()
         .contextURL(contextUrl)
         .select(uriInfo.getSelectOption())
         .expand(uriInfo.getExpandOption())
         .build();
 
-    SerializerResult serializerResult = serializer.complex(serviceMetadata, edmPropertyType, property, options);
+    final SerializerResult serializerResult = serializer.complex(serviceMetadata, edmPropertyType, property, options);
     return serializerResult;
   }
 }

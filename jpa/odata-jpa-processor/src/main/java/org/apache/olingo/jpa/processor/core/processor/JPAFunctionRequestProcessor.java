@@ -36,26 +36,26 @@ public class JPAFunctionRequestProcessor extends JPAAbstractRequestProcessor {
 
   private final JPAODataDatabaseProcessor dbProcessor;
 
-  public JPAFunctionRequestProcessor(OData odata, JPAODataContextAccess context, EntityManager em,
-      UriInfo uriInfo, JPASerializer serializer) {
+  public JPAFunctionRequestProcessor(final OData odata, final JPAODataContextAccess context, final EntityManager em,
+      final UriInfo uriInfo, final JPASerializer serializer) {
     super(odata, context.getEdmProvider().getServiceDocument(), em, uriInfo, serializer);
     this.dbProcessor = context.getDatabaseProcessor();
   }
 
   @Override
-  public void retrieveData(ODataRequest request, ODataResponse response, ContentType responseFormat)
+  public void retrieveData(final ODataRequest request, final ODataResponse response, final ContentType responseFormat)
       throws ODataApplicationException, ODataLibraryException {
 
-    UriResourceFunction uriResourceFunction = (UriResourceFunction) uriInfo.getUriResourceParts().get(0);
-    JPAFunction jpaFunction = sd.getFunction(uriResourceFunction.getFunction());
-    JPAEntityType returnType = sd.getEntity(jpaFunction.getReturnType());
+    final UriResourceFunction uriResourceFunction = (UriResourceFunction) uriInfo.getUriResourceParts().get(0);
+    final JPAFunction jpaFunction = sd.getFunction(uriResourceFunction.getFunction());
+    final JPAEntityType returnType = sd.getEntity(jpaFunction.getReturnType());
 
     // dbProcessor.query
 
-    List<?> nr = dbProcessor.executeFunctionQuery(uriResourceFunction, jpaFunction, returnType, em);
+    final List<?> nr = dbProcessor.executeFunctionQuery(uriResourceFunction, jpaFunction, returnType, em);
 
     EntityCollection entityCollection;
-    EdmEntitySet returnEntitySet = uriResourceFunction.getFunctionImport().getReturnedEntitySet();
+    final EdmEntitySet returnEntitySet = uriResourceFunction.getFunctionImport().getReturnedEntitySet();
     try {
       entityCollection = new JPAInstanceResultConverter(odata.createUriHelper(), sd, nr, returnEntitySet, returnType
           .getTypeClass()).getResult();
@@ -68,7 +68,7 @@ public class JPAFunctionRequestProcessor extends JPAAbstractRequestProcessor {
     }
 
     if (entityCollection.getEntities() != null && entityCollection.getEntities().size() > 0) {
-      SerializerResult serializerResult = serializer.serialize(request, entityCollection);
+      final SerializerResult serializerResult = serializer.serialize(request, entityCollection);
       createSuccessResonce(response, responseFormat, serializerResult);
     } else
       response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());

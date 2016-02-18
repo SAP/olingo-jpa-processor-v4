@@ -5,10 +5,8 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateProp
 
 public abstract class JPAEdmMetadataPostProcessor {
 
-  public void processNavigationProperty(IntermediateNavigationPropertyAccess property,
-      String jpaManagedTypeClassName) {
-
-  }
+  public abstract void processNavigationProperty(final IntermediateNavigationPropertyAccess property,
+      final String jpaManagedTypeClassName);
 
   /**
    * 
@@ -17,5 +15,5 @@ public abstract class JPAEdmMetadataPostProcessor {
    * @return
    */
   // TODO Documentation
-  public void processProperty(IntermediatePropertyAccess property, String jpaManagedTypeClassName) {}
+  public abstract void processProperty(final IntermediatePropertyAccess property, final String jpaManagedTypeClassName);
 }

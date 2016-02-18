@@ -19,8 +19,8 @@ class JPASerializeCollection implements JPASerializer {
   private final UriHelper uriHelper;
   private final ODataSerializer serializer;
 
-  JPASerializeCollection(ServiceMetadata serviceMetadata, ODataSerializer serializer, UriHelper uriHelper,
-      UriInfo uriInfo) {
+  JPASerializeCollection(final ServiceMetadata serviceMetadata, final ODataSerializer serializer,
+      final UriHelper uriHelper, final UriInfo uriInfo) {
     this.uriInfo = uriInfo;
     this.serializer = serializer;
     this.serviceMetadata = serviceMetadata;
@@ -31,18 +31,18 @@ class JPASerializeCollection implements JPASerializer {
   public SerializerResult serialize(final ODataRequest request, final EntityCollection result)
       throws SerializerException {
 
-    EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(uriInfo.getUriResourceParts());
+    final EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(uriInfo.getUriResourceParts());
 
-    String selectList = uriHelper.buildContextURLSelectList(targetEdmEntitySet.getEntityType(),
+    final String selectList = uriHelper.buildContextURLSelectList(targetEdmEntitySet.getEntityType(),
         uriInfo.getExpandOption(), uriInfo.getSelectOption());
 
-    ContextURL contextUrl = ContextURL.with()
+    final ContextURL contextUrl = ContextURL.with()
         .entitySet(targetEdmEntitySet)
         .selectList(selectList)
         .build();
 
     final String id = request.getRawBaseUri() + "/" + targetEdmEntitySet.getEntityType().getName();
-    EntityCollectionSerializerOptions opts = EntityCollectionSerializerOptions.with()
+    final EntityCollectionSerializerOptions opts = EntityCollectionSerializerOptions.with()
         .contextURL(contextUrl)
         .id(id)
         .count(uriInfo.getCountOption())
@@ -50,7 +50,7 @@ class JPASerializeCollection implements JPASerializer {
         .expand(uriInfo.getExpandOption())
         .build();
 
-    SerializerResult serializerResult = serializer.entityCollection(this.serviceMetadata, targetEdmEntitySet
+    final SerializerResult serializerResult = serializer.entityCollection(this.serviceMetadata, targetEdmEntitySet
         .getEntityType(), result, opts);
     return serializerResult;
 

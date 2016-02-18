@@ -9,9 +9,9 @@ import org.junit.BeforeClass;
 public class TestMappingRoot {
   protected static final String PUNIT_NAME = "org.apache.olingo.jpa";
   protected static EntityManagerFactory emf;
-  public static final String BuPa_CANONICAL_NAME = "org.apache.olingo.jpa.processor.core.testmodel.BusinessPartner";
-  public static final String Addr_CANONICAL_NAME = "org.apache.olingo.jpa.processor.core.testmodel.PostalAddressData";
-  public static final String Comm_CANONICAL_NAME = "org.apache.olingo.jpa.processor.core.testmodel.CommunicationData";
+  public static final String BUPA_CANONICAL_NAME = "org.apache.olingo.jpa.processor.core.testmodel.BusinessPartner";
+  public static final String ADDR_CANONICAL_NAME = "org.apache.olingo.jpa.processor.core.testmodel.PostalAddressData";
+  public static final String COMM_CANONICAL_NAME = "org.apache.olingo.jpa.processor.core.testmodel.CommunicationData";
 
   @BeforeClass
   public static void setupClass() {

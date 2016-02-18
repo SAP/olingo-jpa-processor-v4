@@ -20,11 +20,11 @@ import org.apache.olingo.server.api.ODataApplicationException;
  */
 public final class JPAExpandResult {
 
-  private final HashMap<JPAAssociationPath, JPAExpandResult> childrenResult;
+  private final Map<JPAAssociationPath, JPAExpandResult> childrenResult;
   private final Map<String, List<Tuple>> result;
   private final Long count;
 
-  public JPAExpandResult(Map<String, List<Tuple>> result, Long count) {
+  public JPAExpandResult(final Map<String, List<Tuple>> result, final Long count) {
     super();
     childrenResult = new HashMap<JPAAssociationPath, JPAExpandResult>();
     this.result = result;
@@ -39,8 +39,9 @@ public final class JPAExpandResult {
     return result;
   }
 
-  public void putChildren(Map<JPAAssociationPath, JPAExpandResult> childResults) throws ODataApplicationException {
-    for (JPAAssociationPath child : childResults.keySet()) {
+  public void putChildren(final Map<JPAAssociationPath, JPAExpandResult> childResults)
+      throws ODataApplicationException {
+    for (final JPAAssociationPath child : childResults.keySet()) {
       if (childrenResult.get(child) != null)
         throw new ODataApplicationException("Double execution of $expand", HttpStatusCode.INTERNAL_SERVER_ERROR
             .ordinal(),
@@ -49,11 +50,11 @@ public final class JPAExpandResult {
     childrenResult.putAll(childResults);
   }
 
-  public List<Tuple> getResult(String key) {
+  public List<Tuple> getResult(final String key) {
     return result.get(key);
   }
 
-  public HashMap<JPAAssociationPath, JPAExpandResult> getChildren() {
+  public Map<JPAAssociationPath, JPAExpandResult> getChildren() {
     return childrenResult;
   }
 

@@ -14,6 +14,7 @@ import org.apache.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
 import org.apache.olingo.jpa.processor.core.testmodel.TestDataConstants;
 import org.junit.Before;
@@ -26,7 +27,7 @@ public class TestIntermediateEntityType extends TestMappingRoot {
 
   @Before
   public void setup() throws ODataJPAModelException {
-    IntermediateModelElement.SetPostProcessor(new DefaultEdmPostProcessor());
+    IntermediateModelElement.setPostProcessor(new DefaultEdmPostProcessor());
     etList = emf.getMetamodel().getEntities();
     schema = new IntermediateSchema(new JPAEdmNameBuilder(PUNIT_NAME), emf.getMetamodel());
   }
@@ -157,7 +158,7 @@ public class TestIntermediateEntityType extends TestMappingRoot {
   @Test
   public void checkGetPropertiesSkipIgnored() throws ODataJPAModelException {
     PostProcessorSetIgnore pPDouble = new PostProcessorSetIgnore();
-    IntermediateModelElement.SetPostProcessor(pPDouble);
+    IntermediateModelElement.setPostProcessor(pPDouble);
 
     IntermediateStructuredType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
         "BusinessPartner"), schema);
@@ -255,6 +256,10 @@ public class TestIntermediateEntityType extends TestMappingRoot {
         }
       }
     }
+
+    @Override
+    public void processNavigationProperty(IntermediateNavigationPropertyAccess property,
+        String jpaManagedTypeClassName) {}
   }
 
   private EntityType<?> getEntityType(String typeName) {

@@ -34,15 +34,15 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
     JPAAssociationAttribute {
 
   private final Attribute<?, ?> jpaAttribute;
-  private CsdlNavigationProperty edmNaviProperty = null;
+  private CsdlNavigationProperty edmNaviProperty;
   private final IntermediateStructuredType sourceType;
   private IntermediateStructuredType targetType;
   private final IntermediateSchema schema;
   private final List<IntermediateJoinColumn> joinColumns = new ArrayList<IntermediateJoinColumn>();
 
-  IntermediateNavigationProperty(JPAEdmNameBuilder nameBuilder, IntermediateStructuredType parent,
-      Attribute<?, ?> jpaAttribute, IntermediateSchema schema) {
-    super(nameBuilder, intNameBuilder.buildAssociationName(jpaAttribute));
+  IntermediateNavigationProperty(final JPAEdmNameBuilder nameBuilder, final IntermediateStructuredType parent,
+      final Attribute<?, ?> jpaAttribute, final IntermediateSchema schema) {
+    super(nameBuilder, IntNameBuilder.buildAssociationName(jpaAttribute));
     this.jpaAttribute = jpaAttribute;
     this.schema = schema;
     this.sourceType = parent;
@@ -61,21 +61,21 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
       edmNaviProperty.setCollection(jpaAttribute.isCollection());
       // Optional --> ReleationAnnotation
       if (jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
-        AnnotatedElement annotatedElement = (AnnotatedElement) jpaAttribute.getJavaMember();
+        final AnnotatedElement annotatedElement = (AnnotatedElement) jpaAttribute.getJavaMember();
         switch (jpaAttribute.getPersistentAttributeType()) {
         case ONE_TO_MANY:
-          OneToMany cardinalityOtM = annotatedElement.getAnnotation(OneToMany.class);
+          final OneToMany cardinalityOtM = annotatedElement.getAnnotation(OneToMany.class);
           mappedBy = cardinalityOtM.mappedBy();
           isSourceOne = true;
           break;
         case ONE_TO_ONE:
-          OneToOne cardinalityOtO = annotatedElement.getAnnotation(OneToOne.class);
+          final OneToOne cardinalityOtO = annotatedElement.getAnnotation(OneToOne.class);
           edmNaviProperty.setNullable(cardinalityOtO.optional());
           mappedBy = cardinalityOtO.mappedBy();
           isSourceOne = true;
           break;
         case MANY_TO_ONE:
-          ManyToOne cardinalityMtO = annotatedElement.getAnnotation(ManyToOne.class);
+          final ManyToOne cardinalityMtO = annotatedElement.getAnnotation(ManyToOne.class);
           edmNaviProperty.setNullable(cardinalityMtO.optional());
           break;
         default:
@@ -83,12 +83,12 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
         }
 
         int implicitColumns = 0;
-        JoinColumns columns = annotatedElement.getAnnotation(JoinColumns.class);
+        final JoinColumns columns = annotatedElement.getAnnotation(JoinColumns.class);
         if (columns != null) {
-          for (JoinColumn column : columns.value()) {
-            IntermediateJoinColumn intermediateColumn = new IntermediateJoinColumn(column);
-            String refColumnName = intermediateColumn.getReferencedColumnName();
-            String name = intermediateColumn.getName();
+          for (final JoinColumn column : columns.value()) {
+            final IntermediateJoinColumn intermediateColumn = new IntermediateJoinColumn(column);
+            final String refColumnName = intermediateColumn.getReferencedColumnName();
+            final String name = intermediateColumn.getName();
             if (refColumnName == null || refColumnName.isEmpty() ||
                 name == null || name.isEmpty()) {
               implicitColumns += 1;
@@ -103,16 +103,16 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
         }
 
         else {
-          JoinColumn column = annotatedElement.getAnnotation(JoinColumn.class);
+          final JoinColumn column = annotatedElement.getAnnotation(JoinColumn.class);
           if (column != null) {
-            IntermediateJoinColumn intermediateColumn = new IntermediateJoinColumn(column);
+            final IntermediateJoinColumn intermediateColumn = new IntermediateJoinColumn(column);
             fillMissingName(isSourceOne, intermediateColumn);
             joinColumns.add(intermediateColumn);
 
           } else if (mappedBy != null && !mappedBy.isEmpty()) {
             joinColumns.addAll(targetType.getJoinColumns(sourceType, getInternalName()));
-            for (IntermediateJoinColumn intermediateColumn : joinColumns) {
-              String refColumnName = intermediateColumn.getReferencedColumnName();
+            for (final IntermediateJoinColumn intermediateColumn : joinColumns) {
+              final String refColumnName = intermediateColumn.getReferencedColumnName();
               if (refColumnName == null || refColumnName.isEmpty()) {
                 implicitColumns += 1;
                 if (implicitColumns > 1)
@@ -136,7 +136,7 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
           edmNaviProperty.setPartner(targetType.getCorrespondingNavigationProperty(sourceType, getInternalName())
               .getExternalName());
         } else {
-          IntermediateNavigationProperty partner = targetType.getCorrespondingNavigationProperty(sourceType,
+          final IntermediateNavigationProperty partner = targetType.getCorrespondingNavigationProperty(sourceType,
               getInternalName());
           if (partner != null) {
             if (partner.isMapped())
@@ -153,23 +153,23 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
 
   boolean isMapped() {
     if (jpaAttribute.getPersistentAttributeType() == PersistentAttributeType.ONE_TO_ONE) {
-      AnnotatedElement annotatedElement = (AnnotatedElement) jpaAttribute.getJavaMember();
-      OneToOne cardinalityOtO = annotatedElement.getAnnotation(OneToOne.class);
+      final AnnotatedElement annotatedElement = (AnnotatedElement) jpaAttribute.getJavaMember();
+      final OneToOne cardinalityOtO = annotatedElement.getAnnotation(OneToOne.class);
       return cardinalityOtO.mappedBy() != null && !cardinalityOtO.mappedBy().isEmpty() ? true : false;
     }
     if (jpaAttribute.getPersistentAttributeType() == PersistentAttributeType.ONE_TO_MANY) {
-      AnnotatedElement annotatedElement = (AnnotatedElement) jpaAttribute.getJavaMember();
-      OneToMany cardinalityOtM = annotatedElement.getAnnotation(OneToMany.class);
+      final AnnotatedElement annotatedElement = (AnnotatedElement) jpaAttribute.getJavaMember();
+      final OneToMany cardinalityOtM = annotatedElement.getAnnotation(OneToMany.class);
       return cardinalityOtM.mappedBy() != null && !cardinalityOtM.mappedBy().isEmpty() ? true : false;
     }
     return false;
   }
 
-  private void fillMissingName(boolean isSourceOne, IntermediateJoinColumn intermediateColumn)
+  private void fillMissingName(final boolean isSourceOne, final IntermediateJoinColumn intermediateColumn)
       throws ODataJPAModelException {
 
-    String refColumnName = intermediateColumn.getReferencedColumnName();
-    String name = intermediateColumn.getName();
+    final String refColumnName = intermediateColumn.getReferencedColumnName();
+    final String name = intermediateColumn.getName();
 
     if (isSourceOne && (refColumnName == null || refColumnName.isEmpty()))
       intermediateColumn.setReferencedColumnName(((IntermediateProperty) ((IntermediateEntityType) sourceType)
@@ -200,7 +200,7 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
       targetClass = jpaAttribute.getJavaType();
     }
     if (this.jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
-      EdmIgnore jpaIgnore = ((AnnotatedElement) this.jpaAttribute.getJavaMember()).getAnnotation(
+      final EdmIgnore jpaIgnore = ((AnnotatedElement) this.jpaAttribute.getJavaMember()).getAnnotation(
           EdmIgnore.class);
       if (jpaIgnore != null) {
         this.setIgnore(true);

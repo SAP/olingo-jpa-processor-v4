@@ -16,7 +16,7 @@ public class JPAMemberOperator implements JPAOperator {
   private final JPAEntityType jpaEntityType;
   private final Root<?> root;
 
-  public JPAMemberOperator(JPAEntityType jpaEntityType, Root<?> root, UriInfoResource member) {
+  public JPAMemberOperator(final JPAEntityType jpaEntityType, final Root<?> root, final UriInfoResource member) {
     super();
     this.member = member;
     this.jpaEntityType = jpaEntityType;
@@ -25,13 +25,13 @@ public class JPAMemberOperator implements JPAOperator {
 
   @Override
   public Path<?> get() {
-    JPAPath selectItemPath = determineAttributePath();
+    final JPAPath selectItemPath = determineAttributePath();
     return determineCriteriaPath(selectItemPath);
   }
 
-  private Path<?> determineCriteriaPath(JPAPath selectItemPath) {
+  private Path<?> determineCriteriaPath(final JPAPath selectItemPath) {
     Path<?> p = root;
-    for (JPAElement jpaPathElement : selectItemPath.getPath()) {
+    for (final JPAElement jpaPathElement : selectItemPath.getPath()) {
       if (jpaPathElement instanceof JPADescriptionAttribute) {
         // TODO handle description fields
 //        Join<?, ?> join = (Join<?, ?>) joinTables.get(jpaPathElement.getInternalName());
@@ -43,7 +43,7 @@ public class JPAMemberOperator implements JPAOperator {
   }
 
   public JPAPath determineAttributePath() {
-    String path = Util.determineProptertyNavigationPath(member.getUriResourceParts());
+    final String path = Util.determineProptertyNavigationPath(member.getUriResourceParts());
     JPAPath selectItemPath = null;
     try {
       selectItemPath = jpaEntityType.getPath(path);

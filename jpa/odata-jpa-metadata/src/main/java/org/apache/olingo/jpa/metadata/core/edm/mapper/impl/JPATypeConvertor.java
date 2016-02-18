@@ -25,11 +25,12 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExc
  */
 public final class JPATypeConvertor {
 
-  public static EdmPrimitiveTypeKind convertToEdmSimpleType(Class<?> type) throws ODataJPAModelException {
+  public static EdmPrimitiveTypeKind convertToEdmSimpleType(final Class<?> type) throws ODataJPAModelException {
     return convertToEdmSimpleType(type, null);
   }
 
-  public static EdmPrimitiveTypeKind convertToEdmSimpleType(JPAAttribute attribute) throws ODataJPAModelException {
+  public static EdmPrimitiveTypeKind convertToEdmSimpleType(final JPAAttribute attribute)
+      throws ODataJPAModelException {
     return convertToEdmSimpleType(attribute.getType(), null);
   }
 
@@ -107,7 +108,7 @@ public final class JPATypeConvertor {
   private static TemporalType determineTemporalType(final Attribute<?, ?> currentAttribute)
       throws ODataJPAModelException {
     if (currentAttribute != null) {
-      AnnotatedElement annotatedElement = (AnnotatedElement) currentAttribute.getJavaMember();
+      final AnnotatedElement annotatedElement = (AnnotatedElement) currentAttribute.getJavaMember();
       if (annotatedElement != null && annotatedElement.getAnnotation(Temporal.class) != null) {
         return annotatedElement.getAnnotation(Temporal.class).value();
       }
@@ -118,7 +119,7 @@ public final class JPATypeConvertor {
 
   private static boolean isBlob(final Attribute<?, ?> currentAttribute) {
     if (currentAttribute != null) {
-      AnnotatedElement annotatedElement = (AnnotatedElement) currentAttribute.getJavaMember();
+      final AnnotatedElement annotatedElement = (AnnotatedElement) currentAttribute.getJavaMember();
       if (annotatedElement != null && annotatedElement.getAnnotation(Lob.class) != null) {
         return true;
       }

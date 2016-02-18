@@ -20,8 +20,9 @@ class JPASerializeFunction implements JPASerializer {
   private final UriHelper uriHelper;
   private final ODataSerializer serializer;
 
-  JPASerializeFunction(ServiceMetadata serviceMetadata, ODataSerializer serializer, UriHelper uriHelper,
-      UriInfo uriInfo) {
+  JPASerializeFunction(final ServiceMetadata serviceMetadata, final ODataSerializer serializer,
+      final UriHelper uriHelper,
+      final UriInfo uriInfo) {
     this.uriInfo = uriInfo;
     this.serializer = serializer;
     this.serviceMetadata = serviceMetadata;
@@ -29,22 +30,23 @@ class JPASerializeFunction implements JPASerializer {
   }
 
   @Override
-  public SerializerResult serialize(ODataRequest request, EntityCollection result) throws SerializerException {
+  public SerializerResult serialize(final ODataRequest request, final EntityCollection result)
+      throws SerializerException {
 
-    UriResourceFunction uriResource = (UriResourceFunction) uriInfo.getUriResourceParts().get(0);
-    EdmEntityType edmEntityType = (EdmEntityType) uriResource.getFunction().getReturnType().getType();
+    final UriResourceFunction uriResource = (UriResourceFunction) uriInfo.getUriResourceParts().get(0);
+    final EdmEntityType edmEntityType = (EdmEntityType) uriResource.getFunction().getReturnType().getType();
 
-    ContextURL contextURL = ContextURL.with()
+    final ContextURL contextURL = ContextURL.with()
         .type(edmEntityType)
         .build();
 
     if (uriResource.isCollection()) {
-      EntityCollectionSerializerOptions options = EntityCollectionSerializerOptions.with()
+      final EntityCollectionSerializerOptions options = EntityCollectionSerializerOptions.with()
           .contextURL(contextURL)
           .build();
       return serializer.entityCollection(serviceMetadata, edmEntityType, result, options);
     } else {
-      EntitySerializerOptions options = EntitySerializerOptions.with()
+      final EntitySerializerOptions options = EntitySerializerOptions.with()
           .contextURL(contextURL)
           .build();
       return serializer.entity(serviceMetadata, edmEntityType, result.getEntities().get(0), options);

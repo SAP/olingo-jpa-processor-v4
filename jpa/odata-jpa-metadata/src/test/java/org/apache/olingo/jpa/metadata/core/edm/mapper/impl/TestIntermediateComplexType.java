@@ -23,7 +23,7 @@ public class TestIntermediateComplexType extends TestMappingRoot {
 
   @Before
   public void setup() throws ODataJPAModelException {
-    IntermediateModelElement.SetPostProcessor(new DefaultEdmPostProcessor());
+    IntermediateModelElement.setPostProcessor(new DefaultEdmPostProcessor());
     etList = emf.getMetamodel().getEmbeddables();
     schema = new IntermediateSchema(new JPAEdmNameBuilder(PUNIT_NAME), emf.getMetamodel());
 
@@ -68,7 +68,7 @@ public class TestIntermediateComplexType extends TestMappingRoot {
   @Test
   public void checkGetPropertyIsNullable() throws ODataJPAModelException {
     PostProcessorSetIgnore pPDouble = new PostProcessorSetIgnore();
-    IntermediateModelElement.SetPostProcessor(pPDouble);
+    IntermediateModelElement.setPostProcessor(pPDouble);
 
     IntermediateComplexType ct = new IntermediateComplexType(new JPAEdmNameBuilder(PUNIT_NAME), getEmbeddedableType(
         "PostalAddressData"), schema);
@@ -79,7 +79,7 @@ public class TestIntermediateComplexType extends TestMappingRoot {
   @Test
   public void checkGetAllNaviProperties() throws ODataJPAModelException {
     PostProcessorSetIgnore pPDouble = new PostProcessorSetIgnore();
-    IntermediateModelElement.SetPostProcessor(pPDouble);
+    IntermediateModelElement.setPostProcessor(pPDouble);
 
     IntermediateComplexType ct = new IntermediateComplexType(new JPAEdmNameBuilder(PUNIT_NAME), getEmbeddedableType(
         "PostalAddressData"), schema);
@@ -89,7 +89,7 @@ public class TestIntermediateComplexType extends TestMappingRoot {
   @Test
   public void checkGetNaviPropertyByNameNotNull() throws ODataJPAModelException {
     PostProcessorSetIgnore pPDouble = new PostProcessorSetIgnore();
-    IntermediateModelElement.SetPostProcessor(pPDouble);
+    IntermediateModelElement.setPostProcessor(pPDouble);
 
     IntermediateComplexType ct = new IntermediateComplexType(new JPAEdmNameBuilder(PUNIT_NAME), getEmbeddedableType(
         "PostalAddressData"), schema);
@@ -99,7 +99,7 @@ public class TestIntermediateComplexType extends TestMappingRoot {
   @Test
   public void checkGetNaviPropertyByNameRightEntity() throws ODataJPAModelException {
     PostProcessorSetIgnore pPDouble = new PostProcessorSetIgnore();
-    IntermediateModelElement.SetPostProcessor(pPDouble);
+    IntermediateModelElement.setPostProcessor(pPDouble);
 
     IntermediateComplexType ct = new IntermediateComplexType(new JPAEdmNameBuilder(PUNIT_NAME), getEmbeddedableType(
         "PostalAddressData"), schema);
@@ -109,7 +109,7 @@ public class TestIntermediateComplexType extends TestMappingRoot {
   @Test
   public void checkGetPropertiesSkipIgnored() throws ODataJPAModelException {
     PostProcessorSetIgnore pPDouble = new PostProcessorSetIgnore();
-    IntermediateModelElement.SetPostProcessor(pPDouble);
+    IntermediateModelElement.setPostProcessor(pPDouble);
 
     IntermediateComplexType ct = new IntermediateComplexType(new JPAEdmNameBuilder(PUNIT_NAME), getEmbeddedableType(
         "CommunicationData"), schema);
@@ -119,7 +119,7 @@ public class TestIntermediateComplexType extends TestMappingRoot {
   @Test
   public void checkGetDescriptionPropertyManyToOne() throws ODataJPAModelException {
     PostProcessorSetIgnore pPDouble = new PostProcessorSetIgnore();
-    IntermediateModelElement.SetPostProcessor(pPDouble);
+    IntermediateModelElement.setPostProcessor(pPDouble);
 
     IntermediateComplexType ct = new IntermediateComplexType(new JPAEdmNameBuilder(PUNIT_NAME), getEmbeddedableType(
         "PostalAddressData"), schema);
@@ -129,7 +129,7 @@ public class TestIntermediateComplexType extends TestMappingRoot {
   @Test
   public void checkGetDescriptionPropertyManyToMany() throws ODataJPAModelException {
     PostProcessorSetIgnore pPDouble = new PostProcessorSetIgnore();
-    IntermediateModelElement.SetPostProcessor(pPDouble);
+    IntermediateModelElement.setPostProcessor(pPDouble);
 
     IntermediateComplexType ct = new IntermediateComplexType(new JPAEdmNameBuilder(PUNIT_NAME), getEmbeddedableType(
         "PostalAddressData"), schema);
@@ -139,7 +139,7 @@ public class TestIntermediateComplexType extends TestMappingRoot {
   @Test
   public void checkDescriptionPropertyType() throws ODataJPAModelException {
     PostProcessorSetIgnore pPDouble = new PostProcessorSetIgnore();
-    IntermediateModelElement.SetPostProcessor(pPDouble);
+    IntermediateModelElement.setPostProcessor(pPDouble);
 
     IntermediateComplexType ct = new IntermediateComplexType(new JPAEdmNameBuilder(PUNIT_NAME), getEmbeddedableType(
         "PostalAddressData"), schema);
@@ -194,7 +194,7 @@ public class TestIntermediateComplexType extends TestMappingRoot {
     @Override
     public void processProperty(IntermediatePropertyAccess property, String jpaManagedTypeClassName) {
       if (jpaManagedTypeClassName.equals(
-          Comm_CANONICAL_NAME)) {
+          COMM_CANONICAL_NAME)) {
         if (property.getInternalName().equals("landlinePhoneNumber")) {
           property.setIgnore(true);
         }
@@ -204,7 +204,7 @@ public class TestIntermediateComplexType extends TestMappingRoot {
     @Override
     public void processNavigationProperty(IntermediateNavigationPropertyAccess property,
         String jpaManagedTypeClassName) {
-      if (jpaManagedTypeClassName.equals(Addr_CANONICAL_NAME)) {
+      if (jpaManagedTypeClassName.equals(ADDR_CANONICAL_NAME)) {
         if (property.getInternalName().equals("countryName")) {
           property.setIgnore(false);
         }

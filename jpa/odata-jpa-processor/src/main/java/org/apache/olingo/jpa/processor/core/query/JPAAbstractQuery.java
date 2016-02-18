@@ -41,30 +41,33 @@ public abstract class JPAAbstractQuery {
     }
   }
 
-  protected javax.persistence.criteria.Expression<Boolean> createWhereByKey(From<?, ?> root,
-      javax.persistence.criteria.Expression<Boolean> whereCondition, List<UriParameter> keyPredicates)
+  protected javax.persistence.criteria.Expression<Boolean> createWhereByKey(final From<?, ?> root,
+      final javax.persistence.criteria.Expression<Boolean> whereCondition, final List<UriParameter> keyPredicates)
           throws ODataApplicationException {
     // .../Organizations('3')
     // .../BusinessPartnerRoles(BusinessPartnerID='6',RoleCategory='C')
-    if (keyPredicates != null)
-      for (UriParameter keyPredicate : keyPredicates) {
-      javax.persistence.criteria.Expression<Boolean> equalCondition;
-      try {
-        equalCondition = cb.equal(root.get(jpaEntity.getPath(keyPredicate.getName()).getLeaf()
-            .getInternalName()), eliminateApostrophe(keyPredicate.getText()));
-      } catch (ODataJPAModelException e) {
-        throw new ODataApplicationException("Property not found", HttpStatusCode.BAD_REQUEST.getStatusCode(),
-            Locale.ENGLISH, e);
+    javax.persistence.criteria.Expression<Boolean> compundCondition = whereCondition;
+
+    if (keyPredicates != null) {
+      for (final UriParameter keyPredicate : keyPredicates) {
+        javax.persistence.criteria.Expression<Boolean> equalCondition;
+        try {
+          equalCondition = cb.equal(root.get(jpaEntity.getPath(keyPredicate.getName()).getLeaf()
+              .getInternalName()), eliminateApostrophe(keyPredicate.getText()));
+        } catch (ODataJPAModelException e) {
+          throw new ODataApplicationException("Property not found", HttpStatusCode.BAD_REQUEST.getStatusCode(),
+              Locale.ENGLISH, e);
+        }
+        if (compundCondition == null)
+          compundCondition = equalCondition;
+        else
+          compundCondition = cb.and(compundCondition, equalCondition);
       }
-      if (whereCondition == null)
-        whereCondition = equalCondition;
-      else
-        whereCondition = cb.and(whereCondition, equalCondition);
     }
-    return whereCondition;
+    return compundCondition;
   }
 
-  private String eliminateApostrophe(String text) {
+  private String eliminateApostrophe(final String text) {
     return text.replaceAll("'", "");
   }
 

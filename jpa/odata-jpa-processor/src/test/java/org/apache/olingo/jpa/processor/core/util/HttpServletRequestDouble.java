@@ -23,7 +23,7 @@ public class HttpServletRequestDouble implements HttpServletRequest {
   private final String queryString;
   private final StringBuffer url;
 
-  public HttpServletRequestDouble(String uri) throws IOException {
+  public HttpServletRequestDouble(final String uri) throws IOException {
     super();
     this.reqHeader = new HttpRequestHeaderDouble();
     String[] uriParts = uri.split("\\?");
@@ -35,7 +35,7 @@ public class HttpServletRequestDouble implements HttpServletRequest {
   }
 
   @Override
-  public Object getAttribute(String name) {
+  public Object getAttribute(final String name) {
     fail();
     return null;
   }
@@ -53,7 +53,7 @@ public class HttpServletRequestDouble implements HttpServletRequest {
   }
 
   @Override
-  public void setCharacterEncoding(String env) throws UnsupportedEncodingException {
+  public void setCharacterEncoding(final String env) throws UnsupportedEncodingException {
     fail();
 
   }
@@ -76,7 +76,7 @@ public class HttpServletRequestDouble implements HttpServletRequest {
   }
 
   @Override
-  public String getParameter(String name) {
+  public String getParameter(final String name) {
     fail();
     return null;
   }
@@ -88,7 +88,7 @@ public class HttpServletRequestDouble implements HttpServletRequest {
   }
 
   @Override
-  public String[] getParameterValues(String name) {
+  public String[] getParameterValues(final String name) {
     fail();
     return null;
   }
@@ -141,13 +141,13 @@ public class HttpServletRequestDouble implements HttpServletRequest {
   }
 
   @Override
-  public void setAttribute(String name, Object o) {
+  public void setAttribute(final String name, final Object o) {
     fail();
 
   }
 
   @Override
-  public void removeAttribute(String name) {
+  public void removeAttribute(final String name) {
     fail();
 
   }
@@ -171,13 +171,13 @@ public class HttpServletRequestDouble implements HttpServletRequest {
   }
 
   @Override
-  public RequestDispatcher getRequestDispatcher(String path) {
+  public RequestDispatcher getRequestDispatcher(final String path) {
     fail();
     return null;
   }
 
   @Override
-  public String getRealPath(String path) {
+  public String getRealPath(final String path) {
     fail();
     return null;
   }
@@ -219,19 +219,19 @@ public class HttpServletRequestDouble implements HttpServletRequest {
   }
 
   @Override
-  public long getDateHeader(String name) {
+  public long getDateHeader(final String name) {
     fail();
     return 0;
   }
 
   @Override
-  public String getHeader(String name) {
+  public String getHeader(final String name) {
     fail();
     return null;
   }
 
   @Override
-  public Enumeration<?> getHeaders(String name) {
+  public Enumeration<?> getHeaders(final String name) {
     /*
      * TODO org.apache.tomcat.util.http.ValuesEnumerator
      * host : localhost:8090
@@ -256,7 +256,7 @@ public class HttpServletRequestDouble implements HttpServletRequest {
   }
 
   @Override
-  public int getIntHeader(String name) {
+  public int getIntHeader(final String name) {
     fail();
     return 0;
   }
@@ -297,7 +297,7 @@ public class HttpServletRequestDouble implements HttpServletRequest {
   }
 
   @Override
-  public boolean isUserInRole(String role) {
+  public boolean isUserInRole(final String role) {
     fail();
     return false;
   }
@@ -333,7 +333,7 @@ public class HttpServletRequestDouble implements HttpServletRequest {
   }
 
   @Override
-  public HttpSession getSession(boolean create) {
+  public HttpSession getSession(final boolean create) {
     return null;
   }
 

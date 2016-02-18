@@ -33,20 +33,20 @@ public abstract class JPATupleAbstractConverter {
   public static final String ACCESS_MODIFIER_GET = "get";
   public static final String ACCESS_MODIFIER_SET = "set";
   public static final String ACCESS_MODIFIER_IS = "is";
-  private static final HashMap<String, HashMap<String, Method>> methodsBuffer =
+  private static final Map<String, HashMap<String, Method>> methodsBuffer =
       new HashMap<String, HashMap<String, Method>>();
   protected final JPAEntityType jpaConversionTargetEntity;
   protected final JPAExpandResult jpaQueryResult;
 
-  public JPATupleAbstractConverter(JPAEntityType jpaEntity, JPAExpandResult jpaQueryResult) {
+  public JPATupleAbstractConverter(final JPAEntityType jpaEntity, final JPAExpandResult jpaQueryResult) {
     super();
     this.jpaConversionTargetEntity = jpaEntity;
     this.jpaQueryResult = jpaQueryResult;
   }
 
-  protected String buildConcatenatedKey(Tuple row, List<JPAOnConditionItem> joinColumns) {
-    StringBuffer buffer = new StringBuffer();
-    for (JPAOnConditionItem item : joinColumns) {
+  protected String buildConcatenatedKey(final Tuple row, final List<JPAOnConditionItem> joinColumns) {
+    final StringBuffer buffer = new StringBuffer();
+    for (final JPAOnConditionItem item : joinColumns) {
       buffer.append(JPAPath.PATH_SEPERATOR);
       buffer.append(row.get(item.getLeftPath().getAlias()));
     }
@@ -54,12 +54,12 @@ public abstract class JPATupleAbstractConverter {
     return buffer.toString();
   }
 
-  protected Entity convertRow(JPAEntityType rowEntity, Tuple row) throws ODataApplicationException {
-    Map<String, ComplexValue> complexValueBuffer = new HashMap<String, ComplexValue>();
-    Entity odataEntity = new Entity();
+  protected Entity convertRow(final JPAEntityType rowEntity, final Tuple row) throws ODataApplicationException {
+    final Map<String, ComplexValue> complexValueBuffer = new HashMap<String, ComplexValue>();
+    final Entity odataEntity = new Entity();
     odataEntity.setType(rowEntity.getExternalFQN().getFullQualifiedNameAsString());
-    List<Property> properties = odataEntity.getProperties();
-    for (TupleElement<?> element : row.getElements()) {
+    final List<Property> properties = odataEntity.getProperties();
+    for (final TupleElement<?> element : row.getElements()) {
       try {
         convertAttribute(row.get(element.getAlias()), element.getAlias(), "", rowEntity, complexValueBuffer,
             properties);
@@ -73,29 +73,30 @@ public abstract class JPATupleAbstractConverter {
       throw new ODataApplicationException("Property not found", HttpStatusCode.BAD_REQUEST.getStatusCode(),
           Locale.ENGLISH, e);
     }
-    for (String attribute : complexValueBuffer.keySet()) {
-      ComplexValue cv = complexValueBuffer.get(attribute);
-      cv.getNavigationLinks().addAll(createExpand(row, odataEntity.getId(), attribute));
+    for (final String attribute : complexValueBuffer.keySet()) {
+      final ComplexValue complexValue = complexValueBuffer.get(attribute);
+      complexValue.getNavigationLinks().addAll(createExpand(row, odataEntity.getId(), attribute));
     }
     odataEntity.getNavigationLinks().addAll(createExpand(row, odataEntity.getId(), ""));
     return odataEntity;
   }
 
-  protected Collection<? extends Link> createExpand(Tuple row, URI uri, String attributeName)
+  protected Collection<? extends Link> createExpand(final Tuple row, final URI uri, final String attributeName)
       throws ODataApplicationException {
-    List<Link> entityExpandLinks = new ArrayList<Link>();
+    final List<Link> entityExpandLinks = new ArrayList<Link>();
     // jpaConversionTargetEntity.
-    Map<JPAAssociationPath, JPAExpandResult> children = jpaQueryResult.getChildren();
+    final Map<JPAAssociationPath, JPAExpandResult> children = jpaQueryResult.getChildren();
     if (children != null) {
-      for (JPAAssociationPath associationPath : children.keySet()) {
+      for (final JPAAssociationPath associationPath : children.keySet()) {
         try {
-          JPAStructuredType s;
+          JPAStructuredType type;
           if (attributeName != null && !attributeName.isEmpty()) {
-            s = ((JPAAttribute) jpaConversionTargetEntity.getPath(attributeName).getPath().get(0)).getStructuredType();
+            type = ((JPAAttribute) jpaConversionTargetEntity.getPath(attributeName).getPath().get(0))
+                .getStructuredType();
           } else
-            s = jpaConversionTargetEntity;
-          if (s.getDeclaredAssociation(associationPath.getLeaf().getExternalName()) != null) {
-            Link expand = new JPATupleExpandResultConverter(uri, children.get(associationPath), row,
+            type = jpaConversionTargetEntity;
+          if (type.getDeclaredAssociation(associationPath.getLeaf().getExternalName()) != null) {
+            final Link expand = new JPATupleExpandResultConverter(uri, children.get(associationPath), row,
                 associationPath).getResult();
             entityExpandLinks.add(expand);
           }
@@ -111,12 +112,12 @@ public abstract class JPATupleAbstractConverter {
   protected abstract URI createId(List<? extends JPAAttribute> keyAttributes, Tuple row)
       throws ODataApplicationException, ODataRuntimeException;
 
-  protected HashMap<String, Method> getGetter(JPAAttribute structuredAttribute) {
+  protected Map<String, Method> getGetter(final JPAAttribute structuredAttribute) {
     HashMap<String, Method> pojoMethods = methodsBuffer.get(structuredAttribute.getInternalName());
     if (pojoMethods == null) {
       pojoMethods = new HashMap<String, Method>();
-      Method[] allMethods = structuredAttribute.getStructuredType().getTypeClass().getMethods();
-      for (Method m : allMethods) {
+      final Method[] allMethods = structuredAttribute.getStructuredType().getTypeClass().getMethods();
+      for (final Method m : allMethods) {
         pojoMethods.put(m.getName(), m);
       }
       methodsBuffer.put(structuredAttribute.getInternalName(), pojoMethods);
@@ -124,13 +125,13 @@ public abstract class JPATupleAbstractConverter {
     return pojoMethods;
   }
 
-  void convertAttribute(Object value, String externalName, String prefix, JPAStructuredType jpaStructuredType,
-      Map<String, ComplexValue> complexValueBuffer, List<Property> properties)
-          throws ODataJPAModelException {
+  void convertAttribute(final Object value, final String externalName, final String prefix,
+      final JPAStructuredType jpaStructuredType, final Map<String, ComplexValue> complexValueBuffer,
+      final List<Property> properties) throws ODataJPAModelException {
 
     ComplexValue compexValue = null;
     if (jpaStructuredType.getPath(externalName) != null) {
-      JPAAttribute attribute = (JPAAttribute) jpaStructuredType.getPath(externalName).getPath().get(0);// getLeaf();
+      final JPAAttribute attribute = (JPAAttribute) jpaStructuredType.getPath(externalName).getPath().get(0);// getLeaf();
       if (attribute != null && attribute.isComplex()) {
         String bufferKey;
         if (prefix.isEmpty())
@@ -147,9 +148,9 @@ public abstract class JPATupleAbstractConverter {
               ValueType.COMPLEX,
               compexValue));
         }
-        List<Property> values = compexValue.getValue();
-        int splitIndex = attribute.getExternalName().length() + JPAPath.PATH_SEPERATOR.length();
-        String attributeName = externalName.substring(splitIndex);
+        final List<Property> values = compexValue.getValue();
+        final int splitIndex = attribute.getExternalName().length() + JPAPath.PATH_SEPERATOR.length();
+        final String attributeName = externalName.substring(splitIndex);
         convertAttribute(value, attributeName, bufferKey, attribute.getStructuredType(), complexValueBuffer, values);
       } else {
         // ...$select=Name1,Address/Region

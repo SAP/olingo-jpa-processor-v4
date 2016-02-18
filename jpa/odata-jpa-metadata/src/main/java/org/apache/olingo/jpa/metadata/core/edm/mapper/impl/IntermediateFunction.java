@@ -28,7 +28,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExc
  */
 
 class IntermediateFunction extends IntermediateModelElement implements JPAFunction {
-  private CsdlFunction edmFunction = null;
+  private CsdlFunction edmFunction;
   private final EdmFunction jpaUserDefinedFunction;
   private final IntermediateSchema schema;
   private final Class<?> jpaDefiningPOJO;
@@ -36,7 +36,7 @@ class IntermediateFunction extends IntermediateModelElement implements JPAFuncti
   IntermediateFunction(final JPAEdmNameBuilder nameBuilder, final EdmFunction jpaFunction,
       final Class<?> definingPOJO, final IntermediateSchema schema)
           throws ODataJPAModelException {
-    super(nameBuilder, intNameBuilder.buildFunctionName(jpaFunction));
+    super(nameBuilder, IntNameBuilder.buildFunctionName(jpaFunction));
     this.setExternalName(jpaFunction.name());
     this.jpaUserDefinedFunction = jpaFunction;
     this.jpaDefiningPOJO = definingPOJO;
@@ -50,8 +50,8 @@ class IntermediateFunction extends IntermediateModelElement implements JPAFuncti
 
   @Override
   public List<JPAFunctionParameter> getParameter() {
-    List<JPAFunctionParameter> parameterList = new ArrayList<JPAFunctionParameter>();
-    for (EdmFunctionParameter jpaParameter : jpaUserDefinedFunction.parameter()) {
+    final List<JPAFunctionParameter> parameterList = new ArrayList<JPAFunctionParameter>();
+    for (final EdmFunctionParameter jpaParameter : jpaUserDefinedFunction.parameter()) {
       parameterList.add(new IntermediatFunctionParameter(jpaParameter));
     }
     return parameterList;
@@ -88,10 +88,10 @@ class IntermediateFunction extends IntermediateModelElement implements JPAFuncti
   }
 
   private List<CsdlParameter> determineEdmInputParameter() throws ODataJPAModelException {
-    List<CsdlParameter> edmInputParameterList = new ArrayList<CsdlParameter>();
-    for (EdmFunctionParameter jpaParameter : jpaUserDefinedFunction.parameter()) {
+    final List<CsdlParameter> edmInputParameterList = new ArrayList<CsdlParameter>();
+    for (final EdmFunctionParameter jpaParameter : jpaUserDefinedFunction.parameter()) {
 
-      CsdlParameter edmInputParameter = new CsdlParameter();
+      final CsdlParameter edmInputParameter = new CsdlParameter();
       edmInputParameter.setName(jpaParameter.name());
       edmInputParameter.setType(JPATypeConvertor.convertToEdmSimpleType(jpaParameter.type()).getFullQualifiedName());
       // edmInputParameter.setType(jpaParameter.type());
@@ -111,13 +111,13 @@ class IntermediateFunction extends IntermediateModelElement implements JPAFuncti
   }
 
   // TODO handle multiple schemas
-  private CsdlReturnType determineEdmResultType(ReturnType returnType) throws ODataJPAModelException {
-    CsdlReturnType edmResultType = new CsdlReturnType();
+  private CsdlReturnType determineEdmResultType(final ReturnType returnType) throws ODataJPAModelException {
+    final CsdlReturnType edmResultType = new CsdlReturnType();
     FullQualifiedName fqn;
     if (returnType.type() == Object.class)
       fqn = nameBuilder.buildFQN(schema.getEntityType(jpaDefiningPOJO).getEdmItem().getName());
     else {
-      IntermediateStructuredType et = schema.getEntityType(returnType.type());
+      final IntermediateStructuredType et = schema.getEntityType(returnType.type());
       if (et != null)
         fqn = nameBuilder.buildFQN(et.getEdmItem().getName());
       else
@@ -139,7 +139,7 @@ class IntermediateFunction extends IntermediateModelElement implements JPAFuncti
   private class IntermediatFunctionParameter implements JPAFunctionParameter {
     private final EdmFunctionParameter jpaParameter;
 
-    IntermediatFunctionParameter(EdmFunctionParameter jpaParameter) {
+    IntermediatFunctionParameter(final EdmFunctionParameter jpaParameter) {
       this.jpaParameter = jpaParameter;
     }
 

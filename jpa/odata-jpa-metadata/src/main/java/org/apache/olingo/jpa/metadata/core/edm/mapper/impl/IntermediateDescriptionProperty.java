@@ -17,8 +17,8 @@ class IntermediateDescriptionProperty extends IntermediateProperty implements JP
   private String languageAttribute;
   private String localeAttribute;
 
-  IntermediateDescriptionProperty(JPAEdmNameBuilder nameBuilder, Attribute<?, ?> jpaAttribute,
-      IntermediateSchema schema) throws ODataJPAModelException {
+  IntermediateDescriptionProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,
+      final IntermediateSchema schema) throws ODataJPAModelException {
     super(nameBuilder, jpaAttribute, schema);
   }
 
@@ -27,12 +27,12 @@ class IntermediateDescriptionProperty extends IntermediateProperty implements JP
     if (this.edmProperty == null) {
       super.lazyBuildEdmItem();
       if (this.jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
-        EdmDescriptionAssozation assozation = ((AnnotatedElement) jpaAttribute.getJavaMember()).getAnnotation(
+        final EdmDescriptionAssozation assozation = ((AnnotatedElement) jpaAttribute.getJavaMember()).getAnnotation(
             EdmDescriptionAssozation.class);
         if (assozation != null) {
           // determine generic type of a collection in case of an OneToMany association
-          Field jpaField = (Field) jpaAttribute.getJavaMember();
-          ParameterizedType jpaTargetEntityType = (ParameterizedType) jpaField.getGenericType();
+          final Field jpaField = (Field) jpaAttribute.getJavaMember();
+          final ParameterizedType jpaTargetEntityType = (ParameterizedType) jpaField.getGenericType();
           JPAStructuredType targetEntity;
           if (jpaTargetEntityType != null)
             targetEntity = schema.getEntityType((Class<?>) jpaTargetEntityType.getActualTypeArguments()[0]);

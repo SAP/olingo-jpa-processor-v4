@@ -10,6 +10,7 @@ import javax.persistence.metamodel.EmbeddableType;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,7 +22,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
   @Before
   public void setup() throws ODataJPAModelException {
     helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
-    IntermediateModelElement.SetPostProcessor(new DefaultEdmPostProcessor());
+    IntermediateModelElement.setPostProcessor(new DefaultEdmPostProcessor());
   }
 
   @Test
@@ -90,7 +91,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
   @Test
   public void checkPostProcessorCalled() throws ODataJPAModelException {
     PostProcessorSpy spy = new PostProcessorSpy();
-    IntermediateModelElement.SetPostProcessor(spy);
+    IntermediateModelElement.setPostProcessor(spy);
     Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEmbeddedableType("PostalAddressData"),
         "countryName");
     cut = new IntermediateDescriptionProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
@@ -103,7 +104,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
   @Test
   public void checkPostProcessorNameChanged() throws ODataJPAModelException {
     PostProcessorSetName pPDouble = new PostProcessorSetName();
-    IntermediateModelElement.SetPostProcessor(pPDouble);
+    IntermediateModelElement.setPostProcessor(pPDouble);
 
     Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEmbeddedableType("PostalAddressData"),
         "countryName");
@@ -116,7 +117,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
   @Test
   public void checkPostProcessorExternalNameChanged() throws ODataJPAModelException {
     PostProcessorSetName pPDouble = new PostProcessorSetName();
-    IntermediateModelElement.SetPostProcessor(pPDouble);
+    IntermediateModelElement.setPostProcessor(pPDouble);
 
     Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEmbeddedableType("PostalAddressData"),
         "countryName");
@@ -133,17 +134,25 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
     public void processProperty(IntermediatePropertyAccess property, String jpaManagedTypeClassName) {
       called = true;
     }
+
+    @Override
+    public void processNavigationProperty(IntermediateNavigationPropertyAccess property,
+        String jpaManagedTypeClassName) {}
   }
 
   private class PostProcessorSetName extends JPAEdmMetadataPostProcessor {
 
     @Override
     public void processProperty(IntermediatePropertyAccess property, String jpaManagedTypeClassName) {
-      if (jpaManagedTypeClassName.equals(Addr_CANONICAL_NAME)) {
+      if (jpaManagedTypeClassName.equals(ADDR_CANONICAL_NAME)) {
         if (property.getInternalName().equals("countryName")) {
           property.setExternalName("CountryDescription");
         }
       }
     }
+
+    @Override
+    public void processNavigationProperty(IntermediateNavigationPropertyAccess property,
+        String jpaManagedTypeClassName) {}
   }
 }

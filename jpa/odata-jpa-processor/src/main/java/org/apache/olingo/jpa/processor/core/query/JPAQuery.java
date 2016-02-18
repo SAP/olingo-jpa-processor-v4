@@ -36,8 +36,8 @@ import org.apache.olingo.server.api.uri.queryoption.expression.Member;
 public class JPAQuery extends JPAExecutableQuery {
   // private final EdmEntitySet edmEntitySet;
 
-  public JPAQuery(OData odata, EdmEntitySet entitySet, final ServicDocument sd, final UriInfo uriInfo,
-      final EntityManager em, Map<String, List<String>> requestHeaders) throws ODataApplicationException {
+  public JPAQuery(final OData odata, final EdmEntitySet entitySet, final ServicDocument sd, final UriInfo uriInfo,
+      final EntityManager em, final Map<String, List<String>> requestHeaders) throws ODataApplicationException {
     super(odata, sd, entitySet.getEntityType(), em, requestHeaders, uriInfo);
 
     // this.edmEntitySet = entitySet;
@@ -66,12 +66,12 @@ public class JPAQuery extends JPAExecutableQuery {
 
     final HashMap<String, From<?, ?>> joinTables = new HashMap<String, From<?, ?>>();
 
-    CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+    final CriteriaQuery<Long> cq = cb.createQuery(Long.class);
     // root = cq.from(jpaEntity.getTypeClass());
 
     joinTables.put(jpaEntity.getTypeClass().getCanonicalName(), root);
 
-    javax.persistence.criteria.Expression<Boolean> whereClause = createWhere(joinTables);
+    final javax.persistence.criteria.Expression<Boolean> whereClause = createWhere(joinTables);
     if (whereClause != null)
       cq.where(whereClause);
     cq.select(cb.count(root));
@@ -84,22 +84,22 @@ public class JPAQuery extends JPAExecutableQuery {
     final List<JPAAssociationAttribute> orderByNaviAttributes = extractOrderByNaviAttributes();
     final List<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
     final List<JPAPath> descriptionAttributes = extractDescriptionAttributes(selectionPath);
-    final HashMap<String, From<?, ?>> joinTables = createFromClause(orderByNaviAttributes, descriptionAttributes);
+    final Map<String, From<?, ?>> joinTables = createFromClause(orderByNaviAttributes, descriptionAttributes);
 
     cq.multiselect(createSelectClause(joinTables, selectionPath));
 
-    javax.persistence.criteria.Expression<Boolean> whereClause = createWhere(joinTables);
+    final javax.persistence.criteria.Expression<Boolean> whereClause = createWhere(joinTables);
     if (whereClause != null)
       cq.where(whereClause);
 
     cq.orderBy(createOrderList(joinTables, uriResource.getOrderByOption()));
 
-    if (orderByNaviAttributes.size() > 0)
+    if (!orderByNaviAttributes.isEmpty())
       cq.groupBy(createGroupBy(joinTables, selectionPath));
 
-    TypedQuery<Tuple> tq = em.createQuery(cq);
+    final TypedQuery<Tuple> tq = em.createQuery(cq);
     addTopSkip(tq);
-    HashMap<String, List<Tuple>> result = new HashMap<String, List<Tuple>>(1);
+    final HashMap<String, List<Tuple>> result = new HashMap<String, List<Tuple>>(1);
     result.put("root", tq.getResultList());
     return new JPAExpandResult(result, Long.parseLong("0"));// count()););
   }
@@ -112,12 +112,12 @@ public class JPAQuery extends JPAExecutableQuery {
     return uriResource.getSelectOption();
   }
 
-  private List<javax.persistence.criteria.Expression<?>> createGroupBy(HashMap<String, From<?, ?>> joinTables,
-      List<JPAPath> selectionPathList)
-          throws ODataApplicationException {
-    List<javax.persistence.criteria.Expression<?>> groupBy = new ArrayList<javax.persistence.criteria.Expression<?>>();
+  private List<javax.persistence.criteria.Expression<?>> createGroupBy(final Map<String, From<?, ?>> joinTables,
+      final List<JPAPath> selectionPathList) throws ODataApplicationException {
+    final List<javax.persistence.criteria.Expression<?>> groupBy =
+        new ArrayList<javax.persistence.criteria.Expression<?>>();
 
-    for (JPAPath jpaPath : selectionPathList) {
+    for (final JPAPath jpaPath : selectionPathList) {
       groupBy.add(convertToCriteriaPath(joinTables, jpaPath));
     }
 
@@ -125,17 +125,17 @@ public class JPAQuery extends JPAExecutableQuery {
   }
 
   private List<JPAAssociationAttribute> extractOrderByNaviAttributes() throws ODataApplicationException {
-    List<JPAAssociationAttribute> naviAttributes = new ArrayList<JPAAssociationAttribute>();
+    final List<JPAAssociationAttribute> naviAttributes = new ArrayList<JPAAssociationAttribute>();
 
-    OrderByOption orderBy = uriResource.getOrderByOption();
+    final OrderByOption orderBy = uriResource.getOrderByOption();
     if (orderBy != null) {
-      for (OrderByItem orderByItem : orderBy.getOrders()) {
-        Expression expression = orderByItem.getExpression();
+      for (final OrderByItem orderByItem : orderBy.getOrders()) {
+        final Expression expression = orderByItem.getExpression();
         if (expression instanceof Member) {
-          UriInfoResource resourcePath = ((Member) expression).getResourcePath();
-          for (UriResource uriResource : resourcePath.getUriResourceParts()) {
+          final UriInfoResource resourcePath = ((Member) expression).getResourcePath();
+          for (final UriResource uriResource : resourcePath.getUriResourceParts()) {
             if (uriResource instanceof UriResourceNavigation) {
-              EdmNavigationProperty edmNaviProperty = ((UriResourceNavigation) uriResource).getProperty();
+              final EdmNavigationProperty edmNaviProperty = ((UriResourceNavigation) uriResource).getProperty();
               try {
                 naviAttributes.add((JPAAssociationAttribute) jpaEntity.getAssociationPath(edmNaviProperty.getName())
                     .getLeaf());

@@ -36,13 +36,13 @@ import org.apache.olingo.server.api.uri.queryoption.CountOption;
 
 public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor implements JPARequestProcessor {
 
-  public JPANavigationRequestProcessor(OData odata, ServicDocument sd, EntityManager em, UriInfo uriInfo,
-      JPASerializer serializer) {
+  public JPANavigationRequestProcessor(final OData odata, final ServicDocument sd, final EntityManager em,
+      final UriInfo uriInfo, final JPASerializer serializer) {
     super(odata, sd, em, uriInfo, serializer);
   }
 
   @Override
-  public void retrieveData(ODataRequest request, ODataResponse response, ContentType responseFormat)
+  public void retrieveData(final ODataRequest request, final ODataResponse response, final ContentType responseFormat)
       throws ODataApplicationException, ODataLibraryException {
 
     final List<UriResource> resourceParts = uriInfo.getUriResourceParts();
@@ -64,13 +64,13 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
     }
 
     // Count results if requested
-    CountOption countOption = uriInfo.getCountOption();
+    final CountOption countOption = uriInfo.getCountOption();
     if (countOption != null && countOption.getValue())
       // TODO SetCount expects an Integer why not a Long?
       entityCollection.setCount(Integer.valueOf(query.countResults().intValue()));
 
     if (entityCollection.getEntities() != null && entityCollection.getEntities().size() > 0) {
-      SerializerResult serializerResult = serializer.serialize(request, entityCollection);
+      final SerializerResult serializerResult = serializer.serialize(request, entityCollection);
       createSuccessResonce(response, responseFormat, serializerResult);
     } else
       // TODO more fine gain response handling e.g. 204 vs. 404
@@ -98,19 +98,19 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
    * @return
    * @throws ODataApplicationException
    */
-  private Map<JPAAssociationPath, JPAExpandResult> readExpandEntities(Map<String, List<String>> headers,
-      List<JPANavigationProptertyInfo> parentHops, UriInfoResource uriResourceInfo)
+  private Map<JPAAssociationPath, JPAExpandResult> readExpandEntities(final Map<String, List<String>> headers,
+      final List<JPANavigationProptertyInfo> parentHops, final UriInfoResource uriResourceInfo)
           throws ODataApplicationException {
-    Map<JPAAssociationPath, JPAExpandResult> allExpResults =
+    final Map<JPAAssociationPath, JPAExpandResult> allExpResults =
         new HashMap<JPAAssociationPath, JPAExpandResult>();
     // x/a?$expand=b/c($expand=d,e/f)
 
-    List<JPAExpandItemInfo> itemInfoList = new JPAExpandItemInfoFactory()
+    final List<JPAExpandItemInfo> itemInfoList = new JPAExpandItemInfoFactory()
         .buildExpandItemInfo(sd, uriResourceInfo.getUriResourceParts(), uriResourceInfo.getExpandOption(), parentHops);
 
-    for (JPAExpandItemInfo item : itemInfoList) {
-      JPAExpandQuery expandQuery = new JPAExpandQuery(odata, sd, em, item, headers);
-      JPAExpandResult expandResult = expandQuery.execute();
+    for (final JPAExpandItemInfo item : itemInfoList) {
+      final JPAExpandQuery expandQuery = new JPAExpandQuery(odata, sd, em, item, headers);
+      final JPAExpandResult expandResult = expandQuery.execute();
       expandResult.putChildren(
           readExpandEntities(headers, item.getHops(), item.getUriInfo()));
 

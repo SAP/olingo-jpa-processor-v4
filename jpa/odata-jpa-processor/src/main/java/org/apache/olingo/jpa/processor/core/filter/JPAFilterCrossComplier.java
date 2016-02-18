@@ -64,12 +64,11 @@ public class JPAFilterCrossComplier {
   @SuppressWarnings("unchecked")
   public Expression<Boolean> compile() throws ExpressionVisitException, ODataApplicationException {
 
-    ExpressionVisitor<JPAOperator> v = new visitor();
-
     if (filterTree == null)
       return null;
 
-    org.apache.olingo.server.api.uri.queryoption.expression.Expression e = filterTree.getExpression();
+    final ExpressionVisitor<JPAOperator> v = new visitor();
+    final org.apache.olingo.server.api.uri.queryoption.expression.Expression e = filterTree.getExpression();
     filterTree.getKind();
     return (Expression<Boolean>) e.accept(v).get();
   }
@@ -78,8 +77,9 @@ public class JPAFilterCrossComplier {
 
     @SuppressWarnings("rawtypes")
     @Override
-    public JPAOperator visitBinaryOperator(BinaryOperatorKind operator, JPAOperator left, JPAOperator right)
-        throws ExpressionVisitException, ODataApplicationException {
+    public JPAOperator visitBinaryOperator(final BinaryOperatorKind operator, final JPAOperator left,
+        final JPAOperator right)
+            throws ExpressionVisitException, ODataApplicationException {
       // TODO Logging
       if (operator == BinaryOperatorKind.EQ
           || operator == BinaryOperatorKind.NE
@@ -102,7 +102,7 @@ public class JPAFilterCrossComplier {
     }
 
     @Override
-    public JPAOperator visitUnaryOperator(UnaryOperatorKind operator, JPAOperator operand)
+    public JPAOperator visitUnaryOperator(final UnaryOperatorKind operator, final JPAOperator operand)
         throws ExpressionVisitException, ODataApplicationException {
       // TODO Logging
       if (operator == UnaryOperatorKind.NOT)
@@ -113,53 +113,55 @@ public class JPAFilterCrossComplier {
     }
 
     @Override
-    public JPAOperator visitMethodCall(MethodKind methodCall, List<JPAOperator> parameters)
+    public JPAOperator visitMethodCall(final MethodKind methodCall, final List<JPAOperator> parameters)
         throws ExpressionVisitException, ODataApplicationException {
       // TODO Logging
       return new JPAFunctionCall(converter, methodCall, parameters);
     }
 
     @Override
-    public JPAOperator visitLambdaExpression(String lambdaFunction, String lambdaVariable,
-        org.apache.olingo.server.api.uri.queryoption.expression.Expression expression) throws ExpressionVisitException,
+    public JPAOperator visitLambdaExpression(final String lambdaFunction, final String lambdaVariable,
+        final org.apache.olingo.server.api.uri.queryoption.expression.Expression expression)
+            throws ExpressionVisitException,
             ODataApplicationException {
       throw new ODataApplicationException("Lambda Expression not supported",
           HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
     }
 
     @Override
-    public JPAOperator visitLiteral(Literal literal) throws ExpressionVisitException, ODataApplicationException {
+    public JPAOperator visitLiteral(final Literal literal) throws ExpressionVisitException, ODataApplicationException {
       // TODO Logging
       return new JPALiteralOperator(odata, literal);
     }
 
     @Override
-    public JPAOperator visitMember(UriInfoResource member) throws ExpressionVisitException, ODataApplicationException {
+    public JPAOperator visitMember(final UriInfoResource member) throws ExpressionVisitException,
+        ODataApplicationException {
       // TODO Logging
       return new JPAMemberOperator(jpaEntityType, root, member);
     }
 
     @Override
-    public JPAOperator visitAlias(String aliasName) throws ExpressionVisitException, ODataApplicationException {
+    public JPAOperator visitAlias(final String aliasName) throws ExpressionVisitException, ODataApplicationException {
       throw new ODataApplicationException("Alias not supported",
           HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
     }
 
     @Override
-    public JPAOperator visitTypeLiteral(EdmType type) throws ExpressionVisitException, ODataApplicationException {
+    public JPAOperator visitTypeLiteral(final EdmType type) throws ExpressionVisitException, ODataApplicationException {
       throw new ODataApplicationException("Type Literal not supported",
           HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
     }
 
     @Override
-    public JPAOperator visitLambdaReference(String variableName) throws ExpressionVisitException,
+    public JPAOperator visitLambdaReference(final String variableName) throws ExpressionVisitException,
         ODataApplicationException {
       throw new ODataApplicationException("Lambda Reference not supported",
           HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
     }
 
     @Override
-    public JPAOperator visitEnum(EdmEnumType type, List<String> enumValues) throws ExpressionVisitException,
+    public JPAOperator visitEnum(final EdmEnumType type, final List<String> enumValues) throws ExpressionVisitException,
         ODataApplicationException {
       throw new ODataApplicationException("Enumerations not supported",
           HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);

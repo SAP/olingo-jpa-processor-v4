@@ -46,18 +46,18 @@ public class JPAExpandQuery extends JPAExecutableQuery {
   private final JPAAssociationPath assoziation;
   private final JPAExpandItemInfo item;
 
-  public JPAExpandQuery(OData odata, ServicDocument sd, EntityManager em, UriInfoResource uriInfo,
-      JPAAssociationPath assoziation,
-      JPAExecutableQuery parentQuery, Map<String, List<String>> requestHeaders)
-          throws ODataApplicationException {
+  public JPAExpandQuery(final OData odata, final ServicDocument sd, final EntityManager em,
+      final UriInfoResource uriInfo, final JPAAssociationPath assoziation, // final JPAExecutableQuery parentQuery,
+      final Map<String, List<String>> requestHeaders) throws ODataApplicationException {
     super(odata, sd, Util.determineTargetEntityType(uriInfo.getUriResourceParts()), em, requestHeaders,
         uriInfo);
     this.assoziation = assoziation;
     this.item = null;
   }
 
-  public JPAExpandQuery(OData odata, ServicDocument sd, EntityManager em, JPAExpandItemInfo item,
-      Map<String, List<String>> requestHeaders) throws ODataApplicationException {
+  public JPAExpandQuery(final OData odata, final ServicDocument sd, final EntityManager em,
+      final JPAExpandItemInfo item,
+      final Map<String, List<String>> requestHeaders) throws ODataApplicationException {
 
     super(odata, sd, Util.determineTargetEntityType(item.getUriInfo().getUriResourceParts()), em, requestHeaders,
         item.getUriInfo());
@@ -85,9 +85,9 @@ public class JPAExpandQuery extends JPAExecutableQuery {
   private JPAExpandResult executeExpandTopSkipQuery() throws ODataApplicationException {
     long skip = 0;
     long top = Long.MAX_VALUE;
-    TypedQuery<Tuple> tq = createTupleQuery();
+    final TypedQuery<Tuple> tupleQuery = createTupleQuery();
     // Simplest solution for the problem. Read all and throw away, what is not requested
-    List<Tuple> intermediateResult = tq.getResultList();
+    final List<Tuple> intermediateResult = tupleQuery.getResultList();
     if (uriResource.getSkipOption() != null) skip = uriResource.getSkipOption().getValue();
     if (uriResource.getTopOption() != null) top = uriResource.getTopOption().getValue();
 
@@ -95,26 +95,26 @@ public class JPAExpandQuery extends JPAExecutableQuery {
   }
 
   private JPAExpandResult executeStandradQuery() throws ODataApplicationException {
-    TypedQuery<Tuple> tq = createTupleQuery();
-    List<Tuple> intermediateResult = tq.getResultList();
+    final TypedQuery<Tuple> tupleQuery = createTupleQuery();
+    final List<Tuple> intermediateResult = tupleQuery.getResultList();
     return new JPAExpandResult(convertResult(intermediateResult, assoziation, 0, Long.MAX_VALUE), count());
   }
 
   private TypedQuery<Tuple> createTupleQuery() throws ODataApplicationException {
     final List<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
     final List<JPAPath> descriptionAttributes = extractDescriptionAttributes(selectionPath);
-    final HashMap<String, From<?, ?>> joinTables = createFromClause(new ArrayList<JPAAssociationAttribute>(),
+    final Map<String, From<?, ?>> joinTables = createFromClause(new ArrayList<JPAAssociationAttribute>(),
         descriptionAttributes);
 
     cq.multiselect(createSelectClause(joinTables, selectionPath));
     cq.where(createWhere(joinTables));
 
-    List<Order> orderBy = createOrderByJoinCondition(assoziation);
+    final List<Order> orderBy = createOrderByJoinCondition(assoziation);
     orderBy.addAll(createOrderList(joinTables, uriResource.getOrderByOption()));
     cq.orderBy(orderBy);
     // TODO group by also at $expand
-    TypedQuery<Tuple> tq = em.createQuery(cq);
-    return tq;
+    // final TypedQuery<Tuple> tupleQuery = em.createQuery(cq);
+    return em.createQuery(cq);
   }
 
   private Long count() {
@@ -130,8 +130,8 @@ public class JPAExpandQuery extends JPAExecutableQuery {
     long taken = 0;
 
     List<Tuple> subResult = null;
-    Map<String, List<Tuple>> convertedResult = new HashMap<String, List<Tuple>>();
-    for (Tuple row : intermediateResult) {
+    final Map<String, List<Tuple>> convertedResult = new HashMap<String, List<Tuple>>();
+    for (final Tuple row : intermediateResult) {
       String actuallKey;
       try {
         actuallKey = buildConcatenatedKey(row, a.getJoinColumnsList());
@@ -155,9 +155,9 @@ public class JPAExpandQuery extends JPAExecutableQuery {
     return convertedResult;
   }
 
-  private String buildConcatenatedKey(Tuple row, List<JPAOnConditionItem> joinColumns) {
-    StringBuffer buffer = new StringBuffer();
-    for (JPAOnConditionItem item : joinColumns) {
+  private String buildConcatenatedKey(final Tuple row, final List<JPAOnConditionItem> joinColumns) {
+    final StringBuffer buffer = new StringBuffer();
+    for (final JPAOnConditionItem item : joinColumns) {
       buffer.append(JPAPath.PATH_SEPERATOR);
       buffer.append(row.get(item.getRightPath().getAlias()));
     }
@@ -165,11 +165,11 @@ public class JPAExpandQuery extends JPAExecutableQuery {
     return buffer.toString();
   }
 
-  private List<Order> createOrderByJoinCondition(JPAAssociationPath a) throws ODataApplicationException {
-    List<Order> orders = new ArrayList<Order>();
+  private List<Order> createOrderByJoinCondition(final JPAAssociationPath a) throws ODataApplicationException {
+    final List<Order> orders = new ArrayList<Order>();
 
     try {
-      for (JPAOnConditionItem j : a.getJoinColumnsList()) {
+      for (final JPAOnConditionItem j : a.getJoinColumnsList()) {
         orders.add(cb.asc(root.get(j.getRightPath().getLeaf().getInternalName())));
       }
     } catch (ODataJPAModelException e) {
@@ -180,9 +180,9 @@ public class JPAExpandQuery extends JPAExecutableQuery {
   }
 
   @Override
-  protected Expression<Boolean> createWhere(HashMap<String, From<?, ?>> joinTables) throws ODataApplicationException {
+  protected Expression<Boolean> createWhere(final Map<String, From<?, ?>> joinTables) throws ODataApplicationException {
 
-    javax.persistence.criteria.Expression<Boolean> whereCondition = null;
+    Expression<Boolean> whereCondition = null;
     try {
       whereCondition = filter.compile();
     } catch (ExpressionVisitException e) {
@@ -201,17 +201,17 @@ public class JPAExpandQuery extends JPAExecutableQuery {
   private Subquery<?> buildSubQueries() throws ODataApplicationException {
     Subquery<?> childQuery = null;
 
-    List<UriResource> resourceParts = uriResource.getUriResourceParts();
+    final List<UriResource> resourceParts = uriResource.getUriResourceParts();
 
     // 1. Determine all relevant associations
-    List<JPANavigationProptertyInfo> expandPathList = Util.determineAssoziations(sd, resourceParts);
+    final List<JPANavigationProptertyInfo> expandPathList = Util.determineAssoziations(sd, resourceParts);
     expandPathList.addAll(item.getHops());
 
     // 2. Create the queries and roots
     JPAAbstractQuery parent = this;
-    List<JPANavigationQuery> queryList = new ArrayList<JPANavigationQuery>();
+    final List<JPANavigationQuery> queryList = new ArrayList<JPANavigationQuery>();
 
-    for (JPANavigationProptertyInfo naviInfo : expandPathList) {
+    for (final JPANavigationProptertyInfo naviInfo : expandPathList) {
       queryList.add(new JPANavigationQuery(sd, naviInfo.getUriResiource(), parent, em, naviInfo.getAssociationPath()));
       parent = queryList.get(queryList.size() - 1);
     }

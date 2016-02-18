@@ -34,16 +34,17 @@ public class JPANavigationQuery extends JPAAbstractQuery {
   private Subquery<?> subQuery;
   private JPAAbstractQuery parentQuery;
 
-  public JPANavigationQuery(final ServicDocument sd, final UriResource uriResourceItem, 
-      final EntityManager em, JPAAssociationPath association) throws ODataApplicationException {
+  public JPANavigationQuery(final ServicDocument sd, final UriResource uriResourceItem,
+      final EntityManager em, final JPAAssociationPath association) throws ODataApplicationException {
     super(sd, ((UriResourcePartTyped) uriResourceItem).getType(), em);
     this.keyPredicates = determineKeyPredicates(uriResourceItem);
     this.association = association;
   }
 
-  public <T extends Object> JPANavigationQuery(final ServicDocument sd, final UriResource uriResourceItem, final JPAAbstractQuery parent,
-     final EntityManager em, final JPAAssociationPath association) throws ODataApplicationException {
-    
+  public <T extends Object> JPANavigationQuery(final ServicDocument sd, final UriResource uriResourceItem,
+      final JPAAbstractQuery parent,
+      final EntityManager em, final JPAAssociationPath association) throws ODataApplicationException {
+
     super(sd, ((UriResourcePartTyped) uriResourceItem).getType(), em);
     this.keyPredicates = determineKeyPredicates(uriResourceItem);
     this.association = association;
@@ -72,14 +73,15 @@ public class JPANavigationQuery extends JPAAbstractQuery {
    * @throws ODataApplicationException
    */
   @SuppressWarnings("unchecked")
-  public <T extends Object> Subquery<T> getSubQueryExists(Subquery<?> childQuery) throws ODataApplicationException {
-    Subquery<T> subQuery = (Subquery<T>) this.subQuery; 
+  public <T extends Object> Subquery<T> getSubQueryExists(final Subquery<?> childQuery)
+      throws ODataApplicationException {
+    final Subquery<T> subQuery = (Subquery<T>) this.subQuery;
 
     List<JPAOnConditionItem> conditionItems;
     try {
       conditionItems = association.getJoinColumnsList();
       Path<?> p = queryRoot;
-      for (JPAElement jpaPathElement : conditionItems.get(0).getLeftPath().getPath())
+      for (final JPAElement jpaPathElement : conditionItems.get(0).getLeftPath().getPath())
         p = p.get(jpaPathElement.getInternalName());
       subQuery.select((Expression<T>) p);
     } catch (ODataJPAModelException e) {
@@ -101,19 +103,18 @@ public class JPANavigationQuery extends JPAAbstractQuery {
     return (Subquery<T>) subQuery;
   }
 
-  private Expression<Boolean> createWhereByAssociation(From<?, ?> parentFrom, Root<?> subRoot,
-      List<JPAOnConditionItem> conditionItems) {
+  private Expression<Boolean> createWhereByAssociation(final From<?, ?> parentFrom, final Root<?> subRoot,
+      final List<JPAOnConditionItem> conditionItems) {
     Expression<Boolean> whereCondition = null;
-    for (JPAOnConditionItem onItem : conditionItems) {
+    for (final JPAOnConditionItem onItem : conditionItems) {
       Path<?> paretPath = parentFrom;
-      for (JPAElement jpaPathElement : onItem.getRightPath().getPath())
+      for (final JPAElement jpaPathElement : onItem.getRightPath().getPath())
         paretPath = paretPath.get(jpaPathElement.getInternalName());
       Path<?> subPath = subRoot;
-      for (JPAElement jpaPathElement : onItem.getLeftPath().getPath())
+      for (final JPAElement jpaPathElement : onItem.getLeftPath().getPath())
         subPath = subPath.get(jpaPathElement.getInternalName());
 
-      Expression<Boolean> equalCondition = cb.equal(
-          paretPath, subPath);
+      final Expression<Boolean> equalCondition = cb.equal(paretPath, subPath);
 //          parentFrom.get(onItem.getRightPath().getInternalName()),
 //          subRoot.get(onItem.getLeftPath().getInternalName()));
       if (whereCondition == null)
