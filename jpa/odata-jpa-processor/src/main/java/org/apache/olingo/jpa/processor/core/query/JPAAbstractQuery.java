@@ -9,7 +9,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Root;
 
-import org.apache.olingo.commons.api.edm.EdmType;
+import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -26,13 +26,15 @@ public abstract class JPAAbstractQuery {
   protected final CriteriaBuilder cb;
   protected final JPAEntityType jpaEntity;
   protected final ServicDocument sd;
+  protected final EdmEntityType edmType;
 
-  public JPAAbstractQuery(final ServicDocument sd, final EdmType edmType, final EntityManager em)
+  public JPAAbstractQuery(final ServicDocument sd, final EdmEntityType edmType, final EntityManager em)
       throws ODataApplicationException {
     super();
     this.em = em;
     this.cb = em.getCriteriaBuilder();
     this.sd = sd;
+    this.edmType = edmType;
     try {
       this.jpaEntity = sd.getEntity(edmType);
     } catch (ODataJPAModelException e) {

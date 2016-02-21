@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.persistence.Tuple;
 
+import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
 import org.apache.olingo.server.api.ODataApplicationException;
@@ -23,12 +24,22 @@ public final class JPAExpandResult {
   private final Map<JPAAssociationPath, JPAExpandResult> childrenResult;
   private final Map<String, List<Tuple>> result;
   private final Long count;
+  private final EdmEntityType edmEntityType;
+
+  public JPAExpandResult(final Map<String, List<Tuple>> result, final Long count, EdmEntityType edmEntityType) {
+    super();
+    childrenResult = new HashMap<JPAAssociationPath, JPAExpandResult>();
+    this.result = result;
+    this.count = count;
+    this.edmEntityType = edmEntityType;
+  }
 
   public JPAExpandResult(final Map<String, List<Tuple>> result, final Long count) {
     super();
     childrenResult = new HashMap<JPAAssociationPath, JPAExpandResult>();
     this.result = result;
     this.count = count;
+    this.edmEntityType = null;
   }
 
   public boolean hasChildren() {
@@ -64,5 +75,9 @@ public final class JPAExpandResult {
 
   public Integer getCount() {
     return count != null ? Integer.valueOf(count.intValue()) : null;
+  }
+
+  public EdmEntityType getEdmEntityType() {
+    return edmEntityType;
   }
 }

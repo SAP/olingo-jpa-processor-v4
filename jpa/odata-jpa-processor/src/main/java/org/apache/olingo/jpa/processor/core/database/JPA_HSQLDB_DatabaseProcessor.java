@@ -5,6 +5,10 @@ import java.util.Locale;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Root;
 
 import org.apache.olingo.commons.api.edm.EdmFunction;
 import org.apache.olingo.commons.api.edm.EdmParameter;
@@ -18,6 +22,7 @@ import org.apache.olingo.jpa.processor.core.api.JPAODataDatabaseProcessor;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResourceFunction;
+import org.apache.olingo.server.api.uri.queryoption.SearchOption;
 
 class JPA_HSQLDB_DatabaseProcessor implements JPAODataDatabaseProcessor {
   private final static String SELECT_BASE_PATTERN = "SELECT * FROM TABLE ($FUNCTIONNAME$($PARAMETER$))";
@@ -76,5 +81,13 @@ class JPA_HSQLDB_DatabaseProcessor implements JPAODataDatabaseProcessor {
       throw new ODataApplicationException("Unable to convert parameter value " + uriValue, HttpStatusCode.BAD_REQUEST
           .getStatusCode(), Locale.ENGLISH, e);
     }
+  }
+
+  @Override
+  public Expression<Boolean> createSearchWhereClause(CriteriaBuilder cb, CriteriaQuery<?> cq, Root<?> root,
+      SearchOption searchOption)
+          throws ODataApplicationException {
+    throw new ODataApplicationException("Search not supported",
+        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
   }
 }

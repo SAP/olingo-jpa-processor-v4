@@ -1,10 +1,8 @@
 package org.apache.olingo.jpa.metadata.core.edm.mapper.extention;
 
-public interface IntermediateModelItemAccess {
+import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 
-  String getExternalName();
-
-  String getInternalName();
+public interface IntermediateModelItemAccess extends JPAElement {
 
   boolean ignore();
 

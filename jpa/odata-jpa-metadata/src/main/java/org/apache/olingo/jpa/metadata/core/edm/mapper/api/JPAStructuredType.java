@@ -33,6 +33,8 @@ public interface JPAStructuredType extends JPAElement {
 
   public JPAAttribute getAttribute(String internalName) throws ODataJPAModelException;
 
+  public List<JPAAttribute> getAttributes() throws ODataJPAModelException;
+
   public FullQualifiedName getExternalFQN();
 
   public JPAPath getPath(String externalName) throws ODataJPAModelException;
@@ -50,4 +52,5 @@ public interface JPAStructuredType extends JPAElement {
   public List<JPAPath> getPathList() throws ODataJPAModelException;
 
   public Class<?> getTypeClass();
+
 }

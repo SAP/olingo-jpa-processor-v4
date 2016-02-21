@@ -23,31 +23,24 @@ import org.apache.olingo.server.api.uri.UriInfo;
 public class JPAOdataRequestProcessor implements PrimitiveValueProcessor,
     ComplexProcessor, CountEntityCollectionProcessor, EntityProcessor {
   private final EntityManager em;
-  // private final ServicDocument sd;
   private final JPAODataContextAccess context;
-  private OData odata;
-  private ServiceMetadata serviceMetadata;
   private JPAProcessorFactory factory;
 
   public JPAOdataRequestProcessor(final JPAODataContextAccess context, final EntityManager em) {
     super();
     this.em = em;
-    // this.sd = context.getEdmProvider().getServiceDocument();
     this.context = context;
   }
 
   @Override
   public void init(final OData odata, final ServiceMetadata serviceMetadata) {
-    this.odata = odata;
-    this.serviceMetadata = serviceMetadata;
     this.factory = new JPAProcessorFactory(odata, serviceMetadata, context);
   }
 
   @Override
   public void countEntityCollection(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo)
       throws ODataApplicationException, ODataLibraryException {
-    final JPARequestProcessor p = new JPAProcessorFactory(odata, serviceMetadata, context).createProcessor(em, uriInfo,
-        ContentType.TEXT_PLAIN);
+    final JPARequestProcessor p = factory.createProcessor(em, uriInfo, ContentType.TEXT_PLAIN);
     p.retrieveData(request, response, ContentType.TEXT_PLAIN);
   }
 

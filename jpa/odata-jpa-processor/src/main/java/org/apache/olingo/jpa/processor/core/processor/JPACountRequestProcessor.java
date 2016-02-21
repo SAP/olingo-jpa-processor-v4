@@ -9,7 +9,7 @@ import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
-import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
+import org.apache.olingo.jpa.processor.core.api.JPAODataContextAccess;
 import org.apache.olingo.jpa.processor.core.query.JPAQuery;
 import org.apache.olingo.jpa.processor.core.query.Util;
 import org.apache.olingo.jpa.processor.core.serializer.JPASerializer;
@@ -29,10 +29,9 @@ import org.apache.olingo.server.api.uri.UriResourceEntitySet;
  */
 public class JPACountRequestProcessor extends JPAAbstractRequestProcessor {
 
-  public JPACountRequestProcessor(final OData odata, final ServicDocument sd, final EntityManager em,
-      final UriInfo uriInfo,
-      final JPASerializer serializer) {
-    super(odata, sd, em, uriInfo, serializer);
+  public JPACountRequestProcessor(final OData odata, final JPAODataContextAccess context, final EntityManager em,
+      final UriInfo uriInfo, final JPASerializer serializer) {
+    super(odata, context, em, uriInfo, serializer);
   }
 
   @Override
@@ -56,7 +55,7 @@ public class JPACountRequestProcessor extends JPAAbstractRequestProcessor {
     final List<UriResource> resourceParts = uriInfo.getUriResourceParts();
     final EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(resourceParts);
 
-    final JPAQuery query = new JPAQuery(odata, targetEdmEntitySet, sd, uriInfo, em, request.getAllHeaders());
+    final JPAQuery query = new JPAQuery(odata, targetEdmEntitySet, context, uriInfo, em, request.getAllHeaders());
 
     entityCollection.setCount(Integer.valueOf(query.countResults().intValue()));
     return entityCollection;

@@ -19,7 +19,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribut
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
+import org.apache.olingo.jpa.processor.core.api.JPAODataContextAccess;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfo;
@@ -36,11 +36,10 @@ import org.apache.olingo.server.api.uri.queryoption.expression.Member;
 public class JPAQuery extends JPAExecutableQuery {
   // private final EdmEntitySet edmEntitySet;
 
-  public JPAQuery(final OData odata, final EdmEntitySet entitySet, final ServicDocument sd, final UriInfo uriInfo,
-      final EntityManager em, final Map<String, List<String>> requestHeaders) throws ODataApplicationException {
-    super(odata, sd, entitySet.getEntityType(), em, requestHeaders, uriInfo);
-
-    // this.edmEntitySet = entitySet;
+  public JPAQuery(final OData odata, final EdmEntitySet entitySet, final JPAODataContextAccess context,
+      final UriInfo uriInfo, final EntityManager em, final Map<String, List<String>> requestHeaders)
+          throws ODataApplicationException {
+    super(odata, context, entitySet.getEntityType(), em, requestHeaders, uriInfo);
   }
 
   /**
@@ -101,7 +100,7 @@ public class JPAQuery extends JPAExecutableQuery {
     addTopSkip(tq);
     final HashMap<String, List<Tuple>> result = new HashMap<String, List<Tuple>>(1);
     result.put("root", tq.getResultList());
-    return new JPAExpandResult(result, Long.parseLong("0"));// count()););
+    return new JPAExpandResult(result, Long.parseLong("0"), edmType);// count()););
   }
 
   public JPAStructuredType getEntityType() {
@@ -137,7 +136,7 @@ public class JPAQuery extends JPAExecutableQuery {
             if (uriResource instanceof UriResourceNavigation) {
               final EdmNavigationProperty edmNaviProperty = ((UriResourceNavigation) uriResource).getProperty();
               try {
-                naviAttributes.add((JPAAssociationAttribute) jpaEntity.getAssociationPath(edmNaviProperty.getName())
+                naviAttributes.add(jpaEntity.getAssociationPath(edmNaviProperty.getName())
                     .getLeaf());
               } catch (ODataJPAModelException e) {
                 throw new ODataApplicationException("Property not found", HttpStatusCode.BAD_REQUEST.getStatusCode(),

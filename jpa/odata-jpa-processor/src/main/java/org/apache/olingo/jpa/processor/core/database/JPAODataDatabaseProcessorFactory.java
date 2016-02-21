@@ -19,7 +19,7 @@ public class JPAODataDatabaseProcessorFactory {
       final DatabaseMetaData dbMetadata = connection.getMetaData();
       connection.close();
       if (dbMetadata.getDatabaseProductName().equals(PRODUCT_NAME_SAP_HANA))
-        return new JPADefaultDatabaseProcessor();
+        return new JPA_HANA_DatabaseProcessor();
       else if (dbMetadata.getDatabaseProductName().equals(PRODUCT_NAME_HSQLDB))
         return new JPA_HSQLDB_DatabaseProcessor();
       else if (dbMetadata.getDatabaseProductName().equals(PRODUCT_NAME_H2))

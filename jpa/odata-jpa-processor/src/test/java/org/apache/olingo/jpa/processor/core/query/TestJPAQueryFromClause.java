@@ -14,13 +14,17 @@ import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Root;
 
+import org.apache.olingo.commons.api.ex.ODataException;
+import org.apache.olingo.jpa.metadata.api.JPAEdmProvider;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import org.apache.olingo.jpa.processor.core.api.JPAODataContextAccess;
 import org.apache.olingo.jpa.processor.core.testmodel.Organization;
 import org.apache.olingo.jpa.processor.core.util.EdmEntitySetDouble;
+import org.apache.olingo.jpa.processor.core.util.JPAODataContextAccessDouble;
 import org.apache.olingo.jpa.processor.core.util.TestBase;
 import org.apache.olingo.jpa.processor.core.util.TestHelper;
 import org.apache.olingo.server.api.ODataApplicationException;
@@ -32,13 +36,13 @@ public class TestJPAQueryFromClause extends TestBase {
   private JPAEntityType jpaEntityType;
 
   @Before
-  public void setup() throws ODataJPAModelException, ODataApplicationException {
-    helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
+  public void setup() throws ODataException {
+    helper = new TestHelper(emf, PUNIT_NAME);
     jpaEntityType = helper.getJPAEntityType("Organizations");
+    JPAODataContextAccess context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null), ds);
     createHeaders();
-    cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "Organizations"), helper.sd, null, emf
-        .createEntityManager(),
-        headers);
+    cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "Organizations"), context, null, emf
+        .createEntityManager(), headers);
   }
 
   @Test

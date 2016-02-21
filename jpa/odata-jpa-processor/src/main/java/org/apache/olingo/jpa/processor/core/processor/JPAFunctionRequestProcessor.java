@@ -38,7 +38,7 @@ public class JPAFunctionRequestProcessor extends JPAAbstractRequestProcessor {
 
   public JPAFunctionRequestProcessor(final OData odata, final JPAODataContextAccess context, final EntityManager em,
       final UriInfo uriInfo, final JPASerializer serializer) {
-    super(odata, context.getEdmProvider().getServiceDocument(), em, uriInfo, serializer);
+    super(odata, context, em, uriInfo, serializer);
     this.dbProcessor = context.getDatabaseProcessor();
   }
 

@@ -222,6 +222,7 @@ insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( '
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS1','BE2','de','Flämische Region');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS1','BE3','de','Wallonische Region');
 
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS2','BE10','de','Region Brüssel-Hauptstadt');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS2','BE21','de','Provinz Antwerpen');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS2','BE22','de','Provinz Limburg');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS2','BE23','de','Provinz Ostflandern');
@@ -233,6 +234,7 @@ insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( '
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS2','BE34','de','Provinz Luxemburg');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS2','BE35','de','Provinz Namur');
 
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE100','de','Bezirk Brüssel-Hauptstadt');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE211','de','Bezirk Antwerpen');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE212','de','Bezirk Mechelen');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE213','de','Bezirk Turnhout');

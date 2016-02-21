@@ -16,6 +16,7 @@ import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.Attribute.PersistentAttributeType;
 import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.PluralAttribute;
+import javax.persistence.metamodel.SingularAttribute;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlStructuralType;
@@ -90,6 +91,20 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
   }
 
   @Override
+  public List<JPAAttribute> getAttributes() throws ODataJPAModelException {
+    lazyBuildEdmItem();
+    List<JPAAttribute> result = new ArrayList<JPAAttribute>();
+    for (String propertyKey : declaredPropertiesList.keySet()) {
+      IntermediateProperty attribute = declaredPropertiesList.get(propertyKey);
+      if (!attribute.ignore())
+        result.add(attribute);
+    }
+    if (getBaseType() != null)
+      result.addAll(getBaseType().getAttributes());
+    return result;
+  }
+
+  @Override
   public JPAAssociationPath getDeclaredAssociation(final String externalName) throws ODataJPAModelException {
     lazyBuildCompleteAssociationPathMap();
     for (final String internalName : declaredNaviPropertiesList.keySet()) {
@@ -142,8 +157,15 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
       switch (attributeType) {
       case BASIC:
       case EMBEDDED:
-        final IntermediateProperty property = new IntermediateProperty(nameBuilder, jpaAttribute, schema);
-        declaredPropertiesList.put(property.internalName, property);
+        if (jpaAttribute instanceof SingularAttribute<?, ?>
+            && ((SingularAttribute<?, ?>) jpaAttribute).isId()
+            && attributeType == PersistentAttributeType.EMBEDDED) {
+          final IntermediateProperty property = new IntermediateEmbeddedIdProperty(nameBuilder, jpaAttribute, schema);
+          declaredPropertiesList.put(property.internalName, property);
+        } else {
+          final IntermediateProperty property = new IntermediateProperty(nameBuilder, jpaAttribute, schema);
+          declaredPropertiesList.put(property.internalName, property);
+        }
         break;
       case ONE_TO_MANY:
       case ONE_TO_ONE:
@@ -389,8 +411,14 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
           for (final String externalName : resolvedPath.keySet()) {
             pathList = new ArrayList<JPAElement>(resolvedPath.get(externalName).getPath());
             pathList.add(0, property);
-            final JPAPathImpl newPath = new JPAPathImpl(nameBuilder.buildPath(property.getExternalName(), externalName),
-                determineDBFieldName(property, resolvedPath.get(externalName)), pathList);
+            JPAPathImpl newPath;
+            if (property.isKey()) {
+              newPath = new JPAPathImpl(externalName, determineDBFieldName(property, resolvedPath.get(externalName)),
+                  pathList);
+            } else {
+              newPath = new JPAPathImpl(nameBuilder.buildPath(property.getExternalName(), externalName),
+                  determineDBFieldName(property, resolvedPath.get(externalName)), pathList);
+            }
             resolvedPathMap.put(newPath.getAlias(), newPath);
 
           }

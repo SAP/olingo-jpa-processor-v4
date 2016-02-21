@@ -38,22 +38,19 @@ public class JPAProcessorFactory {
 
     switch (lastItem.getKind()) {
     case count:
-      return new JPACountRequestProcessor(odata, context.getEdmProvider().getServiceDocument(), em, uriInfo,
-          serializerFactory.createSerializer(responseFormat, uriInfo));
+      return new JPACountRequestProcessor(odata, context, em, uriInfo, serializerFactory.createSerializer(
+          responseFormat, uriInfo));
     case function:
       checkFunctionPathSupported(resourceParts);
       return new JPAFunctionRequestProcessor(odata, context, em, uriInfo, serializerFactory.createSerializer(
-          responseFormat,
-          uriInfo));
+          responseFormat, uriInfo));
     case complexProperty:
     case primitiveProperty:
     case navigationProperty:
     case entitySet:
       checkNavigationPathSupported(resourceParts);
-      return new JPANavigationRequestProcessor(odata, context.getEdmProvider().getServiceDocument(), em, uriInfo,
-          serializerFactory.createSerializer(
-              responseFormat,
-              uriInfo));
+      return new JPANavigationRequestProcessor(odata, context, em, uriInfo, serializerFactory.createSerializer(
+          responseFormat, uriInfo));
     default:
       throw new ODataApplicationException("Not implemented",
           HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);

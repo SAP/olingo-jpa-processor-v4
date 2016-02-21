@@ -83,4 +83,5 @@ public class TestJPAPath extends TestMappingRoot {
     assertEquals("created", cut.getPath().get(1).getInternalName());
     assertEquals("by", cut.getPath().get(2).getInternalName());
   }
+
 }

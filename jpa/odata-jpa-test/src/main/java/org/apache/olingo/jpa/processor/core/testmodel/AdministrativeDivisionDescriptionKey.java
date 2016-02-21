@@ -3,24 +3,25 @@ package org.apache.olingo.jpa.processor.core.testmodel;
 import java.io.Serializable;
 
 import javax.persistence.Column;
-import javax.persistence.Id;
+import javax.persistence.Embeddable;
 
+@Embeddable
 public class AdministrativeDivisionDescriptionKey implements Serializable {
   /**
    * 
    */
   private static final long serialVersionUID = 4843041820527005995L;
 
-  @Id
+  // @Id
   @Column(name = "\"CodePublisher\"", length = 10, nullable = false)
   private String codePublisher;
-  @Id
+  // @Id
   @Column(name = "\"CodeID\"", length = 10, nullable = false)
   private String codeID;
-  @Id
+  // @Id
   @Column(name = "\"DivisionCode\"", length = 10, nullable = false)
   private String divisionCode;
-  @Id
+  // @Id
   @Column(name = "\"LanguageISO\"")
   private String language;
 

@@ -36,10 +36,17 @@ class JPASerializePrimitive implements JPASerializer {
       throws SerializerException {
 
     final EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(uriInfo.getUriResourceParts());
-    final Property property = result.getEntities().get(0).getProperties().get(0);
-
     final UriResourceProperty uriProperty = (UriResourceProperty) uriInfo.getUriResourceParts().get(uriInfo
         .getUriResourceParts().size() - 1);
+
+    Property property = null;
+    for (Property item : result.getEntities().get(0).getProperties()) {
+      if (item.getName().equals(uriProperty.getProperty().getName())) {
+        property = item;
+        break;
+      }
+    }
+
     final EdmPrimitiveType edmPropertyType = (EdmPrimitiveType) uriProperty.getProperty().getType();
 
     final ContextURL contextUrl = ContextURL.with()

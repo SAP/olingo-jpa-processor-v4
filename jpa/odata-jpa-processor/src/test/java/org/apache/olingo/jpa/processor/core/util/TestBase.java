@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManagerFactory;
+import javax.sql.DataSource;
 
 import org.apache.olingo.jpa.metadata.api.JPAEntityManagerFactory;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -20,11 +21,12 @@ public class TestBase {
   protected TestHelper helper;
   protected Map<String, List<String>> headers;
   protected static JPAEdmNameBuilder nameBuilder;
+  protected static DataSource ds;
 
   @BeforeClass
   public static void setupClass() throws ODataJPAModelException {
-    emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, DataSourceHelper.createDataSource(
-        DataSourceHelper.DB_H2));
+    ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_H2);
+    emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, ds);
     nameBuilder = new JPAEdmNameBuilder(PUNIT_NAME);
   }
 

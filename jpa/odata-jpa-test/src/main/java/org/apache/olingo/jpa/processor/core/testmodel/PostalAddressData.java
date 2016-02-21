@@ -42,7 +42,7 @@ public class PostalAddressData {
   @JoinColumn(name = "\"ISOCode\"", referencedColumnName = "\"Address.Country\"")
   private Collection<Country> countryName;
 
-  @EdmDescriptionAssozation(languageAttribute = "language", descriptionAttribute = "name")
+  @EdmDescriptionAssozation(languageAttribute = "key/language", descriptionAttribute = "name")
   @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumns({
       @JoinColumn(name = "\"CodePublisher\"", referencedColumnName = "\"Address.RegionCodePublisher\""),

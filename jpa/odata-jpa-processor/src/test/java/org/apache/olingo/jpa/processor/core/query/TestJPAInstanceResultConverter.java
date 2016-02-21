@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.olingo.commons.api.data.EntityCollection;
-import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import org.apache.olingo.jpa.processor.core.util.EdmEntitySetDouble;
 import org.apache.olingo.jpa.processor.core.util.TestBase;
@@ -29,8 +29,8 @@ public class TestJPAInstanceResultConverter extends TestBase {
   private UriHelperDouble uriHelper;
 
   @Before
-  public void setup() throws ODataJPAModelException, ODataApplicationException {
-    helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
+  public void setup() throws ODataException {
+    helper = new TestHelper(emf, PUNIT_NAME);
     jpaQueryResult = new ArrayList<Object>();
     HashMap<String, String> keyStrings = new HashMap<String, String>();
     keyStrings.put("BE21", "DivisionCode='BE21',CodeID='NUTS2',CodePublisher='Eurostat'");

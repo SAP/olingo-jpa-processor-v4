@@ -7,12 +7,14 @@ import java.util.Map;
 
 import javax.persistence.metamodel.Metamodel;
 
+import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmFunction;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -66,7 +68,7 @@ public class ServicDocument {
   }
 
   public JPAEntityType getEntity(final String edmEntitySetName) throws ODataJPAModelException {
-    final IntermediateEntitySet entitySet = container.getEntityTypeSet(edmEntitySetName);
+    final IntermediateEntitySet entitySet = container.getEntitySet(edmEntitySetName);
     return entitySet != null ? entitySet.getEntityType() : null;
   }
 
@@ -87,7 +89,7 @@ public class ServicDocument {
   private List<CsdlSchema> extractEdmSchemas() throws ODataJPAModelException {
     final List<CsdlSchema> schemas = new ArrayList<CsdlSchema>();
     for (final String internalName : schemaListInternalKey.keySet()) {
-      schemas.add((CsdlSchema) schemaListInternalKey.get(internalName).getEdmItem());
+      schemas.add(schemaListInternalKey.get(internalName).getEdmItem());
     }
     return schemas;
   }
@@ -97,6 +99,10 @@ public class ServicDocument {
       schemaListInternalKey.get(externalName).setContainer(container);
       return;
     }
+  }
+
+  public JPAElement getEntitySet(EdmEntityType edmEntityType) throws ODataJPAModelException {
+    return container.getEntitySet(edmEntityType);
   }
 
 }

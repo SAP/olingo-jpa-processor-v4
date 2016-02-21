@@ -2,6 +2,7 @@ package org.apache.olingo.jpa.processor.core.util;
 
 import java.lang.reflect.AnnotatedElement;
 
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.EmbeddableType;
 import javax.persistence.metamodel.EntityType;
@@ -9,6 +10,8 @@ import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.SingularAttribute;
 
+import org.apache.olingo.commons.api.ex.ODataException;
+import org.apache.olingo.jpa.metadata.api.JPAEdmProvider;
 import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
@@ -20,10 +23,12 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
 public class TestHelper {
   final private Metamodel jpaMetamodel;
   final public ServicDocument sd;
+  final public JPAEdmProvider edmProvider;
 
-  public TestHelper(Metamodel metamodel, String namespace) throws ODataJPAModelException {
-    this.jpaMetamodel = metamodel;
-    sd = new ServicDocument(namespace, metamodel, null);
+  public TestHelper(EntityManagerFactory emf, String namespace) throws ODataException {
+    this.jpaMetamodel = emf.getMetamodel();
+    edmProvider = new JPAEdmProvider(namespace, emf, null);
+    sd = edmProvider.getServiceDocument();
     sd.getEdmEntityContainer();
   }
 

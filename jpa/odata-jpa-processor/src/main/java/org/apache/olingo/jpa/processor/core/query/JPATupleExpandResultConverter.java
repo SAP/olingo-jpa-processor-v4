@@ -1,7 +1,5 @@
 package org.apache.olingo.jpa.processor.core.query;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Locale;
 
@@ -11,24 +9,22 @@ import org.apache.olingo.commons.api.Constants;
 import org.apache.olingo.commons.api.data.Entity;
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.Link;
-import org.apache.olingo.commons.api.ex.ODataRuntimeException;
-import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
-import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
 import org.apache.olingo.server.api.ODataApplicationException;
+import org.apache.olingo.server.api.uri.UriHelper;
 
 public class JPATupleExpandResultConverter extends JPATupleAbstractConverter {
   private final Tuple parentRow;
   private final JPAAssociationPath assoziation;
-  private final URI parentUri;
 
-  public JPATupleExpandResultConverter(final URI uri, final JPAExpandResult jpaExpandResult, final Tuple parentRow,
-      final JPAAssociationPath assoziation) {
-    super((JPAEntityType) assoziation.getTargetType(), jpaExpandResult);
+  public JPATupleExpandResultConverter(final JPAExpandResult jpaExpandResult, final Tuple parentRow,
+      final JPAAssociationPath assoziation, final UriHelper uriHelper, ServicDocument sd)
+          throws ODataApplicationException {
+    super(jpaExpandResult, uriHelper, sd);
     this.parentRow = parentRow;
     this.assoziation = assoziation;
-    this.parentUri = uri;
   }
 
   public Link getResult() throws ODataApplicationException {
@@ -70,26 +66,6 @@ public class JPATupleExpandResultConverter extends JPATupleAbstractConverter {
     }
     // TODO odataEntityCollection.setId(createId());
     return odataEntityCollection;
-  }
-
-  private URI createId() {
-    final StringBuffer id = new StringBuffer();
-    id.append(parentUri.toString());
-    id.append(JPAAssociationPath.PATH_SEPERATOR);
-    id.append(assoziation.getAlias());
-    try {
-      return new URI(id.toString());
-    } catch (URISyntaxException e) {
-      throw new ODataRuntimeException("Unable to create (Atom) id for entity", e);
-    }
-
-  }
-
-  @Override
-  protected URI createId(final List<? extends JPAAttribute> keyAttributes, final Tuple row)
-      throws ODataApplicationException,
-      ODataRuntimeException {
-    return null;
   }
 
 }

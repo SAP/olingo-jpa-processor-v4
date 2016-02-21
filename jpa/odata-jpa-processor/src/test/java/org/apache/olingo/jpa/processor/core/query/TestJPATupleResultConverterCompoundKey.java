@@ -5,20 +5,21 @@ import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Tuple;
 
 import org.apache.olingo.commons.api.data.EntityCollection;
-import org.apache.olingo.commons.api.data.ValueType;
+import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescriptionKey;
-import org.apache.olingo.jpa.processor.core.util.EdmEntitySetDouble;
+import org.apache.olingo.jpa.processor.core.util.EdmEntityTypeDouble;
 import org.apache.olingo.jpa.processor.core.util.TestBase;
 import org.apache.olingo.jpa.processor.core.util.TestHelper;
 import org.apache.olingo.jpa.processor.core.util.TupleDouble;
+import org.apache.olingo.jpa.processor.core.util.UriHelperDouble;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class TestJPATupleResultConverterCompoundKey extends TestBase {
@@ -26,12 +27,15 @@ public class TestJPATupleResultConverterCompoundKey extends TestBase {
   public static final int NO_ADMIN_INFO_FIELDS = 2;
   private JPATupleResultConverter cut;
   private List<Tuple> jpaQueryResult;
+  private UriHelperDouble uriHelper;
+  private Map<String, String> keyPredicates;
 
   @Before
-  public void setup() throws ODataJPAModelException, ODataApplicationException {
-    helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
+  public void setup() throws ODataException {
+    helper = new TestHelper(emf, PUNIT_NAME);
     jpaQueryResult = new ArrayList<Tuple>();
-
+    uriHelper = new UriHelperDouble();
+    keyPredicates = new HashMap<String, String>();
   }
 
   @Test
@@ -42,9 +46,10 @@ public class TestJPATupleResultConverterCompoundKey extends TestBase {
     resultContainer.put("root", jpaQueryResult);
 
     cut = new JPATupleResultConverter(
-        new EdmEntitySetDouble(nameBuilder, "BusinessPartnerRoles"),
         helper.sd,
-        new JPAExpandResult(resultContainer, Long.parseLong("0")));
+        new JPAExpandResult(resultContainer, Long.parseLong("0"), new EdmEntityTypeDouble(nameBuilder,
+            "BusinessPartnerRole")),
+        uriHelper);
 
     HashMap<String, Object> result;
 
@@ -53,7 +58,10 @@ public class TestJPATupleResultConverterCompoundKey extends TestBase {
     result.put("RoleCategory", new String("C"));
     jpaQueryResult.add(new TupleDouble(result));
 
-    EntityCollection act = ((JPATupleResultConverter) cut).getResult();
+    uriHelper.setKeyPredicates(keyPredicates, "BusinessPartnerID");
+    keyPredicates.put("3", "BusinessPartnerID='3',RoleCategory='C'");
+
+    EntityCollection act = cut.getResult();
     assertEquals(1, act.getEntities().size());
     assertEquals("3", act.getEntities().get(0).getProperty("BusinessPartnerID").getValue().toString());
     assertEquals("C", act.getEntities().get(0).getProperty("RoleCategory").getValue().toString());
@@ -62,33 +70,40 @@ public class TestJPATupleResultConverterCompoundKey extends TestBase {
         act.getEntities().get(0).getId().getPath());
   }
 
-  @Ignore // Looks like OData or Olingo do not support Complex Types
-  @Test
+  @Test // EmbeddedIds are resolved to elementary key properties
   public void checkConvertsOneResultsEmbeddedKey() throws ODataApplicationException, ODataJPAModelException {
-    // .../Regions(RegionKey/CountryCode='DE', RegionKey/RegionCode='DE-HB', RegionKey/Language = 'en')
+    // .../AdministrativeDivisionDescriptions(CodePublisher='ISO', CodeID='3166-1', DivisionCode='DEU',Language='en')
 
     HashMap<String, List<Tuple>> resultContainer = new HashMap<String, List<Tuple>>(1);
     resultContainer.put("root", jpaQueryResult);
 
     cut = new JPATupleResultConverter(
-        new EdmEntitySetDouble(nameBuilder, "Regions"),
         helper.sd,
-        new JPAExpandResult(resultContainer, Long.parseLong("0")));
+        new JPAExpandResult(resultContainer, Long.parseLong("1"), new EdmEntityTypeDouble(nameBuilder,
+            "AdministrativeDivisionDescription")),
+        uriHelper);
 
-    AdministrativeDivisionDescriptionKey region = new AdministrativeDivisionDescriptionKey();
-    region.setLanguage("en");
+    AdministrativeDivisionDescriptionKey country = new AdministrativeDivisionDescriptionKey();
+    country.setLanguage("en");
 
     HashMap<String, Object> result;
 
     result = new HashMap<String, Object>();
-    result.put("RegionKey", region);
+    result.put("CodePublisher", new String("ISO"));
+    result.put("CodeID", new String("3166-1"));
+    result.put("DivisionCode", new String("DEU"));
+    result.put("Language", new String("en"));
     jpaQueryResult.add(new TupleDouble(result));
+    uriHelper.setKeyPredicates(keyPredicates, "DivisionCode");
+    keyPredicates.put("DEU", "CodePublisher='ISO',CodeID='3166-1',DivisionCode='DEU',Language='en'");
 
-    EntityCollection act = ((JPATupleResultConverter) cut).getResult();
+    EntityCollection act = cut.getResult();
     assertEquals(1, act.getEntities().size());
-    assertEquals(ValueType.COMPLEX, act.getEntities().get(0).getProperty("RegionKey").getValueType());
+    assertEquals("ISO", act.getEntities().get(0).getProperty("CodePublisher").getValue().toString());
+    assertEquals("en", act.getEntities().get(0).getProperty("Language").getValue().toString());
 
-    assertEquals("Regions(RegionKey/RegionCode='DE-HB',RegionKey/CountryCode='DE',RegionKey/Language='en')",
+    assertEquals(
+        "AdministrativeDivisionDescriptions(CodePublisher='ISO',CodeID='3166-1',DivisionCode='DEU',Language='en')",
         act.getEntities().get(0).getId().getPath());
   }
 

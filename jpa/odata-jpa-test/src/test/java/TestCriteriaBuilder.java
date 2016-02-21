@@ -15,6 +15,8 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
 import org.apache.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
+import org.apache.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescription;
+import org.apache.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescriptionKey;
 import org.apache.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
 import org.apache.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import org.apache.olingo.jpa.processor.core.testmodel.Organization;
@@ -33,7 +35,7 @@ public class TestCriteriaBuilder {
   public static void setupClass() {
     Map<String, Object> properties = new HashMap<String, Object>();
     properties.put(ENTITY_MANAGER_DATA_SOURCE, DataSourceHelper.createDataSource(
-        DataSourceHelper.DB_H2));
+        DataSourceHelper.DB_REMOTE));
     emf = Persistence.createEntityManagerFactory(PUNIT_NAME, properties);
   }
 
@@ -99,6 +101,42 @@ public class TestCriteriaBuilder {
     TypedQuery<Tuple> tq = em.createQuery(count);
     List<Tuple> act = tq.getResultList();
     tq.getFirstResult();
+  }
+
+  @Test
+  public void TestSearchEmbeddedId() {
+    CriteriaQuery<Tuple> cq = cb.createTupleQuery();
+    Root<?> adminDiv = cq.from(AdministrativeDivisionDescription.class);
+    cq.multiselect(adminDiv);
+
+    Subquery<AdministrativeDivisionDescriptionKey> sq = cq.subquery(AdministrativeDivisionDescriptionKey.class);
+    Root<AdministrativeDivisionDescription> text = sq.from(AdministrativeDivisionDescription.class);
+    sq.where(cb.function("CONTAINS", Boolean.class, text.get("name"), cb.literal("luettich")));
+    Expression<AdministrativeDivisionDescriptionKey> exp = text.get("key");
+    sq.select(exp);
+
+    cq.where(cb.and(cb.equal(adminDiv.get("key").get("codeID"), "NUTS2"),
+        cb.in(adminDiv).value(sq)));
+    TypedQuery<Tuple> tq = em.createQuery(cq);
+    List<Tuple> act = tq.getResultList();
+    System.out.println(act.size());
+  }
+
+  @Test
+  public void TestSearchNoSubquery() {
+    CriteriaQuery<Tuple> cq = cb.createTupleQuery();
+    Root<?> adminDiv = cq.from(AdministrativeDivisionDescription.class);
+    cq.multiselect(adminDiv);
+
+    Predicate[] restrictions = new Predicate[2];
+    cq.where(
+        cb.and(cb.equal(cb.conjunction(),
+            cb.function("CONTAINS", Boolean.class, adminDiv.get("name"), cb.literal("luettich"))),
+            cb.equal(adminDiv.get("key").get("codeID"), "NUTS2")));
+
+    TypedQuery<Tuple> tq = em.createQuery(cq);
+    List<Tuple> act = tq.getResultList();
+    System.out.println(act.size());
   }
 
   private Expression<Boolean> createParentAdmin(Root<AdministrativeDivision> subQuery,

@@ -9,6 +9,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 
 import org.apache.olingo.commons.api.edm.EdmFunction;
 import org.apache.olingo.commons.api.edm.EdmParameter;
@@ -23,8 +24,9 @@ import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResourceFunction;
 import org.apache.olingo.server.api.uri.queryoption.SearchOption;
+import org.apache.olingo.server.api.uri.queryoption.search.SearchTerm;
 
-class JPADefaultDatabaseProcessor implements JPAODataDatabaseProcessor {
+class JPA_HANA_DatabaseProcessor implements JPAODataDatabaseProcessor {
   private static final String SELECT_BASE_PATTERN = "SELECT * FROM $FUNCTIONNAME$($PARAMETER$)";
   private static final String FUNC_NAME_PLACEHOLDER = "$FUNCTIONNAME$";
   private static final String PARAMETER_PLACEHOLDER = "$PARAMETER$";
@@ -87,7 +89,15 @@ class JPADefaultDatabaseProcessor implements JPAODataDatabaseProcessor {
   public Expression<Boolean> createSearchWhereClause(CriteriaBuilder cb, CriteriaQuery<?> cq, Root<?> root,
       SearchOption searchOption)
           throws ODataApplicationException {
-    throw new ODataApplicationException("Search not supported",
-        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+//    throw new ODataApplicationException("Search not supported",
+//        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+
+    SearchTerm term = searchOption.getSearchExpression().asSearchTerm();
+
+    Subquery<Long> sq = cq.subquery(Long.class);
+//    return (Expression<Boolean>) (cq.where(cb.function("CONTAINS", Boolean.class, sr.get("name"), cb.literal(term
+//        .getSearchTerm()))));
+//    return (cb.exists(sq));
+    return cb.function("CONTAINS", Boolean.class, root.get("name"), cb.literal(term.getSearchTerm()));
   }
 }

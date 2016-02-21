@@ -13,7 +13,7 @@ import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
-import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
+import org.apache.olingo.jpa.processor.core.api.JPAODataContextAccess;
 import org.apache.olingo.jpa.processor.core.query.JPAExpandItemInfo;
 import org.apache.olingo.jpa.processor.core.query.JPAExpandItemInfoFactory;
 import org.apache.olingo.jpa.processor.core.query.JPAExpandQuery;
@@ -36,9 +36,9 @@ import org.apache.olingo.server.api.uri.queryoption.CountOption;
 
 public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor implements JPARequestProcessor {
 
-  public JPANavigationRequestProcessor(final OData odata, final ServicDocument sd, final EntityManager em,
+  public JPANavigationRequestProcessor(final OData odata, final JPAODataContextAccess context, final EntityManager em,
       final UriInfo uriInfo, final JPASerializer serializer) {
-    super(odata, sd, em, uriInfo, serializer);
+    super(odata, context, em, uriInfo, serializer);
   }
 
   @Override
@@ -49,7 +49,7 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
     final EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(resourceParts);
 
     // Create a JPQL Query and execute it
-    final JPAQuery query = new JPAQuery(odata, targetEdmEntitySet, sd, uriInfo, em, request.getAllHeaders());
+    final JPAQuery query = new JPAQuery(odata, targetEdmEntitySet, context, uriInfo, em, request.getAllHeaders());
     final JPAExpandResult result = query.execute();
 
     result.putChildren(readExpandEntities(request.getAllHeaders(), null, uriInfo));
@@ -57,7 +57,8 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
     // Convert tuple result into an OData Result
     EntityCollection entityCollection;
     try {
-      entityCollection = new JPATupleResultConverter(targetEdmEntitySet, sd, result).getResult();
+      entityCollection = new JPATupleResultConverter(sd, result, odata.createUriHelper())
+          .getResult();
     } catch (ODataJPAModelException e) {
       throw new ODataApplicationException("Convertion error", HttpStatusCode.INTERNAL_SERVER_ERROR.ordinal(),
           Locale.ENGLISH, e);
@@ -109,7 +110,7 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
         .buildExpandItemInfo(sd, uriResourceInfo.getUriResourceParts(), uriResourceInfo.getExpandOption(), parentHops);
 
     for (final JPAExpandItemInfo item : itemInfoList) {
-      final JPAExpandQuery expandQuery = new JPAExpandQuery(odata, sd, em, item, headers);
+      final JPAExpandQuery expandQuery = new JPAExpandQuery(odata, context, em, item, headers);
       final JPAExpandResult expandResult = expandQuery.execute();
       expandResult.putChildren(
           readExpandEntities(headers, item.getHops(), item.getUriInfo()));

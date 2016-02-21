@@ -21,9 +21,9 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 import javax.persistence.criteria.Subquery;
 
+import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
 import org.apache.olingo.commons.api.edm.EdmProperty;
-import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
@@ -35,7 +35,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
-import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
+import org.apache.olingo.jpa.processor.core.api.JPAODataContextAccess;
 import org.apache.olingo.jpa.processor.core.filter.JPAFilterCrossComplier;
 import org.apache.olingo.jpa.processor.core.filter.JPAOperationConverter;
 import org.apache.olingo.server.api.OData;
@@ -69,17 +69,19 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
   protected final CriteriaQuery<Tuple> cq;
   protected final Root<?> root;
   protected final JPAFilterCrossComplier filter;
+  protected final JPAODataContextAccess context;
 
-  public JPAExecutableQuery(final OData odata, final ServicDocument sd, final EdmType edmType, final EntityManager em,
-      final Map<String, List<String>> requestHeaders, final UriInfoResource uriResource)
+  public JPAExecutableQuery(final OData odata, JPAODataContextAccess context, final EdmEntityType edmType,
+      final EntityManager em, final Map<String, List<String>> requestHeaders, final UriInfoResource uriResource)
           throws ODataApplicationException {
 
-    super(sd, edmType, em);
+    super(context.getEdmProvider().getServiceDocument(), edmType, em);
     this.locale = determineLocale(requestHeaders);
     this.uriResource = uriResource;
     this.cq = cb.createTupleQuery();
     this.root = cq.from(jpaEntity.getTypeClass());
     this.filter = new JPAFilterCrossComplier(odata, jpaEntity, root, new JPAOperationConverter(cb), uriResource);
+    this.context = context;
   }
 
   @Override
@@ -162,11 +164,15 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
           // Primitive Type
           jpaPathList.add(selectItemPath);
         if (((JPAAttribute) selectItemPath.getLeaf()).isKey()) {
-          jpaKeyList.remove((JPAAttribute) selectItemPath.getLeaf());
+          jpaKeyList.remove(selectItemPath.getLeaf());
         }
       }
+      Collections.sort(jpaPathList);
       for (final JPAAttribute key : jpaKeyList) {
-        jpaPathList.add(jpaEntity.getPath(key.getExternalName()));
+        JPAPath keyPath = jpaEntity.getPath(key.getExternalName());
+        int insertAt = Collections.binarySearch(jpaPathList, keyPath);
+        if (insertAt < 0)
+          jpaPathList.add((insertAt * -1) - 1, keyPath);
       }
     } catch (ODataJPAModelException e) {
       throw new ODataApplicationException("Mapping Error", 500, Locale.ENGLISH, e);
@@ -178,6 +184,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     List<JPAPath> jpaPathList = null;
     // TODO It is also possible to request all actions or functions available for each returned entity:
     // http://host/service/Products?$select=DemoService.*
+
     // Convert uri select options into a list of jpa attributes
     String selectionText = null;
     final List<UriResource> resources = uriResource.getUriResourceParts();
@@ -231,14 +238,16 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     final HashMap<String, From<?, ?>> joinTables = new HashMap<String, From<?, ?>>();
     // 1. Create root
     joinTables.put(jpaEntity.getInternalName(), root);
+
     // 2. OrderBy navigation property
     for (final JPAAssociationAttribute orderBy : orderByTarget) {
       final Join<?, ?> join = root.join(orderBy.getInternalName(), JoinType.LEFT);
       // Take on condition from JPA metadata; no explicit on
       joinTables.put(orderBy.getInternalName(), join);
     }
+
+    // 3. Description Join
     for (final JPAPath descriptionFieldPath : descriptionFields) {
-      //
       final JPADescriptionAttribute desciptionField = ((JPADescriptionAttribute) descriptionFieldPath.getLeaf());
       final List<JPAElement> pathList = descriptionFieldPath.getPath();
       Join<?, ?> join = null;
@@ -257,10 +266,24 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
       if (desciptionField.isLocationJoin())
         join.on(cb.equal(join.get(desciptionField.getInternalName()), locale.toString()));
       else
-        join.on(cb.equal(join.get(desciptionField.getLocaleFieldName()), locale.getLanguage()));
+        join.on(cb.equal(determienLocalePath(join, desciptionField), locale.getLanguage()));
       joinTables.put(desciptionField.getInternalName(), join);
     }
     return joinTables;
+  }
+
+  private javax.persistence.criteria.Expression<?> determienLocalePath(Join<?, ?> join,
+      JPADescriptionAttribute desciptionField) throws ODataApplicationException {
+    Path<?> p = join;
+    try {
+      for (JPAElement pathElement : desciptionField.getLocaleFieldName().getPath()) {
+        p = p.get(pathElement.getInternalName());
+      }
+    } catch (ODataJPAModelException e) {
+      throw new ODataApplicationException(e.getMessage(),
+          HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), Locale.ENGLISH, e);
+    }
+    return p;
   }
 
   /**
@@ -389,38 +412,29 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     // Given key: Organizations('1')
     if (resources != null) {
       for (int i = resources.size() - 1; i >= 0; i--) {
-        resourceItem = (UriResource) (resources.get(i));
+        resourceItem = (resources.get(i));
         if (resourceItem instanceof UriResourceEntitySet || resourceItem instanceof UriResourceNavigation)
           break;
       }
       final List<UriParameter> keyPredicates = determineKeyPredicates(resourceItem);
       whereCondition = createWhereByKey(root, whereCondition, keyPredicates);
     }
-    // Navigation: AdministrativeDivisions(DivisionCode='BE2',CodeID='1',CodePublisher='NUTS')/Parent
-    final Subquery<?> subQuery = buildNavigationSubQueries(root);
-    if (subQuery != null) {
-      if (whereCondition == null)
-        whereCondition = cb.exists(subQuery);
-      else
-        whereCondition = cb.and(whereCondition, cb.exists(subQuery));
-    }
-    // TODO Given filter:
+
+    whereCondition = addWhereClause(whereCondition, buildNavigationSubQueries(root));
+
     // http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398301
     // http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part2-url-conventions/odata-v4.0-errata02-os-part2-url-conventions-complete.html#_Toc406398094
     // https://tools.oasis-open.org/version-control/browse/wsvn/odata/trunk/spec/ABNF/odata-abnf-construction-rules.txt
-    javax.persistence.criteria.Expression<Boolean> filterExpression;
     try {
-      filterExpression = filter.compile();
+      whereCondition = addWhereClause(whereCondition, filter.compile());
     } catch (ExpressionVisitException e) {
       throw new ODataApplicationException("Unable to parth filter expression", HttpStatusCode.BAD_REQUEST
-          .getStatusCode(),
-          Locale.ENGLISH, e);
+          .getStatusCode(), Locale.ENGLISH, e);
     }
-    if (filterExpression != null)
-      if (whereCondition == null)
-      whereCondition = filterExpression;
-    else
-      whereCondition = cb.and(whereCondition, filterExpression);
+
+    if (uriResource.getSearchOption() != null && uriResource.getSearchOption().getSearchExpression() != null)
+      whereCondition = addWhereClause(whereCondition,
+          context.getDatabaseProcessor().createSearchWhereClause(cb, this.cq, root, uriResource.getSearchOption()));
     return whereCondition;
   }
 
@@ -497,6 +511,40 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     return root;
   }
 
+  final Path<?> convertToCriteriaPath(final Map<String, From<?, ?>> joinTables, final JPAPath jpaPath) {
+    Path<?> p = root;
+    for (final JPAElement jpaPathElement : jpaPath.getPath())
+      if (jpaPathElement instanceof JPADescriptionAttribute) {
+        final Join<?, ?> join = (Join<?, ?>) joinTables.get(jpaPathElement.getInternalName());
+        p = join.get(((JPADescriptionAttribute) jpaPathElement).getDescriptionAttribute().getInternalName());
+      } else
+        p = p.get(jpaPathElement.getInternalName());
+    return p;
+  }
+
+  boolean hasNavigation(final List<UriResource> uriResourceParts) {
+    if (uriResourceParts != null) {
+      for (int i = uriResourceParts.size() - 1; i >= 0; i--) {
+        if (uriResourceParts.get(i) instanceof UriResourceNavigation)
+          return true;
+      }
+    }
+    return false;
+  }
+
+  private javax.persistence.criteria.Expression<Boolean> addWhereClause(
+      javax.persistence.criteria.Expression<Boolean> whereCondition,
+      final javax.persistence.criteria.Expression<Boolean> additioanlExpression) {
+
+    if (additioanlExpression != null) {
+      if (whereCondition == null)
+        whereCondition = additioanlExpression;
+      else
+        whereCondition = cb.and(whereCondition, additioanlExpression);
+    }
+    return whereCondition;
+  }
+
   /**
    * Generate sub-queries in order to select the target of a navigation to a different entity<p>
    * In case of multiple navigation steps a inner navigation has a dependency in both directions, to the upper and to
@@ -507,7 +555,8 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
    * WHERE inner = lower))</code><p>
    * This is solved by a three steps approach
    */
-  Subquery<?> buildNavigationSubQueries(final Root<?> root) throws ODataApplicationException {
+  private javax.persistence.criteria.Expression<Boolean> buildNavigationSubQueries(final Root<?> root)
+      throws ODataApplicationException {
 
     final List<UriResource> resourceParts = uriResource.getUriResourceParts();
 
@@ -529,27 +578,6 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     for (int i = queryList.size() - 1; i >= 0; i--) {
       childQuery = queryList.get(i).getSubQueryExists(childQuery);
     }
-    return childQuery;
-  }
-
-  final Path<?> convertToCriteriaPath(final Map<String, From<?, ?>> joinTables, final JPAPath jpaPath) {
-    Path<?> p = root;
-    for (final JPAElement jpaPathElement : jpaPath.getPath())
-      if (jpaPathElement instanceof JPADescriptionAttribute) {
-        final Join<?, ?> join = (Join<?, ?>) joinTables.get(jpaPathElement.getInternalName());
-        p = join.get(((JPADescriptionAttribute) jpaPathElement).getDescriptionAttribute().getInternalName());
-      } else
-        p = p.get(jpaPathElement.getInternalName());
-    return p;
-  }
-
-  boolean hasNavigation(final List<UriResource> uriResourceParts) {
-    if (uriResourceParts != null) {
-      for (int i = uriResourceParts.size() - 1; i >= 0; i--) {
-        if (uriResourceParts.get(i) instanceof UriResourceNavigation)
-          return true;
-      }
-    }
-    return false;
+    return cb.exists(childQuery);
   }
 }

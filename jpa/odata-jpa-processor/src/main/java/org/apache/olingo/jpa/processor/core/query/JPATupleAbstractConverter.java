@@ -2,6 +2,7 @@ package org.apache.olingo.jpa.processor.core.query;
 
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -17,6 +18,7 @@ import org.apache.olingo.commons.api.data.Entity;
 import org.apache.olingo.commons.api.data.Link;
 import org.apache.olingo.commons.api.data.Property;
 import org.apache.olingo.commons.api.data.ValueType;
+import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.ex.ODataRuntimeException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
@@ -26,7 +28,10 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
 import org.apache.olingo.server.api.ODataApplicationException;
+import org.apache.olingo.server.api.serializer.SerializerException;
+import org.apache.olingo.server.api.uri.UriHelper;
 
 public abstract class JPATupleAbstractConverter {
 
@@ -37,11 +42,28 @@ public abstract class JPATupleAbstractConverter {
       new HashMap<String, HashMap<String, Method>>();
   protected final JPAEntityType jpaConversionTargetEntity;
   protected final JPAExpandResult jpaQueryResult;
+  protected final UriHelper uriHelper;
+  protected final String setName;
+  protected final ServicDocument sd;
 
-  public JPATupleAbstractConverter(final JPAEntityType jpaEntity, final JPAExpandResult jpaQueryResult) {
+  public JPATupleAbstractConverter(final JPAExpandResult jpaQueryResult,
+      final UriHelper uriHelper, final ServicDocument sd) throws ODataApplicationException {
     super();
-    this.jpaConversionTargetEntity = jpaEntity;
+    try {
+      this.jpaConversionTargetEntity = sd.getEntity(jpaQueryResult.getEdmEntityType());
+    } catch (ODataJPAModelException e) {
+      throw new ODataApplicationException("Metadata not found for " + jpaQueryResult.getEdmEntityType().getName(),
+          HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), Locale.ENGLISH, e);
+    }
     this.jpaQueryResult = jpaQueryResult;
+    this.uriHelper = uriHelper;
+    this.sd = sd;
+    try {
+      this.setName = sd.getEntitySet(jpaQueryResult.getEdmEntityType()).getExternalName();
+    } catch (ODataJPAModelException e) {
+      throw new ODataApplicationException("Entity Set not found for " + jpaQueryResult.getEdmEntityType().getName(),
+          HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), Locale.ENGLISH, e);
+    }
   }
 
   protected String buildConcatenatedKey(final Tuple row, final List<JPAOnConditionItem> joinColumns) {
@@ -68,7 +90,7 @@ public abstract class JPATupleAbstractConverter {
       }
     }
     try {
-      odataEntity.setId(createId(jpaConversionTargetEntity.getKey(), row));
+      odataEntity.setId(createId(jpaConversionTargetEntity.getKey(), odataEntity));
     } catch (ODataJPAModelException e) {
       throw new ODataApplicationException("Property not found", HttpStatusCode.BAD_REQUEST.getStatusCode(),
           Locale.ENGLISH, e);
@@ -96,21 +118,40 @@ public abstract class JPATupleAbstractConverter {
           } else
             type = jpaConversionTargetEntity;
           if (type.getDeclaredAssociation(associationPath.getLeaf().getExternalName()) != null) {
-            final Link expand = new JPATupleExpandResultConverter(uri, children.get(associationPath), row,
-                associationPath).getResult();
+            final Link expand = new JPATupleExpandResultConverter(children.get(associationPath), row,
+                associationPath, uriHelper, sd).getResult();
             entityExpandLinks.add(expand);
           }
         } catch (ODataJPAModelException e) {
           throw new ODataApplicationException("Navigation property not found", HttpStatusCode.INTERNAL_SERVER_ERROR
-              .ordinal(), Locale.ENGLISH, e);
+              .getStatusCode(), Locale.ENGLISH, e);
         }
       }
     }
     return entityExpandLinks;
   }
 
-  protected abstract URI createId(List<? extends JPAAttribute> keyAttributes, Tuple row)
-      throws ODataApplicationException, ODataRuntimeException;
+  protected URI createId(List<? extends JPAAttribute> keyAttributes, Entity entity)
+      throws ODataApplicationException, ODataRuntimeException {
+
+    EdmEntityType edmType = jpaQueryResult.getEdmEntityType();
+    try {
+      // TODO Clarify host-name and port as part of ID see
+      // http://docs.oasis-open.org/odata/odata-atom-format/v4.0/cs02/odata-atom-format-v4.0-cs02.html#_Toc372792702
+
+      StringBuffer uriString = new StringBuffer(setName);
+      uriString.append("(");
+      uriString.append(uriHelper.buildKeyPredicate(edmType, entity));
+      uriString.append(")");
+      return new URI(uriString.toString());
+    } catch (URISyntaxException e) {
+      throw new ODataRuntimeException("Unable to create id for entity: " + edmType.getName(), e);
+    } catch (IllegalArgumentException e) {
+      return null;
+    } catch (SerializerException e) {
+      throw new ODataRuntimeException("Unable to create id for entity: " + edmType.getName(), e);
+    }
+  }
 
   protected Map<String, Method> getGetter(final JPAAttribute structuredAttribute) {
     HashMap<String, Method> pojoMethods = methodsBuffer.get(structuredAttribute.getInternalName());
@@ -132,7 +173,7 @@ public abstract class JPATupleAbstractConverter {
     ComplexValue compexValue = null;
     if (jpaStructuredType.getPath(externalName) != null) {
       final JPAAttribute attribute = (JPAAttribute) jpaStructuredType.getPath(externalName).getPath().get(0);// getLeaf();
-      if (attribute != null && attribute.isComplex()) {
+      if (attribute != null && !attribute.isKey() && attribute.isComplex()) {
         String bufferKey;
         if (prefix.isEmpty())
           bufferKey = attribute.getExternalName();
@@ -152,6 +193,12 @@ public abstract class JPATupleAbstractConverter {
         final int splitIndex = attribute.getExternalName().length() + JPAPath.PATH_SEPERATOR.length();
         final String attributeName = externalName.substring(splitIndex);
         convertAttribute(value, attributeName, bufferKey, attribute.getStructuredType(), complexValueBuffer, values);
+      } else if (attribute.isKey() && attribute.isComplex()) {
+        properties.add(new Property(
+            null,
+            jpaStructuredType.getPath(externalName).getLeaf().getExternalName(),
+            ValueType.PRIMITIVE,
+            value));
       } else {
         // ...$select=Name1,Address/Region
         properties.add(new Property(

@@ -3,12 +3,16 @@ package org.apache.olingo.jpa.metadata.core.edm.mapper.impl;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.metamodel.Attribute;
 
 import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssozation;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPADescriptionAttribute;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
@@ -16,6 +20,7 @@ class IntermediateDescriptionProperty extends IntermediateProperty implements JP
   private IntermediateProperty descriptionProperty;
   private String languageAttribute;
   private String localeAttribute;
+  private JPAStructuredType targetEntity;
 
   IntermediateDescriptionProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,
       final IntermediateSchema schema) throws ODataJPAModelException {
@@ -33,7 +38,6 @@ class IntermediateDescriptionProperty extends IntermediateProperty implements JP
           // determine generic type of a collection in case of an OneToMany association
           final Field jpaField = (Field) jpaAttribute.getJavaMember();
           final ParameterizedType jpaTargetEntityType = (ParameterizedType) jpaField.getGenericType();
-          JPAStructuredType targetEntity;
           if (jpaTargetEntityType != null)
             targetEntity = schema.getEntityType((Class<?>) jpaTargetEntityType.getActualTypeArguments()[0]);
           else
@@ -76,10 +80,28 @@ class IntermediateDescriptionProperty extends IntermediateProperty implements JP
   }
 
   @Override
-  public String getLocaleFieldName() {
+  public JPAPath getLocaleFieldName() throws ODataJPAModelException {
+    String attribute;
     if (!languageAttribute.isEmpty())
-      return languageAttribute;
+      attribute = languageAttribute;
     else
-      return localeAttribute;
+      attribute = localeAttribute;
+
+    String[] pathItems = attribute.split(JPAPath.PATH_SEPERATOR);
+    if (pathItems.length > 1) {
+      List<JPAElement> targetPath = new ArrayList<JPAElement>();
+      IntermediateProperty nextHop = (IntermediateProperty) targetEntity.getAttribute(pathItems[0]);
+      targetPath.add(nextHop);
+      for (int i = 1; i < pathItems.length; i++) {
+        if (nextHop.isComplex()) {
+          nextHop = (IntermediateProperty) nextHop.getStructuredType().getAttribute(pathItems[i]);
+          targetPath.add(nextHop);
+        }
+      }
+      return new JPAPathImpl(nextHop.getExternalName(), nextHop.getDBFieldName(), targetPath);
+    } else {
+      IntermediateProperty p = (IntermediateProperty) targetEntity.getAttribute(attribute);
+      return new JPAPathImpl(p.getExternalName(), p.getDBFieldName(), p);
+    }
   }
 }

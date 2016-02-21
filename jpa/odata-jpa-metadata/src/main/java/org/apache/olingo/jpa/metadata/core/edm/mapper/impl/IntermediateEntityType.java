@@ -3,6 +3,7 @@ package org.apache.olingo.jpa.metadata.core.edm.mapper.impl;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -47,19 +48,24 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
 
     for (final String internalName : this.declaredPropertiesList.keySet()) {
       final JPAAttribute attribute = this.declaredPropertiesList.get(internalName);
-      if (attribute.isKey())
-        key.add(attribute);
+      if (attribute.isKey()) {
+        if (attribute.isComplex()) {
+          key.addAll(((IntermediateEmbeddedIdProperty) attribute).getStructuredType().getAttributes());
+        } else
+          key.add(attribute);
+      }
     }
     final IntermediateStructuredType baseType = getBaseType();
     if (baseType != null) {
-      final Map<String, JPAPathImpl> baseAttributes = baseType.getResolvedPathMap();
-      for (final String baseExternalName : baseAttributes.keySet()) {
-        final JPAPath baseAttributePath = baseAttributes.get(baseExternalName);
-        // TODO Embbeded Ids!!
-        final JPAAttribute baseAttribute = (JPAAttribute) baseAttributePath.getPath().get(0);
-        if (baseAttribute.isKey())
-          key.add(baseAttribute);
-      }
+      key.addAll(((IntermediateEntityType) baseType).getKey());
+//      final Map<String, JPAPathImpl> baseAttributes = baseType.getResolvedPathMap();
+//      for (final String baseExternalName : baseAttributes.keySet()) {
+//        final JPAPath baseAttributePath = baseAttributes.get(baseExternalName);
+//        // TODO Embbeded Ids!!
+//        final JPAAttribute baseAttribute = (JPAAttribute) baseAttributePath.getPath().get(0);
+//        if (baseAttribute.isKey())
+//          key.add(baseAttribute);
+//      }
     }
     return key;
   }
@@ -95,20 +101,36 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
     return Modifier.isAbstract(modifiers);
   }
 
+  /**
+   * Creates the key of an entity. In case the POJP is declared with an embedded ID the key fields get resolved, so that
+   * they occur as separate properties within the metadata document
+   * 
+   * @param propertyList
+   * @return
+   * @throws ODataJPAModelException
+   */
   List<CsdlPropertyRef> extractEdmKeyElements(final Map<String, IntermediateProperty> propertyList)
       throws ODataJPAModelException {
 
     final List<CsdlPropertyRef> keyList = new ArrayList<CsdlPropertyRef>();
     for (final String internalName : propertyList.keySet()) {
       if (propertyList.get(internalName).isKey()) {
-        if (propertyList.get(internalName).isComplex())
-          // TODO Clarify if it is correct that OData or Olingo do not support complex Types as key
-          throw ODataJPAModelException.throwException(ODataJPAModelException.NOT_SUPPORTED_EMBEDDED_KEY,
-              "Embedded Ids are not supported");
-        final CsdlPropertyRef key = new CsdlPropertyRef();
-        key.setName(propertyList.get(internalName).getExternalName());
-        // TODO setAlias
-        keyList.add(key);
+        if (propertyList.get(internalName).isComplex()) {
+          List<JPAAttribute> idAttributes = ((IntermediateComplexType) propertyList.get(internalName)
+              .getStructuredType())
+                  .getAttributes();
+          for (JPAAttribute idAttribute : idAttributes) {
+            final CsdlPropertyRef key = new CsdlPropertyRef();
+            key.setName(idAttribute.getExternalName());
+            // TODO setAlias
+            keyList.add(key);
+          }
+        } else {
+          final CsdlPropertyRef key = new CsdlPropertyRef();
+          key.setName(propertyList.get(internalName).getExternalName());
+          // TODO setAlias
+          keyList.add(key);
+        }
       }
     }
     return returnNullIfEmpty(keyList);
@@ -134,4 +156,28 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
       return null;
   }
 
+  @SuppressWarnings("unchecked")
+  @Override
+  protected <T> List<?> extractEdmModelElements(Map<String, ?> mappingBuffer) throws ODataJPAModelException {
+    final List<T> extractionTarget = new ArrayList<T>();
+    for (final String externalName : mappingBuffer.keySet()) {
+      if (!((IntermediateModelElement) mappingBuffer.get(externalName)).ignore()) {
+        if (mappingBuffer.get(externalName) instanceof IntermediateEmbeddedIdProperty) {
+          extractionTarget.addAll((Collection<? extends T>) resolveEmbeddedId(
+              (IntermediateEmbeddedIdProperty) mappingBuffer.get(externalName)));
+        } else
+          extractionTarget.add((T) ((IntermediateModelElement) mappingBuffer.get(externalName)).getEdmItem());
+      }
+    }
+    return returnNullIfEmpty(extractionTarget);
+  }
+
+  private <T> List<?> resolveEmbeddedId(IntermediateEmbeddedIdProperty embeddedId) throws ODataJPAModelException {
+//    final List<T> idElements = new ArrayList<T>();
+    return ((IntermediateComplexType) embeddedId.getStructuredType()).getEdmItem().getProperties();
+//    for (CsdlProperty keyProperty : embeddedIdProp) {
+//      idElements.add((T) (keyProperty.getEdmItem());
+//    }
+//    return idElements;
+  }
 }

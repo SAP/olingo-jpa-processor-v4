@@ -20,7 +20,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
-import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
+import org.apache.olingo.jpa.processor.core.api.JPAODataContextAccess;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
@@ -46,20 +46,20 @@ public class JPAExpandQuery extends JPAExecutableQuery {
   private final JPAAssociationPath assoziation;
   private final JPAExpandItemInfo item;
 
-  public JPAExpandQuery(final OData odata, final ServicDocument sd, final EntityManager em,
+  public JPAExpandQuery(final OData odata, JPAODataContextAccess context, final EntityManager em,
       final UriInfoResource uriInfo, final JPAAssociationPath assoziation, // final JPAExecutableQuery parentQuery,
       final Map<String, List<String>> requestHeaders) throws ODataApplicationException {
-    super(odata, sd, Util.determineTargetEntityType(uriInfo.getUriResourceParts()), em, requestHeaders,
+    super(odata, context, Util.determineTargetEntityType(uriInfo.getUriResourceParts()), em, requestHeaders,
         uriInfo);
     this.assoziation = assoziation;
     this.item = null;
   }
 
-  public JPAExpandQuery(final OData odata, final ServicDocument sd, final EntityManager em,
+  public JPAExpandQuery(final OData odata, JPAODataContextAccess context, final EntityManager em,
       final JPAExpandItemInfo item,
       final Map<String, List<String>> requestHeaders) throws ODataApplicationException {
 
-    super(odata, sd, Util.determineTargetEntityType(item.getUriInfo().getUriResourceParts()), em, requestHeaders,
+    super(odata, context, Util.determineTargetEntityType(item.getUriInfo().getUriResourceParts()), em, requestHeaders,
         item.getUriInfo());
     this.assoziation = item.getExpandAssociation();
     this.item = item;
@@ -75,7 +75,8 @@ public class JPAExpandQuery extends JPAExecutableQuery {
 
   /**
    * Process a expand query, which contains a $skip and/or a $top option.<p>
-   * This a tricky problem, as it can not be done easily with SQL. It could be that a database offers special solutions.
+   * This is a tricky problem, as it can not be done easily with SQL. It could be that a database offers special
+   * solutions.
    * There is an worth reading blog regards this topic:
    * <a href="http://www.xaprb.com/blog/2006/12/07/how-to-select-the-firstleastmax-row-per-group-in-sql/">How to select
    * the first/least/max row per group in SQL</a>
@@ -83,6 +84,7 @@ public class JPAExpandQuery extends JPAExecutableQuery {
    * @throws ODataApplicationException
    */
   private JPAExpandResult executeExpandTopSkipQuery() throws ODataApplicationException {
+    // TODO make this replacable
     long skip = 0;
     long top = Long.MAX_VALUE;
     final TypedQuery<Tuple> tupleQuery = createTupleQuery();
@@ -91,13 +93,13 @@ public class JPAExpandQuery extends JPAExecutableQuery {
     if (uriResource.getSkipOption() != null) skip = uriResource.getSkipOption().getValue();
     if (uriResource.getTopOption() != null) top = uriResource.getTopOption().getValue();
 
-    return new JPAExpandResult(convertResult(intermediateResult, assoziation, skip, top), count());
+    return new JPAExpandResult(convertResult(intermediateResult, assoziation, skip, top), count(), edmType);
   }
 
   private JPAExpandResult executeStandradQuery() throws ODataApplicationException {
     final TypedQuery<Tuple> tupleQuery = createTupleQuery();
     final List<Tuple> intermediateResult = tupleQuery.getResultList();
-    return new JPAExpandResult(convertResult(intermediateResult, assoziation, 0, Long.MAX_VALUE), count());
+    return new JPAExpandResult(convertResult(intermediateResult, assoziation, 0, Long.MAX_VALUE), count(), edmType);
   }
 
   private TypedQuery<Tuple> createTupleQuery() throws ODataApplicationException {

@@ -239,6 +239,41 @@ public class TestIntermediateEntityType extends TestMappingRoot {
     assertEquals(1, et.getKey().size());
   }
 
+  @Test
+  public void checkEmbeddedIdResovedProperties() throws ODataJPAModelException {
+    IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "AdministrativeDivisionDescription"), schema);
+    assertEquals(5, et.getEdmItem().getProperties().size());
+  }
+
+  @Test
+  public void checkEmbeddedIdResovedKey() throws ODataJPAModelException {
+    IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "AdministrativeDivisionDescription"), schema);
+    assertEquals(4, et.getEdmItem().getKey().size());
+  }
+
+  @Test
+  public void checkEmbeddedIdResovedKeyInternal() throws ODataJPAModelException {
+    IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "AdministrativeDivisionDescription"), schema);
+    assertEquals(4, et.getKey().size());
+  }
+
+  @Test
+  public void checkEmbeddedIdResovedPath() throws ODataJPAModelException {
+    IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "AdministrativeDivisionDescription"), schema);
+    assertEquals(5, et.getPathList().size());
+  }
+
+  @Test
+  public void checkEmbeddedIdResovedPathCodeId() throws ODataJPAModelException {
+    IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "AdministrativeDivisionDescription"), schema);
+    assertEquals(2, et.getPath("CodeID").getPath().size());
+  }
+
   @Ignore
   @Test
   public void checkGetPropertyWithEnumerationType() {

@@ -11,6 +11,7 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
+import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
@@ -36,7 +37,7 @@ public class JPANavigationQuery extends JPAAbstractQuery {
 
   public JPANavigationQuery(final ServicDocument sd, final UriResource uriResourceItem,
       final EntityManager em, final JPAAssociationPath association) throws ODataApplicationException {
-    super(sd, ((UriResourcePartTyped) uriResourceItem).getType(), em);
+    super(sd, (EdmEntityType) ((UriResourcePartTyped) uriResourceItem).getType(), em);
     this.keyPredicates = determineKeyPredicates(uriResourceItem);
     this.association = association;
   }
@@ -45,7 +46,7 @@ public class JPANavigationQuery extends JPAAbstractQuery {
       final JPAAbstractQuery parent,
       final EntityManager em, final JPAAssociationPath association) throws ODataApplicationException {
 
-    super(sd, ((UriResourcePartTyped) uriResourceItem).getType(), em);
+    super(sd, (EdmEntityType) ((UriResourcePartTyped) uriResourceItem).getType(), em);
     this.keyPredicates = determineKeyPredicates(uriResourceItem);
     this.association = association;
     this.parentQuery = parent;
@@ -100,7 +101,7 @@ public class JPANavigationQuery extends JPAAbstractQuery {
     if (childQuery != null)
       whereCondition = cb.and(whereCondition, cb.exists(childQuery));
     subQuery.where(whereCondition);
-    return (Subquery<T>) subQuery;
+    return subQuery;
   }
 
   private Expression<Boolean> createWhereByAssociation(final From<?, ?> parentFrom, final Root<?> subRoot,

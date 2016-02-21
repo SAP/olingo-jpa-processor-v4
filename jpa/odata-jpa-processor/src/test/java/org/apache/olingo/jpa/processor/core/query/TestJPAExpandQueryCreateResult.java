@@ -11,10 +11,14 @@ import java.util.Map;
 import javax.persistence.Tuple;
 
 import org.apache.olingo.commons.api.edm.EdmEntityType;
+import org.apache.olingo.commons.api.ex.ODataException;
+import org.apache.olingo.jpa.metadata.api.JPAEdmProvider;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
+import org.apache.olingo.jpa.processor.core.api.JPAODataContextAccess;
 import org.apache.olingo.jpa.processor.core.util.EdmEntityTypeDouble;
 import org.apache.olingo.jpa.processor.core.util.ExpandItemDouble;
+import org.apache.olingo.jpa.processor.core.util.JPAODataContextAccessDouble;
 import org.apache.olingo.jpa.processor.core.util.TestBase;
 import org.apache.olingo.jpa.processor.core.util.TestHelper;
 import org.apache.olingo.jpa.processor.core.util.TupleDouble;
@@ -26,11 +30,12 @@ public class TestJPAExpandQueryCreateResult extends TestBase {
   private JPAExpandQuery cut;
 
   @Before
-  public void setup() throws ODataJPAModelException, ODataApplicationException {
-    helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
+  public void setup() throws ODataException {
+    helper = new TestHelper(emf, PUNIT_NAME);
     createHeaders();
     EdmEntityType targetEntity = new EdmEntityTypeDouble(nameBuilder, "BusinessPartnerRole");
-    cut = new JPAExpandQuery(null, helper.sd, emf.createEntityManager(), new ExpandItemDouble(targetEntity)
+    JPAODataContextAccess context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null), ds);
+    cut = new JPAExpandQuery(null, context, emf.createEntityManager(), new ExpandItemDouble(targetEntity)
         .getResourcePath(), helper.getJPAAssociationPath("Organizations", "Roles"),
         new HashMap<String, List<String>>());
     // new EdmEntitySetDouble(nameBuilder, "Organisations"), null, new HashMap<String, List<String>>());

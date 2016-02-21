@@ -2,8 +2,8 @@ package org.apache.olingo.jpa.processor.core.util;
 
 import static org.junit.Assert.fail;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.olingo.commons.api.data.Entity;
 import org.apache.olingo.commons.api.edm.Edm;
@@ -19,7 +19,7 @@ import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
 import org.apache.olingo.server.api.uri.queryoption.SelectOption;
 
 public class UriHelperDouble implements UriHelper {
-  private HashMap<String, String> keyPredicates;
+  private Map<String, String> keyPredicates;
   private String idPropertyName;
 
   @Override
@@ -54,11 +54,11 @@ public class UriHelperDouble implements UriHelper {
     return null;
   }
 
-  public HashMap<String, String> getKeyPredicates() {
+  public Map<String, String> getKeyPredicates() {
     return keyPredicates;
   }
 
-  public void setKeyPredicates(HashMap<String, String> keyPredicates, String idPropertyName) {
+  public void setKeyPredicates(Map<String, String> keyPredicates, String idPropertyName) {
     this.keyPredicates = keyPredicates;
     this.idPropertyName = idPropertyName;
   }
