@@ -128,7 +128,7 @@ public class TestCriteriaBuilder {
     Root<?> adminDiv = cq.from(AdministrativeDivisionDescription.class);
     cq.multiselect(adminDiv);
 
-    Predicate[] restrictions = new Predicate[2];
+    // Predicate[] restrictions = new Predicate[2];
     cq.where(
         cb.and(cb.equal(cb.conjunction(),
             cb.function("CONTAINS", Boolean.class, adminDiv.get("name"), cb.literal("luettich"))),

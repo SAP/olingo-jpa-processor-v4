@@ -10,7 +10,7 @@ public interface JPAPath extends Comparable<JPAPath> {
 
   String getDBFieldName();
 
-  JPAElement getLeaf();
+  JPAAttribute getLeaf();
 
   List<JPAElement> getPath();
 

@@ -271,4 +271,9 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
   public CsdlNavigationProperty getProperty() throws ODataJPAModelException {
     return getEdmItem();
   }
+
+  @Override
+  public boolean isSearchable() {
+    return false;
+  }
 }

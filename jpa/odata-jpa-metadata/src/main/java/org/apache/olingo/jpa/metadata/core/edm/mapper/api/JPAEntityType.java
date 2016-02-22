@@ -12,4 +12,6 @@ public interface JPAEntityType extends JPAStructuredType {
 
   public Class<?> getKeyType();
 
+  public List<JPAPath> getSearchablePath() throws ODataJPAModelException;
+
 }

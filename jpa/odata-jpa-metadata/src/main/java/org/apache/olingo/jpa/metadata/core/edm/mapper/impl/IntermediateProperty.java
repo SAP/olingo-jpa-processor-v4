@@ -15,6 +15,7 @@ import javax.persistence.metamodel.SingularAttribute;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
+import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmSearchable;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -43,6 +44,7 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
   // TODO Store a type @Convert
   private AttributeConverter<?, ?> valueConverter;
   private String dbFieldName;
+  private boolean searchable = false;
 
   IntermediateProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,
       final IntermediateSchema schema) throws ODataJPAModelException {
@@ -75,6 +77,7 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
     return jpaAttribute.getPersistentAttributeType() == PersistentAttributeType.EMBEDDED ? true : false;
   }
 
+  @Override
   public boolean isKey() {
     if (jpaAttribute instanceof SingularAttribute<?, ?>)
       return ((SingularAttribute<?, ?>) jpaAttribute).isId();
@@ -198,7 +201,10 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
       else
         dbFieldName = internalName;
       // TODO @Transient -> e.g. Calculated fields like formated name
-
+      final EdmSearchable jpaSearchable = ((AnnotatedElement) this.jpaAttribute.getJavaMember()).getAnnotation(
+          EdmSearchable.class);
+      if (jpaSearchable != null)
+        searchable = true;
     }
     postProcessor.processProperty(this, jpaAttribute.getDeclaringType().getJavaType()
         .getCanonicalName());
@@ -221,6 +227,11 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
   @Override
   public CsdlProperty getProperty() throws ODataJPAModelException {
     return getEdmItem();
+  }
+
+  @Override
+  public boolean isSearchable() {
+    return searchable;
   }
 
 }

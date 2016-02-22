@@ -5,6 +5,8 @@ import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmSearchable;
+
 @Entity
 //@IdClass(AdministrativeDivisionDescriptionKey.class)
 @Table(schema = "\"OLINGO\"", name = "\"org.apache.olingo.jpa::AdministrativeDivisionDescription\"")
@@ -25,7 +27,7 @@ public class AdministrativeDivisionDescription {
 
   @EmbeddedId
   private AdministrativeDivisionDescriptionKey key;
-
+  @EdmSearchable
   @Column(name = "\"Name\"", length = 100)
   private String name;
 

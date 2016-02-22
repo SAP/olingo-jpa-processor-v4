@@ -20,6 +20,8 @@ public interface JPAAttribute extends JPAElement {
 
   public boolean isAssociation();
 
+  public boolean isSearchable();
+
   public EdmPrimitiveTypeKind getEdmType() throws ODataJPAModelException;
 
   public CsdlAbstractEdmItem getProperty() throws ODataJPAModelException;

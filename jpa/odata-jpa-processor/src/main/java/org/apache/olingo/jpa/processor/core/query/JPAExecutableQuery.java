@@ -434,7 +434,8 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
 
     if (uriResource.getSearchOption() != null && uriResource.getSearchOption().getSearchExpression() != null)
       whereCondition = addWhereClause(whereCondition,
-          context.getDatabaseProcessor().createSearchWhereClause(cb, this.cq, root, uriResource.getSearchOption()));
+          context.getDatabaseProcessor().createSearchWhereClause(cb, this.cq, root, jpaEntity, uriResource
+              .getSearchOption()));
     return whereCondition;
   }
 

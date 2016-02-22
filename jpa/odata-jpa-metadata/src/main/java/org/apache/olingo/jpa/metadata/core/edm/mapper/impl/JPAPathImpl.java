@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -73,8 +74,8 @@ class JPAPathImpl implements JPAPath {
    * @see org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAPath#getLeaf()
    */
   @Override
-  public JPAElement getLeaf() {
-    return pathElements.get(pathElements.size() - 1);
+  public JPAAttribute getLeaf() {
+    return (JPAAttribute) pathElements.get(pathElements.size() - 1);
   }
 
   /*

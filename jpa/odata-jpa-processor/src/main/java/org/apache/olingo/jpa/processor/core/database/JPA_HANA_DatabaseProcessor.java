@@ -1,5 +1,6 @@
 package org.apache.olingo.jpa.processor.core.database;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
@@ -8,7 +9,10 @@ import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Selection;
 import javax.persistence.criteria.Subquery;
 
 import org.apache.olingo.commons.api.edm.EdmFunction;
@@ -16,17 +20,21 @@ import org.apache.olingo.commons.api.edm.EdmParameter;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionParameter;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.processor.core.api.JPAODataDatabaseProcessor;
+import org.apache.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescriptionKey;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResourceFunction;
 import org.apache.olingo.server.api.uri.queryoption.SearchOption;
 import org.apache.olingo.server.api.uri.queryoption.search.SearchTerm;
 
-class JPA_HANA_DatabaseProcessor implements JPAODataDatabaseProcessor {
+final class JPA_HANA_DatabaseProcessor implements JPAODataDatabaseProcessor {
   private static final String SELECT_BASE_PATTERN = "SELECT * FROM $FUNCTIONNAME$($PARAMETER$)";
   private static final String FUNC_NAME_PLACEHOLDER = "$FUNCTIONNAME$";
   private static final String PARAMETER_PLACEHOLDER = "$PARAMETER$";
@@ -45,6 +53,41 @@ class JPA_HANA_DatabaseProcessor implements JPAODataDatabaseProcessor {
       count += 1;
     }
     return functionQuery.getResultList();
+  }
+
+  @Override
+  public Expression<Boolean> createSearchWhereClause(CriteriaBuilder cb, CriteriaQuery<?> cq, Root<?> root,
+      JPAEntityType entityType, SearchOption searchOption) throws ODataApplicationException {
+    /*
+     * The following code generates a sub-query to filter on the values that matches the search term. This looks
+     * cumbersome, but there were problems using the straight forward solution:
+     * return cb.function("CONTAINS", Boolean.class, root.get("name"), cb.literal(term.getSearchTerm()));
+     * in case $search was combined with $filter. In this case the processing aborts with the following error:
+     * "org.eclipse.persistence.internal.jpa.querydef.FunctionExpressionImpl cannot be cast to
+     * org.eclipse.persistence.internal.jpa.querydef.CompoundExpressionImpl"
+     */
+    List<JPAPath> searchableAttributes = null;
+    try {
+      searchableAttributes = entityType.getSearchablePath();
+    } catch (ODataJPAModelException e) {
+      throw new ODataApplicationException(e.getMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
+          Locale.ENGLISH, e);
+    }
+    if (!searchableAttributes.isEmpty()) {
+      SearchTerm term = searchOption.getSearchExpression().asSearchTerm();
+      Subquery<AdministrativeDivisionDescriptionKey> sq = cq.subquery(AdministrativeDivisionDescriptionKey.class);
+      Root<?> sr = sq.from(root.getJavaType());
+      Expression<AdministrativeDivisionDescriptionKey> sel = sr.get("key");
+      sq.select(sel);
+      Path<?> path = sr;
+      for (JPAPath searchableAttribute : searchableAttributes) {
+        for (JPAElement pathItem : searchableAttribute.getPath())
+          path = path.get(pathItem.getInternalName());
+      }
+      sq.where(cb.function("CONTAINS", Boolean.class, path, cb.literal(term.getSearchTerm())));
+      return (cb.in(root.get("key")).value(sq));
+    }
+    return null;
   }
 
   private String generateQueryString(final JPAFunction jpaFunction) {
@@ -85,19 +128,79 @@ class JPA_HANA_DatabaseProcessor implements JPAODataDatabaseProcessor {
     }
   }
 
-  @Override
-  public Expression<Boolean> createSearchWhereClause(CriteriaBuilder cb, CriteriaQuery<?> cq, Root<?> root,
-      SearchOption searchOption)
-          throws ODataApplicationException {
-//    throw new ODataApplicationException("Search not supported",
-//        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+  private class MyExpression<T> implements Expression<T> {
 
-    SearchTerm term = searchOption.getSearchExpression().asSearchTerm();
+    @Override
+    public Selection<T> alias(String arg0) {
+      // TODO Auto-generated method stub
+      return null;
+    }
 
-    Subquery<Long> sq = cq.subquery(Long.class);
-//    return (Expression<Boolean>) (cq.where(cb.function("CONTAINS", Boolean.class, sr.get("name"), cb.literal(term
-//        .getSearchTerm()))));
-//    return (cb.exists(sq));
-    return cb.function("CONTAINS", Boolean.class, root.get("name"), cb.literal(term.getSearchTerm()));
+    @Override
+    public List<Selection<?>> getCompoundSelectionItems() {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public boolean isCompoundSelection() {
+      // TODO Auto-generated method stub
+      return false;
+    }
+
+    @Override
+    public String getAlias() {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public Class<? extends T> getJavaType() {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public <X> Expression<X> as(Class<X> arg0) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public Predicate in(Object... arg0) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public Predicate in(Expression<?>... arg0) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public Predicate in(Collection<?> arg0) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public Predicate in(Expression<Collection<?>> arg0) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public Predicate isNotNull() {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public Predicate isNull() {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
   }
 }

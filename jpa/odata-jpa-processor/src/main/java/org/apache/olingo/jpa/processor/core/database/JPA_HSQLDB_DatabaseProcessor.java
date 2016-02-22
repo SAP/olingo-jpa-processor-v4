@@ -85,8 +85,7 @@ class JPA_HSQLDB_DatabaseProcessor implements JPAODataDatabaseProcessor {
 
   @Override
   public Expression<Boolean> createSearchWhereClause(CriteriaBuilder cb, CriteriaQuery<?> cq, Root<?> root,
-      SearchOption searchOption)
-          throws ODataApplicationException {
+      JPAEntityType entityType, SearchOption searchOption) throws ODataApplicationException {
     throw new ODataApplicationException("Search not supported",
         HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
   }

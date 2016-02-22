@@ -30,12 +30,12 @@ public interface JPAODataDatabaseProcessor {
    * @param cb
    * @param cq
    * @param root
+   * @param entityType
    * @param searchOption
    * @return
    * @throws ODataApplicationException
    */
   Expression<Boolean> createSearchWhereClause(CriteriaBuilder cb, CriteriaQuery<?> cq, Root<?> root,
-      SearchOption searchOption)
-          throws ODataApplicationException;
+      JPAEntityType entityType, SearchOption searchOption) throws ODataApplicationException;
 
 }
