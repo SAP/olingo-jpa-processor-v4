@@ -5,8 +5,10 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
+import javax.persistence.Table;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.IdentifiableType;
 
@@ -63,6 +65,25 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
   }
 
   @Override
+  public List<JPAPath> getKeyPath() throws ODataJPAModelException {
+    lazyBuildEdmItem();
+
+    List<JPAPath> result = new ArrayList<JPAPath>();
+    for (final String internalName : this.declaredPropertiesList.keySet()) {
+      final JPAAttribute attribute = this.declaredPropertiesList.get(internalName);
+      if (attribute instanceof IntermediateEmbeddedIdProperty) {
+        result.add(intermediatePathMap.get(attribute.getExternalName()));
+      } else if (attribute.isKey())
+        result.add(resolvedPathMap.get(attribute.getExternalName()));
+    }
+    final IntermediateStructuredType baseType = getBaseType();
+    if (baseType != null) {
+      result.addAll(((IntermediateEntityType) baseType).getKeyPath());
+    }
+    return result;
+  }
+
+  @Override
   public Class<?> getKeyType() {
     if (jpaManagedType instanceof IdentifiableType<?>)
       return ((IdentifiableType<?>) jpaManagedType).getIdType().getJavaType();
@@ -79,6 +100,18 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
         searchablePath.add(p);
     }
     return searchablePath;
+  }
+
+  @Override
+  public String getTableName() {
+    final AnnotatedElement a = jpaManagedType.getJavaType();
+    Table t = null;
+
+    if (a != null)
+      t = a.getAnnotation(Table.class);
+
+    return (t == null) ? jpaManagedType.getJavaType().getName().toUpperCase(Locale.ENGLISH)
+        : t.name();
   }
 
   @Override
@@ -177,4 +210,5 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
   private <T> List<?> resolveEmbeddedId(IntermediateEmbeddedIdProperty embeddedId) throws ODataJPAModelException {
     return ((IntermediateComplexType) embeddedId.getStructuredType()).getEdmItem().getProperties();
   }
+
 }

@@ -14,6 +14,7 @@ C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-metadata\src\main\java\org\apach
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-metadata\src\main\java\org\apache\olingo\jpa\metadata\core\edm\mapper\extention\IntermediatePropertyAccess.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-metadata\src\main\java\org\apache\olingo\jpa\metadata\api\JPAEntityManagerFactory.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-metadata\src\main\java\org\apache\olingo\jpa\metadata\core\edm\mapper\exception\ODataJPAModelException.java
+C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-metadata\src\main\java\org\apache\olingo\jpa\metadata\core\edm\mapper\impl\IntermediateEmbeddedIdProperty.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-metadata\src\main\java\org\apache\olingo\jpa\metadata\core\edm\mapper\impl\IntermediateStructuredType.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-metadata\src\main\java\org\apache\olingo\jpa\metadata\api\JPAEdmProvider.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-metadata\src\main\java\org\apache\olingo\jpa\metadata\core\edm\mapper\impl\JPAEdmNameBuilder.java

@@ -26,6 +26,7 @@ org\apache\olingo\jpa\processor\core\processor\JPAAbstractRequestProcessor.class
 org\apache\olingo\jpa\processor\core\query\JPAExpandResult.class
 org\apache\olingo\jpa\processor\core\query\JPAInstanceResultConverter.class
 org\apache\olingo\jpa\processor\core\serializer\JPASerializeFunction.class
+org\apache\olingo\jpa\processor\core\database\JPA_HANA_DatabaseProcessor.class
 org\apache\olingo\jpa\processor\core\filter\JPAUnaryBooleanOperator.class
 org\apache\olingo\jpa\processor\core\api\JPAODataContext.class
 org\apache\olingo\jpa\processor\core\query\JPAQuery.class

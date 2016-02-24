@@ -1,3 +1,4 @@
+org\apache\olingo\jpa\metadata\core\edm\annotation\EdmSearchable.class
 org\apache\olingo\jpa\metadata\core\edm\annotation\EdmIgnore.class
 org\apache\olingo\jpa\metadata\core\edm\annotation\EdmFunctionType.class
 org\apache\olingo\jpa\metadata\core\edm\annotation\EdmFunctionParameter.class

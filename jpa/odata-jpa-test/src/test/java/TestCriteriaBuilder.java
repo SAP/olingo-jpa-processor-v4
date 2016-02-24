@@ -22,6 +22,7 @@ import org.apache.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import org.apache.olingo.jpa.processor.core.testmodel.Organization;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class TestCriteriaBuilder {
@@ -122,6 +123,7 @@ public class TestCriteriaBuilder {
     System.out.println(act.size());
   }
 
+  @Ignore
   @Test
   public void TestSearchNoSubquery() {
     CriteriaQuery<Tuple> cq = cb.createTupleQuery();

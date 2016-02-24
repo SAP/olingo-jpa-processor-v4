@@ -32,6 +32,9 @@ public class HttpServletRequestDouble implements HttpServletRequest {
       queryString = uriParts[1];
     else
       queryString = null;
+    if (uri.contains("$batch")) {
+      reqHeader.setBatchRequest();
+    }
   }
 
   @Override
@@ -226,7 +229,6 @@ public class HttpServletRequestDouble implements HttpServletRequest {
 
   @Override
   public String getHeader(final String name) {
-    fail();
     return null;
   }
 
@@ -263,7 +265,10 @@ public class HttpServletRequestDouble implements HttpServletRequest {
 
   @Override
   public String getMethod() {
-    return HttpMethod.GET.toString();
+    if (url.toString().contains("$batch"))
+      return HttpMethod.POST.toString();
+    else
+      return HttpMethod.GET.toString();
   }
 
   @Override

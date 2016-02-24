@@ -33,6 +33,7 @@ org\apache\olingo\jpa\metadata\core\edm\mapper\impl\JPATypeConvertor.class
 org\apache\olingo\jpa\metadata\core\edm\mapper\impl\IntermediateEntitySet.class
 org\apache\olingo\jpa\metadata\core\edm\mapper\impl\IntermediateStructuredType$1.class
 org\apache\olingo\jpa\metadata\core\edm\mapper\impl\ServicDocument.class
+org\apache\olingo\jpa\metadata\core\edm\mapper\impl\IntermediateEmbeddedIdProperty.class
 org\apache\olingo\jpa\metadata\core\edm\mapper\api\JPAFunctionParameter.class
 org\apache\olingo\jpa\metadata\core\edm\mapper\impl\IntermediateFunctionFactory.class
 org\apache\olingo\jpa\metadata\core\edm\mapper\impl\IntermediateNavigationProperty$1.class

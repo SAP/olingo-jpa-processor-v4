@@ -22,7 +22,7 @@ import org.apache.olingo.server.api.edmx.EdmxReference;
 
 public class JPAODataGetHandler {
   private final String namespace;
-  private final EntityManagerFactory emf;
+  public final EntityManagerFactory emf;
   private final JPAODataContext context;
   private final DataSource ds;
   private final OData odata;
@@ -45,7 +45,8 @@ public class JPAODataGetHandler {
     final ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(context.getEdmProvider(), context
         .getReferences()));
     handler.register(context.getDebugSupport());
-    handler.register(new JPAOdataRequestProcessor(context, emf.createEntityManager()));
+    handler.register(new JPAODataRequestProcessor(context, emf.createEntityManager()));
+    handler.register(new JPAODataBatchProcessor(context, emf));
     handler.process(request, response);
 
   }

@@ -15,7 +15,8 @@ import javax.sql.DataSource;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.jpa.metadata.api.JPAEdmProvider;
 import org.apache.olingo.jpa.processor.core.api.JPAODataContextAccess;
-import org.apache.olingo.jpa.processor.core.api.JPAOdataRequestProcessor;
+import org.apache.olingo.jpa.processor.core.api.JPAODataBatchProcessor;
+import org.apache.olingo.jpa.processor.core.api.JPAODataRequestProcessor;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataHttpHandler;
 import org.apache.olingo.server.api.edmx.EdmxReference;
@@ -47,7 +48,8 @@ public class IntegrationTestHelper {
 
     ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(context.getEdmProvider(),
         new ArrayList<EdmxReference>()));
-    handler.register(new JPAOdataRequestProcessor(context, localEmf.createEntityManager()));
+    handler.register(new JPAODataRequestProcessor(context, localEmf.createEntityManager()));
+    handler.register(new JPAODataBatchProcessor(context, localEmf));
     handler.process(req, resp);
   }
 

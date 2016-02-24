@@ -20,13 +20,13 @@ import org.apache.olingo.server.api.processor.EntityProcessor;
 import org.apache.olingo.server.api.processor.PrimitiveValueProcessor;
 import org.apache.olingo.server.api.uri.UriInfo;
 
-public class JPAOdataRequestProcessor implements PrimitiveValueProcessor,
+public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
     ComplexProcessor, CountEntityCollectionProcessor, EntityProcessor {
   private final EntityManager em;
   private final JPAODataContextAccess context;
   private JPAProcessorFactory factory;
 
-  public JPAOdataRequestProcessor(final JPAODataContextAccess context, final EntityManager em) {
+  public JPAODataRequestProcessor(final JPAODataContextAccess context, final EntityManager em) {
     super();
     this.em = em;
     this.context = context;

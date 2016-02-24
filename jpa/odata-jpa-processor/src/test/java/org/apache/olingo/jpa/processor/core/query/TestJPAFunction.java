@@ -51,13 +51,6 @@ public class TestJPAFunction {
   public void testFunctionGenerateQueryString() throws IOException, ODataException, SQLException {
 
     createSiblingsFunction();
-//    EntityManager em = emf.createEntityManager();
-//    
-//    javax.persistence.Query fq = em.createNativeQuery(
-//        "SELECT * FROM TABLE( \"OLINGO\".\"org.apache.olingo.jpa::Siblings\"(?1,?2,?3))");
-//    fq.setParameter(1, "BE25");
-//    fq.setParameter(1, "NUTS2");
-//    fq.setParameter(1, "Eurostat");
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds,
         "Siblings(DivisionCode='BE25',CodeID='NUTS2',CodePublisher='Eurostat')");
     helper.assertStatus(200);

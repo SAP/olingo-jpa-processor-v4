@@ -1,6 +1,5 @@
 package org.apache.olingo.jpa.processor.core.database;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
@@ -10,9 +9,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Selection;
 import javax.persistence.criteria.Subquery;
 
 import org.apache.olingo.commons.api.edm.EdmFunction;
@@ -27,7 +24,6 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionParameter;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.processor.core.api.JPAODataDatabaseProcessor;
-import org.apache.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescriptionKey;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResourceFunction;
@@ -67,25 +63,33 @@ final class JPA_HANA_DatabaseProcessor implements JPAODataDatabaseProcessor {
      * org.eclipse.persistence.internal.jpa.querydef.CompoundExpressionImpl"
      */
     List<JPAPath> searchableAttributes = null;
+    JPAPath keyPath = null;
     try {
       searchableAttributes = entityType.getSearchablePath();
+      List<JPAPath> keyPathList = entityType.getKeyPath();
+      if (keyPathList.size() == 1)
+        keyPath = keyPathList.get(0);
+      else
+        throw new ODataApplicationException("Wrong number of key properties", HttpStatusCode.INTERNAL_SERVER_ERROR
+            .getStatusCode(), Locale.ENGLISH);
     } catch (ODataJPAModelException e) {
       throw new ODataApplicationException(e.getMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
           Locale.ENGLISH, e);
     }
     if (!searchableAttributes.isEmpty()) {
       SearchTerm term = searchOption.getSearchExpression().asSearchTerm();
-      Subquery<AdministrativeDivisionDescriptionKey> sq = cq.subquery(AdministrativeDivisionDescriptionKey.class);
+      @SuppressWarnings("unchecked")
+      Subquery<Object> sq = (Subquery<Object>) cq.subquery(entityType.getKeyType());
       Root<?> sr = sq.from(root.getJavaType());
-      Expression<AdministrativeDivisionDescriptionKey> sel = sr.get("key");
+      Expression<Object> sel = sr.get(keyPath.getPath().get(0).getInternalName());
       sq.select(sel);
-      Path<?> path = sr;
+      Path<?> attributePath = sr;
       for (JPAPath searchableAttribute : searchableAttributes) {
         for (JPAElement pathItem : searchableAttribute.getPath())
-          path = path.get(pathItem.getInternalName());
+          attributePath = attributePath.get(pathItem.getInternalName());
       }
-      sq.where(cb.function("CONTAINS", Boolean.class, path, cb.literal(term.getSearchTerm())));
-      return (cb.in(root.get("key")).value(sq));
+      sq.where(cb.function("CONTAINS", Boolean.class, attributePath, cb.literal(term.getSearchTerm())));
+      return (cb.in(root.get(keyPath.getPath().get(0).getInternalName())).value(sq));
     }
     return null;
   }
@@ -128,79 +132,4 @@ final class JPA_HANA_DatabaseProcessor implements JPAODataDatabaseProcessor {
     }
   }
 
-  private class MyExpression<T> implements Expression<T> {
-
-    @Override
-    public Selection<T> alias(String arg0) {
-      // TODO Auto-generated method stub
-      return null;
-    }
-
-    @Override
-    public List<Selection<?>> getCompoundSelectionItems() {
-      // TODO Auto-generated method stub
-      return null;
-    }
-
-    @Override
-    public boolean isCompoundSelection() {
-      // TODO Auto-generated method stub
-      return false;
-    }
-
-    @Override
-    public String getAlias() {
-      // TODO Auto-generated method stub
-      return null;
-    }
-
-    @Override
-    public Class<? extends T> getJavaType() {
-      // TODO Auto-generated method stub
-      return null;
-    }
-
-    @Override
-    public <X> Expression<X> as(Class<X> arg0) {
-      // TODO Auto-generated method stub
-      return null;
-    }
-
-    @Override
-    public Predicate in(Object... arg0) {
-      // TODO Auto-generated method stub
-      return null;
-    }
-
-    @Override
-    public Predicate in(Expression<?>... arg0) {
-      // TODO Auto-generated method stub
-      return null;
-    }
-
-    @Override
-    public Predicate in(Collection<?> arg0) {
-      // TODO Auto-generated method stub
-      return null;
-    }
-
-    @Override
-    public Predicate in(Expression<Collection<?>> arg0) {
-      // TODO Auto-generated method stub
-      return null;
-    }
-
-    @Override
-    public Predicate isNotNull() {
-      // TODO Auto-generated method stub
-      return null;
-    }
-
-    @Override
-    public Predicate isNull() {
-      // TODO Auto-generated method stub
-      return null;
-    }
-
-  }
 }

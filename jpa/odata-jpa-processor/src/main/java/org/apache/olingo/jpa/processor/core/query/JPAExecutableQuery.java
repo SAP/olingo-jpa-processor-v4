@@ -156,14 +156,14 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
 
       for (final String selectItem : selectList) {
         final JPAPath selectItemPath = jpaEntity.getPath(selectItem);
-        if (((JPAAttribute) selectItemPath.getLeaf()).isComplex()) {
+        if (selectItemPath.getLeaf().isComplex()) {
           // Complex Type
           final List<JPAPath> c = jpaEntity.searchChildPath(selectItemPath);
           jpaPathList.addAll(c);
         } else
           // Primitive Type
           jpaPathList.add(selectItemPath);
-        if (((JPAAttribute) selectItemPath.getLeaf()).isKey()) {
+        if (selectItemPath.getLeaf().isKey()) {
           jpaKeyList.remove(selectItemPath.getLeaf());
         }
       }
@@ -326,7 +326,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
             if (uriResource instanceof UriResourcePrimitiveProperty) {
               final EdmProperty edmProperty = ((UriResourcePrimitiveProperty) uriResource).getProperty();
               try {
-                final JPAAttribute attribute = (JPAAttribute) type.getPath(edmProperty.getName()).getLeaf();
+                final JPAAttribute attribute = type.getPath(edmProperty.getName()).getLeaf();
                 p = p.get(attribute.getInternalName());
               } catch (ODataJPAModelException e) {
                 throw new ODataApplicationException("Property not found", HttpStatusCode.BAD_REQUEST.getStatusCode(),
@@ -339,7 +339,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
             } else if (uriResource instanceof UriResourceComplexProperty) {
               final EdmProperty edmProperty = ((UriResourceComplexProperty) uriResource).getProperty();
               try {
-                final JPAAttribute attribute = (JPAAttribute) type.getPath(edmProperty.getName()).getLeaf();
+                final JPAAttribute attribute = type.getPath(edmProperty.getName()).getLeaf();
                 p = p.get(attribute.getInternalName());
                 type = attribute.getStructuredType();
               } catch (ODataJPAModelException e) {
@@ -488,24 +488,6 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
         result.add(p);
     return result;
   }
-  // private javax.persistence.criteria.Expression<Boolean> createOnFromAssoziation(Root<?> left, Join<?, ?> right,
-  // JPAAssociationAttribute association) throws ODataApplicationException {
-  // javax.persistence.criteria.Expression<Boolean> onCondition = null;
-  // try {
-  // for (JPAOnConditionItem onItem : association.getJoinColumns()) {
-  // javax.persistence.criteria.Expression<Boolean> equalCondition =
-  // cb.equal(left.get(onItem.getLeftAttribute().getInternalName()), right.get(onItem
-  // .getRightAttribute().getInternalName()));
-  // if (onCondition == null)
-  // onCondition = equalCondition;
-  // else
-  // onCondition = cb.and(onCondition, equalCondition);
-  // }
-  // } catch (ODataJPAModelException e) {
-  // throw new ODataApplicationException("Mapping Error", 500, Locale.ENGLISH, e);
-  // }
-  // return onCondition;
-  // }
 
   @Override
   protected Root<?> getRoot() {

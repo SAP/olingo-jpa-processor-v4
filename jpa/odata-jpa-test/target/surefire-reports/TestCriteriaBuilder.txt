@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: TestCriteriaBuilder
 -------------------------------------------------------------------------------
-Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.154 sec - in TestCriteriaBuilder
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 0.394 sec - in TestCriteriaBuilder

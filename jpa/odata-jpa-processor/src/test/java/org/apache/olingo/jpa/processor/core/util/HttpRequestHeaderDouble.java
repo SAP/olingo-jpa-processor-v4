@@ -48,6 +48,12 @@ public class HttpRequestHeaderDouble {
     return new headerItem(headers.get(headerName));
   }
 
+  public void setBatchRequest() {
+    List<String> headerValue = new ArrayList<String>();
+    headerValue.add("multipart/mixed;boundary=abc123");
+    headers.put("content-type", headerValue);
+  }
+
   class HeaderEnumerator implements Enumeration<String> {
 
     private final Iterator<String> keys;

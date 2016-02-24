@@ -27,9 +27,9 @@
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="user.variant" value=""/>
     <property name="os.name" value="Windows 8.1"/>
-    <property name="classworlds.conf" value="C:\Users\D023143\workspace_ov4\.metadata\.plugins\org.eclipse.m2e.launching\launches\m2conf776188202202374961.tmp"/>
+    <property name="classworlds.conf" value="C:\Users\D023143\workspace_ov4\.metadata\.plugins\org.eclipse.m2e.launching\launches\m2conf4103557279111424677.tmp"/>
     <property name="sun.jnu.encoding" value="Cp1252"/>
-    <property name="java.library.path" value="C:\Program Files\Java\jdk1.8.0_45\bin;C:\WINDOWS\Sun\Java\bin;C:\WINDOWS\system32;C:\WINDOWS;C:/Program Files/Java/jre1.8.0_45/bin/server;C:/Program Files/Java/jre1.8.0_45/bin;C:/Program Files/Java/jre1.8.0_45/lib/amd64;C:\Program Files (x86)\PC Connectivity Solution\;C:\Program Files\HP_Fortify\HP_Fortify_SCA_and_Apps_4.30\bin;C:\ProgramData\Oracle\Java\javapath;C:\Program Files (x86)\PC ConnectivitySolution\;C:\WINDOWS\system32; C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\Windows\CCM;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\apache-maven-3.2.5\bin;C:\Program Files\Java\jdk1.8.0_45\bin; C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\WindowsPowerShell\v1.0; C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\WindowsPowerShell\v1.0; C:\Go\bin; C:\Users\D023143\work_go\bin;C:\Users\D023143\Nodeclips\nodejs\;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\Users\D023143\AppData\Roaming\npm;C:\Users\D023143\EclipseMars\eclipse;;."/>
+    <property name="java.library.path" value="C:\Program Files\Java\jdk1.8.0_45\bin;C:\WINDOWS\Sun\Java\bin;C:\WINDOWS\system32;C:\WINDOWS;C:/Program Files/Java/jre1.8.0_45/bin/server;C:/Program Files/Java/jre1.8.0_45/bin;C:/Program Files/Java/jre1.8.0_45/lib/amd64;C:\Program Files (x86)\PC Connectivity Solution\;C:\Program Files\HP_Fortify\HP_Fortify_SCA_and_Apps_4.30\bin;C:\ProgramData\Oracle\Java\javapath;C:\Program Files (x86)\PC ConnectivitySolution\;C:\WINDOWS\system32; C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\Windows\CCM;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\apache-maven-3.2.5\bin;C:\Program Files\Java\jdk1.8.0_45\bin; C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\WindowsPowerShell\v1.0; C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\WindowsPowerShell\v1.0; C:\Go\bin; C:\Users\D023143\work_go\bin;C:\Users\D023143\Nodeclips\nodejs\;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\WINDOWS\System32\WindowsPowerShell\v1.0;C:\Users\D023143\AppData\Roaming\npm;C:\Users\D023143\EclipseMars\eclipse;;."/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
     <property name="java.class.version" value="52.0"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
@@ -63,21 +63,21 @@
     <property name="sun.cpu.isalist" value="amd64"/>
   </properties>
   <testcase name="checkGetPropertyDBName" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateComplexType" time="0.002"/>
-  <testcase name="checkGetDescriptionPropertyManyToMany" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateComplexType" time="0"/>
-  <testcase name="checkGetPropertyByNameNotNull" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateComplexType" time="0.001"/>
-  <testcase name="checkGetPropertyOfNestedComplexType" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateComplexType" time="0.001"/>
-  <testcase name="checkComplexTypeCanBeCreated" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateComplexType" time="0"/>
+  <testcase name="checkGetDescriptionPropertyManyToMany" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateComplexType" time="0.002"/>
+  <testcase name="checkGetPropertyByNameNotNull" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateComplexType" time="0"/>
+  <testcase name="checkGetPropertyOfNestedComplexType" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateComplexType" time="0"/>
+  <testcase name="checkComplexTypeCanBeCreated" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateComplexType" time="0.001"/>
   <testcase name="checkGetNaviPropertyByNameRightEntity" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateComplexType" time="0.001"/>
   <testcase name="checkGetDescriptionPropertyManyToOne" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateComplexType" time="0.001"/>
   <testcase name="checkGetAllProperties" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateComplexType" time="0"/>
   <testcase name="checkGetAllNaviProperties" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateComplexType" time="0.001"/>
-  <testcase name="checkGetPropertyWithComplexType" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateComplexType" time="0.001"/>
+  <testcase name="checkGetPropertyWithComplexType" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateComplexType" time="0"/>
   <testcase name="checkGetNaviPropertyByNameNotNull" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateComplexType" time="0.001"/>
-  <testcase name="checkGetPropertyDBNameOfNestedComplexType" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateComplexType" time="0"/>
+  <testcase name="checkGetPropertyDBNameOfNestedComplexType" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateComplexType" time="0.001"/>
   <testcase name="checkGetPropertiesWithSameComplexTypeNotEqual" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateComplexType" time="0.008"/>
   <testcase name="checkGetPropertyByNameCorrectEntity" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateComplexType" time="0.001"/>
   <testcase name="checkGetPropertyIsNullable" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateComplexType" time="0"/>
-  <testcase name="checkGetPropertiesSkipIgnored" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateComplexType" time="0.001"/>
+  <testcase name="checkGetPropertiesSkipIgnored" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateComplexType" time="0"/>
   <testcase name="checkDescriptionPropertyType" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateComplexType" time="0.001"/>
   <testcase name="checkGetPropertyWithEnumerationType" classname="org.apache.olingo.jpa.metadata.core.edm.mapper.impl.TestIntermediateComplexType" time="0">
     <skipped/>
