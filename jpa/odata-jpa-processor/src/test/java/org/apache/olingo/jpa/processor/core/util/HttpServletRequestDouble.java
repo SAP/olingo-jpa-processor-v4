@@ -22,8 +22,13 @@ public class HttpServletRequestDouble implements HttpServletRequest {
   private final HttpRequestHeaderDouble reqHeader;
   private final String queryString;
   private final StringBuffer url;
+  private final StringBuffer input;
 
   public HttpServletRequestDouble(final String uri) throws IOException {
+    this(uri, null);
+  }
+
+  public HttpServletRequestDouble(final String uri, StringBuffer body) throws IOException {
     super();
     this.reqHeader = new HttpRequestHeaderDouble();
     String[] uriParts = uri.split("\\?");
@@ -35,6 +40,7 @@ public class HttpServletRequestDouble implements HttpServletRequest {
     if (uri.contains("$batch")) {
       reqHeader.setBatchRequest();
     }
+    this.input = body;
   }
 
   @Override
@@ -75,7 +81,7 @@ public class HttpServletRequestDouble implements HttpServletRequest {
 
   @Override
   public ServletInputStream getInputStream() throws IOException {
-    return new ServletInputStreamDouble(null);
+    return new ServletInputStreamDouble(input);
   }
 
   @Override

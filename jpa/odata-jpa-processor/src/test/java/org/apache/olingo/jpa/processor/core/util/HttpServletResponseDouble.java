@@ -225,18 +225,19 @@ public class HttpServletResponseDouble implements HttpServletResponse {
     }
   }
 
+  //
   class ResultStream extends InputStream {
-    private final Iterator<Integer> bufferExess;
+    private final Iterator<Integer> bufferExcess;
 
     public ResultStream(OutPutStream buffer) {
       super();
-      this.bufferExess = buffer.getBuffer();
+      this.bufferExcess = buffer.getBuffer();
     }
 
     @Override
     public int read() throws IOException {
-      if (bufferExess.hasNext())
-        return bufferExess.next().intValue();
+      if (bufferExcess.hasNext())
+        return bufferExcess.next().intValue();
       return -1;
     }
 

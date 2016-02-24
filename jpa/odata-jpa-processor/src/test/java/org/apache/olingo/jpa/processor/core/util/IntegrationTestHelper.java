@@ -8,14 +8,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.jpa.metadata.api.JPAEdmProvider;
-import org.apache.olingo.jpa.processor.core.api.JPAODataContextAccess;
 import org.apache.olingo.jpa.processor.core.api.JPAODataBatchProcessor;
+import org.apache.olingo.jpa.processor.core.api.JPAODataContextAccess;
 import org.apache.olingo.jpa.processor.core.api.JPAODataRequestProcessor;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataHttpHandler;
@@ -35,13 +36,24 @@ public class IntegrationTestHelper {
 
   public IntegrationTestHelper(EntityManagerFactory localEmf, String urlPath) throws IOException,
       ODataException {
-    this(localEmf, null, urlPath);
+    this(localEmf, null, urlPath, null);
   }
 
   public IntegrationTestHelper(EntityManagerFactory localEmf, DataSource ds, String urlPath) throws IOException,
       ODataException {
+    this(localEmf, ds, urlPath, null);
+  }
+
+  public IntegrationTestHelper(EntityManagerFactory localEmf, String urlPath, StringBuffer requestBody)
+      throws IOException, ODataException {
+    this(localEmf, null, urlPath, requestBody);
+  }
+
+  public IntegrationTestHelper(EntityManagerFactory localEmf, DataSource ds, String urlPath, StringBuffer requestBody)
+      throws IOException,
+      ODataException {
     super();
-    this.req = new HttpServletRequestDouble(uriPrefix + urlPath);
+    this.req = new HttpServletRequestDouble(uriPrefix + urlPath, requestBody);
     this.resp = new HttpServletResponseDouble();
     OData odata = OData.newInstance();
     JPAODataContextAccess context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, localEmf, null), ds);
@@ -51,6 +63,7 @@ public class IntegrationTestHelper {
     handler.register(new JPAODataRequestProcessor(context, localEmf.createEntityManager()));
     handler.register(new JPAODataBatchProcessor(context, localEmf));
     handler.process(req, resp);
+
   }
 
   public HttpServletResponseDouble getResponce() {
@@ -74,6 +87,20 @@ public class IntegrationTestHelper {
     return sb.toString();
   }
 
+  public List<String> getRawBatchResult() throws IOException {
+    List<String> result = new ArrayList<String>();
+
+    InputStream in = resp.getInputStream();
+    BufferedReader br = new BufferedReader(new InputStreamReader(in));
+    String read;
+
+    while ((read = br.readLine()) != null) {
+      result.add(read);
+    }
+    br.close();
+    return result;
+  }
+
   public ArrayNode getValues() throws JsonProcessingException, IOException {
     ObjectMapper mapper = new ObjectMapper();
     JsonNode node = mapper.readTree(getRawResult());
@@ -94,5 +121,40 @@ public class IntegrationTestHelper {
   public void assertStatus(int exp) throws IOException {
     assertEquals(getRawResult(), exp, getStatus());
 
+  }
+
+  public int getBatchResultStatus(int i) throws IOException {
+    List<String> result = getRawBatchResult();
+    int count = 0;
+    for (String resultLine : result) {
+      if (resultLine.contains("HTTP/1.1")) {
+        count += 1;
+        if (count == i) {
+          String[] statusElements = resultLine.split(" ");
+          return Integer.parseInt(statusElements[1]);
+        }
+      }
+    }
+    return 0;
+  }
+
+  public JsonNode getBatchResult(int i) throws IOException {
+    List<String> result = getRawBatchResult();
+    int count = 0;
+    boolean found = false;
+
+    for (String resultLine : result) {
+      if (resultLine.contains("HTTP/1.1")) {
+        count += 1;
+        if (count == i) {
+          found = true;
+        }
+      }
+      if (found && resultLine.startsWith("{")) {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readTree(resultLine);
+      }
+    }
+    return null;
   }
 }
