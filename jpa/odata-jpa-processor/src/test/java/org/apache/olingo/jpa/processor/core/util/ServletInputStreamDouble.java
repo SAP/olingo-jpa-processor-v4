@@ -16,7 +16,10 @@ public class ServletInputStreamDouble extends ServletInputStream {
 
   public ServletInputStreamDouble(StringBuffer stream) {
     super();
-    this.stream = new ByteArrayInputStream(stream.toString().getBytes());
+    if (stream != null)
+      this.stream = new ByteArrayInputStream(stream.toString().getBytes());
+    else
+      this.stream = null;
   }
 
   @Override

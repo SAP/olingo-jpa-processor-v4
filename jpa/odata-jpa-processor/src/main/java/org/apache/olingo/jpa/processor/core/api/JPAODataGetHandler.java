@@ -46,7 +46,7 @@ public class JPAODataGetHandler {
         .getReferences()));
     handler.register(context.getDebugSupport());
     handler.register(new JPAODataRequestProcessor(context, emf.createEntityManager()));
-    handler.register(new JPAODataBatchProcessor(context, emf));
+    handler.register(new JPAODataBatchProcessor());
     handler.process(request, response);
 
   }

@@ -21,7 +21,7 @@ C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apac
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\query\JPAExtention.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\query\JPAQuery.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\processor\JPARequestProcessor.java
-C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\api\JPAOdataRequestProcessor.java
+C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\api\JPAODataRequestProcessor.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\processor\JPAFunctionRequestProcessor.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\query\JPAExecutableQuery.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\query\Util.java
@@ -34,6 +34,7 @@ C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apac
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\serializer\JPASerializeFunction.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\filter\JPABooleanOperator.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\filter\JPAMemberOperator.java
+C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\api\JPAODataBatchProcessor.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\serializer\JPASerializeEntity.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\filter\JPAFunctionCall.java
 C:\Users\D023143\git\OlingoV4-JPA\jpa\odata-jpa-processor\src\main\java\org\apache\olingo\jpa\processor\core\database\JPAODataDatabaseProcessorFactory.java

@@ -110,7 +110,7 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
             joinColumns.add(intermediateColumn);
 
           } else if (mappedBy != null && !mappedBy.isEmpty()) {
-            joinColumns.addAll(targetType.getJoinColumns(sourceType, getInternalName()));
+            joinColumns.addAll(targetType.getJoinColumns(sourceType, mappedBy));
             for (final IntermediateJoinColumn intermediateColumn : joinColumns) {
               final String refColumnName = intermediateColumn.getReferencedColumnName();
               if (refColumnName == null || refColumnName.isEmpty()) {
@@ -133,10 +133,11 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
         // at the BusinessPartner and at the Roles. JPA only defines the
         // "mappedBy" at the Parent.
         if (mappedBy != null && !mappedBy.isEmpty()) {
-          edmNaviProperty.setPartner(targetType.getCorrespondingNavigationProperty(sourceType, getInternalName())
-              .getExternalName());
+//          edmNaviProperty.setPartner(targetType.getCorrespondingNavigationProperty(sourceType, getInternalName())
+//              .getExternalName());          
+          edmNaviProperty.setPartner(targetType.getAssociation(mappedBy).getExternalName());
         } else {
-          final IntermediateNavigationProperty partner = targetType.getCorrespondingNavigationProperty(sourceType,
+          final IntermediateNavigationProperty partner = targetType.getCorrespondingAssiciation(sourceType,
               getInternalName());
           if (partner != null) {
             if (partner.isMapped())

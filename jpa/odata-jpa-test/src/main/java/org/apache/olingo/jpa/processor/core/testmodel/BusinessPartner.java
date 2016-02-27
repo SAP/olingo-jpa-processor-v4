@@ -99,8 +99,6 @@ public abstract class BusinessPartner {
   private AdministrativeInformation administrativeInformation = new AdministrativeInformation();
 
   @OneToMany(mappedBy = "businessPartner", fetch = FetchType.LAZY)
-//  @JoinColumns({
-//      @JoinColumn(name = "\"BusinessPartnerID\"", referencedColumnName = "\"ID\"", nullable = true) })
   private Collection<BusinessPartnerRole> roles;
 
   public void setID(String iD) {

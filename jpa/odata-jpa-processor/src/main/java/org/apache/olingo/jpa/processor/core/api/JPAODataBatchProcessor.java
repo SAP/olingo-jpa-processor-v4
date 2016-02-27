@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import javax.persistence.EntityManagerFactory;
-
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpHeader;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -22,15 +20,24 @@ import org.apache.olingo.server.api.deserializer.batch.BatchRequestPart;
 import org.apache.olingo.server.api.deserializer.batch.ODataResponsePart;
 import org.apache.olingo.server.api.processor.BatchProcessor;
 
+/**
+ * 
+ * <a href=
+ * "https://docs.oasis-open.org/odata/odata/v4.0/os/part1-protocol/odata-v4.0-os-part1-protocol.html#_Toc372793748"> aa
+ * </a>
+ * 
+ * @author Oliver Grande
+ *
+ */
 public class JPAODataBatchProcessor implements BatchProcessor {
 
-  private final JPAODataContextAccess context;
-  private final EntityManagerFactory emf;
+//  private final JPAODataContextAccess context;
+//  private final EntityManagerFactory emf;
   private OData odata;
 
-  public JPAODataBatchProcessor(JPAODataContextAccess context, EntityManagerFactory emf) {
-    this.context = context;
-    this.emf = emf;
+  public JPAODataBatchProcessor() {
+//    this.context = context;
+//    this.emf = emf;
   }
 
   @Override

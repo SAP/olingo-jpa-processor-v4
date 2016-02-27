@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: TestAssociations
 -------------------------------------------------------------------------------
-Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.462 sec - in TestAssociations
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.329 sec - in TestAssociations

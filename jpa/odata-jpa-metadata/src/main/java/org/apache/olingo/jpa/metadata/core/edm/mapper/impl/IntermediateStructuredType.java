@@ -12,6 +12,7 @@ import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
+import javax.persistence.OneToMany;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.Attribute.PersistentAttributeType;
 import javax.persistence.metamodel.ManagedType;
@@ -241,14 +242,14 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
     return null;
   }
 
-  IntermediateNavigationProperty getCorrespondingNavigationProperty(final IntermediateStructuredType sourceType,
+  IntermediateNavigationProperty getCorrespondingAssiciation(final IntermediateStructuredType sourceType,
       final String sourceRelationshipName) {
-    final Attribute<?, ?> jpaAttribute = findCorrespondingRelationship(sourceType, sourceRelationshipName);
+    final Attribute<?, ?> jpaAttribute = findCorrespondingAssociation(sourceType, sourceRelationshipName);
     return jpaAttribute == null ? null : new IntermediateNavigationProperty(nameBuilder, sourceType, jpaAttribute,
         schema);
   }
 
-  private Attribute<?, ?> findCorrespondingRelationship(final IntermediateStructuredType sourceType,
+  private Attribute<?, ?> findCorrespondingAssociation(final IntermediateStructuredType sourceType,
       final String sourceRelationshipName) {
     Class<?> targetClass = null;
 
@@ -262,7 +263,11 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
           targetClass = jpaAttribute.getJavaType();
         }
         if (targetClass.equals(sourceType.getTypeClass())) {
-          return jpaAttribute;
+          final OneToMany cardinalityOtM = ((AnnotatedElement) jpaAttribute.getJavaMember()).getAnnotation(
+              OneToMany.class);
+          if (cardinalityOtM != null && cardinalityOtM.mappedBy() != null
+              && cardinalityOtM.mappedBy().equals(sourceRelationshipName))
+            return jpaAttribute;
         }
       }
     }
@@ -279,10 +284,10 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
   }
 
   List<IntermediateJoinColumn> getJoinColumns(final IntermediateStructuredType sourceType,
-      final String sourceRelationshipName) {
+      final String relationshipName) {
 
     final List<IntermediateJoinColumn> result = new ArrayList<IntermediateJoinColumn>();
-    final Attribute<?, ?> jpaAttribute = findCorrespondingRelationship(sourceType, sourceRelationshipName);
+    final Attribute<?, ?> jpaAttribute = jpaManagedType.getAttribute(relationshipName);
 
     if (jpaAttribute != null) {
       final AnnotatedElement annotatedElement = (AnnotatedElement) jpaAttribute.getJavaMember();

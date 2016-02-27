@@ -36,7 +36,7 @@ public class TestCriteriaBuilder {
   public static void setupClass() {
     Map<String, Object> properties = new HashMap<String, Object>();
     properties.put(ENTITY_MANAGER_DATA_SOURCE, DataSourceHelper.createDataSource(
-        DataSourceHelper.DB_REMOTE));
+        DataSourceHelper.DB_H2));
     emf = Persistence.createEntityManagerFactory(PUNIT_NAME, properties);
   }
 
@@ -104,6 +104,7 @@ public class TestCriteriaBuilder {
     tq.getFirstResult();
   }
 
+  @Ignore
   @Test
   public void TestSearchEmbeddedId() {
     CriteriaQuery<Tuple> cq = cb.createTupleQuery();

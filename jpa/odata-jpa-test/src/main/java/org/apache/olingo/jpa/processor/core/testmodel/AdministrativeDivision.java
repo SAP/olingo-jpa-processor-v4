@@ -81,6 +81,18 @@ public class AdministrativeDivision {
           insertable = false, updatable = false) })
   private List<AdministrativeDivision> children;
 
+//  @EdmIgnore
+//  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, optional = true)
+//  @JoinColumns({
+//      // Surprising side effects with eclipse link
+//            @JoinColumn(referencedColumnName = "\"CodePublisher\"", name = "'ISO'", nullable = false,
+//                insertable = false, updatable = false),
+//            @JoinColumn(referencedColumnName = "\"CodeID\"", name = "'3166-1'", nullable = false,
+//                insertable = false, updatable = false),
+//      @JoinColumn(referencedColumnName = "\"DivisionCode\"", name = "\"CountryISOCode\"", nullable = false,
+//          insertable = false, updatable = false) })
+//  private AdministrativeDivision country;
+
   public String getCodePublisher() {
     return codePublisher;
   }

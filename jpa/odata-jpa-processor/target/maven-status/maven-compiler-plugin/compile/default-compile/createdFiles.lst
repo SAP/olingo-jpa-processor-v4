@@ -8,7 +8,6 @@ org\apache\olingo\jpa\processor\core\serializer\JPASerializeComplex.class
 org\apache\olingo\jpa\processor\core\filter\JPAExpressionOperator.class
 org\apache\olingo\jpa\processor\core\query\JPANavigationProptertyInfo.class
 org\apache\olingo\jpa\processor\core\api\JPAODataGetHandler.class
-org\apache\olingo\jpa\processor\core\api\JPAOdataRequestProcessor.class
 org\apache\olingo\jpa\processor\core\processor\JPAProcessorFactory$1.class
 org\apache\olingo\jpa\processor\core\filter\JPAFunctionCall.class
 org\apache\olingo\jpa\processor\core\query\Util.class
@@ -29,6 +28,7 @@ org\apache\olingo\jpa\processor\core\serializer\JPASerializeFunction.class
 org\apache\olingo\jpa\processor\core\database\JPA_HANA_DatabaseProcessor.class
 org\apache\olingo\jpa\processor\core\filter\JPAUnaryBooleanOperator.class
 org\apache\olingo\jpa\processor\core\api\JPAODataContext.class
+org\apache\olingo\jpa\processor\core\api\JPAODataRequestProcessor.class
 org\apache\olingo\jpa\processor\core\query\JPAQuery.class
 org\apache\olingo\jpa\processor\core\serializer\JPASerializer.class
 org\apache\olingo\jpa\processor\core\api\JPAODataContextAccess.class

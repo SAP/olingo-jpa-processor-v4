@@ -61,7 +61,7 @@ public class IntegrationTestHelper {
     ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(context.getEdmProvider(),
         new ArrayList<EdmxReference>()));
     handler.register(new JPAODataRequestProcessor(context, localEmf.createEntityManager()));
-    handler.register(new JPAODataBatchProcessor(context, localEmf));
+    handler.register(new JPAODataBatchProcessor());
     handler.process(req, resp);
 
   }

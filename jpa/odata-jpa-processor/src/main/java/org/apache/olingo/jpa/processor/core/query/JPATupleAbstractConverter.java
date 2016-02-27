@@ -166,7 +166,7 @@ public abstract class JPATupleAbstractConverter {
     return pojoMethods;
   }
 
-  void convertAttribute(final Object value, final String externalName, final String prefix,
+  private void convertAttribute(final Object value, final String externalName, final String prefix,
       final JPAStructuredType jpaStructuredType, final Map<String, ComplexValue> complexValueBuffer,
       final List<Property> properties) throws ODataJPAModelException {
 
