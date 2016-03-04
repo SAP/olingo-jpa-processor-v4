@@ -114,13 +114,16 @@ class IntermediateFunction extends IntermediateModelElement implements JPAFuncti
   private CsdlReturnType determineEdmResultType(final ReturnType returnType) throws ODataJPAModelException {
     final CsdlReturnType edmResultType = new CsdlReturnType();
     FullQualifiedName fqn;
-    if (returnType.type() == Object.class)
-      fqn = nameBuilder.buildFQN(schema.getEntityType(jpaDefiningPOJO).getEdmItem().getName());
-    else {
+    if (returnType.type() == Object.class) {
+      final IntermediateStructuredType et = schema.getEntityType(jpaDefiningPOJO);
+      fqn = nameBuilder.buildFQN(et.getEdmItem().getName());
+      this.setIgnore(et.ignore()); // If the result type shall be ignored, ignore also a function that returns it
+    } else {
       final IntermediateStructuredType et = schema.getEntityType(returnType.type());
-      if (et != null)
+      if (et != null) {
         fqn = nameBuilder.buildFQN(et.getEdmItem().getName());
-      else
+        this.setIgnore(et.ignore()); // If the result type shall be ignored, ignore also a function that returns it
+      } else
         fqn = JPATypeConvertor.convertToEdmSimpleType(returnType.type()).getFullQualifiedName();
     }
     edmResultType.setType(fqn);

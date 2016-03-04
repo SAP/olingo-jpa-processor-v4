@@ -122,4 +122,17 @@ public class TestJPAQueryOrderByClause extends TestBase {
     assertEquals("US-CA", orgs.get(9).get("Address").get("Region").asText());
     assertEquals("6", orgs.get(9).get("ID").asText());
   }
+
+  @Test
+  public void testOrderByAndFilter() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions/?$filter=CodeID eq 'NUTS' or CodeID eq '3166-1'&$orderby=CountryCode desc");
+
+    helper.assertStatus(200);
+
+    ArrayNode orgs = helper.getValues();
+    assertEquals(3, orgs.size());
+    assertEquals("USA", orgs.get(0).get("CountryCode").asText());
+  }
 }

@@ -99,8 +99,10 @@ class IntermediateSchema extends IntermediateModelElement {
 
   JPAFunction getFunction(final String externalName) {
     for (final String internalName : functionListInternalKey.keySet()) {
-      if (functionListInternalKey.get(internalName).getExternalName().equals(externalName))
-        return functionListInternalKey.get(internalName);
+      if (functionListInternalKey.get(internalName).getExternalName().equals(externalName)) {
+        if (!functionListInternalKey.get(internalName).ignore())
+          return functionListInternalKey.get(internalName);
+      }
     }
     return null;
   }

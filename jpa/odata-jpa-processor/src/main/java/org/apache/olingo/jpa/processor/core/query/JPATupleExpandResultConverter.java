@@ -39,9 +39,11 @@ public class JPATupleExpandResultConverter extends JPATupleAbstractConverter {
       expandCollection.setCount(new Integer(5));
       // TODO link.setHref(parentUri.toASCIIString());
     } else {
-      final Entity expandEntity = expandCollection.getEntities().get(0);
-      link.setInlineEntity(expandEntity);
-      // TODO link.setHref(expandCollection.getId().toASCIIString());
+      if (expandCollection.getEntities() != null && !expandCollection.getEntities().isEmpty()) {
+        final Entity expandEntity = expandCollection.getEntities().get(0);
+        link.setInlineEntity(expandEntity);
+        // TODO link.setHref(expandCollection.getId().toASCIIString());
+      }
     }
     return link;
   }

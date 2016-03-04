@@ -419,5 +419,4 @@ public class TestJPAQueryWhereClause extends TestBase {
     ArrayNode orgs = helper.getValues();
     assertEquals(2, orgs.size());
   }
-
 }

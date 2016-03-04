@@ -85,8 +85,12 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
   protected <T> List<?> extractEdmModelElements(final Map<String, ?> mappingBuffer) throws ODataJPAModelException {
     final List<T> extractionTarget = new ArrayList<T>();
     for (final String externalName : mappingBuffer.keySet()) {
-      if (!((IntermediateModelElement) mappingBuffer.get(externalName)).toBeIgnored)
-        extractionTarget.add((T) ((IntermediateModelElement) mappingBuffer.get(externalName)).getEdmItem());
+      if (!((IntermediateModelElement) mappingBuffer.get(externalName)).toBeIgnored) {
+        IntermediateModelElement func = (IntermediateModelElement) mappingBuffer.get(externalName);
+        CsdlAbstractEdmItem edmFunc = func.getEdmItem();
+        if (!func.ignore())
+          extractionTarget.add((T) edmFunc);
+      }
     }
     return returnNullIfEmpty(extractionTarget);
   }

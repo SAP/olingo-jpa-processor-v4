@@ -143,7 +143,7 @@ public class TestJPAProcessorExpand extends TestBase {
     ObjectNode org = helper.getValue();
     ObjectNode admin = (ObjectNode) org.get("AdministrativeInformation");
     ObjectNode created = (ObjectNode) admin.get("Created");
-    assertNotNull((ObjectNode) created.get("User"));
+    assertNotNull(created.get("User"));
 
   }
 
@@ -344,5 +344,28 @@ public class TestJPAProcessorExpand extends TestBase {
     assertEquals(1, children.size());
     ObjectNode firstChild = (ObjectNode) children.get(0);
     assertEquals("BE252", firstChild.get("DivisionCode").asText());
+  }
+
+  @Test
+  public void testExpandCompleteEntitySet() throws IOException, ODataException {
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$expand=Roles&orderby=ID");
+
+    helper.assertStatus(200);
+
+    ArrayNode orgs = helper.getValues();
+    ObjectNode org = (ObjectNode) orgs.get(0);
+    assertEquals("1", org.get("ID").asText());
+    assertNotNull(org.get("Roles"));
+    ArrayNode roles = (ArrayNode) org.get("Roles");
+    assertEquals(1, roles.size());
+    ObjectNode firstRole = (ObjectNode) roles.get(0);
+    assertEquals("A", firstRole.get("RoleCategory").asText());
+  }
+
+  @Test
+  public void testExpandCompleteEntitySet2() throws IOException, ODataException {
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "AdministrativeDivisions?$expand=Parent");
+
+    helper.assertStatus(200);
   }
 }
