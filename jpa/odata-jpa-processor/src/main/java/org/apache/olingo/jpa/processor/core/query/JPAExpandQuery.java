@@ -38,7 +38,7 @@ import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitEx
  * <li>expandOption = expandRefOption/ <b>select</b>/ <b>expand</b> / levels <p>
  * </ul>
  * As of now only the bold once are supported
- * 
+ * <p>
  * @author Oliver Grande
  *
  */
@@ -126,7 +126,7 @@ public class JPAExpandQuery extends JPAExecutableQuery {
 
   Map<String, List<Tuple>> convertResult(final List<Tuple> intermediateResult, final JPAAssociationPath a,
       final long skip, final long top)
-          throws ODataApplicationException {
+      throws ODataApplicationException {
     String joinKey = "";
     long skiped = 0;
     long taken = 0;

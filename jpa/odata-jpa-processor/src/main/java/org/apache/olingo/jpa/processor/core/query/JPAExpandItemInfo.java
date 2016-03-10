@@ -1,5 +1,6 @@
 package org.apache.olingo.jpa.processor.core.query;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class JPAExpandItemInfo {
     super();
     this.uriInfo = uriInfo;
     this.expandAssociation = expandAssociation;
-    this.hops = hops;
+    this.hops = new ArrayList<JPANavigationProptertyInfo>(hops);
     this.hops.add(0, new JPANavigationProptertyInfo(startResourceItem, expandAssociation));
   }
 

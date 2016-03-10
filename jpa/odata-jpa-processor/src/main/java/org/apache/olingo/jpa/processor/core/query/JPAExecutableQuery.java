@@ -73,7 +73,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
 
   public JPAExecutableQuery(final OData odata, JPAODataContextAccess context, final EdmEntityType edmType,
       final EntityManager em, final Map<String, List<String>> requestHeaders, final UriInfoResource uriResource)
-          throws ODataApplicationException {
+      throws ODataApplicationException {
 
     super(context.getEdmProvider().getServiceDocument(), edmType, em);
     this.locale = determineLocale(requestHeaders);
@@ -441,7 +441,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
 
   protected JPAAssociationPath determineAssoziation(final UriResourcePartTyped naviStart,
       final StringBuffer associationName)
-          throws ODataApplicationException {
+      throws ODataApplicationException {
 
     JPAEntityType naviStartType;
     try {

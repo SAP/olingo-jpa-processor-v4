@@ -363,6 +363,20 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
+  public void testExpandTwoNavigationPath() throws IOException, ODataException {
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions(DivisionCode='BE32',CodeID='NUTS2',CodePublisher='Eurostat')?$expand=Parent,Children");
+    helper.assertStatus(200);
+
+    ObjectNode org = helper.getValue();
+    assertNotNull(org.get("Parent"));
+    ObjectNode parent = (ObjectNode) org.get("Parent");
+    assertNotNull(parent.get("DivisionCode"));
+    ArrayNode children = (ArrayNode) org.get("Children");
+    assertEquals(7, children.size());
+  }
+
+  @Test
   public void testExpandCompleteEntitySet2() throws IOException, ODataException {
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, "AdministrativeDivisions?$expand=Parent");
 

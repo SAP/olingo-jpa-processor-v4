@@ -112,22 +112,28 @@ public class Util {
       final List<UriResource> startResourceList, final ExpandOption expandOption) throws ODataApplicationException {
 
     final Map<ExpandItem, JPAAssociationPath> pathList = new HashMap<ExpandItem, JPAAssociationPath>();
-    final StringBuffer associationName = new StringBuffer();
+    final StringBuffer associationNamePrefix = new StringBuffer();
 
     UriResource startResourceItem = null;
     if (startResourceList != null && expandOption != null) {
+      // Example1 : /AdministrativeInformation?$expand=Created/User
+      // Association name needs AdministrativeInformation as prefix
       for (int i = startResourceList.size() - 1; i >= 0; i--) {
         startResourceItem = startResourceList.get(i);
         if (startResourceItem instanceof UriResourceEntitySet || startResourceItem instanceof UriResourceNavigation) {
           break;
         }
-        associationName.insert(0, JPAAssociationPath.PATH_SEPERATOR);
-        associationName.insert(0, ((UriResourceProperty) startResourceItem).getProperty().getName());
+        associationNamePrefix.insert(0, JPAAssociationPath.PATH_SEPERATOR);
+        associationNamePrefix.insert(0, ((UriResourceProperty) startResourceItem).getProperty().getName());
       }
       // Example1 : ?$expand=Created/User (Property/NavigationProperty)
       // Example2 : ?$expand=Parent/CodeID (NavigationProperty/Property)
+      // Example3 : ?$expand=Parent,Children (NavigationProperty, NavigationProperty)
+      StringBuffer associationName;
       for (final ExpandItem item : expandOption.getExpandItems()) {
         final List<UriResource> targetResourceList = item.getResourcePath().getUriResourceParts();
+        associationName = new StringBuffer();
+        associationName.append(associationNamePrefix);
         UriResource targetResourceItem = null;
         for (int i = 0; i < targetResourceList.size(); i++) {
           targetResourceItem = targetResourceList.get(i);

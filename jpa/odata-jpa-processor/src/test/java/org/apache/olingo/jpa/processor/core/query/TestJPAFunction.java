@@ -76,7 +76,7 @@ public class TestJPAFunction {
 
     t.begin();
     javax.persistence.Query q = em.createNativeQuery(sqlString.toString());
-    int i = q.executeUpdate();
+    q.executeUpdate();
     t.commit();
   }
 }
