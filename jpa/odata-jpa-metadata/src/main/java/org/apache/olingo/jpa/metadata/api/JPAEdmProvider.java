@@ -20,18 +20,14 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
 
 public class JPAEdmProvider extends CsdlAbstractEdmProvider {
 
-  // final private JPAEdmPostProcessor postProcessor;
   final private JPAEdmNameBuilder nameBuilder;
-  // final private List<CsdlSchema> schemas;
   final private ServicDocument serviceDocument;
 
   public JPAEdmProvider(final String namespace, final EntityManagerFactory emf,
       final JPAEdmMetadataPostProcessor postProcessor)
-          throws ODataException {
+      throws ODataException {
     super();
     this.nameBuilder = new JPAEdmNameBuilder(namespace);
-
-    // schemas = buildSchemas();
     serviceDocument = new ServicDocument(namespace, emf.getMetamodel(), postProcessor);
   }
 
@@ -88,7 +84,7 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
   @Override
   public CsdlFunctionImport getFunctionImport(final FullQualifiedName entityContainerFQN,
       final String functionImportName)
-          throws ODataException {
+      throws ODataException {
     final CsdlEntityContainer container = serviceDocument.getEdmEntityContainer();
     if (entityContainerFQN.equals(nameBuilder.buildFQN(container.getName()))) {
       return container.getFunctionImport(functionImportName);

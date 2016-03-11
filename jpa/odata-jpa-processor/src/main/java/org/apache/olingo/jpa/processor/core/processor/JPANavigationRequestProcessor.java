@@ -5,15 +5,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.persistence.EntityManager;
-
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
-import org.apache.olingo.jpa.processor.core.api.JPAODataContextAccess;
+import org.apache.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
+import org.apache.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import org.apache.olingo.jpa.processor.core.query.JPAExpandItemInfo;
 import org.apache.olingo.jpa.processor.core.query.JPAExpandItemInfoFactory;
 import org.apache.olingo.jpa.processor.core.query.JPAExpandQuery;
@@ -22,23 +21,25 @@ import org.apache.olingo.jpa.processor.core.query.JPANavigationProptertyInfo;
 import org.apache.olingo.jpa.processor.core.query.JPAQuery;
 import org.apache.olingo.jpa.processor.core.query.JPATupleResultConverter;
 import org.apache.olingo.jpa.processor.core.query.Util;
-import org.apache.olingo.jpa.processor.core.serializer.JPASerializer;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataLibraryException;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
+import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.serializer.SerializerResult;
-import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.queryoption.CountOption;
 
 public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor implements JPARequestProcessor {
+  private final ServiceMetadata serviceMetadata;
 
-  public JPANavigationRequestProcessor(final OData odata, final JPAODataContextAccess context, final EntityManager em,
-      final UriInfo uriInfo, final JPASerializer serializer) {
-    super(odata, context, em, uriInfo, serializer);
+  public JPANavigationRequestProcessor(final OData odata, final ServiceMetadata serviceMetadata,
+      final JPAODataSessionContextAccess context,
+      final JPAODataRequestContextAccess requestContext) {
+    super(odata, context, requestContext);
+    this.serviceMetadata = serviceMetadata;
   }
 
   @Override
@@ -49,18 +50,23 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
     final EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(resourceParts);
 
     // Create a JPQL Query and execute it
-    final JPAQuery query = new JPAQuery(odata, targetEdmEntitySet, context, uriInfo, em, request.getAllHeaders());
+    JPAQuery query = null;
+    try {
+      query = new JPAQuery(odata, targetEdmEntitySet, context, uriInfo, em, request.getAllHeaders());
+    } catch (ODataJPAModelException e) {
+      throw new ODataApplicationException("An error occured", HttpStatusCode.BAD_REQUEST.getStatusCode(),
+          Locale.ENGLISH, e);
+    }
     final JPAExpandResult result = query.execute();
-
     result.putChildren(readExpandEntities(request.getAllHeaders(), null, uriInfo));
 
     // Convert tuple result into an OData Result
     EntityCollection entityCollection;
     try {
-      entityCollection = new JPATupleResultConverter(sd, result, odata.createUriHelper())
+      entityCollection = new JPATupleResultConverter(sd, result, odata.createUriHelper(), serviceMetadata)
           .getResult();
     } catch (ODataJPAModelException e) {
-      throw new ODataApplicationException("Convertion error", HttpStatusCode.INTERNAL_SERVER_ERROR.ordinal(),
+      throw new ODataApplicationException("Convertion error", HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
           Locale.ENGLISH, e);
     }
 
@@ -101,7 +107,7 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
    */
   private Map<JPAAssociationPath, JPAExpandResult> readExpandEntities(final Map<String, List<String>> headers,
       final List<JPANavigationProptertyInfo> parentHops, final UriInfoResource uriResourceInfo)
-          throws ODataApplicationException {
+      throws ODataApplicationException {
     final Map<JPAAssociationPath, JPAExpandResult> allExpResults =
         new HashMap<JPAAssociationPath, JPAExpandResult>();
     // x/a?$expand=b/c($expand=d,e/f)
@@ -112,9 +118,8 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
     for (final JPAExpandItemInfo item : itemInfoList) {
       final JPAExpandQuery expandQuery = new JPAExpandQuery(odata, context, em, item, headers);
       final JPAExpandResult expandResult = expandQuery.execute();
-      expandResult.putChildren(
-          readExpandEntities(headers, item.getHops(), item.getUriInfo()));
 
+      expandResult.putChildren(readExpandEntities(headers, item.getHops(), item.getUriInfo()));
       allExpResults.put(item.getExpandAssociation(), expandResult);
     }
     return allExpResults;

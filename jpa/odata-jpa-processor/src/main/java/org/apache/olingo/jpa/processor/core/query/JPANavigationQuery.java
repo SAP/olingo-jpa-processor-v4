@@ -37,14 +37,15 @@ public class JPANavigationQuery extends JPAAbstractQuery {
 
   public JPANavigationQuery(final ServicDocument sd, final UriResource uriResourceItem,
       final EntityManager em, final JPAAssociationPath association) throws ODataApplicationException {
+
     super(sd, (EdmEntityType) ((UriResourcePartTyped) uriResourceItem).getType(), em);
     this.keyPredicates = determineKeyPredicates(uriResourceItem);
     this.association = association;
   }
 
   public <T extends Object> JPANavigationQuery(final ServicDocument sd, final UriResource uriResourceItem,
-      final JPAAbstractQuery parent,
-      final EntityManager em, final JPAAssociationPath association) throws ODataApplicationException {
+      final JPAAbstractQuery parent, final EntityManager em, final JPAAssociationPath association)
+      throws ODataApplicationException {
 
     super(sd, (EdmEntityType) ((UriResourcePartTyped) uriResourceItem).getType(), em);
     this.keyPredicates = determineKeyPredicates(uriResourceItem);

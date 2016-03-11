@@ -15,7 +15,7 @@ import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.jpa.metadata.api.JPAEdmProvider;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
-import org.apache.olingo.jpa.processor.core.api.JPAODataContextAccess;
+import org.apache.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import org.apache.olingo.jpa.processor.core.util.EdmEntityTypeDouble;
 import org.apache.olingo.jpa.processor.core.util.ExpandItemDouble;
 import org.apache.olingo.jpa.processor.core.util.JPAODataContextAccessDouble;
@@ -34,9 +34,10 @@ public class TestJPAExpandQueryCreateResult extends TestBase {
     helper = new TestHelper(emf, PUNIT_NAME);
     createHeaders();
     EdmEntityType targetEntity = new EdmEntityTypeDouble(nameBuilder, "BusinessPartnerRole");
-    JPAODataContextAccess context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null), ds);
-    cut = new JPAExpandQuery(null, context, emf.createEntityManager(), new ExpandItemDouble(targetEntity)
-        .getResourcePath(), helper.getJPAAssociationPath("Organizations", "Roles"),
+    JPAODataSessionContextAccess context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null), ds);
+    cut = new JPAExpandQuery(
+        null, context, emf.createEntityManager(), new ExpandItemDouble(targetEntity).getResourcePath(),
+        helper.getJPAAssociationPath("Organizations", "Roles"), helper.sd.getEntity(targetEntity),
         new HashMap<String, List<String>>());
     // new EdmEntitySetDouble(nameBuilder, "Organisations"), null, new HashMap<String, List<String>>());
   }

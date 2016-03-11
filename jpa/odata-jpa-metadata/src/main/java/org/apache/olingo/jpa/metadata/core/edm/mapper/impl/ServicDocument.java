@@ -7,7 +7,6 @@ import java.util.Map;
 
 import javax.persistence.metamodel.Metamodel;
 
-import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmFunction;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
@@ -53,6 +52,12 @@ public class ServicDocument {
     return extractEdmSchemas();
   }
 
+  /**
+   * 
+   * @param edmType
+   * @return
+   * @throws ODataJPAModelException
+   */
   public JPAEntityType getEntity(final EdmType edmType) throws ODataJPAModelException {
     final IntermediateSchema schema = schemaListInternalKey.get(edmType.getNamespace());
     if (schema != null)
@@ -101,8 +106,8 @@ public class ServicDocument {
     }
   }
 
-  public JPAElement getEntitySet(EdmEntityType edmEntityType) throws ODataJPAModelException {
-    return container.getEntitySet(edmEntityType);
+  public JPAElement getEntitySet(JPAEntityType entityType) throws ODataJPAModelException {
+    return container.getEntitySet(entityType);
   }
 
 }

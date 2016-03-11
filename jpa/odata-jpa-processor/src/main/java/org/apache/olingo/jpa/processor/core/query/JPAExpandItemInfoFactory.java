@@ -11,7 +11,6 @@ import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.UriResourceNavigation;
 import org.apache.olingo.server.api.uri.UriResourcePartTyped;
-import org.apache.olingo.server.api.uri.queryoption.ExpandItem;
 import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
 
 public class JPAExpandItemInfoFactory {
@@ -19,20 +18,16 @@ public class JPAExpandItemInfoFactory {
       final ExpandOption expandOption, final List<JPANavigationProptertyInfo> grandParentHops)
       throws ODataApplicationException {
 
-    // TODO $expand=*
     final List<JPAExpandItemInfo> itemList = new ArrayList<JPAExpandItemInfo>();
-    List<JPANavigationProptertyInfo> parentHops = determineParentHops(sd, startResourceList, grandParentHops);
 
     if (startResourceList != null && expandOption != null) {
+      final List<JPANavigationProptertyInfo> parentHops = determineParentHops(sd, startResourceList, grandParentHops);
       final UriResource startResourceItem = determineStartResourceItem(startResourceList);
-      final Map<ExpandItem, JPAAssociationPath> expandPath = Util.determineAssoziations(sd, startResourceList,
+      final Map<JPAExpandItemWrapper, JPAAssociationPath> expandPath = Util.determineAssoziations(sd, startResourceList,
           expandOption);
-      for (ExpandItem item : expandPath.keySet()) {
-        itemList.add(new JPAExpandItemInfo(
-            new JPAExpandItemWrapper(item),
-            (UriResourcePartTyped) startResourceItem,
-            expandPath.get(item),
-            parentHops));
+      for (JPAExpandItemWrapper item : expandPath.keySet()) {
+        itemList.add(new JPAExpandItemInfo(item, (UriResourcePartTyped) startResourceItem,
+            expandPath.get(item), parentHops));
       }
     }
     return itemList;

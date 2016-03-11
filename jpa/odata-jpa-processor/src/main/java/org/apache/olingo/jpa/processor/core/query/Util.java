@@ -53,6 +53,9 @@ public class Util {
     return targetEdmEntitySet;
   }
 
+  /**
+   * Finds an entity type from a navigation property
+   */
   public static EdmEntityType determineTargetEntityType(final List<UriResource> resources) {
     EdmEntityType targetEdmEntity = null;
 
@@ -108,15 +111,17 @@ public class Util {
     }
   }
 
-  public static Map<ExpandItem, JPAAssociationPath> determineAssoziations(final ServicDocument sd,
+  public static Map<JPAExpandItemWrapper, JPAAssociationPath> determineAssoziations(final ServicDocument sd,
       final List<UriResource> startResourceList, final ExpandOption expandOption) throws ODataApplicationException {
 
-    final Map<ExpandItem, JPAAssociationPath> pathList = new HashMap<ExpandItem, JPAAssociationPath>();
+    final Map<JPAExpandItemWrapper, JPAAssociationPath> pathList =
+        new HashMap<JPAExpandItemWrapper, JPAAssociationPath>();
     final StringBuffer associationNamePrefix = new StringBuffer();
 
     UriResource startResourceItem = null;
     if (startResourceList != null && expandOption != null) {
-      // Example1 : /AdministrativeInformation?$expand=Created/User
+      // Example1 : /Organizations('3')/AdministrativeInformation?$expand=Created/User
+      // Example2 : /Organizations('3')/AdministrativeInformation?$expand=*
       // Association name needs AdministrativeInformation as prefix
       for (int i = startResourceList.size() - 1; i >= 0; i--) {
         startResourceItem = startResourceList.get(i);
@@ -129,25 +134,42 @@ public class Util {
       // Example1 : ?$expand=Created/User (Property/NavigationProperty)
       // Example2 : ?$expand=Parent/CodeID (NavigationProperty/Property)
       // Example3 : ?$expand=Parent,Children (NavigationProperty, NavigationProperty)
+      // Example4 : ?$expand=*
+      // Example4 : ?$expand=*/$ref,Parent
       StringBuffer associationName;
       for (final ExpandItem item : expandOption.getExpandItems()) {
-        final List<UriResource> targetResourceList = item.getResourcePath().getUriResourceParts();
-        associationName = new StringBuffer();
-        associationName.append(associationNamePrefix);
-        UriResource targetResourceItem = null;
-        for (int i = 0; i < targetResourceList.size(); i++) {
-          targetResourceItem = targetResourceList.get(i);
-          if (targetResourceItem.getKind() != UriResourceKind.navigationProperty) {
-            // if (i < targetResourceList.size() - 1) {
-            associationName.append(((UriResourceProperty) targetResourceItem).getProperty().getName());
-            associationName.append(JPAAssociationPath.PATH_SEPERATOR);
-          } else {
-            associationName.append(((UriResourceNavigation) targetResourceItem).getProperty().getName());
-            break;
+        if (item.isStar()) {
+          EdmEntitySet edmEntitySet = determineTargetEntitySet(startResourceList);
+          try {
+            JPAEntityType jpaEntityType = sd.getEntity(edmEntitySet.getName());
+            List<JPAAssociationPath> associationPaths = jpaEntityType.getAssociationPathList();
+            for (JPAAssociationPath path : associationPaths) {
+              pathList.put(new JPAExpandItemWrapper(item, jpaEntityType), path);
+            }
+          } catch (ODataJPAModelException e) {
+            throw new ODataApplicationException("Unknown entity type ", HttpStatusCode.INTERNAL_SERVER_ERROR.ordinal(),
+                Locale.ENGLISH, e);
           }
+        } else {
+          final List<UriResource> targetResourceList = item.getResourcePath().getUriResourceParts();
+          associationName = new StringBuffer();
+          associationName.append(associationNamePrefix);
+          UriResource targetResourceItem = null;
+          for (int i = 0; i < targetResourceList.size(); i++) {
+            targetResourceItem = targetResourceList.get(i);
+            if (targetResourceItem.getKind() != UriResourceKind.navigationProperty) {
+              // if (i < targetResourceList.size() - 1) {
+              associationName.append(((UriResourceProperty) targetResourceItem).getProperty().getName());
+              associationName.append(JPAAssociationPath.PATH_SEPERATOR);
+            } else {
+              associationName.append(((UriResourceNavigation) targetResourceItem).getProperty().getName());
+              break;
+            }
+          }
+          pathList.put(new JPAExpandItemWrapper(sd, item), Util.determineAssoziation(sd,
+              ((UriResourcePartTyped) startResourceItem).getType(),
+              associationName));
         }
-        pathList.put(item, Util.determineAssoziation(sd, ((UriResourcePartTyped) startResourceItem).getType(),
-            associationName));
       }
     }
     return pathList;

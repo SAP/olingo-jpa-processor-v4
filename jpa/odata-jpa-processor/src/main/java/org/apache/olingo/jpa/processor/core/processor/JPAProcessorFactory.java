@@ -7,7 +7,8 @@ import javax.persistence.EntityManager;
 
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
-import org.apache.olingo.jpa.processor.core.api.JPAODataContextAccess;
+import org.apache.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
+import org.apache.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import org.apache.olingo.jpa.processor.core.serializer.JPASerializerFactory;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
@@ -18,12 +19,12 @@ import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceKind;
 
 public class JPAProcessorFactory {
-  private final JPAODataContextAccess context;
+  private final JPAODataSessionContextAccess context;
   private final JPASerializerFactory serializerFactory;
   private final OData odata;
 
   public JPAProcessorFactory(final OData odata, final ServiceMetadata serviceMetadata,
-      final JPAODataContextAccess context) {
+      final JPAODataSessionContextAccess context) {
     super();
     this.context = context;
     this.serializerFactory = new JPASerializerFactory(odata, serviceMetadata);
@@ -32,25 +33,24 @@ public class JPAProcessorFactory {
 
   public JPARequestProcessor createProcessor(final EntityManager em, final UriInfo uriInfo,
       final ContentType responseFormat)
-          throws ODataApplicationException, ODataLibraryException {
+      throws ODataApplicationException, ODataLibraryException {
     final List<UriResource> resourceParts = uriInfo.getUriResourceParts();
     final UriResource lastItem = resourceParts.get(resourceParts.size() - 1);
+    final JPAODataRequestContextAccess requestContext = new JPARequestContext(em, uriInfo, serializerFactory
+        .createSerializer(responseFormat, uriInfo));
 
     switch (lastItem.getKind()) {
     case count:
-      return new JPACountRequestProcessor(odata, context, em, uriInfo, serializerFactory.createSerializer(
-          responseFormat, uriInfo));
+      return new JPACountRequestProcessor(odata, context, requestContext);
     case function:
       checkFunctionPathSupported(resourceParts);
-      return new JPAFunctionRequestProcessor(odata, context, em, uriInfo, serializerFactory.createSerializer(
-          responseFormat, uriInfo));
+      return new JPAFunctionRequestProcessor(odata, context, requestContext);
     case complexProperty:
     case primitiveProperty:
     case navigationProperty:
     case entitySet:
       checkNavigationPathSupported(resourceParts);
-      return new JPANavigationRequestProcessor(odata, context, em, uriInfo, serializerFactory.createSerializer(
-          responseFormat, uriInfo));
+      return new JPANavigationRequestProcessor(odata, serializerFactory.getServiceMetadata(), context, requestContext);
     default:
       throw new ODataApplicationException("Not implemented",
           HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);

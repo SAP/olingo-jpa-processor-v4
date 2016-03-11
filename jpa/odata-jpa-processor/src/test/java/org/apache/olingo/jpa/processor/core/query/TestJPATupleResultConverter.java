@@ -14,7 +14,7 @@ import org.apache.olingo.commons.api.data.ComplexValue;
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.ValueType;
 import org.apache.olingo.commons.api.ex.ODataException;
-import org.apache.olingo.jpa.processor.core.util.EdmEntityTypeDouble;
+import org.apache.olingo.jpa.processor.core.util.ServiceMetadataDouble;
 import org.apache.olingo.jpa.processor.core.util.TestBase;
 import org.apache.olingo.jpa.processor.core.util.TestHelper;
 import org.apache.olingo.jpa.processor.core.util.TupleDouble;
@@ -42,8 +42,9 @@ public class TestJPATupleResultConverter extends TestBase {
     uriHelper.setKeyPredicates(keyPredicates, "ID");
     cut = new JPATupleResultConverter(
         helper.sd,
-        new JPAExpandResult(result, Long.parseLong("0"), new EdmEntityTypeDouble(nameBuilder, "Organization")),
-        uriHelper);
+        new JPAExpandResult(result, Long.parseLong("0"), helper.getJPAEntityType("Organizations")),
+        uriHelper,
+        new ServiceMetadataDouble(nameBuilder, "Organization"));
   }
 
   @Test

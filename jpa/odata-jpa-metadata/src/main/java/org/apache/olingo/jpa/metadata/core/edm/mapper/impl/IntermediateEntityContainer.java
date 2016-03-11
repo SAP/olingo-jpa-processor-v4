@@ -5,12 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunctionImport;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 /**
@@ -50,20 +50,22 @@ class IntermediateEntityContainer extends IntermediateModelElement {
   }
 
   @Override
-      CsdlEntityContainer getEdmItem() throws ODataJPAModelException {
+  CsdlEntityContainer getEdmItem() throws ODataJPAModelException {
     lazyBuildEdmItem();
     return edmContainer;
   }
 
   IntermediateEntitySet getEntitySet(final String edmEntitySetName) throws ODataJPAModelException {
+    lazyBuildEdmItem();
     return (IntermediateEntitySet) findModelElementByEdmItem(edmEntitySetName,
         entitySetListInternalKey);
   }
 
-  JPAElement getEntitySet(EdmEntityType edmEntityType) throws ODataJPAModelException {
+  JPAElement getEntitySet(JPAEntityType entityType) throws ODataJPAModelException {
+    lazyBuildEdmItem();
     for (final String internalName : entitySetListInternalKey.keySet()) {
       final IntermediateEntitySet modelElement = entitySetListInternalKey.get(internalName);
-      if (modelElement.getEdmItem().getTypeFQN().equals(edmEntityType.getFullQualifiedName())) {
+      if (modelElement.getEdmItem().getTypeFQN().equals(entityType.getExternalFQN())) {
         return modelElement;
       }
     }

@@ -1,7 +1,13 @@
 package org.apache.olingo.jpa.processor.core.query;
 
 import java.util.List;
+import java.util.Locale;
 
+import org.apache.olingo.commons.api.http.HttpStatusCode;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
+import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.queryoption.CountOption;
@@ -22,10 +28,23 @@ import org.apache.olingo.server.api.uri.queryoption.TopOption;
 // Feature?
 public class JPAExpandItemWrapper implements UriInfoResource {
   private final ExpandItem item;
+  private final JPAEntityType jpaEntityType;
 
-  public JPAExpandItemWrapper(final ExpandItem item) {
+  public JPAExpandItemWrapper(ServicDocument sd, final ExpandItem item) throws ODataApplicationException {
     super();
     this.item = item;
+    try {
+      this.jpaEntityType = sd.getEntity(Util.determineTargetEntityType(getUriResourceParts()));
+    } catch (ODataJPAModelException e) {
+      throw new ODataApplicationException("Unknown entity type", HttpStatusCode.BAD_REQUEST.getStatusCode(),
+          Locale.ENGLISH, e);
+    }
+  }
+
+  public JPAExpandItemWrapper(final ExpandItem item, final JPAEntityType jpaEntityType) {
+    super();
+    this.item = item;
+    this.jpaEntityType = jpaEntityType;
   }
 
   @Override
@@ -90,12 +109,16 @@ public class JPAExpandItemWrapper implements UriInfoResource {
 
   @Override
   public List<UriResource> getUriResourceParts() {
-    return item.getResourcePath().getUriResourceParts();
+    return item.getResourcePath() != null ? item.getResourcePath().getUriResourceParts() : null;
   }
 
   @Override
   public String getValueForAlias(final String alias) {
     return null;
+  }
+
+  public JPAEntityType getEntityType() {
+    return jpaEntityType;
   }
 
 }

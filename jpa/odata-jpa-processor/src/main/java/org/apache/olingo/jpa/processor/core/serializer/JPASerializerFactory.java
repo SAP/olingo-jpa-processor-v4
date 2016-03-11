@@ -57,4 +57,8 @@ public class JPASerializerFactory {
           HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
     }
   }
+
+  public ServiceMetadata getServiceMetadata() {
+    return serviceMetadata;
+  }
 }

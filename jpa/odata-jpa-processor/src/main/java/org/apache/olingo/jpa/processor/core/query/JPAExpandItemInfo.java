@@ -4,16 +4,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResourcePartTyped;
 
 public class JPAExpandItemInfo {
-  private final UriInfoResource uriInfo;
+  private final JPAExpandItemWrapper uriInfo;
   private final JPAAssociationPath expandAssociation;
   private final List<JPANavigationProptertyInfo> hops;
 
-  JPAExpandItemInfo(final UriInfoResource uriInfo, final UriResourcePartTyped startResourceItem,
+  JPAExpandItemInfo(final JPAExpandItemWrapper uriInfo, final UriResourcePartTyped startResourceItem,
       final JPAAssociationPath expandAssociation, final List<JPANavigationProptertyInfo> hops) {
     super();
     this.uriInfo = uriInfo;
@@ -32,5 +33,9 @@ public class JPAExpandItemInfo {
 
   public List<JPANavigationProptertyInfo> getHops() {
     return Collections.unmodifiableList(hops);
+  }
+
+  public JPAEntityType getEntityType() {
+    return uriInfo.getEntityType();
   }
 }

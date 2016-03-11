@@ -19,7 +19,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribut
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import org.apache.olingo.jpa.processor.core.api.JPAODataContextAccess;
+import org.apache.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfo;
@@ -36,10 +36,11 @@ import org.apache.olingo.server.api.uri.queryoption.expression.Member;
 public class JPAQuery extends JPAExecutableQuery {
   // private final EdmEntitySet edmEntitySet;
 
-  public JPAQuery(final OData odata, final EdmEntitySet entitySet, final JPAODataContextAccess context,
+  public JPAQuery(final OData odata, final EdmEntitySet entitySet, final JPAODataSessionContextAccess context,
       final UriInfo uriInfo, final EntityManager em, final Map<String, List<String>> requestHeaders)
-          throws ODataApplicationException {
-    super(odata, context, entitySet.getEntityType(), em, requestHeaders, uriInfo);
+      throws ODataApplicationException, ODataJPAModelException {
+    super(odata, context, context.getEdmProvider().getServiceDocument().getEntity(entitySet.getName()), em,
+        requestHeaders, uriInfo);
   }
 
   /**
@@ -101,7 +102,7 @@ public class JPAQuery extends JPAExecutableQuery {
 
     final HashMap<String, List<Tuple>> result = new HashMap<String, List<Tuple>>(1);
     result.put("root", tq.getResultList());
-    return new JPAExpandResult(result, Long.parseLong("0"), edmType);// count()););
+    return new JPAExpandResult(result, Long.parseLong("0"), jpaEntity);// count()););
   }
 
   public JPAStructuredType getEntityType() {

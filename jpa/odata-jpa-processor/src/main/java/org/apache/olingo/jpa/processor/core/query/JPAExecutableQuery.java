@@ -21,7 +21,6 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 import javax.persistence.criteria.Subquery;
 
-import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
 import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -35,7 +34,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
-import org.apache.olingo.jpa.processor.core.api.JPAODataContextAccess;
+import org.apache.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import org.apache.olingo.jpa.processor.core.filter.JPAFilterCrossComplier;
 import org.apache.olingo.jpa.processor.core.filter.JPAOperationConverter;
 import org.apache.olingo.server.api.OData;
@@ -49,7 +48,6 @@ import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.UriResourceNavigation;
 import org.apache.olingo.server.api.uri.UriResourcePartTyped;
 import org.apache.olingo.server.api.uri.UriResourcePrimitiveProperty;
-import org.apache.olingo.server.api.uri.queryoption.ExpandItem;
 import org.apache.olingo.server.api.uri.queryoption.OrderByItem;
 import org.apache.olingo.server.api.uri.queryoption.OrderByOption;
 import org.apache.olingo.server.api.uri.queryoption.SelectOption;
@@ -69,13 +67,13 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
   protected final CriteriaQuery<Tuple> cq;
   protected final Root<?> root;
   protected final JPAFilterCrossComplier filter;
-  protected final JPAODataContextAccess context;
+  protected final JPAODataSessionContextAccess context;
 
-  public JPAExecutableQuery(final OData odata, JPAODataContextAccess context, final EdmEntityType edmType,
+  public JPAExecutableQuery(final OData odata, JPAODataSessionContextAccess context, final JPAEntityType jpaEntityType,
       final EntityManager em, final Map<String, List<String>> requestHeaders, final UriInfoResource uriResource)
       throws ODataApplicationException {
 
-    super(context.getEdmProvider().getServiceDocument(), edmType, em);
+    super(context.getEdmProvider().getServiceDocument(), jpaEntityType, em);
     this.locale = determineLocale(requestHeaders);
     this.uriResource = uriResource;
     this.cq = cb.createTupleQuery();
@@ -202,11 +200,11 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     else
       jpaPathList = buildEntityPathList(jpaEntity);
     // Add Fields that are required for Expand
-    final Map<ExpandItem, JPAAssociationPath> associationPathList = Util.determineAssoziations(sd, uriResource
+    final Map<JPAExpandItemWrapper, JPAAssociationPath> associationPathList = Util.determineAssoziations(sd, uriResource
         .getUriResourceParts(), uriResource.getExpandOption());
     if (!associationPathList.isEmpty()) {
       Collections.sort(jpaPathList);
-      for (final ExpandItem item : associationPathList.keySet()) {
+      for (final UriInfoResource item : associationPathList.keySet()) {
         final JPAAssociationPath associationPath = associationPathList.get(item);
         try {
           for (final JPAOnConditionItem joinItem : associationPath.getJoinColumnsList()) {

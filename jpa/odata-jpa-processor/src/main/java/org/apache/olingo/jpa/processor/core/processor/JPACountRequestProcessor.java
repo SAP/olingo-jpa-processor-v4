@@ -3,16 +3,15 @@ package org.apache.olingo.jpa.processor.core.processor;
 import java.util.List;
 import java.util.Locale;
 
-import javax.persistence.EntityManager;
-
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
-import org.apache.olingo.jpa.processor.core.api.JPAODataContextAccess;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import org.apache.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
+import org.apache.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import org.apache.olingo.jpa.processor.core.query.JPAQuery;
 import org.apache.olingo.jpa.processor.core.query.Util;
-import org.apache.olingo.jpa.processor.core.serializer.JPASerializer;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataRequest;
@@ -29,9 +28,9 @@ import org.apache.olingo.server.api.uri.UriResourceEntitySet;
  */
 public class JPACountRequestProcessor extends JPAAbstractRequestProcessor {
 
-  public JPACountRequestProcessor(final OData odata, final JPAODataContextAccess context, final EntityManager em,
-      final UriInfo uriInfo, final JPASerializer serializer) {
-    super(odata, context, em, uriInfo, serializer);
+  public JPACountRequestProcessor(final OData odata, final JPAODataSessionContextAccess context,
+      final JPAODataRequestContextAccess requestContext) {
+    super(odata, context, requestContext);
   }
 
   @Override
@@ -55,7 +54,13 @@ public class JPACountRequestProcessor extends JPAAbstractRequestProcessor {
     final List<UriResource> resourceParts = uriInfo.getUriResourceParts();
     final EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(resourceParts);
 
-    final JPAQuery query = new JPAQuery(odata, targetEdmEntitySet, context, uriInfo, em, request.getAllHeaders());
+    JPAQuery query = null;
+    try {
+      query = new JPAQuery(odata, targetEdmEntitySet, context, uriInfo, em, request.getAllHeaders());
+    } catch (ODataJPAModelException e) {
+      throw new ODataApplicationException("An error occured", HttpStatusCode.BAD_REQUEST.getStatusCode(),
+          Locale.ENGLISH, e);
+    }
 
     entityCollection.setCount(Integer.valueOf(query.countResults().intValue()));
     return entityCollection;

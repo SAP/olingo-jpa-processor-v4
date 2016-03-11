@@ -30,6 +30,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExc
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
 import org.apache.olingo.server.api.ODataApplicationException;
+import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.uri.UriHelper;
 
@@ -45,23 +46,23 @@ public abstract class JPATupleAbstractConverter {
   protected final UriHelper uriHelper;
   protected final String setName;
   protected final ServicDocument sd;
+  protected final ServiceMetadata serviceMetadata;
 
   public JPATupleAbstractConverter(final JPAExpandResult jpaQueryResult,
-      final UriHelper uriHelper, final ServicDocument sd) throws ODataApplicationException {
+      final UriHelper uriHelper, final ServicDocument sd, final ServiceMetadata serviceMetadata)
+      throws ODataApplicationException {
     super();
-    try {
-      this.jpaConversionTargetEntity = sd.getEntity(jpaQueryResult.getEdmEntityType());
-    } catch (ODataJPAModelException e) {
-      throw new ODataApplicationException("Metadata not found for " + jpaQueryResult.getEdmEntityType().getName(),
-          HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), Locale.ENGLISH, e);
-    }
+
+    this.jpaConversionTargetEntity = jpaQueryResult.getEntityType();
     this.jpaQueryResult = jpaQueryResult;
     this.uriHelper = uriHelper;
     this.sd = sd;
+    this.serviceMetadata = serviceMetadata;
     try {
-      this.setName = sd.getEntitySet(jpaQueryResult.getEdmEntityType()).getExternalName();
+      this.setName = sd.getEntitySet(jpaQueryResult.getEntityType()).getExternalName();
     } catch (ODataJPAModelException e) {
-      throw new ODataApplicationException("Entity Set not found for " + jpaQueryResult.getEdmEntityType().getName(),
+      throw new ODataApplicationException("Entity Set not found for " +
+          jpaQueryResult.getEntityType().getExternalFQN().getFullQualifiedNameAsString(),
           HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), Locale.ENGLISH, e);
     }
   }
@@ -119,7 +120,7 @@ public abstract class JPATupleAbstractConverter {
             type = jpaConversionTargetEntity;
           if (type.getDeclaredAssociation(associationPath.getLeaf().getExternalName()) != null) {
             final Link expand = new JPATupleExpandResultConverter(children.get(associationPath), row,
-                associationPath, uriHelper, sd).getResult();
+                associationPath, uriHelper, sd, serviceMetadata).getResult();
             entityExpandLinks.add(expand);
           }
         } catch (ODataJPAModelException e) {
@@ -134,7 +135,7 @@ public abstract class JPATupleAbstractConverter {
   protected URI createId(List<? extends JPAAttribute> keyAttributes, Entity entity)
       throws ODataApplicationException, ODataRuntimeException {
 
-    EdmEntityType edmType = jpaQueryResult.getEdmEntityType();
+    EdmEntityType edmType = serviceMetadata.getEdm().getEntityType(jpaQueryResult.getEntityType().getExternalFQN());
     try {
       // TODO Clarify host-name and port as part of ID see
       // http://docs.oasis-open.org/odata/odata-atom-format/v4.0/cs02/odata-atom-format-v4.0-cs02.html#_Toc372792702

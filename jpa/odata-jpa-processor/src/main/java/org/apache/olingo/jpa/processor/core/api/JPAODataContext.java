@@ -8,7 +8,7 @@ import org.apache.olingo.jpa.processor.core.filter.JPAOperationConverter;
 import org.apache.olingo.server.api.debug.DebugSupport;
 import org.apache.olingo.server.api.edmx.EdmxReference;
 
-public interface JPAODataContext extends JPAODataContextAccess {
+public interface JPAODataContext extends JPAODataSessionContextAccess {
   /**
    * Registers the debug support handler.
    * @param debugSupport

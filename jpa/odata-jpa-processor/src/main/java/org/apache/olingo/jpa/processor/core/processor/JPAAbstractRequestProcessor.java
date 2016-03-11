@@ -7,7 +7,8 @@ import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpHeader;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
-import org.apache.olingo.jpa.processor.core.api.JPAODataContextAccess;
+import org.apache.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
+import org.apache.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import org.apache.olingo.jpa.processor.core.serializer.JPASerializer;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataResponse;
@@ -19,21 +20,20 @@ abstract class JPAAbstractRequestProcessor implements JPARequestProcessor {
   // TODO eliminate transaction handling
   protected final EntityManager em;
   protected final ServicDocument sd;
-  protected final JPAODataContextAccess context;
+  protected final JPAODataSessionContextAccess context;
   protected final CriteriaBuilder cb;
   protected final UriInfo uriInfo;
   protected final JPASerializer serializer;
   protected final OData odata;
 
-  public JPAAbstractRequestProcessor(final OData odata, final JPAODataContextAccess context, final EntityManager em,
-      final UriInfo uriInfo, final JPASerializer serializer) {
-    super();
-    this.em = em;
+  public JPAAbstractRequestProcessor(OData odata, JPAODataSessionContextAccess context,
+      JPAODataRequestContextAccess requestContext) {
+    this.em = requestContext.getEntityManager();
     this.cb = em.getCriteriaBuilder();
     this.context = context;
     this.sd = context.getEdmProvider().getServiceDocument();
-    this.uriInfo = uriInfo;
-    this.serializer = serializer;
+    this.uriInfo = requestContext.getUriInfo();
+    this.serializer = requestContext.getSerializer();
     this.odata = odata;
   }
 

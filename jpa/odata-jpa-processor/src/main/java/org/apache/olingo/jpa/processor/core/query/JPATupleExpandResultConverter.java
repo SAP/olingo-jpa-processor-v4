@@ -13,6 +13,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExc
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
 import org.apache.olingo.server.api.ODataApplicationException;
+import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.uri.UriHelper;
 
 public class JPATupleExpandResultConverter extends JPATupleAbstractConverter {
@@ -20,9 +21,10 @@ public class JPATupleExpandResultConverter extends JPATupleAbstractConverter {
   private final JPAAssociationPath assoziation;
 
   public JPATupleExpandResultConverter(final JPAExpandResult jpaExpandResult, final Tuple parentRow,
-      final JPAAssociationPath assoziation, final UriHelper uriHelper, ServicDocument sd)
-          throws ODataApplicationException {
-    super(jpaExpandResult, uriHelper, sd);
+      final JPAAssociationPath assoziation, final UriHelper uriHelper, final ServicDocument sd,
+      final ServiceMetadata serviceMetadata) throws ODataApplicationException {
+
+    super(jpaExpandResult, uriHelper, sd, serviceMetadata);
     this.parentRow = parentRow;
     this.assoziation = assoziation;
   }

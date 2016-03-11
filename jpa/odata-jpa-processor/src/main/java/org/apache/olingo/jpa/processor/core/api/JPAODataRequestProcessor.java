@@ -23,10 +23,10 @@ import org.apache.olingo.server.api.uri.UriInfo;
 public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
     ComplexProcessor, CountEntityCollectionProcessor, EntityProcessor {
   private final EntityManager em;
-  private final JPAODataContextAccess context;
+  private final JPAODataSessionContextAccess context;
   private JPAProcessorFactory factory;
 
-  public JPAODataRequestProcessor(final JPAODataContextAccess context, final EntityManager em) {
+  public JPAODataRequestProcessor(final JPAODataSessionContextAccess context, final EntityManager em) {
     super();
     this.em = em;
     this.context = context;

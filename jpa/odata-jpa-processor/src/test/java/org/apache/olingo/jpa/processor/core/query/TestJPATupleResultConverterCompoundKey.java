@@ -13,7 +13,7 @@ import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescriptionKey;
-import org.apache.olingo.jpa.processor.core.util.EdmEntityTypeDouble;
+import org.apache.olingo.jpa.processor.core.util.ServiceMetadataDouble;
 import org.apache.olingo.jpa.processor.core.util.TestBase;
 import org.apache.olingo.jpa.processor.core.util.TestHelper;
 import org.apache.olingo.jpa.processor.core.util.TupleDouble;
@@ -47,9 +47,9 @@ public class TestJPATupleResultConverterCompoundKey extends TestBase {
 
     cut = new JPATupleResultConverter(
         helper.sd,
-        new JPAExpandResult(resultContainer, Long.parseLong("0"), new EdmEntityTypeDouble(nameBuilder,
-            "BusinessPartnerRole")),
-        uriHelper);
+        new JPAExpandResult(resultContainer, Long.parseLong("0"), helper.getJPAEntityType("BusinessPartnerRoles")),
+        uriHelper,
+        new ServiceMetadataDouble(nameBuilder, "BusinessPartnerRole"));
 
     HashMap<String, Object> result;
 
@@ -79,9 +79,10 @@ public class TestJPATupleResultConverterCompoundKey extends TestBase {
 
     cut = new JPATupleResultConverter(
         helper.sd,
-        new JPAExpandResult(resultContainer, Long.parseLong("1"), new EdmEntityTypeDouble(nameBuilder,
-            "AdministrativeDivisionDescription")),
-        uriHelper);
+        new JPAExpandResult(resultContainer, Long.parseLong("1"), helper.getJPAEntityType(
+            "AdministrativeDivisionDescriptions")),
+        uriHelper,
+        new ServiceMetadataDouble());
 
     AdministrativeDivisionDescriptionKey country = new AdministrativeDivisionDescriptionKey();
     country.setLanguage("en");

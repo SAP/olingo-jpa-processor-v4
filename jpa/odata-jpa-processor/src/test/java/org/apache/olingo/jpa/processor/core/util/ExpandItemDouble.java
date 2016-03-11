@@ -86,7 +86,6 @@ public class ExpandItemDouble implements ExpandItem {
 
   @Override
   public boolean isStar() {
-    fail();
     return false;
   }
 

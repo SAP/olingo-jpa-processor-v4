@@ -4,8 +4,6 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Locale;
 
-import javax.persistence.EntityManager;
-
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.format.ContentType;
@@ -13,17 +11,16 @@ import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import org.apache.olingo.jpa.processor.core.api.JPAODataContextAccess;
 import org.apache.olingo.jpa.processor.core.api.JPAODataDatabaseProcessor;
+import org.apache.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
+import org.apache.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import org.apache.olingo.jpa.processor.core.query.JPAInstanceResultConverter;
-import org.apache.olingo.jpa.processor.core.serializer.JPASerializer;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataLibraryException;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.serializer.SerializerResult;
-import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriResourceFunction;
 
 /**
@@ -36,9 +33,9 @@ public class JPAFunctionRequestProcessor extends JPAAbstractRequestProcessor {
 
   private final JPAODataDatabaseProcessor dbProcessor;
 
-  public JPAFunctionRequestProcessor(final OData odata, final JPAODataContextAccess context, final EntityManager em,
-      final UriInfo uriInfo, final JPASerializer serializer) {
-    super(odata, context, em, uriInfo, serializer);
+  public JPAFunctionRequestProcessor(final OData odata, final JPAODataSessionContextAccess context,
+      final JPAODataRequestContextAccess requestContext) {
+    super(odata, context, requestContext);
     this.dbProcessor = context.getDatabaseProcessor();
   }
 

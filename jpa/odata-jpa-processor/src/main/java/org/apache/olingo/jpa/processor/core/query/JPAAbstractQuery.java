@@ -26,26 +26,34 @@ public abstract class JPAAbstractQuery {
   protected final CriteriaBuilder cb;
   protected final JPAEntityType jpaEntity;
   protected final ServicDocument sd;
-  protected final EdmEntityType edmType;
+  // protected final EdmEntityType edmType;
 
-  public JPAAbstractQuery(final ServicDocument sd, final EdmEntityType edmType, final EntityManager em)
+  public JPAAbstractQuery(final ServicDocument sd, final JPAEntityType jpaEntityType, final EntityManager em)
       throws ODataApplicationException {
     super();
     this.em = em;
     this.cb = em.getCriteriaBuilder();
     this.sd = sd;
-    this.edmType = edmType;
+    this.jpaEntity = jpaEntityType;
+  }
+
+  public JPAAbstractQuery(final ServicDocument sd, final EdmEntityType edmEntityType, final EntityManager em)
+      throws ODataApplicationException {
+    super();
+    this.em = em;
+    this.cb = em.getCriteriaBuilder();
+    this.sd = sd;
     try {
-      this.jpaEntity = sd.getEntity(edmType);
+      this.jpaEntity = sd.getEntity(edmEntityType);
     } catch (ODataJPAModelException e) {
-      throw new ODataApplicationException("Property not found", HttpStatusCode.BAD_REQUEST.getStatusCode(),
+      throw new ODataApplicationException("An error occured", HttpStatusCode.BAD_REQUEST.getStatusCode(),
           Locale.ENGLISH, e);
     }
   }
 
   protected javax.persistence.criteria.Expression<Boolean> createWhereByKey(final From<?, ?> root,
       final javax.persistence.criteria.Expression<Boolean> whereCondition, final List<UriParameter> keyPredicates)
-          throws ODataApplicationException {
+      throws ODataApplicationException {
     // .../Organizations('3')
     // .../BusinessPartnerRoles(BusinessPartnerID='6',RoleCategory='C')
     javax.persistence.criteria.Expression<Boolean> compundCondition = whereCondition;
