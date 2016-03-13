@@ -144,7 +144,7 @@ public class Util {
             JPAEntityType jpaEntityType = sd.getEntity(edmEntitySet.getName());
             List<JPAAssociationPath> associationPaths = jpaEntityType.getAssociationPathList();
             for (JPAAssociationPath path : associationPaths) {
-              pathList.put(new JPAExpandItemWrapper(item, jpaEntityType), path);
+              pathList.put(new JPAExpandItemWrapper(item, (JPAEntityType) path.getTargetType()), path);
             }
           } catch (ODataJPAModelException e) {
             throw new ODataApplicationException("Unknown entity type ", HttpStatusCode.INTERNAL_SERVER_ERROR.ordinal(),

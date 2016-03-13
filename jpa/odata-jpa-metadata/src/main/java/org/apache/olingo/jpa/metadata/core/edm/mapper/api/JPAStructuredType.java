@@ -2,7 +2,6 @@ package org.apache.olingo.jpa.metadata.core.edm.mapper.api;
 
 import java.util.List;
 
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
 
@@ -35,8 +34,6 @@ public interface JPAStructuredType extends JPAElement {
 
   public List<JPAAttribute> getAttributes() throws ODataJPAModelException;
 
-  public FullQualifiedName getExternalFQN();
-
   public JPAPath getPath(String externalName) throws ODataJPAModelException;
 
   /**
@@ -52,5 +49,15 @@ public interface JPAStructuredType extends JPAElement {
   public List<JPAPath> getPathList() throws ODataJPAModelException;
 
   public Class<?> getTypeClass();
+
+  /**
+   * In case the type is within the given association path, the sub-path is returned.
+   * E.g. structured type is AdministrativeInformation and associationPath = AdministrativeInformation/Created/User
+   * Created/User is returned.
+   * @param associationPath
+   * @return
+   * @throws ODataJPAModelException
+   */
+  public JPAAssociationPath getDeclaredAssociation(JPAAssociationPath associationPath) throws ODataJPAModelException;
 
 }

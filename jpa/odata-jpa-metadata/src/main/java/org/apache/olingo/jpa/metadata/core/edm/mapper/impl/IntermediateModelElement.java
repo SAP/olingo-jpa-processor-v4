@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlAbstractEdmItem;
 import org.apache.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -37,6 +38,11 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
   @Override
   public String getExternalName() {
     return externalName;
+  }
+
+  @Override
+  public FullQualifiedName getExternalFQN() {
+    return nameBuilder.buildFQN(getExternalName());
   }
 
   /*

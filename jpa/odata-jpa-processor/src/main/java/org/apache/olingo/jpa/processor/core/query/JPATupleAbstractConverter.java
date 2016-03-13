@@ -98,13 +98,13 @@ public abstract class JPATupleAbstractConverter {
     }
     for (final String attribute : complexValueBuffer.keySet()) {
       final ComplexValue complexValue = complexValueBuffer.get(attribute);
-      complexValue.getNavigationLinks().addAll(createExpand(row, odataEntity.getId(), attribute));
+      complexValue.getNavigationLinks().addAll(createExpand(row, odataEntity.getId())); // , attribute));
     }
-    odataEntity.getNavigationLinks().addAll(createExpand(row, odataEntity.getId(), ""));
+    odataEntity.getNavigationLinks().addAll(createExpand(row, odataEntity.getId()));
     return odataEntity;
   }
 
-  protected Collection<? extends Link> createExpand(final Tuple row, final URI uri, final String attributeName)
+  protected Collection<? extends Link> createExpand(final Tuple row, final URI uri) // , final String attributeName)
       throws ODataApplicationException {
     final List<Link> entityExpandLinks = new ArrayList<Link>();
     // jpaConversionTargetEntity.
@@ -112,15 +112,17 @@ public abstract class JPATupleAbstractConverter {
     if (children != null) {
       for (final JPAAssociationPath associationPath : children.keySet()) {
         try {
-          JPAStructuredType type;
-          if (attributeName != null && !attributeName.isEmpty()) {
-            type = ((JPAAttribute) jpaConversionTargetEntity.getPath(attributeName).getPath().get(0))
-                .getStructuredType();
-          } else
-            type = jpaConversionTargetEntity;
-          if (type.getDeclaredAssociation(associationPath.getLeaf().getExternalName()) != null) {
+//          JPAStructuredType type;
+//          if (attributeName != null && !attributeName.isEmpty()) {
+//            type = ((JPAAttribute) jpaConversionTargetEntity.getPath(attributeName).getPath().get(0))
+//                .getStructuredType();
+//          } else
+//            type = jpaConversionTargetEntity;
+//          // TASK Check
+          if (jpaConversionTargetEntity.getDeclaredAssociation(associationPath) != null) {
             final Link expand = new JPATupleExpandResultConverter(children.get(associationPath), row,
                 associationPath, uriHelper, sd, serviceMetadata).getResult();
+            // TODO Check how to convert Organizations('3')/AdministrativeInformation?$expand=Created/User
             entityExpandLinks.add(expand);
           }
         } catch (ODataJPAModelException e) {

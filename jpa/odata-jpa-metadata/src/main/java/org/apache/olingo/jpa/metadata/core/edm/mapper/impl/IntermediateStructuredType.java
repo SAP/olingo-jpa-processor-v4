@@ -119,8 +119,31 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
   }
 
   @Override
-  public FullQualifiedName getExternalFQN() {
-    return nameBuilder.buildFQN(getExternalName());
+  public JPAAssociationPath getDeclaredAssociation(final JPAAssociationPath associationPath)
+      throws ODataJPAModelException {
+    lazyBuildCompleteAssociationPathMap();
+
+    if (resolvedAssociationPathMap.containsKey(associationPath.getAlias()))
+      return resolvedAssociationPathMap.get(associationPath.getAlias());
+//    boolean found = false;
+//    StringBuffer pathName = new StringBuffer();
+//    for (final JPAElement jpaElement : associationPath.getPath()) {
+//      if (found) {
+//        pathName.append(jpaElement.getExternalName());
+//        pathName.append(JPAPath.PATH_SEPERATOR);
+//      }
+//      if (jpaElement.getExternalFQN().getFullQualifiedNameAsString().equals(getExternalFQN()
+//          .getFullQualifiedNameAsString()))
+//        found = true;
+//    }
+//    if (found) {
+//      pathName.deleteCharAt(pathName.length() - 1);
+//      return resolvedAssociationPathMap.get(pathName.toString());
+//    }
+    final IntermediateStructuredType baseType = getBaseType();
+    if (baseType != null)
+      return baseType.getDeclaredAssociation(associationPath);
+    return null;
   }
 
   @Override

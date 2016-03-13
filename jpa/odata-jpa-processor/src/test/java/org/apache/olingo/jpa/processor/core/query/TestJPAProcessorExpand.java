@@ -406,6 +406,16 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
+  public void testExpandAllNavigationPathWithComplex() throws IOException, ODataException {
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('3')?$expand=*");
+    helper.assertStatus(200);
+
+    ObjectNode org = helper.getValue();
+    assertNotNull(org.get("Roles"));
+
+  }
+
+  @Test
   public void testExpandCompleteEntitySet2() throws IOException, ODataException {
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, "AdministrativeDivisions?$expand=Parent");
 
