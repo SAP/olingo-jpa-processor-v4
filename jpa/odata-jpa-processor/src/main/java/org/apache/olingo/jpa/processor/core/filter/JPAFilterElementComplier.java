@@ -10,59 +10,39 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
 import org.apache.olingo.jpa.processor.core.query.JPAAbstractQuery;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
-import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
-import org.apache.olingo.server.api.uri.queryoption.FilterOption;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitException;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitor;
+import org.apache.olingo.server.api.uri.queryoption.expression.VisitableExpression;
 
 /**
- * Cross compiles Olingo generated AST of an OData filter into JPA criteria builder where condition.
- * 
- * Details can be found:
- * <a href=
- * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398301"
- * >OData Version 4.0 Part 1 - 11.2.5.1 System Query Option $filter </a>
- * <a href=
- * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part2-url-conventions/odata-v4.0-errata02-os-part2-url-conventions-complete.html#_Toc406398094"
- * >OData Version 4.0 Part 2 - 5.1.1 System Query Option $filter</a>
- * <a href=
- * "https://tools.oasis-open.org/version-control/browse/wsvn/odata/trunk/spec/ABNF/odata-abnf-construction-rules.txt">
- * odata-abnf-construction-rules</a>
+ * Compiles just one Expression. Mainly build for filter on navigation
  * @author Oliver Grande
  *
  */
 //TODO handle $it ...
-public class JPAFilterCrossComplier implements JPAFilterComplier, JPAFilterComplierAccess {
+public class JPAFilterElementComplier implements JPAFilterComplier, JPAFilterComplierAccess {
   final JPAOperationConverter converter;
-  private final FilterOption filterTree;
-  // TODO Check if it is allowed to select via navigation
-  // ...Organizations?$select=Roles/RoleCategory eq 'C'
-  // see also https://issues.apache.org/jira/browse/OLINGO-414
   final JPAEntityType jpaEntityType;
   final EntityManager em;
   final OData odata;
   final ServicDocument sd;
   final List<UriResource> uriResourceParts;
   final JPAAbstractQuery parent;
+  final VisitableExpression expression;
 
-  public JPAFilterCrossComplier(final OData odata, final ServicDocument sd, final EntityManager em,
+  public JPAFilterElementComplier(final OData odata, final ServicDocument sd, final EntityManager em,
       final JPAEntityType jpaEntityType, final JPAOperationConverter converter,
-      final UriInfoResource uriResource, final JPAAbstractQuery parent) {
+      final List<UriResource> uriResourceParts, final JPAAbstractQuery parent, VisitableExpression expression) {
     super();
     this.converter = converter;
-    if (uriResource != null) {
-      this.filterTree = uriResource.getFilterOption();
-      this.uriResourceParts = uriResource.getUriResourceParts();
-    } else {
-      this.filterTree = null;
-      this.uriResourceParts = null;
-    }
     this.jpaEntityType = jpaEntityType;
     this.em = em;
     this.odata = odata;
     this.sd = sd;
+    this.uriResourceParts = uriResourceParts;
     this.parent = parent;
+    this.expression = expression;
   }
 
   /*
@@ -74,12 +54,8 @@ public class JPAFilterCrossComplier implements JPAFilterComplier, JPAFilterCompl
   @SuppressWarnings("unchecked")
   public Expression<Boolean> compile() throws ExpressionVisitException, ODataApplicationException {
 
-    if (filterTree == null)
-      return null;
-
     final ExpressionVisitor<JPAOperator> visitor = new JPAVisitor(this);
-    final org.apache.olingo.server.api.uri.queryoption.expression.Expression e = filterTree.getExpression();
-    return (Expression<Boolean>) e.accept(visitor).get();
+    return (Expression<Boolean>) expression.accept(visitor).get();
   }
 
   @Override

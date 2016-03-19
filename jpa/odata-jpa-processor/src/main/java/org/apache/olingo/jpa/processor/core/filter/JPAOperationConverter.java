@@ -63,6 +63,11 @@ public class JPAOperationConverter {
     }
   }
 
+  final public Expression<Boolean> convert(final JPAExistsOperation jpaOperator) throws ODataApplicationException {
+    return cb.exists(jpaOperator.getSubQuery());
+
+  }
+
   // TODO check generics!
   @SuppressWarnings({ "unchecked", "rawtypes" })
   final public Expression<Boolean> convert(final JPAComparisonOperator jpaOperator) throws ODataApplicationException {

@@ -68,4 +68,9 @@ public class EdmEntitySetDouble implements EdmEntitySet {
     return false;
   }
 
+//  @Override
+//  public EdmMapping getMapping() {
+//    org.junit.Assert.fail();
+//    return null;
+//  }
 }

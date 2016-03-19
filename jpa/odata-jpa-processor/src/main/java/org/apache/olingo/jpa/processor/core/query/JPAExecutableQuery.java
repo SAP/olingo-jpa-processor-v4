@@ -35,6 +35,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
 import org.apache.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import org.apache.olingo.jpa.processor.core.filter.JPAFilterComplier;
 import org.apache.olingo.jpa.processor.core.filter.JPAFilterCrossComplier;
 import org.apache.olingo.jpa.processor.core.filter.JPAOperationConverter;
 import org.apache.olingo.server.api.OData;
@@ -66,7 +67,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
   protected final UriInfoResource uriResource;
   protected final CriteriaQuery<Tuple> cq;
   protected final Root<?> root;
-  protected final JPAFilterCrossComplier filter;
+  protected final JPAFilterComplier filter;
   protected final JPAODataSessionContextAccess context;
 
   public JPAExecutableQuery(final OData odata, JPAODataSessionContextAccess context, final JPAEntityType jpaEntityType,
@@ -78,7 +79,8 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     this.uriResource = uriResource;
     this.cq = cb.createTupleQuery();
     this.root = cq.from(jpaEntity.getTypeClass());
-    this.filter = new JPAFilterCrossComplier(odata, jpaEntity, root, new JPAOperationConverter(cb), uriResource);
+    this.filter = new JPAFilterCrossComplier(odata, sd, em, jpaEntity, new JPAOperationConverter(cb),
+        uriResource, this);
     this.context = context;
   }
 
@@ -488,7 +490,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
   }
 
   @Override
-  protected Root<?> getRoot() {
+  public Root<?> getRoot() {
     return root;
   }
 

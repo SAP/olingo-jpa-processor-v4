@@ -59,7 +59,7 @@ public class JPANavigationQuery extends JPAAbstractQuery {
    * @return
    */
   @Override
-  protected Root<?> getRoot() {
+  public Root<?> getRoot() {
     assert queryRoot != null;
     return queryRoot;
   }
@@ -74,6 +74,10 @@ public class JPANavigationQuery extends JPAAbstractQuery {
    * @return
    * @throws ODataApplicationException
    */
+  public <T extends Object> Subquery<T> getSubQueryExists() throws ODataApplicationException {
+    return getSubQueryExists(null);
+  }
+
   @SuppressWarnings("unchecked")
   public <T extends Object> Subquery<T> getSubQueryExists(final Subquery<?> childQuery)
       throws ODataApplicationException {
@@ -105,8 +109,8 @@ public class JPANavigationQuery extends JPAAbstractQuery {
     return subQuery;
   }
 
-  private Expression<Boolean> createWhereByAssociation(final From<?, ?> parentFrom, final Root<?> subRoot,
-      final List<JPAOnConditionItem> conditionItems) {
+  protected Expression<Boolean> createWhereByAssociation(final From<?, ?> parentFrom, final Root<?> subRoot,
+      final List<JPAOnConditionItem> conditionItems) throws ODataApplicationException {
     Expression<Boolean> whereCondition = null;
     for (final JPAOnConditionItem onItem : conditionItems) {
       Path<?> paretPath = parentFrom;

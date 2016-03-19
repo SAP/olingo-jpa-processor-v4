@@ -8,6 +8,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import org.apache.olingo.jpa.processor.core.query.JPAAbstractQuery;
 import org.apache.olingo.jpa.processor.core.query.Util;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 
@@ -16,11 +17,12 @@ public class JPAMemberOperator implements JPAOperator {
   private final JPAEntityType jpaEntityType;
   private final Root<?> root;
 
-  public JPAMemberOperator(final JPAEntityType jpaEntityType, final Root<?> root, final UriInfoResource member) {
+  public JPAMemberOperator(final JPAEntityType jpaEntityType, final JPAAbstractQuery parent,
+      final UriInfoResource member) {
     super();
     this.member = member;
     this.jpaEntityType = jpaEntityType;
-    this.root = root;
+    this.root = parent.getRoot();
   }
 
   @Override
@@ -52,5 +54,9 @@ public class JPAMemberOperator implements JPAOperator {
       e.printStackTrace();
     }
     return selectItemPath;
+  }
+
+  public UriInfoResource getMember() {
+    return member;
   }
 }

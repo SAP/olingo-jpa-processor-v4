@@ -1,5 +1,6 @@
 package org.apache.olingo.jpa.metadata.core.edm.mapper.impl;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -49,8 +50,7 @@ public class TestIntermediateFunction extends TestMappingRoot {
   @Test
   public void checkByEntityAnnotationInputParameter1() throws ODataJPAModelException {
     IntermediateFunction func = new IntermediateFunction(new JPAEdmNameBuilder(PUNIT_NAME), helper.getStoredProcedure(
-        helper.getEntityType(
-            "BusinessPartner"),
+        helper.getEntityType("BusinessPartner"),
         "CountRoles"), BusinessPartner.class, helper.schema);
     List<CsdlParameter> expInput = new ArrayList<CsdlParameter>();
     CsdlParameter param = new CsdlParameter();
@@ -58,14 +58,13 @@ public class TestIntermediateFunction extends TestMappingRoot {
     param.setType(EdmPrimitiveTypeKind.Int32.getFullQualifiedName());
     param.setNullable(false);
     expInput.add(param);
-    assertEquals(expInput, func.getEdmItem().getParameters());
+    assertArrayEquals(expInput.toArray(), func.getEdmItem().getParameters().toArray());
   }
 
   @Test
   public void checkByEntityAnnotationInputParameter2() throws ODataJPAModelException {
     IntermediateFunction func = new IntermediateFunction(new JPAEdmNameBuilder(PUNIT_NAME), helper.getStoredProcedure(
-        helper.getEntityType(
-            "BusinessPartner"),
+        helper.getEntityType("BusinessPartner"),
         "IsPrime"), BusinessPartner.class, helper.schema);
     List<CsdlParameter> expInput = new ArrayList<CsdlParameter>();
     CsdlParameter param = new CsdlParameter();

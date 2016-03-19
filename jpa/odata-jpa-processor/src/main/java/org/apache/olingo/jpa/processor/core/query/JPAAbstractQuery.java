@@ -93,7 +93,7 @@ public abstract class JPAAbstractQuery {
           HttpStatusCode.BAD_REQUEST.getStatusCode(), Locale.ENGLISH);
   }
 
-  protected abstract Root<?> getRoot();
+  public abstract Root<?> getRoot();
 
   public abstract AbstractQuery<?> getQuery();
 }

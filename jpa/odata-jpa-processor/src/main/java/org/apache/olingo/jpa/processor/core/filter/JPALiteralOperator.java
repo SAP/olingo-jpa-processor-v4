@@ -52,4 +52,8 @@ public class JPALiteralOperator implements JPAOperator {
     }
     return value;
   }
+
+  Literal getLiteral() {
+    return literal;
+  }
 }

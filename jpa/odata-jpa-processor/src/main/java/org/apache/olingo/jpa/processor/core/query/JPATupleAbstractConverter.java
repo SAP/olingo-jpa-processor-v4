@@ -112,13 +112,6 @@ public abstract class JPATupleAbstractConverter {
     if (children != null) {
       for (final JPAAssociationPath associationPath : children.keySet()) {
         try {
-//          JPAStructuredType type;
-//          if (attributeName != null && !attributeName.isEmpty()) {
-//            type = ((JPAAttribute) jpaConversionTargetEntity.getPath(attributeName).getPath().get(0))
-//                .getStructuredType();
-//          } else
-//            type = jpaConversionTargetEntity;
-//          // TASK Check
           if (jpaConversionTargetEntity.getDeclaredAssociation(associationPath) != null) {
             final Link expand = new JPATupleExpandResultConverter(children.get(associationPath), row,
                 associationPath, uriHelper, sd, serviceMetadata).getResult();

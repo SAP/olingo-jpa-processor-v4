@@ -398,7 +398,7 @@ public class TestJPAQueryWhereClause extends TestBase {
 
   @Ignore // TODO check with Olingo
   @Test
-  public void testFilterNavigationPropertyValue() throws IOException, ODataException {
+  public void testFilterNavigationPropertyToManyValue() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "/Organizations?$filter=Roles/RoleCategory eq 'C'");
@@ -407,6 +407,40 @@ public class TestJPAQueryWhereClause extends TestBase {
     ArrayNode orgs = helper.getValues();
     assertEquals(2, orgs.size());
   }
+
+  @Test
+  public void testFilterNavigationPropertyToOneValue() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions?$filter=Parent/CodeID eq 'NUTS1'");
+
+    helper.assertStatus(200);
+    ArrayNode orgs = helper.getValues();
+    assertEquals(11, orgs.size());
+  }
+
+  @Test
+  public void testFilterNavigationPropertyToOneValueAndEquals() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions?$filter=Parent/CodeID eq 'NUTS1' and DivisionCode eq 'BE34'");
+
+    helper.assertStatus(200);
+    ArrayNode orgs = helper.getValues();
+    assertEquals(1, orgs.size());
+  };
+
+  @Ignore
+  @Test
+  public void testFilterNavigationPropertyToOneValueTwoHops() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions?$filter=Parent/Parent/CodeID eq 'NUTS1' and DivisionCode eq 'BE212'");
+
+    helper.assertStatus(200);
+    ArrayNode orgs = helper.getValues();
+    assertEquals(1, orgs.size());
+  };
 
   @Test
   public void testFilterSubstringStartEndIndexToLower() throws IOException, ODataException {
