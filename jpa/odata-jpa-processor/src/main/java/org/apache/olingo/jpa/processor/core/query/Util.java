@@ -243,9 +243,8 @@ public class Util {
     return false;
   }
 
-  protected static JPAAssociationPath determineAssoziationPath(final ServicDocument sd,
-      final UriResourcePartTyped naviStart,
-      final StringBuffer associationName) throws ODataApplicationException {
+  public static JPAAssociationPath determineAssoziationPath(final ServicDocument sd,
+      final UriResourcePartTyped naviStart, final StringBuffer associationName) throws ODataApplicationException {
 
     JPAEntityType naviStartType;
     try {

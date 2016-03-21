@@ -54,7 +54,7 @@ public class TestJPAQuerySelectByPath extends TestBase {
 
     ObjectNode org = helper.getValue();
     JsonNode created = org.get("Created");
-    assertEquals("99", created.get("By").asText());
+    assertEquals("98", created.get("By").asText());
   }
 
   @Test

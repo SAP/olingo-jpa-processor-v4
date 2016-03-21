@@ -7,6 +7,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Subquery;
 
+import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
 import org.apache.olingo.jpa.processor.core.query.JPAAbstractQuery;
 import org.apache.olingo.jpa.processor.core.query.JPANavigationFilterQuery;
@@ -17,7 +18,11 @@ import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
+import org.apache.olingo.server.api.uri.UriResourceComplexProperty;
+import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.UriResourceKind;
+import org.apache.olingo.server.api.uri.UriResourceNavigation;
+import org.apache.olingo.server.api.uri.UriResourcePartTyped;
 import org.apache.olingo.server.api.uri.queryoption.CountOption;
 import org.apache.olingo.server.api.uri.queryoption.CustomQueryOption;
 import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
@@ -79,7 +84,7 @@ class JPAExistsOperation implements JPAExpressionOperator {
     allUriResourceParts.addAll(member.getMember().getUriResourceParts());
 
     // 1. Determine all relevant associations
-    final List<JPANavigationProptertyInfo> naviPathList = Util.determineAssoziations(sd, allUriResourceParts);
+    final List<JPANavigationProptertyInfo> naviPathList = determineAssoziations(sd, allUriResourceParts);
     JPAAbstractQuery parent = root;
     final List<JPANavigationQuery> queryList = new ArrayList<JPANavigationQuery>();
 
@@ -101,6 +106,53 @@ class JPAExistsOperation implements JPAExpressionOperator {
       childQuery = queryList.get(i).getSubQueryExists(childQuery);
     }
     return childQuery;
+  }
+
+  private List<JPANavigationProptertyInfo> determineAssoziations(ServicDocument sd,
+      List<UriResource> resourceParts) throws ODataApplicationException {
+    final List<JPANavigationProptertyInfo> pathList = new ArrayList<JPANavigationProptertyInfo>();
+
+    StringBuffer associationName = null;
+    UriResourceNavigation navigation = null;
+    if (resourceParts != null && hasNavigation(resourceParts)) {
+      // for (int i = 0; i < resourceParts.size(); i++) {
+      for (int i = resourceParts.size() - 1; i >= 0; i--) {
+        UriResource resourcePart = resourceParts.get(i);
+        if (resourcePart instanceof UriResourceNavigation) {
+          if (navigation != null)
+            pathList.add(new JPANavigationProptertyInfo(navigation,
+                Util.determineAssoziationPath(sd, ((UriResourcePartTyped) resourceParts.get(i)), associationName)));
+          navigation = (UriResourceNavigation) resourceParts.get(i);
+          associationName = new StringBuffer();
+          associationName.insert(0, navigation.getProperty().getName());
+        }
+        if (navigation != null) {
+          if (resourceParts.get(i) instanceof UriResourceComplexProperty) {
+            associationName.insert(0, JPAPath.PATH_SEPERATOR);
+            associationName.insert(0, ((UriResourceComplexProperty) resourceParts.get(i)).getProperty().getName());
+          }
+          if (resourcePart instanceof UriResourceEntitySet)
+            pathList.add(new JPANavigationProptertyInfo(navigation,
+                Util.determineAssoziationPath(sd, ((UriResourcePartTyped) resourceParts.get(i)), associationName)));
+        }
+      }
+    }
+    return pathList;
+  }
+
+  public static boolean hasNavigation(final List<UriResource> uriResourceParts) {
+    if (uriResourceParts != null) {
+      for (int i = uriResourceParts.size() - 1; i >= 0; i--) {
+        if (uriResourceParts.get(i) instanceof UriResourceNavigation)
+          return true;
+      }
+    }
+    return false;
+  }
+
+  @Override
+  public Enum<?> getOperator() {
+    return null;
   }
 
   private class SubMember implements UriInfoResource {
@@ -192,8 +244,4 @@ class JPAExistsOperation implements JPAExpressionOperator {
 
   }
 
-  @Override
-  public Enum<?> getOperator() {
-    return null;
-  }
 }

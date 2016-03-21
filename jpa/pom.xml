@@ -16,6 +16,26 @@
 		<odata.version>4.1.0</odata.version>
 	</properties>
 
+	<profiles>
+		<profile>
+			<id>build.fast</id>
+			<properties>
+				<pmd.skip>true</pmd.skip>
+				<rat.skip>true</rat.skip>
+				<checkstyle.skip>true</checkstyle.skip>
+				<exclude.regex>.*(proxy|client).*</exclude.regex>
+			</properties>
+		</profile>
+		<profile>
+			<id>build.quality</id>
+			<properties>
+				<cobertura.skip>false</cobertura.skip>
+				<!-- nothing excluded -->
+				<exclude.regex></exclude.regex>
+			</properties>
+		</profile>
+	</profiles>
+
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -55,6 +75,8 @@
 					<artifactId>cobertura-maven-plugin</artifactId>
 					<version>2.6</version>
 				</plugin>
+
+
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>cobertura-maven-plugin</artifactId>

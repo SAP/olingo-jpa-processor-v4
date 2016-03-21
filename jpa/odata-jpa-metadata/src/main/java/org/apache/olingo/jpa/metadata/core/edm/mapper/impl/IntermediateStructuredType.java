@@ -152,7 +152,7 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
     JPAPath targetPath = resolvedPathMap.get(externalName);
     if (targetPath == null)
       targetPath = intermediatePathMap.get(externalName);
-    if (targetPath.ignore())
+    if (targetPath == null || targetPath.ignore())
       return null;
     return targetPath;
   }

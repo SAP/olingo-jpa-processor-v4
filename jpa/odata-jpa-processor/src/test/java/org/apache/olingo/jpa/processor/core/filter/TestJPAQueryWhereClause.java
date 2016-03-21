@@ -264,7 +264,7 @@ public class TestJPAQueryWhereClause extends TestBase {
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
-    assertEquals(1, orgs.size());
+    assertEquals(2, orgs.size());
   }
 
   @Test
@@ -439,6 +439,17 @@ public class TestJPAQueryWhereClause extends TestBase {
     helper.assertStatus(200);
     ArrayNode orgs = helper.getValues();
     assertEquals(1, orgs.size());
+  };
+
+  @Test
+  public void testFilterNavigationPropertyToOneValueViaComplexType() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$filter=AdministrativeInformation/Created/User/LastName eq 'Mustermann'");
+
+    helper.assertStatus(200);
+    ArrayNode orgs = helper.getValues();
+    assertEquals(8, orgs.size());
   };
 
   @Test
