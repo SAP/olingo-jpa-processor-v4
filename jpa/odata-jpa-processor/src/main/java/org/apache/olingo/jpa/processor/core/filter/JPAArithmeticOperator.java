@@ -5,7 +5,7 @@ import javax.persistence.criteria.Expression;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.queryoption.expression.BinaryOperatorKind;
 
-public class JPAArithmeticOperator implements JPAOperator {
+class JPAArithmeticOperator implements JPAOperator {
   private final JPAOperationConverter converter;
   private final BinaryOperatorKind operator;
   private final JPAOperator left;

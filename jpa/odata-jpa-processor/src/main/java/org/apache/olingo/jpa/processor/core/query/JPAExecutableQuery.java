@@ -428,7 +428,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     try {
       whereCondition = addWhereClause(whereCondition, filter.compile());
     } catch (ExpressionVisitException e) {
-      throw new ODataApplicationException("Unable to parth filter expression", HttpStatusCode.BAD_REQUEST
+      throw new ODataApplicationException("Unable to parse filter expression", HttpStatusCode.BAD_REQUEST
           .getStatusCode(), Locale.ENGLISH, e);
     }
 

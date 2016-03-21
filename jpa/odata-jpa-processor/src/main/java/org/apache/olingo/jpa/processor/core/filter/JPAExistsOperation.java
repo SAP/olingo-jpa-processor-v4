@@ -2,20 +2,15 @@ package org.apache.olingo.jpa.processor.core.filter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Subquery;
 
-import org.apache.olingo.commons.api.http.HttpStatusCode;
-import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
-import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
-import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
 import org.apache.olingo.jpa.processor.core.query.JPAAbstractQuery;
 import org.apache.olingo.jpa.processor.core.query.JPANavigationFilterQuery;
+import org.apache.olingo.jpa.processor.core.query.JPANavigationProptertyInfo;
 import org.apache.olingo.jpa.processor.core.query.JPANavigationQuery;
 import org.apache.olingo.jpa.processor.core.query.Util;
 import org.apache.olingo.server.api.OData;
@@ -80,46 +75,32 @@ class JPAExistsOperation implements JPAExpressionOperator {
   }
 
   public Subquery<?> getSubQuery() throws ODataApplicationException {
-    JPAAssociationPath association = determineAssociation(uriResourceParts, member);
-    UriResource uriResourceItem = determineUriResourceItem(member);
+    final List<UriResource> allUriResourceParts = new ArrayList<UriResource>(uriResourceParts);
+    allUriResourceParts.addAll(member.getMember().getUriResourceParts());
 
+    // 1. Determine all relevant associations
+    final List<JPANavigationProptertyInfo> naviPathList = Util.determineAssoziations(sd, allUriResourceParts);
+    JPAAbstractQuery parent = root;
+    final List<JPANavigationQuery> queryList = new ArrayList<JPANavigationQuery>();
+
+    // 2. Create the queries and roots
     JPAFilterExpression expression = new JPAFilterExpression(new SubMember(member), operand.getLiteral(), operator);
-
-    JPANavigationQuery subQuery = new JPANavigationFilterQuery(odata, sd, uriResourceItem, root, em, association,
-        expression);
-
-    return subQuery.getSubQueryExists();
-  }
-
-  private JPAAssociationPath determineAssociation(List<UriResource> uriResourceParts, JPAMemberOperator member)
-      throws ODataApplicationException {
-    try {
-      // An association path may be split between the uriResourceParts and the member resource parts:
-      // Organizations('3')/AdministrativeInformation?$filter=Created/User/LastName eq 'Willi'
-      StringBuffer associationName = new StringBuffer();
-      JPAEntityType entityType = sd.getEntity(Util.determineStartEntityType(uriResourceParts));
-
-      for (UriResource uriResourceItem : member.getMember().getUriResourceParts()) {
-        associationName.append(uriResourceItem.getSegmentValue());
-        if (uriResourceItem.getKind() == UriResourceKind.navigationProperty) {
-          break;
-        }
-        associationName.append(JPAPath.PATH_SEPERATOR);
-      }
-      return entityType.getAssociationPath(associationName.toString());
-    } catch (ODataJPAModelException e) {
-      throw new ODataApplicationException("Entity Type not found", HttpStatusCode.BAD_REQUEST.getStatusCode(),
-          Locale.ENGLISH, e);
+    for (int i = 0; i < naviPathList.size(); i++) {
+      final JPANavigationProptertyInfo naviInfo = naviPathList.get(i);
+      if (i == naviPathList.size() - 1)
+        queryList.add(new JPANavigationFilterQuery(odata, sd, naviInfo.getUriResiource(), parent, em, naviInfo
+            .getAssociationPath(), expression));
+      else
+        queryList.add(new JPANavigationFilterQuery(odata, sd, naviInfo.getUriResiource(), parent, em, naviInfo
+            .getAssociationPath()));
+      parent = queryList.get(queryList.size() - 1);
     }
-  }
-
-  private UriResource determineUriResourceItem(JPAMemberOperator member) {
-
-    for (UriResource uriResourceItem : member.getMember().getUriResourceParts()) {
-      if (uriResourceItem.getKind() == UriResourceKind.navigationProperty)
-        return uriResourceItem;
+    // 3. Create select statements
+    Subquery<?> childQuery = null;
+    for (int i = queryList.size() - 1; i >= 0; i--) {
+      childQuery = queryList.get(i).getSubQueryExists(childQuery);
     }
-    return null;
+    return childQuery;
   }
 
   private class SubMember implements UriInfoResource {
@@ -193,7 +174,7 @@ class JPAExistsOperation implements JPAExpressionOperator {
     @Override
     public List<UriResource> getUriResourceParts() {
       List<UriResource> result = new ArrayList<UriResource>();
-      List<UriResource> source = member.getMember().getUriResourceParts();
+      List<UriResource> source = parentMember.getMember().getUriResourceParts();
       for (int i = source.size() - 1; i > 0; i--) {
         if (source.get(i).getKind() == UriResourceKind.navigationProperty || source.get(i)
             .getKind() == UriResourceKind.entitySet) {

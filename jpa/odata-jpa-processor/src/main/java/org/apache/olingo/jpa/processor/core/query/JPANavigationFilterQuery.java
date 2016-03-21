@@ -54,16 +54,16 @@ public class JPANavigationFilterQuery extends JPANavigationQuery {
       final Expression<Boolean> equalCondition = cb.equal(paretPath, subPath);
 //          parentFrom.get(onItem.getRightPath().getInternalName()),
 //          subRoot.get(onItem.getLeftPath().getInternalName()));
-      if (filterComplier != null) try {
-        whereCondition = filterComplier.compile();
-      } catch (ExpressionVisitException e) {
-        throw new ODataApplicationException("Expression error", HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
-            Locale.ENGLISH, e);
-      }
       if (whereCondition == null)
         whereCondition = equalCondition;
       else
         whereCondition = cb.and(whereCondition, equalCondition);
+    }
+    if (filterComplier != null) try {
+      whereCondition = cb.and(whereCondition, filterComplier.compile());
+    } catch (ExpressionVisitException e) {
+      throw new ODataApplicationException("Expression error", HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
+          Locale.ENGLISH, e);
     }
     return whereCondition;
   }

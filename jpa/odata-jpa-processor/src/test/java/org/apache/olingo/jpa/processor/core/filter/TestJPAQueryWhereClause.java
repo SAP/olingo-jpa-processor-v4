@@ -430,7 +430,6 @@ public class TestJPAQueryWhereClause extends TestBase {
     assertEquals(1, orgs.size());
   };
 
-  @Ignore
   @Test
   public void testFilterNavigationPropertyToOneValueTwoHops() throws IOException, ODataException {
 
