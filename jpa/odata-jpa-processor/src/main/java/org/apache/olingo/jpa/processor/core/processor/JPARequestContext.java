@@ -11,7 +11,7 @@ public class JPARequestContext implements JPAODataRequestContextAccess {
   private final UriInfo uriInfo;
   private final JPASerializer serializer;
 
-  public JPARequestContext(EntityManager em, UriInfo uriInfo, JPASerializer getSerializer) {
+  public JPARequestContext(final EntityManager em, final UriInfo uriInfo, final JPASerializer getSerializer) {
     super();
     this.em = em;
     this.uriInfo = uriInfo;

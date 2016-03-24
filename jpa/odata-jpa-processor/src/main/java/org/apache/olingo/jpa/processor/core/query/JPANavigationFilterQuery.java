@@ -8,6 +8,7 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
@@ -26,23 +27,25 @@ public class JPANavigationFilterQuery extends JPANavigationQuery {
 
   private final JPAFilterElementComplier filterComplier;
 
-  public JPANavigationFilterQuery(OData odata, ServicDocument sd, UriResource uriResourceItem, JPAAbstractQuery parent,
-      EntityManager em, JPAAssociationPath association) throws ODataApplicationException {
+  public JPANavigationFilterQuery(final OData odata, final ServicDocument sd, final UriResource uriResourceItem,
+      final JPAAbstractQuery parent, final EntityManager em, final JPAAssociationPath association)
+      throws ODataApplicationException {
     super(sd, uriResourceItem, parent, em, association);
     this.filterComplier = null;
   }
 
-  public JPANavigationFilterQuery(OData odata, ServicDocument sd, UriResource uriResourceItem, JPAAbstractQuery parent,
-      EntityManager em, JPAAssociationPath association, VisitableExpression expression)
-      throws ODataApplicationException {
+  public JPANavigationFilterQuery(final OData odata, final ServicDocument sd, final UriResource uriResourceItem,
+      final JPAAbstractQuery parent, final EntityManager em, final JPAAssociationPath association,
+      final VisitableExpression expression) throws ODataApplicationException {
     super(sd, uriResourceItem, parent, em, association);
     this.filterComplier = new JPAFilterElementComplier(odata, sd, em, jpaEntity, new JPAOperationConverter(cb), null,
         this, expression);
   }
 
   @Override
-  protected Expression<Boolean> createWhereByAssociation(From<?, ?> parentFrom, Root<?> subRoot,
-      List<JPAOnConditionItem> conditionItems) throws ODataApplicationException {
+  protected Expression<Boolean> createWhereByAssociation(final From<?, ?> parentFrom, final Root<?> subRoot,
+      final List<JPAOnConditionItem> conditionItems) throws ODataApplicationException {
+
     Expression<Boolean> whereCondition = null;
     for (final JPAOnConditionItem onItem : conditionItems) {
       Path<?> paretPath = parentFrom;
@@ -68,4 +71,12 @@ public class JPANavigationFilterQuery extends JPANavigationQuery {
     return whereCondition;
   }
 
+  @Override
+  @SuppressWarnings("unchecked")
+  protected <T> void createSelectClause(final Subquery<T> subQuery, List<JPAOnConditionItem> conditionItems) {
+    Path<?> p = getRoot();
+    for (final JPAElement jpaPathElement : conditionItems.get(0).getRightPath().getPath())
+      p = p.get(jpaPathElement.getInternalName());
+    subQuery.select((Expression<T>) p);
+  }
 }

@@ -41,12 +41,12 @@ public class JPAODataBatchProcessor implements BatchProcessor {
   }
 
   @Override
-  public void init(OData odata, ServiceMetadata serviceMetadata) {
+  public void init(final OData odata, final ServiceMetadata serviceMetadata) {
     this.odata = odata;
   }
 
   @Override
-  public void processBatch(BatchFacade facade, ODataRequest request, ODataResponse response)
+  public void processBatch(final BatchFacade facade, final ODataRequest request, final ODataResponse response)
       throws ODataApplicationException, ODataLibraryException {
     final String boundary = facade.extractBoundaryFromContentType(request.getHeader(HttpHeader.CONTENT_TYPE));
     final BatchOptions options = BatchOptions.with()
@@ -69,7 +69,7 @@ public class JPAODataBatchProcessor implements BatchProcessor {
   }
 
   @Override
-  public ODataResponsePart processChangeSet(BatchFacade facade, List<ODataRequest> requests)
+  public ODataResponsePart processChangeSet(final BatchFacade facade, final List<ODataRequest> requests)
       throws ODataApplicationException, ODataLibraryException {
     // TODO Auto-generated method stub
     return null;

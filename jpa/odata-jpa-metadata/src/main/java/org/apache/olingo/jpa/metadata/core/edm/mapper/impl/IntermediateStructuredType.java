@@ -94,9 +94,9 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
   @Override
   public List<JPAAttribute> getAttributes() throws ODataJPAModelException {
     lazyBuildEdmItem();
-    List<JPAAttribute> result = new ArrayList<JPAAttribute>();
-    for (String propertyKey : declaredPropertiesList.keySet()) {
-      IntermediateProperty attribute = declaredPropertiesList.get(propertyKey);
+    final List<JPAAttribute> result = new ArrayList<JPAAttribute>();
+    for (final String propertyKey : declaredPropertiesList.keySet()) {
+      final IntermediateProperty attribute = declaredPropertiesList.get(propertyKey);
       if (!attribute.ignore())
         result.add(attribute);
     }

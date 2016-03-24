@@ -26,7 +26,7 @@ public final class JPAExpandResult {
   private final Long count;
   private final JPAEntityType jpaEntityType;
 
-  public JPAExpandResult(final Map<String, List<Tuple>> result, final Long count, JPAEntityType jpaEntityType) {
+  public JPAExpandResult(final Map<String, List<Tuple>> result, final Long count, final JPAEntityType jpaEntityType) {
     super();
     childrenResult = new HashMap<JPAAssociationPath, JPAExpandResult>();
     this.result = result;

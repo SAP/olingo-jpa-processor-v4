@@ -86,10 +86,7 @@ public class JPANavigationQuery extends JPAAbstractQuery {
     List<JPAOnConditionItem> conditionItems;
     try {
       conditionItems = association.getJoinColumnsList();
-      Path<?> p = queryRoot;
-      for (final JPAElement jpaPathElement : conditionItems.get(0).getLeftPath().getPath())
-        p = p.get(jpaPathElement.getInternalName());
-      subQuery.select((Expression<T>) p);
+      createSelectClause(subQuery, conditionItems);
     } catch (ODataJPAModelException e) {
       // TODO Update error handling
       throw new ODataApplicationException("Unknown navigation property", HttpStatusCode.INTERNAL_SERVER_ERROR.ordinal(),
@@ -107,6 +104,14 @@ public class JPANavigationQuery extends JPAAbstractQuery {
       whereCondition = cb.and(whereCondition, cb.exists(childQuery));
     subQuery.where(whereCondition);
     return subQuery;
+  }
+
+  @SuppressWarnings("unchecked")
+  protected <T> void createSelectClause(final Subquery<T> subQuery, List<JPAOnConditionItem> conditionItems) {
+    Path<?> p = queryRoot;
+    for (final JPAElement jpaPathElement : conditionItems.get(0).getLeftPath().getPath())
+      p = p.get(jpaPathElement.getInternalName());
+    subQuery.select((Expression<T>) p);
   }
 
   protected Expression<Boolean> createWhereByAssociation(final From<?, ?> parentFrom, final Root<?> subRoot,

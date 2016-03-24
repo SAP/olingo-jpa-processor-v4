@@ -25,7 +25,7 @@ public class JPAExpandItemInfoFactory {
       final UriResource startResourceItem = determineStartResourceItem(startResourceList);
       final Map<JPAExpandItemWrapper, JPAAssociationPath> expandPath = Util.determineAssoziations(sd, startResourceList,
           expandOption);
-      for (JPAExpandItemWrapper item : expandPath.keySet()) {
+      for (final JPAExpandItemWrapper item : expandPath.keySet()) {
         itemList.add(new JPAExpandItemInfo(item, (UriResourcePartTyped) startResourceItem,
             expandPath.get(item), parentHops));
       }

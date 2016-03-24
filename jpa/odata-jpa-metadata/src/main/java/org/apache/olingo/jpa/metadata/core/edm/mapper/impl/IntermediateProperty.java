@@ -163,7 +163,7 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
   }
 
   @Override
-      CsdlProperty getEdmItem() throws ODataJPAModelException {
+  CsdlProperty getEdmItem() throws ODataJPAModelException {
     lazyBuildEdmItem();
     return edmProperty;
   }

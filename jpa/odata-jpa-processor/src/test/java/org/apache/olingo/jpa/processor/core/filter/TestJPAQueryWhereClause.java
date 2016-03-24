@@ -394,18 +394,75 @@ public class TestJPAQueryWhereClause extends TestBase {
     ArrayNode orgs = helper.getValues();
     assertEquals(1, orgs.size());
   }
-//  concat
 
-  @Ignore // TODO check with Olingo
   @Test
-  public void testFilterNavigationPropertyToManyValue() throws IOException, ODataException {
+  public void testFilterNavigationPropertyToManyValueAny() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "/Organizations?$filter=Roles/RoleCategory eq 'C'");
+        "/Organizations?$filter=Roles/any(d:d/RoleCategory eq 'A')");
 
     helper.assertStatus(200);
     ArrayNode orgs = helper.getValues();
-    assertEquals(2, orgs.size());
+    assertEquals(3, orgs.size());
+  }
+
+  @Test
+  public void testFilterNavigationPropertyToManyValueAnyMultiParameter() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "/Organizations?$select=ID&$filter=Roles/any(d:d/RoleCategory eq 'A' and d/BusinessPartnerID eq '1')");
+
+    helper.assertStatus(200);
+    ArrayNode orgs = helper.getValues();
+    assertEquals(1, orgs.size());
+  }
+
+  @Ignore
+  @Test
+  public void testFilterNavigationPropertyToManyValueAnyNoRestriction() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "/Organizations?$filter=Roles/any()");
+
+    helper.assertStatus(200);
+    ArrayNode orgs = helper.getValues();
+    assertEquals(10, orgs.size());
+  }
+
+  @Test
+  public void testFilterNavigationPropertyToManyValueAll() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "/Organizations?$select=ID&$filter=Roles/all(d:d/RoleCategory eq 'A')");
+
+    helper.assertStatus(200);
+    ArrayNode orgs = helper.getValues();
+    assertEquals(1, orgs.size());
+  }
+
+  @Ignore
+  @Test
+  public void testFilterNavigationPropertyToManyValueAllNoRestriction() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "/Organizations?$filter=Roles/all()");
+
+    helper.assertStatus(200);
+    ArrayNode orgs = helper.getValues();
+    assertEquals(1, orgs.size());
+  }
+
+  @Ignore
+  @Test
+  public void testFilterCountNavigationProperty() throws IOException, ODataException {
+//https://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398301
+//Example 43: return all Categories with less than 10 products    
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "/Organizations?$select=ID&$filter=Roles/$count eq 2");
+
+    helper.assertStatus(200);
+    ArrayNode orgs = helper.getValues();
+    assertEquals(1, orgs.size());
   }
 
   @Test

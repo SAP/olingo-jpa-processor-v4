@@ -44,7 +44,6 @@ import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceComplexProperty;
-import org.apache.olingo.server.api.uri.UriResourceCount;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.UriResourceNavigation;
 import org.apache.olingo.server.api.uri.UriResourcePartTyped;
@@ -70,7 +69,8 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
   protected final JPAFilterComplier filter;
   protected final JPAODataSessionContextAccess context;
 
-  public JPAExecutableQuery(final OData odata, JPAODataSessionContextAccess context, final JPAEntityType jpaEntityType,
+  public JPAExecutableQuery(final OData odata, final JPAODataSessionContextAccess context,
+      final JPAEntityType jpaEntityType,
       final EntityManager em, final Map<String, List<String>> requestHeaders, final UriInfoResource uriResource)
       throws ODataApplicationException {
 
@@ -169,8 +169,8 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
       }
       Collections.sort(jpaPathList);
       for (final JPAAttribute key : jpaKeyList) {
-        JPAPath keyPath = jpaEntity.getPath(key.getExternalName());
-        int insertAt = Collections.binarySearch(jpaPathList, keyPath);
+        final JPAPath keyPath = jpaEntity.getPath(key.getExternalName());
+        final int insertAt = Collections.binarySearch(jpaPathList, keyPath);
         if (insertAt < 0)
           jpaPathList.add((insertAt * -1) - 1, keyPath);
       }
@@ -272,11 +272,11 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     return joinTables;
   }
 
-  private javax.persistence.criteria.Expression<?> determienLocalePath(Join<?, ?> join,
-      JPADescriptionAttribute desciptionField) throws ODataApplicationException {
+  private javax.persistence.criteria.Expression<?> determienLocalePath(final Join<?, ?> join,
+      final JPADescriptionAttribute desciptionField) throws ODataApplicationException {
     Path<?> p = join;
     try {
-      for (JPAElement pathElement : desciptionField.getLocaleFieldName().getPath()) {
+      for (final JPAElement pathElement : desciptionField.getLocaleFieldName().getPath()) {
         p = p.get(pathElement.getInternalName());
       }
     } catch (ODataJPAModelException e) {
@@ -361,7 +361,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
 
               else
                 orders.add(cb.asc(cb.count(join)));
-            } else if (uriResource instanceof UriResourceCount) {}
+            } // else if (uriResource instanceof UriResourceCount) {}
           }
         }
       }

@@ -64,8 +64,11 @@ public class JPAOperationConverter {
   }
 
   final public Expression<Boolean> convert(final JPAExistsOperation jpaOperator) throws ODataApplicationException {
-    return cb.exists(jpaOperator.getSubQuery());
+    return cb.exists(jpaOperator.getExistsQuery());
+  }
 
+  final public Expression<Boolean> convert(final JPALambdaAllOperation jpaOperator) throws ODataApplicationException {
+    return cb.and(cb.exists(jpaOperator.getExistsQuery()), cb.not(cb.exists(jpaOperator.getNotExistsQuery())));
   }
 
   // TODO check generics!

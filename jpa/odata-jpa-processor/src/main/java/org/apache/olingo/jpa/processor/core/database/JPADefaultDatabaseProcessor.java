@@ -61,7 +61,7 @@ class JPADefaultDatabaseProcessor implements JPAODataDatabaseProcessor {
 
   private UriParameter findParameterByExternalName(final JPAFunctionParameter parameter,
       final List<UriParameter> uriParameters)
-          throws ODataApplicationException {
+      throws ODataApplicationException {
     for (final UriParameter uriParameter : uriParameters) {
       if (uriParameter.getName().equals(parameter.getName()))
         return uriParameter;
@@ -84,8 +84,9 @@ class JPADefaultDatabaseProcessor implements JPAODataDatabaseProcessor {
   }
 
   @Override
-  public Expression<Boolean> createSearchWhereClause(CriteriaBuilder cb, CriteriaQuery<?> cq, Root<?> root,
-      JPAEntityType entityType, SearchOption searchOption) throws ODataApplicationException {
+  public Expression<Boolean> createSearchWhereClause(final CriteriaBuilder cb, final CriteriaQuery<?> cq,
+      final Root<?> root, final JPAEntityType entityType, final SearchOption searchOption)
+      throws ODataApplicationException {
     throw new ODataApplicationException("Search not supported",
         HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
   }

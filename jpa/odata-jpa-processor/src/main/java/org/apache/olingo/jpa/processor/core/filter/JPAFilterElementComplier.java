@@ -33,7 +33,8 @@ public class JPAFilterElementComplier implements JPAFilterComplier, JPAFilterCom
 
   public JPAFilterElementComplier(final OData odata, final ServicDocument sd, final EntityManager em,
       final JPAEntityType jpaEntityType, final JPAOperationConverter converter,
-      final List<UriResource> uriResourceParts, final JPAAbstractQuery parent, VisitableExpression expression) {
+      final List<UriResource> uriResourceParts, final JPAAbstractQuery parent, final VisitableExpression expression) {
+
     super();
     this.converter = converter;
     this.jpaEntityType = jpaEntityType;

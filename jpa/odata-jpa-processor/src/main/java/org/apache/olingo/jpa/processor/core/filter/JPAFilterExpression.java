@@ -13,7 +13,7 @@ class JPAFilterExpression implements VisitableExpression {
   private Literal literal;
   private BinaryOperatorKind operator;
 
-  public JPAFilterExpression(UriInfoResource member, Literal literal, BinaryOperatorKind operator) {
+  public JPAFilterExpression(final UriInfoResource member, final Literal literal, final BinaryOperatorKind operator) {
     super();
     this.member = member;
     this.literal = literal;
@@ -21,9 +21,9 @@ class JPAFilterExpression implements VisitableExpression {
   }
 
   @Override
-  public <T> T accept(ExpressionVisitor<T> visitor) throws ExpressionVisitException, ODataApplicationException {
-    T left = visitor.visitMember(member);
-    T right = visitor.visitLiteral(literal);
+  public <T> T accept(final ExpressionVisitor<T> visitor) throws ExpressionVisitException, ODataApplicationException {
+    final T left = visitor.visitMember(member);
+    final T right = visitor.visitLiteral(literal);
     return visitor.visitBinaryOperator(operator, left, right);
   }
 

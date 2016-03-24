@@ -106,7 +106,7 @@ public class ServicDocument {
     }
   }
 
-  public JPAElement getEntitySet(JPAEntityType entityType) throws ODataJPAModelException {
+  public JPAElement getEntitySet(final JPAEntityType entityType) throws ODataJPAModelException {
     return container.getEntitySet(entityType);
   }
 

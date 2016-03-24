@@ -21,6 +21,7 @@ import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceComplexProperty;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.UriResourceKind;
+import org.apache.olingo.server.api.uri.UriResourceLambdaVariable;
 import org.apache.olingo.server.api.uri.UriResourceNavigation;
 import org.apache.olingo.server.api.uri.UriResourcePartTyped;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
@@ -110,7 +111,8 @@ public class Util {
     if (resources != null) {
       for (int i = resources.size() - 1; i >= 0; i--) {
         final UriResource resourceItem = resources.get(i);
-        if (resourceItem instanceof UriResourceEntitySet || resourceItem instanceof UriResourceNavigation)
+        if (resourceItem instanceof UriResourceEntitySet || resourceItem instanceof UriResourceNavigation
+            || resourceItem instanceof UriResourceLambdaVariable)
           break;
         final UriResourceProperty property = (UriResourceProperty) resourceItem;
         pathName.insert(0, property.getProperty().getName());
@@ -163,11 +165,11 @@ public class Util {
       StringBuffer associationName;
       for (final ExpandItem item : expandOption.getExpandItems()) {
         if (item.isStar()) {
-          EdmEntitySet edmEntitySet = determineTargetEntitySet(startResourceList);
+          final EdmEntitySet edmEntitySet = determineTargetEntitySet(startResourceList);
           try {
-            JPAEntityType jpaEntityType = sd.getEntity(edmEntitySet.getName());
-            List<JPAAssociationPath> associationPaths = jpaEntityType.getAssociationPathList();
-            for (JPAAssociationPath path : associationPaths) {
+            final JPAEntityType jpaEntityType = sd.getEntity(edmEntitySet.getName());
+            final List<JPAAssociationPath> associationPaths = jpaEntityType.getAssociationPathList();
+            for (final JPAAssociationPath path : associationPaths) {
               pathList.put(new JPAExpandItemWrapper(item, (JPAEntityType) path.getTargetType()), path);
             }
           } catch (ODataJPAModelException e) {

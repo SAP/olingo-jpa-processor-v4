@@ -87,9 +87,9 @@ class IntermediateDescriptionProperty extends IntermediateProperty implements JP
     else
       attribute = localeAttribute;
 
-    String[] pathItems = attribute.split(JPAPath.PATH_SEPERATOR);
+    final String[] pathItems = attribute.split(JPAPath.PATH_SEPERATOR);
     if (pathItems.length > 1) {
-      List<JPAElement> targetPath = new ArrayList<JPAElement>();
+      final List<JPAElement> targetPath = new ArrayList<JPAElement>();
       IntermediateProperty nextHop = (IntermediateProperty) targetEntity.getAttribute(pathItems[0]);
       targetPath.add(nextHop);
       for (int i = 1; i < pathItems.length; i++) {
@@ -100,7 +100,7 @@ class IntermediateDescriptionProperty extends IntermediateProperty implements JP
       }
       return new JPAPathImpl(nextHop.getExternalName(), nextHop.getDBFieldName(), targetPath);
     } else {
-      IntermediateProperty p = (IntermediateProperty) targetEntity.getAttribute(attribute);
+      final IntermediateProperty p = (IntermediateProperty) targetEntity.getAttribute(attribute);
       return new JPAPathImpl(p.getExternalName(), p.getDBFieldName(), p);
     }
   }

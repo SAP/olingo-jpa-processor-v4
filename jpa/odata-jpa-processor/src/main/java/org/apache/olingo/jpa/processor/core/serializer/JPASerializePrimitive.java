@@ -19,16 +19,15 @@ import org.apache.olingo.server.api.uri.UriResourceProperty;
 class JPASerializePrimitive implements JPASerializer {
   private final ServiceMetadata serviceMetadata;
   private final UriInfo uriInfo;
-  private final UriHelper uriHelper;
   private final ODataSerializer serializer;
 
   JPASerializePrimitive(final ServiceMetadata serviceMetadata, final ODataSerializer serializer,
-      final UriHelper uriHelper,
-      final UriInfo uriInfo) {
+      final UriHelper uriHelper, final UriInfo uriInfo) {
+
     this.uriInfo = uriInfo;
     this.serializer = serializer;
     this.serviceMetadata = serviceMetadata;
-    this.uriHelper = uriHelper;
+//    this.uriHelper = uriHelper;
   }
 
   @Override
@@ -40,7 +39,7 @@ class JPASerializePrimitive implements JPASerializer {
         .getUriResourceParts().size() - 1);
 
     Property property = null;
-    for (Property item : result.getEntities().get(0).getProperties()) {
+    for (final Property item : result.getEntities().get(0).getProperties()) {
       if (item.getName().equals(uriProperty.getProperty().getName())) {
         property = item;
         break;

@@ -30,7 +30,7 @@ public class JPAExpandItemWrapper implements UriInfoResource {
   private final ExpandItem item;
   private final JPAEntityType jpaEntityType;
 
-  public JPAExpandItemWrapper(ServicDocument sd, final ExpandItem item) throws ODataApplicationException {
+  public JPAExpandItemWrapper(final ServicDocument sd, final ExpandItem item) throws ODataApplicationException {
     super();
     this.item = item;
     try {

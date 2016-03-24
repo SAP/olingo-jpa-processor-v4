@@ -61,7 +61,7 @@ class IntermediateEntityContainer extends IntermediateModelElement {
         entitySetListInternalKey);
   }
 
-  JPAElement getEntitySet(JPAEntityType entityType) throws ODataJPAModelException {
+  JPAElement getEntitySet(final JPAEntityType entityType) throws ODataJPAModelException {
     lazyBuildEdmItem();
     for (final String internalName : entitySetListInternalKey.keySet()) {
       final IntermediateEntitySet modelElement = entitySetListInternalKey.get(internalName);

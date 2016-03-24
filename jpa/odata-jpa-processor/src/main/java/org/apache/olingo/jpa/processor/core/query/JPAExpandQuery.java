@@ -47,7 +47,7 @@ public class JPAExpandQuery extends JPAExecutableQuery {
   private final JPAAssociationPath assoziation;
   private final JPAExpandItemInfo item;
 
-  public JPAExpandQuery(final OData odata, JPAODataSessionContextAccess context, final EntityManager em,
+  public JPAExpandQuery(final OData odata, final JPAODataSessionContextAccess context, final EntityManager em,
       final UriInfoResource uriInfo, final JPAAssociationPath assoziation, final JPAEntityType entityType,
       final Map<String, List<String>> requestHeaders) throws ODataApplicationException {
     super(odata, context, entityType, em, requestHeaders, uriInfo);
@@ -55,7 +55,7 @@ public class JPAExpandQuery extends JPAExecutableQuery {
     this.item = null;
   }
 
-  public JPAExpandQuery(final OData odata, JPAODataSessionContextAccess context, final EntityManager em,
+  public JPAExpandQuery(final OData odata, final JPAODataSessionContextAccess context, final EntityManager em,
       final JPAExpandItemInfo item, final Map<String, List<String>> requestHeaders) throws ODataApplicationException {
 
     super(odata, context, item.getEntityType(), em, requestHeaders, item.getUriInfo());

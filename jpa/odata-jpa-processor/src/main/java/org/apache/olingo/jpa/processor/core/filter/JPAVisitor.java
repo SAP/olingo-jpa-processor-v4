@@ -9,6 +9,7 @@ import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
+import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.UriResourceNavigation;
 import org.apache.olingo.server.api.uri.queryoption.expression.BinaryOperatorKind;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitException;
@@ -27,7 +28,7 @@ class JPAVisitor implements ExpressionVisitor<JPAOperator> {
   /**
    * @param jpaFilterCrossComplier
    */
-  JPAVisitor(JPAFilterComplierAccess jpaFilterCrossComplier) {
+  JPAVisitor(final JPAFilterComplierAccess jpaFilterCrossComplier) {
     this.jpaComplier = jpaFilterCrossComplier;
   }
 
@@ -37,7 +38,7 @@ class JPAVisitor implements ExpressionVisitor<JPAOperator> {
       final JPAOperator right) throws ExpressionVisitException, ODataApplicationException {
     // TODO Logging
     if (hasNavigation(left) || hasNavigation(right))
-      return new JPAExistsOperation(this.jpaComplier.getOdata(), this.jpaComplier.getSd(), this.jpaComplier
+      return new JPANavigationOperation(this.jpaComplier.getOdata(), this.jpaComplier.getSd(), this.jpaComplier
           .getEntityManager(), this.jpaComplier.getUriResourceParts(), this.jpaComplier.getConverter(), operator, left,
           right, this.jpaComplier.getParent());
     if (operator == BinaryOperatorKind.EQ
@@ -63,7 +64,7 @@ class JPAVisitor implements ExpressionVisitor<JPAOperator> {
 
   boolean hasNavigation(final JPAOperator operand) {
     if (operand instanceof JPAMemberOperator) {
-      List<UriResource> uriResourceParts = ((JPAMemberOperator) operand).getMember().getUriResourceParts();
+      final List<UriResource> uriResourceParts = ((JPAMemberOperator) operand).getMember().getUriResourceParts();
       for (int i = uriResourceParts.size() - 1; i >= 0; i--) {
         if (uriResourceParts.get(i) instanceof UriResourceNavigation)
           return true;
@@ -93,8 +94,7 @@ class JPAVisitor implements ExpressionVisitor<JPAOperator> {
   @Override
   public JPAOperator visitLambdaExpression(final String lambdaFunction, final String lambdaVariable,
       final org.apache.olingo.server.api.uri.queryoption.expression.Expression expression)
-      throws ExpressionVisitException,
-      ODataApplicationException {
+      throws ExpressionVisitException, ODataApplicationException {
     throw new ODataApplicationException("Lambda Expression not supported",
         HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
   }
@@ -109,7 +109,24 @@ class JPAVisitor implements ExpressionVisitor<JPAOperator> {
   public JPAOperator visitMember(final UriInfoResource member) throws ExpressionVisitException,
       ODataApplicationException {
     // TODO Logging
+    if (getLambdaType(member) == UriResourceKind.lambdaAny)
+      return new JPALambdaAnyOperation(this.jpaComplier.getOdata(), this.jpaComplier.getSd(), this.jpaComplier
+          .getEntityManager(), this.jpaComplier.getUriResourceParts(), this.jpaComplier.getConverter(), member,
+          this.jpaComplier.getParent());
+    else if (getLambdaType(member) == UriResourceKind.lambdaAll)
+      return new JPALambdaAllOperation(this.jpaComplier.getOdata(), this.jpaComplier.getSd(), this.jpaComplier
+          .getEntityManager(), this.jpaComplier.getUriResourceParts(), this.jpaComplier.getConverter(), member,
+          this.jpaComplier.getParent());
     return new JPAMemberOperator(this.jpaComplier.getJpaEntityType(), this.jpaComplier.getParent(), member);
+  }
+
+  UriResourceKind getLambdaType(UriInfoResource member) {
+    for (UriResource r : member.getUriResourceParts()) {
+      if (r.getKind() == UriResourceKind.lambdaAny
+          || r.getKind() == UriResourceKind.lambdaAll)
+        return r.getKind();
+    }
+    return null;
   }
 
   @Override

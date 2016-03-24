@@ -68,7 +68,7 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
   public List<JPAPath> getKeyPath() throws ODataJPAModelException {
     lazyBuildEdmItem();
 
-    List<JPAPath> result = new ArrayList<JPAPath>();
+    final List<JPAPath> result = new ArrayList<JPAPath>();
     for (final String internalName : this.declaredPropertiesList.keySet()) {
       final JPAAttribute attribute = this.declaredPropertiesList.get(internalName);
       if (attribute instanceof IntermediateEmbeddedIdProperty) {
@@ -95,7 +95,7 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
   public List<JPAPath> getSearchablePath() throws ODataJPAModelException {
     final List<JPAPath> allPath = getPathList();
     final List<JPAPath> searchablePath = new ArrayList<JPAPath>();
-    for (JPAPath p : allPath) {
+    for (final JPAPath p : allPath) {
       if (p.getLeaf().isSearchable())
         searchablePath.add(p);
     }
@@ -127,7 +127,7 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
 
   @SuppressWarnings("unchecked")
   @Override
-  protected <T> List<?> extractEdmModelElements(Map<String, ?> mappingBuffer) throws ODataJPAModelException {
+  protected <T> List<?> extractEdmModelElements(final Map<String, ?> mappingBuffer) throws ODataJPAModelException {
     final List<T> extractionTarget = new ArrayList<T>();
     for (final String externalName : mappingBuffer.keySet()) {
       if (!((IntermediateModelElement) mappingBuffer.get(externalName)).ignore()) {
@@ -181,10 +181,10 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
     for (final String internalName : propertyList.keySet()) {
       if (propertyList.get(internalName).isKey()) {
         if (propertyList.get(internalName).isComplex()) {
-          List<JPAAttribute> idAttributes = ((IntermediateComplexType) propertyList.get(internalName)
+          final List<JPAAttribute> idAttributes = ((IntermediateComplexType) propertyList.get(internalName)
               .getStructuredType())
                   .getAttributes();
-          for (JPAAttribute idAttribute : idAttributes) {
+          for (final JPAAttribute idAttribute : idAttributes) {
             final CsdlPropertyRef key = new CsdlPropertyRef();
             key.setName(idAttribute.getExternalName());
             // TODO setAlias
@@ -202,12 +202,12 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
   }
 
   @Override
-      CsdlEntityType getEdmItem() throws ODataJPAModelException {
+  CsdlEntityType getEdmItem() throws ODataJPAModelException {
     lazyBuildEdmItem();
     return edmEntityType;
   }
 
-  private <T> List<?> resolveEmbeddedId(IntermediateEmbeddedIdProperty embeddedId) throws ODataJPAModelException {
+  private <T> List<?> resolveEmbeddedId(final IntermediateEmbeddedIdProperty embeddedId) throws ODataJPAModelException {
     return ((IntermediateComplexType) embeddedId.getStructuredType()).getEdmItem().getProperties();
   }
 

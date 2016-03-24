@@ -247,7 +247,7 @@ public class TestJPAProcessorExpand extends TestBase {
     ObjectNode parent = (ObjectNode) div.get("Parent");
     assertNotNull(parent.get("CodeID"));
     assertEquals("NUTS2", parent.get("CodeID").asText());
-    // TODO: Check how to create the responce correctly
+    // TODO: Check how to create the response correctly
     // assertEquals(1, parent.size());
   }
 

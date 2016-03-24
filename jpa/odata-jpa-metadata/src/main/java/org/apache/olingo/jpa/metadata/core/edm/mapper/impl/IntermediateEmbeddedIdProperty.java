@@ -7,15 +7,14 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExc
 public class IntermediateEmbeddedIdProperty extends IntermediateProperty {
   private final Attribute<?, ?> embeddable;
 
-  IntermediateEmbeddedIdProperty(JPAEdmNameBuilder nameBuilder, Attribute<?, ?> jpaAttribute, IntermediateSchema schema,
-      Attribute<?, ?> embeddable)
-          throws ODataJPAModelException {
+  IntermediateEmbeddedIdProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,
+      final IntermediateSchema schema, final Attribute<?, ?> embeddable) throws ODataJPAModelException {
     super(nameBuilder, jpaAttribute, schema);
     this.embeddable = embeddable;
   }
 
-  IntermediateEmbeddedIdProperty(JPAEdmNameBuilder nameBuilder, Attribute<?, ?> jpaAttribute,
-      IntermediateSchema schema) throws ODataJPAModelException {
+  IntermediateEmbeddedIdProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,
+      final IntermediateSchema schema) throws ODataJPAModelException {
     super(nameBuilder, jpaAttribute, schema);
     this.embeddable = null;
   }

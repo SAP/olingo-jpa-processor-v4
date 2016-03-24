@@ -26,8 +26,8 @@ abstract class JPAAbstractRequestProcessor implements JPARequestProcessor {
   protected final JPASerializer serializer;
   protected final OData odata;
 
-  public JPAAbstractRequestProcessor(OData odata, JPAODataSessionContextAccess context,
-      JPAODataRequestContextAccess requestContext) {
+  public JPAAbstractRequestProcessor(final OData odata, final JPAODataSessionContextAccess context,
+      final JPAODataRequestContextAccess requestContext) {
     this.em = requestContext.getEntityManager();
     this.cb = em.getCriteriaBuilder();
     this.context = context;

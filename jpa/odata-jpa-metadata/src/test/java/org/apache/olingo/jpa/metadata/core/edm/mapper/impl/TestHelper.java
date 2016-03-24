@@ -19,13 +19,13 @@ public class TestHelper {
   final private Metamodel jpaMetamodel;
   final public IntermediateSchema schema;
 
-  public TestHelper(Metamodel metamodel, String namespace) throws ODataJPAModelException {
+  public TestHelper(final Metamodel metamodel, final String namespace) throws ODataJPAModelException {
     this.jpaMetamodel = metamodel;
     this.schema = new IntermediateSchema(new JPAEdmNameBuilder(namespace), jpaMetamodel);
   }
 
-  public EntityType<?> getEntityType(String typeName) {
-    for (EntityType<?> entityType : jpaMetamodel.getEntities()) {
+  public EntityType<?> getEntityType(final String typeName) {
+    for (final EntityType<?> entityType : jpaMetamodel.getEntities()) {
       if (entityType.getJavaType().getSimpleName().equals(typeName)) {
         return entityType;
       }
@@ -35,10 +35,10 @@ public class TestHelper {
 
   public EdmFunction getStoredProcedure(EntityType<?> jpaEntityType, String string) {
     if (jpaEntityType.getJavaType() instanceof AnnotatedElement) {
-      EdmFunctions jpaStoredProcedureList = ((AnnotatedElement) jpaEntityType.getJavaType())
+      final EdmFunctions jpaStoredProcedureList = ((AnnotatedElement) jpaEntityType.getJavaType())
           .getAnnotation(EdmFunctions.class);
       if (jpaStoredProcedureList != null) {
-        for (EdmFunction jpaStoredProcedure : jpaStoredProcedureList.value()) {
+        for (final EdmFunction jpaStoredProcedure : jpaStoredProcedureList.value()) {
           if (jpaStoredProcedure.name().equals(string)) return jpaStoredProcedure;
         }
       }
@@ -46,8 +46,8 @@ public class TestHelper {
     return null;
   }
 
-  public Attribute<?, ?> getAttribute(ManagedType<?> et, String attributeName) {
-    for (SingularAttribute<?, ?> attribute : et.getSingularAttributes()) {
+  public Attribute<?, ?> getAttribute(final ManagedType<?> et, final String attributeName) {
+    for (final SingularAttribute<?, ?> attribute : et.getSingularAttributes()) {
       if (attribute.getName().equals(attributeName))
         return attribute;
     }
@@ -55,7 +55,7 @@ public class TestHelper {
   }
 
   public EmbeddableType<?> getEmbeddedableType(String typeName) {
-    for (EmbeddableType<?> embeddableType : jpaMetamodel.getEmbeddables()) {
+    for (final EmbeddableType<?> embeddableType : jpaMetamodel.getEmbeddables()) {
       if (embeddableType.getJavaType().getSimpleName().equals(typeName)) {
         return embeddableType;
       }
@@ -63,16 +63,16 @@ public class TestHelper {
     return null;
   }
 
-  public Attribute<?, ?> getDeclaredAttribute(ManagedType<?> et, String attributeName) {
-    for (Attribute<?, ?> attribute : et.getDeclaredAttributes()) {
+  public Attribute<?, ?> getDeclaredAttribute(final ManagedType<?> et, final String attributeName) {
+    for (final Attribute<?, ?> attribute : et.getDeclaredAttributes()) {
       if (attribute.getName().equals(attributeName))
         return attribute;
     }
     return null;
   }
 
-  public Object findAttribute(List<? extends JPAAttribute> attributes, String searchItem) {
-    for (JPAAttribute attribute : attributes) {
+  public Object findAttribute(final List<? extends JPAAttribute> attributes, final String searchItem) {
+    for (final JPAAttribute attribute : attributes) {
       if (attribute.getExternalName().equals(searchItem))
         return attribute;
     }

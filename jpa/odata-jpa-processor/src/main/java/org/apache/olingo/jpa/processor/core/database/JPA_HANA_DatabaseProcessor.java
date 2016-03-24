@@ -52,8 +52,9 @@ final class JPA_HANA_DatabaseProcessor implements JPAODataDatabaseProcessor {
   }
 
   @Override
-  public Expression<Boolean> createSearchWhereClause(CriteriaBuilder cb, CriteriaQuery<?> cq, Root<?> root,
-      JPAEntityType entityType, SearchOption searchOption) throws ODataApplicationException {
+  public Expression<Boolean> createSearchWhereClause(final CriteriaBuilder cb, final CriteriaQuery<?> cq,
+      final Root<?> root, final JPAEntityType entityType, final SearchOption searchOption)
+      throws ODataApplicationException {
     /*
      * The following code generates a sub-query to filter on the values that matches the search term. This looks
      * cumbersome, but there were problems using the straight forward solution:
@@ -66,7 +67,7 @@ final class JPA_HANA_DatabaseProcessor implements JPAODataDatabaseProcessor {
     JPAPath keyPath = null;
     try {
       searchableAttributes = entityType.getSearchablePath();
-      List<JPAPath> keyPathList = entityType.getKeyPath();
+      final List<JPAPath> keyPathList = entityType.getKeyPath();
       if (keyPathList.size() == 1)
         keyPath = keyPathList.get(0);
       else
@@ -77,15 +78,15 @@ final class JPA_HANA_DatabaseProcessor implements JPAODataDatabaseProcessor {
           Locale.ENGLISH, e);
     }
     if (!searchableAttributes.isEmpty()) {
-      SearchTerm term = searchOption.getSearchExpression().asSearchTerm();
+      final SearchTerm term = searchOption.getSearchExpression().asSearchTerm();
       @SuppressWarnings("unchecked")
-      Subquery<Object> sq = (Subquery<Object>) cq.subquery(entityType.getKeyType());
-      Root<?> sr = sq.from(root.getJavaType());
-      Expression<Object> sel = sr.get(keyPath.getPath().get(0).getInternalName());
+      final Subquery<Object> sq = (Subquery<Object>) cq.subquery(entityType.getKeyType());
+      final Root<?> sr = sq.from(root.getJavaType());
+      final Expression<Object> sel = sr.get(keyPath.getPath().get(0).getInternalName());
       sq.select(sel);
       Path<?> attributePath = sr;
-      for (JPAPath searchableAttribute : searchableAttributes) {
-        for (JPAElement pathItem : searchableAttribute.getPath())
+      for (final JPAPath searchableAttribute : searchableAttributes) {
+        for (final JPAElement pathItem : searchableAttribute.getPath())
           attributePath = attributePath.get(pathItem.getInternalName());
       }
       sq.where(cb.function("CONTAINS", Boolean.class, attributePath, cb.literal(term.getSearchTerm())));
@@ -110,7 +111,7 @@ final class JPA_HANA_DatabaseProcessor implements JPAODataDatabaseProcessor {
 
   private UriParameter findParameterByExternalName(final JPAFunctionParameter parameter,
       final List<UriParameter> uriParameters)
-          throws ODataApplicationException {
+      throws ODataApplicationException {
     for (final UriParameter uriParameter : uriParameters) {
       if (uriParameter.getName().equals(parameter.getName()))
         return uriParameter;
