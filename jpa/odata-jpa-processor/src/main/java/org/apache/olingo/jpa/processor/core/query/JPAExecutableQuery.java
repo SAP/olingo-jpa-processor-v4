@@ -297,7 +297,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
    * @throws ODataJPAModelException
    * 
    */
-  protected List<Order> createOrderList(final Map<String, From<?, ?>> joinTables, final OrderByOption orderByOption)
+  protected List<Order> createOrderByList(final Map<String, From<?, ?>> joinTables, final OrderByOption orderByOption)
       throws ODataApplicationException {
     // .../Organizations?$orderby=Address/Country --> one item, two resourcePaths
     // [...ComplexProperty,...PrimitiveProperty]

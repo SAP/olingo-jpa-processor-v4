@@ -94,4 +94,8 @@ public class JPAFilterElementComplier implements JPAFilterComplier, JPAFilterCom
     return parent;
   }
 
+  public VisitableExpression getExpressionMember() {
+    return expression;
+  }
+
 }

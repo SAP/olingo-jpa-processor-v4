@@ -36,11 +36,10 @@ class JPAVisitor implements ExpressionVisitor<JPAOperator> {
   @Override
   public JPAOperator visitBinaryOperator(final BinaryOperatorKind operator, final JPAOperator left,
       final JPAOperator right) throws ExpressionVisitException, ODataApplicationException {
+
     // TODO Logging
     if (hasNavigation(left) || hasNavigation(right))
-      return new JPANavigationOperation(this.jpaComplier.getOdata(), this.jpaComplier.getSd(), this.jpaComplier
-          .getEntityManager(), this.jpaComplier.getUriResourceParts(), this.jpaComplier.getConverter(), operator, left,
-          right, this.jpaComplier.getParent());
+      return new JPANavigationOperation(this.jpaComplier, operator, left, right);
     if (operator == BinaryOperatorKind.EQ
         || operator == BinaryOperatorKind.NE
         || operator == BinaryOperatorKind.GE
@@ -108,16 +107,25 @@ class JPAVisitor implements ExpressionVisitor<JPAOperator> {
   @Override
   public JPAOperator visitMember(final UriInfoResource member) throws ExpressionVisitException,
       ODataApplicationException {
+
+//  public JPAOperator visitMember(Member member) throws ExpressionVisitException, ODataApplicationException {
+
     // TODO Logging
     if (getLambdaType(member) == UriResourceKind.lambdaAny)
-      return new JPALambdaAnyOperation(this.jpaComplier.getOdata(), this.jpaComplier.getSd(), this.jpaComplier
-          .getEntityManager(), this.jpaComplier.getUriResourceParts(), this.jpaComplier.getConverter(), member,
-          this.jpaComplier.getParent());
+      return new JPALambdaAnyOperation(this.jpaComplier, member);
     else if (getLambdaType(member) == UriResourceKind.lambdaAll)
-      return new JPALambdaAllOperation(this.jpaComplier.getOdata(), this.jpaComplier.getSd(), this.jpaComplier
-          .getEntityManager(), this.jpaComplier.getUriResourceParts(), this.jpaComplier.getConverter(), member,
-          this.jpaComplier.getParent());
+      return new JPALambdaAllOperation(this.jpaComplier, member);
+    else if (isAggregation(member)) {
+      return new JPAAggregationOperation(jpaComplier.getParent().getRoot(), jpaComplier.getConverter());
+    }
     return new JPAMemberOperator(this.jpaComplier.getJpaEntityType(), this.jpaComplier.getParent(), member);
+  }
+
+  private boolean isAggregation(UriInfoResource member) {
+    if (member.getUriResourceParts().size() == 1 && member.getUriResourceParts().get(0)
+        .getKind() == UriResourceKind.count)
+      return true;
+    return false;
   }
 
   UriResourceKind getLambdaType(UriInfoResource member) {

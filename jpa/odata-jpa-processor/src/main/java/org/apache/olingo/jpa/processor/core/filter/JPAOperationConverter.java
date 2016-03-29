@@ -63,14 +63,6 @@ public class JPAOperationConverter {
     }
   }
 
-  final public Expression<Boolean> convert(final JPAExistsOperation jpaOperator) throws ODataApplicationException {
-    return cb.exists(jpaOperator.getExistsQuery());
-  }
-
-  final public Expression<Boolean> convert(final JPALambdaAllOperation jpaOperator) throws ODataApplicationException {
-    return cb.and(cb.exists(jpaOperator.getExistsQuery()), cb.not(cb.exists(jpaOperator.getNotExistsQuery())));
-  }
-
   // TODO check generics!
   @SuppressWarnings({ "unchecked", "rawtypes" })
   final public Expression<Boolean> convert(final JPAComparisonOperator jpaOperator) throws ODataApplicationException {
@@ -180,6 +172,20 @@ public class JPAOperationConverter {
     default:
       return convertSpecific(jpaOperator);
     }
+  }
+
+  final public Expression<Long> convert(final JPAAggregationOperation jpaOperator) throws ODataApplicationException {
+    switch (jpaOperator.getAggregation()) {
+    case COUNT:
+      return cb.count(jpaOperator.getPath());
+    default:
+      return convertSpecific(jpaOperator);
+    }
+  }
+
+  protected Expression<Long> convertSpecific(JPAAggregationOperation jpaOperator) throws ODataApplicationException {
+    throw new ODataApplicationException("Operator " + jpaOperator.getAggregation() + " not supported",
+        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
   }
 
   protected <T extends Number> Expression<T> convertSpecific(final JPAArithmeticOperator jpaOperator)

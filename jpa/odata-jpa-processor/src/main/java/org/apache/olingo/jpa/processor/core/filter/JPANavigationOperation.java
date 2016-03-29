@@ -3,15 +3,13 @@ package org.apache.olingo.jpa.processor.core.filter;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.EntityManager;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Subquery;
 
-import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
 import org.apache.olingo.jpa.processor.core.query.JPAAbstractQuery;
 import org.apache.olingo.jpa.processor.core.query.JPANavigationFilterQuery;
 import org.apache.olingo.jpa.processor.core.query.JPANavigationProptertyInfo;
 import org.apache.olingo.jpa.processor.core.query.JPANavigationQuery;
-import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
@@ -41,12 +39,13 @@ class JPANavigationOperation extends JPAExistsOperation implements JPAExpression
   final BinaryOperatorKind operator;
   final JPAMemberOperator member;
   final JPALiteralOperator operand;
+  private final UriResourceKind aggregationType;
 
-  public JPANavigationOperation(final OData odata, final ServicDocument sd, final EntityManager em,
-      final List<UriResource> uriResourceParts, final JPAOperationConverter converter,
-      final BinaryOperatorKind operator, final JPAOperator left, final JPAOperator right, final JPAAbstractQuery root) {
-    super(odata, sd, em, uriResourceParts, converter, root);
+  JPANavigationOperation(JPAFilterComplierAccess jpaComplier, BinaryOperatorKind operator, JPAOperator left,
+      JPAOperator right) {
 
+    super(jpaComplier);
+    this.aggregationType = null;
     this.operator = operator;
     if (left instanceof JPAMemberOperator) {
       member = (JPAMemberOperator) left;
@@ -67,6 +66,15 @@ class JPANavigationOperation extends JPAExistsOperation implements JPAExpression
     return false;
   }
 
+  @SuppressWarnings("unchecked")
+  @Override
+  public Expression<Boolean> get() throws ODataApplicationException {
+    // return converter.cb.greaterThan(getExistsQuery().as("a"), converter.cb.literal('5'));
+    if (aggregationType != null)
+      return (Expression<Boolean>) getExistsQuery().getRoots().toArray()[0];
+    return converter.cb.exists(getExistsQuery());
+  }
+
   @Override
   Subquery<?> getExistsQuery() throws ODataApplicationException {
     final List<UriResource> allUriResourceParts = new ArrayList<UriResource>(uriResourceParts);
@@ -78,14 +86,16 @@ class JPANavigationOperation extends JPAExistsOperation implements JPAExpression
     final List<JPANavigationQuery> queryList = new ArrayList<JPANavigationQuery>();
 
     // 2. Create the queries and roots
-    final JPAFilterExpression expression = new JPAFilterExpression(new SubMember(member), operand.getLiteral(),
-        operator);
-    for (int i = 0; i < naviPathList.size(); i++) {
+
+    // for (int i = 0; i < naviPathList.size(); i++) {
+    for (int i = naviPathList.size() - 1; i >= 0; i--) {
       final JPANavigationProptertyInfo naviInfo = naviPathList.get(i);
-      if (i == naviPathList.size() - 1)
+      if (i == 0 && aggregationType == null) {
+        final JPAFilterExpression expression = new JPAFilterExpression(new SubMember(member), operand.getLiteral(),
+            operator);
         queryList.add(new JPANavigationFilterQuery(odata, sd, naviInfo.getUriResiource(), parent, em, naviInfo
             .getAssociationPath(), expression));
-      else
+      } else
         queryList.add(new JPANavigationFilterQuery(odata, sd, naviInfo.getUriResiource(), parent, em, naviInfo
             .getAssociationPath()));
       parent = queryList.get(queryList.size() - 1);

@@ -29,14 +29,14 @@ abstract class JPAExistsOperation implements JPAOperator {
   protected final EntityManager em;
   protected final OData odata;
 
-  JPAExistsOperation(final OData odata, final ServicDocument sd, final EntityManager em,
-      final List<UriResource> uriResourceParts, final JPAOperationConverter converter, final JPAAbstractQuery root) {
-    this.uriResourceParts = uriResourceParts;
-    this.root = root;
-    this.sd = sd;
-    this.em = em;
-    this.converter = converter;
-    this.odata = odata;
+  JPAExistsOperation(JPAFilterComplierAccess jpaComplier) {
+
+    this.uriResourceParts = jpaComplier.getUriResourceParts();
+    this.root = jpaComplier.getParent();
+    this.sd = jpaComplier.getSd();
+    this.em = jpaComplier.getEntityManager();
+    this.converter = jpaComplier.getConverter();
+    this.odata = jpaComplier.getOdata();
   }
 
   public static boolean hasNavigation(final List<UriResource> uriResourceParts) {
@@ -51,7 +51,7 @@ abstract class JPAExistsOperation implements JPAOperator {
 
   @Override
   public Expression<Boolean> get() throws ODataApplicationException {
-    return converter.convert(this);
+    return converter.cb.exists(getExistsQuery());
   }
 
   abstract Subquery<?> getExistsQuery() throws ODataApplicationException;

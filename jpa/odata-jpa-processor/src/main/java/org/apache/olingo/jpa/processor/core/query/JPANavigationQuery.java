@@ -103,8 +103,12 @@ public class JPANavigationQuery extends JPAAbstractQuery {
     if (childQuery != null)
       whereCondition = cb.and(whereCondition, cb.exists(childQuery));
     subQuery.where(whereCondition);
+    handleAggregation(subQuery, queryRoot, conditionItems);
     return subQuery;
   }
+
+  protected void handleAggregation(Subquery<?> subQuery, final Root<?> subRoot,
+      final List<JPAOnConditionItem> conditionItems) throws ODataApplicationException {}
 
   @SuppressWarnings("unchecked")
   protected <T> void createSelectClause(final Subquery<T> subQuery, List<JPAOnConditionItem> conditionItems) {

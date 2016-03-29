@@ -92,7 +92,7 @@ public class JPAQuery extends JPAExecutableQuery {
     if (whereClause != null)
       cq.where(whereClause);
 
-    cq.orderBy(createOrderList(joinTables, uriResource.getOrderByOption()));
+    cq.orderBy(createOrderByList(joinTables, uriResource.getOrderByOption()));
 
     if (!orderByNaviAttributes.isEmpty())
       cq.groupBy(createGroupBy(joinTables, selectionPath));

@@ -12,12 +12,12 @@ import org.apache.olingo.jpa.processor.core.query.JPAAbstractQuery;
 import org.apache.olingo.jpa.processor.core.query.Util;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 
-class JPAMemberOperator implements JPAOperator {
+public class JPAMemberOperator implements JPAOperator {
   private final UriInfoResource member;
   private final JPAEntityType jpaEntityType;
   private final Root<?> root;
 
-  public JPAMemberOperator(final JPAEntityType jpaEntityType, final JPAAbstractQuery parent,
+  JPAMemberOperator(final JPAEntityType jpaEntityType, final JPAAbstractQuery parent,
       final UriInfoResource member) {
     super();
     this.member = member;

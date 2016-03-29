@@ -58,6 +58,9 @@ insert into "org.apache.olingo.jpa::BusinessPartnerRole" values ('3',  'C');
 insert into "org.apache.olingo.jpa::BusinessPartnerRole" values ('2',  'A');
 insert into "org.apache.olingo.jpa::BusinessPartnerRole" values ('2',  'C');
 insert into "org.apache.olingo.jpa::BusinessPartnerRole" values ('7',  'C');
+insert into "org.apache.olingo.jpa::BusinessPartnerRole" values ('98',  'X');
+insert into "org.apache.olingo.jpa::BusinessPartnerRole" values ('99',  'X');
+insert into "org.apache.olingo.jpa::BusinessPartnerRole" values ('99',  'Z');
 
 CREATE TABLE "org.apache.olingo.jpa::CountryDescription" ( 
 	"ISOCode" NVARCHAR(4) NOT NULL ,

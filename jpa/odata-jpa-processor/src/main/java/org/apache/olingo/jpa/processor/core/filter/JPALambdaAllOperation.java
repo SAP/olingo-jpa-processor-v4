@@ -1,17 +1,11 @@
 package org.apache.olingo.jpa.processor.core.filter;
 
-import java.util.List;
-
-import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Subquery;
 
-import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
-import org.apache.olingo.jpa.processor.core.query.JPAAbstractQuery;
-import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
-import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitException;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitor;
 import org.apache.olingo.server.api.uri.queryoption.expression.Unary;
@@ -19,9 +13,8 @@ import org.apache.olingo.server.api.uri.queryoption.expression.UnaryOperatorKind
 
 public class JPALambdaAllOperation extends JPALambdaOperation {
 
-  JPALambdaAllOperation(OData odata, ServicDocument sd, EntityManager em, List<UriResource> uriResourceParts,
-      JPAOperationConverter converter, UriInfoResource member, JPAAbstractQuery root) {
-    super(odata, sd, em, uriResourceParts, converter, member, root);
+  JPALambdaAllOperation(JPAFilterComplierAccess jpaComplier, UriInfoResource member) {
+    super(jpaComplier, member);
   }
 
   public Subquery<?> getNotExistsQuery() throws ODataApplicationException {
@@ -31,7 +24,8 @@ public class JPALambdaAllOperation extends JPALambdaOperation {
 
   @Override
   public Expression<Boolean> get() throws ODataApplicationException {
-    return converter.convert(this);
+    CriteriaBuilder cb = converter.cb;
+    return cb.and(cb.exists(getExistsQuery()), cb.not(cb.exists(getNotExistsQuery())));
   }
 
   private class NotExpression implements Unary {

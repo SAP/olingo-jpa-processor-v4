@@ -110,7 +110,7 @@ public class JPAExpandQuery extends JPAExecutableQuery {
     cq.where(createWhere(joinTables));
 
     final List<Order> orderBy = createOrderByJoinCondition(assoziation);
-    orderBy.addAll(createOrderList(joinTables, uriResource.getOrderByOption()));
+    orderBy.addAll(createOrderByList(joinTables, uriResource.getOrderByOption()));
     cq.orderBy(orderBy);
     // TODO group by also at $expand
     // final TypedQuery<Tuple> tupleQuery = em.createQuery(cq);

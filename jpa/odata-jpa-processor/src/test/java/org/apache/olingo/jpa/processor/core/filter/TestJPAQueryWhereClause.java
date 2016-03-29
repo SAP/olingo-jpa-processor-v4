@@ -417,7 +417,6 @@ public class TestJPAQueryWhereClause extends TestBase {
     assertEquals(1, orgs.size());
   }
 
-  @Ignore
   @Test
   public void testFilterNavigationPropertyToManyValueAnyNoRestriction() throws IOException, ODataException {
 
@@ -426,7 +425,7 @@ public class TestJPAQueryWhereClause extends TestBase {
 
     helper.assertStatus(200);
     ArrayNode orgs = helper.getValues();
-    assertEquals(10, orgs.size());
+    assertEquals(4, orgs.size());
   }
 
   @Test
@@ -452,7 +451,6 @@ public class TestJPAQueryWhereClause extends TestBase {
     assertEquals(1, orgs.size());
   }
 
-  @Ignore
   @Test
   public void testFilterCountNavigationProperty() throws IOException, ODataException {
 //https://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398301
@@ -463,6 +461,16 @@ public class TestJPAQueryWhereClause extends TestBase {
     helper.assertStatus(200);
     ArrayNode orgs = helper.getValues();
     assertEquals(1, orgs.size());
+  }
+
+  @Test
+  public void testFilterCountNavigationPropertyMultipleHops() throws IOException, ODataException {
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "/Organizations?$select=ID&$filter=AdministrativeInformation/Created/User/Roles/$count ge 2");
+
+    helper.assertStatus(200);
+    ArrayNode orgs = helper.getValues();
+    assertEquals(8, orgs.size());
   }
 
   @Test

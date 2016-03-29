@@ -3,15 +3,12 @@ package org.apache.olingo.jpa.processor.core.filter;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.EntityManager;
 import javax.persistence.criteria.Subquery;
 
-import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
 import org.apache.olingo.jpa.processor.core.query.JPAAbstractQuery;
 import org.apache.olingo.jpa.processor.core.query.JPANavigationFilterQuery;
 import org.apache.olingo.jpa.processor.core.query.JPANavigationProptertyInfo;
 import org.apache.olingo.jpa.processor.core.query.JPANavigationQuery;
-import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
@@ -20,13 +17,12 @@ import org.apache.olingo.server.api.uri.UriResourceLambdaAll;
 import org.apache.olingo.server.api.uri.UriResourceLambdaAny;
 import org.apache.olingo.server.api.uri.queryoption.expression.Expression;
 
-public abstract class JPALambdaOperation extends JPAExistsOperation {
+abstract class JPALambdaOperation extends JPAExistsOperation {
 
   protected final UriInfoResource member;
 
-  public JPALambdaOperation(OData odata, ServicDocument sd, EntityManager em, List<UriResource> uriResourceParts,
-      JPAOperationConverter converter, UriInfoResource member, JPAAbstractQuery root) {
-    super(odata, sd, em, uriResourceParts, converter, root);
+  JPALambdaOperation(JPAFilterComplierAccess jpaComplier, UriInfoResource member) {
+    super(jpaComplier);
     this.member = member;
   }
 
@@ -46,9 +42,10 @@ public abstract class JPALambdaOperation extends JPAExistsOperation {
 
     // 2. Create the queries and roots
 
-    for (int i = 0; i < naviPathList.size(); i++) {
+    // for (int i = 0; i < naviPathList.size(); i++) {
+    for (int i = naviPathList.size() - 1; i >= 0; i--) {
       final JPANavigationProptertyInfo naviInfo = naviPathList.get(i);
-      if (i == naviPathList.size() - 1)
+      if (i == 0) // naviPathList.size() - 1)
         queryList.add(new JPANavigationFilterQuery(odata, sd, naviInfo.getUriResiource(), parent, em, naviInfo
             .getAssociationPath(), expression));
       else
