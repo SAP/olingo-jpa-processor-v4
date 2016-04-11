@@ -1,6 +1,8 @@
 package org.apache.olingo.jpa.metadata.api;
 
+import java.util.Enumeration;
 import java.util.List;
+import java.util.Locale;
 
 import javax.persistence.EntityManagerFactory;
 
@@ -15,6 +17,8 @@ import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunctionImport;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.commons.api.ex.ODataException;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAMessageTextBuffer;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
 
@@ -24,8 +28,7 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
   final private ServicDocument serviceDocument;
 
   public JPAEdmProvider(final String namespace, final EntityManagerFactory emf,
-      final JPAEdmMetadataPostProcessor postProcessor)
-      throws ODataException {
+      final JPAEdmMetadataPostProcessor postProcessor) throws ODataException {
     super();
     this.nameBuilder = new JPAEdmNameBuilder(namespace);
     serviceDocument = new ServicDocument(namespace, emf.getMetamodel(), postProcessor);
@@ -109,5 +112,11 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
 
   public final ServicDocument getServiceDocument() {
     return serviceDocument;
+  }
+
+  public void setRequestLocales(Enumeration<Locale> locales) {
+    ODataJPAMessageTextBuffer buffer = new ODataJPAMessageTextBuffer("exceptions-i18n");
+    buffer.setLocales(locales);
+    ODataJPAModelException.setMessageBuffer(buffer);
   }
 }

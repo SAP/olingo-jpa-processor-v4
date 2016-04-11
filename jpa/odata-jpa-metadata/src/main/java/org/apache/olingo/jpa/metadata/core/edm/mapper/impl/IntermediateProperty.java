@@ -121,8 +121,7 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
             if (jpaColumn.precision() > 0)
               edmProperty.setPrecision(jpaColumn.precision());
             if (edmProperty.getType().equals(EdmPrimitiveTypeKind.Decimal.getFullQualifiedName().toString())
-                && jpaColumn
-                    .scale() > 0)
+                && jpaColumn.scale() > 0)
               edmProperty.setScale(jpaColumn.scale());
           }
         }
@@ -146,8 +145,6 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
         if (value != null)
           valueString = value.toString();
       } catch (NoSuchMethodException e) {
-
-      } catch (SecurityException e) {
 
       } catch (InstantiationException e) {
 

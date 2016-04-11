@@ -44,6 +44,7 @@ public class JPAODataGetHandler {
   public void process(final HttpServletRequest request, final HttpServletResponse response) {
     final ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(context.getEdmProvider(), context
         .getReferences()));
+    context.getEdmProvider().setRequestLocales(request.getLocales());
     handler.register(context.getDebugSupport());
     handler.register(new JPAODataRequestProcessor(context, emf.createEntityManager()));
     handler.register(new JPAODataBatchProcessor());

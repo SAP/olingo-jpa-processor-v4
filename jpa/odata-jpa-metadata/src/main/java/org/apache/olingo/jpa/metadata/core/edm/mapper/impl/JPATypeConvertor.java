@@ -78,16 +78,12 @@ public final class JPATypeConvertor {
       return EdmPrimitiveTypeKind.Date;
     } else if (jpaType.equals(Date.class) || jpaType.equals(
         Calendar.class) || jpaType.equals(Timestamp.class) || jpaType.equals(java.util.Date.class)) {
-      try {
-        if ((currentAttribute != null) && (determineTemporalType(currentAttribute) == TemporalType.TIME)) {
-          // TODO Check mapping change from Time
-          return EdmPrimitiveTypeKind.TimeOfDay;
-        } else {
-          // TODO Check mapping change from DateTime
-          return EdmPrimitiveTypeKind.DateTimeOffset;
-        }
-      } catch (SecurityException e) {
-        throw ODataJPAModelException.throwException(ODataJPAModelException.GENERAL, e);
+      if ((currentAttribute != null) && (determineTemporalType(currentAttribute) == TemporalType.TIME)) {
+        // TODO Check mapping change from Time
+        return EdmPrimitiveTypeKind.TimeOfDay;
+      } else {
+        // TODO Check mapping change from DateTime
+        return EdmPrimitiveTypeKind.DateTimeOffset;
       }
     } else if (jpaType.equals(UUID.class)) {
       return EdmPrimitiveTypeKind.Guid;
@@ -105,8 +101,7 @@ public final class JPATypeConvertor {
         "Type of attribute is not supporte. Mapping not possible");
   }
 
-  private static TemporalType determineTemporalType(final Attribute<?, ?> currentAttribute)
-      throws ODataJPAModelException {
+  private static TemporalType determineTemporalType(final Attribute<?, ?> currentAttribute) {
     if (currentAttribute != null) {
       final AnnotatedElement annotatedElement = (AnnotatedElement) currentAttribute.getJavaMember();
       if (annotatedElement != null && annotatedElement.getAnnotation(Temporal.class) != null) {
