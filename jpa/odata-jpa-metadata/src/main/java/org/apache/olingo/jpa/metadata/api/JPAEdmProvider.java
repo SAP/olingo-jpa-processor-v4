@@ -17,8 +17,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunctionImport;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.commons.api.ex.ODataException;
-import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAMessageTextBuffer;
-import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
 
@@ -115,8 +114,6 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
   }
 
   public void setRequestLocales(Enumeration<Locale> locales) {
-    ODataJPAMessageTextBuffer buffer = new ODataJPAMessageTextBuffer("exceptions-i18n");
-    buffer.setLocales(locales);
-    ODataJPAModelException.setMessageBuffer(buffer);
+    ODataJPAException.setLocales(locales);
   }
 }

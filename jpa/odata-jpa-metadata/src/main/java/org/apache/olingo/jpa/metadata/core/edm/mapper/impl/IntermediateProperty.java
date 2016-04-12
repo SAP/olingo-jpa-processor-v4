@@ -184,11 +184,9 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
         try {
           valueConverter = (AttributeConverter<?, ?>) jpaConverter.converter().newInstance();
         } catch (InstantiationException e) {
-          throw ODataJPAModelException.throwException(ODataJPAModelException.TYPE_MAPPER_COULD_NOT_INSANTIATE,
-              "Type mapper could not be insantated", e);
+          throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.TYPE_MAPPER_COULD_NOT_INSANTIATE, e);
         } catch (IllegalAccessException e) {
-          throw ODataJPAModelException.throwException(ODataJPAModelException.TYPE_MAPPER_COULD_NOT_INSANTIATE,
-              "Type mapper could not be insantated", e);
+          throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.TYPE_MAPPER_COULD_NOT_INSANTIATE, e);
         }
       }
       final Column jpaColunnDetails = ((AnnotatedElement) this.jpaAttribute.getJavaMember()).getAnnotation(

@@ -4,10 +4,9 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
 
+import org.apache.olingo.jpa.processor.core.testmodel.LocaleEnumeration;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -131,24 +130,5 @@ public class TestODataJPAMessageTextBuffer {
     cut.setLocales(locales);
     String act = cut.getText(this, "FIRST_MESSAGE");
     assertEquals("An English message", act);
-  }
-
-  private class LocaleEnumeration implements Enumeration<Locale> {
-    private final Iterator<Locale> keys;
-
-    LocaleEnumeration(List<Locale> keySet) {
-      keys = keySet.iterator();
-    }
-
-    @Override
-    public boolean hasMoreElements() {
-      return keys.hasNext();
-    }
-
-    @Override
-    public Locale nextElement() {
-      return keys.next();
-    }
-
   }
 }

@@ -212,8 +212,8 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
         declaredNaviPropertiesList.put(navProp.internalName, navProp);
         break;
       default:
-        throw ODataJPAModelException.throwException(ODataJPAModelException.NOT_SUPPORTED_ATTRIBUTE_TYPE,
-            "Attribute Type as of now not supported");
+        throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.NOT_SUPPORTED_ATTRIBUTE_TYPE,
+            attributeType.name());
       }
     }
   }

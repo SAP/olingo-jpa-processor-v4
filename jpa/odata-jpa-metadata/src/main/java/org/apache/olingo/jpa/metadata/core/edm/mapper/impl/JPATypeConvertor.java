@@ -96,9 +96,9 @@ public final class JPATypeConvertor {
     } else if (jpaType.isEnum()) {
       return EdmPrimitiveTypeKind.String;
     }
-
-    throw ODataJPAModelException.throwException(ODataJPAModelException.TYPE_NOT_SUPPORTED,
-        "Type of attribute is not supporte. Mapping not possible");
+    // Type (%1$s) of attribute (%2$s) is not supported. Mapping not possible
+    throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.TYPE_NOT_SUPPORTED,
+        jpaType.getName(), currentAttribute.getName());
   }
 
   private static TemporalType determineTemporalType(final Attribute<?, ?> currentAttribute) {

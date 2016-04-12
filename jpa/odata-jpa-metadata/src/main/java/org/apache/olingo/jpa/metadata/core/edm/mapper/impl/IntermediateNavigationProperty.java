@@ -93,9 +93,8 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
                 name == null || name.isEmpty()) {
               implicitColumns += 1;
               if (implicitColumns > 1)
-                throw ODataJPAModelException.throwException(
-                    ODataJPAModelException.NOT_SUPPORTED_NO_IMPLICIT_COLUMNS,
-                    "Relationship " + getInternalName() + ": Only one implicit column name supported");
+                throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.NOT_SUPPORTED_NO_IMPLICIT_COLUMNS,
+                    getInternalName());
               fillMissingName(isSourceOne, intermediateColumn);
             }
             joinColumns.add(intermediateColumn);
@@ -116,9 +115,9 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
               if (refColumnName == null || refColumnName.isEmpty()) {
                 implicitColumns += 1;
                 if (implicitColumns > 1)
-                  throw ODataJPAModelException.throwException(
-                      ODataJPAModelException.NOT_SUPPORTED_NO_IMPLICIT_COLUMNS,
-                      "Relationship " + getInternalName() + ": Only one implicit column name supported");
+                  throw new ODataJPAModelException(
+                      ODataJPAModelException.MessageKeys.NOT_SUPPORTED_NO_IMPLICIT_COLUMNS,
+                      getInternalName());
                 intermediateColumn.setReferencedColumnName(((IntermediateProperty) ((IntermediateEntityType) sourceType)
                     .getKey().get(0)).getDBFieldName());
               }
@@ -187,7 +186,7 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
   }
 
   @Override
-      CsdlNavigationProperty getEdmItem() throws ODataJPAModelException {
+  CsdlNavigationProperty getEdmItem() throws ODataJPAModelException {
     lazyBuildEdmItem();
     return edmNaviProperty;
   }

@@ -48,8 +48,7 @@ class IntermediateDescriptionProperty extends IntermediateProperty implements JP
           localeAttribute = assozation.localeAttribute();
           if (languageAttribute.isEmpty() && localeAttribute.isEmpty() ||
               !languageAttribute.isEmpty() && !localeAttribute.isEmpty())
-            throw ODataJPAModelException.throwException(ODataJPAModelException.DESCRIPTION_LOCALE_FIELD_MISSING,
-                "EdmDescriptionAssozation: At one of the fields languageAttribute or localeAttribute must be filled");
+            throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.DESCRIPTION_LOCALE_FIELD_MISSING);
           // TODO Error handling: Determine type: Should be String
           edmProperty.setType(JPATypeConvertor.convertToEdmSimpleType(descriptionProperty.getType())
               .getFullQualifiedName());
