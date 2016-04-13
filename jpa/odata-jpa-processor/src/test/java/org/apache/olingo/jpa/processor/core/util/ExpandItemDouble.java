@@ -101,4 +101,10 @@ public class ExpandItemDouble implements ExpandItem {
     return null;
   }
 
+  @Override
+  public boolean hasCountPath() {
+    fail();
+    return false;
+  }
+
 }

@@ -523,6 +523,7 @@ insert into "org.apache.olingo.jpa::AdministrativeDivision" values( 'Eurostat', 
 insert into "org.apache.olingo.jpa::AdministrativeDivision" values( 'Eurostat', 'LAU2', '32006','BEL','NUTS3','BE252',null,55893936,9995);	
 insert into "org.apache.olingo.jpa::AdministrativeDivision" values( 'Eurostat', 'LAU2', '32010','BEL','NUTS3','BE252',null,39185258,8712);	
 insert into "org.apache.olingo.jpa::AdministrativeDivision" values( 'Eurostat', 'LAU2', '32011','BEL','NUTS3','BE252',null,54999796,12357);	
+insert into "org.apache.olingo.jpa::AdministrativeDivision" values( 'Eurostat', 'LAU2', '32030','BEL','NUTS3','BE252',null,62938759,3282);
 insert into "org.apache.olingo.jpa::AdministrativeDivision" values( 'Eurostat', 'LAU2', '34002','BEL','NUTS3','BE254',null,41788652,14580);	
 insert into "org.apache.olingo.jpa::AdministrativeDivision" values( 'Eurostat', 'LAU2', '34003','BEL','NUTS3','BE254',null,21748127,9803);	
 insert into "org.apache.olingo.jpa::AdministrativeDivision" values( 'Eurostat', 'LAU2', '34009','BEL','NUTS3','BE254',null,16815679,11687);	

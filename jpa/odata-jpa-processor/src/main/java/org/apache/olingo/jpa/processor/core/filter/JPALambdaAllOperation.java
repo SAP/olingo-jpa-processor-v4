@@ -5,15 +5,15 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Subquery;
 
 import org.apache.olingo.server.api.ODataApplicationException;
-import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitException;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitor;
+import org.apache.olingo.server.api.uri.queryoption.expression.Member;
 import org.apache.olingo.server.api.uri.queryoption.expression.Unary;
 import org.apache.olingo.server.api.uri.queryoption.expression.UnaryOperatorKind;
 
 public class JPALambdaAllOperation extends JPALambdaOperation {
 
-  JPALambdaAllOperation(JPAFilterComplierAccess jpaComplier, UriInfoResource member) {
+  JPALambdaAllOperation(JPAFilterComplierAccess jpaComplier, Member member) {
     super(jpaComplier, member);
   }
 

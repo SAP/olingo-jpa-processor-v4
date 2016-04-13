@@ -75,7 +75,7 @@ public class TestJPAQueryWhereClause extends TestBase {
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
-    assertEquals(146, orgs.size());
+    assertEquals(202, orgs.size());
   }
 
   @Test
@@ -115,7 +115,7 @@ public class TestJPAQueryWhereClause extends TestBase {
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
-    assertEquals(2, orgs.size());
+    assertEquals(4, orgs.size());
   }
 
   @Test
@@ -148,7 +148,7 @@ public class TestJPAQueryWhereClause extends TestBase {
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
-    assertEquals(5, orgs.size());
+    assertEquals(24, orgs.size());
   }
 
   @Test
@@ -195,7 +195,7 @@ public class TestJPAQueryWhereClause extends TestBase {
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
-    assertEquals(6, orgs.size());
+    assertEquals(31, orgs.size());
   }
 
   @Test
@@ -206,7 +206,7 @@ public class TestJPAQueryWhereClause extends TestBase {
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
-    assertEquals(4, orgs.size());
+    assertEquals(15, orgs.size());
   }
 
   @Test
@@ -217,7 +217,7 @@ public class TestJPAQueryWhereClause extends TestBase {
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
-    assertEquals(3, orgs.size());
+    assertEquals(9, orgs.size());
   }
 
   @Test
@@ -228,7 +228,7 @@ public class TestJPAQueryWhereClause extends TestBase {
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
-    assertEquals(8, orgs.size());
+    assertEquals(64, orgs.size());
   }
 
   @Test
@@ -271,7 +271,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   public void testFilterContains() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisions?$filter=contains(CodeID, '166')");
+        "AdministrativeDivisions?$filter=contains(CodeID,'166')");
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
@@ -282,7 +282,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   public void testFilterEndswith() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisions?$filter=endswith(CodeID, '166-1')");
+        "AdministrativeDivisions?$filter=endswith(CodeID,'166-1')");
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
@@ -293,7 +293,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   public void testFilterStartswith() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisions?$filter=startswith(DivisionCode, 'DE-')");
+        "AdministrativeDivisions?$filter=startswith(DivisionCode,'DE-')");
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
@@ -387,7 +387,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   public void testFilterConcat() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Persons?$filter=concat(concat(LastName, ','), FirstName) eq 'Mustermann,Max'");
+        "Persons?$filter=concat(concat(LastName,','),FirstName) eq 'Mustermann,Max'");
 
     helper.assertStatus(200);
 
@@ -399,7 +399,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   public void testFilterNavigationPropertyToManyValueAny() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "/Organizations?$filter=Roles/any(d:d/RoleCategory eq 'A')");
+        "Organizations?$filter=Roles/any(d:d/RoleCategory eq 'A')");
 
     helper.assertStatus(200);
     ArrayNode orgs = helper.getValues();
@@ -410,7 +410,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   public void testFilterNavigationPropertyToManyValueAnyMultiParameter() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "/Organizations?$select=ID&$filter=Roles/any(d:d/RoleCategory eq 'A' and d/BusinessPartnerID eq '1')");
+        "Organizations?$select=ID&$filter=Roles/any(d:d/RoleCategory eq 'A' and d/BusinessPartnerID eq '1')");
 
     helper.assertStatus(200);
     ArrayNode orgs = helper.getValues();
@@ -421,7 +421,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   public void testFilterNavigationPropertyToManyValueAnyNoRestriction() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "/Organizations?$filter=Roles/any()");
+        "Organizations?$filter=Roles/any()");
 
     helper.assertStatus(200);
     ArrayNode orgs = helper.getValues();
@@ -432,7 +432,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   public void testFilterNavigationPropertyToManyValueAll() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "/Organizations?$select=ID&$filter=Roles/all(d:d/RoleCategory eq 'A')");
+        "Organizations?$select=ID&$filter=Roles/all(d:d/RoleCategory eq 'A')");
 
     helper.assertStatus(200);
     ArrayNode orgs = helper.getValues();
@@ -444,7 +444,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   public void testFilterNavigationPropertyToManyValueAllNoRestriction() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "/Organizations?$filter=Roles/all()");
+        "Organizations?$filter=Roles/all()");
 
     helper.assertStatus(200);
     ArrayNode orgs = helper.getValues();
@@ -456,7 +456,7 @@ public class TestJPAQueryWhereClause extends TestBase {
 //https://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398301
 //Example 43: return all Categories with less than 10 products    
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "/Organizations?$select=ID&$filter=Roles/$count eq 2");
+        "Organizations?$select=ID&$filter=Roles/$count eq 2");
 
     helper.assertStatus(200);
     ArrayNode orgs = helper.getValues();
@@ -466,7 +466,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterCountNavigationPropertyMultipleHops() throws IOException, ODataException {
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "/Organizations?$select=ID&$filter=AdministrativeInformation/Created/User/Roles/$count ge 2");
+        "Organizations?$select=ID&$filter=AdministrativeInformation/Created/User/Roles/$count ge 2");
 
     helper.assertStatus(200);
     ArrayNode orgs = helper.getValues();

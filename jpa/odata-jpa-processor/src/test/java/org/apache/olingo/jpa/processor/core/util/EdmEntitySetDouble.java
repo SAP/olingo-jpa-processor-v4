@@ -7,6 +7,7 @@ import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.edm.EdmEntityContainer;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
+import org.apache.olingo.commons.api.edm.EdmMapping;
 import org.apache.olingo.commons.api.edm.EdmNavigationPropertyBinding;
 import org.apache.olingo.commons.api.edm.EdmTerm;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
@@ -68,9 +69,9 @@ public class EdmEntitySetDouble implements EdmEntitySet {
     return false;
   }
 
-//  @Override
-//  public EdmMapping getMapping() {
-//    org.junit.Assert.fail();
-//    return null;
-//  }
+  @Override
+  public EdmMapping getMapping() {
+    org.junit.Assert.fail();
+    return null;
+  }
 }

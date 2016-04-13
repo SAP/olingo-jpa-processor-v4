@@ -116,9 +116,9 @@ public class JPANavigationFilterQuery extends JPANavigationQuery {
     UriInfoResource member = null;
     if (expression != null && expression instanceof Binary) {
       if (((Binary) expression).getLeftOperand() instanceof JPAMemberOperator)
-        member = ((JPAMemberOperator) ((Binary) expression).getLeftOperand()).getMember();
+        member = ((JPAMemberOperator) ((Binary) expression).getLeftOperand()).getMember().getResourcePath();
       else if (((Binary) expression).getRightOperand() instanceof JPAMemberOperator)
-        member = ((JPAMemberOperator) ((Binary) expression).getRightOperand()).getMember();
+        member = ((JPAMemberOperator) ((Binary) expression).getRightOperand()).getMember().getResourcePath();
     } else if (expression != null && expression instanceof JPAFilterExpression)
       member = ((JPAFilterExpression) expression).getMember();
 

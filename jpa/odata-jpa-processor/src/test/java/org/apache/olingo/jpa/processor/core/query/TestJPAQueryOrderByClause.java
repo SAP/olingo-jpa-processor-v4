@@ -113,7 +113,7 @@ public class TestJPAQueryOrderByClause extends TestBase {
   public void testOrderBy$CountDescComplexPropertyAcs() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Organizations?$orderby=Roles/$count desc, Address/Region desc");
+        "Organizations?$orderby=Roles/$count desc,Address/Region desc");
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
@@ -127,7 +127,7 @@ public class TestJPAQueryOrderByClause extends TestBase {
   public void testOrderByAndFilter() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisions/?$filter=CodeID eq 'NUTS' or CodeID eq '3166-1'&$orderby=CountryCode desc");
+        "AdministrativeDivisions?$filter=CodeID eq 'NUTS' or CodeID eq '3166-1'&$orderby=CountryCode desc");
 
     helper.assertStatus(200);
 

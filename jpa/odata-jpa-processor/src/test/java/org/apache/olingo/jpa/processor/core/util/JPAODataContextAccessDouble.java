@@ -7,13 +7,13 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.jpa.metadata.api.JPAEdmProvider;
-import org.apache.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import org.apache.olingo.jpa.processor.core.api.JPAODataDatabaseProcessor;
+import org.apache.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import org.apache.olingo.jpa.processor.core.database.JPAODataDatabaseProcessorFactory;
 import org.apache.olingo.jpa.processor.core.filter.JPAOperationConverter;
 import org.apache.olingo.server.api.debug.DebugSupport;
-import org.apache.olingo.server.api.edmx.EdmxReference;
 
 public class JPAODataContextAccessDouble implements JPAODataSessionContextAccess {
   private final JPAEdmProvider edmProvider;

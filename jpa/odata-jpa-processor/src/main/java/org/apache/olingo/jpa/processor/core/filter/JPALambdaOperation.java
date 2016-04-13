@@ -16,6 +16,7 @@ import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.UriResourceLambdaAll;
 import org.apache.olingo.server.api.uri.UriResourceLambdaAny;
 import org.apache.olingo.server.api.uri.queryoption.expression.Expression;
+import org.apache.olingo.server.api.uri.queryoption.expression.Member;
 
 abstract class JPALambdaOperation extends JPAExistsOperation {
 
@@ -24,6 +25,11 @@ abstract class JPALambdaOperation extends JPAExistsOperation {
   JPALambdaOperation(JPAFilterComplierAccess jpaComplier, UriInfoResource member) {
     super(jpaComplier);
     this.member = member;
+  }
+
+  public JPALambdaOperation(JPAFilterComplierAccess jpaComplier, Member member) {
+    super(jpaComplier);
+    this.member = member.getResourcePath();
   }
 
   @Override

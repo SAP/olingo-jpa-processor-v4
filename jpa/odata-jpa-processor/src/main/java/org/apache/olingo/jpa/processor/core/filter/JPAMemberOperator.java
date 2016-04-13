@@ -10,15 +10,15 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.processor.core.query.JPAAbstractQuery;
 import org.apache.olingo.jpa.processor.core.query.Util;
-import org.apache.olingo.server.api.uri.UriInfoResource;
+import org.apache.olingo.server.api.uri.queryoption.expression.Member;
 
 public class JPAMemberOperator implements JPAOperator {
-  private final UriInfoResource member;
+  private final Member member;
   private final JPAEntityType jpaEntityType;
   private final Root<?> root;
 
   JPAMemberOperator(final JPAEntityType jpaEntityType, final JPAAbstractQuery parent,
-      final UriInfoResource member) {
+      final Member member) {
     super();
     this.member = member;
     this.jpaEntityType = jpaEntityType;
@@ -45,7 +45,7 @@ public class JPAMemberOperator implements JPAOperator {
   }
 
   public JPAPath determineAttributePath() {
-    final String path = Util.determineProptertyNavigationPath(member.getUriResourceParts());
+    final String path = Util.determineProptertyNavigationPath(member.getResourcePath().getUriResourceParts());
     JPAPath selectItemPath = null;
     try {
       selectItemPath = jpaEntityType.getPath(path);
@@ -56,7 +56,7 @@ public class JPAMemberOperator implements JPAOperator {
     return selectItemPath;
   }
 
-  public UriInfoResource getMember() {
-    return member;
+  public Member getMember() {// UriInfoResource getMember() {
+    return member; // .getResourcePath();
   }
 }

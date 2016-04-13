@@ -1,6 +1,5 @@
 package org.apache.olingo.jpa.metadata.core.edm.mapper.impl;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -11,6 +10,7 @@ import java.util.List;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.provider.CsdlParameter;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import org.apache.olingo.jpa.processor.core.testmodel.AssertList;
 import org.apache.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,22 +50,22 @@ public class TestIntermediateFunction extends TestMappingRoot {
   @Test
   public void checkByEntityAnnotationInputParameter1() throws ODataJPAModelException {
     IntermediateFunction func = new IntermediateFunction(new JPAEdmNameBuilder(PUNIT_NAME), helper.getStoredProcedure(
-        helper.getEntityType("BusinessPartner"),
-        "CountRoles"), BusinessPartner.class, helper.schema);
+        helper.getEntityType("BusinessPartner"), "CountRoles"), BusinessPartner.class, helper.schema);
+
     List<CsdlParameter> expInput = new ArrayList<CsdlParameter>();
     CsdlParameter param = new CsdlParameter();
     param.setName("Amount");
     param.setType(EdmPrimitiveTypeKind.Int32.getFullQualifiedName());
     param.setNullable(false);
     expInput.add(param);
-    assertArrayEquals(expInput.toArray(), func.getEdmItem().getParameters().toArray());
+    AssertList.assertEquals(expInput, func.getEdmItem().getParameters());
   }
 
   @Test
   public void checkByEntityAnnotationInputParameter2() throws ODataJPAModelException {
     IntermediateFunction func = new IntermediateFunction(new JPAEdmNameBuilder(PUNIT_NAME), helper.getStoredProcedure(
-        helper.getEntityType("BusinessPartner"),
-        "IsPrime"), BusinessPartner.class, helper.schema);
+        helper.getEntityType("BusinessPartner"), "IsPrime"), BusinessPartner.class, helper.schema);
+
     List<CsdlParameter> expInput = new ArrayList<CsdlParameter>();
     CsdlParameter param = new CsdlParameter();
     param.setName("Number");
@@ -74,7 +74,7 @@ public class TestIntermediateFunction extends TestMappingRoot {
     param.setPrecision(32);
     param.setScale(0);
     expInput.add(param);
-    assertEquals(expInput, func.getEdmItem().getParameters());
+    AssertList.assertEquals(expInput, func.getEdmItem().getParameters());
   }
 
   @Test

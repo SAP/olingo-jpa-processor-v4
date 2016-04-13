@@ -19,9 +19,9 @@ import org.apache.olingo.commons.api.edm.EdmTerm;
 import org.apache.olingo.commons.api.edm.EdmTypeDefinition;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.constants.ODataServiceVersion;
+import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
 import org.apache.olingo.server.api.ServiceMetadata;
-import org.apache.olingo.server.api.edmx.EdmxReference;
 import org.apache.olingo.server.api.etag.ServiceMetadataETagSupport;
 
 public class ServiceMetadataDouble implements ServiceMetadata {
@@ -170,4 +170,5 @@ public class ServiceMetadataDouble implements ServiceMetadata {
     }
 
   }
+
 }

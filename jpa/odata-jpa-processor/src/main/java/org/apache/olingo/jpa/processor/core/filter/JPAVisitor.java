@@ -15,6 +15,7 @@ import org.apache.olingo.server.api.uri.queryoption.expression.BinaryOperatorKin
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitException;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitor;
 import org.apache.olingo.server.api.uri.queryoption.expression.Literal;
+import org.apache.olingo.server.api.uri.queryoption.expression.Member;
 import org.apache.olingo.server.api.uri.queryoption.expression.MethodKind;
 import org.apache.olingo.server.api.uri.queryoption.expression.UnaryOperatorKind;
 
@@ -63,7 +64,8 @@ class JPAVisitor implements ExpressionVisitor<JPAOperator> {
 
   boolean hasNavigation(final JPAOperator operand) {
     if (operand instanceof JPAMemberOperator) {
-      final List<UriResource> uriResourceParts = ((JPAMemberOperator) operand).getMember().getUriResourceParts();
+      final List<UriResource> uriResourceParts = ((JPAMemberOperator) operand).getMember().getResourcePath()
+          .getUriResourceParts();
       for (int i = uriResourceParts.size() - 1; i >= 0; i--) {
         if (uriResourceParts.get(i) instanceof UriResourceNavigation)
           return true;
@@ -105,17 +107,14 @@ class JPAVisitor implements ExpressionVisitor<JPAOperator> {
   }
 
   @Override
-  public JPAOperator visitMember(final UriInfoResource member) throws ExpressionVisitException,
-      ODataApplicationException {
-
-//  public JPAOperator visitMember(Member member) throws ExpressionVisitException, ODataApplicationException {
+  public JPAOperator visitMember(Member member) throws ExpressionVisitException, ODataApplicationException {
 
     // TODO Logging
-    if (getLambdaType(member) == UriResourceKind.lambdaAny)
+    if (getLambdaType(member.getResourcePath()) == UriResourceKind.lambdaAny)
       return new JPALambdaAnyOperation(this.jpaComplier, member);
-    else if (getLambdaType(member) == UriResourceKind.lambdaAll)
+    else if (getLambdaType(member.getResourcePath()) == UriResourceKind.lambdaAll)
       return new JPALambdaAllOperation(this.jpaComplier, member);
-    else if (isAggregation(member)) {
+    else if (isAggregation(member.getResourcePath())) {
       return new JPAAggregationOperation(jpaComplier.getParent().getRoot(), jpaComplier.getConverter());
     }
     return new JPAMemberOperator(this.jpaComplier.getJpaEntityType(), this.jpaComplier.getParent(), member);
