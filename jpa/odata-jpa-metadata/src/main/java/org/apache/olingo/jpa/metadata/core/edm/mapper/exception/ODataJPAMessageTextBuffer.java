@@ -13,7 +13,6 @@ public class ODataJPAMessageTextBuffer implements ODataJPAMessageBufferRead {
   private String bundleName;
   private ResourceBundle bundle;
   private Locale locale = DEFAULT_LOCALE;
-  private Enumeration<Locale> locales;
 
   public ODataJPAMessageTextBuffer(String bundleName) {
     super();
