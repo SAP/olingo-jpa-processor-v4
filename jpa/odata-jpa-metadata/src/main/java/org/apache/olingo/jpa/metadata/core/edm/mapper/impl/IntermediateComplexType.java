@@ -42,6 +42,7 @@ class IntermediateComplexType extends IntermediateStructuredType {
   protected void lazyBuildEdmItem() throws ODataJPAModelException {
     if (edmComplexType == null) {
       buildPropertyList();
+      buildNaviPropertyList();
       edmComplexType = new CsdlComplexType();
 
       edmComplexType.setName(this.getExternalName());
@@ -57,7 +58,7 @@ class IntermediateComplexType extends IntermediateStructuredType {
   }
 
   @Override
-      CsdlComplexType getEdmItem() throws ODataJPAModelException {
+  CsdlComplexType getEdmItem() throws ODataJPAModelException {
     lazyBuildEdmItem();
     return edmComplexType;
   }

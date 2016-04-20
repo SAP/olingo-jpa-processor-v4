@@ -34,12 +34,12 @@ import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;;
     @EdmFunction(
         name = "CountRoles",
         functionName = "COUNT_ROLES",
-        returnType = @EdmFunction.ReturnType(isCollection = true) ,
+        returnType = @EdmFunction.ReturnType(isCollection = true),
         parameter = { @EdmFunctionParameter(name = "Amount", parameterName = "a", type = Integer.class) }),
     @EdmFunction(
         name = "IsPrime",
         functionName = "IS_PRIME",
-        returnType = @ReturnType(type = Boolean.class, isNullable = false) ,
+        returnType = @ReturnType(type = Boolean.class, isNullable = false),
         parameter = { @EdmFunctionParameter(name = "Number", type = BigDecimal.class, precision = 32, scale = 0) }),
 
 })
@@ -86,7 +86,7 @@ public abstract class BusinessPartner {
   @Embedded
   @AssociationOverrides({
       @AssociationOverride(name = "countryName",
-          joinColumns = @JoinColumn(referencedColumnName = "\"Address.Country\"", name = "\"ISOCode\"") ),
+          joinColumns = @JoinColumn(referencedColumnName = "\"Address.Country\"", name = "\"ISOCode\"")),
       @AssociationOverride(name = "regionName",
           joinColumns = {
               @JoinColumn(referencedColumnName = "\"Address.RegionCodePublisher\"", name = "\"CodePublisher\""),
@@ -98,7 +98,7 @@ public abstract class BusinessPartner {
   @Embedded
   private AdministrativeInformation administrativeInformation = new AdministrativeInformation();
 
-  @OneToMany(mappedBy = "businessPartner", fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "businessPartner", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
   private Collection<BusinessPartnerRole> roles;
 
   public void setID(String iD) {

@@ -52,6 +52,7 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
     this.resolvedAssociationPathMap = new HashMap<String, JPAAssociationPathImpl>();
     this.jpaManagedType = jpaManagedType;
     this.schema = schema;
+
   }
 
   @Override
@@ -125,21 +126,6 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
 
     if (resolvedAssociationPathMap.containsKey(associationPath.getAlias()))
       return resolvedAssociationPathMap.get(associationPath.getAlias());
-//    boolean found = false;
-//    StringBuffer pathName = new StringBuffer();
-//    for (final JPAElement jpaElement : associationPath.getPath()) {
-//      if (found) {
-//        pathName.append(jpaElement.getExternalName());
-//        pathName.append(JPAPath.PATH_SEPERATOR);
-//      }
-//      if (jpaElement.getExternalFQN().getFullQualifiedNameAsString().equals(getExternalFQN()
-//          .getFullQualifiedNameAsString()))
-//        found = true;
-//    }
-//    if (found) {
-//      pathName.deleteCharAt(pathName.length() - 1);
-//      return resolvedAssociationPathMap.get(pathName.toString());
-//    }
     final IntermediateStructuredType baseType = getBaseType();
     if (baseType != null)
       return baseType.getDeclaredAssociation(associationPath);
@@ -190,6 +176,27 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
           final IntermediateProperty property = new IntermediateProperty(nameBuilder, jpaAttribute, schema);
           declaredPropertiesList.put(property.internalName, property);
         }
+        break;
+      case ONE_TO_MANY:
+      case ONE_TO_ONE:
+      case MANY_TO_MANY:
+      case MANY_TO_ONE:
+        break;
+      default:
+        throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.NOT_SUPPORTED_ATTRIBUTE_TYPE,
+            attributeType.name());
+      }
+    }
+  }
+
+  protected void buildNaviPropertyList() throws ODataJPAModelException {
+
+    for (final Attribute<?, ?> jpaAttribute : jpaManagedType.getDeclaredAttributes()) {
+      final PersistentAttributeType attributeType = jpaAttribute.getPersistentAttributeType();
+
+      switch (attributeType) {
+      case BASIC:
+      case EMBEDDED:
         break;
       case ONE_TO_MANY:
       case ONE_TO_ONE:
@@ -255,13 +262,25 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
    * @return
    * @throws ODataJPAModelException
    */
-  JPAPath getAttributeByDBField(final String dbFieldName) throws ODataJPAModelException {
+  JPAPath getAttributePathByDBField(final String dbFieldName) throws ODataJPAModelException {
     lazyBuildCompletePathMap();
     for (final String internalName : resolvedPathMap.keySet()) {
       final JPAPath property = resolvedPathMap.get(internalName);
       if (property.getDBFieldName().equals(dbFieldName))
         return property;
     }
+    return null;
+  }
+
+  IntermediateProperty getAttributByDBField(final String dbFieldName) throws ODataJPAModelException {
+    buildPropertyList();
+    for (final String internalName : declaredPropertiesList.keySet()) {
+      IntermediateProperty property = declaredPropertiesList.get(internalName);
+      if (property.getDBFieldName().equals(dbFieldName))
+        return property;
+    }
+    if (getBaseType() != null)
+      return getBaseType().getAttributByDBField(dbFieldName);
     return null;
   }
 

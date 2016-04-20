@@ -18,7 +18,6 @@ public class JPALambdaAllOperation extends JPALambdaOperation {
   }
 
   public Subquery<?> getNotExistsQuery() throws ODataApplicationException {
-    // TODO Auto-generated method stub
     return getSubQuery(new NotExpression(determineExpression()));
   }
 

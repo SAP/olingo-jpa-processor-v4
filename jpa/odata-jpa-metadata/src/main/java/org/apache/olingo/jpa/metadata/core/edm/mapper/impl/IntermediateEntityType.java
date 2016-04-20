@@ -41,6 +41,7 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
     if (jpaIgnore != null) {
       this.setIgnore(true);
     }
+    // buildPropertyList();
   }
 
   @Override
@@ -147,6 +148,7 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
     if (edmEntityType == null) {
       // TODO store @Version to fill ETag Header
       buildPropertyList();
+      buildNaviPropertyList();
       edmEntityType = new CsdlEntityType();
       edmEntityType.setName(getExternalName());
       edmEntityType.setProperties((List<CsdlProperty>) extractEdmModelElements(declaredPropertiesList));

@@ -4,15 +4,22 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.List;
+
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.EmbeddableType;
 import javax.persistence.metamodel.EntityType;
 
+import org.apache.olingo.commons.api.edm.provider.CsdlOnDelete;
+import org.apache.olingo.commons.api.edm.provider.CsdlOnDeleteAction;
+import org.apache.olingo.commons.api.edm.provider.CsdlReferentialConstraint;
 import org.apache.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
+import org.apache.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import org.apache.olingo.jpa.processor.core.testmodel.BusinessPartner;
+import org.apache.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -77,6 +84,15 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
         schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
 
     assertTrue(property.getEdmItem().isNullable());
+  }
+
+  @Test
+  public void checkGetPropertyOnDelete() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("BusinessPartner"), "roles");
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+        schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
+
+    assertEquals(CsdlOnDeleteAction.Cascade, property.getEdmItem().getOnDelete().getAction());
   }
 
   @Ignore // How to express in a 1 : n relationship?
@@ -194,6 +210,7 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
     assertEquals(1, property.getJoinColumns().size());
   }
 
+  @Ignore
   @Test
   public void checkGetJoinColumnsSize2() throws ODataJPAModelException {
     EmbeddableType<?> et = helper.getEmbeddedableType("PostalAddressData");
@@ -201,6 +218,41 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
     IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
         schema.getEntityType(helper.getEntityType("BusinessPartner").getJavaType()), jpaAttribute, schema);
     assertEquals(3, property.getJoinColumns().size());
+  }
+
+  @Test
+  public void checkGetReferentialConstraintSize() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("BusinessPartner"), "roles");
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+        schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
+    assertEquals(1, property.getProperty().getReferentialConstraints().size());
+  }
+
+  @Test
+  public void checkGetReferentialConstraintBuPaRole() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("BusinessPartner"), "roles");
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+        schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
+    List<CsdlReferentialConstraint> constraints = property.getProperty().getReferentialConstraints();
+
+    for (CsdlReferentialConstraint c : constraints) {
+      assertEquals("ID", c.getProperty());
+      assertEquals("BusinessPartnerID", c.getReferencedProperty());
+    }
+  }
+
+  @Test
+  public void checkGetReferentialConstraintRoleBuPa() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("BusinessPartnerRole"),
+        "businessPartner");
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+        schema.getEntityType(BusinessPartnerRole.class), jpaAttribute, schema);
+    List<CsdlReferentialConstraint> constraints = property.getProperty().getReferentialConstraints();
+
+    for (CsdlReferentialConstraint c : constraints) {
+      assertEquals("BusinessPartnerID", c.getProperty());
+      assertEquals("ID", c.getReferencedProperty());
+    }
   }
 
   @Test
@@ -241,6 +293,19 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
     assertEquals("Wrong name", "RoleAssignment", property.getExternalName());
   }
 
+  @Test
+  public void checkPostProcessorSetOnDelete() throws ODataJPAModelException {
+    PostProcessorOneDelete pPDouble = new PostProcessorOneDelete();
+    IntermediateModelElement.setPostProcessor(pPDouble);
+
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("AdministrativeDivision"),
+        "children");
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+        schema.getEntityType(AdministrativeDivision.class), jpaAttribute, schema);
+
+    assertEquals(CsdlOnDeleteAction.None, property.getProperty().getOnDelete().getAction());
+  }
+
   private class PostProcessorSpy extends JPAEdmMetadataPostProcessor {
     boolean called = false;
 
@@ -265,6 +330,25 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
           BUPA_CANONICAL_NAME)) {
         if (property.getInternalName().equals("roles")) {
           property.setExternalName("RoleAssignment");
+        }
+      }
+    }
+
+    @Override
+    public void processProperty(IntermediatePropertyAccess property, String jpaManagedTypeClassName) {
+
+    }
+  }
+
+  private class PostProcessorOneDelete extends JPAEdmMetadataPostProcessor {
+    @Override
+    public void processNavigationProperty(IntermediateNavigationPropertyAccess property,
+        String jpaManagedTypeClassName) {
+      if (jpaManagedTypeClassName.equals(ADMIN_CANONICAL_NAME)) {
+        if (property.getInternalName().equals("children")) {
+          CsdlOnDelete oD = new CsdlOnDelete();
+          oD.setAction(CsdlOnDeleteAction.None);
+          property.setOnDelete(oD);
         }
       }
     }

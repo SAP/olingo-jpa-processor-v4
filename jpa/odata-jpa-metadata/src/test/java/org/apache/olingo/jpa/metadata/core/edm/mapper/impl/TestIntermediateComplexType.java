@@ -72,7 +72,7 @@ public class TestIntermediateComplexType extends TestMappingRoot {
 
     IntermediateComplexType ct = new IntermediateComplexType(new JPAEdmNameBuilder(PUNIT_NAME), getEmbeddedableType(
         "PostalAddressData"), schema);
-    // TODO nullable not jet in $metadata: problem of Olingo?
+    // In case nullable = true, nullable is not past to $metadata, as this is the default
     assertTrue(ct.getEdmItem().getProperty("POBox").isNullable());
   }
 

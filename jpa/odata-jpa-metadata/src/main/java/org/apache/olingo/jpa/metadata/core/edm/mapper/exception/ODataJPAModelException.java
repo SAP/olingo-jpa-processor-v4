@@ -14,14 +14,14 @@ public class ODataJPAModelException extends ODataJPAException {
     INVALID_ENTITY_TYPE,
     INVALID_COMPLEX_TYPE,
     INVALID_ASSOCIATION,
-    INVALID_ENTITYSET,
-    INVALID_ENTITYCONTAINER,
+    INVALID_ENTITY_SET,
+    INVALID_ENTITY_CONTAINER,
     INVALID_ASSOCIATION_SET,
     INVALID_FUNC_IMPORT,
 
     BUILDER_NULL,
     TYPE_NOT_SUPPORTED,
-    FUNC_ENTITYSET_EXP,
+    FUNC_ENTITY_SET_EXP,
     FUNC_RETURN_TYPE_EXP,
     FUNC_RETURN_TYPE_ENTITY_NOT_FOUND,
     GENERAL,
@@ -35,7 +35,10 @@ public class ODataJPAModelException extends ODataJPAException {
     NOT_SUPPORTED_EMBEDDED_KEY,
     NOT_SUPPORTED_ATTRIBUTE_TYPE,
     NOT_SUPPORTED_NO_IMPLICIT_COLUMNS,
-    DESCRIPTION_LOCALE_FIELD_MISSING;
+    DESCRIPTION_LOCALE_FIELD_MISSING,
+
+    PROPERTY_DEFAULT_ERROR,
+    REFERENCED_PROPERTY_NOT_FOUND;
 
     @Override
     public String getKey() {
@@ -50,7 +53,7 @@ public class ODataJPAModelException extends ODataJPAException {
     super(e);
   }
 
-  public ODataJPAModelException(MessageKeys messageKey, Throwable e, String[] params) {
+  public ODataJPAModelException(MessageKeys messageKey, Throwable e, String... params) {
     super(messageKey.name(), e, params);
   }
 

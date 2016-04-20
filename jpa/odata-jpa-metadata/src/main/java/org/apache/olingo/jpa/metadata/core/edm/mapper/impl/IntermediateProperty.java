@@ -13,7 +13,9 @@ import javax.persistence.metamodel.Attribute.PersistentAttributeType;
 import javax.persistence.metamodel.SingularAttribute;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
+import org.apache.olingo.commons.api.edm.geo.SRID;
 import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
+import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmGeospatial;
 import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmSearchable;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
@@ -22,10 +24,9 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExc
 import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
 
 /**
- * A Property contains on the one hand of the attributes Name and Type and on the other hand of the Property Facets. A
- * type is either a
- * primitive type, a complex type or a enumeration type. Primitive types are mapped by
- * {@link org.apache.olingo.odata4.jpa.processor.core.edm.mapper.impl.JPATypeConvertor}.
+ * A Property is described on the one hand by its Name and Type and on the other hand by its Property Facets. The
+ * type is a qualified name of either a primitive type, a complex type or a enumeration type. Primitive types are mapped
+ * by {@link JPATypeConvertor}.
  * 
  * <p>For details about Property metadata see:
  * <a href=
@@ -37,6 +38,8 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateProp
  *
  */
 class IntermediateProperty extends IntermediateModelElement implements IntermediatePropertyAccess, JPAAttribute {
+  private static final String DB_FIELD_NAME_PATTERN = "\"&1\"";
+
   protected final Attribute<?, ?> jpaAttribute;
   protected final IntermediateSchema schema;
   protected CsdlProperty edmProperty;
@@ -63,7 +66,6 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
 
   @Override
   public JPAStructuredType getStructuredType() {
-
     return type == null ? null : type;
   }
 
@@ -102,7 +104,7 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
         final Column jpaColumn = ((AnnotatedElement) jpaAttribute.getJavaMember()).getAnnotation(Column.class);
         if (jpaColumn != null) {
           edmProperty.setNullable(jpaColumn.nullable());
-          // TODO Attribute SRID
+          edmProperty.setSrid(getSRID());
           edmProperty.setDefaultValue(getDeafultValue());
           // TODO Attribute Unicode
           if (edmProperty.getTypeAsFQNObject().equals(EdmPrimitiveTypeKind.String.getFullQualifiedName()) || edmProperty
@@ -129,7 +131,24 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
     }
   }
 
-  private String getDeafultValue() {
+  private SRID getSRID() {
+    SRID result = null;
+    if (jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
+      final AnnotatedElement annotatedElement = (AnnotatedElement) jpaAttribute.getJavaMember();
+      EdmGeospatial spatialDetails = annotatedElement.getAnnotation(EdmGeospatial.class);
+      if (spatialDetails != null) {
+        int srid = spatialDetails.srid();
+        if (srid < 0)
+          result = SRID.valueOf(null);
+        else
+          result = SRID.valueOf(Integer.toString(srid));
+        result.setDimension(spatialDetails.dimension());
+      }
+    }
+    return result;
+  }
+
+  private String getDeafultValue() throws ODataJPAModelException {
     String valueString = null;
     if (jpaAttribute.getJavaMember() instanceof Field
         && jpaAttribute.getPersistentAttributeType() == PersistentAttributeType.BASIC) {
@@ -139,21 +158,25 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
         final Field field = (Field) jpaAttribute.getJavaMember();
         final Constructor<?> constructor = jpaAttribute.getDeclaringType().getJavaType().getConstructor();
         final Object pojo = constructor.newInstance();
-        // TODO check replacement by calling getter!!
         field.setAccessible(true);
         final Object value = field.get(pojo);
         if (value != null)
           valueString = value.toString();
       } catch (NoSuchMethodException e) {
-
+        throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.PROPERTY_DEFAULT_ERROR, e, jpaAttribute
+            .getName());
       } catch (InstantiationException e) {
-
+        // Class could not be instantiated e.g. abstract class like Business Partner=> default could not be determined
+        // and will be ignored
       } catch (IllegalAccessException e) {
-
+        throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.PROPERTY_DEFAULT_ERROR, e, jpaAttribute
+            .getName());
       } catch (IllegalArgumentException e) {
-
+        throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.PROPERTY_DEFAULT_ERROR, e, jpaAttribute
+            .getName());
       } catch (InvocationTargetException e) {
-
+        throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.PROPERTY_DEFAULT_ERROR, e, jpaAttribute
+            .getName());
       }
     }
     return valueString;
@@ -191,9 +214,14 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
       }
       final Column jpaColunnDetails = ((AnnotatedElement) this.jpaAttribute.getJavaMember()).getAnnotation(
           Column.class);
-      if (jpaColunnDetails != null)
+      if (jpaColunnDetails != null) {
         dbFieldName = jpaColunnDetails.name();
-      else
+        if (dbFieldName.isEmpty()) {
+          StringBuffer s = new StringBuffer(DB_FIELD_NAME_PATTERN);
+          s.replace(1, 3, internalName);
+          dbFieldName = s.toString();
+        }
+      } else
         dbFieldName = internalName;
       // TODO @Transient -> e.g. Calculated fields like formated name
       final EdmSearchable jpaSearchable = ((AnnotatedElement) this.jpaAttribute.getJavaMember()).getAnnotation(

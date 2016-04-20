@@ -16,7 +16,7 @@ public class ChangeInformation {
   private Timestamp at;
 
   @ManyToOne
-  @JoinColumn(name = "by", referencedColumnName = "\"ID\"", insertable = false, updatable = false)
+  @JoinColumn(name = "\"by\"", referencedColumnName = "\"ID\"", insertable = false, updatable = false)
   Person user;
 
   public ChangeInformation() {}

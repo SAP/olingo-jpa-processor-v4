@@ -256,6 +256,7 @@ public class TestJPAQueryWhereClause extends TestBase {
 //    }
   }
 
+  @Ignore
   @Test
   public void testFilterNow() throws IOException, ODataException {
 

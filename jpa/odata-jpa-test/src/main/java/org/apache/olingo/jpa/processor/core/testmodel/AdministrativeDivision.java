@@ -24,7 +24,7 @@ import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
         name = "Siblings",
         functionName = "\"OLINGO\".\"org.apache.olingo.jpa::Siblings\"",
         isBound = false,
-        returnType = @EdmFunction.ReturnType(isCollection = true) ,
+        returnType = @EdmFunction.ReturnType(isCollection = true),
         parameter = {
             @EdmFunctionParameter(name = "CodePublisher", parameterName = "\"CodePublisher\"",
                 type = String.class, maxLength = 10),
@@ -61,7 +61,7 @@ public class AdministrativeDivision {
   @Column(name = "\"Population\"", precision = 34, scale = 0)
   private long population;
 
-  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, optional = true)
+  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST, optional = true)
   @JoinColumns({
       @JoinColumn(referencedColumnName = "\"CodePublisher\"", name = "\"CodePublisher\"", nullable = false,
           insertable = false, updatable = false),

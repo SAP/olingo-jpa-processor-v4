@@ -36,7 +36,7 @@ public @interface EdmFunction {
     int precision() default -1;
 
     int scale() default -1;
-    // TODO SRID
+    // TODO SRID (4- bis 5-stelliger Schlüsselnummern)
     // SRID srid();
 
     /**

@@ -14,6 +14,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExc
 import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class TestIntermediateProperty extends TestMappingRoot {
@@ -191,6 +192,12 @@ public class TestIntermediateProperty extends TestMappingRoot {
     IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
         helper.schema);
     assertEquals("ISO", property.getEdmItem().getDefaultValue());
+  }
+
+  @Ignore
+  @Test
+  public void checkGetSRID() {
+    // Test for spatial data missing
   }
 
   private class PostProcessorSpy extends JPAEdmMetadataPostProcessor {
