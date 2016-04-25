@@ -14,6 +14,7 @@
 		<class>org.apache.olingo.jpa.processor.core.testmodel.DateConverter</class>
 		<class>org.apache.olingo.jpa.processor.core.testmodel.AdministrativeDivision</class>
 		<class>org.apache.olingo.jpa.processor.core.testmodel.DummyToBeIgnored</class>
+		<class>org.apache.olingo.jpa.processor.core.testmodel.BusinessPartnerImage</class>
 		<properties>
 			<property name="eclipselink.logging.level.sql" value="FINEST" />
 			<!-- <property name="eclipselink.logging.level" value="FINER"/> -->

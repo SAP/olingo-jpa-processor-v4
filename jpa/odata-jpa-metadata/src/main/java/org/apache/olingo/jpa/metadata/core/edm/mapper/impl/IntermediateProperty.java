@@ -17,6 +17,7 @@ import org.apache.olingo.commons.api.edm.geo.SRID;
 import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmGeospatial;
 import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
+import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmMediaStream;
 import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmSearchable;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
@@ -48,6 +49,7 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
   private AttributeConverter<?, ?> valueConverter;
   private String dbFieldName;
   private boolean searchable = false;
+  private EdmMediaStream streamInfo = null;
 
   IntermediateProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,
       final IntermediateSchema schema) throws ODataJPAModelException {
@@ -85,6 +87,10 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
       return ((SingularAttribute<?, ?>) jpaAttribute).isId();
     else
       return false;
+  }
+
+  boolean isStream() {
+    return streamInfo == null ? false : streamInfo.stream();
   }
 
   @Override
@@ -228,6 +234,8 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
           EdmSearchable.class);
       if (jpaSearchable != null)
         searchable = true;
+
+      streamInfo = ((AnnotatedElement) jpaAttribute.getJavaMember()).getAnnotation(EdmMediaStream.class);
     }
     postProcessor.processProperty(this, jpaAttribute.getDeclaringType().getJavaType()
         .getCanonicalName());

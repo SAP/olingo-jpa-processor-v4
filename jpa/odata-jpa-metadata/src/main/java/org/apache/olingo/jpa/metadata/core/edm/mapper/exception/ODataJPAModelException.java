@@ -38,7 +38,9 @@ public class ODataJPAModelException extends ODataJPAException {
     DESCRIPTION_LOCALE_FIELD_MISSING,
 
     PROPERTY_DEFAULT_ERROR,
-    REFERENCED_PROPERTY_NOT_FOUND;
+    REFERENCED_PROPERTY_NOT_FOUND,
+    INHERITANCE_NOT_ALLOWED,
+    TO_MANY_STREAMS;
 
     @Override
     public String getKey() {

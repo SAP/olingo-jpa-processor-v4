@@ -47,7 +47,6 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
     this.declaredPropertiesList = new HashMap<String, IntermediateProperty>();
     this.resolvedPathMap = new HashMap<String, JPAPathImpl>();
     this.intermediatePathMap = new HashMap<String, JPAPathImpl>();
-    // TODO fill early NavigationPropertyList w/o getting edmtype
     this.declaredNaviPropertiesList = new HashMap<String, IntermediateNavigationProperty>();
     this.resolvedAssociationPathMap = new HashMap<String, JPAAssociationPathImpl>();
     this.jpaManagedType = jpaManagedType;
@@ -228,7 +227,14 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
   protected FullQualifiedName determineBaseType() throws ODataJPAModelException {
 
     final IntermediateStructuredType baseEntity = getBaseType();
+    if (baseEntity != null && !baseEntity.isAbstract() && isAbstract())
+      throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.INHERITANCE_NOT_ALLOWED,
+          this.internalName, baseEntity.internalName);
     return baseEntity != null ? nameBuilder.buildFQN(baseEntity.getExternalName()) : null;
+  }
+
+  protected boolean isAbstract() {
+    return false;
   }
 
   protected IntermediateStructuredType getBaseType() throws ODataJPAModelException {
@@ -482,5 +488,28 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
     }
     // }
 
+  }
+
+  protected boolean determineHasStream() throws ODataJPAModelException {
+    int count = 0;
+    boolean result = false;
+    for (String internalName : declaredPropertiesList.keySet()) {
+      if (declaredPropertiesList.get(internalName).isStream()) {
+        count += 1;
+        result = true;
+      }
+    }
+    if (this.getBaseType() != null) {
+      boolean superResult = getBaseType().determineHasStream();
+      if (superResult) {
+        count += 1;
+        result = true;
+      }
+    }
+    if (count > 1)
+      // Only one stream property per entity is allowed. For %1$s %2$s have been found
+      throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.TO_MANY_STREAMS, internalName, Integer
+          .toString(count));
+    return result;
   }
 }

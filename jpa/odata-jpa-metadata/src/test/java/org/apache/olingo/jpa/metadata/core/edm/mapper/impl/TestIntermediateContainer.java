@@ -39,7 +39,7 @@ public class TestIntermediateContainer extends TestMappingRoot {
   public void checkGetNoEntitySets() throws ODataJPAModelException {
 
     IntermediateEntityContainer container = new IntermediateEntityContainer(new JPAEdmNameBuilder(PUNIT_NAME), schemas);
-    assertEquals(7, container.getEdmItem().getEntitySets().size());
+    assertEquals(8, container.getEdmItem().getEntitySets().size());
   }
 
   @Test

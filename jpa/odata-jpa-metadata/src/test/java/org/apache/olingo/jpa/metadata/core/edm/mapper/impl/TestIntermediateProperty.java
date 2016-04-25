@@ -194,6 +194,15 @@ public class TestIntermediateProperty extends TestMappingRoot {
     assertEquals("ISO", property.getEdmItem().getDefaultValue());
   }
 
+  @Test
+  public void checkGetPropertyIsStream() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType("BusinessPartnerImage"),
+        "image");
+    IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
+        helper.schema);
+    assertTrue(property.isStream());
+  }
+
   @Ignore
   @Test
   public void checkGetSRID() {

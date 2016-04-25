@@ -46,6 +46,16 @@ insert into "org.apache.olingo.jpa::BusinessPartner" values ('10', 0, 2, '','',n
 insert into "org.apache.olingo.jpa::BusinessPartner" values ('99', 0, 1, '','',null,null,'Max','Mustermann',null,'Test Starße', '12','', 'Teststadt','10115','ISO', '3166-2','DE-BE', 'DEU', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU'); 
 insert into "org.apache.olingo.jpa::BusinessPartner" values ('98', 0, 1, '','',null,null,'John','Doe','2000-02-29','Test Road', '55','', 'Test City','76321','ISO', '3166-2','US-TX', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU'); 
 
+CREATE TABLE "org.apache.olingo.jpa::BusinessPartnerImage" (
+	"ID" NVARCHAR(32) NOT NULL ,
+	"Image" BLOB,
+	"CreatedBy" NVARCHAR(32) NOT NULL ,
+	"CreatedAt" TIMESTAMP,   
+	"UpdatedBy" NVARCHAR(32) NOT NULL ,
+	"UpdatedAt" TIMESTAMP,
+	 PRIMARY KEY ("ID"));	
+insert into "org.apache.olingo.jpa::BusinessPartnerImage" values ('99','','99','2016-01-20 09:21:23', '', null); 	
+
 CREATE TABLE "org.apache.olingo.jpa::BusinessPartnerRole" ( 
 	"BusinessPartnerID" NVARCHAR(32) NOT NULL ,
 	"BusinessPartnerRole" NVARCHAR(10) NOT NULL, 

@@ -17,11 +17,12 @@ import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.processor.ComplexProcessor;
 import org.apache.olingo.server.api.processor.CountEntityCollectionProcessor;
 import org.apache.olingo.server.api.processor.EntityProcessor;
+import org.apache.olingo.server.api.processor.MediaEntityProcessor;
 import org.apache.olingo.server.api.processor.PrimitiveValueProcessor;
 import org.apache.olingo.server.api.uri.UriInfo;
 
 public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
-    ComplexProcessor, CountEntityCollectionProcessor, EntityProcessor {
+    ComplexProcessor, CountEntityCollectionProcessor, EntityProcessor, MediaEntityProcessor {
   private final EntityManager em;
   private final JPAODataSessionContextAccess context;
   private JPAProcessorFactory factory;
@@ -47,7 +48,15 @@ public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
   @Override
   public void createEntity(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo,
       final ContentType requestFormat, final ContentType responseFormat) throws ODataApplicationException,
-          ODataLibraryException {
+      ODataLibraryException {
+
+    throw new ODataApplicationException("Create not implemented",
+        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+  }
+
+  @Override
+  public void createMediaEntity(ODataRequest request, ODataResponse response, UriInfo uriInfo,
+      ContentType requestFormat, ContentType responseFormat) throws ODataApplicationException, ODataLibraryException {
 
     throw new ODataApplicationException("Create not implemented",
         HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
@@ -85,6 +94,14 @@ public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
   }
 
   @Override
+  public void deleteMediaEntity(ODataRequest request, ODataResponse response, UriInfo uriInfo)
+      throws ODataApplicationException, ODataLibraryException {
+
+    throw new ODataApplicationException("Delete not implemented",
+        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+  }
+
+  @Override
   public void readComplex(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo,
       final ContentType responseFormat) throws ODataApplicationException, ODataLibraryException {
 
@@ -111,7 +128,7 @@ public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
   @Override
   public void readPrimitive(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo,
       final ContentType responseFormat)
-          throws ODataApplicationException, ODataLibraryException {
+      throws ODataApplicationException, ODataLibraryException {
 
     final JPARequestProcessor p = factory.createProcessor(em, uriInfo, responseFormat);
     p.retrieveData(request, response, responseFormat);
@@ -126,9 +143,16 @@ public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
   }
 
   @Override
+  public void readMediaEntity(ODataRequest request, ODataResponse response, UriInfo uriInfo, ContentType responseFormat)
+      throws ODataApplicationException, ODataLibraryException {
+    throw new ODataApplicationException("Read Media Entity not implemented",
+        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+  }
+
+  @Override
   public void updateComplex(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo,
       final ContentType requestFormat, final ContentType responseFormat) throws ODataApplicationException,
-          ODataLibraryException {
+      ODataLibraryException {
 
     throw new ODataApplicationException("Update not implemented",
         HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
@@ -137,7 +161,7 @@ public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
   @Override
   public void updateEntity(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo,
       final ContentType requestFormat, final ContentType responseFormat) throws ODataApplicationException,
-          ODataLibraryException {
+      ODataLibraryException {
     throw new ODataApplicationException("Update not implemented",
         HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
   }
@@ -145,7 +169,7 @@ public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
   @Override
   public void updatePrimitive(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo,
       final ContentType requestFormat, final ContentType responseFormat) throws ODataApplicationException,
-          ODataLibraryException {
+      ODataLibraryException {
 
     throw new ODataApplicationException("Update not implemented",
         HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
@@ -154,9 +178,17 @@ public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
   @Override
   public void updatePrimitiveValue(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo,
       final ContentType requestFormat, final ContentType responseFormat) throws ODataApplicationException,
-          ODataLibraryException {
+      ODataLibraryException {
 
     throw new ODataApplicationException("Update not implemented",
         HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
   }
+
+  @Override
+  public void updateMediaEntity(ODataRequest request, ODataResponse response, UriInfo uriInfo,
+      ContentType requestFormat, ContentType responseFormat) throws ODataApplicationException, ODataLibraryException {
+    throw new ODataApplicationException("Update not implemented",
+        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+  }
+
 }

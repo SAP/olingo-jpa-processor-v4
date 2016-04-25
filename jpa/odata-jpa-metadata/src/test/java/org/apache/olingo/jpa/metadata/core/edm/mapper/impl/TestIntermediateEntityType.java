@@ -13,6 +13,7 @@ import javax.persistence.metamodel.EntityType;
 import org.apache.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
@@ -262,16 +263,37 @@ public class TestIntermediateEntityType extends TestMappingRoot {
 
   @Test
   public void checkEmbeddedIdResovedPath() throws ODataJPAModelException {
-    IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+    JPAStructuredType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
         "AdministrativeDivisionDescription"), schema);
     assertEquals(5, et.getPathList().size());
   }
 
   @Test
   public void checkEmbeddedIdResovedPathCodeId() throws ODataJPAModelException {
-    IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+    JPAStructuredType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
         "AdministrativeDivisionDescription"), schema);
     assertEquals(2, et.getPath("CodeID").getPath().size());
+  }
+
+  @Test
+  public void checkHasStreamNoProperties() throws ODataJPAModelException {
+    IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "BusinessPartnerImage"), schema);
+    assertEquals(2, et.getEdmItem().getProperties().size());
+  }
+
+  @Test
+  public void checkHasStreamTrue() throws ODataJPAModelException {
+    IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "BusinessPartnerImage"), schema);
+    assertTrue(et.getEdmItem().hasStream());
+  }
+
+  @Test
+  public void checkHasStreamFalse() throws ODataJPAModelException {
+    IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "BusinessPartner"), schema);
+    assertFalse(et.getEdmItem().hasStream());
   }
 
   @Ignore

@@ -16,7 +16,7 @@ public class TestIntermediateSchema extends TestMappingRoot {
   @Test
   public void checkSchemaGetAllEntityTypes() throws ODataJPAModelException {
     IntermediateSchema schema = new IntermediateSchema(new JPAEdmNameBuilder(PUNIT_NAME), emf.getMetamodel());
-    assertEquals("Wrong number of entities", 7, schema.getEdmItem().getEntityTypes().size());
+    assertEquals("Wrong number of entities", 8, schema.getEdmItem().getEntityTypes().size());
   }
 
   @Test

@@ -41,7 +41,6 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
     if (jpaIgnore != null) {
       this.setIgnore(true);
     }
-    // buildPropertyList();
   }
 
   @Override
@@ -131,12 +130,16 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
   protected <T> List<?> extractEdmModelElements(final Map<String, ?> mappingBuffer) throws ODataJPAModelException {
     final List<T> extractionTarget = new ArrayList<T>();
     for (final String externalName : mappingBuffer.keySet()) {
-      if (!((IntermediateModelElement) mappingBuffer.get(externalName)).ignore()) {
+      if (!((IntermediateModelElement) mappingBuffer.get(externalName)).ignore()
+          // Skip Streams
+          && !(mappingBuffer.get(externalName) instanceof IntermediateProperty &&
+              ((IntermediateProperty) mappingBuffer.get(externalName)).isStream())) {
         if (mappingBuffer.get(externalName) instanceof IntermediateEmbeddedIdProperty) {
           extractionTarget.addAll((Collection<? extends T>) resolveEmbeddedId(
               (IntermediateEmbeddedIdProperty) mappingBuffer.get(externalName)));
-        } else
+        } else {
           extractionTarget.add((T) ((IntermediateModelElement) mappingBuffer.get(externalName)).getEdmItem());
+        }
       }
     }
     return returnNullIfEmpty(extractionTarget);
@@ -155,13 +158,33 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
       edmEntityType.setNavigationProperties((List<CsdlNavigationProperty>) extractEdmModelElements(
           declaredNaviPropertiesList));
       edmEntityType.setKey(extractEdmKeyElements(declaredPropertiesList));
-      // TODO check: An abstract entity type MUST NOT inherit from a non-abstract entity type.
       edmEntityType.setAbstract(determineAbstract());
       edmEntityType.setBaseType(determineBaseType());
+      edmEntityType.setHasStream(determineHasStream());
+
       // TODO determine OpenType
-      // TODO determine HasStream
+
     }
   }
+
+//  @Override
+//  boolean determineHasStream() throws ODataJPAModelException {
+//    int count = 0;
+//    boolean result = false;
+//    for (String internalName : declaredPropertiesList.keySet()) {
+//      if (declaredPropertiesList.get(internalName).isStream()) {
+//        count += 1;
+//        result = true;
+//      }
+//    }
+////    if(this.getBaseType().deter)
+////    boolean superResult = bas
+//    if (count > 1)
+//      // Only one stream property per entity is allowed. For %1$s %2$s have been found
+//      throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.TO_MANY_STREAMS, internalName, Integer
+//          .toString(count));
+//    return result;
+//  }
 
   boolean determineAbstract() {
     final int modifiers = jpaManagedType.getJavaType().getModifiers();
