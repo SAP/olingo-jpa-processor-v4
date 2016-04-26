@@ -25,10 +25,13 @@ import org.apache.olingo.server.api.uri.UriResourceLambdaVariable;
 import org.apache.olingo.server.api.uri.UriResourceNavigation;
 import org.apache.olingo.server.api.uri.UriResourcePartTyped;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
+import org.apache.olingo.server.api.uri.UriResourceValue;
 import org.apache.olingo.server.api.uri.queryoption.ExpandItem;
 import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
 
 public class Util {
+
+  public static final String VALUE_RESOURCE = "$VALUE";
 
   public static EdmEntitySet determineTargetEntitySet(final List<UriResource> resources) {
     EdmEntitySet targetEdmEntitySet = null;
@@ -114,9 +117,14 @@ public class Util {
         if (resourceItem instanceof UriResourceEntitySet || resourceItem instanceof UriResourceNavigation
             || resourceItem instanceof UriResourceLambdaVariable)
           break;
-        final UriResourceProperty property = (UriResourceProperty) resourceItem;
-        pathName.insert(0, property.getProperty().getName());
-        pathName.insert(0, JPAPath.PATH_SEPERATOR);
+        if (resourceItem instanceof UriResourceValue) {
+          pathName.insert(0, VALUE_RESOURCE);
+          pathName.insert(0, JPAPath.PATH_SEPERATOR);
+        } else {
+          final UriResourceProperty property = (UriResourceProperty) resourceItem;
+          pathName.insert(0, property.getProperty().getName());
+          pathName.insert(0, JPAPath.PATH_SEPERATOR);
+        }
       }
       if (pathName.length() > 0)
         pathName.deleteCharAt(0);

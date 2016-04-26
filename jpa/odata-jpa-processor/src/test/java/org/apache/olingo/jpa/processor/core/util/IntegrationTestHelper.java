@@ -158,4 +158,11 @@ public class IntegrationTestHelper {
     }
     return null;
   }
+
+  public byte[] getBinaryResult() throws IOException {
+    byte[] result = new byte[resp.getBufferSize()];
+    InputStream in = resp.getInputStream();
+    in.read(result);
+    return result;
+  }
 }

@@ -50,7 +50,9 @@ public class JPASerializerFactory {
     case function:
       return new JPASerializeFunction(serviceMetadata, odata.createSerializer(responseFormat), uriHelper, uriInfo);
     case count:
-      return new JPASerializeCount();
+      return new JPASerializeCount(odata.createFixedFormatSerializer());
+    case value:
+      return new JPASerializeStreamValue(serviceMetadata, odata.createFixedFormatSerializer(), uriHelper, uriInfo);
     default:
       // TODO error handling
       throw new ODataApplicationException("Resource type " + lastItem.getKind() + " not supported",

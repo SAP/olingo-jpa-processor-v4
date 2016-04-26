@@ -38,7 +38,6 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
   protected final Map<String, JPAAssociationPathImpl> resolvedAssociationPathMap;
   protected final ManagedType<?> jpaManagedType;
   protected final IntermediateSchema schema;
-  // private IntermediateStructuredType baseType;
 
   IntermediateStructuredType(final JPAEdmNameBuilder nameBuilder, final ManagedType<?> jpaManagedType,
       final IntermediateSchema schema) throws ODataJPAModelException {
@@ -491,19 +490,23 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
   }
 
   protected boolean determineHasStream() throws ODataJPAModelException {
+    return getStreamProperty() == null ? false : true;
+  }
+
+  protected IntermediateProperty getStreamProperty() throws ODataJPAModelException {
     int count = 0;
-    boolean result = false;
+    IntermediateProperty result = null;
     for (String internalName : declaredPropertiesList.keySet()) {
       if (declaredPropertiesList.get(internalName).isStream()) {
         count += 1;
-        result = true;
+        result = declaredPropertiesList.get(internalName);
       }
     }
     if (this.getBaseType() != null) {
-      boolean superResult = getBaseType().determineHasStream();
-      if (superResult) {
+      IntermediateProperty superResult = getBaseType().getStreamProperty();
+      if (superResult != null) {
         count += 1;
-        result = true;
+        result = superResult;
       }
     }
     if (count > 1)

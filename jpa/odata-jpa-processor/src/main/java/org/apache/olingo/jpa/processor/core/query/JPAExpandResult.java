@@ -28,10 +28,16 @@ public final class JPAExpandResult {
 
   public JPAExpandResult(final Map<String, List<Tuple>> result, final Long count, final JPAEntityType jpaEntityType) {
     super();
+    assertNotNull(jpaEntityType);
     childrenResult = new HashMap<JPAAssociationPath, JPAExpandResult>();
     this.result = result;
     this.count = count;
     this.jpaEntityType = jpaEntityType;
+  }
+
+  private void assertNotNull(Object instance) {
+    if (instance == null)
+      throw new NullPointerException();
   }
 
   public JPAExpandResult(final Map<String, List<Tuple>> result, final Long count) {

@@ -44,6 +44,12 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
   }
 
   @Override
+  public String getContentType() throws ODataJPAModelException {
+    IntermediateProperty stream = getStreamProperty();
+    return stream.getContentType();
+  }
+
+  @Override
   public List<? extends JPAAttribute> getKey() throws ODataJPAModelException {
     lazyBuildEdmItem();
     final List<JPAAttribute> key = new ArrayList<JPAAttribute>();
@@ -103,6 +109,11 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
   }
 
   @Override
+  public JPAPath getStreamAttributePath() throws ODataJPAModelException {
+    return getPath(getStreamProperty().getExternalName());
+  }
+
+  @Override
   public String getTableName() {
     final AnnotatedElement a = jpaManagedType.getJavaType();
     Table t = null;
@@ -112,6 +123,11 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
 
     return (t == null) ? jpaManagedType.getJavaType().getName().toUpperCase(Locale.ENGLISH)
         : t.name();
+  }
+
+  @Override
+  public boolean hasStream() throws ODataJPAModelException {
+    return this.determineHasStream();
   }
 
   @Override
@@ -166,25 +182,6 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
 
     }
   }
-
-//  @Override
-//  boolean determineHasStream() throws ODataJPAModelException {
-//    int count = 0;
-//    boolean result = false;
-//    for (String internalName : declaredPropertiesList.keySet()) {
-//      if (declaredPropertiesList.get(internalName).isStream()) {
-//        count += 1;
-//        result = true;
-//      }
-//    }
-////    if(this.getBaseType().deter)
-////    boolean superResult = bas
-//    if (count > 1)
-//      // Only one stream property per entity is allowed. For %1$s %2$s have been found
-//      throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.TO_MANY_STREAMS, internalName, Integer
-//          .toString(count));
-//    return result;
-//  }
 
   boolean determineAbstract() {
     final int modifiers = jpaManagedType.getJavaType().getModifiers();

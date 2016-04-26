@@ -68,8 +68,7 @@ public class HttpServletResponseDouble implements HttpServletResponse {
 
   @Override
   public int getBufferSize() {
-    fail();
-    return 0;
+    return ((OutPutStream) this.outputStream).getSize();
   }
 
   @Override
@@ -222,6 +221,10 @@ public class HttpServletResponseDouble implements HttpServletResponse {
 
     public Iterator<Integer> getBuffer() {
       return buffer.iterator();
+    }
+
+    public int getSize() {
+      return buffer.size();
     }
   }
 

@@ -14,6 +14,7 @@ import org.apache.olingo.commons.api.data.ComplexValue;
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.ValueType;
 import org.apache.olingo.commons.api.ex.ODataException;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.processor.core.util.ServiceMetadataDouble;
 import org.apache.olingo.jpa.processor.core.util.TestBase;
 import org.apache.olingo.jpa.processor.core.util.TestHelper;
@@ -185,5 +186,28 @@ public class TestJPATupleResultConverter extends TestBase {
     assertEquals(1, act.getEntities().size());
     assertEquals("CA", ((ComplexValue) act.getEntities().get(0).getProperty("Address").getValue()).getValue().get(0)
         .getValue().toString());
+  }
+
+  @Test
+  public void checkConvertMediaStreamStaticMime() throws ODataJPAModelException, NumberFormatException,
+      ODataApplicationException {
+
+    HashMap<String, List<Tuple>> result = new HashMap<String, List<Tuple>>(1);
+    result.put("root", jpaQueryResult);
+    JPATupleResultConverter converter = new JPATupleResultConverter(
+        helper.sd,
+        new JPAExpandResult(result, Long.parseLong("0"), helper.getJPAEntityType("BusinessPartnerImages")),
+        uriHelper,
+        new ServiceMetadataDouble(nameBuilder, "BusinessPartnerImages"));
+
+    HashMap<String, Object> entityResult;
+    byte[] image = { -119, 10 };
+    entityResult = new HashMap<String, Object>();
+    entityResult.put("ID", "1");
+    entityResult.put("Image", image);
+    jpaQueryResult.add(new TupleDouble(entityResult));
+
+    EntityCollection act = converter.getResult();
+    assertEquals("image/png", act.getEntities().get(0).getMediaContentType());
   }
 }

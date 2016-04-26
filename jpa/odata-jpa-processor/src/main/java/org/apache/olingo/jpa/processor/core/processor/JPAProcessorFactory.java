@@ -49,6 +49,7 @@ public class JPAProcessorFactory {
     case primitiveProperty:
     case navigationProperty:
     case entitySet:
+    case value:
       checkNavigationPathSupported(resourceParts);
       return new JPANavigationRequestProcessor(odata, serializerFactory.getServiceMetadata(), context, requestContext);
     default:
@@ -68,7 +69,8 @@ public class JPAProcessorFactory {
       if (resourceItem.getKind() != UriResourceKind.complexProperty
           && resourceItem.getKind() != UriResourceKind.primitiveProperty
           && resourceItem.getKind() != UriResourceKind.navigationProperty
-          && resourceItem.getKind() != UriResourceKind.entitySet)
+          && resourceItem.getKind() != UriResourceKind.entitySet
+          && resourceItem.getKind() != UriResourceKind.value)
         throw new ODataApplicationException("Not implemented",
             HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
     }

@@ -26,6 +26,13 @@ public class JPATupleResultConverter extends JPATupleAbstractConverter {
 
     for (final Tuple row : jpaQueryResult.getResult("root")) {
       final Entity odataEntity = convertRow(jpaConversionTargetEntity, row);
+      try {
+        if (jpaConversionTargetEntity.hasStream())
+          odataEntity.setMediaContentType(jpaConversionTargetEntity.getContentType());
+      } catch (ODataJPAModelException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
       odataResults.add(odataEntity);
     }
     return odataEntityCollection;

@@ -265,4 +265,8 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
     return searchable;
   }
 
+  String getContentType() {
+    return streamInfo.contentType();
+  }
+
 }

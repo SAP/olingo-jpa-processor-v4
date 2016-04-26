@@ -28,6 +28,7 @@ abstract class JPAAbstractRequestProcessor implements JPARequestProcessor {
 
   public JPAAbstractRequestProcessor(final OData odata, final JPAODataSessionContextAccess context,
       final JPAODataRequestContextAccess requestContext) {
+
     this.em = requestContext.getEntityManager();
     this.cb = em.getCriteriaBuilder();
     this.context = context;
@@ -39,6 +40,7 @@ abstract class JPAAbstractRequestProcessor implements JPARequestProcessor {
 
   protected final void createSuccessResonce(final ODataResponse response, final ContentType responseFormat,
       final SerializerResult serializerResult) {
+
     response.setContent(serializerResult.getContent());
     response.setStatusCode(HttpStatusCode.OK.getStatusCode());
     response.setHeader(HttpHeader.CONTENT_TYPE, responseFormat.toContentTypeString());

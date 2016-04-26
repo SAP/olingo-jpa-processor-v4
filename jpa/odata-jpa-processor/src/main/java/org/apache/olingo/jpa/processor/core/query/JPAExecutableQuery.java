@@ -145,6 +145,18 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
 
   }
 
+  private List<JPAPath> buildPathValue(final JPAEntityType jpaEntity, final String selectionText)
+      throws ODataApplicationException {
+    final List<JPAPath> jpaPathList = new ArrayList<JPAPath>();
+    try {
+      jpaPathList.add(jpaEntity.getStreamAttributePath());
+      jpaPathList.addAll(jpaEntity.getKeyPath());
+    } catch (ODataJPAModelException e) {
+      throw new ODataApplicationException("Mapping Error", 500, Locale.ENGLISH, e);
+    }
+    return jpaPathList;
+  }
+
   protected List<JPAPath> buildPathList(final JPAEntityType jpaEntity, final String select)
       throws ODataApplicationException {
     final List<JPAPath> jpaPathList = new ArrayList<JPAPath>();
@@ -197,7 +209,9 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
         selectionText = select.getText();
     }
 
-    if (selectionText != null && !selectionText.equals(SELECT_ALL) && !selectionText.isEmpty())
+    if (selectionText.contains(Util.VALUE_RESOURCE))
+      jpaPathList = buildPathValue(jpaEntity, selectionText);
+    else if (selectionText != null && !selectionText.equals(SELECT_ALL) && !selectionText.isEmpty())
       jpaPathList = buildPathList(jpaEntity, selectionText);
     else
       jpaPathList = buildEntityPathList(jpaEntity);

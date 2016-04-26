@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 
 import org.apache.olingo.commons.api.ex.ODataException;
+import org.apache.olingo.jpa.processor.core.testmodel.ImageLoader;
 import org.apache.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import org.apache.olingo.jpa.processor.core.util.TestBase;
 import org.junit.Ignore;
@@ -100,5 +101,16 @@ public class TestJPAQuerySelectByPath extends TestBase {
 
     ObjectNode org = helper.getValue();
     assertEquals("US-UT", org.get("Region").asText());
+  }
+
+  @Test
+  public void testNavigationToStreamValue() throws IOException, ODataException {
+    new ImageLoader().load("OlingoOrangeTM.png", "99");
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "BusinessPartnerImages('99')/$value");
+    helper.assertStatus(200);
+
+    byte[] act = helper.getBinaryResult();
+    assertEquals(93316, act.length, 0);
   }
 }

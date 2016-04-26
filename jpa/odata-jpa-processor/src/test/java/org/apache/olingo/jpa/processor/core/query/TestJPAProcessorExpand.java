@@ -300,7 +300,7 @@ public class TestJPAProcessorExpand extends TestBase {
     assertEquals("BE23", children.get(0).get("DivisionCode").asText());
   }
 
-  // TODO check how to handle $count
+  // TODO check how to handle $count -> Olingo
   @Test
   public void testExpandWithCount() throws IOException, ODataException {
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,

@@ -41,4 +41,15 @@ public interface JPAEntityType extends JPAStructuredType {
    */
   public String getTableName();
 
+  /**
+   * 
+   * @return Mime type of streaming content
+   * @throws ODataJPAModelException
+   */
+  public String getContentType() throws ODataJPAModelException;
+
+  public boolean hasStream() throws ODataJPAModelException;
+
+  public JPAPath getStreamAttributePath() throws ODataJPAModelException;
+
 }

@@ -145,8 +145,8 @@ public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
   @Override
   public void readMediaEntity(ODataRequest request, ODataResponse response, UriInfo uriInfo, ContentType responseFormat)
       throws ODataApplicationException, ODataLibraryException {
-    throw new ODataApplicationException("Read Media Entity not implemented",
-        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+    final JPARequestProcessor p = factory.createProcessor(em, uriInfo, responseFormat);
+    p.retrieveData(request, response, responseFormat);
   }
 
   @Override

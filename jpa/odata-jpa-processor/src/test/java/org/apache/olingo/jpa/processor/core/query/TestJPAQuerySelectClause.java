@@ -1,6 +1,7 @@
 package org.apache.olingo.jpa.processor.core.query;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
@@ -13,7 +14,9 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 
+import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
+import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.jpa.metadata.api.JPAEdmProvider;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -34,7 +37,11 @@ import org.apache.olingo.jpa.processor.core.util.UriInfoDouble;
 import org.apache.olingo.jpa.processor.core.util.UriResourceNavigationDouble;
 import org.apache.olingo.jpa.processor.core.util.UriResourcePropertyDouble;
 import org.apache.olingo.server.api.ODataApplicationException;
+import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResource;
+import org.apache.olingo.server.api.uri.UriResourceEntitySet;
+import org.apache.olingo.server.api.uri.UriResourceKind;
+import org.apache.olingo.server.api.uri.UriResourceValue;
 import org.apache.olingo.server.api.uri.queryoption.ExpandItem;
 import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
 import org.junit.Before;
@@ -283,7 +290,25 @@ public class TestJPAQuerySelectClause extends TestBase {
     assertEquals(TestDataConstants.NO_ATTRIBUTES_POSTAL_ADDRESS + 1, selectClause.size());
     assertContains(selectClause, "Address/CountryName");
     assertContains(selectClause, "ID");
+  }
 
+  @Test
+  public void checkSelectStreamValue() throws ODataApplicationException, ODataJPAModelException {
+    jpaEntityType = helper.getJPAEntityType("BusinessPartnerImages");
+    root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
+    cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "BusinessPartnerImages"), context, null, emf
+        .createEntityManager(), headers);
+
+    UriInfoDouble uriInfo = new UriInfoDouble(new SelectOptionDouble("Address"));
+    List<UriResource> uriResources = new ArrayList<UriResource>();
+    uriInfo.setUriResources(uriResources);
+    uriResources.add(new UriResourceEntitySetDouble());
+    uriResources.add(new UriResourceValueDouble());
+
+    List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(uriInfo));
+    assertNotNull(selectClause);
+    assertContains(selectClause, "Image");
+    assertContains(selectClause, "ID");
   }
 
   private void assertContains(List<Selection<?>> selectClause, String alias) {
@@ -292,5 +317,89 @@ public class TestJPAQuerySelectClause extends TestBase {
         return;
     }
     fail(alias + " not found");
+  }
+
+  private class UriResourceValueDouble implements UriResourceValue {
+
+    @Override
+    public UriResourceKind getKind() {
+      return UriResourceKind.value;
+    }
+
+    @Override
+    public String getSegmentValue() {
+      // TODO Auto-generated method stub
+      return null;
+    }
+  }
+
+  private class UriResourceEntitySetDouble implements UriResourceEntitySet {
+
+    @Override
+    public EdmType getType() {
+      fail();
+      return null;
+    }
+
+    @Override
+    public boolean isCollection() {
+      fail();
+      return false;
+    }
+
+    @Override
+    public String getSegmentValue(boolean includeFilters) {
+      fail();
+      return null;
+    }
+
+    @Override
+    public String toString(boolean includeFilters) {
+      fail();
+      return null;
+    }
+
+    @Override
+    public UriResourceKind getKind() {
+      fail();
+      return null;
+    }
+
+    @Override
+    public String getSegmentValue() {
+      fail();
+      return null;
+    }
+
+    @Override
+    public EdmEntitySet getEntitySet() {
+      fail();
+      return null;
+    }
+
+    @Override
+    public EdmEntityType getEntityType() {
+      fail();
+      return null;
+    }
+
+    @Override
+    public List<UriParameter> getKeyPredicates() {
+      fail();
+      return null;
+    }
+
+    @Override
+    public EdmType getTypeFilterOnCollection() {
+      fail();
+      return null;
+    }
+
+    @Override
+    public EdmType getTypeFilterOnEntry() {
+      fail();
+      return null;
+    }
+
   }
 }
