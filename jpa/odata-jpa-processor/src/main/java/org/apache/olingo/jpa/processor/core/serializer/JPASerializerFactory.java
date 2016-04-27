@@ -12,7 +12,6 @@ import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.uri.UriHelper;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriResource;
-import org.apache.olingo.server.api.uri.UriResourceComplexProperty;
 import org.apache.olingo.server.api.uri.UriResourcePartTyped;
 
 public class JPASerializerFactory {
@@ -42,17 +41,13 @@ public class JPASerializerFactory {
     case complexProperty:
       return new JPASerializeComplex(serviceMetadata, odata.createSerializer(responseFormat), uriHelper, uriInfo);
     case primitiveProperty:
-      // TODO Check if this is correct. Wouldn't it make sense to always call "serializePrimitiveResult"
-      if (resourceParts.size() > 1 && resourceParts.get(resourceParts.size() - 2) instanceof UriResourceComplexProperty)
-        return new JPASerializeComplex(serviceMetadata, odata.createSerializer(responseFormat), uriHelper, uriInfo);
-      else
-        return new JPASerializePrimitive(serviceMetadata, odata.createSerializer(responseFormat), uriHelper, uriInfo);
+      return new JPASerializePrimitive(serviceMetadata, odata.createSerializer(responseFormat), uriHelper, uriInfo);
     case function:
       return new JPASerializeFunction(serviceMetadata, odata.createSerializer(responseFormat), uriHelper, uriInfo);
     case count:
       return new JPASerializeCount(odata.createFixedFormatSerializer());
     case value:
-      return new JPASerializeStreamValue(serviceMetadata, odata.createFixedFormatSerializer(), uriHelper, uriInfo);
+      return new JPASerializeValue(serviceMetadata, odata.createFixedFormatSerializer(), uriHelper, uriInfo);
     default:
       // TODO error handling
       throw new ODataApplicationException("Resource type " + lastItem.getKind() + " not supported",

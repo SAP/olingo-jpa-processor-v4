@@ -14,8 +14,10 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 
+import org.apache.olingo.commons.api.edm.EdmComplexType;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
+import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.jpa.metadata.api.JPAEdmProvider;
@@ -39,6 +41,7 @@ import org.apache.olingo.jpa.processor.core.util.UriResourcePropertyDouble;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResource;
+import org.apache.olingo.server.api.uri.UriResourceComplexProperty;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.UriResourceValue;
@@ -311,6 +314,29 @@ public class TestJPAQuerySelectClause extends TestBase {
     assertContains(selectClause, "ID");
   }
 
+  @Test
+  public void checkSelectPropertyValue() throws ODataApplicationException, ODataJPAModelException {
+    jpaEntityType = helper.getJPAEntityType("Organizations");
+    root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
+    cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "Organizations"), context, null, emf
+        .createEntityManager(), headers);
+
+    UriInfoDouble uriInfo = new UriInfoDouble(new SelectOptionDouble("Address"));
+    List<UriResource> uriResources = new ArrayList<UriResource>();
+    uriInfo.setUriResources(uriResources);
+    // BusinessPartnerImages('99')/AdministrativeInformation/Created/By/$value
+    uriResources.add(new UriResourceEntitySetDouble());
+    uriResources.add(new UriResourceComplexPropertyDouble(new EdmPropertyDouble("AdministrativeInformation")));
+    uriResources.add(new UriResourceComplexPropertyDouble(new EdmPropertyDouble("Created")));
+    uriResources.add(new UriResourcePropertyDouble(new EdmPropertyDouble("By")));
+    uriResources.add(new UriResourceValueDouble());
+
+    List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(uriInfo));
+    assertNotNull(selectClause);
+    assertContains(selectClause, "AdministrativeInformation/Created/By");
+    assertContains(selectClause, "ID");
+  }
+
   private void assertContains(List<Selection<?>> selectClause, String alias) {
     for (Selection<?> selection : selectClause) {
       if (selection.getAlias().equals(alias))
@@ -331,6 +357,69 @@ public class TestJPAQuerySelectClause extends TestBase {
       // TODO Auto-generated method stub
       return null;
     }
+  }
+
+  private class UriResourceComplexPropertyDouble implements UriResourceComplexProperty {
+    private final EdmProperty property;
+
+    public UriResourceComplexPropertyDouble(EdmProperty property) {
+      super();
+      this.property = property;
+    }
+
+    @Override
+    public EdmProperty getProperty() {
+      return property;
+    }
+
+    @Override
+    public EdmType getType() {
+      fail();
+      return null;
+    }
+
+    @Override
+    public boolean isCollection() {
+      fail();
+      return false;
+    }
+
+    @Override
+    public String getSegmentValue(boolean includeFilters) {
+      fail();
+      return null;
+    }
+
+    @Override
+    public String toString(boolean includeFilters) {
+      fail();
+      return null;
+    }
+
+    @Override
+    public UriResourceKind getKind() {
+      fail();
+      return null;
+    }
+
+    @Override
+    public String getSegmentValue() {
+      fail();
+      return null;
+    }
+
+    @Override
+    public EdmComplexType getComplexType() {
+      fail();
+      return null;
+    }
+
+    @Override
+    public EdmComplexType getComplexTypeFilter() {
+      fail();
+      return null;
+    }
+
   }
 
   private class UriResourceEntitySetDouble implements UriResourceEntitySet {

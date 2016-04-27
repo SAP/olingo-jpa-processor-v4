@@ -100,7 +100,8 @@ public class TestJPAQuerySelectByPath extends TestBase {
     helper.assertStatus(200);
 
     ObjectNode org = helper.getValue();
-    assertEquals("US-UT", org.get("Region").asText());
+    assertEquals("US-UT", org.get("value").asText());
+    assertEquals("$metadata#Organizations/Address/Region", org.get("@odata.context").asText());
   }
 
   @Test
@@ -112,5 +113,29 @@ public class TestJPAQuerySelectByPath extends TestBase {
 
     byte[] act = helper.getBinaryResult();
     assertEquals(93316, act.length, 0);
+  }
+
+  @Test
+  public void testNavigationToComplexAttributeValue() throws IOException, ODataException {
+    new ImageLoader().load("OlingoOrangeTM.png", "99");
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations('4')/AdministrativeInformation/Created/By/$value");
+    helper.assertStatus(200);
+
+    String act = helper.getRawResult();
+    assertEquals("98", act);
+  }
+
+  @Test
+  public void testNavigationToPrimitiveAttributeValue() throws IOException, ODataException {
+    new ImageLoader().load("OlingoOrangeTM.png", "99");
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations('4')/ID/$value");
+    helper.assertStatus(200);
+
+    String act = helper.getRawResult();
+    assertEquals("4", act);
   }
 }

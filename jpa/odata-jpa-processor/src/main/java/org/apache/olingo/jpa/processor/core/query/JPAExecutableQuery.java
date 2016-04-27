@@ -145,12 +145,22 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
 
   }
 
-  private List<JPAPath> buildPathValue(final JPAEntityType jpaEntity, final String selectionText)
+  private List<JPAPath> buildPathValue(final JPAEntityType jpaEntity, final String select)
       throws ODataApplicationException {
-    final List<JPAPath> jpaPathList = new ArrayList<JPAPath>();
+
+    List<JPAPath> jpaPathList = new ArrayList<JPAPath>();
+    String selectString;
     try {
-      jpaPathList.add(jpaEntity.getStreamAttributePath());
-      jpaPathList.addAll(jpaEntity.getKeyPath());
+      selectString = select.replace(Util.VALUE_RESOURCE, "");
+      if (selectString.isEmpty()) {
+        // Stream value
+        jpaPathList.add(jpaEntity.getStreamAttributePath());
+        jpaPathList.addAll(jpaEntity.getKeyPath());
+      } else {
+        // Property value
+        selectString = selectString.substring(0, selectString.length() - 1);
+        jpaPathList = buildPathList(jpaEntity, selectString);
+      }
     } catch (ODataJPAModelException e) {
       throw new ODataApplicationException("Mapping Error", 500, Locale.ENGLISH, e);
     }
@@ -159,12 +169,17 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
 
   protected List<JPAPath> buildPathList(final JPAEntityType jpaEntity, final String select)
       throws ODataApplicationException {
-    final List<JPAPath> jpaPathList = new ArrayList<JPAPath>();
 
-    String[] selectList;
+    String[] selectList = select.split(SELECT_ITEM_SEPERATOR); // OData separator for $select
+    return buildPathList(jpaEntity, selectList);
+  }
+
+  private List<JPAPath> buildPathList(final JPAEntityType jpaEntity, final String[] selectList)
+      throws ODataApplicationException {
+
+    final List<JPAPath> jpaPathList = new ArrayList<JPAPath>();
     try {
       final List<? extends JPAAttribute> jpaKeyList = jpaEntity.getKey();
-      selectList = select.split(SELECT_ITEM_SEPERATOR); // OData separator for $select
 
       for (final String selectItem : selectList) {
         final JPAPath selectItemPath = jpaEntity.getPath(selectItem);
