@@ -10,6 +10,8 @@ import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmKeyPropertyRef;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
+import org.apache.olingo.commons.api.http.HttpStatusCode;
+import org.apache.olingo.jpa.processor.core.exception.ODataJPASerializerException;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.serializer.FixedFormatSerializer;
@@ -33,12 +35,18 @@ class JPASerializeValue extends JPASerializePrimitiveAbstract implements JPASeri
 
   @Override
   public SerializerResult serialize(final ODataRequest request, final EntityCollection result)
-      throws SerializerException {
+      throws SerializerException, ODataJPASerializerException {
 
     Property property = null;
     InputStream serializerResult = null;
     Entity et = result.getEntities().get(0);
 
+    if (result.getEntities().get(0) == null
+        || result.getEntities().get(0).getProperties() == null
+        || result.getEntities().get(0).getProperties().isEmpty()) {
+      throw new ODataJPASerializerException(ODataJPASerializerException.MessageKeys.RESULT_NOT_FOUND,
+          HttpStatusCode.INTERNAL_SERVER_ERROR);
+    }
     if (isStream()) {
       EdmEntityType edmEt = serviceMetadata.getEdm().getEntityType(new FullQualifiedName(et.getType()));
       List<EdmKeyPropertyRef> p = edmEt.getKeyPropertyRefs();
@@ -48,6 +56,9 @@ class JPASerializeValue extends JPASerializePrimitiveAbstract implements JPASeri
           break;
         }
       }
+      if (property == null)
+        throw new ODataJPASerializerException(ODataJPASerializerException.MessageKeys.RESULT_NOT_FOUND,
+            HttpStatusCode.INTERNAL_SERVER_ERROR);
       serializerResult = serializer.binary((byte[]) property.getValue());
     } else {
 

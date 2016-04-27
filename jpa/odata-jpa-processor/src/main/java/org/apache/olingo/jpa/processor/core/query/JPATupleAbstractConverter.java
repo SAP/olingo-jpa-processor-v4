@@ -190,7 +190,7 @@ public abstract class JPATupleAbstractConverter {
         final int splitIndex = attribute.getExternalName().length() + JPAPath.PATH_SEPERATOR.length();
         final String attributeName = externalName.substring(splitIndex);
         convertAttribute(value, attributeName, bufferKey, attribute.getStructuredType(), complexValueBuffer, values);
-      } else if (attribute.isKey() && attribute.isComplex()) {
+      } else if (attribute != null && attribute.isKey() && attribute.isComplex()) {
         properties.add(new Property(
             null,
             jpaStructuredType.getPath(externalName).getLeaf().getExternalName(),

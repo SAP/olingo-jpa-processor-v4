@@ -224,7 +224,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
         selectionText = select.getText();
     }
 
-    if (selectionText.contains(Util.VALUE_RESOURCE))
+    if (selectionText != null && selectionText.contains(Util.VALUE_RESOURCE))
       jpaPathList = buildPathValue(jpaEntity, selectionText);
     else if (selectionText != null && !selectionText.equals(SELECT_ALL) && !selectionText.isEmpty())
       jpaPathList = buildPathList(jpaEntity, selectionText);
