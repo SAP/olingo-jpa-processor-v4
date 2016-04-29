@@ -8,7 +8,6 @@ import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
 import org.apache.olingo.commons.api.edm.provider.CsdlNavigationProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
 
 /**
  * Complex Types are used to structure Entity Types by grouping properties that belong together. Complex Types can
@@ -54,6 +53,10 @@ class IntermediateComplexType extends IntermediateStructuredType {
       // edmComplexType.setAbstract(isAbstract)
       // TODO OpenType
       // edmComplexType.setOpenType(isOpenType)
+      if (determineHasStream()) {
+        throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.NOT_SUPPORTED_EMBEDDED_STREAM,
+            internalName);
+      }
     }
   }
 
@@ -63,8 +66,8 @@ class IntermediateComplexType extends IntermediateStructuredType {
     return edmComplexType;
   }
 
-  IntermediatePropertyAccess getProperty(final String internalName) throws ODataJPAModelException {
-    lazyBuildEdmItem();
-    return declaredPropertiesList.get(internalName);
-  }
+//  IntermediatePropertyAccess getProperty(final String internalName) throws ODataJPAModelException {
+//    lazyBuildEdmItem();
+//    return declaredPropertiesList.get(internalName);
+//  }
 }

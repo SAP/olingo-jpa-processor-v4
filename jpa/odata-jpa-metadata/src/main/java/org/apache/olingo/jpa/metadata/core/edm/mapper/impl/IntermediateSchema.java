@@ -64,7 +64,7 @@ class IntermediateSchema extends IntermediateModelElement {
   }
 
   @Override
-      CsdlSchema getEdmItem() throws ODataJPAModelException {
+  CsdlSchema getEdmItem() throws ODataJPAModelException {
     if (edmSchema == null) lazyBuildEdmItem();
     return edmSchema;
   }
@@ -79,6 +79,10 @@ class IntermediateSchema extends IntermediateModelElement {
 
   IntermediateStructuredType getEntityType(final Class<?> targetClass) {
     return entityTypeListInternalKey.get(IntNameBuilder.buildStructuredTypeName(targetClass));
+  }
+
+  IntermediateStructuredType getComplexType(final Class<?> targetClass) {
+    return complexTypeListInternalKey.get(IntNameBuilder.buildStructuredTypeName(targetClass));
   }
 
   JPAEntityType getEntityType(final String externalName) {

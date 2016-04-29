@@ -6,18 +6,23 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmMediaStream;
 
-@Entity(name = "BusinessPartnerImage")
-@Table(schema = "\"OLINGO\"", name = "\"org.apache.olingo.jpa::BusinessPartnerImage\"")
-public class BusinessPartnerImage {
+@Entity(name = "OrganizationImage")
+@Table(schema = "\"OLINGO\"", name = "\"org.apache.olingo.jpa::OrganizationImage\"")
+public class OrganizationImage {
   @Id
   @Column(name = "\"ID\"")
   private String ID;
 
   @Column(name = "\"Image\"")
-  @EdmMediaStream(contentType = "image/png")
+  @EdmMediaStream(contentTypeAttribute = "mimeType")
   private byte[] image;
+
+  @EdmIgnore
+  @Column(name = "\"MimeType\"")
+  private String mimeType;
 
   @Embedded
   private AdministrativeInformation administrativeInformation = new AdministrativeInformation();
@@ -44,5 +49,13 @@ public class BusinessPartnerImage {
 
   void setAdministrativeInformation(AdministrativeInformation administrativeInformation) {
     this.administrativeInformation = administrativeInformation;
+  }
+
+  String getMimeType() {
+    return mimeType;
+  }
+
+  void setMimeType(String mimeType) {
+    this.mimeType = mimeType;
   }
 }

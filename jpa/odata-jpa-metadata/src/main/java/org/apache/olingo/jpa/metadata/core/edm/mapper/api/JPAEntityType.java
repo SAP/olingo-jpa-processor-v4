@@ -52,4 +52,6 @@ public interface JPAEntityType extends JPAStructuredType {
 
   public JPAPath getStreamAttributePath() throws ODataJPAModelException;
 
+  public JPAPath getContentTypeAttributePath() throws ODataJPAModelException;
+
 }

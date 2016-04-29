@@ -196,9 +196,9 @@ public class TestJPATupleResultConverter extends TestBase {
     result.put("root", jpaQueryResult);
     JPATupleResultConverter converter = new JPATupleResultConverter(
         helper.sd,
-        new JPAExpandResult(result, Long.parseLong("0"), helper.getJPAEntityType("BusinessPartnerImages")),
+        new JPAExpandResult(result, Long.parseLong("0"), helper.getJPAEntityType("PersonImages")),
         uriHelper,
-        new ServiceMetadataDouble(nameBuilder, "BusinessPartnerImages"));
+        new ServiceMetadataDouble(nameBuilder, "PersonImages"));
 
     HashMap<String, Object> entityResult;
     byte[] image = { -119, 10 };
@@ -209,5 +209,30 @@ public class TestJPATupleResultConverter extends TestBase {
 
     EntityCollection act = converter.getResult();
     assertEquals("image/png", act.getEntities().get(0).getMediaContentType());
+  }
+
+  @Test
+  public void checkConvertMediaStreamDynamicMime() throws ODataJPAModelException, NumberFormatException,
+      ODataApplicationException {
+
+    HashMap<String, List<Tuple>> result = new HashMap<String, List<Tuple>>(1);
+    result.put("root", jpaQueryResult);
+    JPATupleResultConverter converter = new JPATupleResultConverter(
+        helper.sd,
+        new JPAExpandResult(result, Long.parseLong("0"), helper.getJPAEntityType("OrganizationImages")),
+        uriHelper,
+        new ServiceMetadataDouble(nameBuilder, "OrganizationImages"));
+
+    HashMap<String, Object> entityResult;
+    byte[] image = { -119, 10 };
+    entityResult = new HashMap<String, Object>();
+    entityResult.put("ID", "9");
+    entityResult.put("Image", image);
+    entityResult.put("MimeType", "image/svg+xml");
+    jpaQueryResult.add(new TupleDouble(entityResult));
+
+    EntityCollection act = converter.getResult();
+    assertEquals("image/svg+xml", act.getEntities().get(0).getMediaContentType());
+    assertEquals(2, act.getEntities().get(0).getProperties().size());
   }
 }

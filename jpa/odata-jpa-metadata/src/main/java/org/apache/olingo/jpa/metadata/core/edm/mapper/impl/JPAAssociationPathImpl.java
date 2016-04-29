@@ -95,12 +95,12 @@ class JPAAssociationPathImpl implements JPAAssociationPath {
       if (cardinality == PersistentAttributeType.MANY_TO_ONE
           || cardinality == PersistentAttributeType.MANY_TO_MANY)
         joinColumns.add(new JPAOnConditionItemImpl(
-            sourceType.getAttributePathByDBField(column.getName()),
-            targetType.getAttributePathByDBField(column.getReferencedColumnName())));
+            sourceType.getPathByDBField(column.getName()),
+            targetType.getPathByDBField(column.getReferencedColumnName())));
       else
         joinColumns.add(new JPAOnConditionItemImpl(
-            sourceType.getAttributePathByDBField(column.getReferencedColumnName()),
-            targetType.getAttributePathByDBField(column.getName())));
+            sourceType.getPathByDBField(column.getReferencedColumnName()),
+            targetType.getPathByDBField(column.getName())));
     }
     return joinColumns;
   }

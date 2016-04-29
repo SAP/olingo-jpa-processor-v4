@@ -20,7 +20,9 @@ import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.serializer.SerializerResult;
 import org.apache.olingo.server.api.uri.UriHelper;
 import org.apache.olingo.server.api.uri.UriInfo;
+import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
+import org.apache.olingo.server.api.uri.UriResourceNavigation;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
 
 class JPASerializeValue extends JPASerializePrimitiveAbstract implements JPASerializer {
@@ -75,9 +77,14 @@ class JPASerializeValue extends JPASerializePrimitiveAbstract implements JPASeri
   }
 
   private boolean isStream() {
+    UriResource successor = uriInfo.getUriResourceParts().get(uriInfo.getUriResourceParts().size() - 2);
 
-    return uriInfo.getUriResourceParts().get(uriInfo.getUriResourceParts().size() - 2) instanceof UriResourceEntitySet
-        ? true : false;
+    if (successor instanceof UriResourceEntitySet
+        || successor instanceof UriResourceNavigation && ((UriResourceNavigation) successor)
+            .getType() instanceof EdmEntityType)
+      return true;
+    else
+      return false;
   }
 
   private boolean isKey(List<EdmKeyPropertyRef> keyist, Property item) {

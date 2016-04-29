@@ -230,6 +230,18 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
       jpaPathList = buildPathList(jpaEntity, selectionText);
     else
       jpaPathList = buildEntityPathList(jpaEntity);
+    try {
+      if (jpaEntity.hasStream()) {
+        JPAPath mimeTypeAttribute = jpaEntity.getContentTypeAttributePath();
+        if (mimeTypeAttribute != null) {
+          jpaPathList.add(mimeTypeAttribute);
+        }
+      }
+    } catch (ODataJPAModelException e1) {
+      // TODO Auto-generated catch block
+      e1.printStackTrace();
+    }
+
     // Add Fields that are required for Expand
     final Map<JPAExpandItemWrapper, JPAAssociationPath> associationPathList = Util.determineAssoziations(sd, uriResource
         .getUriResourceParts(), uriResource.getExpandOption());

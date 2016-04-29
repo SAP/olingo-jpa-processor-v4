@@ -296,10 +296,10 @@ public class TestJPAQuerySelectClause extends TestBase {
   }
 
   @Test
-  public void checkSelectStreamValue() throws ODataApplicationException, ODataJPAModelException {
-    jpaEntityType = helper.getJPAEntityType("BusinessPartnerImages");
+  public void checkSelectStreamValueStatic() throws ODataApplicationException, ODataJPAModelException {
+    jpaEntityType = helper.getJPAEntityType("PersonImages");
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
-    cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "BusinessPartnerImages"), context, null, emf
+    cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "PersonImages"), context, null, emf
         .createEntityManager(), headers);
 
     UriInfoDouble uriInfo = new UriInfoDouble(new SelectOptionDouble("Address"));
@@ -311,6 +311,26 @@ public class TestJPAQuerySelectClause extends TestBase {
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(uriInfo));
     assertNotNull(selectClause);
     assertContains(selectClause, "Image");
+    assertContains(selectClause, "ID");
+  }
+
+  @Test
+  public void checkSelectStreamValueDynamic() throws ODataApplicationException, ODataJPAModelException {
+    jpaEntityType = helper.getJPAEntityType("OrganizationImages");
+    root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
+    cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "OrganizationImages"), context, null, emf
+        .createEntityManager(), headers);
+
+    UriInfoDouble uriInfo = new UriInfoDouble(new SelectOptionDouble("Address"));
+    List<UriResource> uriResources = new ArrayList<UriResource>();
+    uriInfo.setUriResources(uriResources);
+    uriResources.add(new UriResourceEntitySetDouble());
+    uriResources.add(new UriResourceValueDouble());
+
+    List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(uriInfo));
+    assertNotNull(selectClause);
+    assertContains(selectClause, "Image");
+    assertContains(selectClause, "MimeType");
     assertContains(selectClause, "ID");
   }
 

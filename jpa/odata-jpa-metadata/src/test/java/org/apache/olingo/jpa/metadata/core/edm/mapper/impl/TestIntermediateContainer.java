@@ -9,6 +9,7 @@ import java.util.List;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
 import org.apache.olingo.commons.api.edm.provider.CsdlNavigationPropertyBinding;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import org.apache.olingo.jpa.processor.core.testmodel.TestDataConstants;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -39,7 +40,7 @@ public class TestIntermediateContainer extends TestMappingRoot {
   public void checkGetNoEntitySets() throws ODataJPAModelException {
 
     IntermediateEntityContainer container = new IntermediateEntityContainer(new JPAEdmNameBuilder(PUNIT_NAME), schemas);
-    assertEquals(8, container.getEdmItem().getEntitySets().size());
+    assertEquals(TestDataConstants.NO_ENTITY_TYPES, container.getEdmItem().getEntitySets().size());
   }
 
   @Test

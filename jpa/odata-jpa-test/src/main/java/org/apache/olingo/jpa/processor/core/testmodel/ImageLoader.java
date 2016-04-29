@@ -15,8 +15,10 @@ import javax.persistence.Persistence;
 import javax.persistence.Query;
 
 public class ImageLoader {
-  private static final String SELECT_IMAGE =
-      "SELECT * FROM \"OLINGO\".\"org.apache.olingo.jpa::BusinessPartnerImage\" WHERE ID = '$&1'";
+  private static final String SELECT_PERSON_IMAGE =
+      "SELECT * FROM \"OLINGO\".\"org.apache.olingo.jpa::PersonImage\" WHERE ID = '$&1'";
+  private static final String SELECT_ORGANIZATION_IMAGE =
+      "SELECT * FROM \"OLINGO\".\"org.apache.olingo.jpa::OrganizationImage\" WHERE ID = '$&1'";
   private static final String PATH = "images/";
   private static final String TEST_IMAGE = "test.png";
   private static final String ENTITY_MANAGER_DATA_SOURCE = "javax.persistence.nonJtaDataSource";
@@ -24,39 +26,76 @@ public class ImageLoader {
 
   public static void main(String[] args) throws Exception {
     ImageLoader i = new ImageLoader();
-    i.load("OlingoOrangeTM.png", "99");
+    i.loadPerson("OlingoOrangeTM.png", "99");
+
   }
 
-  public void load(String imageName, String businessPartnerID) {
+  public void loadPerson(String imageName, String businessPartnerID) {
     byte[] image = loadImage(imageName);
-    storeImageDB(image, businessPartnerID);
+    storePersonImageDB(image, businessPartnerID, SELECT_PERSON_IMAGE);
     storeImageLocal(image, "restored.png");
   }
 
-  private void storeImageDB(byte[] image, String businessPartnerID) {
+  public void loadOrg(String imageName, String businessPartnerID) {
+    byte[] image = loadImage(imageName);
+    storeOrgImageDB(image, businessPartnerID, SELECT_ORGANIZATION_IMAGE);
+    storeImageLocal(image, "restored.png");
+  }
 
-    final Map<String, Object> properties = new HashMap<String, Object>();
-    properties.put(ENTITY_MANAGER_DATA_SOURCE, DataSourceHelper.createDataSource(DataSourceHelper.DB_H2));
-    final EntityManagerFactory emf = Persistence.createEntityManagerFactory(PUNIT_NAME, properties);
-    EntityManager em = emf.createEntityManager();
+  private void storePersonImageDB(byte[] image, String businessPartnerID, String query) {
 
-    String s = SELECT_IMAGE.replace("$&1", businessPartnerID);
-    Query q = em.createNativeQuery(s, BusinessPartnerImage.class);
+    EntityManager em = createEntityManager();
+
+    String s = query.replace("$&1", businessPartnerID);
+    Query q = em.createNativeQuery(s, PersonImage.class);
     @SuppressWarnings("unchecked")
-    List<BusinessPartnerImage> result = q.getResultList();
+    List<PersonImage> result = q.getResultList();
     result.get(0).setImage(image);
-    em.getTransaction().begin();
-    em.persist(result.get(0));
-    em.getTransaction().commit();
+    updateDB(em, result);
 
-    Query storedImageQ = em.createNativeQuery(s, BusinessPartnerImage.class);
+    Query storedImageQ = em.createNativeQuery(s, PersonImage.class);
     @SuppressWarnings("unchecked")
-    List<BusinessPartnerImage> result2 = storedImageQ.getResultList();
+    List<PersonImage> result2 = storedImageQ.getResultList();
     byte[] storedImage = result2.get(0).getImage();
     System.out.println(storedImage.length);
     compareImage(image, storedImage);
     storeImageLocal(storedImage, TEST_IMAGE);
 
+  }
+
+  private void storeOrgImageDB(byte[] image, String businessPartnerID, String query) {
+
+    EntityManager em = createEntityManager();
+
+    String s = query.replace("$&1", businessPartnerID);
+    Query q = em.createNativeQuery(s, OrganizationImage.class);
+    @SuppressWarnings("unchecked")
+    List<OrganizationImage> result = q.getResultList();
+    result.get(0).setImage(image);
+    updateDB(em, result);
+
+    Query storedImageQ = em.createNativeQuery(s, OrganizationImage.class);
+    @SuppressWarnings("unchecked")
+    List<OrganizationImage> result2 = storedImageQ.getResultList();
+    byte[] storedImage = result2.get(0).getImage();
+    System.out.println(storedImage.length);
+    compareImage(image, storedImage);
+    storeImageLocal(storedImage, TEST_IMAGE);
+
+  }
+
+  private void updateDB(EntityManager em, List<?> result) {
+    em.getTransaction().begin();
+    em.persist(result.get(0));
+    em.getTransaction().commit();
+  }
+
+  private EntityManager createEntityManager() {
+    final Map<String, Object> properties = new HashMap<String, Object>();
+    properties.put(ENTITY_MANAGER_DATA_SOURCE, DataSourceHelper.createDataSource(DataSourceHelper.DB_H2));
+    final EntityManagerFactory emf = Persistence.createEntityManagerFactory(PUNIT_NAME, properties);
+    EntityManager em = emf.createEntityManager();
+    return em;
   }
 
   private void compareImage(byte[] image, byte[] storedImage) {

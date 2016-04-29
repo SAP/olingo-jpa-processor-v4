@@ -4,6 +4,7 @@ import java.lang.reflect.AnnotatedElement;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.AssociationOverride;
 import javax.persistence.AttributeConverter;
 import javax.persistence.CascadeType;
 import javax.persistence.JoinColumn;
@@ -193,45 +194,10 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
             }
           }
         }
-
+//      Determine referential constraint
+        determienReferentialConstraints(annotatedElement);
       }
 
-//      if (cardinality == PersistentAttributeType.MANY_TO_ONE
-//          || cardinality == PersistentAttributeType.MANY_TO_MANY)
-//        joinColumns.add(new JPAOnConditionItemImpl(
-//            sourceType.getAttributePathByDBField(column.getName()),
-//            targetType.getAttributePathByDBField(column.getReferencedColumnName())));
-
-      List<CsdlReferentialConstraint> constraints = edmNaviProperty.getReferentialConstraints();
-      for (final IntermediateJoinColumn intermediateColumn : joinColumns) {
-        CsdlReferentialConstraint constraint = new CsdlReferentialConstraint();
-        constraints.add(constraint);
-        IntermediateProperty p = null;
-        p = sourceType.getAttributByDBField(intermediateColumn.getName());
-        if (p != null) {
-          constraint.setProperty(p.getExternalName());
-          p = targetType.getAttributByDBField(intermediateColumn.getReferencedColumnName());
-          if (p != null)
-            constraint.setReferencedProperty(p.getExternalName());
-          else
-            throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.REFERENCED_PROPERTY_NOT_FOUND,
-                getInternalName(), intermediateColumn.getReferencedColumnName(), targetType.getExternalName());
-        } else {
-          p = sourceType.getAttributByDBField(intermediateColumn.getReferencedColumnName());
-          if (p != null) {
-            constraint.setProperty(p.getExternalName());
-            p = targetType.getAttributByDBField(intermediateColumn.getName());
-            if (p != null)
-              constraint.setReferencedProperty(p.getExternalName());
-            else
-              throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.REFERENCED_PROPERTY_NOT_FOUND,
-                  getInternalName(), intermediateColumn.getName(), targetType.getExternalName());
-
-          } else
-            throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.REFERENCED_PROPERTY_NOT_FOUND,
-                getInternalName(), intermediateColumn.getReferencedColumnName(), sourceType.getExternalName());
-        }
-      }
       // TODO determine ContainsTarget
 
       if (sourceType instanceof IntermediateEntityType) {
@@ -255,6 +221,44 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
 
     }
 
+  }
+
+  private void determienReferentialConstraints(AnnotatedElement annotatedElement) throws ODataJPAModelException {
+
+    final AssociationOverride overwrite = annotatedElement.getAnnotation(AssociationOverride.class);
+    if (overwrite != null) return;
+
+    List<CsdlReferentialConstraint> constraints = edmNaviProperty.getReferentialConstraints();
+    for (final IntermediateJoinColumn intermediateColumn : joinColumns) {
+
+      CsdlReferentialConstraint constraint = new CsdlReferentialConstraint();
+      constraints.add(constraint);
+      IntermediateProperty p = null;
+      p = sourceType.getPropertyByDBField(intermediateColumn.getName());
+      if (p != null) {
+        constraint.setProperty(p.getExternalName());
+        p = targetType.getPropertyByDBField(intermediateColumn.getReferencedColumnName());
+        if (p != null)
+          constraint.setReferencedProperty(p.getExternalName());
+        else
+          throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.REFERENCED_PROPERTY_NOT_FOUND,
+              getInternalName(), intermediateColumn.getReferencedColumnName(), targetType.getExternalName());
+      } else {
+        p = sourceType.getPropertyByDBField(intermediateColumn.getReferencedColumnName());
+        if (p != null) {
+          constraint.setProperty(p.getExternalName());
+          p = targetType.getPropertyByDBField(intermediateColumn.getName());
+          if (p != null)
+            constraint.setReferencedProperty(p.getExternalName());
+          else
+            throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.REFERENCED_PROPERTY_NOT_FOUND,
+                getInternalName(), intermediateColumn.getName(), targetType.getExternalName());
+
+        } else
+          throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.REFERENCED_PROPERTY_NOT_FOUND,
+              getInternalName(), intermediateColumn.getReferencedColumnName(), sourceType.getExternalName());
+      }
+    }
   }
 
   @Override

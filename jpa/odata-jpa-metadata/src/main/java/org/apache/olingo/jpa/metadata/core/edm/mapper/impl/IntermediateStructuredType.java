@@ -267,7 +267,7 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
    * @return
    * @throws ODataJPAModelException
    */
-  JPAPath getAttributePathByDBField(final String dbFieldName) throws ODataJPAModelException {
+  JPAPath getPathByDBField(final String dbFieldName) throws ODataJPAModelException {
     lazyBuildCompletePathMap();
     for (final String internalName : resolvedPathMap.keySet()) {
       final JPAPath property = resolvedPathMap.get(internalName);
@@ -277,7 +277,7 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
     return null;
   }
 
-  IntermediateProperty getAttributByDBField(final String dbFieldName) throws ODataJPAModelException {
+  IntermediateProperty getPropertyByDBField(final String dbFieldName) throws ODataJPAModelException {
     buildPropertyList();
     for (final String internalName : declaredPropertiesList.keySet()) {
       IntermediateProperty property = declaredPropertiesList.get(internalName);
@@ -285,8 +285,22 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
         return property;
     }
     if (getBaseType() != null)
-      return getBaseType().getAttributByDBField(dbFieldName);
+      return getBaseType().getPropertyByDBField(dbFieldName);
     return null;
+  }
+
+  /**
+   * Returns an property regardless if it should be ignored or not
+   * @param internalName
+   * @return
+   * @throws ODataJPAModelException
+   */
+  IntermediateProperty getProperty(final String internalName) throws ODataJPAModelException {
+    lazyBuildEdmItem();
+    IntermediateProperty result = declaredPropertiesList.get(internalName);
+    if (result == null && getBaseType() != null)
+      result = getBaseType().getProperty(internalName);
+    return result;
   }
 
   IntermediateNavigationProperty getCorrespondingAssiciation(final IntermediateStructuredType sourceType,

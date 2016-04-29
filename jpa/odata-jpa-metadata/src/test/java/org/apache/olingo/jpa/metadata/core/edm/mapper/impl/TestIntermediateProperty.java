@@ -196,7 +196,7 @@ public class TestIntermediateProperty extends TestMappingRoot {
 
   @Test
   public void checkGetPropertyIsStream() throws ODataJPAModelException {
-    Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType("BusinessPartnerImage"),
+    Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType("PersonImage"),
         "image");
     IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
         helper.schema);

@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import org.apache.olingo.jpa.processor.core.testmodel.TestDataConstants;
 import org.junit.Test;
 
 public class TestIntermediateSchema extends TestMappingRoot {
@@ -16,7 +17,8 @@ public class TestIntermediateSchema extends TestMappingRoot {
   @Test
   public void checkSchemaGetAllEntityTypes() throws ODataJPAModelException {
     IntermediateSchema schema = new IntermediateSchema(new JPAEdmNameBuilder(PUNIT_NAME), emf.getMetamodel());
-    assertEquals("Wrong number of entities", 8, schema.getEdmItem().getEntityTypes().size());
+    assertEquals("Wrong number of entities", TestDataConstants.NO_ENTITY_TYPES, schema.getEdmItem().getEntityTypes()
+        .size());
   }
 
   @Test

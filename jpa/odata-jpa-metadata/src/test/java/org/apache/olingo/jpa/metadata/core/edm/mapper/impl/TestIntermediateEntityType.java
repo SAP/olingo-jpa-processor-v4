@@ -278,14 +278,14 @@ public class TestIntermediateEntityType extends TestMappingRoot {
   @Test
   public void checkHasStreamNoProperties() throws ODataJPAModelException {
     IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "BusinessPartnerImage"), schema);
+        "PersonImage"), schema);
     assertEquals(2, et.getEdmItem().getProperties().size());
   }
 
   @Test
   public void checkHasStreamTrue() throws ODataJPAModelException {
     IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "BusinessPartnerImage"), schema);
+        "PersonImage"), schema);
     assertTrue(et.getEdmItem().hasStream());
   }
 

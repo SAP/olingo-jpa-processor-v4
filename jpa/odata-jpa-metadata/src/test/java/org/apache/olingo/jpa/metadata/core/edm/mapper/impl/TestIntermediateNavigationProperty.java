@@ -213,9 +213,9 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
   @Test
   public void checkGetJoinColumnsSize2() throws ODataJPAModelException {
     EmbeddableType<?> et = helper.getEmbeddedableType("PostalAddressData");
-    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(et, "regionName");
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(et, "administrativeDivision");
     IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
-        schema.getEntityType(helper.getEntityType("BusinessPartner").getJavaType()), jpaAttribute, schema);
+        schema.getComplexType(et.getJavaType()), jpaAttribute, schema);
     List<IntermediateJoinColumn> columns = property.getJoinColumns();
     assertEquals(3, columns.size());
   }

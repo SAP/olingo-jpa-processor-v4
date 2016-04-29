@@ -236,6 +236,12 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
         searchable = true;
 
       streamInfo = ((AnnotatedElement) jpaAttribute.getJavaMember()).getAnnotation(EdmMediaStream.class);
+      if (streamInfo != null) {
+        if ((streamInfo.contentType() == null || streamInfo.contentType().isEmpty())
+            && (streamInfo.contentTypeAttribute() == null || streamInfo.contentTypeAttribute().isEmpty()))
+          throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.ANNOTATION_STREAM_INCOMPLETE,
+              internalName);
+      }
     }
     postProcessor.processProperty(this, jpaAttribute.getDeclaringType().getJavaType()
         .getCanonicalName());
@@ -267,6 +273,10 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
 
   String getContentType() {
     return streamInfo.contentType();
+  }
+
+  String getContentTypeProperty() {
+    return streamInfo.contentTypeAttribute();
   }
 
 }

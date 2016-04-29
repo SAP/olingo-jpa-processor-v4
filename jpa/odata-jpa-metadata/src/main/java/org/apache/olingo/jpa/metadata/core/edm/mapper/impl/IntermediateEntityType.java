@@ -114,6 +114,16 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
   }
 
   @Override
+  public JPAPath getContentTypeAttributePath() throws ODataJPAModelException {
+    String propertyInternalName = getStreamProperty().getContentTypeProperty();
+    if (propertyInternalName == null || propertyInternalName.isEmpty()) {
+      return null;
+    }
+    // Ensure that Ignore is ignored
+    return getPathByDBField(getProperty(propertyInternalName).getDBFieldName());
+  }
+
+  @Override
   public String getTableName() {
     final AnnotatedElement a = jpaManagedType.getJavaType();
     Table t = null;
@@ -232,5 +242,4 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
   private <T> List<?> resolveEmbeddedId(final IntermediateEmbeddedIdProperty embeddedId) throws ODataJPAModelException {
     return ((IntermediateComplexType) embeddedId.getStructuredType()).getEdmItem().getProperties();
   }
-
 }
