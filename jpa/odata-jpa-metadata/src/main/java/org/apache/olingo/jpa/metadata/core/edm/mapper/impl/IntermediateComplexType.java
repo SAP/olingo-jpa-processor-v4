@@ -66,8 +66,4 @@ class IntermediateComplexType extends IntermediateStructuredType {
     return edmComplexType;
   }
 
-//  IntermediatePropertyAccess getProperty(final String internalName) throws ODataJPAModelException {
-//    lazyBuildEdmItem();
-//    return declaredPropertiesList.get(internalName);
-//  }
 }

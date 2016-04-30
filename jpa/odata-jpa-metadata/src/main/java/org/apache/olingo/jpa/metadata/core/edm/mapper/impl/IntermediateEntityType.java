@@ -175,7 +175,6 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
   @Override
   protected void lazyBuildEdmItem() throws ODataJPAModelException {
     if (edmEntityType == null) {
-      // TODO store @Version to fill ETag Header
       buildPropertyList();
       buildNaviPropertyList();
       edmEntityType = new CsdlEntityType();
@@ -187,7 +186,6 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
       edmEntityType.setAbstract(determineAbstract());
       edmEntityType.setBaseType(determineBaseType());
       edmEntityType.setHasStream(determineHasStream());
-
       // TODO determine OpenType
 
     }
@@ -208,7 +206,7 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
    */
   List<CsdlPropertyRef> extractEdmKeyElements(final Map<String, IntermediateProperty> propertyList)
       throws ODataJPAModelException {
-
+    // TODO setAlias
     final List<CsdlPropertyRef> keyList = new ArrayList<CsdlPropertyRef>();
     for (final String internalName : propertyList.keySet()) {
       if (propertyList.get(internalName).isKey()) {
@@ -219,13 +217,11 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
           for (final JPAAttribute idAttribute : idAttributes) {
             final CsdlPropertyRef key = new CsdlPropertyRef();
             key.setName(idAttribute.getExternalName());
-            // TODO setAlias
             keyList.add(key);
           }
         } else {
           final CsdlPropertyRef key = new CsdlPropertyRef();
           key.setName(propertyList.get(internalName).getExternalName());
-          // TODO setAlias
           keyList.add(key);
         }
       }

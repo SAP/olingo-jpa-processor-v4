@@ -82,6 +82,7 @@ public abstract class JPATupleAbstractConverter {
     final Entity odataEntity = new Entity();
     odataEntity.setType(rowEntity.getExternalFQN().getFullQualifiedNameAsString());
     final List<Property> properties = odataEntity.getProperties();
+    // TODO store @Version to fill ETag Header
     for (final TupleElement<?> element : row.getElements()) {
       try {
         convertAttribute(row.get(element.getAlias()), element.getAlias(), "", rowEntity, complexValueBuffer,

@@ -40,12 +40,11 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateProp
  */
 class IntermediateProperty extends IntermediateModelElement implements IntermediatePropertyAccess, JPAAttribute {
   private static final String DB_FIELD_NAME_PATTERN = "\"&1\"";
-
+  // TODO Store a type @Convert
   protected final Attribute<?, ?> jpaAttribute;
   protected final IntermediateSchema schema;
   protected CsdlProperty edmProperty;
   private IntermediateStructuredType type;
-  // TODO Store a type @Convert
   private AttributeConverter<?, ?> valueConverter;
   private String dbFieldName;
   private boolean searchable = false;

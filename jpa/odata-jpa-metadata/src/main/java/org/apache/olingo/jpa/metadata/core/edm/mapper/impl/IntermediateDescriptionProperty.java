@@ -46,17 +46,22 @@ class IntermediateDescriptionProperty extends IntermediateProperty implements JP
               .descriptionAttribute());
           languageAttribute = assozation.languageAttribute();
           localeAttribute = assozation.localeAttribute();
+
           if (languageAttribute.isEmpty() && localeAttribute.isEmpty() ||
               !languageAttribute.isEmpty() && !localeAttribute.isEmpty())
-            throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.DESCRIPTION_LOCALE_FIELD_MISSING);
-          // TODO Error handling: Determine type: Should be String
+            throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.DESCRIPTION_LOCALE_FIELD_MISSING,
+                targetEntity.getInternalName(), this.internalName);
+          if (!descriptionProperty.getType().equals(String.class))
+            throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.DESCRIPTION_FIELD_WRONG_TYPE,
+                targetEntity.getInternalName(), this.internalName);
+
           edmProperty.setType(JPATypeConvertor.convertToEdmSimpleType(descriptionProperty.getType())
               .getFullQualifiedName());
           edmProperty.setMaxLength(descriptionProperty.getEdmItem().getMaxLength());
 
         } else
-          // TODO Error handling: It makes no sense to create a Description Property w/o annotation
-          ;
+          throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.DESCRIPTION_ANNOTATION_MISSING,
+              targetEntity.getInternalName(), this.internalName);
       }
     }
   }
