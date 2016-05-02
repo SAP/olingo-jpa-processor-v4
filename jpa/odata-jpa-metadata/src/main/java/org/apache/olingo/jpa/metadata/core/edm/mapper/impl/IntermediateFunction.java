@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
+import org.apache.olingo.commons.api.edm.geo.SRID;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlParameter;
 import org.apache.olingo.commons.api.edm.provider.CsdlReturnType;
@@ -35,7 +36,7 @@ class IntermediateFunction extends IntermediateModelElement implements JPAFuncti
 
   IntermediateFunction(final JPAEdmNameBuilder nameBuilder, final EdmFunction jpaFunction,
       final Class<?> definingPOJO, final IntermediateSchema schema)
-          throws ODataJPAModelException {
+      throws ODataJPAModelException {
     super(nameBuilder, IntNameBuilder.buildFunctionName(jpaFunction));
     this.setExternalName(jpaFunction.name());
     this.jpaUserDefinedFunction = jpaFunction;
@@ -78,13 +79,21 @@ class IntermediateFunction extends IntermediateModelElement implements JPAFuncti
   }
 
   @Override
-      CsdlFunction getEdmItem() throws ODataJPAModelException {
+  CsdlFunction getEdmItem() throws ODataJPAModelException {
     lazyBuildEdmItem();
     return edmFunction;
   }
 
   String getUserDefinedFunction() {
     return jpaUserDefinedFunction.functionName();
+  }
+
+  boolean isBound() {
+    return jpaUserDefinedFunction.isBound();
+  }
+
+  boolean hasFunctionImport() {
+    return jpaUserDefinedFunction.hasFunctionImport();
   }
 
   private List<CsdlParameter> determineEdmInputParameter() throws ODataJPAModelException {
@@ -94,17 +103,20 @@ class IntermediateFunction extends IntermediateModelElement implements JPAFuncti
       final CsdlParameter edmInputParameter = new CsdlParameter();
       edmInputParameter.setName(jpaParameter.name());
       edmInputParameter.setType(JPATypeConvertor.convertToEdmSimpleType(jpaParameter.type()).getFullQualifiedName());
-      // edmInputParameter.setType(jpaParameter.type());
+
       edmInputParameter.setNullable(false);
-      // TODO edmInputParameter.setCollection(isCollection)
-      // TODO edmInputParameter.setSrid(srid)
+      edmInputParameter.setCollection(jpaParameter.isCollection());
       if (jpaParameter.maxLength() >= 0)
         edmInputParameter.setMaxLength(jpaParameter.maxLength());
       if (jpaParameter.precision() >= 0)
         edmInputParameter.setPrecision(jpaParameter.precision());
       if (jpaParameter.scale() >= 0)
         edmInputParameter.setScale(jpaParameter.scale());
-
+      if (jpaParameter.srid() != null && !jpaParameter.srid().srid().isEmpty()) {
+        SRID srid = SRID.valueOf(jpaParameter.srid().srid());
+        srid.setDimension(jpaParameter.srid().dimension());
+        edmInputParameter.setSrid(srid);
+      }
       edmInputParameterList.add(edmInputParameter);
     }
     return edmInputParameterList;
@@ -135,7 +147,11 @@ class IntermediateFunction extends IntermediateModelElement implements JPAFuncti
       edmResultType.setPrecision(returnType.precision());
     if (returnType.scale() >= 0)
       edmResultType.setScale(returnType.scale());
-    // TODO edmResultType.setSrid(srid);
+    if (returnType.srid() != null && !returnType.srid().srid().isEmpty()) {
+      SRID srid = SRID.valueOf(returnType.srid().srid());
+      srid.setDimension(returnType.srid().dimension());
+      edmResultType.setSrid(srid);
+    }
     return edmResultType;
   }
 
@@ -177,5 +193,4 @@ class IntermediateFunction extends IntermediateModelElement implements JPAFuncti
     }
 
   }
-
 }

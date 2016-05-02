@@ -12,17 +12,16 @@ import org.apache.olingo.commons.api.edm.geo.SRID;
 @Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
 public @interface EdmGeospatial {
   /**
-   * Olingo Geospatial dimension. Possible Values are GEOMETRY and GEOGRAPHY
+   * Olingo Geospatial dimension. Possible Values are GEOMETRY and GEOGRAPHY.
    * @return
    */
-  Dimension dimension();
+  Dimension dimension() default Dimension.GEOGRAPHY;
 
   /**
-   * Non negative integer value of the SRID. In case a negative value is provided the defaults as described in
-   * {@link SRID} are taken.
-   * 
+   * Non negative integer value of the SRID. Value range is described in {@link SRID} are taken.<br>
+   * If no value is set than the EdmGeospatial is ignored within function parameter.
    * @return
    */
-  int srid() default -1;
+  String srid() default "";
 
 }

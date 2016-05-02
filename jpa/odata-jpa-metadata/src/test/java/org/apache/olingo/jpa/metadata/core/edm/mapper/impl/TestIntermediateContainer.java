@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
+import org.apache.olingo.commons.api.edm.provider.CsdlFunctionImport;
 import org.apache.olingo.commons.api.edm.provider.CsdlNavigationPropertyBinding;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.processor.core.testmodel.TestDataConstants;
@@ -151,5 +152,44 @@ public class TestIntermediateContainer extends TestMappingRoot {
       }
     }
     fail();
+  }
+
+  @Test
+  public void checkGetNoFunctionImportIfBound() throws ODataJPAModelException {
+
+    IntermediateEntityContainer container = new IntermediateEntityContainer(new JPAEdmNameBuilder(PUNIT_NAME), schemas);
+
+    List<CsdlFunctionImport> funcImports = container.getEdmItem().getFunctionImports();
+    for (CsdlFunctionImport funcImport : funcImports) {
+      if (funcImport.getName().equals("CountRoles")) {
+        fail("Bound function must not generate a function import");
+      }
+    }
+  }
+
+  @Test
+  public void checkGetNoFunctionImportIfUnBoundHasImportFalse() throws ODataJPAModelException {
+
+    IntermediateEntityContainer container = new IntermediateEntityContainer(new JPAEdmNameBuilder(PUNIT_NAME), schemas);
+
+    List<CsdlFunctionImport> funcImports = container.getEdmItem().getFunctionImports();
+    for (CsdlFunctionImport funcImport : funcImports) {
+      if (funcImport.getName().equals("max")) {
+        fail("UnBound function must not generate a function import is not annotated");
+      }
+    }
+  }
+
+  @Test
+  public void checkGetFunctionImportIfUnBoundHasImportTrue() throws ODataJPAModelException {
+
+    IntermediateEntityContainer container = new IntermediateEntityContainer(new JPAEdmNameBuilder(PUNIT_NAME), schemas);
+
+    List<CsdlFunctionImport> funcImports = container.getEdmItem().getFunctionImports();
+    for (CsdlFunctionImport funcImport : funcImports) {
+      if (funcImport.getName().equals("Olingo V4 ")) {
+        fail("UnBound function must be generate a function import is annotated");
+      }
+    }
   }
 }

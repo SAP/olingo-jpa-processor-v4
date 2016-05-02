@@ -28,8 +28,8 @@ public @interface EdmFunctionParameter {
   int precision() default -1;
 
   int scale() default -1;
-  // TODO SRID
-  // SRID srid()
+
+  EdmGeospatial srid() default @EdmGeospatial();
 
   /**
    * Define the parameter type.<p>

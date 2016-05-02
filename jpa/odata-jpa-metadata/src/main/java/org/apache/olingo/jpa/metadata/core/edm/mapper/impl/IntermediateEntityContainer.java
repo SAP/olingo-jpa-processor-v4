@@ -11,6 +11,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunctionImport;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 /**
@@ -124,10 +125,12 @@ class IntermediateEntityContainer extends IntermediateModelElement {
     for (final String namespace : schemaList.keySet()) {
       // Build Entity Sets
       final IntermediateSchema schema = schemaList.get(namespace);
-      final List<CsdlFunction> functions = schema.getEdmItem().getFunctions();
+      final List<JPAFunction> functions = schema.getFunctions();
+
       if (functions != null) {
-        for (final CsdlFunction edmFu : functions) {
-          edmFunctionImports.add(buildFunctionImport(edmFu));
+        for (final JPAFunction jpaFu : functions) {
+          if (((IntermediateFunction) jpaFu).isBound() == false && ((IntermediateFunction) jpaFu).hasFunctionImport())
+            edmFunctionImports.add(buildFunctionImport(((IntermediateFunction) jpaFu).getEdmItem()));
         }
       }
     }

@@ -111,6 +111,14 @@ class IntermediateSchema extends IntermediateModelElement {
     return null;
   }
 
+  List<JPAFunction> getFunctions() {
+    ArrayList<JPAFunction> functions = new ArrayList<JPAFunction>();
+    for (final String internalName : functionListInternalKey.keySet()) {
+      functions.add(functionListInternalKey.get(internalName));
+    }
+    return functions;
+  }
+
   void setContainer(final IntermediateEntityContainer container) {
     this.container = container;
   }

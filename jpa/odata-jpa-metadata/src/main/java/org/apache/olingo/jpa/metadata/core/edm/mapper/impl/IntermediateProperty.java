@@ -142,11 +142,11 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
       final AnnotatedElement annotatedElement = (AnnotatedElement) jpaAttribute.getJavaMember();
       EdmGeospatial spatialDetails = annotatedElement.getAnnotation(EdmGeospatial.class);
       if (spatialDetails != null) {
-        int srid = spatialDetails.srid();
-        if (srid < 0)
+        String srid = spatialDetails.srid();
+        if (srid.isEmpty())
           result = SRID.valueOf(null);
         else
-          result = SRID.valueOf(Integer.toString(srid));
+          result = SRID.valueOf(srid);
         result.setDimension(spatialDetails.dimension());
       }
     }

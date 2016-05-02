@@ -21,7 +21,6 @@ import javax.persistence.Version;
 
 import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssozation;
 import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
-import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
 import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmFunctionParameter;
 import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
 import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;;
@@ -35,11 +34,24 @@ import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;;
         name = "CountRoles",
         functionName = "COUNT_ROLES",
         returnType = @EdmFunction.ReturnType(isCollection = true),
-        parameter = { @EdmFunctionParameter(name = "Amount", parameterName = "a", type = Integer.class) }),
+        parameter = { @EdmFunctionParameter(name = "Amount", parameterName = "a", type = Integer.class),
+        }),
+
+    @EdmFunction(
+        name = "max",
+        functionName = "MAX",
+        isBound = false,
+        hasFunctionImport = false,
+        returnType = @EdmFunction.ReturnType(type = BigDecimal.class, isCollection = false),
+        parameter = { @EdmFunctionParameter(name = "Path", parameterName = "path", type = String.class),
+        }),
+
     @EdmFunction(
         name = "IsPrime",
         functionName = "IS_PRIME",
-        returnType = @ReturnType(type = Boolean.class, isNullable = false),
+        isBound = false,
+        hasFunctionImport = true,
+        returnType = @EdmFunction.ReturnType(type = Boolean.class, isNullable = false),
         parameter = { @EdmFunctionParameter(name = "Number", type = BigDecimal.class, precision = 32, scale = 0) }),
 
 })

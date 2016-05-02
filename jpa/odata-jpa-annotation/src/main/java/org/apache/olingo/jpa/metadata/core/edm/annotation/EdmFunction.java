@@ -6,10 +6,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Metadata of a function. <p>
+ * Metadata of a function, see <a href =
+ * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406398010">
+ * edm:Function.</a><p>
  * By default bound functions are treated as User Defined Functions, whereas unbound functions are teared as Stored
  * Procedures.
- * a User Defined Function or
  * @author Oliver Grande
  *
  */
@@ -36,8 +37,8 @@ public @interface EdmFunction {
     int precision() default -1;
 
     int scale() default -1;
-    // TODO SRID (4- bis 5-stelliger Schlüsselnummern)
-    // SRID srid();
+
+    EdmGeospatial srid() default @EdmGeospatial();
 
     /**
      * Define the return type for the function import.<p>
@@ -59,17 +60,32 @@ public @interface EdmFunction {
   EdmFunctionParameter[] parameter() default {};
 
   /**
-   * Defines the name of a Stored Procedure respectively User Defined FUnction on the database
+   * Defines the name of a Stored Procedure respectively User Defined Function on the database
    * @return
    */
   String functionName() default "";
 
-  boolean isBound() default false;
+  boolean isBound() default true;
 
   /**
-   * Define the return type of this function import
+   * Indicates that a Function Import shall be generated into the Container. For details see:
+   * <a href =
+   * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406398042"
+   * /> edm:FunctionImport</a> <p>
+   * hasFunctionImport is handled as follows:<p>
+   * <ol>
+   * <li>For <b>bound</b> functions hasFunctionImport is always treated as <b>false</b></li>
+   * <li>For <b>unbound</b> functions in case hasFunctionImport is <b>true</b> a function import is generated, which
+   * allows to be call a function from the container
+   * </ol>
+   * @return
+   */
+  boolean hasFunctionImport() default false;
+
+  /**
+   * Define the return type of this function
    * 
-   * @return return type of this function import
+   * @return return type of this function
    */
   ReturnType returnType();
 }
