@@ -4,10 +4,13 @@ import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeException;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
+import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPATypeConvertor;
+import org.apache.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import org.apache.olingo.server.api.OData;
+import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.queryoption.expression.Literal;
 
 public class JPALiteralOperator implements JPAOperator {
@@ -20,18 +23,16 @@ public class JPALiteralOperator implements JPAOperator {
   }
 
   @Override
-  public Object get() {
+  public Object get() throws ODataApplicationException {
     final EdmPrimitiveType edmType = ((EdmPrimitiveType) literal.getType());
     try {
       return edmType.fromUriLiteral(literal.getText());
     } catch (EdmPrimitiveTypeException e) {
-      // TODO Error handling
-      e.printStackTrace();
+      throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
-    return null;
   }
 
-  public Object get(final JPAAttribute attribute) {
+  public Object get(final JPAAttribute attribute) throws ODataApplicationException {
 
     String value = null;
     try {
@@ -44,13 +45,11 @@ public class JPALiteralOperator implements JPAOperator {
       return edmType.valueOfString(value, edmProperty.isNullable(), edmProperty.getMaxLength(),
           edmProperty.getPrecision(), edmProperty.getScale(), true, attribute.getType());
     } catch (EdmPrimitiveTypeException e) {
-      // TODO Error handling
-      e.printStackTrace();
+      throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     } catch (ODataJPAModelException e) {
-      // TODO Error handling
-      e.printStackTrace();
+      throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
-    return value;
+    // return value;
   }
 
   Literal getLiteral() {

@@ -2,7 +2,6 @@ package org.apache.olingo.jpa.processor.core.query;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.Expression;
@@ -16,6 +15,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
+import org.apache.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import org.apache.olingo.jpa.processor.core.filter.JPAFilterElementComplier;
 import org.apache.olingo.jpa.processor.core.filter.JPAFilterExpression;
 import org.apache.olingo.jpa.processor.core.filter.JPAMemberOperator;
@@ -73,8 +73,7 @@ public class JPANavigationFilterQuery extends JPANavigationQuery {
       if (filterComplier.getExpressionMember() != null)
         whereCondition = cb.and(whereCondition, filterComplier.compile());
       } catch (ExpressionVisitException e) {
-      throw new ODataApplicationException("Expression error", HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
-          Locale.ENGLISH, e);
+      throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
       }
     return whereCondition;
   }
@@ -106,8 +105,7 @@ public class JPANavigationFilterQuery extends JPANavigationQuery {
       try {
         subQuery.having(this.filterComplier.compile());
       } catch (ExpressionVisitException e) {
-        throw new ODataApplicationException("Expression error", HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
-            Locale.ENGLISH, e);
+        throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
       }
     }
   }

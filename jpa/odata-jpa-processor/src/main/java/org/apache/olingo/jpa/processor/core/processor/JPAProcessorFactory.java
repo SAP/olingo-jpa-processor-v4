@@ -1,7 +1,6 @@
 package org.apache.olingo.jpa.processor.core.processor;
 
 import java.util.List;
-import java.util.Locale;
 
 import javax.persistence.EntityManager;
 
@@ -9,6 +8,7 @@ import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import org.apache.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import org.apache.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import org.apache.olingo.jpa.processor.core.serializer.JPASerializerFactory;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
@@ -53,15 +53,15 @@ public class JPAProcessorFactory {
       checkNavigationPathSupported(resourceParts);
       return new JPANavigationRequestProcessor(odata, serializerFactory.getServiceMetadata(), context, requestContext);
     default:
-      throw new ODataApplicationException("Not implemented",
-          HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+      throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
+          HttpStatusCode.NOT_IMPLEMENTED, lastItem.getKind().toString());
     }
   }
 
   private void checkFunctionPathSupported(final List<UriResource> resourceParts) throws ODataApplicationException {
     if (resourceParts.size() > 1)
-      throw new ODataApplicationException("Functions within a navigation path not supported",
-          HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+      throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_FUNC_WITH_NAVI,
+          HttpStatusCode.NOT_IMPLEMENTED);
   }
 
   private void checkNavigationPathSupported(final List<UriResource> resourceParts) throws ODataApplicationException {
@@ -71,8 +71,8 @@ public class JPAProcessorFactory {
           && resourceItem.getKind() != UriResourceKind.navigationProperty
           && resourceItem.getKind() != UriResourceKind.entitySet
           && resourceItem.getKind() != UriResourceKind.value)
-        throw new ODataApplicationException("Not implemented",
-            HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+        throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
+            HttpStatusCode.NOT_IMPLEMENTED, resourceItem.getKind().toString());
     }
 
   }

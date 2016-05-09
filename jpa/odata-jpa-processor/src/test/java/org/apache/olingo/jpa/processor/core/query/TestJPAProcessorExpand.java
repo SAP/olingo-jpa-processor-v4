@@ -300,11 +300,12 @@ public class TestJPAProcessorExpand extends TestBase {
     assertEquals("BE23", children.get(0).get("DivisionCode").asText());
   }
 
-  // TODO check how to handle $count -> Olingo
+  // TODO check how to handle $count -> Olingo auch mit $top=1;
+  @Ignore
   @Test
   public void testExpandWithCount() throws IOException, ODataException {
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Organizations?$count=true&$expand=Roles($count=true)&$orderby=Roles/$count desc"); // TODO $top=1;
+        "Organizations?$count=true&$expand=Roles($count=true)&$orderby=Roles/$count desc");
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
@@ -391,11 +392,25 @@ public class TestJPAProcessorExpand extends TestBase {
     assertEquals(7, children.size());
   }
 
-  @Ignore
   @Test
   public void testExpandAllNavigationPathOfPath() throws IOException, ODataException {
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions(DivisionCode='BE32',CodeID='NUTS2',CodePublisher='Eurostat')?$expand=*");
+    helper.assertStatus(200);
+
+    ObjectNode org = helper.getValue();
+    assertNotNull(org.get("Parent"));
+    ObjectNode parent = (ObjectNode) org.get("Parent");
+    assertNotNull(parent.get("DivisionCode"));
+    ArrayNode children = (ArrayNode) org.get("Children");
+    assertEquals(7, children.size());
+  }
+
+  @Ignore
+  @Test
+  public void testExpandLevel1() throws IOException, ODataException {
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions(DivisionCode='38025',CodeID='LAU2',CodePublisher='Eurostat')?$expand=Parent( $levels=1)");
     helper.assertStatus(200);
 
     ObjectNode org = helper.getValue();

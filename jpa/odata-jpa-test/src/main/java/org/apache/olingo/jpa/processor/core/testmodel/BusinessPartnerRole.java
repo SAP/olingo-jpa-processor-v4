@@ -23,9 +23,6 @@ public class BusinessPartnerRole {
   @Column(name = "\"BusinessPartnerRole\"")
   private String roleCategory;
 
-//  @ManyToOne(optional = false)
-//  @JoinColumn(referencedColumnName = "\"ID\"", name = "\"BusinessPartnerID\"", insertable = false,
-//      updatable = false)
   @ManyToOne(optional = false, fetch = FetchType.LAZY)
   @JoinColumn(name = "\"BusinessPartnerID\"", insertable = false, updatable = false)
   private BusinessPartner businessPartner;

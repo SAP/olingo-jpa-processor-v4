@@ -1,12 +1,11 @@
 package org.apache.olingo.jpa.processor.core.filter;
 
-import java.util.Locale;
-
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 
 import org.apache.olingo.commons.api.http.HttpStatusCode;
+import org.apache.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import org.apache.olingo.server.api.ODataApplicationException;
 
 public class JPAOperationConverter {
@@ -184,37 +183,37 @@ public class JPAOperationConverter {
   }
 
   protected Expression<Long> convertSpecific(JPAAggregationOperation jpaOperator) throws ODataApplicationException {
-    throw new ODataApplicationException("Operator " + jpaOperator.getAggregation() + " not supported",
-        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+    throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
+        HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getAggregation().name());
   }
 
   protected <T extends Number> Expression<T> convertSpecific(final JPAArithmeticOperator jpaOperator)
       throws ODataApplicationException {
-    throw new ODataApplicationException("Operator " + jpaOperator.getOperator() + " not supported",
-        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+    throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
+        HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getOperator().name());
   }
 
   protected Predicate convertSpecific(final JPABooleanOperator jpaOperator)
       throws ODataApplicationException {
-    throw new ODataApplicationException("Operator " + jpaOperator.getOperator() + " not supported",
-        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+    throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
+        HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getOperator().name());
   }
 
   protected Expression<Boolean> convertSpecific(final JPAExpressionOperator jpaOperator)
       throws ODataApplicationException {
-    throw new ODataApplicationException("Operator " + jpaOperator.getOperator() + " not supported",
-        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+    throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
+        HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getOperator().name());
   }
 
   protected Object convertSpecific(final JPAFunctionCall jpaFunction) throws ODataApplicationException {
-    throw new ODataApplicationException("Operator " + jpaFunction.getFunction() + " not supported",
-        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+    throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
+        HttpStatusCode.NOT_IMPLEMENTED, jpaFunction.getFunction().name());
   }
 
   protected Predicate convertSpecific(final JPAUnaryBooleanOperator jpaOperator)
       throws ODataApplicationException {
-    throw new ODataApplicationException("Operator " + jpaOperator.getOperator() + " not supported",
-        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+    throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
+        HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getOperator().name());
   }
 
 }

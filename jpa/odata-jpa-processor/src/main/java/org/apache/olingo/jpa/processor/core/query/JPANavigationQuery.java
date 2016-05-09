@@ -1,7 +1,6 @@
 package org.apache.olingo.jpa.processor.core.query;
 
 import java.util.List;
-import java.util.Locale;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.AbstractQuery;
@@ -18,6 +17,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
+import org.apache.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResource;
@@ -88,9 +88,9 @@ public class JPANavigationQuery extends JPAAbstractQuery {
       conditionItems = association.getJoinColumnsList();
       createSelectClause(subQuery, conditionItems);
     } catch (ODataJPAModelException e) {
-      // TODO Update error handling
-      throw new ODataApplicationException("Unknown navigation property", HttpStatusCode.INTERNAL_SERVER_ERROR.ordinal(),
-          Locale.ENGLISH, e);
+
+      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_NAVI_PROPERTY_UNKNOWN,
+          HttpStatusCode.INTERNAL_SERVER_ERROR, e, association.getAlias());
     }
 
     Expression<Boolean> whereCondition = null;

@@ -7,7 +7,7 @@ import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAMessageTextBuffer;
 import org.apache.olingo.server.api.ODataApplicationException;
 
-public class ODataJPAProcessException extends ODataApplicationException {
+public abstract class ODataJPAProcessException extends ODataApplicationException {
 
   /**
    * 
@@ -50,7 +50,8 @@ public class ODataJPAProcessException extends ODataApplicationException {
     this.parameter = null;
   }
 
-  public ODataJPAProcessException(String id, HttpStatusCode statusCode, Throwable cause, String[] params) {
+  public ODataJPAProcessException(final String id, final HttpStatusCode statusCode, final Throwable cause,
+      final String[] params) {
     super("", statusCode.getStatusCode(), Locale.ENGLISH, cause);
     this.id = id;
     this.messageBuffer = new ODataJPAMessageTextBuffer(getBundleName());

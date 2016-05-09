@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpHeader;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
+import org.apache.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataLibraryException;
@@ -58,7 +59,7 @@ public class JPAODataBatchProcessor implements BatchProcessor {
 
     final List<ODataResponsePart> responseParts = new ArrayList<ODataResponsePart>();
     for (final BatchRequestPart part : requestParts) {
-      responseParts.add(facade.handleBatchRequest(part)); // TODO
+      responseParts.add(facade.handleBatchRequest(part));
     }
     final InputStream responseContent = odata.createFixedFormatSerializer().batchResponse(responseParts, boundary);
     final String responseBoundary = "batch_" + UUID.randomUUID().toString();
@@ -71,8 +72,9 @@ public class JPAODataBatchProcessor implements BatchProcessor {
   @Override
   public ODataResponsePart processChangeSet(final BatchFacade facade, final List<ODataRequest> requests)
       throws ODataApplicationException, ODataLibraryException {
-    // TODO Auto-generated method stub
-    return null;
+    // TODO handle modifying requests
+    throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.BATCH_CHANGE_SET_NOT_IMPLEMENTED,
+        HttpStatusCode.NOT_IMPLEMENTED);
   }
 
 }

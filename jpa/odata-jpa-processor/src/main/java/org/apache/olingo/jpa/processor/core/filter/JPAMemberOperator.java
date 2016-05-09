@@ -3,13 +3,16 @@ package org.apache.olingo.jpa.processor.core.filter;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 
+import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPADescriptionAttribute;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import org.apache.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import org.apache.olingo.jpa.processor.core.query.JPAAbstractQuery;
 import org.apache.olingo.jpa.processor.core.query.Util;
+import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.queryoption.expression.Member;
 
 public class JPAMemberOperator implements JPAOperator {
@@ -26,7 +29,7 @@ public class JPAMemberOperator implements JPAOperator {
   }
 
   @Override
-  public Path<?> get() {
+  public Path<?> get() throws ODataApplicationException {
     final JPAPath selectItemPath = determineAttributePath();
     return determineCriteriaPath(selectItemPath);
   }
@@ -44,14 +47,13 @@ public class JPAMemberOperator implements JPAOperator {
     return p;
   }
 
-  public JPAPath determineAttributePath() {
+  public JPAPath determineAttributePath() throws ODataApplicationException {
     final String path = Util.determineProptertyNavigationPath(member.getResourcePath().getUriResourceParts());
     JPAPath selectItemPath = null;
     try {
       selectItemPath = jpaEntityType.getPath(path);
     } catch (ODataJPAModelException e) {
-      // TODO error handling
-      e.printStackTrace();
+      throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
     return selectItemPath;
   }

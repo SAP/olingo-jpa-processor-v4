@@ -8,18 +8,10 @@ import java.util.Enumeration;
 import java.util.Locale;
 
 import org.apache.olingo.jpa.processor.core.testmodel.LocaleEnumeration;
-import org.junit.Before;
 import org.junit.Test;
 
 public class TestODataJPAModelException {
   private static String BUNDLE_NAME = "test-i18n";
-
-  private ODataJPAMessageTextBuffer messages;
-
-  @Before
-  public void setup() {
-    messages = new ODataJPAMessageTextBuffer(BUNDLE_NAME);
-  }
 
   @Test
   public void checkTextInDefaultLocale() {
@@ -91,6 +83,17 @@ public class TestODataJPAModelException {
     fail();
   }
 
+  @Test
+  public void checkTextNullId() {
+    try {
+      RaiseEmptyIDExeption();
+    } catch (ODataJPAException e) {
+      assertEquals("No message text found", e.getMessage());
+      return;
+    }
+    fail();
+  }
+
   private void RaiseExeptionIDCause(String... params) throws TestException {
     try {
       raiseNullPointer();
@@ -120,6 +123,10 @@ public class TestODataJPAModelException {
 
   private void RaiseExeption() throws ODataJPAException {
     throw new TestException("FIRST_MESSAGE");
+  }
+
+  private void RaiseEmptyIDExeption() throws ODataJPAException {
+    throw new TestException("");
   }
 
   private class TestException extends ODataJPAException {

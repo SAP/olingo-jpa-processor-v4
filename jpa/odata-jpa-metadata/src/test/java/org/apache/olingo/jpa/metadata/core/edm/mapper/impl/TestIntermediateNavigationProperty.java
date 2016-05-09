@@ -21,7 +21,6 @@ import org.apache.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import org.apache.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import org.apache.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class TestIntermediateNavigationProperty extends TestMappingRoot {
@@ -95,13 +94,13 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
     assertEquals(CsdlOnDeleteAction.Cascade, property.getEdmItem().getOnDelete().getAction());
   }
 
-  @Ignore // How to express in a 1 : n relationship?
   @Test
   public void checkGetProptertyFacetsNullableFalse() throws ODataJPAModelException {
-    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEmbeddedableType("PostalAddressData"),
-        "countryName");
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("BusinessPartnerRole"),
+        "businessPartner");
     IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
-        schema.getStructuredType(jpaAttribute), jpaAttribute, schema);
+        schema.getEntityType(BusinessPartnerRole.class), jpaAttribute, schema);
+
     assertFalse(property.getEdmItem().isNullable());
   }
 
@@ -114,13 +113,13 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
     assertTrue(property.getEdmItem().isNullable());
   }
 
-  @Ignore // No valid example --> Roles backwards!
   @Test
   public void checkGetProptertyFacetsColletionFalse() throws ODataJPAModelException {
-    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEmbeddedableType("PostalAddressData"),
-        "countryName");
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("BusinessPartnerRole"),
+        "businessPartner");
     IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
-        schema.getStructuredType(jpaAttribute), jpaAttribute, schema);
+        schema.getEntityType(BusinessPartnerRole.class), jpaAttribute, schema);
+
     assertFalse(property.getEdmItem().isCollection());
   }
 

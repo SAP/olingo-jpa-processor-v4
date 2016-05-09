@@ -1,11 +1,10 @@
 package org.apache.olingo.jpa.processor.core.api;
 
-import java.util.Locale;
-
 import javax.persistence.EntityManager;
 
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
+import org.apache.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import org.apache.olingo.jpa.processor.core.processor.JPAProcessorFactory;
 import org.apache.olingo.jpa.processor.core.processor.JPARequestProcessor;
 import org.apache.olingo.server.api.OData;
@@ -50,55 +49,56 @@ public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
       final ContentType requestFormat, final ContentType responseFormat) throws ODataApplicationException,
       ODataLibraryException {
 
-    throw new ODataApplicationException("Create not implemented",
-        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+    throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_CREATE,
+        HttpStatusCode.NOT_IMPLEMENTED);
   }
 
   @Override
   public void createMediaEntity(ODataRequest request, ODataResponse response, UriInfo uriInfo,
       ContentType requestFormat, ContentType responseFormat) throws ODataApplicationException, ODataLibraryException {
 
-    throw new ODataApplicationException("Create not implemented",
-        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+    throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_CREATE,
+        HttpStatusCode.NOT_IMPLEMENTED);
   }
 
   @Override
   public void deleteComplex(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo)
       throws ODataApplicationException, ODataLibraryException {
 
-    throw new ODataApplicationException("Delete not implemented",
-        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+    throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
+        HttpStatusCode.NOT_IMPLEMENTED);
   }
 
   @Override
   public void deleteEntity(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo)
       throws ODataApplicationException, ODataLibraryException {
-    throw new ODataApplicationException("Delete not implemented",
-        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+
+    throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
+        HttpStatusCode.NOT_IMPLEMENTED);
   }
 
   @Override
   public void deletePrimitive(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo)
       throws ODataApplicationException, ODataLibraryException {
 
-    throw new ODataApplicationException("Delete not implemented",
-        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+    throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
+        HttpStatusCode.NOT_IMPLEMENTED);
   }
 
   @Override
   public void deletePrimitiveValue(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo)
       throws ODataApplicationException, ODataLibraryException {
 
-    throw new ODataApplicationException("Delete not implemented",
-        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+    throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
+        HttpStatusCode.NOT_IMPLEMENTED);
   }
 
   @Override
   public void deleteMediaEntity(ODataRequest request, ODataResponse response, UriInfo uriInfo)
       throws ODataApplicationException, ODataLibraryException {
 
-    throw new ODataApplicationException("Delete not implemented",
-        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+    throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
+        HttpStatusCode.NOT_IMPLEMENTED);
   }
 
   @Override
@@ -155,16 +155,17 @@ public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
       final ContentType requestFormat, final ContentType responseFormat) throws ODataApplicationException,
       ODataLibraryException {
 
-    throw new ODataApplicationException("Update not implemented",
-        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+    throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_UPDATE,
+        HttpStatusCode.NOT_IMPLEMENTED);
   }
 
   @Override
   public void updateEntity(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo,
       final ContentType requestFormat, final ContentType responseFormat) throws ODataApplicationException,
       ODataLibraryException {
-    throw new ODataApplicationException("Update not implemented",
-        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+
+    throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_UPDATE,
+        HttpStatusCode.NOT_IMPLEMENTED);
   }
 
   @Override
@@ -172,8 +173,8 @@ public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
       final ContentType requestFormat, final ContentType responseFormat) throws ODataApplicationException,
       ODataLibraryException {
 
-    throw new ODataApplicationException("Update not implemented",
-        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+    throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_UPDATE,
+        HttpStatusCode.NOT_IMPLEMENTED);
   }
 
   @Override
@@ -181,15 +182,16 @@ public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
       final ContentType requestFormat, final ContentType responseFormat) throws ODataApplicationException,
       ODataLibraryException {
 
-    throw new ODataApplicationException("Update not implemented",
-        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+    throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_UPDATE,
+        HttpStatusCode.NOT_IMPLEMENTED);
   }
 
   @Override
   public void updateMediaEntity(ODataRequest request, ODataResponse response, UriInfo uriInfo,
       ContentType requestFormat, ContentType responseFormat) throws ODataApplicationException, ODataLibraryException {
-    throw new ODataApplicationException("Update not implemented",
-        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+
+    throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_UPDATE,
+        HttpStatusCode.NOT_IMPLEMENTED);
   }
 
 }

@@ -35,6 +35,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
 import org.apache.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import org.apache.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import org.apache.olingo.jpa.processor.core.filter.JPAFilterComplier;
 import org.apache.olingo.jpa.processor.core.filter.JPAFilterCrossComplier;
 import org.apache.olingo.jpa.processor.core.filter.JPAOperationConverter;
@@ -120,8 +121,8 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
       if (topNumber >= 0)
         tq.setMaxResults(topNumber);
       else
-        throw new ODataApplicationException("Invalid value for $top", HttpStatusCode.BAD_REQUEST.getStatusCode(),
-            Locale.ROOT);
+        throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_INVALID_VALUE,
+            HttpStatusCode.BAD_REQUEST, Integer.toString(topNumber), "$top");
     }
 
     final SkipOption skipOption = uriResource.getSkipOption();
@@ -130,8 +131,8 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
       if (skipNumber >= 0)
         tq.setFirstResult(skipNumber);
       else
-        throw new ODataApplicationException("Invalid value for $skip", HttpStatusCode.BAD_REQUEST.getStatusCode(),
-            Locale.ROOT);
+        throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_INVALID_VALUE,
+            HttpStatusCode.BAD_REQUEST, Integer.toString(skipNumber), "$skip");
     }
   }
 
@@ -140,7 +141,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     try {
       return jpaEntity.getPathList();
     } catch (ODataJPAModelException e) {
-      throw new ODataApplicationException("Mapping Error", 500, Locale.ENGLISH, e);
+      throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
     }
 
   }
@@ -162,7 +163,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
         jpaPathList = buildPathList(jpaEntity, selectString);
       }
     } catch (ODataJPAModelException e) {
-      throw new ODataApplicationException("Mapping Error", 500, Locale.ENGLISH, e);
+      throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
     }
     return jpaPathList;
   }
@@ -202,7 +203,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
           jpaPathList.add((insertAt * -1) - 1, keyPath);
       }
     } catch (ODataJPAModelException e) {
-      throw new ODataApplicationException("Mapping Error", 500, Locale.ENGLISH, e);
+      throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
     }
     return jpaPathList;
   }
@@ -256,9 +257,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
               jpaPathList.add(Math.abs(insertIndex), joinItem.getLeftPath());
           }
         } catch (ODataJPAModelException e) {
-          throw new ODataApplicationException("Error when trying to process Join Columns",
-              HttpStatusCode.INTERNAL_SERVER_ERROR
-                  .ordinal(), Locale.ENGLISH, e);
+          throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
         }
       }
     }
@@ -321,8 +320,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
         p = p.get(pathElement.getInternalName());
       }
     } catch (ODataJPAModelException e) {
-      throw new ODataApplicationException(e.getMessage(),
-          HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), Locale.ENGLISH, e);
+      throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
     }
     return p;
   }
@@ -370,8 +368,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
                 final JPAAttribute attribute = type.getPath(edmProperty.getName()).getLeaf();
                 p = p.get(attribute.getInternalName());
               } catch (ODataJPAModelException e) {
-                throw new ODataApplicationException("Property not found", HttpStatusCode.BAD_REQUEST.getStatusCode(),
-                    Locale.ENGLISH, e);
+                throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
               }
               if (orderByItem.isDescending())
                 orders.add(cb.desc(p));
@@ -384,8 +381,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
                 p = p.get(attribute.getInternalName());
                 type = attribute.getStructuredType();
               } catch (ODataJPAModelException e) {
-                throw new ODataApplicationException("Property not found", HttpStatusCode.BAD_REQUEST.getStatusCode(),
-                    Locale.ENGLISH, e);
+                throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
               }
             } else if (uriResource instanceof UriResourceNavigation) {
               final EdmNavigationProperty edmNaviProperty = ((UriResourceNavigation) uriResource).getProperty();
@@ -394,8 +390,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
                 join = joinTables.get(jpaEntity.getAssociationPath(edmNaviProperty.getName()).getLeaf()
                     .getInternalName());
               } catch (ODataJPAModelException e) {
-                throw new ODataApplicationException("Property not found", HttpStatusCode.BAD_REQUEST.getStatusCode(),
-                    Locale.ENGLISH, e);
+                throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
               }
               if (orderByItem.isDescending())
                 orders.add(cb.desc(cb.count(join)));
@@ -469,8 +464,8 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     try {
       whereCondition = addWhereClause(whereCondition, filter.compile());
     } catch (ExpressionVisitException e) {
-      throw new ODataApplicationException("Unable to parse filter expression", HttpStatusCode.BAD_REQUEST
-          .getStatusCode(), Locale.ENGLISH, e);
+      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_FILTER_ERROR,
+          HttpStatusCode.BAD_REQUEST, e);
     }
 
     if (uriResource.getSearchOption() != null && uriResource.getSearchOption().getSearchExpression() != null)
@@ -492,9 +487,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
         naviStartType = sd.getEntity(((UriResourceNavigation) naviStart).getProperty().getType());
       return naviStartType.getAssociationPath(associationName.toString());
     } catch (ODataJPAModelException e) {
-      // TODO Update error handling
-      throw new ODataApplicationException("Unknown navigation property", HttpStatusCode.INTERNAL_SERVER_ERROR
-          .ordinal(), Locale.ENGLISH, e);
+      throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
     }
   }
 

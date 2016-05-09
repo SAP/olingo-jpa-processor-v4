@@ -1,7 +1,6 @@
 package org.apache.olingo.jpa.processor.core.processor;
 
 import java.util.List;
-import java.util.Locale;
 
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
@@ -10,6 +9,7 @@ import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import org.apache.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import org.apache.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import org.apache.olingo.jpa.processor.core.query.JPAQuery;
 import org.apache.olingo.jpa.processor.core.query.Util;
 import org.apache.olingo.server.api.OData;
@@ -42,8 +42,8 @@ public class JPACountRequestProcessor extends JPAAbstractRequestProcessor {
       final EntityCollection result = countEntities(request, response, uriInfo);
       createSuccessResonce(response, ContentType.TEXT_PLAIN, serializer.serialize(request, result));
     } else {
-      throw new ODataApplicationException("Unsupported resource type", HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(),
-          Locale.ENGLISH);
+      throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
+          HttpStatusCode.NOT_IMPLEMENTED, uriResource.getKind().toString());
     }
   }
 
@@ -58,8 +58,8 @@ public class JPACountRequestProcessor extends JPAAbstractRequestProcessor {
     try {
       query = new JPAQuery(odata, targetEdmEntitySet, context, uriInfo, em, request.getAllHeaders());
     } catch (ODataJPAModelException e) {
-      throw new ODataApplicationException("An error occured", HttpStatusCode.BAD_REQUEST.getStatusCode(),
-          Locale.ENGLISH, e);
+      throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.QUERY_PREPARATION_ERROR,
+          HttpStatusCode.INTERNAL_SERVER_ERROR, e);
     }
 
     entityCollection.setCount(Integer.valueOf(query.countResults().intValue()));

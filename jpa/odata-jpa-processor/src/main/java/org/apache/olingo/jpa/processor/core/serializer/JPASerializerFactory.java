@@ -1,10 +1,10 @@
 package org.apache.olingo.jpa.processor.core.serializer;
 
 import java.util.List;
-import java.util.Locale;
 
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
+import org.apache.olingo.jpa.processor.core.exception.ODataJPASerializerException;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ServiceMetadata;
@@ -49,9 +49,8 @@ public class JPASerializerFactory {
     case value:
       return new JPASerializeValue(serviceMetadata, odata.createFixedFormatSerializer(), uriHelper, uriInfo);
     default:
-      // TODO error handling
-      throw new ODataApplicationException("Resource type " + lastItem.getKind() + " not supported",
-          HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+      throw new ODataJPASerializerException(ODataJPASerializerException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
+          HttpStatusCode.NOT_IMPLEMENTED, lastItem.getKind().toString());
     }
   }
 

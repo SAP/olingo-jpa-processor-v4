@@ -65,7 +65,7 @@ public abstract class ODataJPAException extends ODataException {
 
   @Override
   public String getMessage() {
-    if (messageBuffer != null) {
+    if (id != null && !id.isEmpty() && messageBuffer != null) {
       messageBuffer.setLocales(locales);
       return messageBuffer.getText(this, id, parameter);
     } else if (getCause() != null) {

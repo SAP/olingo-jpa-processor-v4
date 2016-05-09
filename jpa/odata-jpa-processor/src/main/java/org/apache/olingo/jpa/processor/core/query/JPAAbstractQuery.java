@@ -1,7 +1,6 @@
 package org.apache.olingo.jpa.processor.core.query;
 
 import java.util.List;
-import java.util.Locale;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.AbstractQuery;
@@ -14,6 +13,7 @@ import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
+import org.apache.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResource;
@@ -46,8 +46,7 @@ public abstract class JPAAbstractQuery {
     try {
       this.jpaEntity = sd.getEntity(edmEntityType);
     } catch (ODataJPAModelException e) {
-      throw new ODataApplicationException("An error occured", HttpStatusCode.BAD_REQUEST.getStatusCode(),
-          Locale.ENGLISH, e);
+      throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
     }
   }
 
@@ -65,8 +64,7 @@ public abstract class JPAAbstractQuery {
           equalCondition = cb.equal(root.get(jpaEntity.getPath(keyPredicate.getName()).getLeaf()
               .getInternalName()), eliminateApostrophe(keyPredicate.getText()));
         } catch (ODataJPAModelException e) {
-          throw new ODataApplicationException("Property not found", HttpStatusCode.BAD_REQUEST.getStatusCode(),
-              Locale.ENGLISH, e);
+          throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
         }
         if (compundCondition == null)
           compundCondition = equalCondition;
@@ -89,8 +87,9 @@ public abstract class JPAAbstractQuery {
     else if (uriResourceItem instanceof UriResourceNavigation)
       return ((UriResourceNavigation) uriResourceItem).getKeyPredicates();
     else
-      throw new ODataApplicationException("Unsupported Resource Kind '" + uriResourceItem.getKind().name() + "'",
-          HttpStatusCode.BAD_REQUEST.getStatusCode(), Locale.ENGLISH);
+      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
+          HttpStatusCode.BAD_REQUEST,
+          uriResourceItem.getKind().name());
   }
 
   public abstract Root<?> getRoot();

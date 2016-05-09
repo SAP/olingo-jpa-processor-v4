@@ -7,15 +7,22 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAMessageK
  * Copied from org.apache.olingo.odata2.jpa.processor.api.exception.ODataJPAModelException
  * See also org.apache.olingo.odata2.jpa.processor.core.exception.ODataJPAMessageServiceDefault
  */
-public class ODataJPASerializerException extends ODataJPAProcessException {
+public class ODataJPAProcessorException extends ODataJPAProcessException {
   /**
    * 
    */
   private static final long serialVersionUID = -7188499882306858747L;
 
   public static enum MessageKeys implements ODataJPAMessageKey {
-    RESULT_NOT_FOUND,
-    NOT_SUPPORTED_RESOURCE_TYPE;
+    QUERY_PREPARATION_ERROR,
+    QUERY_RESULT_CONV_ERROR,
+    QUERY_RESULT_URI_ERROR,
+    BATCH_CHANGE_SET_NOT_IMPLEMENTED,
+    NOT_SUPPORTED_CREATE,
+    NOT_SUPPORTED_UPDATE,
+    NOT_SUPPORTED_DELETE,
+    NOT_SUPPORTED_RESOURCE_TYPE,
+    NOT_SUPPORTED_FUNC_WITH_NAVI;
 
     @Override
     public String getKey() {
@@ -26,25 +33,25 @@ public class ODataJPASerializerException extends ODataJPAProcessException {
 
   private static final String BUNDEL_NAME = "exceptions-i18n";
 
-  public ODataJPASerializerException(Throwable e, final HttpStatusCode statusCode) {
+  public ODataJPAProcessorException(Throwable e, final HttpStatusCode statusCode) {
     super(e, statusCode);
   }
 
-  public ODataJPASerializerException(final MessageKeys messageKey, final HttpStatusCode statusCode,
+  public ODataJPAProcessorException(final MessageKeys messageKey, final HttpStatusCode statusCode,
       final Throwable cause, final String... params) {
     super(messageKey.getKey(), statusCode, cause, params);
   }
 
-  public ODataJPASerializerException(final MessageKeys messageKey, final HttpStatusCode statusCode) {
+  public ODataJPAProcessorException(final MessageKeys messageKey, final HttpStatusCode statusCode) {
     super(messageKey.getKey(), statusCode);
   }
 
-  public ODataJPASerializerException(final MessageKeys messageKey, final HttpStatusCode statusCode,
+  public ODataJPAProcessorException(final MessageKeys messageKey, final HttpStatusCode statusCode,
       final String... params) {
     super(messageKey.getKey(), statusCode, params);
   }
 
-  public ODataJPASerializerException(final MessageKeys messageKey, final HttpStatusCode statusCode, final Throwable e) {
+  public ODataJPAProcessorException(final MessageKeys messageKey, final HttpStatusCode statusCode, final Throwable e) {
     super(messageKey.getKey(), statusCode, e);
   }
 

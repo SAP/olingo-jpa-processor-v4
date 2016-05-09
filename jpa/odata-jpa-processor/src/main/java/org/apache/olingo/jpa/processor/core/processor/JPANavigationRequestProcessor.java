@@ -2,7 +2,6 @@ package org.apache.olingo.jpa.processor.core.processor;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import org.apache.olingo.commons.api.data.EntityCollection;
@@ -13,6 +12,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExc
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
 import org.apache.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import org.apache.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import org.apache.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import org.apache.olingo.jpa.processor.core.query.JPAExpandItemInfo;
 import org.apache.olingo.jpa.processor.core.query.JPAExpandItemInfoFactory;
 import org.apache.olingo.jpa.processor.core.query.JPAExpandQuery;
@@ -54,9 +54,10 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
     try {
       query = new JPAQuery(odata, targetEdmEntitySet, context, uriInfo, em, request.getAllHeaders());
     } catch (ODataJPAModelException e) {
-      throw new ODataApplicationException("An error occured", HttpStatusCode.BAD_REQUEST.getStatusCode(),
-          Locale.ENGLISH, e);
+      throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.QUERY_PREPARATION_ERROR,
+          HttpStatusCode.INTERNAL_SERVER_ERROR, e);
     }
+
     final JPAExpandResult result = query.execute();
     result.putChildren(readExpandEntities(request.getAllHeaders(), null, uriInfo));
 
@@ -66,8 +67,8 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
       entityCollection = new JPATupleResultConverter(sd, result, odata.createUriHelper(), serviceMetadata)
           .getResult();
     } catch (ODataJPAModelException e) {
-      throw new ODataApplicationException("Convertion error", HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
-          Locale.ENGLISH, e);
+      throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.QUERY_RESULT_CONV_ERROR,
+          HttpStatusCode.INTERNAL_SERVER_ERROR, e);
     }
 
     // Count results if requested
@@ -80,7 +81,11 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
       final SerializerResult serializerResult = serializer.serialize(request, entityCollection);
       createSuccessResonce(response, responseFormat, serializerResult);
     } else
-      // TODO more fine gain response handling e.g. 204 vs. 404
+      // 404 Not Found indicates that the resource specified by the request URL does not exist. The response body MAY
+      // provide additional information.
+      // A request returns 204 No Content if the requested resource has the null value, or if the service applies a
+      // return=minimal preference. In this case, the response body MUST be empty.
+      // Assumption 404 is handled by Olingo during URL parsing
       response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
 
   }

@@ -2,7 +2,6 @@ package org.apache.olingo.jpa.processor.core.processor;
 
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Locale;
 
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
@@ -14,6 +13,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExc
 import org.apache.olingo.jpa.processor.core.api.JPAODataDatabaseProcessor;
 import org.apache.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import org.apache.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import org.apache.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import org.apache.olingo.jpa.processor.core.query.JPAInstanceResultConverter;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
@@ -57,11 +57,11 @@ public class JPAFunctionRequestProcessor extends JPAAbstractRequestProcessor {
       entityCollection = new JPAInstanceResultConverter(odata.createUriHelper(), sd, nr, returnEntitySet, returnType
           .getTypeClass()).getResult();
     } catch (ODataJPAModelException e) {
-      throw new ODataApplicationException("Result could not be created", HttpStatusCode.INTERNAL_SERVER_ERROR
-          .getStatusCode(), Locale.ENGLISH, e);
+      throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.QUERY_RESULT_CONV_ERROR,
+          HttpStatusCode.INTERNAL_SERVER_ERROR, e);
     } catch (URISyntaxException e) {
-      throw new ODataApplicationException("Result could not be created", HttpStatusCode.INTERNAL_SERVER_ERROR
-          .getStatusCode(), Locale.ENGLISH, e);
+      throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.QUERY_RESULT_URI_ERROR,
+          HttpStatusCode.INTERNAL_SERVER_ERROR, e);
     }
 
     if (entityCollection.getEntities() != null && entityCollection.getEntities().size() > 0) {

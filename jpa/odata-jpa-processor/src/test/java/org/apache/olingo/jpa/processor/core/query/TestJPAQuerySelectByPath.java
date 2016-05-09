@@ -8,7 +8,6 @@ import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.jpa.processor.core.testmodel.ImageLoader;
 import org.apache.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import org.apache.olingo.jpa.processor.core.util.TestBase;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -82,7 +81,6 @@ public class TestJPAQuerySelectByPath extends TestBase {
     assertEquals("US-UT", org.get("Region").asText());
   }
 
-  @Ignore
   @Test
   public void testNavigationToComplexPropertyExpand() throws IOException, ODataException {
 

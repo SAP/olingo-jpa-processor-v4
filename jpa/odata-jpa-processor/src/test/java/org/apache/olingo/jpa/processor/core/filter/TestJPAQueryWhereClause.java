@@ -439,18 +439,6 @@ public class TestJPAQueryWhereClause extends TestBase {
     assertEquals(1, orgs.size());
   }
 
-  @Ignore
-  @Test
-  public void testFilterNavigationPropertyToManyValueAllNoRestriction() throws IOException, ODataException {
-
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Organizations?$filter=Roles/all()");
-
-    helper.assertStatus(200);
-    ArrayNode orgs = helper.getValues();
-    assertEquals(1, orgs.size());
-  }
-
   @Test
   public void testFilterCountNavigationProperty() throws IOException, ODataException {
 //https://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398301

@@ -3,7 +3,6 @@ package org.apache.olingo.jpa.processor.core.query;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
@@ -22,6 +21,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
 import org.apache.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import org.apache.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
@@ -136,8 +136,7 @@ public class JPAExpandQuery extends JPAExecutableQuery {
       try {
         actuallKey = buildConcatenatedKey(row, a.getJoinColumnsList());
       } catch (ODataJPAModelException e) {
-        throw new ODataApplicationException("Join condition not found", HttpStatusCode.BAD_REQUEST.ordinal(),
-            Locale.ENGLISH, e);
+        throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
       }
 
       if (!actuallKey.equals(joinKey)) {
@@ -173,8 +172,7 @@ public class JPAExpandQuery extends JPAExecutableQuery {
         orders.add(cb.asc(root.get(j.getRightPath().getLeaf().getInternalName())));
       }
     } catch (ODataJPAModelException e) {
-      throw new ODataApplicationException("Join condition not found", HttpStatusCode.BAD_REQUEST.ordinal(),
-          Locale.ENGLISH, e);
+      throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
     }
     return orders;
   }
@@ -186,8 +184,8 @@ public class JPAExpandQuery extends JPAExecutableQuery {
     try {
       whereCondition = filter.compile();
     } catch (ExpressionVisitException e) {
-      throw new ODataApplicationException("Unable to parth filter expression", HttpStatusCode.BAD_REQUEST
-          .getStatusCode(), Locale.ENGLISH, e);
+      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_FILTER_ERROR,
+          HttpStatusCode.BAD_REQUEST, e);
     }
 
     if (whereCondition == null)

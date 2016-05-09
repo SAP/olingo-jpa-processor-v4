@@ -1,7 +1,6 @@
 package org.apache.olingo.jpa.processor.core.query;
 
 import java.util.List;
-import java.util.Locale;
 
 import javax.persistence.Tuple;
 
@@ -9,9 +8,11 @@ import org.apache.olingo.commons.api.Constants;
 import org.apache.olingo.commons.api.data.Entity;
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.Link;
+import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
+import org.apache.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.uri.UriHelper;
@@ -57,7 +58,8 @@ public class JPATupleExpandResultConverter extends JPATupleAbstractConverter {
       subResult = jpaQueryResult.getResult(buildConcatenatedKey(parentRow, assoziation.getJoinColumnsList())
           .toString());
     } catch (ODataJPAModelException e) {
-      throw new ODataApplicationException("Mapping Error", 500, Locale.ENGLISH, e);
+      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
+          HttpStatusCode.INTERNAL_SERVER_ERROR, e);
     }
 
     final EntityCollection odataEntityCollection = new EntityCollection();

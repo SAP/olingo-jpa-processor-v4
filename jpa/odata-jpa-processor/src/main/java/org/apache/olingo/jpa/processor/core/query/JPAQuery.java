@@ -3,7 +3,6 @@ package org.apache.olingo.jpa.processor.core.query;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
@@ -20,6 +19,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import org.apache.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfo;
@@ -141,8 +141,8 @@ public class JPAQuery extends JPAExecutableQuery {
                 naviAttributes.add(jpaEntity.getAssociationPath(edmNaviProperty.getName())
                     .getLeaf());
               } catch (ODataJPAModelException e) {
-                throw new ODataApplicationException("Property not found", HttpStatusCode.BAD_REQUEST.getStatusCode(),
-                    Locale.ENGLISH, e);
+                throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
+                    HttpStatusCode.INTERNAL_SERVER_ERROR, e);
               }
             }
           }

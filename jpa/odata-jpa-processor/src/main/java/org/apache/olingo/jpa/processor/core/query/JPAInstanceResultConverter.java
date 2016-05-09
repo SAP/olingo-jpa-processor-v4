@@ -7,7 +7,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import org.apache.olingo.commons.api.data.Entity;
@@ -20,6 +19,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
+import org.apache.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.uri.UriHelper;
@@ -39,7 +39,7 @@ public class JPAInstanceResultConverter {
 
   public JPAInstanceResultConverter(final UriHelper uriHelper, final ServicDocument sd,
       final List<?> jpaQueryResult, final EdmEntitySet edmEntitySet, final Class<?> resultType)
-          throws ODataJPAModelException {
+      throws ODataJPAModelException {
     super();
     this.jpaQueryResult = jpaQueryResult;
     this.edmEntitySet = edmEntitySet;
@@ -77,9 +77,8 @@ public class JPAInstanceResultConverter {
         final String getterName = ACCESS_MODIFIER_GET + JPAEdmNameBuilder.firstToUpper(attributeName);
 
         if (messageMap.get(getterName) == null)
-          throw new ODataApplicationException("Access method not found", HttpStatusCode.INTERNAL_SERVER_ERROR
-              .getStatusCode(), Locale.ENGLISH);
-
+          throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_ACCESS_NOT_FOUND,
+              HttpStatusCode.INTERNAL_SERVER_ERROR, path.getAlias());
         Method getMethod;
         getMethod = messageMap.get(getterName);
         try {
@@ -89,14 +88,11 @@ public class JPAInstanceResultConverter {
               ValueType.PRIMITIVE,
               getMethod.invoke(row)));
         } catch (IllegalAccessException e) {
-          throw new ODataApplicationException("Access method invokation error", HttpStatusCode.INTERNAL_SERVER_ERROR
-              .getStatusCode(), Locale.ENGLISH, e);
+          throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
         } catch (IllegalArgumentException e) {
-          throw new ODataApplicationException("Access method invokation error", HttpStatusCode.INTERNAL_SERVER_ERROR
-              .getStatusCode(), Locale.ENGLISH, e);
+          throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
         } catch (InvocationTargetException e) {
-          throw new ODataApplicationException("Access method invokation error", HttpStatusCode.INTERNAL_SERVER_ERROR
-              .getStatusCode(), Locale.ENGLISH, e);
+          throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
         }
       }
       odataEntity.setId(new URI(odataUriHelper.buildKeyPredicate(edmEntitySet.getEntityType(), odataEntity)));

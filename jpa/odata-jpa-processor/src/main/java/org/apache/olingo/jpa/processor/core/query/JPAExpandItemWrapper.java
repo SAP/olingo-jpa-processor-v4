@@ -1,12 +1,12 @@
 package org.apache.olingo.jpa.processor.core.query;
 
 import java.util.List;
-import java.util.Locale;
 
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
+import org.apache.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
@@ -36,8 +36,8 @@ public class JPAExpandItemWrapper implements UriInfoResource {
     try {
       this.jpaEntityType = sd.getEntity(Util.determineTargetEntityType(getUriResourceParts()));
     } catch (ODataJPAModelException e) {
-      throw new ODataApplicationException("Unknown entity type", HttpStatusCode.BAD_REQUEST.getStatusCode(),
-          Locale.ENGLISH, e);
+      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_ENTITY_UNKNOWN,
+          HttpStatusCode.BAD_REQUEST, e, Util.determineTargetEntityType(getUriResourceParts()).getName());
     }
   }
 

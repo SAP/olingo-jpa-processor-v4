@@ -1,7 +1,6 @@
 package org.apache.olingo.jpa.processor.core.database;
 
 import java.util.List;
-import java.util.Locale;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -24,6 +23,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionParameter;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.processor.core.api.JPAODataDatabaseProcessor;
+import org.apache.olingo.jpa.processor.core.exception.ODataJPADBAdaptorException;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResourceFunction;
@@ -71,11 +71,10 @@ final class JPA_HANA_DatabaseProcessor implements JPAODataDatabaseProcessor {
       if (keyPathList.size() == 1)
         keyPath = keyPathList.get(0);
       else
-        throw new ODataApplicationException("Wrong number of key properties", HttpStatusCode.INTERNAL_SERVER_ERROR
-            .getStatusCode(), Locale.ENGLISH);
+        throw new ODataJPADBAdaptorException(ODataJPADBAdaptorException.MessageKeys.WRONG_NO_KEY_PROP,
+            HttpStatusCode.INTERNAL_SERVER_ERROR);
     } catch (ODataJPAModelException e) {
-      throw new ODataApplicationException(e.getMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
-          Locale.ENGLISH, e);
+      throw new ODataJPADBAdaptorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
     if (!searchableAttributes.isEmpty()) {
       final SearchTerm term = searchOption.getSearchExpression().asSearchTerm();
@@ -116,8 +115,8 @@ final class JPA_HANA_DatabaseProcessor implements JPAODataDatabaseProcessor {
       if (uriParameter.getName().equals(parameter.getName()))
         return uriParameter;
     }
-    throw new ODataApplicationException("Parameter not found " + parameter.getName(), HttpStatusCode.BAD_REQUEST
-        .getStatusCode(), Locale.ENGLISH);
+    throw new ODataJPADBAdaptorException(ODataJPADBAdaptorException.MessageKeys.PARAMETER_MISSING,
+        HttpStatusCode.BAD_REQUEST, parameter.getName());
   }
 
   private Object getValue(final EdmFunction edmFunction, final JPAFunctionParameter parameter, final String uriValue)
@@ -128,8 +127,9 @@ final class JPA_HANA_DatabaseProcessor implements JPAODataDatabaseProcessor {
       return ((EdmPrimitiveType) edmParam.getType()).valueOfString(value, false, parameter.maxLength(),
           parameter.precision(), parameter.scale(), true, parameter.getType());
     } catch (EdmPrimitiveTypeException e) {
-      throw new ODataApplicationException("Unable to convert parameter value " + uriValue, HttpStatusCode.BAD_REQUEST
-          .getStatusCode(), Locale.ENGLISH, e);
+      // Unable to convert value %1$s of parameter %2$s
+      throw new ODataJPADBAdaptorException(ODataJPADBAdaptorException.MessageKeys.PARAMETER_CONVERSION_ERROR,
+          HttpStatusCode.NOT_IMPLEMENTED, uriValue, parameter.getName());
     }
   }
 

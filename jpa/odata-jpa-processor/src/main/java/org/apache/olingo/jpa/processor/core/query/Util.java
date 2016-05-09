@@ -3,7 +3,6 @@ package org.apache.olingo.jpa.processor.core.query;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import org.apache.olingo.commons.api.edm.EdmBindingTarget;
@@ -16,6 +15,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
+import org.apache.olingo.jpa.processor.core.exception.ODataJPAUtilException;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceComplexProperty;
@@ -140,8 +140,8 @@ public class Util {
       naviStartType = sd.getEntity(naviStart);
       return naviStartType.getAssociationPath(associationName.toString());
     } catch (ODataJPAModelException e) {
-      throw new ODataApplicationException("Unknown navigation property", HttpStatusCode.INTERNAL_SERVER_ERROR
-          .ordinal(), Locale.ENGLISH, e);
+      throw new ODataJPAUtilException(ODataJPAUtilException.MessageKeys.UNKNOWN_NAVI_PROPERTY,
+          HttpStatusCode.BAD_REQUEST);
     }
   }
 
@@ -181,8 +181,8 @@ public class Util {
               pathList.put(new JPAExpandItemWrapper(item, (JPAEntityType) path.getTargetType()), path);
             }
           } catch (ODataJPAModelException e) {
-            throw new ODataApplicationException("Unknown entity type ", HttpStatusCode.INTERNAL_SERVER_ERROR.ordinal(),
-                Locale.ENGLISH, e);
+            throw new ODataJPAUtilException(ODataJPAUtilException.MessageKeys.UNKNOWN_ENTITY_TYPE,
+                HttpStatusCode.BAD_REQUEST);
           }
         } else {
           final List<UriResource> targetResourceList = item.getResourcePath().getUriResourceParts();
@@ -264,9 +264,8 @@ public class Util {
         naviStartType = sd.getEntity(((UriResourceNavigation) naviStart).getProperty().getType());
       return naviStartType.getAssociationPath(associationName.toString());
     } catch (ODataJPAModelException e) {
-      // TODO Update error handling
-      throw new ODataApplicationException("Unknown navigation property", HttpStatusCode.INTERNAL_SERVER_ERROR
-          .ordinal(), Locale.ENGLISH, e);
+      throw new ODataJPAUtilException(ODataJPAUtilException.MessageKeys.UNKNOWN_NAVI_PROPERTY,
+          HttpStatusCode.BAD_REQUEST);
     }
   }
 }

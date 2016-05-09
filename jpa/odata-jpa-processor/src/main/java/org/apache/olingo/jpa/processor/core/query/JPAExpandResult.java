@@ -2,7 +2,6 @@ package org.apache.olingo.jpa.processor.core.query;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.persistence.Tuple;
@@ -10,6 +9,7 @@ import javax.persistence.Tuple;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
+import org.apache.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import org.apache.olingo.server.api.ODataApplicationException;
 
 /**
@@ -60,9 +60,8 @@ public final class JPAExpandResult {
       throws ODataApplicationException {
     for (final JPAAssociationPath child : childResults.keySet()) {
       if (childrenResult.get(child) != null)
-        throw new ODataApplicationException("Double execution of $expand", HttpStatusCode.INTERNAL_SERVER_ERROR
-            .ordinal(),
-            Locale.ENGLISH);
+        throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_EXPAND_ERROR,
+            HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
     childrenResult.putAll(childResults);
   }

@@ -1,11 +1,11 @@
 package org.apache.olingo.jpa.processor.core.filter;
 
 import java.util.List;
-import java.util.Locale;
 
 import org.apache.olingo.commons.api.edm.EdmEnumType;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
+import org.apache.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
@@ -58,8 +58,8 @@ class JPAVisitor implements ExpressionVisitor<JPAOperator> {
         || operator == BinaryOperatorKind.MOD)
       return new JPAArithmeticOperator(this.jpaComplier.getConverter(), operator, left, right);
     else
-      throw new ODataApplicationException("Operator " + operator + " not supported",
-          HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+      throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
+          HttpStatusCode.NOT_IMPLEMENTED, operator.name());
   }
 
   boolean hasNavigation(final JPAOperator operand) {
@@ -81,8 +81,8 @@ class JPAVisitor implements ExpressionVisitor<JPAOperator> {
     if (operator == UnaryOperatorKind.NOT)
       return new JPAUnaryBooleanOperator(this.jpaComplier.getConverter(), operator, (JPAExpressionOperator) operand);
     else
-      throw new ODataApplicationException("Operator " + operator + " not supported",
-          HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+      throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
+          HttpStatusCode.NOT_IMPLEMENTED, operator.name());
   }
 
   @Override
@@ -96,8 +96,8 @@ class JPAVisitor implements ExpressionVisitor<JPAOperator> {
   public JPAOperator visitLambdaExpression(final String lambdaFunction, final String lambdaVariable,
       final org.apache.olingo.server.api.uri.queryoption.expression.Expression expression)
       throws ExpressionVisitException, ODataApplicationException {
-    throw new ODataApplicationException("Lambda Expression not supported",
-        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+    throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FILTER,
+        HttpStatusCode.NOT_IMPLEMENTED, "Lambda Expression");
   }
 
   @Override
@@ -138,28 +138,28 @@ class JPAVisitor implements ExpressionVisitor<JPAOperator> {
 
   @Override
   public JPAOperator visitAlias(final String aliasName) throws ExpressionVisitException, ODataApplicationException {
-    throw new ODataApplicationException("Alias not supported",
-        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+    throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FILTER,
+        HttpStatusCode.NOT_IMPLEMENTED, "Alias");
   }
 
   @Override
   public JPAOperator visitTypeLiteral(final EdmType type) throws ExpressionVisitException, ODataApplicationException {
-    throw new ODataApplicationException("Type Literal not supported",
-        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+    throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FILTER,
+        HttpStatusCode.NOT_IMPLEMENTED, "Type Literal");
   }
 
   @Override
   public JPAOperator visitLambdaReference(final String variableName) throws ExpressionVisitException,
       ODataApplicationException {
-    throw new ODataApplicationException("Lambda Reference not supported",
-        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+    throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FILTER,
+        HttpStatusCode.NOT_IMPLEMENTED, "Lambda Reference");
   }
 
   @Override
   public JPAOperator visitEnum(final EdmEnumType type, final List<String> enumValues) throws ExpressionVisitException,
       ODataApplicationException {
-    throw new ODataApplicationException("Enumerations not supported",
-        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+    throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FILTER,
+        HttpStatusCode.NOT_IMPLEMENTED, "Enumerations");
   }
 
 }

@@ -53,7 +53,7 @@ class JPAArithmeticOperator implements JPAOperator {
   }
 
   @SuppressWarnings("unchecked")
-  public Expression<Number> getRightAsExpression() {
+  public Expression<Number> getRightAsExpression() throws ODataApplicationException {
     return (Expression<Number>) ((JPAMemberOperator) right).get();
   }
 
@@ -65,7 +65,7 @@ class JPAArithmeticOperator implements JPAOperator {
   }
 
   @SuppressWarnings("unchecked")
-  public Expression<Integer> getRightAsIntExpression() {
+  public Expression<Integer> getRightAsIntExpression() throws ODataApplicationException {
     return (Expression<Integer>) ((JPAMemberOperator) right).get();
   }
 }

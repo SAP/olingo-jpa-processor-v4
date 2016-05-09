@@ -11,10 +11,12 @@ import javax.sql.DataSource;
 
 import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.commons.api.ex.ODataException;
+import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import org.apache.olingo.jpa.metadata.api.JPAEdmProvider;
 import org.apache.olingo.jpa.metadata.api.JPAEntityManagerFactory;
 import org.apache.olingo.jpa.processor.core.database.JPAODataDatabaseProcessorFactory;
+import org.apache.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import org.apache.olingo.jpa.processor.core.filter.JPAOperationConverter;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataHttpHandler;
@@ -67,8 +69,7 @@ public class JPAODataGetHandler {
       try {
         databaseProcessor = new JPAODataDatabaseProcessorFactory().create(ds);
       } catch (SQLException e) {
-        // TODO Error Handling
-        e.printStackTrace();
+        throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
       }
     }
 

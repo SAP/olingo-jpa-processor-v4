@@ -1,7 +1,6 @@
 package org.apache.olingo.jpa.processor.core.database;
 
 import java.util.List;
-import java.util.Locale;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -19,6 +18,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionParameter;
 import org.apache.olingo.jpa.processor.core.api.JPAODataDatabaseProcessor;
+import org.apache.olingo.jpa.processor.core.exception.ODataJPADBAdaptorException;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResourceFunction;
@@ -66,8 +66,8 @@ class JPA_HSQLDB_DatabaseProcessor implements JPAODataDatabaseProcessor {
       if (uriParameter.getName().equals(parameter.getName()))
         return uriParameter;
     }
-    throw new ODataApplicationException("Parameter not found " + parameter.getName(), HttpStatusCode.BAD_REQUEST
-        .getStatusCode(), Locale.ENGLISH);
+    throw new ODataJPADBAdaptorException(ODataJPADBAdaptorException.MessageKeys.PARAMETER_MISSING,
+        HttpStatusCode.BAD_REQUEST, parameter.getName());
   }
 
   private Object getValue(final EdmFunction edmFunction, final JPAFunctionParameter parameter, final String uriValue)
@@ -78,8 +78,9 @@ class JPA_HSQLDB_DatabaseProcessor implements JPAODataDatabaseProcessor {
       return ((EdmPrimitiveType) edmParam.getType()).valueOfString(value, false, parameter.maxLength(),
           parameter.precision(), parameter.scale(), true, parameter.getType());
     } catch (EdmPrimitiveTypeException e) {
-      throw new ODataApplicationException("Unable to convert parameter value " + uriValue, HttpStatusCode.BAD_REQUEST
-          .getStatusCode(), Locale.ENGLISH, e);
+      // Unable to convert value %1$s of parameter %2$s
+      throw new ODataJPADBAdaptorException(ODataJPADBAdaptorException.MessageKeys.PARAMETER_CONVERSION_ERROR,
+          HttpStatusCode.NOT_IMPLEMENTED, uriValue, parameter.getName());
     }
   }
 
@@ -87,7 +88,7 @@ class JPA_HSQLDB_DatabaseProcessor implements JPAODataDatabaseProcessor {
   public Expression<Boolean> createSearchWhereClause(final CriteriaBuilder cb, final CriteriaQuery<?> cq,
       final Root<?> root, final JPAEntityType entityType, final SearchOption searchOption)
       throws ODataApplicationException {
-    throw new ODataApplicationException("Search not supported",
-        HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ENGLISH);
+    throw new ODataJPADBAdaptorException(ODataJPADBAdaptorException.MessageKeys.NOT_SUPPORTED_SEARCH,
+        HttpStatusCode.NOT_IMPLEMENTED);
   }
 }

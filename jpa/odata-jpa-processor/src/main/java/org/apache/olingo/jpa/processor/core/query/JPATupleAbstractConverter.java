@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.persistence.Tuple;
@@ -29,6 +28,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
+import org.apache.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.serializer.SerializerException;
@@ -61,9 +61,9 @@ public abstract class JPATupleAbstractConverter {
     try {
       this.setName = sd.getEntitySet(jpaQueryResult.getEntityType()).getExternalName();
     } catch (ODataJPAModelException e) {
-      throw new ODataApplicationException("Entity Set not found for " +
-          jpaQueryResult.getEntityType().getExternalFQN().getFullQualifiedNameAsString(),
-          HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), Locale.ENGLISH, e);
+      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_ENTITY_SET_ERROR,
+          HttpStatusCode.INTERNAL_SERVER_ERROR, jpaQueryResult.getEntityType().getExternalFQN()
+              .getFullQualifiedNameAsString());
     }
   }
 
@@ -88,14 +88,16 @@ public abstract class JPATupleAbstractConverter {
         convertAttribute(row.get(element.getAlias()), element.getAlias(), "", rowEntity, complexValueBuffer,
             properties);
       } catch (ODataJPAModelException e) {
-        throw new ODataApplicationException("Mapping Error", 500, Locale.ENGLISH, e);
+        throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
+            HttpStatusCode.INTERNAL_SERVER_ERROR, e);
       }
     }
     try {
       odataEntity.setId(createId(jpaConversionTargetEntity.getKey(), odataEntity));
     } catch (ODataJPAModelException e) {
-      throw new ODataApplicationException("Property not found", HttpStatusCode.BAD_REQUEST.getStatusCode(),
-          Locale.ENGLISH, e);
+
+      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_KEY_PROPERTY_ERROR,
+          HttpStatusCode.INTERNAL_SERVER_ERROR, jpaConversionTargetEntity.getExternalName());
     }
     for (final String attribute : complexValueBuffer.keySet()) {
       final ComplexValue complexValue = complexValueBuffer.get(attribute);
@@ -120,8 +122,8 @@ public abstract class JPATupleAbstractConverter {
             entityExpandLinks.add(expand);
           }
         } catch (ODataJPAModelException e) {
-          throw new ODataApplicationException("Navigation property not found", HttpStatusCode.INTERNAL_SERVER_ERROR
-              .getStatusCode(), Locale.ENGLISH, e);
+          throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_NAVI_PROPERTY_ERROR,
+              HttpStatusCode.INTERNAL_SERVER_ERROR, associationPath.getAlias());
         }
       }
     }
