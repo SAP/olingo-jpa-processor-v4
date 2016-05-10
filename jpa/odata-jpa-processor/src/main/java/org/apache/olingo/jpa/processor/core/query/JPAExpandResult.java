@@ -35,7 +35,7 @@ public final class JPAExpandResult {
     this.jpaEntityType = jpaEntityType;
   }
 
-  private void assertNotNull(Object instance) {
+  private void assertNotNull(final Object instance) {
     if (instance == null)
       throw new NullPointerException();
   }

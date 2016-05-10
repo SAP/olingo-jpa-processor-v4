@@ -13,7 +13,7 @@ import org.apache.olingo.server.api.uri.queryoption.expression.UnaryOperatorKind
 
 public class JPALambdaAllOperation extends JPALambdaOperation {
 
-  JPALambdaAllOperation(JPAFilterComplierAccess jpaComplier, Member member) {
+  JPALambdaAllOperation(final JPAFilterComplierAccess jpaComplier, final Member member) {
     super(jpaComplier, member);
   }
 
@@ -23,21 +23,21 @@ public class JPALambdaAllOperation extends JPALambdaOperation {
 
   @Override
   public Expression<Boolean> get() throws ODataApplicationException {
-    CriteriaBuilder cb = converter.cb;
+    final CriteriaBuilder cb = converter.cb;
     return cb.and(cb.exists(getExistsQuery()), cb.not(cb.exists(getNotExistsQuery())));
   }
 
   private class NotExpression implements Unary {
     private final org.apache.olingo.server.api.uri.queryoption.expression.Expression expression;
 
-    public NotExpression(org.apache.olingo.server.api.uri.queryoption.expression.Expression expression) {
+    public NotExpression(final org.apache.olingo.server.api.uri.queryoption.expression.Expression expression) {
       super();
       this.expression = expression;
     }
 
     @Override
-    public <T> T accept(ExpressionVisitor<T> visitor) throws ExpressionVisitException, ODataApplicationException {
-      T operand = expression.accept(visitor);
+    public <T> T accept(final ExpressionVisitor<T> visitor) throws ExpressionVisitException, ODataApplicationException {
+      final T operand = expression.accept(visitor);
       return visitor.visitUnaryOperator(getOperator(), operand);
     }
 

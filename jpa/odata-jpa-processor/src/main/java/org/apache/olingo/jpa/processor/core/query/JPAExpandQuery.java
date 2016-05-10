@@ -118,7 +118,7 @@ public class JPAExpandQuery extends JPAExecutableQuery {
   }
 
   private Long count() {
-    // TODO Auto-generated method stub
+    // TODO Count and Expand -> Olingo
     return null;
   }
 

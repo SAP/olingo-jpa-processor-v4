@@ -115,7 +115,7 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
   }
 
   @Override
-  public void setOnDelete(CsdlOnDelete onDelete) {
+  public void setOnDelete(final CsdlOnDelete onDelete) {
     edmOnDelete = onDelete;
   }
 
@@ -223,15 +223,15 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
 
   }
 
-  private void determienReferentialConstraints(AnnotatedElement annotatedElement) throws ODataJPAModelException {
+  private void determienReferentialConstraints(final AnnotatedElement annotatedElement) throws ODataJPAModelException {
 
     final AssociationOverride overwrite = annotatedElement.getAnnotation(AssociationOverride.class);
     if (overwrite != null) return;
 
-    List<CsdlReferentialConstraint> constraints = edmNaviProperty.getReferentialConstraints();
+    final List<CsdlReferentialConstraint> constraints = edmNaviProperty.getReferentialConstraints();
     for (final IntermediateJoinColumn intermediateColumn : joinColumns) {
 
-      CsdlReferentialConstraint constraint = new CsdlReferentialConstraint();
+      final CsdlReferentialConstraint constraint = new CsdlReferentialConstraint();
       constraints.add(constraint);
       IntermediateProperty p = null;
       p = sourceType.getPropertyByDBField(intermediateColumn.getName());
@@ -331,10 +331,10 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
           .getKey().get(0)).getDBFieldName());
   }
 
-  private CsdlOnDelete setJPAOnDelete(CascadeType[] cascades) {
-    for (CascadeType cascade : cascades) {
+  private CsdlOnDelete setJPAOnDelete(final CascadeType[] cascades) {
+    for (final CascadeType cascade : cascades) {
       if (cascade == CascadeType.REMOVE || cascade == CascadeType.ALL) {
-        CsdlOnDelete onDelete = new CsdlOnDelete();
+        final CsdlOnDelete onDelete = new CsdlOnDelete();
         onDelete.setAction(CsdlOnDeleteAction.Cascade);
         return onDelete;
       }

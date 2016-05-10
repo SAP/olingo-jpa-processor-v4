@@ -182,7 +182,8 @@ public class JPAOperationConverter {
     }
   }
 
-  protected Expression<Long> convertSpecific(JPAAggregationOperation jpaOperator) throws ODataApplicationException {
+  protected Expression<Long> convertSpecific(final JPAAggregationOperation jpaOperator)
+      throws ODataApplicationException {
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
         HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getAggregation().name());
   }

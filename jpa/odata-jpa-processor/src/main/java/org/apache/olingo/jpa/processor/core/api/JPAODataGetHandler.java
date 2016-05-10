@@ -43,6 +43,7 @@ public class JPAODataGetHandler {
     return context;
   }
 
+  @SuppressWarnings("unchecked")
   public void process(final HttpServletRequest request, final HttpServletResponse response) {
     final ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(context.getEdmProvider(), context
         .getReferences()));

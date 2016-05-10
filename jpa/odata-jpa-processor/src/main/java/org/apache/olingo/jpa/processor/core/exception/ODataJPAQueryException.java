@@ -36,7 +36,7 @@ public class ODataJPAQueryException extends ODataJPAProcessException {
 
   private static final String BUNDEL_NAME = "exceptions-i18n";
 
-  public ODataJPAQueryException(Throwable e, final HttpStatusCode statusCode) {
+  public ODataJPAQueryException(final Throwable e, final HttpStatusCode statusCode) {
     super(e, statusCode);
   }
 

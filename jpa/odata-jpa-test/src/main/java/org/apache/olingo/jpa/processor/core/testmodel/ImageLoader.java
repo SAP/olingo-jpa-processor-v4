@@ -122,13 +122,11 @@ public class ImageLoader {
       o.write(storedImage);
       o.flush();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
     } finally {
       try {
         o.close();
       } catch (IOException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
     }

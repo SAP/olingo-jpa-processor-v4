@@ -115,7 +115,7 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
     return serviceDocument;
   }
 
-  public void setRequestLocales(Enumeration<Locale> locales) {
+  public void setRequestLocales(final Enumeration<Locale> locales) {
     ODataJPAException.setLocales(locales);
   }
 }

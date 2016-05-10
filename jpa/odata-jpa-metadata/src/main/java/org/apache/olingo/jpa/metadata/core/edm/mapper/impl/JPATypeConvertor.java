@@ -161,7 +161,7 @@ public final class JPATypeConvertor {
   private static Dimension getDimension(final Attribute<?, ?> currentAttribute) {
     if (currentAttribute.getJavaMember() instanceof AnnotatedElement) {
       final AnnotatedElement annotatedElement = (AnnotatedElement) currentAttribute.getJavaMember();
-      EdmGeospatial spatialDetails = annotatedElement.getAnnotation(EdmGeospatial.class);
+      final EdmGeospatial spatialDetails = annotatedElement.getAnnotation(EdmGeospatial.class);
       if (spatialDetails != null)
         return spatialDetails.dimension();
     }

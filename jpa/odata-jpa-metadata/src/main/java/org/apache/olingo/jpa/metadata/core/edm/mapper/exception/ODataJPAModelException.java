@@ -56,23 +56,23 @@ public class ODataJPAModelException extends ODataJPAException {
 
   private static final String BUNDEL_NAME = "exceptions-i18n";
 
-  public ODataJPAModelException(Throwable e) {
+  public ODataJPAModelException(final Throwable e) {
     super(e);
   }
 
-  public ODataJPAModelException(MessageKeys messageKey, Throwable e, String... params) {
+  public ODataJPAModelException(final MessageKeys messageKey, final Throwable e, final String... params) {
     super(messageKey.name(), e, params);
   }
 
-  public ODataJPAModelException(MessageKeys messageKey) {
+  public ODataJPAModelException(final MessageKeys messageKey) {
     super(messageKey.getKey());
   }
 
-  public ODataJPAModelException(MessageKeys messageKey, String... params) {
+  public ODataJPAModelException(final MessageKeys messageKey, final String... params) {
     super(messageKey.getKey(), params);
   }
 
-  public ODataJPAModelException(MessageKeys messageKey, Throwable e) {
+  public ODataJPAModelException(final MessageKeys messageKey, final Throwable e) {
     super(messageKey.getKey(), e);
   }
 

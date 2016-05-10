@@ -14,7 +14,7 @@ public class ODataJPAMessageTextBuffer implements ODataJPAMessageBufferRead {
   private ResourceBundle bundle;
   private Locale locale = DEFAULT_LOCALE;
 
-  public ODataJPAMessageTextBuffer(String bundleName) {
+  public ODataJPAMessageTextBuffer(final String bundleName) {
     super();
     this.bundleName = bundleName;
     getResourceBundle();
@@ -27,21 +27,22 @@ public class ODataJPAMessageTextBuffer implements ODataJPAMessageBufferRead {
    * java.lang.String)
    */
   @Override
-  public String getText(Object execption, String ID) {
+  public String getText(final Object execption, final String ID) {
     return bundle.getString(execption.getClass().getSimpleName() + PATH_SEPERATOR + ID);
   }
 
   @Override
-  public String getText(Object execption, String ID, String... parameters) {
-    String message = getText(execption, ID);
-    StringBuilder builder = new StringBuilder();
-    Formatter f = new Formatter(builder, locale);
+  public String getText(final Object execption, final String ID, final String... parameters) {
+    final String message = getText(execption, ID);
+    final StringBuilder builder = new StringBuilder();
+    final Formatter f = new Formatter(builder, locale);
+
     f.format(message, (Object[]) parameters);
     f.close();
     return builder.toString();
   }
 
-  public void setLocale(Locale locale) {
+  public void setLocale(final Locale locale) {
     if (locale == null) {
       this.locale = DEFAULT_LOCALE;
       getResourceBundle();
@@ -51,7 +52,7 @@ public class ODataJPAMessageTextBuffer implements ODataJPAMessageBufferRead {
     }
   }
 
-  public void setLocales(Enumeration<Locale> locales) {
+  public void setLocales(final Enumeration<Locale> locales) {
     if (locales == null || locales.hasMoreElements() == false) {
       this.locale = DEFAULT_LOCALE;
       getResourceBundle();
@@ -59,8 +60,8 @@ public class ODataJPAMessageTextBuffer implements ODataJPAMessageBufferRead {
       while (locales.hasMoreElements()) {
         this.locale = locales.nextElement();
         getResourceBundle();
-        if (bundle.getLocale().getLanguage() == this.locale.getLanguage()
-            && bundle.getLocale().getCountry() == this.locale.getCountry())
+        if (bundle.getLocale().getLanguage().equals(this.locale.getLanguage())
+            && bundle.getLocale().getCountry().equals(this.locale.getCountry()))
           break;
       }
     }
@@ -74,7 +75,7 @@ public class ODataJPAMessageTextBuffer implements ODataJPAMessageBufferRead {
     return locale;
   }
 
-  void setBundleName(String bundleName) {
+  void setBundleName(final String bundleName) {
     if (!this.bundleName.equals(bundleName)) {
       this.bundleName = bundleName;
       getResourceBundle();

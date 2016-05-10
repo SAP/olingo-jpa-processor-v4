@@ -107,7 +107,7 @@ class JPAVisitor implements ExpressionVisitor<JPAOperator> {
   }
 
   @Override
-  public JPAOperator visitMember(Member member) throws ExpressionVisitException, ODataApplicationException {
+  public JPAOperator visitMember(final Member member) throws ExpressionVisitException, ODataApplicationException {
 
     // TODO Logging
     if (getLambdaType(member.getResourcePath()) == UriResourceKind.lambdaAny)
@@ -120,15 +120,15 @@ class JPAVisitor implements ExpressionVisitor<JPAOperator> {
     return new JPAMemberOperator(this.jpaComplier.getJpaEntityType(), this.jpaComplier.getParent(), member);
   }
 
-  private boolean isAggregation(UriInfoResource member) {
+  private boolean isAggregation(final UriInfoResource member) {
     if (member.getUriResourceParts().size() == 1 && member.getUriResourceParts().get(0)
         .getKind() == UriResourceKind.count)
       return true;
     return false;
   }
 
-  UriResourceKind getLambdaType(UriInfoResource member) {
-    for (UriResource r : member.getUriResourceParts()) {
+  UriResourceKind getLambdaType(final UriInfoResource member) {
+    for (final UriResource r : member.getUriResourceParts()) {
       if (r.getKind() == UriResourceKind.lambdaAny
           || r.getKind() == UriResourceKind.lambdaAll)
         return r.getKind();

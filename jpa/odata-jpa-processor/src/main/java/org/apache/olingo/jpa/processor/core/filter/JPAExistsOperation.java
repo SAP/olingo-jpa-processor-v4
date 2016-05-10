@@ -29,7 +29,7 @@ abstract class JPAExistsOperation implements JPAOperator {
   protected final EntityManager em;
   protected final OData odata;
 
-  JPAExistsOperation(JPAFilterComplierAccess jpaComplier) {
+  JPAExistsOperation(final JPAFilterComplierAccess jpaComplier) {
 
     this.uriResourceParts = jpaComplier.getUriResourceParts();
     this.root = jpaComplier.getParent();

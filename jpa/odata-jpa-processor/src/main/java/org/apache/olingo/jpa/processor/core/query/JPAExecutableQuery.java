@@ -171,7 +171,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
   protected List<JPAPath> buildPathList(final JPAEntityType jpaEntity, final String select)
       throws ODataApplicationException {
 
-    String[] selectList = select.split(SELECT_ITEM_SEPERATOR); // OData separator for $select
+    final String[] selectList = select.split(SELECT_ITEM_SEPERATOR); // OData separator for $select
     return buildPathList(jpaEntity, selectList);
   }
 
@@ -233,7 +233,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
       jpaPathList = buildEntityPathList(jpaEntity);
     try {
       if (jpaEntity.hasStream()) {
-        JPAPath mimeTypeAttribute = jpaEntity.getContentTypeAttributePath();
+        final JPAPath mimeTypeAttribute = jpaEntity.getContentTypeAttributePath();
         if (mimeTypeAttribute != null) {
           jpaPathList.add(mimeTypeAttribute);
         }

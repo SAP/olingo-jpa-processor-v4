@@ -22,7 +22,7 @@ public class ODataJPAFilterException extends ODataJPAProcessException {
 
   private static final String BUNDEL_NAME = "exceptions-i18n";
 
-  public ODataJPAFilterException(Throwable e, final HttpStatusCode statusCode) {
+  public ODataJPAFilterException(final Throwable e, final HttpStatusCode statusCode) {
     super(e, statusCode);
   }
 

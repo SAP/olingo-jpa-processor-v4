@@ -26,7 +26,7 @@ public class ODataJPASerializerException extends ODataJPAProcessException {
 
   private static final String BUNDEL_NAME = "exceptions-i18n";
 
-  public ODataJPASerializerException(Throwable e, final HttpStatusCode statusCode) {
+  public ODataJPASerializerException(final Throwable e, final HttpStatusCode statusCode) {
     super(e, statusCode);
   }
 

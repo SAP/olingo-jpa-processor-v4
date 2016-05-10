@@ -107,11 +107,11 @@ public class JPANavigationQuery extends JPAAbstractQuery {
     return subQuery;
   }
 
-  protected void handleAggregation(Subquery<?> subQuery, final Root<?> subRoot,
+  protected void handleAggregation(final Subquery<?> subQuery, final Root<?> subRoot,
       final List<JPAOnConditionItem> conditionItems) throws ODataApplicationException {}
 
   @SuppressWarnings("unchecked")
-  protected <T> void createSelectClause(final Subquery<T> subQuery, List<JPAOnConditionItem> conditionItems) {
+  protected <T> void createSelectClause(final Subquery<T> subQuery, final List<JPAOnConditionItem> conditionItems) {
     Path<?> p = queryRoot;
     for (final JPAElement jpaPathElement : conditionItems.get(0).getLeftPath().getPath())
       p = p.get(jpaPathElement.getInternalName());

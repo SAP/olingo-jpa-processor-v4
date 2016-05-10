@@ -28,7 +28,7 @@ public abstract class JPASerializePrimitiveAbstract implements JPASerializer {
     Property property = null;
     Object value = null;
 
-    StringBuffer path = new StringBuffer();
+    final StringBuffer path = new StringBuffer();
 
     for (final Property item : result.getEntities().get(0).getProperties()) {
       if (partOfPath(item, uriResources)) {
@@ -51,8 +51,8 @@ public abstract class JPASerializePrimitiveAbstract implements JPASerializer {
     return new JPAPrimitivePropertyInfo(path.toString(), property);
   }
 
-  private boolean partOfPath(Property item, List<UriResource> uriResources) {
-    for (UriResource resource : uriResources) {
+  private boolean partOfPath(final Property item, final List<UriResource> uriResources) {
+    for (final UriResource resource : uriResources) {
       if (resource instanceof UriResourceProperty
           && ((UriResourceProperty) resource).getProperty().getName().equals(item.getName()))
         return true;

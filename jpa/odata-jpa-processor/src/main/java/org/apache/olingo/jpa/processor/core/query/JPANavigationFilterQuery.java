@@ -80,7 +80,7 @@ public class JPANavigationFilterQuery extends JPANavigationQuery {
 
   @Override
   @SuppressWarnings("unchecked")
-  protected <T> void createSelectClause(final Subquery<T> subQuery, List<JPAOnConditionItem> conditionItems) {
+  protected <T> void createSelectClause(final Subquery<T> subQuery, final List<JPAOnConditionItem> conditionItems) {
     Path<?> p = getRoot();
     for (final JPAElement jpaPathElement : conditionItems.get(0).getRightPath().getPath())
       p = p.get(jpaPathElement.getInternalName());
@@ -91,7 +91,7 @@ public class JPANavigationFilterQuery extends JPANavigationQuery {
   protected void handleAggregation(final Subquery<?> subQuery, final Root<?> subRoot,
       final List<JPAOnConditionItem> conditionItems) throws ODataApplicationException {
 
-    List<Expression<?>> groupByLIst = new ArrayList<Expression<?>>();
+    final List<Expression<?>> groupByLIst = new ArrayList<Expression<?>>();
     if (filterComplier != null && getAggregationType(this.filterComplier.getExpressionMember()) != null) {
       for (final JPAOnConditionItem onItem : conditionItems) {
         Path<?> subPath = subRoot;
@@ -110,7 +110,7 @@ public class JPANavigationFilterQuery extends JPANavigationQuery {
     }
   }
 
-  private UriResourceKind getAggregationType(VisitableExpression expression) {
+  private UriResourceKind getAggregationType(final VisitableExpression expression) {
     UriInfoResource member = null;
     if (expression != null && expression instanceof Binary) {
       if (((Binary) expression).getLeftOperand() instanceof JPAMemberOperator)
@@ -121,7 +121,7 @@ public class JPANavigationFilterQuery extends JPANavigationQuery {
       member = ((JPAFilterExpression) expression).getMember();
 
     if (member != null) {
-      for (UriResource r : member.getUriResourceParts()) {
+      for (final UriResource r : member.getUriResourceParts()) {
         if (r.getKind() == UriResourceKind.count)
           return r.getKind();
       }

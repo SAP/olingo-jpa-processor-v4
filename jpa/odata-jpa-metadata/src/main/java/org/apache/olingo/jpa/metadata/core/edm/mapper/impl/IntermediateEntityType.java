@@ -45,7 +45,7 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
 
   @Override
   public String getContentType() throws ODataJPAModelException {
-    IntermediateProperty stream = getStreamProperty();
+    final IntermediateProperty stream = getStreamProperty();
     return stream.getContentType();
   }
 
@@ -115,7 +115,7 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
 
   @Override
   public JPAPath getContentTypeAttributePath() throws ODataJPAModelException {
-    String propertyInternalName = getStreamProperty().getContentTypeProperty();
+    final String propertyInternalName = getStreamProperty().getContentTypeProperty();
     if (propertyInternalName == null || propertyInternalName.isEmpty()) {
       return null;
     }

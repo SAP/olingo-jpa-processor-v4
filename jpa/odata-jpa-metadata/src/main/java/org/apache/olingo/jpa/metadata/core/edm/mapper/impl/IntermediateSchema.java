@@ -112,7 +112,7 @@ class IntermediateSchema extends IntermediateModelElement {
   }
 
   List<JPAFunction> getFunctions() {
-    ArrayList<JPAFunction> functions = new ArrayList<JPAFunction>();
+    final ArrayList<JPAFunction> functions = new ArrayList<JPAFunction>();
     for (final String internalName : functionListInternalKey.keySet()) {
       functions.add(functionListInternalKey.get(internalName));
     }

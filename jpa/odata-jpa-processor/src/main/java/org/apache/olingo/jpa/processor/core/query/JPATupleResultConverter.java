@@ -40,7 +40,7 @@ public class JPATupleResultConverter extends JPATupleAbstractConverter {
     return odataEntityCollection;
   }
 
-  private String determineContentType(JPAEntityType jpaEntity, Tuple row) throws ODataJPAModelException {
+  private String determineContentType(final JPAEntityType jpaEntity, final Tuple row) throws ODataJPAModelException {
     if (jpaEntity.getContentType() != null && !jpaEntity.getContentType().isEmpty())
       return jpaEntity.getContentType();
     else {

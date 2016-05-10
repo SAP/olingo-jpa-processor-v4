@@ -113,7 +113,7 @@ class IntermediateFunction extends IntermediateModelElement implements JPAFuncti
       if (jpaParameter.scale() >= 0)
         edmInputParameter.setScale(jpaParameter.scale());
       if (jpaParameter.srid() != null && !jpaParameter.srid().srid().isEmpty()) {
-        SRID srid = SRID.valueOf(jpaParameter.srid().srid());
+        final SRID srid = SRID.valueOf(jpaParameter.srid().srid());
         srid.setDimension(jpaParameter.srid().dimension());
         edmInputParameter.setSrid(srid);
       }
@@ -148,7 +148,7 @@ class IntermediateFunction extends IntermediateModelElement implements JPAFuncti
     if (returnType.scale() >= 0)
       edmResultType.setScale(returnType.scale());
     if (returnType.srid() != null && !returnType.srid().srid().isEmpty()) {
-      SRID srid = SRID.valueOf(returnType.srid().srid());
+      final SRID srid = SRID.valueOf(returnType.srid().srid());
       srid.setDimension(returnType.srid().dimension());
       edmResultType.setSrid(srid);
     }

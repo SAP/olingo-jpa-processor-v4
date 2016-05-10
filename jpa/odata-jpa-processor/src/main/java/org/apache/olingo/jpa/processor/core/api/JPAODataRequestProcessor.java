@@ -54,8 +54,9 @@ public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
   }
 
   @Override
-  public void createMediaEntity(ODataRequest request, ODataResponse response, UriInfo uriInfo,
-      ContentType requestFormat, ContentType responseFormat) throws ODataApplicationException, ODataLibraryException {
+  public void createMediaEntity(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo,
+      final ContentType requestFormat, final ContentType responseFormat) throws ODataApplicationException,
+      ODataLibraryException {
 
     throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_CREATE,
         HttpStatusCode.NOT_IMPLEMENTED);
@@ -94,7 +95,7 @@ public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
   }
 
   @Override
-  public void deleteMediaEntity(ODataRequest request, ODataResponse response, UriInfo uriInfo)
+  public void deleteMediaEntity(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo)
       throws ODataApplicationException, ODataLibraryException {
 
     throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
@@ -143,7 +144,8 @@ public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
   }
 
   @Override
-  public void readMediaEntity(ODataRequest request, ODataResponse response, UriInfo uriInfo, ContentType responseFormat)
+  public void readMediaEntity(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo,
+      final ContentType responseFormat)
       throws ODataApplicationException, ODataLibraryException {
 
     final JPARequestProcessor p = factory.createProcessor(em, uriInfo, responseFormat);
@@ -187,8 +189,9 @@ public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
   }
 
   @Override
-  public void updateMediaEntity(ODataRequest request, ODataResponse response, UriInfo uriInfo,
-      ContentType requestFormat, ContentType responseFormat) throws ODataApplicationException, ODataLibraryException {
+  public void updateMediaEntity(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo,
+      final ContentType requestFormat, final ContentType responseFormat) throws ODataApplicationException,
+      ODataLibraryException {
 
     throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_UPDATE,
         HttpStatusCode.NOT_IMPLEMENTED);

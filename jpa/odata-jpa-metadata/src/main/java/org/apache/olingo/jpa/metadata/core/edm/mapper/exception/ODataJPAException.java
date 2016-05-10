@@ -15,7 +15,7 @@ public abstract class ODataJPAException extends ODataException {
     return locales;
   }
 
-  public static void setLocales(Enumeration<Locale> locales) {
+  public static void setLocales(final Enumeration<Locale> locales) {
     ODataJPAException.locales = locales;
   }
 
@@ -23,35 +23,35 @@ public abstract class ODataJPAException extends ODataException {
   protected final ODataJPAMessageTextBuffer messageBuffer;
   protected final String[] parameter;
 
-  public ODataJPAException(String id) {
+  public ODataJPAException(final String id) {
     super("");
     this.id = id;
     this.messageBuffer = new ODataJPAMessageTextBuffer(getBundleName());
     this.parameter = null;
   }
 
-  public ODataJPAException(String id, String... params) {
+  public ODataJPAException(final String id, final String... params) {
     super("");
     this.id = id;
     this.messageBuffer = new ODataJPAMessageTextBuffer(getBundleName());
     this.parameter = params;
   }
 
-  public ODataJPAException(String id, Throwable cause, String... params) {
+  public ODataJPAException(final String id, final Throwable cause, final String... params) {
     super("", cause);
     this.id = id;
     this.messageBuffer = new ODataJPAMessageTextBuffer(getBundleName());
     this.parameter = params;
   }
 
-  public ODataJPAException(String id, Throwable cause) {
+  public ODataJPAException(final String id, final Throwable cause) {
     super("", cause);
     this.id = id;
     this.messageBuffer = new ODataJPAMessageTextBuffer(getBundleName());
     this.parameter = null;
   }
 
-  public ODataJPAException(Throwable cause) {
+  public ODataJPAException(final Throwable cause) {
     super(cause);
     id = null;
     messageBuffer = null;

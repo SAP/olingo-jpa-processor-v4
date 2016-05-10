@@ -39,19 +39,19 @@ class JPASerializeValue extends JPASerializePrimitiveAbstract implements JPASeri
   public SerializerResult serialize(final ODataRequest request, final EntityCollection result)
       throws SerializerException, ODataJPASerializerException {
 
-    Property property = null;
-    InputStream serializerResult = null;
-    Entity et = result.getEntities().get(0);
-
     if (result.getEntities().get(0) == null
         || result.getEntities().get(0).getProperties() == null
         || result.getEntities().get(0).getProperties().isEmpty()) {
       throw new ODataJPASerializerException(ODataJPASerializerException.MessageKeys.RESULT_NOT_FOUND,
           HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
+
+    InputStream serializerResult = null;
     if (isStream()) {
-      EdmEntityType edmEt = serviceMetadata.getEdm().getEntityType(new FullQualifiedName(et.getType()));
-      List<EdmKeyPropertyRef> p = edmEt.getKeyPropertyRefs();
+      final Entity et = result.getEntities().get(0);
+      final EdmEntityType edmEt = serviceMetadata.getEdm().getEntityType(new FullQualifiedName(et.getType()));
+      final List<EdmKeyPropertyRef> p = edmEt.getKeyPropertyRefs();
+      Property property = null;
       for (final Property item : result.getEntities().get(0).getProperties()) {
         if (!isKey(p, item)) {
           property = item;
@@ -69,7 +69,7 @@ class JPASerializeValue extends JPASerializePrimitiveAbstract implements JPASeri
 
       final EdmPrimitiveType edmPropertyType = (EdmPrimitiveType) uriProperty.getProperty().getType();
 
-      JPAPrimitivePropertyInfo info = determinePrimitiveProperty(result, uriInfo.getUriResourceParts());
+      final JPAPrimitivePropertyInfo info = determinePrimitiveProperty(result, uriInfo.getUriResourceParts());
       final PrimitiveValueSerializerOptions options = PrimitiveValueSerializerOptions.with().build();
       serializerResult = serializer.primitiveValue(edmPropertyType, info.getProperty().getValue(), options);
     }
@@ -77,7 +77,7 @@ class JPASerializeValue extends JPASerializePrimitiveAbstract implements JPASeri
   }
 
   private boolean isStream() {
-    UriResource successor = uriInfo.getUriResourceParts().get(uriInfo.getUriResourceParts().size() - 2);
+    final UriResource successor = uriInfo.getUriResourceParts().get(uriInfo.getUriResourceParts().size() - 2);
 
     if (successor instanceof UriResourceEntitySet
         || successor instanceof UriResourceNavigation && ((UriResourceNavigation) successor)
@@ -87,8 +87,8 @@ class JPASerializeValue extends JPASerializePrimitiveAbstract implements JPASeri
       return false;
   }
 
-  private boolean isKey(List<EdmKeyPropertyRef> keyist, Property item) {
-    for (EdmKeyPropertyRef key : keyist) {
+  private boolean isKey(final List<EdmKeyPropertyRef> keyist, final Property item) {
+    for (final EdmKeyPropertyRef key : keyist) {
       if (key.getName().equals(item.getName()))
         return true;
     }

@@ -26,7 +26,7 @@ public class ODataJPAUtilException extends ODataJPAProcessException {
 
   private static final String BUNDEL_NAME = "exceptions-i18n";
 
-  public ODataJPAUtilException(Throwable e, final HttpStatusCode statusCode) {
+  public ODataJPAUtilException(final Throwable e, final HttpStatusCode statusCode) {
     super(e, statusCode);
   }
 

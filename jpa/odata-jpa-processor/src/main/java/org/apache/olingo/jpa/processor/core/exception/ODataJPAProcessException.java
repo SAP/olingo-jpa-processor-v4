@@ -21,7 +21,7 @@ public abstract class ODataJPAProcessException extends ODataApplicationException
     return locales;
   }
 
-  public static void setLocales(Enumeration<Locale> locales) {
+  public static void setLocales(final Enumeration<Locale> locales) {
     ODataJPAProcessException.locales = locales;
   }
 
@@ -36,7 +36,7 @@ public abstract class ODataJPAProcessException extends ODataApplicationException
     this.parameter = null;
   }
 
-  public ODataJPAProcessException(Throwable cause, HttpStatusCode statusCode) {
+  public ODataJPAProcessException(final Throwable cause, final HttpStatusCode statusCode) {
     super("", statusCode.getStatusCode(), Locale.ENGLISH, cause);
     this.id = null;
     this.messageBuffer = null;
@@ -58,7 +58,7 @@ public abstract class ODataJPAProcessException extends ODataApplicationException
     this.parameter = params;
   }
 
-  public ODataJPAProcessException(String id, HttpStatusCode statusCode, String[] params) {
+  public ODataJPAProcessException(final String id, final HttpStatusCode statusCode, final String[] params) {
     super("", statusCode.getStatusCode(), Locale.ENGLISH);
     this.id = id;
     this.messageBuffer = new ODataJPAMessageTextBuffer(getBundleName());

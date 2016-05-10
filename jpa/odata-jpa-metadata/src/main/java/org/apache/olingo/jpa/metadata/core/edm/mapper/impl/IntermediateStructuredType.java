@@ -280,7 +280,7 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
   IntermediateProperty getPropertyByDBField(final String dbFieldName) throws ODataJPAModelException {
     buildPropertyList();
     for (final String internalName : declaredPropertiesList.keySet()) {
-      IntermediateProperty property = declaredPropertiesList.get(internalName);
+      final IntermediateProperty property = declaredPropertiesList.get(internalName);
       if (property.getDBFieldName().equals(dbFieldName))
         return property;
     }
@@ -510,14 +510,14 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
   protected IntermediateProperty getStreamProperty() throws ODataJPAModelException {
     int count = 0;
     IntermediateProperty result = null;
-    for (String internalName : declaredPropertiesList.keySet()) {
+    for (final String internalName : declaredPropertiesList.keySet()) {
       if (declaredPropertiesList.get(internalName).isStream()) {
         count += 1;
         result = declaredPropertiesList.get(internalName);
       }
     }
     if (this.getBaseType() != null) {
-      IntermediateProperty superResult = getBaseType().getStreamProperty();
+      final IntermediateProperty superResult = getBaseType().getStreamProperty();
       if (superResult != null) {
         count += 1;
         result = superResult;

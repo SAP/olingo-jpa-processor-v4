@@ -50,7 +50,6 @@ public class JPACountRequestProcessor extends JPAAbstractRequestProcessor {
   protected final EntityCollection countEntities(final ODataRequest request, final ODataResponse response,
       final UriInfo uriInfo) throws SerializerException, ODataApplicationException {
 
-    final EntityCollection entityCollection = new EntityCollection();
     final List<UriResource> resourceParts = uriInfo.getUriResourceParts();
     final EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(resourceParts);
 
@@ -62,6 +61,7 @@ public class JPACountRequestProcessor extends JPAAbstractRequestProcessor {
           HttpStatusCode.INTERNAL_SERVER_ERROR, e);
     }
 
+    final EntityCollection entityCollection = new EntityCollection();
     entityCollection.setCount(Integer.valueOf(query.countResults().intValue()));
     return entityCollection;
   }

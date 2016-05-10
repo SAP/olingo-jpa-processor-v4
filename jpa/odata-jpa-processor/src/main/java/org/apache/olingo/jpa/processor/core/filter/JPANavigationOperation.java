@@ -45,8 +45,8 @@ class JPANavigationOperation extends JPAExistsOperation implements JPAExpression
   final JPALiteralOperator operand;
   private final UriResourceKind aggregationType;
 
-  JPANavigationOperation(JPAFilterComplierAccess jpaComplier, BinaryOperatorKind operator, JPAOperator left,
-      JPAOperator right) {
+  JPANavigationOperation(final JPAFilterComplierAccess jpaComplier, final BinaryOperatorKind operator,
+      final JPAOperator left, final JPAOperator right) {
 
     super(jpaComplier);
     this.aggregationType = null;
@@ -120,13 +120,13 @@ class JPANavigationOperation extends JPAExistsOperation implements JPAExpression
   private class SubMember implements Member {
     final private JPAMemberOperator parentMember;
 
-    public SubMember(JPAMemberOperator parentMember) {
+    public SubMember(final JPAMemberOperator parentMember) {
       super();
       this.parentMember = parentMember;
     }
 
     @Override
-    public <T> T accept(ExpressionVisitor<T> visitor) throws ExpressionVisitException, ODataApplicationException {
+    public <T> T accept(final ExpressionVisitor<T> visitor) throws ExpressionVisitException, ODataApplicationException {
       return null;
     }
 

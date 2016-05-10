@@ -9,7 +9,7 @@ import org.apache.olingo.server.api.serializer.SerializerResult;
 class JPASerializeCount implements JPASerializer {
   private final FixedFormatSerializer serializer;
 
-  JPASerializeCount(FixedFormatSerializer serializer) {
+  JPASerializeCount(final FixedFormatSerializer serializer) {
     this.serializer = serializer;
   }
 

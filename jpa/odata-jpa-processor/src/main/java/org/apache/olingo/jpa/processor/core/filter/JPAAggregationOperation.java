@@ -10,7 +10,7 @@ class JPAAggregationOperation implements JPAOperator {
   private final Root<?> root;
   private final JPAOperationConverter converter;
 
-  public JPAAggregationOperation(Root<?> root, JPAOperationConverter converter) {
+  public JPAAggregationOperation(final Root<?> root, final JPAOperationConverter converter) {
     this.root = root;
     this.converter = converter;
   }

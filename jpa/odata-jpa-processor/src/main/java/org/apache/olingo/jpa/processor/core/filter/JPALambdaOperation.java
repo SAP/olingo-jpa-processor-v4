@@ -22,12 +22,12 @@ abstract class JPALambdaOperation extends JPAExistsOperation {
 
   protected final UriInfoResource member;
 
-  JPALambdaOperation(JPAFilterComplierAccess jpaComplier, UriInfoResource member) {
+  JPALambdaOperation(final JPAFilterComplierAccess jpaComplier, final UriInfoResource member) {
     super(jpaComplier);
     this.member = member;
   }
 
-  public JPALambdaOperation(JPAFilterComplierAccess jpaComplier, Member member) {
+  public JPALambdaOperation(final JPAFilterComplierAccess jpaComplier, final Member member) {
     super(jpaComplier);
     this.member = member.getResourcePath();
   }
@@ -37,7 +37,7 @@ abstract class JPALambdaOperation extends JPAExistsOperation {
     return getSubQuery(determineExpression());
   }
 
-  protected final Subquery<?> getSubQuery(Expression expression) throws ODataApplicationException {
+  protected final Subquery<?> getSubQuery(final Expression expression) throws ODataApplicationException {
     final List<UriResource> allUriResourceParts = new ArrayList<UriResource>(uriResourceParts);
     allUriResourceParts.addAll(member.getUriResourceParts());
 
@@ -68,7 +68,7 @@ abstract class JPALambdaOperation extends JPAExistsOperation {
   }
 
   Expression determineExpression() {
-    for (UriResource uriResource : member.getUriResourceParts()) {
+    for (final UriResource uriResource : member.getUriResourceParts()) {
       if (uriResource.getKind() == UriResourceKind.lambdaAny)
         return ((UriResourceLambdaAny) uriResource).getExpression();
       else if (uriResource.getKind() == UriResourceKind.lambdaAll)

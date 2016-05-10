@@ -47,8 +47,8 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
   private IntermediateStructuredType type;
   private AttributeConverter<?, ?> valueConverter;
   private String dbFieldName;
-  private boolean searchable = false;
-  private EdmMediaStream streamInfo = null;
+  private boolean searchable;
+  private EdmMediaStream streamInfo;
 
   IntermediateProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,
       final IntermediateSchema schema) throws ODataJPAModelException {
@@ -140,9 +140,9 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
     SRID result = null;
     if (jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
       final AnnotatedElement annotatedElement = (AnnotatedElement) jpaAttribute.getJavaMember();
-      EdmGeospatial spatialDetails = annotatedElement.getAnnotation(EdmGeospatial.class);
+      final EdmGeospatial spatialDetails = annotatedElement.getAnnotation(EdmGeospatial.class);
       if (spatialDetails != null) {
-        String srid = spatialDetails.srid();
+        final String srid = spatialDetails.srid();
         if (srid.isEmpty())
           result = SRID.valueOf(null);
         else
@@ -222,7 +222,7 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
       if (jpaColunnDetails != null) {
         dbFieldName = jpaColunnDetails.name();
         if (dbFieldName.isEmpty()) {
-          StringBuffer s = new StringBuffer(DB_FIELD_NAME_PATTERN);
+          final StringBuffer s = new StringBuffer(DB_FIELD_NAME_PATTERN);
           s.replace(1, 3, internalName);
           dbFieldName = s.toString();
         }
