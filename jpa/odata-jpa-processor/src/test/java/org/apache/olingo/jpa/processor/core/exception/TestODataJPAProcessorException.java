@@ -8,7 +8,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAMessageK
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.junit.Test;
 
-public class TestODataJPAModelException {
+public class TestODataJPAProcessorException {
   private static String BUNDLE_NAME = "test-i18n";
 
   public static enum MessageKeys implements ODataJPAMessageKey {
