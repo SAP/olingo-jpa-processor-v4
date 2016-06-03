@@ -70,6 +70,11 @@
 			<artifactId>commons-lang3</artifactId>
 			<version>3.3.2</version>
 		</dependency>
+		<dependency>
+		  <groupId>org.apache.derby</groupId>
+		  <artifactId>derby</artifactId>
+		  <version>10.12.1.1</version>
+		</dependency>	
 		<!-- <dependency>
 			<groupId>org.orbisgis</groupId>
 			<artifactId>h2gis</artifactId>

@@ -3,34 +3,34 @@ SET schema "OLINGO";
     
 CREATE TABLE "org.apache.olingo.jpa::BusinessPartner" (
 
-	"ID" NVARCHAR(32) NOT NULL ,
+	"ID" VARCHAR(32) NOT NULL ,
 	"ETag" BIGINT,
-	"Type" TINYINT,
-	"CustomString1" NVARCHAR(250),
-	"CustomString2" NVARCHAR(250),
-	"CustomNum1" DECIMAL(34,0),
-	"CustomNum2"  DECIMAL(34,0),
-	"NameLine1" NVARCHAR(250),
-	"NameLine2" NVARCHAR(250),
+	"Type" SMALLINT,
+	"CustomString1" VARCHAR(250),
+	"CustomString2" VARCHAR(250),
+	"CustomNum1" DECIMAL(31,0),
+	"CustomNum2"  DECIMAL(31,0),
+	"NameLine1" VARCHAR(250),
+	"NameLine2" VARCHAR(250),
 	"BirthDay" DATE,
-	"Address.StreetName" NVARCHAR(200),
-    "Address.StreetNumber" NVARCHAR(60),
-    "Address.PostOfficeBox" NVARCHAR(60),
-    "Address.City" NVARCHAR(100),
-    "Address.PostalCode" NVARCHAR(60),
-    "Address.RegionCodePublisher" NVARCHAR(10) NOT NULL,
-	"Address.RegionCodeID" NVARCHAR(10) NOT NULL,
-    "Address.Region" NVARCHAR(100),
-    "Address.Country" NVARCHAR(100),
-    "Telecom.Phone" NVARCHAR(100),
-    "Telecom.Mobile" NVARCHAR(100),
-    "Telecom.Fax" NVARCHAR(100),
-    "Telecom.Email" NVARCHAR(100),
-	"CreatedBy" NVARCHAR(32) NOT NULL ,
+	"Address.StreetName" VARCHAR(200),
+    "Address.StreetNumber" VARCHAR(60),
+    "Address.PostOfficeBox" VARCHAR(60),
+    "Address.City" VARCHAR(100),
+    "Address.PostalCode" VARCHAR(60),
+    "Address.RegionCodePublisher" VARCHAR(10) NOT NULL,
+	"Address.RegionCodeID" VARCHAR(10) NOT NULL,
+    "Address.Region" VARCHAR(100),
+    "Address.Country" VARCHAR(100),
+    "Telecom.Phone" VARCHAR(100),
+    "Telecom.Mobile" VARCHAR(100),
+    "Telecom.Fax" VARCHAR(100),
+    "Telecom.Email" VARCHAR(100),
+	"CreatedBy" VARCHAR(32) NOT NULL ,
 	"CreatedAt" TIMESTAMP,   
-	"UpdatedBy" NVARCHAR(32) NOT NULL ,
+	"UpdatedBy" VARCHAR(32) NOT NULL ,
 	"UpdatedAt" TIMESTAMP,
-    "Country" NVARCHAR(4),
+    "Country" VARCHAR(4),
 	 PRIMARY KEY ("ID"));
      
 insert into "org.apache.olingo.jpa::BusinessPartner" values ('1', 0, 2, '','',null,null,'First Org.','',null,'Test Road', '23','', 'Test City','94321','ISO', '3166-2','US-CA', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA');
@@ -47,29 +47,29 @@ insert into "org.apache.olingo.jpa::BusinessPartner" values ('99', 0, 1, '','',n
 insert into "org.apache.olingo.jpa::BusinessPartner" values ('98', 0, 1, '','',null,null,'John','Doe',null,'Test Road', '55','', 'Test City','76321','ISO', '3166-2','US-TX', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU'); 
 
 CREATE TABLE "org.apache.olingo.jpa::PersonImage" (
-	"ID" NVARCHAR(32) NOT NULL ,
+	"ID" VARCHAR(32) NOT NULL ,
 	"Image" BLOB,
-	"CreatedBy" NVARCHAR(32) NOT NULL ,
+	"CreatedBy" VARCHAR(32) NOT NULL ,
 	"CreatedAt" TIMESTAMP,   
-	"UpdatedBy" NVARCHAR(32) NOT NULL ,
+	"UpdatedBy" VARCHAR(32) NOT NULL ,
 	"UpdatedAt" TIMESTAMP,
 	 PRIMARY KEY ("ID"));	
-insert into "org.apache.olingo.jpa::PersonImage" values ('99','','99','2016-01-20 09:21:23', '', null); 	
+insert into "org.apache.olingo.jpa::PersonImage" values ('99',null,'99','2016-01-20 09:21:23', '', null); 	
 
 CREATE TABLE "org.apache.olingo.jpa::OrganizationImage" (
-	"ID" NVARCHAR(32) NOT NULL ,
+	"ID" VARCHAR(32) NOT NULL ,
 	"Image" BLOB,
-	"MimeType"  NVARCHAR(100),
-	"CreatedBy" NVARCHAR(32) NOT NULL ,
+	"MimeType"  VARCHAR(100),
+	"CreatedBy" VARCHAR(32) NOT NULL ,
 	"CreatedAt" TIMESTAMP,   
-	"UpdatedBy" NVARCHAR(32) NOT NULL ,
+	"UpdatedBy" VARCHAR(32) NOT NULL ,
 	"UpdatedAt" TIMESTAMP,
 	 PRIMARY KEY ("ID"));	
-insert into "org.apache.olingo.jpa::OrganizationImage" values ('9','','image/svg+xml','99','2016-01-20 09:21:23', '', null); 
+insert into "org.apache.olingo.jpa::OrganizationImage" values ('9',null,'image/svg+xml','99','2016-01-20 09:21:23', '', null); 
 
 CREATE TABLE "org.apache.olingo.jpa::BusinessPartnerRole" ( 
-	"BusinessPartnerID" NVARCHAR(32) NOT NULL ,
-	"BusinessPartnerRole" NVARCHAR(10) NOT NULL, 
+	"BusinessPartnerID" VARCHAR(32) NOT NULL ,
+	"BusinessPartnerRole" VARCHAR(10) NOT NULL, 
      PRIMARY KEY ("BusinessPartnerID","BusinessPartnerRole"));
 
 insert into "org.apache.olingo.jpa::BusinessPartnerRole" values ('1',  'A');
@@ -84,9 +84,9 @@ insert into "org.apache.olingo.jpa::BusinessPartnerRole" values ('99',  'X');
 insert into "org.apache.olingo.jpa::BusinessPartnerRole" values ('99',  'Z');
 
 CREATE TABLE "org.apache.olingo.jpa::CountryDescription" ( 
-	"ISOCode" NVARCHAR(4) NOT NULL ,
-	"LanguageISO" NVARCHAR(4) NOT NULL ,
-	"Name" NVARCHAR(100) NOT NULL, 
+	"ISOCode" VARCHAR(4) NOT NULL ,
+	"LanguageISO" VARCHAR(4) NOT NULL ,
+	"Name" VARCHAR(100) NOT NULL, 
      PRIMARY KEY ("ISOCode","LanguageISO"));
  
 insert into "org.apache.olingo.jpa::CountryDescription" values( 'DEU','de','Deutschland');    
@@ -98,11 +98,11 @@ insert into "org.apache.olingo.jpa::CountryDescription" values( 'BEL','en','Belg
 
 
 CREATE TABLE "org.apache.olingo.jpa::AdministrativeDivisionDescription"(
-	"CodePublisher" NVARCHAR(10) NOT NULL,
-	"CodeID" NVARCHAR(10) NOT NULL,
-	"DivisionCode" NVARCHAR(10) NOT NULL,
-	"LanguageISO" NVARCHAR(4) NOT NULL ,
-	"Name" NVARCHAR(100) NOT NULL, 
+	"CodePublisher" VARCHAR(10) NOT NULL,
+	"CodeID" VARCHAR(10) NOT NULL,
+	"DivisionCode" VARCHAR(10) NOT NULL,
+	"LanguageISO" VARCHAR(4) NOT NULL ,
+	"Name" VARCHAR(100) NOT NULL, 
      PRIMARY KEY ("CodePublisher", "CodeID", "DivisionCode","LanguageISO")); 
 
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','DE-BW','de','Baden-Württemberg');  
@@ -366,14 +366,14 @@ insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( '
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE353','en','Arrondissement of Philippeville');
 
 CREATE TABLE "org.apache.olingo.jpa::AdministrativeDivision"(
-	"CodePublisher" NVARCHAR(10) NOT NULL,
-	"CodeID" NVARCHAR(10) NOT NULL,
-	"DivisionCode" NVARCHAR(10) NOT NULL,
-	"CountryISOCode" NVARCHAR(4) NOT NULL ,
-	"ParentCodeID" NVARCHAR(10),
-	"ParentDivisionCode" NVARCHAR(10),
-	"AlternativeCode" NVARCHAR(10),
-	"Area" DECIMAL(34,0),
+	"CodePublisher" VARCHAR(10) NOT NULL,
+	"CodeID" VARCHAR(10) NOT NULL,
+	"DivisionCode" VARCHAR(10) NOT NULL,
+	"CountryISOCode" VARCHAR(4) NOT NULL ,
+	"ParentCodeID" VARCHAR(10),
+	"ParentDivisionCode" VARCHAR(10),
+	"AlternativeCode" VARCHAR(10),
+	"Area" DECIMAL(31,0),
 	"Population" BIGINT,
 	PRIMARY KEY ("CodePublisher", "CodeID", "DivisionCode"));
 	
@@ -588,5 +588,5 @@ insert into "org.apache.olingo.jpa::AdministrativeDivision" values( 'Eurostat', 
 insert into "org.apache.olingo.jpa::AdministrativeDivision" values( 'Eurostat', 'LAU2', '38025','BEL','NUTS3','BE258',null,96339703,11509);	
 
 CREATE TABLE "org.apache.olingo.jpa::DummyToBeIgnored" (
-	"ID" NVARCHAR(32) NOT NULL ,
+	"ID" VARCHAR(32) NOT NULL ,
 	 PRIMARY KEY ("ID"));

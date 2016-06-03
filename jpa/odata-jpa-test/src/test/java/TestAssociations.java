@@ -15,11 +15,11 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
 import org.apache.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
+import org.apache.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescription;
 import org.apache.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import org.apache.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
 import org.apache.olingo.jpa.processor.core.testmodel.Country;
 import org.apache.olingo.jpa.processor.core.testmodel.DataSourceHelper;
-import org.apache.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescription;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
