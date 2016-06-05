@@ -69,7 +69,7 @@ public class TestJPAProcessorExpand extends TestBase {
   public void testExpandOneEntityCompoundKeyCollection() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisions(DivisionCode='BE25',CodeID='NUTS2',CodePublisher='Eurostat')?$expand=Children");
+        "AdministrativeDivisions(DivisionCode='BE25',CodeID='NUTS2',CodePublisher='Eurostat')?$expand=Children($orderby=DivisionCode asc)");
     helper.assertStatus(200);
 
     ObjectNode divsion = helper.getValue();

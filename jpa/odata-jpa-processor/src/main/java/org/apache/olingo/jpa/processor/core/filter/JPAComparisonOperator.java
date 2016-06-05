@@ -2,7 +2,6 @@ package org.apache.olingo.jpa.processor.core.filter;
 
 import javax.persistence.criteria.Expression;
 
-import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.queryoption.expression.BinaryOperatorKind;
 
@@ -50,7 +49,7 @@ class JPAComparisonOperator<T extends Comparable<T>> implements JPAExpressionOpe
   public Comparable<T> getRightAsComparable() throws ODataApplicationException {
     if (left instanceof JPALiteralOperator) {
       if (right instanceof JPAMemberOperator)
-        return (Comparable<T>) ((JPALiteralOperator) left).get((JPAAttribute) ((JPAMemberOperator) right)
+        return (Comparable<T>) ((JPALiteralOperator) left).get(((JPAMemberOperator) right)
             .determineAttributePath()
             .getLeaf());
       else
@@ -58,11 +57,13 @@ class JPAComparisonOperator<T extends Comparable<T>> implements JPAExpressionOpe
     }
     if (right instanceof JPALiteralOperator) {
       if (left instanceof JPAMemberOperator)
-        return (Comparable<T>) ((JPALiteralOperator) right).get((JPAAttribute) ((JPAMemberOperator) left)
+        return (Comparable<T>) ((JPALiteralOperator) right).get(((JPAMemberOperator) left)
             .determineAttributePath()
             .getLeaf());
-      else
+
+      else {
         return (Comparable<T>) right.get();
+      }
     }
     return (Comparable<T>) right.get();
   }

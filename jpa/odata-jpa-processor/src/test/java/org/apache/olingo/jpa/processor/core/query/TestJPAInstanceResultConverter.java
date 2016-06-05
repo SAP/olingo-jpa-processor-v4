@@ -3,7 +3,6 @@ package org.apache.olingo.jpa.processor.core.query;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.math.BigDecimal;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -104,7 +103,7 @@ public class TestJPAInstanceResultConverter extends TestBase {
     division.setParentCodeID("NUTS1");
     division.setParentDivisionCode("BE2");
     division.setAlternativeCode("");
-    division.setArea(new BigDecimal(0));
+    division.setArea(0);
     division.setPopulation(0);
     return division;
   }
@@ -119,7 +118,7 @@ public class TestJPAInstanceResultConverter extends TestBase {
     division.setParentCodeID("NUTS1");
     division.setParentDivisionCode("BE2");
     division.setAlternativeCode("");
-    division.setArea(new BigDecimal(0));
+    division.setArea(0);
     division.setPopulation(0);
     return division;
   }

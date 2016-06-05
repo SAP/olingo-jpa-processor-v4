@@ -348,7 +348,7 @@ CREATE TABLE "org.apache.olingo.jpa::AdministrativeDivision"(
 	"ParentCodeID" NVARCHAR(10),
 	"ParentDivisionCode" NVARCHAR(10),
 	"AlternativeCode" NVARCHAR(10),
-	"Area" DECIMAL(34,0),
+	"Area" INTEGER, --DECIMAL(34,0),
 	"Population" BIGINT,
 	PRIMARY KEY ("CodePublisher", "CodeID", "DivisionCode"));
 	

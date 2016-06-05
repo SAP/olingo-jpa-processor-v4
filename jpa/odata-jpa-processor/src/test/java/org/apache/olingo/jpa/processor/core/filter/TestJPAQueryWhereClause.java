@@ -315,7 +315,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   public void testFilterSubstringStartIndex() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and substring(Name,7) eq 'Dakota'");
+        "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and substring(Name,6) eq 'Dakota'");
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();

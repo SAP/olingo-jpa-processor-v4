@@ -1,5 +1,8 @@
 package org.apache.olingo.jpa.processor.core.filter;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+
 import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeException;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
@@ -26,8 +29,23 @@ public class JPALiteralOperator implements JPAOperator {
   public Object get() throws ODataApplicationException {
     final EdmPrimitiveType edmType = ((EdmPrimitiveType) literal.getType());
     try {
-      return edmType.fromUriLiteral(literal.getText());
+
+      final Class<?> defaultType = edmType.getDefaultType();
+      final Constructor<?> c = defaultType.getConstructor(String.class);
+      return c.newInstance(edmType.fromUriLiteral(literal.getText()));
+    } catch (InstantiationException e) {
+      throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    } catch (IllegalAccessException e) {
+      throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    } catch (IllegalArgumentException e) {
+      throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    } catch (InvocationTargetException e) {
+      throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     } catch (EdmPrimitiveTypeException e) {
+      throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    } catch (NoSuchMethodException e) {
+      throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    } catch (SecurityException e) {
       throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
   }

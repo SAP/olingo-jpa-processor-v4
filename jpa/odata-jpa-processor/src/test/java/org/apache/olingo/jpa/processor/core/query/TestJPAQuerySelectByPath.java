@@ -104,7 +104,7 @@ public class TestJPAQuerySelectByPath extends TestBase {
 
   @Test
   public void testNavigationToStreamValue() throws IOException, ODataException {
-    new ImageLoader().loadPerson("OlingoOrangeTM.png", "99");
+    new ImageLoader().loadPerson(emf.createEntityManager(), "OlingoOrangeTM.png", "99");
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, "PersonImages('99')/$value");
     helper.assertStatus(200);
@@ -115,7 +115,7 @@ public class TestJPAQuerySelectByPath extends TestBase {
 
   @Test
   public void testNavigationToStreamValueVia() throws IOException, ODataException {
-    new ImageLoader().loadPerson("OlingoOrangeTM.png", "99");
+    new ImageLoader().loadPerson(emf.createEntityManager(), "OlingoOrangeTM.png", "99");
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Persons('99')/Image/$value");
     helper.assertStatus(200);
@@ -126,7 +126,7 @@ public class TestJPAQuerySelectByPath extends TestBase {
 
   @Test
   public void testNavigationToComplexAttributeValue() throws IOException, ODataException {
-    new ImageLoader().loadPerson("OlingoOrangeTM.png", "99");
+    new ImageLoader().loadPerson(emf.createEntityManager(), "OlingoOrangeTM.png", "99");
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations('4')/AdministrativeInformation/Created/By/$value");
@@ -138,7 +138,7 @@ public class TestJPAQuerySelectByPath extends TestBase {
 
   @Test
   public void testNavigationToPrimitiveAttributeValue() throws IOException, ODataException {
-    new ImageLoader().loadPerson("OlingoOrangeTM.png", "99");
+    new ImageLoader().loadPerson(emf.createEntityManager(), "OlingoOrangeTM.png", "99");
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations('4')/ID/$value");

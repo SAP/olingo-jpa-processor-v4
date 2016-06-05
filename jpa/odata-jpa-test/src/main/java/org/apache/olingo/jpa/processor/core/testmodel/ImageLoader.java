@@ -26,25 +26,36 @@ public class ImageLoader {
 
   public static void main(String[] args) throws Exception {
     ImageLoader i = new ImageLoader();
-    i.loadPerson("OlingoOrangeTM.png", "99");
+    EntityManager em = createEntityManager();
+    i.loadPerson(em, "OlingoOrangeTM.png", "99");
 
+  }
+
+  public void loadPerson(EntityManager em, String imageName, String businessPartnerID) {
+    byte[] image = loadImage(imageName);
+    storePersonImageDB(em, image, businessPartnerID, SELECT_PERSON_IMAGE);
+    storeImageLocal(image, "restored.png");
   }
 
   public void loadPerson(String imageName, String businessPartnerID) {
     byte[] image = loadImage(imageName);
-    storePersonImageDB(image, businessPartnerID, SELECT_PERSON_IMAGE);
+    storePersonImageDB(createEntityManager(), image, businessPartnerID, SELECT_PERSON_IMAGE);
+    storeImageLocal(image, "restored.png");
+  }
+
+  public void loadOrg(EntityManager em, String imageName, String businessPartnerID) {
+    byte[] image = loadImage(imageName);
+    storeOrgImageDB(em, image, businessPartnerID, SELECT_ORGANIZATION_IMAGE);
     storeImageLocal(image, "restored.png");
   }
 
   public void loadOrg(String imageName, String businessPartnerID) {
     byte[] image = loadImage(imageName);
-    storeOrgImageDB(image, businessPartnerID, SELECT_ORGANIZATION_IMAGE);
+    storeOrgImageDB(createEntityManager(), image, businessPartnerID, SELECT_ORGANIZATION_IMAGE);
     storeImageLocal(image, "restored.png");
   }
 
-  private void storePersonImageDB(byte[] image, String businessPartnerID, String query) {
-
-    EntityManager em = createEntityManager();
+  private void storePersonImageDB(EntityManager em, byte[] image, String businessPartnerID, String query) {
 
     String s = query.replace("$&1", businessPartnerID);
     Query q = em.createNativeQuery(s, PersonImage.class);
@@ -63,9 +74,7 @@ public class ImageLoader {
 
   }
 
-  private void storeOrgImageDB(byte[] image, String businessPartnerID, String query) {
-
-    EntityManager em = createEntityManager();
+  private void storeOrgImageDB(EntityManager em, byte[] image, String businessPartnerID, String query) {
 
     String s = query.replace("$&1", businessPartnerID);
     Query q = em.createNativeQuery(s, OrganizationImage.class);
@@ -90,7 +99,7 @@ public class ImageLoader {
     em.getTransaction().commit();
   }
 
-  private EntityManager createEntityManager() {
+  private static EntityManager createEntityManager() {
     final Map<String, Object> properties = new HashMap<String, Object>();
     properties.put(ENTITY_MANAGER_DATA_SOURCE, DataSourceHelper.createDataSource(DataSourceHelper.DB_H2));
     final EntityManagerFactory emf = Persistence.createEntityManagerFactory(PUNIT_NAME, properties);

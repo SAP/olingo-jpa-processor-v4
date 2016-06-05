@@ -1,6 +1,5 @@
 package org.apache.olingo.jpa.processor.core.testmodel;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -57,8 +56,8 @@ public class AdministrativeDivision {
   private String parentDivisionCode;
   @Column(name = "\"AlternativeCode\"", length = 10)
   private String alternativeCode;
-  @Column(name = "\"Area\"", precision = 34, scale = 0)
-  private BigDecimal area;
+  @Column(name = "\"Area\"") // , precision = 34, scale = 0)
+  private Integer area;
   @Column(name = "\"Population\"", precision = 34, scale = 0)
   private long population;
 
@@ -122,7 +121,7 @@ public class AdministrativeDivision {
     return parent;
   }
 
-  public BigDecimal getArea() {
+  public int getArea() {
     return area;
   }
 
@@ -154,7 +153,7 @@ public class AdministrativeDivision {
     this.alternativeCode = alternativeCode;
   }
 
-  public void setArea(BigDecimal area) {
+  public void setArea(int area) {
     this.area = area;
   }
 

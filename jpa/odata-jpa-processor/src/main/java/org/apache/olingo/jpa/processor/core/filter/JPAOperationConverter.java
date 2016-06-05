@@ -127,10 +127,12 @@ public class JPAOperationConverter {
       final String searchString = ((String) ((JPALiteralOperator) jpaFunction.getParameter(1)).get());
       return cb.locate((Expression<String>) (jpaFunction.getParameter(0).get()), searchString);
     case SUBSTRING:
-      // Substring worked fine with H2 and HANA, but had problems with HSQLDB
-      final Integer start = new Integer(((String) ((JPALiteralOperator) jpaFunction.getParameter(1)).get()));
+      // OData defines start position in SUBSTRING as 0 (see
+      // http://docs.oasis-open.org/odata/odata/v4.0/os/part2-url-conventions/odata-v4.0-os-part2-url-conventions.html#_Toc372793820)
+      // SQL respectively databases use 1 as start position of a string
+      final Integer start = new Integer(((JPALiteralOperator) jpaFunction.getParameter(1)).get().toString()) + 1;
       if (jpaFunction.noParameters() == 3) {
-        final Integer length = new Integer(((String) ((JPALiteralOperator) jpaFunction.getParameter(2)).get()));
+        final Integer length = new Integer(((JPALiteralOperator) jpaFunction.getParameter(2)).get().toString());
         return cb.substring((Expression<String>) (jpaFunction.getParameter(0).get()), start, length);
       } else
         return cb.substring((Expression<String>) (jpaFunction.getParameter(0).get()), start);
