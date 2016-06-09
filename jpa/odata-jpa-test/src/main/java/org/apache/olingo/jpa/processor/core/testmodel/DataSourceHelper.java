@@ -19,7 +19,8 @@ public class DataSourceHelper {
   private static final String HSQLDB_URL = "jdbc:hsqldb:mem:com.sample";
   private static final String HSQLDB_DRIVER_CLASS_NAME = "org.hsqldb.jdbcDriver";
 
-  private static final String DERBY_URL = "jdbc:derby:test;create=true";
+  private static final String DERBY_URL =
+      "jdbc:derby:test;create=true;traceFile=derby_trace.log;trace_level=0xFFFFFFFF";
   private static final String DERBY_DRIVER_CLASS_NAME = "org.apache.derby.jdbc.EmbeddedDriver";
 
   private static final String REMOTE_URL = "jdbc:$DBNAME$:$Host$:$Port$";

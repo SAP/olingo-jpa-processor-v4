@@ -48,7 +48,7 @@
 			<groupId>org.hsqldb</groupId>
 			<artifactId>hsqldb</artifactId>
 			<version>2.3.3</version>
-		</dependency>		
+		</dependency>
 		<dependency>
 			<groupId>com.googlecode.flyway</groupId>
 			<artifactId>flyway-core</artifactId>
@@ -59,7 +59,6 @@
 			<artifactId>ngdbc</artifactId>
 			<version>1.96.0</version>
 		</dependency>
-
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
@@ -71,15 +70,11 @@
 			<version>3.3.2</version>
 		</dependency>
 		<dependency>
-		  <groupId>org.apache.derby</groupId>
-		  <artifactId>derby</artifactId>
-		  <version>10.12.1.1</version>
-		</dependency>	
-		<!-- <dependency>
-			<groupId>org.orbisgis</groupId>
-			<artifactId>h2gis</artifactId>
-			<version>1.2.4-SNAPSHOT</version>
-		</dependency> -->
+			<groupId>org.apache.derby</groupId>
+			<artifactId>derby</artifactId>
+			<version>10.12.1.1</version>
+		</dependency> <!-- <dependency> <groupId>org.orbisgis</groupId> <artifactId>h2gis</artifactId> 
+			<version>1.2.4-SNAPSHOT</version> </dependency> -->
 	</dependencies>
 	<build>
 		<pluginManagement>
@@ -97,12 +92,12 @@
 						<target>${project.build.source}</target>
 						<showWarnings>true</showWarnings>
 						<showDeprecation>true</showDeprecation>
-						
+
 						<compilerArgument>-Xlint:unchecked</compilerArgument>
 						<encoding>${project.build.sourceEncoding}</encoding>
 					</configuration>
 				</plugin>
 			</plugins>
 		</pluginManagement>
-	</build>	
+	</build>
 </project>
