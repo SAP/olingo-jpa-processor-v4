@@ -1,7 +1,10 @@
 package org.apache.olingo.jpa.processor.core.filter;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
 
+import org.apache.olingo.commons.api.http.HttpStatusCode;
+import org.apache.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.queryoption.expression.BinaryOperatorKind;
 
@@ -36,20 +39,39 @@ class JPAArithmeticOperator implements JPAOperator {
   }
 
   @SuppressWarnings("unchecked")
-  public Expression<Number> getLeft() throws ODataApplicationException {
-    if (left instanceof JPALiteralOperator)
-      return (Expression<Number>) right.get();
+  public Expression<Number> getLeft(CriteriaBuilder cb) throws ODataApplicationException {
+    if (left instanceof JPALiteralOperator) {
+      if (right instanceof JPALiteralOperator)
+        return cb.literal((Number) left.get());
+      else
+        return (Expression<Number>) right.get();
+    }
     return (Expression<Number>) left.get();
   }
 
-  public Number getRightAsNumber() throws ODataApplicationException {
-    if (left instanceof JPALiteralOperator)
-      return (Number) ((JPALiteralOperator) left).get(((JPAMemberOperator) right)
-          .determineAttributePath()
-          .getLeaf());
-    return (Number) ((JPALiteralOperator) right).get(((JPAMemberOperator) left)
-        .determineAttributePath()
-        .getLeaf());
+  public Number getRightAsNumber(CriteriaBuilder cb) throws ODataApplicationException {
+    // Determine attribute in order to determine type of literal attribute an correctly convert it
+    if (left instanceof JPALiteralOperator) {
+      if (right instanceof JPALiteralOperator)
+        return (Number) right.get();
+      else if (right instanceof JPAMemberOperator)
+        return (Number) ((JPALiteralOperator) left).get(((JPAMemberOperator) right)
+            .determineAttributePath()
+            .getLeaf());
+      else
+        throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR_TYPE,
+            HttpStatusCode.NOT_IMPLEMENTED);
+    } else {
+      if (right instanceof JPALiteralOperator)
+        return (Number) right.get();
+      else if (right instanceof JPAMemberOperator)
+        return (Number) ((JPALiteralOperator) right).get(((JPAMemberOperator) left)
+            .determineAttributePath()
+            .getLeaf());
+      else
+        throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR_TYPE,
+            HttpStatusCode.NOT_IMPLEMENTED);
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -68,4 +90,5 @@ class JPAArithmeticOperator implements JPAOperator {
   public Expression<Integer> getRightAsIntExpression() throws ODataApplicationException {
     return (Expression<Integer>) ((JPAMemberOperator) right).get();
   }
+
 }

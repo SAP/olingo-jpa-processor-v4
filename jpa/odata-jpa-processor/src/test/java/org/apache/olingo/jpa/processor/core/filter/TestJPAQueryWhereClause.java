@@ -335,7 +335,31 @@ public class TestJPAQueryWhereClause extends TestBase {
   }
 
   @Test
-  public void testFilterSubstringToLower() throws IOException, ODataException {
+  public void testFilterSubstringLengthCalculated() throws IOException, ODataException {
+    // substring(CompanyName, 1 add 4, 2 mul 3)
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and substring(Name,0,1 add 4) eq 'North'");
+
+    helper.assertStatus(200);
+
+    ArrayNode orgs = helper.getValues();
+    assertEquals(2, orgs.size());
+  }
+
+  @Test
+  public void testFilterSubstringStartCalculated() throws IOException, ODataException {
+    // substring(CompanyName, 1 add 4, 2 mul 3)
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and substring(Name,3 add 3) eq 'Dakota'");
+
+    helper.assertStatus(200);
+
+    ArrayNode orgs = helper.getValues();
+    assertEquals(2, orgs.size());
+  }
+
+  @Test
+  public void testFilterToLower() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and tolower(Name) eq 'brandenburg'");
@@ -347,7 +371,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   }
 
   @Test
-  public void testFilterSubstringToUpper() throws IOException, ODataException {
+  public void testFilterToUpper() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and toupper(Name) eq 'HESSEN'");
@@ -360,7 +384,7 @@ public class TestJPAQueryWhereClause extends TestBase {
 
   @Ignore
   @Test
-  public void testFilterSubstringToUpperInvers() throws IOException, ODataException {
+  public void testFilterToUpperInvers() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions?$filter=toupper('nuts1') eq CodeID");

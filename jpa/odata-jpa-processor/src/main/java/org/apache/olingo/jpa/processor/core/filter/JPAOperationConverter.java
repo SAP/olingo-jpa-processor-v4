@@ -22,27 +22,27 @@ public class JPAOperationConverter {
     switch (jpaOperator.getOperator()) {
     case ADD:
       if (jpaOperator.getRight() instanceof JPALiteralOperator)
-        return (Expression<T>) cb.sum(jpaOperator.getLeft(), jpaOperator.getRightAsNumber());
+        return (Expression<T>) cb.sum(jpaOperator.getLeft(cb), jpaOperator.getRightAsNumber(cb));
       else
-        return (Expression<T>) cb.sum(jpaOperator.getLeft(), jpaOperator.getRightAsExpression());
+        return (Expression<T>) cb.sum(jpaOperator.getLeft(cb), jpaOperator.getRightAsExpression());
     case SUB:
       if (jpaOperator.getRight() instanceof JPALiteralOperator)
-        return (Expression<T>) cb.diff(jpaOperator.getLeft(), jpaOperator.getRightAsNumber());
+        return (Expression<T>) cb.diff(jpaOperator.getLeft(cb), jpaOperator.getRightAsNumber(cb));
       else
-        return (Expression<T>) cb.diff(jpaOperator.getLeft(), jpaOperator.getRightAsExpression());
+        return (Expression<T>) cb.diff(jpaOperator.getLeft(cb), jpaOperator.getRightAsExpression());
     case DIV:
       if (jpaOperator.getRight() instanceof JPALiteralOperator)
-        return (Expression<T>) cb.quot(jpaOperator.getLeft(), jpaOperator.getRightAsNumber());
+        return (Expression<T>) cb.quot(jpaOperator.getLeft(cb), jpaOperator.getRightAsNumber(cb));
       else
-        return (Expression<T>) cb.quot(jpaOperator.getLeft(), jpaOperator.getRightAsExpression());
+        return (Expression<T>) cb.quot(jpaOperator.getLeft(cb), jpaOperator.getRightAsExpression());
     case MUL:
       if (jpaOperator.getRight() instanceof JPALiteralOperator)
-        return (Expression<T>) cb.prod(jpaOperator.getLeft(), jpaOperator.getRightAsNumber());
+        return (Expression<T>) cb.prod(jpaOperator.getLeft(cb), jpaOperator.getRightAsNumber(cb));
       else
-        return (Expression<T>) cb.prod(jpaOperator.getLeft(), jpaOperator.getRightAsExpression());
+        return (Expression<T>) cb.prod(jpaOperator.getLeft(cb), jpaOperator.getRightAsExpression());
     case MOD:
       if (jpaOperator.getRight() instanceof JPALiteralOperator)
-        return (Expression<T>) cb.mod(jpaOperator.getLeftAsIntExpression(), new Integer(jpaOperator.getRightAsNumber()
+        return (Expression<T>) cb.mod(jpaOperator.getLeftAsIntExpression(), new Integer(jpaOperator.getRightAsNumber(cb)
             .toString()));
       else
         return (Expression<T>) cb.mod(jpaOperator.getLeftAsIntExpression(), jpaOperator.getRightAsIntExpression());
@@ -130,9 +130,11 @@ public class JPAOperationConverter {
       // OData defines start position in SUBSTRING as 0 (see
       // http://docs.oasis-open.org/odata/odata/v4.0/os/part2-url-conventions/odata-v4.0-os-part2-url-conventions.html#_Toc372793820)
       // SQL respectively databases use 1 as start position of a string
-      final Integer start = new Integer(((JPALiteralOperator) jpaFunction.getParameter(1)).get().toString()) + 1;
+
+      final Expression<Integer> start = convertLiteralToExpression(jpaFunction, 1, 1);
+      // final Integer start = new Integer(((JPALiteralOperator) jpaFunction.getParameter(1)).get().toString()) + 1;
       if (jpaFunction.noParameters() == 3) {
-        final Integer length = new Integer(((JPALiteralOperator) jpaFunction.getParameter(2)).get().toString());
+        final Expression<Integer> length = convertLiteralToExpression(jpaFunction, 2, 0);
         return cb.substring((Expression<String>) (jpaFunction.getParameter(0).get()), start, length);
       } else
         return cb.substring((Expression<String>) (jpaFunction.getParameter(0).get()), start);
@@ -217,6 +219,19 @@ public class JPAOperationConverter {
       throws ODataApplicationException {
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
         HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getOperator().name());
+  }
+
+  @SuppressWarnings("unchecked")
+  private Expression<Integer> convertLiteralToExpression(final JPAFunctionCall jpaFunction, final int parameterIndex,
+      final int offset) throws ODataApplicationException {
+    JPAOperator parameter = jpaFunction.getParameter(parameterIndex);
+    if (parameter instanceof JPAArithmeticOperator) {
+      if (offset != 0)
+        return cb.sum((Expression<Integer>) jpaFunction.getParameter(parameterIndex).get(), offset);
+      else
+        return (Expression<Integer>) jpaFunction.getParameter(parameterIndex).get();
+    } else
+      return cb.literal(new Integer(parameter.get().toString()) + offset);
   }
 
 }

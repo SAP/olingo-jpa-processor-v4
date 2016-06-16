@@ -10,8 +10,10 @@ import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
 import javax.persistence.ParameterMode;
 import javax.persistence.Persistence;
+import javax.persistence.Query;
 import javax.persistence.StoredProcedureQuery;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
@@ -31,8 +33,6 @@ public class TestFunctions {
   protected static final String PUNIT_NAME = "org.apache.olingo.jpa";
   private static final String ENTITY_MANAGER_DATA_SOURCE = "javax.persistence.nonJtaDataSource";
   private static EntityManagerFactory emf;
-  private EntityManager em;
-  private CriteriaBuilder cb;
   private static DataSource ds;
 
   @BeforeClass
@@ -40,32 +40,20 @@ public class TestFunctions {
 
     Map<String, Object> properties = new HashMap<String, Object>();
 
-    ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_REMOTE);
+    ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_DERBY);
 
     properties.put(ENTITY_MANAGER_DATA_SOURCE, ds);
     emf = Persistence.createEntityManagerFactory(PUNIT_NAME, properties);
   }
 
+  private EntityManager em;
+
+  private CriteriaBuilder cb;
+
   @Before
   public void setup() {
     em = emf.createEntityManager();
     cb = em.getCriteriaBuilder();
-  }
-
-  @Ignore
-  @Test
-  public void TestScalarFunctionsWhere() {
-    CriteriaQuery<Tuple> count = cb.createTupleQuery();
-    Root<?> adminDiv = count.from(AdministrativeDivision.class);
-    count.multiselect(adminDiv);
-    count.where(cb.equal(
-        cb.function("", Integer.class, cb.literal(5)),
-        new Integer(1)));
-    // cb.literal
-    TypedQuery<Tuple> tq = em.createQuery(count);
-    List<Tuple> act = tq.getResultList();
-    assertNotNull(act);
-    tq.getFirstResult();
   }
 
   @Ignore
@@ -145,5 +133,37 @@ public class TestFunctions {
 
     Object[] one = (Object[]) r.get(0);
     assertNotNull(one);
+  }
+
+  // @Ignore
+  @Test
+  public void TestScalarFunctionsWhere() {
+    CreateUDFDerby();
+
+    CriteriaQuery<Tuple> count = cb.createTupleQuery();
+    Root<?> adminDiv = count.from(AdministrativeDivision.class);
+    count.multiselect(adminDiv);
+    count.where(cb.equal(
+        cb.function("IS_PRIME", boolean.class, cb.literal(5)),
+        new Boolean(true)));
+    // cb.literal
+    TypedQuery<Tuple> tq = em.createQuery(count);
+    List<Tuple> act = tq.getResultList();
+    assertNotNull(act);
+    tq.getFirstResult();
+  }
+
+  private void CreateUDFDerby() {
+    EntityTransaction t = em.getTransaction();
+    StringBuffer sqlString = new StringBuffer();
+
+    sqlString.append("CREATE FUNCTION IS_PRIME(number Integer) RETURNS Integer ");
+    sqlString.append("PARAMETER STYLE JAVA NO SQL LANGUAGE JAVA ");
+    sqlString.append("EXTERNAL NAME 'org.apache.olingo.jpa.processor.core.test_udf.isPrime'");
+
+    t.begin();
+    Query q = em.createNativeQuery(sqlString.toString());
+    q.executeUpdate();
+    t.commit();
   }
 }

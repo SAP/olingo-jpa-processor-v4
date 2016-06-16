@@ -30,6 +30,15 @@ class JPADefaultDatabaseProcessor implements JPAODataDatabaseProcessor {
   private static final String PARAMETER_PLACEHOLDER = "$PARAMETER$";
 
   @Override
+  public Expression<Boolean> createSearchWhereClause(final CriteriaBuilder cb, final CriteriaQuery<?> cq,
+      final Root<?> root, final JPAEntityType entityType, final SearchOption searchOption)
+      throws ODataApplicationException {
+    throw new ODataJPADBAdaptorException(ODataJPADBAdaptorException.MessageKeys.NOT_SUPPORTED_SEARCH,
+        HttpStatusCode.NOT_IMPLEMENTED);
+
+  }
+
+  @Override
   public List<?> executeFunctionQuery(final UriResourceFunction uriResourceFunction, final JPAFunction jpaFunction,
       final JPAEntityType returnType, final EntityManager em) throws ODataApplicationException {
 
@@ -46,6 +55,7 @@ class JPADefaultDatabaseProcessor implements JPAODataDatabaseProcessor {
   }
 
   private String generateQueryString(final JPAFunction jpaFunction) {
+
     final StringBuffer parameterList = new StringBuffer();
     String queryString = SELECT_BASE_PATTERN;
 
@@ -60,8 +70,7 @@ class JPADefaultDatabaseProcessor implements JPAODataDatabaseProcessor {
   }
 
   private UriParameter findParameterByExternalName(final JPAFunctionParameter parameter,
-      final List<UriParameter> uriParameters)
-      throws ODataApplicationException {
+      final List<UriParameter> uriParameters) throws ODataApplicationException {
     for (final UriParameter uriParameter : uriParameters) {
       if (uriParameter.getName().equals(parameter.getName()))
         return uriParameter;
@@ -84,12 +93,4 @@ class JPADefaultDatabaseProcessor implements JPAODataDatabaseProcessor {
     }
   }
 
-  @Override
-  public Expression<Boolean> createSearchWhereClause(final CriteriaBuilder cb, final CriteriaQuery<?> cq,
-      final Root<?> root, final JPAEntityType entityType, final SearchOption searchOption)
-      throws ODataApplicationException {
-    throw new ODataJPADBAdaptorException(ODataJPADBAdaptorException.MessageKeys.NOT_SUPPORTED_SEARCH,
-        HttpStatusCode.NOT_IMPLEMENTED);
-
-  }
 }

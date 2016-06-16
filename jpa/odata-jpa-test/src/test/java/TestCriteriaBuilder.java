@@ -10,6 +10,7 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
@@ -44,6 +45,23 @@ public class TestCriteriaBuilder {
   public void setup() {
     em = emf.createEntityManager();
     cb = em.getCriteriaBuilder();
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testSubstringWithExperession() {
+    CriteriaQuery<Tuple> adminQ = cb.createTupleQuery();
+    Root<AdministrativeDivisionDescription> adminRoot1 = adminQ.from(AdministrativeDivisionDescription.class);
+//    (Expression<T>) cb.sum(jpaOperator.getLeft(), jpaOperator.getRightAsNumber());
+//    cb.substring((Expression<String>) (jpaFunction.getParameter(0).get()), start, length);
+    Path<?> p = adminRoot1.get("name");
+
+    Expression<Integer> sum = cb.sum(cb.literal(1), cb.literal(4));
+
+    adminQ.where(cb.equal(cb.substring((Expression<String>) (p), cb.literal(0), sum), "North"));
+    adminQ.multiselect(adminRoot1.get("name"));
+    TypedQuery<Tuple> tq = em.createQuery(adminQ);
+    tq.getResultList();
   }
 
   @Test

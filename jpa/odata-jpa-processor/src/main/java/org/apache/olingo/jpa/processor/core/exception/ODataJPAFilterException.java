@@ -11,7 +11,8 @@ public class ODataJPAFilterException extends ODataJPAProcessException {
 
   public static enum MessageKeys implements ODataJPAMessageKey {
     NOT_SUPPORTED_OPERATOR,
-    NOT_SUPPORTED_FILTER;
+    NOT_SUPPORTED_FILTER,
+    NOT_SUPPORTED_OPERATOR_TYPE;
 
     @Override
     public String getKey() {

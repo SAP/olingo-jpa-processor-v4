@@ -590,3 +590,7 @@ insert into "org.apache.olingo.jpa::AdministrativeDivision" values( 'Eurostat', 
 CREATE TABLE "org.apache.olingo.jpa::DummyToBeIgnored" (
 	"ID" VARCHAR(32) NOT NULL ,
 	 PRIMARY KEY ("ID"));
+	 
+--CREATE FUNCTION IS_PRIME(number Integer) RETURNS BOOLEAN
+--       PARAMETER STYLE JAVA NO SQL LANGUAGE JAVA 
+--       EXTERNAL NAME 'org.apache.olingo.jpa.processor.core.test_udf.isPrime';
