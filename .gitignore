@@ -62,4 +62,4 @@ buildNumber.properties
 hs_err_pid*
 
 # --- Derby stuff
-**/test/
+**/jpa-processor/test/**
