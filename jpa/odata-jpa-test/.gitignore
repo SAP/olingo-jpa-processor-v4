@@ -2,3 +2,4 @@
 **/target/
 /.pmd
 /derby.log
+/test/

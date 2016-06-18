@@ -50,6 +50,9 @@ public class JPALiteralOperator implements JPAOperator {
     }
   }
 
+  /**
+   * Converts a literal value into system type of attribute
+   */
   public Object get(final JPAAttribute attribute) throws ODataApplicationException {
 
     String value = null;
@@ -62,12 +65,12 @@ public class JPALiteralOperator implements JPAOperator {
       value = edmType.fromUriLiteral(literal.getText());
       return edmType.valueOfString(value, edmProperty.isNullable(), edmProperty.getMaxLength(),
           edmProperty.getPrecision(), edmProperty.getScale(), true, attribute.getType());
+
     } catch (EdmPrimitiveTypeException e) {
       throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     } catch (ODataJPAModelException e) {
       throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
-    // return value;
   }
 
   Literal getLiteral() {

@@ -49,17 +49,13 @@ class JPAComparisonOperator<T extends Comparable<T>> implements JPAExpressionOpe
   public Comparable<T> getRightAsComparable() throws ODataApplicationException {
     if (left instanceof JPALiteralOperator) {
       if (right instanceof JPAMemberOperator)
-        return (Comparable<T>) ((JPALiteralOperator) left).get(((JPAMemberOperator) right)
-            .determineAttributePath()
-            .getLeaf());
+        return (Comparable<T>) ((JPALiteralOperator) left).get(((JPAMemberOperator) right).determineAttribute());
       else
         return (Comparable<T>) left.get();
     }
     if (right instanceof JPALiteralOperator) {
       if (left instanceof JPAMemberOperator)
-        return (Comparable<T>) ((JPALiteralOperator) right).get(((JPAMemberOperator) left)
-            .determineAttributePath()
-            .getLeaf());
+        return (Comparable<T>) ((JPALiteralOperator) right).get(((JPAMemberOperator) left).determineAttribute());
 
       else {
         return (Comparable<T>) right.get();

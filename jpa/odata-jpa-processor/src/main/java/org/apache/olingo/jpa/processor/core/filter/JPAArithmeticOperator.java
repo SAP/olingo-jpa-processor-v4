@@ -50,28 +50,24 @@ class JPAArithmeticOperator implements JPAOperator {
   }
 
   public Number getRightAsNumber(CriteriaBuilder cb) throws ODataApplicationException {
-    // Determine attribute in order to determine type of literal attribute an correctly convert it
+    // Determine attribute in order to determine type of literal attribute and correctly convert it
     if (left instanceof JPALiteralOperator) {
       if (right instanceof JPALiteralOperator)
         return (Number) right.get();
       else if (right instanceof JPAMemberOperator)
-        return (Number) ((JPALiteralOperator) left).get(((JPAMemberOperator) right)
-            .determineAttributePath()
-            .getLeaf());
+        return (Number) ((JPALiteralOperator) left).get(((JPAMemberOperator) right).determineAttribute());
       else
         throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR_TYPE,
             HttpStatusCode.NOT_IMPLEMENTED);
-    } else {
+    } else if (left instanceof JPAMemberOperator) {
       if (right instanceof JPALiteralOperator)
-        return (Number) right.get();
-      else if (right instanceof JPAMemberOperator)
-        return (Number) ((JPALiteralOperator) right).get(((JPAMemberOperator) left)
-            .determineAttributePath()
-            .getLeaf());
+        return (Number) ((JPALiteralOperator) right).get(((JPAMemberOperator) left).determineAttribute());
       else
         throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR_TYPE,
             HttpStatusCode.NOT_IMPLEMENTED);
-    }
+    } else
+      throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR_TYPE,
+          HttpStatusCode.NOT_IMPLEMENTED);
   }
 
   @SuppressWarnings("unchecked")

@@ -40,21 +40,13 @@ public final class JPAExpandResult {
       throw new NullPointerException();
   }
 
-  public JPAExpandResult(final Map<String, List<Tuple>> result, final Long count) {
-    super();
-    childrenResult = new HashMap<JPAAssociationPath, JPAExpandResult>();
-    this.result = result;
-    this.count = count;
-    this.jpaEntityType = null;
-  }
-
-  public boolean hasChildren() {
-    return !childrenResult.isEmpty();
-  }
-
-  public Map<String, List<Tuple>> getAllResults() {
-    return result;
-  }
+//  public JPAExpandResult(final Map<String, List<Tuple>> result, final Long count) {
+//    super();
+//    childrenResult = new HashMap<JPAAssociationPath, JPAExpandResult>();
+//    this.result = result;
+//    this.count = count;
+//    this.jpaEntityType = null;
+//  }
 
   public void putChildren(final Map<JPAAssociationPath, JPAExpandResult> childResults)
       throws ODataApplicationException {

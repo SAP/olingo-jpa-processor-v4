@@ -4,6 +4,7 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 
 import org.apache.olingo.commons.api.http.HttpStatusCode;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPADescriptionAttribute;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -28,10 +29,29 @@ public class JPAMemberOperator implements JPAOperator {
     this.root = parent.getRoot();
   }
 
+  public JPAAttribute determineAttribute() throws ODataApplicationException {
+    return determineAttributePath().getLeaf();
+  }
+
   @Override
   public Path<?> get() throws ODataApplicationException {
     final JPAPath selectItemPath = determineAttributePath();
     return determineCriteriaPath(selectItemPath);
+  }
+
+  public Member getMember() {// UriInfoResource getMember() {
+    return member; // .getResourcePath();
+  }
+
+  private JPAPath determineAttributePath() throws ODataApplicationException {
+    final String path = Util.determineProptertyNavigationPath(member.getResourcePath().getUriResourceParts());
+    JPAPath selectItemPath = null;
+    try {
+      selectItemPath = jpaEntityType.getPath(path);
+    } catch (ODataJPAModelException e) {
+      throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    }
+    return selectItemPath;
   }
 
   private Path<?> determineCriteriaPath(final JPAPath selectItemPath) {
@@ -45,20 +65,5 @@ public class JPAMemberOperator implements JPAOperator {
         p = p.get(jpaPathElement.getInternalName());
     }
     return p;
-  }
-
-  public JPAPath determineAttributePath() throws ODataApplicationException {
-    final String path = Util.determineProptertyNavigationPath(member.getResourcePath().getUriResourceParts());
-    JPAPath selectItemPath = null;
-    try {
-      selectItemPath = jpaEntityType.getPath(path);
-    } catch (ODataJPAModelException e) {
-      throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-    }
-    return selectItemPath;
-  }
-
-  public Member getMember() {// UriInfoResource getMember() {
-    return member; // .getResourcePath();
   }
 }
