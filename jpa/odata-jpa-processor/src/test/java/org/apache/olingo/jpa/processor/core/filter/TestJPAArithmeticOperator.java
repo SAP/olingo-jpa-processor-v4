@@ -190,8 +190,8 @@ public class TestJPAArithmeticOperator {
 
   @Test
   public void testGetMemberBooleanGetRightAsNumber_Exeption() throws ODataApplicationException {
-    JPAMemberOperator right = mock(JPAMemberOperator.class);
-    JPABooleanOperator left = mock(JPABooleanOperator.class);
+    JPAMemberOperator left = mock(JPAMemberOperator.class);
+    JPABooleanOperator right = mock(JPABooleanOperator.class);
 
     JPAArithmeticOperator cut = new JPAArithmeticOperator(converter, BinaryOperatorKind.ADD, left, right);
     try {

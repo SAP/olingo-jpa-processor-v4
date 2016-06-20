@@ -155,6 +155,9 @@ public class TestFunctions {
 
   private void CreateUDFDerby() {
     EntityTransaction t = em.getTransaction();
+
+    StringBuffer dropString = new StringBuffer("DROP FUNCTION IS_PRIME");
+
     StringBuffer sqlString = new StringBuffer();
 
     sqlString.append("CREATE FUNCTION IS_PRIME(number Integer) RETURNS Integer ");
@@ -162,7 +165,9 @@ public class TestFunctions {
     sqlString.append("EXTERNAL NAME 'org.apache.olingo.jpa.processor.core.test_udf.isPrime'");
 
     t.begin();
+    Query d = em.createNativeQuery(dropString.toString());
     Query q = em.createNativeQuery(sqlString.toString());
+    d.executeUpdate();
     q.executeUpdate();
     t.commit();
   }
