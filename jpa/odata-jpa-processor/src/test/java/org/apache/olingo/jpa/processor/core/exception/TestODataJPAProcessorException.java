@@ -9,7 +9,7 @@ import org.apache.olingo.server.api.ODataApplicationException;
 import org.junit.Test;
 
 public class TestODataJPAProcessorException {
-  private static String BUNDLE_NAME = "test-i18n";
+  private static String BUNDLE_NAME = "exceptions-i18n";
 
   public static enum MessageKeys implements ODataJPAMessageKey {
     RESULT_NOT_FOUND;
@@ -26,7 +26,7 @@ public class TestODataJPAProcessorException {
     try {
       RaiseExeption();
     } catch (ODataApplicationException e) {
-      assertEquals("An English message", e.getMessage());
+      assertEquals("No result was fond by Serializer", e.getMessage());
       assertEquals(400, e.getStatusCode());
       return;
     }
@@ -38,7 +38,7 @@ public class TestODataJPAProcessorException {
     try {
       RaiseExeptionParam();
     } catch (ODataApplicationException e) {
-      assertEquals("No result found for Willi and Hugo", e.getMessage());
+      assertEquals("Unable to convert value Willi of parameter Hugo", e.getMessage());
       assertEquals(500, e.getStatusCode());
       return;
     }
@@ -46,41 +46,43 @@ public class TestODataJPAProcessorException {
   }
 
   private void RaiseExeptionParam() throws ODataJPAProcessException {
-    throw new TestException(MessageKeys.RESULT_NOT_FOUND, HttpStatusCode.INTERNAL_SERVER_ERROR, "Willi", "Hugo");
+    throw new ODataJPADBAdaptorException(ODataJPADBAdaptorException.MessageKeys.PARAMETER_CONVERSION_ERROR,
+        HttpStatusCode.INTERNAL_SERVER_ERROR, "Willi", "Hugo");
   }
 
   private void RaiseExeption() throws ODataJPAProcessException {
-    throw new TestException("FIRST_MESSAGE", HttpStatusCode.BAD_REQUEST);
+    throw new ODataJPASerializerException(ODataJPASerializerException.MessageKeys.RESULT_NOT_FOUND,
+        HttpStatusCode.BAD_REQUEST);
   }
 
-  private class TestException extends ODataJPAProcessException {
-    private static final long serialVersionUID = 1L;
-
-    public TestException(Throwable e, final HttpStatusCode statusCode) {
-      super(e, statusCode);
-    }
-
-    public TestException(final MessageKeys messageKey, final HttpStatusCode statusCode,
-        final Throwable cause, final String... params) {
-      super(messageKey.getKey(), statusCode, cause, params);
-    }
-
-    public TestException(final String id, final HttpStatusCode statusCode) {
-      super(id, statusCode);
-    }
-
-    public TestException(final MessageKeys messageKey, final HttpStatusCode statusCode,
-        final String... params) {
-      super(messageKey.getKey(), statusCode, params);
-    }
-
-    public TestException(final MessageKeys messageKey, final HttpStatusCode statusCode, final Throwable e) {
-      super(messageKey.getKey(), statusCode, e);
-    }
-
-    @Override
-    protected String getBundleName() {
-      return BUNDLE_NAME;
-    }
-  }
+//  private class TestException extends ODataJPAProcessException {
+//    private static final long serialVersionUID = 1L;
+//
+//    public TestException(Throwable e, final HttpStatusCode statusCode) {
+//      super(e, statusCode);
+//    }
+//
+//    public TestException(final MessageKeys messageKey, final HttpStatusCode statusCode,
+//        final Throwable cause, final String... params) {
+//      super(messageKey.getKey(), statusCode, cause, params);
+//    }
+//
+//    public TestException(final String id, final HttpStatusCode statusCode) {
+//      super(id, statusCode);
+//    }
+//
+//    public TestException(final MessageKeys messageKey, final HttpStatusCode statusCode,
+//        final String... params) {
+//      super(messageKey.getKey(), statusCode, params);
+//    }
+//
+//    public TestException(final MessageKeys messageKey, final HttpStatusCode statusCode, final Throwable e) {
+//      super(messageKey.getKey(), statusCode, e);
+//    }
+//
+//    @Override
+//    protected String getBundleName() {
+//      return BUNDLE_NAME;
+//    }
+//  }
 }

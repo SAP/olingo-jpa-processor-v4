@@ -135,7 +135,7 @@ public class TestFunctions {
     assertNotNull(one);
   }
 
-  // @Ignore
+  @Ignore
   @Test
   public void TestScalarFunctionsWhere() {
     CreateUDFDerby();
