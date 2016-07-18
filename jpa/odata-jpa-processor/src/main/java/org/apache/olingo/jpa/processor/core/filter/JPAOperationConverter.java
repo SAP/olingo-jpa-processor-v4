@@ -224,7 +224,7 @@ public class JPAOperationConverter {
   @SuppressWarnings("unchecked")
   private Expression<Integer> convertLiteralToExpression(final JPAFunctionCall jpaFunction, final int parameterIndex,
       final int offset) throws ODataApplicationException {
-    JPAOperator parameter = jpaFunction.getParameter(parameterIndex);
+    final JPAOperator parameter = jpaFunction.getParameter(parameterIndex);
     if (parameter instanceof JPAArithmeticOperator) {
       if (offset != 0)
         return cb.sum((Expression<Integer>) jpaFunction.getParameter(parameterIndex).get(), offset);

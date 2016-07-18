@@ -17,7 +17,7 @@ public class EdmEntitySetDouble implements EdmEntitySet {
   private final EdmEntityType type;
   // private final JPAEdmNameBuilder nameBuilder;
 
-  public EdmEntitySetDouble(JPAEdmNameBuilder nameBuilder, String name) {
+  public EdmEntitySetDouble(final JPAEdmNameBuilder nameBuilder, final String name) {
     super();
     this.name = name;
     this.type = new EdmEntityTypeDouble(nameBuilder, name.substring(0, name.length() - 1));
@@ -30,7 +30,7 @@ public class EdmEntitySetDouble implements EdmEntitySet {
   }
 
   @Override
-  public EdmBindingTarget getRelatedBindingTarget(String path) {
+  public EdmBindingTarget getRelatedBindingTarget(final String path) {
     return null;
   }
 
@@ -55,7 +55,7 @@ public class EdmEntitySetDouble implements EdmEntitySet {
   }
 
   @Override
-  public EdmAnnotation getAnnotation(EdmTerm term, String qualifier) {
+  public EdmAnnotation getAnnotation(final EdmTerm term, final String qualifier) {
     return null;
   }
 

@@ -14,7 +14,7 @@ import org.apache.olingo.commons.api.edm.geo.SRID;
 public class EdmPropertyDouble implements EdmProperty {
   private final String name;
 
-  public EdmPropertyDouble(String name) {
+  public EdmPropertyDouble(final String name) {
     super();
     this.name = name;
   }
@@ -44,7 +44,7 @@ public class EdmPropertyDouble implements EdmProperty {
   }
 
   @Override
-  public EdmAnnotation getAnnotation(EdmTerm term, String qualifier) {
+  public EdmAnnotation getAnnotation(final EdmTerm term, final String qualifier) {
     fail();
     return null;
   }

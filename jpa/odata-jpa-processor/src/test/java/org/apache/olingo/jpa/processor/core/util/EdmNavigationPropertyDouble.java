@@ -13,7 +13,7 @@ import org.apache.olingo.commons.api.edm.EdmTerm;
 public class EdmNavigationPropertyDouble implements EdmNavigationProperty {
   private final String name;
 
-  public EdmNavigationPropertyDouble(String name) {
+  public EdmNavigationPropertyDouble(final String name) {
     super();
     this.name = name;
   }
@@ -30,7 +30,7 @@ public class EdmNavigationPropertyDouble implements EdmNavigationProperty {
   }
 
   @Override
-  public EdmAnnotation getAnnotation(EdmTerm term, String qualifier) {
+  public EdmAnnotation getAnnotation(final EdmTerm term, final String qualifier) {
     fail();
     return null;
   }
@@ -66,7 +66,7 @@ public class EdmNavigationPropertyDouble implements EdmNavigationProperty {
   }
 
   @Override
-  public String getReferencingPropertyName(String referencedPropertyName) {
+  public String getReferencingPropertyName(final String referencedPropertyName) {
     fail();
     return null;
   }

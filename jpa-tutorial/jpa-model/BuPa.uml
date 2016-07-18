@@ -1,0 +1,770 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Model xmi:version="20131001" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_C2yW4EszEeaVhr02lt1ZOA" name="RootElement">
+  <packagedElement xmi:type="uml:Model" xmi:id="_Ny9eoEs1EeaVhr02lt1ZOA" name="java">
+    <packagedElement xmi:type="uml:Package" xmi:id="_Ny9eoUs1EeaVhr02lt1ZOA" name="java">
+      <packagedElement xmi:type="uml:Package" xmi:id="_Ny9eoks1EeaVhr02lt1ZOA" name="lang">
+        <packagedElement xmi:type="uml:Class" xmi:id="_Ny9eo0s1EeaVhr02lt1ZOA" name="String"/>
+        <packagedElement xmi:type="uml:Class" xmi:id="_NzXHQks1EeaVhr02lt1ZOA" name="Object"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Package" xmi:id="_NzMvMEs1EeaVhr02lt1ZOA" name="io">
+        <packagedElement xmi:type="uml:Interface" xmi:id="_NzMvMUs1EeaVhr02lt1ZOA" name="Serializable"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Package" xmi:id="_NzkioEs1EeaVhr02lt1ZOA" name="sql">
+        <packagedElement xmi:type="uml:Class" xmi:id="_NzkioUs1EeaVhr02lt1ZOA" name="Timestamp"/>
+        <packagedElement xmi:type="uml:Class" xmi:id="_N0IjU0s1EeaVhr02lt1ZOA" name="Date"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Package" xmi:id="_NzlJsEs1EeaVhr02lt1ZOA" name="math">
+        <packagedElement xmi:type="uml:Class" xmi:id="_NzlJsUs1EeaVhr02lt1ZOA" name="BigDecimal"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Package" xmi:id="_N0IjUEs1EeaVhr02lt1ZOA" name="time">
+        <packagedElement xmi:type="uml:Class" xmi:id="_N0IjUUs1EeaVhr02lt1ZOA" name="LocalDate"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Package" xmi:id="_N0ZCAks1EeaVhr02lt1ZOA" name="util">
+        <packagedElement xmi:type="uml:Class" xmi:id="_N0ZpEEs1EeaVhr02lt1ZOA" name="List"/>
+        <packagedElement xmi:type="uml:Interface" xmi:id="_N0d6gEs1EeaVhr02lt1ZOA" name="Enumeration"/>
+        <packagedElement xmi:type="uml:Class" xmi:id="_N0d6gks1EeaVhr02lt1ZOA" name="Iterator"/>
+        <packagedElement xmi:type="uml:Class" xmi:id="_N0ehk0s1EeaVhr02lt1ZOA" name="Locale"/>
+      </packagedElement>
+    </packagedElement>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Model" xmi:id="_Ny_T0Us1EeaVhr02lt1ZOA" name="datatype">
+    <packagedElement xmi:type="uml:Package" xmi:id="_Ny_T0ks1EeaVhr02lt1ZOA" name="datatype">
+      <packagedElement xmi:type="uml:Class" xmi:id="_Ny_64Es1EeaVhr02lt1ZOA" name="Integer"/>
+      <packagedElement xmi:type="uml:PrimitiveType" xmi:id="_Ny_64ks1EeaVhr02lt1ZOA" name="Long"/>
+      <packagedElement xmi:type="uml:PrimitiveType" xmi:id="_NzXHREs1EeaVhr02lt1ZOA" name="Boolean"/>
+      <packagedElement xmi:type="uml:PrimitiveType" xmi:id="_N0XM0Es1EeaVhr02lt1ZOA" name="Byte"/>
+    </packagedElement>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Model" xmi:id="_TZKSIEs1EeaVhr02lt1ZOA" name="jpa-model">
+    <packagedElement xmi:type="uml:Package" xmi:id="_TZMuYEs1EeaVhr02lt1ZOA" name="org">
+      <packagedElement xmi:type="uml:Package" xmi:id="_TZMuYUs1EeaVhr02lt1ZOA" name="apache">
+        <packagedElement xmi:type="uml:Package" xmi:id="_TZMuYks1EeaVhr02lt1ZOA" name="olingo">
+          <packagedElement xmi:type="uml:Package" xmi:id="_TZMuY0s1EeaVhr02lt1ZOA" name="jpa">
+            <packagedElement xmi:type="uml:Package" xmi:id="_TZNVcEs1EeaVhr02lt1ZOA" name="processor">
+              <packagedElement xmi:type="uml:Package" xmi:id="_TZNVcUs1EeaVhr02lt1ZOA" name="core">
+                <packagedElement xmi:type="uml:Package" xmi:id="_TZNVcks1EeaVhr02lt1ZOA" name="testmodel">
+                  <packagedElement xmi:type="uml:Class" xmi:id="_TZN8gEs1EeaVhr02lt1ZOA" name="AdministrativeDivision" visibility="public">
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_TZOjkEs1EeaVhr02lt1ZOA" name="codePublisher" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_TZOjkUs1EeaVhr02lt1ZOA" name="codeID" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_TZPKoEs1EeaVhr02lt1ZOA" name="divisionCode" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_TZPKoUs1EeaVhr02lt1ZOA" name="countryCode" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_TZPKoks1EeaVhr02lt1ZOA" name="parentCodeID" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_TZPKo0s1EeaVhr02lt1ZOA" name="parentDivisionCode" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_TZPxsEs1EeaVhr02lt1ZOA" name="alternativeCode" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_TZPxsUs1EeaVhr02lt1ZOA" name="area" visibility="private" type="_Ny_64Es1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_TZPxsks1EeaVhr02lt1ZOA" name="population" visibility="private" type="_Ny_64ks1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_TZPxs0s1EeaVhr02lt1ZOA" name="parent" visibility="private" type="_TZN8gEs1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_TZQYwEs1EeaVhr02lt1ZOA" name="children" visibility="private" type="_TZN8gEs1EeaVhr02lt1ZOA" isUnique="false">
+                      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_TZQYwUs1EeaVhr02lt1ZOA"/>
+                      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_TZQYwks1EeaVhr02lt1ZOA" value="*"/>
+                    </ownedAttribute>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_GcJEQEtEEeaVhr02lt1ZOA" name="administrativedivisiondescription" type="_cN5eMEs1EeaVhr02lt1ZOA" association="_GcIdMEtEEeaVhr02lt1ZOA"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_O0eBI0tEEeaVhr02lt1ZOA" name="administrativedivision" type="_TZN8gEs1EeaVhr02lt1ZOA" association="_O0eBIEtEEeaVhr02lt1ZOA">
+                      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_U4624EtEEeaVhr02lt1ZOA"/>
+                      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_U48FAEtEEeaVhr02lt1ZOA" value="1"/>
+                    </ownedAttribute>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_Fe-b8EtFEeaVhr02lt1ZOA" name="administrativedivisionkey" type="_cOCBEEs1EeaVhr02lt1ZOA" association="_Fe904EtFEeaVhr02lt1ZOA"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_x3lyYktUEeaVhr02lt1ZOA" name="administrativedivision" type="_TZN8gEs1EeaVhr02lt1ZOA" association="_x3kkQEtUEeaVhr02lt1ZOA">
+                      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_BsKeYEtVEeaVhr02lt1ZOA"/>
+                      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_BsMTkEtVEeaVhr02lt1ZOA" value="*"/>
+                    </ownedAttribute>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_TZQYw0s1EeaVhr02lt1ZOA" name="getCodePublisher" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_TZQ_0Es1EeaVhr02lt1ZOA" type="_Ny9eo0s1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_TZQ_0Us1EeaVhr02lt1ZOA" name="getCodeID" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_TZQ_0ks1EeaVhr02lt1ZOA" type="_Ny9eo0s1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_TZQ_00s1EeaVhr02lt1ZOA" name="getDivisionCode" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_TZQ_1Es1EeaVhr02lt1ZOA" type="_Ny9eo0s1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_TZQ_1Us1EeaVhr02lt1ZOA" name="getCountryCode" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_TZRm4Es1EeaVhr02lt1ZOA" type="_Ny9eo0s1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_TZRm4Us1EeaVhr02lt1ZOA" name="getParentDivisionCode" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_TZRm4ks1EeaVhr02lt1ZOA" type="_Ny9eo0s1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_TZRm40s1EeaVhr02lt1ZOA" name="getAlternativeCode" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_TZRm5Es1EeaVhr02lt1ZOA" type="_Ny9eo0s1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_TZRm5Us1EeaVhr02lt1ZOA" name="getParent" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_TZRm5ks1EeaVhr02lt1ZOA" type="_TZN8gEs1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_TZRm50s1EeaVhr02lt1ZOA" name="getArea" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_TZRm6Es1EeaVhr02lt1ZOA" type="_Ny_64Es1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_TZRm6Us1EeaVhr02lt1ZOA" name="getPopulation" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_TZSN8Es1EeaVhr02lt1ZOA" type="_Ny_64ks1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_TZSN8Us1EeaVhr02lt1ZOA" name="setCodePublisher" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_TZSN8ks1EeaVhr02lt1ZOA" name="codePublisher" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_TZSN80s1EeaVhr02lt1ZOA" name="setCodeID" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_TZS1AEs1EeaVhr02lt1ZOA" name="codeID" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_TZS1AUs1EeaVhr02lt1ZOA" name="setDivisionCode" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_TZS1Aks1EeaVhr02lt1ZOA" name="divisionCode" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_TZS1A0s1EeaVhr02lt1ZOA" name="setCountryCode" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_TZTcEEs1EeaVhr02lt1ZOA" name="countryCode" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_TZTcEUs1EeaVhr02lt1ZOA" name="setParentDivisionCode" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_TZTcEks1EeaVhr02lt1ZOA" name="parentDivisionCode" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_TZTcE0s1EeaVhr02lt1ZOA" name="setAlternativeCode" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_TZUDIEs1EeaVhr02lt1ZOA" name="alternativeCode" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_TZUDIUs1EeaVhr02lt1ZOA" name="setArea" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_TZUDIks1EeaVhr02lt1ZOA" name="area" type="_Ny_64Es1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_TZUDI0s1EeaVhr02lt1ZOA" name="setPopulation" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_TZUqMEs1EeaVhr02lt1ZOA" name="population" type="_Ny_64ks1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_TZUqMUs1EeaVhr02lt1ZOA" name="getParentCodeID" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_TZUqMks1EeaVhr02lt1ZOA" type="_Ny9eo0s1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_TZUqM0s1EeaVhr02lt1ZOA" name="setParentCodeID" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_TZUqNEs1EeaVhr02lt1ZOA" name="parentCodeID" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                  </packagedElement>
+                  <packagedElement xmi:type="uml:Class" xmi:id="_cN5eMEs1EeaVhr02lt1ZOA" name="AdministrativeDivisionDescription" visibility="public">
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cN6sUEs1EeaVhr02lt1ZOA" name="key" visibility="private" type="_cN6FQEs1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cN6sUUs1EeaVhr02lt1ZOA" name="name" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_CIkg00tFEeaVhr02lt1ZOA" name="administrativedivisiondescriptionkey" type="_cN6FQEs1EeaVhr02lt1ZOA" association="_CIkg0EtFEeaVhr02lt1ZOA"/>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cN6sUks1EeaVhr02lt1ZOA" name="getName" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cN6sU0s1EeaVhr02lt1ZOA" type="_Ny9eo0s1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cN6sVEs1EeaVhr02lt1ZOA" name="setName" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cN6sVUs1EeaVhr02lt1ZOA" name="name" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                  </packagedElement>
+                  <packagedElement xmi:type="uml:Class" xmi:id="_cN6FQEs1EeaVhr02lt1ZOA" name="AdministrativeDivisionDescriptionKey" visibility="public">
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cN9IkUs1EeaVhr02lt1ZOA" name="serialVersionUID" visibility="private" isLeaf="true" isStatic="true" type="_Ny_64ks1EeaVhr02lt1ZOA" isUnique="false">
+                      <ownedComment xmi:type="uml:Comment" xmi:id="_cN9voEs1EeaVhr02lt1ZOA">
+                        <body>&#xD;
+   * &#xD;
+   </body>
+                      </ownedComment>
+                    </ownedAttribute>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cN9voUs1EeaVhr02lt1ZOA" name="codePublisher" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cN9voks1EeaVhr02lt1ZOA" name="codeID" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cN9vo0s1EeaVhr02lt1ZOA" name="divisionCode" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cN-WsEs1EeaVhr02lt1ZOA" name="language" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="_cN9IkEs1EeaVhr02lt1ZOA" name="AdministrativeDivisionDescriptionKey implements Serializable" client="_cN6FQEs1EeaVhr02lt1ZOA" supplier="_NzMvMUs1EeaVhr02lt1ZOA" contract="_NzMvMUs1EeaVhr02lt1ZOA"/>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cN-WsUs1EeaVhr02lt1ZOA" name="getLanguage" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cN-Wsks1EeaVhr02lt1ZOA" type="_Ny9eo0s1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cN-Ws0s1EeaVhr02lt1ZOA" name="getCodePublisher" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cN-WtEs1EeaVhr02lt1ZOA" type="_Ny9eo0s1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cN-WtUs1EeaVhr02lt1ZOA" name="setCodePublisher" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cN-9wEs1EeaVhr02lt1ZOA" name="codePublisher" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cN-9wUs1EeaVhr02lt1ZOA" name="getCodeID" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cN-9wks1EeaVhr02lt1ZOA" type="_Ny9eo0s1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cN-9w0s1EeaVhr02lt1ZOA" name="setCodeID" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cN-9xEs1EeaVhr02lt1ZOA" name="codeID" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cN-9xUs1EeaVhr02lt1ZOA" name="getDivisonCode" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cN_k0Es1EeaVhr02lt1ZOA" type="_Ny9eo0s1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cN_k0Us1EeaVhr02lt1ZOA" name="setDivisonCode" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cN_k0ks1EeaVhr02lt1ZOA" name="divisonCode" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cN_k00s1EeaVhr02lt1ZOA" name="getSerialversionuid" visibility="public" isStatic="true">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cN_k1Es1EeaVhr02lt1ZOA" type="_Ny_64ks1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cN_k1Us1EeaVhr02lt1ZOA" name="setLanguage" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cN_k1ks1EeaVhr02lt1ZOA" name="language" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOAL4Es1EeaVhr02lt1ZOA" name="hashCode" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOAL4Us1EeaVhr02lt1ZOA" type="_Ny_64Es1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOAL4ks1EeaVhr02lt1ZOA" name="equals" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOAL40s1EeaVhr02lt1ZOA" type="_NzXHREs1EeaVhr02lt1ZOA" direction="return"/>
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOAL5Es1EeaVhr02lt1ZOA" name="obj" type="_NzXHQks1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                  </packagedElement>
+                  <packagedElement xmi:type="uml:Class" xmi:id="_cOCBEEs1EeaVhr02lt1ZOA" name="AdministrativeDivisionKey" visibility="public">
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOCBEks1EeaVhr02lt1ZOA" name="serialVersionUID" visibility="private" isLeaf="true" isStatic="true" type="_Ny_64ks1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOCoIEs1EeaVhr02lt1ZOA" name="codePublisher" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOCoIUs1EeaVhr02lt1ZOA" name="codeID" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOCoIks1EeaVhr02lt1ZOA" name="divisionCode" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="_cOCBEUs1EeaVhr02lt1ZOA" name="AdministrativeDivisionKey implements Serializable" client="_cOCBEEs1EeaVhr02lt1ZOA" supplier="_NzMvMUs1EeaVhr02lt1ZOA" contract="_NzMvMUs1EeaVhr02lt1ZOA"/>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOCoI0s1EeaVhr02lt1ZOA" name="hashCode" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOCoJEs1EeaVhr02lt1ZOA" type="_Ny_64Es1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOCoJUs1EeaVhr02lt1ZOA" name="equals" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOCoJks1EeaVhr02lt1ZOA" type="_NzXHREs1EeaVhr02lt1ZOA" direction="return"/>
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cODPMEs1EeaVhr02lt1ZOA" name="obj" type="_NzXHQks1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                  </packagedElement>
+                  <packagedElement xmi:type="uml:Class" xmi:id="_cOEdUEs1EeaVhr02lt1ZOA" name="AdministrativeInformation" visibility="public">
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOEdUks1EeaVhr02lt1ZOA" name="created" visibility="private" type="_cOEdUUs1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOEdU0s1EeaVhr02lt1ZOA" name="updated" visibility="private" type="_cOEdUUs1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_Qxl8g0tBEeaVhr02lt1ZOA" name="changeinformation" type="_cOEdUUs1EeaVhr02lt1ZOA" association="_Qxl8gEtBEeaVhr02lt1ZOA">
+                      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_W6WDcEtBEeaVhr02lt1ZOA" value="2"/>
+                      <upperValue xmi:type="uml:LiteralInteger" xmi:id="_hdnN4EtBEeaVhr02lt1ZOA" value="2"/>
+                    </ownedAttribute>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOFEYEs1EeaVhr02lt1ZOA" name="getCreated" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOFEYUs1EeaVhr02lt1ZOA" type="_cOEdUUs1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOFEYks1EeaVhr02lt1ZOA" name="getUpdated" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOFEY0s1EeaVhr02lt1ZOA" type="_cOEdUUs1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOFEZEs1EeaVhr02lt1ZOA" name="setCreated" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOFEZUs1EeaVhr02lt1ZOA" name="created" type="_cOEdUUs1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOFEZks1EeaVhr02lt1ZOA" name="setUpdated" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOFEZ0s1EeaVhr02lt1ZOA" name="updated" type="_cOEdUUs1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                  </packagedElement>
+                  <packagedElement xmi:type="uml:Class" xmi:id="_cOEdUUs1EeaVhr02lt1ZOA" name="ChangeInformation" visibility="public">
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOTt4Es1EeaVhr02lt1ZOA" name="by" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOTt4Us1EeaVhr02lt1ZOA" name="at" visibility="private" type="_NzkioUs1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOTt40s1EeaVhr02lt1ZOA" name="user" type="_cOTt4ks1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOTt5Es1EeaVhr02lt1ZOA" name="getAt" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOUU8Es1EeaVhr02lt1ZOA" type="_NzkioUs1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOUU8Us1EeaVhr02lt1ZOA" name="getBy" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOUU8ks1EeaVhr02lt1ZOA" type="_Ny9eo0s1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                  </packagedElement>
+                  <packagedElement xmi:type="uml:Class" xmi:id="_cOGSgEs1EeaVhr02lt1ZOA" name="AssertList" visibility="public">
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOGSgUs1EeaVhr02lt1ZOA" name="assertEquals" visibility="public" isStatic="true">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOGSgks1EeaVhr02lt1ZOA" name="exp" type="_NzXHQks1EeaVhr02lt1ZOA"/>
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOG5kEs1EeaVhr02lt1ZOA" name="act" type="_NzXHQks1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                  </packagedElement>
+                  <packagedElement xmi:type="uml:Class" xmi:id="_cOIuwEs1EeaVhr02lt1ZOA" name="BusinessPartner" visibility="public" isAbstract="true">
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOJV0Es1EeaVhr02lt1ZOA" name="ID" visibility="protected" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOJV0Us1EeaVhr02lt1ZOA" name="eTag" visibility="protected" type="_Ny_64ks1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOJV0ks1EeaVhr02lt1ZOA" name="type" visibility="protected" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOJV1Es1EeaVhr02lt1ZOA" name="customString1" visibility="protected" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOJ84Es1EeaVhr02lt1ZOA" name="customString2" visibility="protected" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOJ84Us1EeaVhr02lt1ZOA" name="customNum1" visibility="protected" type="_NzlJsUs1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOJ84ks1EeaVhr02lt1ZOA" name="customNum2" visibility="protected" type="_NzlJsUs1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOKj9Es1EeaVhr02lt1ZOA" name="communicationData" visibility="protected" type="_cOKj80s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOJ840s1EeaVhr02lt1ZOA" name="country" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOKj9ks1EeaVhr02lt1ZOA" name="address" visibility="private" type="_cOKj9Us1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOKj90s1EeaVhr02lt1ZOA" name="administrativeInformation" visibility="private" type="_cOEdUEs1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_B7yGMEs-EeaVhr02lt1ZOA" name="businesspartnerrole" type="_cOLLAEs1EeaVhr02lt1ZOA" association="_B7wRAEs-EeaVhr02lt1ZOA">
+                      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_QOqV8Es-EeaVhr02lt1ZOA"/>
+                      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_QOsLIEs-EeaVhr02lt1ZOA" value="*"/>
+                    </ownedAttribute>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_skCao0s_EeaVhr02lt1ZOA" name="postaladdressdata" type="_cOKj9Us1EeaVhr02lt1ZOA" association="_skCaoEs_EeaVhr02lt1ZOA">
+                      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_48_7YEs_EeaVhr02lt1ZOA"/>
+                      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_49BwkEs_EeaVhr02lt1ZOA" value="1"/>
+                    </ownedAttribute>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_sYSBI0tAEeaVhr02lt1ZOA" name="administrativeinformation" type="_cOEdUEs1EeaVhr02lt1ZOA" association="_sYSBIEtAEeaVhr02lt1ZOA"/>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOLLBEs1EeaVhr02lt1ZOA" name="setID" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOLLBUs1EeaVhr02lt1ZOA" name="iD" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOLLBks1EeaVhr02lt1ZOA" name="seteTag" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOLyEEs1EeaVhr02lt1ZOA" name="eTag" type="_Ny_64ks1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOLyEUs1EeaVhr02lt1ZOA" name="setType" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOLyEks1EeaVhr02lt1ZOA" name="type" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOLyE0s1EeaVhr02lt1ZOA" name="setCreationDateTime" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOLyFEs1EeaVhr02lt1ZOA" name="creationDateTime" type="_NzkioUs1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOLyFUs1EeaVhr02lt1ZOA" name="setCustomString1" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOLyFks1EeaVhr02lt1ZOA" name="customString1" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOMZIEs1EeaVhr02lt1ZOA" name="setCustomString2" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOMZIUs1EeaVhr02lt1ZOA" name="customString2" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOMZIks1EeaVhr02lt1ZOA" name="setCustomNum1" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOMZI0s1EeaVhr02lt1ZOA" name="customNum1" type="_NzlJsUs1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOMZJEs1EeaVhr02lt1ZOA" name="setCustomNum2" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOMZJUs1EeaVhr02lt1ZOA" name="customNum2" type="_NzlJsUs1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOMZJks1EeaVhr02lt1ZOA" name="setCountry" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOMZJ0s1EeaVhr02lt1ZOA" name="country" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cONAMEs1EeaVhr02lt1ZOA" name="setLocationName" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cONAMUs1EeaVhr02lt1ZOA" name="locationName" type="_cOJ85Es1EeaVhr02lt1ZOA">
+                        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_cONAMks1EeaVhr02lt1ZOA"/>
+                        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_cONAM0s1EeaVhr02lt1ZOA" value="*"/>
+                      </ownedParameter>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cONANEs1EeaVhr02lt1ZOA" name="setCommunicationData" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cONANUs1EeaVhr02lt1ZOA" name="communicationData" type="_cOKj80s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cONANks1EeaVhr02lt1ZOA" name="setAddress" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cONnQEs1EeaVhr02lt1ZOA" name="address" type="_cOKj9Us1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cONnQUs1EeaVhr02lt1ZOA" name="setAdministrativeInformation" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cONnQks1EeaVhr02lt1ZOA" name="administrativeInformation" type="_cOEdUEs1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cONnQ0s1EeaVhr02lt1ZOA" name="setRoles" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cONnREs1EeaVhr02lt1ZOA" name="roles" type="_cOLLAEs1EeaVhr02lt1ZOA">
+                        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_cONnRUs1EeaVhr02lt1ZOA"/>
+                        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_cONnRks1EeaVhr02lt1ZOA" value="*"/>
+                      </ownedParameter>
+                    </ownedOperation>
+                  </packagedElement>
+                  <packagedElement xmi:type="uml:Class" xmi:id="_cOJ85Es1EeaVhr02lt1ZOA" name="Country" visibility="public">
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOWxMEs1EeaVhr02lt1ZOA" name="code" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOXYQEs1EeaVhr02lt1ZOA" name="language" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOXYQUs1EeaVhr02lt1ZOA" name="name" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                  </packagedElement>
+                  <packagedElement xmi:type="uml:Class" xmi:id="_cOKj80s1EeaVhr02lt1ZOA" name="CommunicationData" visibility="public">
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOU8AEs1EeaVhr02lt1ZOA" name="landlinePhoneNumber" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOVjEEs1EeaVhr02lt1ZOA" name="mobilePhoneNumber" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOVjEUs1EeaVhr02lt1ZOA" name="fax" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOVjEks1EeaVhr02lt1ZOA" name="email" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOVjE0s1EeaVhr02lt1ZOA" name="getEmail" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOVjFEs1EeaVhr02lt1ZOA" type="_Ny9eo0s1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOVjFUs1EeaVhr02lt1ZOA" name="getFax" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOVjFks1EeaVhr02lt1ZOA" type="_Ny9eo0s1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOVjF0s1EeaVhr02lt1ZOA" name="getLandlinePhoneNumber" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOWKIEs1EeaVhr02lt1ZOA" type="_Ny9eo0s1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOWKIUs1EeaVhr02lt1ZOA" name="getMobilePhoneNumber" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOWKIks1EeaVhr02lt1ZOA" type="_Ny9eo0s1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                  </packagedElement>
+                  <packagedElement xmi:type="uml:Class" xmi:id="_cOKj9Us1EeaVhr02lt1ZOA" name="PostalAddressData" visibility="public">
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cO8nEEs1EeaVhr02lt1ZOA" name="streetName" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cO8nEUs1EeaVhr02lt1ZOA" name="houseNumber" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cO8nEks1EeaVhr02lt1ZOA" name="POBox" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cO9OIEs1EeaVhr02lt1ZOA" name="postalCode" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cO9OIUs1EeaVhr02lt1ZOA" name="cityName" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cO9OIks1EeaVhr02lt1ZOA" name="country" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cO9OI0s1EeaVhr02lt1ZOA" name="regionCodePublisher" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cO9OJEs1EeaVhr02lt1ZOA" name="regionCodeID" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cO91MEs1EeaVhr02lt1ZOA" name="region" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cO91MUs1EeaVhr02lt1ZOA" name="countryName" visibility="private" type="_cOJ85Es1EeaVhr02lt1ZOA" isUnique="false">
+                      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_cO91Mks1EeaVhr02lt1ZOA"/>
+                      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_cO91M0s1EeaVhr02lt1ZOA" value="*"/>
+                    </ownedAttribute>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cO91NEs1EeaVhr02lt1ZOA" name="regionName" visibility="private" type="_cN5eMEs1EeaVhr02lt1ZOA" isUnique="false">
+                      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_cO91NUs1EeaVhr02lt1ZOA"/>
+                      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_cO91Nks1EeaVhr02lt1ZOA" value="*"/>
+                    </ownedAttribute>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cO91N0s1EeaVhr02lt1ZOA" name="administrativeDivision" visibility="private" type="_TZN8gEs1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cGOAgktDEeaVhr02lt1ZOA" name="administrativedivisiondescription" type="_cN5eMEs1EeaVhr02lt1ZOA" association="_cGNZcEtDEeaVhr02lt1ZOA">
+                      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_mrO3YEtDEeaVhr02lt1ZOA"/>
+                      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_mrQskEtDEeaVhr02lt1ZOA" value="*"/>
+                    </ownedAttribute>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cO-cQEs1EeaVhr02lt1ZOA" name="getStreetName" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cO-cQUs1EeaVhr02lt1ZOA" type="_Ny9eo0s1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cO-cQks1EeaVhr02lt1ZOA" name="getHouseNumber" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cO-cQ0s1EeaVhr02lt1ZOA" type="_Ny9eo0s1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cO-cREs1EeaVhr02lt1ZOA" name="getPOBox" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cO-cRUs1EeaVhr02lt1ZOA" type="_Ny9eo0s1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cO-cRks1EeaVhr02lt1ZOA" name="getCityName" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cO-cR0s1EeaVhr02lt1ZOA" type="_Ny9eo0s1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cO-cSEs1EeaVhr02lt1ZOA" name="getPostalCode" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cO_DUEs1EeaVhr02lt1ZOA" type="_Ny9eo0s1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cO_DUUs1EeaVhr02lt1ZOA" name="getRegion" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cO_DUks1EeaVhr02lt1ZOA" type="_Ny9eo0s1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cO_DU0s1EeaVhr02lt1ZOA" name="getCountry" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cO_DVEs1EeaVhr02lt1ZOA" type="_Ny9eo0s1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cO_DVUs1EeaVhr02lt1ZOA" name="getCountryName" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cO_qYEs1EeaVhr02lt1ZOA" type="_cOJ85Es1EeaVhr02lt1ZOA" direction="return">
+                        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_cO_qYUs1EeaVhr02lt1ZOA"/>
+                        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_cO_qYks1EeaVhr02lt1ZOA" value="*"/>
+                      </ownedParameter>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cO_qY0s1EeaVhr02lt1ZOA" name="setStreetName" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cO_qZEs1EeaVhr02lt1ZOA" name="streetName" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cO_qZUs1EeaVhr02lt1ZOA" name="setHouseNumber" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cO_qZks1EeaVhr02lt1ZOA" name="houseNumber" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cPARcEs1EeaVhr02lt1ZOA" name="setPOBox" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cPARcUs1EeaVhr02lt1ZOA" name="pOBox" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cPARcks1EeaVhr02lt1ZOA" name="setCityName" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cPARc0s1EeaVhr02lt1ZOA" name="cityName" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cPARdEs1EeaVhr02lt1ZOA" name="setPostalCode" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cPA4gEs1EeaVhr02lt1ZOA" name="postalCode" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cPA4gUs1EeaVhr02lt1ZOA" name="setRegion" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cPA4gks1EeaVhr02lt1ZOA" name="region" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cPA4g0s1EeaVhr02lt1ZOA" name="setCountry" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cPA4hEs1EeaVhr02lt1ZOA" name="country" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                  </packagedElement>
+                  <packagedElement xmi:type="uml:Class" xmi:id="_cOLLAEs1EeaVhr02lt1ZOA" name="BusinessPartnerRole" visibility="public">
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOPccEs1EeaVhr02lt1ZOA" name="businessPartnerID" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOPccUs1EeaVhr02lt1ZOA" name="roleCategory" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOPccks1EeaVhr02lt1ZOA" name="businessPartner" visibility="private" type="_cOIuwEs1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_mD_qgEs-EeaVhr02lt1ZOA" name="businesspartnerrolekey" type="_cORRoEs1EeaVhr02lt1ZOA" association="_mD_DcEs-EeaVhr02lt1ZOA"/>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOQDgEs1EeaVhr02lt1ZOA" name="getBusinessPartnerID" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOQDgUs1EeaVhr02lt1ZOA" type="_Ny9eo0s1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOQDgks1EeaVhr02lt1ZOA" name="getRoleCategory" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOQDg0s1EeaVhr02lt1ZOA" type="_Ny9eo0s1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOQDhEs1EeaVhr02lt1ZOA" name="getBusinessPartner" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOQDhUs1EeaVhr02lt1ZOA" type="_cOIuwEs1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                  </packagedElement>
+                  <packagedElement xmi:type="uml:Class" xmi:id="_cORRoEs1EeaVhr02lt1ZOA" name="BusinessPartnerRoleKey" visibility="public">
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cORRoks1EeaVhr02lt1ZOA" name="serialVersionUID" visibility="private" isLeaf="true" isStatic="true" type="_Ny_64ks1EeaVhr02lt1ZOA" isUnique="false">
+                      <ownedComment xmi:type="uml:Comment" xmi:id="_cOR4sEs1EeaVhr02lt1ZOA">
+                        <body>&#xD;
+   * &#xD;
+   </body>
+                      </ownedComment>
+                    </ownedAttribute>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOR4sUs1EeaVhr02lt1ZOA" name="businessPartnerID" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOR4sks1EeaVhr02lt1ZOA" name="roleCategory" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="_cORRoUs1EeaVhr02lt1ZOA" name="BusinessPartnerRoleKey implements Serializable" client="_cORRoEs1EeaVhr02lt1ZOA" supplier="_NzMvMUs1EeaVhr02lt1ZOA" contract="_NzMvMUs1EeaVhr02lt1ZOA"/>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOR4s0s1EeaVhr02lt1ZOA" name="equals" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOR4tEs1EeaVhr02lt1ZOA" type="_NzXHREs1EeaVhr02lt1ZOA" direction="return"/>
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOR4tUs1EeaVhr02lt1ZOA" name="obj" type="_NzXHQks1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOR4tks1EeaVhr02lt1ZOA" name="hashCode" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOSfwEs1EeaVhr02lt1ZOA" type="_Ny_64Es1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                  </packagedElement>
+                  <packagedElement xmi:type="uml:Class" xmi:id="_cOTt4ks1EeaVhr02lt1ZOA" name="Person" visibility="public">
+                    <generalization xmi:type="uml:Generalization" xmi:id="_cO3ukEs1EeaVhr02lt1ZOA" general="_cOIuwEs1EeaVhr02lt1ZOA"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cO3ukUs1EeaVhr02lt1ZOA" name="firstName" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cO3ukks1EeaVhr02lt1ZOA" name="lastName" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cO4VoEs1EeaVhr02lt1ZOA" name="birthDay" visibility="private" type="_N0IjUUs1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cO4Voks1EeaVhr02lt1ZOA" name="image" visibility="private" type="_cO4VoUs1EeaVhr02lt1ZOA" isUnique="false"/>
+                  </packagedElement>
+                  <packagedElement xmi:type="uml:Class" xmi:id="_cOYmYEs1EeaVhr02lt1ZOA" name="CountryKey" visibility="public">
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOYmYks1EeaVhr02lt1ZOA" name="serialVersionUID" visibility="private" isLeaf="true" isStatic="true" type="_Ny_64ks1EeaVhr02lt1ZOA" isUnique="false">
+                      <ownedComment xmi:type="uml:Comment" xmi:id="_cOYmY0s1EeaVhr02lt1ZOA">
+                        <body>&#xD;
+   * &#xD;
+   </body>
+                      </ownedComment>
+                    </ownedAttribute>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOZNcEs1EeaVhr02lt1ZOA" name="code" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOZNcUs1EeaVhr02lt1ZOA" name="language" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="_cOYmYUs1EeaVhr02lt1ZOA" name="CountryKey implements Serializable" client="_cOYmYEs1EeaVhr02lt1ZOA" supplier="_NzMvMUs1EeaVhr02lt1ZOA" contract="_NzMvMUs1EeaVhr02lt1ZOA"/>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOZNcks1EeaVhr02lt1ZOA" name="equals" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOZNc0s1EeaVhr02lt1ZOA" type="_NzXHREs1EeaVhr02lt1ZOA" direction="return"/>
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOZNdEs1EeaVhr02lt1ZOA" name="obj" type="_NzXHQks1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOZNdUs1EeaVhr02lt1ZOA" name="hashCode" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOZNdks1EeaVhr02lt1ZOA" type="_Ny_64Es1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                  </packagedElement>
+                  <packagedElement xmi:type="uml:Class" xmi:id="_cObCoEs1EeaVhr02lt1ZOA" name="DataSourceHelper" visibility="public">
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cObCoUs1EeaVhr02lt1ZOA" name="DB_SCHEMA" visibility="private" isLeaf="true" isStatic="true" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cObCoks1EeaVhr02lt1ZOA" name="H2_URL" visibility="private" isLeaf="true" isStatic="true" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cObpsEs1EeaVhr02lt1ZOA" name="H2_DRIVER_CLASS_NAME" visibility="private" isLeaf="true" isStatic="true" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cObpsUs1EeaVhr02lt1ZOA" name="HSQLDB_URL" visibility="private" isLeaf="true" isStatic="true" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cObpsks1EeaVhr02lt1ZOA" name="HSQLDB_DRIVER_CLASS_NAME" visibility="private" isLeaf="true" isStatic="true" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cObps0s1EeaVhr02lt1ZOA" name="DERBY_URL" visibility="private" isLeaf="true" isStatic="true" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOcQwEs1EeaVhr02lt1ZOA" name="DERBY_DRIVER_CLASS_NAME" visibility="private" isLeaf="true" isStatic="true" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOcQwUs1EeaVhr02lt1ZOA" name="REMOTE_URL" visibility="private" isLeaf="true" isStatic="true" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOcQwks1EeaVhr02lt1ZOA" name="DB_H2" visibility="public" isLeaf="true" isStatic="true" type="_Ny_64Es1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOcQw0s1EeaVhr02lt1ZOA" name="DB_HSQLDB" visibility="public" isLeaf="true" isStatic="true" type="_Ny_64Es1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOcQxEs1EeaVhr02lt1ZOA" name="DB_REMOTE" visibility="public" isLeaf="true" isStatic="true" type="_Ny_64Es1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOcQxUs1EeaVhr02lt1ZOA" name="DB_DERBY" visibility="public" isLeaf="true" isStatic="true" type="_Ny_64Es1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOc30Es1EeaVhr02lt1ZOA" name="createDataSource" visibility="public" isStatic="true">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOc31Es1EeaVhr02lt1ZOA" type="_cOc300s1EeaVhr02lt1ZOA" direction="return"/>
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOc31Us1EeaVhr02lt1ZOA" name="database" type="_Ny_64Es1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                  </packagedElement>
+                  <packagedElement xmi:type="uml:Class" xmi:id="_cOeF8Es1EeaVhr02lt1ZOA" name="DateConverter" visibility="public">
+                    <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="_cOetAEs1EeaVhr02lt1ZOA" name="DateConverter implements AttributeConverter" client="_cOeF8Es1EeaVhr02lt1ZOA" supplier="_cOeF8ks1EeaVhr02lt1ZOA" contract="_cOeF8ks1EeaVhr02lt1ZOA"/>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOetAUs1EeaVhr02lt1ZOA" name="convertToDatabaseColumn" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOetAks1EeaVhr02lt1ZOA" type="_N0IjU0s1EeaVhr02lt1ZOA" direction="return"/>
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOetA0s1EeaVhr02lt1ZOA" name="locDate" type="_N0IjUUs1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOetBEs1EeaVhr02lt1ZOA" name="convertToEntityAttribute" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOetBUs1EeaVhr02lt1ZOA" type="_N0IjUUs1EeaVhr02lt1ZOA" direction="return"/>
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOfUEEs1EeaVhr02lt1ZOA" name="sqlDate" type="_N0IjU0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                  </packagedElement>
+                  <packagedElement xmi:type="uml:Class" xmi:id="_cOjlgEs1EeaVhr02lt1ZOA" name="ImageLoader" visibility="public">
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOjlgUs1EeaVhr02lt1ZOA" name="SELECT_PERSON_IMAGE" visibility="private" isLeaf="true" isStatic="true" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOjlgks1EeaVhr02lt1ZOA" name="SELECT_ORGANIZATION_IMAGE" visibility="private" isLeaf="true" isStatic="true" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOjlg0s1EeaVhr02lt1ZOA" name="PATH" visibility="private" isLeaf="true" isStatic="true" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOkMkEs1EeaVhr02lt1ZOA" name="TEST_IMAGE" visibility="private" isLeaf="true" isStatic="true" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOkMkUs1EeaVhr02lt1ZOA" name="ENTITY_MANAGER_DATA_SOURCE" visibility="private" isLeaf="true" isStatic="true" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOkMkks1EeaVhr02lt1ZOA" name="PUNIT_NAME" visibility="private" isLeaf="true" isStatic="true" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOkMk0s1EeaVhr02lt1ZOA" name="main" visibility="public" isStatic="true">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOkMlEs1EeaVhr02lt1ZOA" name="args" type="_Ny9eo0s1EeaVhr02lt1ZOA">
+                        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_cOkzoEs1EeaVhr02lt1ZOA"/>
+                        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_cOkzoUs1EeaVhr02lt1ZOA" value="*"/>
+                      </ownedParameter>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOkzo0s1EeaVhr02lt1ZOA" name="loadPerson" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOkzpEs1EeaVhr02lt1ZOA" name="em" type="_cOkzoks1EeaVhr02lt1ZOA"/>
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOlasEs1EeaVhr02lt1ZOA" name="imageName" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOlasUs1EeaVhr02lt1ZOA" name="businessPartnerID" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOlasks1EeaVhr02lt1ZOA" name="loadPerson" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOlas0s1EeaVhr02lt1ZOA" name="imageName" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOmBwEs1EeaVhr02lt1ZOA" name="businessPartnerID" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOmBwUs1EeaVhr02lt1ZOA" name="loadOrg" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOmBwks1EeaVhr02lt1ZOA" name="em" type="_cOkzoks1EeaVhr02lt1ZOA"/>
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOmBw0s1EeaVhr02lt1ZOA" name="imageName" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOmBxEs1EeaVhr02lt1ZOA" name="businessPartnerID" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOmo0Es1EeaVhr02lt1ZOA" name="loadOrg" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOmo0Us1EeaVhr02lt1ZOA" name="imageName" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOmo0ks1EeaVhr02lt1ZOA" name="businessPartnerID" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOmo00s1EeaVhr02lt1ZOA" name="storePersonImageDB" visibility="private">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOnP4Es1EeaVhr02lt1ZOA" name="em" type="_cOkzoks1EeaVhr02lt1ZOA"/>
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOnP4Us1EeaVhr02lt1ZOA" name="image" type="_N0XM0Es1EeaVhr02lt1ZOA">
+                        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_cOnP4ks1EeaVhr02lt1ZOA"/>
+                        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_cOnP40s1EeaVhr02lt1ZOA" value="*"/>
+                      </ownedParameter>
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOnP5Es1EeaVhr02lt1ZOA" name="businessPartnerID" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOn28Es1EeaVhr02lt1ZOA" name="query" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOn28Us1EeaVhr02lt1ZOA" name="storeOrgImageDB" visibility="private">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOn28ks1EeaVhr02lt1ZOA" name="em" type="_cOkzoks1EeaVhr02lt1ZOA"/>
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOn280s1EeaVhr02lt1ZOA" name="image" type="_N0XM0Es1EeaVhr02lt1ZOA">
+                        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_cOn29Es1EeaVhr02lt1ZOA"/>
+                        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_cOn29Us1EeaVhr02lt1ZOA" value="*"/>
+                      </ownedParameter>
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOoeAEs1EeaVhr02lt1ZOA" name="businessPartnerID" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOoeAUs1EeaVhr02lt1ZOA" name="query" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOoeAks1EeaVhr02lt1ZOA" name="updateDB" visibility="private">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOpFEEs1EeaVhr02lt1ZOA" name="em" type="_cOkzoks1EeaVhr02lt1ZOA"/>
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOpFEUs1EeaVhr02lt1ZOA" name="result" type="_N0ZpEEs1EeaVhr02lt1ZOA">
+                        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_cOpFEks1EeaVhr02lt1ZOA"/>
+                        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_cOpFE0s1EeaVhr02lt1ZOA" value="*"/>
+                      </ownedParameter>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOpFFEs1EeaVhr02lt1ZOA" name="createEntityManager" visibility="private" isStatic="true">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOpFFUs1EeaVhr02lt1ZOA" type="_cOkzoks1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOpsIEs1EeaVhr02lt1ZOA" name="compareImage" visibility="private">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOpsIUs1EeaVhr02lt1ZOA" name="image" type="_N0XM0Es1EeaVhr02lt1ZOA">
+                        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_cOpsIks1EeaVhr02lt1ZOA"/>
+                        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_cOpsI0s1EeaVhr02lt1ZOA" value="*"/>
+                      </ownedParameter>
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOpsJEs1EeaVhr02lt1ZOA" name="storedImage" type="_N0XM0Es1EeaVhr02lt1ZOA">
+                        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_cOpsJUs1EeaVhr02lt1ZOA"/>
+                        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_cOqTMEs1EeaVhr02lt1ZOA" value="*"/>
+                      </ownedParameter>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOqTMUs1EeaVhr02lt1ZOA" name="storeImageLocal" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOqTMks1EeaVhr02lt1ZOA" name="storedImage" type="_N0XM0Es1EeaVhr02lt1ZOA">
+                        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_cOqTM0s1EeaVhr02lt1ZOA"/>
+                        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_cOqTNEs1EeaVhr02lt1ZOA" value="*"/>
+                      </ownedParameter>
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOqTNUs1EeaVhr02lt1ZOA" name="fileName" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOq6QEs1EeaVhr02lt1ZOA" name="loadImage" visibility="private">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOq6QUs1EeaVhr02lt1ZOA" type="_N0XM0Es1EeaVhr02lt1ZOA" direction="return">
+                        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_cOq6Qks1EeaVhr02lt1ZOA"/>
+                        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_cOq6Q0s1EeaVhr02lt1ZOA" value="*"/>
+                      </ownedParameter>
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOq6REs1EeaVhr02lt1ZOA" name="imageName" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                  </packagedElement>
+                  <packagedElement xmi:type="uml:Class" xmi:id="_cOsvcEs1EeaVhr02lt1ZOA" name="LocaleEnumeration" visibility="public">
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOtWgUs1EeaVhr02lt1ZOA" name="keys" visibility="private" isLeaf="true" type="_N0d6gks1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <interfaceRealization xmi:type="uml:InterfaceRealization" xmi:id="_cOtWgEs1EeaVhr02lt1ZOA" name="LocaleEnumeration implements Enumeration" client="_cOsvcEs1EeaVhr02lt1ZOA" supplier="_N0d6gEs1EeaVhr02lt1ZOA" contract="_N0d6gEs1EeaVhr02lt1ZOA"/>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOtWgks1EeaVhr02lt1ZOA" name="hasMoreElements" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOtWg0s1EeaVhr02lt1ZOA" type="_NzXHREs1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOtWhEs1EeaVhr02lt1ZOA" name="nextElement" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOtWhUs1EeaVhr02lt1ZOA" type="_N0ehk0s1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                  </packagedElement>
+                  <packagedElement xmi:type="uml:Class" xmi:id="_cOvywEs1EeaVhr02lt1ZOA" name="Organization" visibility="public">
+                    <generalization xmi:type="uml:Generalization" xmi:id="_cOvywUs1EeaVhr02lt1ZOA" general="_cOIuwEs1EeaVhr02lt1ZOA"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOvywks1EeaVhr02lt1ZOA" name="name1" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOvyw0s1EeaVhr02lt1ZOA" name="name2" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOvyxEs1EeaVhr02lt1ZOA" name="getName1" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOwZ0Es1EeaVhr02lt1ZOA" type="_Ny9eo0s1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOwZ0Us1EeaVhr02lt1ZOA" name="setName1" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOwZ0ks1EeaVhr02lt1ZOA" name="name1" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOwZ00s1EeaVhr02lt1ZOA" name="getName2" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOwZ1Es1EeaVhr02lt1ZOA" type="_Ny9eo0s1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOxA4Es1EeaVhr02lt1ZOA" name="setName2" visibility="public">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOxA4Us1EeaVhr02lt1ZOA" name="name2" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                  </packagedElement>
+                  <packagedElement xmi:type="uml:Class" xmi:id="_cOy2EEs1EeaVhr02lt1ZOA" name="OrganizationImage" visibility="public">
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOy2EUs1EeaVhr02lt1ZOA" name="ID" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOzdIEs1EeaVhr02lt1ZOA" name="image" visibility="private" type="_N0XM0Es1EeaVhr02lt1ZOA" isUnique="false">
+                      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_cOzdIUs1EeaVhr02lt1ZOA"/>
+                      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_cOzdIks1EeaVhr02lt1ZOA" value="*"/>
+                    </ownedAttribute>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOzdI0s1EeaVhr02lt1ZOA" name="mimeType" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cOzdJEs1EeaVhr02lt1ZOA" name="administrativeInformation" visibility="private" type="_cOEdUEs1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cOzdJUs1EeaVhr02lt1ZOA" name="getID">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cO0EMEs1EeaVhr02lt1ZOA" type="_Ny9eo0s1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cO0EMUs1EeaVhr02lt1ZOA" name="setID">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cO0EMks1EeaVhr02lt1ZOA" name="iD" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cO0EM0s1EeaVhr02lt1ZOA" name="getImage">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cO0ENEs1EeaVhr02lt1ZOA" type="_N0XM0Es1EeaVhr02lt1ZOA" direction="return">
+                        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_cO0ENUs1EeaVhr02lt1ZOA"/>
+                        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_cO0ENks1EeaVhr02lt1ZOA" value="*"/>
+                      </ownedParameter>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cO0rQEs1EeaVhr02lt1ZOA" name="setImage">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cO0rQUs1EeaVhr02lt1ZOA" name="image" type="_N0XM0Es1EeaVhr02lt1ZOA">
+                        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_cO0rQks1EeaVhr02lt1ZOA"/>
+                        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_cO0rQ0s1EeaVhr02lt1ZOA" value="*"/>
+                      </ownedParameter>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cO0rREs1EeaVhr02lt1ZOA" name="getAdministrativeInformation">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cO0rRUs1EeaVhr02lt1ZOA" type="_cOEdUEs1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cO0rRks1EeaVhr02lt1ZOA" name="setAdministrativeInformation">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cO1SUEs1EeaVhr02lt1ZOA" name="administrativeInformation" type="_cOEdUEs1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cO1SUUs1EeaVhr02lt1ZOA" name="getMimeType">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cO1SUks1EeaVhr02lt1ZOA" type="_Ny9eo0s1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cO1SU0s1EeaVhr02lt1ZOA" name="setMimeType">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cO1SVEs1EeaVhr02lt1ZOA" name="mimeType" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                  </packagedElement>
+                  <packagedElement xmi:type="uml:Class" xmi:id="_cO4VoUs1EeaVhr02lt1ZOA" name="PersonImage" visibility="public">
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cO5jwEs1EeaVhr02lt1ZOA" name="ID" visibility="private" type="_Ny9eo0s1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cO5jwUs1EeaVhr02lt1ZOA" name="image" visibility="private" type="_N0XM0Es1EeaVhr02lt1ZOA" isUnique="false">
+                      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_cO6K0Es1EeaVhr02lt1ZOA"/>
+                      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_cO6K0Us1EeaVhr02lt1ZOA" value="*"/>
+                    </ownedAttribute>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_cO6K0ks1EeaVhr02lt1ZOA" name="administrativeInformation" visibility="private" type="_cOEdUEs1EeaVhr02lt1ZOA" isUnique="false"/>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cO6K00s1EeaVhr02lt1ZOA" name="getID">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cO6K1Es1EeaVhr02lt1ZOA" type="_Ny9eo0s1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cO6K1Us1EeaVhr02lt1ZOA" name="setID">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cO6K1ks1EeaVhr02lt1ZOA" name="iD" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cO6K10s1EeaVhr02lt1ZOA" name="getImage">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cO6K2Es1EeaVhr02lt1ZOA" type="_N0XM0Es1EeaVhr02lt1ZOA" direction="return">
+                        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_cO6x4Es1EeaVhr02lt1ZOA"/>
+                        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_cO6x4Us1EeaVhr02lt1ZOA" value="*"/>
+                      </ownedParameter>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cO6x4ks1EeaVhr02lt1ZOA" name="setImage">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cO6x40s1EeaVhr02lt1ZOA" name="image" type="_N0XM0Es1EeaVhr02lt1ZOA">
+                        <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_cO6x5Es1EeaVhr02lt1ZOA"/>
+                        <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_cO6x5Us1EeaVhr02lt1ZOA" value="*"/>
+                      </ownedParameter>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cO6x5ks1EeaVhr02lt1ZOA" name="getAdministrativeInformation">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cO6x50s1EeaVhr02lt1ZOA" type="_cOEdUEs1EeaVhr02lt1ZOA" direction="return"/>
+                    </ownedOperation>
+                    <ownedOperation xmi:type="uml:Operation" xmi:id="_cO6x6Es1EeaVhr02lt1ZOA" name="setAdministrativeInformation">
+                      <ownedParameter xmi:type="uml:Parameter" xmi:id="_cO6x6Us1EeaVhr02lt1ZOA" name="administrativeInformation" type="_cOEdUEs1EeaVhr02lt1ZOA"/>
+                    </ownedOperation>
+                  </packagedElement>
+                </packagedElement>
+              </packagedElement>
+            </packagedElement>
+          </packagedElement>
+        </packagedElement>
+      </packagedElement>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Package" xmi:id="_cOc30Us1EeaVhr02lt1ZOA" name="javax">
+      <packagedElement xmi:type="uml:Package" xmi:id="_cOc30ks1EeaVhr02lt1ZOA" name="sql">
+        <packagedElement xmi:type="uml:Class" xmi:id="_cOc300s1EeaVhr02lt1ZOA" name="DataSource"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Package" xmi:id="_cOeF8Us1EeaVhr02lt1ZOA" name="persistence">
+        <packagedElement xmi:type="uml:Interface" xmi:id="_cOeF8ks1EeaVhr02lt1ZOA" name="AttributeConverter"/>
+        <packagedElement xmi:type="uml:Class" xmi:id="_cOkzoks1EeaVhr02lt1ZOA" name="EntityManager"/>
+      </packagedElement>
+    </packagedElement>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_B7wRAEs-EeaVhr02lt1ZOA" name="roles" memberEnd="_B7yGMEs-EeaVhr02lt1ZOA _B7ytQEs-EeaVhr02lt1ZOA">
+    <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_B7xfIEs-EeaVhr02lt1ZOA" source="org.eclipse.papyrus">
+      <details xmi:type="ecore:EStringToStringMapEntry" xmi:id="_B7xfIUs-EeaVhr02lt1ZOA" key="nature" value="UML_Nature"/>
+    </eAnnotations>
+    <ownedEnd xmi:type="uml:Property" xmi:id="_B7ytQEs-EeaVhr02lt1ZOA" name="businesspartner" type="_cOIuwEs1EeaVhr02lt1ZOA" association="_B7wRAEs-EeaVhr02lt1ZOA"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_mD_DcEs-EeaVhr02lt1ZOA" memberEnd="_mD_qgEs-EeaVhr02lt1ZOA _mD_qgUs-EeaVhr02lt1ZOA">
+    <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_mD_DcUs-EeaVhr02lt1ZOA" source="org.eclipse.papyrus">
+      <details xmi:type="ecore:EStringToStringMapEntry" xmi:id="_mD_Dcks-EeaVhr02lt1ZOA" key="nature" value="UML_Nature"/>
+    </eAnnotations>
+    <ownedEnd xmi:type="uml:Property" xmi:id="_mD_qgUs-EeaVhr02lt1ZOA" name="businesspartnerrole" type="_cOLLAEs1EeaVhr02lt1ZOA" association="_mD_DcEs-EeaVhr02lt1ZOA"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_skCaoEs_EeaVhr02lt1ZOA" memberEnd="_skCao0s_EeaVhr02lt1ZOA _skCapEs_EeaVhr02lt1ZOA">
+    <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_skCaoUs_EeaVhr02lt1ZOA" source="org.eclipse.papyrus">
+      <details xmi:type="ecore:EStringToStringMapEntry" xmi:id="_skCaoks_EeaVhr02lt1ZOA" key="nature" value="UML_Nature"/>
+    </eAnnotations>
+    <ownedEnd xmi:type="uml:Property" xmi:id="_skCapEs_EeaVhr02lt1ZOA" name="businesspartner" type="_cOIuwEs1EeaVhr02lt1ZOA" association="_skCaoEs_EeaVhr02lt1ZOA">
+      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_z5BrMEs_EeaVhr02lt1ZOA"/>
+      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_z5DgYEs_EeaVhr02lt1ZOA" value="1"/>
+    </ownedEnd>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_sYSBIEtAEeaVhr02lt1ZOA" memberEnd="_sYSBI0tAEeaVhr02lt1ZOA _sYSoMEtAEeaVhr02lt1ZOA">
+    <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_sYSBIUtAEeaVhr02lt1ZOA" source="org.eclipse.papyrus">
+      <details xmi:type="ecore:EStringToStringMapEntry" xmi:id="_sYSBIktAEeaVhr02lt1ZOA" key="nature" value="UML_Nature"/>
+    </eAnnotations>
+    <ownedEnd xmi:type="uml:Property" xmi:id="_sYSoMEtAEeaVhr02lt1ZOA" name="businesspartner" type="_cOIuwEs1EeaVhr02lt1ZOA" association="_sYSBIEtAEeaVhr02lt1ZOA"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_Qxl8gEtBEeaVhr02lt1ZOA" memberEnd="_Qxl8g0tBEeaVhr02lt1ZOA _QxmjkEtBEeaVhr02lt1ZOA">
+    <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_Qxl8gUtBEeaVhr02lt1ZOA" source="org.eclipse.papyrus">
+      <details xmi:type="ecore:EStringToStringMapEntry" xmi:id="_Qxl8gktBEeaVhr02lt1ZOA" key="nature" value="UML_Nature"/>
+    </eAnnotations>
+    <ownedEnd xmi:type="uml:Property" xmi:id="_QxmjkEtBEeaVhr02lt1ZOA" name="administrativeinformation" type="_cOEdUEs1EeaVhr02lt1ZOA" association="_Qxl8gEtBEeaVhr02lt1ZOA"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_cGNZcEtDEeaVhr02lt1ZOA" name="regionName" memberEnd="_cGOAgktDEeaVhr02lt1ZOA _cGOAg0tDEeaVhr02lt1ZOA">
+    <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_cGOAgEtDEeaVhr02lt1ZOA" source="org.eclipse.papyrus">
+      <details xmi:type="ecore:EStringToStringMapEntry" xmi:id="_cGOAgUtDEeaVhr02lt1ZOA" key="nature" value="UML_Nature"/>
+    </eAnnotations>
+    <ownedEnd xmi:type="uml:Property" xmi:id="_cGOAg0tDEeaVhr02lt1ZOA" name="postaladdressdata" type="_cOKj9Us1EeaVhr02lt1ZOA" association="_cGNZcEtDEeaVhr02lt1ZOA">
+      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_neGewEtDEeaVhr02lt1ZOA"/>
+      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_neI7AEtDEeaVhr02lt1ZOA" value="*"/>
+    </ownedEnd>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_GcIdMEtEEeaVhr02lt1ZOA" memberEnd="_GcJEQEtEEeaVhr02lt1ZOA _GcJEQUtEEeaVhr02lt1ZOA">
+    <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_GcIdMUtEEeaVhr02lt1ZOA" source="org.eclipse.papyrus">
+      <details xmi:type="ecore:EStringToStringMapEntry" xmi:id="_GcIdMktEEeaVhr02lt1ZOA" key="nature" value="UML_Nature"/>
+    </eAnnotations>
+    <ownedEnd xmi:type="uml:Property" xmi:id="_GcJEQUtEEeaVhr02lt1ZOA" name="administrativedivision" type="_TZN8gEs1EeaVhr02lt1ZOA" association="_GcIdMEtEEeaVhr02lt1ZOA"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_O0eBIEtEEeaVhr02lt1ZOA" name="parent" memberEnd="_O0eBI0tEEeaVhr02lt1ZOA _O0eoMEtEEeaVhr02lt1ZOA">
+    <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_O0eBIUtEEeaVhr02lt1ZOA" source="org.eclipse.papyrus">
+      <details xmi:type="ecore:EStringToStringMapEntry" xmi:id="_O0eBIktEEeaVhr02lt1ZOA" key="nature" value="UML_Nature"/>
+    </eAnnotations>
+    <ownedEnd xmi:type="uml:Property" xmi:id="_O0eoMEtEEeaVhr02lt1ZOA" name="administrativedivision" type="_TZN8gEs1EeaVhr02lt1ZOA" association="_O0eBIEtEEeaVhr02lt1ZOA">
+      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_V7u-wEtEEeaVhr02lt1ZOA"/>
+      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_V7wz8EtEEeaVhr02lt1ZOA" value="*"/>
+    </ownedEnd>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_CIkg0EtFEeaVhr02lt1ZOA" memberEnd="_CIkg00tFEeaVhr02lt1ZOA _CIkg1EtFEeaVhr02lt1ZOA">
+    <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_CIkg0UtFEeaVhr02lt1ZOA" source="org.eclipse.papyrus">
+      <details xmi:type="ecore:EStringToStringMapEntry" xmi:id="_CIkg0ktFEeaVhr02lt1ZOA" key="nature" value="UML_Nature"/>
+    </eAnnotations>
+    <ownedEnd xmi:type="uml:Property" xmi:id="_CIkg1EtFEeaVhr02lt1ZOA" name="administrativedivisiondescription" type="_cN5eMEs1EeaVhr02lt1ZOA" association="_CIkg0EtFEeaVhr02lt1ZOA"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_Fe904EtFEeaVhr02lt1ZOA" memberEnd="_Fe-b8EtFEeaVhr02lt1ZOA _Fe-b8UtFEeaVhr02lt1ZOA">
+    <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_Fe904UtFEeaVhr02lt1ZOA" source="org.eclipse.papyrus">
+      <details xmi:type="ecore:EStringToStringMapEntry" xmi:id="_Fe904ktFEeaVhr02lt1ZOA" key="nature" value="UML_Nature"/>
+    </eAnnotations>
+    <ownedEnd xmi:type="uml:Property" xmi:id="_Fe-b8UtFEeaVhr02lt1ZOA" name="administrativedivision" type="_TZN8gEs1EeaVhr02lt1ZOA" association="_Fe904EtFEeaVhr02lt1ZOA"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_x3kkQEtUEeaVhr02lt1ZOA" name="children" memberEnd="_x3lyYktUEeaVhr02lt1ZOA _x3lyY0tUEeaVhr02lt1ZOA">
+    <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_x3lyYEtUEeaVhr02lt1ZOA" source="org.eclipse.papyrus">
+      <details xmi:type="ecore:EStringToStringMapEntry" xmi:id="_x3lyYUtUEeaVhr02lt1ZOA" key="nature" value="UML_Nature"/>
+    </eAnnotations>
+    <ownedEnd xmi:type="uml:Property" xmi:id="_x3lyY0tUEeaVhr02lt1ZOA" name="administrativedivision" type="_TZN8gEs1EeaVhr02lt1ZOA" association="_x3kkQEtUEeaVhr02lt1ZOA">
+      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_D6CEIEtVEeaVhr02lt1ZOA"/>
+      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_D6DSQEtVEeaVhr02lt1ZOA" value="1"/>
+    </ownedEnd>
+  </packagedElement>
+</uml:Model>

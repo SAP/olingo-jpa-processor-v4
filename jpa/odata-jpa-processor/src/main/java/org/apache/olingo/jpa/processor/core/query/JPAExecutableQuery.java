@@ -448,7 +448,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     // Given key: Organizations('1')
     if (resources != null) {
       for (int i = resources.size() - 1; i >= 0; i--) {
-        resourceItem = (resources.get(i));
+        resourceItem = resources.get(i);
         if (resourceItem instanceof UriResourceEntitySet || resourceItem instanceof UriResourceNavigation)
           break;
       }

@@ -89,7 +89,7 @@ final class JPA_HANA_DatabaseProcessor implements JPAODataDatabaseProcessor {
           attributePath = attributePath.get(pathItem.getInternalName());
       }
       sq.where(cb.function("CONTAINS", Boolean.class, attributePath, cb.literal(term.getSearchTerm())));
-      return (cb.in(root.get(keyPath.getPath().get(0).getInternalName())).value(sq));
+      return cb.in(root.get(keyPath.getPath().get(0).getInternalName())).value(sq);
     }
     return null;
   }

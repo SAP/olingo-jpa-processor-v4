@@ -21,13 +21,13 @@ public class EdmEntityTypeDouble implements EdmEntityType {
   private final String name;
   private final JPAEdmNameBuilder nameBuilder;
 
-  public EdmEntityTypeDouble(JPAEdmNameBuilder nameBuilder, String name) {
+  public EdmEntityTypeDouble(final JPAEdmNameBuilder nameBuilder, final String name) {
     this.name = name;
     this.nameBuilder = nameBuilder;
   }
 
   @Override
-  public EdmElement getProperty(String name) {
+  public EdmElement getProperty(final String name) {
     fail();
     return null;
   }
@@ -39,13 +39,13 @@ public class EdmEntityTypeDouble implements EdmEntityType {
   }
 
   @Override
-  public EdmProperty getStructuralProperty(String name) {
+  public EdmProperty getStructuralProperty(final String name) {
     fail();
     return null;
   }
 
   @Override
-  public EdmNavigationProperty getNavigationProperty(String name) {
+  public EdmNavigationProperty getNavigationProperty(final String name) {
     fail();
     return null;
   }
@@ -57,7 +57,7 @@ public class EdmEntityTypeDouble implements EdmEntityType {
   }
 
   @Override
-  public boolean compatibleTo(EdmType targetType) {
+  public boolean compatibleTo(final EdmType targetType) {
     fail();
     return false;
   }
@@ -96,7 +96,7 @@ public class EdmEntityTypeDouble implements EdmEntityType {
   }
 
   @Override
-  public EdmAnnotation getAnnotation(EdmTerm term, String qualifier) {
+  public EdmAnnotation getAnnotation(final EdmTerm term, final String qualifier) {
     fail();
     return null;
   }
@@ -120,7 +120,7 @@ public class EdmEntityTypeDouble implements EdmEntityType {
   }
 
   @Override
-  public EdmKeyPropertyRef getKeyPropertyRef(String keyPredicateName) {
+  public EdmKeyPropertyRef getKeyPropertyRef(final String keyPredicateName) {
     fail();
     return null;
   }

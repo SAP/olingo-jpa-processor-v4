@@ -39,7 +39,7 @@ class JPAArithmeticOperator implements JPAOperator {
   }
 
   @SuppressWarnings("unchecked")
-  public Expression<Number> getLeft(CriteriaBuilder cb) throws ODataApplicationException {
+  public Expression<Number> getLeft(final CriteriaBuilder cb) throws ODataApplicationException {
     if (left instanceof JPALiteralOperator) {
       if (right instanceof JPALiteralOperator)
         return cb.literal((Number) left.get());
@@ -49,7 +49,7 @@ class JPAArithmeticOperator implements JPAOperator {
     return (Expression<Number>) left.get();
   }
 
-  public Number getRightAsNumber(CriteriaBuilder cb) throws ODataApplicationException {
+  public Number getRightAsNumber(final CriteriaBuilder cb) throws ODataApplicationException {
     // Determine attribute in order to determine type of literal attribute and correctly convert it
     if (left instanceof JPALiteralOperator) {
       if (right instanceof JPALiteralOperator)
