@@ -108,4 +108,9 @@ class IntermediateDescriptionProperty extends IntermediateProperty implements JP
       return new JPAPathImpl(p.getExternalName(), p.getDBFieldName(), p);
     }
   }
+
+  @Override
+  public Class<?> getType() {
+    return descriptionProperty.getType();
+  }
 }

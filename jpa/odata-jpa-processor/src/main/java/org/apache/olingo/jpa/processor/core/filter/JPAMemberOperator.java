@@ -1,5 +1,9 @@
 package org.apache.olingo.jpa.processor.core.filter;
 
+import java.util.Iterator;
+import java.util.Set;
+
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 
@@ -58,9 +62,18 @@ public class JPAMemberOperator implements JPAOperator {
     Path<?> p = root;
     for (final JPAElement jpaPathElement : selectItemPath.getPath()) {
       if (jpaPathElement instanceof JPADescriptionAttribute) {
-        // TODO handle description fields
-//        Join<?, ?> join = (Join<?, ?>) joinTables.get(jpaPathElement.getInternalName());
-//        p = join.get(((JPADescriptionAttribute) jpaPathElement).getDescriptionAttribute().getInternalName());
+        Set<?> a = root.getJoins();
+        // Join<?, ?> join = (Join<?, ?>) joinTables.get(jpaPathElement.getInternalName());
+        // p = join.get(((JPADescriptionAttribute) jpaPathElement).getDescriptionAttribute().getInternalName());
+
+        Iterator<?> i = a.iterator();
+        while (i.hasNext()) {
+          final Join<?, ?> j = (Join<?, ?>) i.next();
+          if (j.getAlias() != null && j.getAlias().equals(jpaPathElement.getExternalName())) {
+            p = j.get(((JPADescriptionAttribute) jpaPathElement).getDescriptionAttribute().getInternalName());
+            break;
+          }
+        }
       } else
         p = p.get(jpaPathElement.getInternalName());
     }

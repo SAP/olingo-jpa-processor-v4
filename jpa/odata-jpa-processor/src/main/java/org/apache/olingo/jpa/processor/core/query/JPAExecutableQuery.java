@@ -303,6 +303,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
           join = join.join(pathList.get(i).getInternalName(), jt);
         }
       }
+      join.alias(desciptionField.getExternalName());
       if (desciptionField.isLocationJoin())
         join.on(cb.equal(join.get(desciptionField.getInternalName()), locale.toString()));
       else

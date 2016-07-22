@@ -26,6 +26,18 @@ public class TestJPAQueryWhereClause extends TestBase {
   }
 
   @Test
+  public void testFilterOneDescriptionEquals() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$filter=LocationName eq 'Deutschland'");
+    helper.assertStatus(200);
+
+    ArrayNode orgs = helper.getValues();
+    assertEquals(1, orgs.size());
+    assertEquals("10", orgs.get(0).get("ID").asText());
+  }
+
+  @Test
   public void testFilterOneEqualsTwoProperties() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -346,7 +358,7 @@ public class TestJPAQueryWhereClause extends TestBase {
     assertEquals(2, orgs.size());
   }
 
-  @Ignore // Usage of mult currently creates paser error: The types 'Edm.Double' and '[Int64, Int32, Int16, Byte,
+  @Ignore // Usage of mult currently creates parser error: The types 'Edm.Double' and '[Int64, Int32, Int16, Byte,
           // SByte]' are not compatible.
   @Test
   public void testFilterSubstringStartCalculated() throws IOException, ODataException {
@@ -524,6 +536,17 @@ public class TestJPAQueryWhereClause extends TestBase {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations?$filter=AdministrativeInformation/Created/User/LastName eq 'Mustermann'");
+
+    helper.assertStatus(200);
+    ArrayNode orgs = helper.getValues();
+    assertEquals(8, orgs.size());
+  };
+
+  @Test
+  public void testFilterNavigationPropertyDescriptionToOneValueViaComplexType() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$filter=AdministrativeInformation/Created/User/Country eq 'Schweiz'");
 
     helper.assertStatus(200);
     ArrayNode orgs = helper.getValues();
