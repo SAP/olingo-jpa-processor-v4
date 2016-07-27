@@ -6,6 +6,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.criteria.Expression;
 
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
 import org.apache.olingo.jpa.processor.core.query.JPAAbstractQuery;
 import org.apache.olingo.server.api.OData;
@@ -96,6 +97,12 @@ public class JPAFilterElementComplier implements JPAFilterComplier, JPAFilterCom
 
   public VisitableExpression getExpressionMember() {
     return expression;
+  }
+
+  @Override
+  public List<JPAPath> getMemeber() {
+    // TODO Auto-generated method stub
+    return null;
   }
 
 }

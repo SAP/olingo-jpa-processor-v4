@@ -38,6 +38,18 @@ public class TestJPAQueryWhereClause extends TestBase {
   }
 
   @Test
+  public void testFilterOneDescriptionEqualsFieldNotSelected() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$filter=LocationName eq 'Deutschland'&$select=ID");
+    helper.assertStatus(200);
+
+    ArrayNode orgs = helper.getValues();
+    assertEquals(1, orgs.size());
+    assertEquals("10", orgs.get(0).get("ID").asText());
+  }
+
+  @Test
   public void testFilterOneEqualsTwoProperties() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -45,7 +57,7 @@ public class TestJPAQueryWhereClause extends TestBase {
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
-    assertEquals(3, orgs.size());
+    assertEquals(4, orgs.size());
   }
 
   @Test
@@ -87,7 +99,7 @@ public class TestJPAQueryWhereClause extends TestBase {
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
-    assertEquals(202, orgs.size());
+    assertEquals(228, orgs.size());
   }
 
   @Test
@@ -195,7 +207,7 @@ public class TestJPAQueryWhereClause extends TestBase {
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
-    assertEquals(4, orgs.size());
+    assertEquals(5, orgs.size());
     assertEquals("USA", orgs.get(0).get("DivisionCode").asText());
   }
 
@@ -262,7 +274,7 @@ public class TestJPAQueryWhereClause extends TestBase {
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
-    assertEquals(9, orgs.size());
+    assertEquals(11, orgs.size());
 //    for (JsonNode n : orgs) {
 //      System.out.println(n.get("Name").asText());
 //    }
@@ -276,7 +288,7 @@ public class TestJPAQueryWhereClause extends TestBase {
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
-    assertEquals(2, orgs.size());
+    assertEquals(3, orgs.size());
   }
 
   @Test
@@ -287,7 +299,7 @@ public class TestJPAQueryWhereClause extends TestBase {
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
-    assertEquals(83, orgs.size());
+    assertEquals(110, orgs.size());
   }
 
   @Test
@@ -298,7 +310,7 @@ public class TestJPAQueryWhereClause extends TestBase {
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
-    assertEquals(3, orgs.size());
+    assertEquals(4, orgs.size());
   }
 
   @Test
@@ -543,14 +555,39 @@ public class TestJPAQueryWhereClause extends TestBase {
   };
 
   @Test
-  public void testFilterNavigationPropertyDescriptionToOneValueViaComplexType() throws IOException, ODataException {
+  public void testFilterNavigationPropertyDescriptionViaComplexTypeWOSubselectSelectAll() throws IOException,
+      ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Organizations?$filter=AdministrativeInformation/Created/User/Country eq 'Schweiz'");
+        "Organizations?$filter=Address/RegionName eq 'Kalifornien'");
 
     helper.assertStatus(200);
     ArrayNode orgs = helper.getValues();
-    assertEquals(8, orgs.size());
+    assertEquals(3, orgs.size());
+  };
+
+  @Test
+  public void testFilterNavigationPropertyDescriptionViaComplexTypeWOSubselectSelectId() throws IOException,
+      ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$filter=Address/RegionName eq 'Kalifornien'&$select=ID");
+
+    helper.assertStatus(200);
+    ArrayNode orgs = helper.getValues();
+    assertEquals(3, orgs.size());
+  };
+
+  @Test
+  public void testFilterNavigationPropertyDescriptionToOneValueViaComplexTypeWSubselect() throws IOException,
+      ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$filter=AdministrativeInformation/Created/User/LocationName eq 'Schweiz'");
+
+    helper.assertStatus(200);
+    ArrayNode orgs = helper.getValues();
+    assertEquals(1, orgs.size());
   };
 
   @Test

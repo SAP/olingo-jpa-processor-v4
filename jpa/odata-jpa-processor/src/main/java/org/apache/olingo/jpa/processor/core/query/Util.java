@@ -120,7 +120,7 @@ public class Util {
         if (resourceItem instanceof UriResourceValue) {
           pathName.insert(0, VALUE_RESOURCE);
           pathName.insert(0, JPAPath.PATH_SEPERATOR);
-        } else {
+        } else if (resourceItem instanceof UriResourceProperty) {
           final UriResourceProperty property = (UriResourceProperty) resourceItem;
           pathName.insert(0, property.getProperty().getName());
           pathName.insert(0, JPAPath.PATH_SEPERATOR);

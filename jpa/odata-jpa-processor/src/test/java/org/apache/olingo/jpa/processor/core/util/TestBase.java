@@ -25,7 +25,7 @@ public class TestBase {
 
   @BeforeClass
   public static void setupClass() throws ODataJPAModelException {
-    ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_DERBY);
+    ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_H2);
     emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, ds);
     nameBuilder = new JPAEdmNameBuilder(PUNIT_NAME);
   }

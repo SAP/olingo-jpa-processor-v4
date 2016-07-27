@@ -62,15 +62,20 @@ public class JPAMemberOperator implements JPAOperator {
     Path<?> p = root;
     for (final JPAElement jpaPathElement : selectItemPath.getPath()) {
       if (jpaPathElement instanceof JPADescriptionAttribute) {
-        Set<?> a = root.getJoins();
-        // Join<?, ?> join = (Join<?, ?>) joinTables.get(jpaPathElement.getInternalName());
-        // p = join.get(((JPADescriptionAttribute) jpaPathElement).getDescriptionAttribute().getInternalName());
-
-        Iterator<?> i = a.iterator();
-        while (i.hasNext()) {
-          final Join<?, ?> j = (Join<?, ?>) i.next();
-          if (j.getAlias() != null && j.getAlias().equals(jpaPathElement.getExternalName())) {
-            p = j.get(((JPADescriptionAttribute) jpaPathElement).getDescriptionAttribute().getInternalName());
+        Set<?> allJoins = root.getJoins();
+        Iterator<?> iterator = allJoins.iterator();
+        while (iterator.hasNext()) {
+          Join<?, ?> join = (Join<?, ?>) iterator.next();
+          if (join.getAlias() != null && join.getAlias().equals(selectItemPath.getAlias())) {
+            Set<?> subJoins = join.getJoins();
+            for (Object sub : subJoins) {
+              // e.g. "Organizations?$filter=Address/RegionName eq 'Kalifornien'
+              // see createFromClause in JPAExecutableQuery
+              if (((Join<?, ?>) sub).getAlias().equals(jpaPathElement.getExternalName())) {
+                join = (Join<?, ?>) sub;
+              }
+            }
+            p = join.get(((JPADescriptionAttribute) jpaPathElement).getDescriptionAttribute().getInternalName());
             break;
           }
         }

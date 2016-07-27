@@ -3,9 +3,11 @@ package org.apache.olingo.jpa.processor.core.query;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
@@ -286,8 +288,8 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
       joinTables.put(orderBy.getInternalName(), join);
     }
 
-    // 3. Description Join
-    for (final JPAPath descriptionFieldPath : descriptionFields) {
+    // 3. Description Join determine
+    for (final JPAPath descriptionFieldPath : determineAllDescriptionPath(descriptionFields)) {
       final JPADescriptionAttribute desciptionField = ((JPADescriptionAttribute) descriptionFieldPath.getLeaf());
       final List<JPAElement> pathList = descriptionFieldPath.getPath();
       Join<?, ?> join = null;
@@ -297,13 +299,14 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
           jt = JoinType.LEFT;
         else
           jt = JoinType.INNER;
-        if (i == 0)
+        if (i == 0) {
           join = root.join(pathList.get(i).getInternalName(), jt);
-        else if (i < pathList.size()) {
+          join.alias(descriptionFieldPath.getAlias());
+        } else if (i < pathList.size()) {
           join = join.join(pathList.get(i).getInternalName(), jt);
+          join.alias(pathList.get(i).getExternalName());
         }
       }
-      join.alias(desciptionField.getExternalName());
       if (desciptionField.isLocationJoin())
         join.on(cb.equal(join.get(desciptionField.getInternalName()), locale.toString()));
       else
@@ -311,6 +314,15 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
       joinTables.put(desciptionField.getInternalName(), join);
     }
     return joinTables;
+  }
+
+  private Set<JPAPath> determineAllDescriptionPath(List<JPAPath> descriptionFields) {
+    Set<JPAPath> allPath = new HashSet<JPAPath>(descriptionFields);
+    for (JPAPath path : filter.getMemeber()) {
+      if (path.getLeaf() instanceof JPADescriptionAttribute)
+        allPath.add(path);
+    }
+    return allPath;
   }
 
   private javax.persistence.criteria.Expression<?> determienLocalePath(final Join<?, ?> join,
