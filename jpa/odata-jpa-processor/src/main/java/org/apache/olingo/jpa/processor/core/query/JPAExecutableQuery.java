@@ -73,9 +73,8 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
   protected final JPAODataSessionContextAccess context;
 
   public JPAExecutableQuery(final OData odata, final JPAODataSessionContextAccess context,
-      final JPAEntityType jpaEntityType,
-      final EntityManager em, final Map<String, List<String>> requestHeaders, final UriInfoResource uriResource)
-      throws ODataApplicationException {
+      final JPAEntityType jpaEntityType, final EntityManager em, final Map<String, List<String>> requestHeaders,
+      final UriInfoResource uriResource) throws ODataApplicationException {
 
     super(context.getEdmProvider().getServiceDocument(), jpaEntityType, em);
     this.locale = determineLocale(requestHeaders);
@@ -145,7 +144,6 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     } catch (ODataJPAModelException e) {
       throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
     }
-
   }
 
   private List<JPAPath> buildPathValue(final JPAEntityType jpaEntity, final String select)
@@ -289,53 +287,17 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     }
 
     // 3. Description Join determine
-    for (final JPAPath descriptionFieldPath : determineAllDescriptionPath(descriptionFields)) {
-      final JPADescriptionAttribute desciptionField = ((JPADescriptionAttribute) descriptionFieldPath.getLeaf());
-      final List<JPAElement> pathList = descriptionFieldPath.getPath();
-      Join<?, ?> join = null;
-      JoinType jt;
-      for (int i = 0; i < pathList.size(); i++) {
-        if (i == pathList.size() - 1)
-          jt = JoinType.LEFT;
-        else
-          jt = JoinType.INNER;
-        if (i == 0) {
-          join = root.join(pathList.get(i).getInternalName(), jt);
-          join.alias(descriptionFieldPath.getAlias());
-        } else if (i < pathList.size()) {
-          join = join.join(pathList.get(i).getInternalName(), jt);
-          join.alias(pathList.get(i).getExternalName());
-        }
-      }
-      if (desciptionField.isLocationJoin())
-        join.on(cb.equal(join.get(desciptionField.getInternalName()), locale.toString()));
-      else
-        join.on(cb.equal(determienLocalePath(join, desciptionField), locale.getLanguage()));
-      joinTables.put(desciptionField.getInternalName(), join);
-    }
+    generateDesciptionJoin(joinTables, determineAllDescriptionPath(descriptionFields));
     return joinTables;
   }
 
   private Set<JPAPath> determineAllDescriptionPath(List<JPAPath> descriptionFields) {
     Set<JPAPath> allPath = new HashSet<JPAPath>(descriptionFields);
-    for (JPAPath path : filter.getMemeber()) {
+    for (JPAPath path : filter.getMember()) {
       if (path.getLeaf() instanceof JPADescriptionAttribute)
         allPath.add(path);
     }
     return allPath;
-  }
-
-  private javax.persistence.criteria.Expression<?> determienLocalePath(final Join<?, ?> join,
-      final JPADescriptionAttribute desciptionField) throws ODataApplicationException {
-    Path<?> p = join;
-    try {
-      for (final JPAElement pathElement : desciptionField.getLocaleFieldName().getPath()) {
-        p = p.get(pathElement.getInternalName());
-      }
-    } catch (ODataJPAModelException e) {
-      throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
-    }
-    return p;
   }
 
   /**
@@ -609,5 +571,10 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
       childQuery = queryList.get(i).getSubQueryExists(childQuery);
     }
     return cb.exists(childQuery);
+  }
+
+  @Override
+  protected Locale getLocale() {
+    return locale;
   }
 }

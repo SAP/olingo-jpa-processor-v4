@@ -132,7 +132,7 @@ public class TestJPAQueryOrderByClause extends TestBase {
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
-    assertEquals(3, orgs.size());
+    assertEquals(4, orgs.size());
     assertEquals("USA", orgs.get(0).get("CountryCode").asText());
   }
 }

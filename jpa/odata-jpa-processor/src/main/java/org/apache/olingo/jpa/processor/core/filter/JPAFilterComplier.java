@@ -15,6 +15,6 @@ public interface JPAFilterComplier {
   /**
    * Returns a list of all filter elements of type Member. This could be used e.g. to determine if a join is required
    */
-  List<JPAPath> getMemeber();
+  List<JPAPath> getMember();
 
 }

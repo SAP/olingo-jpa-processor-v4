@@ -1,6 +1,7 @@
 package org.apache.olingo.jpa.processor.core.query;
 
 import java.util.List;
+import java.util.Locale;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.AbstractQuery;
@@ -138,5 +139,11 @@ public class JPANavigationQuery extends JPAAbstractQuery {
         whereCondition = cb.and(whereCondition, equalCondition);
     }
     return whereCondition;
+  }
+
+  @Override
+  protected Locale getLocale() {
+    // TODO Auto-generated method stub
+    return Locale.GERMANY;
   }
 }

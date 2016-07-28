@@ -6,7 +6,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.criteria.Expression;
 
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
-import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
 import org.apache.olingo.jpa.processor.core.query.JPAAbstractQuery;
 import org.apache.olingo.server.api.OData;
@@ -22,9 +21,8 @@ import org.apache.olingo.server.api.uri.queryoption.expression.VisitableExpressi
  *
  */
 //TODO handle $it ...
-public class JPAFilterElementComplier implements JPAFilterComplier, JPAFilterComplierAccess {
+public class JPAFilterElementComplier extends JPAAbstractFilter {
   final JPAOperationConverter converter;
-  final JPAEntityType jpaEntityType;
   final EntityManager em;
   final OData odata;
   final ServicDocument sd;
@@ -36,9 +34,8 @@ public class JPAFilterElementComplier implements JPAFilterComplier, JPAFilterCom
       final JPAEntityType jpaEntityType, final JPAOperationConverter converter,
       final List<UriResource> uriResourceParts, final JPAAbstractQuery parent, final VisitableExpression expression) {
 
-    super();
+    super(jpaEntityType, expression);
     this.converter = converter;
-    this.jpaEntityType = jpaEntityType;
     this.em = em;
     this.odata = odata;
     this.sd = sd;
@@ -97,12 +94,6 @@ public class JPAFilterElementComplier implements JPAFilterComplier, JPAFilterCom
 
   public VisitableExpression getExpressionMember() {
     return expression;
-  }
-
-  @Override
-  public List<JPAPath> getMemeber() {
-    // TODO Auto-generated method stub
-    return null;
   }
 
 }
