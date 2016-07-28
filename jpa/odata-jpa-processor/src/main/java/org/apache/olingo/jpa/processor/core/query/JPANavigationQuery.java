@@ -36,13 +36,13 @@ public class JPANavigationQuery extends JPAAbstractQuery {
   private Subquery<?> subQuery;
   private JPAAbstractQuery parentQuery;
 
-  public JPANavigationQuery(final ServicDocument sd, final UriResource uriResourceItem,
-      final EntityManager em, final JPAAssociationPath association) throws ODataApplicationException {
-
-    super(sd, (EdmEntityType) ((UriResourcePartTyped) uriResourceItem).getType(), em);
-    this.keyPredicates = determineKeyPredicates(uriResourceItem);
-    this.association = association;
-  }
+//  public JPANavigationQuery(final ServicDocument sd, final UriResource uriResourceItem,
+//      final EntityManager em, final JPAAssociationPath association) throws ODataApplicationException {
+//
+//    super(sd, (EdmEntityType) ((UriResourcePartTyped) uriResourceItem).getType(), em);
+//    this.keyPredicates = determineKeyPredicates(uriResourceItem);
+//    this.association = association;
+//  }
 
   public <T extends Object> JPANavigationQuery(final ServicDocument sd, final UriResource uriResourceItem,
       final JPAAbstractQuery parent, final EntityManager em, final JPAAssociationPath association)
@@ -75,9 +75,9 @@ public class JPANavigationQuery extends JPAAbstractQuery {
    * @return
    * @throws ODataApplicationException
    */
-  public <T extends Object> Subquery<T> getSubQueryExists() throws ODataApplicationException {
-    return getSubQueryExists(null);
-  }
+//  public <T extends Object> Subquery<T> getSubQueryExists() throws ODataApplicationException {
+//    return getSubQueryExists(null);
+//  }
 
   @SuppressWarnings("unchecked")
   public <T extends Object> Subquery<T> getSubQueryExists(final Subquery<?> childQuery)

@@ -153,18 +153,18 @@ public abstract class JPATupleAbstractConverter {
     }
   }
 
-  protected Map<String, Method> getGetter(final JPAAttribute structuredAttribute) {
-    HashMap<String, Method> pojoMethods = methodsBuffer.get(structuredAttribute.getInternalName());
-    if (pojoMethods == null) {
-      pojoMethods = new HashMap<String, Method>();
-      final Method[] allMethods = structuredAttribute.getStructuredType().getTypeClass().getMethods();
-      for (final Method m : allMethods) {
-        pojoMethods.put(m.getName(), m);
-      }
-      methodsBuffer.put(structuredAttribute.getInternalName(), pojoMethods);
-    }
-    return pojoMethods;
-  }
+//  protected Map<String, Method> getGetter(final JPAAttribute structuredAttribute) {
+//    HashMap<String, Method> pojoMethods = methodsBuffer.get(structuredAttribute.getInternalName());
+//    if (pojoMethods == null) {
+//      pojoMethods = new HashMap<String, Method>();
+//      final Method[] allMethods = structuredAttribute.getStructuredType().getTypeClass().getMethods();
+//      for (final Method m : allMethods) {
+//        pojoMethods.put(m.getName(), m);
+//      }
+//      methodsBuffer.put(structuredAttribute.getInternalName(), pojoMethods);
+//    }
+//    return pojoMethods;
+//  }
 
   private void convertAttribute(final Object value, final String externalName, final String prefix,
       final JPAStructuredType jpaStructuredType, final Map<String, ComplexValue> complexValueBuffer,

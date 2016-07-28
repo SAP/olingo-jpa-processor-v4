@@ -579,11 +579,23 @@ public class TestJPAQueryWhereClause extends TestBase {
   };
 
   @Test
-  public void testFilterNavigationPropertyDescriptionToOneValueViaComplexTypeWSubselect() throws IOException,
+  public void testFilterNavigationPropertyDescriptionToOneValueViaComplexTypeWSubselect1() throws IOException,
       ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations?$filter=AdministrativeInformation/Created/User/LocationName eq 'Schweiz'");
+
+    helper.assertStatus(200);
+    ArrayNode orgs = helper.getValues();
+    assertEquals(1, orgs.size());
+  };
+
+  @Test
+  public void testFilterNavigationPropertyDescriptionToOneValueViaComplexTypeWSubselect2() throws IOException,
+      ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$filter=AdministrativeInformation/Created/User/LocationName eq 'Schweiz'&$select=ID");
 
     helper.assertStatus(200);
     ArrayNode orgs = helper.getValues();

@@ -74,9 +74,6 @@ public class JPAFilterCrossComplier extends JPAAbstractFilter {
       return null;
 
     final ExpressionVisitor<JPAOperator> visitor = new JPAVisitor(this);
-//    final org.apache.olingo.server.api.uri.queryoption.expression.Expression e =
-//        (org.apache.olingo.server.api.uri.queryoption.expression.Expression) expression;
-//    return (Expression<Boolean>) e.accept(visitor).get();
     return (Expression<Boolean>) expression.accept(visitor).get();
   }
 
