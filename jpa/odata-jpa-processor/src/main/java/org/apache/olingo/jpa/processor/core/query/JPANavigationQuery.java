@@ -36,14 +36,6 @@ public class JPANavigationQuery extends JPAAbstractQuery {
   private Subquery<?> subQuery;
   private JPAAbstractQuery parentQuery;
 
-//  public JPANavigationQuery(final ServicDocument sd, final UriResource uriResourceItem,
-//      final EntityManager em, final JPAAssociationPath association) throws ODataApplicationException {
-//
-//    super(sd, (EdmEntityType) ((UriResourcePartTyped) uriResourceItem).getType(), em);
-//    this.keyPredicates = determineKeyPredicates(uriResourceItem);
-//    this.association = association;
-//  }
-
   public <T extends Object> JPANavigationQuery(final ServicDocument sd, final UriResource uriResourceItem,
       final JPAAbstractQuery parent, final EntityManager em, final JPAAssociationPath association)
       throws ODataApplicationException {
@@ -54,6 +46,7 @@ public class JPANavigationQuery extends JPAAbstractQuery {
     this.parentQuery = parent;
     this.subQuery = parent.getQuery().subquery(this.jpaEntity.getKeyType());
     this.queryRoot = subQuery.from(this.jpaEntity.getTypeClass());
+    this.locale = parent.getLocale();
   }
 
   /**
@@ -69,15 +62,6 @@ public class JPANavigationQuery extends JPAAbstractQuery {
   public AbstractQuery<?> getQuery() {
     return subQuery;
   }
-
-  /**
-   * Creates a sub query that can be used within an EXISTS condition.
-   * @return
-   * @throws ODataApplicationException
-   */
-//  public <T extends Object> Subquery<T> getSubQueryExists() throws ODataApplicationException {
-//    return getSubQueryExists(null);
-//  }
 
   @SuppressWarnings("unchecked")
   public <T extends Object> Subquery<T> getSubQueryExists(final Subquery<?> childQuery)
@@ -143,7 +127,6 @@ public class JPANavigationQuery extends JPAAbstractQuery {
 
   @Override
   protected Locale getLocale() {
-    // TODO Auto-generated method stub
-    return Locale.GERMANY;
+    return locale;
   }
 }

@@ -36,8 +36,7 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
   private final ServiceMetadata serviceMetadata;
 
   public JPANavigationRequestProcessor(final OData odata, final ServiceMetadata serviceMetadata,
-      final JPAODataSessionContextAccess context,
-      final JPAODataRequestContextAccess requestContext) {
+      final JPAODataSessionContextAccess context, final JPAODataRequestContextAccess requestContext) {
     super(odata, context, requestContext);
     this.serviceMetadata = serviceMetadata;
   }
