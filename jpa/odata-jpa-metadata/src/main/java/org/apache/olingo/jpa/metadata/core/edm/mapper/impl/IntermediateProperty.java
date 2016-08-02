@@ -8,6 +8,7 @@ import java.lang.reflect.InvocationTargetException;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Column;
 import javax.persistence.Convert;
+import javax.persistence.Version;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.Attribute.PersistentAttributeType;
 import javax.persistence.metamodel.SingularAttribute;
@@ -48,6 +49,7 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
   private AttributeConverter<?, ?> valueConverter;
   private String dbFieldName;
   private boolean searchable;
+  private boolean isVersion = false;
   private EdmMediaStream streamInfo;
 
   IntermediateProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,
@@ -241,6 +243,11 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
           throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.ANNOTATION_STREAM_INCOMPLETE,
               internalName);
       }
+      final Version jpaVersion = ((AnnotatedElement) this.jpaAttribute.getJavaMember()).getAnnotation(
+          Version.class);
+      if (jpaVersion != null) {
+        isVersion = true;
+      }
     }
     postProcessor.processProperty(this, jpaAttribute.getDeclaringType().getJavaType()
         .getCanonicalName());
@@ -276,6 +283,11 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
 
   String getContentTypeProperty() {
     return streamInfo.contentTypeAttribute();
+  }
+
+  @Override
+  public boolean isEtag() {
+    return isVersion;
   }
 
 }

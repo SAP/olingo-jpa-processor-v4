@@ -30,7 +30,8 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExc
  *
  */
 class IntermediateEntityType extends IntermediateStructuredType implements JPAEntityType {
-  CsdlEntityType edmEntityType;
+  private CsdlEntityType edmEntityType;
+  private boolean hasEtag = false;
 
   IntermediateEntityType(final JPAEdmNameBuilder nameBuilder, final EntityType<?> et, final IntermediateSchema schema)
       throws ODataJPAModelException {
@@ -137,8 +138,15 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
 
   @Override
   public boolean hasStream() throws ODataJPAModelException {
+    lazyBuildEdmItem();
     return this.determineHasStream();
   }
+
+  @Override
+  public boolean hasEtag() throws ODataJPAModelException {
+    lazyBuildEdmItem();
+    return hasEtag;
+  };
 
   @Override
   public List<JPAPath> searchChildPath(final JPAPath selectItemPath) {
@@ -186,6 +194,7 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
       edmEntityType.setAbstract(determineAbstract());
       edmEntityType.setBaseType(determineBaseType());
       edmEntityType.setHasStream(determineHasStream());
+      determineHasEtag();
       // TODO determine OpenType
 
     }
@@ -194,6 +203,14 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
   boolean determineAbstract() {
     final int modifiers = jpaManagedType.getJavaType().getModifiers();
     return Modifier.isAbstract(modifiers);
+  }
+
+  void determineHasEtag() {
+    for (final String internalName : this.declaredPropertiesList.keySet()) {
+      if (declaredPropertiesList.get(internalName).isEtag()) {
+        hasEtag = true;
+      }
+    }
   }
 
   /**

@@ -54,4 +54,5 @@ public interface JPAEntityType extends JPAStructuredType {
 
   public JPAPath getContentTypeAttributePath() throws ODataJPAModelException;
 
+  public boolean hasEtag() throws ODataJPAModelException;
 }

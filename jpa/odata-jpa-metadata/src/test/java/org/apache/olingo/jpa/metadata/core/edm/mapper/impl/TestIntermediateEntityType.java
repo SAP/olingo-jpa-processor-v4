@@ -296,6 +296,20 @@ public class TestIntermediateEntityType extends TestMappingRoot {
     assertFalse(et.getEdmItem().hasStream());
   }
 
+  @Test
+  public void checkHasETagTrue() throws ODataJPAModelException {
+    IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "BusinessPartner"), schema);
+    assertTrue(et.hasEtag());
+  }
+
+  @Test
+  public void checkHasETagFalse() throws ODataJPAModelException {
+    IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "AdministrativeDivision"), schema);
+    assertFalse(et.hasEtag());
+  }
+
   @Ignore
   @Test
   public void checkGetPropertyWithEnumerationType() {

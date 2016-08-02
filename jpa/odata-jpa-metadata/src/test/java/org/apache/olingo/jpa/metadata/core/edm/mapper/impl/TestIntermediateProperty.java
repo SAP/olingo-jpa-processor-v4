@@ -106,6 +106,22 @@ public class TestIntermediateProperty extends TestMappingRoot {
   }
 
   @Test
+  public void checkGetProptertyIsETagTrue() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType("BusinessPartner"), "eTag");
+    IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
+        helper.schema);
+    assertTrue(property.isEtag());
+  }
+
+  @Test
+  public void checkGetProptertyIsETagFalse() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType("BusinessPartner"), "type");
+    IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
+        helper.schema);
+    assertFalse(property.isEtag());
+  }
+
+  @Test
   public void checkGetProptertyMaxLength() throws ODataJPAModelException {
     Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType("BusinessPartner"), "type");
     IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,

@@ -3,18 +3,20 @@ package org.apache.olingo.jpa.metadata.core.edm.mapper.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
 import org.apache.olingo.commons.api.edm.provider.CsdlNavigationPropertyBinding;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import org.apache.olingo.server.api.etag.CustomETagSupport;
 
 /**
  * 
  * @author Oliver Grande
  *
  */
-class IntermediateEntitySet extends IntermediateModelElement {
+class IntermediateEntitySet extends IntermediateModelElement implements CustomETagSupport {
   private final IntermediateEntityType entityType;
   private CsdlEntitySet edmEntitySet;
 
@@ -64,9 +66,24 @@ class IntermediateEntitySet extends IntermediateModelElement {
   }
 
   @Override
-      CsdlEntitySet getEdmItem() throws ODataJPAModelException {
+  CsdlEntitySet getEdmItem() throws ODataJPAModelException {
     lazyBuildEdmItem();
     return edmEntitySet;
   }
 
+  @Override
+  public boolean hasETag(EdmBindingTarget entitySetOrSingleton) {
+    try {
+      return entityType.hasEtag();
+    } catch (ODataJPAModelException e) {
+      // TODO logging
+      return false;
+    }
+  }
+
+  @Override
+  public boolean hasMediaETag(EdmBindingTarget entitySetOrSingleton) {
+    // TODO implement this
+    return false;
+  }
 }
