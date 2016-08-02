@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
-import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
@@ -14,7 +14,7 @@ import org.apache.olingo.server.api.uri.UriResourcePartTyped;
 import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
 
 public class JPAExpandItemInfoFactory {
-  public List<JPAExpandItemInfo> buildExpandItemInfo(final ServicDocument sd, final List<UriResource> startResourceList,
+  public List<JPAExpandItemInfo> buildExpandItemInfo(final ServiceDocument sd, final List<UriResource> startResourceList,
       final ExpandOption expandOption, final List<JPANavigationProptertyInfo> grandParentHops)
       throws ODataApplicationException {
 
@@ -44,7 +44,7 @@ public class JPAExpandItemInfoFactory {
     return startResourceItem;
   }
 
-  private List<JPANavigationProptertyInfo> determineParentHops(final ServicDocument sd,
+  private List<JPANavigationProptertyInfo> determineParentHops(final ServiceDocument sd,
       final List<UriResource> startResourceList, final List<JPANavigationProptertyInfo> grandParentHops)
       throws ODataApplicationException {
     List<JPANavigationProptertyInfo> parentHops = new ArrayList<JPANavigationProptertyInfo>();

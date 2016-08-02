@@ -19,7 +19,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
-import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import org.apache.olingo.jpa.processor.core.filter.JPAFilterElementComplier;
 import org.apache.olingo.jpa.processor.core.filter.JPAFilterExpression;
@@ -38,14 +38,14 @@ public class JPANavigationFilterQuery extends JPANavigationQuery {
 
   private final JPAFilterElementComplier filterComplier;
 
-  public JPANavigationFilterQuery(final OData odata, final ServicDocument sd, final UriResource uriResourceItem,
+  public JPANavigationFilterQuery(final OData odata, final ServiceDocument sd, final UriResource uriResourceItem,
       final JPAAbstractQuery parent, final EntityManager em, final JPAAssociationPath association)
       throws ODataApplicationException {
     super(sd, uriResourceItem, parent, em, association);
     this.filterComplier = null;
   }
 
-  public JPANavigationFilterQuery(final OData odata, final ServicDocument sd, final UriResource uriResourceItem,
+  public JPANavigationFilterQuery(final OData odata, final ServiceDocument sd, final UriResource uriResourceItem,
       final JPAAbstractQuery parent, final EntityManager em, final JPAAssociationPath association,
       final VisitableExpression expression) throws ODataApplicationException {
     super(sd, uriResourceItem, parent, em, association);

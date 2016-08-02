@@ -5,7 +5,7 @@ import java.util.List;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
@@ -30,7 +30,7 @@ public class JPAExpandItemWrapper implements UriInfoResource {
   private final ExpandItem item;
   private final JPAEntityType jpaEntityType;
 
-  public JPAExpandItemWrapper(final ServicDocument sd, final ExpandItem item) throws ODataApplicationException {
+  public JPAExpandItemWrapper(final ServiceDocument sd, final ExpandItem item) throws ODataApplicationException {
     super();
     this.item = item;
     try {

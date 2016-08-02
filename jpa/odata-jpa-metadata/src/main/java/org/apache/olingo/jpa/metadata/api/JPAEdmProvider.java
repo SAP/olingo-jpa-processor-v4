@@ -19,12 +19,12 @@ import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
-import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
 
 public class JPAEdmProvider extends CsdlAbstractEdmProvider {
 
   final private JPAEdmNameBuilder nameBuilder;
-  final private ServicDocument serviceDocument;
+  final private ServiceDocument serviceDocument;
 
   // TODO edmx: Reference -> Support by Olingo?
   // http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406397930
@@ -32,7 +32,7 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
       final JPAEdmMetadataPostProcessor postProcessor) throws ODataException {
     super();
     this.nameBuilder = new JPAEdmNameBuilder(namespace);
-    serviceDocument = new ServicDocument(namespace, emf.getMetamodel(), postProcessor);
+    serviceDocument = new ServiceDocument(namespace, emf.getMetamodel(), postProcessor);
   }
 
   @Override
@@ -111,7 +111,7 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
     return serviceDocument.getEdmSchemas();
   }
 
-  public final ServicDocument getServiceDocument() {
+  public final ServiceDocument getServiceDocument() {
     return serviceDocument;
   }
 

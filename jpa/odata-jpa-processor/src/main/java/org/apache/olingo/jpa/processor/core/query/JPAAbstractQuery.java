@@ -22,7 +22,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriParameter;
@@ -39,11 +39,11 @@ public abstract class JPAAbstractQuery {
   protected final EntityManager em;
   protected final CriteriaBuilder cb;
   protected final JPAEntityType jpaEntity;
-  protected final ServicDocument sd;
+  protected final ServiceDocument sd;
   // protected final EdmEntityType edmType;
   protected Locale locale;
 
-  public JPAAbstractQuery(final ServicDocument sd, final JPAEntityType jpaEntityType, final EntityManager em)
+  public JPAAbstractQuery(final ServiceDocument sd, final JPAEntityType jpaEntityType, final EntityManager em)
       throws ODataApplicationException {
     super();
     this.em = em;
@@ -52,7 +52,7 @@ public abstract class JPAAbstractQuery {
     this.jpaEntity = jpaEntityType;
   }
 
-  public JPAAbstractQuery(final ServicDocument sd, final EdmEntityType edmEntityType, final EntityManager em)
+  public JPAAbstractQuery(final ServiceDocument sd, final EdmEntityType edmEntityType, final EntityManager em)
       throws ODataApplicationException {
     super();
     this.em = em;

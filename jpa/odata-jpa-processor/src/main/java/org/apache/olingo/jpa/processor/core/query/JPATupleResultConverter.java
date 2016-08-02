@@ -9,14 +9,14 @@ import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.uri.UriHelper;
 
 public class JPATupleResultConverter extends JPATupleAbstractConverter {
 
-  public JPATupleResultConverter(final ServicDocument sd, final JPAExpandResult jpaQueryResult,
+  public JPATupleResultConverter(final ServiceDocument sd, final JPAExpandResult jpaQueryResult,
       final UriHelper uriHelper, final ServiceMetadata serviceMetadata) throws ODataJPAModelException,
       ODataApplicationException {
     super(jpaQueryResult, uriHelper, sd, serviceMetadata);

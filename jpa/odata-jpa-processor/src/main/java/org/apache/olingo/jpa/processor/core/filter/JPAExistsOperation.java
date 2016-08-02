@@ -8,7 +8,7 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Subquery;
 
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
-import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
 import org.apache.olingo.jpa.processor.core.query.JPAAbstractQuery;
 import org.apache.olingo.jpa.processor.core.query.JPANavigationProptertyInfo;
 import org.apache.olingo.jpa.processor.core.query.Util;
@@ -25,7 +25,7 @@ abstract class JPAExistsOperation implements JPAOperator {
   protected final JPAOperationConverter converter;
   protected final List<UriResource> uriResourceParts;
   protected final JPAAbstractQuery root;
-  protected final ServicDocument sd;
+  protected final ServiceDocument sd;
   protected final EntityManager em;
   protected final OData odata;
 
@@ -56,7 +56,7 @@ abstract class JPAExistsOperation implements JPAOperator {
 
   abstract Subquery<?> getExistsQuery() throws ODataApplicationException;
 
-  protected List<JPANavigationProptertyInfo> determineAssoziations(final ServicDocument sd,
+  protected List<JPANavigationProptertyInfo> determineAssoziations(final ServiceDocument sd,
       final List<UriResource> resourceParts) throws ODataApplicationException {
     final List<JPANavigationProptertyInfo> pathList = new ArrayList<JPANavigationProptertyInfo>();
 

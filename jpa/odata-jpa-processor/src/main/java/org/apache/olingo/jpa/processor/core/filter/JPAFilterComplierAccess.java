@@ -5,7 +5,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
-import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
 import org.apache.olingo.jpa.processor.core.query.JPAAbstractQuery;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.uri.UriResource;
@@ -16,7 +16,7 @@ interface JPAFilterComplierAccess {
 
   List<UriResource> getUriResourceParts();
 
-  ServicDocument getSd();
+  ServiceDocument getSd();
 
   OData getOdata();
 

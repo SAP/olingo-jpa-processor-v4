@@ -14,24 +14,24 @@ public class TestCreateDocument extends TestMappingRoot {
 
   @Test
   public void checkServiceDocumentCanBeCreated() throws ODataJPAModelException {
-    new ServicDocument(PUNIT_NAME, emf.getMetamodel(), null);
+    new ServiceDocument(PUNIT_NAME, emf.getMetamodel(), null);
   }
 
   @Test
   public void checkServiceDocumentGetSchemaList() throws ODataJPAModelException {
-    ServicDocument svc = new ServicDocument(PUNIT_NAME, emf.getMetamodel(), null);
+    ServiceDocument svc = new ServiceDocument(PUNIT_NAME, emf.getMetamodel(), null);
     assertEquals("Wrong number of schemas", 1, svc.getEdmSchemas().size());
   }
 
   @Test
   public void checkServiceDocumentGetContainer() throws ODataJPAModelException {
-    ServicDocument svc = new ServicDocument(PUNIT_NAME, emf.getMetamodel(), null);
+    ServiceDocument svc = new ServiceDocument(PUNIT_NAME, emf.getMetamodel(), null);
     assertNotNull("Entity Container not found", svc.getEdmEntityContainer());
   }
 
   @Test
   public void checkServiceDocumentGetContainerFromSchema() throws ODataJPAModelException {
-    ServicDocument svc = new ServicDocument(PUNIT_NAME, emf.getMetamodel(), null);
+    ServiceDocument svc = new ServiceDocument(PUNIT_NAME, emf.getMetamodel(), null);
     List<CsdlSchema> schemas = svc.getEdmSchemas();
     CsdlSchema schema = schemas.get(0);
     assertNotNull("Entity Container not found", schema.getEntityContainer());
@@ -39,7 +39,7 @@ public class TestCreateDocument extends TestMappingRoot {
 
   @Test
   public void checkServiceDocumentGetEntitySetsFromContainer() throws ODataJPAModelException {
-    ServicDocument svc = new ServicDocument(PUNIT_NAME, emf.getMetamodel(), null);
+    ServiceDocument svc = new ServiceDocument(PUNIT_NAME, emf.getMetamodel(), null);
     CsdlEntityContainer container = svc.getEdmEntityContainer();
     assertNotNull("Entity Container not found", container.getEntitySets());
   }

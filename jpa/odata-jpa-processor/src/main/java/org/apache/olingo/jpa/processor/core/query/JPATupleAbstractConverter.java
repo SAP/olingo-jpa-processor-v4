@@ -27,7 +27,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
-import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ServiceMetadata;
@@ -45,11 +45,11 @@ public abstract class JPATupleAbstractConverter {
   protected final JPAExpandResult jpaQueryResult;
   protected final UriHelper uriHelper;
   protected final String setName;
-  protected final ServicDocument sd;
+  protected final ServiceDocument sd;
   protected final ServiceMetadata serviceMetadata;
 
   public JPATupleAbstractConverter(final JPAExpandResult jpaQueryResult,
-      final UriHelper uriHelper, final ServicDocument sd, final ServiceMetadata serviceMetadata)
+      final UriHelper uriHelper, final ServiceDocument sd, final ServiceMetadata serviceMetadata)
       throws ODataApplicationException {
     super();
 

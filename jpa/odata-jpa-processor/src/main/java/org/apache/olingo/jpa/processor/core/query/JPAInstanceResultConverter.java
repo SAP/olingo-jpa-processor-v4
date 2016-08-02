@@ -18,7 +18,7 @@ import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
-import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.serializer.SerializerException;
@@ -37,7 +37,7 @@ public class JPAInstanceResultConverter {
   private final List<JPAPath> pathList;
   private final UriHelper odataUriHelper;
 
-  public JPAInstanceResultConverter(final UriHelper uriHelper, final ServicDocument sd,
+  public JPAInstanceResultConverter(final UriHelper uriHelper, final ServiceDocument sd,
       final List<?> jpaQueryResult, final EdmEntitySet edmEntitySet, final Class<?> resultType)
       throws ODataJPAModelException {
     super();

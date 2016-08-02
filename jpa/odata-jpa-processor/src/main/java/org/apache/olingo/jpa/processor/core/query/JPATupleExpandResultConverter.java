@@ -11,7 +11,7 @@ import org.apache.olingo.commons.api.data.Link;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
-import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServicDocument;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ServiceMetadata;
@@ -22,7 +22,7 @@ public class JPATupleExpandResultConverter extends JPATupleAbstractConverter {
   private final JPAAssociationPath assoziation;
 
   public JPATupleExpandResultConverter(final JPAExpandResult jpaExpandResult, final Tuple parentRow,
-      final JPAAssociationPath assoziation, final UriHelper uriHelper, final ServicDocument sd,
+      final JPAAssociationPath assoziation, final UriHelper uriHelper, final ServiceDocument sd,
       final ServiceMetadata serviceMetadata) throws ODataApplicationException {
 
     super(jpaExpandResult, uriHelper, sd, serviceMetadata);
