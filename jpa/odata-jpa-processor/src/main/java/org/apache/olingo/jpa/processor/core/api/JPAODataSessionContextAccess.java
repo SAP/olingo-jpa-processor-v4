@@ -12,6 +12,8 @@ public interface JPAODataSessionContextAccess {
 
   public DebugSupport getDebugSupport();
 
+  public JPAServiceDebugger getDebugger();
+
   public JPAOperationConverter getOperationConverter();
 
   public JPAEdmProvider getEdmProvider();

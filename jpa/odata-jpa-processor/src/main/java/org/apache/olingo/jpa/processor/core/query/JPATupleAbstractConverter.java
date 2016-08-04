@@ -1,6 +1,5 @@
 package org.apache.olingo.jpa.processor.core.query;
 
-import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -39,8 +38,6 @@ public abstract class JPATupleAbstractConverter {
   public static final String ACCESS_MODIFIER_GET = "get";
   public static final String ACCESS_MODIFIER_SET = "set";
   public static final String ACCESS_MODIFIER_IS = "is";
-  private static final Map<String, HashMap<String, Method>> methodsBuffer =
-      new HashMap<String, HashMap<String, Method>>();
   protected final JPAEntityType jpaConversionTargetEntity;
   protected final JPAExpandResult jpaQueryResult;
   protected final UriHelper uriHelper;

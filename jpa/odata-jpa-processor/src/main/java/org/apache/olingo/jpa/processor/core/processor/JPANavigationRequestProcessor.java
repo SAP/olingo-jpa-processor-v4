@@ -45,6 +45,8 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
   public void retrieveData(final ODataRequest request, final ODataResponse response, final ContentType responseFormat)
       throws ODataApplicationException, ODataLibraryException {
 
+    int handle = debugger.startRuntimeMeasurement("JPANavigationRequestProcessor", "retrieveData");
+
     final List<UriResource> resourceParts = uriInfo.getUriResourceParts();
     final EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(resourceParts);
 
@@ -53,19 +55,23 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
     try {
       query = new JPAQuery(odata, targetEdmEntitySet, context, uriInfo, em, request.getAllHeaders());
     } catch (ODataJPAModelException e) {
+      debugger.stopRuntimeMeasurement(handle);
       throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.QUERY_PREPARATION_ERROR,
           HttpStatusCode.INTERNAL_SERVER_ERROR, e);
     }
 
     final JPAExpandResult result = query.execute();
     result.putChildren(readExpandEntities(request.getAllHeaders(), null, uriInfo));
-
     // Convert tuple result into an OData Result
+    int converterHandle = debugger.startRuntimeMeasurement("JPATupleResultConverter", "getResult");
     EntityCollection entityCollection;
     try {
       entityCollection = new JPATupleResultConverter(sd, result, odata.createUriHelper(), serviceMetadata)
           .getResult();
+      debugger.stopRuntimeMeasurement(converterHandle);
     } catch (ODataJPAModelException e) {
+      debugger.stopRuntimeMeasurement(converterHandle);
+      debugger.stopRuntimeMeasurement(handle);
       throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.QUERY_RESULT_CONV_ERROR,
           HttpStatusCode.INTERNAL_SERVER_ERROR, e);
     }
@@ -77,7 +83,9 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
       entityCollection.setCount(Integer.valueOf(query.countResults().intValue()));
 
     if (entityCollection.getEntities() != null && entityCollection.getEntities().size() > 0) {
+      int serializerHandle = debugger.startRuntimeMeasurement("JPASerializer", "serialize");
       final SerializerResult serializerResult = serializer.serialize(request, entityCollection);
+      debugger.stopRuntimeMeasurement(serializerHandle);
       createSuccessResonce(response, responseFormat, serializerResult);
     } else
       // 404 Not Found indicates that the resource specified by the request URL does not exist. The response body MAY
@@ -87,6 +95,7 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
       // Assumption 404 is handled by Olingo during URL parsing
       response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
 
+    debugger.stopRuntimeMeasurement(handle);
   }
 
   /**
@@ -112,6 +121,9 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
   private Map<JPAAssociationPath, JPAExpandResult> readExpandEntities(final Map<String, List<String>> headers,
       final List<JPANavigationProptertyInfo> parentHops, final UriInfoResource uriResourceInfo)
       throws ODataApplicationException {
+
+    int handle = debugger.startRuntimeMeasurement("JPANavigationRequestProcessor", "readExpandEntities");
+
     final Map<JPAAssociationPath, JPAExpandResult> allExpResults =
         new HashMap<JPAAssociationPath, JPAExpandResult>();
     // x/a?$expand=b/c($expand=d,e/f)
@@ -126,6 +138,8 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
       expandResult.putChildren(readExpandEntities(headers, item.getHops(), item.getUriInfo()));
       allExpResults.put(item.getExpandAssociation(), expandResult);
     }
+
+    debugger.stopRuntimeMeasurement(handle);
     return allExpResults;
   }
 }

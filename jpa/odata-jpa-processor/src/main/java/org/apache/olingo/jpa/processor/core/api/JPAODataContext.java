@@ -13,13 +13,13 @@ public interface JPAODataContext extends JPAODataSessionContextAccess {
    * Registers the debug support handler.
    * @param debugSupport
    */
-  public void register(DebugSupport debugSupport);
+  public void setReferences(final List<EdmxReference> references);
 
-  public void setReferences(List<EdmxReference> references);
+  public void setOperationConverter(final JPAOperationConverter jpaOperationConverter);
 
-  public void setOperationConverter(JPAOperationConverter jpaOperationConverter);
+  public void setMetadataPostProcessor(final JPAEdmMetadataPostProcessor postProcessor) throws ODataException;
 
-  public void setMetadataPostProcessor(JPAEdmMetadataPostProcessor postProcessor) throws ODataException;
+  public void setDatabaseProcessor(final JPAODataDatabaseProcessor databaseProcessor);
 
-  public void setDatabaseProcessor(JPAODataDatabaseProcessor databaseProcessor);
+  public void setDebugSupport(final DebugSupport jpaDebugSupport);
 }

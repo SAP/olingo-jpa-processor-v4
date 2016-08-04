@@ -71,7 +71,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
       final JPAEntityType jpaEntityType, final EntityManager em, final Map<String, List<String>> requestHeaders,
       final UriInfoResource uriResource) throws ODataApplicationException {
 
-    super(context.getEdmProvider().getServiceDocument(), jpaEntityType, em);
+    super(context.getEdmProvider().getServiceDocument(), jpaEntityType, em, context.getDebugger());
     this.locale = determineLocale(requestHeaders);
     this.uriResource = uriResource;
     this.cq = cb.createTupleQuery();
@@ -323,6 +323,8 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     // ORDER BY COUNT(t1."BusinessPartnerID") DESC
 
     // TODO Functions and orderBy: Part 1 - 11.5.3.1 Invoking a Function
+
+    final int handle = debugger.startRuntimeMeasurement("JPAQuery", "createOrderByList");
     final List<Order> orders = new ArrayList<Order>();
     if (orderByOption != null) {
       for (final OrderByItem orderByItem : orderByOption.getOrders()) {
@@ -351,6 +353,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
                 p = p.get(attribute.getInternalName());
                 type = attribute.getStructuredType();
               } catch (ODataJPAModelException e) {
+                debugger.stopRuntimeMeasurement(handle);
                 throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
               }
             } else if (uriResource instanceof UriResourceNavigation) {
@@ -360,6 +363,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
                 join = joinTables.get(jpaEntity.getAssociationPath(edmNaviProperty.getName()).getLeaf()
                     .getInternalName());
               } catch (ODataJPAModelException e) {
+                debugger.stopRuntimeMeasurement(handle);
                 throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
               }
               if (orderByItem.isDescending())
@@ -372,6 +376,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
         }
       }
     }
+    debugger.stopRuntimeMeasurement(handle);
     return orders;
   }
 
@@ -397,6 +402,9 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
    */
   protected List<Selection<?>> createSelectClause(final Map<String, From<?, ?>> joinTables,
       final List<JPAPath> jpaPathList) throws ODataApplicationException {
+
+    final int handle = debugger.startRuntimeMeasurement("JPAQuery", "createSelectClause");
+
     final List<Selection<?>> selections = new ArrayList<Selection<?>>();
 
     // Build select clause
@@ -405,11 +413,15 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
       p.alias(jpaPath.getAlias());
       selections.add(p);
     }
+
+    debugger.stopRuntimeMeasurement(handle);
     return selections;
   }
 
   protected javax.persistence.criteria.Expression<Boolean> createWhere(final Map<String, From<?, ?>> joinTables)
       throws ODataApplicationException {
+
+    final int handle = debugger.startRuntimeMeasurement("JPAQuery", "createWhere");
 
     javax.persistence.criteria.Expression<Boolean> whereCondition = null;
 
@@ -434,6 +446,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     try {
       whereCondition = addWhereClause(whereCondition, filter.compile());
     } catch (ExpressionVisitException e) {
+      debugger.stopRuntimeMeasurement(handle);
       throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_FILTER_ERROR,
           HttpStatusCode.BAD_REQUEST, e);
     }
@@ -442,6 +455,8 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
       whereCondition = addWhereClause(whereCondition,
           context.getDatabaseProcessor().createSearchWhereClause(cb, this.cq, root, jpaEntity, uriResource
               .getSearchOption()));
+
+    debugger.stopRuntimeMeasurement(handle);
     return whereCondition;
   }
 
@@ -523,11 +538,15 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
   private javax.persistence.criteria.Expression<Boolean> buildNavigationSubQueries(final Root<?> root)
       throws ODataApplicationException {
 
+    final int handle = debugger.startRuntimeMeasurement("JPAExecutableQuery", "buildNavigationSubQueries");
+
     final List<UriResource> resourceParts = uriResource.getUriResourceParts();
 
     // No navigation
-    if (!hasNavigation(resourceParts))
+    if (!hasNavigation(resourceParts)) {
+      debugger.stopRuntimeMeasurement(handle);
       return null;
+    }
     // 1. Determine all relevant associations
     final List<JPANavigationProptertyInfo> naviPathList = Util.determineAssoziations(sd, resourceParts);
     JPAAbstractQuery parent = this;
@@ -543,6 +562,8 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     for (int i = queryList.size() - 1; i >= 0; i--) {
       childQuery = queryList.get(i).getSubQueryExists(childQuery);
     }
+
+    debugger.stopRuntimeMeasurement(handle);
     return cb.exists(childQuery);
   }
 

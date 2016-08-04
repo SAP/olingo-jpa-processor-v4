@@ -1,5 +1,7 @@
 package org.apache.olingo.jpa.processor.core.query;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -23,8 +25,10 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
+import org.apache.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import org.apache.olingo.server.api.ODataApplicationException;
+import org.apache.olingo.server.api.debug.RuntimeMeasurement;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
@@ -40,6 +44,7 @@ public abstract class JPAAbstractQuery {
   protected final CriteriaBuilder cb;
   protected final JPAEntityType jpaEntity;
   protected final ServiceDocument sd;
+  protected final JPAServiceDebugger debugger;
   // protected final EdmEntityType edmType;
   protected Locale locale;
 
@@ -50,6 +55,7 @@ public abstract class JPAAbstractQuery {
     this.cb = em.getCriteriaBuilder();
     this.sd = sd;
     this.jpaEntity = jpaEntityType;
+    this.debugger = new EmptyDebugger();
   }
 
   public JPAAbstractQuery(final ServiceDocument sd, final EdmEntityType edmEntityType, final EntityManager em)
@@ -63,6 +69,17 @@ public abstract class JPAAbstractQuery {
     } catch (ODataJPAModelException e) {
       throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
     }
+    this.debugger = new EmptyDebugger();
+  }
+
+  public JPAAbstractQuery(final ServiceDocument sd, final JPAEntityType jpaEntityType, final EntityManager em,
+      final JPAServiceDebugger debugger) {
+    super();
+    this.em = em;
+    this.cb = em.getCriteriaBuilder();
+    this.sd = sd;
+    this.jpaEntity = jpaEntityType;
+    this.debugger = debugger;
   }
 
   protected javax.persistence.criteria.Expression<Boolean> createWhereByKey(final From<?, ?> root,
@@ -110,6 +127,10 @@ public abstract class JPAAbstractQuery {
   public abstract Root<?> getRoot();
 
   public abstract AbstractQuery<?> getQuery();
+
+  public JPAServiceDebugger getDebugger() {
+    return debugger;
+  }
 
   protected abstract Locale getLocale();
 
@@ -174,5 +195,23 @@ public abstract class JPAAbstractQuery {
       }
     }
     return Locale.ENGLISH;
+  }
+
+  // TODO clean-up
+  private class EmptyDebugger implements JPAServiceDebugger {
+
+    @Override
+    public int startRuntimeMeasurement(String className, String methodName) {
+      return 0;
+    }
+
+    @Override
+    public void stopRuntimeMeasurement(int handle) {}
+
+    @Override
+    public Collection<? extends RuntimeMeasurement> getRuntimeInformation() {
+      return new ArrayList<RuntimeMeasurement>();
+    }
+
   }
 }

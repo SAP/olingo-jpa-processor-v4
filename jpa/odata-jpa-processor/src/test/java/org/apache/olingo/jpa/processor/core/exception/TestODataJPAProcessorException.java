@@ -9,7 +9,7 @@ import org.apache.olingo.server.api.ODataApplicationException;
 import org.junit.Test;
 
 public class TestODataJPAProcessorException {
-  private static String BUNDLE_NAME = "exceptions-i18n";
+  // private static String BUNDLE_NAME = "exceptions-i18n";
 
   public static enum MessageKeys implements ODataJPAMessageKey {
     RESULT_NOT_FOUND;

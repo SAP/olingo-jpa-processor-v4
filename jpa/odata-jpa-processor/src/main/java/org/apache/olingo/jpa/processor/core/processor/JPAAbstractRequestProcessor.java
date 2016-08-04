@@ -9,6 +9,7 @@ import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
 import org.apache.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import org.apache.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import org.apache.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import org.apache.olingo.jpa.processor.core.serializer.JPASerializer;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataResponse;
@@ -25,6 +26,7 @@ abstract class JPAAbstractRequestProcessor implements JPARequestProcessor {
   protected final UriInfo uriInfo;
   protected final JPASerializer serializer;
   protected final OData odata;
+  protected final JPAServiceDebugger debugger;
 
   public JPAAbstractRequestProcessor(final OData odata, final JPAODataSessionContextAccess context,
       final JPAODataRequestContextAccess requestContext) {
@@ -36,6 +38,7 @@ abstract class JPAAbstractRequestProcessor implements JPARequestProcessor {
     this.uriInfo = requestContext.getUriInfo();
     this.serializer = requestContext.getSerializer();
     this.odata = odata;
+    this.debugger = context.getDebugger();
   }
 
   protected final void createSuccessResonce(final ODataResponse response, final ContentType responseFormat,

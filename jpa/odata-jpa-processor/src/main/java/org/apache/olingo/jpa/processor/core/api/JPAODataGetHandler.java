@@ -61,6 +61,7 @@ public class JPAODataGetHandler {
     private JPAOperationConverter operationConverter;
     private JPAEdmProvider jpaEdm;
     private JPAODataDatabaseProcessor databaseProcessor;
+    private JPAServiceDebugger debugger;
 
     public JPAODataContextImpl() throws ODataException {
       super();
@@ -72,6 +73,11 @@ public class JPAODataGetHandler {
       } catch (SQLException e) {
         throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
       }
+
+      if (true)
+        debugger = new JPACoreDeugger();
+      else
+        debugger = new JPAEmptyDebugger();
     }
 
     @Override
@@ -87,11 +93,6 @@ public class JPAODataGetHandler {
     @Override
     public List<EdmxReference> getReferences() {
       return references;
-    }
-
-    @Override
-    public void register(final DebugSupport debugSupport) {
-      this.debugSupport = debugSupport;
     }
 
     @Override
@@ -122,6 +123,16 @@ public class JPAODataGetHandler {
     @Override
     public void setDatabaseProcessor(final JPAODataDatabaseProcessor databaseProcessor) {
       this.databaseProcessor = databaseProcessor;
+    }
+
+    @Override
+    public void setDebugSupport(final DebugSupport jpaDebugSupport) {
+      this.debugSupport = jpaDebugSupport;
+    }
+
+    @Override
+    public JPAServiceDebugger getDebugger() {
+      return debugger;
     }
   }
 }
