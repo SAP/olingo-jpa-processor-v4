@@ -1,4 +1,4 @@
-package org.apache.olingo.jpa.processor.core.util;
+package org.apache.olingo.jpa.processor.core.api;
 
 import static org.junit.Assert.fail;
 
@@ -61,7 +61,7 @@ public class JPAODataContextAccessDouble implements JPAODataSessionContextAccess
 
   @Override
   public JPAServiceDebugger getDebugger() {
-    return null;
+    return new JPAEmptyDebugger();
   }
 
 }
