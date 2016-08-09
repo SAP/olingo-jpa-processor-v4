@@ -104,7 +104,10 @@ public class JPAQuery extends JPAExecutableQuery {
     addTopSkip(tq);
 
     final HashMap<String, List<Tuple>> result = new HashMap<String, List<Tuple>>(1);
-    result.put("root", tq.getResultList());
+    final int resultHandle = debugger.startRuntimeMeasurement("TypedQuery", "getResultList");
+    final List<Tuple> intermediateResult = tq.getResultList();
+    debugger.stopRuntimeMeasurement(resultHandle);
+    result.put("root", intermediateResult);
 
     debugger.stopRuntimeMeasurement(handle);
     return new JPAExpandResult(result, Long.parseLong("0"), jpaEntity);// count()););

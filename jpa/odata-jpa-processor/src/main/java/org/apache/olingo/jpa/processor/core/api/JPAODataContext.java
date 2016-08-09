@@ -22,4 +22,6 @@ public interface JPAODataContext extends JPAODataSessionContextAccess {
   public void setDatabaseProcessor(final JPAODataDatabaseProcessor databaseProcessor);
 
   public void setDebugSupport(final DebugSupport jpaDebugSupport);
+
+  public void initDebugger(String debugFormat);
 }

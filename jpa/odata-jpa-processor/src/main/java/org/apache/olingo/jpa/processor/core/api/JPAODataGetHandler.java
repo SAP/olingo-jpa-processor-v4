@@ -20,6 +20,8 @@ import org.apache.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import org.apache.olingo.jpa.processor.core.filter.JPAOperationConverter;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataHttpHandler;
+import org.apache.olingo.server.api.ODataResponse;
+import org.apache.olingo.server.api.debug.DebugInformation;
 import org.apache.olingo.server.api.debug.DebugSupport;
 
 public class JPAODataGetHandler {
@@ -48,6 +50,7 @@ public class JPAODataGetHandler {
     final ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(context.getEdmProvider(), context
         .getReferences()));
     context.getEdmProvider().setRequestLocales(request.getLocales());
+    context.initDebugger(request.getParameter(DebugSupport.ODATA_DEBUG_QUERY_PARAMETER));
     handler.register(context.getDebugSupport());
     handler.register(new JPAODataRequestProcessor(context, emf.createEntityManager()));
     handler.register(new JPAODataBatchProcessor());
@@ -57,7 +60,7 @@ public class JPAODataGetHandler {
 
   private class JPAODataContextImpl implements JPAODataContext {
     private List<EdmxReference> references = new ArrayList<EdmxReference>();
-    private DebugSupport debugSupport;
+    private JPADebugSupportWrapper debugSupport;
     private JPAOperationConverter operationConverter;
     private JPAEdmProvider jpaEdm;
     private JPAODataDatabaseProcessor databaseProcessor;
@@ -74,10 +77,6 @@ public class JPAODataGetHandler {
         throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
       }
 
-      if (true)
-        debugger = new JPACoreDeugger();
-      else
-        debugger = new JPAEmptyDebugger();
     }
 
     @Override
@@ -127,12 +126,61 @@ public class JPAODataGetHandler {
 
     @Override
     public void setDebugSupport(final DebugSupport jpaDebugSupport) {
-      this.debugSupport = jpaDebugSupport;
+      this.debugSupport = new JPADebugSupportWrapper(jpaDebugSupport);
     }
 
     @Override
     public JPAServiceDebugger getDebugger() {
       return debugger;
+    }
+
+    @Override
+    public void initDebugger(String debugFormat) {
+      // see org.apache.olingo.server.core.debug.ServerCoreDebugger
+      boolean isDebugMode = false;
+      if (debugSupport != null) {
+        // Should we read the parameter from the servlet here and ignore multiple parameters?
+        if (debugFormat != null) {
+          debugSupport.init(odata);
+          isDebugMode = debugSupport.isUserAuthorized();
+        }
+      }
+      if (isDebugMode)
+        debugger = new JPACoreDeugger();
+      else
+        debugger = new JPAEmptyDebugger();
+      debugSupport.setDebugger(debugger);
+    }
+  }
+
+  private class JPADebugSupportWrapper implements DebugSupport {
+
+    final private DebugSupport debugSupport;
+    private JPAServiceDebugger debugger;
+
+    public JPADebugSupportWrapper(DebugSupport debugSupport) {
+      super();
+      this.debugSupport = debugSupport;
+    }
+
+    @Override
+    public void init(OData odata) {
+      debugSupport.init(odata);
+    }
+
+    @Override
+    public boolean isUserAuthorized() {
+      return debugSupport.isUserAuthorized();
+    }
+
+    @Override
+    public ODataResponse createDebugResponse(String debugFormat, DebugInformation debugInfo) {
+      debugInfo.getRuntimeInformation().addAll(debugger.getRuntimeInformation());
+      return debugSupport.createDebugResponse(debugFormat, debugInfo);
+    }
+
+    void setDebugger(JPAServiceDebugger debugger) {
+      this.debugger = debugger;
     }
   }
 }

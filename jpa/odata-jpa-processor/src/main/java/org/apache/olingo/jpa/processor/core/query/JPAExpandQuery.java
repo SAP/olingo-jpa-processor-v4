@@ -83,24 +83,40 @@ public class JPAExpandQuery extends JPAExecutableQuery {
    */
   private JPAExpandResult executeExpandTopSkipQuery() throws ODataApplicationException {
     // TODO make this replacable
+    final int handle = debugger.startRuntimeMeasurement("JPAExpandQuery", "executeExpandTopSkipQuery");
+
     long skip = 0;
     long top = Long.MAX_VALUE;
     final TypedQuery<Tuple> tupleQuery = createTupleQuery();
     // Simplest solution for the problem. Read all and throw away, what is not requested
     final List<Tuple> intermediateResult = tupleQuery.getResultList();
-    if (uriResource.getSkipOption() != null) skip = uriResource.getSkipOption().getValue();
-    if (uriResource.getTopOption() != null) top = uriResource.getTopOption().getValue();
+    if (uriResource.getSkipOption() != null)
+      skip = uriResource.getSkipOption().getValue();
+    if (uriResource.getTopOption() != null)
+      top = uriResource.getTopOption().getValue();
 
-    return new JPAExpandResult(convertResult(intermediateResult, assoziation, skip, top), count(), jpaEntity);
+    Map<String, List<Tuple>> result = convertResult(intermediateResult, assoziation, skip, top);
+    debugger.stopRuntimeMeasurement(handle);
+    return new JPAExpandResult(result, count(), jpaEntity);
   }
 
   private JPAExpandResult executeStandradQuery() throws ODataApplicationException {
+    final int handle = debugger.startRuntimeMeasurement("JPAExpandQuery", "executeStandradQuery");
+
     final TypedQuery<Tuple> tupleQuery = createTupleQuery();
+
+    final int resultHandle = debugger.startRuntimeMeasurement("TypedQuery", "getResultList");
     final List<Tuple> intermediateResult = tupleQuery.getResultList();
-    return new JPAExpandResult(convertResult(intermediateResult, assoziation, 0, Long.MAX_VALUE), count(), jpaEntity);
+    debugger.stopRuntimeMeasurement(resultHandle);
+    Map<String, List<Tuple>> result = convertResult(intermediateResult, assoziation, 0, Long.MAX_VALUE);
+
+    debugger.stopRuntimeMeasurement(handle);
+    return new JPAExpandResult(result, count(), jpaEntity);
   }
 
   private TypedQuery<Tuple> createTupleQuery() throws ODataApplicationException {
+    final int handle = debugger.startRuntimeMeasurement("JPAExpandQuery", "createTupleQuery");
+
     final List<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
     final List<JPAPath> descriptionAttributes = extractDescriptionAttributes(selectionPath);
     final Map<String, From<?, ?>> joinTables = createFromClause(new ArrayList<JPAAssociationAttribute>(),
@@ -113,8 +129,10 @@ public class JPAExpandQuery extends JPAExecutableQuery {
     orderBy.addAll(createOrderByList(joinTables, uriResource.getOrderByOption()));
     cq.orderBy(orderBy);
     // TODO group by also at $expand
-    // final TypedQuery<Tuple> tupleQuery = em.createQuery(cq);
-    return em.createQuery(cq);
+    final TypedQuery<Tuple> query = em.createQuery(cq);
+
+    debugger.stopRuntimeMeasurement(handle);
+    return query;
   }
 
   private Long count() {
