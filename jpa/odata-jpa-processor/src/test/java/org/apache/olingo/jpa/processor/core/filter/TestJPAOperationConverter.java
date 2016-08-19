@@ -33,7 +33,7 @@ public class TestJPAOperationConverter {
 
   @Test
   public void testAddMemberMember() throws ODataApplicationException {
-    JPAArithmeticOperator operator = mock(JPAArithmeticOperator.class);
+    JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
     @SuppressWarnings("unchecked")
     Expression<Number> result = mock(Path.class);
     when(operator.getRight()).thenReturn(mock(JPAMemberOperator.class));
@@ -48,7 +48,7 @@ public class TestJPAOperationConverter {
 
   @Test
   public void testAddMemberLiteral() throws ODataApplicationException {
-    JPAArithmeticOperator operator = mock(JPAArithmeticOperator.class);
+    JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
     @SuppressWarnings("unchecked")
     Expression<Number> result = mock(Path.class);
     when(operator.getRight()).thenReturn(mock(JPALiteralOperator.class));
@@ -63,7 +63,7 @@ public class TestJPAOperationConverter {
 
   @Test
   public void testSubMemberMember() throws ODataApplicationException {
-    JPAArithmeticOperator operator = mock(JPAArithmeticOperator.class);
+    JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
     @SuppressWarnings("unchecked")
     Expression<Number> result = mock(Path.class);
     when(operator.getRight()).thenReturn(mock(JPAMemberOperator.class));
@@ -78,7 +78,7 @@ public class TestJPAOperationConverter {
 
   @Test
   public void testSubMemberLiteral() throws ODataApplicationException {
-    JPAArithmeticOperator operator = mock(JPAArithmeticOperator.class);
+    JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
     @SuppressWarnings("unchecked")
     Expression<Number> result = mock(Path.class);
     when(operator.getRight()).thenReturn(mock(JPALiteralOperator.class));
@@ -93,7 +93,7 @@ public class TestJPAOperationConverter {
 
   @Test
   public void testDivMemberMember() throws ODataApplicationException {
-    JPAArithmeticOperator operator = mock(JPAArithmeticOperator.class);
+    JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
     @SuppressWarnings("unchecked")
     Expression<Number> result = mock(Path.class);
     when(operator.getRight()).thenReturn(mock(JPAMemberOperator.class));
@@ -108,7 +108,7 @@ public class TestJPAOperationConverter {
 
   @Test
   public void testDivMemberLiteral() throws ODataApplicationException {
-    JPAArithmeticOperator operator = mock(JPAArithmeticOperator.class);
+    JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
     @SuppressWarnings("unchecked")
     Expression<Number> result = mock(Path.class);
     when(operator.getRight()).thenReturn(mock(JPALiteralOperator.class));
@@ -123,7 +123,7 @@ public class TestJPAOperationConverter {
 
   @Test
   public void testMulMemberMember() throws ODataApplicationException {
-    JPAArithmeticOperator operator = mock(JPAArithmeticOperator.class);
+    JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
     @SuppressWarnings("unchecked")
     Expression<Number> result = mock(Path.class);
     when(operator.getRight()).thenReturn(mock(JPAMemberOperator.class));
@@ -138,7 +138,7 @@ public class TestJPAOperationConverter {
 
   @Test
   public void testMulMemberLiteral() throws ODataApplicationException {
-    JPAArithmeticOperator operator = mock(JPAArithmeticOperator.class);
+    JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
     @SuppressWarnings("unchecked")
     Expression<Number> result = mock(Path.class);
     when(operator.getRight()).thenReturn(mock(JPALiteralOperator.class));
@@ -153,7 +153,7 @@ public class TestJPAOperationConverter {
 
   @Test
   public void testUnknownOperation_Exeption() throws ODataApplicationException {
-    JPAArithmeticOperator operator = mock(JPAArithmeticOperator.class);
+    JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
     when(operator.getOperator()).thenReturn(BinaryOperatorKind.AND);
 
     try {

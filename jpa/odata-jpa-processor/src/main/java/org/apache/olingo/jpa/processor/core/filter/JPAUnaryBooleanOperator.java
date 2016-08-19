@@ -5,32 +5,14 @@ import javax.persistence.criteria.Expression;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.queryoption.expression.UnaryOperatorKind;
 
-class JPAUnaryBooleanOperator implements JPAExpressionOperator {
-
-  private final JPAOperationConverter converter;
-  private final UnaryOperatorKind operator;
-  private final JPAExpressionOperator left;
-
-  public JPAUnaryBooleanOperator(final JPAOperationConverter converter, final UnaryOperatorKind operator,
-      final JPAExpressionOperator left) {
-    super();
-    this.converter = converter;
-    this.operator = operator;
-    this.left = left;
-  }
+public interface JPAUnaryBooleanOperator extends JPAExpressionOperator {
 
   @Override
-  public Expression<Boolean> get() throws ODataApplicationException {
-    return converter.convert(this);
-  }
+  public Expression<Boolean> get() throws ODataApplicationException;
 
-  public Expression<Boolean> getLeft() throws ODataApplicationException {
-    return left.get();
-  }
+  public Expression<Boolean> getLeft() throws ODataApplicationException;
 
   @Override
-  public UnaryOperatorKind getOperator() {
-    return operator;
-  }
+  public UnaryOperatorKind getOperator();
 
 }

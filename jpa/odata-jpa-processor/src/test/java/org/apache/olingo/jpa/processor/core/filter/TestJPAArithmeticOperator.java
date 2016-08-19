@@ -46,7 +46,7 @@ public class TestJPAArithmeticOperator {
       }
     });
 
-    JPAArithmeticOperator cut = new JPAArithmeticOperator(converter, BinaryOperatorKind.ADD, left, right);
+    JPAArithmeticOperator cut = new JPAArithmeticOperatorImp(converter, BinaryOperatorKind.ADD, left, right);
     assertEquals(expression, cut.getLeft(cb));
   }
 
@@ -63,7 +63,7 @@ public class TestJPAArithmeticOperator {
       }
     });
 
-    JPAArithmeticOperator cut = new JPAArithmeticOperator(converter, BinaryOperatorKind.ADD, left, right);
+    JPAArithmeticOperator cut = new JPAArithmeticOperatorImp(converter, BinaryOperatorKind.ADD, left, right);
     assertEquals(expression, cut.getLeft(cb));
   }
 
@@ -87,7 +87,7 @@ public class TestJPAArithmeticOperator {
       }
     });
 
-    JPAArithmeticOperator cut = new JPAArithmeticOperator(converter, BinaryOperatorKind.ADD, left, right);
+    JPAArithmeticOperator cut = new JPAArithmeticOperatorImp(converter, BinaryOperatorKind.ADD, left, right);
     Expression<Number> act = cut.getLeft(cb);
     assertEquals(result, act);
   }
@@ -113,7 +113,7 @@ public class TestJPAArithmeticOperator {
       }
     });
 
-    JPAArithmeticOperator cut = new JPAArithmeticOperator(converter, BinaryOperatorKind.ADD, left, right);
+    JPAArithmeticOperator cut = new JPAArithmeticOperatorImp(converter, BinaryOperatorKind.ADD, left, right);
     assertEquals(expression, cut.getLeft(cb));
 
   }
@@ -127,7 +127,7 @@ public class TestJPAArithmeticOperator {
     when(right.get(attribute)).thenReturn(new BigDecimal("5.1"));
     when(left.determineAttribute()).thenReturn(attribute);
 
-    JPAArithmeticOperator cut = new JPAArithmeticOperator(converter, BinaryOperatorKind.ADD, left, right);
+    JPAArithmeticOperator cut = new JPAArithmeticOperatorImp(converter, BinaryOperatorKind.ADD, left, right);
     assertEquals(new BigDecimal("5.1"), cut.getRightAsNumber(cb));
   }
 
@@ -140,7 +140,7 @@ public class TestJPAArithmeticOperator {
     when(left.get(attribute)).thenReturn(new BigDecimal("5.1"));
     when(right.determineAttribute()).thenReturn(attribute);
 
-    JPAArithmeticOperator cut = new JPAArithmeticOperator(converter, BinaryOperatorKind.ADD, left, right);
+    JPAArithmeticOperator cut = new JPAArithmeticOperatorImp(converter, BinaryOperatorKind.ADD, left, right);
     assertEquals(new BigDecimal("5.1"), cut.getRightAsNumber(cb));
   }
 
@@ -152,7 +152,7 @@ public class TestJPAArithmeticOperator {
     when(left.get()).thenReturn(new BigDecimal("5.1"));
     when(right.get()).thenReturn(new BigDecimal("10.1"));
 
-    JPAArithmeticOperator cut = new JPAArithmeticOperator(converter, BinaryOperatorKind.ADD, left, right);
+    JPAArithmeticOperator cut = new JPAArithmeticOperatorImp(converter, BinaryOperatorKind.ADD, left, right);
     assertEquals(new BigDecimal("10.1"), cut.getRightAsNumber(cb));
   }
 
@@ -165,7 +165,7 @@ public class TestJPAArithmeticOperator {
     when(left.determineAttribute()).thenReturn(attribute);
     when(right.determineAttribute()).thenReturn(attribute);
 
-    JPAArithmeticOperator cut = new JPAArithmeticOperator(converter, BinaryOperatorKind.ADD, left, right);
+    JPAArithmeticOperator cut = new JPAArithmeticOperatorImp(converter, BinaryOperatorKind.ADD, left, right);
     try {
       cut.getRightAsNumber(cb);
     } catch (ODataApplicationException e) {
@@ -177,9 +177,9 @@ public class TestJPAArithmeticOperator {
   @Test
   public void testGetBooleanMemberGetRightAsNumber_Exeption() throws ODataApplicationException {
     JPAMemberOperator right = mock(JPAMemberOperator.class);
-    JPABooleanOperator left = mock(JPABooleanOperator.class);
+    JPABooleanOperatorImp left = mock(JPABooleanOperatorImp.class);
 
-    JPAArithmeticOperator cut = new JPAArithmeticOperator(converter, BinaryOperatorKind.ADD, left, right);
+    JPAArithmeticOperator cut = new JPAArithmeticOperatorImp(converter, BinaryOperatorKind.ADD, left, right);
     try {
       cut.getRightAsNumber(cb);
     } catch (ODataApplicationException e) {
@@ -191,9 +191,9 @@ public class TestJPAArithmeticOperator {
   @Test
   public void testGetMemberBooleanGetRightAsNumber_Exeption() throws ODataApplicationException {
     JPAMemberOperator left = mock(JPAMemberOperator.class);
-    JPABooleanOperator right = mock(JPABooleanOperator.class);
+    JPABooleanOperatorImp right = mock(JPABooleanOperatorImp.class);
 
-    JPAArithmeticOperator cut = new JPAArithmeticOperator(converter, BinaryOperatorKind.ADD, left, right);
+    JPAArithmeticOperator cut = new JPAArithmeticOperatorImp(converter, BinaryOperatorKind.ADD, left, right);
     try {
       cut.getRightAsNumber(cb);
     } catch (ODataApplicationException e) {

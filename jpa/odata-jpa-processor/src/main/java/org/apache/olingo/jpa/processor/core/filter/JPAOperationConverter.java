@@ -51,7 +51,7 @@ public class JPAOperationConverter {
     }
   }
 
-  final public Expression<Boolean> convert(final JPABooleanOperator jpaOperator) throws ODataApplicationException {
+  final public Expression<Boolean> convert(final JPABooleanOperatorImp jpaOperator) throws ODataApplicationException {
     switch (jpaOperator.getOperator()) {
     case AND:
       return cb.and(jpaOperator.getLeft(), jpaOperator.getRight());
@@ -64,7 +64,7 @@ public class JPAOperationConverter {
 
   // TODO check generics!
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  final public Expression<Boolean> convert(final JPAComparisonOperator jpaOperator) throws ODataApplicationException {
+  final public Expression<Boolean> convert(final JPAComparisonOperatorImp jpaOperator) throws ODataApplicationException {
     switch (jpaOperator.getOperator()) {
     case EQ:
       if (jpaOperator.getRight() instanceof JPALiteralOperator)
@@ -168,7 +168,7 @@ public class JPAOperationConverter {
     }
   }
 
-  final public Expression<Boolean> convert(final JPAUnaryBooleanOperator jpaOperator) throws ODataApplicationException {
+  final public Expression<Boolean> convert(final JPAUnaryBooleanOperatorImp jpaOperator) throws ODataApplicationException {
     switch (jpaOperator.getOperator()) {
     case NOT:
       return cb.not(jpaOperator.getLeft());
@@ -177,7 +177,7 @@ public class JPAOperationConverter {
     }
   }
 
-  final public Expression<Long> convert(final JPAAggregationOperation jpaOperator) throws ODataApplicationException {
+  final public Expression<Long> convert(final JPAAggregationOperationImp jpaOperator) throws ODataApplicationException {
     switch (jpaOperator.getAggregation()) {
     case COUNT:
       return cb.count(jpaOperator.getPath());
@@ -186,7 +186,7 @@ public class JPAOperationConverter {
     }
   }
 
-  protected Expression<Long> convertSpecific(final JPAAggregationOperation jpaOperator)
+  protected Expression<Long> convertSpecific(final JPAAggregationOperationImp jpaOperator)
       throws ODataApplicationException {
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
         HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getAggregation().name());
@@ -198,7 +198,7 @@ public class JPAOperationConverter {
         HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getOperator().name());
   }
 
-  protected Predicate convertSpecific(final JPABooleanOperator jpaOperator)
+  protected Predicate convertSpecific(final JPABooleanOperatorImp jpaOperator)
       throws ODataApplicationException {
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
         HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getOperator().name());
@@ -215,7 +215,7 @@ public class JPAOperationConverter {
         HttpStatusCode.NOT_IMPLEMENTED, jpaFunction.getFunction().name());
   }
 
-  protected Predicate convertSpecific(final JPAUnaryBooleanOperator jpaOperator)
+  protected Predicate convertSpecific(final JPAUnaryBooleanOperatorImp jpaOperator)
       throws ODataApplicationException {
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
         HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getOperator().name());
@@ -225,7 +225,7 @@ public class JPAOperationConverter {
   private Expression<Integer> convertLiteralToExpression(final JPAFunctionCall jpaFunction, final int parameterIndex,
       final int offset) throws ODataApplicationException {
     final JPAOperator parameter = jpaFunction.getParameter(parameterIndex);
-    if (parameter instanceof JPAArithmeticOperator) {
+    if (parameter instanceof JPAArithmeticOperatorImp) {
       if (offset != 0)
         return cb.sum((Expression<Integer>) jpaFunction.getParameter(parameterIndex).get(), offset);
       else

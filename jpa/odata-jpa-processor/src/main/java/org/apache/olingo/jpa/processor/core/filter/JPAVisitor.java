@@ -60,10 +60,10 @@ class JPAVisitor implements ExpressionVisitor<JPAOperator> {
         || operator == BinaryOperatorKind.LT
         || operator == BinaryOperatorKind.LE) {
       debugger.stopRuntimeMeasurement(handle);
-      return new JPAComparisonOperator(this.jpaComplier.getConverter(), operator, left, right);
+      return new JPAComparisonOperatorImp(this.jpaComplier.getConverter(), operator, left, right);
     } else if (operator == BinaryOperatorKind.AND || operator == BinaryOperatorKind.OR) {
       debugger.stopRuntimeMeasurement(handle);
-      return new JPABooleanOperator(this.jpaComplier.getConverter(), operator, (JPAExpressionOperator) left,
+      return new JPABooleanOperatorImp(this.jpaComplier.getConverter(), operator, (JPAExpressionOperator) left,
           (JPAExpressionOperator) right);
     } else if (operator == BinaryOperatorKind.ADD
         || operator == BinaryOperatorKind.SUB
@@ -71,7 +71,7 @@ class JPAVisitor implements ExpressionVisitor<JPAOperator> {
         || operator == BinaryOperatorKind.DIV
         || operator == BinaryOperatorKind.MOD) {
       debugger.stopRuntimeMeasurement(handle);
-      return new JPAArithmeticOperator(this.jpaComplier.getConverter(), operator, left, right);
+      return new JPAArithmeticOperatorImp(this.jpaComplier.getConverter(), operator, left, right);
     } else
       debugger.stopRuntimeMeasurement(handle);
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
@@ -125,7 +125,7 @@ class JPAVisitor implements ExpressionVisitor<JPAOperator> {
       return new JPALambdaAllOperation(this.jpaComplier, member);
     } else if (isAggregation(member.getResourcePath())) {
       debugger.stopRuntimeMeasurement(handle);
-      return new JPAAggregationOperation(jpaComplier.getParent().getRoot(), jpaComplier.getConverter());
+      return new JPAAggregationOperationImp(jpaComplier.getParent().getRoot(), jpaComplier.getConverter());
     }
     debugger.stopRuntimeMeasurement(handle);
     return new JPAMemberOperator(this.jpaComplier.getJpaEntityType(), this.jpaComplier.getParent(), member);
@@ -136,7 +136,7 @@ class JPAVisitor implements ExpressionVisitor<JPAOperator> {
       throws ExpressionVisitException, ODataApplicationException {
     int handle = debugger.startRuntimeMeasurement("JPAVisitor", "visitMethodCall");
     debugger.stopRuntimeMeasurement(handle);
-    return new JPAFunctionCall(this.jpaComplier.getConverter(), methodCall, parameters);
+    return new JPAFunctionCallImp(this.jpaComplier.getConverter(), methodCall, parameters);
   }
 
   @Override
@@ -153,7 +153,7 @@ class JPAVisitor implements ExpressionVisitor<JPAOperator> {
     int handle = debugger.startRuntimeMeasurement("JPAVisitor", "visitBinaryOperator");
     if (operator == UnaryOperatorKind.NOT) {
       debugger.stopRuntimeMeasurement(handle);
-      return new JPAUnaryBooleanOperator(this.jpaComplier.getConverter(), operator, (JPAExpressionOperator) operand);
+      return new JPAUnaryBooleanOperatorImp(this.jpaComplier.getConverter(), operator, (JPAExpressionOperator) operand);
     } else {
       debugger.stopRuntimeMeasurement(handle);
       throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
