@@ -55,11 +55,6 @@
 			<version>2.3.1</version>
 		</dependency>
 		<dependency>
-			<groupId>com.sap.db.jdbc</groupId>
-			<artifactId>ngdbc</artifactId>
-			<version>1.96.0</version>
-		</dependency>
-		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 			<version>${jackson.version}</version>
@@ -73,8 +68,7 @@
 			<groupId>org.apache.derby</groupId>
 			<artifactId>derby</artifactId>
 			<version>10.12.1.1</version>
-		</dependency> <!-- <dependency> <groupId>org.orbisgis</groupId> <artifactId>h2gis</artifactId> 
-			<version>1.2.4-SNAPSHOT</version> </dependency> -->
+		</dependency>
 	</dependencies>
 	<build>
 		<pluginManagement>
