@@ -2,18 +2,20 @@ package org.apache.olingo.jpa.processor.core.filter;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Predicate;
 
-import org.apache.olingo.commons.api.http.HttpStatusCode;
-import org.apache.olingo.jpa.processor.core.exception.ODataJPAFilterException;
+import org.apache.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 import org.apache.olingo.server.api.ODataApplicationException;
 
 public class JPAOperationConverter {
-  protected final CriteriaBuilder cb;
 
-  public JPAOperationConverter(final CriteriaBuilder cb) {
+  protected final CriteriaBuilder cb;
+  private final JPAODataDatabaseOperations dbConverter;
+
+  public JPAOperationConverter(CriteriaBuilder cb, JPAODataDatabaseOperations converterExtension) {
     super();
     this.cb = cb;
+    this.dbConverter = converterExtension;
+    this.dbConverter.setCriterialBuilder(cb);
   }
 
   @SuppressWarnings("unchecked")
@@ -47,7 +49,7 @@ public class JPAOperationConverter {
       else
         return (Expression<T>) cb.mod(jpaOperator.getLeftAsIntExpression(), jpaOperator.getRightAsIntExpression());
     default:
-      return convertSpecific(jpaOperator);
+      return dbConverter.convert(jpaOperator);
     }
   }
 
@@ -58,7 +60,7 @@ public class JPAOperationConverter {
     case OR:
       return cb.or(jpaOperator.getLeft(), jpaOperator.getRight());
     default:
-      return convertSpecific(jpaOperator);
+      return dbConverter.convert(jpaOperator);
     }
   }
 
@@ -98,7 +100,7 @@ public class JPAOperationConverter {
       else
         return cb.lessThanOrEqualTo(jpaOperator.getLeft(), jpaOperator.getRightAsExpression());
     default:
-      return convertSpecific(jpaOperator);
+      return dbConverter.convert(jpaOperator);
     }
   }
 
@@ -165,7 +167,7 @@ public class JPAOperationConverter {
     case NOW:
       return cb.currentTimestamp();
     default:
-      return convertSpecific(jpaFunction);
+      return dbConverter.convert(jpaFunction);
     }
   }
 
@@ -175,7 +177,7 @@ public class JPAOperationConverter {
     case NOT:
       return cb.not(jpaOperator.getLeft());
     default:
-      return convertSpecific(jpaOperator);
+      return dbConverter.convert(jpaOperator);
     }
   }
 
@@ -184,43 +186,8 @@ public class JPAOperationConverter {
     case COUNT:
       return cb.count(jpaOperator.getPath());
     default:
-      return convertSpecific(jpaOperator);
+      return dbConverter.convert(jpaOperator);
     }
-  }
-
-  protected Expression<Long> convertSpecific(final JPAAggregationOperation jpaOperator)
-      throws ODataApplicationException {
-    throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
-        HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getAggregation().name());
-  }
-
-  protected <T extends Number> Expression<T> convertSpecific(final JPAArithmeticOperator jpaOperator)
-      throws ODataApplicationException {
-    throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
-        HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getOperator().name());
-  }
-
-  protected Predicate convertSpecific(final JPABooleanOperatorImp jpaOperator)
-      throws ODataApplicationException {
-    throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
-        HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getOperator().name());
-  }
-
-  protected Expression<Boolean> convertSpecific(final JPAExpressionOperator jpaOperator)
-      throws ODataApplicationException {
-    throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
-        HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getOperator().name());
-  }
-
-  protected Object convertSpecific(final JPAFunctionCall jpaFunction) throws ODataApplicationException {
-    throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
-        HttpStatusCode.NOT_IMPLEMENTED, jpaFunction.getFunction().name());
-  }
-
-  protected Predicate convertSpecific(final JPAUnaryBooleanOperatorImp jpaOperator)
-      throws ODataApplicationException {
-    throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
-        HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getOperator().name());
   }
 
   @SuppressWarnings("unchecked")

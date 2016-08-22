@@ -9,21 +9,21 @@ import javax.sql.DataSource;
 
 import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.jpa.metadata.api.JPAEdmProvider;
-import org.apache.olingo.jpa.processor.core.api.JPAODataDatabaseProcessor;
-import org.apache.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
-import org.apache.olingo.jpa.processor.core.api.JPAServiceDebugger;
+import org.apache.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor;
+import org.apache.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 import org.apache.olingo.jpa.processor.core.database.JPAODataDatabaseProcessorFactory;
-import org.apache.olingo.jpa.processor.core.filter.JPAOperationConverter;
 import org.apache.olingo.server.api.debug.DebugSupport;
 
 public class JPAODataContextAccessDouble implements JPAODataSessionContextAccess {
   private final JPAEdmProvider edmProvider;
   private final DataSource ds;
+  private final JPAODataDatabaseOperations context;
 
   public JPAODataContextAccessDouble(JPAEdmProvider edmProvider, DataSource ds) {
     super();
     this.edmProvider = edmProvider;
     this.ds = ds;
+    this.context = new JPADefaultDatabaseProcessor();
   }
 
   @Override
@@ -39,9 +39,8 @@ public class JPAODataContextAccessDouble implements JPAODataSessionContextAccess
   }
 
   @Override
-  public JPAOperationConverter getOperationConverter() {
-    fail();
-    return null;
+  public JPAODataDatabaseOperations getOperationConverter() {
+    return context;
   }
 
   @Override

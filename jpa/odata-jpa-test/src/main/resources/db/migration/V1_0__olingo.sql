@@ -8,7 +8,7 @@ CREATE TABLE "org.apache.olingo.jpa::BusinessPartner" (
 	"Type" SMALLINT,
 	"CustomString1" VARCHAR(250),
 	"CustomString2" VARCHAR(250),
-	"CustomNum1" DECIMAL(31,0),
+	"CustomNum1" DECIMAL(16,5),
 	"CustomNum2"  DECIMAL(31,0),
 	"NameLine1" VARCHAR(250),
 	"NameLine2" VARCHAR(250),
@@ -33,7 +33,7 @@ CREATE TABLE "org.apache.olingo.jpa::BusinessPartner" (
     "Country" VARCHAR(4),
 	 PRIMARY KEY ("ID"));
      
-insert into "org.apache.olingo.jpa::BusinessPartner" values ('1', 0, 2, '','',null,null,'First Org.','',null,'Test Road', '23','', 'Test City','94321','ISO', '3166-2','US-CA', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA');
+insert into "org.apache.olingo.jpa::BusinessPartner" values ('1', 0, 2, '','',6000.5,null,'First Org.','',null,'Test Road', '23','', 'Test City','94321','ISO', '3166-2','US-CA', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA');
 insert into "org.apache.olingo.jpa::BusinessPartner" values ('2', 0, 2, '','',null,null,'Second Org.','',null,'Test Road', '45','', 'Test City','76321','ISO', '3166-2','US-TX', 'USA', '', '','','', '97','2016-01-20 09:21:23', '', null, 'USA');
 insert into "org.apache.olingo.jpa::BusinessPartner" values ('3', 0, 2, '','',null,null,'Third Org.','',null,'Test Road', '223','', 'Test City','94322','ISO', '3166-2','US-CA', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA');
 insert into "org.apache.olingo.jpa::BusinessPartner" values ('4', 0, 2, '','',null,null,'Fourth Org.','',null,'Test Road', '56','', 'Test City','84321','ISO', '3166-2','US-UT', 'USA', '', '','','', '98','2016-01-20 09:21:23', '', null, 'USA');

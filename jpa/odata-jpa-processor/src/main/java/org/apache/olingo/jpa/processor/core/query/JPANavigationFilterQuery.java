@@ -49,8 +49,8 @@ public class JPANavigationFilterQuery extends JPANavigationQuery {
       final JPAAbstractQuery parent, final EntityManager em, final JPAAssociationPath association,
       final VisitableExpression expression) throws ODataApplicationException {
     super(sd, uriResourceItem, parent, em, association);
-    this.filterComplier = new JPAFilterElementComplier(odata, sd, em, jpaEntity, new JPAOperationConverter(cb), null,
-        this, expression);
+    this.filterComplier = new JPAFilterElementComplier(odata, sd, em, jpaEntity, new JPAOperationConverter(cb,
+        getContext().getOperationConverter()), null, this, expression);
     createDescriptionJoin(filterComplier);
   }
 

@@ -76,8 +76,8 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     this.uriResource = uriResource;
     this.cq = cb.createTupleQuery();
     this.root = cq.from(jpaEntity.getTypeClass());
-    this.filter = new JPAFilterCrossComplier(odata, sd, em, jpaEntity, new JPAOperationConverter(cb),
-        uriResource, this);
+    this.filter = new JPAFilterCrossComplier(odata, sd, em, jpaEntity, new JPAOperationConverter(cb, context
+        .getOperationConverter()), uriResource, this);
     this.context = context;
   }
 
@@ -570,5 +570,10 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
   @Override
   protected Locale getLocale() {
     return locale;
+  }
+
+  @Override
+  JPAODataSessionContextAccess getContext() {
+    return context;
   }
 }

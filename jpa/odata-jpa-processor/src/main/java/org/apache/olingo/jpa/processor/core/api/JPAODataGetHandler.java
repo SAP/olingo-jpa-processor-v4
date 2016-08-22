@@ -15,9 +15,10 @@ import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import org.apache.olingo.jpa.metadata.api.JPAEdmProvider;
 import org.apache.olingo.jpa.metadata.api.JPAEntityManagerFactory;
+import org.apache.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor;
+import org.apache.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 import org.apache.olingo.jpa.processor.core.database.JPAODataDatabaseProcessorFactory;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAFilterException;
-import org.apache.olingo.jpa.processor.core.filter.JPAOperationConverter;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataHttpHandler;
 import org.apache.olingo.server.api.ODataResponse;
@@ -61,7 +62,7 @@ public class JPAODataGetHandler {
   private class JPAODataContextImpl implements JPAODataContext {
     private List<EdmxReference> references = new ArrayList<EdmxReference>();
     private JPADebugSupportWrapper debugSupport;
-    private JPAOperationConverter operationConverter;
+    private JPAODataDatabaseOperations operationConverter;
     private JPAEdmProvider jpaEdm;
     private JPAODataDatabaseProcessor databaseProcessor;
     private JPAServiceDebugger debugger;
@@ -69,7 +70,7 @@ public class JPAODataGetHandler {
     public JPAODataContextImpl() throws ODataException {
       super();
 
-      operationConverter = new JPAOperationConverter(null);
+      operationConverter = new JPADefaultDatabaseProcessor();
       jpaEdm = new JPAEdmProvider(namespace, emf, null);
       try {
         databaseProcessor = new JPAODataDatabaseProcessorFactory().create(ds);
@@ -85,7 +86,7 @@ public class JPAODataGetHandler {
     }
 
     @Override
-    public JPAOperationConverter getOperationConverter() {
+    public JPAODataDatabaseOperations getOperationConverter() {
       return operationConverter;
     }
 
@@ -95,7 +96,7 @@ public class JPAODataGetHandler {
     }
 
     @Override
-    public void setOperationConverter(final JPAOperationConverter jpaOperationConverter) {
+    public void setOperationConverter(final JPAODataDatabaseOperations jpaOperationConverter) {
       operationConverter = jpaOperationConverter;
     }
 

@@ -18,6 +18,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
+import org.apache.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriParameter;
@@ -128,5 +129,10 @@ public class JPANavigationQuery extends JPAAbstractQuery {
   @Override
   protected Locale getLocale() {
     return locale;
+  }
+
+  @Override
+  JPAODataSessionContextAccess getContext() {
+    return parentQuery.getContext();
   }
 }

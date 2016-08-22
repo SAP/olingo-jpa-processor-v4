@@ -25,6 +25,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
+import org.apache.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import org.apache.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import org.apache.olingo.server.api.ODataApplicationException;
@@ -45,7 +46,6 @@ public abstract class JPAAbstractQuery {
   protected final JPAEntityType jpaEntity;
   protected final ServiceDocument sd;
   protected final JPAServiceDebugger debugger;
-  // protected final EdmEntityType edmType;
   protected Locale locale;
 
   public JPAAbstractQuery(final ServiceDocument sd, final JPAEntityType jpaEntityType, final EntityManager em)
@@ -196,6 +196,8 @@ public abstract class JPAAbstractQuery {
     }
     return Locale.ENGLISH;
   }
+
+  abstract JPAODataSessionContextAccess getContext();
 
   // TODO clean-up
   private class EmptyDebugger implements JPAServiceDebugger {

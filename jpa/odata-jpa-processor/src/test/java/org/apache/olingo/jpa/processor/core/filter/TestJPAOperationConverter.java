@@ -10,6 +10,7 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Path;
 
 import org.apache.olingo.commons.api.http.HttpStatusCode;
+import org.apache.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.queryoption.expression.BinaryOperatorKind;
 import org.junit.Before;
@@ -21,12 +22,14 @@ public class TestJPAOperationConverter {
   private Expression<Number> expressionLeft;
   private Expression<Number> expressionRight;
   private JPAOperationConverter cut;
+  private JPAODataDatabaseOperations extension;
 
   @SuppressWarnings("unchecked")
   @Before
   public void setUp() throws Exception {
     cb = mock(CriteriaBuilder.class);
-    cut = new JPAOperationConverter(cb);
+    extension = mock(JPAODataDatabaseOperations.class);
+    cut = new JPAOperationConverter(cb, extension);
     expressionLeft = mock(Path.class);
     expressionRight = mock(Path.class);
   }
@@ -152,9 +155,11 @@ public class TestJPAOperationConverter {
   }
 
   @Test
-  public void testUnknownOperation_Exeption() throws ODataApplicationException {
+  public void testUnknownOperation_CallExtension() throws ODataApplicationException {
     JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
     when(operator.getOperator()).thenReturn(BinaryOperatorKind.AND);
+    when(extension.convert(operator)).thenThrow(new ODataApplicationException(null, HttpStatusCode.NOT_IMPLEMENTED
+        .getStatusCode(), null));
 
     try {
       cut.convert(operator);
