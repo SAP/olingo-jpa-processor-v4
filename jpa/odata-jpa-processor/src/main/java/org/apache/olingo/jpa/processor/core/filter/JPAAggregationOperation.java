@@ -6,4 +6,6 @@ public interface JPAAggregationOperation extends JPAOperator {
   @Override
   public Object get() throws ODataApplicationException;
 
+  JPAFilterAggregationType getAggregation();
+
 }

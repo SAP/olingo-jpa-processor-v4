@@ -25,7 +25,8 @@ class JPAAggregationOperationImp implements JPAAggregationOperation {
     return converter.convert(this);
   }
 
-  JPAFilterAggregationType getAggregation() {
+  @Override
+  public JPAFilterAggregationType getAggregation() {
     return JPAFilterAggregationType.COUNT;
   }
 

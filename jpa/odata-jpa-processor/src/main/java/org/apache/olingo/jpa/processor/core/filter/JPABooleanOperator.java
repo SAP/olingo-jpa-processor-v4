@@ -6,10 +6,6 @@ import org.apache.olingo.server.api.ODataApplicationException;
 
 public interface JPABooleanOperator extends JPAExpressionOperator {
 
-//  Expression<Boolean> get() throws ODataApplicationException;
-//
-//  BinaryOperatorKind getOperator();
-
   Expression<Boolean> getLeft() throws ODataApplicationException;
 
   Expression<Boolean> getRight() throws ODataApplicationException;

@@ -1,5 +1,6 @@
 package org.apache.olingo.jpa.processor.core.database;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
 
 import org.apache.olingo.jpa.processor.core.filter.JPAAggregationOperation;
@@ -11,6 +12,8 @@ import org.apache.olingo.jpa.processor.core.filter.JPAUnaryBooleanOperator;
 import org.apache.olingo.server.api.ODataApplicationException;
 
 public interface JPAODataDatabaseOperations {
+
+  public void setCriterialBuilder(final CriteriaBuilder cb);
 
   public <T extends Number> Expression<T> convert(final JPAArithmeticOperator jpaOperator)
       throws ODataApplicationException;

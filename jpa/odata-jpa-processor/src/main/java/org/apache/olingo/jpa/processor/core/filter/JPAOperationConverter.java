@@ -64,7 +64,8 @@ public class JPAOperationConverter {
 
   // TODO check generics!
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  final public Expression<Boolean> convert(final JPAComparisonOperatorImp jpaOperator) throws ODataApplicationException {
+  final public Expression<Boolean> convert(final JPAComparisonOperatorImp jpaOperator)
+      throws ODataApplicationException {
     switch (jpaOperator.getOperator()) {
     case EQ:
       if (jpaOperator.getRight() instanceof JPALiteralOperator)
@@ -168,7 +169,8 @@ public class JPAOperationConverter {
     }
   }
 
-  final public Expression<Boolean> convert(final JPAUnaryBooleanOperatorImp jpaOperator) throws ODataApplicationException {
+  final public Expression<Boolean> convert(final JPAUnaryBooleanOperatorImp jpaOperator)
+      throws ODataApplicationException {
     switch (jpaOperator.getOperator()) {
     case NOT:
       return cb.not(jpaOperator.getLeft());
@@ -186,7 +188,7 @@ public class JPAOperationConverter {
     }
   }
 
-  protected Expression<Long> convertSpecific(final JPAAggregationOperationImp jpaOperator)
+  protected Expression<Long> convertSpecific(final JPAAggregationOperation jpaOperator)
       throws ODataApplicationException {
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
         HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getAggregation().name());

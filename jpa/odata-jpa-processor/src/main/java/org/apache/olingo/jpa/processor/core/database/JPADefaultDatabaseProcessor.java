@@ -19,15 +19,61 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionParameter;
 import org.apache.olingo.jpa.processor.core.api.JPAODataDatabaseProcessor;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPADBAdaptorException;
+import org.apache.olingo.jpa.processor.core.exception.ODataJPAFilterException;
+import org.apache.olingo.jpa.processor.core.filter.JPAAggregationOperation;
+import org.apache.olingo.jpa.processor.core.filter.JPAArithmeticOperator;
+import org.apache.olingo.jpa.processor.core.filter.JPABooleanOperator;
+import org.apache.olingo.jpa.processor.core.filter.JPAComparisonOperator;
+import org.apache.olingo.jpa.processor.core.filter.JPAFunctionCall;
+import org.apache.olingo.jpa.processor.core.filter.JPAUnaryBooleanOperator;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResourceFunction;
 import org.apache.olingo.server.api.uri.queryoption.SearchOption;
 
-class JPADefaultDatabaseProcessor implements JPAODataDatabaseProcessor {
+class JPADefaultDatabaseProcessor implements JPAODataDatabaseProcessor, JPAODataDatabaseOperations {
   private static final String SELECT_BASE_PATTERN = "SELECT * FROM $FUNCTIONNAME$($PARAMETER$)";
   private static final String FUNC_NAME_PLACEHOLDER = "$FUNCTIONNAME$";
   private static final String PARAMETER_PLACEHOLDER = "$PARAMETER$";
+
+  @SuppressWarnings("unused")
+  private CriteriaBuilder cb;
+
+  @Override
+  public Expression<Long> convert(JPAAggregationOperation jpaOperator) throws ODataApplicationException {
+    throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
+        HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getAggregation().name());
+  }
+
+  @Override
+  public <T extends Number> Expression<T> convert(JPAArithmeticOperator jpaOperator) throws ODataApplicationException {
+    throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
+        HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getOperator().name());
+  }
+
+  @Override
+  public Expression<Boolean> convert(JPABooleanOperator jpaOperator) throws ODataApplicationException {
+    throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
+        HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getOperator().name());
+  }
+
+  @Override
+  public Expression<Boolean> convert(JPAComparisonOperator<?> jpaOperator) throws ODataApplicationException {
+    throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
+        HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getOperator().name());
+  }
+
+  @Override
+  public Object convert(JPAFunctionCall jpaFunction) throws ODataApplicationException {
+    throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
+        HttpStatusCode.NOT_IMPLEMENTED, jpaFunction.getFunction().name());
+  }
+
+  @Override
+  public Expression<Boolean> convert(JPAUnaryBooleanOperator jpaOperator) throws ODataApplicationException {
+    throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
+        HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getOperator().name());
+  }
 
   @Override
   public Expression<Boolean> createSearchWhereClause(final CriteriaBuilder cb, final CriteriaQuery<?> cq,
@@ -54,6 +100,21 @@ class JPADefaultDatabaseProcessor implements JPAODataDatabaseProcessor {
     return functionQuery.getResultList();
   }
 
+  @Override
+  public void setCriterialBuilder(final CriteriaBuilder cb) {
+    this.cb = cb;
+  }
+
+  private UriParameter findParameterByExternalName(final JPAFunctionParameter parameter,
+      final List<UriParameter> uriParameters) throws ODataApplicationException {
+    for (final UriParameter uriParameter : uriParameters) {
+      if (uriParameter.getName().equals(parameter.getName()))
+        return uriParameter;
+    }
+    throw new ODataJPADBAdaptorException(ODataJPADBAdaptorException.MessageKeys.PARAMETER_MISSING,
+        HttpStatusCode.BAD_REQUEST, parameter.getName());
+  }
+
   private String generateQueryString(final JPAFunction jpaFunction) {
 
     final StringBuffer parameterList = new StringBuffer();
@@ -67,16 +128,6 @@ class JPADefaultDatabaseProcessor implements JPAODataDatabaseProcessor {
     }
     parameterList.deleteCharAt(0);
     return queryString.replace(PARAMETER_PLACEHOLDER, parameterList.toString());
-  }
-
-  private UriParameter findParameterByExternalName(final JPAFunctionParameter parameter,
-      final List<UriParameter> uriParameters) throws ODataApplicationException {
-    for (final UriParameter uriParameter : uriParameters) {
-      if (uriParameter.getName().equals(parameter.getName()))
-        return uriParameter;
-    }
-    throw new ODataJPADBAdaptorException(ODataJPADBAdaptorException.MessageKeys.PARAMETER_MISSING,
-        HttpStatusCode.BAD_REQUEST, parameter.getName());
   }
 
   private Object getValue(final EdmFunction edmFunction, final JPAFunctionParameter parameter, final String uriValue)
