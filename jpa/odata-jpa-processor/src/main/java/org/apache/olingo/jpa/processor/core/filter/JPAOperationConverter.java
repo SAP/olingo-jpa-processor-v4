@@ -132,7 +132,7 @@ public class JPAOperationConverter {
     case SUBSTRING:
       // OData defines start position in SUBSTRING as 0 (see
       // http://docs.oasis-open.org/odata/odata/v4.0/os/part2-url-conventions/odata-v4.0-os-part2-url-conventions.html#_Toc372793820)
-      // SQL respectively databases use 1 as start position of a string
+      // SQL databases respectively use 1 as start position of a string
 
       final Expression<Integer> start = convertLiteralToExpression(jpaFunction, 1, 1);
       // final Integer start = new Integer(((JPALiteralOperator) jpaFunction.getParameter(1)).get().toString()) + 1;
