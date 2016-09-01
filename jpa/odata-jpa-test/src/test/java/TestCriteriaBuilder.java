@@ -37,7 +37,7 @@ public class TestCriteriaBuilder {
   public static void setupClass() {
     Map<String, Object> properties = new HashMap<String, Object>();
     properties.put(ENTITY_MANAGER_DATA_SOURCE, DataSourceHelper.createDataSource(
-        DataSourceHelper.DB_H2));
+        DataSourceHelper.DB_DERBY));
     emf = Persistence.createEntityManagerFactory(PUNIT_NAME, properties);
   }
 
@@ -58,7 +58,7 @@ public class TestCriteriaBuilder {
 
     Expression<Integer> sum = cb.sum(cb.literal(1), cb.literal(4));
 
-    adminQ.where(cb.equal(cb.substring((Expression<String>) (p), cb.literal(0), sum), "North"));
+    adminQ.where(cb.equal(cb.substring((Expression<String>) (p), cb.literal(1), sum), "North"));
     adminQ.multiselect(adminRoot1.get("name"));
     TypedQuery<Tuple> tq = em.createQuery(adminQ);
     tq.getResultList();

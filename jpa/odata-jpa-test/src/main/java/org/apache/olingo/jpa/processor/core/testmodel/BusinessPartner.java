@@ -77,7 +77,7 @@ public abstract class BusinessPartner {
   @EdmIgnore
   @Column(name = "\"CustomString2\"")
   protected String customString2;
-  // @EdmIgnore
+  @EdmIgnore
   @Column(name = "\"CustomNum1\"", precision = 16, scale = 5)
   protected BigDecimal customNum1;
   @EdmIgnore
