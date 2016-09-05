@@ -30,7 +30,16 @@ import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
                 type = String.class, maxLength = 10),
             @EdmFunctionParameter(name = "CodeID", parameterName = "\"CodeID\"", type = String.class, maxLength = 10),
             @EdmFunctionParameter(name = "DivisionCode", parameterName = "\"DivisionCode\"", type = String.class,
-                maxLength = 10) })
+                maxLength = 10) }),
+    @EdmFunction(
+        name = "PopulationDensity",
+        functionName = "\"OLINGO\".\"org.apache.olingo.jpa::PopulationDensity\"",
+        isBound = false,
+        hasFunctionImport = false,
+        returnType = @EdmFunction.ReturnType(isCollection = false, type = Integer.class),
+        parameter = {
+            @EdmFunctionParameter(name = "Area", parameterName = "\"area\"", type = Integer.class),
+            @EdmFunctionParameter(name = "Population", parameterName = "\"population\"", type = Long.class) }),
 })
 
 @IdClass(AdministrativeDivisionKey.class)

@@ -24,7 +24,7 @@ import org.apache.olingo.jpa.processor.core.filter.JPAAggregationOperation;
 import org.apache.olingo.jpa.processor.core.filter.JPAArithmeticOperator;
 import org.apache.olingo.jpa.processor.core.filter.JPABooleanOperator;
 import org.apache.olingo.jpa.processor.core.filter.JPAComparisonOperator;
-import org.apache.olingo.jpa.processor.core.filter.JPAFunctionCall;
+import org.apache.olingo.jpa.processor.core.filter.JPAMethodCall;
 import org.apache.olingo.jpa.processor.core.filter.JPAUnaryBooleanOperator;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriParameter;
@@ -64,7 +64,7 @@ public final class JPADefaultDatabaseProcessor implements JPAODataDatabaseProces
   }
 
   @Override
-  public Object convert(JPAFunctionCall jpaFunction) throws ODataApplicationException {
+  public Object convert(JPAMethodCall jpaFunction) throws ODataApplicationException {
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
         HttpStatusCode.NOT_IMPLEMENTED, jpaFunction.getFunction().name());
   }

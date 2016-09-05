@@ -10,6 +10,7 @@ import org.apache.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
+import org.apache.olingo.server.api.uri.UriResourceFunction;
 import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.UriResourceNavigation;
 import org.apache.olingo.server.api.uri.queryoption.expression.BinaryOperatorKind;
@@ -126,6 +127,9 @@ class JPAVisitor implements ExpressionVisitor<JPAOperator> {
     } else if (isAggregation(member.getResourcePath())) {
       debugger.stopRuntimeMeasurement(handle);
       return new JPAAggregationOperationImp(jpaComplier.getParent().getRoot(), jpaComplier.getConverter());
+    } else if (isCustomFunction(member.getResourcePath())) {
+      debugger.stopRuntimeMeasurement(handle);
+      return new JPAFunctionOperator(jpaComplier.getParent().getRoot(), jpaComplier.getConverter());
     }
     debugger.stopRuntimeMeasurement(handle);
     return new JPAMemberOperator(this.jpaComplier.getJpaEntityType(), this.jpaComplier.getParent(), member);
@@ -136,7 +140,7 @@ class JPAVisitor implements ExpressionVisitor<JPAOperator> {
       throws ExpressionVisitException, ODataApplicationException {
     int handle = debugger.startRuntimeMeasurement("JPAVisitor", "visitMethodCall");
     debugger.stopRuntimeMeasurement(handle);
-    return new JPAFunctionCallImp(this.jpaComplier.getConverter(), methodCall, parameters);
+    return new JPAMethodCallImp(this.jpaComplier.getConverter(), methodCall, parameters);
   }
 
   @Override
@@ -182,9 +186,16 @@ class JPAVisitor implements ExpressionVisitor<JPAOperator> {
     return false;
   }
 
-  private boolean isAggregation(final UriInfoResource member) {
-    if (member.getUriResourceParts().size() == 1 && member.getUriResourceParts().get(0)
+  private boolean isAggregation(final UriInfoResource resourcePath) {
+    if (resourcePath.getUriResourceParts().size() == 1 && resourcePath.getUriResourceParts().get(0)
         .getKind() == UriResourceKind.count)
+      return true;
+    return false;
+  }
+
+  private boolean isCustomFunction(final UriInfoResource resourcePath) {
+    if (resourcePath.getUriResourceParts().size() > 0 && resourcePath.getUriResourceParts().get(
+        0) instanceof UriResourceFunction)
       return true;
     return false;
   }

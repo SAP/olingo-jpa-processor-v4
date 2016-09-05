@@ -7,7 +7,7 @@ import org.apache.olingo.jpa.processor.core.filter.JPAAggregationOperation;
 import org.apache.olingo.jpa.processor.core.filter.JPAArithmeticOperator;
 import org.apache.olingo.jpa.processor.core.filter.JPABooleanOperator;
 import org.apache.olingo.jpa.processor.core.filter.JPAComparisonOperator;
-import org.apache.olingo.jpa.processor.core.filter.JPAFunctionCall;
+import org.apache.olingo.jpa.processor.core.filter.JPAMethodCall;
 import org.apache.olingo.jpa.processor.core.filter.JPAUnaryBooleanOperator;
 import org.apache.olingo.server.api.ODataApplicationException;
 
@@ -22,7 +22,7 @@ public interface JPAODataDatabaseOperations {
 
   public Expression<Boolean> convert(final JPAComparisonOperator<?> jpaOperator) throws ODataApplicationException;
 
-  public Object convert(final JPAFunctionCall jpaFunction) throws ODataApplicationException;
+  public Object convert(final JPAMethodCall jpaFunction) throws ODataApplicationException;
 
   public Expression<Boolean> convert(final JPAUnaryBooleanOperator jpaOperator) throws ODataApplicationException;
 
