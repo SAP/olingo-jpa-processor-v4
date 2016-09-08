@@ -135,8 +135,8 @@ public final class JPADefaultDatabaseProcessor implements JPAODataDatabaseProces
     final String value = uriValue.replaceAll("'", "");
     final EdmParameter edmParam = edmFunction.getParameter(parameter.getName());
     try {
-      return ((EdmPrimitiveType) edmParam.getType()).valueOfString(value, false, parameter.maxLength(),
-          parameter.precision(), parameter.scale(), true, parameter.getType());
+      return ((EdmPrimitiveType) edmParam.getType()).valueOfString(value, false, parameter.getMaxLength(),
+          parameter.getPrecision(), parameter.getScale(), true, parameter.getType());
     } catch (EdmPrimitiveTypeException e) {
       // Unable to convert value %1$s of parameter %2$s
       throw new ODataJPADBAdaptorException(ODataJPADBAdaptorException.MessageKeys.PARAMETER_CONVERSION_ERROR,

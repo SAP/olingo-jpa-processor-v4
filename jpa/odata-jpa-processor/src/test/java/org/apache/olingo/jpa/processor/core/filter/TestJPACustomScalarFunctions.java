@@ -19,6 +19,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
 import org.apache.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import org.apache.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import org.apache.olingo.jpa.processor.core.util.TestHelper;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -41,28 +42,51 @@ public class TestJPACustomScalarFunctions {
     CreateDenfityFunction();
   }
 
+  @AfterClass
+  public static void tearDownClass() throws ODataJPAModelException {
+    DropDenfityFunction();
+  }
+
   @Test
   public void testFilterOnFunction() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisions?$filter=org.apache.olingo.jpa.PopulationDensity(Area=$it/Area,Population=$it/Population) gt 60");
-    helper.assertStatus(200);
-
-    ArrayNode orgs = helper.getValues();
-    assertEquals(1, orgs.size());
-    assertEquals("3", orgs.get(0).get("ID").asText());
+        "AdministrativeDivisions?$filter=org.apache.olingo.jpa.PopulationDensity(Area=$it/Area,Population=$it/Population) gt 1");
+    helper.assertStatus(204);
   }
 
   @Test
   public void testFilterOnFunctionAndProperty() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisions?$filter=org.apache.olingo.jpa.PopulationDensity(Area=$it/Area,Population=$it/Population) gt 60 and CountryCode eq 'BEL')");
+        "AdministrativeDivisions?$filter=org.apache.olingo.jpa.PopulationDensity(Area=$it/Area,Population=$it/Population)  mul 1000000 gt 1000 and ParentDivisionCode eq 'BE255'&orderBy=DivisionCode)");
+    helper.assertStatus(200);
+
+    ArrayNode orgs = helper.getValues();
+    assertEquals(2, orgs.size());
+    assertEquals("35002", orgs.get(0).get("DivisionCode").asText());
+  }
+
+  @Test
+  public void testFilterOnFunctionAndMultiply() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions?$filter=org.apache.olingo.jpa.PopulationDensity(Area=Area,Population=Population)  mul 1000000 gt 100");
+    helper.assertStatus(200);
+
+    ArrayNode orgs = helper.getValues();
+    assertEquals(59, orgs.size());
+  }
+
+  @Test
+  public void testFilterOnFunctionWithFixedValue() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions?$filter=org.apache.olingo.jpa.PopulationDensity(Area=13079087,Population=$it/Population)  mul 1000000 gt 100");
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
     assertEquals(1, orgs.size());
-    assertEquals("3", orgs.get(0).get("ID").asText());
   }
 
   private static void CreateDenfityFunction() {
@@ -73,11 +97,34 @@ public class TestJPACustomScalarFunctions {
 
     StringBuffer sqlString = new StringBuffer();
 
-    sqlString.append("CREATE FUNCTION  PopulationDensity (area INT, population BIGINT ) ");
-    sqlString.append("RETURNS INT ");
-    sqlString.append("IF area < 0 THEN RETURN 0;");
-    sqlString.append("ELSE RETURN population / area; ");
-    sqlString.append("END IF");
+    sqlString.append(
+        "CREATE FUNCTION  \"OLINGO\".\"org.apache.olingo.jpa::PopulationDensity\" (UnitArea  INT, Population BIGINT ) ");
+    sqlString.append("RETURNS DOUBLE ");
+    sqlString.append("BEGIN ATOMIC  "); //
+    sqlString.append("  DECLARE aDouble DOUBLE; "); //
+    sqlString.append("  DECLARE pDouble DOUBLE; ");
+    sqlString.append("  SET aDouble = UnitArea; ");
+    sqlString.append("  SET pDouble = Population; ");
+    sqlString.append("  IF UnitArea <= 0 THEN RETURN 0; ");
+    sqlString.append("  ELSE RETURN pDouble  / aDouble; "); // * 1000000
+    sqlString.append("  END IF;  "); //
+    sqlString.append("END");
+
+    t.begin();
+    // Query d = em.createNativeQuery(dropString.toString());
+    Query q = em.createNativeQuery(sqlString.toString());
+    // d.executeUpdate();
+    q.executeUpdate();
+    t.commit();
+  }
+
+  private static void DropDenfityFunction() {
+    EntityManager em = emf.createEntityManager();
+    EntityTransaction t = em.getTransaction();
+
+    StringBuffer sqlString = new StringBuffer();
+
+    sqlString.append("DROP FUNCTION  \"OLINGO\".\"org.apache.olingo.jpa::PopulationDensity\"");
 
     t.begin();
     // Query d = em.createNativeQuery(dropString.toString());

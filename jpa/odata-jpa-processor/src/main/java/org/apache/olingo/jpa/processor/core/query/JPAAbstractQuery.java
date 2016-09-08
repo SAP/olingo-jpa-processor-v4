@@ -124,7 +124,7 @@ public abstract class JPAAbstractQuery {
           uriResourceItem.getKind().name());
   }
 
-  public abstract Root<?> getRoot();
+  public abstract <T> Root<T> getRoot();
 
   public abstract AbstractQuery<?> getQuery();
 

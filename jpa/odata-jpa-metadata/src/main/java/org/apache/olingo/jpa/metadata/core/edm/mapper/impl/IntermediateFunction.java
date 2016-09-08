@@ -13,6 +13,7 @@ import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType
 import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmFunctionParameter;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionParameter;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionResultParameter;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 /**
@@ -59,8 +60,8 @@ class IntermediateFunction extends IntermediateModelElement implements JPAFuncti
   }
 
   @Override
-  public FullQualifiedName getReturnType() {
-    return edmFunction.getReturnType().getTypeFQN();
+  public JPAFunctionResultParameter getResultParameter() {
+    return new IntermediatResultFunctionParameter(jpaUserDefinedFunction.returnType());
   }
 
   @Override
@@ -88,12 +89,12 @@ class IntermediateFunction extends IntermediateModelElement implements JPAFuncti
     return jpaUserDefinedFunction.functionName();
   }
 
-  boolean isBound() {
-    return jpaUserDefinedFunction.isBound();
-  }
-
   boolean hasFunctionImport() {
     return jpaUserDefinedFunction.hasFunctionImport();
+  }
+
+  boolean isBound() {
+    return jpaUserDefinedFunction.isBound();
   }
 
   private List<CsdlParameter> determineEdmInputParameter() throws ODataJPAModelException {
@@ -168,28 +169,66 @@ class IntermediateFunction extends IntermediateModelElement implements JPAFuncti
     }
 
     @Override
-    public Class<?> getType() {
-      return jpaParameter.type();
-    }
-
-    @Override
     public String getName() {
       return jpaParameter.name();
     }
 
     @Override
-    public Integer maxLength() {
+    public Class<?> getType() {
+      return jpaParameter.type();
+    }
+
+    @Override
+    public Integer getMaxLength() {
       return jpaParameter.maxLength();
     }
 
     @Override
-    public Integer precision() {
+    public Integer getPrecision() {
       return jpaParameter.precision();
     }
 
     @Override
-    public Integer scale() {
+    public Integer getScale() {
       return jpaParameter.scale();
+    }
+
+    @Override
+    public FullQualifiedName getTypeFQN() throws ODataJPAModelException {
+      return JPATypeConvertor.convertToEdmSimpleType(jpaParameter.type()).getFullQualifiedName();
+    }
+  }
+
+  private class IntermediatResultFunctionParameter implements JPAFunctionResultParameter {
+    private final ReturnType jpaReturnType;
+
+    public IntermediatResultFunctionParameter(ReturnType jpaReturnType) {
+      this.jpaReturnType = jpaReturnType;
+    }
+
+    @Override
+    public Class<?> getType() {
+      return jpaReturnType.type();
+    }
+
+    @Override
+    public Integer getMaxLength() {
+      return jpaReturnType.maxLength();
+    }
+
+    @Override
+    public Integer getPrecision() {
+      return jpaReturnType.precision();
+    }
+
+    @Override
+    public Integer getScale() {
+      return jpaReturnType.scale();
+    }
+
+    @Override
+    public FullQualifiedName getTypeFQN() {
+      return edmFunction.getReturnType().getTypeFQN();
     }
 
   }
