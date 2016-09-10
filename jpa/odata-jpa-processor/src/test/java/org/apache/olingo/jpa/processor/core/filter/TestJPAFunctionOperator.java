@@ -2,69 +2,88 @@ package org.apache.olingo.jpa.processor.core.filter;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Root;
-import javax.sql.DataSource;
 
-import org.apache.olingo.jpa.metadata.api.JPAEntityManagerFactory;
-import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionResultParameter;
 import org.apache.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
-import org.apache.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import org.apache.olingo.server.api.ODataApplicationException;
-import org.apache.olingo.server.api.uri.UriInfoResource;
+import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceFunction;
-import org.apache.olingo.server.api.uri.queryoption.expression.Member;
 import org.junit.Before;
 import org.junit.Test;
 
 public class TestJPAFunctionOperator {
   private CriteriaBuilder cb;
   private JPAFunctionOperator cut;
-  private JPAEntityType jpaET;
-  private Member member;
-  private Root<?> root;
   private UriResourceFunction uriFunction;
+  private JPAVisitor jpaVisitor;
+  private JPAFunction jpaFunction;
+  private JPAFunctionResultParameter jpaResultParam;
+  private List<UriParameter> uriParams;
 
   @Before
   public void setUp() throws Exception {
-    String PUNIT_NAME = "org.apache.olingo.jpa";
-    EntityManagerFactory emf;
-    DataSource ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
 
-    emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, ds);
-    EntityManager e = emf.createEntityManager();
-    cb = e.getCriteriaBuilder();
-
-    jpaET = mock(JPAEntityType.class);
-    member = mock(Member.class);
-    root = cb.createTupleQuery().from(AdministrativeDivision.class);
-    UriInfoResource info = mock(UriInfoResource.class);
+    cb = mock(CriteriaBuilder.class);
+    jpaVisitor = mock(JPAVisitor.class);
+    when(jpaVisitor.getCriteriaBuilder()).thenReturn(cb);
     uriFunction = mock(UriResourceFunction.class);
-
+    jpaFunction = mock(JPAFunction.class);
+    jpaResultParam = mock(JPAFunctionResultParameter.class);
+    when(jpaFunction.getResultParameter()).thenReturn(jpaResultParam);
     List<UriResource> resources = new ArrayList<UriResource>();
     resources.add(uriFunction);
 
-    // cut = new JPAFunctionOperator(jpaET, root, member, cb);
+    uriParams = new ArrayList<UriParameter>();
+
+    cut = new JPAFunctionOperator(jpaVisitor, uriParams, jpaFunction);
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void testReturnsExpression() throws ODataApplicationException {
 
+    final Expression<?>[] jpaParameter = new Expression<?>[0];
+
+    when(jpaFunction.getDBName()).thenReturn("Test");
+    doReturn(new Integer(5).getClass()).when(jpaResultParam).getType();
+    when(cb.function(jpaFunction.getDBName(), jpaResultParam.getType(), jpaParameter)).thenReturn(mock(
+        Expression.class));
+    when(jpaFunction.getResultParameter()).thenReturn(jpaResultParam);
     Expression<?> act = cut.get();
     assertNotNull(act);
   }
 
   @Test
-  public void testAbortsOnNoFunction() {
+  public void testAbortOnNonFunctionReturnsCollection() {
+
+    when(jpaFunction.getDBName()).thenReturn("org.apache.olingo.jpa::Siblings");
+    when(jpaResultParam.isCollection()).thenReturn(true);
+
+    try {
+      cut.get();
+    } catch (ODataApplicationException e) {
+      return;
+    }
+    fail("Function provided not checked");
+  }
+
+  @Test
+  public void testAbortOnNonScalarFunction() {
+
+    when(jpaFunction.getDBName()).thenReturn("org.apache.olingo.jpa::Siblings");
+    when(jpaResultParam.isCollection()).thenReturn(false);
+    doReturn(AdministrativeDivision.class).when(jpaResultParam).getType();
 
     try {
       cut.get();

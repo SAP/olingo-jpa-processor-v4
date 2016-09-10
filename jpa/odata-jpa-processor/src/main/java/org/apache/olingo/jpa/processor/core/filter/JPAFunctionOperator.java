@@ -6,9 +6,12 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
 
 import org.apache.olingo.commons.api.edm.EdmType;
+import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionParameter;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionResultParameter;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPATypeConvertor;
+import org.apache.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitException;
@@ -25,12 +28,12 @@ import org.apache.olingo.server.api.uri.queryoption.expression.Literal;
 public class JPAFunctionOperator implements JPAOperator {
   private final JPAFunction jpaFunction;
   private final JPAVisitor visitor;
-  private final List<UriParameter> odataParams;
+  private final List<UriParameter> uriParams;
 
-  public JPAFunctionOperator(JPAVisitor jpaVisitor, List<UriParameter> odataParams, JPAFunction jpaFunction) {
+  public JPAFunctionOperator(JPAVisitor jpaVisitor, List<UriParameter> uriParams, JPAFunction jpaFunction) {
 
     super();
-    this.odataParams = odataParams;
+    this.uriParams = uriParams;
     this.visitor = jpaVisitor;
     this.jpaFunction = jpaFunction;
   }
@@ -41,9 +44,19 @@ public class JPAFunctionOperator implements JPAOperator {
     final List<JPAFunctionParameter> parameters = jpaFunction.getParameter();
     final Expression<?>[] jpaParameter = new Expression<?>[parameters.size()];
 
+    if (jpaFunction.getResultParameter().isCollection()) {
+      throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FUNCTION_COLLECTION,
+          HttpStatusCode.NOT_IMPLEMENTED);
+    }
+
+    if (!JPATypeConvertor.isScalarType(
+        jpaFunction.getResultParameter().getType())) {
+      throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FUNCTION_NOT_SCALAR,
+          HttpStatusCode.NOT_IMPLEMENTED);
+    }
     for (int i = 0; i < parameters.size(); i++) {
       // a. $it/Area b. Area c. 10000
-      UriParameter p = odataParams.get(i);
+      UriParameter p = findUriParameter(parameters.get(i));
 
       if (p.getText() != null) {
         JPALiteralOperator operator = new JPALiteralOperator(visitor.getOdata(), new ParameterLiteral(p.getText()));
@@ -52,12 +65,20 @@ public class JPAFunctionOperator implements JPAOperator {
         try {
           jpaParameter[i] = (Expression<?>) p.getExpression().accept(visitor).get();
         } catch (ExpressionVisitException e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
+          throw new ODataJPAFilterException(e, HttpStatusCode.NOT_IMPLEMENTED);
         }
       }
     }
-    return cb.function(jpaFunction.getDBName(), jpaFunction.getResultParameter().getClass(), jpaParameter);
+    return cb.function(jpaFunction.getDBName(), jpaFunction.getResultParameter().getType(), jpaParameter);
+  }
+
+  private UriParameter findUriParameter(JPAFunctionParameter jpaFunctionParam) {
+    for (UriParameter uriParam : uriParams) {
+      if (uriParam.getName().equals(jpaFunctionParam.getName())) {
+        return uriParam;
+      }
+    }
+    return null;
   }
 
   public JPAFunctionResultParameter getReturnType() {
@@ -80,7 +101,6 @@ public class JPAFunctionOperator implements JPAOperator {
 
     @Override
     public String getText() {
-
       return text;
     }
 

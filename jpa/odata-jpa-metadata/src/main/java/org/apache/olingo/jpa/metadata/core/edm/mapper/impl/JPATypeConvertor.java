@@ -103,6 +103,31 @@ public final class JPATypeConvertor {
     return convertToEdmSimpleType(attribute.getType(), null);
   }
 
+  public static boolean isScalarType(Class<?> type) {
+    if (type == String.class ||
+        type == Character.class ||
+        type == Long.class ||
+        type == Short.class ||
+        type == Integer.class ||
+        type == Double.class ||
+        type == Float.class ||
+        type == BigDecimal.class ||
+        type == Byte.class ||
+        type == Boolean.class ||
+        type == java.time.LocalTime.class ||
+        type == java.sql.Time.class ||
+        type == java.time.Duration.class ||
+        type == java.time.LocalDate.class ||
+        type == java.sql.Date.class ||
+        type == Calendar.class ||
+        type == Timestamp.class ||
+        type == java.util.Date.class ||
+        type == UUID.class) {
+      return true;
+    }
+    return false;
+  }
+
   private static EdmPrimitiveTypeKind convertGeography(final Class<?> jpaType, final Attribute<?, ?> currentAttribute)
       throws ODataJPAModelException {
     if (jpaType.equals(org.apache.olingo.commons.api.edm.geo.Point.class)) {

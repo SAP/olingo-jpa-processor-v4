@@ -14,4 +14,6 @@ public interface JPAFunctionResultParameter {
 
   public FullQualifiedName getTypeFQN();
 
+  public boolean isCollection();
+
 }

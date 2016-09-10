@@ -231,5 +231,10 @@ class IntermediateFunction extends IntermediateModelElement implements JPAFuncti
       return edmFunction.getReturnType().getTypeFQN();
     }
 
+    @Override
+    public boolean isCollection() {
+      return jpaReturnType.isCollection();
+    }
+
   }
 }

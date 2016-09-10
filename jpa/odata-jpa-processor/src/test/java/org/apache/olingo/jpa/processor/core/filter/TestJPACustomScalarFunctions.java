@@ -82,18 +82,38 @@ public class TestJPACustomScalarFunctions {
   public void testFilterOnFunctionWithFixedValue() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisions?$filter=org.apache.olingo.jpa.PopulationDensity(Area=13079087,Population=$it/Population)  mul 1000000 gt 100");
+        "AdministrativeDivisions?$filter=org.apache.olingo.jpa.PopulationDensity(Area=13079087,Population=$it/Population)  mul 1000000 gt 1000");
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
-    assertEquals(1, orgs.size());
+    assertEquals(29, orgs.size());
+  }
+
+  @Test
+  public void testFilterOnFunctionComuteValue() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions?$filter=org.apache.olingo.jpa.PopulationDensity(Area=Area div 1000000,Population=Population) gt 1000");
+    helper.assertStatus(200);
+
+    ArrayNode orgs = helper.getValues();
+    assertEquals(7, orgs.size());
+  }
+
+  @Test
+  public void testFilterOnFunctionMixParamOrder() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions?$filter=org.apache.olingo.jpa.PopulationDensity(Population=Population,Area=Area) mul 1000000 gt 1000");
+    helper.assertStatus(200);
+
+    ArrayNode orgs = helper.getValues();
+    assertEquals(7, orgs.size());
   }
 
   private static void CreateDenfityFunction() {
     EntityManager em = emf.createEntityManager();
     EntityTransaction t = em.getTransaction();
-
-    // StringBuffer dropString = new StringBuffer("DROP FUNCTION PopulationDensity");
 
     StringBuffer sqlString = new StringBuffer();
 
@@ -111,9 +131,7 @@ public class TestJPACustomScalarFunctions {
     sqlString.append("END");
 
     t.begin();
-    // Query d = em.createNativeQuery(dropString.toString());
     Query q = em.createNativeQuery(sqlString.toString());
-    // d.executeUpdate();
     q.executeUpdate();
     t.commit();
   }
@@ -127,9 +145,7 @@ public class TestJPACustomScalarFunctions {
     sqlString.append("DROP FUNCTION  \"OLINGO\".\"org.apache.olingo.jpa::PopulationDensity\"");
 
     t.begin();
-    // Query d = em.createNativeQuery(dropString.toString());
     Query q = em.createNativeQuery(sqlString.toString());
-    // d.executeUpdate();
     q.executeUpdate();
     t.commit();
   }
