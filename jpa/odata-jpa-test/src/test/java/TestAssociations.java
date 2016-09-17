@@ -65,7 +65,7 @@ public class TestAssociations {
     cq.multiselect(root.get("locationName").alias("L"));
     TypedQuery<Tuple> tq = em.createQuery(cq);
     List<Tuple> result = tq.getResultList();
-    Country act = (Country) result.get(0).get("L");
+    AdministrativeDivisionDescription act = (AdministrativeDivisionDescription) result.get(0).get("L");
     assertNotNull(act);
   }
 

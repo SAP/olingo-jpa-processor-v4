@@ -54,20 +54,6 @@ insert into "org.apache.olingo.jpa::BusinessPartnerRole" values ('2',  'A');
 insert into "org.apache.olingo.jpa::BusinessPartnerRole" values ('2',  'C');
 insert into "org.apache.olingo.jpa::BusinessPartnerRole" values ('7',  'C');
 
-CREATE TABLE "org.apache.olingo.jpa::CountryDescription" ( 
-	"ISOCode" NVARCHAR(4) NOT NULL ,
-	"LanguageISO" NVARCHAR(4) NOT NULL ,
-	"Name" NVARCHAR(100) NOT NULL, 
-     PRIMARY KEY ("ISOCode","LanguageISO"));
- 
-insert into "org.apache.olingo.jpa::CountryDescription" values( 'DEU','de','Deutschland');    
-insert into "org.apache.olingo.jpa::CountryDescription" values( 'USA','de','Vereinigte Staaten von Amerika');   
-insert into "org.apache.olingo.jpa::CountryDescription" values( 'DEU','en','Germany');
-insert into "org.apache.olingo.jpa::CountryDescription" values( 'USA','en','United States of America');
-insert into "org.apache.olingo.jpa::CountryDescription" values( 'BEL','de','Belgien');
-insert into "org.apache.olingo.jpa::CountryDescription" values( 'BEL','en','Belgium');
-
-
 CREATE TABLE "org.apache.olingo.jpa::AdministrativeDivisionDescription"(
 	"CodePublisher" NVARCHAR(10) NOT NULL,
 	"CodeID" NVARCHAR(10) NOT NULL,
@@ -76,7 +62,14 @@ CREATE TABLE "org.apache.olingo.jpa::AdministrativeDivisionDescription"(
 	"Name" NVARCHAR(100) NOT NULL, 
      PRIMARY KEY ("CodePublisher", "CodeID", "DivisionCode","LanguageISO")); 
 
-insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','DE-BW','de','Baden-WÃ¼rttemberg');  
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-1', 'DEU','de','Deutschland');    
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-1', 'USA','de','Vereinigte Staaten von Amerika');   
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-1', 'DEU','en','Germany');
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-1', 'USA','en','United States of America');
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-1', 'BEL','de','Belgien');
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-1', 'BEL','en','Belgium');     
+     
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','DE-BW','de','Baden-Württemberg');  
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','DE-BY','de','Bayern Bayern');  
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','DE-BE','de','Berlin');  
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','DE-BB','de','Brandenburg');  
@@ -91,9 +84,9 @@ insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( '
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','DE-SN','de','Sachsen');  
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','DE-ST','de','Sachsen-Anhalt');  
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','DE-SH','de','Schleswig-Holstein');  
-insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','DE-TH','de','ThÃ¼ringen');  
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','DE-TH','de','Thüringen');  
 
-insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','DE-BW','en','Baden-WÃ¼rttemberg');  
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','DE-BW','en','Baden-Württemberg');  
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','DE-BY','en','Bavaria');  
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','DE-BE','en','Berlin');  
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','DE-BB','en','Brandenburg');  
@@ -109,6 +102,34 @@ insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( '
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','DE-ST','en','Saxony-Anhalt');  
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','DE-SH','en','Schleswig-Holstein');  
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','DE-TH','en','Thuringia');  
+
+
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','CH-AG','de','Aargau'); 
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','CH-AR','de','Appenzell Ausserrhoden'); 
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','CH-AI','de','Appenzell Innerrhoden'); 
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','CH-BL','de','Basel-Landschaft'); 
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','CH-BS','de','Basel-Stadt'); 
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','CH-BE','de','Bern'); 
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','CH-FR','de','Freiburg'); 
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','CH-GE','de','Genf'); 
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','CH-GL','de','Glarus'); 
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','CH-GR','de','Graubünden'); 
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','CH-JU','de','Jura'); 
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','CH-LU','de','Luzern'); 
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','CH-NE','de','Neuenburg'); 
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','CH-NW','de','Nidwalden'); 
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','CH-OW','de','Obwalden'); 
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','CH-SH','de','Schaffhausen'); 
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','CH-SZ','de','Schwyz'); 
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','CH-SO','de','Solothurn'); 
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','CH-SG','de','St. Gallen'); 
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','CH-TI','de','Tessin'); 
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','CH-TG','de','Thurgau'); 
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','CH-UR','de','Uri'); 
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','CH-VD','de','Waadt'); 
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','CH-VS','de','Wallis'); 
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','CH-ZG','de','Zug'); 
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','CH-ZH','de','Zürich'); 
 
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','US-AL','de','Alabama');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','US-AK','de','Alaska');
@@ -214,23 +235,23 @@ insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( '
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','US-WY','en','Wyoming');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','US-DC','en','District of Columbia');
      
-insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS1','BE1','de','Region BrÃ¼ssel-Hauptstadt');
-insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS1','BE2','de','FlÃ¤mische Region');
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS1','BE1','de','Region Brüssel-Hauptstadt');
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS1','BE2','de','Flämische Region');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS1','BE3','de','Wallonische Region');
 
-insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS2','BE10','de','Region BrÃ¼ssel-Hauptstadt');
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS2','BE10','de','Region Brüssel-Hauptstadt');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS2','BE21','de','Provinz Antwerpen');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS2','BE22','de','Provinz Limburg');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS2','BE23','de','Provinz Ostflandern');
-insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS2','BE24','de','Provinz FlÃ¤misch-Brabant');
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS2','BE24','de','Provinz Flämisch-Brabant');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS2','BE25','de','Provinz Westflandern');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS2','BE31','de','Provinz Wallonisch-Brabant');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS2','BE32','de','Provinz Hennegau');
-insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS2','BE33','de','Provinz LÃ¼ttich');
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS2','BE33','de','Provinz Lüttich');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS2','BE34','de','Provinz Luxemburg');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS2','BE35','de','Provinz Namur');
 
-insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE100','de','Bezirk BrÃ¼ssel-Hauptstadt');
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE100','de','Bezirk Brüssel-Hauptstadt');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE211','de','Bezirk Antwerpen');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE212','de','Bezirk Mechelen');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE213','de','Bezirk Turnhout');
@@ -244,8 +265,8 @@ insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( '
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE235','de','Bezirk Oudenaarde');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE236','de','Bezirk Sint-Niklaas');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE241','de','Bezirk Halle-Vilvoorde');
-insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE242','de','Bezirk LÃ¶wen');
-insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE251','de','Bezirk BrÃ¼gge');
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE242','de','Bezirk Löwen');
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE251','de','Bezirk Brügge');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE252','de','Bezirk Diksmuide');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE253','de','Bezirk Ypern');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE254','de','Bezirk Kortrijk');
@@ -262,14 +283,14 @@ insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( '
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE326','de','Bezirk Thuin');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE327','de','Bezirk Tournai');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE331','de','Bezirk Huy');
-insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE332','de','Bezirk LÃ¼ttich');
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE332','de','Bezirk Lüttich');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE334','de','Bezirk Waremme');
-insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE335','de','Bezirk VerviersÂ â€“ frz. Sprachgebiet');
-insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE336','de','Bezirk VerviersÂ â€“ deu. Sprachgebiet');
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE335','de','Bezirk Verviers – frz. Sprachgebiet');
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE336','de','Bezirk Verviers – deu. Sprachgebiet');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE341','de','Bezirk Arlon');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE342','de','Bezirk Bastogne');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE343','de','Bezirk Marche-en-Famenne');
-insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE344','de','Bezirk NeufchÃ¢teau');
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE344','de','Bezirk Neufchâteau');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE345','de','Bezirk Virton');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE351','de','Bezirk Dinant');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE352','de','Bezirk Namur');
@@ -287,7 +308,7 @@ insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( '
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS2','BE25','en','West Flanders');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS2','BE31','en','Walloon Brabant');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS2','BE32','en','Hainaut');
-insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS2','BE33','en','LiÃ¨ge');
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS2','BE33','en','Liège');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS2','BE34','en','Luxembourg (Belgium)');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS2','BE35','en','Namur');
 
@@ -323,14 +344,14 @@ insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( '
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE326','en','Arrondissement of Thuin');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE327','en','Arrondissement of Tournai');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE331','en','Arrondissement of Huy');
-insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE332','en','Arrondissement of LiÃ¨ge');
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE332','en','Arrondissement of Liège');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE334','en','Arrondissement of Waremme');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE335','en','Arrondissement of Verviers, municipalities of the French Community');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE336','en','Arrondissement of Verviers,municipalities of the German Community');	
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE341','en','Arrondissement of Arlon');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE342','en','Arrondissement of Bastogne');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE343','en','Arrondissement of Marche-en-Famenne');
-insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE344','en','Arrondissement of NeufchÃ¢teau');
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE344','en','Arrondissement of Neufchâteau');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE345','en','Arrondissement of Virton');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE351','en','Arrondissement of Dinant');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS3','BE352','en','Arrondissement of Namur');

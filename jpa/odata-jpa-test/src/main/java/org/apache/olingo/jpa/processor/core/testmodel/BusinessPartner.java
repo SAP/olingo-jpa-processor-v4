@@ -87,10 +87,18 @@ public abstract class BusinessPartner {
   @Column(name = "\"Country\"", length = 4)
   private String country;
 
-  @EdmDescriptionAssozation(languageAttribute = "language", descriptionAttribute = "name")
+  @EdmDescriptionAssozation(languageAttribute = "key/language", descriptionAttribute = "name",
+      valueAssignments = {
+          @EdmDescriptionAssozation.valueAssignment(attribute = "key/codePublisher", value = "ISO"),
+          @EdmDescriptionAssozation.valueAssignment(attribute = "key/codeID", value = "3166-1") })
   @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  @JoinColumn(name = "\"ISOCode\"", referencedColumnName = "\"Country\"")
-  private Collection<Country> locationName;
+  @JoinColumn(name = "\"DivisionCode\"", referencedColumnName = "\"Country\"")
+  private Collection<AdministrativeDivisionDescription> locationName;
+
+//  @EdmDescriptionAssozation(languageAttribute = "language", descriptionAttribute = "name")
+//  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+//  @JoinColumn(name = "\"ISOCode\"", referencedColumnName = "\"Country\"")
+//  private Collection<Country> locationName;
 
   @Embedded
   protected CommunicationData communicationData = new CommunicationData();
@@ -149,9 +157,9 @@ public abstract class BusinessPartner {
     this.country = country;
   }
 
-  public void setLocationName(Collection<Country> locationName) {
-    this.locationName = locationName;
-  }
+//  public void setLocationName(Collection<AdministrativeDivisionDescription> locationName) {
+//    this.locationName = locationName;
+//  }
 
   public void setCommunicationData(CommunicationData communicationData) {
     this.communicationData = communicationData;

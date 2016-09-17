@@ -1,6 +1,6 @@
 package org.apache.olingo.jpa.metadata.core.edm.mapper.api;
 
-import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import java.util.HashMap;
 
 public interface JPADescriptionAttribute extends JPAAttribute {
 
@@ -8,6 +8,8 @@ public interface JPADescriptionAttribute extends JPAAttribute {
 
   public JPAAttribute getDescriptionAttribute();
 
-  public JPAPath getLocaleFieldName() throws ODataJPAModelException;
+  public JPAPath getLocaleFieldName();
+
+  public HashMap<JPAPath, String> getFixedValueAssignment();
 
 }

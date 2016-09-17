@@ -25,4 +25,13 @@ public @interface EdmDescriptionAssozation {
   String languageAttribute() default "";
 
   String localeAttribute() default "";
+
+  @interface valueAssignment {
+    String attribute() default "";
+
+    String value() default "";
+  }
+
+  valueAssignment[] valueAssignments() default {};
+
 }

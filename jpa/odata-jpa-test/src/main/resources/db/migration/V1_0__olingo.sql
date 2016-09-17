@@ -107,6 +107,17 @@ CREATE TABLE "org.apache.olingo.jpa::AdministrativeDivisionDescription"(
 	"Name" VARCHAR(100) NOT NULL, 
      PRIMARY KEY ("CodePublisher", "CodeID", "DivisionCode","LanguageISO")); 
 
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS1','CH0','de','Schweiz');     
+     
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-1','DEU','de','Deutschland');    
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-1','USA','de','Vereinigte Staaten von Amerika');   
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-1','DEU','en','Germany');
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-1','USA','en','United States of America');
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-1','BEL','de','Belgien');
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-1','BEL','en','Belgium');
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-1','CHE','de','Schweiz');
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-1','CHE','en','Switzerland');     
+     
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','DE-BW','de','Baden-Württemberg');  
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','DE-BY','de','Bayern Bayern');  
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','DE-BE','de','Berlin');  
@@ -273,6 +284,7 @@ insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( '
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','US-WY','en','Wyoming');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','US-DC','en','District of Columbia');
      
+
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS1','BE1','de','Region Brüssel-Hauptstadt');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS1','BE2','de','Flämische Region');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS1','BE3','de','Wallonische Region');

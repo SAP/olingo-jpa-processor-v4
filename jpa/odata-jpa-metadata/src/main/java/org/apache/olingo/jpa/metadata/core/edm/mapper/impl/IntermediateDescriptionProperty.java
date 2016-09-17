@@ -4,11 +4,13 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.persistence.metamodel.Attribute;
 
 import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssozation;
+import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssozation.valueAssignment;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPADescriptionAttribute;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
@@ -21,6 +23,8 @@ class IntermediateDescriptionProperty extends IntermediateProperty implements JP
   private String languageAttribute;
   private String localeAttribute;
   private JPAStructuredType targetEntity;
+  private HashMap<JPAPath, String> fixedValues;
+  private JPAPath localFieldPath;
 
   IntermediateDescriptionProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,
       final IntermediateSchema schema) throws ODataJPAModelException {
@@ -46,6 +50,8 @@ class IntermediateDescriptionProperty extends IntermediateProperty implements JP
               .descriptionAttribute());
           languageAttribute = assozation.languageAttribute();
           localeAttribute = assozation.localeAttribute();
+          // TODO check path is valid
+          fixedValues = convertFixedValues(assozation.valueAssignments());
 
           if (languageAttribute.isEmpty() && localeAttribute.isEmpty() ||
               !languageAttribute.isEmpty() && !localeAttribute.isEmpty())
@@ -58,7 +64,7 @@ class IntermediateDescriptionProperty extends IntermediateProperty implements JP
           edmProperty.setType(JPATypeConvertor.convertToEdmSimpleType(descriptionProperty.getType())
               .getFullQualifiedName());
           edmProperty.setMaxLength(descriptionProperty.getEdmItem().getMaxLength());
-
+          localFieldPath = convertAttributeToPath(!languageAttribute.isEmpty() ? languageAttribute : localeAttribute);
         } else
           throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.DESCRIPTION_ANNOTATION_MISSING,
               targetEntity.getInternalName(), this.internalName);
@@ -84,13 +90,30 @@ class IntermediateDescriptionProperty extends IntermediateProperty implements JP
   }
 
   @Override
-  public JPAPath getLocaleFieldName() throws ODataJPAModelException {
-    String attribute;
-    if (!languageAttribute.isEmpty())
-      attribute = languageAttribute;
-    else
-      attribute = localeAttribute;
+  public JPAPath getLocaleFieldName() {
+    return localFieldPath;
+  }
 
+  @Override
+  public Class<?> getType() {
+    return descriptionProperty.getType();
+  }
+
+  @Override
+  public HashMap<JPAPath, String> getFixedValueAssignment() {
+    return fixedValues;
+  }
+
+  private HashMap<JPAPath, String> convertFixedValues(valueAssignment[] valueAssignments)
+      throws ODataJPAModelException {
+    HashMap<JPAPath, String> result = new HashMap<JPAPath, String>();
+    for (EdmDescriptionAssozation.valueAssignment value : valueAssignments) {
+      result.put(convertAttributeToPath(value.attribute()), value.value());
+    }
+    return result;
+  }
+
+  private JPAPath convertAttributeToPath(String attribute) throws ODataJPAModelException {
     final String[] pathItems = attribute.split(JPAPath.PATH_SEPERATOR);
     if (pathItems.length > 1) {
       final List<JPAElement> targetPath = new ArrayList<JPAElement>();
@@ -107,10 +130,5 @@ class IntermediateDescriptionProperty extends IntermediateProperty implements JP
       final IntermediateProperty p = (IntermediateProperty) targetEntity.getAttribute(attribute);
       return new JPAPathImpl(p.getExternalName(), p.getDBFieldName(), p);
     }
-  }
-
-  @Override
-  public Class<?> getType() {
-    return descriptionProperty.getType();
   }
 }
