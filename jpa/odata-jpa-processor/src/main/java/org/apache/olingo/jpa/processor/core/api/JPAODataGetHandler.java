@@ -32,6 +32,7 @@ public class JPAODataGetHandler {
   private final DataSource ds;
   private final OData odata;
 
+  // TODO enable usage of entity manager factory instead of data source
   public JPAODataGetHandler(final String pUnit, final DataSource ds) throws ODataException {
     super();
     this.namespace = pUnit;
@@ -139,12 +140,15 @@ public class JPAODataGetHandler {
     public void initDebugger(String debugFormat) {
       // see org.apache.olingo.server.core.debug.ServerCoreDebugger
       boolean isDebugMode = false;
+
       if (debugSupport != null) {
         // Should we read the parameter from the servlet here and ignore multiple parameters?
         if (debugFormat != null) {
           debugSupport.init(odata);
           isDebugMode = debugSupport.isUserAuthorized();
         }
+      } else {
+        return;
       }
       if (isDebugMode)
         debugger = new JPACoreDeugger();
