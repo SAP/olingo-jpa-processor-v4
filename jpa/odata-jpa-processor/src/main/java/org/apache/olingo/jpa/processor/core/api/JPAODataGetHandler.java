@@ -24,6 +24,7 @@ import org.apache.olingo.server.api.ODataHttpHandler;
 import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.debug.DebugInformation;
 import org.apache.olingo.server.api.debug.DebugSupport;
+import org.apache.olingo.server.api.debug.DefaultDebugSupport;
 
 public class JPAODataGetHandler {
   private final String namespace;
@@ -62,7 +63,7 @@ public class JPAODataGetHandler {
 
   private class JPAODataContextImpl implements JPAODataContext {
     private List<EdmxReference> references = new ArrayList<EdmxReference>();
-    private JPADebugSupportWrapper debugSupport;
+    private JPADebugSupportWrapper debugSupport = new JPADebugSupportWrapper(new DefaultDebugSupport());
     private JPAODataDatabaseOperations operationConverter;
     private JPAEdmProvider jpaEdm;
     private JPAODataDatabaseProcessor databaseProcessor;
@@ -147,8 +148,6 @@ public class JPAODataGetHandler {
           debugSupport.init(odata);
           isDebugMode = debugSupport.isUserAuthorized();
         }
-      } else {
-        return;
       }
       if (isDebugMode)
         debugger = new JPACoreDeugger();

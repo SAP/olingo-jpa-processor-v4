@@ -95,11 +95,6 @@ public abstract class BusinessPartner {
   @JoinColumn(name = "\"DivisionCode\"", referencedColumnName = "\"Country\"")
   private Collection<AdministrativeDivisionDescription> locationName;
 
-//  @EdmDescriptionAssozation(languageAttribute = "language", descriptionAttribute = "name")
-//  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-//  @JoinColumn(name = "\"ISOCode\"", referencedColumnName = "\"Country\"")
-//  private Collection<Country> locationName;
-
   @Embedded
   protected CommunicationData communicationData = new CommunicationData();
 
