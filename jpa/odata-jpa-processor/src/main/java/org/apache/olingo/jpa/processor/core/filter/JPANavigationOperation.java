@@ -16,6 +16,7 @@ import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.UriResourceNavigation;
+import org.apache.olingo.server.api.uri.queryoption.ApplyOption;
 import org.apache.olingo.server.api.uri.queryoption.CountOption;
 import org.apache.olingo.server.api.uri.queryoption.CustomQueryOption;
 import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
@@ -239,6 +240,11 @@ class JPANavigationOperation extends JPAExistsOperation implements JPAExpression
 
     @Override
     public String getValueForAlias(final String alias) {
+      return null;
+    }
+
+    @Override
+    public ApplyOption getApplyOption() {
       return null;
     }
 

@@ -5,11 +5,10 @@ import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Id;
 
-public class AdministrativeDivisionKey implements Serializable{
-	
+public class AdministrativeDivisionKey implements Serializable {
 
-	private static final long serialVersionUID = 5482165952249228988L;
-@Id
+  private static final long serialVersionUID = 5482165952249228988L;
+  @Id
   @Column(name = "\"CodePublisher\"", length = 10)
   private String codePublisher;
   @Id

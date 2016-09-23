@@ -8,6 +8,7 @@ import java.util.List;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceNavigation;
+import org.apache.olingo.server.api.uri.queryoption.ApplyOption;
 import org.apache.olingo.server.api.uri.queryoption.CountOption;
 import org.apache.olingo.server.api.uri.queryoption.CustomQueryOption;
 import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
@@ -108,6 +109,11 @@ public class UriInfoResourceDouble implements UriInfoResource {
   @Override
   public String getValueForAlias(String alias) {
     fail();
+    return null;
+  }
+
+  @Override
+  public ApplyOption getApplyOption() {
     return null;
   }
 

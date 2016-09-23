@@ -23,6 +23,7 @@ import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.UriResourcePrimitiveProperty;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
 import org.apache.olingo.server.api.uri.queryoption.AliasQueryOption;
+import org.apache.olingo.server.api.uri.queryoption.ApplyOption;
 import org.apache.olingo.server.api.uri.queryoption.CountOption;
 import org.apache.olingo.server.api.uri.queryoption.CustomQueryOption;
 import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
@@ -361,6 +362,11 @@ public class UriInfoDouble implements UriInfo {
 
   public void setUriResources(List<UriResource> uriResources) {
     this.uriResources = uriResources;
+  }
+
+  @Override
+  public ApplyOption getApplyOption() {
+    return null;
   }
 
 }
