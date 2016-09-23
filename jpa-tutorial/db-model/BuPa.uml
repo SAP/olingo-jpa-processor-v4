@@ -95,20 +95,6 @@
       <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_z6bhAEqdEeaEaIBRMpAJvg" value="10"/>
     </ownedAttribute>
   </packagedElement>
-  <packagedElement xmi:type="uml:Class" xmi:id="_3ctKYEqcEeaEaIBRMpAJvg" name="CountryDescription">
-    <ownedAttribute xmi:type="uml:Property" xmi:id="_K2U_kEqfEeaVhr02lt1ZOA" name="ISOCode" isStatic="true" type="_eT-9AEqdEeaEaIBRMpAJvg">
-      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_ReDhgEqfEeaVhr02lt1ZOA" value="4"/>
-      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_ReFWsEqfEeaVhr02lt1ZOA" value="4"/>
-    </ownedAttribute>
-    <ownedAttribute xmi:type="uml:Property" xmi:id="_LNrvoEqfEeaVhr02lt1ZOA" name="LanguageISO" isStatic="true" type="_eT-9AEqdEeaEaIBRMpAJvg">
-      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_UOnkoEqfEeaVhr02lt1ZOA" value="4"/>
-      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_UOoywEqfEeaVhr02lt1ZOA" value="4"/>
-    </ownedAttribute>
-    <ownedAttribute xmi:type="uml:Property" xmi:id="_LgbsgEqfEeaVhr02lt1ZOA" name="Name">
-      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_WOPTAEqfEeaVhr02lt1ZOA" value="100"/>
-      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_WOQhIEqfEeaVhr02lt1ZOA" value="100"/>
-    </ownedAttribute>
-  </packagedElement>
   <packagedElement xmi:type="uml:DataType" xmi:id="_eT-9AEqdEeaEaIBRMpAJvg" name="NVARCHAR"/>
   <packagedElement xmi:type="uml:Class" xmi:id="_oqN7kEqeEeaVhr02lt1ZOA" name="AdministrativeDivisionDescription">
     <ownedAttribute xmi:type="uml:Property" xmi:id="_4hQFsEqeEeaVhr02lt1ZOA" name="CodePublisher" isStatic="true" type="_eT-9AEqdEeaEaIBRMpAJvg">

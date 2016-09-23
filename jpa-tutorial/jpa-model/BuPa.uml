@@ -257,6 +257,10 @@
                       <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_49BwkEs_EeaVhr02lt1ZOA" value="1"/>
                     </ownedAttribute>
                     <ownedAttribute xmi:type="uml:Property" xmi:id="_sYSBI0tAEeaVhr02lt1ZOA" name="administrativeinformation" type="_cOEdUEs1EeaVhr02lt1ZOA" association="_sYSBIEtAEeaVhr02lt1ZOA"/>
+                    <ownedAttribute xmi:type="uml:Property" xmi:id="_oFa_AIFdEea4QOo9QJl5Ig" name="administrativedivisiondescription" type="_cN5eMEs1EeaVhr02lt1ZOA" association="_oFX7sIFdEea4QOo9QJl5Ig">
+                      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_yyGkIIFdEea4QOo9QJl5Ig"/>
+                      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_yyJAYIFdEea4QOo9QJl5Ig" value="*"/>
+                    </ownedAttribute>
                     <ownedOperation xmi:type="uml:Operation" xmi:id="_cOLLBEs1EeaVhr02lt1ZOA" name="setID" visibility="public">
                       <ownedParameter xmi:type="uml:Parameter" xmi:id="_cOLLBUs1EeaVhr02lt1ZOA" name="iD" type="_Ny9eo0s1EeaVhr02lt1ZOA"/>
                     </ownedOperation>
@@ -765,6 +769,15 @@
     <ownedEnd xmi:type="uml:Property" xmi:id="_x3lyY0tUEeaVhr02lt1ZOA" name="administrativedivision" type="_TZN8gEs1EeaVhr02lt1ZOA" association="_x3kkQEtUEeaVhr02lt1ZOA">
       <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_D6CEIEtVEeaVhr02lt1ZOA"/>
       <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_D6DSQEtVEeaVhr02lt1ZOA" value="1"/>
+    </ownedEnd>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_oFX7sIFdEea4QOo9QJl5Ig" name="countryName" memberEnd="_oFa_AIFdEea4QOo9QJl5Ig _oFbmEIFdEea4QOo9QJl5Ig">
+    <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_oFZw4IFdEea4QOo9QJl5Ig" source="org.eclipse.papyrus">
+      <details xmi:type="ecore:EStringToStringMapEntry" xmi:id="_oFaX8IFdEea4QOo9QJl5Ig" key="nature" value="UML_Nature"/>
+    </eAnnotations>
+    <ownedEnd xmi:type="uml:Property" xmi:id="_oFbmEIFdEea4QOo9QJl5Ig" name="businesspartner" type="_cOIuwEs1EeaVhr02lt1ZOA" association="_oFX7sIFdEea4QOo9QJl5Ig">
+      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_zyjUgIFdEea4QOo9QJl5Ig"/>
+      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_zykioIFdEea4QOo9QJl5Ig" value="*"/>
     </ownedEnd>
   </packagedElement>
 </uml:Model>
