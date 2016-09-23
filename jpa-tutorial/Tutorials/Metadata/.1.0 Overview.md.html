@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>C:\Users\D023143\git\OlingoV4-JPA\jpa-tutorial\Tutorials\.Introduction.md.html</title>
+<title>C:\Users\D023143\git\OlingoV4-JPA\jpa-tutorial\Tutorials\Metadata\.1.0 Overview.md.html</title>
 
 
 <style type="text/css">
@@ -639,101 +639,7 @@ function setDocumentScrollTop(ypos)
 
 </head>
 <body class="markdown-body">
-<h1> <a id="getting-started" class="anchor" href="#getting-started" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Getting Started</h1> 
-<p>The following series of tutorials shall give a starting point how to use the JPA-Processor to get a quick start in a Java project to utilize <a href="https://olingo.apache.org/doc/odata4/index.html">Olingo</a> when <a href="http://www.odata.org/">OData</a> shall be used. The tutorials use a simplified Business Partner data model.</p> 
-<h2> <a id="prerequisites" class="anchor" href="#prerequisites" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Prerequisites</h2> 
-<p>In order to follow this tutorial, you should have</p> 
-<ul> 
- <li>Basic knowledge about OData and OData V4</li> 
- <li>Knowledge of the Java programming language</li> 
- <li>Basic knowledge about building with Maven</li> 
- <li>Optional: knowledge about developing web applications</li> 
-</ul> 
-<h2> <a id="preparation" class="anchor" href="#preparation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Preparation</h2> 
-<p>In order to perform the tutorial you need:</p> 
-<ul> 
- <li>A Java JDK 1.6 or higher</li> 
- <li>A Eclipse IDE for Java EE, or another one that provides the same functionality</li> 
- <li>A web server e.g. Apache Tomcat </li> 
-</ul> 
-<h2> <a id="create-project" class="anchor" href="#create-project" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Create Project</h2> 
-<p>First step is to create a project. To do so we want to create a new Maven project, by open the Maven Project wizard via File -&gt; New -&gt; Other -&gt; Maven -&gt; Maven Project. Select archetype <b>�webapp�</b>:</p> 
-<p><a href="https://camo.githubusercontent.com/7ae69b821d7c195c0f452b0d169b27688c2b5c8d/68747470733a2f2f6769746875622e7764662e7361702e636f72702f443032333134332f4f6c696e676f56344a50412f626c6f622f6d61737465722f6a70612d7475746f7269616c2f696d616765732f43726561746525323050726f6a6563742f4d6176656e50726f6a65637441726368697665747970652e706e67" target="_blank"><img src="https://camo.githubusercontent.com/7ae69b821d7c195c0f452b0d169b27688c2b5c8d/68747470733a2f2f6769746875622e7764662e7361702e636f72702f443032333134332f4f6c696e676f56344a50412f626c6f622f6d61737465722f6a70612d7475746f7269616c2f696d616765732f43726561746525323050726f6a6563742f4d6176656e50726f6a65637441726368697665747970652e706e67" alt="Maven Project Archivetype " data-canonical-src="https://github.wdf.sap.corp/D023143/OlingoV4JPA/blob/master/jpa-tutorial/images/Create%20Project/MavenProjectArchivetype.png" style="max-width:100%;" /></a></p> 
-<p>On the next page, enter the following information:</p> 
-<ul> 
- <li>Groupd Id: my.group.id</li> 
- <li>Artifact Id: DemoJPAService</li> 
- <li>Version: 4.0.0</li> 
- <li>Package: myservice.mynamespace.service</li> 
-</ul> 
-<p>Convert the project into a JPA project. This can be done as follows:</p> 
-<p><em>Right click on the new project --&gt; Configure --&gt; Convert to JPA Project ...</em></p> 
-<p>Now the project facets maintenance screen pops up. make sure that:</p> 
-<ul> 
- <li>Dynamic Web Module has at least version 2.5</li> 
- <li>Java version is 1.6 or higher</li> 
- <li>JPA as version 2.1</li> 
-</ul> 
-<p><a href="https://camo.githubusercontent.com/2548b679760d0ee5cb245ab6be2d8acf2936cd8b/68747470733a2f2f6769746875622e7764662e7361702e636f72702f443032333134332f4f6c696e676f56344a50412f626c6f622f6d61737465722f6a70612d7475746f7269616c2f696d616765732f43726561746525323050726f6a6563742f436f6e766572744a504150726f6a6563742e706e67" target="_blank"><img src="https://camo.githubusercontent.com/2548b679760d0ee5cb245ab6be2d8acf2936cd8b/68747470733a2f2f6769746875622e7764662e7361702e636f72702f443032333134332f4f6c696e676f56344a50412f626c6f622f6d61737465722f6a70612d7475746f7269616c2f696d616765732f43726561746525323050726f6a6563742f436f6e766572744a504150726f6a6563742e706e67" alt="Convert to JPA" data-canonical-src="https://github.wdf.sap.corp/D023143/OlingoV4JPA/blob/master/jpa-tutorial/images/Create%20Project/ConvertJPAProject.png" style="max-width:100%;" /></a></p> 
-<p>You can delete the index.jsp if it creates an error, we will not use it. Next step is to create the maven dependencies. For this tutorial we will use <a href="http://hsqldb.org/">HSBQL</a> as database and <a href="http://www.eclipse.org/eclipselink/">Eclipselink</a> as JPA implementation, but you can use also another database or JPA implementation. To create the data on the database we use Flyway. The following snippet shows the additionally required maven dependencies:</p> 
-<pre><code>    &lt;dependency&gt;
-        &lt;groupId&gt;org.hsqldb&lt;/groupId&gt;
-        &lt;artifactId&gt;hsqldb&lt;/artifactId&gt;
-        &lt;version&gt;2.3.3&lt;/version&gt;
-    &lt;/dependency&gt;
-    &lt;dependency&gt;
-        &lt;groupId&gt;org.flywaydb&lt;/groupId&gt;
-        &lt;artifactId&gt;flyway-core&lt;/artifactId&gt;
-        &lt;version&gt;4.0.3&lt;/version&gt;
-    &lt;/dependency&gt;   
-    &lt;dependency&gt;
-        &lt;groupId&gt;org.eclipse.persistence&lt;/groupId&gt;
-        &lt;artifactId&gt;javax.persistence&lt;/artifactId&gt;
-        &lt;version&gt;2.1.0&lt;/version&gt;
-    &lt;/dependency&gt;
-    &lt;dependency&gt;
-        &lt;groupId&gt;javax.servlet&lt;/groupId&gt;
-        &lt;artifactId&gt;servlet-api&lt;/artifactId&gt;
-        &lt;version&gt;2.5&lt;/version&gt;
-        &lt;scope&gt;provided&lt;/scope&gt;
-    &lt;/dependency&gt;
-    &lt;dependency&gt; 
-        &lt;groupId&gt;org.eclipse.persistence&lt;/groupId&gt; 
-        &lt;artifactId&gt;eclipselink&lt;/artifactId&gt; 
-        &lt;version&gt;2.6.2&lt;/version&gt; 
-    &lt;/dependency&gt;
-    &lt;build&gt;
-        &lt;finalName&gt;Tutorial&lt;/finalName&gt;
-        &lt;pluginManagement&gt;
-            &lt;plugins&gt;
-                &lt;plugin&gt;
-                    &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
-                    &lt;artifactId&gt;maven-surefire-plugin&lt;/artifactId&gt;
-                    &lt;version&gt;2.17&lt;/version&gt;
-                &lt;/plugin&gt;
-                &lt;plugin&gt;
-                    &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
-                    &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
-                    &lt;configuration&gt;
-                        &lt;source&gt;${project.build.source}&lt;/source&gt;
-                        &lt;target&gt;${project.build.source}&lt;/target&gt;
-                        &lt;showWarnings&gt;true&lt;/showWarnings&gt;
-                        &lt;showDeprecation&gt;true&lt;/showDeprecation&gt;
-                        &lt;compilerArgument&gt;-Xlint:unchecked&lt;/compilerArgument&gt;
-                        &lt;encoding&gt;${project.build.sourceEncoding}&lt;/encoding&gt;
-                    &lt;/configuration&gt;
-                &lt;/plugin&gt;
-            &lt;/plugins&gt;
-        &lt;/pluginManagement&gt;
-    &lt;/build&gt;
-    &lt;properties&gt;
-        &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
-        &lt;project.build.source&gt;1.6&lt;/project.build.source&gt;
-        odata.version&gt;4.2.0&lt;/odata.version&gt;
-    &lt;/properties&gt;
-</code></pre> 
-<p>Before we start we should have a look at the data model we want to create step-by-step throughout the tutorial. The data model describes, as mentioned, a simple business partner. The business partner has a name (fields NameLine1 and NameLine2), an address, information about who and when a business partner was created or changed and some fields that a user of the model can give his/her own semantic (CustomString1,CustomString2,CustomNum1,CustomNum2). A business partner can have multiple BusinessPartnerRoles. In addition there is some information about the region the business partner is located at. This information is stored in table AdministrativeDivision. Last, but not least there are textual description for the regions and countries.</p> 
-<p><a href="https://camo.githubusercontent.com/b5d669bd90c25b04278e6071e0271dc6f73533f6/68747470733a2f2f6769746875622e7764662e7361702e636f72702f443032333134332f4f6c696e676f56344a50412f626c6f622f6170616368652f6a70612d7475746f7269616c2f696d616765732f4d6f64656c2f44425461626c652e706e67" target="_blank"><img src="https://camo.githubusercontent.com/b5d669bd90c25b04278e6071e0271dc6f73533f6/68747470733a2f2f6769746875622e7764662e7361702e636f72702f443032333134332f4f6c696e676f56344a50412f626c6f622f6170616368652f6a70612d7475746f7269616c2f696d616765732f4d6f64656c2f44425461626c652e706e67" alt="Database Tables " data-canonical-src="https://github.wdf.sap.corp/D023143/OlingoV4JPA/blob/apache/jpa-tutorial/images/Model/DBTable.png" style="max-width:100%;" /></a></p> 
-<p>Now we can start with the first <a href="https://github.wdf.sap.corp/D023143/OlingoV4JPA/wiki/Tutorial-1.0:-Create-Metadata">Using Metadata generation</a></p>
+<p>The first series of tutorial shall introduce into the options currently provided to create OData metadata from JPA metadata:</p> 
+<p><a href="https://github.wdf.sap.corp/D023143/OlingoV4JPA/wiki/Tutorial-1.1:-Create-A-Simple-Entity">Tutorial 1.1: Create A Simple Entity</a><br /> <a href="https://github.wdf.sap.corp/D023143/OlingoV4JPA/wiki/Tutorial-1.2-:-Use-Navigation-Property">Tutorial 1.2: Use Navigation Property</a><br /> <a href="https://github.wdf.sap.corp/D023143/OlingoV4JPA/wiki/Tutorial-1.3-:-Text-Associations">Tutorial 1.3: Text Associations</a><br /> <a href="https://github.wdf.sap.corp/D023143/OlingoV4JPA/wiki/Tutorial-1.4-:-Use-Complex-Types">Tutorial 1.4: Use Complex Types</a></p>
 </body>
 </html>
