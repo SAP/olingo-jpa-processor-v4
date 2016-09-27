@@ -99,4 +99,5 @@ Before we start we should have a look at the data model we want to create step-b
 ![Database Tables ](Model/DBTable.png)
 
 
-Now we can start with the first [Using Metadata generation](/jpa-tutorial/Tutorials/Metadata/1.0 Overview.md)
+Now we can start with the first series of tutorial about [using Metadata generation](/jpa-tutorial/Tutorials/Metadata/1.0 Overview.md)
+Later you can learn in a second series of tutorial [how to retrieve data](/jpa-tutorial/Tutorials/RetrieveData/2.0 Preparation.md)

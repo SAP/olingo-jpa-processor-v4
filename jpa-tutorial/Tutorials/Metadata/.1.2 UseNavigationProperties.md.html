@@ -733,7 +733,7 @@ function setDocumentScrollTop(ypos)
   }
 }</pre>
 </div> 
-<p>The only thing in addition is a JPA Association <em>private BusinessPartner businessPartner</em>, which enables us to navigate from a Role to the corresponding Business Partner. To be able to do the same in the other direction, so from a Business Partner to its Roles, we need to add a corresponding association also at the Business Partner:</p> 
+<p>The only thing in addition is a JPA Association <em>private BusinessPartner businessPartner</em>, which enables us to navigate from a Role to the corresponding Business Partner. To be able to do the same in the other direction, so navigate from a Business Partner to its Roles, we need to add a corresponding association also at the Business Partner (note that we linked both using <em>mappedBy</em>):</p> 
 <div class="highlight highlight-source-java">
  <pre><span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">BusinessPartner</span> <span class="pl-k">implements</span> <span class="pl-e">Serializable</span> {
     <span class="pl-c1">...</span>

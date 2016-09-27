@@ -640,7 +640,7 @@ function setDocumentScrollTop(ypos)
 </head>
 <body class="markdown-body">
 <h1> <a id="tutorial-14-subtypes" class="anchor" href="#tutorial-14-subtypes" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Tutorial 1.4: Subtypes</h1> 
-<p>Currently we have one entity representing all our business partner, but indeed they are either companies or persons. We want to be able to distinguish between both, even so we still use only one database table. As the first step we create two new classes:<br /> 1. The Person:</p> 
+<p>Currently we have one entity representing all our business partner, but indeed they are either companies or persons. We want to be able to distinguish between both, even so we still use only one database table. As the first step we create two new classes:<br /> First the Person: </p> 
 <div class="highlight highlight-source-java">
  <pre><span class="pl-k">package</span> <span class="pl-smi">tutorial.model</span>;
 
@@ -668,9 +668,7 @@ function setDocumentScrollTop(ypos)
     <span class="pl-k">private</span> <span class="pl-smi">Date</span> birthDay;
 }</pre>
 </div> 
-<ol> 
- <li>The Company</li> 
-</ol> 
+<p>Second the Company</p> 
 <div class="highlight highlight-source-java">
  <pre><span class="pl-k">package</span> <span class="pl-smi">tutorial.model</span>;
 
@@ -693,7 +691,7 @@ function setDocumentScrollTop(ypos)
     <span class="pl-k">private</span> <span class="pl-smi">String</span> name2;
 }</pre>
 </div> 
-<p>In the example a person shall have a birth day and different property names than a company. So the attributes are in both classes. In addition the want ensure that no one retrieves business partner. To achieve this we make the Business Partner abstract:</p> 
+<p>In the example a person shall have a birth day and different property names than a company. So the attributes are in both classes. In addition we want ensure that no one retrieves business partner. To achieve this we make the Business Partner abstract:</p> 
 <div class="highlight highlight-source-java">
  <pre><span class="pl-k">@Inheritance</span>
 <span class="pl-k">@DiscriminatorColumn</span>(<span class="pl-c1">name</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span><span class="pl-cce">\&quot;</span>Type<span class="pl-cce">\&quot;</span><span class="pl-pds">&quot;</span></span>)

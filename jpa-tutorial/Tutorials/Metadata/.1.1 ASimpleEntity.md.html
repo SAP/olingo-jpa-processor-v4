@@ -640,7 +640,7 @@ function setDocumentScrollTop(ypos)
 </head>
 <body class="markdown-body">
 <h1> <a id="tutorial-11-create-a-simple-entity" class="anchor" href="#tutorial-11-create-a-simple-entity" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Tutorial 1.1: Create A Simple Entity</h1> 
-<p>We want to start with a very simple Business Partner model. As the first step we create a package in our <em>src/main/java</em> folder: <em>tutorial.model</em>. Within that package we create class BusinessPartner, which implements the Serializable interface:</p> 
+<p>We want to start with a very simple Business Partner entity. As the first step we create a package in our <em>src/main/java</em> folder: <em>tutorial.model</em>. Within that package we create class BusinessPartner, which implements the Serializable interface:</p> 
 <div class="highlight highlight-source-java">
  <pre><span class="pl-k">package</span> <span class="pl-smi">tutorial.model</span>;
 
@@ -732,9 +732,11 @@ function setDocumentScrollTop(ypos)
     &lt;/<span class="pl-ent">servlet-mapping</span>&gt;
 &lt;/<span class="pl-ent">web-app</span>&gt;</pre>
 </div> 
-<p>Second we create the servlet. For this we create a new package <em>tutorial.service</em> in <em>/src/main/java</em>.The class shall have the name <em>Servlet</em>, as we have declared it in the <em>web.xml</em> file and inherit from <em>javax.servlet.http.HttpServlet</em>. We overwrite the method <em>service</em>.<br /> package tutorial.service;</p> 
+<p>Second we create the servlet. For this we create a new package <em>tutorial.service</em> in <em>/src/main/java</em>.The class shall have the name <em>Servlet</em>, as we have declared it in the <em>web.xml</em> file and inherit from <em>javax.servlet.http.HttpServlet</em>. We overwrite the method <em>service</em>. </p> 
 <div class="highlight highlight-source-java">
- <pre><span class="pl-k">import</span> <span class="pl-smi">java.io.IOException</span>;
+ <pre><span class="pl-k">package</span> <span class="pl-smi">tutorial.service</span>;
+
+<span class="pl-k">import</span> <span class="pl-smi">java.io.IOException</span>;
 <span class="pl-k">import</span> <span class="pl-smi">java.util.ArrayList</span>;
 
 <span class="pl-k">import</span> <span class="pl-smi">javax.persistence.EntityManagerFactory</span>;
