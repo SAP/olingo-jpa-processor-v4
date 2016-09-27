@@ -639,134 +639,139 @@ function setDocumentScrollTop(ypos)
 
 </head>
 <body class="markdown-body">
+<h1> <a id="tutorial-13-text-associations" class="anchor" href="#tutorial-13-text-associations" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Tutorial 1.3: Text Associations</h1> 
 <p>Next we want to add the country our business partner is located at. Please note that this country may or may not be the same that we will see in the address later. The country shall be stored as a ISO 3166-1 character 3 coded value, so DEU for Germany or GBR for United Kingdom. In addition the description, so <em>Germany</em> respectively <em>United Kingdom</em>, of the code value should be provided art the business partner. The description itself will be stored within the database table <em>AdministrativeDivisionDescription</em>. The table shall not only store the description for countries, but shall be able to store the description of coded representation of a division of countries, which maybe provided by different authorities. Therefore it will get four key fields:<br /> 1. CodePublisher: Representing the publisher of a code list e.g. <a href="https://en.wikipedia.org/wiki/International_Organization_for_Standardization">ISO</a> or <a href="https://en.wikipedia.org/wiki/Eurostat">Eurostat</a><br /> 2. CodeID: The ID of the code list. Here <a href="https://en.wikipedia.org/wiki/ISO_3166-1">3166-1</a> or <a href="https://de.wikipedia.org/wiki/NUTS">NUTS-3</a><br /> 3. DivisionCode: The coded respresentation. So e.g. BEL or CHE<br /> 4. LanguageISO: Language coded in <a href="https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes">ISO 639-1</a> </p> 
 <p>So we need for JPA a key class: </p> 
-<pre><code>package tutorial.model;  
-import java.io.Serializable;
+<div class="highlight highlight-source-java">
+ <pre><span class="pl-k">package</span> <span class="pl-smi">tutorial.model</span>;  
+<span class="pl-k">import</span> <span class="pl-smi">java.io.Serializable</span>;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+<span class="pl-k">import</span> <span class="pl-smi">javax.persistence.Column</span>;
+<span class="pl-k">import</span> <span class="pl-smi">javax.persistence.Embeddable</span>;
 
-@Embeddable
-public class AdministrativeDivisionDescriptionKey implements Serializable {
+<span class="pl-k">@Embeddable</span>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">AdministrativeDivisionDescriptionKey</span> <span class="pl-k">implements</span> <span class="pl-e">Serializable</span> {
 
-    private static final long serialVersionUID = 1L;
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-k">long</span> serialVersionUID <span class="pl-k">=</span> <span class="pl-c1">1L</span>;
 
-    @Column(name = &quot;\&quot;CodePublisher\&quot;&quot;, length = 10, nullable = false)
-    private String codePublisher;
+    <span class="pl-k">@Column</span>(<span class="pl-c1">name</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span><span class="pl-cce">\&quot;</span>CodePublisher<span class="pl-cce">\&quot;</span><span class="pl-pds">&quot;</span></span>, <span class="pl-c1">length</span> <span class="pl-k">=</span> <span class="pl-c1">10</span>, <span class="pl-c1">nullable</span> <span class="pl-k">=</span> <span class="pl-c1">false</span>)
+    <span class="pl-k">private</span> <span class="pl-smi">String</span> codePublisher;
 
-    @Column(name = &quot;\&quot;CodeID\&quot;&quot;, length = 10, nullable = false)
-    private String codeID;
+    <span class="pl-k">@Column</span>(<span class="pl-c1">name</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span><span class="pl-cce">\&quot;</span>CodeID<span class="pl-cce">\&quot;</span><span class="pl-pds">&quot;</span></span>, <span class="pl-c1">length</span> <span class="pl-k">=</span> <span class="pl-c1">10</span>, <span class="pl-c1">nullable</span> <span class="pl-k">=</span> <span class="pl-c1">false</span>)
+    <span class="pl-k">private</span> <span class="pl-smi">String</span> codeID;
 
-    @Column(name = &quot;\&quot;DivisionCode\&quot;&quot;, length = 10, nullable = false)
-    private String divisionCode;
+    <span class="pl-k">@Column</span>(<span class="pl-c1">name</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span><span class="pl-cce">\&quot;</span>DivisionCode<span class="pl-cce">\&quot;</span><span class="pl-pds">&quot;</span></span>, <span class="pl-c1">length</span> <span class="pl-k">=</span> <span class="pl-c1">10</span>, <span class="pl-c1">nullable</span> <span class="pl-k">=</span> <span class="pl-c1">false</span>)
+    <span class="pl-k">private</span> <span class="pl-smi">String</span> divisionCode;
 
-    @Column(name = &quot;\&quot;LanguageISO\&quot;&quot;)
-    private String language;
+    <span class="pl-k">@Column</span>(<span class="pl-c1">name</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span><span class="pl-cce">\&quot;</span>LanguageISO<span class="pl-cce">\&quot;</span><span class="pl-pds">&quot;</span></span>)
+    <span class="pl-k">private</span> <span class="pl-smi">String</span> language;
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((codeID == null) ? 0 : codeID.hashCode());
-        result = prime * result + ((codePublisher == null) ? 0 : codePublisher.hashCode());
-        result = prime * result + ((divisionCode == null) ? 0 : divisionCode.hashCode());
-        result = prime * result + ((language == null) ? 0 : language.hashCode());
-        return result;
+    <span class="pl-k">@Override</span>
+    <span class="pl-k">public</span> <span class="pl-k">int</span> <span class="pl-en">hashCode</span>() {
+        <span class="pl-k">final</span> <span class="pl-k">int</span> prime <span class="pl-k">=</span> <span class="pl-c1">31</span>;
+        <span class="pl-k">int</span> result <span class="pl-k">=</span> <span class="pl-c1">1</span>;
+        result <span class="pl-k">=</span> prime <span class="pl-k">*</span> result <span class="pl-k">+</span> ((codeID <span class="pl-k">==</span> <span class="pl-c1">null</span>) <span class="pl-k">?</span> <span class="pl-c1">0</span> <span class="pl-k">:</span> codeID<span class="pl-k">.</span>hashCode());
+        result <span class="pl-k">=</span> prime <span class="pl-k">*</span> result <span class="pl-k">+</span> ((codePublisher <span class="pl-k">==</span> <span class="pl-c1">null</span>) <span class="pl-k">?</span> <span class="pl-c1">0</span> <span class="pl-k">:</span> codePublisher<span class="pl-k">.</span>hashCode());
+        result <span class="pl-k">=</span> prime <span class="pl-k">*</span> result <span class="pl-k">+</span> ((divisionCode <span class="pl-k">==</span> <span class="pl-c1">null</span>) <span class="pl-k">?</span> <span class="pl-c1">0</span> <span class="pl-k">:</span> divisionCode<span class="pl-k">.</span>hashCode());
+        result <span class="pl-k">=</span> prime <span class="pl-k">*</span> result <span class="pl-k">+</span> ((language <span class="pl-k">==</span> <span class="pl-c1">null</span>) <span class="pl-k">?</span> <span class="pl-c1">0</span> <span class="pl-k">:</span> language<span class="pl-k">.</span>hashCode());
+        <span class="pl-k">return</span> result;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        AdministrativeDivisionDescriptionKey other = (AdministrativeDivisionDescriptionKey) obj;
-        if (codeID == null) {
-            if (other.codeID != null)
-                    return false;
-            } else if (!codeID.equals(other.codeID))
-                    return false;
-        if (codePublisher == null) {
-            if (other.codePublisher != null)
-                    return false;
-            } else if (!codePublisher.equals(other.codePublisher))
-                    return false;
-        if (divisionCode == null) {
-            if (other.divisionCode != null)
-                    return false;
-        } else if (!divisionCode.equals(other.divisionCode))
-            return false;
-        if (language == null) {
-            if (other.language != null)
-                return false;
-        } else if (!language.equals(other.language))
-            return false;
-        return true;
+    <span class="pl-k">@Override</span>
+    <span class="pl-k">public</span> <span class="pl-k">boolean</span> <span class="pl-en">equals</span>(<span class="pl-smi">Object</span> <span class="pl-v">obj</span>) {
+        <span class="pl-k">if</span> (<span class="pl-v">this</span> <span class="pl-k">==</span> obj)
+            <span class="pl-k">return</span> <span class="pl-c1">true</span>;
+        <span class="pl-k">if</span> (obj <span class="pl-k">==</span> <span class="pl-c1">null</span>)
+            <span class="pl-k">return</span> <span class="pl-c1">false</span>;
+        <span class="pl-k">if</span> (getClass() <span class="pl-k">!=</span> obj<span class="pl-k">.</span>getClass())
+            <span class="pl-k">return</span> <span class="pl-c1">false</span>;
+        <span class="pl-smi">AdministrativeDivisionDescriptionKey</span> other <span class="pl-k">=</span> (<span class="pl-smi">AdministrativeDivisionDescriptionKey</span>) obj;
+        <span class="pl-k">if</span> (codeID <span class="pl-k">==</span> <span class="pl-c1">null</span>) {
+            <span class="pl-k">if</span> (other<span class="pl-k">.</span>codeID <span class="pl-k">!=</span> <span class="pl-c1">null</span>)
+                    <span class="pl-k">return</span> <span class="pl-c1">false</span>;
+            } <span class="pl-k">else</span> <span class="pl-k">if</span> (<span class="pl-k">!</span>codeID<span class="pl-k">.</span>equals(other<span class="pl-k">.</span>codeID))
+                    <span class="pl-k">return</span> <span class="pl-c1">false</span>;
+        <span class="pl-k">if</span> (codePublisher <span class="pl-k">==</span> <span class="pl-c1">null</span>) {
+            <span class="pl-k">if</span> (other<span class="pl-k">.</span>codePublisher <span class="pl-k">!=</span> <span class="pl-c1">null</span>)
+                    <span class="pl-k">return</span> <span class="pl-c1">false</span>;
+            } <span class="pl-k">else</span> <span class="pl-k">if</span> (<span class="pl-k">!</span>codePublisher<span class="pl-k">.</span>equals(other<span class="pl-k">.</span>codePublisher))
+                    <span class="pl-k">return</span> <span class="pl-c1">false</span>;
+        <span class="pl-k">if</span> (divisionCode <span class="pl-k">==</span> <span class="pl-c1">null</span>) {
+            <span class="pl-k">if</span> (other<span class="pl-k">.</span>divisionCode <span class="pl-k">!=</span> <span class="pl-c1">null</span>)
+                    <span class="pl-k">return</span> <span class="pl-c1">false</span>;
+        } <span class="pl-k">else</span> <span class="pl-k">if</span> (<span class="pl-k">!</span>divisionCode<span class="pl-k">.</span>equals(other<span class="pl-k">.</span>divisionCode))
+            <span class="pl-k">return</span> <span class="pl-c1">false</span>;
+        <span class="pl-k">if</span> (language <span class="pl-k">==</span> <span class="pl-c1">null</span>) {
+            <span class="pl-k">if</span> (other<span class="pl-k">.</span>language <span class="pl-k">!=</span> <span class="pl-c1">null</span>)
+                <span class="pl-k">return</span> <span class="pl-c1">false</span>;
+        } <span class="pl-k">else</span> <span class="pl-k">if</span> (<span class="pl-k">!</span>language<span class="pl-k">.</span>equals(other<span class="pl-k">.</span>language))
+            <span class="pl-k">return</span> <span class="pl-c1">false</span>;
+        <span class="pl-k">return</span> <span class="pl-c1">true</span>;
     }
-}
-</code></pre> 
+}</pre>
+</div> 
 <p>Please note, that we became a little more lazy and declared the class as <em>@Embeddable</em>. This will allow us to simplify <em>AdministrativeDivisionDescription</em> as we do not need to declare the key attributes again. Instead of that we annotate the key attribute with <em>@EmbeddedId</em>:</p> 
-<pre><code>package tutorial.model;
+<div class="highlight highlight-source-java">
+ <pre><span class="pl-k">package</span> <span class="pl-smi">tutorial.model</span>;
 
-import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+<span class="pl-k">import</span> <span class="pl-smi">javax.persistence.Column</span>;
+<span class="pl-k">import</span> <span class="pl-smi">javax.persistence.EmbeddedId</span>;
+<span class="pl-k">import</span> <span class="pl-smi">javax.persistence.Entity</span>;
+<span class="pl-k">import</span> <span class="pl-smi">javax.persistence.Table</span>;
 
-@Entity
-@Table(schema = &quot;\&quot;OLINGO\&quot;&quot;, name = &quot;\&quot;AdministrativeDivisionDescription\&quot;&quot;)
-public class AdministrativeDivisionDescription {
+<span class="pl-k">@Entity</span>
+<span class="pl-k">@Table</span>(<span class="pl-c1">schema</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span><span class="pl-cce">\&quot;</span>OLINGO<span class="pl-cce">\&quot;</span><span class="pl-pds">&quot;</span></span>, <span class="pl-c1">name</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span><span class="pl-cce">\&quot;</span>AdministrativeDivisionDescription<span class="pl-cce">\&quot;</span><span class="pl-pds">&quot;</span></span>)
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">AdministrativeDivisionDescription</span> {
 
-    @EmbeddedId
-    private AdministrativeDivisionDescriptionKey key;
+    <span class="pl-k">@EmbeddedId</span>
+    <span class="pl-k">private</span> <span class="pl-smi">AdministrativeDivisionDescriptionKey</span> key;
 
-    @Column(name = &quot;\&quot;Name\&quot;&quot;, length = 100)
-    private String name;
+    <span class="pl-k">@Column</span>(<span class="pl-c1">name</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span><span class="pl-cce">\&quot;</span>Name<span class="pl-cce">\&quot;</span><span class="pl-pds">&quot;</span></span>, <span class="pl-c1">length</span> <span class="pl-k">=</span> <span class="pl-c1">100</span>)
+    <span class="pl-k">private</span> <span class="pl-smi">String</span> name;
 
-    public String getName() {
-        return name;
+    <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">getName</span>() {
+        <span class="pl-k">return</span> name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    <span class="pl-k">public</span> <span class="pl-k">void</span> <span class="pl-en">setName</span>(<span class="pl-smi">String</span> <span class="pl-v">name</span>) {
+        <span class="pl-v">this</span><span class="pl-k">.</span>name <span class="pl-k">=</span> name;
     }
-}
-</code></pre> 
+}</pre>
+</div> 
 <p>Last step before we can add country and country description to the Business Partner is to publish the classes at the <em>persistance.xml</em>: </p> 
-<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+<div class="highlight highlight-text-xml">
+ <pre>&lt;?<span class="pl-ent">xml</span><span class="pl-e"> version</span>=<span class="pl-s"><span class="pl-pds">&quot;</span>1.0<span class="pl-pds">&quot;</span></span><span class="pl-e"> encoding</span>=<span class="pl-s"><span class="pl-pds">&quot;</span>UTF-8<span class="pl-pds">&quot;</span></span>?&gt;
 ...
-    &lt;persistence-unit name=&quot;Tutorial&quot;&gt;
-        &lt;class&gt;tutorial.model.BusinessPartner&lt;/class&gt;
-        &lt;class&gt;tutorial.model.BusinessPartnerRole&lt;/class&gt;
-        &lt;class&gt;tutorial.model.AdministrativeDivisionDescription&lt;/class&gt;
-        &lt;class&gt;tutorial.model.AdministrativeDivisionDescriptionKey&lt;/class&gt;
-        &lt;properties&gt;
-            &lt;property name=&quot;eclipselink.logging.level.sql&quot; value=&quot;FINEST&quot; /&gt;
+    &lt;<span class="pl-ent">persistence-unit</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">&quot;</span>Tutorial<span class="pl-pds">&quot;</span></span>&gt;
+        &lt;<span class="pl-ent">class</span>&gt;tutorial.model.BusinessPartner&lt;/<span class="pl-ent">class</span>&gt;
+        &lt;<span class="pl-ent">class</span>&gt;tutorial.model.BusinessPartnerRole&lt;/<span class="pl-ent">class</span>&gt;
+        &lt;<span class="pl-ent">class</span>&gt;tutorial.model.AdministrativeDivisionDescription&lt;/<span class="pl-ent">class</span>&gt;
+        &lt;<span class="pl-ent">class</span>&gt;tutorial.model.AdministrativeDivisionDescriptionKey&lt;/<span class="pl-ent">class</span>&gt;
+        &lt;<span class="pl-ent">properties</span>&gt;
+            &lt;<span class="pl-ent">property</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">&quot;</span>eclipselink.logging.level.sql<span class="pl-pds">&quot;</span></span> <span class="pl-e">value</span>=<span class="pl-s"><span class="pl-pds">&quot;</span>FINEST<span class="pl-pds">&quot;</span></span> /&gt;
             ...
-        &lt;/properties&gt;
-    &lt;/persistence-unit&gt; 
-&lt;/persistence&gt;  
-</code></pre> 
+        &lt;/<span class="pl-ent">properties</span>&gt;
+    &lt;/<span class="pl-ent">persistence-unit</span>&gt; 
+&lt;/<span class="pl-ent">persistence</span>&gt;  </pre>
+</div> 
 <p>Now we can add the country and its description attribute to BusinessPartner. The description attribute is represented by an association to AdministrativeDivisionDescription. The association has an additional annotation, <em>@EdmDescriptionAssozation</em>. This is used to provide some more metadata, which is needed later to generate a LEFT OUTER join. These are:<br /> 1. The path to the attribute containing the language separated by &quot;/&quot;. Here the attribute within AdministrativeDivisionDescription is <em>key</em> and the attribute within <em>key</em> is <em>language</em>.<br /> 2. The path to the attribute with the description.<br /> 3. An optional list of attributes of the join that shall have a fixed value. </p> 
-<pre><code>public class BusinessPartner implements Serializable {  
-    ...  
-     @Column(name = &quot;\&quot;Country\&quot;&quot;, length = 3)  
-    private String country;  
+<div class="highlight highlight-source-java">
+ <pre><span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">BusinessPartner</span> <span class="pl-k">implements</span> <span class="pl-e">Serializable</span> {  
+    <span class="pl-c1">...</span>  
+     <span class="pl-k">@Column</span>(<span class="pl-c1">name</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span><span class="pl-cce">\&quot;</span>Country<span class="pl-cce">\&quot;</span><span class="pl-pds">&quot;</span></span>, <span class="pl-c1">length</span> <span class="pl-k">=</span> <span class="pl-c1">3</span>)  
+    <span class="pl-k">private</span> <span class="pl-smi">String</span> country;  
 
-    @EdmDescriptionAssozation(languageAttribute = &quot;key/language&quot;, descriptionAttribute = &quot;name&quot;, valueAssignments = {
-                    @EdmDescriptionAssozation.valueAssignment(attribute = &quot;key/codePublisher&quot;, value = &quot;ISO&quot;),
-                    @EdmDescriptionAssozation.valueAssignment(attribute = &quot;key/codeID&quot;, value = &quot;3166-1&quot;) })
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = &quot;\&quot;DivisionCode\&quot;&quot;, referencedColumnName = &quot;\&quot;Country\&quot;&quot;)
-    private Collection&lt;AdministrativeDivisionDescription&gt; countryName;
-    ...
-</code></pre> 
+    <span class="pl-k">@EdmDescriptionAssozation</span>(<span class="pl-c1">languageAttribute</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span>key/language<span class="pl-pds">&quot;</span></span>, <span class="pl-c1">descriptionAttribute</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span>name<span class="pl-pds">&quot;</span></span>, <span class="pl-c1">valueAssignments</span> <span class="pl-k">=</span> {
+                    <span class="pl-k">@EdmDescriptionAssozation.valueAssignment</span>(<span class="pl-c1">attribute</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span>key/codePublisher<span class="pl-pds">&quot;</span></span>, <span class="pl-c1">value</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span>ISO<span class="pl-pds">&quot;</span></span>),
+                    <span class="pl-k">@EdmDescriptionAssozation.valueAssignment</span>(<span class="pl-c1">attribute</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span>key/codeID<span class="pl-pds">&quot;</span></span>, <span class="pl-c1">value</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span>3166-1<span class="pl-pds">&quot;</span></span>) })
+    <span class="pl-k">@OneToMany</span>(<span class="pl-c1">fetch</span> <span class="pl-k">=</span> <span class="pl-smi">FetchType</span><span class="pl-c1"><span class="pl-k">.</span>LAZY</span>)
+    <span class="pl-k">@JoinColumn</span>(<span class="pl-c1">name</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span><span class="pl-cce">\&quot;</span>DivisionCode<span class="pl-cce">\&quot;</span><span class="pl-pds">&quot;</span></span>, <span class="pl-c1">referencedColumnName</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span><span class="pl-cce">\&quot;</span>Country<span class="pl-cce">\&quot;</span><span class="pl-pds">&quot;</span></span>)
+    <span class="pl-k">private</span> <span class="pl-k">Collection&lt;<span class="pl-smi">AdministrativeDivisionDescription</span>&gt;</span> countryName;
+    <span class="pl-c1">...</span></pre>
+</div> 
 <p>You may wonder why we do not use a OneToOne relation, but we are not able to fully qualify the key of the target table, as we at least can't provide the language. A usage of OneToOne would therefore result in an exception like<br /> <em>The @JoinColumns on the annotated element [field countryName] from the entity class [class tutorial.model.BusinessPartner] is incomplete. When the source entity class uses a composite primary key, a @JoinColumn must be specified for each join column using the @JoinColumns. Both the name and the referencedColumnName elements must be specified in each such @JoinColumn.</em> </p> 
 <p>Having done that, we can have a look at the generated metadata: <em>http://localhost:8080/Tutorial/Tutorial.svc/$metadata</em>.</p> 
-<p><a href="https://camo.githubusercontent.com/80f295e0a39359d9d095382770a52db79814f47d/68747470733a2f2f6769746875622e7764662e7361702e636f72702f443032333134332f4f6c696e676f56344a50412f626c6f622f6170616368652f6a70612d7475746f7269616c2f696d616765732f4d6574616461746142755061312f4d617070696e67332e706e67" target="_blank"><img src="https://camo.githubusercontent.com/80f295e0a39359d9d095382770a52db79814f47d/68747470733a2f2f6769746875622e7764662e7361702e636f72702f443032333134332f4f6c696e676f56344a50412f626c6f622f6170616368652f6a70612d7475746f7269616c2f696d616765732f4d6574616461746142755061312f4d617070696e67332e706e67" alt="JPA - OData Mapping" data-canonical-src="https://github.wdf.sap.corp/D023143/OlingoV4JPA/blob/apache/jpa-tutorial/images/MetadataBuPa1/Mapping3.png" style="max-width:100%;" /></a> </p> 
-<p><a href="https://github.wdf.sap.corp/D023143/OlingoV4JPA/wiki/Tutorial-1.4-:-Use-Complex-Types">Tutorial 1.4 : Use Complex Types</a></p>
+<p><a href="Metadata/Mapping3.png" target="_blank"><img src="Metadata/Mapping3.png" alt="JPA - OData Mapping" style="max-width:100%;" /></a> </p> 
+<p>Next step: <a href=".1.4 Subtypes.md.html">Tutorial 1.4: Subtypes</a></p>
 </body>
 </html>

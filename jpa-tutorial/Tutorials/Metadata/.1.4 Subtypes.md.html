@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>C:\Users\D023143\git\OlingoV4-JPA\jpa-tutorial\Tutorials\Metadata\.1.5 NavigationAndComplexTypes.md.html</title>
+<title>C:\Users\D023143\git\OlingoV4-JPA\jpa-tutorial\Tutorials\Metadata\.1.4 Subtypes.md.html</title>
 
 
 <style type="text/css">
@@ -639,7 +639,72 @@ function setDocumentScrollTop(ypos)
 
 </head>
 <body class="markdown-body">
-<h1> <a id="tutorial-15-navigation-properties-and-complex-types" class="anchor" href="#tutorial-15-navigation-properties-and-complex-types" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Tutorial 1.5: Navigation Properties And Complex Types</h1> 
-<p>You may have noticed, that the address has a region</p>
+<h1> <a id="tutorial-14-subtypes" class="anchor" href="#tutorial-14-subtypes" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Tutorial 1.4: Subtypes</h1> 
+<p>Currently we have one entity representing all our business partner, but indeed they are either companies or persons. We want to be able to distinguish between both, even so we still use only one database table. As the first step we create two new classes:<br /> 1. The Person:</p> 
+<div class="highlight highlight-source-java">
+ <pre><span class="pl-k">package</span> <span class="pl-smi">tutorial.model</span>;
+
+<span class="pl-k">import</span> <span class="pl-smi">java.sql.Date</span>;
+
+<span class="pl-k">import</span> <span class="pl-smi">javax.persistence.Column</span>;
+<span class="pl-k">import</span> <span class="pl-smi">javax.persistence.DiscriminatorValue</span>;
+<span class="pl-k">import</span> <span class="pl-smi">javax.persistence.Entity</span>;
+<span class="pl-k">import</span> <span class="pl-smi">javax.persistence.Table</span>;
+
+<span class="pl-k">@Entity</span>(<span class="pl-c1">name</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span>Person<span class="pl-pds">&quot;</span></span>)
+<span class="pl-k">@DiscriminatorValue</span>(<span class="pl-c1">value</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span>1<span class="pl-pds">&quot;</span></span>)
+<span class="pl-k">@Table</span>(<span class="pl-c1">schema</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span><span class="pl-cce">\&quot;</span>OLINGO<span class="pl-cce">\&quot;</span><span class="pl-pds">&quot;</span></span>, <span class="pl-c1">name</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span><span class="pl-cce">\&quot;</span>BusinessPartner<span class="pl-cce">\&quot;</span><span class="pl-pds">&quot;</span></span>)
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">Person</span> <span class="pl-k">extends</span> <span class="pl-e">BusinessPartner</span> {
+
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-k">long</span> serialVersionUID <span class="pl-k">=</span> <span class="pl-c1">1L</span>;
+
+    <span class="pl-k">@Column</span>(<span class="pl-c1">name</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span><span class="pl-cce">\&quot;</span>NameLine1<span class="pl-cce">\&quot;</span><span class="pl-pds">&quot;</span></span>)
+    <span class="pl-k">private</span> <span class="pl-smi">String</span> firstName;
+
+    <span class="pl-k">@Column</span>(<span class="pl-c1">name</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span><span class="pl-cce">\&quot;</span>NameLine2<span class="pl-cce">\&quot;</span><span class="pl-pds">&quot;</span></span>)
+    <span class="pl-k">private</span> <span class="pl-smi">String</span> lastName;
+
+    <span class="pl-k">@Column</span>(<span class="pl-c1">name</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span><span class="pl-cce">\&quot;</span>BirthDay<span class="pl-cce">\&quot;</span><span class="pl-pds">&quot;</span></span>)
+    <span class="pl-k">private</span> <span class="pl-smi">Date</span> birthDay;
+}</pre>
+</div> 
+<ol> 
+ <li>The Company</li> 
+</ol> 
+<div class="highlight highlight-source-java">
+ <pre><span class="pl-k">package</span> <span class="pl-smi">tutorial.model</span>;
+
+<span class="pl-k">import</span> <span class="pl-smi">javax.persistence.Column</span>;
+<span class="pl-k">import</span> <span class="pl-smi">javax.persistence.DiscriminatorValue</span>;
+<span class="pl-k">import</span> <span class="pl-smi">javax.persistence.Entity</span>;
+<span class="pl-k">import</span> <span class="pl-smi">javax.persistence.Table</span>;
+
+<span class="pl-k">@Entity</span>(<span class="pl-c1">name</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span>Company<span class="pl-pds">&quot;</span></span>)
+<span class="pl-k">@DiscriminatorValue</span>(<span class="pl-c1">value</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span>2<span class="pl-pds">&quot;</span></span>)
+<span class="pl-k">@Table</span>(<span class="pl-c1">schema</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span><span class="pl-cce">\&quot;</span>OLINGO<span class="pl-cce">\&quot;</span><span class="pl-pds">&quot;</span></span>, <span class="pl-c1">name</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span><span class="pl-cce">\&quot;</span>BusinessPartner<span class="pl-cce">\&quot;</span><span class="pl-pds">&quot;</span></span>)
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">Company</span> <span class="pl-k">extends</span> <span class="pl-e">BusinessPartner</span> {
+
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-k">long</span> serialVersionUID <span class="pl-k">=</span> <span class="pl-c1">1L</span>;
+
+    <span class="pl-k">@Column</span>(<span class="pl-c1">name</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span><span class="pl-cce">\&quot;</span>NameLine1<span class="pl-cce">\&quot;</span><span class="pl-pds">&quot;</span></span>)
+    <span class="pl-k">private</span> <span class="pl-smi">String</span> name1;
+
+    <span class="pl-k">@Column</span>(<span class="pl-c1">name</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span><span class="pl-cce">\&quot;</span>NameLine2<span class="pl-cce">\&quot;</span><span class="pl-pds">&quot;</span></span>)
+    <span class="pl-k">private</span> <span class="pl-smi">String</span> name2;
+}</pre>
+</div> 
+<p>In the example a person shall have a birth day and different property names than a company. So the attributes are in both classes. In addition the want ensure that no one retrieves business partner. To achieve this we make the Business Partner abstract:</p> 
+<div class="highlight highlight-source-java">
+ <pre><span class="pl-k">@Inheritance</span>
+<span class="pl-k">@DiscriminatorColumn</span>(<span class="pl-c1">name</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span><span class="pl-cce">\&quot;</span>Type<span class="pl-cce">\&quot;</span><span class="pl-pds">&quot;</span></span>)
+<span class="pl-k">@Entity</span>(<span class="pl-c1">name</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span>BusinessPartner<span class="pl-pds">&quot;</span></span>)
+<span class="pl-k">@Table</span>(<span class="pl-c1">schema</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span><span class="pl-cce">\&quot;</span>OLINGO<span class="pl-cce">\&quot;</span><span class="pl-pds">&quot;</span></span>, <span class="pl-c1">name</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span><span class="pl-cce">\&quot;</span>BusinessPartner<span class="pl-cce">\&quot;</span><span class="pl-pds">&quot;</span></span>)
+<span class="pl-k">public</span> <span class="pl-k">abstract</span> <span class="pl-k">class</span> <span class="pl-en">BusinessPartner</span> <span class="pl-k">implements</span> <span class="pl-e">Serializable</span> {
+
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-k">long</span> serialVersionUID <span class="pl-k">=</span> <span class="pl-c1">1L</span>;
+    <span class="pl-c1">...</span></pre>
+</div> 
+<p>Like before we have to add the new entities to the persistence.xml and can have a look at the result <em>http://localhost:8080/Tutorial/Tutorial.svc/$metadata</em>. <a href="Metadata/Mapping5.png" target="_blank"><img src="Metadata/Mapping5.png" alt="JPA - OData Mapping" style="max-width:100%;" /></a> </p> 
+<p>Next step: <a href=".1.5 UsingComplexTypes.md.html">Tutorial 1.5: Use Complex Types</a></p>
 </body>
 </html>

@@ -639,113 +639,127 @@ function setDocumentScrollTop(ypos)
 
 </head>
 <body class="markdown-body">
-<p>We want to be able to distinguish between different types of Business Partner e.g. a Customer or Supplier or want to know if a Business Partner is both. To do so we introduce a new entity the Business Partner Role. As mentioned it is required that we can assign multiple Roles to a Business Partner, which can be distinguished by the Category. To do so we created a key out of multiple attributes. JPA requires here an Id class: </p> 
-<pre><code>package tutorial.model;
+<h1> <a id="tutorial-12-use-navigation-properties" class="anchor" href="#tutorial-12-use-navigation-properties" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Tutorial 1.2: Use Navigation Properties</h1> 
+<p>We want to be able to distinguish between different types of Business Partner e.g. a Customer or Supplier or want to know if a Business Partner is both. To do so we introduce a new entity the Business Partner Role. As mentioned it is required that we can assign multiple Roles to a Business Partner, which can be distinguished by the Category. To do so we created a key out of multiple attributes. JPA requires here an Id class:</p> 
+<div class="highlight highlight-source-java">
+ <pre><span class="pl-k">package</span> <span class="pl-smi">tutorial.model</span>;
 
-import java.io.Serializable;
-import javax.persistence.Id;
+<span class="pl-k">import</span> <span class="pl-smi">java.io.Serializable</span>;
+<span class="pl-k">import</span> <span class="pl-smi">javax.persistence.Id</span>;
 
-public class BusinessPartnerRoleKey implements Serializable {
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">BusinessPartnerRoleKey</span> <span class="pl-k">implements</span> <span class="pl-e">Serializable</span> {
 
-    private static final long serialVersionUID = 1L;
+    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-k">long</span> serialVersionUID <span class="pl-k">=</span> <span class="pl-c1">1L</span>;
 
-    @Id
-    private String businessPartnerID;
-    @Id
-    private String roleCategory;
+    <span class="pl-k">@Id</span>
+    <span class="pl-k">private</span> <span class="pl-smi">String</span> businessPartnerID;
+    <span class="pl-k">@Id</span>
+    <span class="pl-k">private</span> <span class="pl-smi">String</span> roleCategory;
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        BusinessPartnerRoleKey other = (BusinessPartnerRoleKey) obj;
-        if (businessPartnerID == null) {
-            if (other.businessPartnerID != null)
-                return false;
-        } else if (!businessPartnerID.equals(other.businessPartnerID))
-            return false;
-        if (roleCategory == null) {
-            if (other.roleCategory != null)
-                    return false;
-        } else if (!roleCategory.equals(other.roleCategory))
-                return false;
-        return true;
+    <span class="pl-k">@Override</span>
+    <span class="pl-k">public</span> <span class="pl-k">boolean</span> <span class="pl-en">equals</span>(<span class="pl-smi">Object</span> <span class="pl-v">obj</span>) {
+        <span class="pl-k">if</span> (<span class="pl-v">this</span> <span class="pl-k">==</span> obj)
+            <span class="pl-k">return</span> <span class="pl-c1">true</span>;
+        <span class="pl-k">if</span> (obj <span class="pl-k">==</span> <span class="pl-c1">null</span>)
+            <span class="pl-k">return</span> <span class="pl-c1">false</span>;
+        <span class="pl-k">if</span> (getClass() <span class="pl-k">!=</span> obj<span class="pl-k">.</span>getClass())
+            <span class="pl-k">return</span> <span class="pl-c1">false</span>;
+        <span class="pl-smi">BusinessPartnerRoleKey</span> other <span class="pl-k">=</span> (<span class="pl-smi">BusinessPartnerRoleKey</span>) obj;
+        <span class="pl-k">if</span> (businessPartnerID <span class="pl-k">==</span> <span class="pl-c1">null</span>) {
+            <span class="pl-k">if</span> (other<span class="pl-k">.</span>businessPartnerID <span class="pl-k">!=</span> <span class="pl-c1">null</span>)
+                <span class="pl-k">return</span> <span class="pl-c1">false</span>;
+        } <span class="pl-k">else</span> <span class="pl-k">if</span> (<span class="pl-k">!</span>businessPartnerID<span class="pl-k">.</span>equals(other<span class="pl-k">.</span>businessPartnerID))
+            <span class="pl-k">return</span> <span class="pl-c1">false</span>;
+        <span class="pl-k">if</span> (roleCategory <span class="pl-k">==</span> <span class="pl-c1">null</span>) {
+            <span class="pl-k">if</span> (other<span class="pl-k">.</span>roleCategory <span class="pl-k">!=</span> <span class="pl-c1">null</span>)
+                    <span class="pl-k">return</span> <span class="pl-c1">false</span>;
+        } <span class="pl-k">else</span> <span class="pl-k">if</span> (<span class="pl-k">!</span>roleCategory<span class="pl-k">.</span>equals(other<span class="pl-k">.</span>roleCategory))
+                <span class="pl-k">return</span> <span class="pl-c1">false</span>;
+        <span class="pl-k">return</span> <span class="pl-c1">true</span>;
     }
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((businessPartnerID == null) ? 0 : businessPartnerID.hashCode());
-        result = prime * result + ((roleCategory == null) ? 0 : roleCategory.hashCode());
-        return result;
+    <span class="pl-k">@Override</span>
+    <span class="pl-k">public</span> <span class="pl-k">int</span> <span class="pl-en">hashCode</span>() {
+        <span class="pl-k">final</span> <span class="pl-k">int</span> prime <span class="pl-k">=</span> <span class="pl-c1">31</span>;
+        <span class="pl-k">int</span> result <span class="pl-k">=</span> <span class="pl-c1">1</span>;
+        result <span class="pl-k">=</span> prime <span class="pl-k">*</span> result <span class="pl-k">+</span> ((businessPartnerID <span class="pl-k">==</span> <span class="pl-c1">null</span>) <span class="pl-k">?</span> <span class="pl-c1">0</span> <span class="pl-k">:</span> businessPartnerID<span class="pl-k">.</span>hashCode());
+        result <span class="pl-k">=</span> prime <span class="pl-k">*</span> result <span class="pl-k">+</span> ((roleCategory <span class="pl-k">==</span> <span class="pl-c1">null</span>) <span class="pl-k">?</span> <span class="pl-c1">0</span> <span class="pl-k">:</span> roleCategory<span class="pl-k">.</span>hashCode());
+        <span class="pl-k">return</span> result;
     }
-}
-</code></pre> 
+}</pre>
+</div> 
 <p>Now we can create class BusinessPartnerRole, which has not more than the key values:</p> 
-<pre><code>package tutorial.model;
+<div class="highlight highlight-source-java">
+ <pre><span class="pl-k">package</span> <span class="pl-smi">tutorial.model</span>;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+<span class="pl-k">import</span> <span class="pl-smi">javax.persistence.Column</span>;
+<span class="pl-k">import</span> <span class="pl-smi">javax.persistence.Entity</span>;
+<span class="pl-k">import</span> <span class="pl-smi">javax.persistence.FetchType</span>;
+<span class="pl-k">import</span> <span class="pl-smi">javax.persistence.Id</span>;
+<span class="pl-k">import</span> <span class="pl-smi">javax.persistence.IdClass</span>;
+<span class="pl-k">import</span> <span class="pl-smi">javax.persistence.JoinColumn</span>;
+<span class="pl-k">import</span> <span class="pl-smi">javax.persistence.ManyToOne</span>;
+<span class="pl-k">import</span> <span class="pl-smi">javax.persistence.Table</span>;
 
-import org.eclipse.persistence.annotations.ReadOnly;
+<span class="pl-k">import</span> <span class="pl-smi">org.eclipse.persistence.annotations.ReadOnly</span>;
 
-@IdClass(BusinessPartnerRoleKey.class)
-@ReadOnly
-@Entity(name = &quot;BusinessPartnerRole&quot;)
-@Table(schema = &quot;\&quot;OLINGO\&quot;&quot;, name = &quot;\&quot;BusinessPartnerRole\&quot;&quot;)
-public class BusinessPartnerRole {
-  @Id
-  @Column(name = &quot;\&quot;BusinessPartnerID\&quot;&quot;)
-  private String businessPartnerID;
-  @Id
-  @Column(name = &quot;\&quot;BusinessPartnerRole\&quot;&quot;)
-  private String roleCategory;
+<span class="pl-k">@IdClass</span>(<span class="pl-smi">BusinessPartnerRoleKey</span><span class="pl-k">.</span>class)
+<span class="pl-k">@ReadOnly</span>
+<span class="pl-k">@Entity</span>(<span class="pl-c1">name</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span>BusinessPartnerRole<span class="pl-pds">&quot;</span></span>)
+<span class="pl-k">@Table</span>(<span class="pl-c1">schema</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span><span class="pl-cce">\&quot;</span>OLINGO<span class="pl-cce">\&quot;</span><span class="pl-pds">&quot;</span></span>, <span class="pl-c1">name</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span><span class="pl-cce">\&quot;</span>BusinessPartnerRole<span class="pl-cce">\&quot;</span><span class="pl-pds">&quot;</span></span>)
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">BusinessPartnerRole</span> {
+  <span class="pl-k">@Id</span>
+  <span class="pl-k">@Column</span>(<span class="pl-c1">name</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span><span class="pl-cce">\&quot;</span>BusinessPartnerID<span class="pl-cce">\&quot;</span><span class="pl-pds">&quot;</span></span>)
+  <span class="pl-k">private</span> <span class="pl-smi">String</span> businessPartnerID;
 
-  @ManyToOne(optional = false, fetch = FetchType.LAZY)
-  @JoinColumn(name = &quot;\&quot;BusinessPartnerID\&quot;&quot;, insertable = false, updatable = false)
-  private BusinessPartner businessPartner;
+  <span class="pl-k">@Id</span>
+  <span class="pl-k">@Column</span>(<span class="pl-c1">name</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span><span class="pl-cce">\&quot;</span>BusinessPartnerRole<span class="pl-cce">\&quot;</span><span class="pl-pds">&quot;</span></span>)
+  <span class="pl-k">private</span> <span class="pl-smi">String</span> roleCategory;
 
-  public String getBusinessPartnerID() {
-    return businessPartnerID;
+  <span class="pl-k">@ManyToOne</span>(<span class="pl-c1">optional</span> <span class="pl-k">=</span> <span class="pl-c1">false</span>, <span class="pl-c1">fetch</span> <span class="pl-k">=</span> <span class="pl-smi">FetchType</span><span class="pl-c1"><span class="pl-k">.</span>LAZY</span>)
+  <span class="pl-k">@JoinColumn</span>(<span class="pl-c1">name</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span><span class="pl-cce">\&quot;</span>BusinessPartnerID<span class="pl-cce">\&quot;</span><span class="pl-pds">&quot;</span></span>, <span class="pl-c1">insertable</span> <span class="pl-k">=</span> <span class="pl-c1">false</span>, <span class="pl-c1">updatable</span> <span class="pl-k">=</span> <span class="pl-c1">false</span>)
+  <span class="pl-k">private</span> <span class="pl-smi">BusinessPartner</span> businessPartner;
+
+  <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">getBusinessPartnerID</span>() {
+    <span class="pl-k">return</span> businessPartnerID;
   }
 
-  public String getRoleCategory() {
-        return roleCategory;
+  <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">getRoleCategory</span>() {
+        <span class="pl-k">return</span> roleCategory;
   }
 
-  public BusinessPartner getBusinessPartner() {
-     return businessPartner;
+  <span class="pl-k">public</span> <span class="pl-smi">BusinessPartner</span> <span class="pl-en">getBusinessPartner</span>() {
+     <span class="pl-k">return</span> businessPartner;
   }
-}
-</code></pre> 
+}</pre>
+</div> 
 <p>The only thing in addition is a JPA Association <em>private BusinessPartner businessPartner</em>, which enables us to navigate from a Role to the corresponding Business Partner. To be able to do the same in the other direction, so from a Business Partner to its Roles, we need to add a corresponding association also at the Business Partner:</p> 
-<pre><code>public class BusinessPartner implements Serializable {
-...
-@Column(name = &quot;\&quot;CustomNum2\&quot;&quot;, precision = 30, scale = 5)
-private BigDecimal customNum2;
+<div class="highlight highlight-source-java">
+ <pre><span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">BusinessPartner</span> <span class="pl-k">implements</span> <span class="pl-e">Serializable</span> {
+    <span class="pl-c1">...</span>
+    <span class="pl-k">@Column</span>(<span class="pl-c1">name</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span><span class="pl-cce">\&quot;</span>CustomNum2<span class="pl-cce">\&quot;</span><span class="pl-pds">&quot;</span></span>, <span class="pl-c1">precision</span> <span class="pl-k">=</span> <span class="pl-c1">30</span>, <span class="pl-c1">scale</span> <span class="pl-k">=</span> <span class="pl-c1">5</span>)
+    <span class="pl-k">private</span> <span class="pl-smi">BigDecimal</span> customNum2;
 
-@OneToMany(mappedBy = &quot;businessPartner&quot;, fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-private Collection&lt;BusinessPartnerRole&gt; roles;
+    <span class="pl-k">@OneToMany</span>(<span class="pl-c1">mappedBy</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">&quot;</span>businessPartner<span class="pl-pds">&quot;</span></span>, <span class="pl-c1">fetch</span> <span class="pl-k">=</span> <span class="pl-smi">FetchType</span><span class="pl-c1"><span class="pl-k">.</span>LAZY</span>, <span class="pl-c1">cascade</span> <span class="pl-k">=</span> <span class="pl-smi">CascadeType</span><span class="pl-c1"><span class="pl-k">.</span>REMOVE</span>)
+    <span class="pl-k">private</span> <span class="pl-k">Collection&lt;<span class="pl-smi">BusinessPartnerRole</span>&gt;</span> roles;
 
-public BusinessPartner() {
-    super();
-}
-    ...
-</code></pre> 
-<p>Last but not least we have to declare the new entity within the persistence.xml:<br /> &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;<br /> ...<br /> &lt;persistence-unit name=&quot;Tutorial&quot;&gt;<br /> &lt;class&gt;tutorial.model.BusinessPartner&lt;/class&gt;<br /> &lt;class&gt;tutorial.model.BusinessPartnerRole&lt;/class&gt;<br /> &lt;properties&gt;<br /> ... </p> 
+    <span class="pl-k">public</span> <span class="pl-en">BusinessPartner</span>() {
+        <span class="pl-v">super</span>();
+    }
+    <span class="pl-c1">...</span></pre>
+</div> 
+<p>Last but not least we have to declare the new entity within the persistence.xml: </p> 
+<div class="highlight highlight-text-xml">
+ <pre>    &lt;?<span class="pl-ent">xml</span><span class="pl-e"> version</span>=<span class="pl-s"><span class="pl-pds">&quot;</span>1.0<span class="pl-pds">&quot;</span></span><span class="pl-e"> encoding</span>=<span class="pl-s"><span class="pl-pds">&quot;</span>UTF-8<span class="pl-pds">&quot;</span></span>?&gt;  
+    ...  
+    \&lt;<span class="pl-ent">persistence-unit</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">&quot;</span>Tutorial<span class="pl-pds">&quot;</span></span>\&gt;  
+        \&lt;<span class="pl-ent">class</span>\&gt;tutorial.model.BusinessPartner\&lt;/<span class="pl-ent">class</span>\&gt;  
+        \&lt;<span class="pl-ent">class</span>\&gt;tutorial.model.BusinessPartnerRole\&lt;/<span class="pl-ent">class</span>\&gt;  
+        \&lt;<span class="pl-ent">properties</span>\&gt;  
+    ...  </pre>
+</div> 
 <p>If we call <em>http://localhost:8080/Tutorial/Tutorial.svc/$metadata</em> we can see that the metadata document now shows the second entity as well as the introduced navigation. The following picture should give an overview of the metadata mapping: </p> 
-<p><a href="https://camo.githubusercontent.com/97e1fd48f2254b0ae986ed412bd4b5e49eb698ed/68747470733a2f2f6769746875622e7764662e7361702e636f72702f443032333134332f4f6c696e676f56344a50412f626c6f622f6170616368652f6a70612d7475746f7269616c2f696d616765732f4d6574616461746142755061312f4d617070696e67322e706e67" target="_blank"><img src="https://camo.githubusercontent.com/97e1fd48f2254b0ae986ed412bd4b5e49eb698ed/68747470733a2f2f6769746875622e7764662e7361702e636f72702f443032333134332f4f6c696e676f56344a50412f626c6f622f6170616368652f6a70612d7475746f7269616c2f696d616765732f4d6574616461746142755061312f4d617070696e67322e706e67" alt="JPA - OData Mapping" data-canonical-src="https://github.wdf.sap.corp/D023143/OlingoV4JPA/blob/apache/jpa-tutorial/images/MetadataBuPa1/Mapping2.png" style="max-width:100%;" /></a> </p> 
-<p><a href="https://github.wdf.sap.corp/D023143/OlingoV4JPA/wiki/Tutorial-1.3-:-Text-Associations">Tutorial 1.3 : Text Associations</a> </p>
+<p><a href="Metadata/Mapping2.png" target="_blank"><img src="Metadata/Mapping2.png" alt="JPA - OData Mapping" style="max-width:100%;" /></a> </p> 
+<p>Please go ahead with <a href=".1.3 TextAssociations.md.html">Tutorial 1.3: Text Associations</a> </p>
 </body>
 </html>
