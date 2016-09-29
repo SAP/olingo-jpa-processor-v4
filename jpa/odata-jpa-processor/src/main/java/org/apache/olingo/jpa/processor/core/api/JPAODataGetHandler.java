@@ -51,7 +51,7 @@ public class JPAODataGetHandler {
   @SuppressWarnings("unchecked")
   public void process(final HttpServletRequest request, final HttpServletResponse response) {
     final ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(context.getEdmProvider(), context
-        .getReferences()));
+        .getReferences())); // ETag Support Metadata/Service Document
     context.getEdmProvider().setRequestLocales(request.getLocales());
     context.initDebugger(request.getParameter(DebugSupport.ODATA_DEBUG_QUERY_PARAMETER));
     handler.register(context.getDebugSupport());
@@ -94,7 +94,7 @@ public class JPAODataGetHandler {
 
     @Override
     public List<EdmxReference> getReferences() {
-      return references;
+      return jpaEdm.getReferences();
     }
 
     @Override

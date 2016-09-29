@@ -9,6 +9,7 @@ import java.util.List;
 
 import javax.persistence.metamodel.Attribute;
 
+import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssozation;
 import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssozation.valueAssignment;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
@@ -65,6 +66,14 @@ class IntermediateDescriptionProperty extends IntermediateProperty implements JP
               .getFullQualifiedName());
           edmProperty.setMaxLength(descriptionProperty.getEdmItem().getMaxLength());
           localFieldPath = convertAttributeToPath(!languageAttribute.isEmpty() ? languageAttribute : localeAttribute);
+
+          List<CsdlAnnotation> as = edmProperty.getAnnotations();
+          CsdlAnnotation a = new CsdlAnnotation();
+          as.add(a);
+          // a.setQualifier("Core");
+          // a.setExpression(annotationExpression)
+          a.setTerm("Core.IsLanguageDependent");
+
         } else
           throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.DESCRIPTION_ANNOTATION_MISSING,
               targetEntity.getInternalName(), this.internalName);
