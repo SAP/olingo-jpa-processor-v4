@@ -11,6 +11,7 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
@@ -124,7 +125,7 @@ public abstract class JPAAbstractQuery {
           uriResourceItem.getKind().name());
   }
 
-  public abstract Root<?> getRoot();
+  public abstract <T> Root<T> getRoot();
 
   public abstract AbstractQuery<?> getQuery();
 
@@ -155,22 +156,29 @@ public abstract class JPAAbstractQuery {
         }
       }
       if (desciptionField.isLocationJoin())
-        join.on(cb.equal(join.get(desciptionField.getInternalName()), getLocale().toString()));
+        join.on(createOnCondition(join, desciptionField, getLocale().toString()));
       else
-        join.on(cb.equal(determienLocalePath(join, desciptionField), getLocale().getLanguage()));
+        join.on(createOnCondition(join, desciptionField, getLocale().getLanguage()));
       joinTables.put(desciptionField.getInternalName(), join);
     }
   }
 
+  private Expression<Boolean> createOnCondition(Join<?, ?> join, JPADescriptionAttribute desciptionField,
+      String localValue) throws ODataApplicationException {
+
+    Expression<Boolean> result = cb.equal(determienLocalePath(join, desciptionField.getLocaleFieldName()), localValue);
+    for (JPAPath value : desciptionField.getFixedValueAssignment().keySet()) {
+      result = cb.and(result,
+          cb.equal(determienLocalePath(join, value), desciptionField.getFixedValueAssignment().get(value)));
+    }
+    return result;
+  }
+
   private javax.persistence.criteria.Expression<?> determienLocalePath(final Join<?, ?> join,
-      final JPADescriptionAttribute desciptionField) throws ODataApplicationException {
+      final JPAPath jpaPath) throws ODataApplicationException {
     Path<?> p = join;
-    try {
-      for (final JPAElement pathElement : desciptionField.getLocaleFieldName().getPath()) {
-        p = p.get(pathElement.getInternalName());
-      }
-    } catch (ODataJPAModelException e) {
-      throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
+    for (final JPAElement pathElement : jpaPath.getPath()) {
+      p = p.get(pathElement.getInternalName());
     }
     return p;
   }

@@ -5,12 +5,12 @@ import java.util.List;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.queryoption.expression.MethodKind;
 
-class JPAFunctionCallImp implements JPAFunctionCall {
+class JPAMethodCallImp implements JPAMethodCall {
   private final MethodKind methodCall;
   private final List<JPAOperator> parameters;
   private final JPAOperationConverter converter;
 
-  public JPAFunctionCallImp(final JPAOperationConverter converter, final MethodKind methodCall,
+  public JPAMethodCallImp(final JPAOperationConverter converter, final MethodKind methodCall,
       final List<JPAOperator> parameters) {
     super();
     this.methodCall = methodCall;

@@ -71,7 +71,8 @@ public class JPAMemberOperator implements JPAOperator {
             for (Object sub : subJoins) {
               // e.g. "Organizations?$filter=Address/RegionName eq 'Kalifornien'
               // see createFromClause in JPAExecutableQuery
-              if (((Join<?, ?>) sub).getAlias().equals(jpaPathElement.getExternalName())) {
+              if (((Join<?, ?>) sub).getAlias() != null &&
+                  ((Join<?, ?>) sub).getAlias().equals(jpaPathElement.getExternalName())) {
                 join = (Join<?, ?>) sub;
               }
             }

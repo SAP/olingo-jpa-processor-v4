@@ -14,7 +14,7 @@ public class AdministrativeDivisionDescription {
   @EmbeddedId
   private AdministrativeDivisionDescriptionKey key;
   @EdmSearchable
-  @Column(name = "\"Name\"", length = 100)
+  @Column(name = "\"Name\"", length = 100, updatable = false)
   private String name;
 
   public String getName() {

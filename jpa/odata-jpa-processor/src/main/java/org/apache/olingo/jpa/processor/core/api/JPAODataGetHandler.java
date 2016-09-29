@@ -24,6 +24,7 @@ import org.apache.olingo.server.api.ODataHttpHandler;
 import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.debug.DebugInformation;
 import org.apache.olingo.server.api.debug.DebugSupport;
+import org.apache.olingo.server.api.debug.DefaultDebugSupport;
 
 public class JPAODataGetHandler {
   private final String namespace;
@@ -32,6 +33,7 @@ public class JPAODataGetHandler {
   private final DataSource ds;
   private final OData odata;
 
+  // TODO enable usage of entity manager factory instead of data source
   public JPAODataGetHandler(final String pUnit, final DataSource ds) throws ODataException {
     super();
     this.namespace = pUnit;
@@ -61,7 +63,7 @@ public class JPAODataGetHandler {
 
   private class JPAODataContextImpl implements JPAODataContext {
     private List<EdmxReference> references = new ArrayList<EdmxReference>();
-    private JPADebugSupportWrapper debugSupport;
+    private JPADebugSupportWrapper debugSupport = new JPADebugSupportWrapper(new DefaultDebugSupport());
     private JPAODataDatabaseOperations operationConverter;
     private JPAEdmProvider jpaEdm;
     private JPAODataDatabaseProcessor databaseProcessor;
@@ -139,6 +141,7 @@ public class JPAODataGetHandler {
     public void initDebugger(String debugFormat) {
       // see org.apache.olingo.server.core.debug.ServerCoreDebugger
       boolean isDebugMode = false;
+
       if (debugSupport != null) {
         // Should we read the parameter from the servlet here and ignore multiple parameters?
         if (debugFormat != null) {

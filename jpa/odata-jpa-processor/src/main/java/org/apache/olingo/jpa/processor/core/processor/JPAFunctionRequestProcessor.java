@@ -45,7 +45,7 @@ public class JPAFunctionRequestProcessor extends JPAAbstractRequestProcessor {
 
     final UriResourceFunction uriResourceFunction = (UriResourceFunction) uriInfo.getUriResourceParts().get(0);
     final JPAFunction jpaFunction = sd.getFunction(uriResourceFunction.getFunction());
-    final JPAEntityType returnType = sd.getEntity(jpaFunction.getReturnType());
+    final JPAEntityType returnType = sd.getEntity(jpaFunction.getResultParameter().getTypeFQN());
 
     // dbProcessor.query
 

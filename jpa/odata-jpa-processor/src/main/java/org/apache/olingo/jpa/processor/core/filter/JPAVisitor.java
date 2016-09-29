@@ -2,14 +2,22 @@ package org.apache.olingo.jpa.processor.core.filter;
 
 import java.util.List;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Root;
+
 import org.apache.olingo.commons.api.edm.EdmEnumType;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
 import org.apache.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAFilterException;
+import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
+import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResource;
+import org.apache.olingo.server.api.uri.UriResourceFunction;
 import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.UriResourceNavigation;
 import org.apache.olingo.server.api.uri.queryoption.expression.BinaryOperatorKind;
@@ -126,6 +134,14 @@ class JPAVisitor implements ExpressionVisitor<JPAOperator> {
     } else if (isAggregation(member.getResourcePath())) {
       debugger.stopRuntimeMeasurement(handle);
       return new JPAAggregationOperationImp(jpaComplier.getParent().getRoot(), jpaComplier.getConverter());
+    } else if (isCustomFunction(member.getResourcePath())) {
+      final UriResource resource = member.getResourcePath().getUriResourceParts().get(0);
+      final JPAFunction jpaFunction = this.jpaComplier.getSd().getFunction(((UriResourceFunction) resource)
+          .getFunction());
+      final List<UriParameter> odataParams = ((UriResourceFunction) resource).getParameters();
+      debugger.stopRuntimeMeasurement(handle);
+      return new JPAFunctionOperator(this, odataParams, jpaFunction);
+      // , this.jpaComplier.getParent().getRoot(), jpaComplier.getConverter().cb);
     }
     debugger.stopRuntimeMeasurement(handle);
     return new JPAMemberOperator(this.jpaComplier.getJpaEntityType(), this.jpaComplier.getParent(), member);
@@ -136,7 +152,7 @@ class JPAVisitor implements ExpressionVisitor<JPAOperator> {
       throws ExpressionVisitException, ODataApplicationException {
     int handle = debugger.startRuntimeMeasurement("JPAVisitor", "visitMethodCall");
     debugger.stopRuntimeMeasurement(handle);
-    return new JPAFunctionCallImp(this.jpaComplier.getConverter(), methodCall, parameters);
+    return new JPAMethodCallImp(this.jpaComplier.getConverter(), methodCall, parameters);
   }
 
   @Override
@@ -182,11 +198,33 @@ class JPAVisitor implements ExpressionVisitor<JPAOperator> {
     return false;
   }
 
-  private boolean isAggregation(final UriInfoResource member) {
-    if (member.getUriResourceParts().size() == 1 && member.getUriResourceParts().get(0)
+  private boolean isAggregation(final UriInfoResource resourcePath) {
+    if (resourcePath.getUriResourceParts().size() == 1 && resourcePath.getUriResourceParts().get(0)
         .getKind() == UriResourceKind.count)
       return true;
     return false;
   }
 
+  private boolean isCustomFunction(final UriInfoResource resourcePath) {
+    if (resourcePath.getUriResourceParts().size() > 0 && resourcePath.getUriResourceParts().get(
+        0) instanceof UriResourceFunction)
+      return true;
+    return false;
+  }
+
+  CriteriaBuilder getCriteriaBuilder() {
+    return jpaComplier.getConverter().cb;
+  }
+
+  ServiceDocument getSd() {
+    return jpaComplier.getSd();
+  }
+
+  Root<?> getRoot() {
+    return jpaComplier.getParent().getRoot();
+  }
+
+  public OData getOdata() {
+    return jpaComplier.getOdata();
+  }
 }

@@ -45,7 +45,7 @@ insert into "org.apache.olingo.jpa::BusinessPartner" values ('9', 0, '2', '','',
 insert into "org.apache.olingo.jpa::BusinessPartner" values ('10', 0, '2', '','',null,null,'Tenth Org.','',null,'Test Road', '12','', 'Test City','03921','ISO', '3166-2','US-ME', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU');
 insert into "org.apache.olingo.jpa::BusinessPartner" values ('99', 0, '1', '','',null,null,'Max','Mustermann',null,'Test Starße', '12','', 'Teststadt','10115','ISO', '3166-2','DE-BE', 'DEU', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU'); 
 insert into "org.apache.olingo.jpa::BusinessPartner" values ('98', 0, '1', '','',null,null,'John','Doe',null,'Test Road', '55','', 'Test City','76321','ISO', '3166-2','US-TX', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU'); 
-insert into "org.apache.olingo.jpa::BusinessPartner" values ('97', 0, '1', '','',null,null,'Urs','Müller',null,'Test Starße', '23','', 'Test Dorf','4123','ISO', '3166-2','CH-BL', 'CHE', '', '','','', '99','2016-07-20 09:21:23', '', null, 'CHE'); 
+insert into "org.apache.olingo.jpa::BusinessPartner" values ('97', 0, '1', '','',null,null,'Urs','Müller',null,'Test Straße', '23','', 'Test Dorf','4123','ISO', '3166-2','CH-BL', 'CHE', '', '','','', '99','2016-07-20 09:21:23', '', null, 'CHE'); 
 
 CREATE TABLE "org.apache.olingo.jpa::PersonImage" (
 	"ID" VARCHAR(32) NOT NULL ,
@@ -107,6 +107,17 @@ CREATE TABLE "org.apache.olingo.jpa::AdministrativeDivisionDescription"(
 	"Name" VARCHAR(100) NOT NULL, 
      PRIMARY KEY ("CodePublisher", "CodeID", "DivisionCode","LanguageISO")); 
 
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS1','CH0','de','Schweiz');     
+     
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-1','DEU','de','Deutschland');    
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-1','USA','de','Vereinigte Staaten von Amerika');   
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-1','DEU','en','Germany');
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-1','USA','en','United States of America');
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-1','BEL','de','Belgien');
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-1','BEL','en','Belgium');
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-1','CHE','de','Schweiz');
+insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-1','CHE','en','Switzerland');     
+     
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','DE-BW','de','Baden-Württemberg');  
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','DE-BY','de','Bayern Bayern');  
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','DE-BE','de','Berlin');  
@@ -273,6 +284,7 @@ insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( '
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','US-WY','en','Wyoming');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'ISO', '3166-2','US-DC','en','District of Columbia');
      
+
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS1','BE1','de','Region Brüssel-Hauptstadt');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS1','BE2','de','Flämische Region');
 insert into "org.apache.olingo.jpa::AdministrativeDivisionDescription" values( 'Eurostat','NUTS1','BE3','de','Wallonische Region');

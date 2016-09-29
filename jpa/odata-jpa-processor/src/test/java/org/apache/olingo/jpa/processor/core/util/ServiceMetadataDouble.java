@@ -169,6 +169,19 @@ public class ServiceMetadataDouble implements ServiceMetadata {
       return null;
     }
 
+    @Override
+    public EdmAction getBoundActionWithBindingType(FullQualifiedName bindingParameterTypeName,
+        Boolean isBindingParameterCollection) {
+      return null;
+    }
+
+    @Override
+    public List<EdmFunction> getBoundFunctionsWithBindingType(FullQualifiedName bindingParameterTypeName,
+        Boolean isBindingParameterCollection) {
+      // TODO Check what this is used for
+      return null;
+    }
+
   }
 
 }

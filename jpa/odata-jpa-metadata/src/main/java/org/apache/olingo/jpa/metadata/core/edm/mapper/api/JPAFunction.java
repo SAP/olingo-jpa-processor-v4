@@ -2,14 +2,22 @@ package org.apache.olingo.jpa.metadata.core.edm.mapper.api;
 
 import java.util.List;
 
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
-
 public interface JPAFunction {
-
+  /**
+   * 
+   * @return Name of the function on the database
+   */
   public String getDBName();
 
+  /**
+   * 
+   * @return List of import parameter
+   */
   public List<JPAFunctionParameter> getParameter();
 
-  public FullQualifiedName getReturnType();
-
+  /**
+   * 
+   * @return The return or result parameter of the function
+   */
+  public JPAFunctionResultParameter getResultParameter();
 }

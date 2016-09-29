@@ -29,7 +29,6 @@ class JPA_DERBY_DatabaseProcessor implements JPAODataDatabaseProcessor {
       throws ODataApplicationException {
     throw new ODataJPADBAdaptorException(ODataJPADBAdaptorException.MessageKeys.NOT_SUPPORTED_SEARCH,
         HttpStatusCode.NOT_IMPLEMENTED);
-
   }
 
   @Override

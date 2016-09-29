@@ -105,7 +105,7 @@ public class JPAOperationConverter {
   }
 
   @SuppressWarnings("unchecked")
-  public Object convert(final JPAFunctionCall jpaFunction) throws ODataApplicationException {
+  public Object convert(final JPAMethodCall jpaFunction) throws ODataApplicationException {
     switch (jpaFunction.getFunction()) {
     // First String functions
     case LENGTH:
@@ -191,7 +191,7 @@ public class JPAOperationConverter {
   }
 
   @SuppressWarnings("unchecked")
-  private Expression<Integer> convertLiteralToExpression(final JPAFunctionCall jpaFunction, final int parameterIndex,
+  private Expression<Integer> convertLiteralToExpression(final JPAMethodCall jpaFunction, final int parameterIndex,
       final int offset) throws ODataApplicationException {
     final JPAOperator parameter = jpaFunction.getParameter(parameterIndex);
     if (parameter instanceof JPAArithmeticOperatorImp) {
