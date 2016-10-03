@@ -1,7 +1,5 @@
 package org.apache.olingo.jpa.metadata.api;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -22,7 +20,6 @@ import org.apache.olingo.commons.api.edm.provider.CsdlFunctionImport;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
 import org.apache.olingo.commons.api.edmx.EdmxReference;
-import org.apache.olingo.commons.api.edmx.EdmxReferenceInclude;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
@@ -33,7 +30,6 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
   final private JPAEdmNameBuilder nameBuilder;
   final private ServiceDocument serviceDocument;
 
-  // TODO edmx: Reference -> Support by Olingo?
   // http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406397930
   public JPAEdmProvider(final String namespace, final EntityManagerFactory emf,
       final JPAEdmMetadataPostProcessor postProcessor) throws ODataException {
@@ -126,6 +122,7 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
 //      <Annotation Term="Core.RequiresType" String="Edm.String" />
 //    </Term>
 
+    // Is Namespace alise?; Convert into namespace
     CsdlTerm t = new CsdlTerm();
     List<String> a = new ArrayList<String>();
     a.add("Term Property");
@@ -149,21 +146,6 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
   }
 
   public List<EdmxReference> getReferences() {
-    List<EdmxReference> references = new ArrayList<EdmxReference>();
-//    <edmx:Reference Uri="http://docs.oasisopen.org/odata/odata/v4.0/os/vocabularies/Org.OData.Core.V1.xml">
-//      <edmx:Include Namespace="Org.OData.Core.V1" Alias="Core" />
-//    </edmx:Reference>  
-    try {
-      EdmxReference r = new EdmxReference(new URI(
-          "http://docs.oasisopen.org/odata/odata/v4.0/os/vocabularies/Org.OData.Core.V1.xml"));
-      EdmxReferenceInclude i = new EdmxReferenceInclude("Org.OData.Core.V1", "Core");
-      r.addInclude(i);
-      references.add(r);
-    } catch (URISyntaxException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-
-    return references;
+    return serviceDocument.getReferences();
   }
 }

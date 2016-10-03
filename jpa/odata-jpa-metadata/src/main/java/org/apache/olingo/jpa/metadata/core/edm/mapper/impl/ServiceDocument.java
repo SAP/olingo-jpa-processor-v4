@@ -12,6 +12,7 @@ import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
+import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -30,13 +31,18 @@ public class ServiceDocument {
   final private JPAEdmNameBuilder nameBuilder;
   final private IntermediateEntityContainer container;
   final private Map<String, IntermediateSchema> schemaListInternalKey;
+  final private IntermediateReferences references;
+  final private JPAEdmMetadataPostProcessor pP;
   // final private HashMap<String, IntermediateSchema> schemaListExternalKey;
 
   public ServiceDocument(final String namespace, final Metamodel jpaMetamodel,
       final JPAEdmMetadataPostProcessor postProcessor) throws ODataJPAModelException {
 
-    IntermediateModelElement.setPostProcessor(postProcessor != null ? postProcessor : new DefaultEdmPostProcessor());
+    this.pP = postProcessor != null ? postProcessor : new DefaultEdmPostProcessor();
+    IntermediateModelElement.setPostProcessor(pP);
 
+    this.references = new IntermediateReferences();
+    pP.provideReferences(this.references);
     this.nameBuilder = new JPAEdmNameBuilder(namespace);
     this.jpaMetamodel = jpaMetamodel;
     this.schemaListInternalKey = buildIntermediateSchemas();
@@ -108,6 +114,10 @@ public class ServiceDocument {
 
   public JPAElement getEntitySet(final JPAEntityType entityType) throws ODataJPAModelException {
     return container.getEntitySet(entityType);
+  }
+
+  public List<EdmxReference> getReferences() {
+    return references.getEdmReferences();
   }
 
 }

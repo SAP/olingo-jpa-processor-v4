@@ -13,6 +13,7 @@ import org.apache.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -26,7 +27,6 @@ public class TestIntermediateComplexType extends TestMappingRoot {
     IntermediateModelElement.setPostProcessor(new DefaultEdmPostProcessor());
     etList = emf.getMetamodel().getEmbeddables();
     schema = new IntermediateSchema(new JPAEdmNameBuilder(PUNIT_NAME), emf.getMetamodel());
-
   }
 
   @Test
@@ -193,8 +193,7 @@ public class TestIntermediateComplexType extends TestMappingRoot {
 
     @Override
     public void processProperty(IntermediatePropertyAccess property, String jpaManagedTypeClassName) {
-      if (jpaManagedTypeClassName.equals(
-          COMM_CANONICAL_NAME)) {
+      if (jpaManagedTypeClassName.equals(COMM_CANONICAL_NAME)) {
         if (property.getInternalName().equals("landlinePhoneNumber")) {
           property.setIgnore(true);
         }
@@ -210,6 +209,10 @@ public class TestIntermediateComplexType extends TestMappingRoot {
         }
       }
     }
+
+    @Override
+    public void provideReferences(IntermediateReferenceList references) {}
+
   }
 
 }

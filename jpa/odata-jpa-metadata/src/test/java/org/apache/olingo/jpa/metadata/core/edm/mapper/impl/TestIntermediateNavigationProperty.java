@@ -3,6 +3,9 @@ package org.apache.olingo.jpa.metadata.core.edm.mapper.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import java.util.List;
 
@@ -17,6 +20,7 @@ import org.apache.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
 import org.apache.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import org.apache.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import org.apache.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
@@ -26,11 +30,13 @@ import org.junit.Test;
 public class TestIntermediateNavigationProperty extends TestMappingRoot {
   private IntermediateSchema schema;
   private TestHelper helper;
+  private JPAEdmMetadataPostProcessor processor;
 
   @Before
   public void setup() throws ODataJPAModelException {
     schema = new IntermediateSchema(new JPAEdmNameBuilder(PUNIT_NAME), emf.getMetamodel());
     helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
+    processor = mock(JPAEdmMetadataPostProcessor.class);
   }
 
   @Test
@@ -256,8 +262,7 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
 
   @Test
   public void checkPostProcessorCalled() throws ODataJPAModelException {
-    PostProcessorSpy spy = new PostProcessorSpy();
-    IntermediateModelElement.setPostProcessor(spy);
+    IntermediateModelElement.setPostProcessor(processor);
 
     Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(
         "BusinessPartner"), "roles");
@@ -265,7 +270,7 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
         schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
 
     property.getEdmItem();
-    assertTrue(spy.called);
+    verify(processor, atLeastOnce()).processNavigationProperty(property, BUPA_CANONICAL_NAME);
   }
 
   @Test
@@ -305,22 +310,6 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
     assertEquals(CsdlOnDeleteAction.None, property.getProperty().getOnDelete().getAction());
   }
 
-  private class PostProcessorSpy extends JPAEdmMetadataPostProcessor {
-    boolean called = false;
-
-    @Override
-    public void processNavigationProperty(IntermediateNavigationPropertyAccess property,
-        String jpaManagedTypeClassName) {
-      called = true;
-    }
-
-    @Override
-    public void processProperty(IntermediatePropertyAccess property, String jpaManagedTypeClassName) {
-
-    }
-
-  }
-
   private class PostProcessorSetName extends JPAEdmMetadataPostProcessor {
     @Override
     public void processNavigationProperty(IntermediateNavigationPropertyAccess property,
@@ -337,6 +326,10 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
     public void processProperty(IntermediatePropertyAccess property, String jpaManagedTypeClassName) {
 
     }
+
+    @Override
+    public void provideReferences(IntermediateReferenceList references) {}
+
   }
 
   private class PostProcessorOneDelete extends JPAEdmMetadataPostProcessor {
@@ -356,5 +349,9 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
     public void processProperty(IntermediatePropertyAccess property, String jpaManagedTypeClassName) {
 
     }
+
+    @Override
+    public void provideReferences(IntermediateReferenceList references) {}
+
   }
 }

@@ -1,7 +1,9 @@
 package org.apache.olingo.jpa.metadata.api;
 
+import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
 
 public abstract class JPAEdmMetadataPostProcessor {
 
@@ -16,4 +18,6 @@ public abstract class JPAEdmMetadataPostProcessor {
    */
   // TODO Documentation
   public abstract void processProperty(final IntermediatePropertyAccess property, final String jpaManagedTypeClassName);
+
+  public abstract void provideReferences(final IntermediateReferenceList references) throws ODataJPAModelException;
 }

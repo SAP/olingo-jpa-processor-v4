@@ -17,6 +17,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
 import org.apache.olingo.jpa.processor.core.testmodel.TestDataConstants;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -331,6 +332,13 @@ public class TestIntermediateEntityType extends TestMappingRoot {
     @Override
     public void processNavigationProperty(IntermediateNavigationPropertyAccess property,
         String jpaManagedTypeClassName) {}
+
+    @Override
+    public void provideReferences(IntermediateReferenceList references) {
+      // TODO Auto-generated method stub
+
+    }
+
   }
 
   private EntityType<?> getEntityType(String typeName) {
