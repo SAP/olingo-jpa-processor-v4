@@ -17,7 +17,21 @@ public class Schema {
   @JacksonXmlProperty(localName = "Term")
   private Term[] terms;
 
+  @JacksonXmlProperty(localName = "EnumType")
+  private EnumType[] enumerations;
+
+  @JacksonXmlProperty(localName = "TypeDefinition")
+  private TypeDefinition[] typeDefinitions;
+
   Term[] getTerms() {
     return terms;
+  }
+
+  String getNamespace() {
+    return Namespace;
+  }
+
+  String getAlias() {
+    return Alias;
   }
 }

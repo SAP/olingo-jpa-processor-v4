@@ -12,6 +12,7 @@ import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
+import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
 import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
@@ -118,6 +119,10 @@ public class ServiceDocument {
 
   public List<EdmxReference> getReferences() {
     return references.getEdmReferences();
+  }
+
+  public CsdlTerm getTerm(FullQualifiedName termName) {
+    return this.references.getTerm(termName);
   }
 
 }

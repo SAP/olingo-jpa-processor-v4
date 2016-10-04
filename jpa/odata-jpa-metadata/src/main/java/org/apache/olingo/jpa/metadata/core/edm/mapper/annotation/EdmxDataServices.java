@@ -7,6 +7,7 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JacksonXmlRootElement(localName = "DataServices", namespace = "edmx")
 public class EdmxDataServices {
+
   @JacksonXmlProperty(localName = "Schema")
   private Schema[] schemas;
 

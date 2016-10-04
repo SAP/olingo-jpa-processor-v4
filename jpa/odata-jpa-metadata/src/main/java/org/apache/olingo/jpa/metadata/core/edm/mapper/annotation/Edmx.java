@@ -8,9 +8,9 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 @JacksonXmlRootElement(localName = "Edmx", namespace = "edmx")
 public class Edmx {
   @JacksonXmlProperty(localName = "DataServices")
-  private EdmxDataServices[] services;
+  private EdmxDataServices service;
 
-  EdmxDataServices[] getDataServices() {
-    return services;
+  EdmxDataServices getDataService() {
+    return service;
   }
 }

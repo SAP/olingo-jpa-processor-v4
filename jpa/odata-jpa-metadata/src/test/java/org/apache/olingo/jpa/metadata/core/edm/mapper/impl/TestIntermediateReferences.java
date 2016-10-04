@@ -1,10 +1,12 @@
 package org.apache.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.net.URISyntaxException;
 import java.util.List;
 
+import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -49,6 +51,24 @@ public class TestIntermediateReferences extends TestMappingRoot {
 
     EdmxReference ref = serviceDocument.getReferences().get(0);
     assertEquals(ref.getIncludes().size(), 1);
+  }
+
+  @Test
+  public void checkGetTermByNamespace() throws ODataJPAModelException {
+    String uri = "http://docs.oasisopen.org/odata/odata/v4.0/os/vocabularies/Org.OData.Measures.V1.xml";
+    IntermediateReferenceAccess ref = cut.addReference(uri, "annotations/Org.OData.Measures.V1.xml");
+    ref.addInclude("Org.OData.Measures.V1", "");
+    FullQualifiedName fqn = new FullQualifiedName("Org.OData.Measures.V1", "ISOCurrency");
+    assertNotNull(cut.getTerm(fqn));
+  }
+
+  @Test
+  public void checkGetTermByAlias() throws ODataJPAModelException {
+    String uri = "http://docs.oasisopen.org/odata/odata/v4.0/os/vocabularies/Org.OData.Measures.V1.xml";
+    IntermediateReferenceAccess ref = cut.addReference(uri, "annotations/Org.OData.Measures.V1.xml");
+    ref.addInclude("Org.OData.Measures.V1", "Measures");
+    FullQualifiedName fqn = new FullQualifiedName("Measures", "ISOCurrency");
+    assertNotNull(cut.getTerm(fqn));
   }
 
   class PostProcessor extends JPAEdmMetadataPostProcessor {

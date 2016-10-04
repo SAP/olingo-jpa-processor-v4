@@ -1,6 +1,7 @@
 package org.apache.olingo.jpa.metadata.core.edm.mapper.annotation;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
 
@@ -44,9 +45,9 @@ public class TestAnnotationPOJO {
     XmlMapper xmlMapper = new XmlMapper(module);
 
     Edmx act = xmlMapper.readValue(terms, Edmx.class);
-    assertEquals(act.getDataServices().length, 1);
+    assertNotNull(act.getDataService());
 
-    Schema[] actSchemas = act.getDataServices()[0].getSchemas();
+    Schema[] actSchemas = act.getDataService().getSchemas();
     assertEquals(actSchemas.length, 1);
 
     Term[] actTerms = actSchemas[0].getTerms();

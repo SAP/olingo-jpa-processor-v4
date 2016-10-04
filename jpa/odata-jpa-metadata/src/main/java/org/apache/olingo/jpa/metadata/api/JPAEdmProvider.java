@@ -1,6 +1,5 @@
 package org.apache.olingo.jpa.metadata.api;
 
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
@@ -117,19 +116,7 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
 
   @Override
   public CsdlTerm getTerm(final FullQualifiedName termName) throws ODataException {
-//    <Term Name="IsLanguageDependent" Type="Core.Tag" DefaultValue="true" AppliesTo="Term Property">
-//      <Annotation Term="Core.Description" String="Properties and terms annotated with this term are language-dependent" />
-//      <Annotation Term="Core.RequiresType" String="Edm.String" />
-//    </Term>
-
-    // Is Namespace alise?; Convert into namespace
-    CsdlTerm t = new CsdlTerm();
-    List<String> a = new ArrayList<String>();
-    a.add("Term Property");
-    t.setName("IsLanguageDependent");
-    t.setType("Core.Tag");
-    t.setAppliesTo(a);
-    return t;
+    return serviceDocument.getTerm(termName);
   }
 
   @Override

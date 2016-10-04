@@ -1,9 +1,14 @@
 package org.apache.olingo.jpa.metadata.core.edm.mapper.annotation;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.olingo.commons.api.edm.geo.SRID;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
-@JsonIgnoreProperties({ "Annotation" })
+@JsonIgnoreProperties(ignoreUnknown = true)
 class Term {
 
   @JacksonXmlProperty(localName = "Name", isAttribute = true)
@@ -34,5 +39,55 @@ class Term {
   private int scale;
 
   @JacksonXmlProperty(localName = "SRID", isAttribute = true)
-  private int srid;
+  private String srid;
+
+  String getName() {
+    return name;
+  }
+
+  String getType() {
+    return type;
+  }
+
+  String getBaseTerm() {
+    return baseTerm;
+  }
+
+  boolean isNullable() {
+    return nullable;
+  }
+
+  String getDefaultValue() {
+    return defaultValue;
+  }
+
+  List<String> getAppliesTo() {
+    List<String> result = new ArrayList<String>();
+    if (appliesTo != null) {
+      String[] list = appliesTo.split(" ");
+      for (String apply : list) {
+        result.add(apply);
+      }
+    }
+    return result;
+  }
+
+  int getMaxLength() {
+    return maxLength;
+  }
+
+  int getPrecision() {
+    return precision;
+  }
+
+  int getScale() {
+    return scale;
+  }
+
+  SRID getSrid() {
+    if (srid != null)
+      return SRID.valueOf(srid);
+    else
+      return null;
+  }
 }
