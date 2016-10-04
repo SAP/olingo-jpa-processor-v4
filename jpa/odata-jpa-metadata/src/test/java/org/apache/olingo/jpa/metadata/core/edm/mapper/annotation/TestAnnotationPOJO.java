@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -50,7 +51,7 @@ public class TestAnnotationPOJO {
     Schema[] actSchemas = act.getDataService().getSchemas();
     assertEquals(actSchemas.length, 1);
 
-    Term[] actTerms = actSchemas[0].getTerms();
-    assertEquals(actTerms.length, 3);
+    List<Term> actTerms = actSchemas[0].getTerms();
+    assertEquals(actTerms.size(), 3);
   }
 }

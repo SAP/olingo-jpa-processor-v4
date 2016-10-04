@@ -1,37 +1,66 @@
 package org.apache.olingo.jpa.metadata.core.edm.mapper.annotation;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.xml.bind.annotation.XmlAccessOrder;
+import javax.xml.bind.annotation.XmlAccessorOrder;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
+@XmlAccessorOrder(XmlAccessOrder.UNDEFINED)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Schema {
   @JacksonXmlProperty(isAttribute = true)
   private String xmlns;
 
-  @JacksonXmlProperty(isAttribute = true)
-  private String Namespace;
+  @JacksonXmlProperty(isAttribute = true, localName = "Namespace")
+  private String namespace;
 
-  @JacksonXmlProperty(isAttribute = true)
-  private String Alias;
+  @JacksonXmlProperty(isAttribute = true, localName = "Alias")
+  private String alias;
 
   @JacksonXmlProperty(localName = "Term")
-  private Term[] terms;
+  private ArrayList<Term> terms = new ArrayList<Term>();
 
   @JacksonXmlProperty(localName = "EnumType")
-  private EnumType[] enumerations;
+  private ArrayList<EnumType> enumerations = new ArrayList<EnumType>();
 
   @JacksonXmlProperty(localName = "TypeDefinition")
-  private TypeDefinition[] typeDefinitions;
+  private ArrayList<TypeDefinition> typeDefinitions = new ArrayList<TypeDefinition>();
 
-  Term[] getTerms() {
+  List<Term> getTerms() {
     return terms;
   }
 
   String getNamespace() {
-    return Namespace;
+    return namespace;
   }
 
   String getAlias() {
-    return Alias;
+    return alias;
+  }
+
+  void setTerms(Term[] newTerms) {
+    for (Term t : newTerms) {
+      terms.add(t);
+    }
+  }
+
+  ArrayList<EnumType> getEnumerations() {
+    return enumerations;
+  }
+
+  void setEnumerations(ArrayList<EnumType> enumerations) {
+    this.enumerations = enumerations;
+  }
+
+  ArrayList<TypeDefinition> getTypeDefinitions() {
+    return typeDefinitions;
+  }
+
+  void setTypeDefinitions(ArrayList<TypeDefinition> typeDefinitions) {
+    this.typeDefinitions = typeDefinitions;
   }
 }

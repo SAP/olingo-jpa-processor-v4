@@ -118,13 +118,14 @@ Overview:
       <Term Name="Permissions" Type="Core.Permission" AppliesTo="Property">
         <Annotation Term="Core.Description" String="Permissions available for a property.The value of 2 is reserved for future use." />
       </Term>
-      <!-- <EnumType Name="Permission" IsFlags="true">
+      
+      <EnumType Name="Permission" IsFlags="true">
         <Member Name="None" Value="0" />
         <Member Name="Read" Value="1" />
         <Member Name="ReadWrite" Value="3" />
       </EnumType>
 
-      Metadata Extensions -->
+      <!-- Metadata Extensions -->
 
       <Term Name="Immutable" Type="Core.Tag" DefaultValue="true" AppliesTo="Property">
         <Annotation Term="Core.Description"

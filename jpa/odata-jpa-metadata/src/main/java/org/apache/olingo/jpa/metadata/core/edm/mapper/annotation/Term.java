@@ -11,6 +11,10 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 class Term {
 
+  public Term() {
+    super();
+  }
+
   @JacksonXmlProperty(localName = "Name", isAttribute = true)
   private String name;
 
