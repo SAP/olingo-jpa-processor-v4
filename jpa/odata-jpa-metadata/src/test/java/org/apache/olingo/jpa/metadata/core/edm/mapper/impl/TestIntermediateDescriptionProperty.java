@@ -7,10 +7,14 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import java.util.List;
+
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.EmbeddableType;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
+import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
 import org.apache.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
@@ -92,6 +96,19 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
     cut = new IntermediateDescriptionProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
         helper.schema);
     assertEquals(new Integer(100), cut.getEdmItem().getMaxLength());
+  }
+
+  @Test
+  public void checkAnnotations() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("BusinessPartner"),
+        "locationName");
+    cut = new IntermediateDescriptionProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
+        helper.schema);
+    List<CsdlAnnotation> annotations = cut.getEdmItem().getAnnotations();
+    assertEquals(1, annotations.size());
+    assertEquals("Core.IsLanguageDependent", annotations.get(0).getTerm());
+    assertEquals(ConstantExpressionType.Bool, annotations.get(0).getExpression().asConstant().getType());
+    assertEquals("true", annotations.get(0).getExpression().asConstant().getValue());
   }
 
   @Test

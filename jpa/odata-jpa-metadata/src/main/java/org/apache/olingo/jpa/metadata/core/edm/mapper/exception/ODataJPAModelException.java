@@ -45,7 +45,8 @@ public class ODataJPAModelException extends ODataJPAException {
     REFERENCED_PROPERTY_NOT_FOUND,
     INHERITANCE_NOT_ALLOWED,
     TO_MANY_STREAMS,
-    ANNOTATION_STREAM_INCOMPLETE;
+    ANNOTATION_STREAM_INCOMPLETE,
+    ODATA_ANNOTATION_TWO_EXPRESSIONS;
 
     @Override
     public String getKey() {

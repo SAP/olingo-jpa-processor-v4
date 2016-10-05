@@ -4,6 +4,8 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Column;
@@ -15,7 +17,11 @@ import javax.persistence.metamodel.SingularAttribute;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.geo.SRID;
+import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression;
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
+import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmAnnotation;
 import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmGeospatial;
 import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmMediaStream;
@@ -51,6 +57,7 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
   private boolean searchable;
   private boolean isVersion = false;
   private EdmMediaStream streamInfo;
+  private List<CsdlAnnotation> edmAnnotations;
 
   IntermediateProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,
       final IntermediateSchema schema) throws ODataJPAModelException {
@@ -134,6 +141,9 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
               edmProperty.setScale(jpaColumn.scale());
           }
         }
+      }
+      if (edmProperty != null) {
+        edmProperty.setAnnotations(edmAnnotations);
       }
     }
   }
@@ -249,8 +259,28 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
         isVersion = true;
       }
     }
-    postProcessor.processProperty(this, jpaAttribute.getDeclaringType().getJavaType()
-        .getCanonicalName());
+    postProcessor.processProperty(this, jpaAttribute.getDeclaringType().getJavaType().getCanonicalName());
+    // Process annotations after post processing, as external name it could have been changed
+    if (this.jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
+      final EdmAnnotation jpaAnnotation = ((AnnotatedElement) this.jpaAttribute.getJavaMember()).getAnnotation(
+          EdmAnnotation.class);
+      if (jpaAnnotation != null) {
+        edmAnnotations = new ArrayList<CsdlAnnotation>();
+        CsdlAnnotation edmAnnotation = new CsdlAnnotation();
+        edmAnnotation.setTerm(jpaAnnotation.term());
+        edmAnnotation.setQualifier(jpaAnnotation.qualifier());
+        if (!(jpaAnnotation.constantExpression().type() == ConstantExpressionType.Int
+            && jpaAnnotation.constantExpression().value().equals("default"))
+            && !(jpaAnnotation.dynamicExpression().path().isEmpty())) {
+          throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.ODATA_ANNOTATION_TWO_EXPRESSIONS,
+              internalName);
+        } else if (jpaAnnotation.constantExpression() != null) {
+          edmAnnotation.setExpression(new CsdlConstantExpression(jpaAnnotation.constantExpression().type(),
+              jpaAnnotation.constantExpression().value()));
+        }
+        edmAnnotations.add(edmAnnotation);
+      }
+    }
   }
 
   @Override
@@ -288,6 +318,11 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
   @Override
   public boolean isEtag() {
     return isVersion;
+  }
+
+  @Override
+  public void addAnnotations(List<CsdlAnnotation> annotations) {
+    edmAnnotations = annotations;
   }
 
 }

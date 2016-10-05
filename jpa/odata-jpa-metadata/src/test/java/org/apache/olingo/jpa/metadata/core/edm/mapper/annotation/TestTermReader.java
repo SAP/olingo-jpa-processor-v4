@@ -73,7 +73,7 @@ public class TestTermReader {
     URI uri = new URI("http://docs.oasis-open.org/odata/odata/v4.0/os/vocabularies/Org.OData.Core.V1.xml");
     Map<String, Map<String, CsdlTerm>> act;
     act = cut.getTerms(uri);
-    assertNotNull(act.get("Org.OData.Measures.V1"));
+    assertNotNull(act.get("Org.OData.Core.V1"));
   }
 
 }

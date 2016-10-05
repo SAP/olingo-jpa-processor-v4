@@ -6,8 +6,7 @@ public interface IntermediateModelItemAccess extends JPAElement {
 
   boolean ignore();
 
-  void setExternalName(String externalName);
+  void setExternalName(final String externalName);
 
-  void setIgnore(boolean ignore);
-
+  void setIgnore(final boolean ignore);
 }

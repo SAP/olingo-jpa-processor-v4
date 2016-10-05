@@ -19,6 +19,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
+import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmAnnotation;
 import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssozation;
 import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmFunctionParameter;
@@ -87,6 +89,8 @@ public abstract class BusinessPartner {
   @Column(name = "\"Country\"", length = 4)
   private String country;
 
+  @EdmAnnotation(term = "Core.IsLanguageDependent", constantExpression = @EdmAnnotation.ConstantExpression(
+      type = ConstantExpressionType.Bool, value = "true"))
   @EdmDescriptionAssozation(languageAttribute = "key/language", descriptionAttribute = "name",
       valueAssignments = {
           @EdmDescriptionAssozation.valueAssignment(attribute = "key/codePublisher", value = "ISO"),

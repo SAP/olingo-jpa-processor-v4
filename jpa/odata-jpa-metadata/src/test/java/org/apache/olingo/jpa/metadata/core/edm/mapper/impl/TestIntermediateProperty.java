@@ -8,10 +8,16 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.EmbeddableType;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
+import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression;
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
 import org.apache.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
@@ -195,6 +201,21 @@ public class TestIntermediateProperty extends TestMappingRoot {
   }
 
   @Test
+  public void checkPostProcessorAddAnnotation() throws ODataJPAModelException {
+    PostProcessorSetName pPDouble = new PostProcessorSetName();
+    IntermediateModelElement.setPostProcessor(pPDouble);
+
+    Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType("BusinessPartner"), "customString1");
+    IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
+        helper.schema);
+    assertEquals(property.getEdmItem().getAnnotations().size(), 1);
+    assertEquals("Wrong type", ConstantExpressionType.Bool, property.getEdmItem().getAnnotations().get(0)
+        .getExpression().asConstant().getType());
+    assertEquals("Wrong value", "true", property.getEdmItem().getAnnotations().get(0)
+        .getExpression().asConstant().getValue());
+  }
+
+  @Test
   public void checkConverterGet() throws ODataJPAModelException {
     PostProcessorSetName pPDouble = new PostProcessorSetName();
     IntermediateModelElement.setPostProcessor(pPDouble);
@@ -238,6 +259,15 @@ public class TestIntermediateProperty extends TestMappingRoot {
           "org.apache.olingo.jpa.processor.core.testmodel.BusinessPartner")) {
         if (property.getInternalName().equals("customString1")) {
           property.setExternalName("ContactPersonName");
+        }
+        if (property.getInternalName().equals("customString1")) {
+          List<CsdlAnnotation> annotations = new ArrayList<CsdlAnnotation>();
+          CsdlAnnotation annotation = new CsdlAnnotation();
+          CsdlConstantExpression constant = new CsdlConstantExpression(ConstantExpressionType.Bool, "true");
+          annotations.add(annotation);
+          annotation.setTerm("my.IsUpperCase");
+          annotation.setExpression(constant);
+          property.addAnnotations(annotations);
         }
       }
     }

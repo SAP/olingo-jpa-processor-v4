@@ -15,8 +15,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExc
  * <ul> <li> Properties <li> Navigation Properties</ul>
  * This means that they can contain of primitive, complex, or enumeration type, or a collection of primitive, complex,
  * or enumeration types.<p>
- * <b>Limitation:</b> As of now the attributes BaseType, Abstract and OpenType are not supported. There is also no
- * support for nested complex types <p>
+ * <b>Limitation:</b> As of now the attributes BaseType, Abstract and OpenType are not supported.<p>
  * Complex Types are generated from JPA Embeddable Types.
  * <p>For details about Complex Type metadata see:
  * <a href=
