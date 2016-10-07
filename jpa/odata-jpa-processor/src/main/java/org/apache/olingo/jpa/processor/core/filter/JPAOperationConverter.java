@@ -11,7 +11,7 @@ public class JPAOperationConverter {
   protected final CriteriaBuilder cb;
   private final JPAODataDatabaseOperations dbConverter;
 
-  public JPAOperationConverter(CriteriaBuilder cb, JPAODataDatabaseOperations converterExtension) {
+  public JPAOperationConverter(final CriteriaBuilder cb, final JPAODataDatabaseOperations converterExtension) {
     super();
     this.cb = cb;
     this.dbConverter = converterExtension;

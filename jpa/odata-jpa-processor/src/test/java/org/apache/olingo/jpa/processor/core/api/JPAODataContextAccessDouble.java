@@ -19,7 +19,7 @@ public class JPAODataContextAccessDouble implements JPAODataSessionContextAccess
   private final DataSource ds;
   private final JPAODataDatabaseOperations context;
 
-  public JPAODataContextAccessDouble(JPAEdmProvider edmProvider, DataSource ds) {
+  public JPAODataContextAccessDouble(final JPAEdmProvider edmProvider, final DataSource ds) {
     super();
     this.edmProvider = edmProvider;
     this.ds = ds;

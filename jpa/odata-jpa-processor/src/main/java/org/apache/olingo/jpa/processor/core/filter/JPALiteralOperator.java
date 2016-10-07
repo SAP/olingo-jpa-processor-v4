@@ -75,7 +75,7 @@ public class JPALiteralOperator implements JPAOperator {
     }
   }
 
-  public Object get(JPAFunctionResultParameter returnType) throws ODataApplicationException {
+  public Object get(final JPAFunctionResultParameter returnType) throws ODataApplicationException {
     final EdmPrimitiveTypeKind edmTypeKind = EdmPrimitiveTypeKind.valueOfFQN(returnType.getTypeFQN());
     final EdmPrimitiveType edmType = odata.createPrimitiveTypeInstance(edmTypeKind);
     String value;
@@ -88,7 +88,7 @@ public class JPALiteralOperator implements JPAOperator {
     }
   }
 
-  public Object get(JPAFunctionParameter jpaParameter) throws ODataApplicationException {
+  public Object get(final JPAFunctionParameter jpaParameter) throws ODataApplicationException {
     try {
       final EdmPrimitiveTypeKind edmTypeKind = EdmPrimitiveTypeKind.valueOfFQN(jpaParameter.getTypeFQN());
       final EdmPrimitiveType edmType = odata.createPrimitiveTypeInstance(edmTypeKind);

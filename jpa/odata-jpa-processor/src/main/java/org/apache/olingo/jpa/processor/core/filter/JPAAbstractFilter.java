@@ -15,13 +15,13 @@ public abstract class JPAAbstractFilter implements JPAFilterComplier, JPAFilterC
   final JPAEntityType jpaEntityType;
   final VisitableExpression expression;
 
-  public JPAAbstractFilter(JPAEntityType jpaEntityType, VisitableExpression expression) {
+  public JPAAbstractFilter(final JPAEntityType jpaEntityType, final VisitableExpression expression) {
     super();
     this.jpaEntityType = jpaEntityType;
     this.expression = expression;
   }
 
-  public JPAAbstractFilter(JPAEntityType jpaEntityType, UriInfoResource uriResource) {
+  public JPAAbstractFilter(final JPAEntityType jpaEntityType, final UriInfoResource uriResource) {
     super();
     this.jpaEntityType = jpaEntityType;
     if (uriResource != null && uriResource.getFilterOption() != null) {
@@ -32,7 +32,7 @@ public abstract class JPAAbstractFilter implements JPAFilterComplier, JPAFilterC
 
   @Override
   public List<JPAPath> getMember() {
-    JPAMemberVisitor visitor = new JPAMemberVisitor(jpaEntityType);
+    final JPAMemberVisitor visitor = new JPAMemberVisitor(jpaEntityType);
     if (expression != null) {
       try {
         expression.accept(visitor);

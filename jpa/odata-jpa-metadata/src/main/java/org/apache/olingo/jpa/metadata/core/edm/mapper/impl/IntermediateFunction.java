@@ -202,7 +202,7 @@ class IntermediateFunction extends IntermediateModelElement implements JPAFuncti
   private class IntermediatResultFunctionParameter implements JPAFunctionResultParameter {
     private final ReturnType jpaReturnType;
 
-    public IntermediatResultFunctionParameter(ReturnType jpaReturnType) {
+    public IntermediatResultFunctionParameter(final ReturnType jpaReturnType) {
       this.jpaReturnType = jpaReturnType;
     }
 

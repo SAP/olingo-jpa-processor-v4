@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
+import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -34,7 +35,7 @@ public class JPAFunctionRequestProcessor extends JPAAbstractRequestProcessor {
   private final JPAODataDatabaseProcessor dbProcessor;
 
   public JPAFunctionRequestProcessor(final OData odata, final JPAODataSessionContextAccess context,
-      final JPAODataRequestContextAccess requestContext) {
+      final JPAODataRequestContextAccess requestContext) throws ODataException {
     super(odata, context, requestContext);
     this.dbProcessor = context.getDatabaseProcessor();
   }

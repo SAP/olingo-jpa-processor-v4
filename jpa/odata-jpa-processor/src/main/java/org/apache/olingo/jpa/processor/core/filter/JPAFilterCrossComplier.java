@@ -69,7 +69,7 @@ public class JPAFilterCrossComplier extends JPAAbstractFilter {
   @Override
   @SuppressWarnings("unchecked")
   public Expression<Boolean> compile() throws ExpressionVisitException, ODataApplicationException {
-    int handle = parent.getDebugger().startRuntimeMeasurement("JPAFilterCrossComplier", "compile");
+    final int handle = parent.getDebugger().startRuntimeMeasurement("JPAFilterCrossComplier", "compile");
 
     if (expression == null) {
       parent.getDebugger().stopRuntimeMeasurement(handle);

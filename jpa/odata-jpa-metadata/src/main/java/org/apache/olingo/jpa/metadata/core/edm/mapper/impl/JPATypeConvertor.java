@@ -103,7 +103,7 @@ public final class JPATypeConvertor {
     return convertToEdmSimpleType(attribute.getType(), null);
   }
 
-  public static boolean isScalarType(Class<?> type) {
+  public static boolean isScalarType(final Class<?> type) {
     if (type == String.class ||
         type == Character.class ||
         type == Long.class ||

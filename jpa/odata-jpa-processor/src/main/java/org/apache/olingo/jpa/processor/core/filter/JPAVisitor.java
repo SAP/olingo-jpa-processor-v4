@@ -56,7 +56,7 @@ class JPAVisitor implements ExpressionVisitor<JPAOperator> {
   @Override
   public JPAOperator visitBinaryOperator(final BinaryOperatorKind operator, final JPAOperator left,
       final JPAOperator right) throws ExpressionVisitException, ODataApplicationException {
-    int handle = debugger.startRuntimeMeasurement("JPAVisitor", "visitBinaryOperator");
+    final int handle = debugger.startRuntimeMeasurement("JPAVisitor", "visitBinaryOperator");
 
     // TODO Logging
     if (hasNavigation(left) || hasNavigation(right))
@@ -116,7 +116,7 @@ class JPAVisitor implements ExpressionVisitor<JPAOperator> {
 
   @Override
   public JPAOperator visitLiteral(final Literal literal) throws ExpressionVisitException, ODataApplicationException {
-    int handle = debugger.startRuntimeMeasurement("JPAVisitor", "visitBinaryOperator");
+    final int handle = debugger.startRuntimeMeasurement("JPAVisitor", "visitBinaryOperator");
     debugger.stopRuntimeMeasurement(handle);
     return new JPALiteralOperator(this.jpaComplier.getOdata(), literal);
   }
@@ -124,7 +124,7 @@ class JPAVisitor implements ExpressionVisitor<JPAOperator> {
   @Override
   public JPAOperator visitMember(final Member member) throws ExpressionVisitException, ODataApplicationException {
 
-    int handle = debugger.startRuntimeMeasurement("JPAVisitor", "visitMember");
+    final int handle = debugger.startRuntimeMeasurement("JPAVisitor", "visitMember");
     if (getLambdaType(member.getResourcePath()) == UriResourceKind.lambdaAny) {
       debugger.stopRuntimeMeasurement(handle);
       return new JPALambdaAnyOperation(this.jpaComplier, member);
@@ -150,7 +150,7 @@ class JPAVisitor implements ExpressionVisitor<JPAOperator> {
   @Override
   public JPAOperator visitMethodCall(final MethodKind methodCall, final List<JPAOperator> parameters)
       throws ExpressionVisitException, ODataApplicationException {
-    int handle = debugger.startRuntimeMeasurement("JPAVisitor", "visitMethodCall");
+    final int handle = debugger.startRuntimeMeasurement("JPAVisitor", "visitMethodCall");
     debugger.stopRuntimeMeasurement(handle);
     return new JPAMethodCallImp(this.jpaComplier.getConverter(), methodCall, parameters);
   }
@@ -166,7 +166,7 @@ class JPAVisitor implements ExpressionVisitor<JPAOperator> {
   @Override
   public JPAOperator visitUnaryOperator(final UnaryOperatorKind operator, final JPAOperator operand)
       throws ExpressionVisitException, ODataApplicationException {
-    int handle = debugger.startRuntimeMeasurement("JPAVisitor", "visitBinaryOperator");
+    final int handle = debugger.startRuntimeMeasurement("JPAVisitor", "visitBinaryOperator");
     if (operator == UnaryOperatorKind.NOT) {
       debugger.stopRuntimeMeasurement(handle);
       return new JPAUnaryBooleanOperatorImp(this.jpaComplier.getConverter(), operator, (JPAExpressionOperator) operand);

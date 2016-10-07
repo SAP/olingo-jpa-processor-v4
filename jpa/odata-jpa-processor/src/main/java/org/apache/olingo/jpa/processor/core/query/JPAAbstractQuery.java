@@ -135,7 +135,7 @@ public abstract class JPAAbstractQuery {
 
   protected abstract Locale getLocale();
 
-  protected void generateDesciptionJoin(final HashMap<String, From<?, ?>> joinTables, Set<JPAPath> pathSet)
+  protected void generateDesciptionJoin(final HashMap<String, From<?, ?>> joinTables, final Set<JPAPath> pathSet)
       throws ODataApplicationException {
     for (final JPAPath descriptionFieldPath : pathSet) {
       final JPADescriptionAttribute desciptionField = ((JPADescriptionAttribute) descriptionFieldPath.getLeaf());
@@ -163,11 +163,11 @@ public abstract class JPAAbstractQuery {
     }
   }
 
-  private Expression<Boolean> createOnCondition(Join<?, ?> join, JPADescriptionAttribute desciptionField,
-      String localValue) throws ODataApplicationException {
+  private Expression<Boolean> createOnCondition(final Join<?, ?> join, final JPADescriptionAttribute desciptionField,
+      final String localValue) throws ODataApplicationException {
 
     Expression<Boolean> result = cb.equal(determienLocalePath(join, desciptionField.getLocaleFieldName()), localValue);
-    for (JPAPath value : desciptionField.getFixedValueAssignment().keySet()) {
+    for (final JPAPath value : desciptionField.getFixedValueAssignment().keySet()) {
       result = cb.and(result,
           cb.equal(determienLocalePath(join, value), desciptionField.getFixedValueAssignment().get(value)));
     }
@@ -211,12 +211,12 @@ public abstract class JPAAbstractQuery {
   private class EmptyDebugger implements JPAServiceDebugger {
 
     @Override
-    public int startRuntimeMeasurement(String className, String methodName) {
+    public int startRuntimeMeasurement(final String className, final String methodName) {
       return 0;
     }
 
     @Override
-    public void stopRuntimeMeasurement(int handle) {}
+    public void stopRuntimeMeasurement(final int handle) {}
 
     @Override
     public Collection<? extends RuntimeMeasurement> getRuntimeInformation() {
