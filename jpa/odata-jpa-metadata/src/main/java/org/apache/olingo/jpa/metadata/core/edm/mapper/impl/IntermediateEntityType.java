@@ -31,7 +31,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExc
  */
 class IntermediateEntityType extends IntermediateStructuredType implements JPAEntityType {
   private CsdlEntityType edmEntityType;
-  private boolean hasEtag = false;
+  private boolean hasEtag;
 
   IntermediateEntityType(final JPAEdmNameBuilder nameBuilder, final EntityType<?> et, final IntermediateSchema schema)
       throws ODataJPAModelException {

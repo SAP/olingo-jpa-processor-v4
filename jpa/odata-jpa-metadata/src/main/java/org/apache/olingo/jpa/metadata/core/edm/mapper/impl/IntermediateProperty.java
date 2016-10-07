@@ -49,7 +49,7 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
   private AttributeConverter<?, ?> valueConverter;
   private String dbFieldName;
   private boolean searchable;
-  private boolean isVersion = false;
+  private boolean isVersion;
   private EdmMediaStream streamInfo;
 
   IntermediateProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,

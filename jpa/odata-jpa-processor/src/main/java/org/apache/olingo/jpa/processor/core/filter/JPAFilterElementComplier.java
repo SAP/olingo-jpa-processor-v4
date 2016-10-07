@@ -52,7 +52,7 @@ public class JPAFilterElementComplier extends JPAAbstractFilter {
   @Override
   @SuppressWarnings("unchecked")
   public Expression<Boolean> compile() throws ExpressionVisitException, ODataApplicationException {
-    int handle = parent.getDebugger().startRuntimeMeasurement("JPAFilterCrossComplier", "compile");
+    final int handle = parent.getDebugger().startRuntimeMeasurement("JPAFilterCrossComplier", "compile");
 
     final ExpressionVisitor<JPAOperator> visitor = new JPAVisitor(this);
     final Expression<Boolean> finalExpression = (Expression<Boolean>) expression.accept(visitor).get();

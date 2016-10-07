@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
+import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -22,8 +23,6 @@ import org.apache.olingo.jpa.processor.core.query.JPAQuery;
 import org.apache.olingo.jpa.processor.core.query.JPATupleResultConverter;
 import org.apache.olingo.jpa.processor.core.query.Util;
 import org.apache.olingo.server.api.OData;
-import org.apache.olingo.server.api.ODataApplicationException;
-import org.apache.olingo.server.api.ODataLibraryException;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.ServiceMetadata;
@@ -36,16 +35,17 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
   private final ServiceMetadata serviceMetadata;
 
   public JPANavigationRequestProcessor(final OData odata, final ServiceMetadata serviceMetadata,
-      final JPAODataSessionContextAccess context, final JPAODataRequestContextAccess requestContext) {
+      final JPAODataSessionContextAccess context, final JPAODataRequestContextAccess requestContext)
+      throws ODataException {
     super(odata, context, requestContext);
     this.serviceMetadata = serviceMetadata;
   }
 
   @Override
   public void retrieveData(final ODataRequest request, final ODataResponse response, final ContentType responseFormat)
-      throws ODataApplicationException, ODataLibraryException {
+      throws ODataException {
 
-    int handle = debugger.startRuntimeMeasurement("JPANavigationRequestProcessor", "retrieveData");
+    final int handle = debugger.startRuntimeMeasurement("JPANavigationRequestProcessor", "retrieveData");
 
     final List<UriResource> resourceParts = uriInfo.getUriResourceParts();
     final EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(resourceParts);
@@ -58,12 +58,16 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
       debugger.stopRuntimeMeasurement(handle);
       throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.QUERY_PREPARATION_ERROR,
           HttpStatusCode.INTERNAL_SERVER_ERROR, e);
+    } catch (ODataException e) {
+      debugger.stopRuntimeMeasurement(handle);
+      throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.QUERY_PREPARATION_ERROR,
+          HttpStatusCode.INTERNAL_SERVER_ERROR, e);
     }
 
     final JPAExpandResult result = query.execute();
     result.putChildren(readExpandEntities(request.getAllHeaders(), null, uriInfo));
     // Convert tuple result into an OData Result
-    int converterHandle = debugger.startRuntimeMeasurement("JPATupleResultConverter", "getResult");
+    final int converterHandle = debugger.startRuntimeMeasurement("JPATupleResultConverter", "getResult");
     EntityCollection entityCollection;
     try {
       entityCollection = new JPATupleResultConverter(sd, result, odata.createUriHelper(), serviceMetadata)
@@ -83,7 +87,7 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
       entityCollection.setCount(Integer.valueOf(query.countResults().intValue()));
 
     if (entityCollection.getEntities() != null && entityCollection.getEntities().size() > 0) {
-      int serializerHandle = debugger.startRuntimeMeasurement("JPASerializer", "serialize");
+      final int serializerHandle = debugger.startRuntimeMeasurement("JPASerializer", "serialize");
       final SerializerResult serializerResult = serializer.serialize(request, entityCollection);
       debugger.stopRuntimeMeasurement(serializerHandle);
       createSuccessResonce(response, responseFormat, serializerResult);
@@ -116,13 +120,13 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
    * @param parentHops
    * @param uriResourceInfo
    * @return
-   * @throws ODataApplicationException
+   * @throws ODataException
    */
   private Map<JPAAssociationPath, JPAExpandResult> readExpandEntities(final Map<String, List<String>> headers,
       final List<JPANavigationProptertyInfo> parentHops, final UriInfoResource uriResourceInfo)
-      throws ODataApplicationException {
+      throws ODataException {
 
-    int handle = debugger.startRuntimeMeasurement("JPANavigationRequestProcessor", "readExpandEntities");
+    final int handle = debugger.startRuntimeMeasurement("JPANavigationRequestProcessor", "readExpandEntities");
 
     final Map<JPAAssociationPath, JPAExpandResult> allExpResults =
         new HashMap<JPAAssociationPath, JPAExpandResult>();

@@ -116,15 +116,15 @@ public class JPANavigationFilterQuery extends JPANavigationQuery {
     }
   }
 
-  private void createDescriptionJoin(JPAFilterElementComplier filterComplier) throws ODataApplicationException {
+  private void createDescriptionJoin(final JPAFilterElementComplier filterComplier) throws ODataApplicationException {
     final HashMap<String, From<?, ?>> joinTables = new HashMap<String, From<?, ?>>();
     generateDesciptionJoin(joinTables, determineAllDescriptionPath());
   }
 
   private Set<JPAPath> determineAllDescriptionPath() {
-    Set<JPAPath> allPath = new HashSet<JPAPath>();
+    final Set<JPAPath> allPath = new HashSet<JPAPath>();
     if (filterComplier != null) {
-      for (JPAPath path : filterComplier.getMember()) {
+      for (final JPAPath path : filterComplier.getMember()) {
         if (path.getLeaf() instanceof JPADescriptionAttribute)
           allPath.add(path);
       }
