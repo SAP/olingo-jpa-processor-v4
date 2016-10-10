@@ -35,20 +35,20 @@ class JPAMemberVisitor implements ExpressionVisitor<JPAPath> {
   }
 
   @Override
-  public JPAPath visitBinaryOperator(BinaryOperatorKind operator, JPAPath left, JPAPath right)
+  public JPAPath visitBinaryOperator(final BinaryOperatorKind operator, final JPAPath left, final JPAPath right)
       throws ExpressionVisitException, ODataApplicationException {
     return null;
   }
 
   @Override
-  public JPAPath visitUnaryOperator(UnaryOperatorKind operator, JPAPath operand) throws ExpressionVisitException,
-      ODataApplicationException {
+  public JPAPath visitUnaryOperator(final UnaryOperatorKind operator, final JPAPath operand)
+      throws ExpressionVisitException, ODataApplicationException {
     return null;
   }
 
   @Override
-  public JPAPath visitMethodCall(MethodKind methodCall, List<JPAPath> parameters) throws ExpressionVisitException,
-      ODataApplicationException {
+  public JPAPath visitMethodCall(final MethodKind methodCall, final List<JPAPath> parameters)
+      throws ExpressionVisitException, ODataApplicationException {
     return null;
   }
 

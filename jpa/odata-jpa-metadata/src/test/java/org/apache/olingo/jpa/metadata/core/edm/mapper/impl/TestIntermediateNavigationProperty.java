@@ -34,7 +34,7 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkNaviProptertyCanBeCreated() {
+  public void checkNaviProptertyCanBeCreated() throws ODataJPAModelException {
     EntityType<?> et = helper.getEntityType("BusinessPartner");
     Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(et, "roles");
     new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME), schema.getStructuredType(jpaAttribute),

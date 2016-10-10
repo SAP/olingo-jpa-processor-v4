@@ -93,9 +93,12 @@ public final class JPATypeConvertor {
     } else if (isGeometry(currentAttribute)) {
       return convertGeometry(jpaType, currentAttribute);
     }
-    // Type (%1$s) of attribute (%2$s) is not supported. Mapping not possible
-    throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.TYPE_NOT_SUPPORTED,
-        jpaType.getName(), currentAttribute.getName());
+    if (currentAttribute != null)
+      // Type (%1$s) of attribute (%2$s) is not supported. Mapping not possible
+      throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.TYPE_NOT_SUPPORTED,
+          jpaType.getName(), currentAttribute.getName());
+    else
+      return null;
   }
 
   public static EdmPrimitiveTypeKind convertToEdmSimpleType(final JPAAttribute attribute)
@@ -204,10 +207,10 @@ public final class JPATypeConvertor {
   }
 
   private static boolean isGeography(final Attribute<?, ?> currentAttribute) {
-    return getDimension(currentAttribute) == Dimension.GEOGRAPHY ? true : false;
+    return currentAttribute != null && getDimension(currentAttribute) == Dimension.GEOGRAPHY ? true : false;
   }
 
   private static boolean isGeometry(final Attribute<?, ?> currentAttribute) {
-    return getDimension(currentAttribute) == Dimension.GEOMETRY ? true : false;
+    return currentAttribute != null && getDimension(currentAttribute) == Dimension.GEOMETRY ? true : false;
   }
 }

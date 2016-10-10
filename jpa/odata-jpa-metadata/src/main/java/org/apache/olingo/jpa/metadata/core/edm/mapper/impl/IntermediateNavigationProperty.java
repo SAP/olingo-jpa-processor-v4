@@ -49,7 +49,7 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
   private final List<IntermediateJoinColumn> joinColumns = new ArrayList<IntermediateJoinColumn>();
 
   IntermediateNavigationProperty(final JPAEdmNameBuilder nameBuilder, final IntermediateStructuredType parent,
-      final Attribute<?, ?> jpaAttribute, final IntermediateSchema schema) {
+      final Attribute<?, ?> jpaAttribute, final IntermediateSchema schema) throws ODataJPAModelException {
     super(nameBuilder, IntNameBuilder.buildAssociationName(jpaAttribute));
     this.jpaAttribute = jpaAttribute;
     this.schema = schema;
@@ -290,7 +290,7 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
     return false;
   }
 
-  private void buildNaviProperty() {
+  private void buildNaviProperty() throws ODataJPAModelException {
     this.setExternalName(nameBuilder.buildNaviPropertyName(jpaAttribute));
     Class<?> targetClass = null;
     if (jpaAttribute.isCollection()) {
@@ -307,6 +307,9 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
     }
 
     targetType = schema.getEntityType(targetClass);
+    if (targetType == null)
+      throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.NAVI_PROPERTY_NOT_FOUND,
+          jpaAttribute.getName(), sourceType.internalName);
     postProcessor.processNavigationProperty(this, jpaAttribute.getDeclaringType().getJavaType()
         .getCanonicalName());
   }

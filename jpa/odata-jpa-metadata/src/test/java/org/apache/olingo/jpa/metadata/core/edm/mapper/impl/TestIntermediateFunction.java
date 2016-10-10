@@ -3,17 +3,26 @@ package org.apache.olingo.jpa.metadata.core.edm.mapper.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.provider.CsdlParameter;
+import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
+import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmFunctionParameter;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.processor.core.testmodel.AssertList;
 import org.apache.olingo.jpa.processor.core.testmodel.BusinessPartner;
+import org.apache.olingo.jpa.processor.core.testmodel.ChangeInformation;
+import org.apache.olingo.jpa.processor.core.testmodel.DateConverter;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 public class TestIntermediateFunction extends TestMappingRoot {
   private TestHelper helper;
@@ -39,8 +48,7 @@ public class TestIntermediateFunction extends TestMappingRoot {
   @Test
   public void checkByEntityAnnotationGetStoredProcedureName() throws ODataJPAModelException {
     IntermediateFunction func = new IntermediateFunction(new JPAEdmNameBuilder(PUNIT_NAME), helper.getStoredProcedure(
-        helper.getEntityType(
-            "BusinessPartner"),
+        helper.getEntityType("BusinessPartner"),
         "CountRoles"), BusinessPartner.class, helper.schema);
     assertEquals("COUNT_ROLES", func.getUserDefinedFunction());
   }
@@ -81,8 +89,7 @@ public class TestIntermediateFunction extends TestMappingRoot {
         helper.getEntityType("BusinessPartner"), "IsPrime"), BusinessPartner.class, helper.schema);
 
     assertEquals(EdmPrimitiveTypeKind.Boolean.getFullQualifiedName().getFullQualifiedNameAsString(), func.getEdmItem()
-        .getReturnType()
-        .getType());
+        .getReturnType().getType());
   }
 
   @Test
@@ -120,5 +127,50 @@ public class TestIntermediateFunction extends TestMappingRoot {
     func = new IntermediateFunctionFactory().create(new JPAEdmNameBuilder(PUNIT_NAME), helper
         .getEntityType("BusinessPartner"), helper.schema).get("IsPrime");
     assertFalse(func.getEdmItem().getReturnType().isNullable());
+  }
+
+  @Test
+  public void checkReturnTypeEmbedded() throws ODataJPAModelException {
+    EdmFunction func = mock(EdmFunction.class);
+    EdmFunction.ReturnType retType = mock(EdmFunction.ReturnType.class);
+    // EdmFunctionParameter[] params = new EdmFunctionParameter[0];
+    when(func.returnType()).thenReturn(retType);
+    when(func.parameter()).thenReturn(new EdmFunctionParameter[0]);
+    when(retType.type()).thenAnswer(new Answer<Class<?>>() {
+
+      @Override
+      public Class<?> answer(InvocationOnMock invocation) throws Throwable {
+        return ChangeInformation.class;
+      }
+    });
+
+    IntermediateFunction act = new IntermediateFunction(new JPAEdmNameBuilder(PUNIT_NAME), func, BusinessPartner.class,
+        helper.schema);
+    assertEquals("org.apache.olingo.jpa.ChangeInformation", act.getEdmItem().getReturnType().getTypeFQN()
+        .getFullQualifiedNameAsString());
+  }
+
+  @Test
+  public void checkReturnTypeUnknown() throws ODataJPAModelException {
+    EdmFunction func = mock(EdmFunction.class);
+    EdmFunction.ReturnType retType = mock(EdmFunction.ReturnType.class);
+    // EdmFunctionParameter[] params = new EdmFunctionParameter[0];
+    when(func.returnType()).thenReturn(retType);
+    when(func.parameter()).thenReturn(new EdmFunctionParameter[0]);
+    when(retType.type()).thenAnswer(new Answer<Class<?>>() {
+      @Override
+      public Class<?> answer(InvocationOnMock invocation) throws Throwable {
+        return DateConverter.class;
+      }
+    });
+    IntermediateFunction act;
+    try {
+      act = new IntermediateFunction(new JPAEdmNameBuilder(PUNIT_NAME), func, BusinessPartner.class, helper.schema);
+      act.getEdmItem();
+    } catch (ODataJPAModelException e) {
+      assertEquals(ODataJPAModelException.MessageKeys.FUNC_RETURN_TYPE_UNKNOWN.getKey(), e.getId());
+      return;
+    }
+    fail();
   }
 }
