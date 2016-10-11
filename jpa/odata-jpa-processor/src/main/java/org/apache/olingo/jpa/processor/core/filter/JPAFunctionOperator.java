@@ -41,8 +41,6 @@ public class JPAFunctionOperator implements JPAOperator {
 
   @Override
   public Expression<?> get() throws ODataApplicationException {
-    final List<JPAFunctionParameter> parameters = jpaFunction.getParameter();
-    final Expression<?>[] jpaParameter = new Expression<?>[parameters.size()];
 
     if (jpaFunction.getResultParameter().isCollection()) {
       throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FUNCTION_COLLECTION,
@@ -56,6 +54,8 @@ public class JPAFunctionOperator implements JPAOperator {
     }
 
     final CriteriaBuilder cb = visitor.getCriteriaBuilder();
+    final List<JPAFunctionParameter> parameters = jpaFunction.getParameter();
+    final Expression<?>[] jpaParameter = new Expression<?>[parameters.size()];
     for (int i = 0; i < parameters.size(); i++) {
       // a. $it/Area b. Area c. 10000
       final UriParameter p = findUriParameter(parameters.get(i));

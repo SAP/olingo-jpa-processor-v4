@@ -3,6 +3,7 @@ package org.apache.olingo.jpa.metadata.core.edm.mapper.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.geo.SRID;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
@@ -15,6 +16,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionParameter;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionResultParameter;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
 
 /**
  * Mapper, that is able to convert different metadata resources into a edm function metadata. It is important to know
@@ -98,6 +100,7 @@ class IntermediateFunction extends IntermediateModelElement implements JPAFuncti
   }
 
   private List<CsdlParameter> determineEdmInputParameter() throws ODataJPAModelException {
+
     final List<CsdlParameter> edmInputParameterList = new ArrayList<CsdlParameter>();
     for (final EdmFunctionParameter jpaParameter : jpaUserDefinedFunction.parameter()) {
 
@@ -125,6 +128,7 @@ class IntermediateFunction extends IntermediateModelElement implements JPAFuncti
 
   // TODO handle multiple schemas
   private CsdlReturnType determineEdmResultType(final ReturnType returnType) throws ODataJPAModelException {
+
     final CsdlReturnType edmResultType = new CsdlReturnType();
     FullQualifiedName fqn;
     if (returnType.type() == Object.class) {
@@ -132,12 +136,17 @@ class IntermediateFunction extends IntermediateModelElement implements JPAFuncti
       fqn = nameBuilder.buildFQN(et.getEdmItem().getName());
       this.setIgnore(et.ignore()); // If the result type shall be ignored, ignore also a function that returns it
     } else {
-      final IntermediateStructuredType et = schema.getEntityType(returnType.type());
-      if (et != null) {
-        fqn = nameBuilder.buildFQN(et.getEdmItem().getName());
-        this.setIgnore(et.ignore()); // If the result type shall be ignored, ignore also a function that returns it
-      } else
-        fqn = JPATypeConvertor.convertToEdmSimpleType(returnType.type()).getFullQualifiedName();
+      final IntermediateStructuredType st = schema.getStructuredType(returnType.type());
+      if (st != null) {
+        fqn = nameBuilder.buildFQN(st.getEdmItem().getName());
+        this.setIgnore(st.ignore()); // If the result type shall be ignored, ignore also a function that returns it
+      } else {
+        EdmPrimitiveTypeKind pt = JPATypeConvertor.convertToEdmSimpleType(returnType.type());
+        if (pt != null)
+          fqn = pt.getFullQualifiedName();
+        else
+          throw new ODataJPAModelException(MessageKeys.FUNC_RETURN_TYPE_UNKNOWN);
+      }
     }
     edmResultType.setType(fqn);
     edmResultType.setCollection(returnType.isCollection());

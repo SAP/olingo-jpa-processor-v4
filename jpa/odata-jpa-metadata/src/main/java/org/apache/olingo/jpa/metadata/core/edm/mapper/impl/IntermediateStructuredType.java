@@ -304,7 +304,7 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
   }
 
   IntermediateNavigationProperty getCorrespondingAssiciation(final IntermediateStructuredType sourceType,
-      final String sourceRelationshipName) {
+      final String sourceRelationshipName) throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = findCorrespondingAssociation(sourceType, sourceRelationshipName);
     return jpaAttribute == null ? null : new IntermediateNavigationProperty(nameBuilder, sourceType, jpaAttribute,
         schema);

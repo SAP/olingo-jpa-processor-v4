@@ -77,6 +77,14 @@ class IntermediateSchema extends IntermediateModelElement {
     return type;
   }
 
+  IntermediateStructuredType getStructuredType(final Class<?> targetClass) {
+    IntermediateStructuredType type = entityTypeListInternalKey
+        .get(IntNameBuilder.buildStructuredTypeName(targetClass));
+    if (type == null)
+      type = complexTypeListInternalKey.get(IntNameBuilder.buildStructuredTypeName(targetClass));
+    return type;
+  }
+
   IntermediateStructuredType getEntityType(final Class<?> targetClass) {
     return entityTypeListInternalKey.get(IntNameBuilder.buildStructuredTypeName(targetClass));
   }
@@ -153,4 +161,5 @@ class IntermediateSchema extends IntermediateModelElement {
     }
     return funcList;
   }
+
 }
