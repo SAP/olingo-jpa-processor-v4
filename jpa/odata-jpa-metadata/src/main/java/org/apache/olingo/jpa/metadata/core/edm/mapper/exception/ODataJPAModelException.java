@@ -57,7 +57,7 @@ public class ODataJPAModelException extends ODataJPAException {
 
   }
 
-  private static final String BUNDEL_NAME = "exceptions-i18n";
+  private static final String BUNDEL_NAME = "metadata-exceptions-i18n";
 
   public ODataJPAModelException(final Throwable e) {
     super(e);

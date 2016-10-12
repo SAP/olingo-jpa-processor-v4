@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
@@ -51,9 +52,10 @@ public class IntegrationTestHelper {
   }
 
   public IntegrationTestHelper(EntityManagerFactory localEmf, DataSource ds, String urlPath, StringBuffer requestBody)
-      throws IOException,
-      ODataException {
+      throws IOException, ODataException {
+
     super();
+    EntityManager em = localEmf.createEntityManager();
     this.req = new HttpServletRequestDouble(uriPrefix + urlPath, requestBody);
     this.resp = new HttpServletResponseDouble();
     OData odata = OData.newInstance();
@@ -62,8 +64,8 @@ public class IntegrationTestHelper {
 
     ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(context.getEdmProvider(),
         new ArrayList<EdmxReference>()));
-    handler.register(new JPAODataRequestProcessor(context, localEmf.createEntityManager()));
-    handler.register(new JPAODataBatchProcessor());
+    handler.register(new JPAODataRequestProcessor(context, em));
+    handler.register(new JPAODataBatchProcessor(em));
     handler.process(req, resp);
 
   }
