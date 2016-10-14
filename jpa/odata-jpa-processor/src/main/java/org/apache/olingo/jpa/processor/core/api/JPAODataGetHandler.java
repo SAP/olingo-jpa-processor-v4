@@ -21,6 +21,7 @@ import org.apache.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor
 import org.apache.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 import org.apache.olingo.jpa.processor.core.database.JPAODataDatabaseProcessorFactory;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAFilterException;
+import org.apache.olingo.jpa.processor.core.processor.JPACUDRequestHandler;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataHttpHandler;
 import org.apache.olingo.server.api.ODataResponse;
@@ -177,6 +178,11 @@ public class JPAODataGetHandler {
           debugger = new JPAEmptyDebugger();
         debugSupport.setDebugger(debugger);
       }
+    }
+
+    @Override
+    public JPACUDRequestHandler getCUDRequestHandler() {
+      return null;
     }
   }
 

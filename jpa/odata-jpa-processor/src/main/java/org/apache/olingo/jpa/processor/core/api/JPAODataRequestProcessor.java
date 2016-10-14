@@ -1,7 +1,6 @@
 package org.apache.olingo.jpa.processor.core.api;
 
 import java.io.InputStream;
-import java.util.List;
 
 import javax.persistence.EntityManager;
 
@@ -14,6 +13,7 @@ import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpHeader;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
+import org.apache.olingo.jpa.processor.core.processor.JPADeleteProcessor;
 import org.apache.olingo.jpa.processor.core.processor.JPAProcessorFactory;
 import org.apache.olingo.jpa.processor.core.processor.JPARequestProcessor;
 import org.apache.olingo.jpa.processor.core.query.Util;
@@ -34,9 +34,6 @@ import org.apache.olingo.server.api.serializer.EntitySerializerOptions;
 import org.apache.olingo.server.api.serializer.ODataSerializer;
 import org.apache.olingo.server.api.serializer.SerializerResult;
 import org.apache.olingo.server.api.uri.UriInfo;
-import org.apache.olingo.server.api.uri.UriParameter;
-import org.apache.olingo.server.api.uri.UriResource;
-import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 
 public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
     ComplexProcessor, CountEntityCollectionProcessor, EntityProcessor, MediaEntityProcessor {
@@ -118,7 +115,7 @@ public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
   @Override
   public void deleteComplex(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo)
       throws ODataApplicationException, ODataLibraryException {
-
+    // Set NULL: .../Organizations('4')/Address
     throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
         HttpStatusCode.NOT_IMPLEMENTED);
   }
@@ -127,27 +124,31 @@ public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
   public void deleteEntity(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo)
       throws ODataApplicationException, ODataLibraryException {
 
-    // 1. Retrieve the entity set which belongs to the requested entity
-    List<UriResource> resourcePaths = uriInfo.getUriResourceParts();
-    // Note: only in our example we can assume that the first segment is the EntitySet
-    UriResourceEntitySet uriResourceEntitySet = (UriResourceEntitySet) resourcePaths.get(0);
-    EdmEntitySet edmEntitySet = uriResourceEntitySet.getEntitySet();
+    JPADeleteProcessor p;
+    try {
+      p = factory.createDeleteProcessor(em, uriInfo);
+      p.deleteEntity(response);
+    } catch (ODataException e) {
+      throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
+          null, e);
+    }
 
-    // 2. delete the data in backend
-    List<UriParameter> keyPredicates = uriResourceEntitySet.getKeyPredicates();
-    // storage.deleteEntityData(edmEntitySet, keyPredicates);
-
-    // 3. configure the response object
-    response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
-
-    throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
-        HttpStatusCode.NOT_IMPLEMENTED);
   }
 
   @Override
   public void deletePrimitive(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo)
       throws ODataApplicationException, ODataLibraryException {
-
+    // Set NULL: .../Organizations('4')/Address/Country
+    // https://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752306
+    // 11.4.9.2 Set a Value to Null:
+    // A successful DELETE request to the edit URL for a structural property, or to the edit URL of the raw value of a
+    // primitive property, sets the property to null. The request body is ignored and should be empty. A DELETE request
+    // to a non-nullable value MUST fail and the service respond with 400 Bad Request or other appropriate error.
+    // The same rules apply whether the target is the value of a regular property or the value of a dynamic property. A
+    // missing dynamic property is defined to be the same as a dynamic property with value null. All dynamic properties
+    // are nullable.On success, the service MUST respond with 204 No Content and an empty body.
+    //
+    // Nullable checked by Olingo Core
     throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
         HttpStatusCode.NOT_IMPLEMENTED);
   }
@@ -163,7 +164,12 @@ public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
   @Override
   public void deleteMediaEntity(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo)
       throws ODataApplicationException, ODataLibraryException {
-
+    // Set NULL: ../$value
+    // https://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752305
+    // 11.4.8.2 Deleting Stream Values:
+    // A successful DELETE request to the edit URL of a stream property attempts to set the property to null and results
+    // in an error if the property is non-nullable. Attempting to request a stream property whose value is null results
+    // in 204 No Content.
     throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
         HttpStatusCode.NOT_IMPLEMENTED);
   }

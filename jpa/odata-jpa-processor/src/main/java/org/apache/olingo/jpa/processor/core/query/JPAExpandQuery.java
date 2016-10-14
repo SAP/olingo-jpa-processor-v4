@@ -68,7 +68,7 @@ public class JPAExpandQuery extends JPAExecutableQuery {
     if (uriResource.getTopOption() != null || uriResource.getSkipOption() != null)
       return executeExpandTopSkipQuery();
     else {
-      return executeStandradQuery();
+      return executeStandardQuery();
     }
   }
 
@@ -101,7 +101,7 @@ public class JPAExpandQuery extends JPAExecutableQuery {
     return new JPAExpandResult(result, count(), jpaEntity);
   }
 
-  private JPAExpandResult executeStandradQuery() throws ODataApplicationException {
+  private JPAExpandResult executeStandardQuery() throws ODataApplicationException {
     final int handle = debugger.startRuntimeMeasurement("JPAExpandQuery", "executeStandradQuery");
 
     final TypedQuery<Tuple> tupleQuery = createTupleQuery();
