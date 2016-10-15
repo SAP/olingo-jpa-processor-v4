@@ -29,6 +29,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
 import org.apache.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import org.apache.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAQueryException;
+import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.debug.RuntimeMeasurement;
 import org.apache.olingo.server.api.uri.UriParameter;
@@ -47,9 +48,11 @@ public abstract class JPAAbstractQuery {
   protected final JPAEntityType jpaEntity;
   protected final ServiceDocument sd;
   protected final JPAServiceDebugger debugger;
+  protected final OData odata;
   protected Locale locale;
 
-  public JPAAbstractQuery(final ServiceDocument sd, final JPAEntityType jpaEntityType, final EntityManager em)
+  public JPAAbstractQuery(final OData odata, final ServiceDocument sd, final JPAEntityType jpaEntityType,
+      final EntityManager em)
       throws ODataApplicationException {
     super();
     this.em = em;
@@ -57,9 +60,11 @@ public abstract class JPAAbstractQuery {
     this.sd = sd;
     this.jpaEntity = jpaEntityType;
     this.debugger = new EmptyDebugger();
+    this.odata = odata;
   }
 
-  public JPAAbstractQuery(final ServiceDocument sd, final EdmEntityType edmEntityType, final EntityManager em)
+  public JPAAbstractQuery(final OData odata, final ServiceDocument sd, final EdmEntityType edmEntityType,
+      final EntityManager em)
       throws ODataApplicationException {
     super();
     this.em = em;
@@ -71,16 +76,18 @@ public abstract class JPAAbstractQuery {
       throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
     }
     this.debugger = new EmptyDebugger();
+    this.odata = odata;
   }
 
-  public JPAAbstractQuery(final ServiceDocument sd, final JPAEntityType jpaEntityType, final EntityManager em,
-      final JPAServiceDebugger debugger) {
+  public JPAAbstractQuery(final OData odata, final ServiceDocument sd, final JPAEntityType jpaEntityType,
+      final EntityManager em, final JPAServiceDebugger debugger) {
     super();
     this.em = em;
     this.cb = em.getCriteriaBuilder();
     this.sd = sd;
     this.jpaEntity = jpaEntityType;
     this.debugger = debugger;
+    this.odata = odata;
   }
 
   protected javax.persistence.criteria.Expression<Boolean> createWhereByKey(final From<?, ?> root,
@@ -94,8 +101,7 @@ public abstract class JPAAbstractQuery {
       for (final UriParameter keyPredicate : keyPredicates) {
         javax.persistence.criteria.Expression<Boolean> equalCondition;
         try {
-          equalCondition = cb.equal(root.get(jpaEntity.getPath(keyPredicate.getName()).getLeaf()
-              .getInternalName()), eliminateApostrophe(keyPredicate.getText()));
+          equalCondition = ExpressionUtil.createEQExpression(odata, cb, root, jpaEntity, keyPredicate);
         } catch (ODataJPAModelException e) {
           throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
         }
@@ -106,10 +112,6 @@ public abstract class JPAAbstractQuery {
       }
     }
     return compundCondition;
-  }
-
-  private String eliminateApostrophe(final String text) {
-    return text.replaceAll("'", "");
   }
 
   protected List<UriParameter> determineKeyPredicates(final UriResource uriResourceItem)

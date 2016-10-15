@@ -44,6 +44,6 @@ public class TestRetrieveSingleEntity extends TestBase {
 
     ObjectNode org = helper.getValue();
     assertEquals("en", org.get("Language").asText());
-    assertEquals("NUTS", org.get("CodeID").asText());
+    assertEquals("NUTS1", org.get("CodeID").asText());
   }
 }

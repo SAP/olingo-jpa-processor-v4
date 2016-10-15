@@ -228,7 +228,8 @@ public class JPAExpandQuery extends JPAExecutableQuery {
     final List<JPANavigationQuery> queryList = new ArrayList<JPANavigationQuery>();
 
     for (final JPANavigationProptertyInfo naviInfo : expandPathList) {
-      queryList.add(new JPANavigationQuery(sd, naviInfo.getUriResiource(), parent, em, naviInfo.getAssociationPath()));
+      queryList.add(new JPANavigationQuery(odata, sd, naviInfo.getUriResiource(), parent, em, naviInfo
+          .getAssociationPath()));
       parent = queryList.get(queryList.size() - 1);
     }
     // 3. Create select statements

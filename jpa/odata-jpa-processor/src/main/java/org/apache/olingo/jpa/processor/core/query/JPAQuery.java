@@ -129,7 +129,7 @@ public class JPAQuery extends JPAExecutableQuery {
         new ArrayList<javax.persistence.criteria.Expression<?>>();
 
     for (final JPAPath jpaPath : selectionPathList) {
-      groupBy.add(convertToCriteriaPath(joinTables, jpaPath));
+      groupBy.add(ExpressionUtil.convertToCriteriaPath(joinTables, root, jpaPath));
     }
 
     debugger.stopRuntimeMeasurement(handle);

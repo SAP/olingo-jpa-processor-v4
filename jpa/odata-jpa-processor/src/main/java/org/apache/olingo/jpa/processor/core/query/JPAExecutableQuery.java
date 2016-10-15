@@ -29,7 +29,6 @@ import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPADescriptionAttribute;
-import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
@@ -71,7 +70,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
       final JPAEntityType jpaEntityType, final EntityManager em, final Map<String, List<String>> requestHeaders,
       final UriInfoResource uriResource) throws ODataApplicationException {
 
-    super(context.getEdmProvider().getServiceDocument(), jpaEntityType, em, context.getDebugger());
+    super(odata, context.getEdmProvider().getServiceDocument(), jpaEntityType, em, context.getDebugger());
     this.locale = determineLocale(requestHeaders);
     this.uriResource = uriResource;
     this.cq = cb.createTupleQuery();
@@ -409,7 +408,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
 
     // Build select clause
     for (final JPAPath jpaPath : jpaPathList) {
-      final Path<?> p = convertToCriteriaPath(joinTables, jpaPath);
+      final Path<?> p = ExpressionUtil.convertToCriteriaPath(joinTables, root, jpaPath);
       p.alias(jpaPath.getAlias());
       selections.add(p);
     }
@@ -486,20 +485,10 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     return result;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public Root<?> getRoot() {
     return root;
-  }
-
-  final Path<?> convertToCriteriaPath(final Map<String, From<?, ?>> joinTables, final JPAPath jpaPath) {
-    Path<?> p = root;
-    for (final JPAElement jpaPathElement : jpaPath.getPath())
-      if (jpaPathElement instanceof JPADescriptionAttribute) {
-        final Join<?, ?> join = (Join<?, ?>) joinTables.get(jpaPathElement.getInternalName());
-        p = join.get(((JPADescriptionAttribute) jpaPathElement).getDescriptionAttribute().getInternalName());
-      } else
-        p = p.get(jpaPathElement.getInternalName());
-    return p;
   }
 
   boolean hasNavigation(final List<UriResource> uriResourceParts) {
@@ -554,7 +543,8 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
 
     // 2. Create the queries and roots
     for (final JPANavigationProptertyInfo naviInfo : naviPathList) {
-      queryList.add(new JPANavigationQuery(sd, naviInfo.getUriResiource(), parent, em, naviInfo.getAssociationPath()));
+      queryList.add(new JPANavigationQuery(odata, sd, naviInfo.getUriResiource(), parent, em, naviInfo
+          .getAssociationPath()));
       parent = queryList.get(queryList.size() - 1);
     }
     // 3. Create select statements
