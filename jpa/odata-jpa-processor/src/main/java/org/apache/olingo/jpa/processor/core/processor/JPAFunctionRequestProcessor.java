@@ -14,6 +14,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExc
 import org.apache.olingo.jpa.processor.core.api.JPAODataDatabaseProcessor;
 import org.apache.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import org.apache.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import org.apache.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import org.apache.olingo.jpa.processor.core.query.JPAInstanceResultConverter;
 import org.apache.olingo.server.api.OData;
@@ -46,7 +47,12 @@ public class JPAFunctionRequestProcessor extends JPAAbstractRequestProcessor {
 
     final UriResourceFunction uriResourceFunction = (UriResourceFunction) uriInfo.getUriResourceParts().get(0);
     final JPAFunction jpaFunction = sd.getFunction(uriResourceFunction.getFunction());
-    final JPAEntityType returnType = sd.getEntity(jpaFunction.getResultParameter().getTypeFQN());
+    JPAEntityType returnType;
+    try {
+      returnType = sd.getEntity(jpaFunction.getResultParameter().getTypeFQN());
+    } catch (ODataJPAModelException e) {
+      throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    }
 
     // dbProcessor.query
 

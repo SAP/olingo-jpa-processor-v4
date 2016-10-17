@@ -41,14 +41,16 @@ public class JPANavigationFilterQuery extends JPANavigationQuery {
   public JPANavigationFilterQuery(final OData odata, final ServiceDocument sd, final UriResource uriResourceItem,
       final JPAAbstractQuery parent, final EntityManager em, final JPAAssociationPath association)
       throws ODataApplicationException {
-    super(sd, uriResourceItem, parent, em, association);
+
+    super(odata, sd, uriResourceItem, parent, em, association);
     this.filterComplier = null;
   }
 
   public JPANavigationFilterQuery(final OData odata, final ServiceDocument sd, final UriResource uriResourceItem,
       final JPAAbstractQuery parent, final EntityManager em, final JPAAssociationPath association,
       final VisitableExpression expression) throws ODataApplicationException {
-    super(sd, uriResourceItem, parent, em, association);
+
+    super(odata, sd, uriResourceItem, parent, em, association);
     this.filterComplier = new JPAFilterElementComplier(odata, sd, em, jpaEntity, new JPAOperationConverter(cb,
         getContext().getOperationConverter()), null, this, expression);
     createDescriptionJoin(filterComplier);
@@ -116,15 +118,15 @@ public class JPANavigationFilterQuery extends JPANavigationQuery {
     }
   }
 
-  private void createDescriptionJoin(final JPAFilterElementComplier filterComplier) throws ODataApplicationException {
+  private void createDescriptionJoin(JPAFilterElementComplier filterComplier) throws ODataApplicationException {
     final HashMap<String, From<?, ?>> joinTables = new HashMap<String, From<?, ?>>();
     generateDesciptionJoin(joinTables, determineAllDescriptionPath());
   }
 
   private Set<JPAPath> determineAllDescriptionPath() {
-    final Set<JPAPath> allPath = new HashSet<JPAPath>();
+    Set<JPAPath> allPath = new HashSet<JPAPath>();
     if (filterComplier != null) {
-      for (final JPAPath path : filterComplier.getMember()) {
+      for (JPAPath path : filterComplier.getMember()) {
         if (path.getLeaf() instanceof JPADescriptionAttribute)
           allPath.add(path);
       }
