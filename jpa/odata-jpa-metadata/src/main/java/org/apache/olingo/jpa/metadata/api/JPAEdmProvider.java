@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.metamodel.Metamodel;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlAbstractEdmProvider;
@@ -32,6 +33,13 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
     super();
     this.nameBuilder = new JPAEdmNameBuilder(namespace);
     serviceDocument = new ServiceDocument(namespace, emf.getMetamodel(), postProcessor);
+  }
+
+  public JPAEdmProvider(final String namespace, final Metamodel jpaMetamodel,
+      final JPAEdmMetadataPostProcessor postProcessor) throws ODataException {
+    super();
+    this.nameBuilder = new JPAEdmNameBuilder(namespace);
+    serviceDocument = new ServiceDocument(namespace, jpaMetamodel, postProcessor);
   }
 
   @Override

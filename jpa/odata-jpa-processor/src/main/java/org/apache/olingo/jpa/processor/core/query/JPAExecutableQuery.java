@@ -25,6 +25,7 @@ import javax.persistence.criteria.Subquery;
 
 import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
 import org.apache.olingo.commons.api.edm.EdmProperty;
+import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
@@ -68,7 +69,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
 
   public JPAExecutableQuery(final OData odata, final JPAODataSessionContextAccess context,
       final JPAEntityType jpaEntityType, final EntityManager em, final Map<String, List<String>> requestHeaders,
-      final UriInfoResource uriResource) throws ODataApplicationException {
+      final UriInfoResource uriResource) throws ODataException {
 
     super(odata, context.getEdmProvider().getServiceDocument(), jpaEntityType, em, context.getDebugger());
     this.locale = determineLocale(requestHeaders);

@@ -8,12 +8,12 @@ import org.apache.olingo.server.api.debug.RuntimeMeasurement;
 class JPAEmptyDebugger implements JPAServiceDebugger {
 
   @Override
-  public int startRuntimeMeasurement(String className, String methodName) {
+  public int startRuntimeMeasurement(final String className, final String methodName) {
     return 0;
   }
 
   @Override
-  public void stopRuntimeMeasurement(int handle) {}
+  public void stopRuntimeMeasurement(final int handle) {}
 
   @Override
   public Collection<? extends RuntimeMeasurement> getRuntimeInformation() {

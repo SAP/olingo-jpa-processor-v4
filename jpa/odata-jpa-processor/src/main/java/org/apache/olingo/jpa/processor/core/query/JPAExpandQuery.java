@@ -13,6 +13,7 @@ import javax.persistence.criteria.From;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Subquery;
 
+import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -49,14 +50,14 @@ public class JPAExpandQuery extends JPAExecutableQuery {
 
   public JPAExpandQuery(final OData odata, final JPAODataSessionContextAccess context, final EntityManager em,
       final UriInfoResource uriInfo, final JPAAssociationPath assoziation, final JPAEntityType entityType,
-      final Map<String, List<String>> requestHeaders) throws ODataApplicationException {
+      final Map<String, List<String>> requestHeaders) throws ODataException {
     super(odata, context, entityType, em, requestHeaders, uriInfo);
     this.assoziation = assoziation;
     this.item = null;
   }
 
   public JPAExpandQuery(final OData odata, final JPAODataSessionContextAccess context, final EntityManager em,
-      final JPAExpandItemInfo item, final Map<String, List<String>> requestHeaders) throws ODataApplicationException {
+      final JPAExpandItemInfo item, final Map<String, List<String>> requestHeaders) throws ODataException {
 
     super(odata, context, item.getEntityType(), em, requestHeaders, item.getUriInfo());
     this.assoziation = item.getExpandAssociation();

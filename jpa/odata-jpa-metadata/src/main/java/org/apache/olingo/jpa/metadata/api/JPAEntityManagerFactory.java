@@ -21,8 +21,8 @@ public class JPAEntityManagerFactory {
     }
 
     if (emfMap.containsKey(pUnit)) {
-      Map<DataSource, EntityManagerFactory> dsMap = emfMap.get(pUnit);
-      EntityManagerFactory emf = dsMap.get(ds);
+      final Map<DataSource, EntityManagerFactory> dsMap = emfMap.get(pUnit);
+      final EntityManagerFactory emf = dsMap.get(ds);
       if (emf != null)
         return emf;
       return createFactory(pUnit, ds, dsMap);

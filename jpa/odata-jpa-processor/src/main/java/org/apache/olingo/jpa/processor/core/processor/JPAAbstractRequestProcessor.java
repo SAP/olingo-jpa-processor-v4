@@ -3,6 +3,7 @@ package org.apache.olingo.jpa.processor.core.processor;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 
+import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpHeader;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -29,7 +30,7 @@ abstract class JPAAbstractRequestProcessor implements JPARequestProcessor {
   protected final JPAServiceDebugger debugger;
 
   public JPAAbstractRequestProcessor(final OData odata, final JPAODataSessionContextAccess context,
-      final JPAODataRequestContextAccess requestContext) {
+      final JPAODataRequestContextAccess requestContext) throws ODataException {
 
     this.em = requestContext.getEntityManager();
     this.cb = em.getCriteriaBuilder();

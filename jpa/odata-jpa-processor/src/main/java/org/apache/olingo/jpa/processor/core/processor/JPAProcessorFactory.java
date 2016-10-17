@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
+import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
@@ -12,7 +13,6 @@ import org.apache.olingo.jpa.processor.core.exception.ODataJPAProcessorException
 import org.apache.olingo.jpa.processor.core.serializer.JPASerializerFactory;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
-import org.apache.olingo.server.api.ODataLibraryException;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriResource;
@@ -32,8 +32,7 @@ public class JPAProcessorFactory {
   }
 
   public JPARequestProcessor createProcessor(final EntityManager em, final UriInfo uriInfo,
-      final ContentType responseFormat)
-      throws ODataApplicationException, ODataLibraryException {
+      final ContentType responseFormat) throws ODataException {
     final List<UriResource> resourceParts = uriInfo.getUriResourceParts();
     final UriResource lastItem = resourceParts.get(resourceParts.size() - 1);
     final JPAODataRequestContextAccess requestContext = new JPARequestContext(em, uriInfo, serializerFactory

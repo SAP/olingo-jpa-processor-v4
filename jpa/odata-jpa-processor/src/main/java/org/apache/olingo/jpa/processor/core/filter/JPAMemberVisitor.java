@@ -25,7 +25,7 @@ class JPAMemberVisitor implements ExpressionVisitor<JPAPath> {
   private final ArrayList<JPAPath> pathList = new ArrayList<JPAPath>();
   private final JPAEntityType jpaEntityType;
 
-  public JPAMemberVisitor(JPAEntityType jpaEntityType) {
+  public JPAMemberVisitor(final JPAEntityType jpaEntityType) {
     super();
     this.jpaEntityType = jpaEntityType;
   }
@@ -35,38 +35,39 @@ class JPAMemberVisitor implements ExpressionVisitor<JPAPath> {
   }
 
   @Override
-  public JPAPath visitBinaryOperator(BinaryOperatorKind operator, JPAPath left, JPAPath right)
+  public JPAPath visitBinaryOperator(final BinaryOperatorKind operator, final JPAPath left, final JPAPath right)
       throws ExpressionVisitException, ODataApplicationException {
     return null;
   }
 
   @Override
-  public JPAPath visitUnaryOperator(UnaryOperatorKind operator, JPAPath operand) throws ExpressionVisitException,
+  public JPAPath visitUnaryOperator(final UnaryOperatorKind operator, final JPAPath operand)
+      throws ExpressionVisitException, ODataApplicationException {
+    return null;
+  }
+
+  @Override
+  public JPAPath visitMethodCall(final MethodKind methodCall, final List<JPAPath> parameters)
+      throws ExpressionVisitException, ODataApplicationException {
+    return null;
+  }
+
+  @Override
+  public JPAPath visitLambdaExpression(final String lambdaFunction, final String lambdaVariable,
+      final org.apache.olingo.server.api.uri.queryoption.expression.Expression expression)
+      throws ExpressionVisitException,
       ODataApplicationException {
     return null;
   }
 
   @Override
-  public JPAPath visitMethodCall(MethodKind methodCall, List<JPAPath> parameters) throws ExpressionVisitException,
-      ODataApplicationException {
+  public JPAPath visitLiteral(final Literal literal) throws ExpressionVisitException, ODataApplicationException {
     return null;
   }
 
   @Override
-  public JPAPath visitLambdaExpression(String lambdaFunction, String lambdaVariable,
-      org.apache.olingo.server.api.uri.queryoption.expression.Expression expression) throws ExpressionVisitException,
-      ODataApplicationException {
-    return null;
-  }
-
-  @Override
-  public JPAPath visitLiteral(Literal literal) throws ExpressionVisitException, ODataApplicationException {
-    return null;
-  }
-
-  @Override
-  public JPAPath visitMember(Member member) throws ExpressionVisitException, ODataApplicationException {
-    UriResourceKind uriResourceKind = member.getResourcePath().getUriResourceParts().get(0).getKind();
+  public JPAPath visitMember(final Member member) throws ExpressionVisitException, ODataApplicationException {
+    final UriResourceKind uriResourceKind = member.getResourcePath().getUriResourceParts().get(0).getKind();
 
     if (uriResourceKind == UriResourceKind.primitiveProperty || uriResourceKind == UriResourceKind.complexProperty) {
       if (!Util.hasNavigation(member.getResourcePath().getUriResourceParts())) {
@@ -87,23 +88,23 @@ class JPAMemberVisitor implements ExpressionVisitor<JPAPath> {
   }
 
   @Override
-  public JPAPath visitAlias(String aliasName) throws ExpressionVisitException, ODataApplicationException {
+  public JPAPath visitAlias(final String aliasName) throws ExpressionVisitException, ODataApplicationException {
     return null;
   }
 
   @Override
-  public JPAPath visitTypeLiteral(EdmType type) throws ExpressionVisitException, ODataApplicationException {
+  public JPAPath visitTypeLiteral(final EdmType type) throws ExpressionVisitException, ODataApplicationException {
     return null;
   }
 
   @Override
-  public JPAPath visitLambdaReference(String variableName) throws ExpressionVisitException,
+  public JPAPath visitLambdaReference(final String variableName) throws ExpressionVisitException,
       ODataApplicationException {
     return null;
   }
 
   @Override
-  public JPAPath visitEnum(EdmEnumType type, List<String> enumValues) throws ExpressionVisitException,
+  public JPAPath visitEnum(final EdmEnumType type, final List<String> enumValues) throws ExpressionVisitException,
       ODataApplicationException {
     return null;
   }
