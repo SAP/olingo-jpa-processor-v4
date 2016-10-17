@@ -59,7 +59,7 @@ import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;;
 public abstract class BusinessPartner {
   @Id
   @Column(name = "\"ID\"")
-  protected String ID;
+  protected String iD;
 
   @Version
   @Column(name = "\"ETag\"", nullable = false)
@@ -68,7 +68,7 @@ public abstract class BusinessPartner {
   @Column(name = "\"Type\"", length = 1, nullable = false)
   protected String type;
 
-  @Column(name = "\"CreatedAt\"", precision = 3)
+  @Column(name = "\"CreatedAt\"", precision = 3, insertable = false, updatable = false)
   private Timestamp creationDateTime;
 
   @EdmIgnore
@@ -117,7 +117,7 @@ public abstract class BusinessPartner {
   private Collection<BusinessPartnerRole> roles;
 
   public void setID(String iD) {
-    ID = iD;
+    this.iD = iD;
   }
 
   public void seteTag(long eTag) {

@@ -1,38 +1,25 @@
 package org.apache.olingo.jpa.processor.core.api;
 
-import java.io.InputStream;
-
 import javax.persistence.EntityManager;
 
-import org.apache.olingo.commons.api.data.ContextURL;
-import org.apache.olingo.commons.api.data.Entity;
-import org.apache.olingo.commons.api.edm.EdmEntitySet;
-import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
-import org.apache.olingo.commons.api.http.HttpHeader;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
-import org.apache.olingo.jpa.processor.core.processor.JPADeleteProcessor;
+import org.apache.olingo.jpa.processor.core.processor.JPACUDRequestProcessor;
 import org.apache.olingo.jpa.processor.core.processor.JPAProcessorFactory;
 import org.apache.olingo.jpa.processor.core.processor.JPARequestProcessor;
-import org.apache.olingo.jpa.processor.core.query.Util;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataLibraryException;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.ServiceMetadata;
-import org.apache.olingo.server.api.deserializer.DeserializerResult;
-import org.apache.olingo.server.api.deserializer.ODataDeserializer;
 import org.apache.olingo.server.api.processor.ComplexProcessor;
 import org.apache.olingo.server.api.processor.CountEntityCollectionProcessor;
 import org.apache.olingo.server.api.processor.EntityProcessor;
 import org.apache.olingo.server.api.processor.MediaEntityProcessor;
 import org.apache.olingo.server.api.processor.PrimitiveValueProcessor;
-import org.apache.olingo.server.api.serializer.EntitySerializerOptions;
-import org.apache.olingo.server.api.serializer.ODataSerializer;
-import org.apache.olingo.server.api.serializer.SerializerResult;
 import org.apache.olingo.server.api.uri.UriInfo;
 
 public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
@@ -75,32 +62,14 @@ public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
       final ContentType requestFormat, final ContentType responseFormat) throws ODataApplicationException,
       ODataLibraryException {
 
-    EdmEntitySet edmEntitySet = Util.determineTargetEntitySet(uriInfo.getUriResourceParts());
-    EdmEntityType edmEntityType = edmEntitySet.getEntityType();
-
-    InputStream requestInputStream = request.getBody();
-    ODataDeserializer deserializer = odata.createDeserializer(requestFormat);
-    DeserializerResult result = deserializer.entity(requestInputStream, edmEntityType);
-    Entity requestEntity = result.getEntity();
-
-    Entity createdEntity = null;
-    // Entity createdEntity = storage.createEntityData(edmEntitySet, requestEntity);
-
-    // 3. serialize the response (we have to return the created entity)
-    ContextURL contextUrl = ContextURL.with().entitySet(edmEntitySet).build();
-    // expand and select currently not supported
-    EntitySerializerOptions options = EntitySerializerOptions.with().contextURL(contextUrl).build();
-
-    ODataSerializer serializer = this.odata.createSerializer(responseFormat);
-    SerializerResult serializedResponse = serializer.entity(serviceMetadata, edmEntityType, createdEntity, options);
-
-    // 4. configure the response object
-    response.setContent(serializedResponse.getContent());
-    response.setStatusCode(HttpStatusCode.CREATED.getStatusCode());
-    response.setHeader(HttpHeader.CONTENT_TYPE, responseFormat.toContentTypeString());
-
-    throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_CREATE,
-        HttpStatusCode.NOT_IMPLEMENTED);
+    JPACUDRequestProcessor p;
+    try {
+      p = factory.createCUDRequestProcessor(em, uriInfo);
+      p.createEntity(request, response, requestFormat, responseFormat);
+    } catch (ODataException e) {
+      throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
+          null, e);
+    }
   }
 
   @Override
@@ -124,15 +93,14 @@ public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
   public void deleteEntity(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo)
       throws ODataApplicationException, ODataLibraryException {
 
-    JPADeleteProcessor p;
+    JPACUDRequestProcessor p;
     try {
-      p = factory.createDeleteProcessor(em, uriInfo);
+      p = factory.createCUDRequestProcessor(em, uriInfo);
       p.deleteEntity(response);
     } catch (ODataException e) {
       throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
           null, e);
     }
-
   }
 
   @Override
@@ -156,7 +124,7 @@ public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
   @Override
   public void deletePrimitiveValue(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo)
       throws ODataApplicationException, ODataLibraryException {
-
+    // .../Organizations('4')/Address/Country/$value
     throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
         HttpStatusCode.NOT_IMPLEMENTED);
   }

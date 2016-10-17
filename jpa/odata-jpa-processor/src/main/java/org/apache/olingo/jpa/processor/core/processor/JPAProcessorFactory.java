@@ -23,6 +23,7 @@ public class JPAProcessorFactory {
   private final JPAODataSessionContextAccess sessionContext;
   private final JPASerializerFactory serializerFactory;
   private final OData odata;
+  private final ServiceMetadata serviceMetadata;
 
   public JPAProcessorFactory(final OData odata, final ServiceMetadata serviceMetadata,
       final JPAODataSessionContextAccess context) {
@@ -30,6 +31,14 @@ public class JPAProcessorFactory {
     this.sessionContext = context;
     this.serializerFactory = new JPASerializerFactory(odata, serviceMetadata);
     this.odata = odata;
+    this.serviceMetadata = serviceMetadata;
+  }
+
+  public JPACUDRequestProcessor createCUDRequestProcessor(final EntityManager em, final UriInfo uriInfo)
+      throws SerializerException, ODataApplicationException {
+
+    final JPAODataRequestContextAccess requestContext = new JPARequestContext(em, uriInfo, null);
+    return new JPACUDRequestProcessor(serviceMetadata, odata, sessionContext, requestContext);
   }
 
   public JPARequestProcessor createProcessor(final EntityManager em, final UriInfo uriInfo,
@@ -52,7 +61,8 @@ public class JPAProcessorFactory {
     case entitySet:
     case value:
       checkNavigationPathSupported(resourceParts);
-      return new JPANavigationRequestProcessor(odata, serializerFactory.getServiceMetadata(), sessionContext, requestContext);
+      return new JPANavigationRequestProcessor(odata, serializerFactory.getServiceMetadata(), sessionContext,
+          requestContext);
     default:
       throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
           HttpStatusCode.NOT_IMPLEMENTED, lastItem.getKind().toString());
@@ -76,12 +86,5 @@ public class JPAProcessorFactory {
             HttpStatusCode.NOT_IMPLEMENTED, resourceItem.getKind().toString());
     }
 
-  }
-
-  public JPADeleteProcessor createDeleteProcessor(final EntityManager em, final UriInfo uriInfo)
-      throws SerializerException, ODataApplicationException {
-
-    final JPAODataRequestContextAccess requestContext = new JPARequestContext(em, uriInfo, null);
-    return new JPADeleteProcessor(odata, sessionContext, requestContext);
   }
 }

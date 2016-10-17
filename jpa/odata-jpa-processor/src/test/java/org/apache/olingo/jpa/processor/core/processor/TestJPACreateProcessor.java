@@ -44,7 +44,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class TestJPADeleteProcessor {
+public class TestJPACreateProcessor {
   private JPACUDRequestProcessor processor;
   private OData odata;
   private JPAODataSessionContextAccess sessionContext;
@@ -206,6 +206,15 @@ public class TestJPADeleteProcessor {
     assertEquals("A", spy.keyPredicates.get("roleCategory"));
 
   }
+
+//  @Test
+//  public void testOneGetRequestCheckStatus() throws IOException, ODataException {
+//    StringBuffer requestBody = new StringBuffer(
+//        "{ \"ID\" : \"34\", \"Country\" : \"CHE\", \"Address\" : {\"Country\" : \"DEU\" }}");
+//
+//    IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds, "Organizations", requestBody);
+//    assertEquals(200, helper.getBatchResultStatus(1));
+//  }
 
   class RequestHandleSpy implements JPACUDRequestHandler {
     public Map<String, Object> keyPredicates;
