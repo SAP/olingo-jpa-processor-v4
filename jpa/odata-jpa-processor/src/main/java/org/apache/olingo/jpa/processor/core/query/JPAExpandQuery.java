@@ -96,7 +96,7 @@ public class JPAExpandQuery extends JPAExecutableQuery {
     if (uriResource.getTopOption() != null)
       top = uriResource.getTopOption().getValue();
 
-    final Map<String, List<Tuple>> result = convertResult(intermediateResult, assoziation, skip, top);
+    Map<String, List<Tuple>> result = convertResult(intermediateResult, assoziation, skip, top);
     debugger.stopRuntimeMeasurement(handle);
     return new JPAExpandResult(result, count(), jpaEntity);
   }
@@ -109,7 +109,7 @@ public class JPAExpandQuery extends JPAExecutableQuery {
     final int resultHandle = debugger.startRuntimeMeasurement("TypedQuery", "getResultList");
     final List<Tuple> intermediateResult = tupleQuery.getResultList();
     debugger.stopRuntimeMeasurement(resultHandle);
-    final Map<String, List<Tuple>> result = convertResult(intermediateResult, assoziation, 0, Long.MAX_VALUE);
+    Map<String, List<Tuple>> result = convertResult(intermediateResult, assoziation, 0, Long.MAX_VALUE);
 
     debugger.stopRuntimeMeasurement(handle);
     return new JPAExpandResult(result, count(), jpaEntity);
@@ -229,7 +229,8 @@ public class JPAExpandQuery extends JPAExecutableQuery {
     final List<JPANavigationQuery> queryList = new ArrayList<JPANavigationQuery>();
 
     for (final JPANavigationProptertyInfo naviInfo : expandPathList) {
-      queryList.add(new JPANavigationQuery(sd, naviInfo.getUriResiource(), parent, em, naviInfo.getAssociationPath()));
+      queryList.add(new JPANavigationQuery(odata, sd, naviInfo.getUriResiource(), parent, em, naviInfo
+          .getAssociationPath()));
       parent = queryList.get(queryList.size() - 1);
     }
     // 3. Create select statements
