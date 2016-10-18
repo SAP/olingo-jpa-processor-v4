@@ -17,7 +17,7 @@ import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.serializer.SerializerResult;
 import org.apache.olingo.server.api.uri.UriInfo;
 
-abstract class JPAAbstractRequestProcessor implements JPARequestProcessor {
+abstract class JPAAbstractRequestProcessor {
 
   // TODO eliminate transaction handling
   protected final EntityManager em;

@@ -64,7 +64,7 @@ public class JPAExpandQuery extends JPAExecutableQuery {
     this.item = item;
   }
 
-  public JPAExpandResult execute() throws ODataApplicationException {
+  public JPAExpandQueryResult execute() throws ODataApplicationException {
     if (uriResource.getTopOption() != null || uriResource.getSkipOption() != null)
       return executeExpandTopSkipQuery();
     else {
@@ -82,7 +82,7 @@ public class JPAExpandQuery extends JPAExecutableQuery {
    * @return query result
    * @throws ODataApplicationException
    */
-  private JPAExpandResult executeExpandTopSkipQuery() throws ODataApplicationException {
+  private JPAExpandQueryResult executeExpandTopSkipQuery() throws ODataApplicationException {
     // TODO make this replacable
     final int handle = debugger.startRuntimeMeasurement("JPAExpandQuery", "executeExpandTopSkipQuery");
 
@@ -98,10 +98,10 @@ public class JPAExpandQuery extends JPAExecutableQuery {
 
     final Map<String, List<Tuple>> result = convertResult(intermediateResult, assoziation, skip, top);
     debugger.stopRuntimeMeasurement(handle);
-    return new JPAExpandResult(result, count(), jpaEntity);
+    return new JPAExpandQueryResult(result, count(), jpaEntity);
   }
 
-  private JPAExpandResult executeStandardQuery() throws ODataApplicationException {
+  private JPAExpandQueryResult executeStandardQuery() throws ODataApplicationException {
     final int handle = debugger.startRuntimeMeasurement("JPAExpandQuery", "executeStandradQuery");
 
     final TypedQuery<Tuple> tupleQuery = createTupleQuery();
@@ -112,7 +112,7 @@ public class JPAExpandQuery extends JPAExecutableQuery {
     final Map<String, List<Tuple>> result = convertResult(intermediateResult, assoziation, 0, Long.MAX_VALUE);
 
     debugger.stopRuntimeMeasurement(handle);
-    return new JPAExpandResult(result, count(), jpaEntity);
+    return new JPAExpandQueryResult(result, count(), jpaEntity);
   }
 
   private TypedQuery<Tuple> createTupleQuery() throws ODataApplicationException {

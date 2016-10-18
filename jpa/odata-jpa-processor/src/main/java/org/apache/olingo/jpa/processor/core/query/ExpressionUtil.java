@@ -66,14 +66,24 @@ public class ExpressionUtil {
 
   public static Object convertValueOnAttribute(final OData odata, final JPAAttribute attribute, final String value)
       throws ODataJPAFilterException {
+    return convertValueOnAttribute(odata, attribute, value, true);
+  }
+
+  public static Object convertValueOnAttribute(final OData odata, final JPAAttribute attribute, final String value,
+      final Boolean isUri) throws ODataJPAFilterException {
+
     try {
       final CsdlProperty edmProperty = (CsdlProperty) attribute.getProperty();
       final EdmPrimitiveTypeKind edmTypeKind = JPATypeConvertor.convertToEdmSimpleType(attribute);
+
       // TODO literal does not convert decimals without scale properly
-      // EdmPrimitiveType edmType = ((EdmPrimitiveType) literal.getType());
       String targetValue = null;
       final EdmPrimitiveType edmType = odata.createPrimitiveTypeInstance(edmTypeKind);
-      targetValue = edmType.fromUriLiteral(value);
+      if (isUri) {
+        targetValue = edmType.fromUriLiteral(value);
+      } else {
+        targetValue = value;
+      }
       return edmType.valueOfString(targetValue, edmProperty.isNullable(), edmProperty.getMaxLength(),
           edmProperty.getPrecision(), edmProperty.getScale(), true, attribute.getType());
 

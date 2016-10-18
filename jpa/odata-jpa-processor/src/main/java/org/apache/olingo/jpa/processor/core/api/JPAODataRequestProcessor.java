@@ -64,7 +64,7 @@ public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
 
     JPACUDRequestProcessor p;
     try {
-      p = factory.createCUDRequestProcessor(em, uriInfo);
+      p = factory.createCUDRequestProcessor(em, uriInfo, responseFormat);
       p.createEntity(request, response, requestFormat, responseFormat);
     } catch (ODataException e) {
       throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
@@ -95,7 +95,7 @@ public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
 
     JPACUDRequestProcessor p;
     try {
-      p = factory.createCUDRequestProcessor(em, uriInfo);
+      p = factory.createCUDRequestProcessor(em, uriInfo, ContentType.TEXT_PLAIN);
       p.deleteEntity(response);
     } catch (ODataException e) {
       throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),

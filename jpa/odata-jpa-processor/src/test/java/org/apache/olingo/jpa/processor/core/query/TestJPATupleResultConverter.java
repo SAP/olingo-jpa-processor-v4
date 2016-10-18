@@ -21,6 +21,7 @@ import org.apache.olingo.jpa.processor.core.util.TestHelper;
 import org.apache.olingo.jpa.processor.core.util.TupleDouble;
 import org.apache.olingo.jpa.processor.core.util.UriHelperDouble;
 import org.apache.olingo.server.api.ODataApplicationException;
+import org.apache.org.jpa.processor.core.converter.JPATupleResultConverter;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -43,7 +44,7 @@ public class TestJPATupleResultConverter extends TestBase {
     uriHelper.setKeyPredicates(keyPredicates, "ID");
     cut = new JPATupleResultConverter(
         helper.sd,
-        new JPAExpandResult(result, Long.parseLong("0"), helper.getJPAEntityType("Organizations")),
+        new JPAExpandQueryResult(result, Long.parseLong("0"), helper.getJPAEntityType("Organizations")),
         uriHelper,
         new ServiceMetadataDouble(nameBuilder, "Organization"));
   }
@@ -196,7 +197,7 @@ public class TestJPATupleResultConverter extends TestBase {
     result.put("root", jpaQueryResult);
     JPATupleResultConverter converter = new JPATupleResultConverter(
         helper.sd,
-        new JPAExpandResult(result, Long.parseLong("0"), helper.getJPAEntityType("PersonImages")),
+        new JPAExpandQueryResult(result, Long.parseLong("0"), helper.getJPAEntityType("PersonImages")),
         uriHelper,
         new ServiceMetadataDouble(nameBuilder, "PersonImages"));
 
@@ -219,7 +220,7 @@ public class TestJPATupleResultConverter extends TestBase {
     result.put("root", jpaQueryResult);
     JPATupleResultConverter converter = new JPATupleResultConverter(
         helper.sd,
-        new JPAExpandResult(result, Long.parseLong("0"), helper.getJPAEntityType("OrganizationImages")),
+        new JPAExpandQueryResult(result, Long.parseLong("0"), helper.getJPAEntityType("OrganizationImages")),
         uriHelper,
         new ServiceMetadataDouble(nameBuilder, "OrganizationImages"));
 

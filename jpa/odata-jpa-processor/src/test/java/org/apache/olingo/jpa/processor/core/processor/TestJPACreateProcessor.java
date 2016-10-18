@@ -17,7 +17,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
-import org.apache.olingo.commons.api.data.Entity;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -27,6 +26,7 @@ import org.apache.olingo.jpa.metadata.api.JPAEntityManagerFactory;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
+import org.apache.olingo.jpa.processor.core.api.JPAAbstractCUDRequestHandler;
 import org.apache.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import org.apache.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAProcessException;
@@ -47,9 +47,9 @@ import org.junit.Test;
 public class TestJPACreateProcessor {
   private JPACUDRequestProcessor processor;
   private OData odata;
+  private ServiceMetadata serviceMetadata;
   private JPAODataSessionContextAccess sessionContext;
   private JPAODataRequestContextAccess requestContext;
-  private ServiceMetadata serviceMetadata;
   private UriInfo uriInfo;
   private UriResourceEntitySet uriEts;
   private EdmEntitySet ets;
@@ -95,7 +95,7 @@ public class TestJPACreateProcessor {
     when(uriEts.getKeyPredicates()).thenReturn(keyPredicates);
     when(uriEts.getEntitySet()).thenReturn(ets);
     when(ets.getName()).thenReturn("Organizations");
-    processor = new JPACUDRequestProcessor(serviceMetadata, odata, sessionContext, requestContext);
+    processor = new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext);
   }
 
   @Test
@@ -216,7 +216,7 @@ public class TestJPACreateProcessor {
 //    assertEquals(200, helper.getBatchResultStatus(1));
 //  }
 
-  class RequestHandleSpy implements JPACUDRequestHandler {
+  class RequestHandleSpy extends JPAAbstractCUDRequestHandler {
     public Map<String, Object> keyPredicates;
     public JPAEntityType et;
 
@@ -225,12 +225,5 @@ public class TestJPACreateProcessor {
       this.keyPredicates = keyPredicates;
       this.et = et;
     }
-
-    @Override
-    public Entity createEntity(JPAEntityType et, Map<String, Object> jpaAttributes, EntityManager em,
-        Map<String, List<String>> headers) throws ODataJPAProcessException {
-      return null;
-    }
-
   }
 }

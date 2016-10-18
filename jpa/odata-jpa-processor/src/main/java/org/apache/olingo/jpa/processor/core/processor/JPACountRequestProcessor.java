@@ -25,7 +25,7 @@ import org.apache.olingo.server.api.uri.UriResourceEntitySet;
  * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398314">
  * OData Version 4.0 Part 2 - 11.2.9 Requesting the Number of Items in a Collection</a>
  */
-public class JPACountRequestProcessor extends JPAAbstractRequestProcessor {
+public class JPACountRequestProcessor extends JPAAbstractGetRequestProcessor {
 
   public JPACountRequestProcessor(final OData odata, final JPAODataSessionContextAccess context,
       final JPAODataRequestContextAccess requestContext) throws ODataException {

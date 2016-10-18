@@ -14,7 +14,6 @@ import org.apache.olingo.jpa.processor.core.serializer.JPASerializerFactory;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ServiceMetadata;
-import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceKind;
@@ -34,11 +33,13 @@ public class JPAProcessorFactory {
     this.serviceMetadata = serviceMetadata;
   }
 
-  public JPACUDRequestProcessor createCUDRequestProcessor(final EntityManager em, final UriInfo uriInfo)
-      throws SerializerException, ODataApplicationException {
+  public JPACUDRequestProcessor createCUDRequestProcessor(final EntityManager em, final UriInfo uriInfo,
+      final ContentType responseFormat)
+      throws ODataException {
 
-    final JPAODataRequestContextAccess requestContext = new JPARequestContext(em, uriInfo, null);
-    return new JPACUDRequestProcessor(serviceMetadata, odata, sessionContext, requestContext);
+    final JPAODataRequestContextAccess requestContext = new JPARequestContext(em, uriInfo, serializerFactory
+        .createSerializer(responseFormat, uriInfo));
+    return new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext);
   }
 
   public JPARequestProcessor createProcessor(final EntityManager em, final UriInfo uriInfo,
@@ -61,8 +62,7 @@ public class JPAProcessorFactory {
     case entitySet:
     case value:
       checkNavigationPathSupported(resourceParts);
-      return new JPANavigationRequestProcessor(odata, serializerFactory.getServiceMetadata(), sessionContext,
-          requestContext);
+      return new JPANavigationRequestProcessor(odata, serviceMetadata, sessionContext, requestContext);
     default:
       throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
           HttpStatusCode.NOT_IMPLEMENTED, lastItem.getKind().toString());
