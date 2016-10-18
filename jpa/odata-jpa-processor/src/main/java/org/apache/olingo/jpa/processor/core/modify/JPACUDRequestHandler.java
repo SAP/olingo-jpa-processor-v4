@@ -1,4 +1,4 @@
-package org.apache.olingo.jpa.processor.core.processor;
+package org.apache.olingo.jpa.processor.core.modify;
 
 import java.util.Map;
 

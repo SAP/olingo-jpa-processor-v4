@@ -3,18 +3,15 @@ package org.apache.olingo.jpa.processor.core.processor;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.persistence.Tuple;
-import javax.persistence.TupleElement;
 
 import org.apache.olingo.commons.api.data.ComplexValue;
 import org.apache.olingo.commons.api.data.Entity;
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.Property;
+import org.apache.olingo.commons.api.data.ValueType;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.ex.ODataException;
@@ -26,13 +23,14 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
 import org.apache.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import org.apache.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys;
+import org.apache.olingo.jpa.processor.core.modify.JPACUDRequestHandler;
+import org.apache.olingo.jpa.processor.core.modify.JPAEntityResult;
 import org.apache.olingo.jpa.processor.core.query.ExpressionUtil;
 import org.apache.olingo.jpa.processor.core.query.Util;
 import org.apache.olingo.server.api.OData;
@@ -41,14 +39,15 @@ import org.apache.olingo.server.api.ODataLibraryException;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.ServiceMetadata;
+import org.apache.olingo.server.api.deserializer.DeserializerException;
 import org.apache.olingo.server.api.deserializer.DeserializerResult;
 import org.apache.olingo.server.api.deserializer.ODataDeserializer;
 import org.apache.olingo.server.api.prefer.Preferences;
 import org.apache.olingo.server.api.prefer.Preferences.Return;
+import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
-import org.apache.org.jpa.processor.core.converter.JPAExpandResult;
 import org.apache.org.jpa.processor.core.converter.JPATupleResultConverter;
 
 public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
@@ -63,6 +62,7 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
     super(odata, sessionContext, requestContext);
     this.sessionContext = sessionContext;
     this.serviceMetadata = serviceMetadata;
+    this.successStatusCode = HttpStatusCode.CREATED.getStatusCode();
   }
 
   public void createEntity(final ODataRequest request, final ODataResponse response, final ContentType requestFormat,
@@ -73,12 +73,7 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
     Map<String, Object> jpaAttributes = new HashMap<String, Object>();
 
     EdmEntitySet edmEntitySet = Util.determineTargetEntitySet(uriInfo.getUriResourceParts());
-    EdmEntityType edmEntityType = edmEntitySet.getEntityType();
-
-    InputStream requestInputStream = request.getBody();
-    ODataDeserializer deserializer = odata.createDeserializer(requestFormat);
-    DeserializerResult result = deserializer.entity(requestInputStream, edmEntityType);
-    Entity requestEntity = result.getEntity();
+    Entity requestEntity = convertInputStream(request, requestFormat, edmEntitySet.getEntityType());
 
     try {
       et = sessionContext.getEdmProvider().getServiceDocument().getEntity(edmEntitySet.getName());
@@ -126,14 +121,48 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
     if (prefer.getReturn() == Return.MINIMAL) {
       response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
       response.setHeader(HttpHeader.PREFERENCE_APPLIED, "return=minimal");
+      response.setHeader(HttpHeader.LOCATION, convertKeyToLocal(request, edmEntitySet, et, primaryKey));
     } else {
+      // TODO Header Location
       Object newEntity = em.find(et.getTypeClass(), primaryKey);
       em.refresh(newEntity);
-      Entity createdEntity = convertEntity(et, newEntity);
+      Entity createdEntity = convertEntity(et, newEntity, request.getAllHeaders());
       EntityCollection entities = new EntityCollection();
       entities.getEntities().add(createdEntity);
       createSuccessResonce(response, responseFormat, serializer.serialize(request, entities));
     }
+  }
+
+  private String convertKeyToLocal(final ODataRequest request, EdmEntitySet edmEntitySet, JPAEntityType et,
+      Object primaryKey) throws SerializerException, ODataJPAProcessorException {
+
+    Entity createdEntity = new Entity();
+
+    try {
+      final List<JPAPath> keyPath = et.getKeyPath();
+      final List<Property> properties = createdEntity.getProperties();
+
+      if (keyPath.size() > 1) {
+        final Map<String, Object> getter = buildGetterMap(primaryKey);
+
+        for (JPAPath key : keyPath) {
+          final Property property = new Property(null, key.getLeaf().getExternalName());
+          property.setValue(ValueType.PRIMITIVE, getter.get(key.getLeaf().getInternalName()));
+          properties.add(property);
+        }
+      } else {
+        JPAPath key = keyPath.get(0);
+        final Property property = new Property(null, key.getLeaf().getExternalName());
+        property.setValue(ValueType.PRIMITIVE, primaryKey);
+        properties.add(property);
+      }
+    } catch (ODataJPAModelException e) {
+      throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
+    }
+
+    final String location = request.getRawBaseUri() + '/'
+        + odata.createUriHelper().buildCanonicalURL(edmEntitySet, createdEntity);
+    return location;
   }
 
   /*
@@ -183,10 +212,11 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
 
   }
 
-  Entity convertEntity(JPAEntityType et, Object jpaEntity) throws ODataJPAProcessorException {
+  Entity convertEntity(JPAEntityType et, Object jpaEntity, Map<String, List<String>> headers)
+      throws ODataJPAProcessorException {
     JPATupleResultConverter converter;
     try {
-      converter = new JPATupleResultConverter(sd, new JPAEntityResult(et, jpaEntity), odata
+      converter = new JPATupleResultConverter(sd, new JPAEntityResult(et, jpaEntity, headers), odata
           .createUriHelper(), serviceMetadata);
       return converter.getResult().getEntities().get(0);
     } catch (ODataJPAModelException e) {
@@ -195,6 +225,15 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
 
+  }
+
+  private Entity convertInputStream(final ODataRequest request, final ContentType requestFormat,
+      EdmEntityType edmEntityType) throws DeserializerException {
+    InputStream requestInputStream = request.getBody();
+    ODataDeserializer deserializer = odata.createDeserializer(requestFormat);
+    DeserializerResult result = deserializer.entity(requestInputStream, edmEntityType);
+    Entity requestEntity = result.getEntity();
+    return requestEntity;
   }
 
   //
@@ -228,158 +267,26 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
     return jpaAttributes;
   }
 
-  private class JPAEntityResult implements JPAExpandResult {
-    private final Object jpaEntity;
-    private final JPAEntityType et;
-    private final Map<JPAAssociationPath, JPAExpandResult> children;
-    private final List<JPAPath> pathList;
+  private Map<String, Object> buildGetterMap(Object instance) throws ODataJPAProcessorException {
 
-    public JPAEntityResult(JPAEntityType et, Object jpaEntity) throws ODataJPAModelException {
-      this.jpaEntity = jpaEntity;
-      this.et = et;
-      this.children = new HashMap<JPAAssociationPath, JPAExpandResult>(0);
-      this.pathList = et.getPathList();
-    }
-
-    @Override
-    public List<Tuple> getResult(String key) {
-      final Map<String, Object> getterMap = new HashMap<String, Object>();
-      // TODO Handle description fields
-      Method[] methods = jpaEntity.getClass().getMethods();
-      for (Method meth : methods) {
-        if (meth.getName().substring(0, 3).equals("get")) {
-          String attributeName = meth.getName().substring(3, 4).toLowerCase() + meth.getName().substring(4);
-          try {
-            Object value = meth.invoke(jpaEntity);
-            getterMap.put(attributeName, value);
-          } catch (IllegalAccessException e) {
-            e.printStackTrace();
-          } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-          } catch (InvocationTargetException e) {
-            e.printStackTrace();
-          }
+    final Map<String, Object> getterMap = new HashMap<String, Object>();
+    // TODO Performance: Don't recreate the complete getter list over and over again
+    Method[] methods = instance.getClass().getMethods();
+    for (Method meth : methods) {
+      if (meth.getName().substring(0, 3).equals("get")) {
+        String attributeName = meth.getName().substring(3, 4).toLowerCase() + meth.getName().substring(4);
+        try {
+          Object value = meth.invoke(instance);
+          getterMap.put(attributeName, value);
+        } catch (IllegalAccessException e) {
+          throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+        } catch (IllegalArgumentException e) {
+          throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+        } catch (InvocationTargetException e) {
+          throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
         }
       }
-
-      List<Tuple> result = new ArrayList<Tuple>();
-      JPATuple tuple = new JPATuple();
-      result.add(tuple);
-
-      for (JPAPath path : pathList) {
-        if (path.getPath().size() == 1) {
-          Object value = getterMap.get(path.getLeaf().getInternalName());
-          tuple.addElement(path.getAlias(), path.getLeaf().getType(), value);
-        }
-      }
-
-      // .indexOf(alias);
-
-      return result;
     }
-
-    @Override
-    public Map<JPAAssociationPath, JPAExpandResult> getChildren() {
-      return children;
-    }
-
-    @Override
-    public boolean hasCount() {
-      return false;
-    }
-
-    @Override
-    public Integer getCount() {
-      return null;
-    }
-
-    @Override
-    public JPAEntityType getEntityType() {
-      return et;
-    }
-
+    return getterMap;
   }
-
-  private class JPATuple implements Tuple {
-    private List<TupleElement<?>> elements = new ArrayList<TupleElement<?>>();
-    private Map<String, Object> values = new HashMap<String, Object>();
-
-    @Override
-    public <X> X get(TupleElement<X> arg0) {
-      // TODO Auto-generated method stub
-      return null;
-    }
-
-    public void addElement(String alias, Class<?> javaType, Object value) {
-      elements.add(new JPATupleElement<Object>(alias, javaType));
-      values.put(alias, value);
-
-    }
-
-    /**
-     * Get the value of the tuple element to which the
-     * specified alias has been assigned.
-     * @param alias alias assigned to tuple element
-     * @return value of the tuple element
-     * @throws IllegalArgumentException if alias
-     * does not correspond to an element in the
-     * query result tuple
-     */
-    @Override
-    public Object get(String alias) {
-      return values.get(alias);
-    }
-
-    @Override
-    public Object get(int arg0) {
-      assert 1 == 2;
-      return null;
-    }
-
-    @Override
-    public <X> X get(String arg0, Class<X> arg1) {
-      assert 1 == 2;
-      return null;
-    }
-
-    @Override
-    public <X> X get(int arg0, Class<X> arg1) {
-      assert 1 == 2;
-      return null;
-    }
-
-    @Override
-    public List<TupleElement<?>> getElements() {
-      return elements;
-    }
-
-    @Override
-    public Object[] toArray() {
-      return null;
-    }
-
-  }
-
-  private class JPATupleElement<X> implements TupleElement<X> {
-
-    private final String alias;
-    private final Class<? extends X> javaType;
-
-    public JPATupleElement(String alias, Class<? extends X> javaType) {
-      this.alias = alias;
-      this.javaType = javaType;
-    }
-
-    @Override
-    public String getAlias() {
-      return alias;
-    }
-
-    @Override
-    public Class<? extends X> getJavaType() {
-      return javaType;
-    }
-
-  }
-
 }

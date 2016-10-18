@@ -259,4 +259,8 @@ public abstract class BusinessPartner implements KeyAccess {
     administrativeInformation.setCreated(created);
     administrativeInformation.setUpdated(created);
   }
+
+  public Collection<AdministrativeDivisionDescription> getLocationName() {
+    return locationName;
+  }
 }

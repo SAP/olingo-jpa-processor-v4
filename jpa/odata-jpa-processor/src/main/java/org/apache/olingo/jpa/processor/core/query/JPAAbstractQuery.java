@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
@@ -183,28 +182,6 @@ public abstract class JPAAbstractQuery {
       p = p.get(pathElement.getInternalName());
     }
     return p;
-  }
-
-  protected final Locale determineLocale(final Map<String, List<String>> headers) {
-    // TODO Make this replaceable so the default can be overwritten
-    // http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html (14.4 accept language header
-    // example: Accept-Language: da, en-gb;q=0.8, en;q=0.7)
-    final List<String> languageHeaders = headers.get("accept-language");
-    if (languageHeaders != null) {
-      final String languageHeader = languageHeaders.get(0);
-      if (languageHeader != null) {
-        final String[] localeList = languageHeader.split(SELECT_ITEM_SEPERATOR);
-        final String locale = localeList[0];
-        final String[] languCountry = locale.split("-");
-        if (languCountry.length == CONTAINS_LANGU_COUNTRY)
-          return new Locale(languCountry[0], languCountry[1]);
-        else if (languCountry.length == CONTAINY_ONLY_LANGU)
-          return new Locale(languCountry[0]);
-        else
-          return Locale.ENGLISH;
-      }
-    }
-    return Locale.ENGLISH;
   }
 
   abstract JPAODataSessionContextAccess getContext();

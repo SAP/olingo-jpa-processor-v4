@@ -28,6 +28,7 @@ abstract class JPAAbstractRequestProcessor {
   protected final JPASerializer serializer;
   protected final OData odata;
   protected final JPAServiceDebugger debugger;
+  protected int successStatusCode = HttpStatusCode.OK.getStatusCode();
 
   public JPAAbstractRequestProcessor(final OData odata, final JPAODataSessionContextAccess context,
       final JPAODataRequestContextAccess requestContext) throws ODataException {
@@ -46,7 +47,7 @@ abstract class JPAAbstractRequestProcessor {
       final SerializerResult serializerResult) {
 
     response.setContent(serializerResult.getContent());
-    response.setStatusCode(HttpStatusCode.OK.getStatusCode());
+    response.setStatusCode(successStatusCode);
     response.setHeader(HttpHeader.CONTENT_TYPE, responseFormat.toContentTypeString());
   }
 }

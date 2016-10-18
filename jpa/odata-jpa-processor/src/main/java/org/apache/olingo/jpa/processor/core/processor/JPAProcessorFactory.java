@@ -38,7 +38,7 @@ public class JPAProcessorFactory {
       throws ODataException {
 
     final JPAODataRequestContextAccess requestContext = new JPARequestContext(em, uriInfo, serializerFactory
-        .createSerializer(responseFormat, uriInfo));
+        .createCUDSerializer(responseFormat, uriInfo));
     return new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext);
   }
 

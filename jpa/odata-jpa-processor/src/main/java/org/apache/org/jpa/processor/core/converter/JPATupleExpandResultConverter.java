@@ -17,11 +17,11 @@ import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.uri.UriHelper;
 
-public class JPATupleExpandResultConverter extends JPATupleAbstractConverter {
+class JPATupleExpandResultConverter extends JPATupleAbstractConverter {
   private final Tuple parentRow;
   private final JPAAssociationPath assoziation;
 
-  public JPATupleExpandResultConverter(final JPAExpandResult jpaExpandResult, final Tuple parentRow,
+  JPATupleExpandResultConverter(final JPAExpandResult jpaExpandResult, final Tuple parentRow,
       final JPAAssociationPath assoziation, final UriHelper uriHelper, final ServiceDocument sd,
       final ServiceMetadata serviceMetadata) throws ODataApplicationException {
 

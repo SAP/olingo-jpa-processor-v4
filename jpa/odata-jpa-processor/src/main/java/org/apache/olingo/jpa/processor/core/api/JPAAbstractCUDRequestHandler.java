@@ -8,7 +8,7 @@ import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
-import org.apache.olingo.jpa.processor.core.processor.JPACUDRequestHandler;
+import org.apache.olingo.jpa.processor.core.modify.JPACUDRequestHandler;
 
 public abstract class JPAAbstractCUDRequestHandler implements JPACUDRequestHandler {
 

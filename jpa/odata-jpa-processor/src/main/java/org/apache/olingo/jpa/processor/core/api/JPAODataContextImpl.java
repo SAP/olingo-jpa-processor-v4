@@ -14,7 +14,7 @@ import org.apache.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor
 import org.apache.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 import org.apache.olingo.jpa.processor.core.database.JPAODataDatabaseProcessorFactory;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAFilterException;
-import org.apache.olingo.jpa.processor.core.processor.JPACUDRequestHandler;
+import org.apache.olingo.jpa.processor.core.modify.JPACUDRequestHandler;
 import org.apache.olingo.server.api.debug.DebugSupport;
 import org.apache.olingo.server.api.debug.DefaultDebugSupport;
 
