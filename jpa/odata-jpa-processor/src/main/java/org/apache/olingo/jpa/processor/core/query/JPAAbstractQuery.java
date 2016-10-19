@@ -38,8 +38,6 @@ import org.apache.olingo.server.api.uri.UriResourceNavigation;
 
 public abstract class JPAAbstractQuery {
 
-  private static final int CONTAINY_ONLY_LANGU = 1;
-  private static final int CONTAINS_LANGU_COUNTRY = 2;
   protected static final String SELECT_ITEM_SEPERATOR = ",";
   protected static final String SELECT_ALL = "*";
   protected final EntityManager em;

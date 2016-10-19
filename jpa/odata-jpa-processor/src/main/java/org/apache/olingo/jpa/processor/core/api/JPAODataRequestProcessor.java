@@ -27,8 +27,8 @@ public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
   private final EntityManager em;
   private final JPAODataSessionContextAccess context;
   private JPAProcessorFactory factory;
-  private OData odata;
-  private ServiceMetadata serviceMetadata;
+//  private OData odata;
+//  private ServiceMetadata serviceMetadata;
 
   public JPAODataRequestProcessor(final JPAODataSessionContextAccess context, final EntityManager em) {
     super();
@@ -39,8 +39,8 @@ public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
   @Override
   public void init(final OData odata, final ServiceMetadata serviceMetadata) {
     this.factory = new JPAProcessorFactory(odata, serviceMetadata, context);
-    this.odata = odata;
-    this.serviceMetadata = serviceMetadata;
+//    this.odata = odata;
+//    this.serviceMetadata = serviceMetadata;
   }
 
   @Override

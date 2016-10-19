@@ -27,6 +27,7 @@ public class JPAEntityResult implements JPAExpandResult {
   private final List<JPAPath> pathList;
   private final List<Tuple> result;
   private final Locale locale;
+  private final Map<Object, Map<String, Object>> getterBuffer;
 
   public JPAEntityResult(JPAEntityType et, Object jpaEntity, Map<String, List<String>> requestHeaders)
       throws ODataJPAModelException {
@@ -36,6 +37,7 @@ public class JPAEntityResult implements JPAExpandResult {
     this.pathList = et.getPathList();
     this.locale = ExpressionUtil.determineLocale(requestHeaders);
     this.result = createResult();
+    this.getterBuffer = new HashMap<Object, Map<String, Object>>();
   }
 
   @Override
@@ -65,23 +67,26 @@ public class JPAEntityResult implements JPAExpandResult {
 
   private Map<String, Object> buildGetterMap(Object instance) {
 
-    final Map<String, Object> getterMap = new HashMap<String, Object>();
-    // TODO Performance: Don't recreate the complete getter list over and over again
-    Method[] methods = instance.getClass().getMethods();
-    for (Method meth : methods) {
-      if (meth.getName().substring(0, 3).equals("get")) {
-        String attributeName = meth.getName().substring(3, 4).toLowerCase() + meth.getName().substring(4);
-        try {
-          Object value = meth.invoke(instance);
-          getterMap.put(attributeName, value);
-        } catch (IllegalAccessException e) {
-          e.printStackTrace();
-        } catch (IllegalArgumentException e) {
-          e.printStackTrace();
-        } catch (InvocationTargetException e) {
-          e.printStackTrace();
+    Map<String, Object> getterMap = getterBuffer.get(instance);
+    if (getterMap == null) {
+      getterMap = new HashMap<String, Object>();
+      Method[] methods = instance.getClass().getMethods();
+      for (Method meth : methods) {
+        if (meth.getName().substring(0, 3).equals("get")) {
+          String attributeName = meth.getName().substring(3, 4).toLowerCase() + meth.getName().substring(4);
+          try {
+            Object value = meth.invoke(instance);
+            getterMap.put(attributeName, value);
+          } catch (IllegalAccessException e) {
+            e.printStackTrace();
+          } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+          } catch (InvocationTargetException e) {
+            e.printStackTrace();
+          }
         }
       }
+      getterBuffer.put(instance, getterMap);
     }
     return getterMap;
   }
@@ -210,5 +215,4 @@ public class JPAEntityResult implements JPAExpandResult {
     }
 
   }
-
 }

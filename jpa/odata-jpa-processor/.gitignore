@@ -1,5 +1,6 @@
 target/
 **/target/
+/target/
 /.pmd
 /derby.log
 /test/
