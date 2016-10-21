@@ -72,26 +72,26 @@ public class Util {
     return targetEdmEntity;
   }
 
-  /**
-   * Finds an entity type with which a navigation may starts. Can be used e.g. for filter:
-   * AdministrativeDivisions?$filter=Parent/CodeID eq 'NUTS1' returns AdministrativeDivision;
-   * AdministrativeDivisions(...)/Parent?$filter=Parent/CodeID eq 'NUTS1' returns "Parent"
-   */
-  public static EdmEntityType determineStartEntityType(final List<UriResource> resources) {
-    EdmEntityType targetEdmEntity = null;
-
-    for (final UriResource resourceItem : resources) {
-      if (resourceItem.getKind() == UriResourceKind.navigationProperty) {
-        // first try the simple way like in the example
-        targetEdmEntity = (EdmEntityType) ((UriResourceNavigation) resourceItem).getType();
-      }
-      if (resourceItem.getKind() == UriResourceKind.entitySet) {
-        // first try the simple way like in the example
-        targetEdmEntity = ((UriResourceEntitySet) resourceItem).getEntityType();
-      }
-    }
-    return targetEdmEntity;
-  }
+//  /**
+//   * Finds an entity type with which a navigation may starts. Can be used e.g. for filter:
+//   * AdministrativeDivisions?$filter=Parent/CodeID eq 'NUTS1' returns AdministrativeDivision;
+//   * AdministrativeDivisions(...)/Parent?$filter=Parent/CodeID eq 'NUTS1' returns "Parent"
+//   */
+//  public static EdmEntityType determineStartEntityType(final List<UriResource> resources) {
+//    EdmEntityType targetEdmEntity = null;
+//
+//    for (final UriResource resourceItem : resources) {
+//      if (resourceItem.getKind() == UriResourceKind.navigationProperty) {
+//        // first try the simple way like in the example
+//        targetEdmEntity = (EdmEntityType) ((UriResourceNavigation) resourceItem).getType();
+//      }
+//      if (resourceItem.getKind() == UriResourceKind.entitySet) {
+//        // first try the simple way like in the example
+//        targetEdmEntity = ((UriResourceEntitySet) resourceItem).getEntityType();
+//      }
+//    }
+//    return targetEdmEntity;
+//  }
 
   /**
    * Used for Serializer

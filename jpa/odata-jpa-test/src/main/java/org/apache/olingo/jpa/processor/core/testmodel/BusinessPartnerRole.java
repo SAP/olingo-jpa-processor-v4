@@ -37,4 +37,12 @@ public class BusinessPartnerRole {
     return businessPartner;
   }
 
+  public void setBusinessPartnerID(String businessPartnerID) {
+    this.businessPartnerID = businessPartnerID;
+  }
+
+  public void setRoleCategory(String roleCategory) {
+    this.roleCategory = roleCategory;
+  }
+
 }

@@ -39,4 +39,20 @@ public class BusinessPartnerRoleKey implements Serializable {
     result = prime * result + ((roleCategory == null) ? 0 : roleCategory.hashCode());
     return result;
   }
+
+  public String getBusinessPartnerID() {
+    return businessPartnerID;
+  }
+
+  public void setBusinessPartnerID(String businessPartnerID) {
+    this.businessPartnerID = businessPartnerID;
+  }
+
+  public String getRoleCategory() {
+    return roleCategory;
+  }
+
+  public void setRoleCategory(String roleCategory) {
+    this.roleCategory = roleCategory;
+  }
 }

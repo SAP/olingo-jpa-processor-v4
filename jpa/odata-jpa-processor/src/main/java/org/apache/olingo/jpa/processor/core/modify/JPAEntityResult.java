@@ -1,7 +1,5 @@
 package org.apache.olingo.jpa.processor.core.modify;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -17,9 +15,16 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
+import org.apache.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import org.apache.olingo.jpa.processor.core.query.ExpressionUtil;
 import org.apache.org.jpa.processor.core.converter.JPAExpandResult;
 
+/**
+ * Provides an entity as tuple result. This is primarily done to reuse the existing tuple converter.
+ * 
+ * @author Oliver Grande
+ *
+ */
 public class JPAEntityResult implements JPAExpandResult {
   private final Object jpaEntity;
   private final JPAEntityType et;
@@ -27,17 +32,17 @@ public class JPAEntityResult implements JPAExpandResult {
   private final List<JPAPath> pathList;
   private final List<Tuple> result;
   private final Locale locale;
-  private final Map<Object, Map<String, Object>> getterBuffer;
+  private final JPAConversionHelper helper;
 
   public JPAEntityResult(JPAEntityType et, Object jpaEntity, Map<String, List<String>> requestHeaders)
-      throws ODataJPAModelException {
+      throws ODataJPAModelException, ODataJPAProcessorException {
     this.jpaEntity = jpaEntity;
     this.et = et;
+    this.helper = new JPAConversionHelper();
     this.children = new HashMap<JPAAssociationPath, JPAExpandResult>(0);
     this.pathList = et.getPathList();
     this.locale = ExpressionUtil.determineLocale(requestHeaders);
     this.result = createResult();
-    this.getterBuffer = new HashMap<Object, Map<String, Object>>();
   }
 
   @Override
@@ -65,43 +70,18 @@ public class JPAEntityResult implements JPAExpandResult {
     return false;
   }
 
-  private Map<String, Object> buildGetterMap(Object instance) {
-
-    Map<String, Object> getterMap = getterBuffer.get(instance);
-    if (getterMap == null) {
-      getterMap = new HashMap<String, Object>();
-      Method[] methods = instance.getClass().getMethods();
-      for (Method meth : methods) {
-        if (meth.getName().substring(0, 3).equals("get")) {
-          String attributeName = meth.getName().substring(3, 4).toLowerCase() + meth.getName().substring(4);
-          try {
-            Object value = meth.invoke(instance);
-            getterMap.put(attributeName, value);
-          } catch (IllegalAccessException e) {
-            e.printStackTrace();
-          } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-          } catch (InvocationTargetException e) {
-            e.printStackTrace();
-          }
-        }
-      }
-      getterBuffer.put(instance, getterMap);
-    }
-    return getterMap;
-  }
-
   private void convertPathToTuple(final JPATuple tuple, final Map<String, Object> getterMap, final JPAPath path,
-      final int index) {
+      final int index) throws ODataJPAProcessorException {
 
     Object value = getterMap.get(path.getPath().get(index).getInternalName());
     if (path.getPath().size() == index + 1 || value == null) {
       if (path.getPath().get(index) instanceof JPADescriptionAttribute) {
+        @SuppressWarnings("unchecked")
         Collection<Object> desc = (Collection<Object>) value;
         if (desc != null) {
 
           for (Object entry : desc) {
-            final Map<String, Object> descGetterMap = buildGetterMap(entry);
+            final Map<String, Object> descGetterMap = helper.buildGetterMap(entry);
             JPADescriptionAttribute jpaAttribute = (JPADescriptionAttribute) path.getPath().get(index);
             value = descGetterMap.get(jpaAttribute.getLocaleFieldName().getPath().get(0).getInternalName());
             if (locale.getLanguage().equals(value)
@@ -116,16 +96,16 @@ public class JPAEntityResult implements JPAExpandResult {
         tuple.addElement(path.getAlias(), path.getLeaf().getType(), value);
       }
     } else {
-      final Map<String, Object> embeddedGetterMap = buildGetterMap(value);
+      final Map<String, Object> embeddedGetterMap = helper.buildGetterMap(value);
       convertPathToTuple(tuple, embeddedGetterMap, path, index + 1);
     }
   }
 
-  private List<Tuple> createResult() {
+  private List<Tuple> createResult() throws ODataJPAProcessorException {
     JPATuple tuple = new JPATuple();
     List<Tuple> tupleResult = new ArrayList<Tuple>();
 
-    final Map<String, Object> getterMap = buildGetterMap(jpaEntity);
+    final Map<String, Object> getterMap = helper.buildGetterMap(jpaEntity);
     for (JPAPath path : pathList) {
       convertPathToTuple(tuple, getterMap, path, 0);
     }

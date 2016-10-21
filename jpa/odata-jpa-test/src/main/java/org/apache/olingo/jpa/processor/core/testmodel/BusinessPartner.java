@@ -252,7 +252,7 @@ public abstract class BusinessPartner implements KeyAccess {
   }
 
   @PrePersist
-  void onCreate() {
+  public void onCreate() {
     administrativeInformation = new AdministrativeInformation();
     long time = new Date().getTime();
     ChangeInformation created = new ChangeInformation("99", new Timestamp(time));

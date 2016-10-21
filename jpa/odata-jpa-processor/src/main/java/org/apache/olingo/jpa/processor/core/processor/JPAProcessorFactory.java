@@ -10,6 +10,7 @@ import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import org.apache.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
+import org.apache.olingo.jpa.processor.core.modify.JPAConversionHelper;
 import org.apache.olingo.jpa.processor.core.serializer.JPASerializerFactory;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
@@ -39,7 +40,9 @@ public class JPAProcessorFactory {
 
     final JPAODataRequestContextAccess requestContext = new JPARequestContext(em, uriInfo, serializerFactory
         .createCUDSerializer(responseFormat, uriInfo));
-    return new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext);
+
+    return new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext,
+        new JPAConversionHelper());
   }
 
   public JPARequestProcessor createProcessor(final EntityManager em, final UriInfo uriInfo,

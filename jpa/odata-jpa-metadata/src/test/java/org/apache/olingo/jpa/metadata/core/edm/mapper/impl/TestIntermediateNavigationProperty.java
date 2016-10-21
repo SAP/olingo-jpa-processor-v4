@@ -69,8 +69,8 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
 
   @Test
   public void checkGetIgnoreTrue() throws ODataJPAModelException {
-    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("BusinessPartner"),
-        "customString1");
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("DummyToBeIgnored"),
+        "businessPartner");
     IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
         schema.getStructuredType(jpaAttribute), jpaAttribute, schema);
     assertTrue(property.ignore());

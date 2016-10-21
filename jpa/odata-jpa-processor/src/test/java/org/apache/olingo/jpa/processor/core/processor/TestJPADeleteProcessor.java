@@ -32,6 +32,7 @@ import org.apache.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import org.apache.olingo.jpa.processor.core.modify.JPACUDRequestHandler;
+import org.apache.olingo.jpa.processor.core.modify.JPAConversionHelper;
 import org.apache.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
@@ -96,7 +97,8 @@ public class TestJPADeleteProcessor {
     when(uriEts.getKeyPredicates()).thenReturn(keyPredicates);
     when(uriEts.getEntitySet()).thenReturn(ets);
     when(ets.getName()).thenReturn("Organizations");
-    processor = new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext);
+    processor = new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext,
+        new JPAConversionHelper());
   }
 
   @Test
