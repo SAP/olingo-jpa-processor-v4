@@ -1,5 +1,7 @@
 package org.apache.olingo.jpa.processor.core.query;
 
+import org.apache.org.jpa.processor.core.converter.JPAExpandResult;
+
 public class JPAStandardExtention implements JPAExtention {
 
   @Override

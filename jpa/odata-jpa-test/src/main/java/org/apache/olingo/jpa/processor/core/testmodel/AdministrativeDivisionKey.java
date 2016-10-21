@@ -18,6 +18,16 @@ public class AdministrativeDivisionKey implements Serializable {
   @Column(name = "\"DivisionCode\"", length = 10)
   private String divisionCode;
 
+  public AdministrativeDivisionKey() {
+    // Needed to be used as IdClass
+  }
+
+  public AdministrativeDivisionKey(String codePublisher, String codeID, String divisionCode) {
+    this.codePublisher = codePublisher;
+    this.codeID = codeID;
+    this.divisionCode = divisionCode;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;

@@ -80,7 +80,7 @@ public class JPAQuery extends JPAExecutableQuery {
     return em.createQuery(cq).getSingleResult();
   }
 
-  public JPAExpandResult execute() throws ODataApplicationException {
+  public JPAExpandQueryResult execute() throws ODataApplicationException {
     // Pre-process URI parameter, so they can be used at different places
     // TODO check if Path is also required for OrderBy Attributes, as it is for descriptions
     final int handle = debugger.startRuntimeMeasurement("JPAQuery", "execute");
@@ -111,7 +111,7 @@ public class JPAQuery extends JPAExecutableQuery {
     result.put("root", intermediateResult);
 
     debugger.stopRuntimeMeasurement(handle);
-    return new JPAExpandResult(result, Long.parseLong("0"), jpaEntity);// count()););
+    return new JPAExpandQueryResult(result, Long.parseLong("0"), jpaEntity);// count()););
   }
 
   public JPAStructuredType getEntityType() {

@@ -22,7 +22,9 @@ public class ODataJPAProcessorException extends ODataJPAProcessException {
     NOT_SUPPORTED_UPDATE,
     NOT_SUPPORTED_DELETE,
     NOT_SUPPORTED_RESOURCE_TYPE,
-    NOT_SUPPORTED_FUNC_WITH_NAVI;
+    NOT_SUPPORTED_FUNC_WITH_NAVI,
+    NOT_SUPPORTED_PROP_TYPE,
+    PARAMETER_NULL;
 
     @Override
     public String getKey() {
@@ -31,7 +33,7 @@ public class ODataJPAProcessorException extends ODataJPAProcessException {
 
   }
 
-  private static final String BUNDEL_NAME = "exceptions-i18n";
+  private static final String BUNDEL_NAME = "processor-exceptions-i18n";
 
   public ODataJPAProcessorException(final Throwable e, final HttpStatusCode statusCode) {
     super(e, statusCode);

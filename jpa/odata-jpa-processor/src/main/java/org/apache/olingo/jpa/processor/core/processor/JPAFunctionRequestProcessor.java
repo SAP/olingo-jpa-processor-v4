@@ -31,7 +31,7 @@ import org.apache.olingo.server.api.uri.UriResourceFunction;
  * @author Oliver Grande
  *
  */
-public class JPAFunctionRequestProcessor extends JPAAbstractRequestProcessor {
+public class JPAFunctionRequestProcessor extends JPAAbstractGetRequestProcessor {
 
   private final JPAODataDatabaseProcessor dbProcessor;
 

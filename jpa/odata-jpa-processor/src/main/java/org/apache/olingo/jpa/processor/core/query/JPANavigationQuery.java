@@ -54,6 +54,7 @@ public class JPANavigationQuery extends JPAAbstractQuery {
   /**
    * @return
    */
+  @SuppressWarnings("unchecked")
   @Override
   public Root<?> getRoot() {
     assert queryRoot != null;

@@ -3,6 +3,7 @@ package org.apache.olingo.jpa.processor.core.testmodel;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.Date;
 
 import javax.persistence.AssociationOverride;
 import javax.persistence.AssociationOverrides;
@@ -16,6 +17,7 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
@@ -56,10 +58,10 @@ import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;;
 
 })
 
-public abstract class BusinessPartner {
+public abstract class BusinessPartner implements KeyAccess {
   @Id
   @Column(name = "\"ID\"")
-  protected String ID;
+  protected String iD;
 
   @Version
   @Column(name = "\"ETag\"", nullable = false)
@@ -68,7 +70,7 @@ public abstract class BusinessPartner {
   @Column(name = "\"Type\"", length = 1, nullable = false)
   protected String type;
 
-  @Column(name = "\"CreatedAt\"", precision = 3)
+  @Column(name = "\"CreatedAt\"", precision = 3, insertable = false, updatable = false)
   private Timestamp creationDateTime;
 
   @EdmIgnore
@@ -116,48 +118,85 @@ public abstract class BusinessPartner {
   @OneToMany(mappedBy = "businessPartner", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
   private Collection<BusinessPartnerRole> roles;
 
-  public void setID(String iD) {
-    ID = iD;
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
+    BusinessPartner other = (BusinessPartner) obj;
+    if (iD == null) {
+      if (other.iD != null) return false;
+    } else if (!iD.equals(other.iD)) return false;
+    return true;
   }
 
-  public void seteTag(long eTag) {
-    this.eTag = eTag;
+  public PostalAddressData getAddress() {
+    return address;
   }
 
-  public void setType(String type) {
-    this.type = type;
+  public AdministrativeInformation getAdministrativeInformation() {
+    return administrativeInformation;
   }
 
-  public void setCreationDateTime(Timestamp creationDateTime) {
-    this.creationDateTime = creationDateTime;
+  public CommunicationData getCommunicationData() {
+    return communicationData;
   }
 
-  public void setCustomString1(String customString1) {
-    this.customString1 = customString1;
+  public String getCountry() {
+    return country;
   }
 
-  public void setCustomString2(String customString2) {
-    this.customString2 = customString2;
+  public Timestamp getCreationDateTime() {
+    return creationDateTime;
   }
 
-  public void setCustomNum1(BigDecimal customNum1) {
-    this.customNum1 = customNum1;
+  public BigDecimal getCustomNum1() {
+    return customNum1;
   }
 
-  public void setCustomNum2(BigDecimal customNum2) {
-    this.customNum2 = customNum2;
+  public BigDecimal getCustomNum2() {
+    return customNum2;
   }
 
-  public void setCountry(String country) {
-    this.country = country;
+  public String getCustomString1() {
+    return customString1;
   }
 
 //  public void setLocationName(Collection<AdministrativeDivisionDescription> locationName) {
 //    this.locationName = locationName;
 //  }
 
-  public void setCommunicationData(CommunicationData communicationData) {
-    this.communicationData = communicationData;
+  public String getCustomString2() {
+    return customString2;
+  }
+
+  public long geteTag() {
+    return eTag;
+  }
+
+  public String getID() {
+    return iD;
+  }
+
+  @Override
+  public Object getKey() {
+    return iD;
+  }
+
+  public Collection<BusinessPartnerRole> getRoles() {
+    return roles;
+  }
+
+  public String getType() {
+    return type;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((iD == null) ? 0 : iD.hashCode());
+    return result;
   }
 
   public void setAddress(PostalAddressData address) {
@@ -168,7 +207,60 @@ public abstract class BusinessPartner {
     this.administrativeInformation = administrativeInformation;
   }
 
+  public void setCommunicationData(CommunicationData communicationData) {
+    this.communicationData = communicationData;
+  }
+
+  public void setCountry(String country) {
+    this.country = country;
+  }
+
+  public void setCreationDateTime(Timestamp creationDateTime) {
+    this.creationDateTime = creationDateTime;
+  }
+
+  public void setCustomNum1(BigDecimal customNum1) {
+    this.customNum1 = customNum1;
+  }
+
+  public void setCustomNum2(BigDecimal customNum2) {
+    this.customNum2 = customNum2;
+  }
+
+  public void setCustomString1(String customString1) {
+    this.customString1 = customString1;
+  }
+
+  public void setCustomString2(String customString2) {
+    this.customString2 = customString2;
+  }
+
+  public void seteTag(long eTag) {
+    this.eTag = eTag;
+  }
+
+  public void setID(String iD) {
+    this.iD = iD;
+  }
+
   public void setRoles(Collection<BusinessPartnerRole> roles) {
     this.roles = roles;
+  }
+
+  public void setType(String type) {
+    this.type = type;
+  }
+
+  @PrePersist
+  public void onCreate() {
+    administrativeInformation = new AdministrativeInformation();
+    long time = new Date().getTime();
+    ChangeInformation created = new ChangeInformation("99", new Timestamp(time));
+    administrativeInformation.setCreated(created);
+    administrativeInformation.setUpdated(created);
+  }
+
+  public Collection<AdministrativeDivisionDescription> getLocationName() {
+    return locationName;
   }
 }

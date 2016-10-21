@@ -19,6 +19,7 @@ import org.apache.olingo.jpa.processor.core.util.TestHelper;
 import org.apache.olingo.jpa.processor.core.util.TupleDouble;
 import org.apache.olingo.jpa.processor.core.util.UriHelperDouble;
 import org.apache.olingo.server.api.ODataApplicationException;
+import org.apache.org.jpa.processor.core.converter.JPATupleResultConverter;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -47,7 +48,7 @@ public class TestJPATupleResultConverterCompoundKey extends TestBase {
 
     cut = new JPATupleResultConverter(
         helper.sd,
-        new JPAExpandResult(resultContainer, Long.parseLong("0"), helper.getJPAEntityType("BusinessPartnerRoles")),
+        new JPAExpandQueryResult(resultContainer, Long.parseLong("0"), helper.getJPAEntityType("BusinessPartnerRoles")),
         uriHelper,
         new ServiceMetadataDouble(nameBuilder, "BusinessPartnerRole"));
 
@@ -79,7 +80,7 @@ public class TestJPATupleResultConverterCompoundKey extends TestBase {
 
     cut = new JPATupleResultConverter(
         helper.sd,
-        new JPAExpandResult(resultContainer, Long.parseLong("1"), helper.getJPAEntityType(
+        new JPAExpandQueryResult(resultContainer, Long.parseLong("1"), helper.getJPAEntityType(
             "AdministrativeDivisionDescriptions")),
         uriHelper,
         new ServiceMetadataDouble());

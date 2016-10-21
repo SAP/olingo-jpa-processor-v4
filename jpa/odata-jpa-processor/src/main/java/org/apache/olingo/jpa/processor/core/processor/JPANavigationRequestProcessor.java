@@ -17,10 +17,9 @@ import org.apache.olingo.jpa.processor.core.exception.ODataJPAProcessorException
 import org.apache.olingo.jpa.processor.core.query.JPAExpandItemInfo;
 import org.apache.olingo.jpa.processor.core.query.JPAExpandItemInfoFactory;
 import org.apache.olingo.jpa.processor.core.query.JPAExpandQuery;
-import org.apache.olingo.jpa.processor.core.query.JPAExpandResult;
+import org.apache.olingo.jpa.processor.core.query.JPAExpandQueryResult;
 import org.apache.olingo.jpa.processor.core.query.JPANavigationProptertyInfo;
 import org.apache.olingo.jpa.processor.core.query.JPAQuery;
-import org.apache.olingo.jpa.processor.core.query.JPATupleResultConverter;
 import org.apache.olingo.jpa.processor.core.query.Util;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataRequest;
@@ -30,6 +29,7 @@ import org.apache.olingo.server.api.serializer.SerializerResult;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.queryoption.CountOption;
+import org.apache.org.jpa.processor.core.converter.JPATupleResultConverter;
 
 public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor implements JPARequestProcessor {
   private final ServiceMetadata serviceMetadata;
@@ -64,7 +64,7 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
           HttpStatusCode.INTERNAL_SERVER_ERROR, e);
     }
 
-    final JPAExpandResult result = query.execute();
+    final JPAExpandQueryResult result = query.execute();
     result.putChildren(readExpandEntities(request.getAllHeaders(), null, uriInfo));
     // Convert tuple result into an OData Result
     final int converterHandle = debugger.startRuntimeMeasurement("JPATupleResultConverter", "getResult");
@@ -122,14 +122,14 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
    * @return
    * @throws ODataException
    */
-  private Map<JPAAssociationPath, JPAExpandResult> readExpandEntities(final Map<String, List<String>> headers,
+  private Map<JPAAssociationPath, JPAExpandQueryResult> readExpandEntities(final Map<String, List<String>> headers,
       final List<JPANavigationProptertyInfo> parentHops, final UriInfoResource uriResourceInfo)
       throws ODataException {
 
     final int handle = debugger.startRuntimeMeasurement("JPANavigationRequestProcessor", "readExpandEntities");
 
-    final Map<JPAAssociationPath, JPAExpandResult> allExpResults =
-        new HashMap<JPAAssociationPath, JPAExpandResult>();
+    final Map<JPAAssociationPath, JPAExpandQueryResult> allExpResults =
+        new HashMap<JPAAssociationPath, JPAExpandQueryResult>();
     // x/a?$expand=b/c($expand=d,e/f)
 
     final List<JPAExpandItemInfo> itemInfoList = new JPAExpandItemInfoFactory()
@@ -137,7 +137,7 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
 
     for (final JPAExpandItemInfo item : itemInfoList) {
       final JPAExpandQuery expandQuery = new JPAExpandQuery(odata, context, em, item, headers);
-      final JPAExpandResult expandResult = expandQuery.execute();
+      final JPAExpandQueryResult expandResult = expandQuery.execute();
 
       expandResult.putChildren(readExpandEntities(headers, item.getHops(), item.getUriInfo()));
       allExpResults.put(item.getExpandAssociation(), expandResult);

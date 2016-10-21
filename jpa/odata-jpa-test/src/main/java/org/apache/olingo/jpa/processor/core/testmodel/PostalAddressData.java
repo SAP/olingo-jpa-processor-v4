@@ -87,14 +87,6 @@ public class PostalAddressData {
     return region;
   }
 
-  public String getCountry() {
-    return country;
-  }
-
-  public Collection<Country> getCountryName() {
-    return countryName;
-  }
-
   public void setStreetName(String streetName) {
     this.streetName = streetName;
   }
@@ -119,8 +111,15 @@ public class PostalAddressData {
     this.region = region;
   }
 
-  public void setCountry(String country) {
-    this.country = country;
+  public String getCountry() {
+    return country;
   }
 
+  public Collection<Country> getCountryName() {
+    return countryName;
+  }
+
+  public Collection<AdministrativeDivisionDescription> getRegionName() {
+    return regionName;
+  }
 }

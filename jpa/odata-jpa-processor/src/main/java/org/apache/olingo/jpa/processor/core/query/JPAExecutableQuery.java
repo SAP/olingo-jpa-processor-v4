@@ -72,7 +72,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
       final UriInfoResource uriResource) throws ODataException {
 
     super(odata, context.getEdmProvider().getServiceDocument(), jpaEntityType, em, context.getDebugger());
-    this.locale = determineLocale(requestHeaders);
+    this.locale = ExpressionUtil.determineLocale(requestHeaders);
     this.uriResource = uriResource;
     this.cq = cb.createTupleQuery();
     this.root = cq.from(jpaEntity.getTypeClass());

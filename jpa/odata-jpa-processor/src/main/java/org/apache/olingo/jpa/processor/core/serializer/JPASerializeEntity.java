@@ -22,8 +22,7 @@ public class JPASerializeEntity implements JPASerializer {
   private final ODataSerializer serializer;
 
   public JPASerializeEntity(final ServiceMetadata serviceMetadata, final ODataSerializer serializer,
-      final UriHelper uriHelper,
-      final UriInfo uriInfo) throws SerializerException {
+      final UriHelper uriHelper, final UriInfo uriInfo) throws SerializerException {
     this.uriInfo = uriInfo;
     this.serializer = serializer;
     this.serviceMetadata = serviceMetadata;
@@ -31,7 +30,7 @@ public class JPASerializeEntity implements JPASerializer {
   }
 
   @Override
-  public SerializerResult serialize(final ODataRequest request, final EntityCollection result)
+  public SerializerResult serialize(final ODataRequest requnullest, final EntityCollection result)
       throws SerializerException {
 
     final EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(uriInfo.getUriResourceParts());

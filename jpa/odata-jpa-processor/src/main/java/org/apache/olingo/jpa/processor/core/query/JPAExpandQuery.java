@@ -64,11 +64,11 @@ public class JPAExpandQuery extends JPAExecutableQuery {
     this.item = item;
   }
 
-  public JPAExpandResult execute() throws ODataApplicationException {
+  public JPAExpandQueryResult execute() throws ODataApplicationException {
     if (uriResource.getTopOption() != null || uriResource.getSkipOption() != null)
       return executeExpandTopSkipQuery();
     else {
-      return executeStandradQuery();
+      return executeStandardQuery();
     }
   }
 
@@ -82,7 +82,7 @@ public class JPAExpandQuery extends JPAExecutableQuery {
    * @return query result
    * @throws ODataApplicationException
    */
-  private JPAExpandResult executeExpandTopSkipQuery() throws ODataApplicationException {
+  private JPAExpandQueryResult executeExpandTopSkipQuery() throws ODataApplicationException {
     // TODO make this replacable
     final int handle = debugger.startRuntimeMeasurement("JPAExpandQuery", "executeExpandTopSkipQuery");
 
@@ -96,12 +96,12 @@ public class JPAExpandQuery extends JPAExecutableQuery {
     if (uriResource.getTopOption() != null)
       top = uriResource.getTopOption().getValue();
 
-    Map<String, List<Tuple>> result = convertResult(intermediateResult, assoziation, skip, top);
+    final Map<String, List<Tuple>> result = convertResult(intermediateResult, assoziation, skip, top);
     debugger.stopRuntimeMeasurement(handle);
-    return new JPAExpandResult(result, count(), jpaEntity);
+    return new JPAExpandQueryResult(result, count(), jpaEntity);
   }
 
-  private JPAExpandResult executeStandradQuery() throws ODataApplicationException {
+  private JPAExpandQueryResult executeStandardQuery() throws ODataApplicationException {
     final int handle = debugger.startRuntimeMeasurement("JPAExpandQuery", "executeStandradQuery");
 
     final TypedQuery<Tuple> tupleQuery = createTupleQuery();
@@ -109,10 +109,10 @@ public class JPAExpandQuery extends JPAExecutableQuery {
     final int resultHandle = debugger.startRuntimeMeasurement("TypedQuery", "getResultList");
     final List<Tuple> intermediateResult = tupleQuery.getResultList();
     debugger.stopRuntimeMeasurement(resultHandle);
-    Map<String, List<Tuple>> result = convertResult(intermediateResult, assoziation, 0, Long.MAX_VALUE);
+    final Map<String, List<Tuple>> result = convertResult(intermediateResult, assoziation, 0, Long.MAX_VALUE);
 
     debugger.stopRuntimeMeasurement(handle);
-    return new JPAExpandResult(result, count(), jpaEntity);
+    return new JPAExpandQueryResult(result, count(), jpaEntity);
   }
 
   private TypedQuery<Tuple> createTupleQuery() throws ODataApplicationException {

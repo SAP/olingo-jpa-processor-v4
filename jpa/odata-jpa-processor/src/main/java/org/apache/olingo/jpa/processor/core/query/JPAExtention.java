@@ -1,5 +1,7 @@
 package org.apache.olingo.jpa.processor.core.query;
 
+import org.apache.org.jpa.processor.core.converter.JPAExpandResult;
+
 public interface JPAExtention {
   /**
    * Process a expand query, which contains a $skip and/or a $top option.<p>
