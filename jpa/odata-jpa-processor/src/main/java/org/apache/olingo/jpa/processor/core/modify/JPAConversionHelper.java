@@ -156,7 +156,7 @@ public class JPAConversionHelper {
   }
 
   public String convertKeyToLocal(final OData odata, final ODataRequest request, EdmEntitySet edmEntitySet,
-      JPAEntityType et, Object primaryKey) throws SerializerException, ODataJPAProcessorException {
+      JPAEntityType et, Object newPOJO) throws SerializerException, ODataJPAProcessorException {
 
     Entity createdEntity = new Entity();
 
@@ -164,7 +164,7 @@ public class JPAConversionHelper {
       final List<JPAPath> keyPath = et.getKeyPath();
       final List<Property> properties = createdEntity.getProperties();
 
-      collectKeyProperties(primaryKey, keyPath, properties);
+      collectKeyProperties(newPOJO, keyPath, properties);
     } catch (ODataJPAModelException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
     }
@@ -174,10 +174,11 @@ public class JPAConversionHelper {
     return location;
   }
 
-  private void collectKeyProperties(Object primaryKey, final List<JPAPath> keyPath, final List<Property> properties)
+  private void collectKeyProperties(Object newPOJO, final List<JPAPath> keyPath, final List<Property> properties)
       throws ODataJPAProcessorException, ODataJPAModelException {
+
+    final Map<String, Object> getter = buildGetterMap(newPOJO);
     if (keyPath.size() > 1) {
-      final Map<String, Object> getter = buildGetterMap(primaryKey);
 
       for (JPAPath key : keyPath) {
         final Property property = new Property(null, key.getLeaf().getExternalName());
@@ -188,10 +189,10 @@ public class JPAConversionHelper {
       JPAPath key = keyPath.get(0);
       if (key.getLeaf().isComplex()) {
         // EmbeddedId
-        collectKeyProperties(primaryKey, key.getLeaf().getStructuredType().getPathList(), properties);
+        collectKeyProperties(newPOJO, key.getLeaf().getStructuredType().getPathList(), properties);
       } else {
         final Property property = new Property(null, key.getLeaf().getExternalName());
-        property.setValue(ValueType.PRIMITIVE, primaryKey);
+        property.setValue(ValueType.PRIMITIVE, getter.get(key.getLeaf().getInternalName()));
         properties.add(property);
       }
     }

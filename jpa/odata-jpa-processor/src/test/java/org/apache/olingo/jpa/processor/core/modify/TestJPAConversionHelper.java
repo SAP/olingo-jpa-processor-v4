@@ -43,6 +43,7 @@ import org.apache.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDesc
 import org.apache.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
 import org.apache.olingo.jpa.processor.core.testmodel.BusinessPartnerRoleKey;
 import org.apache.olingo.jpa.processor.core.testmodel.DateConverter;
+import org.apache.olingo.jpa.processor.core.testmodel.Organization;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.deserializer.DeserializerException;
@@ -307,35 +308,30 @@ public class TestJPAConversionHelper {
   }
 
   @Test
-  public void testConvertSimpleKeyToLocal() throws ODataJPAProcessorException, SerializerException,
+  public void testConvertSimpleKeyToLocation() throws ODataJPAProcessorException, SerializerException,
       ODataJPAModelException {
     final List<JPAPath> keyPath = new ArrayList<JPAPath>();
 
-    String primaryKey = "35";
+    Organization newPOJO = new Organization();
+    newPOJO.setID("35");
     ODataRequest request = mock(ODataRequest.class);
     when(request.getRawBaseUri()).thenReturn("localhost.test");
     EdmEntitySet edmEntitySet = mock(EdmEntitySet.class);
     JPAEntityType et = mock(JPAEntityType.class);
     when(et.getKeyPath()).thenReturn(keyPath);
 
-    JPAPath key = mock(JPAPath.class);
-    keyPath.add(key);
-    JPAAttribute keyAttribute = mock(JPAAttribute.class);
-    when(keyAttribute.getExternalName()).thenReturn("ID");
-    when(key.getLeaf()).thenReturn(keyAttribute);
+    addKeyAttribute(keyPath, "ID", "iD");
 
     OData odata = mock(OData.class);
-    UriHelper uriHelper = mock(UriHelper.class);
+    UriHelper uriHelper = new UriHelperSpy(UriHelperSpy.SINGLE);
     when(odata.createUriHelper()).thenReturn(uriHelper);
-    when(uriHelper.buildCanonicalURL(Matchers.eq(edmEntitySet), Matchers.any(Entity.class))).thenReturn(
-        "Organisation('35')");
 
-    String act = cut.convertKeyToLocal(odata, request, edmEntitySet, et, primaryKey);
+    String act = cut.convertKeyToLocal(odata, request, edmEntitySet, et, newPOJO);
     assertEquals("localhost.test/Organisation('35')", act);
   }
 
   @Test
-  public void testConvertCompoundKeyToLocal() throws ODataJPAProcessorException, SerializerException,
+  public void testConvertCompoundKeyToLocation() throws ODataJPAProcessorException, SerializerException,
       ODataJPAModelException {
     final List<JPAPath> keyPath = new ArrayList<JPAPath>();
 
@@ -349,17 +345,8 @@ public class TestJPAConversionHelper {
     JPAEntityType et = mock(JPAEntityType.class);
     when(et.getKeyPath()).thenReturn(keyPath);
 
-    JPAPath key = mock(JPAPath.class);
-    keyPath.add(key);
-    JPAAttribute keyAttribute = mock(JPAAttribute.class);
-    when(keyAttribute.getExternalName()).thenReturn("BusinessPartnerID");
-    when(key.getLeaf()).thenReturn(keyAttribute);
-
-    key = mock(JPAPath.class);
-    keyPath.add(key);
-    keyAttribute = mock(JPAAttribute.class);
-    when(keyAttribute.getExternalName()).thenReturn("RoleCategory");
-    when(key.getLeaf()).thenReturn(keyAttribute);
+    addKeyAttribute(keyPath, "BusinessPartnerID", "businessPartnerID");
+    addKeyAttribute(keyPath, "RoleCategory", "roleCategory");
 
     OData odata = mock(OData.class);
     UriHelper uriHelper = new UriHelperSpy(UriHelperSpy.COMPOUND_KEY);
@@ -370,15 +357,15 @@ public class TestJPAConversionHelper {
   }
 
   @Test
-  public void testConvertEmbeddedId() throws ODataJPAProcessorException, SerializerException,
+  public void testConvertEmbeddedIdToLocation() throws ODataJPAProcessorException, SerializerException,
       ODataJPAModelException {
     List<JPAPath> keyPath = new ArrayList<JPAPath>();
 
     AdministrativeDivisionDescriptionKey primaryKey = new AdministrativeDivisionDescriptionKey();
-    primaryKey.setCodeID("1");
-    primaryKey.setCodePublisher("2");
-    primaryKey.setDivisionCode("2");
-    primaryKey.setLanguage("xy");
+    primaryKey.setCodeID("NUTS1");
+    primaryKey.setCodePublisher("Eurostat");
+    primaryKey.setDivisionCode("BE1");
+    primaryKey.setLanguage("fr");
 
     ODataRequest request = mock(ODataRequest.class);
     when(request.getRawBaseUri()).thenReturn("localhost.test");
@@ -399,29 +386,10 @@ public class TestJPAConversionHelper {
     keyPath = new ArrayList<JPAPath>();
     when(st.getPathList()).thenReturn(keyPath);
 
-    key = mock(JPAPath.class);
-    keyPath.add(key);
-    keyAttribute = mock(JPAAttribute.class);
-    when(keyAttribute.getExternalName()).thenReturn("CodeID");
-    when(key.getLeaf()).thenReturn(keyAttribute);
-
-    key = mock(JPAPath.class);
-    keyPath.add(key);
-    keyAttribute = mock(JPAAttribute.class);
-    when(keyAttribute.getExternalName()).thenReturn("CodePublisher");
-    when(key.getLeaf()).thenReturn(keyAttribute);
-
-    key = mock(JPAPath.class);
-    keyPath.add(key);
-    keyAttribute = mock(JPAAttribute.class);
-    when(keyAttribute.getExternalName()).thenReturn("DivisionCode");
-    when(key.getLeaf()).thenReturn(keyAttribute);
-
-    key = mock(JPAPath.class);
-    keyPath.add(key);
-    keyAttribute = mock(JPAAttribute.class);
-    when(keyAttribute.getExternalName()).thenReturn("Language");
-    when(key.getLeaf()).thenReturn(keyAttribute);
+    addKeyAttribute(keyPath, "CodeID", "codeID");
+    addKeyAttribute(keyPath, "CodePublisher", "codePublisher");
+    addKeyAttribute(keyPath, "DivisionCode", "divisionCode");
+    addKeyAttribute(keyPath, "Language", "language");
 
     OData odata = mock(OData.class);
     UriHelper uriHelper = new UriHelperSpy(UriHelperSpy.EMBEDDED_ID);
@@ -435,9 +403,21 @@ public class TestJPAConversionHelper {
   }
   // AdministrativeDivisionDescription
 
+  private void addKeyAttribute(List<JPAPath> keyPath, String externalName, String internalName) {
+    JPAPath key;
+    JPAAttribute keyAttribute;
+    key = mock(JPAPath.class);
+    keyPath.add(key);
+    keyAttribute = mock(JPAAttribute.class);
+    when(keyAttribute.getExternalName()).thenReturn(externalName);
+    when(keyAttribute.getInternalName()).thenReturn(internalName);
+    when(key.getLeaf()).thenReturn(keyAttribute);
+  }
+
   private class UriHelperSpy implements UriHelper {
     public static final String EMBEDDED_ID = "EmbeddedId";
     public static final String COMPOUND_KEY = "CompoundKey";
+    public static final String SINGLE = "SingleID";
     private final String mode;
 
     public UriHelperSpy(String mode) {
@@ -461,10 +441,30 @@ public class TestJPAConversionHelper {
     public String buildCanonicalURL(EdmEntitySet edmEntitySet, Entity entity) throws SerializerException {
       if (mode.equals(EMBEDDED_ID)) {
         assertEquals(4, entity.getProperties().size());
+        int found = 0;
+        for (final Property property : entity.getProperties()) {
+          if (property.getName().equals("DivisionCode") && property.getValue().equals("BE1"))
+            found++;
+          else if (property.getName().equals("Language") && property.getValue().equals("fr"))
+            found++;
+        }
+        assertEquals("Not all key attributes found", 2, found);
         return "AdministrativeDivisionDescriptions(DivisionCode='BE1',CodeID='NUTS1',CodePublisher='Eurostat',Language='fr')";
       } else if (mode.equals(COMPOUND_KEY)) {
         assertEquals(2, entity.getProperties().size());
+        int found = 0;
+        for (final Property property : entity.getProperties()) {
+          if (property.getName().equals("BusinessPartnerID") && property.getValue().equals("35"))
+            found++;
+          else if (property.getName().equals("RoleCategory") && property.getValue().equals("A"))
+            found++;
+        }
+        assertEquals("Not all key attributes found", 2, found);
         return "BusinessPartnerRoles(BusinessPartnerID='35',RoleCategory='A')";
+      } else if (mode.equals(SINGLE)) {
+        assertEquals(1, entity.getProperties().size());
+        assertEquals("35", entity.getProperties().get(0).getValue());
+        return "Organisation('35')";
       }
       fail();
       return null;

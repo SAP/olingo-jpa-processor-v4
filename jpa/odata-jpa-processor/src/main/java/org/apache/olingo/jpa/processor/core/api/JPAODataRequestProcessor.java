@@ -240,15 +240,21 @@ public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
       final ContentType requestFormat, final ContentType responseFormat) throws ODataApplicationException,
       ODataLibraryException {
 
-    throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_UPDATE,
-        HttpStatusCode.NOT_IMPLEMENTED);
+    JPACUDRequestProcessor p;
+    try {
+      p = factory.createCUDRequestProcessor(em, uriInfo, responseFormat);
+      p.updateEntity(request, response, requestFormat, responseFormat);
+    } catch (ODataException e) {
+      throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
+          null, e);
+    }
   }
 
   @Override
   public void updatePrimitive(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo,
       final ContentType requestFormat, final ContentType responseFormat) throws ODataApplicationException,
       ODataLibraryException {
-
+    // http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752306
     throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_UPDATE,
         HttpStatusCode.NOT_IMPLEMENTED);
   }

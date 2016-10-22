@@ -24,7 +24,8 @@ public class ODataJPAProcessorException extends ODataJPAProcessException {
     NOT_SUPPORTED_RESOURCE_TYPE,
     NOT_SUPPORTED_FUNC_WITH_NAVI,
     NOT_SUPPORTED_PROP_TYPE,
-    PARAMETER_NULL;
+    PARAMETER_NULL,
+    WRONG_RETURN_TYPE;
 
     @Override
     public String getKey() {
