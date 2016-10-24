@@ -17,6 +17,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAUtilException;
 import org.apache.olingo.server.api.ODataApplicationException;
+import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceComplexProperty;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
@@ -34,12 +35,18 @@ public class Util {
   public static final String VALUE_RESOURCE = "$VALUE";
 
   public static EdmEntitySet determineTargetEntitySet(final List<UriResource> resources) {
+    return determineTargetEntitySetAndKeys(resources).getEdmEntitySet();
+  }
+
+  public static EdmEntitySetInfo determineTargetEntitySetAndKeys(final List<UriResource> resources) {
     EdmEntitySet targetEdmEntitySet = null;
+    List<UriParameter> targteKeyPredicates = new ArrayList<UriParameter>();
     StringBuffer naviPropertyName = new StringBuffer();
 
     for (final UriResource resourceItem : resources) {
       if (resourceItem.getKind() == UriResourceKind.entitySet) {
         targetEdmEntitySet = ((UriResourceEntitySet) resourceItem).getEntitySet();
+        targteKeyPredicates = ((UriResourceEntitySet) resourceItem).getKeyPredicates();
       }
       if (resourceItem.getKind() == UriResourceKind.complexProperty) {
         naviPropertyName.append(((UriResourceComplexProperty) resourceItem).getProperty().getName());
@@ -47,6 +54,7 @@ public class Util {
       }
       if (resourceItem.getKind() == UriResourceKind.navigationProperty) {
         naviPropertyName.append(((UriResourceNavigation) resourceItem).getProperty().getName());
+        targteKeyPredicates = ((UriResourceNavigation) resourceItem).getKeyPredicates();
         final EdmBindingTarget edmBindingTarget = targetEdmEntitySet.getRelatedBindingTarget(naviPropertyName
             .toString());
         if (edmBindingTarget instanceof EdmEntitySet)
@@ -54,7 +62,7 @@ public class Util {
         naviPropertyName = new StringBuffer();
       }
     }
-    return targetEdmEntitySet;
+    return new EdmEntitySetResult(targetEdmEntitySet, targteKeyPredicates);
   }
 
   /**

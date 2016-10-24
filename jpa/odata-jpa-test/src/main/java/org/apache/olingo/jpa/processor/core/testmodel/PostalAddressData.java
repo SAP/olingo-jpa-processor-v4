@@ -2,7 +2,6 @@ package org.apache.olingo.jpa.processor.core.testmodel;
 
 import java.util.Collection;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.FetchType;
@@ -38,20 +37,23 @@ public class PostalAddressData {
   private String region;
 
   @EdmDescriptionAssozation(languageAttribute = "language", descriptionAttribute = "name")
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  @JoinColumn(name = "\"ISOCode\"", referencedColumnName = "\"Address.Country\"")
+  @OneToMany(fetch = FetchType.LAZY)
+  @JoinColumn(name = "\"ISOCode\"", referencedColumnName = "\"Address.Country\"", insertable = false, updatable = false)
   private Collection<Country> countryName;
 
   @EdmDescriptionAssozation(languageAttribute = "key/language", descriptionAttribute = "name")
-  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @OneToMany(fetch = FetchType.LAZY)
   @JoinColumns({
-      @JoinColumn(name = "\"CodePublisher\"", referencedColumnName = "\"Address.RegionCodePublisher\""),
-      @JoinColumn(name = "\"CodeID\"", referencedColumnName = "\"Address.RegionCodeID\""),
-      @JoinColumn(name = "\"DivisionCode\"", referencedColumnName = "\"Address.Region\"")
+      @JoinColumn(name = "\"CodePublisher\"", referencedColumnName = "\"Address.RegionCodePublisher\"",
+          insertable = false, updatable = false),
+      @JoinColumn(name = "\"CodeID\"", referencedColumnName = "\"Address.RegionCodeID\"", insertable = false,
+          updatable = false),
+      @JoinColumn(name = "\"DivisionCode\"", referencedColumnName = "\"Address.Region\"", insertable = false,
+          updatable = false)
   })
   private Collection<AdministrativeDivisionDescription> regionName;
 
-  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumns({
       @JoinColumn(name = "\"Address.RegionCodePublisher\"", referencedColumnName = "\"CodePublisher\"",
           nullable = false,

@@ -19,6 +19,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import org.apache.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys;
@@ -29,6 +30,7 @@ import org.apache.olingo.server.api.deserializer.DeserializerException;
 import org.apache.olingo.server.api.deserializer.DeserializerResult;
 import org.apache.olingo.server.api.deserializer.ODataDeserializer;
 import org.apache.olingo.server.api.serializer.SerializerException;
+import org.apache.olingo.server.api.uri.UriParameter;
 
 /**
  * Helper method for modifying requests.<p>
@@ -119,7 +121,7 @@ public class JPAConversionHelper {
    * @throws ODataJPAProcessException
    */
   public Map<String, Object> convertProperties(final OData odata, final JPAStructuredType st,
-      List<Property> odataProperties) throws ODataJPAProcessException {
+      final List<Property> odataProperties) throws ODataJPAProcessException {
 
     final Map<String, Object> jpaAttributes = new HashMap<String, Object>();
     String internalName = null;
@@ -155,8 +157,35 @@ public class JPAConversionHelper {
     return jpaAttributes;
   }
 
+  /**
+   * 
+   * @param keyPredicates
+   * @return
+   * @throws ODataJPAFilterException
+   * @throws ODataJPAProcessorException
+   */
+  public Map<String, Object> convertUriKeys(final OData odata, final JPAStructuredType st,
+      final List<UriParameter> keyPredicates)
+      throws ODataJPAFilterException, ODataJPAProcessorException {
+
+    Map<String, Object> result = new HashMap<String, Object>(keyPredicates.size());
+    String internalName;
+    for (UriParameter key : keyPredicates) {
+      try {
+        final JPAAttribute attribute = st.getPath(key.getName()).getLeaf();
+        internalName = attribute.getInternalName();
+        Object jpaAttribute = ExpressionUtil.convertValueOnAttribute(odata, attribute, key.getText()
+            .toString(), true);
+        result.put(internalName, jpaAttribute);
+      } catch (ODataJPAModelException e) {
+        throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+      }
+    }
+    return result;
+  }
+
   public String convertKeyToLocal(final OData odata, final ODataRequest request, EdmEntitySet edmEntitySet,
-      JPAEntityType et, Object primaryKey) throws SerializerException, ODataJPAProcessorException {
+      JPAEntityType et, Object newPOJO) throws SerializerException, ODataJPAProcessorException {
 
     Entity createdEntity = new Entity();
 
@@ -164,7 +193,7 @@ public class JPAConversionHelper {
       final List<JPAPath> keyPath = et.getKeyPath();
       final List<Property> properties = createdEntity.getProperties();
 
-      collectKeyProperties(primaryKey, keyPath, properties);
+      collectKeyProperties(newPOJO, keyPath, properties);
     } catch (ODataJPAModelException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
     }
@@ -174,10 +203,11 @@ public class JPAConversionHelper {
     return location;
   }
 
-  private void collectKeyProperties(Object primaryKey, final List<JPAPath> keyPath, final List<Property> properties)
+  private void collectKeyProperties(Object newPOJO, final List<JPAPath> keyPath, final List<Property> properties)
       throws ODataJPAProcessorException, ODataJPAModelException {
+
+    final Map<String, Object> getter = buildGetterMap(newPOJO);
     if (keyPath.size() > 1) {
-      final Map<String, Object> getter = buildGetterMap(primaryKey);
 
       for (JPAPath key : keyPath) {
         final Property property = new Property(null, key.getLeaf().getExternalName());
@@ -188,10 +218,10 @@ public class JPAConversionHelper {
       JPAPath key = keyPath.get(0);
       if (key.getLeaf().isComplex()) {
         // EmbeddedId
-        collectKeyProperties(primaryKey, key.getLeaf().getStructuredType().getPathList(), properties);
+        collectKeyProperties(newPOJO, key.getLeaf().getStructuredType().getPathList(), properties);
       } else {
         final Property property = new Property(null, key.getLeaf().getExternalName());
-        property.setValue(ValueType.PRIMITIVE, primaryKey);
+        property.setValue(ValueType.PRIMITIVE, getter.get(key.getLeaf().getInternalName()));
         properties.add(property);
       }
     }
