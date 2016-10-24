@@ -17,6 +17,10 @@ import javax.persistence.Table;
 @Table(schema = "\"OLINGO\"", name = "\"org.apache.olingo.jpa::BusinessPartner\"")
 public class Person extends BusinessPartner {
 
+  public Person() {
+    type = "1";
+  }
+
   @Column(name = "\"NameLine1\"")
   private String firstName;
 

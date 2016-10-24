@@ -19,6 +19,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import org.apache.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys;
@@ -29,6 +30,7 @@ import org.apache.olingo.server.api.deserializer.DeserializerException;
 import org.apache.olingo.server.api.deserializer.DeserializerResult;
 import org.apache.olingo.server.api.deserializer.ODataDeserializer;
 import org.apache.olingo.server.api.serializer.SerializerException;
+import org.apache.olingo.server.api.uri.UriParameter;
 
 /**
  * Helper method for modifying requests.<p>
@@ -119,7 +121,7 @@ public class JPAConversionHelper {
    * @throws ODataJPAProcessException
    */
   public Map<String, Object> convertProperties(final OData odata, final JPAStructuredType st,
-      List<Property> odataProperties) throws ODataJPAProcessException {
+      final List<Property> odataProperties) throws ODataJPAProcessException {
 
     final Map<String, Object> jpaAttributes = new HashMap<String, Object>();
     String internalName = null;
@@ -153,6 +155,33 @@ public class JPAConversionHelper {
       jpaAttributes.put(internalName, jpaAttribute);
     }
     return jpaAttributes;
+  }
+
+  /**
+   * 
+   * @param keyPredicates
+   * @return
+   * @throws ODataJPAFilterException
+   * @throws ODataJPAProcessorException
+   */
+  public Map<String, Object> convertUriKeys(final OData odata, final JPAStructuredType st,
+      final List<UriParameter> keyPredicates)
+      throws ODataJPAFilterException, ODataJPAProcessorException {
+
+    Map<String, Object> result = new HashMap<String, Object>(keyPredicates.size());
+    String internalName;
+    for (UriParameter key : keyPredicates) {
+      try {
+        final JPAAttribute attribute = st.getPath(key.getName()).getLeaf();
+        internalName = attribute.getInternalName();
+        Object jpaAttribute = ExpressionUtil.convertValueOnAttribute(odata, attribute, key.getText()
+            .toString(), true);
+        result.put(internalName, jpaAttribute);
+      } catch (ODataJPAModelException e) {
+        throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+      }
+    }
+    return result;
   }
 
   public String convertKeyToLocal(final OData odata, final ODataRequest request, EdmEntitySet edmEntitySet,

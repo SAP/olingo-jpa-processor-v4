@@ -36,11 +36,13 @@ public interface JPACUDRequestHandler {
    * >OData Version 4.0 Part 1 - 11.4.3 Update an Entity</a>
    * @param et Entity type that shall be created
    * @param jpaAttributes List of attributes with pojo attributes name and converted into JAVA types
+   * @param keys List of keys defined in the URI with pojo attributes name and converted into JAVA types
    * @param em Entity manager
    * @param method Method (PUT/PATCH) used for update
    * @return
    * @throws ODataJPAProcessException
    */
-  public Object updateEntity(JPAEntityType et, Map<String, Object> jpaAttributes, EntityManager em, HttpMethod method)
+  public Object updateEntity(JPAEntityType et, Map<String, Object> jpaAttributes, Map<String, Object> keys,
+      EntityManager em, HttpMethod method)
       throws ODataJPAProcessException;
 }

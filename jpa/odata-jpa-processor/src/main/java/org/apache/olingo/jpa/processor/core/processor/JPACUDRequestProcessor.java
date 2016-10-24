@@ -23,6 +23,7 @@ import org.apache.olingo.jpa.processor.core.exception.ODataJPASerializerExceptio
 import org.apache.olingo.jpa.processor.core.modify.JPACUDRequestHandler;
 import org.apache.olingo.jpa.processor.core.modify.JPAConversionHelper;
 import org.apache.olingo.jpa.processor.core.modify.JPAEntityResult;
+import org.apache.olingo.jpa.processor.core.query.EdmEntitySetInfo;
 import org.apache.olingo.jpa.processor.core.query.ExpressionUtil;
 import org.apache.olingo.jpa.processor.core.query.Util;
 import org.apache.olingo.server.api.OData;
@@ -103,16 +104,18 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
 
   public void updateEntity(ODataRequest request, ODataResponse response, ContentType requestFormat,
       ContentType responseFormat) throws ODataJPAProcessException {
-    // TODO Auto-generated method stub
 
     final JPACUDRequestHandler handler = sessionContext.getCUDRequestHandler();
     final JPAEntityType et;
     Map<String, Object> jpaAttributes = new HashMap<String, Object>();
-    EdmEntitySet edmEntitySet = Util.determineTargetEntitySet(uriInfo.getUriResourceParts());
-    Entity requestEntity = helper.convertInputStream(odata, request, requestFormat, edmEntitySet);
-
+    final EdmEntitySetInfo edmEntitySetInfo = Util.determineTargetEntitySetAndKeys(uriInfo.getUriResourceParts());
+    final Entity requestEntity = helper.convertInputStream(odata, request, requestFormat, edmEntitySetInfo
+        .getEdmEntitySet());
+    // List<UriParameter> keyPredicates = uriResourceEntitySet.getKeyPredicates();
+    // Object newEntity = em.find(et.getTypeClass(), primaryKey);
+    // em.refresh(newEntity);
     try {
-      et = sessionContext.getEdmProvider().getServiceDocument().getEntity(edmEntitySet.getName());
+      et = sessionContext.getEdmProvider().getServiceDocument().getEntity(edmEntitySetInfo.getName());
       jpaAttributes = helper.convertProperties(odata, et, requestEntity.getProperties());
     } catch (ODataJPAModelException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
@@ -120,7 +123,8 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
     }
     // Create entity
-    Object primaryKey = null;
+    Object updatedEntity = null;
+    Map<String, Object> keys = helper.convertUriKeys(odata, et, edmEntitySetInfo.getKeyPredicates());
     final boolean activeTransation = em.getTransaction().isActive();
     if (!activeTransation)
       em.getTransaction().begin();
@@ -131,7 +135,8 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       // support PUT, but should be aware of the potential for data-loss in round-tripping properties that the client
       // may not know about in advance, such as open or added properties, or properties not specified in metadata.
       // 11.4.4 Upsert an Entity
-      primaryKey = handler.updateEntity(et, jpaAttributes, em, request.getMethod());
+      updatedEntity = handler.updateEntity(et, jpaAttributes, keys, em, request
+          .getMethod());
     } catch (ODataJPAProcessException e) {
       throw e;
     } catch (Throwable e) {
@@ -267,5 +272,4 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       response.setHeader(HttpHeader.LOCATION, location);
     }
   }
-
 }
