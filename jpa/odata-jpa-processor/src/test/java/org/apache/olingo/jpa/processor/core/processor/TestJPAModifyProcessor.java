@@ -30,11 +30,11 @@ import org.apache.olingo.jpa.metadata.api.JPAEntityManagerFactory;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
+import org.apache.olingo.jpa.processor.core.api.JPAAbstractCUDRequestHandler;
 import org.apache.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import org.apache.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import org.apache.olingo.jpa.processor.core.modify.JPAConversionHelper;
-import org.apache.olingo.jpa.processor.core.processor.TestJPACreateProcessor.RequestHandleSpy;
 import org.apache.olingo.jpa.processor.core.serializer.JPASerializer;
 import org.apache.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import org.apache.olingo.jpa.processor.core.testmodel.Organization;
@@ -54,6 +54,7 @@ import org.mockito.Matchers;
 
 public abstract class TestJPAModifyProcessor {
   protected static final String LOCATION_HEADER = "Organization('35')";
+  protected static final String PREFERENCE_APPLIED = "return=minimal";
   protected static final String PUNIT_NAME = "org.apache.olingo.jpa";
   protected static EntityManagerFactory emf;
   protected static JPAEdmProvider jpaEdm;
@@ -119,7 +120,8 @@ public abstract class TestJPAModifyProcessor {
     processor = new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext, helper);
   }
 
-  protected ODataRequest prepareRepresentationRequest(RequestHandleSpy spy) throws ODataJPAProcessorException,
+  protected ODataRequest prepareRepresentationRequest(JPAAbstractCUDRequestHandler spy)
+      throws ODataJPAProcessorException,
       SerializerException,
       ODataException {
     ODataRequest request = prepareSimpleRequest("return=representation");

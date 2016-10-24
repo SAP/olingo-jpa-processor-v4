@@ -10,6 +10,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import org.apache.olingo.jpa.processor.core.modify.JPACUDRequestHandler;
+import org.apache.olingo.jpa.processor.core.modify.JPAUpdateResult;
 
 public abstract class JPAAbstractCUDRequestHandler implements JPACUDRequestHandler {
 
@@ -31,7 +32,7 @@ public abstract class JPAAbstractCUDRequestHandler implements JPACUDRequestHandl
   }
 
   @Override
-  public Object updateEntity(JPAEntityType et, Map<String, Object> jpaAttributes, Map<String, Object> keys,
+  public JPAUpdateResult updateEntity(JPAEntityType et, Map<String, Object> jpaAttributes, Map<String, Object> keys,
       EntityManager em, HttpMethod method) throws ODataJPAProcessException {
 
     throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_UPDATE,

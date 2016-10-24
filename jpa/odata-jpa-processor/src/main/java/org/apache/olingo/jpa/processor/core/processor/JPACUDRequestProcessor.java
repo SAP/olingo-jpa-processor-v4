@@ -23,6 +23,7 @@ import org.apache.olingo.jpa.processor.core.exception.ODataJPASerializerExceptio
 import org.apache.olingo.jpa.processor.core.modify.JPACUDRequestHandler;
 import org.apache.olingo.jpa.processor.core.modify.JPAConversionHelper;
 import org.apache.olingo.jpa.processor.core.modify.JPAEntityResult;
+import org.apache.olingo.jpa.processor.core.modify.JPAUpdateResult;
 import org.apache.olingo.jpa.processor.core.query.EdmEntitySetInfo;
 import org.apache.olingo.jpa.processor.core.query.ExpressionUtil;
 import org.apache.olingo.jpa.processor.core.query.Util;
@@ -54,7 +55,6 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
     super(odata, sessionContext, requestContext);
     this.sessionContext = sessionContext;
     this.serviceMetadata = serviceMetadata;
-    this.successStatusCode = HttpStatusCode.CREATED.getStatusCode();
     this.helper = cudHelper;
   }
 
@@ -91,7 +91,7 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
 
-    if (newPOJO.getClass() != et.getTypeClass()) {
+    if (newPOJO != null && newPOJO.getClass() != et.getTypeClass()) {
       throw new ODataJPAProcessorException(MessageKeys.WRONG_RETURN_TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR, newPOJO
           .getClass().toString(), et.getTypeClass().toString());
     }
@@ -99,11 +99,11 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
     if (!activeTransation)
       em.getTransaction().commit();
 
-    createModificationResponse(request, response, responseFormat, et, edmEntitySet, newPOJO);
+    createCreateResponse(request, response, responseFormat, et, edmEntitySet, newPOJO);
   }
 
   public void updateEntity(ODataRequest request, ODataResponse response, ContentType requestFormat,
-      ContentType responseFormat) throws ODataJPAProcessException {
+      ContentType responseFormat) throws ODataJPAProcessException, ODataLibraryException {
 
     final JPACUDRequestHandler handler = sessionContext.getCUDRequestHandler();
     final JPAEntityType et;
@@ -123,7 +123,7 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
     }
     // Create entity
-    Object updatedEntity = null;
+    JPAUpdateResult updateResult = null;
     Map<String, Object> keys = helper.convertUriKeys(odata, et, edmEntitySetInfo.getKeyPredicates());
     final boolean activeTransation = em.getTransaction().isActive();
     if (!activeTransation)
@@ -135,18 +135,27 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       // support PUT, but should be aware of the potential for data-loss in round-tripping properties that the client
       // may not know about in advance, such as open or added properties, or properties not specified in metadata.
       // 11.4.4 Upsert an Entity
-      updatedEntity = handler.updateEntity(et, jpaAttributes, keys, em, request
+      updateResult = handler.updateEntity(et, jpaAttributes, keys, em, request
           .getMethod());
     } catch (ODataJPAProcessException e) {
       throw e;
     } catch (Throwable e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
+    if (updateResult == null) {
+      throw new ODataJPAProcessorException(MessageKeys.RETURN_NULL, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    }
+    if (updateResult.getModifyedEntity() != null && updateResult.getModifyedEntity().getClass() != et.getTypeClass()) {
+      throw new ODataJPAProcessorException(MessageKeys.WRONG_RETURN_TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR,
+          updateResult.getModifyedEntity().getClass().toString(), et.getTypeClass().toString());
+    }
     if (!activeTransation)
       em.getTransaction().commit();
-    // TODO clarify correct response. Till then make a simple response:
-    response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
-    response.setHeader(HttpHeader.PREFERENCE_APPLIED, "return=minimal");
+    if (updateResult != null && updateResult.wasCreate())
+      createCreateResponse(request, response, responseFormat, et, edmEntitySetInfo.getEdmEntitySet(), updateResult
+          .getModifyedEntity());
+    else
+      createUpdateResponse(request, response, responseFormat, et, edmEntitySetInfo.getEdmEntitySet(), updateResult);
 
   }
 
@@ -216,7 +225,7 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
 
   }
 
-  private void createModificationResponse(final ODataRequest request, final ODataResponse response,
+  private void createCreateResponse(final ODataRequest request, final ODataResponse response,
       final ContentType responseFormat, final JPAEntityType et, EdmEntitySet edmEntitySet, Object newPOJO)
       throws SerializerException, ODataJPAProcessorException, ODataJPASerializerException {
 
@@ -254,6 +263,7 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
     // Upon successful completion, the response MUST contain a Location header that contains the edit URL or read URL of
     // the created entity.
     //
+    successStatusCode = HttpStatusCode.CREATED.getStatusCode();
     Preferences prefer = odata.createPreferences(request.getHeaders(HttpHeader.PREFER));
     // TODO Stream properties
     String location = helper.convertKeyToLocal(odata, request, edmEntitySet, et, newPOJO);
@@ -263,13 +273,51 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       response.setHeader(HttpHeader.LOCATION, location);
       response.setHeader(HttpHeader.ODATA_ENTITY_ID, location);
     } else {
-//      Object newEntity = em.find(et.getTypeClass(), primaryKey);
-//      em.refresh(newEntity);
       Entity createdEntity = convertEntity(et, newPOJO, request.getAllHeaders());
       EntityCollection entities = new EntityCollection();
       entities.getEntities().add(createdEntity);
       createSuccessResonce(response, responseFormat, serializer.serialize(request, entities));
       response.setHeader(HttpHeader.LOCATION, location);
+    }
+  }
+
+  private void createUpdateResponse(final ODataRequest request, final ODataResponse response,
+      final ContentType responseFormat, final JPAEntityType et, EdmEntitySet edmEntitySet, JPAUpdateResult updateResult)
+      throws SerializerException, ODataJPAProcessorException, ODataJPASerializerException {
+
+    // http://docs.oasis-open.org/odata/odata/v4.0/odata-v4.0-part1-protocol.html
+
+    // 8.2.8.7 Preference return=representation and return=minimal states:
+    // A preference of return=minimal requests that the service invoke the request but does not return content in the
+    // response. The service MAY apply this preference by returning 204 No Content in which case it MAY include a
+    // Preference-Applied response header containing the return=minimal preference.
+    // A preference of return=representation requests that the service invokes the request and returns the modified
+    // resource. The service MAY apply this preference by returning the representation of the successfully modified
+    // resource in the body of the response, formatted according to the rules specified for the requested format. In
+    // this case the service MAY include a Preference-Applied response header containing the return=representation
+    // preference.
+    //
+    // 11.4.1.5 Returning Results from Data Modification Requests
+    // Clients can request whether created or modified resources are returned from create, update, and upsert operations
+    // using the return preference header. In the absence of such a header, services SHOULD return the created or
+    // modified content unless the resource is a stream property value.
+    // When returning content other than for an update to a media entity stream, services MUST return the same content
+    // as a subsequent request to retrieve the same resource. For updating media entity streams, the content of a
+    // non-empty response body MUST be the updated media entity.
+    //
+    successStatusCode = HttpStatusCode.OK.getStatusCode();
+    Preferences prefer = odata.createPreferences(request.getHeaders(HttpHeader.PREFER));
+    // TODO Stream properties
+    if (updateResult == null || prefer.getReturn() == Return.MINIMAL) {
+      response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
+      response.setHeader(HttpHeader.PREFERENCE_APPLIED, "return=minimal");
+    } else {
+      if (updateResult.getModifyedEntity() == null)
+        throw new ODataJPAProcessorException(MessageKeys.RETURN_MISSING_ENTITY, HttpStatusCode.INTERNAL_SERVER_ERROR);
+      Entity updatedEntity = convertEntity(et, updateResult.getModifyedEntity(), request.getAllHeaders());
+      EntityCollection entities = new EntityCollection();
+      entities.getEntities().add(updatedEntity);
+      createSuccessResonce(response, responseFormat, serializer.serialize(request, entities));
     }
   }
 }
