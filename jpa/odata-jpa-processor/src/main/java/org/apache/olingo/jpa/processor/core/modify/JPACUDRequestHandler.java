@@ -39,10 +39,11 @@ public interface JPACUDRequestHandler {
    * @param keys List of keys defined in the URI with pojo attributes name and converted into JAVA types
    * @param em Entity manager
    * @param method Method (PUT/PATCH) used for update
-   * @return
+   * @return The response describes the performed changes (Created or Updated) as well as the result of the operation.
+   * It must not be null. Even if nothing was changed => update is idempotent
    * @throws ODataJPAProcessException
    */
-  public Object updateEntity(JPAEntityType et, Map<String, Object> jpaAttributes, Map<String, Object> keys,
+  public JPAUpdateResult updateEntity(JPAEntityType et, Map<String, Object> jpaAttributes, Map<String, Object> keys,
       EntityManager em, HttpMethod method)
       throws ODataJPAProcessException;
 }
