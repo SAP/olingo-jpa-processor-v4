@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ import javax.persistence.criteria.Subquery;
 import org.apache.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import org.apache.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescription;
 import org.apache.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescriptionKey;
+import org.apache.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import org.apache.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
 import org.apache.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import org.apache.olingo.jpa.processor.core.testmodel.Organization;
@@ -90,6 +92,37 @@ public class TestCriteriaBuilder {
     adminQ1.multiselect(adminRoot1.get("divisionCode"));
 
     TypedQuery<Tuple> tq = em.createQuery(adminQ1);
+    tq.getResultList();
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testSubSelectTopOrderBy() {
+    CriteriaQuery<Tuple> roleQ = cb.createTupleQuery();
+    Root<BusinessPartnerRole> roleRoot = roleQ.from(BusinessPartnerRole.class);
+
+    Subquery<BusinessPartner> bupaQ = roleQ.subquery(BusinessPartner.class);
+    @SuppressWarnings("rawtypes")
+    Root bupaRoot = roleQ.from(BusinessPartner.class);
+
+    bupaQ.select(bupaRoot.get("ID"));
+
+//    Expression<String> exp = scheduleRequest.get("createdBy");
+//    Predicate predicate = exp.in(myList);
+//    criteria.where(predicate);
+
+    List<String> ids = new ArrayList<String>();
+    ids.add("1");
+    ids.add("2");
+    bupaQ.where(bupaRoot.get("ID").in(ids));
+//    bupaQ.select(
+//        (Expression<BusinessPartner>) cb.construct(
+//            BusinessPartner.class,
+//            bupaRoot.get("ID")));
+
+    roleQ.where(cb.in(roleRoot.get("businessPartnerID")).value(bupaQ));
+    roleQ.multiselect(roleRoot.get("businessPartnerID"));
+    TypedQuery<Tuple> tq = em.createQuery(roleQ);
     tq.getResultList();
   }
 

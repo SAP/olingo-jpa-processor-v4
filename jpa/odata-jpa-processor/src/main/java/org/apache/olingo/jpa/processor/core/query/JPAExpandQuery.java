@@ -82,7 +82,7 @@ public class JPAExpandQuery extends JPAExecutableQuery {
    * @throws ODataApplicationException
    */
   private JPAExpandResult executeExpandTopSkipQuery() throws ODataApplicationException {
-    // TODO make this replacable
+    // TODO make this replacable e.g. by UNION ALL
     final int handle = debugger.startRuntimeMeasurement("JPAExpandQuery", "executeExpandTopSkipQuery");
 
     long skip = 0;
