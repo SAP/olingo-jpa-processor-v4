@@ -68,8 +68,8 @@ abstract class JPAExistsOperation implements JPAOperator {
         final UriResource resourcePart = resourceParts.get(i);
         if (resourcePart instanceof UriResourceNavigation) {
           if (navigation != null)
-            pathList.add(new JPANavigationProptertyInfo(navigation,
-                Util.determineAssoziationPath(sd, ((UriResourcePartTyped) resourceParts.get(i)), associationName)));
+            pathList.add(new JPANavigationProptertyInfo(navigation, Util.determineAssoziationPath(sd,
+                ((UriResourcePartTyped) resourceParts.get(i)), associationName), null));
           navigation = (UriResourceNavigation) resourceParts.get(i);
           associationName = new StringBuffer();
           associationName.insert(0, navigation.getProperty().getName());
@@ -80,8 +80,8 @@ abstract class JPAExistsOperation implements JPAOperator {
             associationName.insert(0, ((UriResourceComplexProperty) resourceParts.get(i)).getProperty().getName());
           }
           if (resourcePart instanceof UriResourceEntitySet)
-            pathList.add(new JPANavigationProptertyInfo(navigation,
-                Util.determineAssoziationPath(sd, ((UriResourcePartTyped) resourceParts.get(i)), associationName)));
+            pathList.add(new JPANavigationProptertyInfo(navigation, Util.determineAssoziationPath(sd,
+                ((UriResourcePartTyped) resourceParts.get(i)), associationName), null));
         }
       }
     }

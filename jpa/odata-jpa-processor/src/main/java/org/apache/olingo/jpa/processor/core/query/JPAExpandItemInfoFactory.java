@@ -7,18 +7,29 @@ import java.util.Map;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
 import org.apache.olingo.server.api.ODataApplicationException;
+import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.UriResourceNavigation;
 import org.apache.olingo.server.api.uri.UriResourcePartTyped;
 import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
+import org.apache.olingo.server.api.uri.queryoption.expression.Expression;
 
 public class JPAExpandItemInfoFactory {
-  public List<JPAExpandItemInfo> buildExpandItemInfo(final ServiceDocument sd, final List<UriResource> startResourceList,
-      final ExpandOption expandOption, final List<JPANavigationProptertyInfo> grandParentHops)
-      throws ODataApplicationException {
+//  public List<JPAExpandItemInfo> buildExpandItemInfo(final ServiceDocument sd, final List<UriResource> startResourceList,
+//      final ExpandOption expandOption, final List<JPANavigationProptertyInfo> grandParentHops)
+//      throws ODataApplicationException {
+  public List<JPAExpandItemInfo> buildExpandItemInfo(ServiceDocument sd, UriInfoResource uriResourceInfo,
+      List<JPANavigationProptertyInfo> grandParentHops) throws ODataApplicationException {
 
     final List<JPAExpandItemInfo> itemList = new ArrayList<JPAExpandItemInfo>();
+    final List<UriResource> startResourceList = uriResourceInfo.getUriResourceParts();
+    final ExpandOption expandOption = uriResourceInfo.getExpandOption();
+    final Expression filterExpression;
+    if (uriResourceInfo.getFilterOption() != null)
+      filterExpression = uriResourceInfo.getFilterOption().getExpression();
+    else
+      filterExpression = null;
 
     if (startResourceList != null && expandOption != null) {
       final List<JPANavigationProptertyInfo> parentHops = determineParentHops(sd, startResourceList, grandParentHops);
@@ -26,7 +37,7 @@ public class JPAExpandItemInfoFactory {
       final Map<JPAExpandItemWrapper, JPAAssociationPath> expandPath = Util.determineAssoziations(sd, startResourceList,
           expandOption);
       for (final JPAExpandItemWrapper item : expandPath.keySet()) {
-        itemList.add(new JPAExpandItemInfo(item, (UriResourcePartTyped) startResourceItem,
+        itemList.add(new JPAExpandItemInfo(item, (UriResourcePartTyped) startResourceItem, filterExpression,
             expandPath.get(item), parentHops));
       }
     }

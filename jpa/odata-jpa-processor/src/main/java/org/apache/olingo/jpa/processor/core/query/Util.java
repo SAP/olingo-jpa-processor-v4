@@ -15,8 +15,10 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
+import org.apache.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAUtilException;
 import org.apache.olingo.server.api.ODataApplicationException;
+import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceComplexProperty;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
@@ -230,7 +232,7 @@ public class Util {
           if (resourceParts.get(i) instanceof UriResourceNavigation
               || resourceParts.get(i) instanceof UriResourceEntitySet) {
             pathList.add(new JPANavigationProptertyInfo((UriResourcePartTyped) resourceParts.get(i),
-                determineAssoziationPath(sd, ((UriResourcePartTyped) resourceParts.get(i)), associationName)));
+                determineAssoziationPath(sd, ((UriResourcePartTyped) resourceParts.get(i)), associationName), null));
             if (resourceParts.get(i) instanceof UriResourceNavigation) {
               navigation = (UriResourceNavigation) resourceParts.get(i);
               associationName = new StringBuffer();
@@ -267,5 +269,18 @@ public class Util {
       throw new ODataJPAUtilException(ODataJPAUtilException.MessageKeys.UNKNOWN_NAVI_PROPERTY,
           HttpStatusCode.BAD_REQUEST);
     }
+  }
+
+  public static List<UriParameter> determineKeyPredicates(final UriResource uriResourceItem)
+      throws ODataApplicationException {
+
+    if (uriResourceItem instanceof UriResourceEntitySet)
+      return ((UriResourceEntitySet) uriResourceItem).getKeyPredicates();
+    else if (uriResourceItem instanceof UriResourceNavigation)
+      return ((UriResourceNavigation) uriResourceItem).getKeyPredicates();
+    else
+      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
+          HttpStatusCode.BAD_REQUEST,
+          uriResourceItem.getKind().name());
   }
 }
