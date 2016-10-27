@@ -31,13 +31,13 @@ import org.apache.olingo.server.api.uri.queryoption.expression.VisitableExpressi
 
 public class JPANavigationFilterQuery extends JPANavigationQuery {
 
-  final JPAFilterElementComplier filterComplier;
+  final private JPAFilterElementComplier filterComplier;
 
-  public JPANavigationFilterQuery(final ServiceDocument sd, final UriResource uriResourceItem,
+  public JPANavigationFilterQuery(final OData odata, final ServiceDocument sd, final UriResource uriResourceItem,
       final JPAAbstractQuery parent, final EntityManager em, final JPAAssociationPath association)
       throws ODataApplicationException {
 
-    super(sd, uriResourceItem, parent, em, association);
+    super(odata, sd, uriResourceItem, parent, em, association);
     this.filterComplier = null;
   }
 
@@ -45,7 +45,7 @@ public class JPANavigationFilterQuery extends JPANavigationQuery {
       final JPAAbstractQuery parent, final EntityManager em, final JPAAssociationPath association,
       final VisitableExpression expression) throws ODataApplicationException {
 
-    super(sd, uriResourceItem, parent, em, association);
+    super(odata, sd, uriResourceItem, parent, em, association);
     this.filterComplier = new JPAFilterElementComplier(odata, sd, em, jpaEntity, new JPAOperationConverter(cb,
         getContext().getOperationConverter()), null, this, expression);
     createDescriptionJoin(filterComplier);

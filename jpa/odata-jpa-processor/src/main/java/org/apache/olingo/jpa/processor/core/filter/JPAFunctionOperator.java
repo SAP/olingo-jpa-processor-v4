@@ -30,7 +30,8 @@ public class JPAFunctionOperator implements JPAOperator {
   private final JPAVisitor visitor;
   private final List<UriParameter> uriParams;
 
-  public JPAFunctionOperator(JPAVisitor jpaVisitor, List<UriParameter> uriParams, JPAFunction jpaFunction) {
+  public JPAFunctionOperator(final JPAVisitor jpaVisitor, final List<UriParameter> uriParams,
+      final JPAFunction jpaFunction) {
 
     super();
     this.uriParams = uriParams;
@@ -40,9 +41,6 @@ public class JPAFunctionOperator implements JPAOperator {
 
   @Override
   public Expression<?> get() throws ODataApplicationException {
-    final CriteriaBuilder cb = visitor.getCriteriaBuilder();
-    final List<JPAFunctionParameter> parameters = jpaFunction.getParameter();
-    final Expression<?>[] jpaParameter = new Expression<?>[parameters.size()];
 
     if (jpaFunction.getResultParameter().isCollection()) {
       throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FUNCTION_COLLECTION,
@@ -54,12 +52,17 @@ public class JPAFunctionOperator implements JPAOperator {
       throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FUNCTION_NOT_SCALAR,
           HttpStatusCode.NOT_IMPLEMENTED);
     }
+
+    final CriteriaBuilder cb = visitor.getCriteriaBuilder();
+    final List<JPAFunctionParameter> parameters = jpaFunction.getParameter();
+    final Expression<?>[] jpaParameter = new Expression<?>[parameters.size()];
     for (int i = 0; i < parameters.size(); i++) {
       // a. $it/Area b. Area c. 10000
-      UriParameter p = findUriParameter(parameters.get(i));
+      final UriParameter p = findUriParameter(parameters.get(i));
 
       if (p.getText() != null) {
-        JPALiteralOperator operator = new JPALiteralOperator(visitor.getOdata(), new ParameterLiteral(p.getText()));
+        final JPALiteralOperator operator = new JPALiteralOperator(visitor.getOdata(), new ParameterLiteral(p
+            .getText()));
         jpaParameter[i] = cb.literal(operator.get(parameters.get(i)));
       } else {
         try {
@@ -72,8 +75,8 @@ public class JPAFunctionOperator implements JPAOperator {
     return cb.function(jpaFunction.getDBName(), jpaFunction.getResultParameter().getType(), jpaParameter);
   }
 
-  private UriParameter findUriParameter(JPAFunctionParameter jpaFunctionParam) {
-    for (UriParameter uriParam : uriParams) {
+  private UriParameter findUriParameter(final JPAFunctionParameter jpaFunctionParam) {
+    for (final UriParameter uriParam : uriParams) {
       if (uriParam.getName().equals(jpaFunctionParam.getName())) {
         return uriParam;
       }
@@ -87,7 +90,7 @@ public class JPAFunctionOperator implements JPAOperator {
 
   private class ParameterLiteral implements Literal {
 
-    public ParameterLiteral(String text) {
+    public ParameterLiteral(final String text) {
       super();
       this.text = text;
     }
@@ -95,7 +98,7 @@ public class JPAFunctionOperator implements JPAOperator {
     private final String text;
 
     @Override
-    public <T> T accept(ExpressionVisitor<T> visitor) throws ExpressionVisitException, ODataApplicationException {
+    public <T> T accept(final ExpressionVisitor<T> visitor) throws ExpressionVisitException, ODataApplicationException {
       return null;
     }
 

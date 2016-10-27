@@ -21,7 +21,7 @@ public class JPANavigationInheritFilterQuery extends JPANavigationQuery {
   public JPANavigationInheritFilterQuery(OData odata, ServiceDocument sd, JPAAbstractQuery parent, EntityManager em,
       JPANavigationProptertyInfo naviInfo) throws ODataApplicationException {
 
-    super(sd, naviInfo.getUriResiource(), parent, em, naviInfo.getAssociationPath());
+    super(odata, sd, naviInfo.getUriResiource(), parent, em, naviInfo.getAssociationPath());
     this.item = naviInfo;
     this.filterComplier = new JPAFilterElementComplier(odata, sd, em, jpaEntity, new JPAOperationConverter(cb,
         getContext().getOperationConverter()), null, this, naviInfo.getExpression());

@@ -4,7 +4,10 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
@@ -21,7 +24,7 @@ import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
     @EdmFunction(
         name = "IsOdd",
         functionName = "IS_ODD",
-        returnType = @EdmFunction.ReturnType(isCollection = true) ,
+        returnType = @EdmFunction.ReturnType(isCollection = true),
         parameter = { @EdmFunctionParameter(name = "Number", type = BigDecimal.class, precision = 32, scale = 0) }),
 
 })
@@ -32,6 +35,11 @@ public class DummyToBeIgnored implements Serializable {
   @Id
   private String ID;
   private static final long serialVersionUID = 1L;
+
+  @EdmIgnore
+  @OneToOne(optional = false, fetch = FetchType.LAZY)
+  @JoinColumn(name = "\"ID\"", insertable = false, updatable = false)
+  private BusinessPartner businessPartner;
 
   public DummyToBeIgnored() {
     super();

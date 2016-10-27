@@ -57,4 +57,8 @@ public class JPASerializerFactory {
   public ServiceMetadata getServiceMetadata() {
     return serviceMetadata;
   }
+
+  public JPASerializer createCUDSerializer(ContentType responseFormat, UriInfo uriInfo) throws SerializerException {
+    return new JPASerializeCreate(serviceMetadata, odata.createSerializer(responseFormat), uriInfo);
+  }
 }

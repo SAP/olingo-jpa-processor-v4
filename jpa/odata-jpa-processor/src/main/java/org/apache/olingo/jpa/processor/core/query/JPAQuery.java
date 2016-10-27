@@ -13,6 +13,7 @@ import javax.persistence.criteria.From;
 
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
+import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
@@ -38,7 +39,7 @@ public class JPAQuery extends JPAExecutableQuery {
 
   public JPAQuery(final OData odata, final EdmEntitySet entitySet, final JPAODataSessionContextAccess context,
       final UriInfo uriInfo, final EntityManager em, final Map<String, List<String>> requestHeaders)
-      throws ODataApplicationException, ODataJPAModelException {
+      throws ODataException {
 
     super(odata, context, context.getEdmProvider().getServiceDocument().getEntity(entitySet.getName()), em,
         requestHeaders, uriInfo);
@@ -80,7 +81,7 @@ public class JPAQuery extends JPAExecutableQuery {
     return em.createQuery(cq).getSingleResult();
   }
 
-  public JPAExpandResult execute() throws ODataApplicationException {
+  public JPAExpandQueryResult execute() throws ODataApplicationException {
     // Pre-process URI parameter, so they can be used at different places
     // TODO check if Path is also required for OrderBy Attributes, as it is for descriptions
     final int handle = debugger.startRuntimeMeasurement("JPAQuery", "execute");
@@ -111,7 +112,7 @@ public class JPAQuery extends JPAExecutableQuery {
     result.put("root", intermediateResult);
 
     debugger.stopRuntimeMeasurement(handle);
-    return new JPAExpandResult(result, Long.parseLong("0"), jpaEntity);// count()););
+    return new JPAExpandQueryResult(result, Long.parseLong("0"), jpaEntity);// count()););
   }
 
   public JPAStructuredType getEntityType() {
@@ -130,7 +131,7 @@ public class JPAQuery extends JPAExecutableQuery {
         new ArrayList<javax.persistence.criteria.Expression<?>>();
 
     for (final JPAPath jpaPath : selectionPathList) {
-      groupBy.add(convertToCriteriaPath(joinTables, jpaPath));
+      groupBy.add(ExpressionUtil.convertToCriteriaPath(joinTables, root, jpaPath));
     }
 
     debugger.stopRuntimeMeasurement(handle);

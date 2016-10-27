@@ -9,10 +9,11 @@ import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmSearchable;
 
 @Entity
 @Table(schema = "\"OLINGO\"", name = "\"org.apache.olingo.jpa::AdministrativeDivisionDescription\"")
-public class AdministrativeDivisionDescription {
+public class AdministrativeDivisionDescription implements KeyAccess {
 
   @EmbeddedId
   private AdministrativeDivisionDescriptionKey key;
+
   @EdmSearchable
   @Column(name = "\"Name\"", length = 100, updatable = false)
   private String name;
@@ -23,5 +24,14 @@ public class AdministrativeDivisionDescription {
 
   public void setName(String name) {
     this.name = name;
+  }
+
+  @Override
+  public AdministrativeDivisionDescriptionKey getKey() {
+    return key;
+  }
+
+  public void setKey(AdministrativeDivisionDescriptionKey key) {
+    this.key = key;
   }
 }

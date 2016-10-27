@@ -36,12 +36,18 @@ public class Util {
   public static final String VALUE_RESOURCE = "$VALUE";
 
   public static EdmEntitySet determineTargetEntitySet(final List<UriResource> resources) {
+    return determineTargetEntitySetAndKeys(resources).getEdmEntitySet();
+  }
+
+  public static EdmEntitySetInfo determineTargetEntitySetAndKeys(final List<UriResource> resources) {
     EdmEntitySet targetEdmEntitySet = null;
+    List<UriParameter> targteKeyPredicates = new ArrayList<UriParameter>();
     StringBuffer naviPropertyName = new StringBuffer();
 
     for (final UriResource resourceItem : resources) {
       if (resourceItem.getKind() == UriResourceKind.entitySet) {
         targetEdmEntitySet = ((UriResourceEntitySet) resourceItem).getEntitySet();
+        targteKeyPredicates = ((UriResourceEntitySet) resourceItem).getKeyPredicates();
       }
       if (resourceItem.getKind() == UriResourceKind.complexProperty) {
         naviPropertyName.append(((UriResourceComplexProperty) resourceItem).getProperty().getName());
@@ -49,6 +55,7 @@ public class Util {
       }
       if (resourceItem.getKind() == UriResourceKind.navigationProperty) {
         naviPropertyName.append(((UriResourceNavigation) resourceItem).getProperty().getName());
+        targteKeyPredicates = ((UriResourceNavigation) resourceItem).getKeyPredicates();
         final EdmBindingTarget edmBindingTarget = targetEdmEntitySet.getRelatedBindingTarget(naviPropertyName
             .toString());
         if (edmBindingTarget instanceof EdmEntitySet)
@@ -56,7 +63,7 @@ public class Util {
         naviPropertyName = new StringBuffer();
       }
     }
-    return targetEdmEntitySet;
+    return new EdmEntitySetResult(targetEdmEntitySet, targteKeyPredicates);
   }
 
   /**
@@ -74,26 +81,26 @@ public class Util {
     return targetEdmEntity;
   }
 
-  /**
-   * Finds an entity type with which a navigation may starts. Can be used e.g. for filter:
-   * AdministrativeDivisions?$filter=Parent/CodeID eq 'NUTS1' returns AdministrativeDivision;
-   * AdministrativeDivisions(...)/Parent?$filter=Parent/CodeID eq 'NUTS1' returns "Parent"
-   */
-  public static EdmEntityType determineStartEntityType(final List<UriResource> resources) {
-    EdmEntityType targetEdmEntity = null;
-
-    for (final UriResource resourceItem : resources) {
-      if (resourceItem.getKind() == UriResourceKind.navigationProperty) {
-        // first try the simple way like in the example
-        targetEdmEntity = (EdmEntityType) ((UriResourceNavigation) resourceItem).getType();
-      }
-      if (resourceItem.getKind() == UriResourceKind.entitySet) {
-        // first try the simple way like in the example
-        targetEdmEntity = ((UriResourceEntitySet) resourceItem).getEntityType();
-      }
-    }
-    return targetEdmEntity;
-  }
+//  /**
+//   * Finds an entity type with which a navigation may starts. Can be used e.g. for filter:
+//   * AdministrativeDivisions?$filter=Parent/CodeID eq 'NUTS1' returns AdministrativeDivision;
+//   * AdministrativeDivisions(...)/Parent?$filter=Parent/CodeID eq 'NUTS1' returns "Parent"
+//   */
+//  public static EdmEntityType determineStartEntityType(final List<UriResource> resources) {
+//    EdmEntityType targetEdmEntity = null;
+//
+//    for (final UriResource resourceItem : resources) {
+//      if (resourceItem.getKind() == UriResourceKind.navigationProperty) {
+//        // first try the simple way like in the example
+//        targetEdmEntity = (EdmEntityType) ((UriResourceNavigation) resourceItem).getType();
+//      }
+//      if (resourceItem.getKind() == UriResourceKind.entitySet) {
+//        // first try the simple way like in the example
+//        targetEdmEntity = ((UriResourceEntitySet) resourceItem).getEntityType();
+//      }
+//    }
+//    return targetEdmEntity;
+//  }
 
   /**
    * Used for Serializer

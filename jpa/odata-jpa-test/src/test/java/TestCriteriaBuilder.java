@@ -79,7 +79,7 @@ public class TestCriteriaBuilder {
     Root<AdministrativeDivision> adminRoot3 = adminQ3.from(AdministrativeDivision.class);
     Root<Organization> org1 = org.from(Organization.class);
 
-    org.where(cb.and(cb.equal(org1.get("ID"), "3")), createParentOrg(org1, adminRoot3));
+    org.where(cb.and(cb.equal(org1.get("iD"), "3")), createParentOrg(org1, adminRoot3));
     org.select(cb.literal(1L));
 
     adminQ3.where(cb.and(createParentAdmin(adminRoot3, adminRoot2), cb.exists(org)));
@@ -107,7 +107,7 @@ public class TestCriteriaBuilder {
     @SuppressWarnings("rawtypes")
     Root bupaRoot = roleQ.from(BusinessPartner.class);
 
-    bupaQ.select(bupaRoot.get("ID"));
+    bupaQ.select(bupaRoot.get("iD"));
 //    Expression<String> exp = scheduleRequest.get("createdBy");
 //    Predicate predicate = exp.in(myList);
 //    criteria.where(predicate);
@@ -115,7 +115,7 @@ public class TestCriteriaBuilder {
     List<String> ids = new ArrayList<String>();
     ids.add("1");
     ids.add("2");
-    bupaQ.where(bupaRoot.get("ID").in(ids));
+    bupaQ.where(bupaRoot.get("iD").in(ids));
 //    bupaQ.select(
 //        (Expression<BusinessPartner>) cb.construct(
 //            BusinessPartner.class,

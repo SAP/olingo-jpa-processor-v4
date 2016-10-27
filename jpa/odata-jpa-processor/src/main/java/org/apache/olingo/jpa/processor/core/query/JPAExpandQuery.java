@@ -13,6 +13,7 @@ import javax.persistence.criteria.From;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Subquery;
 
+import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -49,7 +50,7 @@ public class JPAExpandQuery extends JPAExecutableQuery {
 
   public JPAExpandQuery(final OData odata, final JPAODataSessionContextAccess context, final EntityManager em,
       final UriInfoResource uriInfo, final JPAAssociationPath assoziation, final JPAEntityType entityType,
-      final Map<String, List<String>> requestHeaders) throws ODataApplicationException {
+      final Map<String, List<String>> requestHeaders) throws ODataException {
 
     super(odata, context, entityType, em, requestHeaders, uriInfo);
     this.assoziation = assoziation;
@@ -57,18 +58,18 @@ public class JPAExpandQuery extends JPAExecutableQuery {
   }
 
   public JPAExpandQuery(final OData odata, final JPAODataSessionContextAccess context, final EntityManager em,
-      final JPAExpandItemInfo item, final Map<String, List<String>> requestHeaders) throws ODataApplicationException {
+      final JPAExpandItemInfo item, final Map<String, List<String>> requestHeaders) throws ODataException {
 
     super(odata, context, item.getEntityType(), em, requestHeaders, item.getUriInfo());
     this.assoziation = item.getExpandAssociation();
     this.item = item;
   }
 
-  public JPAExpandResult execute() throws ODataApplicationException {
+  public JPAExpandQueryResult execute() throws ODataApplicationException {
     if (uriResource.getTopOption() != null || uriResource.getSkipOption() != null)
       return executeExpandTopSkipQuery();
     else {
-      return executeStandradQuery();
+      return executeStandardQuery();
     }
   }
 
@@ -82,7 +83,7 @@ public class JPAExpandQuery extends JPAExecutableQuery {
    * @return query result
    * @throws ODataApplicationException
    */
-  private JPAExpandResult executeExpandTopSkipQuery() throws ODataApplicationException {
+  private JPAExpandQueryResult executeExpandTopSkipQuery() throws ODataApplicationException {
     // TODO make this replacable e.g. by UNION ALL
     final int handle = debugger.startRuntimeMeasurement("JPAExpandQuery", "executeExpandTopSkipQuery");
 
@@ -98,10 +99,10 @@ public class JPAExpandQuery extends JPAExecutableQuery {
 
     Map<String, List<Tuple>> result = convertResult(intermediateResult, assoziation, skip, top);
     debugger.stopRuntimeMeasurement(handle);
-    return new JPAExpandResult(result, count(), jpaEntity);
+    return new JPAExpandQueryResult(result, count(), jpaEntity);
   }
 
-  private JPAExpandResult executeStandradQuery() throws ODataApplicationException {
+  private JPAExpandQueryResult executeStandardQuery() throws ODataApplicationException {
     final int handle = debugger.startRuntimeMeasurement("JPAExpandQuery", "executeStandradQuery");
 
     final TypedQuery<Tuple> tupleQuery = createTupleQuery();
@@ -112,7 +113,7 @@ public class JPAExpandQuery extends JPAExecutableQuery {
     Map<String, List<Tuple>> result = convertResult(intermediateResult, assoziation, 0, Long.MAX_VALUE);
 
     debugger.stopRuntimeMeasurement(handle);
-    return new JPAExpandResult(result, count(), jpaEntity);
+    return new JPAExpandQueryResult(result, count(), jpaEntity);
   }
 
   private TypedQuery<Tuple> createTupleQuery() throws ODataApplicationException {
@@ -142,8 +143,7 @@ public class JPAExpandQuery extends JPAExecutableQuery {
   }
 
   Map<String, List<Tuple>> convertResult(final List<Tuple> intermediateResult, final JPAAssociationPath a,
-      final long skip, final long top)
-      throws ODataApplicationException {
+      final long skip, final long top) throws ODataApplicationException {
     String joinKey = "";
     long skiped = 0;
     long taken = 0;
@@ -229,8 +229,6 @@ public class JPAExpandQuery extends JPAExecutableQuery {
     final List<JPANavigationQuery> queryList = new ArrayList<JPANavigationQuery>();
 
     for (final JPANavigationProptertyInfo naviInfo : expandPathList) {
-      // queryList.add(new JPANavigationQuery(sd, naviInfo.getUriResiource(), parent, em,
-      // naviInfo.getAssociationPath()));
       queryList.add(new JPANavigationInheritFilterQuery(odata, sd, parent, em, naviInfo));
       parent = queryList.get(queryList.size() - 1);
     }

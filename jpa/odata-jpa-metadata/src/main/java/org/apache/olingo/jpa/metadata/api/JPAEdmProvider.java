@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.metamodel.Metamodel;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlAbstractEdmProvider;
@@ -26,13 +27,19 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
   final private JPAEdmNameBuilder nameBuilder;
   final private ServiceDocument serviceDocument;
 
-  // TODO edmx: Reference -> Support by Olingo?
   // http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406397930
   public JPAEdmProvider(final String namespace, final EntityManagerFactory emf,
       final JPAEdmMetadataPostProcessor postProcessor) throws ODataException {
     super();
     this.nameBuilder = new JPAEdmNameBuilder(namespace);
     serviceDocument = new ServiceDocument(namespace, emf.getMetamodel(), postProcessor);
+  }
+
+  public JPAEdmProvider(final String namespace, final Metamodel jpaMetamodel,
+      final JPAEdmMetadataPostProcessor postProcessor) throws ODataException {
+    super();
+    this.nameBuilder = new JPAEdmNameBuilder(namespace);
+    serviceDocument = new ServiceDocument(namespace, jpaMetamodel, postProcessor);
   }
 
   @Override

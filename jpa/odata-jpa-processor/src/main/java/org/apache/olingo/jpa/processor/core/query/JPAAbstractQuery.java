@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
@@ -29,14 +28,13 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
 import org.apache.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import org.apache.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAQueryException;
+import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.debug.RuntimeMeasurement;
 import org.apache.olingo.server.api.uri.UriParameter;
 
 public abstract class JPAAbstractQuery {
 
-  private static final int CONTAINY_ONLY_LANGU = 1;
-  private static final int CONTAINS_LANGU_COUNTRY = 2;
   protected static final String SELECT_ITEM_SEPERATOR = ",";
   protected static final String SELECT_ALL = "*";
   protected final EntityManager em;
@@ -44,9 +42,11 @@ public abstract class JPAAbstractQuery {
   protected final JPAEntityType jpaEntity;
   protected final ServiceDocument sd;
   protected final JPAServiceDebugger debugger;
+  protected final OData odata;
   protected Locale locale;
 
-  public JPAAbstractQuery(final ServiceDocument sd, final JPAEntityType jpaEntityType, final EntityManager em)
+  public JPAAbstractQuery(final OData odata, final ServiceDocument sd, final JPAEntityType jpaEntityType,
+      final EntityManager em)
       throws ODataApplicationException {
     super();
     this.em = em;
@@ -54,9 +54,11 @@ public abstract class JPAAbstractQuery {
     this.sd = sd;
     this.jpaEntity = jpaEntityType;
     this.debugger = new EmptyDebugger();
+    this.odata = odata;
   }
 
-  public JPAAbstractQuery(final ServiceDocument sd, final EdmEntityType edmEntityType, final EntityManager em)
+  public JPAAbstractQuery(final OData odata, final ServiceDocument sd, final EdmEntityType edmEntityType,
+      final EntityManager em)
       throws ODataApplicationException {
     super();
     this.em = em;
@@ -68,16 +70,18 @@ public abstract class JPAAbstractQuery {
       throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
     }
     this.debugger = new EmptyDebugger();
+    this.odata = odata;
   }
 
-  public JPAAbstractQuery(final ServiceDocument sd, final JPAEntityType jpaEntityType, final EntityManager em,
-      final JPAServiceDebugger debugger) {
+  public JPAAbstractQuery(final OData odata, final ServiceDocument sd, final JPAEntityType jpaEntityType,
+      final EntityManager em, final JPAServiceDebugger debugger) {
     super();
     this.em = em;
     this.cb = em.getCriteriaBuilder();
     this.sd = sd;
     this.jpaEntity = jpaEntityType;
     this.debugger = debugger;
+    this.odata = odata;
   }
 
   protected javax.persistence.criteria.Expression<Boolean> createWhereByKey(final From<?, ?> root,
@@ -91,8 +95,7 @@ public abstract class JPAAbstractQuery {
       for (final UriParameter keyPredicate : keyPredicates) {
         javax.persistence.criteria.Expression<Boolean> equalCondition;
         try {
-          equalCondition = cb.equal(root.get(jpaEntity.getPath(keyPredicate.getName()).getLeaf()
-              .getInternalName()), eliminateApostrophe(keyPredicate.getText()));
+          equalCondition = ExpressionUtil.createEQExpression(odata, cb, root, jpaEntity, keyPredicate);
         } catch (ODataJPAModelException e) {
           throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
         }
@@ -103,10 +106,6 @@ public abstract class JPAAbstractQuery {
       }
     }
     return compundCondition;
-  }
-
-  private String eliminateApostrophe(final String text) {
-    return text.replaceAll("'", "");
   }
 //
 //  protected List<UriParameter> determineKeyPredicates(final UriResource uriResourceItem)
@@ -178,28 +177,6 @@ public abstract class JPAAbstractQuery {
       p = p.get(pathElement.getInternalName());
     }
     return p;
-  }
-
-  protected final Locale determineLocale(final Map<String, List<String>> headers) {
-    // TODO Make this replaceable so the default can be overwritten
-    // http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html (14.4 accept language header
-    // example: Accept-Language: da, en-gb;q=0.8, en;q=0.7)
-    final List<String> languageHeaders = headers.get("accept-language");
-    if (languageHeaders != null) {
-      final String languageHeader = languageHeaders.get(0);
-      if (languageHeader != null) {
-        final String[] localeList = languageHeader.split(SELECT_ITEM_SEPERATOR);
-        final String locale = localeList[0];
-        final String[] languCountry = locale.split("-");
-        if (languCountry.length == CONTAINS_LANGU_COUNTRY)
-          return new Locale(languCountry[0], languCountry[1]);
-        else if (languCountry.length == CONTAINY_ONLY_LANGU)
-          return new Locale(languCountry[0]);
-        else
-          return Locale.ENGLISH;
-      }
-    }
-    return Locale.ENGLISH;
   }
 
   abstract JPAODataSessionContextAccess getContext();

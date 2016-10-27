@@ -12,13 +12,17 @@ import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmFunctionParameter;
 @EdmFunction(
     name = "AllCustomersByABC",
     functionName = "CUSTOMER_BY_ABC",
-    returnType = @ReturnType(type = Organization.class, isCollection = true) ,
+    returnType = @ReturnType(type = Organization.class, isCollection = true),
     parameter = { @EdmFunctionParameter(name = "Class", type = Character.class) })
 
 @Entity(name = "Organization")
 @DiscriminatorValue(value = "2")
 @Table(schema = "\"OLINGO\"", name = "\"org.apache.olingo.jpa::BusinessPartner\"")
 public class Organization extends BusinessPartner {
+
+  public Organization() {
+    type = "2";
+  }
 
   @Column(name = "\"NameLine1\"")
   private String name1;

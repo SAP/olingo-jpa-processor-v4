@@ -47,20 +47,20 @@ public class DataSourceHelper {
     case DB_REMOTE:
       String env = System.getenv().get("REMOTE_DB_LOGON");
       ObjectMapper mapper = new ObjectMapper();
-      ObjectNode hanaInfo;
+      ObjectNode remoteInfo;
       try {
-        hanaInfo = (ObjectNode) mapper.readTree(env);
+        remoteInfo = (ObjectNode) mapper.readTree(env);
       } catch (JsonProcessingException e) {
         return null;
       } catch (IOException e) {
         return null;
       }
       String url = REMOTE_URL;
-      url = url.replace("$Host$", hanaInfo.get("hostname").asText());
-      url = url.replace("$Port$", hanaInfo.get("port").asText());
-      url = url.replace("$DBNAME$", hanaInfo.get("dbname").asText());
-      String driver = hanaInfo.get("driver").asText();
-      ds = new DriverDataSource(driver, url, hanaInfo.get("username").asText(), hanaInfo.get(
+      url = url.replace("$Host$", remoteInfo.get("hostname").asText());
+      url = url.replace("$Port$", remoteInfo.get("port").asText());
+      url = url.replace("$DBNAME$", remoteInfo.get("dbname").asText());
+      String driver = remoteInfo.get("driver").asText();
+      ds = new DriverDataSource(driver, url, remoteInfo.get("username").asText(), remoteInfo.get(
           "password").asText(), new String[0]);
       return ds;
     default:

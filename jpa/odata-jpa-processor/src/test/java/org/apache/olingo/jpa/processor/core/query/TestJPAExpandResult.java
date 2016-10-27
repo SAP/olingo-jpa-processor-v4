@@ -54,41 +54,41 @@ public class TestJPAExpandResult extends TestBase {
   }
 
   @Test
-  public void testSelectAllWithAllExpand() throws ODataApplicationException, ODataJPAModelException {
+  public void testSelectAllWithAllExpand() throws ODataException {
     // .../Organizations?$expand=Roles&$format=json
     JPAExpandItemInfo item = createOrgExpandRoles(null, null);
 
     cut = new JPAExpandQuery(OData.newInstance(), sessionContext, em, item, headers);
-    JPAExpandResult act = cut.execute();
+    JPAExpandQueryResult act = cut.execute();
     assertEquals(4, act.getNoResults());
     assertEquals(7, act.getNoResultsDeep());
   }
 
   @Test
-  public void testSelectOrgByIdWithAllExpand() throws ODataApplicationException, ODataJPAModelException {
+  public void testSelectOrgByIdWithAllExpand() throws ODataException {
 
     // .../Organizations('2')?$expand=Roles&$format=json
     UriParameter key = mock(UriParameter.class);
     when(key.getName()).thenReturn("ID");
-    when(key.getText()).thenReturn("2");
+    when(key.getText()).thenReturn("'2'");
     List<UriParameter> keyPredicates = new ArrayList<UriParameter>();
     keyPredicates.add(key);
     JPAExpandItemInfo item = createOrgExpandRoles(keyPredicates, null);
 
     cut = new JPAExpandQuery(OData.newInstance(), sessionContext, em, item, headers);
-    JPAExpandResult act = cut.execute();
+    JPAExpandQueryResult act = cut.execute();
     assertEquals(1, act.getNoResults());
     assertEquals(2, act.getNoResultsDeep());
   }
 
   @Test
-  public void testSelectOrgByFilterWithAllExpand() throws ODataApplicationException, ODataJPAModelException {
+  public void testSelectOrgByFilterWithAllExpand() throws ODataException {
 
     // .../Organizations?$filter=Name1 eq 'Third Org.'&$expand=Roles
     JPAExpandItemInfo item = createOrgExpandRoles(null, new ExpressionDouble(em.getCriteriaBuilder()));
 
     cut = new JPAExpandQuery(OData.newInstance(), sessionContext, em, item, headers);
-    JPAExpandResult act = cut.execute();
+    JPAExpandQueryResult act = cut.execute();
     assertEquals(1, act.getNoResults());
     assertEquals(3, act.getNoResultsDeep());
   }

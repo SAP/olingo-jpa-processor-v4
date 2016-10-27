@@ -1,4 +1,4 @@
-package org.apache.olingo.jpa.processor.core.query;
+package org.apache.org.jpa.processor.core.converter;
 
 import java.net.URI;
 import java.net.URISyntaxException;

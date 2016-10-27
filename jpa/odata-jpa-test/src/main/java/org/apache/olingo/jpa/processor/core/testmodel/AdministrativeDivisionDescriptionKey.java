@@ -45,11 +45,11 @@ public class AdministrativeDivisionDescriptionKey implements Serializable {
     this.codeID = codeID;
   }
 
-  public String getDivisonCode() {
+  public String getDivisionCode() {
     return divisionCode;
   }
 
-  public void setDivisonCode(String divisonCode) {
+  public void setDivisionCode(String divisonCode) {
     this.divisionCode = divisonCode;
   }
 

@@ -72,7 +72,7 @@ class IntermediateEntitySet extends IntermediateModelElement implements CustomET
   }
 
   @Override
-  public boolean hasETag(EdmBindingTarget entitySetOrSingleton) {
+  public boolean hasETag(final EdmBindingTarget entitySetOrSingleton) {
     try {
       return entityType.hasEtag();
     } catch (ODataJPAModelException e) {
@@ -82,7 +82,7 @@ class IntermediateEntitySet extends IntermediateModelElement implements CustomET
   }
 
   @Override
-  public boolean hasMediaETag(EdmBindingTarget entitySetOrSingleton) {
+  public boolean hasMediaETag(final EdmBindingTarget entitySetOrSingleton) {
     // TODO implement this
     return false;
   }

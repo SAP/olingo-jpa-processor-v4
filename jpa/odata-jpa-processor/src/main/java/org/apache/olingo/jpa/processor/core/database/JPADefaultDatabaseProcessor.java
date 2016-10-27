@@ -40,37 +40,38 @@ public final class JPADefaultDatabaseProcessor implements JPAODataDatabaseProces
   private CriteriaBuilder cb;
 
   @Override
-  public Expression<Long> convert(JPAAggregationOperation jpaOperator) throws ODataApplicationException {
+  public Expression<Long> convert(final JPAAggregationOperation jpaOperator) throws ODataApplicationException {
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
         HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getAggregation().name());
   }
 
   @Override
-  public <T extends Number> Expression<T> convert(JPAArithmeticOperator jpaOperator) throws ODataApplicationException {
+  public <T extends Number> Expression<T> convert(final JPAArithmeticOperator jpaOperator)
+      throws ODataApplicationException {
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
         HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getOperator().name());
   }
 
   @Override
-  public Expression<Boolean> convert(JPABooleanOperator jpaOperator) throws ODataApplicationException {
+  public Expression<Boolean> convert(final JPABooleanOperator jpaOperator) throws ODataApplicationException {
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
         HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getOperator().name());
   }
 
   @Override
-  public Expression<Boolean> convert(JPAComparisonOperator<?> jpaOperator) throws ODataApplicationException {
+  public Expression<Boolean> convert(final JPAComparisonOperator<?> jpaOperator) throws ODataApplicationException {
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
         HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getOperator().name());
   }
 
   @Override
-  public Object convert(JPAMethodCall jpaFunction) throws ODataApplicationException {
+  public Object convert(final JPAMethodCall jpaFunction) throws ODataApplicationException {
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
         HttpStatusCode.NOT_IMPLEMENTED, jpaFunction.getFunction().name());
   }
 
   @Override
-  public Expression<Boolean> convert(JPAUnaryBooleanOperator jpaOperator) throws ODataApplicationException {
+  public Expression<Boolean> convert(final JPAUnaryBooleanOperator jpaOperator) throws ODataApplicationException {
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
         HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getOperator().name());
   }

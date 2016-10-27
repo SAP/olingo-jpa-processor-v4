@@ -3,6 +3,7 @@ package org.apache.olingo.jpa.processor.core.processor;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 
+import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpHeader;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -16,7 +17,7 @@ import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.serializer.SerializerResult;
 import org.apache.olingo.server.api.uri.UriInfo;
 
-abstract class JPAAbstractRequestProcessor implements JPARequestProcessor {
+abstract class JPAAbstractRequestProcessor {
 
   // TODO eliminate transaction handling
   protected final EntityManager em;
@@ -27,9 +28,10 @@ abstract class JPAAbstractRequestProcessor implements JPARequestProcessor {
   protected final JPASerializer serializer;
   protected final OData odata;
   protected final JPAServiceDebugger debugger;
+  protected int successStatusCode = HttpStatusCode.OK.getStatusCode();
 
   public JPAAbstractRequestProcessor(final OData odata, final JPAODataSessionContextAccess context,
-      final JPAODataRequestContextAccess requestContext) {
+      final JPAODataRequestContextAccess requestContext) throws ODataException {
 
     this.em = requestContext.getEntityManager();
     this.cb = em.getCriteriaBuilder();
@@ -45,7 +47,7 @@ abstract class JPAAbstractRequestProcessor implements JPARequestProcessor {
       final SerializerResult serializerResult) {
 
     response.setContent(serializerResult.getContent());
-    response.setStatusCode(HttpStatusCode.OK.getStatusCode());
+    response.setStatusCode(successStatusCode);
     response.setHeader(HttpHeader.CONTENT_TYPE, responseFormat.toContentTypeString());
   }
 }

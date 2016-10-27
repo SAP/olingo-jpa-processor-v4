@@ -24,12 +24,14 @@ public class ODataJPAModelException extends ODataJPAException {
     FUNC_ENTITY_SET_EXP,
     FUNC_RETURN_TYPE_EXP,
     FUNC_RETURN_TYPE_ENTITY_NOT_FOUND,
+    FUNC_RETURN_TYPE_UNKNOWN,
     GENERAL,
     INNER_EXCEPTION,
     FUNC_PARAM_NAME_EXP,
     FUNC_PARAM_OUT_WRONG_TYPE,
     FUNC_PARAM_OUT_MISSING,
     FUNC_PARAM_OUT_TO_MANY,
+
     REF_ATTRIBUTE_NOT_FOUND,
     TYPE_MAPPER_COULD_NOT_INSANTIATE,
     NOT_SUPPORTED_EMBEDDED_KEY,
@@ -46,6 +48,7 @@ public class ODataJPAModelException extends ODataJPAException {
     INHERITANCE_NOT_ALLOWED,
     TO_MANY_STREAMS,
     ANNOTATION_STREAM_INCOMPLETE,
+    NAVI_PROPERTY_NOT_FOUND,
     ON_LEFT_ATTRIBUTE_NULL,
     ON_RIGHT_ATTRIBUTE_NULL;
 
@@ -56,7 +59,7 @@ public class ODataJPAModelException extends ODataJPAException {
 
   }
 
-  private static final String BUNDEL_NAME = "exceptions-i18n";
+  private static final String BUNDEL_NAME = "metadata-exceptions-i18n";
 
   public ODataJPAModelException(final Throwable e) {
     super(e);
@@ -83,4 +86,7 @@ public class ODataJPAModelException extends ODataJPAException {
     return BUNDEL_NAME;
   }
 
+  public String getId() {
+    return id;
+  }
 }

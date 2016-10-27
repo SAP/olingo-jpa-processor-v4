@@ -45,7 +45,7 @@ import org.apache.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
 @IdClass(AdministrativeDivisionKey.class)
 @Entity(name = "AdministrativeDivision")
 @Table(schema = "\"OLINGO\"", name = "\"org.apache.olingo.jpa::AdministrativeDivision\"")
-public class AdministrativeDivision {
+public class AdministrativeDivision implements KeyAccess {
 
   @Id
   @Column(name = "\"CodePublisher\"", length = 10)
@@ -176,6 +176,11 @@ public class AdministrativeDivision {
 
   public void setParentCodeID(String parentCodeID) {
     this.parentCodeID = parentCodeID;
+  }
+
+  @Override
+  public Object getKey() {
+    return new AdministrativeDivisionKey(codePublisher, codeID, divisionCode);
   }
 
 }

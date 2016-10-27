@@ -104,16 +104,16 @@ class IntermediateDescriptionProperty extends IntermediateProperty implements JP
     return fixedValues;
   }
 
-  private HashMap<JPAPath, String> convertFixedValues(valueAssignment[] valueAssignments)
+  private HashMap<JPAPath, String> convertFixedValues(final valueAssignment[] valueAssignments)
       throws ODataJPAModelException {
-    HashMap<JPAPath, String> result = new HashMap<JPAPath, String>();
-    for (EdmDescriptionAssozation.valueAssignment value : valueAssignments) {
+    final HashMap<JPAPath, String> result = new HashMap<JPAPath, String>();
+    for (final EdmDescriptionAssozation.valueAssignment value : valueAssignments) {
       result.put(convertAttributeToPath(value.attribute()), value.value());
     }
     return result;
   }
 
-  private JPAPath convertAttributeToPath(String attribute) throws ODataJPAModelException {
+  private JPAPath convertAttributeToPath(final String attribute) throws ODataJPAModelException {
     final String[] pathItems = attribute.split(JPAPath.PATH_SEPERATOR);
     if (pathItems.length > 1) {
       final List<JPAElement> targetPath = new ArrayList<JPAElement>();

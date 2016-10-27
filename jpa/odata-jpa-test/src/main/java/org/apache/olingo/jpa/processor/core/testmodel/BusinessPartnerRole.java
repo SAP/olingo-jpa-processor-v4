@@ -9,10 +9,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import org.eclipse.persistence.annotations.ReadOnly;
-
 @IdClass(BusinessPartnerRoleKey.class)
-@ReadOnly
+//@ReadOnly
 @Entity(name = "BusinessPartnerRole")
 @Table(schema = "\"OLINGO\"", name = "\"org.apache.olingo.jpa::BusinessPartnerRole\"")
 public class BusinessPartnerRole {
@@ -37,6 +35,14 @@ public class BusinessPartnerRole {
 
   public BusinessPartner getBusinessPartner() {
     return businessPartner;
+  }
+
+  public void setBusinessPartnerID(String businessPartnerID) {
+    this.businessPartnerID = businessPartnerID;
+  }
+
+  public void setRoleCategory(String roleCategory) {
+    this.roleCategory = roleCategory;
   }
 
 }

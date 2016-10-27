@@ -23,6 +23,7 @@ import org.apache.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import org.apache.olingo.jpa.processor.core.filter.JPAFilterElementComplier;
 import org.apache.olingo.jpa.processor.core.filter.JPAFilterExpression;
 import org.apache.olingo.jpa.processor.core.filter.JPAMemberOperator;
+import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriParameter;
@@ -45,11 +46,11 @@ public class JPANavigationQuery extends JPAAbstractQuery {
   private Subquery<?> subQuery;
   private JPAAbstractQuery parentQuery;
 
-  public <T extends Object> JPANavigationQuery(final ServiceDocument sd, final UriResource uriResourceItem,
-      final JPAAbstractQuery parent, final EntityManager em, final JPAAssociationPath association)
-      throws ODataApplicationException {
+  public <T extends Object> JPANavigationQuery(final OData odata, final ServiceDocument sd,
+      final UriResource uriResourceItem, final JPAAbstractQuery parent, final EntityManager em,
+      final JPAAssociationPath association) throws ODataApplicationException {
 
-    super(sd, (EdmEntityType) ((UriResourcePartTyped) uriResourceItem).getType(), em);
+    super(odata, sd, (EdmEntityType) ((UriResourcePartTyped) uriResourceItem).getType(), em);
     this.keyPredicates = Util.determineKeyPredicates(uriResourceItem);
     this.association = association;
     this.parentQuery = parent;
@@ -61,6 +62,7 @@ public class JPANavigationQuery extends JPAAbstractQuery {
   /**
    * @return
    */
+  @SuppressWarnings("unchecked")
   @Override
   public Root<?> getRoot() {
     assert queryRoot != null;

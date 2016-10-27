@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
+import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -13,6 +14,7 @@ import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExc
 import org.apache.olingo.jpa.processor.core.api.JPAODataDatabaseProcessor;
 import org.apache.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import org.apache.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import org.apache.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import org.apache.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import org.apache.olingo.jpa.processor.core.query.JPAInstanceResultConverter;
 import org.apache.olingo.server.api.OData;
@@ -29,12 +31,12 @@ import org.apache.olingo.server.api.uri.UriResourceFunction;
  * @author Oliver Grande
  *
  */
-public class JPAFunctionRequestProcessor extends JPAAbstractRequestProcessor {
+public class JPAFunctionRequestProcessor extends JPAAbstractGetRequestProcessor {
 
   private final JPAODataDatabaseProcessor dbProcessor;
 
   public JPAFunctionRequestProcessor(final OData odata, final JPAODataSessionContextAccess context,
-      final JPAODataRequestContextAccess requestContext) {
+      final JPAODataRequestContextAccess requestContext) throws ODataException {
     super(odata, context, requestContext);
     this.dbProcessor = context.getDatabaseProcessor();
   }
@@ -45,7 +47,12 @@ public class JPAFunctionRequestProcessor extends JPAAbstractRequestProcessor {
 
     final UriResourceFunction uriResourceFunction = (UriResourceFunction) uriInfo.getUriResourceParts().get(0);
     final JPAFunction jpaFunction = sd.getFunction(uriResourceFunction.getFunction());
-    final JPAEntityType returnType = sd.getEntity(jpaFunction.getResultParameter().getTypeFQN());
+    JPAEntityType returnType;
+    try {
+      returnType = sd.getEntity(jpaFunction.getResultParameter().getTypeFQN());
+    } catch (ODataJPAModelException e) {
+      throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    }
 
     // dbProcessor.query
 

@@ -144,7 +144,7 @@ public class TestJPAQuerySelectClause extends TestBase {
   }
 
   @Test
-  public void checkSelectOnePropertyPartKey() throws ODataApplicationException, ODataJPAModelException {
+  public void checkSelectOnePropertyPartKey() throws ODataException {
     jpaEntityType = helper.getJPAEntityType("AdministrativeDivisionDescriptions");
     cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "AdministrativeDivisionDescriptions"), context, null,
         emf.createEntityManager(), headers);
@@ -173,7 +173,7 @@ public class TestJPAQuerySelectClause extends TestBase {
   }
 
   @Test
-  public void checkSelectSupertypePropertyTypeName2() throws ODataApplicationException, ODataJPAModelException {
+  public void checkSelectSupertypePropertyTypeName2() throws ODataException {
     jpaEntityType = helper.getJPAEntityType("Organizations");
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
     joinTables.put(jpaEntityType.getInternalName(), root);
@@ -190,7 +190,7 @@ public class TestJPAQuerySelectClause extends TestBase {
   }
 
   @Test
-  public void checkSelectCompleteComplexType() throws ODataApplicationException, ODataJPAModelException {
+  public void checkSelectCompleteComplexType() throws ODataException {
     // Organizations$select=Address
     jpaEntityType = helper.getJPAEntityType("Organizations");
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
@@ -208,7 +208,7 @@ public class TestJPAQuerySelectClause extends TestBase {
   }
 
   @Test
-  public void checkSelectCompleteNestedComplexTypeLowLevel() throws ODataApplicationException, ODataJPAModelException {
+  public void checkSelectCompleteNestedComplexTypeLowLevel() throws ODataException {
     // Organizations$select=Address
     jpaEntityType = helper.getJPAEntityType("Organizations");
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
@@ -226,7 +226,7 @@ public class TestJPAQuerySelectClause extends TestBase {
   }
 
   @Test
-  public void checkSelectCompleteNestedComplexTypeHighLevel() throws ODataApplicationException, ODataJPAModelException {
+  public void checkSelectCompleteNestedComplexTypeHighLevel() throws ODataException {
     // Organizations$select=Address
     jpaEntityType = helper.getJPAEntityType("Organizations");
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
@@ -246,7 +246,7 @@ public class TestJPAQuerySelectClause extends TestBase {
   }
 
   @Test
-  public void checkSelectElementOfComplexType() throws ODataApplicationException, ODataJPAModelException {
+  public void checkSelectElementOfComplexType() throws ODataException {
     // Organizations$select=Address/Country
     jpaEntityType = helper.getJPAEntityType("Organizations");
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
@@ -264,7 +264,7 @@ public class TestJPAQuerySelectClause extends TestBase {
   }
 
   @Test
-  public void checkSelectTextJoinSingleAttribute() throws ODataApplicationException, ODataJPAModelException {
+  public void checkSelectTextJoinSingleAttribute() throws ODataException {
     jpaEntityType = helper.getJPAEntityType("Organizations");
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
     cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "Organizations"), context, null, emf
@@ -280,7 +280,7 @@ public class TestJPAQuerySelectClause extends TestBase {
   }
 
   @Test
-  public void checkSelectTextJoinCompextType() throws ODataApplicationException, ODataJPAModelException {
+  public void checkSelectTextJoinCompextType() throws ODataException {
     jpaEntityType = helper.getJPAEntityType("Organizations");
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
     cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "Organizations"), context, null, emf
@@ -296,7 +296,7 @@ public class TestJPAQuerySelectClause extends TestBase {
   }
 
   @Test
-  public void checkSelectStreamValueStatic() throws ODataApplicationException, ODataJPAModelException {
+  public void checkSelectStreamValueStatic() throws ODataException {
     jpaEntityType = helper.getJPAEntityType("PersonImages");
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
     cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "PersonImages"), context, null, emf
@@ -315,7 +315,7 @@ public class TestJPAQuerySelectClause extends TestBase {
   }
 
   @Test
-  public void checkSelectStreamValueDynamic() throws ODataApplicationException, ODataJPAModelException {
+  public void checkSelectStreamValueDynamic() throws ODataException {
     jpaEntityType = helper.getJPAEntityType("OrganizationImages");
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
     cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "OrganizationImages"), context, null, emf
@@ -335,7 +335,7 @@ public class TestJPAQuerySelectClause extends TestBase {
   }
 
   @Test
-  public void checkSelectPropertyValue() throws ODataApplicationException, ODataJPAModelException {
+  public void checkSelectPropertyValue() throws ODataException {
     jpaEntityType = helper.getJPAEntityType("Organizations");
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
     cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "Organizations"), context, null, emf

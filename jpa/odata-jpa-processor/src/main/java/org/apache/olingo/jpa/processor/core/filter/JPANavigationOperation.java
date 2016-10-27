@@ -101,7 +101,7 @@ class JPANavigationOperation extends JPAExistsOperation implements JPAExpression
         queryList.add(new JPANavigationFilterQuery(odata, sd, naviInfo.getUriResiource(), parent, em, naviInfo
             .getAssociationPath(), expression));
       } else
-        queryList.add(new JPANavigationFilterQuery(sd, naviInfo.getUriResiource(), parent, em, naviInfo
+        queryList.add(new JPANavigationFilterQuery(odata, sd, naviInfo.getUriResiource(), parent, em, naviInfo
             .getAssociationPath()));
       parent = queryList.get(queryList.size() - 1);
     }

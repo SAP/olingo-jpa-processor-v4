@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
+import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -13,10 +14,8 @@ import org.apache.olingo.jpa.processor.core.exception.ODataJPAProcessorException
 import org.apache.olingo.jpa.processor.core.query.JPAQuery;
 import org.apache.olingo.jpa.processor.core.query.Util;
 import org.apache.olingo.server.api.OData;
-import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
-import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
@@ -26,16 +25,16 @@ import org.apache.olingo.server.api.uri.UriResourceEntitySet;
  * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398314">
  * OData Version 4.0 Part 2 - 11.2.9 Requesting the Number of Items in a Collection</a>
  */
-public class JPACountRequestProcessor extends JPAAbstractRequestProcessor {
+public class JPACountRequestProcessor extends JPAAbstractGetRequestProcessor {
 
   public JPACountRequestProcessor(final OData odata, final JPAODataSessionContextAccess context,
-      final JPAODataRequestContextAccess requestContext) {
+      final JPAODataRequestContextAccess requestContext) throws ODataException {
     super(odata, context, requestContext);
   }
 
   @Override
   public void retrieveData(final ODataRequest request, final ODataResponse response, final ContentType responseFormat)
-      throws ODataApplicationException, SerializerException {
+      throws ODataException {
     final UriResource uriResource = uriInfo.getUriResourceParts().get(0);
 
     if (uriResource instanceof UriResourceEntitySet) {
@@ -48,7 +47,7 @@ public class JPACountRequestProcessor extends JPAAbstractRequestProcessor {
   }
 
   protected final EntityCollection countEntities(final ODataRequest request, final ODataResponse response,
-      final UriInfo uriInfo) throws SerializerException, ODataApplicationException {
+      final UriInfo uriInfo) throws ODataException {
 
     final List<UriResource> resourceParts = uriInfo.getUriResourceParts();
     final EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(resourceParts);
