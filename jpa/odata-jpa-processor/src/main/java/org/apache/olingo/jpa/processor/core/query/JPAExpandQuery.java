@@ -50,6 +50,7 @@ public class JPAExpandQuery extends JPAExecutableQuery {
   public JPAExpandQuery(final OData odata, final JPAODataSessionContextAccess context, final EntityManager em,
       final UriInfoResource uriInfo, final JPAAssociationPath assoziation, final JPAEntityType entityType,
       final Map<String, List<String>> requestHeaders) throws ODataApplicationException {
+
     super(odata, context, entityType, em, requestHeaders, uriInfo);
     this.assoziation = assoziation;
     this.item = null;
@@ -228,7 +229,9 @@ public class JPAExpandQuery extends JPAExecutableQuery {
     final List<JPANavigationQuery> queryList = new ArrayList<JPANavigationQuery>();
 
     for (final JPANavigationProptertyInfo naviInfo : expandPathList) {
-      queryList.add(new JPANavigationQuery(sd, naviInfo.getUriResiource(), parent, em, naviInfo.getAssociationPath()));
+      // queryList.add(new JPANavigationQuery(sd, naviInfo.getUriResiource(), parent, em,
+      // naviInfo.getAssociationPath()));
+      queryList.add(new JPANavigationInheritFilterQuery(odata, sd, parent, em, naviInfo));
       parent = queryList.get(queryList.size() - 1);
     }
     // 3. Create select statements

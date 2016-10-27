@@ -21,7 +21,7 @@ abstract class JPAAbstractRequestProcessor implements JPARequestProcessor {
   // TODO eliminate transaction handling
   protected final EntityManager em;
   protected final ServiceDocument sd;
-  protected final JPAODataSessionContextAccess context;
+  protected final JPAODataSessionContextAccess sessionContext;
   protected final CriteriaBuilder cb;
   protected final UriInfo uriInfo;
   protected final JPASerializer serializer;
@@ -33,7 +33,7 @@ abstract class JPAAbstractRequestProcessor implements JPARequestProcessor {
 
     this.em = requestContext.getEntityManager();
     this.cb = em.getCriteriaBuilder();
-    this.context = context;
+    this.sessionContext = context;
     this.sd = context.getEdmProvider().getServiceDocument();
     this.uriInfo = requestContext.getUriInfo();
     this.serializer = requestContext.getSerializer();

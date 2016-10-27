@@ -32,9 +32,6 @@ import org.apache.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.debug.RuntimeMeasurement;
 import org.apache.olingo.server.api.uri.UriParameter;
-import org.apache.olingo.server.api.uri.UriResource;
-import org.apache.olingo.server.api.uri.UriResourceEntitySet;
-import org.apache.olingo.server.api.uri.UriResourceNavigation;
 
 public abstract class JPAAbstractQuery {
 
@@ -111,19 +108,19 @@ public abstract class JPAAbstractQuery {
   private String eliminateApostrophe(final String text) {
     return text.replaceAll("'", "");
   }
-
-  protected List<UriParameter> determineKeyPredicates(final UriResource uriResourceItem)
-      throws ODataApplicationException {
-
-    if (uriResourceItem instanceof UriResourceEntitySet)
-      return ((UriResourceEntitySet) uriResourceItem).getKeyPredicates();
-    else if (uriResourceItem instanceof UriResourceNavigation)
-      return ((UriResourceNavigation) uriResourceItem).getKeyPredicates();
-    else
-      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
-          HttpStatusCode.BAD_REQUEST,
-          uriResourceItem.getKind().name());
-  }
+//
+//  protected List<UriParameter> determineKeyPredicates(final UriResource uriResourceItem)
+//      throws ODataApplicationException {
+//
+//    if (uriResourceItem instanceof UriResourceEntitySet)
+//      return ((UriResourceEntitySet) uriResourceItem).getKeyPredicates();
+//    else if (uriResourceItem instanceof UriResourceNavigation)
+//      return ((UriResourceNavigation) uriResourceItem).getKeyPredicates();
+//    else
+//      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
+//          HttpStatusCode.BAD_REQUEST,
+//          uriResourceItem.getKind().name());
+//  }
 
   public abstract <T> Root<T> getRoot();
 

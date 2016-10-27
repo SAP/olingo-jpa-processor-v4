@@ -98,6 +98,8 @@ public class TestCriteriaBuilder {
   @SuppressWarnings("unchecked")
   @Test
   public void testSubSelectTopOrderBy() {
+    // https://stackoverflow.com/questions/9321916/jpa-criteriabuilder-how-to-use-in-comparison-operator
+    // https://stackoverflow.com/questions/24109412/in-clause-with-a-composite-primary-key-in-jpa-criteria#24265131
     CriteriaQuery<Tuple> roleQ = cb.createTupleQuery();
     Root<BusinessPartnerRole> roleRoot = roleQ.from(BusinessPartnerRole.class);
 
@@ -106,7 +108,6 @@ public class TestCriteriaBuilder {
     Root bupaRoot = roleQ.from(BusinessPartner.class);
 
     bupaQ.select(bupaRoot.get("ID"));
-
 //    Expression<String> exp = scheduleRequest.get("createdBy");
 //    Predicate predicate = exp.in(myList);
 //    criteria.where(predicate);
@@ -120,6 +121,7 @@ public class TestCriteriaBuilder {
 //            BusinessPartner.class,
 //            bupaRoot.get("ID")));
 
+    // roleQ.where(cb.in(roleRoot.get("businessPartnerID")).value(bupaQ));
     roleQ.where(cb.in(roleRoot.get("businessPartnerID")).value(bupaQ));
     roleQ.multiselect(roleRoot.get("businessPartnerID"));
     TypedQuery<Tuple> tq = em.createQuery(roleQ);

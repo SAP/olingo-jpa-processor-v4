@@ -39,6 +39,7 @@ public class JPAQuery extends JPAExecutableQuery {
   public JPAQuery(final OData odata, final EdmEntitySet entitySet, final JPAODataSessionContextAccess context,
       final UriInfo uriInfo, final EntityManager em, final Map<String, List<String>> requestHeaders)
       throws ODataApplicationException, ODataJPAModelException {
+
     super(odata, context, context.getEdmProvider().getServiceDocument().getEntity(entitySet.getName()), em,
         requestHeaders, uriInfo);
   }

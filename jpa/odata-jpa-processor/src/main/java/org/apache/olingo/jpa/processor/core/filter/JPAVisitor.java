@@ -22,13 +22,12 @@ import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.UriResourceNavigation;
 import org.apache.olingo.server.api.uri.queryoption.expression.BinaryOperatorKind;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitException;
-import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitor;
 import org.apache.olingo.server.api.uri.queryoption.expression.Literal;
 import org.apache.olingo.server.api.uri.queryoption.expression.Member;
 import org.apache.olingo.server.api.uri.queryoption.expression.MethodKind;
 import org.apache.olingo.server.api.uri.queryoption.expression.UnaryOperatorKind;
 
-class JPAVisitor implements ExpressionVisitor<JPAOperator> {
+class JPAVisitor implements JPAExpressionVisitor {
 
   /**
    * 
@@ -220,10 +219,12 @@ class JPAVisitor implements ExpressionVisitor<JPAOperator> {
     return jpaComplier.getSd();
   }
 
-  Root<?> getRoot() {
+  @Override
+  public Root<?> getRoot() {
     return jpaComplier.getParent().getRoot();
   }
 
+  @Override
   public OData getOdata() {
     return jpaComplier.getOdata();
   }
