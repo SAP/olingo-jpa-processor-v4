@@ -349,6 +349,24 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
+  public void testFilterExpandWithFilter() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions?$filter=DivisionCode eq 'BE25' and CodeID eq 'NUTS2'&$expand=Children($filter=DivisionCode eq 'BE252')");
+
+    helper.assertStatus(200);
+
+    final JsonNode value = helper.getValue().get("value");
+    assertNotNull(value.get(0));
+    final ObjectNode division = (ObjectNode) value.get(0);
+
+    assertEquals("BE25", division.get("DivisionCode").asText());
+    ArrayNode children = (ArrayNode) division.get("Children");
+    assertEquals(1, children.size());
+    final ObjectNode firstChild = (ObjectNode) children.get(0);
+    assertEquals("BE252", firstChild.get("DivisionCode").asText());
+  }
+
+  @Test
   public void testExpandCompleteEntitySet() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$expand=Roles&orderby=ID");
 

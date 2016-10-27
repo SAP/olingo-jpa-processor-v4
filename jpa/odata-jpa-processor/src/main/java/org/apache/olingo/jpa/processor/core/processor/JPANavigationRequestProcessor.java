@@ -53,7 +53,7 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
     // Create a JPQL Query and execute it
     JPAQuery query = null;
     try {
-      query = new JPAQuery(odata, targetEdmEntitySet, context, uriInfo, em, request.getAllHeaders());
+      query = new JPAQuery(odata, targetEdmEntitySet, sessionContext, uriInfo, em, request.getAllHeaders());
     } catch (ODataJPAModelException e) {
       debugger.stopRuntimeMeasurement(handle);
       throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.QUERY_PREPARATION_ERROR,
@@ -130,13 +130,19 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
 
     final Map<JPAAssociationPath, JPAExpandQueryResult> allExpResults =
         new HashMap<JPAAssociationPath, JPAExpandQueryResult>();
-    // x/a?$expand=b/c($expand=d,e/f)
+    // x/a?$expand=b/c($expand=d,e/f)&$filter=...&$top=3&$orderBy=...
+    // For performance reasons the expand query should only return results for the results of the higher-level query.
+    // The solution for restrictions like a given key or a given filter condition, as it can be propagated to a
+    // sub-query.
+    // For $top and $skip things are more difficult as the criteria query does not support LIMIT and OFFSET, this is
+    // done on the TypedQuery created out of the Criteria Query. In addition not all databases support LIMIT within a
+    // sub-query used within EXISTS.
 
     final List<JPAExpandItemInfo> itemInfoList = new JPAExpandItemInfoFactory()
-        .buildExpandItemInfo(sd, uriResourceInfo.getUriResourceParts(), uriResourceInfo.getExpandOption(), parentHops);
-
+        .buildExpandItemInfo(sd, uriResourceInfo, parentHops);
+    // .buildExpandItemInfo(sd, uriResourceInfo.getUriResourceParts(), uriResourceInfo.getExpandOption(), parentHops);
     for (final JPAExpandItemInfo item : itemInfoList) {
-      final JPAExpandQuery expandQuery = new JPAExpandQuery(odata, context, em, item, headers);
+      final JPAExpandQuery expandQuery = new JPAExpandQuery(odata, sessionContext, em, item, headers);
       final JPAExpandQueryResult expandResult = expandQuery.execute();
 
       expandResult.putChildren(readExpandEntities(headers, item.getHops(), item.getUriInfo()));

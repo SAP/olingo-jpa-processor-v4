@@ -29,7 +29,7 @@ public class TestJPAVisitor {
 
   private JPAFilterComplierAccess compiler;
   private JPAAbstractQuery query;
-  private JPAVisitor cut;
+  private JPAExpressionVisitor cut;
   private JPAODataDatabaseOperations extension;
   private JPAOperationConverter converter;
 
