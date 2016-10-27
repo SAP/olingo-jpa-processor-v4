@@ -101,4 +101,16 @@ public final class JPAExpandQueryResult implements JPAExpandResult {
   public JPAEntityType getEntityType() {
     return jpaEntityType;
   }
+
+  public long getNoResults() {
+    return result.size();
+  }
+
+  public long getNoResultsDeep() {
+    long count = 0;
+    for (String key : result.keySet()) {
+      count += result.get(key).size();
+    }
+    return count;
+  }
 }

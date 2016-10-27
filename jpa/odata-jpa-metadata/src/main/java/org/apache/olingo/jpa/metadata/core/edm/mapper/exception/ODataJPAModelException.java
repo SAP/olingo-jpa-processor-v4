@@ -48,7 +48,9 @@ public class ODataJPAModelException extends ODataJPAException {
     INHERITANCE_NOT_ALLOWED,
     TO_MANY_STREAMS,
     ANNOTATION_STREAM_INCOMPLETE,
-    NAVI_PROPERTY_NOT_FOUND;
+    NAVI_PROPERTY_NOT_FOUND,
+    ON_LEFT_ATTRIBUTE_NULL,
+    ON_RIGHT_ATTRIBUTE_NULL;
 
     @Override
     public String getKey() {

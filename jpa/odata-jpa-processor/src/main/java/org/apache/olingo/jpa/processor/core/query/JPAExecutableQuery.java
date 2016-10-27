@@ -66,6 +66,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
   protected final Root<?> root;
   protected final JPAFilterComplier filter;
   protected final JPAODataSessionContextAccess context;
+  protected final OData odata;
 
   public JPAExecutableQuery(final OData odata, final JPAODataSessionContextAccess context,
       final JPAEntityType jpaEntityType, final EntityManager em, final Map<String, List<String>> requestHeaders,
@@ -79,6 +80,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     this.filter = new JPAFilterCrossComplier(odata, sd, em, jpaEntity, new JPAOperationConverter(cb, context
         .getOperationConverter()), uriResource, this);
     this.context = context;
+    this.odata = odata;
   }
 
   @Override
@@ -434,7 +436,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
         if (resourceItem instanceof UriResourceEntitySet || resourceItem instanceof UriResourceNavigation)
           break;
       }
-      final List<UriParameter> keyPredicates = determineKeyPredicates(resourceItem);
+      final List<UriParameter> keyPredicates = Util.determineKeyPredicates(resourceItem);
       whereCondition = createWhereByKey(root, whereCondition, keyPredicates);
     }
 
