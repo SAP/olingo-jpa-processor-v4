@@ -8,40 +8,41 @@ import javax.persistence.Persistence;
 import javax.sql.DataSource;
 
 public class JPAEntityManagerFactory {
-  private static final String ENTITY_MANAGER_DATA_SOURCE = "javax.persistence.nonJtaDataSource";
-  // private static Map<String, EntityManagerFactory> emfMap;
-  private static Map<String, Map<DataSource, EntityManagerFactory>> emfMap;
+  private static final String                                    ENTITY_MANAGER_DATA_SOURCE =
+      "javax.persistence.nonJtaDataSource";
+  private static Map<String, Map<Integer, EntityManagerFactory>> emfMap;
 
-  public static EntityManagerFactory getEntityManagerFactory(final String pUnit, final DataSource ds) {
+  public static EntityManagerFactory getEntityManagerFactory(final String pUnit, final Map<String, Object> ds) {
     if (pUnit == null) {
       return null;
     }
     if (emfMap == null) {
-      emfMap = new HashMap<String, Map<DataSource, EntityManagerFactory>>();
+      emfMap = new HashMap<String, Map<Integer, EntityManagerFactory>>();
     }
-
+    Integer dsKey = new Integer(ds.hashCode());
     if (emfMap.containsKey(pUnit)) {
-      final Map<DataSource, EntityManagerFactory> dsMap = emfMap.get(pUnit);
-      final EntityManagerFactory emf = dsMap.get(ds);
+      final Map<Integer, EntityManagerFactory> dsMap = emfMap.get(pUnit);
+      EntityManagerFactory emf = dsMap.get(ds);
+
       if (emf != null)
         return emf;
-      return createFactory(pUnit, ds, dsMap);
+      emf = Persistence.createEntityManagerFactory(pUnit, ds);
+      dsMap.put(dsKey, emf);
+      return emf;
+
     } else {
-
-      final Map<DataSource, EntityManagerFactory> dsMap = new HashMap<DataSource, EntityManagerFactory>();
+      final Map<Integer, EntityManagerFactory> dsMap = new HashMap<Integer, EntityManagerFactory>();
       emfMap.put(pUnit, dsMap);
-      return createFactory(pUnit, ds, dsMap);
+      final EntityManagerFactory emf = Persistence.createEntityManagerFactory(pUnit, ds);
+      dsMap.put(dsKey, emf);
+      return emf;
     }
-
   }
 
-  private static EntityManagerFactory createFactory(final String pUnit, final DataSource ds,
-      final Map<DataSource, EntityManagerFactory> dsMap) {
-
+  public static EntityManagerFactory getEntityManagerFactory(final String pUnit, final DataSource ds) {
     final Map<String, Object> properties = new HashMap<String, Object>();
     properties.put(ENTITY_MANAGER_DATA_SOURCE, ds);
-    final EntityManagerFactory emf = Persistence.createEntityManagerFactory(pUnit, properties);
-    dsMap.put(ds, emf);
-    return emf;
+    return getEntityManagerFactory(pUnit, properties);
   }
+
 }

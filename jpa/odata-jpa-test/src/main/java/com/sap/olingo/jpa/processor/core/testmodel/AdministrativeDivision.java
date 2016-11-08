@@ -21,7 +21,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
 @EdmFunctions({
     @EdmFunction(
         name = "Siblings",
-        functionName = "\"OLINGO\".\"org.apache.olingo.jpa::Siblings\"",
+        functionName = "\"OLINGO\".\"Siblings\"",
         isBound = false,
         hasFunctionImport = true,
         returnType = @EdmFunction.ReturnType(isCollection = true),
@@ -33,7 +33,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
                 maxLength = 10) }),
     @EdmFunction(
         name = "PopulationDensity",
-        functionName = "\"OLINGO\".\"org.apache.olingo.jpa::PopulationDensity\"",
+        functionName = "\"OLINGO\".\"PopulationDensity\"",
         isBound = false,
         hasFunctionImport = false,
         returnType = @EdmFunction.ReturnType(isCollection = false, type = Double.class),
@@ -44,7 +44,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
 
 @IdClass(AdministrativeDivisionKey.class)
 @Entity(name = "AdministrativeDivision")
-@Table(schema = "\"OLINGO\"", name = "\"org.apache.olingo.jpa::AdministrativeDivision\"")
+@Table(schema = "\"OLINGO\"", name = "\"AdministrativeDivision\"")
 public class AdministrativeDivision implements KeyAccess {
 
   @Id
@@ -58,17 +58,17 @@ public class AdministrativeDivision implements KeyAccess {
   private String divisionCode;
 
   @Column(name = "\"CountryISOCode\"", length = 4)
-  private String countryCode;
+  private String  countryCode;
   @Column(name = "\"ParentCodeID\"", length = 10)
-  private String parentCodeID;
+  private String  parentCodeID;
   @Column(name = "\"ParentDivisionCode\"", length = 10)
-  private String parentDivisionCode;
+  private String  parentDivisionCode;
   @Column(name = "\"AlternativeCode\"", length = 10)
-  private String alternativeCode;
+  private String  alternativeCode;
   @Column(name = "\"Area\"") // , precision = 34, scale = 0)
   private Integer area;
   @Column(name = "\"Population\"", precision = 34, scale = 0)
-  private long population;
+  private long    population;
 
   @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST, optional = true)
   @JoinColumns({

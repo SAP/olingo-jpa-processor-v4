@@ -51,7 +51,7 @@ class JPAPathImpl implements JPAPath {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAPath#getAlias()
+   * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAPath#getAlias()
    */
   @Override
   public String getAlias() {
@@ -61,7 +61,7 @@ class JPAPathImpl implements JPAPath {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAPath#getDBFieldName()
+   * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAPath#getDBFieldName()
    */
   @Override
   public String getDBFieldName() {
@@ -71,7 +71,7 @@ class JPAPathImpl implements JPAPath {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAPath#getLeaf()
+   * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAPath#getLeaf()
    */
   @Override
   public JPAAttribute getLeaf() {
@@ -81,7 +81,7 @@ class JPAPathImpl implements JPAPath {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAPath#getPath()
+   * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAPath#getPath()
    */
   @Override
   public List<JPAElement> getPath() {
@@ -100,7 +100,7 @@ class JPAPathImpl implements JPAPath {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAPath#ignore()
+   * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAPath#ignore()
    */
   @Override
   public boolean ignore() {

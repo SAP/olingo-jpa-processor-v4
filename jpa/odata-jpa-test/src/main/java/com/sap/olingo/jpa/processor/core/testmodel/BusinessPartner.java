@@ -30,7 +30,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;;
 @Inheritance
 @DiscriminatorColumn(name = "\"Type\"")
 @Entity(name = "BusinessPartner")
-@Table(schema = "\"OLINGO\"", name = "\"org.apache.olingo.jpa::BusinessPartner\"")
+@Table(schema = "\"OLINGO\"", name = "\"BusinessPartner\"")
 @EdmFunctions({
     @EdmFunction(
         name = "CountRoles",
@@ -75,10 +75,10 @@ public abstract class BusinessPartner implements KeyAccess {
 
   @EdmIgnore
   @Column(name = "\"CustomString1\"")
-  protected String customString1;
+  protected String     customString1;
   @EdmIgnore
   @Column(name = "\"CustomString2\"")
-  protected String customString2;
+  protected String     customString2;
   @EdmIgnore
   @Column(name = "\"CustomNum1\"", precision = 16, scale = 5)
   protected BigDecimal customNum1;

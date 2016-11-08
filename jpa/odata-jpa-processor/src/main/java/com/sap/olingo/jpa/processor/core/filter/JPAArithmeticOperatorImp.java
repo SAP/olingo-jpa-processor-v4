@@ -27,7 +27,7 @@ class JPAArithmeticOperatorImp implements JPAArithmeticOperator {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.processor.core.filter.JPAArithmeticOperator#get()
+   * @see com.sap.olingo.jpa.processor.core.filter.JPAArithmeticOperator#get()
    */
   @Override
   public Expression<Number> get() throws ODataApplicationException {
@@ -37,7 +37,7 @@ class JPAArithmeticOperatorImp implements JPAArithmeticOperator {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.processor.core.filter.JPAArithmeticOperator#getOperator()
+   * @see com.sap.olingo.jpa.processor.core.filter.JPAArithmeticOperator#getOperator()
    */
   @Override
   public BinaryOperatorKind getOperator() {
@@ -47,7 +47,7 @@ class JPAArithmeticOperatorImp implements JPAArithmeticOperator {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.processor.core.filter.JPAArithmeticOperator#getRight()
+   * @see com.sap.olingo.jpa.processor.core.filter.JPAArithmeticOperator#getRight()
    */
   @Override
   public Object getRight() {
@@ -59,7 +59,7 @@ class JPAArithmeticOperatorImp implements JPAArithmeticOperator {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.processor.core.filter.JPAArithmeticOperator#getLeft(javax.persistence.criteria.
+   * @see com.sap.olingo.jpa.processor.core.filter.JPAArithmeticOperator#getLeft(javax.persistence.criteria.
    * CriteriaBuilder)
    */
   @Override
@@ -77,7 +77,7 @@ class JPAArithmeticOperatorImp implements JPAArithmeticOperator {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.processor.core.filter.JPAArithmeticOperator#getRightAsNumber(javax.persistence.criteria.
+   * @see com.sap.olingo.jpa.processor.core.filter.JPAArithmeticOperator#getRightAsNumber(javax.persistence.criteria.
    * CriteriaBuilder)
    */
   @Override
@@ -113,7 +113,7 @@ class JPAArithmeticOperatorImp implements JPAArithmeticOperator {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.processor.core.filter.JPAArithmeticOperator#getRightAsExpression()
+   * @see com.sap.olingo.jpa.processor.core.filter.JPAArithmeticOperator#getRightAsExpression()
    */
   @Override
   @SuppressWarnings("unchecked")
@@ -124,7 +124,7 @@ class JPAArithmeticOperatorImp implements JPAArithmeticOperator {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.processor.core.filter.JPAArithmeticOperator#getLeftAsIntExpression()
+   * @see com.sap.olingo.jpa.processor.core.filter.JPAArithmeticOperator#getLeftAsIntExpression()
    */
   @Override
   @SuppressWarnings("unchecked")
@@ -137,7 +137,7 @@ class JPAArithmeticOperatorImp implements JPAArithmeticOperator {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.processor.core.filter.JPAArithmeticOperator#getRightAsIntExpression()
+   * @see com.sap.olingo.jpa.processor.core.filter.JPAArithmeticOperator#getRightAsIntExpression()
    */
   @Override
   @SuppressWarnings("unchecked")

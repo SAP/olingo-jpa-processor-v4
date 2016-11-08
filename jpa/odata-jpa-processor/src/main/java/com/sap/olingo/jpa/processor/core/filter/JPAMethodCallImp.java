@@ -6,8 +6,8 @@ import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.queryoption.expression.MethodKind;
 
 class JPAMethodCallImp implements JPAMethodCall {
-  private final MethodKind methodCall;
-  private final List<JPAOperator> parameters;
+  private final MethodKind            methodCall;
+  private final List<JPAOperator>     parameters;
   private final JPAOperationConverter converter;
 
   public JPAMethodCallImp(final JPAOperationConverter converter, final MethodKind methodCall,
@@ -21,7 +21,7 @@ class JPAMethodCallImp implements JPAMethodCall {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.processor.core.filter.JPAFunctionCall#get()
+   * @see com.sap.olingo.jpa.processor.core.filter.JPAFunctionCall#get()
    */
   @Override
   public Object get() throws ODataApplicationException {
@@ -31,7 +31,7 @@ class JPAMethodCallImp implements JPAMethodCall {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.processor.core.filter.JPAFunctionCall#getFunction()
+   * @see com.sap.olingo.jpa.processor.core.filter.JPAFunctionCall#getFunction()
    */
   @Override
   public MethodKind getFunction() {
@@ -41,7 +41,7 @@ class JPAMethodCallImp implements JPAMethodCall {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.processor.core.filter.JPAFunctionCall#getParameter(int)
+   * @see com.sap.olingo.jpa.processor.core.filter.JPAFunctionCall#getParameter(int)
    */
   @Override
   public JPAOperator getParameter(final int index) {
@@ -51,7 +51,7 @@ class JPAMethodCallImp implements JPAMethodCall {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.processor.core.filter.JPAFunctionCall#noParameters()
+   * @see com.sap.olingo.jpa.processor.core.filter.JPAFunctionCall#noParameters()
    */
   @Override
   public int noParameters() {

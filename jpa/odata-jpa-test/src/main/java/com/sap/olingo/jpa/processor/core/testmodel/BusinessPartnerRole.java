@@ -12,7 +12,7 @@ import javax.persistence.Table;
 @IdClass(BusinessPartnerRoleKey.class)
 //@ReadOnly
 @Entity(name = "BusinessPartnerRole")
-@Table(schema = "\"OLINGO\"", name = "\"org.apache.olingo.jpa::BusinessPartnerRole\"")
+@Table(schema = "\"OLINGO\"", name = "\"BusinessPartnerRole\"")
 public class BusinessPartnerRole {
   @Id
   @Column(name = "\"BusinessPartnerID\"")

@@ -6,8 +6,8 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionParameter;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionParameter;
 
 @EdmFunction(
     name = "AllCustomersByABC",
@@ -17,7 +17,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
 
 @Entity(name = "Organization")
 @DiscriminatorValue(value = "2")
-@Table(schema = "\"OLINGO\"", name = "\"org.apache.olingo.jpa::BusinessPartner\"")
+@Table(schema = "\"OLINGO\"", name = "\"BusinessPartner\"")
 public class Organization extends BusinessPartner {
 
   public Organization() {

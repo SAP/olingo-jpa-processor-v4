@@ -24,12 +24,12 @@ import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
 //TODO handle $it ...
 public class JPAFilterElementComplier extends JPAAbstractFilter {
   final JPAOperationConverter converter;
-  final EntityManager em;
-  final OData odata;
-  final ServiceDocument sd;
-  final List<UriResource> uriResourceParts;
-  final JPAAbstractQuery parent;
-  final VisitableExpression expression;
+  final EntityManager         em;
+  final OData                 odata;
+  final ServiceDocument       sd;
+  final List<UriResource>     uriResourceParts;
+  final JPAAbstractQuery      parent;
+  final VisitableExpression   expression;
 
   public JPAFilterElementComplier(final OData odata, final ServiceDocument sd, final EntityManager em,
       final JPAEntityType jpaEntityType, final JPAOperationConverter converter,
@@ -48,7 +48,7 @@ public class JPAFilterElementComplier extends JPAAbstractFilter {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.processor.core.filter.JPAFilterComplier#compile()
+   * @see com.sap.olingo.jpa.processor.core.filter.JPAFilterComplier#compile()
    */
   @Override
   @SuppressWarnings("unchecked")

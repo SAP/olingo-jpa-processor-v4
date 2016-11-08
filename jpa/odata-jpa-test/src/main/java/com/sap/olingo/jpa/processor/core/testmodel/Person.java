@@ -14,7 +14,7 @@ import javax.persistence.Table;
 
 @Entity(name = "Person")
 @DiscriminatorValue(value = "1")
-@Table(schema = "\"OLINGO\"", name = "\"org.apache.olingo.jpa::BusinessPartner\"")
+@Table(schema = "\"OLINGO\"", name = "\"BusinessPartner\"")
 public class Person extends BusinessPartner {
 
   public Person() {

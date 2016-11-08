@@ -8,13 +8,12 @@ import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 
 public class TestMappingRoot {
-  protected static final String PUNIT_NAME = "org.apache.olingo.jpa";
+  protected static final String PUNIT_NAME        = "org.apache.olingo.jpa";
   protected static EntityManagerFactory emf;
-  public static final String BUPA_CANONICAL_NAME = "org.apache.olingo.jpa.processor.core.testmodel.BusinessPartner";
-  public static final String ADDR_CANONICAL_NAME = "org.apache.olingo.jpa.processor.core.testmodel.PostalAddressData";
-  public static final String COMM_CANONICAL_NAME = "org.apache.olingo.jpa.processor.core.testmodel.CommunicationData";
-  public static final String ADMIN_CANONICAL_NAME =
-      "org.apache.olingo.jpa.processor.core.testmodel.AdministrativeDivision";
+  public static final String BUPA_CANONICAL_NAME  = "com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner";
+  public static final String ADDR_CANONICAL_NAME  = "com.sap.olingo.jpa.processor.core.testmodel.PostalAddressData";
+  public static final String COMM_CANONICAL_NAME  = "com.sap.olingo.jpa.processor.core.testmodel.CommunicationData";
+  public static final String ADMIN_CANONICAL_NAME = "com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision";
 
   @BeforeClass
   public static void setupClass() {

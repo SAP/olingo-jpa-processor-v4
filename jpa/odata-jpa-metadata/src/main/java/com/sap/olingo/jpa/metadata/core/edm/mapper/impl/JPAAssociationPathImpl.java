@@ -75,7 +75,7 @@ class JPAAssociationPathImpl implements JPAAssociationPath {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath#getAlias()
+   * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath#getAlias()
    */
   @Override
   public String getAlias() {
@@ -85,7 +85,7 @@ class JPAAssociationPathImpl implements JPAAssociationPath {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath#getJoinColumnsList()
+   * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath#getJoinColumnsList()
    */
   @Override
   public List<JPAOnConditionItem> getJoinColumnsList() throws ODataJPAModelException {
@@ -108,7 +108,7 @@ class JPAAssociationPathImpl implements JPAAssociationPath {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath#getLeaf()
+   * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath#getLeaf()
    */
   @Override
   public JPAAssociationAttribute getLeaf() {
@@ -118,7 +118,7 @@ class JPAAssociationPathImpl implements JPAAssociationPath {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath#getPath()
+   * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath#getPath()
    */
   @Override
   public List<JPAElement> getPath() {
@@ -128,7 +128,7 @@ class JPAAssociationPathImpl implements JPAAssociationPath {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath#getTargetType()
+   * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath#getTargetType()
    */
   @Override
   public JPAStructuredType getTargetType() {
@@ -138,7 +138,7 @@ class JPAAssociationPathImpl implements JPAAssociationPath {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath#getSourceType()
+   * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath#getSourceType()
    */
   @Override
   public JPAStructuredType getSourceType() {
