@@ -23,13 +23,13 @@ import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 
 public class TestJPAFunction {
-  protected static final String PUNIT_NAME = "org.apache.olingo.jpa";
+  protected static final String         PUNIT_NAME = "org.apache.olingo.jpa";
   protected static EntityManagerFactory emf;
-  protected static DataSource ds;
+  protected static DataSource           ds;
 
-  protected TestHelper helper;
+  protected TestHelper                helper;
   protected Map<String, List<String>> headers;
-  protected static JPAEdmNameBuilder nameBuilder;
+  protected static JPAEdmNameBuilder  nameBuilder;
 
   @Before
   public void setup() {
@@ -63,7 +63,7 @@ public class TestJPAFunction {
     EntityManager em = emf.createEntityManager();
     EntityTransaction t = em.getTransaction();
 
-    sqlString.append("create function \"OLINGO\".\"org.apache.olingo.jpa::Siblings\""); // \"OLINGO\".
+    sqlString.append("create function \"OLINGO\".\"Siblings\""); // \"OLINGO\".
     sqlString.append("( CodePublisher nvarchar(10), CodeID nvarchar(10), DivisionCode nvarchar(10))");
     sqlString.append(
         "RETURNS TABLE (\"CodePublisher\" nvarchar(10), \"CodeID\" nvarchar(10), \"DivisionCode\" nvarchar(10),");
@@ -73,7 +73,7 @@ public class TestJPAFunction {
     sqlString.append("READS SQL  DATA RETURN TABLE (SELECT ");
     sqlString.append("a.\"CodePublisher\", a.\"CodeID\", a.\"DivisionCode\", a.\"CountryISOCode\",a.\"ParentCodeID\"");
     sqlString.append(",a.\"ParentDivisionCode\", a.\"AlternativeCode\",a.\"Area\", a.\"Population\"");
-    sqlString.append("FROM \"OLINGO\".\"org.apache.olingo.jpa::AdministrativeDivision\" as a);");
+    sqlString.append("FROM \"OLINGO\".\"AdministrativeDivision\" as a);");
 
     t.begin();
     javax.persistence.Query q = em.createNativeQuery(sqlString.toString());

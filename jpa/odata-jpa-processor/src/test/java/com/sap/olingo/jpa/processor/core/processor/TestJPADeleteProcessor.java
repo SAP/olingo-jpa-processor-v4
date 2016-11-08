@@ -45,24 +45,23 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPACUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
-import com.sap.olingo.jpa.processor.core.processor.JPACUDRequestProcessor;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 
 public class TestJPADeleteProcessor {
-  private JPACUDRequestProcessor processor;
-  private OData odata;
-  private ServiceMetadata serviceMetadata;
+  private JPACUDRequestProcessor       processor;
+  private OData                        odata;
+  private ServiceMetadata              serviceMetadata;
   private JPAODataSessionContextAccess sessionContext;
   private JPAODataRequestContextAccess requestContext;
-  private UriInfo uriInfo;
-  private UriResourceEntitySet uriEts;
-  private EdmEntitySet ets;
-  private List<UriParameter> keyPredicates;
+  private UriInfo                      uriInfo;
+  private UriResourceEntitySet         uriEts;
+  private EdmEntitySet                 ets;
+  private List<UriParameter>           keyPredicates;
 
-  private static final String PUNIT_NAME = "org.apache.olingo.jpa";
+  private static final String         PUNIT_NAME = "org.apache.olingo.jpa";
   private static EntityManagerFactory emf;
-  private static JPAEdmProvider jpaEdm;
-  private static DataSource ds;
+  private static JPAEdmProvider       jpaEdm;
+  private static DataSource           ds;
 
   @BeforeClass
   public static void setupClass() throws ODataException {
@@ -164,7 +163,7 @@ public class TestJPADeleteProcessor {
 
     processor.deleteEntity(response);
 
-    assertEquals("org.apache.olingo.jpa.processor.core.testmodel.Organization", spy.et.getInternalName());
+    assertEquals("com.sap.olingo.jpa.processor.core.testmodel.Organization", spy.et.getInternalName());
   }
 
   @Test
@@ -214,7 +213,7 @@ public class TestJPADeleteProcessor {
 
   class RequestHandleSpy extends JPAAbstractCUDRequestHandler {
     public Map<String, Object> keyPredicates;
-    public JPAEntityType et;
+    public JPAEntityType       et;
 
     @Override
     public void deleteEntity(final JPAEntityType et, final Map<String, Object> keyPredicates, EntityManager em) {

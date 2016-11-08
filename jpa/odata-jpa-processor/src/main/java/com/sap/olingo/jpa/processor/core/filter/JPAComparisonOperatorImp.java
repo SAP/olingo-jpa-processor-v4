@@ -25,7 +25,7 @@ class JPAComparisonOperatorImp<T extends Comparable<T>> implements JPAComparison
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.processor.core.filter.JPAComparisonOperator#get()
+   * @see com.sap.olingo.jpa.processor.core.filter.JPAComparisonOperator#get()
    */
   @Override
   public Expression<Boolean> get() throws ODataApplicationException {
@@ -35,7 +35,7 @@ class JPAComparisonOperatorImp<T extends Comparable<T>> implements JPAComparison
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.processor.core.filter.JPAComparisonOperator#getOperator()
+   * @see com.sap.olingo.jpa.processor.core.filter.JPAComparisonOperator#getOperator()
    */
   @Override
   public BinaryOperatorKind getOperator() {
@@ -45,7 +45,7 @@ class JPAComparisonOperatorImp<T extends Comparable<T>> implements JPAComparison
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.processor.core.filter.JPAComparisonOperator#getLeft()
+   * @see com.sap.olingo.jpa.processor.core.filter.JPAComparisonOperator#getLeft()
    */
   @Override
   @SuppressWarnings("unchecked")
@@ -58,7 +58,7 @@ class JPAComparisonOperatorImp<T extends Comparable<T>> implements JPAComparison
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.processor.core.filter.JPAComparisonOperator#getRight()
+   * @see com.sap.olingo.jpa.processor.core.filter.JPAComparisonOperator#getRight()
    */
   @Override
   public Object getRight() {
@@ -70,7 +70,7 @@ class JPAComparisonOperatorImp<T extends Comparable<T>> implements JPAComparison
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.processor.core.filter.JPAComparisonOperator#getRightAsComparable()
+   * @see com.sap.olingo.jpa.processor.core.filter.JPAComparisonOperator#getRightAsComparable()
    */
   @Override
   @SuppressWarnings("unchecked")
@@ -95,7 +95,7 @@ class JPAComparisonOperatorImp<T extends Comparable<T>> implements JPAComparison
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.processor.core.filter.JPAComparisonOperator#getRightAsExpression()
+   * @see com.sap.olingo.jpa.processor.core.filter.JPAComparisonOperator#getRightAsExpression()
    */
   @Override
   @SuppressWarnings("unchecked")

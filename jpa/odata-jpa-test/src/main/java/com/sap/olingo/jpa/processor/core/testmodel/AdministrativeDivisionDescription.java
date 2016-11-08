@@ -8,7 +8,7 @@ import javax.persistence.Table;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmSearchable;
 
 @Entity
-@Table(schema = "\"OLINGO\"", name = "\"org.apache.olingo.jpa::AdministrativeDivisionDescription\"")
+@Table(schema = "\"OLINGO\"", name = "\"AdministrativeDivisionDescription\"")
 public class AdministrativeDivisionDescription implements KeyAccess {
 
   @EmbeddedId

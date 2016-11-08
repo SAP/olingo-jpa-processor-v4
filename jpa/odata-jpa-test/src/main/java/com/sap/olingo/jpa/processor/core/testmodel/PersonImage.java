@@ -9,7 +9,7 @@ import javax.persistence.Table;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmMediaStream;
 
 @Entity(name = "PersonImage")
-@Table(schema = "\"OLINGO\"", name = "\"org.apache.olingo.jpa::PersonImage\"")
+@Table(schema = "\"OLINGO\"", name = "\"PersonImage\"")
 public class PersonImage {
   @Id
   @Column(name = "\"ID\"")

@@ -27,12 +27,12 @@ import com.sap.olingo.jpa.processor.core.util.TestHelper;
 
 public class TestJPACustomScalarFunctions {
 
-  protected static final String PUNIT_NAME = "org.apache.olingo.jpa";
+  protected static final String         PUNIT_NAME = "org.apache.olingo.jpa";
   protected static EntityManagerFactory emf;
-  protected TestHelper helper;
-  protected Map<String, List<String>> headers;
-  protected static JPAEdmNameBuilder nameBuilder;
-  protected static DataSource ds;
+  protected TestHelper                  helper;
+  protected Map<String, List<String>>   headers;
+  protected static JPAEdmNameBuilder    nameBuilder;
+  protected static DataSource           ds;
 
   @BeforeClass
   public static void setupClass() throws ODataJPAModelException {
@@ -118,7 +118,7 @@ public class TestJPACustomScalarFunctions {
     StringBuffer sqlString = new StringBuffer();
 
     sqlString.append(
-        "CREATE FUNCTION  \"OLINGO\".\"org.apache.olingo.jpa::PopulationDensity\" (UnitArea  INT, Population BIGINT ) ");
+        "CREATE FUNCTION  \"OLINGO\".\"PopulationDensity\" (UnitArea  INT, Population BIGINT ) ");
     sqlString.append("RETURNS DOUBLE ");
     sqlString.append("BEGIN ATOMIC  "); //
     sqlString.append("  DECLARE aDouble DOUBLE; "); //
@@ -142,7 +142,7 @@ public class TestJPACustomScalarFunctions {
 
     StringBuffer sqlString = new StringBuffer();
 
-    sqlString.append("DROP FUNCTION  \"OLINGO\".\"org.apache.olingo.jpa::PopulationDensity\"");
+    sqlString.append("DROP FUNCTION  \"OLINGO\".\"PopulationDensity\"");
 
     t.begin();
     Query q = em.createNativeQuery(sqlString.toString());

@@ -28,12 +28,12 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
         parameter = { @EdmFunctionParameter(name = "Number", type = BigDecimal.class, precision = 32, scale = 0) }),
 
 })
-@Table(schema = "\"OLINGO\"", name = "\"org.apache.olingo.jpa::DummyToBeIgnored\"")
+@Table(schema = "\"OLINGO\"", name = "\"DummyToBeIgnored\"")
 @EdmIgnore
 public class DummyToBeIgnored implements Serializable {
 
   @Id
-  private String ID;
+  private String            ID;
   private static final long serialVersionUID = 1L;
 
   @EdmIgnore

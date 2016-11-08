@@ -23,7 +23,7 @@ public class ODataJPAMessageTextBuffer implements ODataJPAMessageBufferRead {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAMessageBufferRead#getText(java.lang.Object,
+   * @see com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAMessageBufferRead#getText(java.lang.Object,
    * java.lang.String)
    */
   @Override

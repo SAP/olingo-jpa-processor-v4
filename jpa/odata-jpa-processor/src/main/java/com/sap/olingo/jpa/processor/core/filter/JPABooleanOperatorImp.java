@@ -25,7 +25,7 @@ class JPABooleanOperatorImp implements JPABooleanOperator {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.processor.core.filter.JPABooleanOperator#get()
+   * @see com.sap.olingo.jpa.processor.core.filter.JPABooleanOperator#get()
    */
   @Override
   public Expression<Boolean> get() throws ODataApplicationException {
@@ -35,7 +35,7 @@ class JPABooleanOperatorImp implements JPABooleanOperator {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.processor.core.filter.JPABooleanOperator#getOperator()
+   * @see com.sap.olingo.jpa.processor.core.filter.JPABooleanOperator#getOperator()
    */
   @Override
   public BinaryOperatorKind getOperator() {
@@ -45,7 +45,7 @@ class JPABooleanOperatorImp implements JPABooleanOperator {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.processor.core.filter.JPABooleanOperator#getLeft()
+   * @see com.sap.olingo.jpa.processor.core.filter.JPABooleanOperator#getLeft()
    */
   @Override
   public Expression<Boolean> getLeft() throws ODataApplicationException {
@@ -55,7 +55,7 @@ class JPABooleanOperatorImp implements JPABooleanOperator {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.processor.core.filter.JPABooleanOperator#getRight()
+   * @see com.sap.olingo.jpa.processor.core.filter.JPABooleanOperator#getRight()
    */
   @Override
   public Expression<Boolean> getRight() throws ODataApplicationException {

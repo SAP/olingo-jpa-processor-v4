@@ -17,9 +17,6 @@ import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.IntermediateModelElement;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.IntermediateProperty;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
 
 public class TestIntermediateProperty extends TestMappingRoot {
   private TestHelper helper;
@@ -247,7 +244,7 @@ public class TestIntermediateProperty extends TestMappingRoot {
     @Override
     public void processProperty(IntermediatePropertyAccess property, String jpaManagedTypeClassName) {
       if (jpaManagedTypeClassName.equals(
-          "org.apache.olingo.jpa.processor.core.testmodel.BusinessPartner")) {
+          "com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner")) {
         if (property.getInternalName().equals("customString1")) {
           property.setExternalName("ContactPersonName");
         }

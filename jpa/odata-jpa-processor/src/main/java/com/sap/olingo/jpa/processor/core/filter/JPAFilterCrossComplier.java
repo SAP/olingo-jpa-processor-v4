@@ -65,7 +65,7 @@ public class JPAFilterCrossComplier extends JPAAbstractFilter {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.processor.core.filter.JPAFilterComplier#compile()
+   * @see com.sap.olingo.jpa.processor.core.filter.JPAFilterComplier#compile()
    */
   @Override
   @SuppressWarnings("unchecked")

@@ -8,7 +8,7 @@ import javax.persistence.Table;
 
 @Entity
 @IdClass(CountryKey.class)
-@Table(schema = "\"OLINGO\"", name = "\"org.apache.olingo.jpa::CountryDescription\"")
+@Table(schema = "\"OLINGO\"", name = "\"CountryDescription\"")
 public class Country {
   @Id
   @Column(name = "\"ISOCode\"")

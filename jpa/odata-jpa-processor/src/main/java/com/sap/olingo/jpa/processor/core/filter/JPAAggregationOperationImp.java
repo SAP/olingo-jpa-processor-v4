@@ -18,7 +18,7 @@ class JPAAggregationOperationImp implements JPAAggregationOperation {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.processor.core.filter.JPAAggregationOperation#get()
+   * @see com.sap.olingo.jpa.processor.core.filter.JPAAggregationOperation#get()
    */
   @Override
   public Object get() throws ODataApplicationException {

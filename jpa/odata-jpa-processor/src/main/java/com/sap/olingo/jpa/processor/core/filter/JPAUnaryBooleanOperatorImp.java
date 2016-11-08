@@ -8,7 +8,7 @@ import org.apache.olingo.server.api.uri.queryoption.expression.UnaryOperatorKind
 class JPAUnaryBooleanOperatorImp implements JPAUnaryBooleanOperator {
 
   private final JPAOperationConverter converter;
-  private final UnaryOperatorKind operator;
+  private final UnaryOperatorKind     operator;
   private final JPAExpressionOperator left;
 
   public JPAUnaryBooleanOperatorImp(final JPAOperationConverter converter, final UnaryOperatorKind operator,
@@ -22,7 +22,7 @@ class JPAUnaryBooleanOperatorImp implements JPAUnaryBooleanOperator {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.processor.core.filter.JPAUnaryBooleanOperator#get()
+   * @see com.sap.olingo.jpa.processor.core.filter.JPAUnaryBooleanOperator#get()
    */
   @Override
   public Expression<Boolean> get() throws ODataApplicationException {
@@ -32,7 +32,7 @@ class JPAUnaryBooleanOperatorImp implements JPAUnaryBooleanOperator {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.processor.core.filter.JPAUnaryBooleanOperator#getLeft()
+   * @see com.sap.olingo.jpa.processor.core.filter.JPAUnaryBooleanOperator#getLeft()
    */
   @Override
   public Expression<Boolean> getLeft() throws ODataApplicationException {
@@ -42,7 +42,7 @@ class JPAUnaryBooleanOperatorImp implements JPAUnaryBooleanOperator {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.jpa.processor.core.filter.JPAUnaryBooleanOperator#getOperator()
+   * @see com.sap.olingo.jpa.processor.core.filter.JPAUnaryBooleanOperator#getOperator()
    */
   @Override
   public UnaryOperatorKind getOperator() {

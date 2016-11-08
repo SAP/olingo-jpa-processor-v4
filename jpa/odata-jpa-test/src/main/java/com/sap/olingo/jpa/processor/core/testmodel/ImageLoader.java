@@ -15,14 +15,14 @@ import javax.persistence.Persistence;
 import javax.persistence.Query;
 
 public class ImageLoader {
-  private static final String SELECT_PERSON_IMAGE =
-      "SELECT * FROM \"OLINGO\".\"org.apache.olingo.jpa::PersonImage\" WHERE ID = '$&1'";
-  private static final String SELECT_ORGANIZATION_IMAGE =
-      "SELECT * FROM \"OLINGO\".\"org.apache.olingo.jpa::OrganizationImage\" WHERE ID = '$&1'";
-  private static final String PATH = "images/";
-  private static final String TEST_IMAGE = "test.png";
+  private static final String SELECT_PERSON_IMAGE        =
+      "SELECT * FROM \"OLINGO\".\"PersonImage\" WHERE ID = '$&1'";
+  private static final String SELECT_ORGANIZATION_IMAGE  =
+      "SELECT * FROM \"OLINGO\".\"OrganizationImage\" WHERE ID = '$&1'";
+  private static final String PATH                       = "images/";
+  private static final String TEST_IMAGE                 = "test.png";
   private static final String ENTITY_MANAGER_DATA_SOURCE = "javax.persistence.nonJtaDataSource";
-  private static final String PUNIT_NAME = "org.apache.olingo.jpa";
+  private static final String PUNIT_NAME                 = "org.apache.olingo.jpa";
 
   public static void main(String[] args) throws Exception {
     ImageLoader i = new ImageLoader();

@@ -21,12 +21,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.DefaultEdmPostProcessor;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.IntermediateEntityType;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.IntermediateModelElement;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.IntermediateSchema;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.IntermediateStructuredType;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.processor.core.testmodel.TestDataConstants;
 
 public class TestIntermediateEntityType extends TestMappingRoot {
@@ -328,7 +322,7 @@ public class TestIntermediateEntityType extends TestMappingRoot {
     @Override
     public void processProperty(IntermediatePropertyAccess property, String jpaManagedTypeClassName) {
       if (jpaManagedTypeClassName.equals(
-          "org.apache.olingo.jpa.processor.core.testmodel.BusinessPartner")) {
+          "com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner")) {
         if (property.getInternalName().equals("communicationData")) {
           property.setIgnore(true);
         }
