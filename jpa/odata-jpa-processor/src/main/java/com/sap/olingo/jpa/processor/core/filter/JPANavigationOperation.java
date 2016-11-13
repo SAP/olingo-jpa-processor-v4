@@ -26,7 +26,6 @@ import org.apache.olingo.server.api.uri.queryoption.SkipOption;
 import org.apache.olingo.server.api.uri.queryoption.SkipTokenOption;
 import org.apache.olingo.server.api.uri.queryoption.TopOption;
 import org.apache.olingo.server.api.uri.queryoption.expression.BinaryOperatorKind;
-import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitException;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitor;
 import org.apache.olingo.server.api.uri.queryoption.expression.Member;
 
@@ -42,9 +41,9 @@ import com.sap.olingo.jpa.processor.core.query.JPANavigationQuery;
  */
 class JPANavigationOperation extends JPAExistsOperation implements JPAExpressionOperator {
 
-  final BinaryOperatorKind operator;
-  final JPAMemberOperator jpaMember;
-  final JPALiteralOperator operand;
+  final BinaryOperatorKind      operator;
+  final JPAMemberOperator       jpaMember;
+  final JPALiteralOperator      operand;
   private final UriResourceKind aggregationType;
 
   JPANavigationOperation(final JPAFilterComplierAccess jpaComplier, final BinaryOperatorKind operator,
@@ -92,8 +91,6 @@ class JPANavigationOperation extends JPAExistsOperation implements JPAExpression
     final List<JPANavigationQuery> queryList = new ArrayList<JPANavigationQuery>();
 
     // 2. Create the queries and roots
-
-    // for (int i = 0; i < naviPathList.size(); i++) {
     for (int i = naviPathList.size() - 1; i >= 0; i--) {
       final JPANavigationProptertyInfo naviInfo = naviPathList.get(i);
       if (i == 0 && aggregationType == null) {
@@ -128,7 +125,7 @@ class JPANavigationOperation extends JPAExistsOperation implements JPAExpression
     }
 
     @Override
-    public <T> T accept(final ExpressionVisitor<T> visitor) throws ExpressionVisitException, ODataApplicationException {
+    public <T> T accept(final ExpressionVisitor<T> visitor) throws ODataApplicationException {
       return null;
     }
 
@@ -139,19 +136,16 @@ class JPANavigationOperation extends JPAExistsOperation implements JPAExpression
 
     @Override
     public EdmType getType() {
-      // TODO Auto-generated method stub
       return null;
     }
 
     @Override
     public EdmType getStartTypeFilter() {
-      // TODO Auto-generated method stub
       return null;
     }
 
     @Override
     public boolean isCollection() {
-      // TODO Auto-generated method stub
       return false;
     }
 

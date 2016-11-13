@@ -58,7 +58,6 @@
 			<artifactId>odata-jpa-metadata</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>

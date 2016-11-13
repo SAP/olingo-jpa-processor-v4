@@ -1,4 +1,5 @@
 package com.sap.olingo.jpa.processor.test;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,11 +32,11 @@ import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 
 public class TestCriteriaBuilder {
-  protected static final String PUNIT_NAME = "org.apache.olingo.jpa";
-  private static final String ENTITY_MANAGER_DATA_SOURCE = "javax.persistence.nonJtaDataSource";
+  protected static final String       PUNIT_NAME                 = "org.apache.olingo.jpa";
+  private static final String         ENTITY_MANAGER_DATA_SOURCE = "javax.persistence.nonJtaDataSource";
   private static EntityManagerFactory emf;
-  private EntityManager em;
-  private CriteriaBuilder cb;
+  private EntityManager               em;
+  private CriteriaBuilder             cb;
 
   @BeforeClass
   public static void setupClass() {
@@ -68,6 +69,7 @@ public class TestCriteriaBuilder {
     tq.getResultList();
   }
 
+  @Ignore // To time consuming
   @Test
   public void testSubSelect() {
     // https://stackoverflow.com/questions/29719321/combining-conditional-expressions-with-and-and-or-predicates-using-the-jpa-c
