@@ -42,16 +42,16 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropert
  */
 class IntermediateProperty extends IntermediateModelElement implements IntermediatePropertyAccess, JPAAttribute {
   private static final String DB_FIELD_NAME_PATTERN = "\"&1\"";
-  // TODO Store a type @Convert
-  protected final Attribute<?, ?> jpaAttribute;
+
+  protected final Attribute<?, ?>    jpaAttribute;
   protected final IntermediateSchema schema;
-  protected CsdlProperty edmProperty;
+  protected CsdlProperty             edmProperty;
   private IntermediateStructuredType type;
-  private AttributeConverter<?, ?> valueConverter;
-  private String dbFieldName;
-  private boolean searchable;
-  private boolean isVersion;
-  private EdmMediaStream streamInfo;
+  private AttributeConverter<?, ?>   valueConverter;
+  private String                     dbFieldName;
+  private boolean                    searchable;
+  private boolean                    isVersion;
+  private EdmMediaStream             streamInfo;
 
   IntermediateProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,
       final IntermediateSchema schema) throws ODataJPAModelException {
@@ -126,7 +126,7 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
             // properties value; it MUST be a positive integer. If no value is specified, the decimal property has
             // unspecified precision.
             // For a temporal property the value of this attribute specifies the number of decimal places allowed in the
-            // seconds portion of the property�s value; it MUST be a non-negative integer between zero and twelve. If no
+            // seconds portion of the property's value; it MUST be a non-negative integer between zero and twelve. If no
             // value is specified, the temporal property has a precision of zero.
             if (jpaColumn.precision() > 0)
               edmProperty.setPrecision(jpaColumn.precision());

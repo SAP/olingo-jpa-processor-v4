@@ -17,10 +17,6 @@ import javax.persistence.Table;
 @Table(schema = "\"OLINGO\"", name = "\"BusinessPartner\"")
 public class Person extends BusinessPartner {
 
-  public Person() {
-    type = "1";
-  }
-
   @Column(name = "\"NameLine1\"")
   private String firstName;
 
@@ -34,4 +30,8 @@ public class Person extends BusinessPartner {
   @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
   @JoinColumn(name = "\"ID\"", referencedColumnName = "\"ID\"", insertable = false, updatable = false, nullable = true)
   private PersonImage image;
+
+  public Person() {
+    type = "1";
+  }
 }
