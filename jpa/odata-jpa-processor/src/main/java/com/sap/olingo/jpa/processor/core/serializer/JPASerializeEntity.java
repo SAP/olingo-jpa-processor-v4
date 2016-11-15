@@ -18,8 +18,8 @@ import com.sap.olingo.jpa.processor.core.query.Util;
 
 public class JPASerializeEntity implements JPASerializer {
   private final ServiceMetadata serviceMetadata;
-  private final UriInfo uriInfo;
-  private final UriHelper uriHelper;
+  private final UriInfo         uriInfo;
+  private final UriHelper       uriHelper;
   private final ODataSerializer serializer;
 
   public JPASerializeEntity(final ServiceMetadata serviceMetadata, final ODataSerializer serializer,
@@ -52,10 +52,9 @@ public class JPASerializeEntity implements JPASerializer {
         .expand(uriInfo.getExpandOption())
         .build();
 
-    final SerializerResult serializerResult = serializer.entity(serviceMetadata, entityType, result
+    return serializer.entity(serviceMetadata, entityType, result
         .getEntities()
         .get(0),
         options);
-    return serializerResult;
   }
 }

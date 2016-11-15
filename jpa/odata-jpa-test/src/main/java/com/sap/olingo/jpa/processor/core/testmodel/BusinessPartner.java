@@ -25,7 +25,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssozation;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionParameter;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 
 @Inheritance
 @DiscriminatorColumn(name = "\"Type\"")
@@ -120,13 +120,18 @@ public abstract class BusinessPartner implements KeyAccess {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
     BusinessPartner other = (BusinessPartner) obj;
     if (iD == null) {
-      if (other.iD != null) return false;
-    } else if (!iD.equals(other.iD)) return false;
+      if (other.iD != null)
+        return false;
+    } else if (!iD.equals(other.iD))
+      return false;
     return true;
   }
 

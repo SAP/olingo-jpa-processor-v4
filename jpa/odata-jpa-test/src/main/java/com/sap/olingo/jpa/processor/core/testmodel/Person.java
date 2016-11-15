@@ -39,10 +39,4 @@ public class Person extends BusinessPartner {
   public Person() {
     type = "1";
   }
-
-  @Transient
-  public String getFormatedName() {
-    return lastName + ", " + firstName;
-  }
-
 }

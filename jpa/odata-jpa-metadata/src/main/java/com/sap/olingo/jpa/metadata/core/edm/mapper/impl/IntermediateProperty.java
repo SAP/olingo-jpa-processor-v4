@@ -8,7 +8,6 @@ import java.lang.reflect.InvocationTargetException;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Column;
 import javax.persistence.Convert;
-import javax.persistence.Transient;
 import javax.persistence.Version;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.Attribute.PersistentAttributeType;
@@ -53,8 +52,6 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
   private boolean                    searchable;
   private boolean                    isVersion;
   private EdmMediaStream             streamInfo;
-  private Class<AttributeConverter>  converter;
-  private boolean                    isTransient;
 
   IntermediateProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,
       final IntermediateSchema schema) throws ODataJPAModelException {
@@ -236,10 +233,6 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
       } else
         dbFieldName = internalName;
       // TODO @Transient -> e.g. Calculated fields like formated name
-      final Transient jpaTransient = ((AnnotatedElement) this.jpaAttribute.getJavaMember()).getAnnotation(
-          Transient.class);
-      if (jpaTransient != null)
-        isTransient = true;
       final EdmSearchable jpaSearchable = ((AnnotatedElement) this.jpaAttribute.getJavaMember()).getAnnotation(
           EdmSearchable.class);
       if (jpaSearchable != null)
@@ -298,9 +291,4 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
   public boolean isEtag() {
     return isVersion;
   }
-
-  public boolean isTransient() {
-    return isTransient;
-  }
-
 }

@@ -59,22 +59,6 @@ public class TestIntermediateProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetProptertyIsTransentTrue() throws ODataJPAModelException {
-    Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType("Person"), "formatedName");
-    IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
-        helper.schema);
-    assertTrue(property.isTransient());
-  }
-
-  @Test
-  public void checkGetProptertyIsTransentFalse() throws ODataJPAModelException {
-    Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType("Person"), "lastName");
-    IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
-        helper.schema);
-    assertFalse(property.isTransient());
-  }
-
-  @Test
   public void checkGetProptertyComplexType() throws ODataJPAModelException {
     Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType("BusinessPartner"), "communicationData");
     IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
