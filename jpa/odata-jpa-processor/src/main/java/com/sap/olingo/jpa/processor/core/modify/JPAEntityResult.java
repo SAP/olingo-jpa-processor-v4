@@ -26,13 +26,13 @@ import com.sap.org.jpa.processor.core.converter.JPAExpandResult;
  *
  */
 public class JPAEntityResult implements JPAExpandResult {
-  private final Object jpaEntity;
-  private final JPAEntityType et;
+  private final Object                                   jpaEntity;
+  private final JPAEntityType                            et;
   private final Map<JPAAssociationPath, JPAExpandResult> children;
-  private final List<JPAPath> pathList;
-  private final List<Tuple> result;
-  private final Locale locale;
-  private final JPAConversionHelper helper;
+  private final List<JPAPath>                            pathList;
+  private final List<Tuple>                              result;
+  private final Locale                                   locale;
+  private final JPAConversionHelper                      helper;
 
   public JPAEntityResult(JPAEntityType et, Object jpaEntity, Map<String, List<String>> requestHeaders)
       throws ODataJPAModelException, ODataJPAProcessorException {
@@ -116,7 +116,7 @@ public class JPAEntityResult implements JPAExpandResult {
 
   private class JPATuple implements Tuple {
     private List<TupleElement<?>> elements = new ArrayList<TupleElement<?>>();
-    private Map<String, Object> values = new HashMap<String, Object>();
+    private Map<String, Object>   values   = new HashMap<String, Object>();
 
     public void addElement(String alias, Class<?> javaType, Object value) {
       elements.add(new JPATupleElement<Object>(alias, javaType));
@@ -158,7 +158,6 @@ public class JPAEntityResult implements JPAExpandResult {
 
     @Override
     public <X> X get(TupleElement<X> arg0) {
-      // TODO Auto-generated method stub
       return null;
     }
 
@@ -176,7 +175,7 @@ public class JPAEntityResult implements JPAExpandResult {
 
   private class JPATupleElement<X> implements TupleElement<X> {
 
-    private final String alias;
+    private final String             alias;
     private final Class<? extends X> javaType;
 
     public JPATupleElement(String alias, Class<? extends X> javaType) {
