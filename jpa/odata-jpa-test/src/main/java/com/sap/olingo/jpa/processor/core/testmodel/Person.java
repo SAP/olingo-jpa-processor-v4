@@ -34,4 +34,28 @@ public class Person extends BusinessPartner {
   public Person() {
     type = "1";
   }
+
+  public String getFirstName() {
+    return firstName;
+  }
+
+  public String getLastName() {
+    return lastName;
+  }
+
+  public LocalDate getBirthDay() {
+    return birthDay;
+  }
+
+  public void setFirstName(String firstName) {
+    this.firstName = firstName;
+  }
+
+  public void setLastName(String lastName) {
+    this.lastName = lastName;
+  }
+
+  public void setBirthDay(LocalDate birthDay) {
+    this.birthDay = birthDay;
+  }
 }
