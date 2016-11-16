@@ -31,8 +31,8 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
-import com.sap.olingo.jpa.processor.core.exception.ODataJPASerializerException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPASerializerException;
 import com.sap.olingo.jpa.processor.core.modify.JPACUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
 import com.sap.olingo.jpa.processor.core.modify.JPAEntityResult;
@@ -45,8 +45,8 @@ import com.sap.org.jpa.processor.core.converter.JPATupleResultConverter;
 public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
 
   private final JPAODataSessionContextAccess sessionContext;
-  private final ServiceMetadata serviceMetadata;
-  private final JPAConversionHelper helper;
+  private final ServiceMetadata              serviceMetadata;
+  private final JPAConversionHelper          helper;
 
   public JPACUDRequestProcessor(final OData odata, final ServiceMetadata serviceMetadata,
       final JPAODataSessionContextAccess sessionContext, final JPAODataRequestContextAccess requestContext,
@@ -88,7 +88,7 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       newPOJO = handler.createEntity(et, jpaAttributes, em);
     } catch (ODataJPAProcessException e) {
       throw e;
-    } catch (Throwable e) {
+    } catch (Exception e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
 

@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.AttributeConverter;
 import javax.persistence.Tuple;
 import javax.persistence.TupleElement;
 
@@ -36,13 +37,13 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 public abstract class JPATupleAbstractConverter {
 
-  public static final String ACCESS_MODIFIER_GET = "get";
-  public static final String ACCESS_MODIFIER_SET = "set";
-  public static final String ACCESS_MODIFIER_IS = "is";
-  protected final JPAEntityType jpaConversionTargetEntity;
+  public static final String      ACCESS_MODIFIER_GET = "get";
+  public static final String      ACCESS_MODIFIER_SET = "set";
+  public static final String      ACCESS_MODIFIER_IS  = "is";
+  protected final JPAEntityType   jpaConversionTargetEntity;
   protected final JPAExpandResult jpaQueryResult;
-  protected final UriHelper uriHelper;
-  protected final String setName;
+  protected final UriHelper       uriHelper;
+  protected final String          setName;
   protected final ServiceDocument sd;
   protected final ServiceMetadata serviceMetadata;
 
@@ -164,8 +165,10 @@ public abstract class JPATupleAbstractConverter {
 //    return pojoMethods;
 //  }
 
-  private void convertAttribute(final Object value, final String externalName, final String prefix,
-      final JPAStructuredType jpaStructuredType, final Map<String, ComplexValue> complexValueBuffer,
+  @SuppressWarnings("unchecked")
+  private <T extends Object, S extends Object> void convertAttribute(final Object value, final String externalName,
+      final String prefix, final JPAStructuredType jpaStructuredType,
+      final Map<String, ComplexValue> complexValueBuffer,
       final List<Property> properties) throws ODataJPAModelException {
 
     ComplexValue compexValue = null;
@@ -191,19 +194,28 @@ public abstract class JPATupleAbstractConverter {
         final int splitIndex = attribute.getExternalName().length() + JPAPath.PATH_SEPERATOR.length();
         final String attributeName = externalName.substring(splitIndex);
         convertAttribute(value, attributeName, bufferKey, attribute.getStructuredType(), complexValueBuffer, values);
-      } else if (attribute != null && attribute.isKey() && attribute.isComplex()) {
-        properties.add(new Property(
-            null,
-            jpaStructuredType.getPath(externalName).getLeaf().getExternalName(),
-            ValueType.PRIMITIVE,
-            value));
       } else {
-        // ...$select=Name1,Address/Region
-        properties.add(new Property(
-            null,
-            externalName,
-            ValueType.PRIMITIVE,
-            value));
+        Object odataValue;
+        if (attribute.getConverter() != null) {
+          AttributeConverter<T, S> converter = (AttributeConverter<T, S>) attribute.getConverter();
+          odataValue = converter.convertToDatabaseColumn((T) value);
+        } else
+          odataValue = value;
+        if (attribute != null && attribute.isKey() && attribute.isComplex()) {
+
+          properties.add(new Property(
+              null,
+              jpaStructuredType.getPath(externalName).getLeaf().getExternalName(),
+              ValueType.PRIMITIVE,
+              odataValue));
+        } else {
+          // ...$select=Name1,Address/Region
+          properties.add(new Property(
+              null,
+              externalName,
+              ValueType.PRIMITIVE,
+              odataValue));
+        }
       }
     }
   }

@@ -3,7 +3,11 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
+import java.sql.Date;
+import java.sql.Timestamp;
 
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.EmbeddableType;
@@ -155,6 +159,24 @@ public class TestIntermediateProperty extends TestMappingRoot {
   }
 
   @Test
+  public void checkGetProptertyMapper() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType("BusinessPartner"), "creationDateTime");
+    IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
+        helper.schema);
+    assertNotNull(property.getEdmItem().getMapping());
+    assertEquals(Timestamp.class, property.getEdmItem().getMapping().getMappedJavaClass());
+  }
+
+  @Test
+  public void checkGetProptertyMapperWithConverter() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType("Person"), "birthDay");
+    IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
+        helper.schema);
+    assertNotNull(property.getEdmItem().getMapping());
+    assertEquals(Date.class, property.getEdmItem().getMapping().getMappedJavaClass());
+  }
+
+  @Test
   public void checkPostProcessorCalled() throws ODataJPAModelException {
     PostProcessorSpy spy = new PostProcessorSpy();
     IntermediateModelElement.setPostProcessor(spy);
@@ -191,7 +213,7 @@ public class TestIntermediateProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkConverterGet() throws ODataJPAModelException {
+  public void checkConverterGetConverterReturned() throws ODataJPAModelException {
     PostProcessorSetName pPDouble = new PostProcessorSetName();
     IntermediateModelElement.setPostProcessor(pPDouble);
 
@@ -200,6 +222,18 @@ public class TestIntermediateProperty extends TestMappingRoot {
         helper.schema);
 
     assertNotNull(property.getConverter());
+  }
+
+  @Test
+  public void checkConverterGetConverterNotReturned() throws ODataJPAModelException {
+    PostProcessorSetName pPDouble = new PostProcessorSetName();
+    IntermediateModelElement.setPostProcessor(pPDouble);
+
+    Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType("Person"), "customString1");
+    IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
+        helper.schema);
+
+    assertNull(property.getConverter());
   }
 
   @Test
