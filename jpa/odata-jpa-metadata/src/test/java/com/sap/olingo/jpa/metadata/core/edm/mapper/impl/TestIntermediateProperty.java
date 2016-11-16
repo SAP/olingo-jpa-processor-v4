@@ -254,6 +254,24 @@ public class TestIntermediateProperty extends TestMappingRoot {
     assertTrue(property.isStream());
   }
 
+  @Test
+  public void checkGetTypeBoxedForPrimitive() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType("AdministrativeDivision"),
+        "population");
+    IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
+        helper.schema);
+    assertEquals(Long.class, property.getType());
+  }
+
+  @Test
+  public void checkGetTypeBoxed() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType("AdministrativeDivision"),
+        "area");
+    IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
+        helper.schema);
+    assertEquals(Integer.class, property.getType());
+  }
+
   @Ignore
   @Test
   public void checkGetSRID() {
