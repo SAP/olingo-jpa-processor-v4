@@ -9,6 +9,7 @@ import javax.persistence.AssociationOverride;
 import javax.persistence.AssociationOverrides;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -75,6 +76,7 @@ public abstract class BusinessPartner implements KeyAccess {
 
   @EdmIgnore
   @Column(name = "\"CustomString1\"")
+  @Convert(converter = StringConverter.class)
   protected String     customString1;
   @EdmIgnore
   @Column(name = "\"CustomString2\"")
@@ -166,10 +168,6 @@ public abstract class BusinessPartner implements KeyAccess {
   public String getCustomString1() {
     return customString1;
   }
-
-//  public void setLocationName(Collection<AdministrativeDivisionDescription> locationName) {
-//    this.locationName = locationName;
-//  }
 
   public String getCustomString2() {
     return customString2;

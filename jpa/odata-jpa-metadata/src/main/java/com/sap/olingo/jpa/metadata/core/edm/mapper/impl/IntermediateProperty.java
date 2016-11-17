@@ -4,6 +4,8 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Column;
@@ -15,6 +17,7 @@ import javax.persistence.metamodel.SingularAttribute;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.geo.SRID;
+import org.apache.olingo.commons.api.edm.provider.CsdlMapping;
 import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmGeospatial;
@@ -52,6 +55,8 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
   private boolean                    searchable;
   private boolean                    isVersion;
   private EdmMediaStream             streamInfo;
+  private Class<?>                   dbType;
+  private Class<?>                   entityType;
 
   IntermediateProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,
       final IntermediateSchema schema) throws ODataJPAModelException {
@@ -59,7 +64,6 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
     super(nameBuilder, IntNameBuilder.buildAttributeName(jpaAttribute));
     this.jpaAttribute = jpaAttribute;
     this.schema = schema;
-
     buildProperty(nameBuilder);
   }
 
@@ -75,7 +79,7 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
 
   @Override
   public Class<?> getType() {
-    return jpaAttribute.getJavaType();
+    return jpaAttribute.getJavaType().isPrimitive() ? boxPrimitive() : jpaAttribute.getJavaType();
   }
 
   @Override
@@ -100,6 +104,11 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
     if (edmProperty == null) {
       edmProperty = new CsdlProperty();
       edmProperty.setName(this.getExternalName());
+
+      CsdlMapping mapping = new CsdlMapping();
+      mapping.setInternalName(this.getExternalName());
+      mapping.setMappedJavaClass(dbType);
+      edmProperty.setMapping(mapping);
 
       if (jpaAttribute.getPersistentAttributeType() == PersistentAttributeType.BASIC)
         edmProperty.setType(JPATypeConvertor.convertToEdmSimpleType(jpaAttribute.getJavaType(), jpaAttribute)
@@ -199,6 +208,8 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
   private void buildProperty(final JPAEdmNameBuilder nameBuilder) throws ODataJPAModelException {
     // Set element specific attributes of super type
     this.setExternalName(nameBuilder.buildPropertyName(internalName));
+    entityType = dbType = jpaAttribute.getJavaType();
+
     if (this.jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
       final EdmIgnore jpaIgnore = ((AnnotatedElement) this.jpaAttribute.getJavaMember()).getAnnotation(
           EdmIgnore.class);
@@ -214,7 +225,12 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
           Convert.class);
       if (jpaConverter != null) {
         try {
-          valueConverter = (AttributeConverter<?, ?>) jpaConverter.converter().newInstance();
+          Type[] convType = jpaConverter.converter().getGenericInterfaces();
+          Type[] types = ((ParameterizedType) convType[0]).getActualTypeArguments();
+          entityType = (Class<?>) types[0];
+          dbType = (Class<?>) types[1];
+          if (dbType != entityType)
+            valueConverter = (AttributeConverter<?, ?>) jpaConverter.converter().newInstance();
         } catch (InstantiationException e) {
           throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.TYPE_MAPPER_COULD_NOT_INSANTIATE, e);
         } catch (IllegalAccessException e) {
@@ -291,4 +307,30 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
   public boolean isEtag() {
     return isVersion;
   }
+  /**
+   * https://docs.oracle.com/javase/tutorial/java/data/autoboxing.html
+   * @return
+   */
+  private Class<?> boxPrimitive() {
+
+    if (jpaAttribute.getJavaType().getName().equals("int"))
+      return Integer.class;
+    else if (jpaAttribute.getJavaType().getName().equals("long"))
+      return Long.class;
+    else if (jpaAttribute.getJavaType().getName().equals("boolean"))
+      return Boolean.class;
+    else if (jpaAttribute.getJavaType().getName().equals("byte"))
+      return Byte.class;
+    else if (jpaAttribute.getJavaType().getName().equals("char"))
+      return Character.class;
+    else if (jpaAttribute.getJavaType().getName().equals("float"))
+      return Float.class;
+    else if (jpaAttribute.getJavaType().getName().equals("short"))
+      return Short.class;
+    else if (jpaAttribute.getJavaType().getName().equals("double"))
+      return Double.class;
+
+    return null;
+  }
+
 }
