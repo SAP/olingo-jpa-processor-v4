@@ -40,8 +40,8 @@ public class TestIntermediateReferences extends TestMappingRoot {
     String uri = "http://docs.oasisopen.org/odata/odata/v4.0/os/vocabularies/Org.OData.Measures.V1.xml";
     cut.addReference(uri, "annotations/Org.OData.Measures.V1.xml");
     List<EdmxReference> act = cut.getEdmReferences();
-    assertEquals(act.size(), 1);
-    assertEquals(act.get(0).getUri().toString(), uri);
+    assertEquals(1, act.size());
+    assertEquals(uri, act.get(0).getUri().toString());
   }
 
   @Test

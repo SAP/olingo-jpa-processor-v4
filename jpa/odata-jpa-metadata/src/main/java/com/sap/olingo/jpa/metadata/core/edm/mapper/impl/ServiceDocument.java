@@ -44,6 +44,7 @@ public class ServiceDocument {
     IntermediateModelElement.setPostProcessor(pP);
 
     this.references = new IntermediateReferences();
+    pP.provideReferences(this.references);
     this.nameBuilder = new JPAEdmNameBuilder(namespace);
     this.jpaMetamodel = jpaMetamodel;
     this.schemaListInternalKey = buildIntermediateSchemas();
