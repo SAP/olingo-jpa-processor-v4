@@ -220,6 +220,7 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
         type = schema.getStructuredType(jpaAttribute);
       else
         type = null;
+
       final Convert jpaConverter = ((AnnotatedElement) this.jpaAttribute.getJavaMember()).getAnnotation(
           Convert.class);
       if (jpaConverter != null) {
@@ -306,7 +307,6 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
   public boolean isEtag() {
     return isVersion;
   }
-
   /**
    * https://docs.oracle.com/javase/tutorial/java/data/autoboxing.html
    * @return

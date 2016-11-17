@@ -38,8 +38,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.processor.core.api.JPAODataContextAccessDouble;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
-import com.sap.olingo.jpa.processor.core.query.JPAExecutableQuery;
-import com.sap.olingo.jpa.processor.core.query.JPAQuery;
 import com.sap.olingo.jpa.processor.core.testmodel.TestDataConstants;
 import com.sap.olingo.jpa.processor.core.util.EdmEntitySetDouble;
 import com.sap.olingo.jpa.processor.core.util.EdmEntityTypeDouble;
@@ -55,10 +53,10 @@ import com.sap.olingo.jpa.processor.core.util.UriResourcePropertyDouble;
 
 public class TestJPAQuerySelectClause extends TestBase {
 
-  private JPAExecutableQuery cut;
-  private JPAEntityType jpaEntityType;
-  private HashMap<String, From<?, ?>> joinTables;
-  private Root<?> root;
+  private JPAExecutableQuery           cut;
+  private JPAEntityType                jpaEntityType;
+  private HashMap<String, From<?, ?>>  joinTables;
+  private Root<?>                      root;
   private JPAODataSessionContextAccess context;
 
   @Before
@@ -377,7 +375,6 @@ public class TestJPAQuerySelectClause extends TestBase {
 
     @Override
     public String getSegmentValue() {
-      // TODO Auto-generated method stub
       return null;
     }
   }

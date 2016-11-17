@@ -6,7 +6,6 @@ public class JPAStandardExtention implements JPAExtention {
 
   @Override
   public JPAExpandResult executeExpandTopSkipQuery() {
-    // TODO Auto-generated method stub
     return null;
   }
 
