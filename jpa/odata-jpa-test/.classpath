@@ -28,6 +28,5 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/D023143/git/OlingoV4-JPA/OlingoV4_UDF.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

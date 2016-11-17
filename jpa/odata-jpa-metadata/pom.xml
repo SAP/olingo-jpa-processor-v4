@@ -4,9 +4,9 @@
 	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.apache.olingo</groupId>
+		<groupId>com.sap.olingo</groupId>
 		<artifactId>odata-jpa</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.1.0-SNAPSHOT</version>
 	</parent>
 
 
@@ -25,13 +25,13 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.olingo</groupId>
+			<groupId>com.sap.olingo</groupId>
 			<artifactId>odata-jpa-test</artifactId>
 			<scope>test</scope>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.olingo</groupId>
+			<groupId>com.sap.olingo</groupId>
 			<artifactId>odata-jpa-annotation</artifactId>
 			<version>${project.version}</version>
 		</dependency>
