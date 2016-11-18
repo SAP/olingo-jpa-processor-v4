@@ -11,13 +11,11 @@ import java.util.Map;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.Edmx;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.Schema;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.TermReader;
 
 public class TestTermReader {
   private TermReader cut;
@@ -55,7 +53,8 @@ public class TestTermReader {
     assertNotNull(act.get("Org.OData.Capabilities.V1"));
   }
 
-  // This test may not run because of proxy setting problems!!
+  // TODO This test may not run because of proxy setting problems!! -> find alternative for Integration tests
+  @Ignore
   @Test
   public void TestReadFromURI() throws URISyntaxException, JsonParseException, JsonMappingException,
       MalformedURLException, IOException {
@@ -69,7 +68,8 @@ public class TestTermReader {
     assertEquals(actSchemas[0].getNamespace(), "Org.OData.Core.V1");
   }
 
-  // This test may not run because of proxy setting problems!!
+  // TODO This test may not run because of proxy setting problems!! -> find alternative for Integration tests
+  @Ignore
   @Test
   public void TestGetTermsOneSchemaFromURI() throws URISyntaxException, JsonParseException, JsonMappingException,
       MalformedURLException, IOException {
