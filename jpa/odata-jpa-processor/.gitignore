@@ -4,3 +4,4 @@ target/
 /.pmd
 /derby.log
 /test/
+/.settings/

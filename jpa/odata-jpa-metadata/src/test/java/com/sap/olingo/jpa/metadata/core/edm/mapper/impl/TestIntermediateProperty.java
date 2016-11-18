@@ -5,6 +5,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import java.sql.Date;
 import java.sql.Timestamp;
@@ -21,13 +24,16 @@ import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
 
 public class TestIntermediateProperty extends TestMappingRoot {
-  private TestHelper helper;
+  private TestHelper                  helper;
+  private JPAEdmMetadataPostProcessor processor;
 
   @Before
   public void setup() throws ODataJPAModelException {
     helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
+    processor = mock(JPAEdmMetadataPostProcessor.class);
   }
 
   @Test
@@ -178,14 +184,13 @@ public class TestIntermediateProperty extends TestMappingRoot {
 
   @Test
   public void checkPostProcessorCalled() throws ODataJPAModelException {
-    PostProcessorSpy spy = new PostProcessorSpy();
-    IntermediateModelElement.setPostProcessor(spy);
+    IntermediateModelElement.setPostProcessor(processor);
     Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType("BusinessPartner"), "creationDateTime");
     IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
         helper.schema);
 
     property.getEdmItem();
-    assertTrue(spy.called);
+    verify(processor, atLeastOnce()).processProperty(property, BUPA_CANONICAL_NAME);
   }
 
   @Test
@@ -278,19 +283,6 @@ public class TestIntermediateProperty extends TestMappingRoot {
     // Test for spatial data missing
   }
 
-  private class PostProcessorSpy extends JPAEdmMetadataPostProcessor {
-    boolean called = false;
-
-    @Override
-    public void processProperty(IntermediatePropertyAccess property, String jpaManagedTypeClassName) {
-      called = true;
-    }
-
-    @Override
-    public void processNavigationProperty(IntermediateNavigationPropertyAccess property,
-        String jpaManagedTypeClassName) {}
-  }
-
   private class PostProcessorSetName extends JPAEdmMetadataPostProcessor {
 
     @Override
@@ -306,5 +298,8 @@ public class TestIntermediateProperty extends TestMappingRoot {
     @Override
     public void processNavigationProperty(IntermediateNavigationPropertyAccess property,
         String jpaManagedTypeClassName) {}
+
+    @Override
+    public void provideReferences(IntermediateReferenceList references) throws ODataJPAModelException {}
   }
 }

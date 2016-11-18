@@ -1,0 +1,58 @@
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:Reference Uri="http://docs.oasis-open.org/odata/odata/v4.0/os/vocabularies/Org.OData.Core.V1.xml">
+    <edmx:Include Alias="Core" Namespace="Org.OData.Core.V1" />
+  </edmx:Reference>
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Org.OData.Measures.V1" Alias="Measures">
+      <Annotation Term="Core.Description">
+        <String>Terms describing monetary amounts and measured quantities</String>
+      </Annotation>
+
+      <Term Name="ISOCurrency" Type="Edm.String" AppliesTo="Property">
+        <Annotation Term="Core.Description" String="The currency for this monetary amount as an ISO 4217 currency code" />
+      </Term>
+
+      <Term Name="Scale" Type="Edm.Byte" AppliesTo="Property">
+        <Annotation Term="Core.Description"
+          String="The number of significant decimal places in the scale part (less than or equal to the number declared in the Scale facet)" />
+        <Annotation Term="Core.RequiresType" String="Edm.Decimal" />
+      </Term>
+
+      <Term Name="Unit" Type="Edm.String" AppliesTo="Property">
+        <Annotation Term="Core.Description" String="The unit of measure for this measured quantity, e.g. cm for centimeters or % for percentages" />
+      </Term>
+
+    </Schema>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Org.OData.Capabilities.V1" Alias="Capabilities">
+      <Annotation Term="Core.Description">
+        <String>
+          The Capabilities vocabulary aims to provide a way for service authors to describe
+          certain capabilities of an OData Service.
+        </String>
+      </Annotation>
+      <Term Name="UpdateRestrictions" Type="Capabilities.UpdateRestrictionsType" AppliesTo="EntitySet">
+        <Annotation Term="Core.Description" String="Restrictions on update operations" />
+      </Term>
+      <ComplexType Name="UpdateRestrictionsType">
+        <Property Name="Updatable" Type="Edm.Boolean" DefaultValue="true">
+          <Annotation Term="Core.Description" String="Entities can be updated" />
+        </Property>
+        <Property Name="NonUpdatableNavigationProperties" Type="Collection(Edm.NavigationPropertyPath)">
+          <Annotation Term="Core.Description" String="These navigation properties do not allow rebinding" />
+        </Property>
+      </ComplexType>
+
+      <Term Name="DeleteRestrictions" Type="Capabilities.DeleteRestrictionsType" AppliesTo="EntitySet">
+        <Annotation Term="Core.Description" String="Restrictions on delete operations" />
+      </Term>
+      <ComplexType Name="DeleteRestrictionsType">
+        <Property Name="Deletable" Type="Edm.Boolean" DefaultValue="true">
+          <Annotation Term="Core.Description" String="Entities can be deleted" />
+        </Property>
+        <Property Name="NonDeletableNavigationProperties" Type="Collection(Edm.NavigationPropertyPath)">
+          <Annotation Term="Core.Description" String="These navigation properties do not allow DeleteLink requests" />
+        </Property>
+      </ComplexType>
+    </Schema>	  
+  </edmx:DataServices>
+</edmx:Edmx>

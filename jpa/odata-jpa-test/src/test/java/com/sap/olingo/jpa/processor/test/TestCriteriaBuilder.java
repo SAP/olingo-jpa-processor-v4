@@ -69,7 +69,7 @@ public class TestCriteriaBuilder {
     tq.getResultList();
   }
 
-  @Ignore
+  @Ignore // To time consuming
   @Test
   public void testSubSelect() {
     // https://stackoverflow.com/questions/29719321/combining-conditional-expressions-with-and-and-or-predicates-using-the-jpa-c

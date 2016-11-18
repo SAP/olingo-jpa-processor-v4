@@ -36,8 +36,10 @@ import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
 import com.sap.olingo.jpa.processor.core.api.JPAAbstractCUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
@@ -74,6 +76,9 @@ public class TestJPADeleteProcessor {
       @Override
       public void processNavigationProperty(IntermediateNavigationPropertyAccess property,
           String jpaManagedTypeClassName) {}
+
+      @Override
+      public void provideReferences(IntermediateReferenceList references) throws ODataJPAModelException {}
     });
 
   }
