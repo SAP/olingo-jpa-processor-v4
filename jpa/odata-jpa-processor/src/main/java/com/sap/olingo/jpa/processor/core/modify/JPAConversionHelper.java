@@ -229,7 +229,8 @@ public class JPAConversionHelper {
       JPAPath key = keyPath.get(0);
       if (key.getLeaf().isComplex()) {
         // EmbeddedId
-        collectKeyProperties(newPOJO, key.getLeaf().getStructuredType().getPathList(), properties);
+        Object embeddedId = getter.get(key.getLeaf().getInternalName());
+        collectKeyProperties(embeddedId, key.getLeaf().getStructuredType().getPathList(), properties);
       } else {
         final Property property = new Property(null, key.getLeaf().getExternalName());
         property.setValue(ValueType.PRIMITIVE, getter.get(key.getLeaf().getInternalName()));

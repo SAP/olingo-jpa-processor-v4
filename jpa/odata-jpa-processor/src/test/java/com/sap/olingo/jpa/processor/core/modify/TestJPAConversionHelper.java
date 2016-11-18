@@ -54,10 +54,9 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
-import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
+import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescription;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescriptionKey;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
-import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRoleKey;
 import com.sap.olingo.jpa.processor.core.testmodel.DateConverter;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 
@@ -337,9 +336,9 @@ public class TestJPAConversionHelper {
       ODataJPAModelException {
     final List<JPAPath> keyPath = new ArrayList<JPAPath>();
 
-    BusinessPartnerRoleKey primaryKey = new BusinessPartnerRoleKey();
-    primaryKey.setBusinessPartnerID("35");
-    primaryKey.setRoleCategory("A");
+    BusinessPartnerRole newPOJO = new BusinessPartnerRole();
+    newPOJO.setBusinessPartnerID("35");
+    newPOJO.setRoleCategory("A");
 
     ODataRequest request = mock(ODataRequest.class);
     when(request.getRawBaseUri()).thenReturn("localhost.test");
@@ -354,7 +353,7 @@ public class TestJPAConversionHelper {
     UriHelper uriHelper = new UriHelperSpy(UriHelperSpy.COMPOUND_KEY);
     when(odata.createUriHelper()).thenReturn(uriHelper);
 
-    String act = cut.convertKeyToLocal(odata, request, edmEntitySet, et, primaryKey);
+    String act = cut.convertKeyToLocal(odata, request, edmEntitySet, et, newPOJO);
     assertEquals("localhost.test/BusinessPartnerRoles(BusinessPartnerID='35',RoleCategory='A')", act);
   }
 
@@ -363,11 +362,13 @@ public class TestJPAConversionHelper {
       ODataJPAModelException {
     List<JPAPath> keyPath = new ArrayList<JPAPath>();
 
+    AdministrativeDivisionDescription newPOJO = new AdministrativeDivisionDescription();
     AdministrativeDivisionDescriptionKey primaryKey = new AdministrativeDivisionDescriptionKey();
     primaryKey.setCodeID("NUTS1");
     primaryKey.setCodePublisher("Eurostat");
     primaryKey.setDivisionCode("BE1");
     primaryKey.setLanguage("fr");
+    newPOJO.setKey(primaryKey);
 
     ODataRequest request = mock(ODataRequest.class);
     when(request.getRawBaseUri()).thenReturn("localhost.test");
@@ -379,6 +380,7 @@ public class TestJPAConversionHelper {
     keyPath.add(key);
     JPAAttribute keyAttribute = mock(JPAAttribute.class);
     when(keyAttribute.getExternalName()).thenReturn("Key");
+    when(keyAttribute.getInternalName()).thenReturn("key");
     when(keyAttribute.isComplex()).thenReturn(true);
     when(keyAttribute.isKey()).thenReturn(true);
     when(key.getLeaf()).thenReturn(keyAttribute);
@@ -397,7 +399,7 @@ public class TestJPAConversionHelper {
     UriHelper uriHelper = new UriHelperSpy(UriHelperSpy.EMBEDDED_ID);
     when(odata.createUriHelper()).thenReturn(uriHelper);
 
-    String act = cut.convertKeyToLocal(odata, request, edmEntitySet, et, primaryKey);
+    String act = cut.convertKeyToLocal(odata, request, edmEntitySet, et, newPOJO);
     assertEquals(
         "localhost.test/AdministrativeDivisionDescriptions(DivisionCode='BE1',CodeID='NUTS1',CodePublisher='Eurostat',Language='fr')",
         act);
@@ -417,10 +419,10 @@ public class TestJPAConversionHelper {
   }
 
   private class UriHelperSpy implements UriHelper {
-    public static final String EMBEDDED_ID = "EmbeddedId";
+    public static final String EMBEDDED_ID  = "EmbeddedId";
     public static final String COMPOUND_KEY = "CompoundKey";
-    public static final String SINGLE = "SingleID";
-    private final String mode;
+    public static final String SINGLE       = "SingleID";
+    private final String       mode;
 
     public UriHelperSpy(String mode) {
       this.mode = mode;
