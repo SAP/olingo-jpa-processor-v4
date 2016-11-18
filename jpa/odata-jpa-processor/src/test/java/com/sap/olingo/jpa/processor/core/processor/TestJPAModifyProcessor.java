@@ -42,25 +42,26 @@ import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
 import com.sap.olingo.jpa.processor.core.api.JPAAbstractCUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
-import com.sap.olingo.jpa.processor.core.processor.JPACUDRequestProcessor;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializer;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 
 public abstract class TestJPAModifyProcessor {
-  protected static final String LOCATION_HEADER = "Organization('35')";
-  protected static final String PREFERENCE_APPLIED = "return=minimal";
-  protected static final String PUNIT_NAME = "org.apache.olingo.jpa";
+  protected static final String         LOCATION_HEADER    = "Organization('35')";
+  protected static final String         PREFERENCE_APPLIED = "return=minimal";
+  protected static final String         PUNIT_NAME         = "org.apache.olingo.jpa";
   protected static EntityManagerFactory emf;
-  protected static JPAEdmProvider jpaEdm;
-  protected static DataSource ds;
+  protected static JPAEdmProvider       jpaEdm;
+  protected static DataSource           ds;
 
   @BeforeClass
   public static void setupClass() throws ODataException {
@@ -73,25 +74,28 @@ public abstract class TestJPAModifyProcessor {
 
       @Override
       public void processProperty(IntermediatePropertyAccess property, String jpaManagedTypeClassName) {}
+
+      @Override
+      public void provideReferences(IntermediateReferenceList references) throws ODataJPAModelException {}
     });
 
   }
 
-  protected JPACUDRequestProcessor processor;
-  protected OData odata;
-  protected ServiceMetadata serviceMetadata;
+  protected JPACUDRequestProcessor       processor;
+  protected OData                        odata;
+  protected ServiceMetadata              serviceMetadata;
   protected JPAODataSessionContextAccess sessionContext;
   protected JPAODataRequestContextAccess requestContext;
-  protected UriInfo uriInfo;
-  protected UriResourceEntitySet uriEts;
-  protected EntityManager em;
-  protected JPASerializer serializer;
-  protected EdmEntitySet ets;
-  protected List<UriParameter> keyPredicates;
-  protected JPAConversionHelper helper;
-  protected List<UriResource> pathParts = new ArrayList<UriResource>();
-  protected SerializerResult serializerResult;
-  protected List<String> header = new ArrayList<String>();
+  protected UriInfo                      uriInfo;
+  protected UriResourceEntitySet         uriEts;
+  protected EntityManager                em;
+  protected JPASerializer                serializer;
+  protected EdmEntitySet                 ets;
+  protected List<UriParameter>           keyPredicates;
+  protected JPAConversionHelper          helper;
+  protected List<UriResource>            pathParts = new ArrayList<UriResource>();
+  protected SerializerResult             serializerResult;
+  protected List<String>                 header    = new ArrayList<String>();
 
   @Before
   public void setUp() throws Exception {

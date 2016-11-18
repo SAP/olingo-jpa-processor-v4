@@ -14,8 +14,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.build.source>1.6</project.build.source>
 		<odata.version>4.3.0</odata.version>
-        <processor.version>0.1.0-SNAPSHOT</processor.version>
-        <processor.groupId>sap.com.olingo</processor.groupId>
+        <jackson.version>2.4.2</jackson.version>
 	</properties>
 
 	<profiles>

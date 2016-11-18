@@ -22,6 +22,9 @@ import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
+
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAnnotation;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssozation;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionParameter;
@@ -91,6 +94,8 @@ public abstract class BusinessPartner implements KeyAccess {
   @Column(name = "\"Country\"", length = 4)
   private String country;
 
+  @EdmAnnotation(term = "Core.IsLanguageDependent", constantExpression = @EdmAnnotation.ConstantExpression(
+      type = ConstantExpressionType.Bool, value = "true"))
   @EdmDescriptionAssozation(languageAttribute = "key/language", descriptionAttribute = "name",
       valueAssignments = {
           @EdmDescriptionAssozation.valueAssignment(attribute = "key/codePublisher", value = "ISO"),

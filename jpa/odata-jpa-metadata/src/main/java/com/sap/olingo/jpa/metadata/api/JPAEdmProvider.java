@@ -9,6 +9,7 @@ import javax.persistence.metamodel.Metamodel;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlAbstractEdmProvider;
+import org.apache.olingo.commons.api.edm.provider.CsdlAnnotations;
 import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainerInfo;
@@ -17,6 +18,8 @@ import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunctionImport;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
+import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
+import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.commons.api.ex.ODataException;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAException;
@@ -26,7 +29,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
 public class JPAEdmProvider extends CsdlAbstractEdmProvider {
 
   final private JPAEdmNameBuilder nameBuilder;
-  final private ServiceDocument serviceDocument;
+  final private ServiceDocument   serviceDocument;
 
   // http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406397930
   public JPAEdmProvider(final String namespace, final EntityManagerFactory emf,
@@ -115,6 +118,17 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
   }
 
   @Override
+  public CsdlAnnotations getAnnotationsGroup(final FullQualifiedName targetName, String qualifier)
+      throws ODataException {
+    return null;
+  }
+
+  @Override
+  public CsdlTerm getTerm(final FullQualifiedName termName) throws ODataException {
+    return serviceDocument.getTerm(termName);
+  }
+
+  @Override
   public List<CsdlSchema> getSchemas() throws ODataException {
     return serviceDocument.getEdmSchemas();
   }
@@ -126,4 +140,9 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
   public void setRequestLocales(final Enumeration<Locale> locales) {
     ODataJPAException.setLocales(locales);
   }
+
+  public List<EdmxReference> getReferences() {
+    return serviceDocument.getReferences();
+  }
+
 }

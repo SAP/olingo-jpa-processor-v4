@@ -3,11 +3,18 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
+import java.util.List;
 
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.EmbeddableType;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
+import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,19 +22,17 @@ import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.DefaultEdmPostProcessor;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.IntermediateDescriptionProperty;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.IntermediateModelElement;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.IntermediateProperty;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
 
 public class TestIntermediateDescriptionProperty extends TestMappingRoot {
-  private TestHelper helper;
+  private TestHelper                      helper;
   private IntermediateDescriptionProperty cut;
+  private JPAEdmMetadataPostProcessor     processor;
 
   @Before
   public void setup() throws ODataJPAModelException {
     helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
+    processor = mock(JPAEdmMetadataPostProcessor.class);
     IntermediateModelElement.setPostProcessor(new DefaultEdmPostProcessor());
   }
 
@@ -95,16 +100,29 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
   }
 
   @Test
+  public void checkAnnotations() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("BusinessPartner"),
+        "locationName");
+    cut = new IntermediateDescriptionProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
+        helper.schema);
+    List<CsdlAnnotation> annotations = cut.getEdmItem().getAnnotations();
+    assertEquals(1, annotations.size());
+    assertEquals("Core.IsLanguageDependent", annotations.get(0).getTerm());
+    assertEquals(ConstantExpressionType.Bool, annotations.get(0).getExpression().asConstant().getType());
+    assertEquals("true", annotations.get(0).getExpression().asConstant().getValue());
+  }
+
+  @Test
   public void checkPostProcessorCalled() throws ODataJPAModelException {
-    PostProcessorSpy spy = new PostProcessorSpy();
-    IntermediateModelElement.setPostProcessor(spy);
+    // PostProcessorSpy spy = new PostProcessorSpy();
+    IntermediateModelElement.setPostProcessor(processor);
     Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEmbeddedableType("PostalAddressData"),
         "countryName");
     cut = new IntermediateDescriptionProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
         helper.schema);
 
     cut.getEdmItem();
-    assertTrue(spy.called);
+    verify(processor, atLeastOnce()).processProperty(cut, ADDR_CANONICAL_NAME);
   }
 
   @Test
@@ -133,19 +151,6 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
     assertEquals("Wrong name", "CountryDescription", property.getExternalName());
   }
 
-  private class PostProcessorSpy extends JPAEdmMetadataPostProcessor {
-    boolean called = false;
-
-    @Override
-    public void processProperty(IntermediatePropertyAccess property, String jpaManagedTypeClassName) {
-      called = true;
-    }
-
-    @Override
-    public void processNavigationProperty(IntermediateNavigationPropertyAccess property,
-        String jpaManagedTypeClassName) {}
-  }
-
   private class PostProcessorSetName extends JPAEdmMetadataPostProcessor {
 
     @Override
@@ -160,5 +165,8 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
     @Override
     public void processNavigationProperty(IntermediateNavigationPropertyAccess property,
         String jpaManagedTypeClassName) {}
+
+    @Override
+    public void provideReferences(IntermediateReferenceList references) throws ODataJPAModelException {}
   }
 }
