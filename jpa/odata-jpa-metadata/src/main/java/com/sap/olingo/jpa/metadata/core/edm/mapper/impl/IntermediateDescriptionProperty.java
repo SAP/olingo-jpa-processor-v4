@@ -17,14 +17,15 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
 
 class IntermediateDescriptionProperty extends IntermediateProperty implements JPADescriptionAttribute {
-  private IntermediateProperty descriptionProperty;
-  private String languageAttribute;
-  private String localeAttribute;
-  private JPAStructuredType targetEntity;
+  private IntermediateProperty     descriptionProperty;
+  private String                   languageAttribute;
+  private String                   localeAttribute;
+  private JPAStructuredType        targetEntity;
   private HashMap<JPAPath, String> fixedValues;
-  private JPAPath localFieldPath;
+  private JPAPath                  localFieldPath;
 
   IntermediateDescriptionProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,
       final IntermediateSchema schema) throws ODataJPAModelException {
@@ -48,6 +49,10 @@ class IntermediateDescriptionProperty extends IntermediateProperty implements JP
             targetEntity = schema.getEntityType(jpaAttribute.getJavaType());
           descriptionProperty = (IntermediateProperty) targetEntity.getAttribute(assozation
               .descriptionAttribute());
+          if (descriptionProperty == null)
+            // The attribute %2$s has not been found at entity %1$s
+            throw new ODataJPAModelException(MessageKeys.INVALID_DESCIPTION_PROPERTY, targetEntity.getInternalName(),
+                assozation.descriptionAttribute());
           languageAttribute = assozation.languageAttribute();
           localeAttribute = assozation.localeAttribute();
           // TODO check path is valid
