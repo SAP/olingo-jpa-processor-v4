@@ -36,7 +36,7 @@ Now the project facets maintenance screen pops up. make sure that:
 
 ![Convert to JPA](Create Project/ConvertJPAProject.png)
 
-You can delete the index.jsp if it creates an error, we will not use it. Next step is to create the maven dependencies. For this tutorial we will use [HSBQL](http://hsqldb.org/) as database and [Eclipselink](http://www.eclipse.org/eclipselink/) as JPA implementation, but you can use also another database or JPA implementation. To create the data on the database we use Flyway. The following snippet shows the additionally required maven dependencies:
+You can delete the index.jsp if it creates an error, we will not use it. Next step is to create the maven dependencies. For this tutorial we will use [HSBQL](http://hsqldb.org/) as database and [Eclipselink](http://www.eclipse.org/eclipselink/) as JPA implementation, but you can use also another database or JPA implementation that supports JPA 2.1. To create the data on the database we use Flyway. The following snippet shows the additionally required maven dependencies:
 ```XML
 <dependency>
 	<groupId>org.hsqldb</groupId>

@@ -1,0 +1,11 @@
+package com.sap.olingo.jpa.processor.core.filter;
+
+import org.apache.olingo.server.api.uri.queryoption.expression.Member;
+
+class JPALambdaAnyOperation extends JPALambdaOperation implements JPAOperator {
+
+  public JPALambdaAnyOperation(final JPAFilterComplierAccess jpaComplier, final Member member) {
+    super(jpaComplier, member);
+  }
+
+}
