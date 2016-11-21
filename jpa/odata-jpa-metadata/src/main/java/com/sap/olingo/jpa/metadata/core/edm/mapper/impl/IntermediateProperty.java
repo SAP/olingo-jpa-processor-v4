@@ -283,8 +283,8 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
     if (this.jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
       final EdmAnnotation jpaAnnotation = ((AnnotatedElement) this.jpaAttribute.getJavaMember()).getAnnotation(
           EdmAnnotation.class);
+      edmAnnotations = new ArrayList<CsdlAnnotation>();
       if (jpaAnnotation != null) {
-        edmAnnotations = new ArrayList<CsdlAnnotation>();
         CsdlAnnotation edmAnnotation = new CsdlAnnotation();
         edmAnnotation.setTerm(jpaAnnotation.term());
         edmAnnotation.setQualifier(jpaAnnotation.qualifier());

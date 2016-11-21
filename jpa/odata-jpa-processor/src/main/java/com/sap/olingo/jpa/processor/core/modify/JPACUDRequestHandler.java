@@ -21,10 +21,12 @@ public interface JPACUDRequestHandler {
       throws ODataJPAProcessException;
 
   /**
+   * Hook to create a new entity. Transaction handling is done outside to guarantee transactional behavior of change
+   * sets in batch requests.
    * 
-   * @param et Entity type that shall be created
+   * @param et Metadata about the entity type that shall be created
    * @param jpaAttributes List of attributes with pojo attributes name and converted into JAVA types
-   * @param em Entity manager
+   * @param em Instance of an entity manager.
    * @return The newly created instance
    * @throws ODataJPAProcessException
    */

@@ -32,7 +32,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
  */
 class IntermediateEntityType extends IntermediateStructuredType implements JPAEntityType {
   private CsdlEntityType edmEntityType;
-  private boolean hasEtag;
+  private boolean        hasEtag;
 
   IntermediateEntityType(final JPAEdmNameBuilder nameBuilder, final EntityType<?> et, final IntermediateSchema schema)
       throws ODataJPAModelException {
@@ -52,7 +52,7 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
   }
 
   @Override
-  public List<? extends JPAAttribute> getKey() throws ODataJPAModelException {
+  public List<JPAAttribute> getKey() throws ODataJPAModelException {
     lazyBuildEdmItem();
     final List<JPAAttribute> key = new ArrayList<JPAAttribute>();
 

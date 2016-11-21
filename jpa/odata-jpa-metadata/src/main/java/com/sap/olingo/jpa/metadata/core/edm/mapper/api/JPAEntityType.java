@@ -20,7 +20,7 @@ public interface JPAEntityType extends JPAStructuredType {
    * @return
    * @throws ODataJPAModelException
    */
-  public List<? extends JPAAttribute> getKey() throws ODataJPAModelException;
+  public List<JPAAttribute> getKey() throws ODataJPAModelException;
 
   /**
    * Returns a list of path of all attributes annotated as Id. EmbeddedId are <b>not</b> resolved
