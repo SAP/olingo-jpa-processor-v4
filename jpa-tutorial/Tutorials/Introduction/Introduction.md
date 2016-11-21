@@ -64,6 +64,11 @@ You can delete the index.jsp if it creates an error, we will not use it. Next st
 	<artifactId>eclipselink</artifactId> 
 	<version>2.6.2</version> 
 </dependency>
+<dependency>
+	<groupId>com.sap.olingo</groupId>
+	<artifactId>odata-jpa-processor</artifactId>
+	<version>0.1.0-SNAPSHOT</version>
+</dependency>
 <build>
 	<finalName>Tutorial</finalName>
 	<pluginManagement>
@@ -100,4 +105,4 @@ Before we start we should have a look at the data model we want to create step-b
 
 
 Now we can start with the first series of tutorial about [using Metadata generation](/jpa-tutorial/Tutorials/Metadata/1.0 Overview.md)
-Later you can learn in a second series of tutorial [how to retrieve data](/jpa-tutorial/Tutorials/RetrieveData/2.0 Preparation.md)
+Later you can learn in a second series of tutorial [how to retrieve data](/jpa-tutorial/Tutorials/RetrieveData/2.0 Preparation.md). Last, but not least, we will see how to [manipulate data](/jpa-tutorial/Tutorials/ChangeData/3.0 Preparation.md).
