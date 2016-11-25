@@ -204,7 +204,18 @@ public class JPAConversionHelper {
    * @throws SerializerException
    * @throws ODataJPAProcessorException
    */
+
+  @SuppressWarnings("unchecked")
   public String convertKeyToLocal(final OData odata, final ODataRequest request, EdmEntitySet edmEntitySet,
+      JPAEntityType et, Object newPOJO) throws SerializerException, ODataJPAProcessorException {
+
+    if (newPOJO instanceof Map<?, ?>)
+      return convertKeyToLocalMap(odata, request, edmEntitySet, et, (Map<String, Object>) newPOJO);
+    else
+      return convertKeyToLocalEntity(odata, request, edmEntitySet, et, newPOJO);
+  }
+
+  private String convertKeyToLocalEntity(final OData odata, final ODataRequest request, EdmEntitySet edmEntitySet,
       JPAEntityType et, Object newPOJO) throws SerializerException, ODataJPAProcessorException {
 
     final Entity createdEntity = new Entity();
@@ -223,7 +234,7 @@ public class JPAConversionHelper {
     return location;
   }
 
-  public String convertKeyToLocal(final OData odata, final ODataRequest request, EdmEntitySet edmEntitySet,
+  private String convertKeyToLocalMap(final OData odata, final ODataRequest request, EdmEntitySet edmEntitySet,
       JPAEntityType et, Map<String, Object> newPOJO) throws SerializerException, ODataJPAProcessorException {
 
     final Entity createdEntity = new Entity();

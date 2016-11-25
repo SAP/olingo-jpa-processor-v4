@@ -80,29 +80,29 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
 
     // Create entity
     Object result = null;
-    final boolean activeTransation = em.getTransaction().isActive();
-    if (!activeTransation)
+    final boolean foreignTransation = em.getTransaction().isActive();
+    if (!foreignTransation)
       em.getTransaction().begin();
     try {
       result = handler.createEntity(et, jpaAttributes, em);
     } catch (ODataJPAProcessException e) {
-      if (!activeTransation)
+      if (!foreignTransation)
         em.getTransaction().rollback();
       throw e;
     } catch (Exception e) {
-      if (!activeTransation)
+      if (!foreignTransation)
         em.getTransaction().rollback();
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
 
     if (result != null && result.getClass() != et.getTypeClass() && !(result instanceof Map<?, ?>)) {
-      if (!activeTransation)
+      if (!foreignTransation)
         em.getTransaction().rollback();
       throw new ODataJPAProcessorException(MessageKeys.WRONG_RETURN_TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR, result
           .getClass().toString(), et.getTypeClass().toString());
     }
 
-    if (!activeTransation)
+    if (!foreignTransation)
       em.getTransaction().commit();
 
     createCreateResponse(request, response, responseFormat, et, edmEntitySet, result);

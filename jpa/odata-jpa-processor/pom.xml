@@ -69,6 +69,6 @@
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
 			<version>${javax.version}</version>
-		</dependency>
+		</dependency>	
 	</dependencies>
 </project>
