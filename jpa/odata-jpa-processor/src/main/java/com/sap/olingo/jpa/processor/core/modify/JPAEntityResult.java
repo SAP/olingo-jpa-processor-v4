@@ -10,7 +10,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
-import com.sap.org.jpa.processor.core.converter.JPAExpandResult;
 
 /**
  * Provides an entity as tuple result. This is primarily done to reuse the existing tuple converter.
@@ -18,11 +17,11 @@ import com.sap.org.jpa.processor.core.converter.JPAExpandResult;
  * @author Oliver Grande
  *
  */
-public class JPAEntityResult extends JPACreateResult implements JPAExpandResult {
+class JPAEntityResult extends JPACreateResult {
   private final Object jpaEntity;
   private final List<Tuple> result;
 
-  public JPAEntityResult(JPAEntityType et, Object jpaEntity, Map<String, List<String>> requestHeaders)
+  JPAEntityResult(JPAEntityType et, Object jpaEntity, Map<String, List<String>> requestHeaders)
       throws ODataJPAModelException, ODataJPAProcessorException {
 
     super(et, requestHeaders);

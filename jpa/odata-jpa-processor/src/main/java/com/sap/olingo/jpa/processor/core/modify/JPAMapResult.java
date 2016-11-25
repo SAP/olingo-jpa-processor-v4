@@ -11,11 +11,11 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 
-public class JPAMapResult extends JPACreateResult {
+class JPAMapResult extends JPACreateResult {
   private final Map<String, Object> jpaEntity;
   private final List<Tuple> result;
 
-  public JPAMapResult(final JPAEntityType et, final Map<String, Object> jpaEntity,
+  JPAMapResult(final JPAEntityType et, final Map<String, Object> jpaEntity,
       final Map<String, List<String>> requestHeaders) throws ODataJPAModelException, ODataJPAProcessorException {
 
     super(et, requestHeaders);

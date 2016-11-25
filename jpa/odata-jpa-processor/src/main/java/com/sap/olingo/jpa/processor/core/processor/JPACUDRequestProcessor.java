@@ -35,7 +35,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.Me
 import com.sap.olingo.jpa.processor.core.exception.ODataJPASerializerException;
 import com.sap.olingo.jpa.processor.core.modify.JPACUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
-import com.sap.olingo.jpa.processor.core.modify.JPAEntityResult;
+import com.sap.olingo.jpa.processor.core.modify.JPACreateResultFactory;
 import com.sap.olingo.jpa.processor.core.modify.JPAUpdateResult;
 import com.sap.olingo.jpa.processor.core.query.EdmEntitySetInfo;
 import com.sap.olingo.jpa.processor.core.query.ExpressionUtil;
@@ -95,7 +95,7 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
 
-    if (result != null && result.getClass() != et.getTypeClass() && result.getClass() != Map.class) {
+    if (result != null && result.getClass() != et.getTypeClass() && !(result instanceof Map<?, ?>)) {
       if (!activeTransation)
         em.getTransaction().rollback();
       throw new ODataJPAProcessorException(MessageKeys.WRONG_RETURN_TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR, result
@@ -220,7 +220,9 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
 
     JPATupleResultConverter converter;
     try {
-      converter = new JPATupleResultConverter(sd, new JPAEntityResult(et, result, headers), odata
+      // JPAExpandResult tupleResult = new JPAEntityResult(et, result, headers);
+      JPACreateResultFactory factory = new JPACreateResultFactory();//
+      converter = new JPATupleResultConverter(sd, factory.getJPACreateResult(et, result, headers), odata
           .createUriHelper(), serviceMetadata);
       return converter.getResult().getEntities().get(0);
     } catch (ODataJPAModelException e) {
