@@ -37,13 +37,13 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 public abstract class JPATupleAbstractConverter {
 
-  public static final String      ACCESS_MODIFIER_GET = "get";
-  public static final String      ACCESS_MODIFIER_SET = "set";
-  public static final String      ACCESS_MODIFIER_IS  = "is";
-  protected final JPAEntityType   jpaConversionTargetEntity;
+  public static final String ACCESS_MODIFIER_GET = "get";
+  public static final String ACCESS_MODIFIER_SET = "set";
+  public static final String ACCESS_MODIFIER_IS = "is";
+  protected final JPAEntityType jpaConversionTargetEntity;
   protected final JPAExpandResult jpaQueryResult;
-  protected final UriHelper       uriHelper;
-  protected final String          setName;
+  protected final UriHelper uriHelper;
+  protected final String setName;
   protected final ServiceDocument sd;
   protected final ServiceMetadata serviceMetadata;
 
@@ -148,7 +148,7 @@ public abstract class JPATupleAbstractConverter {
     } catch (IllegalArgumentException e) {
       return null;
     } catch (SerializerException e) {
-      throw new ODataRuntimeException("Unable to create id for entity: " + edmType.getName(), e);
+      throw new ODataRuntimeException(e);
     }
   }
 

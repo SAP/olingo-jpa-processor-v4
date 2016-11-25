@@ -27,7 +27,8 @@ public interface JPACUDRequestHandler {
    * @param et Metadata about the entity type that shall be created
    * @param jpaAttributes List of attributes with pojo attributes name and converted into JAVA types
    * @param em Instance of an entity manager.
-   * @return The newly created instance
+   * @return The newly created instance or map of created attributes including default and added values
+   * following the same rules as jpaAttributes
    * @throws ODataJPAProcessException
    */
   public Object createEntity(JPAEntityType et, Map<String, Object> jpaAttributes, EntityManager em)

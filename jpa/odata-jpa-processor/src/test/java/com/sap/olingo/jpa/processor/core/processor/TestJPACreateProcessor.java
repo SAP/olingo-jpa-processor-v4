@@ -78,7 +78,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     RequestHandleSpy spy = new RequestHandleSpy();
     when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
 
-    when(helper.convertProperties(Matchers.any(OData.class), Matchers.any(JPAStructuredType.class), Matchers.any(
+    when(convHelper.convertProperties(Matchers.any(OData.class), Matchers.any(JPAStructuredType.class), Matchers.any(
         List.class))).thenReturn(attributes);
 
     processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
