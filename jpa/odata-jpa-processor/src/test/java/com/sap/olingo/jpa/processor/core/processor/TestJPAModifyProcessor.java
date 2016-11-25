@@ -56,12 +56,12 @@ import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 
 public abstract class TestJPAModifyProcessor {
-  protected static final String         LOCATION_HEADER    = "Organization('35')";
-  protected static final String         PREFERENCE_APPLIED = "return=minimal";
-  protected static final String         PUNIT_NAME         = "org.apache.olingo.jpa";
+  protected static final String LOCATION_HEADER = "Organization('35')";
+  protected static final String PREFERENCE_APPLIED = "return=minimal";
+  protected static final String PUNIT_NAME = "org.apache.olingo.jpa";
   protected static EntityManagerFactory emf;
-  protected static JPAEdmProvider       jpaEdm;
-  protected static DataSource           ds;
+  protected static JPAEdmProvider jpaEdm;
+  protected static DataSource ds;
 
   @BeforeClass
   public static void setupClass() throws ODataException {
@@ -81,21 +81,21 @@ public abstract class TestJPAModifyProcessor {
 
   }
 
-  protected JPACUDRequestProcessor       processor;
-  protected OData                        odata;
-  protected ServiceMetadata              serviceMetadata;
+  protected JPACUDRequestProcessor processor;
+  protected OData odata;
+  protected ServiceMetadata serviceMetadata;
   protected JPAODataSessionContextAccess sessionContext;
   protected JPAODataRequestContextAccess requestContext;
-  protected UriInfo                      uriInfo;
-  protected UriResourceEntitySet         uriEts;
-  protected EntityManager                em;
-  protected JPASerializer                serializer;
-  protected EdmEntitySet                 ets;
-  protected List<UriParameter>           keyPredicates;
-  protected JPAConversionHelper          helper;
-  protected List<UriResource>            pathParts = new ArrayList<UriResource>();
-  protected SerializerResult             serializerResult;
-  protected List<String>                 header    = new ArrayList<String>();
+  protected UriInfo uriInfo;
+  protected UriResourceEntitySet uriEts;
+  protected EntityManager em;
+  protected JPASerializer serializer;
+  protected EdmEntitySet ets;
+  protected List<UriParameter> keyPredicates;
+  protected JPAConversionHelper convHelper;
+  protected List<UriResource> pathParts = new ArrayList<UriResource>();
+  protected SerializerResult serializerResult;
+  protected List<String> header = new ArrayList<String>();
 
   @Before
   public void setUp() throws Exception {
@@ -109,8 +109,7 @@ public abstract class TestJPAModifyProcessor {
     serializer = mock(JPASerializer.class);
     uriEts = mock(UriResourceEntitySet.class);
     pathParts.add(uriEts);
-
-    helper = mock(JPAConversionHelper.class);
+    convHelper = mock(JPAConversionHelper.class);
     em = mock(EntityManager.class);
     serializerResult = mock(SerializerResult.class);
 
@@ -123,7 +122,7 @@ public abstract class TestJPAModifyProcessor {
     when(uriEts.getEntitySet()).thenReturn(ets);
     when(uriEts.getKind()).thenReturn(UriResourceKind.entitySet);
     when(ets.getName()).thenReturn("Organizations");
-    processor = new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext, helper);
+    processor = new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext, convHelper);
   }
 
   protected ODataRequest prepareRepresentationRequest(JPAAbstractCUDRequestHandler spy)
@@ -177,9 +176,9 @@ public abstract class TestJPAModifyProcessor {
     header.add(content);
 
     Entity odataEntity = mock(Entity.class);
-    when(helper.convertInputStream(odata, request, ContentType.JSON, ets)).thenReturn(odataEntity);
-    when(helper.convertKeyToLocal(Matchers.eq(odata), Matchers.eq(request), Matchers.eq(ets), (JPAEntityType) Matchers
-        .anyObject(), Matchers.anyObject())).thenReturn(LOCATION_HEADER);
+    when(convHelper.convertInputStream(odata, request, ContentType.JSON, ets)).thenReturn(odataEntity);
+    when(convHelper.convertKeyToLocal(Matchers.eq(odata), Matchers.eq(request), Matchers.eq(ets),
+        (JPAEntityType) Matchers.anyObject(), Matchers.anyObject())).thenReturn(LOCATION_HEADER);
     return request;
   }
 }

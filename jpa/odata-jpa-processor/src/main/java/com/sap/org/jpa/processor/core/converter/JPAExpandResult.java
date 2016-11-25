@@ -10,7 +10,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
 
 public interface JPAExpandResult {
 
-  List<Tuple> getResult(String key);
+  List<Tuple> getResult(final String key);
 
   Map<JPAAssociationPath, JPAExpandResult> getChildren();
 

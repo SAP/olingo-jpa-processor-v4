@@ -35,7 +35,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.Me
 import com.sap.olingo.jpa.processor.core.exception.ODataJPASerializerException;
 import com.sap.olingo.jpa.processor.core.modify.JPACUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
-import com.sap.olingo.jpa.processor.core.modify.JPAEntityResult;
+import com.sap.olingo.jpa.processor.core.modify.JPACreateResultFactory;
 import com.sap.olingo.jpa.processor.core.modify.JPAUpdateResult;
 import com.sap.olingo.jpa.processor.core.query.EdmEntitySetInfo;
 import com.sap.olingo.jpa.processor.core.query.ExpressionUtil;
@@ -45,8 +45,8 @@ import com.sap.org.jpa.processor.core.converter.JPATupleResultConverter;
 public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
 
   private final JPAODataSessionContextAccess sessionContext;
-  private final ServiceMetadata              serviceMetadata;
-  private final JPAConversionHelper          helper;
+  private final ServiceMetadata serviceMetadata;
+  private final JPAConversionHelper helper;
 
   public JPACUDRequestProcessor(final OData odata, final ServiceMetadata serviceMetadata,
       final JPAODataSessionContextAccess sessionContext, final JPAODataRequestContextAccess requestContext,
@@ -79,28 +79,33 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
     }
 
     // Create entity
-    Object newPOJO = null;
-    final boolean activeTransation = em.getTransaction().isActive();
-    if (!activeTransation)
+    Object result = null;
+    final boolean foreignTransation = em.getTransaction().isActive();
+    if (!foreignTransation)
       em.getTransaction().begin();
     try {
-      // TODO allow already converter Entity as return
-      newPOJO = handler.createEntity(et, jpaAttributes, em);
+      result = handler.createEntity(et, jpaAttributes, em);
     } catch (ODataJPAProcessException e) {
+      if (!foreignTransation)
+        em.getTransaction().rollback();
       throw e;
     } catch (Exception e) {
+      if (!foreignTransation)
+        em.getTransaction().rollback();
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
 
-    if (newPOJO != null && newPOJO.getClass() != et.getTypeClass()) {
-      throw new ODataJPAProcessorException(MessageKeys.WRONG_RETURN_TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR, newPOJO
+    if (result != null && result.getClass() != et.getTypeClass() && !(result instanceof Map<?, ?>)) {
+      if (!foreignTransation)
+        em.getTransaction().rollback();
+      throw new ODataJPAProcessorException(MessageKeys.WRONG_RETURN_TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR, result
           .getClass().toString(), et.getTypeClass().toString());
     }
 
-    if (!activeTransation)
+    if (!foreignTransation)
       em.getTransaction().commit();
 
-    createCreateResponse(request, response, responseFormat, et, edmEntitySet, newPOJO);
+    createCreateResponse(request, response, responseFormat, et, edmEntitySet, result);
   }
 
   public void updateEntity(ODataRequest request, ODataResponse response, ContentType requestFormat,
@@ -210,12 +215,14 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
 
   }
 
-  private Entity convertEntity(JPAEntityType et, Object jpaEntity, Map<String, List<String>> headers)
+  private Entity convertEntity(JPAEntityType et, Object result, Map<String, List<String>> headers)
       throws ODataJPAProcessorException {
 
     JPATupleResultConverter converter;
     try {
-      converter = new JPATupleResultConverter(sd, new JPAEntityResult(et, jpaEntity, headers), odata
+      // JPAExpandResult tupleResult = new JPAEntityResult(et, result, headers);
+      JPACreateResultFactory factory = new JPACreateResultFactory();//
+      converter = new JPATupleResultConverter(sd, factory.getJPACreateResult(et, result, headers), odata
           .createUriHelper(), serviceMetadata);
       return converter.getResult().getEntities().get(0);
     } catch (ODataJPAModelException e) {
@@ -227,7 +234,7 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
   }
 
   private void createCreateResponse(final ODataRequest request, final ODataResponse response,
-      final ContentType responseFormat, final JPAEntityType et, EdmEntitySet edmEntitySet, Object newPOJO)
+      final ContentType responseFormat, final JPAEntityType et, EdmEntitySet edmEntitySet, Object result)
       throws SerializerException, ODataJPAProcessorException, ODataJPASerializerException {
 
     // http://docs.oasis-open.org/odata/odata/v4.0/odata-v4.0-part1-protocol.html
@@ -267,14 +274,16 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
     successStatusCode = HttpStatusCode.CREATED.getStatusCode();
     Preferences prefer = odata.createPreferences(request.getHeaders(HttpHeader.PREFER));
     // TODO Stream properties
-    String location = helper.convertKeyToLocal(odata, request, edmEntitySet, et, newPOJO);
+
+    String location = helper.convertKeyToLocal(odata, request, edmEntitySet, et,
+        result);
     if (prefer.getReturn() == Return.MINIMAL) {
       response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
       response.setHeader(HttpHeader.PREFERENCE_APPLIED, "return=minimal");
       response.setHeader(HttpHeader.LOCATION, location);
       response.setHeader(HttpHeader.ODATA_ENTITY_ID, location);
     } else {
-      Entity createdEntity = convertEntity(et, newPOJO, request.getAllHeaders());
+      Entity createdEntity = convertEntity(et, result, request.getAllHeaders());
       EntityCollection entities = new EntityCollection();
       entities.getEntities().add(createdEntity);
       createSuccessResonce(response, responseFormat, serializer.serialize(request, entities));

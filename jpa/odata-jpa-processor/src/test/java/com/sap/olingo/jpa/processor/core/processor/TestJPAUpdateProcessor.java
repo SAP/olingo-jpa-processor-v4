@@ -96,7 +96,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
     Map<String, Object> jpaAttributes = new HashMap<String, Object>();
     jpaAttributes.put("id", "35");
     jpaAttributes.put("country", "USA");
-    when(helper.convertProperties(Matchers.any(OData.class), Matchers.any(JPAStructuredType.class), Matchers.any(
+    when(convHelper.convertProperties(Matchers.any(OData.class), Matchers.any(JPAStructuredType.class), Matchers.any(
         List.class))).thenReturn(jpaAttributes);
 
     processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);

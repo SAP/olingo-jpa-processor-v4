@@ -52,18 +52,18 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropert
 class IntermediateProperty extends IntermediateModelElement implements IntermediatePropertyAccess, JPAAttribute {
   private static final String DB_FIELD_NAME_PATTERN = "\"&1\"";
 
-  protected final Attribute<?, ?>    jpaAttribute;
+  protected final Attribute<?, ?> jpaAttribute;
   protected final IntermediateSchema schema;
-  protected CsdlProperty             edmProperty;
+  protected CsdlProperty edmProperty;
   private IntermediateStructuredType type;
-  private AttributeConverter<?, ?>   valueConverter;
-  private String                     dbFieldName;
-  private boolean                    searchable;
-  private boolean                    isVersion;
-  private EdmMediaStream             streamInfo;
-  private List<CsdlAnnotation>       edmAnnotations;
-  private Class<?>                   dbType;
-  private Class<?>                   entityType;
+  private AttributeConverter<?, ?> valueConverter;
+  private String dbFieldName;
+  private boolean searchable;
+  private boolean isVersion;
+  private EdmMediaStream streamInfo;
+  private List<CsdlAnnotation> edmAnnotations;
+  private Class<?> dbType;
+  private Class<?> entityType;
 
   IntermediateProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,
       final IntermediateSchema schema) throws ODataJPAModelException {
@@ -144,6 +144,7 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
             // For a temporal property the value of this attribute specifies the number of decimal places allowed in the
             // seconds portion of the property's value; it MUST be a non-negative integer between zero and twelve. If no
             // value is specified, the temporal property has a precision of zero.
+            // TODO check when precision is mandatory e.g. Timestamp is key
             if (jpaColumn.precision() > 0)
               edmProperty.setPrecision(jpaColumn.precision());
             if (edmProperty.getType().equals(EdmPrimitiveTypeKind.Decimal.getFullQualifiedName().toString())

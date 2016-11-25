@@ -17,7 +17,7 @@ public interface JPACUDRequestHandler {
    * @param em
    * @throws ODataJPAProcessException
    */
-  public void deleteEntity(final JPAEntityType et, final Map<String, Object> keyPredicates, EntityManager em)
+  public void deleteEntity(final JPAEntityType et, final Map<String, Object> keyPredicates, final EntityManager em)
       throws ODataJPAProcessException;
 
   /**
@@ -27,10 +27,11 @@ public interface JPACUDRequestHandler {
    * @param et Metadata about the entity type that shall be created
    * @param jpaAttributes List of attributes with pojo attributes name and converted into JAVA types
    * @param em Instance of an entity manager.
-   * @return The newly created instance
+   * @return The newly created instance or map of created attributes including default and added values
+   * following the same rules as jpaAttributes
    * @throws ODataJPAProcessException
    */
-  public Object createEntity(JPAEntityType et, Map<String, Object> jpaAttributes, EntityManager em)
+  public Object createEntity(final JPAEntityType et, final Map<String, Object> jpaAttributes, final EntityManager em)
       throws ODataJPAProcessException;
 
   /**
@@ -46,7 +47,7 @@ public interface JPACUDRequestHandler {
    * It must not be null. Even if nothing was changed => update is idempotent
    * @throws ODataJPAProcessException
    */
-  public JPAUpdateResult updateEntity(JPAEntityType et, Map<String, Object> jpaAttributes, Map<String, Object> keys,
-      EntityManager em, HttpMethod method)
+  public JPAUpdateResult updateEntity(final JPAEntityType et, final Map<String, Object> jpaAttributes,
+      final Map<String, Object> keys, final EntityManager em, final HttpMethod method)
       throws ODataJPAProcessException;
 }
