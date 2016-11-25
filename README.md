@@ -8,3 +8,5 @@ More details can be found in the [Tutorial](/jpa-tutorial/Tutorials/Introduction
 ##Dependencies
 ##License
 This project is licensed under the Apache Software License Version 2.0, except as noted otherwise in the [License file](/LICENSE.txt).
+##Build State
+Develop[![Build Status](https://travis-ci.mo.sap.corp/ptm/odata-v4-jpa-processor.svg?token=Ljcz1XxTJEqKCPSDbhkV&branch=develop)](https://travis-ci.mo.sap.corp/ptm/odata-v4-jpa-processor)
