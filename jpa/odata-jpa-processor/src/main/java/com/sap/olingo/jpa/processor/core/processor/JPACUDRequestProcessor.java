@@ -26,6 +26,7 @@ import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceComplexProperty;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
+import org.apache.olingo.server.api.uri.UriResourceValue;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -227,8 +228,14 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       final List<UriResource> resourcePaths) throws ODataJPAModelException {
     Map<String, Object> currentMap = jpaAttributes;
     JPAStructuredType st = et;
+    int lastIndex;
 
-    for (int i = 1; i < resourcePaths.size(); i++) {
+    if (resourcePaths.get(resourcePaths.size() - 1) instanceof UriResourceValue)
+      lastIndex = resourcePaths.size() - 1;
+    else
+      lastIndex = resourcePaths.size();
+
+    for (int i = 1; i < lastIndex; i++) {
       final UriResourceProperty uriResourceProperty = (UriResourceProperty) resourcePaths.get(i);
       if (uriResourceProperty instanceof UriResourceComplexProperty && i < resourcePaths.size() - 1) {
         final Map<String, Object> jpaEmbedded = new HashMap<String, Object>();

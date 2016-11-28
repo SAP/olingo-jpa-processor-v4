@@ -23,6 +23,7 @@ import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResourceComplexProperty;
 import org.apache.olingo.server.api.uri.UriResourcePrimitiveProperty;
+import org.apache.olingo.server.api.uri.UriResourceValue;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -112,6 +113,21 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
+  public void testSimplePropertyValueAttributeProvided() throws ODataApplicationException {
+    // .../Organizations('35')/Name2/$value
+    RequestHandleSpy spy = prepareDeleteName2();
+
+    UriResourceValue uriProperty;
+    uriProperty = mock(UriResourceValue.class);
+    pathParts.add(uriProperty);
+
+    processor.clearFields(new ODataResponse());
+    assertEquals(spy.jpaAttributes.size(), 1);
+    Object[] keys = spy.jpaAttributes.keySet().toArray();
+    assertEquals("name2", keys[0].toString());
+  }
+
+  @Test
   public void testComplexPropertyOnePropertyProvided() throws ODataApplicationException {
     // .../Organizations('35')/Address/Country
     RequestHandleSpy spy = prepareDeleteAddressCountry();
@@ -131,6 +147,27 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
   public void testTwoComplexPropertiesOnePropertyProvided() throws ODataApplicationException {
     // .../Organizations('4')/AdministrativeInformation/Updated/By
     RequestHandleSpy spy = prepareDeleteAdminInfo();
+
+    processor.clearFields(new ODataResponse());
+    assertEquals(spy.jpaAttributes.size(), 1);
+
+    Map<String, Object> adminInfo = (Map<String, Object>) spy.jpaAttributes.get("administrativeInformation");
+    assertEquals(adminInfo.size(), 1);
+    Map<String, Object> update = (Map<String, Object>) adminInfo.get("updated");
+    assertEquals(update.size(), 1);
+    Object[] keys = update.keySet().toArray();
+    assertEquals("by", keys[0].toString());
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testTwoComplexPropertiesOnePropertyValueProvided() throws ODataApplicationException {
+    // .../Organizations('4')/AdministrativeInformation/Updated/By/$value
+    RequestHandleSpy spy = prepareDeleteAdminInfo();
+
+    UriResourceValue uriProperty;
+    uriProperty = mock(UriResourceValue.class);
+    pathParts.add(uriProperty);
 
     processor.clearFields(new ODataResponse());
     assertEquals(spy.jpaAttributes.size(), 1);

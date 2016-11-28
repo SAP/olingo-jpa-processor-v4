@@ -138,8 +138,14 @@ public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
   public void deletePrimitiveValue(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo)
       throws ODataApplicationException, ODataLibraryException {
     // .../Organizations('4')/Address/Country/$value
-    throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
-        HttpStatusCode.NOT_IMPLEMENTED);
+    JPACUDRequestProcessor p;
+    try {
+      p = factory.createCUDRequestProcessor(em, uriInfo);
+      p.clearFields(response);
+    } catch (ODataException e) {
+      throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
+          HttpStatusCode.NOT_IMPLEMENTED);
+    }
   }
 
   @Override
