@@ -36,11 +36,18 @@ public class JPAProcessorFactory {
   }
 
   public JPACUDRequestProcessor createCUDRequestProcessor(final EntityManager em, final UriInfo uriInfo,
-      final ContentType responseFormat)
-      throws ODataException {
+      final ContentType responseFormat) throws ODataException {
 
     final JPAODataRequestContextAccess requestContext = new JPARequestContext(em, uriInfo, serializerFactory
         .createCUDSerializer(responseFormat, uriInfo));
+
+    return new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext,
+        new JPAConversionHelper());
+  }
+
+  public JPACUDRequestProcessor createCUDRequestProcessor(EntityManager em, UriInfo uriInfo) throws ODataException {
+
+    final JPAODataRequestContextAccess requestContext = new JPARequestContext(em, uriInfo, null);
 
     return new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext,
         new JPAConversionHelper());
@@ -91,4 +98,5 @@ public class JPAProcessorFactory {
     }
 
   }
+
 }
