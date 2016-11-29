@@ -6,3 +6,7 @@ cache:
     - $HOME/.m2/repository
 script:
     - cd study-design-backend && mvn --settings ../travis/settings.xml clean verify
+branches:
+  only:
+  - master
+  - develop    
