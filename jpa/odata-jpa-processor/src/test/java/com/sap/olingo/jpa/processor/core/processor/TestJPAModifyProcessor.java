@@ -89,6 +89,7 @@ public abstract class TestJPAModifyProcessor {
   protected UriInfo uriInfo;
   protected UriResourceEntitySet uriEts;
   protected EntityManager em;
+  protected EntityTransaction transaction;
   protected JPASerializer serializer;
   protected EdmEntitySet ets;
   protected List<UriParameter> keyPredicates;
@@ -111,6 +112,7 @@ public abstract class TestJPAModifyProcessor {
     pathParts.add(uriEts);
     convHelper = mock(JPAConversionHelper.class);
     em = mock(EntityManager.class);
+    transaction = mock(EntityTransaction.class);
     serializerResult = mock(SerializerResult.class);
 
     when(sessionContext.getEdmProvider()).thenReturn(jpaEdm);
@@ -122,7 +124,9 @@ public abstract class TestJPAModifyProcessor {
     when(uriEts.getEntitySet()).thenReturn(ets);
     when(uriEts.getKind()).thenReturn(UriResourceKind.entitySet);
     when(ets.getName()).thenReturn("Organizations");
+    when(em.getTransaction()).thenReturn(transaction);
     processor = new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext, convHelper);
+
   }
 
   protected ODataRequest prepareRepresentationRequest(JPAAbstractCUDRequestHandler spy)

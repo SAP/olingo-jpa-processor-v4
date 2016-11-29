@@ -86,17 +86,23 @@ public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
   public void deleteComplex(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo)
       throws ODataApplicationException, ODataLibraryException {
     // Set NULL: .../Organizations('4')/Address
-    throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
-        HttpStatusCode.NOT_IMPLEMENTED);
+
+    JPACUDRequestProcessor p;
+    try {
+      p = factory.createCUDRequestProcessor(em, uriInfo);
+      p.clearFields(response);
+    } catch (ODataException e) {
+      throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
+          HttpStatusCode.NOT_IMPLEMENTED);
+    }
   }
 
   @Override
   public void deleteEntity(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo)
       throws ODataApplicationException, ODataLibraryException {
 
-    JPACUDRequestProcessor p;
     try {
-      p = factory.createCUDRequestProcessor(em, uriInfo, ContentType.TEXT_PLAIN);
+      JPACUDRequestProcessor p = this.factory.createCUDRequestProcessor(this.em, uriInfo);
       p.deleteEntity(response);
     } catch (ODataException e) {
       throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
@@ -118,16 +124,28 @@ public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
     // are nullable.On success, the service MUST respond with 204 No Content and an empty body.
     //
     // Nullable checked by Olingo Core
-    throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
-        HttpStatusCode.NOT_IMPLEMENTED);
+    JPACUDRequestProcessor p;
+    try {
+      p = factory.createCUDRequestProcessor(em, uriInfo);
+      p.clearFields(response);
+    } catch (ODataException e) {
+      throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
+          HttpStatusCode.NOT_IMPLEMENTED);
+    }
   }
 
   @Override
   public void deletePrimitiveValue(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo)
       throws ODataApplicationException, ODataLibraryException {
     // .../Organizations('4')/Address/Country/$value
-    throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
-        HttpStatusCode.NOT_IMPLEMENTED);
+    JPACUDRequestProcessor p;
+    try {
+      p = factory.createCUDRequestProcessor(em, uriInfo);
+      p.clearFields(response);
+    } catch (ODataException e) {
+      throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
+          HttpStatusCode.NOT_IMPLEMENTED);
+    }
   }
 
   @Override
