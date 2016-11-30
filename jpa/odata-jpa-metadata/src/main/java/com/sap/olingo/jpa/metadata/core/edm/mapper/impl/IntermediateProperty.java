@@ -281,6 +281,15 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
     postProcessor.processProperty(this, jpaAttribute.getDeclaringType().getJavaType()
         .getCanonicalName());
     // Process annotations after post processing, as external name it could have been changed
+    getAnnotations();
+  }
+
+  /**
+   * Convert annotations at a property into OData annotations
+   * {@link com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAnnotation}
+   * @throws ODataJPAModelException
+   */
+  private void getAnnotations() throws ODataJPAModelException {
     if (this.jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
       final EdmAnnotation jpaAnnotation = ((AnnotatedElement) this.jpaAttribute.getJavaMember()).getAnnotation(
           EdmAnnotation.class);
