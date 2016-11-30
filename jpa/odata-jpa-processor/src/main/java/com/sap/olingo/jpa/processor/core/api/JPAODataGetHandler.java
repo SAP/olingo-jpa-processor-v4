@@ -57,7 +57,7 @@ public class JPAODataGetHandler {
 
     this.jpaMetamodel = em.getMetamodel();
     final ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(context.getEdmProvider(), context
-        .getReferences()));
+        .getEdmProvider().getReferences()));
     context.getEdmProvider().setRequestLocales(request.getLocales());
     context.initDebugger(request.getParameter(DebugSupport.ODATA_DEBUG_QUERY_PARAMETER));
     handler.register(context.getDebugSupport());
