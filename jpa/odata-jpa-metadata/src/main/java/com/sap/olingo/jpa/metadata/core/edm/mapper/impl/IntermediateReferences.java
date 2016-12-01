@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
+import org.apache.olingo.commons.api.edm.provider.CsdlTypeDefinition;
 import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.commons.api.edmx.EdmxReferenceInclude;
 
@@ -68,6 +69,20 @@ class IntermediateReferences implements IntermediateReferenceList {
       }
     }
     return schema.get(termName.getName());
+  }
+
+  public CsdlTypeDefinition getTypeDefinition(final FullQualifiedName typeDefinitionName) {
+//    Map<String, CsdlTerm> schema = schemas.get(typeDefinitionName.getNamespace());
+//    if (schema == null) {
+//      for (IntermediateReference r : references) {
+//        String namespace = r.convertAlias(typeDefinitionName.getNamespace());
+//        if (namespace != null) {
+//          schema = schemas.get(namespace);
+//        }
+//      }
+//    }
+//    return schema.get(termName.getName());
+    return null;
   }
 
   List<EdmxReference> getEdmReferences() {
