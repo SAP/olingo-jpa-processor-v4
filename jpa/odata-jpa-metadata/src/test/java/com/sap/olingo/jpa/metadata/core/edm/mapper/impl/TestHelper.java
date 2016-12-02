@@ -14,11 +14,9 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.IntermediateSchema;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
 
 public class TestHelper {
-  final private Metamodel jpaMetamodel;
+  final private Metamodel         jpaMetamodel;
   final public IntermediateSchema schema;
 
   public TestHelper(final Metamodel metamodel, final String namespace) throws ODataJPAModelException {

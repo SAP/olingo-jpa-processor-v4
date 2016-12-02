@@ -21,7 +21,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
-/*
+/**
  * http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/schemas/edmx.xsd
  * A Service Document can contain of multiple schemas, but only of
  * one Entity Container. This container is assigned to one of the
@@ -29,13 +29,12 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
  * http://services.odata.org/V4/Northwind/Northwind.svc/$metadata
  */
 public class ServiceDocument {
-  final private Metamodel                       jpaMetamodel;
-  final private JPAEdmNameBuilder               nameBuilder;
-  final private IntermediateEntityContainer     container;
-  final private Map<String, IntermediateSchema> schemaListInternalKey;
-  final private IntermediateReferences          references;
-  final private JPAEdmMetadataPostProcessor     pP;
-  // final private HashMap<String, IntermediateSchema> schemaListExternalKey;
+  private final Metamodel jpaMetamodel;
+  private final JPAEdmNameBuilder nameBuilder;
+  private final IntermediateEntityContainer container;
+  private final Map<String, IntermediateSchema> schemaListInternalKey;
+  private final IntermediateReferences references;
+  private final JPAEdmMetadataPostProcessor pP;
 
   public ServiceDocument(final String namespace, final Metamodel jpaMetamodel,
       final JPAEdmMetadataPostProcessor postProcessor) throws ODataJPAModelException {
@@ -58,6 +57,12 @@ public class ServiceDocument {
 
   public List<CsdlSchema> getEdmSchemas() throws ODataJPAModelException {
     return extractEdmSchemas();
+  }
+
+  public List<CsdlSchema> getAllSchemas() throws ODataJPAModelException {
+    List<CsdlSchema> allSchemas = getEdmSchemas();
+    allSchemas.addAll(references.getSchemas());
+    return allSchemas;
   }
 
   /**
@@ -122,7 +127,7 @@ public class ServiceDocument {
     return references.getEdmReferences();
   }
 
-  public CsdlTerm getTerm(FullQualifiedName termName) {
+  public CsdlTerm getTerm(final FullQualifiedName termName) {
     return this.references.getTerm(termName);
   }
 }

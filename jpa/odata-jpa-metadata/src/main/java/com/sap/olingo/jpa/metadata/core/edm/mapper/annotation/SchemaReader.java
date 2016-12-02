@@ -8,18 +8,18 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
+import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
-public class TermReader {
+public class SchemaReader {
   final private JacksonXmlModule module;
   final private XmlMapper xmlMapper;
 
-  public TermReader() {
+  public SchemaReader() {
     super();
     module = new JacksonXmlModule();
     module.setDefaultUseWrapper(false);
@@ -27,23 +27,25 @@ public class TermReader {
 
   }
 
-  public Map<String, Map<String, CsdlTerm>> getTerms(String path) throws JsonParseException, JsonMappingException,
-      IOException {
+  public Map<? extends String, ? extends CsdlSchema> getSchemas(String path) throws JsonParseException,
+      JsonMappingException, IOException {
     return convertEDMX(readFromResource(path));
   }
 
-  public Map<String, Map<String, CsdlTerm>> getTerms(URI uri) throws JsonParseException, JsonMappingException,
-      MalformedURLException, IOException {
+  public Map<? extends String, ? extends CsdlSchema> getSchemas(URI uri) throws JsonParseException,
+      JsonMappingException, MalformedURLException, IOException {
     return convertEDMX(readFromURI(uri));
   }
 
   public Edmx readFromResource(final String path) throws JsonParseException, JsonMappingException, IOException {
+
     byte[] b = loadXML(path);
     return xmlMapper.readValue(new String(b), Edmx.class);
   }
 
   public Edmx readFromURI(final URI uri) throws JsonParseException, JsonMappingException, MalformedURLException,
       IOException {
+
     return xmlMapper.readValue(uri.toURL(), Edmx.class);
 
   }
@@ -70,18 +72,15 @@ public class TermReader {
     return null;
   }
 
-  private Map<String, Map<String, CsdlTerm>> convertEDMX(Edmx edmx) {
-    if (edmx != null && edmx.getDataService() != null) {
-      Schema[] schemas = edmx.getDataService().getSchemas();
-      Map<String, Map<String, CsdlTerm>> edmSchemas = new HashMap<String, Map<String, CsdlTerm>>(schemas.length);
+  private Map<? extends String, ? extends CsdlSchema> convertEDMX(Edmx edmx) {
 
+    if (edmx != null && edmx.getDataService() != null) {
+
+      Schema[] schemas = edmx.getDataService().getSchemas();
+      Map<String, CsdlSchema> edmSchemas = new HashMap<String, CsdlSchema>(schemas.length);
       for (Schema schema : schemas) {
         String namespace = schema.getNamespace();
-        Map<String, CsdlTerm> terms = new HashMap<String, CsdlTerm>();
-        for (CsdlTerm t : schema.getTerms()) {
-          terms.put(t.getName(), t);
-        }
-        edmSchemas.put(namespace, terms);
+        edmSchemas.put(namespace, schema.asCsdlSchema());
       }
       return edmSchemas;
     }

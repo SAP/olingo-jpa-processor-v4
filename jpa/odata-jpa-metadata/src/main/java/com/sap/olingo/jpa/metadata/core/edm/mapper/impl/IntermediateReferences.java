@@ -7,23 +7,26 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
+import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
 import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.commons.api.edmx.EdmxReferenceInclude;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.TermReader;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.SchemaReader;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
 
 class IntermediateReferences implements IntermediateReferenceList {
-  final List<IntermediateReference>        references     = new ArrayList<IntermediateReference>();
-  final List<EdmxReference>                edmxReferences = new ArrayList<EdmxReference>();
-  final Map<String, Map<String, CsdlTerm>> schemas        = new HashMap<String, Map<String, CsdlTerm>>();
-  final Map<String, String>                aliasDirectory = new HashMap<String, String>();
+  final List<IntermediateReference> references = new ArrayList<IntermediateReference>();
+  final List<EdmxReference> edmxReferences = new ArrayList<EdmxReference>();
+  final Map<String, Map<String, CsdlTerm>> terms = new HashMap<String, Map<String, CsdlTerm>>();
+  final Map<String, CsdlSchema> schemas = new HashMap<String, CsdlSchema>();
+  final Map<String, String> aliasDirectory = new HashMap<String, String>();
 
   @Override
   public IntermediateReferenceAccess addReference(final String uri) throws ODataJPAModelException {
@@ -41,7 +44,9 @@ class IntermediateReferences implements IntermediateReferenceList {
     IntermediateReference reference = new IntermediateReference(sourceURI, path);
     if (path != null && !path.isEmpty()) {
       try {
-        schemas.putAll(new TermReader().getTerms(path));
+        Map<? extends String, ? extends CsdlSchema> newSchemas = new SchemaReader().getSchemas(path);
+        schemas.putAll(newSchemas);
+        extractTerms(newSchemas);
       } catch (JsonParseException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
@@ -57,17 +62,36 @@ class IntermediateReferences implements IntermediateReferenceList {
     return reference;
   }
 
+  private void extractTerms(Map<? extends String, ? extends CsdlSchema> newSchemas) {
+    for (Entry<String, CsdlSchema> schema : schemas.entrySet()) {
+      Map<String, CsdlTerm> schemaTerms = new HashMap<String, CsdlTerm>();
+      for (CsdlTerm term : schema.getValue().getTerms()) {
+        schemaTerms.put(term.getName(), term);
+      }
+      terms.put(schema.getKey(), schemaTerms);
+    }
+  }
+
   public CsdlTerm getTerm(FullQualifiedName termName) {
-    Map<String, CsdlTerm> schema = schemas.get(termName.getNamespace());
+    Map<String, CsdlTerm> schema = terms.get(termName.getNamespace());
     if (schema == null) {
       for (IntermediateReference r : references) {
         String namespace = r.convertAlias(termName.getNamespace());
         if (namespace != null) {
-          schema = schemas.get(namespace);
+          schema = terms.get(namespace);
         }
       }
     }
     return schema.get(termName.getName());
+  }
+
+  public List<CsdlSchema> getSchemas() {
+
+    List<CsdlSchema> result = new ArrayList<CsdlSchema>();
+    for (Entry<String, CsdlSchema> schema : schemas.entrySet()) {
+      result.add(schema.getValue());
+    }
+    return result;
   }
 
   List<EdmxReference> getEdmReferences() {
@@ -81,9 +105,9 @@ class IntermediateReferences implements IntermediateReferenceList {
   }
 
   private class IntermediateReference implements IntermediateReferenceList.IntermediateReferenceAccess {
-    final private URI                                uri;
-    final private String                             path;
-    final EdmxReference                              edmxReference;
+    final private URI uri;
+    final private String path;
+    final EdmxReference edmxReference;
     final private List<IntermediateReferenceInclude> includes = new ArrayList<IntermediateReferenceInclude>();
 
     public IntermediateReference(final URI uri, final String path) {

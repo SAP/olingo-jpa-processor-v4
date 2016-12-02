@@ -19,6 +19,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunctionImport;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
+import org.apache.olingo.commons.api.edm.provider.CsdlTypeDefinition;
 import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.commons.api.ex.ODataException;
 
@@ -28,8 +29,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
 
 public class JPAEdmProvider extends CsdlAbstractEdmProvider {
 
-  final private JPAEdmNameBuilder nameBuilder;
-  final private ServiceDocument   serviceDocument;
+  private final JPAEdmNameBuilder nameBuilder;
+  private final ServiceDocument serviceDocument;
 
   // http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406397930
   public JPAEdmProvider(final String namespace, final EntityManagerFactory emf,
@@ -48,7 +49,7 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
 
   @Override
   public CsdlComplexType getComplexType(final FullQualifiedName complexTypeName) throws ODataException {
-    for (final CsdlSchema schema : serviceDocument.getEdmSchemas()) {
+    for (final CsdlSchema schema : serviceDocument.getAllSchemas()) {
       if (schema.getNamespace().equals(complexTypeName.getNamespace())) {
         return schema.getComplexType(complexTypeName.getName());
       }
@@ -126,6 +127,16 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
   @Override
   public CsdlTerm getTerm(final FullQualifiedName termName) throws ODataException {
     return serviceDocument.getTerm(termName);
+  }
+
+  @Override
+  public CsdlTypeDefinition getTypeDefinition(final FullQualifiedName typeDefinitionName) throws ODataException {
+    for (final CsdlSchema schema : serviceDocument.getAllSchemas()) {
+      if (schema.getNamespace().equals(typeDefinitionName.getNamespace())) {
+        return schema.getTypeDefinition(typeDefinitionName.getName());
+      }
+    }
+    return null;
   }
 
   @Override
