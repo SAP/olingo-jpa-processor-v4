@@ -2,11 +2,13 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import java.net.URISyntaxException;
 import java.util.List;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
+import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,6 +54,39 @@ public class TestIntermediateReferences extends TestMappingRoot {
 
     EdmxReference ref = serviceDocument.getReferences().get(0);
     assertEquals(1, ref.getIncludes().size());
+  }
+
+  @Test
+  public void checkGetOneSchema() throws ODataJPAModelException {
+    String uri = "http://docs.oasisopen.org/odata/odata/v4.0/os/vocabularies/Org.OData.Measures.V1.xml";
+    IntermediateReferenceAccess ref = cut.addReference(uri, "annotations/Org.OData.Measures.V1.xml");
+    ref.addInclude("Org.OData.Measures.V1", "");
+
+    assertEquals(1, cut.getSchemas().size());
+  }
+
+  @Test
+  public void checkGetTwoSchemas() throws ODataJPAModelException {
+    String uri = "http://org.example/odata/odata/v4.0/os/vocabularies/Org.Olingo.Test.V1.xml";
+    IntermediateReferenceAccess ref = cut.addReference(uri, "annotations/Org.Olingo.Test.V1.xml");
+    ref.addInclude("Org.Olingo.Test.V1.xml", "");
+
+    assertEquals(2, cut.getSchemas().size());
+  }
+
+  @Test
+  public void checkGetComplexType() throws ODataJPAModelException {
+    String uri = "http://org.example/odata/odata/v4.0/os/vocabularies/Org.Olingo.Test.V1.xml";
+    IntermediateReferenceAccess ref = cut.addReference(uri, "annotations/Org.Olingo.Test.V1.xml");
+    ref.addInclude("Org.Olingo.Test.V1.xml", "");
+
+    for (CsdlSchema schema : cut.getSchemas()) {
+      if (schema.getNamespace().equals("Org.OData.Capabilities.V1")) {
+        assertNotNull(schema.getComplexType("UpdateRestrictionsType"));
+        return;
+      }
+    }
+    fail();
   }
 
   @Test

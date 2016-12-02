@@ -28,12 +28,12 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
  *
  */
 class IntermediateSchema extends IntermediateModelElement {
-  final private Metamodel jpaMetamodel;
-  final private Map<String, IntermediateComplexType> complexTypeListInternalKey;
-  final private Map<String, IntermediateEntityType> entityTypeListInternalKey;
-  final private Map<String, IntermediateFunction> functionListInternalKey;
-  private IntermediateEntityContainer container;
-  private CsdlSchema edmSchema;
+  private final Metamodel                            jpaMetamodel;
+  private final Map<String, IntermediateComplexType> complexTypeListInternalKey;
+  private final Map<String, IntermediateEntityType>  entityTypeListInternalKey;
+  private final Map<String, IntermediateFunction>    functionListInternalKey;
+  private IntermediateEntityContainer                container;
+  private CsdlSchema                                 edmSchema;
 
   IntermediateSchema(final JPAEdmNameBuilder nameBuilder, final Metamodel jpaMetamodel) throws ODataJPAModelException {
     super(nameBuilder, nameBuilder.buildNamespace());
@@ -66,7 +66,8 @@ class IntermediateSchema extends IntermediateModelElement {
 
   @Override
   CsdlSchema getEdmItem() throws ODataJPAModelException {
-    if (edmSchema == null) lazyBuildEdmItem();
+    if (edmSchema == null)
+      lazyBuildEdmItem();
     return edmSchema;
   }
 

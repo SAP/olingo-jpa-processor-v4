@@ -33,7 +33,7 @@ public class TestTermReader {
 
     Schema[] actSchemas = actEdmx.getDataService().getSchemas();
     assertEquals(actSchemas.length, 1);
-    assertEquals(actSchemas[0].getNamespace(), "Org.OData.Measures.V1");
+    assertEquals("Org.OData.Measures.V1", actSchemas[0].getNamespace());
   }
 
   @Test
@@ -42,7 +42,7 @@ public class TestTermReader {
     act = cut.getTerms("annotations/Org.OData.Core.V1.xml");
     assertNotNull(act.get("Org.OData.Core.V1"));
     Map<String, CsdlTerm> terms = act.get("Org.OData.Core.V1");
-    assertEquals(terms.size(), 15);
+    assertEquals(15, terms.size());
   }
 
   @Test

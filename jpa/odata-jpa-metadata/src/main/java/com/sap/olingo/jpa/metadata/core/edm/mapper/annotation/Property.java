@@ -1,49 +1,33 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.annotation;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.geo.SRID;
-import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
+import org.apache.olingo.commons.api.edm.provider.CsdlMapping;
+import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Term extends CsdlTerm {
-
-  Term() {
-    super();
-  }
+public class Property extends CsdlProperty {
 
   @JacksonXmlProperty(localName = "Name", isAttribute = true)
   private String name;
-
   @JacksonXmlProperty(localName = "Type", isAttribute = true)
-  private String type;
-
-  @JacksonXmlProperty(localName = "BaseTerm", isAttribute = true)
-  private String baseTerm;
-
+  private FullQualifiedName type;
   @JacksonXmlProperty(localName = "Nullable", isAttribute = true)
-  private boolean nullable;
-
+  private Boolean isNullable;
   @JacksonXmlProperty(localName = "DefaultValue", isAttribute = true)
   private String defaultValue;
-
-  @JacksonXmlProperty(localName = "AppliesTo", isAttribute = true)
-  private String appliesTo;
-
+  @JacksonXmlProperty(localName = "Unicode", isAttribute = true)
+  private Boolean isUnicode;
   @JacksonXmlProperty(localName = "MaxLength", isAttribute = true)
-  private int maxLength;
-
+  private Integer maxLength;
   @JacksonXmlProperty(localName = "Precision", isAttribute = true)
-  private int precision;
-
+  private Integer precision;
   @JacksonXmlProperty(localName = "Scale", isAttribute = true)
-  private int scale;
-
+  private Integer scale;
   @JacksonXmlProperty(localName = "SRID", isAttribute = true)
   private SRID srid;
 
@@ -54,17 +38,19 @@ class Term extends CsdlTerm {
 
   @Override
   public String getType() {
-    return type;
+    // TODO Auto-generated method stub
+    return super.getType();
   }
 
   @Override
-  public String getBaseTerm() {
-    return baseTerm;
+  public FullQualifiedName getTypeAsFQNObject() {
+    // TODO Auto-generated method stub
+    return super.getTypeAsFQNObject();
   }
 
   @Override
-  public boolean isNullable() {
-    return nullable;
+  public boolean isCollection() {
+    return false;
   }
 
   @Override
@@ -73,20 +59,13 @@ class Term extends CsdlTerm {
   }
 
   @Override
-  public List<String> getAppliesTo() {
-    List<String> result = new ArrayList<String>();
-    if (appliesTo != null) {
-      String[] list = appliesTo.split(" ");
-      for (String apply : list) {
-        result.add(apply);
-      }
-    }
-    return result;
+  public boolean isNullable() {
+    return isNullable;
   }
 
   @Override
   public Integer getMaxLength() {
-    return maxLength;
+    return new Integer(maxLength);
   }
 
   @Override
@@ -100,70 +79,97 @@ class Term extends CsdlTerm {
   }
 
   @Override
+  public boolean isUnicode() {
+    return isUnicode;
+  }
+
+  @Override
+  public String getMimeType() {
+    return super.getMimeType();
+  }
+
+  @Override
+  public CsdlMapping getMapping() {
+    return super.getMapping();
+  }
+
+  @Override
   public SRID getSrid() {
     return srid;
   }
 
-  @JsonSetter
-  void setAppliesTo(String appliesTo) {
-    this.appliesTo = appliesTo;
-  }
-
   @Override
-  public CsdlTerm setName(String name) {
+  public CsdlProperty setName(String name) {
     this.name = name;
     return this;
   }
 
   @Override
-  public CsdlTerm setType(String type) {
+  public CsdlProperty setType(FullQualifiedName type) {
     this.type = type;
     return this;
   }
 
+  @JsonSetter
   @Override
-  public CsdlTerm setBaseTerm(String baseTerm) {
-    this.baseTerm = baseTerm;
+  public CsdlProperty setType(String type) {
+    this.type = new FullQualifiedName(type);
     return this;
   }
 
   @Override
-  public CsdlTerm setAppliesTo(List<String> appliesTo) {
+  public CsdlProperty setCollection(boolean isCollection) {
     return this;
   }
 
   @Override
-  public CsdlTerm setDefaultValue(String defaultValue) {
+  public CsdlProperty setDefaultValue(String defaultValue) {
     this.defaultValue = defaultValue;
     return this;
   }
 
   @Override
-  public CsdlTerm setNullable(boolean nullable) {
-    this.nullable = nullable;
+  public CsdlProperty setNullable(boolean nullable) {
+    this.isNullable = nullable;
     return this;
   }
 
   @Override
-  public CsdlTerm setMaxLength(Integer maxLength) {
+  public CsdlProperty setMaxLength(Integer maxLength) {
     this.maxLength = maxLength;
     return this;
   }
 
   @Override
-  public CsdlTerm setPrecision(Integer precision) {
+  public CsdlProperty setPrecision(Integer precision) {
     this.precision = precision;
     return this;
   }
 
   @Override
-  public CsdlTerm setScale(Integer scale) {
+  public CsdlProperty setScale(Integer scale) {
     this.scale = scale;
     return this;
   }
 
   @Override
-  public CsdlTerm setSrid(SRID srid) {
+  public CsdlProperty setUnicode(boolean unicode) {
+    this.isUnicode = unicode;
+    return this;
+  }
+
+  @Override
+  public CsdlProperty setMimeType(String mimeType) {
+    return this;
+  }
+
+  @Override
+  public CsdlProperty setMapping(CsdlMapping mapping) {
+    return this;
+  }
+
+  @Override
+  public CsdlProperty setSrid(SRID srid) {
     this.srid = srid;
     return this;
   }
@@ -175,4 +181,5 @@ class Term extends CsdlTerm {
     else
       this.srid = null;
   }
+
 }
