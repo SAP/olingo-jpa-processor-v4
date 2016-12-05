@@ -27,12 +27,12 @@ public class SchemaReader {
 
   }
 
-  public Map<? extends String, ? extends CsdlSchema> getSchemas(String path) throws JsonParseException,
+  public Map<String, ? extends CsdlSchema> getSchemas(String path) throws JsonParseException,
       JsonMappingException, IOException {
     return convertEDMX(readFromResource(path));
   }
 
-  public Map<? extends String, ? extends CsdlSchema> getSchemas(URI uri) throws JsonParseException,
+  public Map<String, ? extends CsdlSchema> getSchemas(URI uri) throws JsonParseException,
       JsonMappingException, MalformedURLException, IOException {
     return convertEDMX(readFromURI(uri));
   }
@@ -72,7 +72,7 @@ public class SchemaReader {
     return null;
   }
 
-  private Map<? extends String, ? extends CsdlSchema> convertEDMX(Edmx edmx) {
+  private Map<String, ? extends CsdlSchema> convertEDMX(Edmx edmx) {
 
     if (edmx != null && edmx.getDataService() != null) {
 

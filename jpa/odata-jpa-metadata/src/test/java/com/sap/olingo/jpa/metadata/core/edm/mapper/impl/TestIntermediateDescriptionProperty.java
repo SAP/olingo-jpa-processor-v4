@@ -20,14 +20,15 @@ import org.junit.Test;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityTypeAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
 
 public class TestIntermediateDescriptionProperty extends TestMappingRoot {
-  private TestHelper                      helper;
+  private TestHelper helper;
   private IntermediateDescriptionProperty cut;
-  private JPAEdmMetadataPostProcessor     processor;
+  private JPAEdmMetadataPostProcessor processor;
 
   @Before
   public void setup() throws ODataJPAModelException {
@@ -165,6 +166,9 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
     @Override
     public void processNavigationProperty(IntermediateNavigationPropertyAccess property,
         String jpaManagedTypeClassName) {}
+
+    @Override
+    public void processEntity(IntermediateEntityTypeAccess entity) {}
 
     @Override
     public void provideReferences(IntermediateReferenceList references) throws ODataJPAModelException {}

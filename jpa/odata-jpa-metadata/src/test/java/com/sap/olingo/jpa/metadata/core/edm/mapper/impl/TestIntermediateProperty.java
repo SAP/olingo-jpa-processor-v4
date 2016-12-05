@@ -22,12 +22,13 @@ import org.junit.Test;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityTypeAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
 
 public class TestIntermediateProperty extends TestMappingRoot {
-  private TestHelper                  helper;
+  private TestHelper helper;
   private JPAEdmMetadataPostProcessor processor;
 
   @Before
@@ -184,7 +185,7 @@ public class TestIntermediateProperty extends TestMappingRoot {
 
   @Test
   public void checkPostProcessorCalled() throws ODataJPAModelException {
-    IntermediateModelElement.setPostProcessor(processor);
+    IntermediateProperty.setPostProcessor(processor);
     Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType("BusinessPartner"), "creationDateTime");
     IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
         helper.schema);
@@ -196,7 +197,7 @@ public class TestIntermediateProperty extends TestMappingRoot {
   @Test
   public void checkPostProcessorNameChanged() throws ODataJPAModelException {
     PostProcessorSetName pPDouble = new PostProcessorSetName();
-    IntermediateModelElement.setPostProcessor(pPDouble);
+    IntermediateProperty.setPostProcessor(pPDouble);
 
     Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType("BusinessPartner"), "customString1");
     IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
@@ -301,5 +302,8 @@ public class TestIntermediateProperty extends TestMappingRoot {
 
     @Override
     public void provideReferences(IntermediateReferenceList references) throws ODataJPAModelException {}
+
+    @Override
+    public void processEntity(IntermediateEntityTypeAccess entity) {}
   }
 }

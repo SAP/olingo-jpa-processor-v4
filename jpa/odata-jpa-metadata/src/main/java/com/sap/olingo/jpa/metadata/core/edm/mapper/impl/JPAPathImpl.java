@@ -15,7 +15,7 @@ class JPAPathImpl implements JPAPath {
   final private String dbFieldName;
   final private boolean ignore;
 
-  JPAPathImpl(final String alias, final String dbFieldName, final IntermediateProperty element) {
+  JPAPathImpl(final String alias, final String dbFieldName, final IntermediateModelElement element) {
     final List<JPAElement> pathElementsBuffer = new ArrayList<JPAElement>();
 
     this.alias = alias;

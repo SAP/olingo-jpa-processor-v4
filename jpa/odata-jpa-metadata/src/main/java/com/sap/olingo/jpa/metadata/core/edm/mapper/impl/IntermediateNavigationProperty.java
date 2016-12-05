@@ -17,6 +17,7 @@ import javax.persistence.metamodel.Attribute.PersistentAttributeType;
 import javax.persistence.metamodel.PluralAttribute;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
+import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlNavigationProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlOnDelete;
 import org.apache.olingo.commons.api.edm.provider.CsdlOnDeleteAction;
@@ -234,7 +235,7 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
 
       final CsdlReferentialConstraint constraint = new CsdlReferentialConstraint();
       constraints.add(constraint);
-      IntermediateProperty p = null;
+      IntermediateModelElement p = null;
       p = sourceType.getPropertyByDBField(intermediateColumn.getName());
       if (p != null) {
         constraint.setProperty(p.getExternalName());
@@ -313,6 +314,8 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
           jpaAttribute.getName(), sourceType.internalName);
     postProcessor.processNavigationProperty(this, jpaAttribute.getDeclaringType().getJavaType()
         .getCanonicalName());
+    // Process annotations after post processing, as external name it could have been changed
+    getAnnotations(edmAnnotations, this.jpaAttribute.getJavaMember(), internalName);
   }
 
   private void fillMissingName(final boolean isSourceOne, final IntermediateJoinColumn intermediateColumn)
@@ -344,5 +347,10 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
       }
     }
     return null;
+  }
+
+  @Override
+  public void addAnnotations(List<CsdlAnnotation> annotations) {
+    edmAnnotations.addAll(annotations);
   }
 }

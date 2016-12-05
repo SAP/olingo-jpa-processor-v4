@@ -17,8 +17,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
 import com.sap.olingo.jpa.processor.core.api.JPAODataContextAccessDouble;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandQuery;
