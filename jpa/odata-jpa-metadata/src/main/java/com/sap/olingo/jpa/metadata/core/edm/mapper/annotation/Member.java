@@ -23,4 +23,16 @@ public class Member extends CsdlEnumMember {
   public String getValue() {
     return value;
   }
+
+  @Override
+  public CsdlEnumMember setName(String name) {
+    this.name = name;
+    return this;
+  }
+
+  @Override
+  public CsdlEnumMember setValue(String value) {
+    this.value = value;
+    return this;
+  }
 }

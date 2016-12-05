@@ -19,6 +19,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityTypeAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
@@ -335,9 +336,10 @@ public class TestIntermediateEntityType extends TestMappingRoot {
         String jpaManagedTypeClassName) {}
 
     @Override
-    public void provideReferences(IntermediateReferenceList references) throws ODataJPAModelException {
+    public void processEntity(IntermediateEntityTypeAccess entity) {}
 
-    }
+    @Override
+    public void provideReferences(IntermediateReferenceList references) throws ODataJPAModelException {}
   }
 
   private EntityType<?> getEntityType(String typeName) {

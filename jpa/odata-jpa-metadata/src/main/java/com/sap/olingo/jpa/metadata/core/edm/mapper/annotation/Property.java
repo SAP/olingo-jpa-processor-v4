@@ -50,6 +50,8 @@ public class Property extends CsdlProperty {
 
   @Override
   public boolean isCollection() {
+//    final int collStartIdx = typeExpression.indexOf("Collection(");
+//    final int collEndIdx = typeExpression.lastIndexOf(')');
     return false;
   }
 

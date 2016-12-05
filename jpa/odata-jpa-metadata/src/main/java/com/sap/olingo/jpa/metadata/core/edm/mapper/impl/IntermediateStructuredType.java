@@ -24,6 +24,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlStructuralType;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssozation;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
@@ -86,7 +87,7 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
     JPAAttribute result = declaredPropertiesList.get(internalName);
     if (result == null && getBaseType() != null)
       result = getBaseType().getAttribute(internalName);
-    else if (result != null && ((IntermediateProperty) result).ignore())
+    else if (result != null && ((IntermediateModelElement) result).ignore())
       return null;
     return result;
   }
@@ -278,7 +279,7 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
     return null;
   }
 
-  IntermediateProperty getPropertyByDBField(final String dbFieldName) throws ODataJPAModelException {
+  IntermediateModelElement getPropertyByDBField(final String dbFieldName) throws ODataJPAModelException {
     buildPropertyList();
     for (final String internalName : declaredPropertiesList.keySet()) {
       final IntermediateProperty property = declaredPropertiesList.get(internalName);
@@ -373,7 +374,7 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
     return resolvedPathMap;
   }
 
-  private String determineDBFieldName(final IntermediateProperty property, final JPAPath jpaPath) {
+  private String determineDBFieldName(final IntermediateModelElement property, final JPAPath jpaPath) {
     final Attribute<?, ?> jpaAttribute = jpaManagedType.getAttribute(property.getInternalName());
     if (jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
       final AnnotatedElement a = (AnnotatedElement) jpaAttribute.getJavaMember();
@@ -394,7 +395,7 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
     return jpaPath.getDBFieldName();
   }
 
-  private List<IntermediateJoinColumn> determineJoinColumns(final IntermediateProperty property,
+  private List<IntermediateJoinColumn> determineJoinColumns(final IntermediateModelElement property,
       final JPAAssociationPath association) {
     final List<IntermediateJoinColumn> result = new ArrayList<IntermediateJoinColumn>();
 

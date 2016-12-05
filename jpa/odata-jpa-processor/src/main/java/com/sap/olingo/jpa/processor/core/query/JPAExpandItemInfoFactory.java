@@ -13,7 +13,7 @@ import org.apache.olingo.server.api.uri.UriResourcePartTyped;
 import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
 import org.apache.olingo.server.api.uri.queryoption.expression.Expression;
 
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
 
 public class JPAExpandItemInfoFactory {

@@ -36,10 +36,6 @@ import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
 import com.sap.olingo.jpa.processor.core.api.JPAAbstractCUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
@@ -67,19 +63,10 @@ public class TestJPADeleteProcessor {
 
   @BeforeClass
   public static void setupClass() throws ODataException {
+    JPAEdmMetadataPostProcessor pP = mock(JPAEdmMetadataPostProcessor.class);
     ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
     emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, ds);
-    jpaEdm = new JPAEdmProvider(PUNIT_NAME, emf.getMetamodel(), new JPAEdmMetadataPostProcessor() {
-      @Override
-      public void processProperty(IntermediatePropertyAccess property, String jpaManagedTypeClassName) {}
-
-      @Override
-      public void processNavigationProperty(IntermediateNavigationPropertyAccess property,
-          String jpaManagedTypeClassName) {}
-
-      @Override
-      public void provideReferences(IntermediateReferenceList references) throws ODataJPAModelException {}
-    });
+    jpaEdm = new JPAEdmProvider(PUNIT_NAME, emf.getMetamodel(), pP);
 
   }
 

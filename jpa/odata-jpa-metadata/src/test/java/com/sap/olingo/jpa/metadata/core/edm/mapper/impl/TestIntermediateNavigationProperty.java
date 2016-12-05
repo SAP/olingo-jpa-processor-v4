@@ -21,6 +21,7 @@ import org.junit.Test;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityTypeAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
@@ -29,8 +30,8 @@ import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
 
 public class TestIntermediateNavigationProperty extends TestMappingRoot {
-  private IntermediateSchema          schema;
-  private TestHelper                  helper;
+  private IntermediateSchema schema;
+  private TestHelper helper;
   private JPAEdmMetadataPostProcessor processor;
 
   @Before
@@ -329,6 +330,9 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
     }
 
     @Override
+    public void processEntity(IntermediateEntityTypeAccess entity) {}
+
+    @Override
     public void provideReferences(IntermediateReferenceList references) throws ODataJPAModelException {}
   }
 
@@ -346,9 +350,10 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
     }
 
     @Override
-    public void processProperty(IntermediatePropertyAccess property, String jpaManagedTypeClassName) {
+    public void processProperty(IntermediatePropertyAccess property, String jpaManagedTypeClassName) {}
 
-    }
+    @Override
+    public void processEntity(IntermediateEntityTypeAccess entity) {}
 
     @Override
     public void provideReferences(IntermediateReferenceList references) throws ODataJPAModelException {}
