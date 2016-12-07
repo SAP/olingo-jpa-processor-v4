@@ -121,7 +121,7 @@ public class TestIntermediateReferences extends TestMappingRoot {
     }
 
     @Override
-    public void processEntity(IntermediateEntityTypeAccess entity) {}
+    public void processEntityType(IntermediateEntityTypeAccess entity) {}
 
     @Override
     public void provideReferences(final IntermediateReferenceList references) throws ODataJPAModelException {

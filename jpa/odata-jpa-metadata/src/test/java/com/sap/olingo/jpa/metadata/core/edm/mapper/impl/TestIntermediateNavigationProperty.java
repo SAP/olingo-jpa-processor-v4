@@ -330,7 +330,7 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
     }
 
     @Override
-    public void processEntity(IntermediateEntityTypeAccess entity) {}
+    public void processEntityType(IntermediateEntityTypeAccess entity) {}
 
     @Override
     public void provideReferences(IntermediateReferenceList references) throws ODataJPAModelException {}
@@ -353,7 +353,7 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
     public void processProperty(IntermediatePropertyAccess property, String jpaManagedTypeClassName) {}
 
     @Override
-    public void processEntity(IntermediateEntityTypeAccess entity) {}
+    public void processEntityType(IntermediateEntityTypeAccess entity) {}
 
     @Override
     public void provideReferences(IntermediateReferenceList references) throws ODataJPAModelException {}

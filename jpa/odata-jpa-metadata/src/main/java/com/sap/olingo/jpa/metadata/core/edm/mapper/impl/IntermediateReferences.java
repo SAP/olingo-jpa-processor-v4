@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.SchemaReader;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
 
 class IntermediateReferences implements IntermediateReferenceList {
@@ -48,14 +49,14 @@ class IntermediateReferences implements IntermediateReferenceList {
         schemas.putAll(newSchemas);
         extractTerms(newSchemas);
       } catch (JsonParseException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        // Parsing of %1$s failed with message %2$s
+        throw new ODataJPAModelException(MessageKeys.ANNOTATION_PARSE_ERROR, e, path, e.getMessage());
       } catch (JsonMappingException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        // Parsing of %1$s failed with message %2$s
+        throw new ODataJPAModelException(MessageKeys.ANNOTATION_PARSE_ERROR, e, path, e.getMessage());
       } catch (IOException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        // Parsing of %1$s failed with message %2$s
+        throw new ODataJPAModelException(MessageKeys.ANNOTATION_PARSE_ERROR, e, path, e.getMessage());
       }
     }
     references.add(reference);
