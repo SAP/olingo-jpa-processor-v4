@@ -304,6 +304,6 @@ public class TestIntermediateProperty extends TestMappingRoot {
     public void provideReferences(IntermediateReferenceList references) throws ODataJPAModelException {}
 
     @Override
-    public void processEntity(IntermediateEntityTypeAccess entity) {}
+    public void processEntityType(IntermediateEntityTypeAccess entity) {}
   }
 }

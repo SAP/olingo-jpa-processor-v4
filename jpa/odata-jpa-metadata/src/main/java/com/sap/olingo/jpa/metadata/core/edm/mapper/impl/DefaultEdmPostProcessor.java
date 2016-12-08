@@ -18,5 +18,5 @@ class DefaultEdmPostProcessor extends com.sap.olingo.jpa.metadata.api.JPAEdmMeta
   public void provideReferences(IntermediateReferenceList references) {}
 
   @Override
-  public void processEntity(IntermediateEntityTypeAccess entity) {}
+  public void processEntityType(IntermediateEntityTypeAccess entity) {}
 }

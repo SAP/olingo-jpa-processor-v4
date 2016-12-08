@@ -6,10 +6,17 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.metamodel.EntityType;
 
+import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlCollection;
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression;
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlExpression;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -313,6 +320,16 @@ public class TestIntermediateEntityType extends TestMappingRoot {
     assertFalse(et.hasEtag());
   }
 
+  @Test
+  public void checkAnnotationSet() throws ODataJPAModelException {
+    IntermediateModelElement.setPostProcessor(new PostProcessorSetIgnore());
+    IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "PersonImage"), schema);
+    List<CsdlAnnotation> act = et.getEdmItem().getAnnotations();
+    assertEquals(1, act.size());
+    assertEquals("Core.AcceptableMediaTypes", act.get(0).getTerm());
+  }
+
   @Ignore
   @Test
   public void checkGetPropertyWithEnumerationType() {
@@ -336,7 +353,21 @@ public class TestIntermediateEntityType extends TestMappingRoot {
         String jpaManagedTypeClassName) {}
 
     @Override
-    public void processEntity(IntermediateEntityTypeAccess entity) {}
+    public void processEntityType(IntermediateEntityTypeAccess entity) {
+      if (entity.getExternalName().equals("PersonImage")) {
+        List<CsdlExpression> items = new ArrayList<CsdlExpression>();
+        CsdlCollection exp = new CsdlCollection();
+        exp.setItems(items);
+        CsdlConstantExpression mimeType = new CsdlConstantExpression(ConstantExpressionType.String, "ogg");
+        items.add(mimeType);
+        CsdlAnnotation annotation = new CsdlAnnotation();
+        annotation.setExpression(exp);
+        annotation.setTerm("Core.AcceptableMediaTypes");
+        List<CsdlAnnotation> annotations = new ArrayList<CsdlAnnotation>();
+        annotations.add(annotation);
+        entity.addAnnotations(annotations);
+      }
+    }
 
     @Override
     public void provideReferences(IntermediateReferenceList references) throws ODataJPAModelException {}

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
@@ -14,6 +15,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityContainerAccess;
 
 /**
  * <a href=
@@ -23,7 +25,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
  *
  */
 //TODO How to handle multiple schemas
-class IntermediateEntityContainer extends IntermediateModelElement {
+class IntermediateEntityContainer extends IntermediateModelElement implements IntermediateEntityContainerAccess {
   final private Map<String, IntermediateSchema> schemaList;
   final private Map<String, IntermediateEntitySet> entitySetListInternalKey;
 
@@ -38,13 +40,19 @@ class IntermediateEntityContainer extends IntermediateModelElement {
   }
 
   @Override
+  public void addAnnotations(List<CsdlAnnotation> annotations) {
+    this.edmAnnotations.addAll(annotations);
+  }
+
+  @Override
   protected void lazyBuildEdmItem() throws ODataJPAModelException {
     if (edmContainer == null) {
+      postProcessor.processEntityContainer(this);
       edmContainer = new CsdlEntityContainer();
       edmContainer.setName(getExternalName());
       edmContainer.setEntitySets(buildEntitySets());
       edmContainer.setFunctionImports(buildFunctionImports());
-
+      edmContainer.setAnnotations(edmAnnotations);
       // TODO Singleton
       // TODO ActionImport
 
@@ -137,5 +145,4 @@ class IntermediateEntityContainer extends IntermediateModelElement {
     }
     return edmFunctionImports;
   }
-
 }

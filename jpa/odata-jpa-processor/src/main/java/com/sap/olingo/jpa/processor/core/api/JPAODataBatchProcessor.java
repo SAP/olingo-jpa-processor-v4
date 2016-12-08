@@ -35,7 +35,7 @@ import org.apache.olingo.server.api.processor.BatchProcessor;
 public class JPAODataBatchProcessor implements BatchProcessor {
 
   private final EntityManager em;
-  private OData odata;
+  private OData               odata;
 
   public JPAODataBatchProcessor(EntityManager em) {
     this.em = em;
@@ -61,8 +61,9 @@ public class JPAODataBatchProcessor implements BatchProcessor {
     for (final BatchRequestPart part : requestParts) {
       responseParts.add(facade.handleBatchRequest(part));
     }
-    final InputStream responseContent = odata.createFixedFormatSerializer().batchResponse(responseParts, boundary);
     final String responseBoundary = "batch_" + UUID.randomUUID().toString();
+    final InputStream responseContent = odata.createFixedFormatSerializer().batchResponse(responseParts,
+        responseBoundary);
 
     response.setHeader(HttpHeader.CONTENT_TYPE, ContentType.MULTIPART_MIXED + ";boundary=" + responseBoundary);
     response.setContent(responseContent);

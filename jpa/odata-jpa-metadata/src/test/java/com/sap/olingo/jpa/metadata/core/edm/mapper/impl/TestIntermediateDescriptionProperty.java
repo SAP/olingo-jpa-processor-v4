@@ -168,7 +168,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
         String jpaManagedTypeClassName) {}
 
     @Override
-    public void processEntity(IntermediateEntityTypeAccess entity) {}
+    public void processEntityType(IntermediateEntityTypeAccess entity) {}
 
     @Override
     public void provideReferences(IntermediateReferenceList references) throws ODataJPAModelException {}

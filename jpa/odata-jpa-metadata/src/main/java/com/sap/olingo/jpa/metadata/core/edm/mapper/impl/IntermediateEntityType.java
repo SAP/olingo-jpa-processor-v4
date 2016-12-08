@@ -12,16 +12,19 @@ import javax.persistence.Table;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.IdentifiableType;
 
+import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
 import org.apache.olingo.commons.api.edm.provider.CsdlNavigationProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlPropertyRef;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.AppliesTo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityTypeAccess;
 
 /**
  * <a href=
@@ -30,25 +33,40 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
  * @author Oliver Grande
  *
  */
-class IntermediateEntityType extends IntermediateStructuredType implements JPAEntityType {
+class IntermediateEntityType extends IntermediateStructuredType implements JPAEntityType, IntermediateEntityTypeAccess {
   private CsdlEntityType edmEntityType;
-  private boolean        hasEtag;
+  private boolean hasEtag;
 
   IntermediateEntityType(final JPAEdmNameBuilder nameBuilder, final EntityType<?> et, final IntermediateSchema schema)
       throws ODataJPAModelException {
     super(nameBuilder, et, schema);
     this.setExternalName(nameBuilder.buildEntityTypeName(et));
-    final EdmIgnore jpaIgnore = ((AnnotatedElement) this.jpaManagedType.getJavaType()).getAnnotation(
-        EdmIgnore.class);
+    final EdmIgnore jpaIgnore = ((AnnotatedElement) this.jpaManagedType.getJavaType()).getAnnotation(EdmIgnore.class);
     if (jpaIgnore != null) {
       this.setIgnore(true);
     }
   }
 
   @Override
+  public void addAnnotations(List<CsdlAnnotation> annotations) {
+    this.edmAnnotations.addAll(annotations);
+
+  }
+
+  @Override
   public String getContentType() throws ODataJPAModelException {
     final IntermediateProperty stream = getStreamProperty();
     return stream.getContentType();
+  }
+
+  @Override
+  public JPAPath getContentTypeAttributePath() throws ODataJPAModelException {
+    final String propertyInternalName = getStreamProperty().getContentTypeProperty();
+    if (propertyInternalName == null || propertyInternalName.isEmpty()) {
+      return null;
+    }
+    // Ensure that Ignore is ignored
+    return getPathByDBField(getProperty(propertyInternalName).getDBFieldName());
   }
 
   @Override
@@ -116,16 +134,6 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
   }
 
   @Override
-  public JPAPath getContentTypeAttributePath() throws ODataJPAModelException {
-    final String propertyInternalName = getStreamProperty().getContentTypeProperty();
-    if (propertyInternalName == null || propertyInternalName.isEmpty()) {
-      return null;
-    }
-    // Ensure that Ignore is ignored
-    return getPathByDBField(getProperty(propertyInternalName).getDBFieldName());
-  }
-
-  @Override
   public String getTableName() {
     final AnnotatedElement a = jpaManagedType.getJavaType();
     Table t = null;
@@ -138,16 +146,16 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
   }
 
   @Override
-  public boolean hasStream() throws ODataJPAModelException {
-    lazyBuildEdmItem();
-    return this.determineHasStream();
-  }
-
-  @Override
   public boolean hasEtag() throws ODataJPAModelException {
     lazyBuildEdmItem();
     return hasEtag;
   };
+
+  @Override
+  public boolean hasStream() throws ODataJPAModelException {
+    lazyBuildEdmItem();
+    return this.determineHasStream();
+  }
 
   @Override
   public List<JPAPath> searchChildPath(final JPAPath selectItemPath) {
@@ -186,6 +194,8 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
     if (edmEntityType == null) {
       buildPropertyList();
       buildNaviPropertyList();
+      postProcessor.processEntityType(this);
+
       edmEntityType = new CsdlEntityType();
       edmEntityType.setName(getExternalName());
       edmEntityType.setProperties((List<CsdlProperty>) extractEdmModelElements(declaredPropertiesList));
@@ -195,9 +205,9 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
       edmEntityType.setAbstract(determineAbstract());
       edmEntityType.setBaseType(determineBaseType());
       edmEntityType.setHasStream(determineHasStream());
+      edmEntityType.setAnnotations(determineAnnotations());
       determineHasEtag();
       // TODO determine OpenType
-
     }
   }
 
@@ -251,6 +261,11 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
   CsdlEntityType getEdmItem() throws ODataJPAModelException {
     lazyBuildEdmItem();
     return edmEntityType;
+  }
+
+  private List<CsdlAnnotation> determineAnnotations() throws ODataJPAModelException {
+    getAnnotations(edmAnnotations, this.jpaManagedType.getJavaType(), internalName, AppliesTo.ENTITY_TYPE);
+    return edmAnnotations;
   }
 
   private <T> List<?> resolveEmbeddedId(final IntermediateEmbeddedIdProperty embeddedId) throws ODataJPAModelException {
