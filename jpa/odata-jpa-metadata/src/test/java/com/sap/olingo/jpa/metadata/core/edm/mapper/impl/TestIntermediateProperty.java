@@ -27,7 +27,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropert
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
 
 public class TestIntermediateProperty extends TestMappingRoot {
-  private TestHelper                  helper;
+  private TestHelper helper;
   private JPAEdmMetadataPostProcessor processor;
 
   @Before
@@ -235,6 +235,18 @@ public class TestIntermediateProperty extends TestMappingRoot {
     IntermediateModelElement.setPostProcessor(pPDouble);
 
     Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType("Person"), "customString1");
+    IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
+        helper.schema);
+
+    assertNull(property.getConverter());
+  }
+
+  @Test
+  public void checkConverterGetConverterNotReturnedDiffernt() throws ODataJPAModelException {
+    PostProcessorSetName pPDouble = new PostProcessorSetName();
+    IntermediateModelElement.setPostProcessor(pPDouble);
+
+    Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType("DummyToBeIgnored"), "uuid");
     IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
         helper.schema);
 

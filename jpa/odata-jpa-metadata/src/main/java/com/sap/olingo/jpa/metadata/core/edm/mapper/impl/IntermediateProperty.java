@@ -240,7 +240,7 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
           Type[] types = ((ParameterizedType) convType[0]).getActualTypeArguments();
           entityType = (Class<?>) types[0];
           dbType = (Class<?>) types[1];
-          if (dbType != entityType)
+          if (!JPATypeConvertor.isSupportedByOlingo(entityType))
             valueConverter = (AttributeConverter<?, ?>) jpaConverter.converter().newInstance();
         } catch (InstantiationException e) {
           throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.TYPE_MAPPER_COULD_NOT_INSANTIATE, e);

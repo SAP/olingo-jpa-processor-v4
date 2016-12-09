@@ -657,5 +657,6 @@ insert into "AdministrativeDivision" values( 'Eurostat', 'LAU2', '38025','BEL','
 
 CREATE TABLE "DummyToBeIgnored" (
 	"ID" VARCHAR(32) NOT NULL ,
+	"uuid" VARBINARY(32),
 	 PRIMARY KEY ("ID"));
 	
