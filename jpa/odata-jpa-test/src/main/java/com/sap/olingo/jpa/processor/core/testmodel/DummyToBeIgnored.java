@@ -3,6 +3,7 @@ package com.sap.olingo.jpa.processor.core.testmodel;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -33,8 +34,11 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 public class DummyToBeIgnored implements Serializable {
 
   @Id
-  private String            ID;
+  private String ID;
   private static final long serialVersionUID = 1L;
+
+  @Convert(converter = ByteConverter.class)
+  private byte uuid;
 
   @EdmIgnore
   @OneToOne(optional = false, fetch = FetchType.LAZY)

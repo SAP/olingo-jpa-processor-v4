@@ -243,6 +243,18 @@ public class TestIntermediateProperty extends TestMappingRoot {
   }
 
   @Test
+  public void checkConverterGetConverterNotReturnedDiffernt() throws ODataJPAModelException {
+    PostProcessorSetName pPDouble = new PostProcessorSetName();
+    IntermediateModelElement.setPostProcessor(pPDouble);
+
+    Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType("DummyToBeIgnored"), "uuid");
+    IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
+        helper.schema);
+
+    assertNull(property.getConverter());
+  }
+
+  @Test
   public void checkGetProptertyDefaultValue() throws ODataJPAModelException {
     Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEmbeddedableType("PostalAddressData"),
         "regionCodePublisher");
