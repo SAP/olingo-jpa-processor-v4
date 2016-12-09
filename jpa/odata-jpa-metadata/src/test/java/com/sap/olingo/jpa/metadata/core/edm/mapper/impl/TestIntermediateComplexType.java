@@ -15,13 +15,14 @@ import org.junit.Test;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityTypeAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
 
 public class TestIntermediateComplexType extends TestMappingRoot {
   private Set<EmbeddableType<?>> etList;
-  private IntermediateSchema     schema;
+  private IntermediateSchema schema;
 
   @Before
   public void setup() throws ODataJPAModelException {
@@ -215,6 +216,9 @@ public class TestIntermediateComplexType extends TestMappingRoot {
 
     @Override
     public void provideReferences(IntermediateReferenceList references) {}
+
+    @Override
+    public void processEntityType(IntermediateEntityTypeAccess entity) {}
   }
 
 }

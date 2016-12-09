@@ -4,14 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.olingo.commons.api.edm.geo.SRID;
+import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-class Term {
+class Term extends CsdlTerm {
 
-  public Term() {
+  Term() {
     super();
   }
 
@@ -43,29 +45,35 @@ class Term {
   private int scale;
 
   @JacksonXmlProperty(localName = "SRID", isAttribute = true)
-  private String srid;
+  private SRID srid;
 
-  String getName() {
+  @Override
+  public String getName() {
     return name;
   }
 
-  String getType() {
+  @Override
+  public String getType() {
     return type;
   }
 
-  String getBaseTerm() {
+  @Override
+  public String getBaseTerm() {
     return baseTerm;
   }
 
-  boolean isNullable() {
+  @Override
+  public boolean isNullable() {
     return nullable;
   }
 
-  String getDefaultValue() {
+  @Override
+  public String getDefaultValue() {
     return defaultValue;
   }
 
-  List<String> getAppliesTo() {
+  @Override
+  public List<String> getAppliesTo() {
     List<String> result = new ArrayList<String>();
     if (appliesTo != null) {
       String[] list = appliesTo.split(" ");
@@ -76,22 +84,95 @@ class Term {
     return result;
   }
 
-  int getMaxLength() {
+  @Override
+  public Integer getMaxLength() {
     return maxLength;
   }
 
-  int getPrecision() {
+  @Override
+  public Integer getPrecision() {
     return precision;
   }
 
-  int getScale() {
+  @Override
+  public Integer getScale() {
     return scale;
   }
 
-  SRID getSrid() {
+  @Override
+  public SRID getSrid() {
+    return srid;
+  }
+
+  @JsonSetter
+  void setAppliesTo(String appliesTo) {
+    this.appliesTo = appliesTo;
+  }
+
+  @Override
+  public CsdlTerm setName(String name) {
+    this.name = name;
+    return this;
+  }
+
+  @Override
+  public CsdlTerm setType(String type) {
+    this.type = type;
+    return this;
+  }
+
+  @Override
+  public CsdlTerm setBaseTerm(String baseTerm) {
+    this.baseTerm = baseTerm;
+    return this;
+  }
+
+  @Override
+  public CsdlTerm setAppliesTo(List<String> appliesTo) {
+    return this;
+  }
+
+  @Override
+  public CsdlTerm setDefaultValue(String defaultValue) {
+    this.defaultValue = defaultValue;
+    return this;
+  }
+
+  @Override
+  public CsdlTerm setNullable(boolean nullable) {
+    this.nullable = nullable;
+    return this;
+  }
+
+  @Override
+  public CsdlTerm setMaxLength(Integer maxLength) {
+    this.maxLength = maxLength;
+    return this;
+  }
+
+  @Override
+  public CsdlTerm setPrecision(Integer precision) {
+    this.precision = precision;
+    return this;
+  }
+
+  @Override
+  public CsdlTerm setScale(Integer scale) {
+    this.scale = scale;
+    return this;
+  }
+
+  @Override
+  public CsdlTerm setSrid(SRID srid) {
+    this.srid = srid;
+    return this;
+  }
+
+  @JsonSetter
+  void setSrid(String srid) {
     if (srid != null)
-      return SRID.valueOf(srid);
+      this.srid = SRID.valueOf(srid);
     else
-      return null;
+      this.srid = null;
   }
 }

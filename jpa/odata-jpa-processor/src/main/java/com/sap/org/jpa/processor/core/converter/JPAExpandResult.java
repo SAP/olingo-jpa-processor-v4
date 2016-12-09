@@ -5,8 +5,8 @@ import java.util.Map;
 
 import javax.persistence.Tuple;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
 
 public interface JPAExpandResult {
 

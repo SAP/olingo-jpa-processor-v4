@@ -3,21 +3,26 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunctionImport;
 import org.apache.olingo.commons.api.edm.provider.CsdlNavigationPropertyBinding;
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression;
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.DefaultEdmPostProcessor;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.IntermediateEntityContainer;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.IntermediateModelElement;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.IntermediateSchema;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityContainerAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityTypeAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
 import com.sap.olingo.jpa.processor.core.testmodel.TestDataConstants;
 
 public class TestIntermediateContainer extends TestMappingRoot {
@@ -196,6 +201,50 @@ public class TestIntermediateContainer extends TestMappingRoot {
       if (funcImport.getName().equals("Olingo V4 ")) {
         fail("UnBound function must be generate a function import is annotated");
       }
+    }
+  }
+
+  @Test
+  public void checkAnnotationSet() throws ODataJPAModelException {
+    IntermediateModelElement.setPostProcessor(new PostProcessorSetIgnore());
+    IntermediateEntityContainer container = new IntermediateEntityContainer(new JPAEdmNameBuilder(PUNIT_NAME), schemas);
+    List<CsdlAnnotation> act = container.getEdmItem().getAnnotations();
+    assertEquals(1, act.size());
+    assertEquals("Capabilities.AsynchronousRequestsSupported", act.get(0).getTerm());
+  }
+
+  private class PostProcessorSetIgnore extends JPAEdmMetadataPostProcessor {
+
+    @Override
+    public void processProperty(IntermediatePropertyAccess property, String jpaManagedTypeClassName) {
+      if (jpaManagedTypeClassName.equals(
+          "com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner")) {
+        if (property.getInternalName().equals("communicationData")) {
+          property.setIgnore(true);
+        }
+      }
+    }
+
+    @Override
+    public void processNavigationProperty(IntermediateNavigationPropertyAccess property,
+        String jpaManagedTypeClassName) {}
+
+    @Override
+    public void processEntityType(IntermediateEntityTypeAccess entity) {}
+
+    @Override
+    public void provideReferences(IntermediateReferenceList references) throws ODataJPAModelException {}
+
+    @Override
+    public void processEntityContainer(IntermediateEntityContainerAccess container) {
+
+      CsdlConstantExpression mimeType = new CsdlConstantExpression(ConstantExpressionType.Bool, "false");
+      CsdlAnnotation annotation = new CsdlAnnotation();
+      annotation.setExpression(mimeType);
+      annotation.setTerm("Capabilities.AsynchronousRequestsSupported");
+      List<CsdlAnnotation> annotations = new ArrayList<CsdlAnnotation>();
+      annotations.add(annotation);
+      container.addAnnotations(annotations);
     }
   }
 }

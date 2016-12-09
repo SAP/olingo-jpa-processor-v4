@@ -1,13 +1,20 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Member;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlAbstractEdmItem;
+import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression;
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAnnotation;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.AppliesTo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateModelItemAccess;
 
@@ -17,7 +24,7 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
   protected static final JPANameBuilder IntNameBuilder = new JPANameBuilder();
   protected final JPAEdmNameBuilder nameBuilder;
   protected final String internalName;
-
+  final protected List<CsdlAnnotation> edmAnnotations;
   private boolean toBeIgnored;
   private String externalName;
 
@@ -29,13 +36,9 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
     super();
     this.nameBuilder = nameBuilder;
     this.internalName = internalName;
+    this.edmAnnotations = new ArrayList<CsdlAnnotation>();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.apache.olingo.odata4.jpa.processor.core.edm.mapper.IntermediatModelItem#getExternalName()
-   */
   @Override
   public String getExternalName() {
     return externalName;
@@ -46,11 +49,6 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
     return nameBuilder.buildFQN(getExternalName());
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.apache.olingo.odata4.jpa.processor.core.edm.mapper.IntermediatModelItem#getInternalName()
-   */
   @Override
   public String getInternalName() {
     return internalName;
@@ -59,7 +57,7 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.odata4.jpa.processor.core.edm.mapper.IntermediatModelItem#ignore()
+   * @see com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateModelItemAccess#ignore()
    */
   @Override
   public boolean ignore() {
@@ -69,7 +67,8 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.odata4.jpa.processor.core.edm.mapper.IntermediatModelItem#setExternalName(java.lang.String)
+   * @see
+   * com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateModelItemAccess#setExternalName(java.lang.String)
    */
   @Override
   public void setExternalName(final String externalName) {
@@ -79,7 +78,7 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
   /*
    * (non-Javadoc)
    * 
-   * @see org.apache.olingo.odata4.jpa.processor.core.edm.mapper.IntermediatModelItem#setIgnore(boolean)
+   * @see com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateModelItemAccess#setIgnore(boolean)
    */
   @Override
   public void setIgnore(final boolean ignore) {
@@ -119,4 +118,49 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
   }
 
   abstract CsdlAbstractEdmItem getEdmItem() throws ODataJPAModelException;
+
+  /**
+   * Convert annotations at an annotatable element into OData annotations
+   * {@link com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAnnotation}
+   * 
+   * @param edmAnnotations
+   * @param member
+   * @param internalName
+   * @param property
+   * @throws ODataJPAModelException
+   */
+  protected void getAnnotations(List<CsdlAnnotation> edmAnnotations, Member member, String internalName,
+      AppliesTo property) throws ODataJPAModelException {
+    if (member instanceof AnnotatedElement) {
+      extractAnnotations(edmAnnotations, (AnnotatedElement) member, internalName);
+    }
+  }
+
+  protected void getAnnotations(List<CsdlAnnotation> edmAnnotations, Class<?> clazz, String internalName,
+      AppliesTo property) throws ODataJPAModelException {
+    if (clazz instanceof AnnotatedElement) {
+      extractAnnotations(edmAnnotations, clazz, internalName);
+    }
+  }
+
+  private void extractAnnotations(List<CsdlAnnotation> edmAnnotations, AnnotatedElement element, String internalName)
+      throws ODataJPAModelException {
+    final EdmAnnotation jpaAnnotation = element.getAnnotation(EdmAnnotation.class);
+
+    if (jpaAnnotation != null) {
+      CsdlAnnotation edmAnnotation = new CsdlAnnotation();
+      edmAnnotation.setTerm(jpaAnnotation.term());
+      edmAnnotation.setQualifier(jpaAnnotation.qualifier());
+      if (!(jpaAnnotation.constantExpression().type() == ConstantExpressionType.Int
+          && jpaAnnotation.constantExpression().value().equals("default"))
+          && !(jpaAnnotation.dynamicExpression().path().isEmpty())) {
+        throw new ODataJPAModelException(
+            ODataJPAModelException.MessageKeys.ODATA_ANNOTATION_TWO_EXPRESSIONS, internalName);
+      } else if (jpaAnnotation.constantExpression() != null) {
+        edmAnnotation.setExpression(new CsdlConstantExpression(jpaAnnotation.constantExpression().type(),
+            jpaAnnotation.constantExpression().value()));
+      }
+      edmAnnotations.add(edmAnnotation);
+    }
+  }
 }

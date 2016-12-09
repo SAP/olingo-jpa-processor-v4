@@ -9,7 +9,7 @@ public interface IntermediatePropertyAccess extends IntermediateModelItemAccess 
 
   /**
    * Enables to add annotations to a property, e.g. because the type of annotation is not enabled via
-   * {@link org.apache.olingo.jpa.metadata.core.edm.annotation.EdmAnnotation EdmAnnotation}
+   * {@link org.apache.olingo.jpa.metadata.core.edm.annotation.EdmAnnotation EdmAnnotation} or should be during runtime
    * @param annotations
    */
   public void addAnnotations(final List<CsdlAnnotation> annotations);

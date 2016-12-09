@@ -7,7 +7,7 @@ import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResourcePartTyped;
 import org.apache.olingo.server.api.uri.queryoption.expression.VisitableExpression;
 
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 
 public class JPANavigationProptertyInfo {
   private final UriResourcePartTyped navigationTarget;

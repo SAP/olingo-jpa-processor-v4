@@ -2,6 +2,7 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.annotation;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -33,7 +34,7 @@ public class TestTermReader {
 
     Schema[] actSchemas = actEdmx.getDataService().getSchemas();
     assertEquals(actSchemas.length, 1);
-    assertEquals(actSchemas[0].getNamespace(), "Org.OData.Measures.V1");
+    assertEquals("Org.OData.Measures.V1", actSchemas[0].getNamespace());
   }
 
   @Test
@@ -42,7 +43,19 @@ public class TestTermReader {
     act = cut.getTerms("annotations/Org.OData.Core.V1.xml");
     assertNotNull(act.get("Org.OData.Core.V1"));
     Map<String, CsdlTerm> terms = act.get("Org.OData.Core.V1");
-    assertEquals(terms.size(), 15);
+    assertEquals(15, terms.size());
+  }
+
+  @Test
+  public void TestGetAppliesTo() throws JsonParseException, JsonMappingException, IOException {
+    Map<String, Map<String, CsdlTerm>> act;
+    act = cut.getTerms("annotations/Org.OData.Core.V1.xml");
+    assertNotNull(act.get("Org.OData.Core.V1"));
+    Map<String, CsdlTerm> terms = act.get("Org.OData.Core.V1");
+    CsdlTerm term = terms.get("IsLanguageDependent");
+    assertEquals(2, term.getAppliesTo().size());
+    assertTrue("Term".equals(term.getAppliesTo().get(0)) || "Term".equals(term.getAppliesTo().get(1)));
+    assertTrue("Property".equals(term.getAppliesTo().get(0)) || "Property".equals(term.getAppliesTo().get(1)));
   }
 
   @Test
