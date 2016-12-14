@@ -58,10 +58,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class JsonDeserializer implements ODataDeserializer {
 
-  private static final String ODATA_ANNOTATION_MARKER          = "@";
+  private static final String ODATA_ANNOTATION_MARKER = "@";
   private static final String ODATA_CONTROL_INFORMATION_PREFIX = "@odata.";
 
-  private final boolean   isIEEE754Compatible;
+  private final boolean isIEEE754Compatible;
   private ServiceMetadata serviceMetadata;
 
   public JsonDeserializer(final ContentType contentType) {
@@ -204,19 +204,19 @@ public class JsonDeserializer implements ODataDeserializer {
       final EdmParameter edmParameter = edmAction.getParameter(paramName);
 
       switch (edmParameter.getType().getKind()) {
-        case PRIMITIVE:
-        case DEFINITION:
-        case ENUM:
-        case COMPLEX:
-        case ENTITY:
-          Parameter parameter = createParameter(node.get(paramName), paramName, edmParameter);
-          parameters.put(paramName, parameter);
-          node.remove(paramName);
-          break;
-        default:
-          throw new DeserializerException(
-              "Invalid type kind " + edmParameter.getType().getKind() + " for action parameter: " + paramName,
-              DeserializerException.MessageKeys.INVALID_ACTION_PARAMETER_TYPE, paramName);
+      case PRIMITIVE:
+      case DEFINITION:
+      case ENUM:
+      case COMPLEX:
+      case ENTITY:
+        Parameter parameter = createParameter(node.get(paramName), paramName, edmParameter);
+        parameters.put(paramName, parameter);
+        node.remove(paramName);
+        break;
+      default:
+        throw new DeserializerException(
+            "Invalid type kind " + edmParameter.getType().getKind() + " for action parameter: " + paramName,
+            DeserializerException.MessageKeys.INVALID_ACTION_PARAMETER_TYPE, paramName);
       }
     }
     return parameters;
@@ -464,26 +464,26 @@ public class JsonDeserializer implements ODataDeserializer {
       final boolean isUnicode, final EdmMapping mapping, final JsonNode jsonNode, final Property property)
       throws DeserializerException {
     switch (type.getKind()) {
-      case PRIMITIVE:
-      case DEFINITION:
-      case ENUM:
-        Object value = readPrimitiveValue(name, (EdmPrimitiveType) type,
-            isNullable, maxLength, precision, scale, isUnicode, mapping, jsonNode);
-        property.setValue(type.getKind() == EdmTypeKind.ENUM ? ValueType.ENUM : ValueType.PRIMITIVE,
-            value);
-        break;
-      case COMPLEX:
-        EdmType derivedType = getDerivedType((EdmComplexType) type,
-            jsonNode);
-        property.setType(derivedType.getFullQualifiedName()
-            .getFullQualifiedNameAsString());
+    case PRIMITIVE:
+    case DEFINITION:
+    case ENUM:
+      Object value = readPrimitiveValue(name, (EdmPrimitiveType) type,
+          isNullable, maxLength, precision, scale, isUnicode, mapping, jsonNode);
+      property.setValue(type.getKind() == EdmTypeKind.ENUM ? ValueType.ENUM : ValueType.PRIMITIVE,
+          value);
+      break;
+    case COMPLEX:
+      EdmType derivedType = getDerivedType((EdmComplexType) type,
+          jsonNode);
+      property.setType(derivedType.getFullQualifiedName()
+          .getFullQualifiedNameAsString());
 
-        value = readComplexNode(name, derivedType, isNullable, jsonNode);
-        property.setValue(ValueType.COMPLEX, value);
-        break;
-      default:
-        throw new DeserializerException("Invalid Type Kind for a property found: " + type.getKind(),
-            DeserializerException.MessageKeys.INVALID_JSON_TYPE_FOR_PROPERTY, name);
+      value = readComplexNode(name, derivedType, isNullable, jsonNode);
+      property.setValue(ValueType.COMPLEX, value);
+      break;
+    default:
+      throw new DeserializerException("Invalid Type Kind for a property found: " + type.getKind(),
+          DeserializerException.MessageKeys.INVALID_JSON_TYPE_FOR_PROPERTY, name);
     }
   }
 
@@ -513,30 +513,30 @@ public class JsonDeserializer implements ODataDeserializer {
     List<Object> valueArray = new ArrayList<Object>();
     Iterator<JsonNode> iterator = jsonNode.iterator();
     switch (type.getKind()) {
-      case PRIMITIVE:
-      case DEFINITION:
-      case ENUM:
-        while (iterator.hasNext()) {
-          JsonNode arrayElement = iterator.next();
-          Object value = readPrimitiveValue(name, (EdmPrimitiveType) type,
-              isNullable, maxLength, precision, scale, isUnicode, mapping, arrayElement);
-          valueArray.add(value);
-        }
-        property.setValue(type.getKind() == EdmTypeKind.ENUM ? ValueType.COLLECTION_ENUM
-            : ValueType.COLLECTION_PRIMITIVE,
-            valueArray);
-        break;
-      case COMPLEX:
-        while (iterator.hasNext()) {
-          // read and add all complex properties
-          Object value = readComplexNode(name, type, isNullable, iterator.next());
-          valueArray.add(value);
-        }
-        property.setValue(ValueType.COLLECTION_COMPLEX, valueArray);
-        break;
-      default:
-        throw new DeserializerException("Invalid Type Kind for a property found: " + type.getKind(),
-            DeserializerException.MessageKeys.INVALID_JSON_TYPE_FOR_PROPERTY, name);
+    case PRIMITIVE:
+    case DEFINITION:
+    case ENUM:
+      while (iterator.hasNext()) {
+        JsonNode arrayElement = iterator.next();
+        Object value = readPrimitiveValue(name, (EdmPrimitiveType) type,
+            isNullable, maxLength, precision, scale, isUnicode, mapping, arrayElement);
+        valueArray.add(value);
+      }
+      property.setValue(type.getKind() == EdmTypeKind.ENUM ? ValueType.COLLECTION_ENUM
+          : ValueType.COLLECTION_PRIMITIVE,
+          valueArray);
+      break;
+    case COMPLEX:
+      while (iterator.hasNext()) {
+        // read and add all complex properties
+        Object value = readComplexNode(name, type, isNullable, iterator.next());
+        valueArray.add(value);
+      }
+      property.setValue(ValueType.COLLECTION_COMPLEX, valueArray);
+      break;
+    default:
+      throw new DeserializerException("Invalid Type Kind for a property found: " + type.getKind(),
+          DeserializerException.MessageKeys.INVALID_JSON_TYPE_FOR_PROPERTY, name);
     }
   }
 
