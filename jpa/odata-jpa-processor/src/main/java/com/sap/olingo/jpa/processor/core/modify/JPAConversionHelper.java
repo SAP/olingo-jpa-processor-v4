@@ -33,6 +33,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys;
+import com.sap.olingo.jpa.processor.core.processor.deserializer.JsonDeserializer;
 import com.sap.olingo.jpa.processor.core.query.ExpressionUtil;
 
 /**
@@ -105,10 +106,10 @@ public class JPAConversionHelper {
     DeserializerResult result;
     try {
       ODataDeserializer deserializer;
-//      if (requestFormat == ContentType.APPLICATION_JSON)
-//        deserializer = new JsonDeserializer(requestFormat);
-//      else
-      deserializer = odata.createDeserializer(requestFormat);
+      if (requestFormat == ContentType.APPLICATION_JSON)
+        deserializer = new JsonDeserializer(requestFormat);
+      else
+        deserializer = odata.createDeserializer(requestFormat);
 
       result = deserializer.entity(requestInputStream, edmEntitySet.getEntityType());
     } catch (DeserializerException e) {
@@ -139,33 +140,33 @@ public class JPAConversionHelper {
     Object jpaAttribute = null;
     for (Property odataProperty : odataProperties) {
       switch (odataProperty.getValueType()) {
-      case COMPLEX:
-        try {
-          JPAPath path = st.getPath(odataProperty.getName());
-          internalName = path.getPath().get(0).getInternalName();
-          JPAStructuredType a = st.getAttribute(internalName).getStructuredType();
-          jpaAttribute = convertProperties(odata, a, ((ComplexValue) odataProperty.getValue()).getValue());
-        } catch (ODataJPAModelException e) {
-          throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-        }
-        break;
-      case PRIMITIVE:
-        try {
-          final JPAAttribute attribute = st.getPath(odataProperty.getName()).getLeaf();
-          internalName = attribute.getInternalName();
-          if (attribute.getConverter() != null) {
-            AttributeConverter<T, S> converter = (AttributeConverter<T, S>) attribute.getConverter();
-            jpaAttribute = converter.convertToEntityAttribute((S) odataProperty.getValue());
-          } else {
-            jpaAttribute = odataProperty.getValue();
+        case COMPLEX:
+          try {
+            JPAPath path = st.getPath(odataProperty.getName());
+            internalName = path.getPath().get(0).getInternalName();
+            JPAStructuredType a = st.getAttribute(internalName).getStructuredType();
+            jpaAttribute = convertProperties(odata, a, ((ComplexValue) odataProperty.getValue()).getValue());
+          } catch (ODataJPAModelException e) {
+            throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
           }
-        } catch (ODataJPAModelException e) {
-          throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-        }
-        break;
-      default:
-        throw new ODataJPAProcessorException(MessageKeys.NOT_SUPPORTED_PROP_TYPE, HttpStatusCode.NOT_IMPLEMENTED,
-            odataProperty.getValueType().name());
+          break;
+        case PRIMITIVE:
+          try {
+            final JPAAttribute attribute = st.getPath(odataProperty.getName()).getLeaf();
+            internalName = attribute.getInternalName();
+            if (attribute.getConverter() != null) {
+              AttributeConverter<T, S> converter = (AttributeConverter<T, S>) attribute.getConverter();
+              jpaAttribute = converter.convertToEntityAttribute((S) odataProperty.getValue());
+            } else {
+              jpaAttribute = odataProperty.getValue();
+            }
+          } catch (ODataJPAModelException e) {
+            throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+          }
+          break;
+        default:
+          throw new ODataJPAProcessorException(MessageKeys.NOT_SUPPORTED_PROP_TYPE, HttpStatusCode.NOT_IMPLEMENTED,
+              odataProperty.getValueType().name());
       }
       jpaAttributes.put(internalName, jpaAttribute);
     }
