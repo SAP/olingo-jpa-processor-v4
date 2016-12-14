@@ -106,7 +106,7 @@ public class JPAConversionHelper {
     DeserializerResult result;
     try {
       ODataDeserializer deserializer;
-      if (requestFormat == ContentType.APPLICATION_JSON)
+      if (requestFormat.isCompatible(ContentType.APPLICATION_JSON))
         deserializer = new JsonDeserializer(requestFormat);
       else
         deserializer = odata.createDeserializer(requestFormat);
