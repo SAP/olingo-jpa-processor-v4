@@ -252,13 +252,14 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
     }
 
     @Override
-    public JPAUpdateResult updateEntity(JPAEntityType et, Map<String, Object> jpaAttributes, Map<String, Object> keys,
-        EntityManager em, HttpMethod method) throws ODataJPAProcessException {
+    public JPAUpdateResult updateEntity(final JPAEntityType et, final Map<String, Object> jpaAttributes,
+        final Map<String, Object> keys, final EntityManager em, final ODataRequest request)
+        throws ODataJPAProcessException {
       this.et = et;
       this.jpaAttributes = jpaAttributes;
       this.em = em;
       this.called = true;
-      this.method = method;
+      this.method = request.getMethod();
       return change;
     }
 
