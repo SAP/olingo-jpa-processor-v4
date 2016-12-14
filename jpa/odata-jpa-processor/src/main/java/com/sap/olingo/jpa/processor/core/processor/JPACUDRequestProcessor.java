@@ -10,7 +10,6 @@ import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpHeader;
-import org.apache.olingo.commons.api.http.HttpMethod;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
@@ -147,7 +146,11 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       // support PUT, but should be aware of the potential for data-loss in round-tripping properties that the client
       // may not know about in advance, such as open or added properties, or properties not specified in metadata.
       // 11.4.4 Upsert an Entity
-      updateResult = handler.updateEntity(et, jpaAttributes, keys, em, request.getMethod());
+      // To ensure that an update request is not treated as an insert, the client MAY specify an If-Match header in the
+      // update request. The service MUST NOT treat an update request containing an If-Match header as an insert.
+      // A PUT or PATCH request MUST NOT be treated as an update if an If-None-Match header is specified with a value of
+      // "*".
+      updateResult = handler.updateEntity(et, jpaAttributes, keys, em, request);
 
     } catch (ODataJPAProcessException e) {
       if (!foreignTransation)
@@ -180,7 +183,7 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
 
   }
 
-  public void clearFields(ODataResponse response) throws ODataJPAProcessException {
+  public void clearFields(final ODataRequest request, ODataResponse response) throws ODataJPAProcessException {
     final JPACUDRequestHandler handler = sessionContext.getCUDRequestHandler();
     final Map<String, Object> jpaAttributes = new HashMap<String, Object>();
 
@@ -208,7 +211,7 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
     if (!foreignTransation)
       em.getTransaction().begin();
     try {
-      handler.updateEntity(et, jpaAttributes, keys, em, HttpMethod.DELETE);
+      handler.updateEntity(et, jpaAttributes, keys, em, request);
 
     } catch (ODataJPAProcessException e) {
       if (!foreignTransation)

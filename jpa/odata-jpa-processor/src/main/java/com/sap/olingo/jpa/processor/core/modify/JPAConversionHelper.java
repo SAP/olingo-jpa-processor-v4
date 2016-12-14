@@ -104,7 +104,12 @@ public class JPAConversionHelper {
     InputStream requestInputStream = request.getBody();
     DeserializerResult result;
     try {
-      ODataDeserializer deserializer = odata.createDeserializer(requestFormat);
+      ODataDeserializer deserializer;
+//      if (requestFormat == ContentType.APPLICATION_JSON)
+//        deserializer = new JsonDeserializer(requestFormat);
+//      else
+      deserializer = odata.createDeserializer(requestFormat);
+
       result = deserializer.entity(requestInputStream, edmEntitySet.getEntityType());
     } catch (DeserializerException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);

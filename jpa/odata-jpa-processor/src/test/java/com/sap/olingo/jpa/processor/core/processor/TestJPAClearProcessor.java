@@ -16,9 +16,9 @@ import javax.persistence.EntityManager;
 
 import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.ex.ODataException;
-import org.apache.olingo.commons.api.http.HttpMethod;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
+import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResourceComplexProperty;
@@ -36,9 +36,11 @@ import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
 import com.sap.olingo.jpa.processor.core.modify.JPAUpdateResult;
 
 public class TestJPAClearProcessor extends TestJPAModifyProcessor {
+  private ODataRequest request;
 
   @Before
   public void setup() throws ODataException {
+    request = mock(ODataRequest.class);
     processor = new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext,
         new JPAConversionHelper());
   }
@@ -49,7 +51,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     ODataResponse response = new ODataResponse();
 
     prepareDeleteName2();
-    processor.clearFields(response);
+    processor.clearFields(request, response);
     assertEquals(HttpStatusCode.NO_CONTENT.getStatusCode(), response.getStatusCode());
   }
 
@@ -59,7 +61,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
 
     RequestHandleSpy spy = prepareDeleteName2();
 
-    processor.clearFields(new ODataResponse());
+    processor.clearFields(request, new ODataResponse());
     assertTrue(spy.called);
   }
 
@@ -68,7 +70,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     // .../Organizations('35')/Name2
     RequestHandleSpy spy = prepareDeleteName2();
 
-    processor.clearFields(new ODataResponse());
+    processor.clearFields(request, new ODataResponse());
     assertEquals(spy.et.getExternalName(), "Organization");
   }
 
@@ -85,7 +87,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
 
     when(uriEts.getKeyPredicates()).thenReturn(keys);
 
-    processor.clearFields(new ODataResponse());
+    processor.clearFields(request, new ODataResponse());
     assertEquals(spy.keyPredicates.size(), 1);
     assertEquals(spy.keyPredicates.get("iD"), "35");
   }
@@ -95,7 +97,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     // .../Organizations('35')/Name2
     RequestHandleSpy spy = prepareDeleteName2();
 
-    processor.clearFields(new ODataResponse());
+    processor.clearFields(request, new ODataResponse());
     assertEquals(spy.jpaAttributes.size(), 1);
     Object[] keys = spy.jpaAttributes.keySet().toArray();
     assertEquals("name2", keys[0].toString());
@@ -106,7 +108,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     // .../Organizations('35')/Address
     RequestHandleSpy spy = prepareDeleteAddress();
 
-    processor.clearFields(new ODataResponse());
+    processor.clearFields(request, new ODataResponse());
     assertEquals(spy.jpaAttributes.size(), 1);
     Object[] keys = spy.jpaAttributes.keySet().toArray();
     assertEquals("address", keys[0].toString());
@@ -121,7 +123,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     uriProperty = mock(UriResourceValue.class);
     pathParts.add(uriProperty);
 
-    processor.clearFields(new ODataResponse());
+    processor.clearFields(request, new ODataResponse());
     assertEquals(spy.jpaAttributes.size(), 1);
     Object[] keys = spy.jpaAttributes.keySet().toArray();
     assertEquals("name2", keys[0].toString());
@@ -132,7 +134,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     // .../Organizations('35')/Address/Country
     RequestHandleSpy spy = prepareDeleteAddressCountry();
 
-    processor.clearFields(new ODataResponse());
+    processor.clearFields(request, new ODataResponse());
     assertEquals(spy.jpaAttributes.size(), 1);
 
     @SuppressWarnings("unchecked")
@@ -148,7 +150,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     // .../Organizations('4')/AdministrativeInformation/Updated/By
     RequestHandleSpy spy = prepareDeleteAdminInfo();
 
-    processor.clearFields(new ODataResponse());
+    processor.clearFields(request, new ODataResponse());
     assertEquals(spy.jpaAttributes.size(), 1);
 
     Map<String, Object> adminInfo = (Map<String, Object>) spy.jpaAttributes.get("administrativeInformation");
@@ -169,7 +171,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     uriProperty = mock(UriResourceValue.class);
     pathParts.add(uriProperty);
 
-    processor.clearFields(new ODataResponse());
+    processor.clearFields(request, new ODataResponse());
     assertEquals(spy.jpaAttributes.size(), 1);
 
     Map<String, Object> adminInfo = (Map<String, Object>) spy.jpaAttributes.get("administrativeInformation");
@@ -185,7 +187,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     // .../Organizations('35')/Name2
     prepareDeleteName2();
 
-    processor.clearFields(new ODataResponse());
+    processor.clearFields(request, new ODataResponse());
 
     verify(transaction, times(1)).begin();
   }
@@ -196,7 +198,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     prepareDeleteName2();
     when(transaction.isActive()).thenReturn(true);
 
-    processor.clearFields(new ODataResponse());
+    processor.clearFields(request, new ODataResponse());
 
     verify(transaction, times(0)).begin();
   }
@@ -206,7 +208,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     // .../Organizations('35')/Name2
     prepareDeleteName2();
 
-    processor.clearFields(new ODataResponse());
+    processor.clearFields(request, new ODataResponse());
 
     verify(transaction, times(1)).commit();
   }
@@ -217,7 +219,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     prepareDeleteName2();
     when(transaction.isActive()).thenReturn(true);
 
-    processor.clearFields(new ODataResponse());
+    processor.clearFields(request, new ODataResponse());
 
     verify(transaction, times(0)).commit();
   }
@@ -230,7 +232,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     RequestHandleSpy spy = prepareDeleteName2();
     spy.raiseException(1);
     try {
-      processor.clearFields(response);
+      processor.clearFields(request, response);
     } catch (ODataJPAProcessException e) {
       assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), e.getStatusCode());
       verify(transaction, times(1)).rollback();
@@ -248,7 +250,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     spy.raiseException(1);
     when(transaction.isActive()).thenReturn(true);
     try {
-      processor.clearFields(response);
+      processor.clearFields(request, response);
     } catch (ODataJPAProcessException e) {
       assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), e.getStatusCode());
       verify(transaction, times(0)).rollback();
@@ -265,7 +267,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     RequestHandleSpy spy = prepareDeleteName2();
     spy.raiseException(2);
     try {
-      processor.clearFields(response);
+      processor.clearFields(request, response);
     } catch (ODataJPAProcessException e) {
       assertEquals(HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), e.getStatusCode());
       verify(transaction, times(1)).rollback();
@@ -283,7 +285,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     spy.raiseException(2);
     when(transaction.isActive()).thenReturn(true);
     try {
-      processor.clearFields(response);
+      processor.clearFields(request, response);
     } catch (ODataJPAProcessorException e) {
       assertEquals(HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), e.getStatusCode());
       verify(transaction, times(0)).rollback();
@@ -381,8 +383,9 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     private int raiseEx;
 
     @Override
-    public JPAUpdateResult updateEntity(JPAEntityType et, Map<String, Object> jpaAttributes, Map<String, Object> keys,
-        EntityManager em, HttpMethod method) throws ODataJPAProcessException {
+    public JPAUpdateResult updateEntity(final JPAEntityType et, final Map<String, Object> jpaAttributes,
+        final Map<String, Object> keys, final EntityManager em, final ODataRequest request)
+        throws ODataJPAProcessException {
 
       this.et = et;
       this.keyPredicates = keys;

@@ -90,7 +90,7 @@ public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
     JPACUDRequestProcessor p;
     try {
       p = factory.createCUDRequestProcessor(em, uriInfo);
-      p.clearFields(response);
+      p.clearFields(request, response);
     } catch (ODataException e) {
       throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
           HttpStatusCode.NOT_IMPLEMENTED);
@@ -127,7 +127,7 @@ public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
     JPACUDRequestProcessor p;
     try {
       p = factory.createCUDRequestProcessor(em, uriInfo);
-      p.clearFields(response);
+      p.clearFields(request, response);
     } catch (ODataException e) {
       throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
           HttpStatusCode.NOT_IMPLEMENTED);
@@ -141,7 +141,7 @@ public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
     JPACUDRequestProcessor p;
     try {
       p = factory.createCUDRequestProcessor(em, uriInfo);
-      p.clearFields(response);
+      p.clearFields(request, response);
     } catch (ODataException e) {
       throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
           HttpStatusCode.NOT_IMPLEMENTED);
