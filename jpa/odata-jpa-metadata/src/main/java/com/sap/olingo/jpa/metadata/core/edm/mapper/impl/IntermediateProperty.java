@@ -115,7 +115,11 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
       edmProperty.setMapping(mapping);
 
       if (jpaAttribute.getPersistentAttributeType() == PersistentAttributeType.BASIC)
-        edmProperty.setType(JPATypeConvertor.convertToEdmSimpleType(jpaAttribute.getJavaType(), jpaAttribute)
+        if (valueConverter != null) {
+        edmProperty.setType(JPATypeConvertor.convertToEdmSimpleType(dbType, jpaAttribute)
+            .getFullQualifiedName());
+        } else
+        edmProperty.setType(JPATypeConvertor.convertToEdmSimpleType(entityType, jpaAttribute)
             .getFullQualifiedName());
       if (jpaAttribute.getPersistentAttributeType() == PersistentAttributeType.EMBEDDED)
         edmProperty.setType(nameBuilder.buildFQN(type.getExternalName()));
@@ -258,7 +262,10 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
           throw new ODataJPAModelException(
               ODataJPAModelException.MessageKeys.TYPE_MAPPER_COULD_NOT_INSANTIATE, e);
         }
+      } else {
+        entityType = dbType = jpaAttribute.getJavaType();
       }
+
       final Column jpaColunnDetails = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
           .getAnnotation(Column.class);
       if (jpaColunnDetails != null) {

@@ -53,7 +53,8 @@ public class ODataJPAModelException extends ODataJPAException {
     ODATA_ANNOTATION_TWO_EXPRESSIONS,
     NAVI_PROPERTY_NOT_FOUND,
     ON_LEFT_ATTRIBUTE_NULL,
-    ON_RIGHT_ATTRIBUTE_NULL;
+    ON_RIGHT_ATTRIBUTE_NULL,
+    PATH_ELEMENT_NOT_FOUND;
 
     @Override
     public String getKey() {

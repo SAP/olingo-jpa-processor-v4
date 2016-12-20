@@ -22,7 +22,7 @@ import javax.persistence.metamodel.SingularAttribute;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlStructuralType;
 
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssozation;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssoziation;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
@@ -203,9 +203,9 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
       case MANY_TO_MANY:
       case MANY_TO_ONE:
         if (jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
-          final EdmDescriptionAssozation jpaDescription = ((AnnotatedElement) jpaAttribute.getJavaMember())
+          final EdmDescriptionAssoziation jpaDescription = ((AnnotatedElement) jpaAttribute.getJavaMember())
               .getAnnotation(
-                  EdmDescriptionAssozation.class);
+                  EdmDescriptionAssoziation.class);
           if (jpaDescription != null) {
             final IntermediateDescriptionProperty descProperty = new IntermediateDescriptionProperty(nameBuilder,
                 jpaAttribute, schema);
