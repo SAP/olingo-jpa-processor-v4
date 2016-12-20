@@ -19,7 +19,7 @@ import java.lang.annotation.Target;
 @Target({ ElementType.FIELD })
 @Retention(value = RetentionPolicy.RUNTIME)
 @Inherited
-public @interface EdmDescriptionAssozation {
+public @interface EdmDescriptionAssoziation {
   String descriptionAttribute();
 
   String languageAttribute() default "";

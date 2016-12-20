@@ -25,7 +25,7 @@ import javax.persistence.Version;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAnnotation;
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssozation;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssoziation;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionParameter;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
@@ -96,10 +96,10 @@ public abstract class BusinessPartner implements KeyAccess {
 
   @EdmAnnotation(term = "Core.IsLanguageDependent", constantExpression = @EdmAnnotation.ConstantExpression(
       type = ConstantExpressionType.Bool, value = "true"))
-  @EdmDescriptionAssozation(languageAttribute = "key/language", descriptionAttribute = "name",
+  @EdmDescriptionAssoziation(languageAttribute = "key/language", descriptionAttribute = "name",
       valueAssignments = {
-          @EdmDescriptionAssozation.valueAssignment(attribute = "key/codePublisher", value = "ISO"),
-          @EdmDescriptionAssozation.valueAssignment(attribute = "key/codeID", value = "3166-1") })
+          @EdmDescriptionAssoziation.valueAssignment(attribute = "key/codePublisher", value = "ISO"),
+          @EdmDescriptionAssoziation.valueAssignment(attribute = "key/codeID", value = "3166-1") })
   @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "\"DivisionCode\"", referencedColumnName = "\"Country\"")
   private Collection<AdministrativeDivisionDescription> locationName;
