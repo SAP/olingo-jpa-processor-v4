@@ -1,6 +1,7 @@
-# OlingoV4JPA
+#OData V4 JPA Processor
 ##Getting Started
-This project shall fill the gap between Olingo V4 and the database, by providing a JPA Processor. At the current state the JPA Processor provide support for:  
+The JPA Processor shall fill the gap between Olingo V4 and the database if JPA is used for object-relational mapping.
+At the current state the JPA Processor provide support for:  
 1. Generating OData metadata from JPA metadata.  
 2. Processing Get requests by converting them into Criteria Builder queries.  
 3. Supporting entity manipulations.  
