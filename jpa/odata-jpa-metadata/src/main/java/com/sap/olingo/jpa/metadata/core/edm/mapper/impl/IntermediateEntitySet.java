@@ -31,8 +31,26 @@ class IntermediateEntitySet extends IntermediateModelElement implements CustomET
     setExternalName(nameBuilder.buildEntitySetName(et.getEdmItem()));
   }
 
+  /**
+   * Returns the entity type to be used internally e.g. for the query generation
+   * @return
+   */
   public JPAEntityType getEntityType() {
     return entityType;
+  }
+
+  /**
+   * Returns the entity type that shall be used to create the metadata document.
+   * This can differ from the internally used one e.g. if multiple entity sets shall
+   * point to the same entity type, but base on different tables
+   * @return
+   * @throws ODataJPAModelException
+   */
+  public JPAEntityType getODataEntityType() throws ODataJPAModelException {
+    if (entityType.asEntitySet())
+      return (JPAEntityType) entityType.getBaseType();
+    else
+      return entityType;
   }
 
   @Override
@@ -45,8 +63,8 @@ class IntermediateEntitySet extends IntermediateModelElement implements CustomET
     if (edmEntitySet == null) {
       postProcessor.processEntitySet(this);
       edmEntitySet = new CsdlEntitySet();
-      final CsdlEntityType edmEt = entityType.getEdmItem();
 
+      final CsdlEntityType edmEt = ((IntermediateEntityType) getODataEntityType()).getEdmItem();
       edmEntitySet.setName(getExternalName());
       edmEntitySet.setType(nameBuilder.buildFQN(edmEt.getName()));
 
@@ -80,7 +98,7 @@ class IntermediateEntitySet extends IntermediateModelElement implements CustomET
   }
 
   @Override
-  CsdlEntitySet getEdmItem() throws ODataJPAModelException {
+  CsdlEntitySet getEdmItem() throws ODataJPAModelException { // New test EdmItem with ODataEntityType
     lazyBuildEdmItem();
     return edmEntitySet;
   }
