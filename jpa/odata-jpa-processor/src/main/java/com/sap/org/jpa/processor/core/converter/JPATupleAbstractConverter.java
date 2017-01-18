@@ -27,6 +27,7 @@ import org.apache.olingo.server.api.uri.UriHelper;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
@@ -46,6 +47,7 @@ public abstract class JPATupleAbstractConverter {
   protected final String setName;
   protected final ServiceDocument sd;
   protected final ServiceMetadata serviceMetadata;
+  protected final EdmEntityType edmType;
 
   public JPATupleAbstractConverter(final JPAExpandResult jpaQueryResult,
       final UriHelper uriHelper, final ServiceDocument sd, final ServiceMetadata serviceMetadata)
@@ -57,13 +59,8 @@ public abstract class JPATupleAbstractConverter {
     this.uriHelper = uriHelper;
     this.sd = sd;
     this.serviceMetadata = serviceMetadata;
-    try {
-      this.setName = sd.getEntitySet(jpaQueryResult.getEntityType()).getExternalName();
-    } catch (ODataJPAModelException e) {
-      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_ENTITY_SET_ERROR,
-          HttpStatusCode.INTERNAL_SERVER_ERROR, jpaQueryResult.getEntityType().getExternalFQN()
-              .getFullQualifiedNameAsString());
-    }
+    this.setName = determineSetName(jpaQueryResult, sd);
+    this.edmType = determineEdmType();
   }
 
   protected String buildConcatenatedKey(final Tuple row, final List<JPAOnConditionItem> joinColumns) {
@@ -79,7 +76,9 @@ public abstract class JPATupleAbstractConverter {
   protected Entity convertRow(final JPAEntityType rowEntity, final Tuple row) throws ODataApplicationException {
     final Map<String, ComplexValue> complexValueBuffer = new HashMap<String, ComplexValue>();
     final Entity odataEntity = new Entity();
-    odataEntity.setType(rowEntity.getExternalFQN().getFullQualifiedNameAsString());
+
+    // odataEntity.setType(rowEntity.getExternalFQN().getFullQualifiedNameAsString());
+    odataEntity.setType(edmType.getFullQualifiedName().getFullQualifiedNameAsString());
     final List<Property> properties = odataEntity.getProperties();
     // TODO store @Version to fill ETag Header
     for (final TupleElement<?> element : row.getElements()) {
@@ -132,8 +131,6 @@ public abstract class JPATupleAbstractConverter {
   protected URI createId(final List<? extends JPAAttribute> keyAttributes, final Entity entity)
       throws ODataApplicationException, ODataRuntimeException {
 
-    final EdmEntityType edmType = serviceMetadata.getEdm().getEntityType(jpaQueryResult.getEntityType()
-        .getExternalFQN());
     try {
       // TODO Clarify host-name and port as part of ID see
       // http://docs.oasis-open.org/odata/odata-atom-format/v4.0/cs02/odata-atom-format-v4.0-cs02.html#_Toc372792702
@@ -151,19 +148,6 @@ public abstract class JPATupleAbstractConverter {
       throw new ODataRuntimeException(e);
     }
   }
-
-//  protected Map<String, Method> getGetter(final JPAAttribute structuredAttribute) {
-//    HashMap<String, Method> pojoMethods = methodsBuffer.get(structuredAttribute.getInternalName());
-//    if (pojoMethods == null) {
-//      pojoMethods = new HashMap<String, Method>();
-//      final Method[] allMethods = structuredAttribute.getStructuredType().getTypeClass().getMethods();
-//      for (final Method m : allMethods) {
-//        pojoMethods.put(m.getName(), m);
-//      }
-//      methodsBuffer.put(structuredAttribute.getInternalName(), pojoMethods);
-//    }
-//    return pojoMethods;
-//  }
 
   @SuppressWarnings("unchecked")
   private <T extends Object, S extends Object> void convertAttribute(final Object value, final String externalName,
@@ -217,6 +201,39 @@ public abstract class JPATupleAbstractConverter {
               odataValue));
         }
       }
+    }
+  }
+
+  private EdmEntityType determineEdmType() {
+    try {
+      final JPAEntitySet es = sd.getEntitySet(jpaQueryResult.getEntityType());
+      return serviceMetadata.getEdm().getEntityType(es.getODataEntityType().getExternalFQN());
+    } catch (ODataJPAModelException e) {
+      throw new ODataRuntimeException(e);
+    }
+  }
+
+//  protected Map<String, Method> getGetter(final JPAAttribute structuredAttribute) {
+//    HashMap<String, Method> pojoMethods = methodsBuffer.get(structuredAttribute.getInternalName());
+//    if (pojoMethods == null) {
+//      pojoMethods = new HashMap<String, Method>();
+//      final Method[] allMethods = structuredAttribute.getStructuredType().getTypeClass().getMethods();
+//      for (final Method m : allMethods) {
+//        pojoMethods.put(m.getName(), m);
+//      }
+//      methodsBuffer.put(structuredAttribute.getInternalName(), pojoMethods);
+//    }
+//    return pojoMethods;
+//  }
+
+  private String determineSetName(final JPAExpandResult jpaQueryResult, final ServiceDocument sd)
+      throws ODataJPAQueryException {
+    try {
+      return sd.getEntitySet(jpaQueryResult.getEntityType()).getExternalName();
+    } catch (ODataJPAModelException e) {
+      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_ENTITY_SET_ERROR,
+          HttpStatusCode.INTERNAL_SERVER_ERROR, jpaQueryResult.getEntityType().getExternalFQN()
+              .getFullQualifiedNameAsString());
     }
   }
 
