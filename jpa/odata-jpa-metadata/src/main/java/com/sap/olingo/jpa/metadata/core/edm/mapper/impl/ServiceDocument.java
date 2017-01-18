@@ -16,7 +16,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
 import org.apache.olingo.commons.api.edmx.EdmxReference;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -119,7 +119,7 @@ public class ServiceDocument {
     }
   }
 
-  public JPAElement getEntitySet(final JPAEntityType entityType) throws ODataJPAModelException {
+  public JPAEntitySet getEntitySet(final JPAEntityType entityType) throws ODataJPAModelException {
     return container.getEntitySet(entityType);
   }
 

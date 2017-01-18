@@ -55,4 +55,5 @@ public interface JPAEntityType extends JPAStructuredType {
   public boolean hasStream() throws ODataJPAModelException;
 
   public List<JPAPath> searchChildPath(JPAPath selectItemPath);
+
 }

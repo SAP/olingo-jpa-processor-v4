@@ -11,7 +11,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunctionImport;
 
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -77,12 +77,12 @@ class IntermediateEntityContainer extends IntermediateModelElement implements In
    * @return
    * @throws ODataJPAModelException
    */
-  JPAElement getEntitySet(final JPAEntityType entityType) throws ODataJPAModelException {
+  JPAEntitySet getEntitySet(final JPAEntityType entityType) throws ODataJPAModelException {
     lazyBuildEdmItem();
     for (final String internalName : entitySetListInternalKey.keySet()) {
       final IntermediateEntitySet modelElement = entitySetListInternalKey.get(internalName);
       if (modelElement.getEntityType().getExternalFQN().equals(entityType.getExternalFQN())) {
-        return modelElement;
+        return (JPAEntitySet) modelElement;
       }
     }
     return null;
