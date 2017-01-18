@@ -321,6 +321,13 @@ public class TestIntermediateEntityType extends TestMappingRoot {
   }
 
   @Test
+  public void checkIgnoreIfAsEntitySet() throws ODataJPAModelException {
+    IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "BestOrganization"), schema);
+    assertTrue(et.ignore());
+  }
+
+  @Test
   public void checkAnnotationSet() throws ODataJPAModelException {
     IntermediateModelElement.setPostProcessor(new PostProcessorSetIgnore());
     IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(

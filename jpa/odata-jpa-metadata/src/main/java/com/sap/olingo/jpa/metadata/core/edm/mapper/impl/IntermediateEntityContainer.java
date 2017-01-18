@@ -71,11 +71,17 @@ class IntermediateEntityContainer extends IntermediateModelElement implements In
         entitySetListInternalKey);
   }
 
+  /**
+   * Internal Entity Type
+   * @param entityType
+   * @return
+   * @throws ODataJPAModelException
+   */
   JPAElement getEntitySet(final JPAEntityType entityType) throws ODataJPAModelException {
     lazyBuildEdmItem();
     for (final String internalName : entitySetListInternalKey.keySet()) {
       final IntermediateEntitySet modelElement = entitySetListInternalKey.get(internalName);
-      if (modelElement.getEdmItem().getTypeFQN().equals(entityType.getExternalFQN())) {
+      if (modelElement.getEntityType().getExternalFQN().equals(entityType.getExternalFQN())) {
         return modelElement;
       }
     }
@@ -95,7 +101,7 @@ class IntermediateEntityContainer extends IntermediateModelElement implements In
       // Build Entity Sets
       final IntermediateSchema schema = schemaList.get(namespace);
       for (final IntermediateEntityType et : schema.getEntityTypes()) {
-        if (!et.ignore()) {
+        if (!et.ignore() || et.asEntitySet()) {
           final IntermediateEntitySet es = new IntermediateEntitySet(nameBuilder, et);
           entitySetListInternalKey.put(es.internalName, es);
         }

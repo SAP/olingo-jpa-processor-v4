@@ -18,6 +18,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlNavigationProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlPropertyRef;
 
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAsEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.AppliesTo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
@@ -36,6 +37,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityT
 class IntermediateEntityType extends IntermediateStructuredType implements JPAEntityType, IntermediateEntityTypeAccess {
   private CsdlEntityType edmEntityType;
   private boolean hasEtag;
+  private final boolean asEntitySet;
 
   IntermediateEntityType(final JPAEdmNameBuilder nameBuilder, final EntityType<?> et, final IntermediateSchema schema)
       throws ODataJPAModelException {
@@ -45,6 +47,7 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
     if (jpaIgnore != null) {
       this.setIgnore(true);
     }
+    asEntitySet = determineAsEntitySet();
   }
 
   @Override
@@ -149,13 +152,13 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
   public boolean hasEtag() throws ODataJPAModelException {
     lazyBuildEdmItem();
     return hasEtag;
-  };
+  }
 
   @Override
   public boolean hasStream() throws ODataJPAModelException {
     lazyBuildEdmItem();
     return this.determineHasStream();
-  }
+  };
 
   @Override
   public List<JPAPath> searchChildPath(final JPAPath selectItemPath) {
@@ -268,7 +271,25 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
     return edmAnnotations;
   }
 
+  private boolean determineAsEntitySet() {
+    final EdmAsEntitySet jpaAsEntitySet = ((AnnotatedElement) this.jpaManagedType.getJavaType()).getAnnotation(
+        EdmAsEntitySet.class);
+    if (jpaAsEntitySet != null) {
+      return true;
+    } else
+      return false;
+  }
+
   private <T> List<?> resolveEmbeddedId(final IntermediateEmbeddedIdProperty embeddedId) throws ODataJPAModelException {
     return ((IntermediateComplexType) embeddedId.getStructuredType()).getEdmItem().getProperties();
+  }
+
+  @Override
+  public boolean ignore() {
+    return (asEntitySet || super.ignore());
+  }
+
+  boolean asEntitySet() {
+    return asEntitySet;
   }
 }

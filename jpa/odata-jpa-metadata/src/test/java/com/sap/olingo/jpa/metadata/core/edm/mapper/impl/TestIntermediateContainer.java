@@ -1,11 +1,15 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
+
+import javax.persistence.metamodel.EntityType;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
@@ -17,6 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityContainerAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityTypeAccess;
@@ -27,11 +32,14 @@ import com.sap.olingo.jpa.processor.core.testmodel.TestDataConstants;
 
 public class TestIntermediateContainer extends TestMappingRoot {
   private HashMap<String, IntermediateSchema> schemas = new HashMap<String, IntermediateSchema>();
+  private Set<EntityType<?>> etList;
+  private IntermediateSchema schema;
 
   @Before
   public void setup() throws ODataJPAModelException {
     IntermediateModelElement.setPostProcessor(new DefaultEdmPostProcessor());
-    IntermediateSchema schema = new IntermediateSchema(new JPAEdmNameBuilder(PUNIT_NAME), emf.getMetamodel());
+    schema = new IntermediateSchema(new JPAEdmNameBuilder(PUNIT_NAME), emf.getMetamodel());
+    etList = emf.getMetamodel().getEntities();
     schemas.put(PUNIT_NAME, schema);
   }
 
@@ -52,7 +60,7 @@ public class TestIntermediateContainer extends TestMappingRoot {
   public void checkGetNoEntitySets() throws ODataJPAModelException {
 
     IntermediateEntityContainer container = new IntermediateEntityContainer(new JPAEdmNameBuilder(PUNIT_NAME), schemas);
-    assertEquals(TestDataConstants.NO_ENTITY_TYPES, container.getEdmItem().getEntitySets().size());
+    assertEquals(TestDataConstants.NO_ENTITY_SETS, container.getEdmItem().getEntitySets().size());
   }
 
   @Test
@@ -213,6 +221,20 @@ public class TestIntermediateContainer extends TestMappingRoot {
     assertEquals("Capabilities.AsynchronousRequestsSupported", act.get(0).getTerm());
   }
 
+  @Test
+  public void checkReturnEntitySetBasedOnInternalEntityType() throws ODataJPAModelException {
+
+    IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "BestOrganization"), schema);
+
+    IntermediateEntityContainer container = new IntermediateEntityContainer(new JPAEdmNameBuilder(PUNIT_NAME), schemas);
+
+    JPAElement act = container.getEntitySet(et);
+    assertNotNull(act);
+    assertEquals("BestOrganizations", act.getExternalName());
+
+  }
+
   private class PostProcessorSetIgnore extends JPAEdmMetadataPostProcessor {
 
     @Override
@@ -246,5 +268,14 @@ public class TestIntermediateContainer extends TestMappingRoot {
       annotations.add(annotation);
       container.addAnnotations(annotations);
     }
+  }
+
+  private EntityType<?> getEntityType(String typeName) {
+    for (EntityType<?> entityType : etList) {
+      if (entityType.getJavaType().getSimpleName().equals(typeName)) {
+        return entityType;
+      }
+    }
+    return null;
   }
 }
