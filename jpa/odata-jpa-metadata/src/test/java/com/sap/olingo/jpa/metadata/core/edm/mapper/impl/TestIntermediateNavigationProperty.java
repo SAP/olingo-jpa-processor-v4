@@ -263,6 +263,20 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
   }
 
   @Test
+  public void checkGetReferentialConstraintViaEmbeddedId() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("AdministrativeDivision"),
+        "allDescriptions");
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+        schema.getEntityType(AdministrativeDivision.class), jpaAttribute, schema);
+    List<CsdlReferentialConstraint> constraints = property.getProperty().getReferentialConstraints();
+
+    assertEquals(3, constraints.size());
+    for (CsdlReferentialConstraint c : constraints) {
+      assertEquals(c.getReferencedProperty(), c.getProperty());
+    }
+  }
+
+  @Test
   public void checkPostProcessorCalled() throws ODataJPAModelException {
     IntermediateModelElement.setPostProcessor(processor);
 

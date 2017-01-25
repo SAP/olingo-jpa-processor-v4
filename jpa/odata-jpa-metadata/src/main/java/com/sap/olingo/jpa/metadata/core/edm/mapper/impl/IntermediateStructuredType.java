@@ -279,11 +279,23 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
     return null;
   }
 
+  /**
+   * Gets a property by its database field name.<p>
+   * The resolution respects embedded types as well as super types
+   * @param dbFieldName
+   * @return
+   * @throws ODataJPAModelException
+   */
   IntermediateModelElement getPropertyByDBField(final String dbFieldName) throws ODataJPAModelException {
     buildPropertyList();
     for (final String internalName : declaredPropertiesList.keySet()) {
       final IntermediateProperty property = declaredPropertiesList.get(internalName);
-      if (property.getDBFieldName().equals(dbFieldName))
+      if (property.isComplex()) {
+        IntermediateProperty embeddedProperty = (IntermediateProperty) ((IntermediateStructuredType) property
+            .getStructuredType()).getPropertyByDBField(dbFieldName);
+        if (embeddedProperty != null && embeddedProperty.getDBFieldName().equals(dbFieldName))
+          return embeddedProperty;
+      } else if (property.getDBFieldName().equals(dbFieldName))
         return property;
     }
     if (getBaseType() != null)

@@ -337,6 +337,27 @@ public class TestIntermediateEntityType extends TestMappingRoot {
     assertEquals("Core.AcceptableMediaTypes", act.get(0).getTerm());
   }
 
+  @Test
+  public void checkGetProptertyByDBFieldName() throws ODataJPAModelException {
+    IntermediateStructuredType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "BusinessPartner"), schema);
+    assertEquals("Type", et.getPropertyByDBField("\"Type\"").getExternalName());
+  }
+
+  @Test
+  public void checkGetProptertyByDBFieldNameFromSuperType() throws ODataJPAModelException {
+    IntermediateStructuredType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "Organization"), schema);
+    assertEquals("Type", et.getPropertyByDBField("\"Type\"").getExternalName());
+  }
+
+  @Test
+  public void checkGetProptertyByDBFieldNameFromEmbedded() throws ODataJPAModelException {
+    IntermediateStructuredType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "AdministrativeDivisionDescription"), schema);
+    assertEquals("CodeID", et.getPropertyByDBField("\"CodeID\"").getExternalName());
+  }
+
   @Ignore
   @Test
   public void checkGetPropertyWithEnumerationType() {
