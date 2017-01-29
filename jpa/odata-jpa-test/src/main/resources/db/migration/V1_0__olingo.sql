@@ -529,9 +529,26 @@ insert into "AdministrativeDivision" values( 'ISO', '3166-2','US-WI','USA','3166
 insert into "AdministrativeDivision" values( 'ISO', '3166-2','US-WY','USA','3166-1','USA',null,0,0);
 insert into "AdministrativeDivision" values( 'ISO', '3166-2','US-DC','USA','3166-1','USA',null,0,0);
 --Eurostat 
-insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','BE1', 'BEL',null,null,null,0,0);
-insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','BE2', 'BEL',null,null,null,0,0);
-insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','BE3', 'BEL',null,null,null,0,0);
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','BE1','BEL',null,null,null,0,0);
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','BE2','BEL',null,null,null,0,0);
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','BE3','BEL',null,null,null,0,0);
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','DE1','DEU',null,null,null,0,0);  
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','DE2','DEU',null,null,null,0,0);  
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','DE3','DEU',null,null,null,0,0);  
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','DE4','DEU',null,null,null,0,0);  
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','DE5','DEU',null,null,null,0,0);  
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','DE6','DEU',null,null,null,0,0);  
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','DE7','DEU',null,null,null,0,0);  
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','DE8','DEU',null,null,null,0,0);  
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','DE9','DEU',null,null,null,0,0);  
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','DEA','DEU',null,null,null,0,0);  
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','DEB','DEU',null,null,null,0,0);  
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','DEC','DEU',null,null,null,0,0);  
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','DED','DEU',null,null,null,0,0);  
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','DEE','DEU',null,null,null,0,0);  
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','DEF','DEU',null,null,null,0,0);  
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','DEG','DEU',null,null,null,0,0);
+
 
 insert into "AdministrativeDivision" values( 'Eurostat','NUTS2','BE10','BEL','NUTS1','BE1',null,0,0);
 insert into "AdministrativeDivision" values( 'Eurostat','NUTS2','BE21','BEL','NUTS1','BE2',null,0,0);

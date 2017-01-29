@@ -28,7 +28,8 @@ public class ODataJPAProcessorException extends ODataJPAProcessException {
     PARAMETER_NULL,
     WRONG_RETURN_TYPE,
     RETURN_NULL,
-    RETURN_MISSING_ENTITY;
+    RETURN_MISSING_ENTITY,
+    ATTRIBUTE_RETRIVAL_FAILED;
 
     @Override
     public String getKey() {

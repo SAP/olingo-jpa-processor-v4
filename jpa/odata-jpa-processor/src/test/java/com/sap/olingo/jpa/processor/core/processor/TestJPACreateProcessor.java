@@ -5,7 +5,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyMapOf;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -41,7 +40,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 public class TestJPACreateProcessor extends TestJPAModifyProcessor {
 
   @Test
-  public void testHockIsCalled() throws ODataJPAModelException, ODataException {
+  public void testHookIsCalled() throws ODataJPAModelException, ODataException {
     ODataResponse response = new ODataResponse();
     ODataRequest request = prepareSimpleRequest();
 
@@ -97,8 +96,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     when(sessionContext.getCUDRequestHandler()).thenReturn(handler);
 
     doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
-        HttpStatusCode.BAD_REQUEST)).when(handler).createEntity(any(JPAEntityType.class), anyMapOf(String.class,
-            Object.class), any(EntityManager.class));
+        HttpStatusCode.BAD_REQUEST)).when(handler).createEntity(any(JPARequestEntity.class), any(EntityManager.class));
 
     try {
       processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
@@ -117,8 +115,8 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     when(sessionContext.getCUDRequestHandler()).thenReturn(handler);
 
-    doThrow(NullPointerException.class).when(handler).createEntity(any(JPAEntityType.class), anyMapOf(String.class,
-        Object.class), any(EntityManager.class));
+    doThrow(NullPointerException.class).when(handler).createEntity(any(JPARequestEntity.class), any(
+        EntityManager.class));
 
     try {
       processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
@@ -267,12 +265,12 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     public boolean called = false;
 
     @Override
-    public Object createEntity(JPAEntityType et, Map<String, Object> jpaAttributes, EntityManager em)
+    public Object createEntity(final JPARequestEntity requestEntity, EntityManager em)
         throws ODataJPAProcessException {
       Organization result = new Organization();
       result.setID("35");
-      this.et = et;
-      this.jpaAttributes = jpaAttributes;
+      this.et = requestEntity.getEntityType();
+      this.jpaAttributes = requestEntity.getData();
       this.em = em;
       this.called = true;
       return result;
@@ -286,12 +284,12 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     public boolean called = false;
 
     @Override
-    public Object createEntity(JPAEntityType et, Map<String, Object> jpaAttributes, EntityManager em)
+    public Object createEntity(final JPARequestEntity requestEntity, EntityManager em)
         throws ODataJPAProcessException {
       Map<String, Object> result = new HashMap<String, Object>();
       result.put("iD", "35");
-      this.et = et;
-      this.jpaAttributes = jpaAttributes;
+      this.et = requestEntity.getEntityType();
+      this.jpaAttributes = requestEntity.getData();
       this.em = em;
       this.called = true;
       return result;

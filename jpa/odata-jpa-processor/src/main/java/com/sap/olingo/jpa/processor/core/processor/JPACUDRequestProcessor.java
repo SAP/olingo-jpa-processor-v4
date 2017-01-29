@@ -1,11 +1,13 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.olingo.commons.api.data.Entity;
 import org.apache.olingo.commons.api.data.EntityCollection;
+import org.apache.olingo.commons.api.data.Link;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
@@ -55,8 +57,7 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
 
   public JPACUDRequestProcessor(final OData odata, final ServiceMetadata serviceMetadata,
       final JPAODataSessionContextAccess sessionContext, final JPAODataRequestContextAccess requestContext,
-      JPAConversionHelper cudHelper)
-      throws ODataException {
+      JPAConversionHelper cudHelper) throws ODataException {
 
     super(odata, sessionContext, requestContext);
     this.sessionContext = sessionContext;
@@ -64,24 +65,59 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
     this.helper = cudHelper;
   }
 
-  public void createEntity(final ODataRequest request, final ODataResponse response, final ContentType requestFormat,
-      final ContentType responseFormat) throws ODataApplicationException, ODataLibraryException {
-
+  public void clearFields(final ODataRequest request, ODataResponse response) throws ODataJPAProcessException {
     final JPACUDRequestHandler handler = sessionContext.getCUDRequestHandler();
-    final JPAEntityType et;
-    Map<String, Object> jpaAttributes = new HashMap<String, Object>();
+    final Map<String, Object> jpaAttributes = new HashMap<String, Object>();
 
-    EdmEntitySet edmEntitySet = Util.determineTargetEntitySet(uriInfo.getUriResourceParts());
-    Entity requestEntity = helper.convertInputStream(odata, request, requestFormat, edmEntitySet);
+    JPAEntityType et = null;
+    Map<String, Object> keys = null;
+
+    final List<UriResource> resourcePaths = uriInfo.getUriResourceParts();
+    final UriResourceEntitySet uriResourceEntitySet = (UriResourceEntitySet) resourcePaths.get(0);
+    final EdmEntitySetInfo edmEntitySetInfo = Util.determineTargetEntitySetAndKeys(uriInfo.getUriResourceParts());
+    final EdmEntitySet edmEntitySet = uriResourceEntitySet.getEntitySet();
+    final boolean foreignTransation = em.getTransaction().isActive();
 
     try {
       et = sessionContext.getEdmProvider().getServiceDocument().getEntity(edmEntitySet.getName());
-      jpaAttributes = helper.convertProperties(odata, et, requestEntity.getProperties());
+      keys = helper.convertUriKeys(odata, et, edmEntitySetInfo.getKeyPredicates());
+
+      convertUriPath(jpaAttributes, et, resourcePaths);
+
     } catch (ODataJPAModelException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
     } catch (ODataException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
     }
+
+    if (!foreignTransation)
+      em.getTransaction().begin();
+    try {
+      handler.updateEntity(et, jpaAttributes, keys, em, request);
+
+    } catch (ODataJPAProcessException e) {
+      if (!foreignTransation)
+        em.getTransaction().rollback();
+      throw e;
+    } catch (Exception e) {
+      if (!foreignTransation)
+        em.getTransaction().rollback();
+      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    }
+    if (!foreignTransation)
+      em.getTransaction().commit();
+    response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
+  }
+
+  public void createEntity(final ODataRequest request, final ODataResponse response, final ContentType requestFormat,
+      final ContentType responseFormat) throws ODataApplicationException, ODataLibraryException {
+
+    final JPACUDRequestHandler handler = sessionContext.getCUDRequestHandler();
+
+    EdmEntitySet edmEntitySet = Util.determineTargetEntitySet(uriInfo.getUriResourceParts());
+    Entity odataEntity = helper.convertInputStream(odata, request, requestFormat, edmEntitySet);
+
+    final JPARequestEntity requestEntity = createRequestEntity(edmEntitySet, odataEntity);
 
     // Create entity
     Object result = null;
@@ -89,7 +125,7 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
     if (!foreignTransation)
       em.getTransaction().begin();
     try {
-      result = handler.createEntity(et, jpaAttributes, em);
+      result = handler.createEntity(requestEntity, em);
     } catch (ODataJPAProcessException e) {
       if (!foreignTransation)
         em.getTransaction().rollback();
@@ -100,17 +136,72 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
 
-    if (result != null && result.getClass() != et.getTypeClass() && !(result instanceof Map<?, ?>)) {
+    if (result != null && result.getClass() != requestEntity.getEntityType().getTypeClass()
+        && !(result instanceof Map<?, ?>)) {
       if (!foreignTransation)
         em.getTransaction().rollback();
       throw new ODataJPAProcessorException(MessageKeys.WRONG_RETURN_TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR, result
-          .getClass().toString(), et.getTypeClass().toString());
+          .getClass().toString(), requestEntity.getEntityType().getTypeClass().toString());
     }
 
     if (!foreignTransation)
       em.getTransaction().commit();
 
-    createCreateResponse(request, response, responseFormat, et, edmEntitySet, result);
+    createCreateResponse(request, response, responseFormat, requestEntity.getEntityType(), edmEntitySet, result);
+  }
+
+  /*
+   * 4.4 Addressing References between Entities
+   * DELETE http://host/service/Categories(1)/Products/$ref?$id=../../Products(0)
+   * DELETE http://host/service/Products(0)/Category/$ref
+   */
+  public void deleteEntity(final ODataResponse response) throws ODataJPAProcessException {
+    final JPACUDRequestHandler handler = sessionContext.getCUDRequestHandler();
+    final JPAEntityType et;
+    final Map<String, Object> jpaKeyPredicates = new HashMap<String, Object>();
+
+    // 1. Retrieve the entity set which belongs to the requested entity
+    List<UriResource> resourcePaths = uriInfo.getUriResourceParts();
+    // Note: only in our example we can assume that the first segment is the EntitySet
+    UriResourceEntitySet uriResourceEntitySet = (UriResourceEntitySet) resourcePaths.get(0);
+    EdmEntitySet edmEntitySet = uriResourceEntitySet.getEntitySet();
+
+    // 2. Convert Key from URL to JPA
+    try {
+      et = sessionContext.getEdmProvider().getServiceDocument().getEntity(edmEntitySet.getName());
+      List<UriParameter> uriKeyPredicates = uriResourceEntitySet.getKeyPredicates();
+      for (UriParameter uriParam : uriKeyPredicates) {
+        JPAAttribute attribute = et.getPath(uriParam.getName()).getLeaf();
+        jpaKeyPredicates.put(attribute.getInternalName(), ExpressionUtil.convertValueOnAttribute(odata, attribute,
+            uriParam.getText(), true));
+      }
+    } catch (ODataJPAModelException e) {
+      throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
+    } catch (ODataException e) {
+      throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
+    }
+
+    // 3. Perform Delete
+    final boolean foreignTransation = em.getTransaction().isActive();
+    if (!foreignTransation)
+      em.getTransaction().begin();
+    try {
+      handler.deleteEntity(et, jpaKeyPredicates, em);
+    } catch (ODataJPAProcessException e) {
+      if (!foreignTransation)
+        em.getTransaction().rollback();
+      throw e;
+    } catch (Throwable e) {
+      if (!foreignTransation)
+        em.getTransaction().rollback();
+      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    }
+    if (!foreignTransation)
+      em.getTransaction().commit();
+
+    // 4. configure the response object
+    response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
+
   }
 
   public void updateEntity(ODataRequest request, ODataResponse response, ContentType requestFormat,
@@ -183,48 +274,66 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
 
   }
 
-  public void clearFields(final ODataRequest request, ODataResponse response) throws ODataJPAProcessException {
-    final JPACUDRequestHandler handler = sessionContext.getCUDRequestHandler();
-    final Map<String, Object> jpaAttributes = new HashMap<String, Object>();
-
-    JPAEntityType et = null;
-    Map<String, Object> keys = null;
-
-    final List<UriResource> resourcePaths = uriInfo.getUriResourceParts();
-    final UriResourceEntitySet uriResourceEntitySet = (UriResourceEntitySet) resourcePaths.get(0);
-    final EdmEntitySetInfo edmEntitySetInfo = Util.determineTargetEntitySetAndKeys(uriInfo.getUriResourceParts());
-    final EdmEntitySet edmEntitySet = uriResourceEntitySet.getEntitySet();
-    final boolean foreignTransation = em.getTransaction().isActive();
+  JPARequestEntity createRequestEntity(EdmEntitySet edmEntitySet, Entity odataEntity)
+      throws ODataJPAProcessorException {
 
     try {
-      et = sessionContext.getEdmProvider().getServiceDocument().getEntity(edmEntitySet.getName());
-      keys = helper.convertUriKeys(odata, et, edmEntitySetInfo.getKeyPredicates());
+      final JPAEntityType et = sessionContext.getEdmProvider().getServiceDocument().getEntity(edmEntitySet.getName());
+      return createRequestEntity(et, odataEntity);
+    } catch (ODataJPAModelException e) {
+      throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
+    } catch (ODataException e) {
+      throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
+    }
+  }
 
-      convertUriPath(jpaAttributes, et, resourcePaths);
+  /**
+   * Converts the deserialized request into the internal (JPA) format, which shall be provided to the hook method
+   * @param edmEntitySet
+   * @param odataEntity
+   * @return
+   * @throws ODataJPAProcessorException
+   */
+  JPARequestEntity createRequestEntity(JPAEntityType et, Entity odataEntity) throws ODataJPAProcessorException {
+    JPARequestEntity requestEntity = null;
+    try {
+
+      final Map<String, Object> jpaAttributes = helper.convertProperties(odata, et, odataEntity.getProperties());
+      for (Link navigationLink : odataEntity.getNavigationLinks()) {
+        String name = et.getAssociationPath(navigationLink.getTitle()).getPath().get(0).getInternalName();
+        final JPAEntityType navigationEt = (JPAEntityType) et.getAssociationPath(navigationLink.getTitle())
+            .getSourceType();
+        List<JPARequestEntity> inlineEntities = new ArrayList<JPARequestEntity>();
+        for (Entity e : navigationLink.getInlineEntitySet().getEntities()) {
+          inlineEntities.add(createRequestEntity(navigationEt, e));
+        }
+        jpaAttributes.put(name, inlineEntities);
+      }
+      requestEntity = new JPARequestEntityImpl(et, jpaAttributes);
 
     } catch (ODataJPAModelException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
     } catch (ODataException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
     }
+    return requestEntity;
+  }
 
-    if (!foreignTransation)
-      em.getTransaction().begin();
+  private Entity convertEntity(JPAEntityType et, Object result, Map<String, List<String>> headers)
+      throws ODataJPAProcessorException {
+
+    JPATupleResultConverter converter;
     try {
-      handler.updateEntity(et, jpaAttributes, keys, em, request);
-
-    } catch (ODataJPAProcessException e) {
-      if (!foreignTransation)
-        em.getTransaction().rollback();
-      throw e;
-    } catch (Exception e) {
-      if (!foreignTransation)
-        em.getTransaction().rollback();
+      JPACreateResultFactory factory = new JPACreateResultFactory();//
+      converter = new JPATupleResultConverter(sd, factory.getJPACreateResult(et, result, headers), odata
+          .createUriHelper(), serviceMetadata);
+      return converter.getResult().getEntities().get(0);
+    } catch (ODataJPAModelException e) {
+      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    } catch (ODataApplicationException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
-    if (!foreignTransation)
-      em.getTransaction().commit();
-    response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
+
   }
 
   private void convertUriPath(final Map<String, Object> jpaAttributes, JPAEntityType et,
@@ -252,77 +361,6 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       } else
         currentMap.put(st.getPath(uriResourceProperty.getProperty().getName()).getLeaf().getInternalName(), null);
     }
-  }
-
-  /*
-   * 4.4 Addressing References between Entities
-   * DELETE http://host/service/Categories(1)/Products/$ref?$id=../../Products(0)
-   * DELETE http://host/service/Products(0)/Category/$ref
-   */
-  public void deleteEntity(final ODataResponse response) throws ODataJPAProcessException {
-    final JPACUDRequestHandler handler = sessionContext.getCUDRequestHandler();
-    final JPAEntityType et;
-    final Map<String, Object> jpaKeyPredicates = new HashMap<String, Object>();
-
-    // 1. Retrieve the entity set which belongs to the requested entity
-    List<UriResource> resourcePaths = uriInfo.getUriResourceParts();
-    // Note: only in our example we can assume that the first segment is the EntitySet
-    UriResourceEntitySet uriResourceEntitySet = (UriResourceEntitySet) resourcePaths.get(0);
-    EdmEntitySet edmEntitySet = uriResourceEntitySet.getEntitySet();
-
-    // 2. Convert Key from URL to JPA
-    try {
-      et = sessionContext.getEdmProvider().getServiceDocument().getEntity(edmEntitySet.getName());
-      List<UriParameter> uriKeyPredicates = uriResourceEntitySet.getKeyPredicates();
-      for (UriParameter uriParam : uriKeyPredicates) {
-        JPAAttribute attribute = et.getPath(uriParam.getName()).getLeaf();
-        jpaKeyPredicates.put(attribute.getInternalName(), ExpressionUtil.convertValueOnAttribute(odata, attribute,
-            uriParam.getText(), true));
-      }
-    } catch (ODataJPAModelException e) {
-      throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
-    } catch (ODataException e) {
-      throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
-    }
-
-    // 3. Perform Delete
-    final boolean foreignTransation = em.getTransaction().isActive();
-    if (!foreignTransation)
-      em.getTransaction().begin();
-    try {
-      handler.deleteEntity(et, jpaKeyPredicates, em);
-    } catch (ODataJPAProcessException e) {
-      if (!foreignTransation)
-        em.getTransaction().rollback();
-      throw e;
-    } catch (Throwable e) {
-      if (!foreignTransation)
-        em.getTransaction().rollback();
-      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-    }
-    if (!foreignTransation)
-      em.getTransaction().commit();
-
-    // 4. configure the response object
-    response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
-
-  }
-
-  private Entity convertEntity(JPAEntityType et, Object result, Map<String, List<String>> headers)
-      throws ODataJPAProcessorException {
-
-    JPATupleResultConverter converter;
-    try {
-      JPACreateResultFactory factory = new JPACreateResultFactory();//
-      converter = new JPATupleResultConverter(sd, factory.getJPACreateResult(et, result, headers), odata
-          .createUriHelper(), serviceMetadata);
-      return converter.getResult().getEntities().get(0);
-    } catch (ODataJPAModelException e) {
-      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-    } catch (ODataApplicationException e) {
-      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-    }
-
   }
 
   private void createCreateResponse(final ODataRequest request, final ODataResponse response,
