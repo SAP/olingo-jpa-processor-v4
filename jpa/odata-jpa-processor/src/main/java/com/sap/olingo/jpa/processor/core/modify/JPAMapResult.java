@@ -13,7 +13,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 
 class JPAMapResult extends JPACreateResult {
   private final Map<String, Object> jpaEntity;
-  private final List<Tuple> result;
+  private final List<Tuple>         result;
 
   JPAMapResult(final JPAEntityType et, final Map<String, Object> jpaEntity,
       final Map<String, List<String>> requestHeaders) throws ODataJPAModelException, ODataJPAProcessorException {
@@ -46,7 +46,7 @@ class JPAMapResult extends JPACreateResult {
 
     Object value = jpaEntity.get(path.getPath().get(index).getInternalName());
     if (path.getPath().size() == index + 1 || value == null) {
-      addValueToTuple(tuple, path, index, value);
+      tuple.addElement(path.getAlias(), path.getLeaf().getType(), value);
     } else {
       convertPathToTuple(tuple, (Map<String, Object>) value, path, index + 1);
     }
