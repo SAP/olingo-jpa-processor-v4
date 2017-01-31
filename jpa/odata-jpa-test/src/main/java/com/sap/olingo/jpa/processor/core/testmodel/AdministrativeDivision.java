@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -88,7 +89,7 @@ public class AdministrativeDivision implements KeyAccess {
           insertable = false, updatable = false),
       @JoinColumn(referencedColumnName = "\"DivisionCode\"", name = "\"ParentDivisionCode\"", nullable = false,
           insertable = false, updatable = false) })
-  private List<AdministrativeDivision> children;
+  private List<AdministrativeDivision> children = new ArrayList<AdministrativeDivision>();
 
   @OneToMany(fetch = FetchType.LAZY)
   @JoinColumns({
@@ -179,6 +180,14 @@ public class AdministrativeDivision implements KeyAccess {
   @Override
   public Object getKey() {
     return new AdministrativeDivisionKey(codePublisher, codeID, divisionCode);
+  }
+
+  public List<AdministrativeDivision> getChildren() {
+    return children;
+  }
+
+  public void setParent(AdministrativeDivision parent) {
+    this.parent = parent;
   }
 
 }
