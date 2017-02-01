@@ -8,6 +8,7 @@ import org.apache.olingo.server.api.ODataRequest;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
+import com.sap.olingo.jpa.processor.core.processor.JPARequestEntity;
 
 public interface JPACUDRequestHandler {
   /**
@@ -31,7 +32,7 @@ public interface JPACUDRequestHandler {
    * following the same rules as jpaAttributes
    * @throws ODataJPAProcessException
    */
-  public Object createEntity(final JPAEntityType et, final Map<String, Object> jpaAttributes, final EntityManager em)
+  public Object createEntity(final JPARequestEntity requestEntity, final EntityManager em)
       throws ODataJPAProcessException;
 
   /**

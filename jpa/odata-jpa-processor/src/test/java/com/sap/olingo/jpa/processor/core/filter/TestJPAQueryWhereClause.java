@@ -99,7 +99,7 @@ public class TestJPAQueryWhereClause extends TestBase {
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
-    assertEquals(228, orgs.size());
+    assertEquals(244, orgs.size());
   }
 
   @Test
