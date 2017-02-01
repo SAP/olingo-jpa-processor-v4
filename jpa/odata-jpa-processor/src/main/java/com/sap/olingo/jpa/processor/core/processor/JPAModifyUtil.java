@@ -17,10 +17,14 @@ public final class JPAModifyUtil {
       if (meth.getName().substring(0, 3).equals("set")) {
         String attributeName = meth.getName().substring(3, 4).toLowerCase() + meth.getName().substring(4);
         Object value = jpaAttributes.get(attributeName);
+
         if (value != null) {
           if (!(value instanceof Map<?, ?>)) {
             try {
-              meth.invoke(instanze, value);
+              Class<?>[] parameters = meth.getParameterTypes();
+              if (parameters.length == 1 && value.getClass() == parameters[0]) {
+                meth.invoke(instanze, value);
+              }
             } catch (IllegalAccessException e) {
               throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
             } catch (IllegalArgumentException e) {
