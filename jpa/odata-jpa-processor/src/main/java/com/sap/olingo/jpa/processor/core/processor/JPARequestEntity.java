@@ -3,8 +3,6 @@ package com.sap.olingo.jpa.processor.core.processor;
 import java.util.Map;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
-import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 
 /**
  * Representing an entity that should be created or updated by a POST, PUT or PATCH request
@@ -33,12 +31,8 @@ public interface JPARequestEntity {
   public Map<String, Object> getKeys();
 
   /**
-   * Helper
-   * @param st
-   * @param jpaAttributes
-   * @param instanze
-   * @throws ODataJPAProcessorException
+   * Returns an instance utility service
+   * @return
    */
-  public void setAttributes(final JPAStructuredType st, final Map<String, Object> jpaAttributes, final Object instanze)
-      throws ODataJPAProcessorException;
+  public JPAModifyUtil getModifyUtil();
 }
