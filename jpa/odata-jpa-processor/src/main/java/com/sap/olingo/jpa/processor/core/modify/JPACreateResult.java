@@ -22,6 +22,7 @@ abstract class JPACreateResult implements JPAExpandResult {
   protected final List<JPAPath> pathList;
   protected final Locale locale;
   protected final JPAConversionHelper helper;
+  protected final Map<String, List<String>> requestHeaders;
 
   public JPACreateResult(final JPAEntityType et, final Map<String, List<String>> requestHeaders)
       throws ODataJPAModelException, ODataJPAProcessorException {
@@ -31,6 +32,7 @@ abstract class JPACreateResult implements JPAExpandResult {
     this.children = new HashMap<JPAAssociationPath, JPAExpandResult>(0);
     this.pathList = et.getPathList();
     this.locale = ExpressionUtil.determineLocale(requestHeaders);
+    this.requestHeaders = requestHeaders;
   }
 
   @Override

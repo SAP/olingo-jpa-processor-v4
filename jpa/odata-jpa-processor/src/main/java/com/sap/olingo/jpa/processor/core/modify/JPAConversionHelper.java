@@ -69,8 +69,9 @@ public class JPAConversionHelper {
         getterMap = new HashMap<String, Object>();
         Method[] methods = instance.getClass().getMethods();
         for (Method meth : methods) {
-          if (meth.getName().substring(0, 3).equals("get")) {
-            String attributeName = meth.getName().substring(3, 4).toLowerCase() + meth.getName().substring(4);
+          String methodName = meth.getName();
+          if (methodName.substring(0, 3).equals("get") && methodName.length() > 3) {
+            String attributeName = methodName.substring(3, 4).toLowerCase() + methodName.substring(4);
             try {
               Object value = meth.invoke(instance);
               getterMap.put(attributeName, value);

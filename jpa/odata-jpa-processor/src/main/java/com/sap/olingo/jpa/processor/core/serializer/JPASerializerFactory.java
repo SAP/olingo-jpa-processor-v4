@@ -60,7 +60,6 @@ public class JPASerializerFactory {
   }
 
   public JPASerializer createCUDSerializer(ContentType responseFormat, UriInfo uriInfo) throws SerializerException {
-
     return new JPASerializeCreate(serviceMetadata, odata.createSerializer(responseFormat), uriInfo);
   }
 }

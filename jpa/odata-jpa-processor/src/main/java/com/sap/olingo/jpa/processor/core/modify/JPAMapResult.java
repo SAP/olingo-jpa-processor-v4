@@ -6,14 +6,16 @@ import java.util.Map;
 
 import javax.persistence.Tuple;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
+import com.sap.olingo.jpa.processor.core.processor.JPARequestEntity;
 
 class JPAMapResult extends JPACreateResult {
   private final Map<String, Object> jpaEntity;
-  private final List<Tuple>         result;
+  private final List<Tuple> result;
 
   JPAMapResult(final JPAEntityType et, final Map<String, Object> jpaEntity,
       final Map<String, List<String>> requestHeaders) throws ODataJPAModelException, ODataJPAProcessorException {
@@ -22,22 +24,12 @@ class JPAMapResult extends JPACreateResult {
 
     this.jpaEntity = jpaEntity;
     this.result = createResult();
+    createChildren();
   }
 
   @Override
   public List<Tuple> getResult(final String key) {
     return result;
-  }
-
-  private List<Tuple> createResult() throws ODataJPAProcessorException {
-    JPATuple tuple = new JPATuple();
-    List<Tuple> tupleResult = new ArrayList<Tuple>();
-
-    for (JPAPath path : pathList) {
-      convertPathToTuple(tuple, jpaEntity, path, 0);
-    }
-    tupleResult.add(tuple);
-    return tupleResult;
   }
 
   @SuppressWarnings("unchecked")
@@ -50,5 +42,29 @@ class JPAMapResult extends JPACreateResult {
     } else {
       convertPathToTuple(tuple, (Map<String, Object>) value, path, index + 1);
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  private void createChildren() throws ODataJPAModelException, ODataJPAProcessorException {
+    for (JPAAssociationPath path : et.getAssociationPathList()) {
+      String pathPropertyName = path.getPath().get(0).getInternalName();
+      if (jpaEntity.get(pathPropertyName) instanceof List) {
+        children.put(path,
+            new JPAMapNavigationLinkResult((JPAEntityType) path.getTargetType(), (List<JPARequestEntity>) jpaEntity.get(
+                pathPropertyName), requestHeaders));
+      }
+    }
+
+  }
+
+  private List<Tuple> createResult() throws ODataJPAProcessorException {
+    JPATuple tuple = new JPATuple();
+    List<Tuple> tupleResult = new ArrayList<Tuple>();
+
+    for (JPAPath path : pathList) {
+      convertPathToTuple(tuple, jpaEntity, path, 0);
+    }
+    tupleResult.add(tuple);
+    return tupleResult;
   }
 }

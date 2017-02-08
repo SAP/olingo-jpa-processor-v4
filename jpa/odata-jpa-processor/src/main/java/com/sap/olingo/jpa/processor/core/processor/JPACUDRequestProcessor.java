@@ -147,7 +147,7 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
     if (!foreignTransation)
       em.getTransaction().commit();
 
-    createCreateResponse(request, response, responseFormat, requestEntity.getEntityType(), edmEntitySet, result);
+    createCreateResponse(request, response, responseFormat, requestEntity, edmEntitySet, result);
   }
 
   /*
@@ -364,6 +364,14 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
   }
 
   private void createCreateResponse(final ODataRequest request, final ODataResponse response,
+      final ContentType responseFormat, final JPARequestEntity requestEntity, EdmEntitySet edmEntitySet, Object result)
+      throws SerializerException, ODataJPAProcessorException, ODataJPASerializerException {
+
+    createCreateResponse(request, response, responseFormat, requestEntity.getEntityType(), edmEntitySet, result);
+
+  }
+
+  private void createCreateResponse(final ODataRequest request, final ODataResponse response,
       final ContentType responseFormat, final JPAEntityType et, EdmEntitySet edmEntitySet, Object result)
       throws SerializerException, ODataJPAProcessorException, ODataJPASerializerException {
 
@@ -407,10 +415,7 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
 
     String location = helper.convertKeyToLocal(odata, request, edmEntitySet, et, result);
     if (prefer.getReturn() == Return.MINIMAL) {
-      response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
-      response.setHeader(HttpHeader.PREFERENCE_APPLIED, "return=minimal");
-      response.setHeader(HttpHeader.LOCATION, location);
-      response.setHeader(HttpHeader.ODATA_ENTITY_ID, location);
+      createMinimalCreateResponce(response, location);
     } else {
       Entity createdEntity = convertEntity(et, result, request.getAllHeaders());
       EntityCollection entities = new EntityCollection();
@@ -418,6 +423,13 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       createSuccessResonce(response, responseFormat, serializer.serialize(request, entities));
       response.setHeader(HttpHeader.LOCATION, location);
     }
+  }
+
+  private void createMinimalCreateResponce(final ODataResponse response, String location) {
+    response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
+    response.setHeader(HttpHeader.PREFERENCE_APPLIED, "return=minimal");
+    response.setHeader(HttpHeader.LOCATION, location);
+    response.setHeader(HttpHeader.ODATA_ENTITY_ID, location);
   }
 
   private void createUpdateResponse(final ODataRequest request, final ODataResponse response,
