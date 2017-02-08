@@ -77,6 +77,40 @@ public abstract class TestJPACreateResult extends TestBase {
     assertEquals("99", act.get(0).get("AdministrativeInformation/Created/By"));
   }
 
+  @Test
+  public void testGetResultWithOneLinked() throws ODataJPAProcessorException, ODataJPAModelException {
+    createCutGetResultWithWithOneLinked();
+    Map<JPAAssociationPath, JPAExpandResult> act = cut.getChildren();
+    assertNotNull(act);
+    assertEquals(1, act.size());
+    for (JPAAssociationPath actPath : act.keySet()) {
+      assertEquals("Children", actPath.getAlias());
+      List<Tuple> subResult = act.get(actPath).getResult("Eurostat/NUTS1/BE2");
+      assertEquals(1, subResult.size());
+    }
+
+    // Eurostat/NUTS1/BE2
+  }
+
+  @Test
+  public void testGetResultWithTwoLinked() throws ODataJPAProcessorException, ODataJPAModelException {
+    createCutGetResultWithWithTwoLinked();
+    Map<JPAAssociationPath, JPAExpandResult> act = cut.getChildren();
+    assertNotNull(act);
+    assertEquals(1, act.size());
+    for (JPAAssociationPath actPath : act.keySet()) {
+      assertEquals("Children", actPath.getAlias());
+      List<Tuple> subResult = act.get(actPath).getResult("Eurostat/NUTS1/BE2");
+      assertEquals(2, subResult.size());
+    }
+  }
+
+  protected abstract void createCutGetResultWithWithTwoLinked() throws ODataJPAProcessorException,
+      ODataJPAModelException;
+
+  protected abstract void createCutGetResultWithWithOneLinked() throws ODataJPAProcessorException,
+      ODataJPAModelException;
+
   protected abstract void createCutGetResultSimpleEntity() throws ODataJPAModelException, ODataJPAProcessorException;
 
   protected abstract void createCutGetResultWithOneLevelEmbedded() throws ODataJPAModelException,

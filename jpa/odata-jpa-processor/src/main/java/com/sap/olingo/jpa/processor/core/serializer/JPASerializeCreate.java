@@ -41,6 +41,7 @@ public class JPASerializeCreate implements JPASerializer {
 
     final EntitySerializerOptions options = EntitySerializerOptions.with()
         .contextURL(contextUrl)
+        .expand(uriInfo.getExpandOption())
         .build();
 
     final SerializerResult serializerResult = serializer.entity(serviceMetadata, entityType, result

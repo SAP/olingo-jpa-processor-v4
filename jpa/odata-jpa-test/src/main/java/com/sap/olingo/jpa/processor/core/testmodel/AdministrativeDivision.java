@@ -190,4 +190,12 @@ public class AdministrativeDivision implements KeyAccess {
     this.parent = parent;
   }
 
+  public void setArea(Integer area) {
+    this.area = area;
+  }
+
+  public void setChildren(List<AdministrativeDivision> children) {
+    this.children = children;
+  }
+
 }
