@@ -29,6 +29,7 @@ import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
 import org.apache.olingo.server.api.uri.UriResourceValue;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
@@ -300,14 +301,19 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
 
       final Map<String, Object> jpaAttributes = helper.convertProperties(odata, et, odataEntity.getProperties());
       for (Link navigationLink : odataEntity.getNavigationLinks()) {
-        String name = et.getAssociationPath(navigationLink.getTitle()).getPath().get(0).getInternalName();
+        JPAAssociationPath path = et.getAssociationPath(navigationLink.getTitle());
+        String name = path.getPath().get(0).getInternalName();
         final JPAEntityType navigationEt = (JPAEntityType) et.getAssociationPath(navigationLink.getTitle())
-            .getSourceType();
-        List<JPARequestEntity> inlineEntities = new ArrayList<JPARequestEntity>();
-        for (Entity e : navigationLink.getInlineEntitySet().getEntities()) {
-          inlineEntities.add(createRequestEntity(navigationEt, e));
+            .getTargetType();
+        if (path.getLeaf().isCollection()) {
+          List<JPARequestEntity> inlineEntities = new ArrayList<JPARequestEntity>();
+          for (Entity e : navigationLink.getInlineEntitySet().getEntities()) {
+            inlineEntities.add(createRequestEntity(navigationEt, e));
+          }
+          jpaAttributes.put(name, inlineEntities);
+        } else {
+          jpaAttributes.put(name, createRequestEntity(navigationEt, navigationLink.getInlineEntity()));
         }
-        jpaAttributes.put(name, inlineEntities);
       }
       requestEntity = new JPARequestEntityImpl(et, jpaAttributes);
 
