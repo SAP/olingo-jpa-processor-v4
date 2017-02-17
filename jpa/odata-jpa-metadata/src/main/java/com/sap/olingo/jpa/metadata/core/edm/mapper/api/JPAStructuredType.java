@@ -59,4 +59,6 @@ public interface JPAStructuredType extends JPAElement {
    */
   public JPAAssociationPath getDeclaredAssociation(JPAAssociationPath associationPath) throws ODataJPAModelException;
 
+  public boolean isAbstract();
+
 }

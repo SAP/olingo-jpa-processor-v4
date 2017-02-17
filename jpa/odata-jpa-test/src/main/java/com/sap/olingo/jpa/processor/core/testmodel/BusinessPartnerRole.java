@@ -45,4 +45,9 @@ public class BusinessPartnerRole {
     this.roleCategory = roleCategory;
   }
 
+  public void setBusinessPartner(BusinessPartner businessPartner) {
+    this.businessPartner = businessPartner;
+
+  }
+
 }

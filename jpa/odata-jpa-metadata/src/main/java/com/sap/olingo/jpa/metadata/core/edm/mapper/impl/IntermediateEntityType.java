@@ -161,6 +161,16 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
   };
 
   @Override
+  public boolean ignore() {
+    return (asEntitySet || super.ignore());
+  }
+
+  @Override
+  public boolean isAbstract() {
+    return determineAbstract();
+  }
+
+  @Override
   public List<JPAPath> searchChildPath(final JPAPath selectItemPath) {
     final List<JPAPath> result = new ArrayList<JPAPath>();
     for (final String pathName : this.resolvedPathMap.keySet()) {
@@ -212,6 +222,10 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
       determineHasEtag();
       // TODO determine OpenType
     }
+  }
+
+  boolean asEntitySet() {
+    return asEntitySet;
   }
 
   boolean determineAbstract() {
@@ -282,14 +296,5 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
 
   private <T> List<?> resolveEmbeddedId(final IntermediateEmbeddedIdProperty embeddedId) throws ODataJPAModelException {
     return ((IntermediateComplexType) embeddedId.getStructuredType()).getEdmItem().getProperties();
-  }
-
-  @Override
-  public boolean ignore() {
-    return (asEntitySet || super.ignore());
-  }
-
-  boolean asEntitySet() {
-    return asEntitySet;
   }
 }
