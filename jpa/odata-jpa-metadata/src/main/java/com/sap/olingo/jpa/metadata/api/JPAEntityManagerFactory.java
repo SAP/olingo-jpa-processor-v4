@@ -8,8 +8,7 @@ import javax.persistence.Persistence;
 import javax.sql.DataSource;
 
 public class JPAEntityManagerFactory {
-  private static final String                                    ENTITY_MANAGER_DATA_SOURCE =
-      "javax.persistence.nonJtaDataSource";
+  private static final String ENTITY_MANAGER_DATA_SOURCE = "javax.persistence.nonJtaDataSource";
   private static Map<String, Map<Integer, EntityManagerFactory>> emfMap;
 
   public static EntityManagerFactory getEntityManagerFactory(final String pUnit, final Map<String, Object> ds) {

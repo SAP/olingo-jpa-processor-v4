@@ -80,10 +80,10 @@ public abstract class BusinessPartner implements KeyAccess {
   @EdmIgnore
   @Column(name = "\"CustomString1\"")
   @Convert(converter = StringConverter.class)
-  protected String     customString1;
+  protected String customString1;
   @EdmIgnore
   @Column(name = "\"CustomString2\"")
-  protected String     customString2;
+  protected String customString2;
   @EdmIgnore
   @Column(name = "\"CustomNum1\"", precision = 16, scale = 5)
   protected BigDecimal customNum1;
@@ -105,7 +105,7 @@ public abstract class BusinessPartner implements KeyAccess {
   private Collection<AdministrativeDivisionDescription> locationName;
 
   @Embedded
-  protected CommunicationData communicationData = new CommunicationData();
+  protected CommunicationData communicationData;
 
   @Embedded
   @AssociationOverrides({

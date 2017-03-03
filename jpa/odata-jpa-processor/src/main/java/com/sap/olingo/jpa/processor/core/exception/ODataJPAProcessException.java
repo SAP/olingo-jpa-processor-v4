@@ -87,7 +87,7 @@ public abstract class ODataJPAProcessException extends ODataApplicationException
 
   @Override
   public String getMessage() {
-    if (messageBuffer != null) {
+    if (messageBuffer != null && id != null) {
       messageBuffer.setLocales(locales);
       String message = messageBuffer.getText(this, id, parameter);
       if (message != null) {
