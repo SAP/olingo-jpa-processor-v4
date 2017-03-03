@@ -83,7 +83,7 @@ public class TestJPACUDRequestHelper {
 
     Map<String, Object> act = cut.buildGetterMap(role);
     assertNotNull(act);
-    assertEquals(4, act.size());
+    assertEquals(5, act.size());
     assertEquals("ID", act.get("businessPartnerID"));
   }
 

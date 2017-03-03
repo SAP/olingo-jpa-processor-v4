@@ -38,4 +38,12 @@ public class ChangeInformation {
     return by;
   }
 
+  public void setBy(String by) {
+    this.by = by;
+  }
+
+  public void setAt(Date at) {
+    this.at = at;
+  }
+
 }
