@@ -297,25 +297,12 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
    */
   JPARequestEntity createRequestEntity(JPAEntityType et, Entity odataEntity) throws ODataJPAProcessorException {
     JPARequestEntity requestEntity = null;
-    try {
 
+    try {
       final Map<String, Object> jpaAttributes = helper.convertProperties(odata, et, odataEntity.getProperties());
-      for (Link navigationLink : odataEntity.getNavigationLinks()) {
-        JPAAssociationPath path = et.getAssociationPath(navigationLink.getTitle());
-        String name = path.getPath().get(0).getInternalName();
-        final JPAEntityType navigationEt = (JPAEntityType) et.getAssociationPath(navigationLink.getTitle())
-            .getTargetType();
-        if (path.getLeaf().isCollection()) {
-          List<JPARequestEntity> inlineEntities = new ArrayList<JPARequestEntity>();
-          for (Entity e : navigationLink.getInlineEntitySet().getEntities()) {
-            inlineEntities.add(createRequestEntity(navigationEt, e));
-          }
-          jpaAttributes.put(name, inlineEntities);
-        } else {
-          jpaAttributes.put(name, createRequestEntity(navigationEt, navigationLink.getInlineEntity()));
-        }
-      }
-      requestEntity = new JPARequestEntityImpl(et, jpaAttributes);
+      final Map<JPAAssociationPath, List<JPARequestEntity>> relatedEntities = createInlineEntities(et, odataEntity);
+      final Map<JPAAssociationPath, List<JPARequestLink>> relationLinks = createRelationLinks(et, odataEntity);
+      requestEntity = new JPARequestEntityImpl(et, jpaAttributes, relatedEntities, relationLinks);
 
     } catch (ODataJPAModelException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
@@ -323,6 +310,52 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
     }
     return requestEntity;
+  }
+
+  private Map<JPAAssociationPath, List<JPARequestLink>> createRelationLinks(JPAEntityType et, Entity odataEntity)
+      throws ODataJPAModelException {
+
+    final Map<JPAAssociationPath, List<JPARequestLink>> relationLinks =
+        new HashMap<JPAAssociationPath, List<JPARequestLink>>();
+    for (Link binding : odataEntity.getNavigationBindings()) {
+      final List<JPARequestLink> bindingLinks = new ArrayList<JPARequestLink>();
+      JPAAssociationPath path = et.getAssociationPath(binding.getTitle());
+      if (path.getLeaf().isCollection()) {
+        for (String bindingLink : binding.getBindingLinks()) {
+          final JPARequestLink requestLink = new JPARequestLinkImpl(path, bindingLink, helper);
+          bindingLinks.add(requestLink);
+        }
+      } else {
+        final JPARequestLink requestLink = new JPARequestLinkImpl(path, binding.getBindingLink(), helper);
+        bindingLinks.add(requestLink);
+      }
+      relationLinks.put(path, bindingLinks);
+    }
+    return relationLinks;
+  }
+
+  private Map<JPAAssociationPath, List<JPARequestEntity>> createInlineEntities(JPAEntityType et, Entity odataEntity)
+      throws ODataJPAModelException, ODataJPAProcessorException {
+
+    final Map<JPAAssociationPath, List<JPARequestEntity>> relatedEntities =
+        new HashMap<JPAAssociationPath, List<JPARequestEntity>>();
+
+    for (Link navigationLink : odataEntity.getNavigationLinks()) {
+      JPAAssociationPath path = et.getAssociationPath(navigationLink.getTitle());
+      final JPAEntityType navigationEt = (JPAEntityType) et.getAssociationPath(navigationLink.getTitle())
+          .getTargetType();
+      final List<JPARequestEntity> inlineEntities = new ArrayList<JPARequestEntity>();
+      if (path.getLeaf().isCollection()) {
+        for (Entity e : navigationLink.getInlineEntitySet().getEntities()) {
+          inlineEntities.add(createRequestEntity(navigationEt, e));
+        }
+        relatedEntities.put(path, inlineEntities);
+      } else {
+        inlineEntities.add(createRequestEntity(navigationEt, navigationLink.getInlineEntity()));
+        relatedEntities.put(path, inlineEntities);
+      }
+    }
+    return relatedEntities;
   }
 
   private Entity convertEntity(JPAEntityType et, Object result, Map<String, List<String>> headers)

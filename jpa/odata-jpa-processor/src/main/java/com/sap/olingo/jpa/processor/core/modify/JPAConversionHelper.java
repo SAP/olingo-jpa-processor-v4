@@ -135,7 +135,6 @@ public class JPAConversionHelper {
    * @return
    * @throws ODataJPAProcessException
    */
-  @SuppressWarnings("unchecked")
   public <T extends Object, S extends Object> Map<String, Object> convertProperties(final OData odata,
       final JPAStructuredType st, final List<Property> odataProperties) throws ODataJPAProcessException {
 
@@ -158,12 +157,7 @@ public class JPAConversionHelper {
         try {
           final JPAAttribute attribute = st.getPath(odataProperty.getName()).getLeaf();
           internalName = attribute.getInternalName();
-          if (attribute.getConverter() != null) {
-            AttributeConverter<T, S> converter = (AttributeConverter<T, S>) attribute.getConverter();
-            jpaAttribute = converter.convertToEntityAttribute((S) odataProperty.getValue());
-          } else {
-            jpaAttribute = odataProperty.getValue();
-          }
+          jpaAttribute = processAttributeConverter(odataProperty.getValue(), attribute);
         } catch (ODataJPAModelException e) {
           throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
         }
@@ -175,6 +169,18 @@ public class JPAConversionHelper {
       jpaAttributes.put(internalName, jpaAttribute);
     }
     return jpaAttributes;
+  }
+
+  @SuppressWarnings("unchecked")
+  public <S, T> Object processAttributeConverter(Object value, final JPAAttribute attribute) {
+    Object jpaAttribute;
+    if (attribute.getConverter() != null) {
+      AttributeConverter<T, S> converter = (AttributeConverter<T, S>) attribute.getConverter();
+      jpaAttribute = converter.convertToEntityAttribute((S) value);
+    } else {
+      jpaAttribute = value;
+    }
+    return jpaAttribute;
   }
 
   /**

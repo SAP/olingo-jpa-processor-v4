@@ -38,16 +38,16 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 public abstract class JPATupleAbstractConverter {
 
-  public static final String ACCESS_MODIFIER_GET = "get";
-  public static final String ACCESS_MODIFIER_SET = "set";
-  public static final String ACCESS_MODIFIER_IS = "is";
-  protected final JPAEntityType jpaConversionTargetEntity;
+  public static final String      ACCESS_MODIFIER_GET = "get";
+  public static final String      ACCESS_MODIFIER_SET = "set";
+  public static final String      ACCESS_MODIFIER_IS  = "is";
+  protected final JPAEntityType   jpaConversionTargetEntity;
   protected final JPAExpandResult jpaQueryResult;
-  protected final UriHelper uriHelper;
-  protected final String setName;
+  protected final UriHelper       uriHelper;
+  protected final String          setName;
   protected final ServiceDocument sd;
   protected final ServiceMetadata serviceMetadata;
-  protected final EdmEntityType edmType;
+  protected final EdmEntityType   edmType;
 
   public JPATupleAbstractConverter(final JPAExpandResult jpaQueryResult,
       final UriHelper uriHelper, final ServiceDocument sd, final ServiceMetadata serviceMetadata)
@@ -67,6 +67,7 @@ public abstract class JPATupleAbstractConverter {
     final StringBuffer buffer = new StringBuffer();
     for (final JPAOnConditionItem item : joinColumns) {
       buffer.append(JPAPath.PATH_SEPERATOR);
+      // TODO Tuple returns the converted value in case a @Convert(converter = annotation is given
       buffer.append(row.get(item.getLeftPath().getAlias()));
     }
     buffer.deleteCharAt(0);
