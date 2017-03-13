@@ -1,7 +1,9 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
+import java.util.List;
 import java.util.Map;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 
 /**
@@ -25,14 +27,31 @@ public interface JPARequestEntity {
   public Map<String, Object> getData();
 
   /**
-   * Contains the key attributes of the entity to be update
+   * Contains the key attributes of the entity to be update. Return an empty Map in case of create.
    * @return
    */
   public Map<String, Object> getKeys();
+
+  /**
+   * <a href=
+   * "https://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752299">
+   * 11.4.2.1 Link to Related Entities When Creating an Entity</a>
+   * @return
+   */
+  public Map<JPAAssociationPath, List<JPARequestLink>> getRelationLinks();
+
+  /**
+   * <a href=
+   * "https://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752299">
+   * 11.4.2.2 Create Related Entities When Creating an Entity</a>
+   * @return
+   */
+  public Map<JPAAssociationPath, List<JPARequestEntity>> getRelatedEntities();
 
   /**
    * Returns an instance utility service
    * @return
    */
   public JPAModifyUtil getModifyUtil();
+
 }

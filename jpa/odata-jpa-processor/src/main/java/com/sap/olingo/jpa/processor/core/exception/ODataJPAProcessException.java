@@ -15,7 +15,6 @@ public abstract class ODataJPAProcessException extends ODataApplicationException
    */
   private static final long serialVersionUID = -3178033271311091314L;
   private static final String UNKNOWN_MESSAGE = "No message text found";
-  private static final String DEFAULT_BUNDEL_NAME = "processor-exceptions-i18n.properties";
   private static Enumeration<Locale> locales;
 
   protected final String id;
@@ -110,7 +109,5 @@ public abstract class ODataJPAProcessException extends ODataApplicationException
     ODataJPAProcessException.locales = locales;
   }
 
-  protected String getBundleName() {
-    return DEFAULT_BUNDEL_NAME;
-  }
+  protected abstract String getBundleName();
 }
