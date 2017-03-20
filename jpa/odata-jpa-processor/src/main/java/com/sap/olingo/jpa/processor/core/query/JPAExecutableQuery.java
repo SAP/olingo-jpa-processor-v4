@@ -242,7 +242,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     }
 
     // Add Fields that are required for Expand
-    final Map<JPAExpandItemWrapper, JPAAssociationPath> associationPathList = Util.determineAssoziations(sd, uriResource
+    final Map<JPAExpandItem, JPAAssociationPath> associationPathList = Util.determineAssoziations(sd, uriResource
         .getUriResourceParts(), uriResource.getExpandOption());
     if (!associationPathList.isEmpty()) {
       Collections.sort(jpaPathList);

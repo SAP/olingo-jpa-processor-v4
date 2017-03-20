@@ -145,8 +145,9 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
     for (final JPAExpandItemInfo item : itemInfoList) {
       final JPAExpandQuery expandQuery = new JPAExpandQuery(odata, sessionContext, em, item, headers);
       final JPAExpandQueryResult expandResult = expandQuery.execute();
-
-      expandResult.putChildren(readExpandEntities(headers, item.getHops(), item.getUriInfo()));
+      if (expandResult.getNoResults() > 0)
+        // Only go the next hop if the current one has a result
+        expandResult.putChildren(readExpandEntities(headers, item.getHops(), item.getUriInfo()));
       allExpResults.put(item.getExpandAssociation(), expandResult);
     }
 
