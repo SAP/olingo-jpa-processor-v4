@@ -472,19 +472,23 @@ public class TestJPAProcessorExpand extends TestBase {
     assertEquals("BE25", grandparentDivCode.asText());
   }
 
-  @Ignore
   @Test
   public void testExpandLevelMax() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "/AdministrativeDivisions(DivisionCode='BE241',CodeID='NUTS3',CodePublisher='Eurostat')?$expand=Parent($levels=max)");
+        "AdministrativeDivisions(DivisionCode='BE241',CodeID='NUTS3',CodePublisher='Eurostat')?$expand=Parent($levels=max)");
     helper.assertStatus(200);
 
     final ObjectNode org = helper.getValue();
-    assertNotNull(org.get("Parent"));
+    assertFalse(org.get("Parent") instanceof NullNode);
     final ObjectNode parent = (ObjectNode) org.get("Parent");
-    assertNotNull(parent.get("DivisionCode"));
-    final ArrayNode children = (ArrayNode) org.get("Children");
-    assertEquals(7, children.size());
+    final TextNode parentDivCode = (TextNode) parent.get("DivisionCode");
+    assertEquals("BE24", parentDivCode.asText());
+
+    assertFalse(parent.get("Parent") instanceof NullNode);
+    final ObjectNode grandParent = (ObjectNode) parent.get("Parent");
+    assertNotNull(grandParent.get("DivisionCode"));
+    final TextNode grandparentDivCode = (TextNode) grandParent.get("DivisionCode");
+    assertEquals("BE2", grandparentDivCode.asText());
   }
 
   @Test
