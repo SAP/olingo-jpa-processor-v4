@@ -69,7 +69,7 @@ public class JPAExpandLevelWrapper implements JPAExpandItem {
 
   @Override
   public ExpandOption getExpandOption() {
-    if (levelOptions.getValue() > 1)
+    if (levelOptions.getValue() > 1 || levelOptions.isMax())
       return new ExpandOptionWrapper(option);
     else
       return null;
@@ -190,7 +190,7 @@ public class JPAExpandLevelWrapper implements JPAExpandItem {
     private ExpandItemWrapper(ExpandItem parentItem) {
       this.parentItem = parentItem;
       this.levelOption = new LevelsExpandOptionWrapper(parentItem.getLevelsOption().isMax(),
-          parentItem.getLevelsOption().getValue() - 1);
+          parentItem.getLevelsOption().getValue());
     }
 
     @Override
@@ -270,10 +270,13 @@ public class JPAExpandLevelWrapper implements JPAExpandItem {
     private final boolean isMax;
     private final int level;
 
-    private LevelsExpandOptionWrapper(boolean isMax, int level) {
+    private LevelsExpandOptionWrapper(boolean isMax, int parentLevel) {
       super();
       this.isMax = isMax;
-      this.level = level;
+      if (parentLevel != 0)
+        this.level = parentLevel - 1;
+      else
+        this.level = 0;
     }
 
     @Override
