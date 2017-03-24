@@ -21,17 +21,7 @@ class JPAAssociationPathImpl implements JPAAssociationPath {
   final private IntermediateStructuredType targetType;
   private List<IntermediateJoinColumn> joinColumns;
   private final PersistentAttributeType cardinality;
-
-  JPAAssociationPathImpl(final String externalName, final IntermediateStructuredType sourceType,
-      final IntermediateStructuredType targetType, final List<IntermediateJoinColumn> joinColumns,
-      final PersistentAttributeType jpaAttributeType) {
-    alias = externalName;
-    this.sourceType = sourceType;
-    this.targetType = targetType;
-    this.joinColumns = joinColumns;
-    this.pathElements = null;
-    this.cardinality = jpaAttributeType;
-  }
+  private boolean isCollection;
 
   JPAAssociationPathImpl(final JPAEdmNameBuilder namebuilder, final JPAAssociationPath associationPath,
       final IntermediateStructuredType source, final List<IntermediateJoinColumn> joinColumns,
@@ -50,6 +40,7 @@ class JPAAssociationPathImpl implements JPAAssociationPath {
       this.joinColumns = joinColumns;
     this.pathElements = Collections.unmodifiableList(pathElementsBuffer);
     this.cardinality = ((JPAAssociationPathImpl) associationPath).getCardinality();
+    this.isCollection = associationPath.isCollection();
   }
 
   JPAAssociationPathImpl(final IntermediateNavigationProperty association,
@@ -63,6 +54,7 @@ class JPAAssociationPathImpl implements JPAAssociationPath {
     this.joinColumns = association.getJoinColumns();
     this.pathElements = Collections.unmodifiableList(pathElementsBuffer);
     this.cardinality = association.getJoinCardinality();
+    this.isCollection = association.isCollection();
   }
 
   private List<IntermediateJoinColumn> getJoinColumns() {
@@ -144,5 +136,15 @@ class JPAAssociationPathImpl implements JPAAssociationPath {
   @Override
   public JPAStructuredType getSourceType() {
     return sourceType;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath#isCollection()
+   */
+  @Override
+  public boolean isCollection() {
+    return isCollection;
   }
 }
