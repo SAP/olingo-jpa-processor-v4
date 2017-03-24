@@ -13,11 +13,11 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 
 public class JPAExpandItemInfo {
-  private final JPAExpandItemWrapper uriInfo;
+  private final JPAExpandItem uriInfo;
   private final JPAAssociationPath expandAssociation;
   private final List<JPANavigationProptertyInfo> hops;
 
-  JPAExpandItemInfo(final JPAExpandItemWrapper uriInfo, final UriResourcePartTyped startResourceItem,
+  JPAExpandItemInfo(final JPAExpandItem uriInfo, final UriResourcePartTyped startResourceItem,
       Expression filterExpression, final JPAAssociationPath expandAssociation,
       final List<JPANavigationProptertyInfo> hops)
       throws ODataApplicationException {

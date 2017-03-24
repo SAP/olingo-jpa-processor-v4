@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.sap.olingo</groupId>
     <artifactId>odata-jpa</artifactId>
-    <version>0.1.3-SNAPSHOT</version>
+    <version>0.1.5-SNAPSHOT</version>
   </parent>
   <artifactId>odata-jpa-annotation</artifactId>
   <name>odata-jpa-annotation</name>
