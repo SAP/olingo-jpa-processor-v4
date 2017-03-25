@@ -20,4 +20,7 @@ public interface JPAAssociationPath {
 
   JPAStructuredType getSourceType();
 
+  boolean isCollection();
+
+  JPAAssociationAttribute getPartner();
 }
