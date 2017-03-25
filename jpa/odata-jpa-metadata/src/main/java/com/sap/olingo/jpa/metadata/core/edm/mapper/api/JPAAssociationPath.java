@@ -22,4 +22,5 @@ public interface JPAAssociationPath {
 
   boolean isCollection();
 
+  JPAAssociationAttribute getPartner();
 }

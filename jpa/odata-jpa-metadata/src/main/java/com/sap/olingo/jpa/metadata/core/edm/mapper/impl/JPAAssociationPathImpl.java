@@ -19,9 +19,10 @@ class JPAAssociationPathImpl implements JPAAssociationPath {
   final private List<JPAElement> pathElements;
   final private IntermediateStructuredType sourceType;
   final private IntermediateStructuredType targetType;
-  private List<IntermediateJoinColumn> joinColumns;
+  private final List<IntermediateJoinColumn> joinColumns;
   private final PersistentAttributeType cardinality;
-  private boolean isCollection;
+  private final boolean isCollection;
+  private final JPAAssociationAttribute partner;
 
   JPAAssociationPathImpl(final JPAEdmNameBuilder namebuilder, final JPAAssociationPath associationPath,
       final IntermediateStructuredType source, final List<IntermediateJoinColumn> joinColumns,
@@ -41,10 +42,12 @@ class JPAAssociationPathImpl implements JPAAssociationPath {
     this.pathElements = Collections.unmodifiableList(pathElementsBuffer);
     this.cardinality = ((JPAAssociationPathImpl) associationPath).getCardinality();
     this.isCollection = associationPath.isCollection();
+    this.partner = associationPath.getPartner();
   }
 
   JPAAssociationPathImpl(final IntermediateNavigationProperty association,
       final IntermediateStructuredType source) throws ODataJPAModelException {
+
     final List<JPAElement> pathElementsBuffer = new ArrayList<JPAElement>();
     pathElementsBuffer.add(association);
 
@@ -55,6 +58,7 @@ class JPAAssociationPathImpl implements JPAAssociationPath {
     this.pathElements = Collections.unmodifiableList(pathElementsBuffer);
     this.cardinality = association.getJoinCardinality();
     this.isCollection = association.isCollection();
+    this.partner = association.getPartner();
   }
 
   private List<IntermediateJoinColumn> getJoinColumns() {
@@ -146,5 +150,10 @@ class JPAAssociationPathImpl implements JPAAssociationPath {
   @Override
   public boolean isCollection() {
     return isCollection;
+  }
+
+  @Override
+  public JPAAssociationAttribute getPartner() {
+    return partner;
   }
 }
