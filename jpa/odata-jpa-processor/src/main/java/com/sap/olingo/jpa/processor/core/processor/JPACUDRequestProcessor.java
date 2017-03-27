@@ -214,9 +214,7 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
     final EdmEntitySetInfo edmEntitySetInfo = Util.determineTargetEntitySetAndKeys(uriInfo.getUriResourceParts());
     final Entity requestEntity = helper.convertInputStream(odata, request, requestFormat, edmEntitySetInfo
         .getEdmEntitySet());
-    // List<UriParameter> keyPredicates = uriResourceEntitySet.getKeyPredicates();
-    // Object newEntity = em.find(et.getTypeClass(), primaryKey);
-    // em.refresh(newEntity);
+    
     try {
       et = sessionContext.getEdmProvider().getServiceDocument().getEntity(edmEntitySetInfo.getName());
       jpaAttributes = helper.convertProperties(odata, et, requestEntity.getProperties());
@@ -225,7 +223,7 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
     } catch (ODataException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
     }
-    // Create entity
+    // Update entity
     JPAUpdateResult updateResult = null;
     Map<String, Object> keys = helper.convertUriKeys(odata, et, edmEntitySetInfo.getKeyPredicates());
     final boolean foreignTransation = em.getTransaction().isActive();
