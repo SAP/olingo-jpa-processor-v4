@@ -214,7 +214,7 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
     final EdmEntitySetInfo edmEntitySetInfo = Util.determineTargetEntitySetAndKeys(uriInfo.getUriResourceParts());
     final Entity requestEntity = helper.convertInputStream(odata, request, requestFormat, edmEntitySetInfo
         .getEdmEntitySet());
-    
+
     try {
       et = sessionContext.getEdmProvider().getServiceDocument().getEntity(edmEntitySetInfo.getName());
       jpaAttributes = helper.convertProperties(odata, et, requestEntity.getProperties());
@@ -256,7 +256,9 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
         em.getTransaction().rollback();
       throw new ODataJPAProcessorException(MessageKeys.RETURN_NULL, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
-    if (updateResult.getModifyedEntity() != null && updateResult.getModifyedEntity().getClass() != et.getTypeClass()) {
+    if (updateResult.getModifyedEntity() != null && !et.getTypeClass().isInstance(updateResult.getModifyedEntity())) {
+      // This shall tolerate that e.g. EclipseLink return at least in case of InheritanceType.TABLE_PER_CLASS an
+      // instance of a sub class even so the super class was requested.
       if (!foreignTransation)
         em.getTransaction().rollback();
       throw new ODataJPAProcessorException(MessageKeys.WRONG_RETURN_TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR,
@@ -265,7 +267,7 @@ public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
     if (!foreignTransation)
       em.getTransaction().commit();
 
-    if (updateResult != null && updateResult.wasCreate())
+    if (updateResult.wasCreate())
       createCreateResponse(request, response, responseFormat, et, edmEntitySetInfo.getEdmEntitySet(), updateResult
           .getModifyedEntity());
     else
