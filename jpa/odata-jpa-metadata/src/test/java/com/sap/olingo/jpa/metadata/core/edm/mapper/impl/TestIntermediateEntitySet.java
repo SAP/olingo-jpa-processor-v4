@@ -77,6 +77,16 @@ public class TestIntermediateEntitySet extends TestMappingRoot {
     assertEquals(namebuilder.buildFQN("BusinessPartner").getFullQualifiedNameAsString(), act.getType());
   }
 
+  @Test
+  public void checkPostProcessorExternalNameChanged() throws ODataJPAModelException {
+    IntermediateModelElement.setPostProcessor(new PostProcessor());
+    IntermediateEntityType et = new IntermediateEntityType(namebuilder, getEntityType("BusinessPartner"), schema);
+    IntermediateEntitySet set = new IntermediateEntitySet(namebuilder, et);
+    set.getEdmItem(); // Trigger build of EdmEntitySet
+
+    assertEquals("Wrong name", "BusinessPartnerList", set.getExternalName());
+  }
+
   private class PostProcessor extends JPAEdmMetadataPostProcessor {
 
     @Override
@@ -109,6 +119,10 @@ public class TestIntermediateEntitySet extends TestMappingRoot {
       List<CsdlAnnotation> annotations = new ArrayList<CsdlAnnotation>();
       annotations.add(annotation);
       entitySet.addAnnotations(annotations);
+
+      if ("BusinessPartners".equals(entitySet.getExternalName())) {
+        entitySet.setExternalName("BusinessPartnerList");
+      }
     }
   }
 
