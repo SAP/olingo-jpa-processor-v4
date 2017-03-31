@@ -2,6 +2,7 @@ package com.sap.olingo.jpa.processor.core.processor;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 
 import java.util.HashMap;
@@ -13,6 +14,7 @@ import org.junit.Test;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
+import com.sap.olingo.jpa.processor.core.testmodel.PostalAddressData;
 
 public class TestModifyUtil {
   private JPAModifyUtil cut;
@@ -24,6 +26,41 @@ public class TestModifyUtil {
     cut = new JPAModifyUtil();
     jpaAttributes = new HashMap<String, Object>();
     partner = new Organization();
+  }
+
+  @Test
+  public void testSetAttributeOneAttribute() throws ODataJPAProcessorException {
+    jpaAttributes.put("iD", "Willi");
+    cut.setAttributes(jpaAttributes, partner);
+    assertEquals("Willi", partner.getID());
+  }
+
+  @Test
+  public void testSetAttributeMultipleAttribute() throws ODataJPAProcessorException {
+    jpaAttributes.put("iD", "Willi");
+    jpaAttributes.put("type", "2");
+    cut.setAttributes(jpaAttributes, partner);
+    assertEquals("Willi", partner.getID());
+    assertEquals("2", partner.getType());
+  }
+
+  @Test
+  public void testSetAttributeIfAttributeNull() throws ODataJPAProcessorException {
+    partner.setType("2");
+    jpaAttributes.put("iD", "Willi");
+    jpaAttributes.put("type", null);
+    cut.setAttributes(jpaAttributes, partner);
+    assertEquals("Willi", partner.getID());
+    assertNull(partner.getType());
+  }
+
+  @Test
+  public void testDoNotSetAttributeIfNotInMap() throws ODataJPAProcessorException {
+    partner.setType("2");
+    jpaAttributes.put("iD", "Willi");
+    cut.setAttributes(jpaAttributes, partner);
+    assertEquals("Willi", partner.getID());
+    assertEquals("2", partner.getType());
   }
 
   @Test
@@ -40,6 +77,25 @@ public class TestModifyUtil {
     cut.setAttributesDeep(jpaAttributes, partner);
     assertEquals("Willi", partner.getID());
     assertEquals("DEU", partner.getCountry());
+  }
+
+  @Test
+  public void testSetAttributeDeepIfAttributeNull() throws ODataJPAProcessorException {
+    partner.setType("2");
+    jpaAttributes.put("iD", "Willi");
+    jpaAttributes.put("type", null);
+    cut.setAttributesDeep(jpaAttributes, partner);
+    assertEquals("Willi", partner.getID());
+    assertNull(partner.getType());
+  }
+
+  @Test
+  public void testDoNotSetAttributeDeepIfNotInMap() throws ODataJPAProcessorException {
+    partner.setType("2");
+    jpaAttributes.put("iD", "Willi");
+    cut.setAttributesDeep(jpaAttributes, partner);
+    assertEquals("Willi", partner.getID());
+    assertEquals("2", partner.getType());
   }
 
   @Test
@@ -62,6 +118,31 @@ public class TestModifyUtil {
     assertEquals("Willi", partner.getID());
     assertNotNull(partner.getAddress());
     assertEquals("Test Town", partner.getAddress().getCityName());
+  }
+
+  @Test
+  public void testDoNotSetAttributesDeepOneLevelIfNotProvided() throws ODataJPAProcessorException {
+
+    jpaAttributes.put("iD", "Willi");
+    jpaAttributes.put("address", null);
+    cut.setAttributesDeep(jpaAttributes, partner);
+
+    assertEquals("Willi", partner.getID());
+    assertNull(partner.getAddress());
+  }
+
+  @Test
+  public void testSetAttributesDeepOneLevelIfNull() throws ODataJPAProcessorException {
+    final PostalAddressData address = new PostalAddressData();
+    address.setCityName("Test City");
+
+    partner.setAddress(address);
+    jpaAttributes.put("iD", "Willi");
+    cut.setAttributesDeep(jpaAttributes, partner);
+
+    assertEquals("Willi", partner.getID());
+    assertNotNull(partner.getAddress());
+    assertEquals("Test City", partner.getAddress().getCityName());
   }
 
   @Test
