@@ -6,8 +6,16 @@ public interface IntermediateModelItemAccess extends JPAElement {
 
   boolean ignore();
 
+  /**
+   * Enables to overwrite the External, OData, name of a model item.
+   * @param externalName
+   */
   void setExternalName(String externalName);
 
+  /**
+   * Enables to switch if a model item shall be ignored during runtime.
+   * @param ignore
+   */
   void setIgnore(boolean ignore);
 
 }
