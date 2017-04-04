@@ -6,6 +6,7 @@ import java.util.Locale;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAMessageBufferRead;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAMessageTextBuffer;
 
 public abstract class ODataJPAProcessException extends ODataApplicationException {
@@ -13,14 +14,13 @@ public abstract class ODataJPAProcessException extends ODataApplicationException
   /**
    * 
    */
-  private static final long          serialVersionUID = -3178033271311091314L;
-  private static final String        UNKNOWN_MESSAGE  = "No message text found";
+  private static final long serialVersionUID = -3178033271311091314L;
+  private static final String UNKNOWN_MESSAGE = "No message text found";
   private static Enumeration<Locale> locales;
 
-  protected final String                    id;
-  protected final ODataJPAMessageTextBuffer messageBuffer;
-  protected final String[]                  parameter;
-  protected final String                    messageText;
+  protected final String id;
+  protected final String[] parameter;
+  protected final String messageText;
 
   public ODataJPAProcessException(final String id, final HttpStatusCode statusCode) {
     this(id, null, statusCode, new String[] {});
@@ -67,14 +67,13 @@ public abstract class ODataJPAProcessException extends ODataApplicationException
       final Throwable cause, final String[] params) {
     super("", statusCode.getStatusCode(), Locale.ENGLISH, cause);
     this.id = id;
-    this.messageBuffer = getTextBundle();
     this.parameter = params;
     this.messageText = messageText;
   }
 
   private ODataJPAMessageTextBuffer getTextBundle() {
     if (getBundleName() != null)
-      return new ODataJPAMessageTextBuffer(getBundleName());
+      return new ODataJPAMessageTextBuffer(getBundleName(), locales);
     else
       return null;
   }
@@ -86,8 +85,9 @@ public abstract class ODataJPAProcessException extends ODataApplicationException
 
   @Override
   public String getMessage() {
+    ODataJPAMessageBufferRead messageBuffer = getTextBundle();
+
     if (messageBuffer != null && id != null) {
-      messageBuffer.setLocales(locales);
       String message = messageBuffer.getText(this, id, parameter);
       if (message != null) {
         return message;

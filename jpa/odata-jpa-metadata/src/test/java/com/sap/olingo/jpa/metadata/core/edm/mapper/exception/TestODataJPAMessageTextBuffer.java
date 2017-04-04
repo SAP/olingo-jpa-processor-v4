@@ -9,7 +9,6 @@ import java.util.Locale;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAMessageTextBuffer;
 import com.sap.olingo.jpa.processor.core.testmodel.LocaleEnumeration;
 
 public class TestODataJPAMessageTextBuffer {
@@ -28,7 +27,7 @@ public class TestODataJPAMessageTextBuffer {
 
   @Test
   public void checkSetLocaleGerman() {
-    cut.setLocale(Locale.GERMANY);
+    cut = new ODataJPAMessageTextBuffer(BUNDLE_NAME, Locale.GERMANY);
     assertEquals("de", cut.getLocale().getLanguage());
   }
 
@@ -37,7 +36,7 @@ public class TestODataJPAMessageTextBuffer {
     // Set first to German
     checkSetLocaleGerman();
     // Then reset to default
-    cut.setLocale(null);
+    cut = new ODataJPAMessageTextBuffer(BUNDLE_NAME);
     assertEquals(ODataJPAMessageTextBuffer.DEFAULT_LOCALE.getLanguage(), cut.getLocale().getLanguage());
   }
 
@@ -49,16 +48,9 @@ public class TestODataJPAMessageTextBuffer {
 
   @Test
   public void checkGetGermanText() {
-    cut.setLocale(Locale.GERMAN);
+    cut = new ODataJPAMessageTextBuffer(BUNDLE_NAME, Locale.GERMANY);
     String act = cut.getText(this, "FIRST_MESSAGE");
     assertEquals("Ein deutscher Text", act);
-  }
-
-  @Test
-  public void checkGetOtherBundle() {
-    cut.setBundleName("test-i18n2");
-    String act = cut.getText(this, "FIRST_MESSAGE");
-    assertEquals("Another English message", act);
   }
 
   // %1$s
@@ -71,7 +63,7 @@ public class TestODataJPAMessageTextBuffer {
   @Test
   public void checkSetLocalesNull() {
     Enumeration<Locale> locales = null;
-    cut.setLocales(locales);
+    cut = new ODataJPAMessageTextBuffer(BUNDLE_NAME, locales);
     String act = cut.getText(this, "FIRST_MESSAGE");
     assertEquals("An English message", act);
   }
@@ -82,7 +74,7 @@ public class TestODataJPAMessageTextBuffer {
     checkSetLocaleGerman();
     // Then reset default
     Enumeration<Locale> locales = null;
-    cut.setLocales(locales);
+    cut = new ODataJPAMessageTextBuffer(BUNDLE_NAME, locales);
     String act = cut.getText(this, "FIRST_MESSAGE");
     assertEquals("An English message", act);
   }
@@ -93,7 +85,7 @@ public class TestODataJPAMessageTextBuffer {
     checkSetLocaleGerman();
     // Then reset default
     Enumeration<Locale> locales = new LocaleEnumeration(new ArrayList<Locale>());
-    cut.setLocales(locales);
+    cut = new ODataJPAMessageTextBuffer(BUNDLE_NAME, locales);
     String act = cut.getText(this, "FIRST_MESSAGE");
     assertEquals("An English message", act);
   }
@@ -105,7 +97,7 @@ public class TestODataJPAMessageTextBuffer {
     localesList.add(Locale.GERMAN);
     localesList.add(Locale.CANADA_FRENCH);
     Enumeration<Locale> locales = new LocaleEnumeration(localesList);
-    cut.setLocales(locales);
+    cut = new ODataJPAMessageTextBuffer(BUNDLE_NAME, locales);
     String act = cut.getText(this, "FIRST_MESSAGE");
     assertEquals("Ein deutscher Text", act);
   }
@@ -117,7 +109,7 @@ public class TestODataJPAMessageTextBuffer {
     localesList.add(Locale.CANADA_FRENCH);
     localesList.add(Locale.GERMAN);
     Enumeration<Locale> locales = new LocaleEnumeration(localesList);
-    cut.setLocales(locales);
+    cut = new ODataJPAMessageTextBuffer(BUNDLE_NAME, locales);
     String act = cut.getText(this, "FIRST_MESSAGE");
     assertEquals("Ein deutscher Text", act);
   }
@@ -129,7 +121,7 @@ public class TestODataJPAMessageTextBuffer {
     localesList.add(Locale.CANADA_FRENCH);
     localesList.add(Locale.SIMPLIFIED_CHINESE);
     Enumeration<Locale> locales = new LocaleEnumeration(localesList);
-    cut.setLocales(locales);
+    cut = new ODataJPAMessageTextBuffer(BUNDLE_NAME, locales);
     String act = cut.getText(this, "FIRST_MESSAGE");
     assertEquals("An English message", act);
   }
