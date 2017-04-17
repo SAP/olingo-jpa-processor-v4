@@ -23,6 +23,7 @@ import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlStructuralType;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssoziation;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
@@ -52,6 +53,7 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
     this.resolvedAssociationPathMap = new HashMap<String, JPAAssociationPathImpl>();
     this.jpaManagedType = jpaManagedType;
     this.schema = schema;
+    determineIgnore();
 
   }
 
@@ -237,6 +239,13 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
       throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.INHERITANCE_NOT_ALLOWED,
           this.internalName, baseEntity.internalName);
     return baseEntity != null ? nameBuilder.buildFQN(baseEntity.getExternalName()) : null;
+  }
+
+  protected void determineIgnore() {
+    final EdmIgnore jpaIgnore = ((AnnotatedElement) this.jpaManagedType.getJavaType()).getAnnotation(EdmIgnore.class);
+    if (jpaIgnore != null) {
+      this.setIgnore(true);
+    }
   }
 
   protected boolean determineHasStream() throws ODataJPAModelException {

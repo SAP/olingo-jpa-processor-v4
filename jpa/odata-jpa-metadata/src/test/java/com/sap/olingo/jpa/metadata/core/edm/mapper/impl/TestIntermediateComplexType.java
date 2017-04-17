@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -190,6 +191,20 @@ public class TestIntermediateComplexType extends TestMappingRoot {
   @Test
   public void checkGetPropertyWithEnumerationType() {
 
+  }
+
+  @Test
+  public void checkGetProptertyIgnoreTrue() throws ODataJPAModelException {
+    IntermediateComplexType ct = new IntermediateComplexType(new JPAEdmNameBuilder(PUNIT_NAME), getEmbeddedableType(
+        "DummyEmbeddedToIgnore"), schema);
+    assertTrue(ct.ignore());
+  }
+
+  @Test
+  public void checkGetProptertyIgnoreFalse() throws ODataJPAModelException {
+    IntermediateComplexType ct = new IntermediateComplexType(new JPAEdmNameBuilder(PUNIT_NAME), getEmbeddedableType(
+        "ChangeInformation"), schema);
+    assertFalse(ct.ignore());
   }
 
   private class PostProcessorSetIgnore extends JPAEdmMetadataPostProcessor {

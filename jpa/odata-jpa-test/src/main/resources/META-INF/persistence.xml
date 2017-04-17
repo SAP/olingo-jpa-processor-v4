@@ -14,6 +14,7 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.ByteConverter</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Country</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DateConverter</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.DummyEmbeddedToIgnore</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DummyToBeIgnored</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Organization</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.OrganizationImage</class>
