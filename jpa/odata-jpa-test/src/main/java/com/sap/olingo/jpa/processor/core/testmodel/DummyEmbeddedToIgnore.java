@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
+import java.sql.Blob;
 import java.sql.Clob;
 
 import javax.persistence.Basic;
@@ -14,11 +15,13 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 @Embeddable
 public class DummyEmbeddedToIgnore {
 
-  @Column(name = "\"Name\"", length = 100)
-  private String name;
+  @Lob
+  @Column(name = "\"Command\"")
+  @Basic(fetch = FetchType.LAZY)
+  private Clob command;
 
   @Lob
-  @Column(name = "\"Large\"")
+  @Column(name = "\"LargeBytes\"")
   @Basic(fetch = FetchType.LAZY)
-  private Clob large;
+  private Blob largeBytes;
 }
