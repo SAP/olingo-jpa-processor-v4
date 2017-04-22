@@ -672,6 +672,14 @@ insert into "AdministrativeDivision" values( 'Eurostat', 'LAU2', '38014','BEL','
 insert into "AdministrativeDivision" values( 'Eurostat', 'LAU2', '38016','BEL','NUTS3','BE258',null,31004430,11434);	
 insert into "AdministrativeDivision" values( 'Eurostat', 'LAU2', '38025','BEL','NUTS3','BE258',null,96339703,11509);	
 
+CREATE TABLE "Comment" (
+	"ID" INTEGER NOT NULL ,
+	"Text" CLOB,
+	 PRIMARY KEY ("ID"));
+	 
+insert into "Comment" values( 1, 'This is just a test');	
+	 
+	 
 CREATE TABLE "DummyToBeIgnored" (
 	"ID" VARCHAR(32) NOT NULL ,
 	--"uuid" VARCHAR(32) FOR BIT DATA ,

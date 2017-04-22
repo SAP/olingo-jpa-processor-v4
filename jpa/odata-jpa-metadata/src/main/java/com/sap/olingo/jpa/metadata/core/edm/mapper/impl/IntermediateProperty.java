@@ -11,6 +11,7 @@ import java.util.List;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Column;
 import javax.persistence.Convert;
+import javax.persistence.Lob;
 import javax.persistence.Version;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.Attribute.PersistentAttributeType;
@@ -109,10 +110,7 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
       edmProperty = new CsdlProperty();
       edmProperty.setName(this.getExternalName());
 
-      CsdlMapping mapping = new CsdlMapping();
-      mapping.setInternalName(this.getExternalName());
-      mapping.setMappedJavaClass(dbType);
-      edmProperty.setMapping(mapping);
+      edmProperty.setMapping(createMapper());
 
       if (jpaAttribute.getPersistentAttributeType() == PersistentAttributeType.BASIC)
         if (valueConverter != null) {
@@ -137,6 +135,8 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
                   .equals(EdmPrimitiveTypeKind.Binary.getFullQualifiedName())) {
             if (jpaColumn.length() > 0)
               edmProperty.setMaxLength(jpaColumn.length());
+            if (isLob())
+              edmProperty.setMaxLength(null);
           } else if (edmProperty.getType()
               .equals(EdmPrimitiveTypeKind.Decimal.getFullQualifiedName().toString())
               || edmProperty.getType()
@@ -168,6 +168,16 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
         edmProperty.setAnnotations(edmAnnotations);
       }
     }
+  }
+
+  private CsdlMapping createMapper() {
+    if (!isLob()) {
+      CsdlMapping mapping = new CsdlMapping();
+      mapping.setInternalName(this.getExternalName());
+      mapping.setMappedJavaClass(dbType);
+      return mapping;
+    }
+    return null;
   }
 
   private SRID getSRID() {
@@ -371,4 +381,13 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
     return null;
   }
 
+  private boolean isLob() {
+    if (jpaAttribute != null) {
+      final AnnotatedElement annotatedElement = (AnnotatedElement) jpaAttribute.getJavaMember();
+      if (annotatedElement != null && annotatedElement.getAnnotation(Lob.class) != null) {
+        return true;
+      }
+    }
+    return false;
+  }
 }

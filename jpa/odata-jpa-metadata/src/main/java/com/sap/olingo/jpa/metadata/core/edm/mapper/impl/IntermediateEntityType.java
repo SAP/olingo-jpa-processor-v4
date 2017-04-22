@@ -19,7 +19,6 @@ import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlPropertyRef;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAsEntitySet;
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.AppliesTo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -43,10 +42,6 @@ class IntermediateEntityType extends IntermediateStructuredType implements JPAEn
       throws ODataJPAModelException {
     super(nameBuilder, et, schema);
     this.setExternalName(nameBuilder.buildEntityTypeName(et));
-    final EdmIgnore jpaIgnore = ((AnnotatedElement) this.jpaManagedType.getJavaType()).getAnnotation(EdmIgnore.class);
-    if (jpaIgnore != null) {
-      this.setIgnore(true);
-    }
     asEntitySet = determineAsEntitySet();
   }
 
