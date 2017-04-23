@@ -1,4 +1,4 @@
-#Getting Started
+# Getting Started
 The following series of tutorials shall give a starting point how to use the JPA-Processor to get a quick start in a Java project to utilize [Olingo](https://olingo.apache.org/doc/odata4/index.html) when [OData](http://www.odata.org/) shall be used. The tutorials use a simplified Business Partner data model.
 
 ## Prerequisites
@@ -12,7 +12,7 @@ In order to follow this tutorial, you should have
 In order to perform the tutorial you need:
 * A Java JDK 1.6 or higher
 * A Eclipse IDE for Java EE, or another one that provides the same functionality
-* A web server e.g. Apache Tomcat 
+* A web server e.g. Apache Tomcat
 
 ## Create Project
 First step is to create a project. To do so we want to create a new Maven project, by open the Maven Project wizard via File -> New -> Other -> Maven -> Maven Project. Select archetype **webapp**:
@@ -47,7 +47,7 @@ You can delete the index.jsp if it creates an error, we will not use it. Next st
 	<groupId>org.flywaydb</groupId>
 	<artifactId>flyway-core</artifactId>
 	<version>4.0.3</version>
-</dependency>	
+</dependency>
 <dependency>
 	<groupId>org.eclipse.persistence</groupId>
 	<artifactId>javax.persistence</artifactId>
@@ -59,10 +59,10 @@ You can delete the index.jsp if it creates an error, we will not use it. Next st
 	<version>2.5</version>
 	<scope>provided</scope>
 </dependency>
-<dependency> 
-	<groupId>org.eclipse.persistence</groupId> 
-	<artifactId>eclipselink</artifactId> 
-	<version>2.6.2</version> 
+<dependency>
+	<groupId>org.eclipse.persistence</groupId>
+	<artifactId>eclipselink</artifactId>
+	<version>2.6.2</version>
 </dependency>
 <dependency>
 	<groupId>com.sap.olingo</groupId>
@@ -104,5 +104,4 @@ Before we start we should have a look at the data model we want to create step-b
 ![Database Tables ](Model/DBTable.png)
 
 
-Now we can start with the first series of tutorial about [using Metadata generation](/jpa-tutorial/Tutorials/Metadata/1.0 Overview.md)
-Later you can learn in a second series of tutorial [how to retrieve data](/jpa-tutorial/Tutorials/RetrieveData/2.0 Preparation.md). Last, but not least, we will see how to [manipulate data](/jpa-tutorial/Tutorials/ChangeData/3.0 Preparation.md).
+Now we can start with the first series of tutorial about [using Metadata generation](../Metadata/1-0-Overview.md). Later you can learn in a second series of tutorial [how to retrieve data](../RetrieveData/2-0-Preparation.md). Last, but not least, we will see how to [manipulate data](../ChangeData/3-0-Preparation.md).
