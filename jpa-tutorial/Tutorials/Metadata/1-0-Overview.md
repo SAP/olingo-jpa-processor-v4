@@ -1,4 +1,4 @@
-# Tutorial 1.0: Overview
+# 1.0: Overview
 The first series of tutorial shall introduce into the options currently provided to create OData metadata from JPA metadata:
 
 
