@@ -27,8 +27,8 @@ import org.apache.olingo.server.api.uri.queryoption.expression.VisitableExpressi
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterElementComplier;
@@ -47,7 +47,7 @@ public class JPANavigationQuery extends JPAAbstractQuery {
   private Subquery<?> subQuery;
   private JPAAbstractQuery parentQuery;
 
-  public <T extends Object> JPANavigationQuery(final OData odata, final ServiceDocument sd,
+  public <T extends Object> JPANavigationQuery(final OData odata, final JPAServiceDocument sd,
       final UriResource uriResourceItem, final JPAAbstractQuery parent, final EntityManager em,
       final JPAAssociationPath association) throws ODataApplicationException {
 

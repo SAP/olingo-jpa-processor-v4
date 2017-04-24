@@ -18,12 +18,12 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
 
 public class TestHelper {
   final private Metamodel jpaMetamodel;
-  final public ServiceDocument sd;
+  final public JPAServiceDocument sd;
   final public JPAEdmProvider edmProvider;
 
   public TestHelper(EntityManagerFactory emf, String namespace) throws ODataException {

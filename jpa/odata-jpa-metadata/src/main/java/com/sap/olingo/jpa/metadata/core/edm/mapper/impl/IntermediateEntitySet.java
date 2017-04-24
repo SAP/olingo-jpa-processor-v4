@@ -21,8 +21,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityS
  * @author Oliver Grande
  *
  */
-class IntermediateEntitySet extends IntermediateModelElement implements CustomETagSupport, IntermediateEntitySetAccess,
-    JPAEntitySet {
+final class IntermediateEntitySet extends IntermediateModelElement implements CustomETagSupport,
+    IntermediateEntitySetAccess, JPAEntitySet {
   private final IntermediateEntityType entityType;
   private CsdlEntitySet edmEntitySet;
 
@@ -37,6 +37,7 @@ class IntermediateEntitySet extends IntermediateModelElement implements CustomET
    * Returns the entity type to be used internally e.g. for the query generation
    * @return
    */
+  @Override
   public JPAEntityType getEntityType() {
     return entityType;
   }
@@ -48,6 +49,7 @@ class IntermediateEntitySet extends IntermediateModelElement implements CustomET
    * @return
    * @throws ODataJPAModelException
    */
+  @Override
   public JPAEntityType getODataEntityType() throws ODataJPAModelException {
     if (entityType.asEntitySet())
       return (JPAEntityType) entityType.getBaseType();

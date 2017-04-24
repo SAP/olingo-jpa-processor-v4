@@ -50,7 +50,7 @@ import com.sap.olingo.jpa.processor.core.query.ExpressionUtil;
 import com.sap.olingo.jpa.processor.core.query.Util;
 import com.sap.org.jpa.processor.core.converter.JPATupleResultConverter;
 
-public class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
+public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
 
   private final JPAODataSessionContextAccess sessionContext;
   private final ServiceMetadata serviceMetadata;

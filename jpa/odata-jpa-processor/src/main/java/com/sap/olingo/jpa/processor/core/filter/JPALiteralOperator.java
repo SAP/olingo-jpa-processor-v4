@@ -16,7 +16,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionResultParamete
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import com.sap.olingo.jpa.processor.core.query.ExpressionUtil;
 
-public class JPALiteralOperator implements JPAOperator {
+class JPALiteralOperator implements JPAOperator {
   private final Literal literal;
   private final OData odata;
 

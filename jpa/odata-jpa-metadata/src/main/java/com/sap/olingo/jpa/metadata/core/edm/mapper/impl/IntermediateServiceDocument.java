@@ -19,6 +19,7 @@ import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 /**
@@ -28,7 +29,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
  * schemas.
  * http://services.odata.org/V4/Northwind/Northwind.svc/$metadata
  */
-public class ServiceDocument {
+class IntermediateServiceDocument implements JPAServiceDocument {
   private final Metamodel jpaMetamodel;
   private final JPAEdmNameBuilder nameBuilder;
   private final IntermediateEntityContainer container;
@@ -36,7 +37,7 @@ public class ServiceDocument {
   private final IntermediateReferences references;
   private final JPAEdmMetadataPostProcessor pP;
 
-  public ServiceDocument(final String namespace, final Metamodel jpaMetamodel,
+  IntermediateServiceDocument(final String namespace, final Metamodel jpaMetamodel,
       final JPAEdmMetadataPostProcessor postProcessor) throws ODataJPAModelException {
 
     this.pP = postProcessor != null ? postProcessor : new DefaultEdmPostProcessor();
@@ -51,26 +52,46 @@ public class ServiceDocument {
     setContainer();
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getEdmEntityContainer()
+   */
+  @Override
   public CsdlEntityContainer getEdmEntityContainer() throws ODataJPAModelException {
     return container.getEdmItem();
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getEdmSchemas()
+   */
+  @Override
   public List<CsdlSchema> getEdmSchemas() throws ODataJPAModelException {
     return extractEdmSchemas();
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getAllSchemas()
+   */
+  @Override
   public List<CsdlSchema> getAllSchemas() throws ODataJPAModelException {
     List<CsdlSchema> allSchemas = getEdmSchemas();
     allSchemas.addAll(references.getSchemas());
     return allSchemas;
   }
 
-  /**
+  /*
+   * (non-Javadoc)
    * 
-   * @param edmType
-   * @return
-   * @throws ODataJPAModelException
+   * @see
+   * com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getEntity(org.apache.olingo.commons.api.edm.
+   * EdmType)
    */
+  @Override
   public JPAEntityType getEntity(final EdmType edmType) throws ODataJPAModelException {
     final IntermediateSchema schema = schemaListInternalKey.get(edmType.getNamespace());
     if (schema != null)
@@ -78,6 +99,14 @@ public class ServiceDocument {
     return null;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getEntity(org.apache.olingo.commons.api.edm.
+   * FullQualifiedName)
+   */
+  @Override
   public JPAEntityType getEntity(final FullQualifiedName typeName) {
     final IntermediateSchema schema = schemaListInternalKey.get(typeName.getNamespace());
     if (schema != null)
@@ -85,11 +114,25 @@ public class ServiceDocument {
     return null;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getEntity(java.lang.String)
+   */
+  @Override
   public JPAEntityType getEntity(final String edmEntitySetName) throws ODataJPAModelException {
     final IntermediateEntitySet entitySet = container.getEntitySet(edmEntitySetName);
     return entitySet != null ? entitySet.getEntityType() : null;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getFunction(org.apache.olingo.commons.api.edm.
+   * EdmFunction)
+   */
+  @Override
   public JPAFunction getFunction(final EdmFunction function) {
     final IntermediateSchema schema = schemaListInternalKey.get(function.getNamespace());
     if (schema != null)
@@ -119,14 +162,35 @@ public class ServiceDocument {
     }
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getEntitySet(com.sap.olingo.jpa.metadata.core.
+   * edm.mapper.api.JPAEntityType)
+   */
+  @Override
   public JPAEntitySet getEntitySet(final JPAEntityType entityType) throws ODataJPAModelException {
     return container.getEntitySet(entityType);
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getReferences()
+   */
+  @Override
   public List<EdmxReference> getReferences() {
     return references.getEdmReferences();
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getTerm(org.apache.olingo.commons.api.edm.
+   * FullQualifiedName)
+   */
+  @Override
   public CsdlTerm getTerm(final FullQualifiedName termName) {
     return this.references.getTerm(termName);
   }

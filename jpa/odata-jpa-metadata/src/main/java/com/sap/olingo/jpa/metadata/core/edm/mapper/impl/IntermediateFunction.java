@@ -11,8 +11,8 @@ import org.apache.olingo.commons.api.edm.provider.CsdlParameter;
 import org.apache.olingo.commons.api.edm.provider.CsdlReturnType;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionParameter;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionResultParameter;
@@ -32,7 +32,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
  *
  */
 
-class IntermediateFunction extends IntermediateModelElement implements JPAFunction {
+final class IntermediateFunction extends IntermediateModelElement implements JPAFunction {
   private CsdlFunction edmFunction;
   private final EdmFunction jpaUserDefinedFunction;
   private final IntermediateSchema schema;

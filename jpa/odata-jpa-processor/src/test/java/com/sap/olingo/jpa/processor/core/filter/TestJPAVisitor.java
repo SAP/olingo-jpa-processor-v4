@@ -21,14 +21,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
-import com.sap.olingo.jpa.processor.core.filter.JPAExpressionVisitor;
-import com.sap.olingo.jpa.processor.core.filter.JPAFilterComplierAccess;
-import com.sap.olingo.jpa.processor.core.filter.JPAFunctionOperator;
-import com.sap.olingo.jpa.processor.core.filter.JPAOperationConverter;
-import com.sap.olingo.jpa.processor.core.filter.JPAVisitor;
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
 
 public class TestJPAVisitor {
@@ -69,7 +64,7 @@ public class TestJPAVisitor {
     when(member.getResourcePath()).thenReturn(info);
     when(info.getUriResourceParts()).thenReturn(resources);
 //  final JPAFunction jpaFunction = this.jpaComplier.getSd().getFunction(((UriResourceFunction) resource).getFunction());
-    ServiceDocument sd = mock(ServiceDocument.class);
+    JPAServiceDocument sd = mock(JPAServiceDocument.class);
     JPAFunction jpaFunction = mock(JPAFunction.class);
     EdmFunction edmFunction = mock(EdmFunction.class);
 

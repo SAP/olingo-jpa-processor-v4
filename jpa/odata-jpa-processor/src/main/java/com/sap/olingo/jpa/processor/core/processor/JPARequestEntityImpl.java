@@ -7,7 +7,7 @@ import java.util.Map;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 
-class JPARequestEntityImpl implements JPARequestEntity {
+final class JPARequestEntityImpl implements JPARequestEntity {
   private static final JPAModifyUtil util = new JPAModifyUtil();
 
   private final JPAEntityType et;

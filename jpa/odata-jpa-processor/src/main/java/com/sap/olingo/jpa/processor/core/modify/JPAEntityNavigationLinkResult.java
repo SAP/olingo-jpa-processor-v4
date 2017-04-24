@@ -11,7 +11,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 
-class JPAEntityNavigationLinkResult extends JPACreateResult {
+final class JPAEntityNavigationLinkResult extends JPACreateResult {
   private final List<Tuple> result;
 
   JPAEntityNavigationLinkResult(JPAEntityType et, Collection<?> value,

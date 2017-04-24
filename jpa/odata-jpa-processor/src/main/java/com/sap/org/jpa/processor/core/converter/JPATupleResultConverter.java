@@ -12,12 +12,12 @@ import org.apache.olingo.server.api.uri.UriHelper;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
 
 public class JPATupleResultConverter extends JPATupleAbstractConverter {
 
-  public JPATupleResultConverter(final ServiceDocument sd, final JPAExpandResult jpaQueryResult,
+  public JPATupleResultConverter(final JPAServiceDocument sd, final JPAExpandResult jpaQueryResult,
       final UriHelper uriHelper, final ServiceMetadata serviceMetadata) throws ODataJPAModelException,
       ODataApplicationException {
     super(jpaQueryResult, uriHelper, sd, serviceMetadata);

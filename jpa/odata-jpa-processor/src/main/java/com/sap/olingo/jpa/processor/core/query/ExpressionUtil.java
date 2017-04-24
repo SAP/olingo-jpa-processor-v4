@@ -28,10 +28,10 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPATypeConvertor;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 
-public class ExpressionUtil {
-  public static final int    CONTAINY_ONLY_LANGU    = 1;
-  public static final int    CONTAINS_LANGU_COUNTRY = 2;
-  public static final String SELECT_ITEM_SEPERATOR  = ",";
+public final class ExpressionUtil {
+  public static final int CONTAINY_ONLY_LANGU = 1;
+  public static final int CONTAINS_LANGU_COUNTRY = 2;
+  public static final String SELECT_ITEM_SEPERATOR = ",";
 
   public static Expression<Boolean> createEQExpression(final OData odata, CriteriaBuilder cb, From<?, ?> root,
       JPAEntityType jpaEntity, UriParameter keyPredicate) throws ODataJPAFilterException, ODataJPAModelException {

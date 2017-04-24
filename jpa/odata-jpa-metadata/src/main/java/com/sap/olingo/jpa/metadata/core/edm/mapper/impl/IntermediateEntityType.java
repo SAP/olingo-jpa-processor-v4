@@ -33,7 +33,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityT
  * @author Oliver Grande
  *
  */
-class IntermediateEntityType extends IntermediateStructuredType implements JPAEntityType, IntermediateEntityTypeAccess {
+final class IntermediateEntityType extends IntermediateStructuredType implements JPAEntityType,
+    IntermediateEntityTypeAccess {
   private CsdlEntityType edmEntityType;
   private boolean hasEtag;
   private final boolean asEntitySet;

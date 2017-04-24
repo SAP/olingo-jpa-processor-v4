@@ -32,7 +32,7 @@ import com.sap.olingo.jpa.processor.core.query.JPAQuery;
 import com.sap.olingo.jpa.processor.core.query.Util;
 import com.sap.org.jpa.processor.core.converter.JPATupleResultConverter;
 
-public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor implements JPARequestProcessor {
+public final class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor implements JPARequestProcessor {
   private final ServiceMetadata serviceMetadata;
 
   public JPANavigationRequestProcessor(final OData odata, final ServiceMetadata serviceMetadata,
