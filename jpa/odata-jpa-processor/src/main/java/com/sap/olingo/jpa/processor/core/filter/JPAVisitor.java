@@ -24,11 +24,11 @@ import org.apache.olingo.server.api.uri.queryoption.expression.MethodKind;
 import org.apache.olingo.server.api.uri.queryoption.expression.UnaryOperatorKind;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 
-class JPAVisitor implements JPAExpressionVisitor {
+final class JPAVisitor implements JPAExpressionVisitor {
 
   /**
    * 
@@ -216,7 +216,7 @@ class JPAVisitor implements JPAExpressionVisitor {
     return jpaComplier.getConverter().cb;
   }
 
-  ServiceDocument getSd() {
+  JPAServiceDocument getSd() {
     return jpaComplier.getSd();
   }
 

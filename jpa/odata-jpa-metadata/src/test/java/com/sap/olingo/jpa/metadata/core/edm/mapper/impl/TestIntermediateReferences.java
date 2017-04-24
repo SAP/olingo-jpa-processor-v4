@@ -14,6 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityTypeAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
@@ -49,8 +50,8 @@ public class TestIntermediateReferences extends TestMappingRoot {
 
   @Test
   public void checkConvertedToEdmx() throws ODataJPAModelException {
-    ServiceDocument serviceDocument;
-    serviceDocument = new ServiceDocument(PUNIT_NAME, emf.getMetamodel(), new PostProcessor());
+    JPAServiceDocument serviceDocument;
+    serviceDocument = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), new PostProcessor());
     assertEquals(1, serviceDocument.getReferences().size());
 
     EdmxReference ref = serviceDocument.getReferences().get(0);

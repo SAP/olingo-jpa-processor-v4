@@ -14,7 +14,7 @@ import org.apache.olingo.server.api.uri.UriInfo;
 
 import com.sap.olingo.jpa.processor.core.query.Util;
 
-class JPASerializeCollection implements JPASerializer {
+final class JPASerializeCollection implements JPASerializer {
   private final ServiceMetadata serviceMetadata;
   private final UriInfo uriInfo;
   private final UriHelper uriHelper;

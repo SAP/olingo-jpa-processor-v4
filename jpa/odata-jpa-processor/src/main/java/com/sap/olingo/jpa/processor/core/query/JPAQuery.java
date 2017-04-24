@@ -36,7 +36,6 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 public class JPAQuery extends JPAExecutableQuery {
-  // private final EdmEntitySet edmEntitySet;
 
   public JPAQuery(final OData odata, final EdmEntitySet entitySet, final JPAODataSessionContextAccess context,
       final UriInfo uriInfo, final EntityManager em, final Map<String, List<String>> requestHeaders)

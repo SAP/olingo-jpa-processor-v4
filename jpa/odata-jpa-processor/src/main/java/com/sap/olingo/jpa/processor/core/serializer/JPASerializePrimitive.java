@@ -16,7 +16,7 @@ import org.apache.olingo.server.api.uri.UriResourceProperty;
 
 import com.sap.olingo.jpa.processor.core.query.Util;
 
-class JPASerializePrimitive extends JPASerializePrimitiveAbstract {
+final class JPASerializePrimitive extends JPASerializePrimitiveAbstract {
   private final ODataSerializer serializer;
 
   JPASerializePrimitive(final ServiceMetadata serviceMetadata, final ODataSerializer serializer,

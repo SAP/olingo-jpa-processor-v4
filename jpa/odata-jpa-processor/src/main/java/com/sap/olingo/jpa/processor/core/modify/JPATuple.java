@@ -8,7 +8,7 @@ import java.util.Map;
 import javax.persistence.Tuple;
 import javax.persistence.TupleElement;
 
-class JPATuple implements Tuple {
+final class JPATuple implements Tuple {
 
   private List<TupleElement<?>> elements = new ArrayList<TupleElement<?>>();
   private Map<String, Object> values = new HashMap<String, Object>();

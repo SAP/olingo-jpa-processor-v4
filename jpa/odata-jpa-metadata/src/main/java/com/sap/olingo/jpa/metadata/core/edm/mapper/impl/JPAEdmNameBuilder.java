@@ -16,8 +16,6 @@ public final class JPAEdmNameBuilder {
   // V2 NameBuilder: package org.apache.olingo.odata2.jpa.processor.core.access.model
   private static final String ENTITY_CONTAINER_SUFFIX = "Container";
   private static final String ENTITY_SET_SUFFIX = "s";
-  // private static final String UNDERSCORE = "_";
-  // private static final String FK_PREFIX = "FK";
 
   public static String firstToLower(final String substring) {
     return Character.toLowerCase(substring.charAt(0)) + substring.substring(1);

@@ -20,7 +20,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
 
-public class JPARequestLinkImpl implements JPARequestLink {
+public final class JPARequestLinkImpl implements JPARequestLink {
 
   private final JPAAssociationPath path;
   private final String bindingLink;
@@ -28,7 +28,7 @@ public class JPARequestLinkImpl implements JPARequestLink {
   private final Map<String, Object> values;
   private final JPAConversionHelper helper;
 
-  JPARequestLinkImpl(JPAAssociationPath path, String bindingLink, JPAConversionHelper helper) {
+  JPARequestLinkImpl(final JPAAssociationPath path, final String bindingLink, final JPAConversionHelper helper) {
     super();
     this.path = path;
     this.bindingLink = bindingLink;
@@ -111,7 +111,7 @@ public class JPARequestLinkImpl implements JPARequestLink {
     }
   }
 
-  private Object convertKeyValue(OData odata, final String keyElementValue, JPAPath path)
+  private Object convertKeyValue(final OData odata, final String keyElementValue, final JPAPath path)
       throws ODataJPAModelException, NoSuchMethodException, InstantiationException, IllegalAccessException,
       InvocationTargetException, EdmPrimitiveTypeException {
 

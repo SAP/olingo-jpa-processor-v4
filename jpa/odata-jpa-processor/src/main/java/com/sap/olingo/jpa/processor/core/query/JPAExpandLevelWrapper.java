@@ -26,19 +26,19 @@ import org.apache.olingo.server.api.uri.queryoption.SystemQueryOptionKind;
 import org.apache.olingo.server.api.uri.queryoption.TopOption;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 // TODO In case of second level $expand expandItem.getResourcePath() returns an empty UriInfoResource => Bug or
 // Feature?
-public class JPAExpandLevelWrapper implements JPAExpandItem {
+public final class JPAExpandLevelWrapper implements JPAExpandItem {
   private final ExpandOption option;
   private final ExpandItem item;
   private final JPAEntityType jpaEntityType;
   private final LevelsExpandOption levelOptions;
 
-  public JPAExpandLevelWrapper(final ServiceDocument sd, final ExpandOption option)
+  public JPAExpandLevelWrapper(final JPAServiceDocument sd, final ExpandOption option)
       throws ODataApplicationException {
 
     super();

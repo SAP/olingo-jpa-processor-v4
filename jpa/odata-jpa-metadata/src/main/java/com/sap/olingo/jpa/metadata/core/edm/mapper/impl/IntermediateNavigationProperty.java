@@ -40,8 +40,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigat
  * @author Oliver Grande
  *
  */
-class IntermediateNavigationProperty extends IntermediateModelElement implements IntermediateNavigationPropertyAccess,
-    JPAAssociationAttribute {
+final class IntermediateNavigationProperty extends IntermediateModelElement implements
+    IntermediateNavigationPropertyAccess, JPAAssociationAttribute {
 
   private final Attribute<?, ?> jpaAttribute;
   private CsdlNavigationProperty edmNaviProperty;

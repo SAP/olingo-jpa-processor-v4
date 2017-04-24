@@ -25,7 +25,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityC
  *
  */
 //TODO How to handle multiple schemas
-class IntermediateEntityContainer extends IntermediateModelElement implements IntermediateEntityContainerAccess {
+final class IntermediateEntityContainer extends IntermediateModelElement implements IntermediateEntityContainerAccess {
   final private Map<String, IntermediateSchema> schemaList;
   final private Map<String, IntermediateEntitySet> entitySetListInternalKey;
 
@@ -82,7 +82,7 @@ class IntermediateEntityContainer extends IntermediateModelElement implements In
     for (final String internalName : entitySetListInternalKey.keySet()) {
       final IntermediateEntitySet modelElement = entitySetListInternalKey.get(internalName);
       if (modelElement.getEntityType().getExternalFQN().equals(entityType.getExternalFQN())) {
-        return (JPAEntitySet) modelElement;
+        return modelElement;
       }
     }
     return null;

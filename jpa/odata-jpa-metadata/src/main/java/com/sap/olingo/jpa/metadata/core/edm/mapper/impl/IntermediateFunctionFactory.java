@@ -10,7 +10,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
-class IntermediateFunctionFactory {
+final class IntermediateFunctionFactory {
 
   Map<? extends String, ? extends IntermediateFunction> create(final JPAEdmNameBuilder nameBuilder,
       final EntityType<?> jpaEntityType, final IntermediateSchema schema) throws ODataJPAModelException {
@@ -36,7 +36,7 @@ class IntermediateFunctionFactory {
   private void putFunction(final JPAEdmNameBuilder nameBuilder, final EntityType<?> jpaEntityType,
       final IntermediateSchema schema,
       final Map<String, IntermediateFunction> funcList, final EdmFunction jpaStoredProcedure)
-          throws ODataJPAModelException {
+      throws ODataJPAModelException {
     final IntermediateFunction func = new IntermediateFunction(nameBuilder, jpaStoredProcedure, jpaEntityType
         .getJavaType(), schema);
     funcList.put(func.getInternalName(), func);

@@ -17,15 +17,15 @@ import org.apache.olingo.server.api.uri.UriResourceProperty;
 
 import com.sap.olingo.jpa.processor.core.query.Util;
 
-class JPASerializeComplex implements JPASerializer {
+final class JPASerializeComplex implements JPASerializer {
   private final ServiceMetadata serviceMetadata;
-  private final UriInfo         uriInfo;
-  private final UriHelper       uriHelper;
+  private final UriInfo uriInfo;
+  private final UriHelper uriHelper;
   private final ODataSerializer serializer;
 
   JPASerializeComplex(final ServiceMetadata serviceMetadata, final ODataSerializer serializer,
-      final UriHelper uriHelper,
-      final UriInfo uriInfo) {
+      final UriHelper uriHelper, final UriInfo uriInfo) {
+
     this.uriInfo = uriInfo;
     this.serializer = serializer;
     this.serviceMetadata = serviceMetadata;

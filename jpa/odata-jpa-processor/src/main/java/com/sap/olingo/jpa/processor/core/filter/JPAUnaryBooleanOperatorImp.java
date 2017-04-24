@@ -5,10 +5,10 @@ import javax.persistence.criteria.Expression;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.queryoption.expression.UnaryOperatorKind;
 
-class JPAUnaryBooleanOperatorImp implements JPAUnaryBooleanOperator {
+final class JPAUnaryBooleanOperatorImp implements JPAUnaryBooleanOperator {
 
   private final JPAOperationConverter converter;
-  private final UnaryOperatorKind     operator;
+  private final UnaryOperatorKind operator;
   private final JPAExpressionOperator left;
 
   public JPAUnaryBooleanOperatorImp(final JPAOperationConverter converter, final UnaryOperatorKind operator,

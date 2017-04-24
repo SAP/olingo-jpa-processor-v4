@@ -14,7 +14,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
-class JPAAssociationPathImpl implements JPAAssociationPath {
+final class JPAAssociationPathImpl implements JPAAssociationPath {
   final private String alias;
   final private List<JPAElement> pathElements;
   final private IntermediateStructuredType sourceType;

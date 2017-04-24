@@ -8,7 +8,7 @@ import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.uri.UriResource;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
 
 interface JPAFilterComplierAccess {
@@ -17,7 +17,7 @@ interface JPAFilterComplierAccess {
 
   List<UriResource> getUriResourceParts();
 
-  ServiceDocument getSd();
+  JPAServiceDocument getSd();
 
   OData getOdata();
 

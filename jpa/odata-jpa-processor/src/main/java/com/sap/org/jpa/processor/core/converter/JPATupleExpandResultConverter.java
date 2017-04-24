@@ -14,8 +14,8 @@ import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.uri.UriHelper;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 class JPATupleExpandResultConverter extends JPATupleAbstractConverter {
@@ -23,7 +23,7 @@ class JPATupleExpandResultConverter extends JPATupleAbstractConverter {
   private final JPAAssociationPath assoziation;
 
   JPATupleExpandResultConverter(final JPAExpandResult jpaExpandResult, final Tuple parentRow,
-      final JPAAssociationPath assoziation, final UriHelper uriHelper, final ServiceDocument sd,
+      final JPAAssociationPath assoziation, final UriHelper uriHelper, final JPAServiceDocument sd,
       final ServiceMetadata serviceMetadata) throws ODataApplicationException {
 
     super(jpaExpandResult, uriHelper, sd, serviceMetadata);

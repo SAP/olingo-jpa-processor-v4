@@ -26,7 +26,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
  * @author Oliver Grande
  *
  */
-public class JPAFunctionOperator implements JPAOperator {
+final class JPAFunctionOperator implements JPAOperator {
   private final JPAFunction jpaFunction;
   private final JPAVisitor visitor;
   private final List<UriParameter> uriParams;

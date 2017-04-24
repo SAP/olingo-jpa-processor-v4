@@ -20,7 +20,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializerFactory;
 
-public class JPAProcessorFactory {
+public final class JPAProcessorFactory {
   private final JPAODataSessionContextAccess sessionContext;
   private final JPASerializerFactory serializerFactory;
   private final OData odata;

@@ -32,7 +32,7 @@ import com.sap.olingo.jpa.processor.core.query.JPAInstanceResultConverter;
  * @author Oliver Grande
  *
  */
-public class JPAFunctionRequestProcessor extends JPAAbstractGetRequestProcessor {
+public final class JPAFunctionRequestProcessor extends JPAAbstractGetRequestProcessor {
 
   private final JPAODataDatabaseProcessor dbProcessor;
 

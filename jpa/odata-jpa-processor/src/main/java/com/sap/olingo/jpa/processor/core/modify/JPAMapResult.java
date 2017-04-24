@@ -13,7 +13,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.processor.JPARequestEntity;
 
-class JPAMapResult extends JPACreateResult {
+final class JPAMapResult extends JPACreateResult {
   private final Map<String, Object> jpaEntity;
   private final List<Tuple> result;
 

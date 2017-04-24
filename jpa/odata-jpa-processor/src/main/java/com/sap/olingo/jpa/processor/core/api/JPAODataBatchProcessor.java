@@ -32,10 +32,10 @@ import org.apache.olingo.server.api.processor.BatchProcessor;
  * @author Oliver Grande
  *
  */
-public class JPAODataBatchProcessor implements BatchProcessor {
+public final class JPAODataBatchProcessor implements BatchProcessor {
 
   private final EntityManager em;
-  private OData               odata;
+  private OData odata;
 
   public JPAODataBatchProcessor(EntityManager em) {
     this.em = em;

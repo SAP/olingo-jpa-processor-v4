@@ -27,12 +27,12 @@ import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAUtilException;
 
-public class Util {
+public final class Util {
 
   public static final String VALUE_RESOURCE = "$VALUE";
 
@@ -142,7 +142,7 @@ public class Util {
     return pathName.toString();
   }
 
-  public static JPAAssociationPath determineAssoziation(final ServiceDocument sd, final EdmType naviStart,
+  public static JPAAssociationPath determineAssoziation(final JPAServiceDocument sd, final EdmType naviStart,
       final StringBuffer associationName) throws ODataApplicationException {
     JPAEntityType naviStartType;
 
@@ -155,7 +155,7 @@ public class Util {
     }
   }
 
-  public static Map<JPAExpandItem, JPAAssociationPath> determineAssoziations(final ServiceDocument sd,
+  public static Map<JPAExpandItem, JPAAssociationPath> determineAssoziations(final JPAServiceDocument sd,
       final List<UriResource> startResourceList, final ExpandOption expandOption) throws ODataApplicationException {
 
     final Map<JPAExpandItem, JPAAssociationPath> pathList =
@@ -222,7 +222,7 @@ public class Util {
     return pathList;
   }
 
-  public static List<JPANavigationProptertyInfo> determineAssoziations(final ServiceDocument sd,
+  public static List<JPANavigationProptertyInfo> determineAssoziations(final JPAServiceDocument sd,
       final List<UriResource> resourceParts) throws ODataApplicationException {
 
     final List<JPANavigationProptertyInfo> pathList = new ArrayList<JPANavigationProptertyInfo>();
@@ -266,7 +266,7 @@ public class Util {
     return false;
   }
 
-  public static JPAAssociationPath determineAssoziationPath(final ServiceDocument sd,
+  public static JPAAssociationPath determineAssoziationPath(final JPAServiceDocument sd,
       final UriResourcePartTyped naviStart, final StringBuffer associationName) throws ODataApplicationException {
 
     JPAEntityType naviStartType;

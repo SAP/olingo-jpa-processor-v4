@@ -19,7 +19,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
  * @author Oliver Grande
  *
  */
-class JPAEntityResult extends JPACreateResult {
+final class JPAEntityResult extends JPACreateResult {
   private final List<Tuple> result;
   private final Map<String, Object> getterMap;
 

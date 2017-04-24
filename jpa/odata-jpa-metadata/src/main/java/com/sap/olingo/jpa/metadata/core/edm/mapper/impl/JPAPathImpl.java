@@ -9,7 +9,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
-class JPAPathImpl implements JPAPath {
+final class JPAPathImpl implements JPAPath {
   final private String alias;
   final private List<JPAElement> pathElements;
   final private String dbFieldName;

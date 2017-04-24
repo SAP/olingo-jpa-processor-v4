@@ -31,9 +31,9 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 public abstract class JPATupleAbstractConverter {
@@ -45,12 +45,12 @@ public abstract class JPATupleAbstractConverter {
   protected final JPAExpandResult jpaQueryResult;
   protected final UriHelper       uriHelper;
   protected final String          setName;
-  protected final ServiceDocument sd;
+  protected final JPAServiceDocument sd;
   protected final ServiceMetadata serviceMetadata;
   protected final EdmEntityType   edmType;
 
   public JPATupleAbstractConverter(final JPAExpandResult jpaQueryResult,
-      final UriHelper uriHelper, final ServiceDocument sd, final ServiceMetadata serviceMetadata)
+      final UriHelper uriHelper, final JPAServiceDocument sd, final ServiceMetadata serviceMetadata)
       throws ODataApplicationException {
     super();
 
@@ -227,7 +227,7 @@ public abstract class JPATupleAbstractConverter {
 //    return pojoMethods;
 //  }
 
-  private String determineSetName(final JPAExpandResult jpaQueryResult, final ServiceDocument sd)
+  private String determineSetName(final JPAExpandResult jpaQueryResult, final JPAServiceDocument sd)
       throws ODataJPAQueryException {
     try {
       return sd.getEntitySet(jpaQueryResult.getEntityType()).getExternalName();

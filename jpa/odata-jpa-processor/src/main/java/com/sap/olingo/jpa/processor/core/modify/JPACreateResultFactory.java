@@ -8,7 +8,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.org.jpa.processor.core.converter.JPAExpandResult;
 
-public class JPACreateResultFactory {
+public final class JPACreateResultFactory {
 
   @SuppressWarnings("unchecked")
   public JPAExpandResult getJPACreateResult(JPAEntityType et, Object result, Map<String, List<String>> requestHeaders)

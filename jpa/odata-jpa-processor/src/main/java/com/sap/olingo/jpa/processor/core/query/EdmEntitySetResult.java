@@ -10,7 +10,7 @@ import org.apache.olingo.server.api.uri.UriParameter;
  * @author Oliver Grande
  *
  */
-class EdmEntitySetResult implements EdmEntitySetInfo {
+final class EdmEntitySetResult implements EdmEntitySetInfo {
 
   private final EdmEntitySet edmEntitySet;
   private final List<UriParameter> keyPredicates;

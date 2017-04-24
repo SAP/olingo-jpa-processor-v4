@@ -22,7 +22,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
 
-class IntermediateReferences implements IntermediateReferenceList {
+final class IntermediateReferences implements IntermediateReferenceList {
   final List<IntermediateReference> references = new ArrayList<IntermediateReference>();
   final List<EdmxReference> edmxReferences = new ArrayList<EdmxReference>();
   final Map<String, Map<String, CsdlTerm>> terms = new HashMap<String, Map<String, CsdlTerm>>();
