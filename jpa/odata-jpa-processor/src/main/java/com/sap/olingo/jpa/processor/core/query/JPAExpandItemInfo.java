@@ -12,7 +12,7 @@ import org.apache.olingo.server.api.uri.queryoption.expression.Expression;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 
-public final class JPAExpandItemInfo {
+public class JPAExpandItemInfo {
   private final JPAExpandItem uriInfo;
   private final JPAAssociationPath expandAssociation;
   private final List<JPANavigationProptertyInfo> hops;

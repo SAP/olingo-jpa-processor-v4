@@ -27,7 +27,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 // TODO In case of second level $expand expandItem.getResourcePath() returns an empty UriInfoResource => Bug or
 // Feature?
-public final class JPAExpandItemWrapper implements JPAExpandItem {
+public class JPAExpandItemWrapper implements JPAExpandItem {
   private final ExpandItem item;
   private final JPAEntityType jpaEntityType;
 

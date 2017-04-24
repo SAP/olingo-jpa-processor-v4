@@ -7,7 +7,7 @@ import org.apache.olingo.server.api.ODataApplicationException;
 
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 
-public final class JPAOperationConverter {
+public class JPAOperationConverter {
 
   protected final CriteriaBuilder cb;
   private final JPAODataDatabaseOperations dbConverter;

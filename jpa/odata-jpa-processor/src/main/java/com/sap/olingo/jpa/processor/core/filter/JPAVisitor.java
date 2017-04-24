@@ -28,7 +28,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 
-final class JPAVisitor implements JPAExpressionVisitor {
+class JPAVisitor implements JPAExpressionVisitor {
 
   /**
    * 
