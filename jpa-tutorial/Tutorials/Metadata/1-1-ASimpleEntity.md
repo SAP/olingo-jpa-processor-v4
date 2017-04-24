@@ -1,4 +1,4 @@
-# Tutorial 1.1: Create A Simple Entity
+# 1.1: Create A Simple Entity
 We want to start with a very simple Business Partner entity. As the first step we create a package in our _src/main/java_ folder: _tutorial.model_. Within that package we create class BusinessPartner, which implements the Serializable interface:
 ```Java
 package tutorial.model;
