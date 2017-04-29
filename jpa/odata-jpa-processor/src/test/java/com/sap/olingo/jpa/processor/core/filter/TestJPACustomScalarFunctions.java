@@ -27,12 +27,12 @@ import com.sap.olingo.jpa.processor.core.util.TestHelper;
 
 public class TestJPACustomScalarFunctions {
 
-  protected static final String         PUNIT_NAME = "org.apache.olingo.jpa";
+  protected static final String PUNIT_NAME = "org.apache.olingo.jpa";
   protected static EntityManagerFactory emf;
-  protected TestHelper                  helper;
-  protected Map<String, List<String>>   headers;
-  protected static JPAEdmNameBuilder    nameBuilder;
-  protected static DataSource           ds;
+  protected TestHelper helper;
+  protected Map<String, List<String>> headers;
+  protected static JPAEdmNameBuilder nameBuilder;
+  protected static DataSource ds;
 
   @BeforeClass
   public static void setupClass() throws ODataJPAModelException {
@@ -52,7 +52,7 @@ public class TestJPACustomScalarFunctions {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions?$filter=org.apache.olingo.jpa.PopulationDensity(Area=$it/Area,Population=$it/Population) gt 1");
-    helper.assertStatus(204);
+    helper.assertStatus(200);
   }
 
   @Test

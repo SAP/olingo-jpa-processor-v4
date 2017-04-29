@@ -44,7 +44,7 @@ insert into "BusinessPartner" values ('9', 0, '2', '','',null,null,'Ninth Org.',
 insert into "BusinessPartner" values ('10', 0, '2', '','',null,null,'Tenth Org.','',null,'Test Road', '12','', 'Test City','03921','ISO', '3166-2','US-ME', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU');
 insert into "BusinessPartner" values ('99', 0, '1', '','',null,null,'Max','Mustermann',null,'Test Starße', '12','', 'Teststadt','10115','ISO', '3166-2','DE-BE', 'DEU', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU'); 
 insert into "BusinessPartner" values ('98', 0, '1', '','',null,null,'John','Doe',null,'Test Road', '55','', 'Test City','76321','ISO', '3166-2','US-TX', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU'); 
-insert into "BusinessPartner" values ('97', 0, '1', '','',null,null,'Urs','Müller',null,'Test Straße', '23','', 'Test Dorf','4123','ISO', '3166-2','CH-BL', 'CHE', '', '','','', '99','2016-07-20 09:21:23', '', null, 'CHE'); 
+insert into "BusinessPartner" values ('97', 0, '1', '','',null,null,'Urs','Müller',null,'Test Straße', '23','', 'Test Dorf','4123','ISO', '3166-2','CH-BL', 'CHE', null,null,null,null, '99','2016-07-20 09:21:23', '', null, 'CHE'); 
 
 CREATE TABLE "PersonImage" (
 	"ID" VARCHAR(32) NOT NULL ,

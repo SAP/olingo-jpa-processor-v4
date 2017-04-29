@@ -27,6 +27,20 @@ public class TestJPAQuerySelectByPath extends TestBase {
   }
 
   @Test
+  public void testNavigationToOwnNotExistingPrimitiveProperty() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Persons('99')/BirthDay");
+    helper.assertStatus(404);
+  }
+
+  @Test
+  public void testNavigationToOwnPrimitivePropertyEntityDoesNotExist() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Persons('9999')/BirthDay");
+    helper.assertStatus(404);
+  }
+
+  @Test
   public void testNavigationToOwnPrimitiveDescriptionProperty() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('3')/LocationName");
@@ -44,6 +58,13 @@ public class TestJPAQuerySelectByPath extends TestBase {
 
     ObjectNode org = helper.getValue();
     assertEquals("USA", org.get("Country").asText());
+  }
+
+  @Test
+  public void testNavigationToNotExistingComplexProperty() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "OPersons('97')/CommunicationData");
+    helper.assertStatus(404);
   }
 
   @Test
