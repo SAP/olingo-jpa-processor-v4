@@ -245,7 +245,8 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
     return joinColumns;
   }
 
-  JPAAssociationAttribute getPartner() {
+  @Override
+  public JPAAssociationAttribute getPartner() {
     return partner;
   }
 

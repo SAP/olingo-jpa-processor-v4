@@ -67,6 +67,7 @@ public final class JPARequestLinkImpl implements JPARequestLink {
       EdmPrimitiveTypeException {
     OData odata = OData.newInstance();
 
+    // TODO replace by Olingo OData Util
     final String[] entityTypeAndKey = bindingLink.split("[\\(\\)]");
     final String[] keyElements = entityTypeAndKey[1].split("[,=]");
     if (keyElements.length > 1) {
