@@ -10,6 +10,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
 import org.apache.olingo.commons.api.edm.provider.CsdlNavigationPropertyBinding;
 import org.apache.olingo.server.api.etag.CustomETagSupport;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -92,8 +93,7 @@ final class IntermediateEntitySet extends IntermediateModelElement implements Cu
         navPropBinding.setPath(naviPropertyPath.getAlias());
 
         // TODO Check is FQN is better here
-        final IntermediateNavigationProperty naviProperty = ((IntermediateNavigationProperty) naviPropertyPath
-            .getLeaf());
+        final JPAAssociationAttribute naviProperty = naviPropertyPath.getLeaf();
         navPropBinding.setTarget(nameBuilder.buildEntitySetName(naviProperty.getTargetEntity().getExternalName()));
         navPropBindingList.add(navPropBinding);
       }

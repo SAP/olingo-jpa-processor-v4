@@ -299,7 +299,7 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
     return jpaAttributes;
   }
 
-  IntermediateNavigationProperty getCorrespondingAssiciation(final IntermediateStructuredType sourceType,
+  JPAAssociationAttribute getCorrespondingAssiciation(final IntermediateStructuredType sourceType,
       final String sourceRelationshipName) throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = findCorrespondingAssociation(sourceType, sourceRelationshipName);
     return jpaAttribute == null ? null : new IntermediateNavigationProperty(nameBuilder, sourceType, jpaAttribute,
