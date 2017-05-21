@@ -49,7 +49,6 @@ public interface JPACUDRequestHandler {
    * It must not be null. Even if nothing was changed => update is idempotent
    * @throws ODataJPAProcessException
    */
-  public JPAUpdateResult updateEntity(final JPAEntityType et, final Map<String, Object> jpaAttributes,
-      final Map<String, Object> keys, final EntityManager em, final ODataRequest request)
-      throws ODataJPAProcessException;
+  public JPAUpdateResult updateEntity(final JPARequestEntity requestEntity, final EntityManager em,
+      final ODataRequest request) throws ODataJPAProcessException;
 }

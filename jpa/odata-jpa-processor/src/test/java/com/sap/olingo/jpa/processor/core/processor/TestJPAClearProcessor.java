@@ -383,13 +383,12 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     private int raiseEx;
 
     @Override
-    public JPAUpdateResult updateEntity(final JPAEntityType et, final Map<String, Object> jpaAttributes,
-        final Map<String, Object> keys, final EntityManager em, final ODataRequest request)
-        throws ODataJPAProcessException {
+    public JPAUpdateResult updateEntity(final JPARequestEntity requestEntity, final EntityManager em,
+        final ODataRequest request) throws ODataJPAProcessException {
 
-      this.et = et;
-      this.keyPredicates = keys;
-      this.jpaAttributes = jpaAttributes;
+      this.et = requestEntity.getEntityType();
+      this.keyPredicates = requestEntity.getKeys();
+      this.jpaAttributes = requestEntity.getData();
       called = true;
 
       if (raiseEx == 1)
