@@ -34,9 +34,8 @@ public abstract class JPAAbstractCUDRequestHandler implements JPACUDRequestHandl
   }
 
   @Override
-  public JPAUpdateResult updateEntity(final JPAEntityType et, final Map<String, Object> jpaAttributes,
-      final Map<String, Object> keys, final EntityManager em, final ODataRequest request)
-      throws ODataJPAProcessException {
+  public JPAUpdateResult updateEntity(final JPARequestEntity requestEntity, final EntityManager em,
+      final ODataRequest request) throws ODataJPAProcessException {
 
     throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_UPDATE,
         HttpStatusCode.NOT_IMPLEMENTED);

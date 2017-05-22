@@ -1,6 +1,5 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,13 +17,13 @@ final class JPARequestEntityImpl implements JPARequestEntity {
 
   JPARequestEntityImpl(JPAEntityType et, Map<String, Object> jpaAttributes,
       Map<JPAAssociationPath, List<JPARequestEntity>> jpaDeepEntities,
-      Map<JPAAssociationPath, List<JPARequestLink>> jpaLinks) {
+      Map<JPAAssociationPath, List<JPARequestLink>> jpaLinks, Map<String, Object> keys) {
     super();
     this.et = et;
     this.jpaAttributes = jpaAttributes;
     this.jpaDeepEntities = jpaDeepEntities;
     this.jpaLinks = jpaLinks;
-    this.jpaKeys = new HashMap<String, Object>(0);
+    this.jpaKeys = keys;
   }
 
   @Override

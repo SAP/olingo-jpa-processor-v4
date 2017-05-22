@@ -44,11 +44,10 @@ final class JPASerializeCreate implements JPASerializer {
         .expand(uriInfo.getExpandOption())
         .build();
 
-    final SerializerResult serializerResult = serializer.entity(serviceMetadata, entityType, result
+    return serializer.entity(serviceMetadata, entityType, result
         .getEntities()
         .get(0),
         options);
-    return serializerResult;
   }
 
 }

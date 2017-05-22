@@ -242,6 +242,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
     public boolean called = false;
     public HttpMethod method;
     private final JPAUpdateResult change;
+    private Map<String, Object> keys;
 
     RequestHandleSpy() {
       this(new JPAUpdateResult(true, new Organization()));
@@ -252,11 +253,11 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
     }
 
     @Override
-    public JPAUpdateResult updateEntity(final JPAEntityType et, final Map<String, Object> jpaAttributes,
-        final Map<String, Object> keys, final EntityManager em, final ODataRequest request)
-        throws ODataJPAProcessException {
-      this.et = et;
-      this.jpaAttributes = jpaAttributes;
+    public JPAUpdateResult updateEntity(final JPARequestEntity requestEntity, final EntityManager em,
+        final ODataRequest request) throws ODataJPAProcessException {
+      this.et = requestEntity.getEntityType();
+      this.jpaAttributes = requestEntity.getData();
+      this.keys = requestEntity.getKeys();
       this.em = em;
       this.called = true;
       this.method = request.getMethod();
