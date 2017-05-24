@@ -18,6 +18,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlOnDeleteAction;
 import org.apache.olingo.commons.api.edm.provider.CsdlReferentialConstraint;
 import org.junit.Before;
 import org.junit.Test;
+import org.reflections.Reflections;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
@@ -37,7 +38,7 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
 
   @Before
   public void setup() throws ODataJPAModelException {
-    schema = new IntermediateSchema(new JPAEdmNameBuilder(PUNIT_NAME), emf.getMetamodel());
+    schema = new IntermediateSchema(new JPAEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), mock(Reflections.class));
     helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
     processor = mock(JPAEdmMetadataPostProcessor.class);
   }

@@ -30,13 +30,11 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferen
 public class TestIntermediateProperty extends TestMappingRoot {
   private TestHelper helper;
   private JPAEdmMetadataPostProcessor processor;
-  private IntermediateSchema schema;
 
   @Before
   public void setup() throws ODataJPAModelException {
     helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
     processor = mock(JPAEdmMetadataPostProcessor.class);
-    schema = new IntermediateSchema(new JPAEdmNameBuilder(PUNIT_NAME), emf.getMetamodel());
   }
 
   @Test

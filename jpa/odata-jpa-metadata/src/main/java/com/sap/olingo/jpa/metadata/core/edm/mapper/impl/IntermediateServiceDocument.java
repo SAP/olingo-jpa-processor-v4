@@ -14,6 +14,10 @@ import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
 import org.apache.olingo.commons.api.edmx.EdmxReference;
+import org.reflections.Reflections;
+import org.reflections.scanners.SubTypesScanner;
+import org.reflections.util.ClasspathHelper;
+import org.reflections.util.ConfigurationBuilder;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntitySet;
@@ -36,6 +40,7 @@ class IntermediateServiceDocument implements JPAServiceDocument {
   private final Map<String, IntermediateSchema> schemaListInternalKey;
   private final IntermediateReferences references;
   private final JPAEdmMetadataPostProcessor pP;
+  private final Reflections reflections;
 
   IntermediateServiceDocument(final String namespace, final Metamodel jpaMetamodel,
       final JPAEdmMetadataPostProcessor postProcessor) throws ODataJPAModelException {
@@ -43,6 +48,7 @@ class IntermediateServiceDocument implements JPAServiceDocument {
     this.pP = postProcessor != null ? postProcessor : new DefaultEdmPostProcessor();
     IntermediateModelElement.setPostProcessor(pP);
 
+    this.reflections = createReflections();
     this.references = new IntermediateReferences();
     pP.provideReferences(this.references);
     this.nameBuilder = new JPAEdmNameBuilder(namespace);
@@ -50,6 +56,18 @@ class IntermediateServiceDocument implements JPAServiceDocument {
     this.schemaListInternalKey = buildIntermediateSchemas();
     this.container = new IntermediateEntityContainer(nameBuilder, schemaListInternalKey);
     setContainer();
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getAllSchemas()
+   */
+  @Override
+  public List<CsdlSchema> getAllSchemas() throws ODataJPAModelException {
+    List<CsdlSchema> allSchemas = getEdmSchemas();
+    allSchemas.addAll(references.getSchemas());
+    return allSchemas;
   }
 
   /*
@@ -70,18 +88,6 @@ class IntermediateServiceDocument implements JPAServiceDocument {
   @Override
   public List<CsdlSchema> getEdmSchemas() throws ODataJPAModelException {
     return extractEdmSchemas();
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getAllSchemas()
-   */
-  @Override
-  public List<CsdlSchema> getAllSchemas() throws ODataJPAModelException {
-    List<CsdlSchema> allSchemas = getEdmSchemas();
-    allSchemas.addAll(references.getSchemas());
-    return allSchemas;
   }
 
   /*
@@ -129,6 +135,18 @@ class IntermediateServiceDocument implements JPAServiceDocument {
    * (non-Javadoc)
    * 
    * @see
+   * com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getEntitySet(com.sap.olingo.jpa.metadata.core.
+   * edm.mapper.api.JPAEntityType)
+   */
+  @Override
+  public JPAEntitySet getEntitySet(final JPAEntityType entityType) throws ODataJPAModelException {
+    return container.getEntitySet(entityType);
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
    * com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getFunction(org.apache.olingo.commons.api.edm.
    * EdmFunction)
    */
@@ -138,40 +156,6 @@ class IntermediateServiceDocument implements JPAServiceDocument {
     if (schema != null)
       return schema.getFunction(function.getName());
     return null;
-  }
-
-  private Map<String, IntermediateSchema> buildIntermediateSchemas() throws ODataJPAModelException {
-    final Map<String, IntermediateSchema> schemaList = new HashMap<String, IntermediateSchema>();
-    final IntermediateSchema schema = new IntermediateSchema(nameBuilder, jpaMetamodel);
-    schemaList.put(schema.internalName, schema);
-    return schemaList;
-  }
-
-  private List<CsdlSchema> extractEdmSchemas() throws ODataJPAModelException {
-    final List<CsdlSchema> schemas = new ArrayList<CsdlSchema>();
-    for (final String internalName : schemaListInternalKey.keySet()) {
-      schemas.add(schemaListInternalKey.get(internalName).getEdmItem());
-    }
-    return schemas;
-  }
-
-  private void setContainer() {
-    for (final String externalName : schemaListInternalKey.keySet()) {
-      schemaListInternalKey.get(externalName).setContainer(container);
-      return;
-    }
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getEntitySet(com.sap.olingo.jpa.metadata.core.
-   * edm.mapper.api.JPAEntityType)
-   */
-  @Override
-  public JPAEntitySet getEntitySet(final JPAEntityType entityType) throws ODataJPAModelException {
-    return container.getEntitySet(entityType);
   }
 
   /*
@@ -193,5 +177,34 @@ class IntermediateServiceDocument implements JPAServiceDocument {
   @Override
   public CsdlTerm getTerm(final FullQualifiedName termName) {
     return this.references.getTerm(termName);
+  }
+
+  private Map<String, IntermediateSchema> buildIntermediateSchemas() throws ODataJPAModelException {
+    final Map<String, IntermediateSchema> schemaList = new HashMap<String, IntermediateSchema>();
+    final IntermediateSchema schema = new IntermediateSchema(nameBuilder, jpaMetamodel, reflections);
+    schemaList.put(schema.internalName, schema);
+    return schemaList;
+  }
+
+  private Reflections createReflections() {
+    ConfigurationBuilder configBuilder = new ConfigurationBuilder();
+    configBuilder.setUrls(ClasspathHelper.forClassLoader());
+    configBuilder.setScanners(new SubTypesScanner(false));
+    return new Reflections(configBuilder);
+  }
+
+  private List<CsdlSchema> extractEdmSchemas() throws ODataJPAModelException {
+    final List<CsdlSchema> schemas = new ArrayList<CsdlSchema>();
+    for (final String internalName : schemaListInternalKey.keySet()) {
+      schemas.add(schemaListInternalKey.get(internalName).getEdmItem());
+    }
+    return schemas;
+  }
+
+  private void setContainer() {
+    for (final String externalName : schemaListInternalKey.keySet()) {
+      schemaListInternalKey.get(externalName).setContainer(container);
+      return;
+    }
   }
 }

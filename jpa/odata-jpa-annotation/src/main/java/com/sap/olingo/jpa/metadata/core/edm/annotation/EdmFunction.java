@@ -15,15 +15,16 @@ import java.lang.annotation.Target;
  *
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
+@Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface EdmFunction {
-
+  /**
+   * Define if the return type for the function. It can be a collection (entity set) or
+   * an single entity (entity).
+   * 
+   */
   @interface ReturnType {
 
     /**
-     * Define if the return type for the function. It can be a collection (entity set) or
-     * an single entity (entity).
-     * 
      * @return <code>true</code> if a collection is returned,
      * otherwise <code>false</code> if a single entity is returned.
      */

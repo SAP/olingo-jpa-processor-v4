@@ -14,6 +14,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
+import org.reflections.Reflections;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
@@ -33,14 +34,19 @@ final class IntermediateSchema extends IntermediateModelElement {
   private final Map<String, IntermediateEntityType> entityTypeListInternalKey;
   private final Map<String, IntermediateFunction> functionListInternalKey;
   private IntermediateEntityContainer container;
+  private final Reflections reflections;
   private CsdlSchema edmSchema;
 
-  IntermediateSchema(final JPAEdmNameBuilder nameBuilder, final Metamodel jpaMetamodel) throws ODataJPAModelException {
+  IntermediateSchema(final JPAEdmNameBuilder nameBuilder, final Metamodel jpaMetamodel, final Reflections reflections)
+      throws ODataJPAModelException {
+
     super(nameBuilder, nameBuilder.buildNamespace());
+    this.reflections = reflections;
     this.jpaMetamodel = jpaMetamodel;
     this.complexTypeListInternalKey = buildComplexTypeList();
     this.entityTypeListInternalKey = buildEntityTypeList();
     this.functionListInternalKey = buildFunctionList();
+
   }
 
   @SuppressWarnings("unchecked")
@@ -161,6 +167,8 @@ final class IntermediateSchema extends IntermediateModelElement {
 
       funcList.putAll(factory.create(nameBuilder, entity, this));
     }
+
+    funcList.putAll(factory.create(nameBuilder, reflections, this));
     return funcList;
   }
 

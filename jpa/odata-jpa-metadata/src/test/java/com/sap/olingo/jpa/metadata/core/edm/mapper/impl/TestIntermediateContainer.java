@@ -3,6 +3,7 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,6 +20,7 @@ import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpress
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
 import org.junit.Before;
 import org.junit.Test;
+import org.reflections.Reflections;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
@@ -38,7 +40,7 @@ public class TestIntermediateContainer extends TestMappingRoot {
   @Before
   public void setup() throws ODataJPAModelException {
     IntermediateModelElement.setPostProcessor(new DefaultEdmPostProcessor());
-    schema = new IntermediateSchema(new JPAEdmNameBuilder(PUNIT_NAME), emf.getMetamodel());
+    schema = new IntermediateSchema(new JPAEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), mock(Reflections.class));
     etList = emf.getMetamodel().getEntities();
     schemas.put(PUNIT_NAME, schema);
   }
