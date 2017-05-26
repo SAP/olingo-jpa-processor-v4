@@ -56,14 +56,16 @@ final class IntermediateFunctionFactory {
       Reflections reflections, IntermediateSchema schema) throws ODataJPAModelException {
 
     final Map<String, IntermediateFunction> funcList = new HashMap<String, IntermediateFunction>();
-    final Set<Class<? extends ODataFunction>> functionClasses = findJavaFunctions(reflections);
+    if (reflections != null) {
+      final Set<Class<? extends ODataFunction>> functionClasses = findJavaFunctions(reflections);
 
-    for (final Class<? extends ODataFunction> functionClass : functionClasses) {
-      for (Method m : Arrays.asList(functionClass.getMethods())) {
-        EdmFunction functionDescribtion = m.getAnnotation(EdmFunction.class);
-        if (functionDescribtion != null) {
-          final IntermediateFunction func = new IntermediateJavaFunction(nameBuilder, functionDescribtion, m, schema);
-          funcList.put(func.getInternalName(), func);
+      for (final Class<? extends ODataFunction> functionClass : functionClasses) {
+        for (Method m : Arrays.asList(functionClass.getMethods())) {
+          EdmFunction functionDescribtion = m.getAnnotation(EdmFunction.class);
+          if (functionDescribtion != null) {
+            final IntermediateFunction func = new IntermediateJavaFunction(nameBuilder, functionDescribtion, m, schema);
+            funcList.put(func.getInternalName(), func);
+          }
         }
       }
     }

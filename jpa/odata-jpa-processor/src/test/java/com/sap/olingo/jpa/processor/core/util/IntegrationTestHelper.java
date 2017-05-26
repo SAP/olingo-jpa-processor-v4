@@ -60,7 +60,7 @@ public class IntegrationTestHelper {
     this.resp = new HttpServletResponseDouble();
     OData odata = OData.newInstance();
     JPAODataSessionContextAccess context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, localEmf,
-        null), ds);
+        null, null), ds);
 
     ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(context.getEdmProvider(),
         new ArrayList<EdmxReference>()));

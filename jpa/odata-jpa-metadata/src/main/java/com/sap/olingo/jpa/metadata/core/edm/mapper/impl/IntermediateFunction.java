@@ -38,7 +38,6 @@ abstract class IntermediateFunction extends IntermediateModelElement implements 
       final IntermediateSchema schema, final String internalName) throws ODataJPAModelException {
 
     super(nameBuilder, internalName);
-    this.setExternalName(jpaFunction.name());
     this.jpaUserDefinedFunction = jpaFunction;
     this.schema = schema;
   }

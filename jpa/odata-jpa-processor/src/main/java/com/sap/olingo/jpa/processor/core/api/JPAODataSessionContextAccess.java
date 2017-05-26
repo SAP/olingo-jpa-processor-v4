@@ -24,4 +24,6 @@ public interface JPAODataSessionContextAccess {
   public List<EdmxReference> getReferences();
 
   public JPACUDRequestHandler getCUDRequestHandler();
+
+  public String[] getPackageName();
 }

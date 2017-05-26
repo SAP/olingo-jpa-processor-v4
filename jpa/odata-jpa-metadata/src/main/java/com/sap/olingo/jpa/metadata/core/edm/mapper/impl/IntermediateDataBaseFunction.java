@@ -21,6 +21,7 @@ class IntermediateDataBaseFunction extends IntermediateFunction {
   IntermediateDataBaseFunction(JPAEdmNameBuilder nameBuilder, EdmFunction jpaFunction, Class<?> definingPOJO,
       IntermediateSchema schema) throws ODataJPAModelException {
     super(nameBuilder, jpaFunction, schema, IntNameBuilder.buildFunctionName(jpaFunction));
+    this.setExternalName(jpaFunction.name());
     this.jpaDefiningPOJO = definingPOJO;
   }
 

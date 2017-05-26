@@ -220,4 +220,8 @@ public final class JPAEdmNameBuilder {
     return firstToUpper(jpaAttributeName);
   }
 
+  final public String buildOperationName(String internalFunctionName) {
+    return firstToUpper(internalFunctionName);
+  }
+
 }

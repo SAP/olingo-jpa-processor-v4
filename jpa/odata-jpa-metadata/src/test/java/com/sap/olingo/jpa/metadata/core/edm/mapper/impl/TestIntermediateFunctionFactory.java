@@ -34,6 +34,12 @@ public class TestIntermediateFunctionFactory extends TestMappingRoot {
   }
 
   @Test
+  public void checkReturnEmptyMapIfReflectionsNull() throws ODataJPAModelException {
+    Reflections r = null;
+    assertNotNull(cut.create(new JPAEdmNameBuilder(PUNIT_NAME), r, helper.schema));
+  }
+
+  @Test
   public void checkReturnEmptyMapIfNoJavaFunctionsFound() throws ODataJPAModelException {
     assertNotNull(cut.create(new JPAEdmNameBuilder(PUNIT_NAME), reflections, helper.schema));
   }
@@ -62,4 +68,5 @@ public class TestIntermediateFunctionFactory extends TestMappingRoot {
         reflections, helper.schema);
     assertEquals(3, act.size());
   }
+
 }

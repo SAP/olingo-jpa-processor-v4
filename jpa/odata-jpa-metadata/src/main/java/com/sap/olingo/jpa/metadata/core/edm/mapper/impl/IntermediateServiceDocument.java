@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,12 +44,12 @@ class IntermediateServiceDocument implements JPAServiceDocument {
   private final Reflections reflections;
 
   IntermediateServiceDocument(final String namespace, final Metamodel jpaMetamodel,
-      final JPAEdmMetadataPostProcessor postProcessor) throws ODataJPAModelException {
+      final JPAEdmMetadataPostProcessor postProcessor, final String[] packageName) throws ODataJPAModelException {
 
     this.pP = postProcessor != null ? postProcessor : new DefaultEdmPostProcessor();
     IntermediateModelElement.setPostProcessor(pP);
 
-    this.reflections = createReflections();
+    this.reflections = createReflections(packageName);
     this.references = new IntermediateReferences();
     pP.provideReferences(this.references);
     this.nameBuilder = new JPAEdmNameBuilder(namespace);
@@ -186,11 +187,18 @@ class IntermediateServiceDocument implements JPAServiceDocument {
     return schemaList;
   }
 
-  private Reflections createReflections() {
-    ConfigurationBuilder configBuilder = new ConfigurationBuilder();
-    configBuilder.setUrls(ClasspathHelper.forClassLoader());
-    configBuilder.setScanners(new SubTypesScanner(false));
-    return new Reflections(configBuilder);
+  private Reflections createReflections(String... packageName) {
+    if (packageName != null && packageName.length > 0) {
+      ConfigurationBuilder configBuilder = new ConfigurationBuilder();
+      List<URL> urls = new ArrayList<URL>();
+      for (int i = 0; i < packageName.length; i++) {
+        urls.addAll(ClasspathHelper.forPackage(packageName[i]));
+      }
+      configBuilder.setUrls(urls);
+      configBuilder.setScanners(new SubTypesScanner(false));
+      return new Reflections(configBuilder);
+    } else
+      return null;
   }
 
   private List<CsdlSchema> extractEdmSchemas() throws ODataJPAModelException {
