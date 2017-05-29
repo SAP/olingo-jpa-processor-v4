@@ -153,7 +153,7 @@ public class TestIntermediateDataBaseFunction extends TestMappingRoot {
     IntermediateFunction act = new IntermediateDataBaseFunction(new JPAEdmNameBuilder(PUNIT_NAME), func,
         BusinessPartner.class,
         helper.schema);
-    assertEquals("org.apache.olingo.jpa.ChangeInformation", act.getEdmItem().getReturnType().getTypeFQN()
+    assertEquals("com.sap.olingo.jpa.ChangeInformation", act.getEdmItem().getReturnType().getTypeFQN()
         .getFullQualifiedNameAsString());
   }
 

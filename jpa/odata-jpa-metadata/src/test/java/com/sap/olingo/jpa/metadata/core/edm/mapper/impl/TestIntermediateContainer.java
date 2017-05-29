@@ -55,7 +55,7 @@ public class TestIntermediateContainer extends TestMappingRoot {
   public void checkGetName() throws ODataJPAModelException {
 
     IntermediateEntityContainer container = new IntermediateEntityContainer(new JPAEdmNameBuilder(PUNIT_NAME), schemas);
-    assertEquals("OrgApacheOlingoJpaContainer", container.getExternalName());
+    assertEquals("ComSapOlingoJpaContainer", container.getExternalName());
   }
 
   @Test

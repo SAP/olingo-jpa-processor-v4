@@ -56,7 +56,7 @@ public class TestJPADeleteProcessor {
   private EdmEntitySet ets;
   private List<UriParameter> keyPredicates;
 
-  private static final String PUNIT_NAME = "org.apache.olingo.jpa";
+  private static final String PUNIT_NAME = "com.sap.olingo.jpa";
   private static EntityManagerFactory emf;
   private static JPAEdmProvider jpaEdm;
   private static DataSource ds;

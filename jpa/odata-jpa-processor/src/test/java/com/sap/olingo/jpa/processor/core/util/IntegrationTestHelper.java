@@ -34,7 +34,7 @@ public class IntegrationTestHelper {
   public final HttpServletRequestDouble req;
   public final HttpServletResponseDouble resp;
   private static final String uriPrefix = "http://localhost:8080/Test/Olingo.svc/";
-  private static final String PUNIT_NAME = "org.apache.olingo.jpa";
+  private static final String PUNIT_NAME = "com.sap.olingo.jpa";
 
   public IntegrationTestHelper(EntityManagerFactory localEmf, String urlPath) throws IOException,
       ODataException {
