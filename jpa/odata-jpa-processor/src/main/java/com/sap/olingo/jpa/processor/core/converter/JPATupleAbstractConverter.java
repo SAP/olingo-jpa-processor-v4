@@ -1,4 +1,4 @@
-package com.sap.org.jpa.processor.core.converter;
+package com.sap.olingo.jpa.processor.core.converter;
 
 import java.net.URI;
 import java.net.URISyntaxException;

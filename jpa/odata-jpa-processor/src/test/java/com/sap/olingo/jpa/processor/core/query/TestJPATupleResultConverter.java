@@ -19,12 +19,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.converter.JPATupleResultConverter;
 import com.sap.olingo.jpa.processor.core.util.ServiceMetadataDouble;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 import com.sap.olingo.jpa.processor.core.util.TupleDouble;
 import com.sap.olingo.jpa.processor.core.util.UriHelperDouble;
-import com.sap.org.jpa.processor.core.converter.JPATupleResultConverter;
 
 public class TestJPATupleResultConverter extends TestBase {
   public static final int NO_POSTAL_ADDRESS_FIELDS = 8;

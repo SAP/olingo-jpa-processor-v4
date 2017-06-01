@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.persistence.metamodel.Metamodel;
 
+import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.edm.EdmFunction;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
@@ -193,5 +194,30 @@ class IntermediateServiceDocument implements JPAServiceDocument {
   @Override
   public CsdlTerm getTerm(final FullQualifiedName termName) {
     return this.references.getTerm(termName);
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * org.apache.olingo.server.api.etag.CustomETagSupport#hasETag(org.apache.olingo.commons.api.edm.EdmBindingTarget)
+   */
+  @Override
+  public boolean hasETag(final EdmBindingTarget entitySetOrSingleton) {
+    try {
+      return getEntity(entitySetOrSingleton.getEntityType().getFullQualifiedName()).hasEtag();
+    } catch (ODataJPAModelException e) {
+      // TODO Logging
+      return false;
+    }
+  }
+
+  /**
+   * Currently not supported => method always returns false
+   */
+  @Override
+  public boolean hasMediaETag(final EdmBindingTarget entitySetOrSingleton) {
+    // TODO Not Supported yet
+    return false;
   }
 }
