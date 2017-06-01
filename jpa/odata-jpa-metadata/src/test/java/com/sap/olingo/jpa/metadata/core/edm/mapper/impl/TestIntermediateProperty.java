@@ -8,17 +8,26 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Member;
 import java.sql.Date;
 import java.sql.Timestamp;
 
+import javax.persistence.Column;
 import javax.persistence.metamodel.Attribute;
+import javax.persistence.metamodel.Attribute.PersistentAttributeType;
 import javax.persistence.metamodel.EmbeddableType;
+import javax.persistence.metamodel.ManagedType;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -26,6 +35,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityT
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
+import com.sap.olingo.jpa.processor.core.testmodel.DummyToBeIgnored;
 
 public class TestIntermediateProperty extends TestMappingRoot {
   private TestHelper helper;
@@ -304,6 +314,43 @@ public class TestIntermediateProperty extends TestMappingRoot {
     IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
         helper.schema);
     assertEquals(Integer.class, property.getType());
+  }
+
+  @Test(expected = ODataJPAModelException.class)
+  public void checkThrowsAnExceptionTimestampWithoutPrecision() throws ODataJPAModelException {
+    // If Precision missing EdmDateTimeOffset.internalValueToString throws an exception => pre-check
+    final Attribute<?, ?> jpaAttribute = mock(Attribute.class);
+    final ManagedType<?> jpaManagedType = mock(ManagedType.class);
+    when(jpaAttribute.getName()).thenReturn("start");
+    when(jpaAttribute.getPersistentAttributeType()).thenReturn(PersistentAttributeType.BASIC);
+    when(jpaAttribute.getDeclaringType()).thenAnswer(new Answer<ManagedType<?>>() {
+      @Override
+      public ManagedType<?> answer(InvocationOnMock invocation) throws Throwable {
+        return jpaManagedType;
+      }
+    });
+    when(jpaAttribute.getJavaType()).thenAnswer(new Answer<Class<?>>() {
+      @Override
+      public Class<?> answer(InvocationOnMock invocation) throws Throwable {
+        return Timestamp.class;
+      }
+    });
+    when(jpaManagedType.getJavaType()).thenAnswer(new Answer<Class<?>>() {
+      @Override
+      public Class<?> answer(InvocationOnMock invocation) throws Throwable {
+        return DummyToBeIgnored.class;
+      }
+    });
+
+    Column column = mock(Column.class);
+    AnnotatedElement annotations = mock(AnnotatedElement.class, withSettings().extraInterfaces(Member.class));
+    when(annotations.getAnnotation(Column.class)).thenReturn(column);
+    when(jpaAttribute.getJavaMember()).thenReturn((Member) annotations);
+    when(column.name()).thenReturn("Test");
+
+    IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
+        helper.schema);
+    property.getEdmItem();
   }
 
   @Ignore

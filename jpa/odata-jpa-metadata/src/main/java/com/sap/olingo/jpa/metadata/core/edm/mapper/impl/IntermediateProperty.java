@@ -154,10 +154,13 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
             // non-negative integer between zero and twelve. If no
             // value is specified, the temporal property has a
             // precision of zero.
-            // TODO check when precision is mandatory e.g. Timestamp
             // is key
             if (jpaColumn.precision() > 0)
               edmProperty.setPrecision(jpaColumn.precision());
+            else if (edmProperty.getType().equals(EdmPrimitiveTypeKind.DateTimeOffset.getFullQualifiedName().toString())
+                && jpaColumn.precision() == 0)
+              throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.PROPERTY_MISSING_PRECISION,
+                  jpaAttribute.getName());
             if (edmProperty.getType().equals(EdmPrimitiveTypeKind.Decimal.getFullQualifiedName().toString())
                 && jpaColumn.scale() > 0)
               edmProperty.setScale(jpaColumn.scale());
@@ -279,6 +282,7 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
       final Column jpaColunnDetails = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
           .getAnnotation(Column.class);
       if (jpaColunnDetails != null) {
+        // TODO allow default name
         dbFieldName = jpaColunnDetails.name();
         if (dbFieldName.isEmpty()) {
           final StringBuffer s = new StringBuffer(DB_FIELD_NAME_PATTERN);
