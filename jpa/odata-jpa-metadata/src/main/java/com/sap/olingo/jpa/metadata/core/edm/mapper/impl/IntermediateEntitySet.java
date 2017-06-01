@@ -3,12 +3,10 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
 import org.apache.olingo.commons.api.edm.provider.CsdlNavigationPropertyBinding;
-import org.apache.olingo.server.api.etag.CustomETagSupport;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
@@ -22,8 +20,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityS
  * @author Oliver Grande
  *
  */
-final class IntermediateEntitySet extends IntermediateModelElement implements CustomETagSupport,
-    IntermediateEntitySetAccess, JPAEntitySet {
+final class IntermediateEntitySet extends IntermediateModelElement implements IntermediateEntitySetAccess,
+    JPAEntitySet {
   private final IntermediateEntityType entityType;
   private CsdlEntitySet edmEntitySet;
 
@@ -107,19 +105,4 @@ final class IntermediateEntitySet extends IntermediateModelElement implements Cu
     return edmEntitySet;
   }
 
-  @Override
-  public boolean hasETag(final EdmBindingTarget entitySetOrSingleton) {
-    try {
-      return entityType.hasEtag();
-    } catch (ODataJPAModelException e) {
-      // TODO logging
-      return false;
-    }
-  }
-
-  @Override
-  public boolean hasMediaETag(final EdmBindingTarget entitySetOrSingleton) {
-    // TODO implement this
-    return false;
-  }
 }

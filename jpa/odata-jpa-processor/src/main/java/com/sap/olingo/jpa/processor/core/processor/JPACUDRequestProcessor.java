@@ -37,6 +37,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.converter.JPATupleResultConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys;
@@ -48,7 +49,6 @@ import com.sap.olingo.jpa.processor.core.modify.JPAUpdateResult;
 import com.sap.olingo.jpa.processor.core.query.EdmEntitySetInfo;
 import com.sap.olingo.jpa.processor.core.query.ExpressionUtil;
 import com.sap.olingo.jpa.processor.core.query.Util;
-import com.sap.org.jpa.processor.core.converter.JPATupleResultConverter;
 
 public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
 

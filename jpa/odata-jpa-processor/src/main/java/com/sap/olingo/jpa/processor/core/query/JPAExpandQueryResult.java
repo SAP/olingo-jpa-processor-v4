@@ -11,8 +11,8 @@ import org.apache.olingo.server.api.ODataApplicationException;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
-import com.sap.org.jpa.processor.core.converter.JPAExpandResult;
 
 /**
  * Builds a hierarchy of expand results. One instance contains on the on hand of the result itself, a map which has the
