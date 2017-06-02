@@ -49,6 +49,12 @@ public interface JPARequestEntity {
   public Map<JPAAssociationPath, List<JPARequestEntity>> getRelatedEntities();
 
   /**
+   * Returns all OData request header
+   * @return an unmodifiable Map of header names/values
+   */
+  public Map<String, List<String>> getAllHeader();
+
+  /**
    * Returns an instance utility service
    * @return
    */
