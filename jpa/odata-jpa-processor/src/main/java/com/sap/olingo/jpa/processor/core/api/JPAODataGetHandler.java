@@ -63,6 +63,7 @@ public class JPAODataGetHandler {
     handler.register(context.getDebugSupport());
     handler.register(new JPAODataRequestProcessor(context, em));
     handler.register(new JPAODataBatchProcessor(em));
+    handler.register(context.getEdmProvider().getServiceDocument());
     handler.process(request, response);
   }
 
