@@ -316,6 +316,13 @@ public class TestIntermediateEntityType extends TestMappingRoot {
   }
 
   @Test
+  public void checkHasETagTrueIfInherited() throws ODataJPAModelException {
+    IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "Organization"), schema);
+    assertTrue(et.hasEtag());
+  }
+
+  @Test
   public void checkHasETagFalse() throws ODataJPAModelException {
     IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
         "AdministrativeDivision"), schema);
