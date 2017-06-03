@@ -74,7 +74,7 @@ public final class JPAFunctionRequestProcessor extends JPAAbstractGetRequestProc
 
     if (entityCollection.getEntities() != null && entityCollection.getEntities().size() > 0) {
       final SerializerResult serializerResult = serializer.serialize(request, entityCollection);
-      createSuccessResonce(response, responseFormat, serializerResult);
+      createSuccessResponce(response, responseFormat, serializerResult);
     } else
       response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
 
