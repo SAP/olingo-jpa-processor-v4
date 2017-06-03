@@ -99,7 +99,7 @@ public final class JPAODataRequestProcessor implements PrimitiveValueProcessor,
 
     try {
       JPACUDRequestProcessor p = this.factory.createCUDRequestProcessor(this.em, uriInfo);
-      p.deleteEntity(response);
+      p.deleteEntity(request, response);
     } catch (ODataException e) {
       throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
           null, e);

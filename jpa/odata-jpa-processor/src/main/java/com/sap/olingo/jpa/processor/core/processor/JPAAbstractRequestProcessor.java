@@ -44,7 +44,7 @@ abstract class JPAAbstractRequestProcessor {
     this.debugger = context.getDebugger();
   }
 
-  protected final void createSuccessResonce(final ODataResponse response, final ContentType responseFormat,
+  protected final void createSuccessResponce(final ODataResponse response, final ContentType responseFormat,
       final SerializerResult serializerResult) {
 
     response.setContent(serializerResult.getContent());

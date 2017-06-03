@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
@@ -8,6 +9,7 @@ import static org.mockito.Mockito.when;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -102,6 +104,26 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
     processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
 
     assertEquals(2, spy.jpaAttributes.size());
+  }
+
+  @Test
+  public void testHeadersProvided() throws ODataJPAProcessorException, SerializerException, ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
+    final Map<String, List<String>> headers = new HashMap<String, List<String>>();
+
+    when(request.getAllHeaders()).thenReturn(headers);
+    headers.put("If-Match", Arrays.asList("2"));
+
+    RequestHandleSpy spy = new RequestHandleSpy();
+    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+
+    processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
+
+    assertNotNull(spy.headers);
+    assertEquals(1, spy.headers.size());
+    assertNotNull(spy.headers.get("If-Match"));
+    assertEquals("2", spy.headers.get("If-Match").get(0));
   }
 
   @Test
@@ -241,6 +263,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
     public EntityManager em;
     public boolean called = false;
     public HttpMethod method;
+    public Map<String, List<String>> headers;
     private final JPAUpdateResult change;
     private Map<String, Object> keys;
 
@@ -261,6 +284,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
       this.em = em;
       this.called = true;
       this.method = request.getMethod();
+      this.headers = requestEntity.getAllHeader();
       return change;
     }
 
