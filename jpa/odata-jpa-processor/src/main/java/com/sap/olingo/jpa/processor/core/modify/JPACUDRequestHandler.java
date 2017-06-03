@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.processor.core.modify;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
@@ -15,11 +16,12 @@ public interface JPACUDRequestHandler {
    * 
    * @param et
    * @param keyPredicates
+   * @param headers
    * @param em
    * @throws ODataJPAProcessException
    */
-  public void deleteEntity(final JPAEntityType et, final Map<String, Object> keyPredicates, final EntityManager em)
-      throws ODataJPAProcessException;
+  public void deleteEntity(final JPAEntityType et, final Map<String, Object> keyPredicates,
+      Map<String, List<String>> headers, final EntityManager em) throws ODataJPAProcessException;
 
   /**
    * Hook to create a new entity. Transaction handling is done outside to guarantee transactional behavior of change

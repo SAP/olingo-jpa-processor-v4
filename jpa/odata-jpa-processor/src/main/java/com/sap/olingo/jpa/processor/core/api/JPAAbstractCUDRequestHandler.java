@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.processor.core.api;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
@@ -17,8 +18,8 @@ import com.sap.olingo.jpa.processor.core.processor.JPARequestEntity;
 public abstract class JPAAbstractCUDRequestHandler implements JPACUDRequestHandler {
 
   @Override
-  public void deleteEntity(final JPAEntityType et, final Map<String, Object> keyPredicates, final EntityManager em)
-      throws ODataJPAProcessException {
+  public void deleteEntity(final JPAEntityType et, final Map<String, Object> keyPredicates,
+      final Map<String, List<String>> headers, final EntityManager em) throws ODataJPAProcessException {
 
     throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
         HttpStatusCode.NOT_IMPLEMENTED);
