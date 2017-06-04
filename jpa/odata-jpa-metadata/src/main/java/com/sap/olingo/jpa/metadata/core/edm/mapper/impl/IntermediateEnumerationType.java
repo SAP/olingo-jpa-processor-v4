@@ -12,7 +12,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 public class IntermediateEnumerationType extends IntermediateModelElement {
 
   private CsdlEnumType edmEnumType;
-  private Class<? extends ODataEnum> javaEnum;
+  private Class<?> javaEnum;
 
   public IntermediateEnumerationType(JPAEdmNameBuilder nameBuilder, Class<? extends ODataEnum> javaEnum) {
     super(nameBuilder, javaEnum.getSimpleName());

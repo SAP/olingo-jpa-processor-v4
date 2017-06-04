@@ -83,6 +83,11 @@ public class JPANavigationQuery extends JPAAbstractQuery {
     List<JPAOnConditionItem> conditionItems;
     try {
       conditionItems = association.getJoinColumnsList();
+      if (conditionItems.isEmpty())
+        throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_JOIN_NOT_DEFINED,
+            HttpStatusCode.INTERNAL_SERVER_ERROR, association.getTargetType().getExternalName(), association
+                .getSourceType().getExternalName());
+
       createSelectClause(subQuery, conditionItems);
     } catch (ODataJPAModelException e) {
 
@@ -108,7 +113,8 @@ public class JPANavigationQuery extends JPAAbstractQuery {
       final List<JPAOnConditionItem> conditionItems) throws ODataApplicationException {}
 
   @SuppressWarnings("unchecked")
-  protected <T> void createSelectClause(final Subquery<T> subQuery, final List<JPAOnConditionItem> conditionItems) {
+  protected <T> void createSelectClause(final Subquery<T> subQuery, final List<JPAOnConditionItem> conditionItems)
+      throws ODataJPAQueryException {
     Path<?> p = queryRoot;
     for (final JPAElement jpaPathElement : conditionItems.get(0).getLeftPath().getPath())
       p = p.get(jpaPathElement.getInternalName());

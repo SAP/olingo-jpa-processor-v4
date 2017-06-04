@@ -61,7 +61,7 @@ public class TestJPADeleteProcessor {
   private EdmEntitySet ets;
   private List<UriParameter> keyPredicates;
 
-  private static final String PUNIT_NAME = "org.apache.olingo.jpa";
+  private static final String PUNIT_NAME = "com.sap.olingo.jpa";
   private static EntityManagerFactory emf;
   private static JPAEdmProvider jpaEdm;
   private static DataSource ds;
@@ -71,7 +71,7 @@ public class TestJPADeleteProcessor {
     JPAEdmMetadataPostProcessor pP = mock(JPAEdmMetadataPostProcessor.class);
     ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
     emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, ds);
-    jpaEdm = new JPAEdmProvider(PUNIT_NAME, emf.getMetamodel(), pP);
+    jpaEdm = new JPAEdmProvider(PUNIT_NAME, emf.getMetamodel(), pP, null);
 
   }
 

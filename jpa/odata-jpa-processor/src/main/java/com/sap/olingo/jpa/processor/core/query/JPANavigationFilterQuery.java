@@ -54,8 +54,10 @@ public final class JPANavigationFilterQuery extends JPANavigationQuery {
 
   @Override
   @SuppressWarnings("unchecked")
-  protected <T> void createSelectClause(final Subquery<T> subQuery, final List<JPAOnConditionItem> conditionItems) {
+  protected <T> void createSelectClause(final Subquery<T> subQuery, final List<JPAOnConditionItem> conditionItems)
+      throws ODataJPAQueryException {
     Path<?> p = getRoot();
+
     for (final JPAElement jpaPathElement : conditionItems.get(0).getRightPath().getPath())
       p = p.get(jpaPathElement.getInternalName());
     subQuery.select((Expression<T>) p);

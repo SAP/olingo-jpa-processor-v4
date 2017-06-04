@@ -3,9 +3,7 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
-import org.apache.olingo.commons.api.edm.geo.SRID;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlParameter;
 import org.apache.olingo.commons.api.edm.provider.CsdlReturnType;
@@ -17,7 +15,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionResultParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
 
 /**
  * Mapper, that is able to convert different metadata resources into a edm function metadata. It is important to know
@@ -32,19 +29,16 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
  *
  */
 
-final class IntermediateFunction extends IntermediateModelElement implements JPAFunction {
-  private CsdlFunction edmFunction;
-  private final EdmFunction jpaUserDefinedFunction;
-  private final IntermediateSchema schema;
-  private final Class<?> jpaDefiningPOJO;
+abstract class IntermediateFunction extends IntermediateModelElement implements JPAFunction {
+  protected CsdlFunction edmFunction;
+  protected final EdmFunction jpaUserDefinedFunction;
+  protected final IntermediateSchema schema;
 
   IntermediateFunction(final JPAEdmNameBuilder nameBuilder, final EdmFunction jpaFunction,
-      final Class<?> definingPOJO, final IntermediateSchema schema)
-      throws ODataJPAModelException {
-    super(nameBuilder, IntNameBuilder.buildFunctionName(jpaFunction));
-    this.setExternalName(jpaFunction.name());
+      final IntermediateSchema schema, final String internalName) throws ODataJPAModelException {
+
+    super(nameBuilder, internalName);
     this.jpaUserDefinedFunction = jpaFunction;
-    this.jpaDefiningPOJO = definingPOJO;
     this.schema = schema;
   }
 
@@ -100,73 +94,11 @@ final class IntermediateFunction extends IntermediateModelElement implements JPA
     return jpaUserDefinedFunction.isBound();
   }
 
-  private List<CsdlParameter> determineEdmInputParameter() throws ODataJPAModelException {
+  protected abstract List<CsdlParameter> determineEdmInputParameter() throws ODataJPAModelException;
 
-    final List<CsdlParameter> edmInputParameterList = new ArrayList<CsdlParameter>();
-    for (final EdmFunctionParameter jpaParameter : jpaUserDefinedFunction.parameter()) {
+  protected abstract CsdlReturnType determineEdmResultType(final ReturnType returnType) throws ODataJPAModelException;
 
-      final CsdlParameter edmInputParameter = new CsdlParameter();
-      edmInputParameter.setName(jpaParameter.name());
-      edmInputParameter.setType(JPATypeConvertor.convertToEdmSimpleType(jpaParameter.type()).getFullQualifiedName());
-
-      edmInputParameter.setNullable(false);
-      edmInputParameter.setCollection(jpaParameter.isCollection());
-      if (jpaParameter.maxLength() >= 0)
-        edmInputParameter.setMaxLength(jpaParameter.maxLength());
-      if (jpaParameter.precision() >= 0)
-        edmInputParameter.setPrecision(jpaParameter.precision());
-      if (jpaParameter.scale() >= 0)
-        edmInputParameter.setScale(jpaParameter.scale());
-      if (jpaParameter.srid() != null && !jpaParameter.srid().srid().isEmpty()) {
-        final SRID srid = SRID.valueOf(jpaParameter.srid().srid());
-        srid.setDimension(jpaParameter.srid().dimension());
-        edmInputParameter.setSrid(srid);
-      }
-      edmInputParameterList.add(edmInputParameter);
-    }
-    return edmInputParameterList;
-  }
-
-  // TODO handle multiple schemas
-  private CsdlReturnType determineEdmResultType(final ReturnType returnType) throws ODataJPAModelException {
-
-    final CsdlReturnType edmResultType = new CsdlReturnType();
-    FullQualifiedName fqn;
-    if (returnType.type() == Object.class) {
-      final IntermediateStructuredType et = schema.getEntityType(jpaDefiningPOJO);
-      fqn = nameBuilder.buildFQN(et.getEdmItem().getName());
-      this.setIgnore(et.ignore()); // If the result type shall be ignored, ignore also a function that returns it
-    } else {
-      final IntermediateStructuredType st = schema.getStructuredType(returnType.type());
-      if (st != null) {
-        fqn = nameBuilder.buildFQN(st.getEdmItem().getName());
-        this.setIgnore(st.ignore()); // If the result type shall be ignored, ignore also a function that returns it
-      } else {
-        EdmPrimitiveTypeKind pt = JPATypeConvertor.convertToEdmSimpleType(returnType.type());
-        if (pt != null)
-          fqn = pt.getFullQualifiedName();
-        else
-          throw new ODataJPAModelException(MessageKeys.FUNC_RETURN_TYPE_UNKNOWN);
-      }
-    }
-    edmResultType.setType(fqn);
-    edmResultType.setCollection(returnType.isCollection());
-    edmResultType.setNullable(returnType.isNullable());
-    if (returnType.maxLength() >= 0)
-      edmResultType.setMaxLength(returnType.maxLength());
-    if (returnType.precision() >= 0)
-      edmResultType.setPrecision(returnType.precision());
-    if (returnType.scale() >= 0)
-      edmResultType.setScale(returnType.scale());
-    if (returnType.srid() != null && !returnType.srid().srid().isEmpty()) {
-      final SRID srid = SRID.valueOf(returnType.srid().srid());
-      srid.setDimension(returnType.srid().dimension());
-      edmResultType.setSrid(srid);
-    }
-    return edmResultType;
-  }
-
-  private class IntermediatFunctionParameter implements JPAFunctionParameter {
+  protected class IntermediatFunctionParameter implements JPAFunctionParameter {
     private final EdmFunctionParameter jpaParameter;
 
     IntermediatFunctionParameter(final EdmFunctionParameter jpaParameter) {

@@ -23,24 +23,24 @@ public class TestIntermediateServiceDocument extends TestMappingRoot {
 
   @Test
   public void checkServiceDocumentCanBeCreated() throws ODataJPAModelException {
-    new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null);
+    new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null, null);
   }
 
   @Test
   public void checkServiceDocumentGetSchemaList() throws ODataJPAModelException {
-    JPAServiceDocument svc = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null);
+    JPAServiceDocument svc = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null, null);
     assertEquals("Wrong number of schemas", 1, svc.getEdmSchemas().size());
   }
 
   @Test
   public void checkServiceDocumentGetContainer() throws ODataJPAModelException {
-    JPAServiceDocument svc = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null);
+    JPAServiceDocument svc = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null, null);
     assertNotNull("Entity Container not found", svc.getEdmEntityContainer());
   }
 
   @Test
   public void checkServiceDocumentGetContainerFromSchema() throws ODataJPAModelException {
-    JPAServiceDocument svc = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null);
+    JPAServiceDocument svc = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null, null);
     List<CsdlSchema> schemas = svc.getEdmSchemas();
     CsdlSchema schema = schemas.get(0);
     assertNotNull("Entity Container not found", schema.getEntityContainer());
@@ -48,7 +48,7 @@ public class TestIntermediateServiceDocument extends TestMappingRoot {
 
   @Test
   public void checkServiceDocumentGetEntitySetsFromContainer() throws ODataJPAModelException {
-    JPAServiceDocument svc = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null);
+    JPAServiceDocument svc = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null, null);
     CsdlEntityContainer container = svc.getEdmEntityContainer();
     assertNotNull("Entity Container not found", container.getEntitySets());
   }
@@ -60,7 +60,7 @@ public class TestIntermediateServiceDocument extends TestMappingRoot {
     when(target.getEntityType()).thenReturn(et);
     when(et.getFullQualifiedName()).thenReturn(new FullQualifiedName(PUNIT_NAME, "BusinessPartner"));
 
-    JPAServiceDocument svc = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null);
+    JPAServiceDocument svc = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null, null);
     assertTrue(svc.hasETag(target));
   }
 
@@ -71,7 +71,7 @@ public class TestIntermediateServiceDocument extends TestMappingRoot {
     when(target.getEntityType()).thenReturn(et);
     when(et.getFullQualifiedName()).thenReturn(new FullQualifiedName(PUNIT_NAME, "Country"));
 
-    JPAServiceDocument svc = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null);
+    JPAServiceDocument svc = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null, null);
     assertFalse(svc.hasETag(target));
   }
 }
