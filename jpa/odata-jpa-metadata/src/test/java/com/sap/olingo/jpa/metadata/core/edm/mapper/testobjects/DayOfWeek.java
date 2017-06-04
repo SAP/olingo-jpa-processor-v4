@@ -1,4 +1,6 @@
-package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
+package com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects;
+
+import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.ODataEnum;
 
 public enum DayOfWeek implements ODataEnum {
   MONDAY(1), TUESDAY(2), WEDNESDAY(3),

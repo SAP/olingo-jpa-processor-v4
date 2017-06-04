@@ -1,12 +1,12 @@
-package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
+package com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.ODataFunction;
 
-class ExampleJavaTwoFunctions implements ODataFunction {
+public class ExampleJavaTwoFunctions implements ODataFunction {
 
-  private ExampleJavaTwoFunctions() {
+  public ExampleJavaTwoFunctions() {
     super();
   }
 

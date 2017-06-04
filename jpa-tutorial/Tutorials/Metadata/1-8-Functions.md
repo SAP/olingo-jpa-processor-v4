@@ -13,7 +13,7 @@ Declared at an Entity Type
 `.../AdministrativeDivisions?$filter=Tutorial.PopulationDensity(Area=Tutorial.ConvertToSKm(Area=$it/Area),Population=$it/Population) gt 1000`
 
 ## Using Java Classes
-If some more complicated calculations or mapping shall be performed it may be appropriate to implement a method of a JAVA class as function. To make a class respectively one of its method accessible via an OData request it has to be marked with the tag interface `ODataFunction`. When the metadata are created the JPA Process searches for classes implementing this interface. To reduce the search space in addition a list of top level packages need to be given via:
+If some more complicated calculations or mapping shall be performed it may be appropriate to implement a method of a JAVA class as _function_. To make a class respectively one of its method accessible via an OData request it has to be marked with the tag interface `ODataFunction`. When the metadata are created the JPA Process searches for classes implementing this interface. To reduce the search space in addition a list of top level packages need to be given via:
 
 ```JAVA
 handler.getJPAODataContext().setTypePackage("tutorial.operations");
@@ -21,7 +21,7 @@ handler.getJPAODataContext().setTypePackage("tutorial.operations");
 Please note that currently only unbound functions having a function import are supported.
 
 For the class and the _function_ method following boundary conditions exist:
-- The class must provide either a parameterless constructor or a constructor that takes an instance of an entity manager as input, as a new instance for each execution is created.
+- The class must provide either a public parameterless constructor or a public constructor that takes an instance of an entity manager as input, as a new instance for each execution is created.
 - A method that represents a function must be annotated (see below), multiple methods per class are possible
 - The return type must be either primitive type, an embeddable or an entity.  If the function shall return a collection it has to be a subtype of `Collection<T>` and the @ReturnType has to contain the actual type parameter (e.g. String.class), as this information is not accessible via java reflections.
 - Parameter have to have a primitive type, all parameter have to be annotated as the name is not available via reflection during runtime

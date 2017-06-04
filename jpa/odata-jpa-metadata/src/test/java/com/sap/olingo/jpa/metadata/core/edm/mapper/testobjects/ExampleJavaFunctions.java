@@ -1,4 +1,4 @@
-package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
+package com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -14,6 +14,8 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionParameter;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmGeospatial;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.ODataFunction;
 import com.sap.olingo.jpa.processor.core.testmodel.ChangeInformation;
+import com.sap.olingo.jpa.processor.core.testmodel.Person;
+import com.sap.olingo.jpa.processor.core.testmodel.PostalAddressData;
 
 public class ExampleJavaFunctions implements ODataFunction {
 
@@ -62,5 +64,21 @@ public class ExampleJavaFunctions implements ODataFunction {
   @EdmFunction(name = "", returnType = @ReturnType())
   public ChangeInformation returnEmbeddable() {
     return new ChangeInformation();
+  }
+
+  @EdmFunction(name = "", returnType = @ReturnType())
+  public Person returnEntity() {
+    return new Person();
+  }
+
+  @EdmFunction(name = "", returnType = @ReturnType())
+  public ExampleJavaOneFunction wrongReturnType() {
+    return new ExampleJavaOneFunction();
+  }
+
+  @EdmFunction(name = "", returnType = @ReturnType())
+  public Integer errorNonPrimitiveParameter(
+      @EdmFunctionParameter(name = "A") PostalAddressData a) {
+    return 1;
   }
 }

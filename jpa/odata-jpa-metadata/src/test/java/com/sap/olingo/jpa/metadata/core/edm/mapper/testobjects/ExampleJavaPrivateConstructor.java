@@ -1,13 +1,15 @@
-package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
+package com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects;
+
+import javax.persistence.EntityManager;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.ODataFunction;
 
-class ExampleJavaOneFunction implements ODataFunction {
+public class ExampleJavaPrivateConstructor implements ODataFunction {
 
-  private ExampleJavaOneFunction() {
+  private ExampleJavaPrivateConstructor(EntityManager em) {
     super();
   }
 

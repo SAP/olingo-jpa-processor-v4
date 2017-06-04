@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
@@ -7,6 +8,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import javax.persistence.EntityManager;
+
+import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.geo.SRID;
 import org.apache.olingo.commons.api.edm.provider.CsdlParameter;
 import org.apache.olingo.commons.api.edm.provider.CsdlReturnType;
@@ -19,6 +23,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 
 class IntermediateJavaFunction extends IntermediateFunction {
   private final Method javaFunction;
+  private final Constructor<?> javaConstructor;
 
   IntermediateJavaFunction(JPAEdmNameBuilder nameBuilder, EdmFunction jpaFunction, Method javaFunction,
       IntermediateSchema schema) throws ODataJPAModelException {
@@ -27,6 +32,24 @@ class IntermediateJavaFunction extends IntermediateFunction {
             .buildFunctionName(jpaFunction));
     this.setExternalName(nameBuilder.buildOperationName(internalName));
     this.javaFunction = javaFunction;
+    this.javaConstructor = determineConstructor(javaFunction);
+  }
+
+  @Override
+  protected List<CsdlParameter> determineEdmInputParameter() throws ODataJPAModelException {
+    List<CsdlParameter> parameterList = new ArrayList<CsdlParameter>();
+    for (Parameter declairedParameter : Arrays.asList(javaFunction.getParameters())) {
+      CsdlParameter parameter = new CsdlParameter();
+      EdmFunctionParameter definedParameter = declairedParameter.getAnnotation(EdmFunctionParameter.class);
+      parameter.setName(nameBuilder.buildPropertyName(definedParameter.name()));
+      EdmPrimitiveTypeKind edmType = JPATypeConvertor.convertToEdmSimpleType(declairedParameter.getType());
+      if (edmType == null)
+        throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.FUNC_PARAM_ONLY_PRIMITIVE, javaFunction
+            .getDeclaringClass().getName(), javaFunction.getName(), definedParameter.name());
+      parameter.setType(edmType.getFullQualifiedName());
+      parameterList.add(parameter);
+    }
+    return parameterList;
   }
 
   // TODO handle multiple schemas
@@ -52,8 +75,13 @@ class IntermediateJavaFunction extends IntermediateFunction {
       IntermediateStructuredType structuredType = schema.getStructuredType(declairedReturnType);
       if (structuredType != null)
         edmResultType.setType(structuredType.getExternalFQN());
-      else
-        edmResultType.setType(JPATypeConvertor.convertToEdmSimpleType(declairedReturnType).getFullQualifiedName());
+      else {
+        final EdmPrimitiveTypeKind edmType = JPATypeConvertor.convertToEdmSimpleType(declairedReturnType);
+        if (edmType == null)
+          throw new ODataJPAModelException(MessageKeys.FUNC_RETURN_TYPE_INVALID, definedReturnType.type().getName(),
+              declairedReturnType.getName(), javaFunction.getName());
+        edmResultType.setType(edmType.getFullQualifiedName());
+      }
     }
 
     edmResultType.setNullable(definedReturnType.isNullable());
@@ -72,35 +100,44 @@ class IntermediateJavaFunction extends IntermediateFunction {
     return edmResultType;
   }
 
-  private boolean isCollection(Class<?> declairedReturnType) {
-    for (Class<?> inter : Arrays.asList(declairedReturnType.getInterfaces())) {
-      if (inter == Collection.class)
-        return true;
-    }
-    return false;
-  }
-
-  @Override
-  protected List<CsdlParameter> determineEdmInputParameter() throws ODataJPAModelException {
-    List<CsdlParameter> parameterList = new ArrayList<CsdlParameter>();
-    for (Parameter declairedParameter : Arrays.asList(javaFunction.getParameters())) {
-      CsdlParameter parameter = new CsdlParameter();
-      EdmFunctionParameter definedParameter = declairedParameter.getAnnotation(EdmFunctionParameter.class);
-      parameter.setName(nameBuilder.buildPropertyName(definedParameter.name()));
-      parameter.setType(JPATypeConvertor.convertToEdmSimpleType(declairedParameter.getType()).getFullQualifiedName());
-      parameterList.add(parameter);
-    }
-    return parameterList;
-  }
-
   @Override
   protected void lazyBuildEdmItem() throws ODataJPAModelException {
     super.lazyBuildEdmItem();
     edmFunction.setBound(false);
   }
 
+  Constructor<?> getJavaConstructor() {
+    return javaConstructor;
+  }
+
   @Override
   boolean hasFunctionImport() {
     return true;
+  }
+
+  private Constructor<?> determineConstructor(Method javaFunction) throws ODataJPAModelException {
+    Constructor<?> result = null;
+    Constructor<?>[] constructors = javaFunction.getDeclaringClass().getConstructors();
+    for (Constructor<?> constructor : Arrays.asList(constructors)) {
+      Parameter[] parameters = constructor.getParameters();
+      if (parameters.length == 0)
+        result = constructor;
+      else if (parameters.length == 1 && parameters[0].getType() == EntityManager.class) {
+        result = constructor;
+        break;
+      }
+    }
+    if (result == null)
+      throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.FUNC_CONSTRUCTOR_MISSING, javaFunction
+          .getClass().getName());
+    return result;
+  }
+
+  private boolean isCollection(Class<?> declairedReturnType) {
+    for (Class<?> inter : Arrays.asList(declairedReturnType.getInterfaces())) {
+      if (inter == Collection.class)
+        return true;
+    }
+    return false;
   }
 }
