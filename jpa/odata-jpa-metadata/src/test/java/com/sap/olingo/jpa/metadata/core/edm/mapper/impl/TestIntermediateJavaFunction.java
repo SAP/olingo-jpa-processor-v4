@@ -97,7 +97,8 @@ public class TestIntermediateJavaFunction extends TestMappingRoot {
   public void checkIgnoresGivenIsBound() throws ODataJPAModelException {
     IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "sum");
 
-    assertEquals(false, act.getEdmItem().isBound());
+    assertFalse(act.getEdmItem().isBound());
+    assertFalse(act.isBound());
   }
 
   @Test

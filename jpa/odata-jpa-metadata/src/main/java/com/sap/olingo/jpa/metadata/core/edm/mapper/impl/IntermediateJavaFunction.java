@@ -18,12 +18,16 @@ import org.apache.olingo.commons.api.edm.provider.CsdlReturnType;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionParameter;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionParameter;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAJavaFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
 
-class IntermediateJavaFunction extends IntermediateFunction {
+class IntermediateJavaFunction extends IntermediateFunction implements JPAJavaFunction {
   private final Method javaFunction;
   private final Constructor<?> javaConstructor;
+  private List<JPAFunctionParameter> parameterList;
 
   IntermediateJavaFunction(JPAEdmNameBuilder nameBuilder, EdmFunction jpaFunction, Method javaFunction,
       IntermediateSchema schema) throws ODataJPAModelException {
@@ -33,6 +37,11 @@ class IntermediateJavaFunction extends IntermediateFunction {
     this.setExternalName(nameBuilder.buildOperationName(internalName));
     this.javaFunction = javaFunction;
     this.javaConstructor = determineConstructor(javaFunction);
+  }
+
+  @Override
+  public EdmFunctionType getFunctionType() {
+    return EdmFunctionType.JavaClass;
   }
 
   @Override
@@ -106,10 +115,6 @@ class IntermediateJavaFunction extends IntermediateFunction {
     edmFunction.setBound(false);
   }
 
-  Constructor<?> getJavaConstructor() {
-    return javaConstructor;
-  }
-
   @Override
   boolean hasFunctionImport() {
     return true;
@@ -139,5 +144,47 @@ class IntermediateJavaFunction extends IntermediateFunction {
         return true;
     }
     return false;
+  }
+
+  @Override
+  public Method getMethod() {
+    return javaFunction;
+  }
+
+  @Override
+  public Constructor<?> getConstructor() {
+    return javaConstructor;
+  }
+
+  @Override
+  public List<JPAFunctionParameter> getParameter() throws ODataJPAModelException {
+    if (parameterList == null) {
+      parameterList = new ArrayList<JPAFunctionParameter>();
+      Class<?>[] types = javaFunction.getParameterTypes();
+      Parameter[] declairedParameters = javaFunction.getParameters();
+      for (int i = 0; i < declairedParameters.length; i++) {
+        Parameter declairedParameter = declairedParameters[i];
+        EdmFunctionParameter definedParameter = declairedParameter.getAnnotation(EdmFunctionParameter.class);
+        if (definedParameter == null)
+          // Function parameter %1$s of method %2$s at class %3$s without required annotation
+          throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.FUNC_PARAM_ANNOTATION_MISSING,
+              declairedParameter.getName(), javaFunction.getName(), javaFunction
+                  .getDeclaringClass().getName());
+        JPAFunctionParameter parameter = new IntermediatFunctionParameter(definedParameter, nameBuilder
+            .buildPropertyName(definedParameter.name()), declairedParameter.getName(), types[i]);
+        parameterList.add(parameter);
+      }
+
+    }
+    return parameterList;
+  }
+
+  @Override
+  public JPAFunctionParameter getParameter(String internalName) throws ODataJPAModelException {
+    for (JPAFunctionParameter parameter : getParameter()) {
+      if (parameter.getInternalName() == internalName)
+        return parameter;
+    }
+    return null;
   }
 }
