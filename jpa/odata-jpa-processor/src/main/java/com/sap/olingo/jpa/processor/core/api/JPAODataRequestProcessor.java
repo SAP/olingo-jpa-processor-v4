@@ -1,6 +1,8 @@
 package com.sap.olingo.jpa.processor.core.api;
 
 import javax.persistence.EntityManager;
+import javax.persistence.OptimisticLockException;
+import javax.persistence.RollbackException;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
@@ -289,6 +291,11 @@ public final class JPAODataRequestProcessor implements PrimitiveValueProcessor, 
     } catch (ODataException e) {
       throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
           null, e);
+    } catch (RollbackException e) {
+      if (e.getCause() instanceof OptimisticLockException) {
+        throw new ODataJPAProcessorException(e.getCause().getCause(), HttpStatusCode.PRECONDITION_FAILED);
+      }
+      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
   }
 
