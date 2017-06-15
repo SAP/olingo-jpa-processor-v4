@@ -42,11 +42,6 @@ abstract class IntermediateFunction extends IntermediateModelElement implements 
   }
 
   @Override
-  public JPAFunctionResultParameter getResultParameter() {
-    return new IntermediatResultFunctionParameter(jpaFunction.returnType());
-  }
-
-  @Override
   protected void lazyBuildEdmItem() throws ODataJPAModelException {
     if (edmFunction == null) {
       edmFunction = new CsdlFunction();
@@ -116,7 +111,7 @@ abstract class IntermediateFunction extends IntermediateModelElement implements 
 
     @Override
     public Class<?> getType() {
-      return type;
+      return type.isPrimitive() ? boxPrimitive(type) : type;
     }
 
     @Override
@@ -140,16 +135,29 @@ abstract class IntermediateFunction extends IntermediateModelElement implements 
     }
   }
 
-  private class IntermediatResultFunctionParameter implements JPAFunctionResultParameter {
+  protected class IntermediatResultFunctionParameter implements JPAFunctionResultParameter {
     private final ReturnType jpaReturnType;
+    private final Class<?> type;
+    private final boolean isCollection;
 
     public IntermediatResultFunctionParameter(final ReturnType jpaReturnType) {
       this.jpaReturnType = jpaReturnType;
+      this.type = jpaReturnType.type();
+      this.isCollection = jpaReturnType.isCollection();
+    }
+
+    public IntermediatResultFunctionParameter(ReturnType jpaReturnType, Class<?> returnType, boolean isCollection) {
+      this.jpaReturnType = jpaReturnType;
+      this.isCollection = isCollection;
+      if (isCollection)
+        this.type = jpaReturnType.type();
+      else
+        this.type = returnType;
     }
 
     @Override
     public Class<?> getType() {
-      return jpaReturnType.type();
+      return type;
     }
 
     @Override
@@ -174,7 +182,7 @@ abstract class IntermediateFunction extends IntermediateModelElement implements 
 
     @Override
     public boolean isCollection() {
-      return jpaReturnType.isCollection();
+      return isCollection;
     }
 
   }

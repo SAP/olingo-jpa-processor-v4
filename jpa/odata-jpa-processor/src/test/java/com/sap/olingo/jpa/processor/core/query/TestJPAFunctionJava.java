@@ -16,8 +16,12 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.sql.DataSource;
 
+import org.apache.olingo.commons.api.data.Annotatable;
 import org.apache.olingo.commons.api.edm.EdmFunction;
 import org.apache.olingo.commons.api.edm.EdmParameter;
+import org.apache.olingo.commons.api.edm.EdmReturnType;
+import org.apache.olingo.commons.api.edm.EdmType;
+import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.core.edm.primitivetype.EdmInt32;
@@ -40,8 +44,8 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.processor.JPAFunctionRequestProcessor;
 import com.sap.olingo.jpa.processor.core.serializer.JPAFunctionSerializer;
-import com.sap.olingo.jpa.processor.core.test_jbf.TestFunction1;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
+import com.sap.olingo.jpa.processor.core.testobjects.TestFunctionParameter;
 
 public class TestJPAFunctionJava {
   protected static final String PUNIT_NAME = "com.sap.olingo.jpa";
@@ -80,7 +84,7 @@ public class TestJPAFunctionJava {
     when(requestContext.getUriInfo()).thenReturn(uriInfo);
     when(requestContext.getEntityManager()).thenReturn(em);
     when(requestContext.getSerializer()).thenReturn(serializer);
-    when(serializer.serialize(any(ODataRequest.class), any())).thenReturn(serializerResult);
+    when(serializer.serialize(any(Annotatable.class), any(EdmType.class))).thenReturn(serializerResult);
 
     request = mock(ODataRequest.class);
     response = mock(ODataResponse.class);
@@ -94,16 +98,19 @@ public class TestJPAFunctionJava {
 
   @After
   public void teardown() {
-    TestFunction1.calls = 0;
-    TestFunction1.param1 = 0;
-    TestFunction1.param2 = 0;
+    TestFunctionParameter.calls = 0;
+    TestFunctionParameter.param1 = 0;
+    TestFunctionParameter.param2 = 0;
   }
 
   @Test
   public void testCallsFunction() throws ODataApplicationException, ODataLibraryException {
     EdmParameter edmParamA = mock(EdmParameter.class);
     EdmParameter edmParamB = mock(EdmParameter.class);
+    EdmReturnType edmReturn = mock(EdmReturnType.class);
+    EdmType edmType = mock(EdmType.class);
 
+    when(edmFunction.getReturnType()).thenReturn(edmReturn);
     when(edmFunction.getName()).thenReturn("Sum");
     when(edmFunction.getNamespace()).thenReturn(PUNIT_NAME);
     when(edmFunction.getParameter("A")).thenReturn(edmParamA);
@@ -112,16 +119,21 @@ public class TestJPAFunctionJava {
     when(edmParamB.getType()).thenReturn(new EdmInt32());
     List<UriParameter> parameterList = buildParameters();
     when(uriResource.getParameters()).thenReturn(parameterList);
+    when(edmReturn.getType()).thenReturn(edmType);
+    when(edmType.getKind()).thenReturn(EdmTypeKind.PRIMITIVE);
 
     cut.retrieveData(request, response, ContentType.JSON);
-    assertEquals(1, TestFunction1.calls);
+    assertEquals(1, TestFunctionParameter.calls);
   }
 
   @Test
   public void testProvidesParameter() throws ODataApplicationException, ODataLibraryException {
     EdmParameter edmParamA = mock(EdmParameter.class);
     EdmParameter edmParamB = mock(EdmParameter.class);
+    EdmReturnType edmReturn = mock(EdmReturnType.class);
+    EdmType edmType = mock(EdmType.class);
 
+    when(edmFunction.getReturnType()).thenReturn(edmReturn);
     when(edmFunction.getName()).thenReturn("Sum");
     when(edmFunction.getNamespace()).thenReturn(PUNIT_NAME);
     when(edmFunction.getParameter("A")).thenReturn(edmParamA);
@@ -130,10 +142,12 @@ public class TestJPAFunctionJava {
     when(edmParamB.getType()).thenReturn(new EdmInt32());
     List<UriParameter> parameterList = buildParameters();
     when(uriResource.getParameters()).thenReturn(parameterList);
+    when(edmReturn.getType()).thenReturn(edmType);
+    when(edmType.getKind()).thenReturn(EdmTypeKind.PRIMITIVE);
 
     cut.retrieveData(request, response, ContentType.JSON);
-    assertEquals(5, TestFunction1.param1);
-    assertEquals(7, TestFunction1.param2);
+    assertEquals(5, TestFunctionParameter.param1);
+    assertEquals(7, TestFunctionParameter.param2);
   }
 
   private List<UriParameter> buildParameters() {

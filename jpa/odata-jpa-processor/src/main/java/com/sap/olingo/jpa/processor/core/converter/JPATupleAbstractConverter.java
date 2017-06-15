@@ -156,7 +156,7 @@ public abstract class JPATupleAbstractConverter {
       final Map<String, ComplexValue> complexValueBuffer,
       final List<Property> properties) throws ODataJPAModelException {
 
-    ComplexValue compexValue = null;
+    ComplexValue complexValue = null;
     if (jpaStructuredType.getPath(externalName) != null) {
       final JPAAttribute attribute = (JPAAttribute) jpaStructuredType.getPath(externalName).getPath().get(0);// getLeaf();
       if (attribute != null && !attribute.isKey() && attribute.isComplex()) {
@@ -165,17 +165,17 @@ public abstract class JPATupleAbstractConverter {
           bufferKey = attribute.getExternalName();
         else
           bufferKey = prefix + JPAPath.PATH_SEPERATOR + attribute.getExternalName();
-        compexValue = complexValueBuffer.get(bufferKey);
-        if (compexValue == null) {
-          compexValue = new ComplexValue();
-          complexValueBuffer.put(bufferKey, compexValue);
+        complexValue = complexValueBuffer.get(bufferKey);
+        if (complexValue == null) {
+          complexValue = new ComplexValue();
+          complexValueBuffer.put(bufferKey, complexValue);
           properties.add(new Property(
               attribute.getStructuredType().getExternalFQN().getFullQualifiedNameAsString(),
               attribute.getExternalName(),
               ValueType.COMPLEX,
-              compexValue));
+              complexValue));
         }
-        final List<Property> values = compexValue.getValue();
+        final List<Property> values = complexValue.getValue();
         final int splitIndex = attribute.getExternalName().length() + JPAPath.PATH_SEPERATOR.length();
         final String attributeName = externalName.substring(splitIndex);
         convertAttribute(value, attributeName, bufferKey, attribute.getStructuredType(), complexValueBuffer, values);

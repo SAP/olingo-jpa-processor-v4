@@ -162,6 +162,14 @@ public class TestIntermediateJavaFunction extends TestMappingRoot {
   }
 
   @Test
+  public void checkReturnsEmbeddableCollectionTypeAsReturnType() throws ODataJPAModelException {
+    IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "returnEmbeddableCollection");
+
+    assertEquals("com.sap.olingo.jpa.ChangeInformation", act.getEdmItem().getReturnType().getType());
+    assertTrue(act.getEdmItem().getReturnType().isCollection());
+  }
+
+  @Test
   public void checkReturnsEntityTypeAsReturnType() throws ODataJPAModelException {
     IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "returnEntity");
     assertEquals("com.sap.olingo.jpa.Person", act.getEdmItem().getReturnType().getType());

@@ -57,13 +57,22 @@ public final class JPASerializerFactory {
     switch (edmTypeKind) {
     case ENTITY:
       if (isColletion)
-        return new JPASerializeCollection(serviceMetadata, odata.createSerializer(responseFormat), uriHelper, uriInfo);
+        return new JPASerializeEntityCollection(serviceMetadata, odata.createSerializer(responseFormat), uriHelper,
+            uriInfo);
       else
         return new JPASerializeEntity(serviceMetadata, odata.createSerializer(responseFormat), uriHelper, uriInfo);
     case COMPLEX:
-      return new JPASerializeComplex(serviceMetadata, odata.createSerializer(responseFormat), uriHelper, uriInfo);
+      if (isColletion)
+        return new JPASerializeComplexCollection(serviceMetadata, odata.createSerializer(responseFormat), uriHelper,
+            uriInfo);
+      else
+        return new JPASerializeComplex(serviceMetadata, odata.createSerializer(responseFormat), uriHelper, uriInfo);
     case PRIMITIVE:
-      return new JPASerializePrimitive(serviceMetadata, odata.createSerializer(responseFormat), uriHelper, uriInfo);
+      if (isColletion)
+        return new JPASerializePrimitiveCollection(serviceMetadata, odata.createSerializer(responseFormat), uriHelper,
+            uriInfo);
+      else
+        return new JPASerializePrimitive(serviceMetadata, odata.createSerializer(responseFormat), uriHelper, uriInfo);
     default:
       throw new ODataJPASerializerException(ODataJPASerializerException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
           HttpStatusCode.NOT_IMPLEMENTED, edmTypeKind.toString());
@@ -78,7 +87,8 @@ public final class JPASerializerFactory {
     case entitySet:
     case navigationProperty:
       if (isColletion)
-        return new JPASerializeCollection(serviceMetadata, odata.createSerializer(responseFormat), uriHelper, uriInfo);
+        return new JPASerializeEntityCollection(serviceMetadata, odata.createSerializer(responseFormat), uriHelper,
+            uriInfo);
       else
         return new JPASerializeEntity(serviceMetadata, odata.createSerializer(responseFormat), uriHelper, uriInfo);
     case complexProperty:

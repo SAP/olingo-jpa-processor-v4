@@ -2,7 +2,9 @@ package com.sap.olingo.jpa.processor.core.serializer;
 
 import java.util.List;
 
+import org.apache.olingo.commons.api.data.Annotatable;
 import org.apache.olingo.commons.api.data.EntityCollection;
+import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.server.api.ODataRequest;
@@ -15,13 +17,18 @@ import org.apache.olingo.server.api.uri.UriResourceFunction;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPASerializerException;
 
 final class JPASerializeFunction implements JPAFunctionSerializer {
-
-  private final JPASerializer serializer;
+  private final JPAFunctionSerializer serializer;
+//  private final ServiceMetadata serviceMetadata;
+//  private final ContentType responseFormat;
+//  private final ODataSerializer odataSerializer;
 
   public JPASerializeFunction(final UriInfo uriInfo, ContentType responseFormat,
-      final JPASerializerFactory jpaSerializerFactory) throws ODataJPASerializerException, SerializerException {
-
-    this.serializer = createSerializer(jpaSerializerFactory, responseFormat, uriInfo);
+      final JPASerializerFactory jpaSerializerFactory)
+      throws ODataJPASerializerException, SerializerException {
+//    this.serviceMetadata = serviceMetadata;
+//    this.responseFormat = responseFormat;
+//    this.odataSerializer = oDataSerializer;
+    this.serializer = (JPAFunctionSerializer) createSerializer(jpaSerializerFactory, responseFormat, uriInfo);
   }
 
   @Override
@@ -31,10 +38,9 @@ final class JPASerializeFunction implements JPAFunctionSerializer {
   }
 
   @Override
-  public SerializerResult serialize(ODataRequest request, Object result) throws SerializerException,
-      ODataJPASerializerException {
-    // TODO Auto-generated method stub
-    return null;
+  public SerializerResult serialize(final Annotatable annotatable, final EdmType entityType)
+      throws SerializerException, ODataJPASerializerException {
+    return serializer.serialize(annotatable, entityType);
   }
 
   JPASerializer getSerializer() {

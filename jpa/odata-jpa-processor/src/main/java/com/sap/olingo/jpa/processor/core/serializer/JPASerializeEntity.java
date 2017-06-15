@@ -1,10 +1,11 @@
 package com.sap.olingo.jpa.processor.core.serializer;
 
+import org.apache.olingo.commons.api.data.Annotatable;
 import org.apache.olingo.commons.api.data.ContextURL;
-import org.apache.olingo.commons.api.data.ContextURL.Suffix;
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
+import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.serializer.EntitySerializerOptions;
@@ -16,13 +17,13 @@ import org.apache.olingo.server.api.uri.UriInfo;
 
 import com.sap.olingo.jpa.processor.core.query.Util;
 
-final class JPASerializeEntity implements JPASerializer {
+final class JPASerializeEntity implements JPASerializer, JPAFunctionSerializer {
   private final ServiceMetadata serviceMetadata;
   private final UriInfo uriInfo;
   private final UriHelper uriHelper;
   private final ODataSerializer serializer;
 
-  public JPASerializeEntity(final ServiceMetadata serviceMetadata, final ODataSerializer serializer,
+  JPASerializeEntity(final ServiceMetadata serviceMetadata, final ODataSerializer serializer,
       final UriHelper uriHelper, final UriInfo uriInfo) throws SerializerException {
     this.uriInfo = uriInfo;
     this.serializer = serializer;
@@ -31,18 +32,26 @@ final class JPASerializeEntity implements JPASerializer {
   }
 
   @Override
-  public SerializerResult serialize(final ODataRequest requnullest, final EntityCollection result)
+  public SerializerResult serialize(final ODataRequest request, final EntityCollection result)
       throws SerializerException {
 
     final EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(uriInfo.getUriResourceParts());
 
     final EdmEntityType entityType = targetEdmEntitySet.getEntityType();
 
-    final String selectList = uriHelper.buildContextURLSelectList(targetEdmEntitySet.getEntityType(),
-        uriInfo.getExpandOption(), uriInfo.getSelectOption());
+    return serialize(result, entityType);
+  }
+
+  @Override
+  public SerializerResult serialize(final Annotatable annotatable, final EdmType entityType)
+      throws SerializerException {
+
+    final EntityCollection result = (EntityCollection) annotatable;
+    final String selectList = uriHelper.buildContextURLSelectList((EdmEntityType) entityType, uriInfo.getExpandOption(),
+        uriInfo.getSelectOption());
 
     final ContextURL contextUrl = ContextURL.with()
-        .entitySet(targetEdmEntitySet).suffix(Suffix.ENTITY)
+        .type(entityType)
         .selectList(selectList)
         .build();
 
@@ -52,7 +61,7 @@ final class JPASerializeEntity implements JPASerializer {
         .expand(uriInfo.getExpandOption())
         .build();
 
-    return serializer.entity(serviceMetadata, entityType, result
+    return serializer.entity(serviceMetadata, (EdmEntityType) entityType, result
         .getEntities()
         .get(0),
         options);

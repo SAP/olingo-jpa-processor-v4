@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.olingo.commons.api.edm.geo.Geospatial.Dimension;
@@ -64,6 +65,11 @@ public class ExampleJavaFunctions implements ODataFunction {
   @EdmFunction(name = "", returnType = @ReturnType())
   public ChangeInformation returnEmbeddable() {
     return new ChangeInformation();
+  }
+
+  @EdmFunction(name = "", returnType = @ReturnType(type = ChangeInformation.class))
+  public List<ChangeInformation> returnEmbeddableCollection() {
+    return Arrays.asList(new ChangeInformation[] { new ChangeInformation() });
   }
 
   @EdmFunction(name = "", returnType = @ReturnType())

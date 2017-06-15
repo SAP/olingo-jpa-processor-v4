@@ -15,6 +15,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionParameter;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionParameter;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionResultParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
 
@@ -54,6 +55,11 @@ class IntermediateDataBaseFunction extends IntermediateFunction implements JPADa
         return parameter;
     }
     return null;
+  }
+
+  @Override
+  public JPAFunctionResultParameter getResultParameter() {
+    return new IntermediatResultFunctionParameter(jpaFunction.returnType());
   }
 
   @Override

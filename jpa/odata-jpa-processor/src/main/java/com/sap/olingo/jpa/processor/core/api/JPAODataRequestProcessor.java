@@ -11,10 +11,12 @@ import org.apache.olingo.server.api.ODataLibraryException;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.ServiceMetadata;
+import org.apache.olingo.server.api.processor.ComplexCollectionProcessor;
 import org.apache.olingo.server.api.processor.ComplexProcessor;
 import org.apache.olingo.server.api.processor.CountEntityCollectionProcessor;
 import org.apache.olingo.server.api.processor.EntityProcessor;
 import org.apache.olingo.server.api.processor.MediaEntityProcessor;
+import org.apache.olingo.server.api.processor.PrimitiveCollectionProcessor;
 import org.apache.olingo.server.api.processor.PrimitiveValueProcessor;
 import org.apache.olingo.server.api.uri.UriInfo;
 
@@ -23,8 +25,9 @@ import com.sap.olingo.jpa.processor.core.processor.JPACUDRequestProcessor;
 import com.sap.olingo.jpa.processor.core.processor.JPAProcessorFactory;
 import com.sap.olingo.jpa.processor.core.processor.JPARequestProcessor;
 
-public final class JPAODataRequestProcessor implements PrimitiveValueProcessor,
-    ComplexProcessor, CountEntityCollectionProcessor, EntityProcessor, MediaEntityProcessor {
+public final class JPAODataRequestProcessor implements PrimitiveValueProcessor, PrimitiveCollectionProcessor,
+    ComplexProcessor, ComplexCollectionProcessor, CountEntityCollectionProcessor, EntityProcessor,
+    MediaEntityProcessor {
   private final EntityManager em;
   private final JPAODataSessionContextAccess context;
   private JPAProcessorFactory factory;
@@ -171,6 +174,18 @@ public final class JPAODataRequestProcessor implements PrimitiveValueProcessor,
   }
 
   @Override
+  public void readComplexCollection(ODataRequest request, ODataResponse response, UriInfo uriInfo,
+      ContentType responseFormat) throws ODataApplicationException, ODataLibraryException {
+    try {
+      final JPARequestProcessor p = factory.createProcessor(em, uriInfo, responseFormat);
+      p.retrieveData(request, response, responseFormat);
+    } catch (ODataException e) {
+      throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
+          null, e);
+    }
+  }
+
+  @Override
   public void readEntity(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo,
       final ContentType responseFormat) throws ODataApplicationException, ODataLibraryException {
 
@@ -199,9 +214,21 @@ public final class JPAODataRequestProcessor implements PrimitiveValueProcessor,
   }
 
   @Override
+  public void readPrimitiveCollection(ODataRequest request, ODataResponse response, UriInfo uriInfo,
+      ContentType responseFormat) throws ODataApplicationException, ODataLibraryException {
+    try {
+      final JPARequestProcessor p = factory.createProcessor(em, uriInfo, responseFormat);
+      p.retrieveData(request, response, responseFormat);
+    } catch (ODataException e) {
+      throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
+          null, e);
+    }
+
+  }
+
+  @Override
   public void readPrimitive(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo,
-      final ContentType responseFormat)
-      throws ODataApplicationException, ODataLibraryException {
+      final ContentType responseFormat) throws ODataApplicationException, ODataLibraryException {
 
     try {
       final JPARequestProcessor p = factory.createProcessor(em, uriInfo, responseFormat);
@@ -289,6 +316,34 @@ public final class JPAODataRequestProcessor implements PrimitiveValueProcessor,
       ODataLibraryException {
 
     throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_UPDATE,
+        HttpStatusCode.NOT_IMPLEMENTED);
+  }
+
+  @Override
+  public void updatePrimitiveCollection(ODataRequest request, ODataResponse response, UriInfo uriInfo,
+      ContentType requestFormat, ContentType responseFormat) throws ODataApplicationException, ODataLibraryException {
+    throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_UPDATE,
+        HttpStatusCode.NOT_IMPLEMENTED);
+  }
+
+  @Override
+  public void deletePrimitiveCollection(ODataRequest request, ODataResponse response, UriInfo uriInfo)
+      throws ODataApplicationException, ODataLibraryException {
+    throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
+        HttpStatusCode.NOT_IMPLEMENTED);
+  }
+
+  @Override
+  public void updateComplexCollection(ODataRequest request, ODataResponse response, UriInfo uriInfo,
+      ContentType requestFormat, ContentType responseFormat) throws ODataApplicationException, ODataLibraryException {
+    throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_UPDATE,
+        HttpStatusCode.NOT_IMPLEMENTED);
+  }
+
+  @Override
+  public void deleteComplexCollection(ODataRequest request, ODataResponse response, UriInfo uriInfo)
+      throws ODataApplicationException, ODataLibraryException {
+    throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
         HttpStatusCode.NOT_IMPLEMENTED);
   }
 
