@@ -11,7 +11,7 @@ import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
 
-public abstract class JPASerializePrimitiveAbstract implements JPASerializer {
+public abstract class JPASerializePrimitiveAbstract implements JPASerializer, JPAFunctionSerializer {
   protected final static char PATH_SEPERATOR = '/';
   protected final ServiceMetadata serviceMetadata;
   protected final UriInfo uriInfo;

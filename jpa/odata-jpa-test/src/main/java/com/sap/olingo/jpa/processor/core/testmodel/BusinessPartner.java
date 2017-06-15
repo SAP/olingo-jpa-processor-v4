@@ -178,7 +178,7 @@ public abstract class BusinessPartner implements KeyAccess {
     return customString2;
   }
 
-  public long geteTag() {
+  public long getETag() {
     return eTag;
   }
 
@@ -243,7 +243,7 @@ public abstract class BusinessPartner implements KeyAccess {
     this.customString2 = customString2;
   }
 
-  public void seteTag(long eTag) {
+  public void setETag(long eTag) {
     this.eTag = eTag;
   }
 

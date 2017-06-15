@@ -9,6 +9,7 @@ import java.util.Map;
 import javax.persistence.metamodel.Metamodel;
 
 import org.apache.olingo.commons.api.edm.EdmBindingTarget;
+import org.apache.olingo.commons.api.edm.EdmComplexType;
 import org.apache.olingo.commons.api.edm.EdmFunction;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
@@ -26,6 +27,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 /**
@@ -104,6 +106,21 @@ class IntermediateServiceDocument implements JPAServiceDocument {
     final IntermediateSchema schema = schemaListInternalKey.get(edmType.getNamespace());
     if (schema != null)
       return schema.getEntityType(edmType.getName());
+    return null;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument#getComplexType(org.apache.olingo.commons.api.edm
+   * .EdmComplexType)
+   */
+  @Override
+  public JPAStructuredType getComplexType(EdmComplexType edmType) {
+    final IntermediateSchema schema = schemaListInternalKey.get(edmType.getNamespace());
+    if (schema != null)
+      return schema.getComplexType(edmType.getName());
     return null;
   }
 
@@ -242,4 +259,5 @@ class IntermediateServiceDocument implements JPAServiceDocument {
     }
 
   }
+
 }

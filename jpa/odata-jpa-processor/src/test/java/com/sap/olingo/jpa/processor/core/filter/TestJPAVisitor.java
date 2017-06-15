@@ -20,7 +20,7 @@ import org.apache.olingo.server.api.uri.queryoption.expression.Member;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
@@ -65,7 +65,7 @@ public class TestJPAVisitor {
     when(info.getUriResourceParts()).thenReturn(resources);
 //  final JPAFunction jpaFunction = this.jpaComplier.getSd().getFunction(((UriResourceFunction) resource).getFunction());
     JPAServiceDocument sd = mock(JPAServiceDocument.class);
-    JPAFunction jpaFunction = mock(JPAFunction.class);
+    JPADataBaseFunction jpaFunction = mock(JPADataBaseFunction.class);
     EdmFunction edmFunction = mock(EdmFunction.class);
 
     when(uriFunction.getFunction()).thenReturn(edmFunction);

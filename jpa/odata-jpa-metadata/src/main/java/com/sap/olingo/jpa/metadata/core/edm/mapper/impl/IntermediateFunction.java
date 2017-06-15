@@ -1,6 +1,5 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
@@ -31,34 +30,15 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 
 abstract class IntermediateFunction extends IntermediateModelElement implements JPAFunction {
   protected CsdlFunction edmFunction;
-  protected final EdmFunction jpaUserDefinedFunction;
+  protected final EdmFunction jpaFunction;
   protected final IntermediateSchema schema;
 
   IntermediateFunction(final JPAEdmNameBuilder nameBuilder, final EdmFunction jpaFunction,
       final IntermediateSchema schema, final String internalName) throws ODataJPAModelException {
 
     super(nameBuilder, internalName);
-    this.jpaUserDefinedFunction = jpaFunction;
+    this.jpaFunction = jpaFunction;
     this.schema = schema;
-  }
-
-  @Override
-  public String getDBName() {
-    return jpaUserDefinedFunction.functionName();
-  }
-
-  @Override
-  public List<JPAFunctionParameter> getParameter() {
-    final List<JPAFunctionParameter> parameterList = new ArrayList<JPAFunctionParameter>();
-    for (final EdmFunctionParameter jpaParameter : jpaUserDefinedFunction.parameter()) {
-      parameterList.add(new IntermediatFunctionParameter(jpaParameter));
-    }
-    return parameterList;
-  }
-
-  @Override
-  public JPAFunctionResultParameter getResultParameter() {
-    return new IntermediatResultFunctionParameter(jpaUserDefinedFunction.returnType());
   }
 
   @Override
@@ -67,8 +47,8 @@ abstract class IntermediateFunction extends IntermediateModelElement implements 
       edmFunction = new CsdlFunction();
       edmFunction.setName(getExternalName());
       edmFunction.setParameters(returnNullIfEmpty(determineEdmInputParameter()));
-      edmFunction.setReturnType(determineEdmResultType(jpaUserDefinedFunction.returnType()));
-      edmFunction.setBound(jpaUserDefinedFunction.isBound());
+      edmFunction.setReturnType(determineEdmResultType(jpaFunction.returnType()));
+      edmFunction.setBound(jpaFunction.isBound());
       // TODO edmFunction.setComposable(isComposable)
       edmFunction.setComposable(false);
       // TODO edmFunction.setEntitySetPath(entitySetPath) for bound functions
@@ -83,15 +63,15 @@ abstract class IntermediateFunction extends IntermediateModelElement implements 
   }
 
   String getUserDefinedFunction() {
-    return jpaUserDefinedFunction.functionName();
+    return jpaFunction.functionName();
   }
 
   boolean hasFunctionImport() {
-    return jpaUserDefinedFunction.hasFunctionImport();
+    return jpaFunction.hasFunctionImport();
   }
 
-  boolean isBound() {
-    return jpaUserDefinedFunction.isBound();
+  boolean isBound() throws ODataJPAModelException {
+    return getEdmItem().isBound();
   }
 
   protected abstract List<CsdlParameter> determineEdmInputParameter() throws ODataJPAModelException;
@@ -100,24 +80,38 @@ abstract class IntermediateFunction extends IntermediateModelElement implements 
 
   protected class IntermediatFunctionParameter implements JPAFunctionParameter {
     private final EdmFunctionParameter jpaParameter;
+    private final String internalName;
+    private final String externalName;
+    private final Class<?> type;
 
     IntermediatFunctionParameter(final EdmFunctionParameter jpaParameter) {
       this.jpaParameter = jpaParameter;
+      this.internalName = jpaParameter.parameterName();
+      this.externalName = jpaParameter.name();
+      this.type = jpaParameter.type();
+    }
+
+    public IntermediatFunctionParameter(EdmFunctionParameter jpaParameter, String externalName,
+        String internalName, Class<?> type) {
+      this.jpaParameter = jpaParameter;
+      this.internalName = internalName;
+      this.externalName = externalName;
+      this.type = type;
     }
 
     @Override
-    public String getDBName() {
-      return jpaParameter.parameterName();
+    public String getInternalName() {
+      return internalName;
     }
 
     @Override
     public String getName() {
-      return jpaParameter.name();
+      return externalName;
     }
 
     @Override
     public Class<?> getType() {
-      return jpaParameter.type();
+      return type.isPrimitive() ? boxPrimitive(type) : type;
     }
 
     @Override
@@ -141,16 +135,29 @@ abstract class IntermediateFunction extends IntermediateModelElement implements 
     }
   }
 
-  private class IntermediatResultFunctionParameter implements JPAFunctionResultParameter {
+  protected class IntermediatResultFunctionParameter implements JPAFunctionResultParameter {
     private final ReturnType jpaReturnType;
+    private final Class<?> type;
+    private final boolean isCollection;
 
     public IntermediatResultFunctionParameter(final ReturnType jpaReturnType) {
       this.jpaReturnType = jpaReturnType;
+      this.type = jpaReturnType.type();
+      this.isCollection = jpaReturnType.isCollection();
+    }
+
+    public IntermediatResultFunctionParameter(ReturnType jpaReturnType, Class<?> returnType, boolean isCollection) {
+      this.jpaReturnType = jpaReturnType;
+      this.isCollection = isCollection;
+      if (isCollection)
+        this.type = jpaReturnType.type();
+      else
+        this.type = returnType;
     }
 
     @Override
     public Class<?> getType() {
-      return jpaReturnType.type();
+      return type;
     }
 
     @Override
@@ -175,7 +182,7 @@ abstract class IntermediateFunction extends IntermediateModelElement implements 
 
     @Override
     public boolean isCollection() {
-      return jpaReturnType.isCollection();
+      return isCollection;
     }
 
   }

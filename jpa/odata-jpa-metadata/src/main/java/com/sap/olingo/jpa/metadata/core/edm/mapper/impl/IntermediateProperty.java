@@ -84,7 +84,8 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
 
   @Override
   public Class<?> getType() {
-    return jpaAttribute.getJavaType().isPrimitive() ? boxPrimitive() : jpaAttribute.getJavaType();
+    return jpaAttribute.getJavaType().isPrimitive() ? boxPrimitive(jpaAttribute.getJavaType()) : jpaAttribute
+        .getJavaType();
   }
 
   @Override
@@ -356,33 +357,6 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
   @Override
   public void addAnnotations(List<CsdlAnnotation> annotations) {
     edmAnnotations.addAll(annotations);
-  }
-
-  /**
-   * https://docs.oracle.com/javase/tutorial/java/data/autoboxing.html
-   * 
-   * @return
-   */
-  private Class<?> boxPrimitive() {
-
-    if (jpaAttribute.getJavaType().getName().equals("int"))
-      return Integer.class;
-    else if (jpaAttribute.getJavaType().getName().equals("long"))
-      return Long.class;
-    else if (jpaAttribute.getJavaType().getName().equals("boolean"))
-      return Boolean.class;
-    else if (jpaAttribute.getJavaType().getName().equals("byte"))
-      return Byte.class;
-    else if (jpaAttribute.getJavaType().getName().equals("char"))
-      return Character.class;
-    else if (jpaAttribute.getJavaType().getName().equals("float"))
-      return Float.class;
-    else if (jpaAttribute.getJavaType().getName().equals("short"))
-      return Short.class;
-    else if (jpaAttribute.getJavaType().getName().equals("double"))
-      return Double.class;
-
-    return null;
   }
 
   private boolean isLob() {

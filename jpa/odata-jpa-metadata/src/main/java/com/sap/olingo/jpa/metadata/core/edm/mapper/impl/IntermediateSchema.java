@@ -18,6 +18,7 @@ import org.reflections.Reflections;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 /**
@@ -99,6 +100,14 @@ final class IntermediateSchema extends IntermediateModelElement {
 
   IntermediateStructuredType getComplexType(final Class<?> targetClass) {
     return complexTypeListInternalKey.get(IntNameBuilder.buildStructuredTypeName(targetClass));
+  }
+
+  JPAStructuredType getComplexType(final String externalName) {
+    for (final Map.Entry<String, IntermediateComplexType> complexType : complexTypeListInternalKey.entrySet()) {
+      if (complexType.getValue().getExternalName().equals(externalName))
+        return complexType.getValue();
+    }
+    return null;
   }
 
   JPAEntityType getEntityType(final String externalName) {

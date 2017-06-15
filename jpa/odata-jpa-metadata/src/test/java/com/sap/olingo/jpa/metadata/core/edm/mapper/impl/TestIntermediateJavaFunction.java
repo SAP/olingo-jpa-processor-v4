@@ -97,7 +97,8 @@ public class TestIntermediateJavaFunction extends TestMappingRoot {
   public void checkIgnoresGivenIsBound() throws ODataJPAModelException {
     IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "sum");
 
-    assertEquals(false, act.getEdmItem().isBound());
+    assertFalse(act.getEdmItem().isBound());
+    assertFalse(act.isBound());
   }
 
   @Test
@@ -158,6 +159,14 @@ public class TestIntermediateJavaFunction extends TestMappingRoot {
     IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "returnEmbeddable");
 
     assertEquals("com.sap.olingo.jpa.ChangeInformation", act.getEdmItem().getReturnType().getType());
+  }
+
+  @Test
+  public void checkReturnsEmbeddableCollectionTypeAsReturnType() throws ODataJPAModelException {
+    IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "returnEmbeddableCollection");
+
+    assertEquals("com.sap.olingo.jpa.ChangeInformation", act.getEdmItem().getReturnType().getType());
+    assertTrue(act.getEdmItem().getReturnType().isCollection());
   }
 
   @Test

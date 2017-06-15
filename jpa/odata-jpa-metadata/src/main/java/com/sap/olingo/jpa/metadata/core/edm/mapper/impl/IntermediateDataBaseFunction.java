@@ -12,10 +12,14 @@ import org.apache.olingo.commons.api.edm.provider.CsdlReturnType;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionParameter;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionParameter;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionResultParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
 
-class IntermediateDataBaseFunction extends IntermediateFunction {
+class IntermediateDataBaseFunction extends IntermediateFunction implements JPADataBaseFunction {
   private final Class<?> jpaDefiningPOJO;
 
   IntermediateDataBaseFunction(JPAEdmNameBuilder nameBuilder, EdmFunction jpaFunction, Class<?> definingPOJO,
@@ -23,6 +27,67 @@ class IntermediateDataBaseFunction extends IntermediateFunction {
     super(nameBuilder, jpaFunction, schema, IntNameBuilder.buildFunctionName(jpaFunction));
     this.setExternalName(jpaFunction.name());
     this.jpaDefiningPOJO = definingPOJO;
+  }
+
+  @Override
+  public String getDBName() {
+    return jpaFunction.functionName();
+  }
+
+  @Override
+  public EdmFunctionType getFunctionType() {
+    return EdmFunctionType.UserDefinedFunction;
+  }
+
+  @Override
+  public List<JPAFunctionParameter> getParameter() {
+    final List<JPAFunctionParameter> parameterList = new ArrayList<JPAFunctionParameter>();
+    for (final EdmFunctionParameter jpaParameter : jpaFunction.parameter()) {
+      parameterList.add(new IntermediatFunctionParameter(jpaParameter));
+    }
+    return parameterList;
+  }
+
+  @Override
+  public JPAFunctionParameter getParameter(String internalName) {
+    for (JPAFunctionParameter parameter : getParameter()) {
+      if (parameter.getInternalName() == internalName)
+        return parameter;
+    }
+    return null;
+  }
+
+  @Override
+  public JPAFunctionResultParameter getResultParameter() {
+    return new IntermediatResultFunctionParameter(jpaFunction.returnType());
+  }
+
+  @Override
+  protected List<CsdlParameter> determineEdmInputParameter() throws ODataJPAModelException {
+
+    final List<CsdlParameter> edmInputParameterList = new ArrayList<CsdlParameter>();
+    for (final EdmFunctionParameter jpaParameter : jpaFunction.parameter()) {
+
+      final CsdlParameter edmInputParameter = new CsdlParameter();
+      edmInputParameter.setName(jpaParameter.name());
+      edmInputParameter.setType(JPATypeConvertor.convertToEdmSimpleType(jpaParameter.type()).getFullQualifiedName());
+
+      edmInputParameter.setNullable(false);
+      edmInputParameter.setCollection(jpaParameter.isCollection());
+      if (jpaParameter.maxLength() >= 0)
+        edmInputParameter.setMaxLength(jpaParameter.maxLength());
+      if (jpaParameter.precision() >= 0)
+        edmInputParameter.setPrecision(jpaParameter.precision());
+      if (jpaParameter.scale() >= 0)
+        edmInputParameter.setScale(jpaParameter.scale());
+      if (jpaParameter.srid() != null && !jpaParameter.srid().srid().isEmpty()) {
+        final SRID srid = SRID.valueOf(jpaParameter.srid().srid());
+        srid.setDimension(jpaParameter.srid().dimension());
+        edmInputParameter.setSrid(srid);
+      }
+      edmInputParameterList.add(edmInputParameter);
+    }
+    return edmInputParameterList;
   }
 
   // TODO handle multiple schemas
@@ -63,33 +128,5 @@ class IntermediateDataBaseFunction extends IntermediateFunction {
       edmResultType.setSrid(srid);
     }
     return edmResultType;
-  }
-
-  @Override
-  protected List<CsdlParameter> determineEdmInputParameter() throws ODataJPAModelException {
-
-    final List<CsdlParameter> edmInputParameterList = new ArrayList<CsdlParameter>();
-    for (final EdmFunctionParameter jpaParameter : jpaUserDefinedFunction.parameter()) {
-
-      final CsdlParameter edmInputParameter = new CsdlParameter();
-      edmInputParameter.setName(jpaParameter.name());
-      edmInputParameter.setType(JPATypeConvertor.convertToEdmSimpleType(jpaParameter.type()).getFullQualifiedName());
-
-      edmInputParameter.setNullable(false);
-      edmInputParameter.setCollection(jpaParameter.isCollection());
-      if (jpaParameter.maxLength() >= 0)
-        edmInputParameter.setMaxLength(jpaParameter.maxLength());
-      if (jpaParameter.precision() >= 0)
-        edmInputParameter.setPrecision(jpaParameter.precision());
-      if (jpaParameter.scale() >= 0)
-        edmInputParameter.setScale(jpaParameter.scale());
-      if (jpaParameter.srid() != null && !jpaParameter.srid().srid().isEmpty()) {
-        final SRID srid = SRID.valueOf(jpaParameter.srid().srid());
-        srid.setDimension(jpaParameter.srid().dimension());
-        edmInputParameter.setSrid(srid);
-      }
-      edmInputParameterList.add(edmInputParameter);
-    }
-    return edmInputParameterList;
   }
 }

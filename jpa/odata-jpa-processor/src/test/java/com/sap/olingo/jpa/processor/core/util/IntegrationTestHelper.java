@@ -38,32 +38,48 @@ public class IntegrationTestHelper {
 
   public IntegrationTestHelper(EntityManagerFactory localEmf, String urlPath) throws IOException,
       ODataException {
-    this(localEmf, null, urlPath, null);
+    this(localEmf, null, urlPath, null, null);
   }
 
   public IntegrationTestHelper(EntityManagerFactory localEmf, DataSource ds, String urlPath) throws IOException,
       ODataException {
-    this(localEmf, ds, urlPath, null);
+    this(localEmf, ds, urlPath, null, null);
   }
 
   public IntegrationTestHelper(EntityManagerFactory localEmf, String urlPath, StringBuffer requestBody)
       throws IOException, ODataException {
-    this(localEmf, null, urlPath, requestBody);
+    this(localEmf, null, urlPath, requestBody, null);
+  }
+
+  public IntegrationTestHelper(EntityManagerFactory localEmf, DataSource ds, String urlPath, String functionPackage)
+      throws IOException, ODataException {
+    this(localEmf, ds, urlPath, null, functionPackage);
   }
 
   public IntegrationTestHelper(EntityManagerFactory localEmf, DataSource ds, String urlPath, StringBuffer requestBody)
       throws IOException, ODataException {
+    this(localEmf, ds, urlPath, requestBody, null);
+  }
+
+  public IntegrationTestHelper(EntityManagerFactory localEmf, DataSource ds, String urlPath, StringBuffer requestBody,
+      String functionPackage) throws IOException, ODataException {
 
     super();
     EntityManager em = localEmf.createEntityManager();
     this.req = new HttpServletRequestDouble(uriPrefix + urlPath, requestBody);
     this.resp = new HttpServletResponseDouble();
     OData odata = OData.newInstance();
+    String[] packages;
+    if (functionPackage != null)
+      packages = new String[] { functionPackage };
+    else
+      packages = new String[] {};
     JPAODataSessionContextAccess context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, localEmf,
-        null, null), ds);
+        null, packages), ds, functionPackage);
 
     ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(context.getEdmProvider(),
         new ArrayList<EdmxReference>()));
+
     handler.register(new JPAODataRequestProcessor(context, em));
     handler.register(new JPAODataBatchProcessor(em));
     handler.process(req, resp);
