@@ -5,7 +5,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyMapOf;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -109,14 +108,13 @@ public class TestJPADeleteProcessor {
     assertEquals(204, response.getStatusCode());
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void testThrowUnexpectedExceptionInCaseOfError() throws ODataJPAProcessException {
     ODataResponse response = new ODataResponse();
     ODataRequest request = mock(ODataRequest.class);
     JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
-    doThrow(NullPointerException.class).when(handler).deleteEntity(any(JPAEntityType.class), anyMapOf(String.class,
-        Object.class), any(Map.class), any(EntityManager.class));
+    doThrow(NullPointerException.class).when(handler).deleteEntity(any(JPARequestEntity.class), any(
+        EntityManager.class));
 
     when(sessionContext.getCUDRequestHandler()).thenReturn(handler);
 
@@ -129,15 +127,13 @@ public class TestJPADeleteProcessor {
     fail();
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void testThrowExpectedExceptionInCaseOfError() throws ODataJPAProcessException {
     ODataResponse response = new ODataResponse();
     ODataRequest request = mock(ODataRequest.class);
     JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
-        HttpStatusCode.BAD_REQUEST)).when(handler).deleteEntity(any(JPAEntityType.class), anyMapOf(String.class,
-            Object.class), any(Map.class), any(EntityManager.class));
+        HttpStatusCode.BAD_REQUEST)).when(handler).deleteEntity(any(JPARequestEntity.class), any(EntityManager.class));
 
     when(sessionContext.getCUDRequestHandler()).thenReturn(handler);
 
@@ -242,12 +238,11 @@ public class TestJPADeleteProcessor {
     public Map<String, List<String>> headers;
 
     @Override
-    public void deleteEntity(final JPAEntityType et, final Map<String, Object> keyPredicates,
-        final Map<String, List<String>> headers, final EntityManager em) {
+    public void deleteEntity(final JPARequestEntity entity, final EntityManager em) {
 
-      this.keyPredicates = keyPredicates;
-      this.et = et;
-      this.headers = headers;
+      this.keyPredicates = entity.getKeys();
+      this.et = entity.getEntityType();
+      this.headers = entity.getAllHeader();
     }
   }
 }

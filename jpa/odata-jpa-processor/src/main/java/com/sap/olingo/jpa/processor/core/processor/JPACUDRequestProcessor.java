@@ -164,13 +164,15 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
     } catch (ODataException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
     }
+    final JPARequestEntity requestEntity = createRequestEntity(et, jpaKeyPredicates, request.getAllHeaders());
 
     // 3. Perform Delete
     final boolean foreignTransation = em.getTransaction().isActive();
     if (!foreignTransation)
       em.getTransaction().begin();
     try {
-      handler.deleteEntity(et, jpaKeyPredicates, request.getAllHeaders(), em);
+      handler.deleteEntity(requestEntity, em);
+      // handler.deleteEntity(et, jpaKeyPredicates, request.getAllHeaders(), em);
     } catch (ODataJPAProcessException e) {
       if (!foreignTransation)
         em.getTransaction().rollback();
@@ -322,6 +324,24 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
     } catch (ODataException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
     }
+  }
+
+  /**
+   * Create an RequestEntity instance for delete requests
+   * @param et
+   * @param keys
+   * @param headers
+   * @return
+   */
+  final JPARequestEntity createRequestEntity(JPAEntityType et, Map<String, Object> keys,
+      Map<String, List<String>> headers) {
+
+    final Map<String, Object> jpaAttributes = new HashMap<String, Object>(0);
+    final Map<JPAAssociationPath, List<JPARequestEntity>> relatedEntities =
+        new HashMap<JPAAssociationPath, List<JPARequestEntity>>(0);
+    final Map<JPAAssociationPath, List<JPARequestLink>> relationLinks =
+        new HashMap<JPAAssociationPath, List<JPARequestLink>>(0);
+    return new JPARequestEntityImpl(et, jpaAttributes, relatedEntities, relationLinks, keys, headers);
   }
 
   private Map<JPAAssociationPath, List<JPARequestLink>> createRelationLinks(JPAEntityType et, Entity odataEntity)
