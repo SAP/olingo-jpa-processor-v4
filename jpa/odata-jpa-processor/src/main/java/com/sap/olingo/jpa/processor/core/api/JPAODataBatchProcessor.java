@@ -7,6 +7,8 @@ import java.util.UUID;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import javax.persistence.OptimisticLockException;
+import javax.persistence.RollbackException;
 
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpHeader;
@@ -22,6 +24,8 @@ import org.apache.olingo.server.api.deserializer.batch.BatchOptions;
 import org.apache.olingo.server.api.deserializer.batch.BatchRequestPart;
 import org.apache.olingo.server.api.deserializer.batch.ODataResponsePart;
 import org.apache.olingo.server.api.processor.BatchProcessor;
+
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 
 /**
  * 
@@ -146,6 +150,11 @@ public final class JPAODataBatchProcessor implements BatchProcessor {
       // the Change Set!
       t.rollback();
       throw e;
+    } catch (RollbackException e) {
+      if (e.getCause() instanceof OptimisticLockException) {
+        throw new ODataJPAProcessorException(e.getCause().getCause(), HttpStatusCode.PRECONDITION_FAILED);
+      }
+      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
   }
 
