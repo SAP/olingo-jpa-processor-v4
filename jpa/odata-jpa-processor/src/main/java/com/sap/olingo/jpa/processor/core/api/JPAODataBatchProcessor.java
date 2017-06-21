@@ -30,8 +30,8 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 /**
  * 
  * <a href=
- * "https://docs.oasis-open.org/odata/odata/v4.0/os/part1-protocol/odata-v4.0-os-part1-protocol.html#_Toc372793748"> aa
- * </a>
+ * "https://docs.oasis-open.org/odata/odata/v4.0/os/part1-protocol/odata-v4.0-os-part1-protocol.html#_Toc372793748">
+ * 11.7 Batch Requests </a>
  * 
  * @author Oliver Grande
  *
@@ -40,9 +40,11 @@ public final class JPAODataBatchProcessor implements BatchProcessor {
 
   private final EntityManager em;
   private OData odata;
+  private final JPAODataSessionContextAccess context;
 
-  public JPAODataBatchProcessor(EntityManager em) {
+  public JPAODataBatchProcessor(JPAODataSessionContextAccess context, EntityManager em) {
     this.em = em;
+    this.context = context;
   }
 
   @Override
@@ -53,6 +55,8 @@ public final class JPAODataBatchProcessor implements BatchProcessor {
   @Override
   public void processBatch(final BatchFacade facade, final ODataRequest request, final ODataResponse response)
       throws ODataApplicationException, ODataLibraryException {
+
+    final int handle = context.getDebugger().startRuntimeMeasurement(this, "processBatch");
     final String boundary = facade.extractBoundaryFromContentType(request.getHeader(HttpHeader.CONTENT_TYPE));
     final BatchOptions options = BatchOptions.with()
         .rawBaseUri(request.getRawBaseUri())
@@ -72,6 +76,7 @@ public final class JPAODataBatchProcessor implements BatchProcessor {
     response.setHeader(HttpHeader.CONTENT_TYPE, ContentType.MULTIPART_MIXED + ";boundary=" + responseBoundary);
     response.setContent(responseContent);
     response.setStatusCode(HttpStatusCode.ACCEPTED.getStatusCode());
+    context.getDebugger().stopRuntimeMeasurement(handle);
   }
 
   @Override
@@ -97,6 +102,7 @@ public final class JPAODataBatchProcessor implements BatchProcessor {
      * To keep things simple, we dispatch the requests within the Change Set
      * to the other processor interfaces.
      */
+    final int handle = context.getDebugger().startRuntimeMeasurement(this, "processChangeSet");
     final List<ODataResponse> responses = new ArrayList<ODataResponse>();
     final EntityTransaction t = em.getTransaction();
     try {
@@ -139,9 +145,11 @@ public final class JPAODataBatchProcessor implements BatchProcessor {
         }
       }
       t.commit();
+      context.getDebugger().stopRuntimeMeasurement(handle);
       return new ODataResponsePart(responses, true);
     } catch (ODataApplicationException e) {
       t.rollback();
+      context.getDebugger().stopRuntimeMeasurement(handle);
       throw e;
     } catch (ODataLibraryException e) {
       // The batch request is malformed or the processor implementation is
@@ -149,11 +157,14 @@ public final class JPAODataBatchProcessor implements BatchProcessor {
       // Throwing an exception will stop the whole batch request not only
       // the Change Set!
       t.rollback();
+      context.getDebugger().stopRuntimeMeasurement(handle);
       throw e;
     } catch (RollbackException e) {
       if (e.getCause() instanceof OptimisticLockException) {
+        context.getDebugger().stopRuntimeMeasurement(handle);
         throw new ODataJPAProcessorException(e.getCause().getCause(), HttpStatusCode.PRECONDITION_FAILED);
       }
+      context.getDebugger().stopRuntimeMeasurement(handle);
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
   }

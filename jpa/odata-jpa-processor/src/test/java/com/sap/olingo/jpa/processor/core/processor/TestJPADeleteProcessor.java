@@ -43,6 +43,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.processor.core.api.JPAAbstractCUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPACUDRequestHandler;
@@ -59,6 +60,7 @@ public class TestJPADeleteProcessor {
   private UriResourceEntitySet uriEts;
   private EdmEntitySet ets;
   private List<UriParameter> keyPredicates;
+  private JPAServiceDebugger debugger;
 
   private static final String PUNIT_NAME = "com.sap.olingo.jpa";
   private static EntityManagerFactory emf;
@@ -81,6 +83,7 @@ public class TestJPADeleteProcessor {
     requestContext = mock(JPAODataRequestContextAccess.class);
     serviceMetadata = mock(ServiceMetadata.class);
     uriInfo = mock(UriInfo.class);
+    debugger = mock(JPAServiceDebugger.class);
     keyPredicates = new ArrayList<UriParameter>();
     ets = mock(EdmEntitySet.class);
     final List<UriResource> pathParts = new ArrayList<UriResource>();
@@ -88,6 +91,7 @@ public class TestJPADeleteProcessor {
     pathParts.add(uriEts);
 
     when(sessionContext.getEdmProvider()).thenReturn(jpaEdm);
+    when(sessionContext.getDebugger()).thenReturn(debugger);
     when(requestContext.getEntityManager()).thenReturn(emf.createEntityManager());
     when(requestContext.getUriInfo()).thenReturn(uriInfo);
     when(uriInfo.getUriResourceParts()).thenReturn(pathParts);

@@ -10,12 +10,12 @@ class JPACoreDeugger implements JPAServiceDebugger {
   private final List<RuntimeMeasurement> runtimeInformation = new ArrayList<RuntimeMeasurement>();
 
   @Override
-  public int startRuntimeMeasurement(final String className, final String methodName) {
+  public int startRuntimeMeasurement(final Object instance, final String methodName) {
     final int handleId = runtimeInformation.size();
 
     final RuntimeMeasurement measurement = new RuntimeMeasurement();
     measurement.setTimeStarted(System.nanoTime());
-    measurement.setClassName(className);
+    measurement.setClassName(instance.getClass().getSimpleName());
     measurement.setMethodName(methodName);
 
     runtimeInformation.add(measurement);

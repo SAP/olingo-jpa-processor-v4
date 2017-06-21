@@ -62,7 +62,7 @@ public class JPAODataGetHandler {
     context.initDebugger(request.getParameter(DebugSupport.ODATA_DEBUG_QUERY_PARAMETER));
     handler.register(context.getDebugSupport());
     handler.register(new JPAODataRequestProcessor(context, em));
-    handler.register(new JPAODataBatchProcessor(em));
+    handler.register(new JPAODataBatchProcessor(context, em));
     handler.register(context.getEdmProvider().getServiceDocument());
     handler.process(request, response);
   }

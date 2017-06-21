@@ -186,7 +186,7 @@ public abstract class JPAAbstractQuery {
   private class EmptyDebugger implements JPAServiceDebugger {
 
     @Override
-    public int startRuntimeMeasurement(String className, String methodName) {
+    public int startRuntimeMeasurement(final Object instance, String methodName) {
       return 0;
     }
 

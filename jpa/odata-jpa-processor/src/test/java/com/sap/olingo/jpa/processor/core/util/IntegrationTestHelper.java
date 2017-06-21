@@ -81,7 +81,7 @@ public class IntegrationTestHelper {
         new ArrayList<EdmxReference>()));
 
     handler.register(new JPAODataRequestProcessor(context, em));
-    handler.register(new JPAODataBatchProcessor(em));
+    handler.register(new JPAODataBatchProcessor(context, em));
     handler.process(req, resp);
 
   }
