@@ -141,6 +141,8 @@ public final class JPAODataBatchProcessor implements BatchProcessor {
            * ODataResponsePart and setting the second parameter
            * "isChangeSet" to false.
            */
+          context.getDebugger().stopRuntimeMeasurement(handle);
+          // TODO odata.continue-on-error header
           return new ODataResponsePart(response, false);
         }
       }
