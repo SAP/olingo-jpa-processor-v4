@@ -3,3 +3,4 @@
 * Singeltions
 * Enumerations
 * Annotations
+* Actions

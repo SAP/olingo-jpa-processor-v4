@@ -88,7 +88,7 @@ public final class JPAExpandQuery extends JPAExecutableQuery {
    */
   private JPAExpandQueryResult executeExpandTopSkipQuery() throws ODataApplicationException {
     // TODO make this replacable e.g. by UNION ALL
-    final int handle = debugger.startRuntimeMeasurement("JPAExpandQuery", "executeExpandTopSkipQuery");
+    final int handle = debugger.startRuntimeMeasurement(this, "executeExpandTopSkipQuery");
 
     long skip = 0;
     long top = Long.MAX_VALUE;
@@ -106,11 +106,11 @@ public final class JPAExpandQuery extends JPAExecutableQuery {
   }
 
   private JPAExpandQueryResult executeStandardQuery() throws ODataApplicationException {
-    final int handle = debugger.startRuntimeMeasurement("JPAExpandQuery", "executeStandradQuery");
+    final int handle = debugger.startRuntimeMeasurement(this, "executeStandradQuery");
 
     final TypedQuery<Tuple> tupleQuery = createTupleQuery();
 
-    final int resultHandle = debugger.startRuntimeMeasurement("TypedQuery", "getResultList");
+    final int resultHandle = debugger.startRuntimeMeasurement(tupleQuery, "getResultList");
     final List<Tuple> intermediateResult = tupleQuery.getResultList();
     debugger.stopRuntimeMeasurement(resultHandle);
     Map<String, List<Tuple>> result = convertResult(intermediateResult, assoziation, 0, Long.MAX_VALUE);
@@ -120,7 +120,7 @@ public final class JPAExpandQuery extends JPAExecutableQuery {
   }
 
   private TypedQuery<Tuple> createTupleQuery() throws ODataApplicationException {
-    final int handle = debugger.startRuntimeMeasurement("JPAExpandQuery", "createTupleQuery");
+    final int handle = debugger.startRuntimeMeasurement(this, "createTupleQuery");
 
     final List<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
     final List<JPAPath> descriptionAttributes = extractDescriptionAttributes(selectionPath);

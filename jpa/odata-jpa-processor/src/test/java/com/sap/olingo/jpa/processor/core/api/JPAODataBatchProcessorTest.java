@@ -33,37 +33,41 @@ public class JPAODataBatchProcessorTest {
   private JPAODataBatchProcessor cut;
 
   @Mock
-  private EntityManager          em;
+  private EntityManager em;
 
   @Mock
-  private EntityTransaction      et;
+  private EntityTransaction et;
 
   @Mock
-  private OData                  odata;
+  private OData odata;
 
   @Mock
-  private ServiceMetadata        serviceMetadata;
+  private ServiceMetadata serviceMetadata;
 
   @Mock
-  private BatchFacade            facade;
+  private BatchFacade facade;
 
   @Mock
-  private ODataRequest           request;
+  private ODataRequest request;
 
   @Mock
-  private ODataResponse          response;
+  private ODataResponse response;
 
   @Mock
-  private RollbackException      e;
+  private RollbackException e;
 
-  private List<ODataRequest>     requests;
+  @Mock
+  private JPAODataSessionContextAccess context;
+
+  private List<ODataRequest> requests;
 
   @Before
   public void setup() {
-    cut = new JPAODataBatchProcessor(em);
+    cut = new JPAODataBatchProcessor(context, em);
     cut.init(odata, serviceMetadata);
     requests = new ArrayList<ODataRequest>();
     requests.add(request);
+    when(context.getDebugger()).thenReturn(new JPAEmptyDebugger());
   }
 
   @Test

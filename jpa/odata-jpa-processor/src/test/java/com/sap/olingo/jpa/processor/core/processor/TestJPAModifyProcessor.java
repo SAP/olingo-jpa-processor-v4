@@ -45,6 +45,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.processor.core.api.JPAAbstractCUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializer;
@@ -85,6 +86,7 @@ public abstract class TestJPAModifyProcessor {
   protected List<UriResource> pathParts = new ArrayList<UriResource>();
   protected SerializerResult serializerResult;
   protected List<String> header = new ArrayList<String>();
+  protected JPAServiceDebugger debugger;
 
   @Before
   public void setUp() throws Exception {
@@ -102,8 +104,10 @@ public abstract class TestJPAModifyProcessor {
     em = mock(EntityManager.class);
     transaction = mock(EntityTransaction.class);
     serializerResult = mock(SerializerResult.class);
+    debugger = mock(JPAServiceDebugger.class);
 
     when(sessionContext.getEdmProvider()).thenReturn(jpaEdm);
+    when(sessionContext.getDebugger()).thenReturn(debugger);
     when(requestContext.getEntityManager()).thenReturn(em);
     when(requestContext.getUriInfo()).thenReturn(uriInfo);
     when(requestContext.getSerializer()).thenReturn(serializer);

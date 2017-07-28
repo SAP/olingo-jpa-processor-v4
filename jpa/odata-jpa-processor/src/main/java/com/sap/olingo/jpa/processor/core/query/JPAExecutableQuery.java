@@ -327,7 +327,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
 
     // TODO Functions and orderBy: Part 1 - 11.5.3.1 Invoking a Function
 
-    final int handle = debugger.startRuntimeMeasurement("JPAQuery", "createOrderByList");
+    final int handle = debugger.startRuntimeMeasurement(this, "createOrderByList");
     final List<Order> orders = new ArrayList<Order>();
     if (orderByOption != null) {
       for (final OrderByItem orderByItem : orderByOption.getOrders()) {
@@ -406,7 +406,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
   protected List<Selection<?>> createSelectClause(final Map<String, From<?, ?>> joinTables,
       final List<JPAPath> jpaPathList) throws ODataApplicationException {
 
-    final int handle = debugger.startRuntimeMeasurement("JPAQuery", "createSelectClause");
+    final int handle = debugger.startRuntimeMeasurement(this, "createSelectClause");
 
     final List<Selection<?>> selections = new ArrayList<Selection<?>>();
 
@@ -424,7 +424,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
   protected javax.persistence.criteria.Expression<Boolean> createWhere(final Map<String, From<?, ?>> joinTables)
       throws ODataApplicationException {
 
-    final int handle = debugger.startRuntimeMeasurement("JPAQuery", "createWhere");
+    final int handle = debugger.startRuntimeMeasurement(this, "createWhere");
 
     javax.persistence.criteria.Expression<Boolean> whereCondition = null;
 
@@ -531,7 +531,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
   private javax.persistence.criteria.Expression<Boolean> buildNavigationSubQueries(final Root<?> root)
       throws ODataApplicationException {
 
-    final int handle = debugger.startRuntimeMeasurement("JPAExecutableQuery", "buildNavigationSubQueries");
+    final int handle = debugger.startRuntimeMeasurement(this, "buildNavigationSubQueries");
 
     final List<UriResource> resourceParts = uriResource.getUriResourceParts();
 
