@@ -84,8 +84,10 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
 
   @Override
   public Class<?> getType() {
-    return jpaAttribute.getJavaType().isPrimitive() ? boxPrimitive(jpaAttribute.getJavaType()) : jpaAttribute
-        .getJavaType();
+    if (valueConverter != null)
+      return jpaAttribute.getJavaType().isPrimitive() ? boxPrimitive(dbType) : dbType;
+    else
+      return jpaAttribute.getJavaType().isPrimitive() ? boxPrimitive(entityType) : entityType;
   }
 
   @Override

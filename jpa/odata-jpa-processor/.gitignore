@@ -5,3 +5,4 @@ target/
 /derby.log
 /test/
 /.settings/
+/*.log
