@@ -58,7 +58,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractRequestProce
   public void retrieveData(final ODataRequest request, final ODataResponse response, final ContentType responseFormat)
       throws ODataException {
 
-    final int handle = debugger.startRuntimeMeasurement("JPANavigationRequestProcessor", "retrieveData");
+    final int handle = debugger.startRuntimeMeasurement(this, "retrieveData");
 
     final List<UriResource> resourceParts = uriInfo.getUriResourceParts();
     final EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(resourceParts);
@@ -80,7 +80,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractRequestProce
     final JPAExpandQueryResult result = query.execute();
     result.putChildren(readExpandEntities(request.getAllHeaders(), null, uriInfo));
     // Convert tuple result into an OData Result
-    final int converterHandle = debugger.startRuntimeMeasurement("JPATupleResultConverter", "getResult");
+    final int converterHandle = debugger.startRuntimeMeasurement(this, "getResult");
     EntityCollection entityCollection;
     try {
       entityCollection = new JPATupleResultConverter(sd, result, odata.createUriHelper(), serviceMetadata)
@@ -107,7 +107,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractRequestProce
       response.setStatusCode(HttpStatusCode.NOT_FOUND.getStatusCode());
     // 200 OK indicates that either a result was found or that the a Entity Collection query had no result
     else if (entityCollection.getEntities() != null) {
-      final int serializerHandle = debugger.startRuntimeMeasurement("JPASerializer", "serialize");
+      final int serializerHandle = debugger.startRuntimeMeasurement(serializer, "serialize");
       final SerializerResult serializerResult = serializer.serialize(request, entityCollection);
       debugger.stopRuntimeMeasurement(serializerHandle);
       createSuccessResponce(response, responseFormat, serializerResult);
@@ -195,7 +195,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractRequestProce
       final List<JPANavigationProptertyInfo> parentHops, final UriInfoResource uriResourceInfo)
       throws ODataException {
 
-    final int handle = debugger.startRuntimeMeasurement("JPANavigationRequestProcessor", "readExpandEntities");
+    final int handle = debugger.startRuntimeMeasurement(this, "readExpandEntities");
 
     final Map<JPAAssociationPath, JPAExpandQueryResult> allExpResults =
         new HashMap<JPAAssociationPath, JPAExpandQueryResult>();

@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.processor.core.api;
 
+import java.util.List;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.metamodel.Metamodel;
@@ -13,6 +15,7 @@ import org.apache.olingo.server.api.ODataHttpHandler;
 import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.debug.DebugInformation;
 import org.apache.olingo.server.api.debug.DebugSupport;
+import org.apache.olingo.server.api.debug.RuntimeMeasurement;
 
 import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
 
@@ -24,6 +27,14 @@ public class JPAODataGetHandler {
   final OData odata;
   Metamodel jpaMetamodel;
 
+  public JPAODataGetHandler(final String pUnit) throws ODataException {
+    this.namespace = pUnit;
+    this.ds = null;
+    this.emf = null;
+    this.context = new JPAODataContextImpl(this);
+    this.odata = OData.newInstance();
+  }
+
   public JPAODataGetHandler(final String pUnit, final DataSource ds) throws ODataException {
     super();
     this.namespace = pUnit;
@@ -33,14 +44,6 @@ public class JPAODataGetHandler {
     this.context = new JPAODataContextImpl(this);
     this.odata = OData.newInstance();
 
-  }
-
-  public JPAODataGetHandler(final String pUnit) throws ODataException {
-    this.namespace = pUnit;
-    this.ds = null;
-    this.emf = null;
-    this.context = new JPAODataContextImpl(this);
-    this.odata = OData.newInstance();
   }
 
   public JPAODataGetContext getJPAODataContext() {
@@ -62,7 +65,7 @@ public class JPAODataGetHandler {
     context.initDebugger(request.getParameter(DebugSupport.ODATA_DEBUG_QUERY_PARAMETER));
     handler.register(context.getDebugSupport());
     handler.register(new JPAODataRequestProcessor(context, em));
-    handler.register(new JPAODataBatchProcessor(em));
+    handler.register(new JPAODataBatchProcessor(context, em));
     handler.register(context.getEdmProvider().getServiceDocument());
     handler.process(request, response);
   }
@@ -77,24 +80,57 @@ public class JPAODataGetHandler {
       this.debugSupport = debugSupport;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.olingo.server.api.debug.DebugSupport#createDebugResponse(java.lang.String,
+     * org.apache.olingo.server.api.debug.DebugInformation)
+     */
+    @Override
+    public ODataResponse createDebugResponse(final String debugFormat, final DebugInformation debugInfo) {
+      joinRuntimeInfo(debugInfo);
+      return debugSupport.createDebugResponse(debugFormat, debugInfo);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.olingo.server.api.debug.DebugSupport#init(org.apache.olingo.server.api.OData)
+     */
     @Override
     public void init(final OData odata) {
       debugSupport.init(odata);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.olingo.server.api.debug.DebugSupport#isUserAuthorized()
+     */
     @Override
     public boolean isUserAuthorized() {
       return debugSupport.isUserAuthorized();
     }
 
-    @Override
-    public ODataResponse createDebugResponse(final String debugFormat, final DebugInformation debugInfo) {
-      debugInfo.getRuntimeInformation().addAll(debugger.getRuntimeInformation());
-      return debugSupport.createDebugResponse(debugFormat, debugInfo);
-    }
-
     void setDebugger(final JPAServiceDebugger debugger) {
       this.debugger = debugger;
+    }
+
+    private void joinRuntimeInfo(final DebugInformation debugInfo) {
+      // Olingo create a tree for runtime measurement in DebugTabRuntime.add(final RuntimeMeasurement
+      // runtimeMeasurement). The current algorithm (V4.3.0) not working well for batch requests if the own runtime info
+      // is just appended (addAll), so insert sorted:
+      final List<RuntimeMeasurement> olingoInfo = debugInfo.getRuntimeInformation();
+      int startIndex = 0;
+      for (RuntimeMeasurement m : debugger.getRuntimeInformation()) {
+        for (; startIndex < olingoInfo.size(); startIndex++) {
+          if (olingoInfo.get(startIndex).getTimeStarted() > m.getTimeStarted()) {
+            break;
+          }
+        }
+        olingoInfo.add(startIndex, m);
+        startIndex += 1;
+      }
     }
   }
 
