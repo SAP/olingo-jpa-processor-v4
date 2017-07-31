@@ -64,14 +64,15 @@ public final class JPAODataRequestProcessor implements PrimitiveValueProcessor, 
       final ContentType requestFormat, final ContentType responseFormat) throws ODataApplicationException,
       ODataLibraryException {
 
-    JPACUDRequestProcessor p;
     try {
-      p = factory.createCUDRequestProcessor(em, uriInfo, responseFormat);
+      final JPACUDRequestProcessor p = factory.createCUDRequestProcessor(em, uriInfo, responseFormat);
+      p.createEntity(request, response, requestFormat, responseFormat);
+      // p.verifyEntities();
     } catch (ODataException e) {
       throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
           null, e);
     }
-    p.createEntity(request, response, requestFormat, responseFormat);
+
   }
 
   @Override
@@ -88,9 +89,8 @@ public final class JPAODataRequestProcessor implements PrimitiveValueProcessor, 
       throws ODataApplicationException, ODataLibraryException {
     // Set NULL: .../Organizations('4')/Address
 
-    JPACUDRequestProcessor p;
     try {
-      p = factory.createCUDRequestProcessor(em, uriInfo);
+      final JPACUDRequestProcessor p = factory.createCUDRequestProcessor(em, uriInfo);
       p.clearFields(request, response);
     } catch (ODataException e) {
       throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
@@ -103,7 +103,7 @@ public final class JPAODataRequestProcessor implements PrimitiveValueProcessor, 
       throws ODataApplicationException, ODataLibraryException {
 
     try {
-      JPACUDRequestProcessor p = this.factory.createCUDRequestProcessor(this.em, uriInfo);
+      final JPACUDRequestProcessor p = this.factory.createCUDRequestProcessor(this.em, uriInfo);
       p.deleteEntity(request, response);
     } catch (ODataException e) {
       throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
@@ -125,9 +125,8 @@ public final class JPAODataRequestProcessor implements PrimitiveValueProcessor, 
     // are nullable.On success, the service MUST respond with 204 No Content and an empty body.
     //
     // Nullable checked by Olingo Core
-    JPACUDRequestProcessor p;
     try {
-      p = factory.createCUDRequestProcessor(em, uriInfo);
+      final JPACUDRequestProcessor p = factory.createCUDRequestProcessor(em, uriInfo);
       p.clearFields(request, response);
     } catch (ODataException e) {
       throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
@@ -139,9 +138,8 @@ public final class JPAODataRequestProcessor implements PrimitiveValueProcessor, 
   public void deletePrimitiveValue(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo)
       throws ODataApplicationException, ODataLibraryException {
     // .../Organizations('4')/Address/Country/$value
-    JPACUDRequestProcessor p;
     try {
-      p = factory.createCUDRequestProcessor(em, uriInfo);
+      final JPACUDRequestProcessor p = factory.createCUDRequestProcessor(em, uriInfo);
       p.clearFields(request, response);
     } catch (ODataException e) {
       throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
@@ -191,9 +189,8 @@ public final class JPAODataRequestProcessor implements PrimitiveValueProcessor, 
   public void readEntity(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo,
       final ContentType responseFormat) throws ODataApplicationException, ODataLibraryException {
 
-    JPARequestProcessor p;
     try {
-      p = factory.createProcessor(em, uriInfo, responseFormat);
+      final JPARequestProcessor p = factory.createProcessor(em, uriInfo, responseFormat);
       p.retrieveData(request, response, responseFormat);
     } catch (ODataException e) {
       throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
@@ -245,9 +242,8 @@ public final class JPAODataRequestProcessor implements PrimitiveValueProcessor, 
   public void readPrimitiveValue(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo,
       final ContentType responseFormat) throws ODataApplicationException, ODataLibraryException {
 
-    JPARequestProcessor p;
     try {
-      p = factory.createProcessor(em, uriInfo, responseFormat);
+      final JPARequestProcessor p = factory.createProcessor(em, uriInfo, responseFormat);
       p.retrieveData(request, response, responseFormat);
     } catch (ODataException e) {
       throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
@@ -284,9 +280,8 @@ public final class JPAODataRequestProcessor implements PrimitiveValueProcessor, 
       final ContentType requestFormat, final ContentType responseFormat) throws ODataApplicationException,
       ODataLibraryException {
 
-    JPACUDRequestProcessor p;
     try {
-      p = factory.createCUDRequestProcessor(em, uriInfo, responseFormat);
+      final JPACUDRequestProcessor p = factory.createCUDRequestProcessor(em, uriInfo, responseFormat);
       p.updateEntity(request, response, requestFormat, responseFormat);
     } catch (ODataException e) {
       throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
