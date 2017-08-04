@@ -153,6 +153,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
     fail();
   }
 
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   private EdmDescriptionAssoziation prepareCheckPath(Attribute<?, ?> jpaAttribute) {
     AnnotatedMember jpaField = mock(AnnotatedMember.class);
     ManagedType jpaManagedType = mock(ManagedType.class);

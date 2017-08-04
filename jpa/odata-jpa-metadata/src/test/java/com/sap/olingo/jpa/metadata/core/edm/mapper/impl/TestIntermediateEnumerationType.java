@@ -3,6 +3,7 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 import org.junit.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.DayOfWeek;
 
 public class TestIntermediateEnumerationType extends TestMappingRoot {
   private IntermediateEnumerationType cut;

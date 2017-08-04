@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.persistence.AttributeConverter;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
@@ -75,7 +76,8 @@ public final class ExpressionUtil {
     return convertValueOnAttribute(odata, attribute, value, true);
   }
 
-  public static Object convertValueOnAttribute(final OData odata, final JPAAttribute attribute, final String value,
+  @SuppressWarnings("unchecked")
+  public static <T> Object convertValueOnAttribute(final OData odata, final JPAAttribute attribute, final String value,
       final Boolean isUri) throws ODataJPAFilterException {
 
     try {
@@ -91,8 +93,14 @@ public final class ExpressionUtil {
         targetValue = value;
       }
       // Converter
-      return edmType.valueOfString(targetValue, edmProperty.isNullable(), edmProperty.getMaxLength(),
-          edmProperty.getPrecision(), edmProperty.getScale(), true, attribute.getType());
+      if (attribute.getConverter() != null) {
+        AttributeConverter<?, T> dbConverter = (AttributeConverter<?, T>) attribute.getConverter();
+        return dbConverter.convertToEntityAttribute(
+            (T) edmType.valueOfString(targetValue, edmProperty.isNullable(), edmProperty.getMaxLength(),
+                edmProperty.getPrecision(), edmProperty.getScale(), true, attribute.getType()));
+      } else
+        return edmType.valueOfString(targetValue, edmProperty.isNullable(), edmProperty.getMaxLength(),
+            edmProperty.getPrecision(), edmProperty.getScale(), true, attribute.getType());
 
     } catch (EdmPrimitiveTypeException e) {
       throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);

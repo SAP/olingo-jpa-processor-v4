@@ -229,16 +229,19 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
     return Modifier.isAbstract(modifiers);
   }
 
-  void determineHasEtag() {
+  private void determineHasEtag() throws ODataJPAModelException {
     for (final String internalName : this.declaredPropertiesList.keySet()) {
       if (declaredPropertiesList.get(internalName).isEtag()) {
         hasEtag = true;
+        return;
       }
     }
+    if (getBaseType() != null && getBaseType() instanceof IntermediateEntityType)
+      hasEtag = ((IntermediateEntityType) getBaseType()).hasEtag();
   }
 
   /**
-   * Creates the key of an entity. In case the POJP is declared with an embedded ID the key fields get resolved, so that
+   * Creates the key of an entity. In case the POJO is declared with an embedded ID the key fields get resolved, so that
    * they occur as separate properties within the metadata document
    * 
    * @param propertyList

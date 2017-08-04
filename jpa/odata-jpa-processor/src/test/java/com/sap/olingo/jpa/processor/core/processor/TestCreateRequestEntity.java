@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -47,7 +48,7 @@ import com.sap.olingo.jpa.processor.core.serializer.JPASerializer;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 
 public class TestCreateRequestEntity {
-  protected static final String PUNIT_NAME = "org.apache.olingo.jpa";
+  protected static final String PUNIT_NAME = "com.sap.olingo.jpa";
   protected static EntityManagerFactory emf;
   protected static JPAEdmProvider jpaEdm;
   protected static DataSource ds;
@@ -58,7 +59,7 @@ public class TestCreateRequestEntity {
 
     ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
     emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, ds);
-    jpaEdm = new JPAEdmProvider(PUNIT_NAME, emf.getMetamodel(), pP);
+    jpaEdm = new JPAEdmProvider(PUNIT_NAME, emf.getMetamodel(), pP, null);
 
   }
 
@@ -77,6 +78,7 @@ public class TestCreateRequestEntity {
   private List<UriParameter> keyPredicates;
   private JPAConversionHelper convHelper;
   private List<UriResource> pathParts = new ArrayList<UriResource>();
+  private Map<String, List<String>> headers;
 
   @Before
   public void setUp() throws Exception {
@@ -93,6 +95,7 @@ public class TestCreateRequestEntity {
     convHelper = new JPAConversionHelper();// mock(JPAConversionHelper.class);
     em = mock(EntityManager.class);
     transaction = mock(EntityTransaction.class);
+    headers = new HashMap<String, List<String>>(0);
 
     when(sessionContext.getEdmProvider()).thenReturn(jpaEdm);
     when(requestContext.getEntityManager()).thenReturn(em);
@@ -113,7 +116,7 @@ public class TestCreateRequestEntity {
     List<Property> properties = createProperties();
     createODataEntity(properties);
 
-    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity);
+    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
 
     assertNotNull(act.getData());
     assertNotNull(act.getEntityType());
@@ -124,7 +127,7 @@ public class TestCreateRequestEntity {
     List<Property> properties = createProperties();
     createODataEntity(properties);
 
-    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity);
+    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
 
     assertEquals("AdministrativeDivision", act.getEntityType().getExternalName());
   }
@@ -134,7 +137,7 @@ public class TestCreateRequestEntity {
     List<Property> properties = createProperties();
     createODataEntity(properties);
 
-    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity);
+    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
     String actValue = (String) act.getData().get("codeID");
     assertNotNull(actValue);
     assertEquals("DE50", actValue);
@@ -145,7 +148,7 @@ public class TestCreateRequestEntity {
     List<Property> properties = createProperties();
     createODataEntity(properties);
 
-    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity);
+    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
 
     assertNotNull(act.getRelatedEntities());
     assertTrue(act.getRelatedEntities().isEmpty());
@@ -156,7 +159,7 @@ public class TestCreateRequestEntity {
     List<Property> properties = createProperties();
     createODataEntity(properties);
 
-    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity);
+    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
 
     assertNotNull(act.getRelationLinks());
     assertTrue(act.getRelationLinks().isEmpty());
@@ -171,7 +174,7 @@ public class TestCreateRequestEntity {
     addChildrenNavigationLinkDE501(navigationLinks);
     when(oDataEntity.getNavigationLinks()).thenReturn(navigationLinks);
 
-    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity);
+    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
 
     Object actValue = findEntitryList(act.getRelatedEntities(), ("children"));
     assertNotNull("Is null", actValue);
@@ -187,7 +190,7 @@ public class TestCreateRequestEntity {
     addChildrenNavigationLinkDE501(navigationLinks);
     when(oDataEntity.getNavigationLinks()).thenReturn(navigationLinks);
 
-    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity);
+    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
 
     Object actValue = findEntitryList(act.getRelatedEntities(), ("children"));
     assertEquals("Wrong size", 1, ((List<?>) actValue).size());
@@ -202,7 +205,7 @@ public class TestCreateRequestEntity {
     addChildrenNavigationLinkDE501(navigationLinks);
     when(oDataEntity.getNavigationLinks()).thenReturn(navigationLinks);
 
-    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity);
+    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
 
     Object actValue = findEntitryList(act.getRelatedEntities(), ("children"));
     assertNotNull(((List<?>) actValue).get(0));
@@ -220,7 +223,7 @@ public class TestCreateRequestEntity {
     addChildrenNavigationLinkDE501(navigationLinks);
     when(oDataEntity.getNavigationLinks()).thenReturn(navigationLinks);
 
-    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity);
+    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
 
     Object actValue = findEntitryList(act.getRelatedEntities(), ("children"));
     assertNotNull(((List<?>) actValue).get(0));
@@ -240,7 +243,7 @@ public class TestCreateRequestEntity {
     addNavigationLinkDE502(navigationLinks);
     when(oDataEntity.getNavigationLinks()).thenReturn(navigationLinks);
 
-    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity);
+    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
 
     Object actValue = findEntitryList(act.getRelatedEntities(), ("children"));
     assertEquals("Wrong size", 2, ((List<?>) actValue).size());
@@ -254,7 +257,7 @@ public class TestCreateRequestEntity {
     addParentBindingLink(bindingLinks);
     when(oDataEntity.getNavigationBindings()).thenReturn(bindingLinks);
 
-    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity);
+    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
 
     Object actValue = findLinkList(act.getRelationLinks(), ("parent"));
     assertNotNull(actValue);
@@ -269,7 +272,7 @@ public class TestCreateRequestEntity {
     addChildrenBindingLink(bindingLinks);
     when(oDataEntity.getNavigationBindings()).thenReturn(bindingLinks);
 
-    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity);
+    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
 
     Object actValue = findLinkList(act.getRelationLinks(), ("children"));
     assertNotNull(actValue);
@@ -286,7 +289,7 @@ public class TestCreateRequestEntity {
     addParentNavigationLink(navigationLinks);
     when(oDataEntity.getNavigationLinks()).thenReturn(navigationLinks);
 
-    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity);
+    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
 
     Object actValue = findEntitryList(act.getRelatedEntities(), ("parent"));
     assertNotNull(actValue);
@@ -327,7 +330,7 @@ public class TestCreateRequestEntity {
     when(oDataEntity.getNavigationLinks()).thenReturn(navigationLinks);
 //------------------------------------
     when(ets.getName()).thenReturn("Organizations");
-    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity);
+    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
 
     assertNotNull(act);
     assertNotNull(act.getData());

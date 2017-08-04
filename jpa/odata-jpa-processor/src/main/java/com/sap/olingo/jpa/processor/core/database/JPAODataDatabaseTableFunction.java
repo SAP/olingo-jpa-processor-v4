@@ -7,10 +7,10 @@ import javax.persistence.EntityManager;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriResourceFunction;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
 
 public interface JPAODataDatabaseTableFunction {
-  List<?> executeFunctionQuery(UriResourceFunction uriResourceFunction, JPAFunction jpaFunction,
+  List<?> executeFunctionQuery(UriResourceFunction uriResourceFunction, JPADataBaseFunction jpaFunction,
       JPAEntityType returnType, EntityManager em) throws ODataApplicationException;
 }

@@ -49,5 +49,4 @@ final class JPASerializeCreate implements JPASerializer {
         .get(0),
         options);
   }
-
 }

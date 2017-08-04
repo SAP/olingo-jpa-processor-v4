@@ -19,6 +19,10 @@ import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpress
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
 import org.junit.Before;
 import org.junit.Test;
+import org.reflections.Reflections;
+import org.reflections.scanners.SubTypesScanner;
+import org.reflections.util.ConfigurationBuilder;
+import org.reflections.util.FilterBuilder;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
@@ -31,6 +35,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferen
 import com.sap.olingo.jpa.processor.core.testmodel.TestDataConstants;
 
 public class TestIntermediateContainer extends TestMappingRoot {
+  private static final String PACKAGE = "com.sap.olingo.jpa.metadata.core.edm.mapper.impl";
   private HashMap<String, IntermediateSchema> schemas = new HashMap<String, IntermediateSchema>();
   private Set<EntityType<?>> etList;
   private IntermediateSchema schema;
@@ -38,7 +43,15 @@ public class TestIntermediateContainer extends TestMappingRoot {
   @Before
   public void setup() throws ODataJPAModelException {
     IntermediateModelElement.setPostProcessor(new DefaultEdmPostProcessor());
-    schema = new IntermediateSchema(new JPAEdmNameBuilder(PUNIT_NAME), emf.getMetamodel());
+    Reflections r =
+        new Reflections(
+            new ConfigurationBuilder()
+                .forPackages(PACKAGE)
+                .filterInputsBy(new FilterBuilder().include(FilterBuilder.prefix(
+                    "com.sap.olingo.jpa.metadata.core.edm.mapper.impl")))
+                .setScanners(new SubTypesScanner(false)));
+
+    schema = new IntermediateSchema(new JPAEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), r);
     etList = emf.getMetamodel().getEntities();
     schemas.put(PUNIT_NAME, schema);
   }
@@ -53,7 +66,7 @@ public class TestIntermediateContainer extends TestMappingRoot {
   public void checkGetName() throws ODataJPAModelException {
 
     IntermediateEntityContainer container = new IntermediateEntityContainer(new JPAEdmNameBuilder(PUNIT_NAME), schemas);
-    assertEquals("OrgApacheOlingoJpaContainer", container.getExternalName());
+    assertEquals("ComSapOlingoJpaContainer", container.getExternalName());
   }
 
   @Test
@@ -197,6 +210,19 @@ public class TestIntermediateContainer extends TestMappingRoot {
         fail("UnBound function must not generate a function import is not annotated");
       }
     }
+  }
+
+  @Test
+  public void checkGetNoFunctionImportForJavaBasedFunction() throws ODataJPAModelException {
+    IntermediateEntityContainer container = new IntermediateEntityContainer(new JPAEdmNameBuilder(PUNIT_NAME), schemas);
+
+    List<CsdlFunctionImport> funcImports = container.getEdmItem().getFunctionImports();
+    for (CsdlFunctionImport funcImport : funcImports) {
+      if ("Sum".equals(funcImport.getName()))
+        return;
+      System.out.println(funcImport.getName());
+    }
+    fail("Import not found");
   }
 
   @Test
