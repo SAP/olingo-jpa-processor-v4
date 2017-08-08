@@ -230,7 +230,12 @@ public final class JPAFunctionRequestProcessor extends JPAAbstractGetRequestProc
     } catch (IllegalArgumentException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     } catch (InvocationTargetException e) {
-      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+      Throwable cause = e.getCause();
+      if(cause != null && cause instanceof ODataApplicationException){
+    	  throw (ODataApplicationException) cause;
+      } else {    	  
+    	  throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+      }
     } catch (ODataJPAModelException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
