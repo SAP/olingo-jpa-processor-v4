@@ -34,6 +34,7 @@ final class IntermediateSchema extends IntermediateModelElement {
   private final Map<String, IntermediateComplexType> complexTypeListInternalKey;
   private final Map<String, IntermediateEntityType> entityTypeListInternalKey;
   private final Map<String, IntermediateFunction> functionListInternalKey;
+  private final Map<String, IntermediateJavaAction> actionListInternalActionKey;
   private IntermediateEntityContainer container;
   private final Reflections reflections;
   private CsdlSchema edmSchema;
@@ -47,7 +48,7 @@ final class IntermediateSchema extends IntermediateModelElement {
     this.complexTypeListInternalKey = buildComplexTypeList();
     this.entityTypeListInternalKey = buildEntityTypeList();
     this.functionListInternalKey = buildFunctionList();
-
+    this.actionListInternalActionKey = buildActionList();
   }
 
   @SuppressWarnings("unchecked")
@@ -176,9 +177,13 @@ final class IntermediateSchema extends IntermediateModelElement {
 
       funcList.putAll(factory.create(nameBuilder, entity, this));
     }
-
+    // 2. Option: Create Function from Java Classes
     funcList.putAll(factory.create(nameBuilder, reflections, this));
     return funcList;
   }
 
+  private Map<String, IntermediateJavaAction> buildActionList() {
+    // TODO Auto-generated method stub
+    return null;
+  }
 }

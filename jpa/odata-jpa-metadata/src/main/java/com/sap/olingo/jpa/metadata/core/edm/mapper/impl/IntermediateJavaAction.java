@@ -20,10 +20,10 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
 
-public class IntermediateJavaAction extends IntermediateModelElement {
+public class IntermediateJavaAction extends IntermediateOperation {
 
   private CsdlAction edmAction;
-  private final EdmAction jpaAction;
+  final EdmAction jpaAction;
   private final IntermediateSchema schema;
   private final Method javaAction;
   private final Constructor<?> javaConstructor;
@@ -144,14 +144,6 @@ public class IntermediateJavaAction extends IntermediateModelElement {
     return edmAction;
   }
 
-  boolean hasActionImport() {
-    return !jpaAction.isBound();
-  }
-
-  boolean isBound() throws ODataJPAModelException {
-    return getEdmItem().isBound();
-  }
-
   private CsdlReturnType determineEdmResultType(final ReturnType definedReturnType, final Method javaOperation)
       throws ODataJPAModelException {
     final CsdlReturnType edmResultType = new CsdlReturnType();
@@ -196,5 +188,15 @@ public class IntermediateJavaAction extends IntermediateModelElement {
             declairedReturnType.getName(), javaOperation.getName());
       return edmType.getFullQualifiedName();
     }
+  }
+
+  @Override
+  protected boolean hasImport() {
+    return !jpaAction.isBound();
+  }
+
+  @Override
+  boolean isBound() throws ODataJPAModelException {
+    return getEdmItem().isBound();
   }
 }

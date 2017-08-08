@@ -99,14 +99,14 @@ public class TestIntermediateJavaAction extends TestMappingRoot {
   public void checkReturnsTrueForHasActionImportIfUnbound() throws ODataJPAModelException {
     IntermediateJavaAction act = createAction(ExampleJavaActions.class, "unboundWithImport");
 
-    assertTrue(act.hasActionImport());
+    assertTrue(act.hasImport());
   }
 
   @Test
   public void checkReturnsFalseForHasActionImportIfNotSet() throws ODataJPAModelException {
     IntermediateJavaAction act = createAction(ExampleJavaActions.class, "boundNoImport");
 
-    assertFalse(act.hasActionImport());
+    assertFalse(act.hasImport());
   }
 
   @Test

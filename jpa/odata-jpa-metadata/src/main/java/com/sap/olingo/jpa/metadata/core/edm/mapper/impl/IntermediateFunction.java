@@ -29,7 +29,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
  *
  */
 
-abstract class IntermediateFunction extends IntermediateModelElement implements JPAFunction {
+abstract class IntermediateFunction extends IntermediateOperation implements JPAFunction {
   protected CsdlFunction edmFunction;
   protected final EdmFunction jpaFunction;
   protected final IntermediateSchema schema;
@@ -67,10 +67,12 @@ abstract class IntermediateFunction extends IntermediateModelElement implements 
     return jpaFunction.functionName();
   }
 
-  boolean hasFunctionImport() {
+  @Override
+  boolean hasImport() {
     return jpaFunction.hasFunctionImport();
   }
 
+  @Override
   boolean isBound() throws ODataJPAModelException {
     return getEdmItem().isBound();
   }

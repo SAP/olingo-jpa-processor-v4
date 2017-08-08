@@ -154,7 +154,7 @@ class IntermediateJavaFunction extends IntermediateFunction implements JPAJavaFu
   }
 
   @Override
-  boolean hasFunctionImport() {
+  boolean hasImport() {
     return true;
   }
 
