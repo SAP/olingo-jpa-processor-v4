@@ -234,11 +234,11 @@ public final class JPAODataRequestProcessor implements PrimitiveValueProcessor, 
       p.retrieveData(request, response, responseFormat);
     } catch (ODataException e) {
       if(e instanceof ODataApplicationException){
-    	  throw (ODataApplicationException) e;
+        throw (ODataApplicationException) e;
       } else if (e instanceof ODataLibraryException){
-    	  throw (ODataLibraryException) e;
+        throw (ODataLibraryException) e;
       } else {    	  
-    	  throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
+        throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
     			  null, e);
       }
     }
