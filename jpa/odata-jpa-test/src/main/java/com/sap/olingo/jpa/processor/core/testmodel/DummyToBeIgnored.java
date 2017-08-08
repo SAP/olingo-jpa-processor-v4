@@ -12,7 +12,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionParameter;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 
@@ -26,7 +26,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
         name = "IsOdd",
         functionName = "IS_ODD",
         returnType = @EdmFunction.ReturnType(isCollection = true),
-        parameter = { @EdmFunctionParameter(name = "Number", type = BigDecimal.class, precision = 32, scale = 0) }),
+        parameter = { @EdmParameter(name = "Number", type = BigDecimal.class, precision = 32, scale = 0) }),
 
 })
 @Table(schema = "\"OLINGO\"", name = "\"DummyToBeIgnored\"")

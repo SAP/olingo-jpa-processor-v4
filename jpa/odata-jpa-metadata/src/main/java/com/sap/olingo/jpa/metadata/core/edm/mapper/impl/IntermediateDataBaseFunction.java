@@ -11,10 +11,10 @@ import org.apache.olingo.commons.api.edm.provider.CsdlReturnType;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionParameter;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionParameter;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionResultParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
@@ -40,17 +40,17 @@ class IntermediateDataBaseFunction extends IntermediateFunction implements JPADa
   }
 
   @Override
-  public List<JPAFunctionParameter> getParameter() {
-    final List<JPAFunctionParameter> parameterList = new ArrayList<JPAFunctionParameter>();
-    for (final EdmFunctionParameter jpaParameter : jpaFunction.parameter()) {
+  public List<JPAParameter> getParameter() {
+    final List<JPAParameter> parameterList = new ArrayList<JPAParameter>();
+    for (final EdmParameter jpaParameter : jpaFunction.parameter()) {
       parameterList.add(new IntermediatFunctionParameter(jpaParameter));
     }
     return parameterList;
   }
 
   @Override
-  public JPAFunctionParameter getParameter(String internalName) {
-    for (JPAFunctionParameter parameter : getParameter()) {
+  public JPAParameter getParameter(String internalName) {
+    for (JPAParameter parameter : getParameter()) {
       if (parameter.getInternalName() == internalName)
         return parameter;
     }
@@ -66,7 +66,7 @@ class IntermediateDataBaseFunction extends IntermediateFunction implements JPADa
   protected List<CsdlParameter> determineEdmInputParameter() throws ODataJPAModelException {
 
     final List<CsdlParameter> edmInputParameterList = new ArrayList<CsdlParameter>();
-    for (final EdmFunctionParameter jpaParameter : jpaFunction.parameter()) {
+    for (final EdmParameter jpaParameter : jpaFunction.parameter()) {
 
       final CsdlParameter edmInputParameter = new CsdlParameter();
       edmInputParameter.setName(jpaParameter.name());

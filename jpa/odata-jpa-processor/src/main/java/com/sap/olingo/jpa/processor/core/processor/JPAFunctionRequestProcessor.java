@@ -41,7 +41,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionParameter;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAJavaFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataDatabaseProcessor;
@@ -184,7 +184,7 @@ public final class JPAFunctionRequestProcessor extends JPAAbstractGetRequestProc
     }
   }
 
-  private Object getValue(final EdmFunction edmFunction, final JPAFunctionParameter parameter, final String uriValue)
+  private Object getValue(final EdmFunction edmFunction, final JPAParameter parameter, final String uriValue)
       throws ODataApplicationException {
     final String value = uriValue.replaceAll("'", "");
     final EdmParameter edmParam = edmFunction.getParameter(parameter.getName());
@@ -214,7 +214,7 @@ public final class JPAFunctionRequestProcessor extends JPAAbstractGetRequestProc
 
       for (Parameter declairedParameter : Arrays.asList(methodParameter)) {
         for (UriParameter providedParameter : uriResourceFunction.getParameters()) {
-          JPAFunctionParameter jpaParameter = jpaFunction.getParameter(declairedParameter.getName());
+          JPAParameter jpaParameter = jpaFunction.getParameter(declairedParameter.getName());
           if (jpaParameter.getName().equals(providedParameter.getName())) {
             parameter.add(getValue(uriResourceFunction.getFunction(), jpaParameter, providedParameter.getText()));
             break;

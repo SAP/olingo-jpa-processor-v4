@@ -4,7 +4,7 @@ import javax.persistence.EntityManager;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionParameter;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.ODataFunction;
 
 public class TestFunctionParameter implements ODataFunction {
@@ -19,7 +19,7 @@ public class TestFunctionParameter implements ODataFunction {
   }
 
   @EdmFunction(name = "", returnType = @ReturnType)
-  public Integer sum(@EdmFunctionParameter(name = "A") Integer a, @EdmFunctionParameter(name = "B") Integer b) {
+  public Integer sum(@EdmParameter(name = "A") Integer a, @EdmParameter(name = "B") Integer b) {
     calls += 1;
     param1 = a;
     param2 = b;

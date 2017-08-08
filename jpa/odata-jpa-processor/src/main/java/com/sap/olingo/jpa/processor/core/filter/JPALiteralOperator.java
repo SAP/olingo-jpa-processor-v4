@@ -11,7 +11,7 @@ import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.queryoption.expression.Literal;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionParameter;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionResultParameter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import com.sap.olingo.jpa.processor.core.query.ExpressionUtil;
@@ -61,7 +61,7 @@ public class JPALiteralOperator implements JPAOperator {
     return ExpressionUtil.convertValueOnFacet(odata, returnType, literal.getText());
   }
 
-  public Object get(JPAFunctionParameter jpaParameter) throws ODataApplicationException {
+  public Object get(JPAParameter jpaParameter) throws ODataApplicationException {
 
     return ExpressionUtil.convertValueOnFacet(odata, jpaParameter, literal.getText());
   }

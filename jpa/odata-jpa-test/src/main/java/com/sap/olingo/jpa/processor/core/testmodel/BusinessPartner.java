@@ -27,7 +27,7 @@ import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpress
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAnnotation;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssoziation;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionParameter;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 
@@ -40,7 +40,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
         name = "CountRoles",
         functionName = "COUNT_ROLES",
         returnType = @EdmFunction.ReturnType(isCollection = true),
-        parameter = { @EdmFunctionParameter(name = "Amount", parameterName = "a", type = Integer.class),
+        parameter = { @EdmParameter(name = "Amount", parameterName = "a", type = Integer.class),
         }),
 
     @EdmFunction(
@@ -49,7 +49,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
         isBound = false,
         hasFunctionImport = false,
         returnType = @EdmFunction.ReturnType(type = BigDecimal.class, isCollection = false),
-        parameter = { @EdmFunctionParameter(name = "Path", parameterName = "path", type = String.class),
+        parameter = { @EdmParameter(name = "Path", parameterName = "path", type = String.class),
         }),
 
     @EdmFunction(
@@ -58,7 +58,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
         isBound = false,
         hasFunctionImport = true,
         returnType = @EdmFunction.ReturnType(type = Boolean.class, isNullable = false),
-        parameter = { @EdmFunctionParameter(name = "Number", type = BigDecimal.class, precision = 32, scale = 0) }),
+        parameter = { @EdmParameter(name = "Number", type = BigDecimal.class, precision = 32, scale = 0) }),
 
 })
 

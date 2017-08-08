@@ -16,7 +16,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionParameter;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
 
 @EdmFunctions({
@@ -27,10 +27,10 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
         hasFunctionImport = true,
         returnType = @EdmFunction.ReturnType(isCollection = true),
         parameter = {
-            @EdmFunctionParameter(name = "CodePublisher", parameterName = "\"CodePublisher\"",
+            @EdmParameter(name = "CodePublisher", parameterName = "\"CodePublisher\"",
                 type = String.class, maxLength = 10),
-            @EdmFunctionParameter(name = "CodeID", parameterName = "\"CodeID\"", type = String.class, maxLength = 10),
-            @EdmFunctionParameter(name = "DivisionCode", parameterName = "\"DivisionCode\"", type = String.class,
+            @EdmParameter(name = "CodeID", parameterName = "\"CodeID\"", type = String.class, maxLength = 10),
+            @EdmParameter(name = "DivisionCode", parameterName = "\"DivisionCode\"", type = String.class,
                 maxLength = 10) }),
     @EdmFunction(
         name = "PopulationDensity",
@@ -39,8 +39,8 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
         hasFunctionImport = false,
         returnType = @EdmFunction.ReturnType(isCollection = false, type = Double.class),
         parameter = {
-            @EdmFunctionParameter(name = "Area", parameterName = "UnitArea", type = Integer.class),
-            @EdmFunctionParameter(name = "Population", parameterName = "Population", type = Long.class) }),
+            @EdmParameter(name = "Area", parameterName = "UnitArea", type = Integer.class),
+            @EdmParameter(name = "Population", parameterName = "Population", type = Long.class) }),
 })
 
 @IdClass(AdministrativeDivisionKey.class)

@@ -3,16 +3,17 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 import java.util.List;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
+import org.apache.olingo.commons.api.edm.geo.SRID;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlParameter;
 import org.apache.olingo.commons.api.edm.provider.CsdlReturnType;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionParameter;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionResultParameter;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 /**
@@ -78,20 +79,20 @@ abstract class IntermediateFunction extends IntermediateModelElement implements 
 
   protected abstract CsdlReturnType determineEdmResultType(final ReturnType returnType) throws ODataJPAModelException;
 
-  protected class IntermediatFunctionParameter implements JPAFunctionParameter {
-    private final EdmFunctionParameter jpaParameter;
+  protected class IntermediatFunctionParameter implements JPAParameter {
+    private final EdmParameter jpaParameter;
     private final String internalName;
     private final String externalName;
     private final Class<?> type;
 
-    IntermediatFunctionParameter(final EdmFunctionParameter jpaParameter) {
+    IntermediatFunctionParameter(final EdmParameter jpaParameter) {
       this.jpaParameter = jpaParameter;
       this.internalName = jpaParameter.parameterName();
       this.externalName = jpaParameter.name();
       this.type = jpaParameter.type();
     }
 
-    public IntermediatFunctionParameter(EdmFunctionParameter jpaParameter, String externalName,
+    public IntermediatFunctionParameter(EdmParameter jpaParameter, String externalName,
         String internalName, Class<?> type) {
       this.jpaParameter = jpaParameter;
       this.internalName = internalName;
@@ -132,6 +133,12 @@ abstract class IntermediateFunction extends IntermediateModelElement implements 
     @Override
     public FullQualifiedName getTypeFQN() throws ODataJPAModelException {
       return JPATypeConvertor.convertToEdmSimpleType(jpaParameter.type()).getFullQualifiedName();
+    }
+
+    @Override
+    public SRID getSrid() {
+      // TODO Auto-generated method stub
+      return null;
     }
   }
 
@@ -183,6 +190,12 @@ abstract class IntermediateFunction extends IntermediateModelElement implements 
     @Override
     public boolean isCollection() {
       return isCollection;
+    }
+
+    @Override
+    public SRID getSrid() {
+      // TODO Auto-generated method stub
+      return null;
     }
 
   }

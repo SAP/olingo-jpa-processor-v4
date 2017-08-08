@@ -11,7 +11,7 @@ import org.apache.olingo.commons.api.edm.geo.Geospatial.Dimension;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionParameter;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmGeospatial;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.ODataFunction;
 import com.sap.olingo.jpa.processor.core.testmodel.ChangeInformation;
@@ -22,22 +22,22 @@ public class ExampleJavaFunctions implements ODataFunction {
 
   @EdmFunction(name = "Add", isBound = true, hasFunctionImport = false, returnType = @ReturnType)
   public Integer sum(
-      @EdmFunctionParameter(name = "A") short a, @EdmFunctionParameter(name = "B") int b) {
+      @EdmParameter(name = "A") short a, @EdmParameter(name = "B") int b) {
     return a + b;
   }
 
   @EdmFunction(name = "", returnType = @ReturnType,
       parameter = {
-          @EdmFunctionParameter(name = "Dmmy", parameterName = "A",
+          @EdmParameter(name = "Dmmy", parameterName = "A",
               type = String.class, maxLength = 10) })
   public Integer div(
-      @EdmFunctionParameter(name = "A") short a, @EdmFunctionParameter(name = "B") int b) {
+      @EdmParameter(name = "A") short a, @EdmParameter(name = "B") int b) {
     return a / b;
   }
 
   @EdmFunction(name = "", returnType = @ReturnType(type = Double.class))
   public Integer errorReturnType(
-      @EdmFunctionParameter(name = "A") short a, @EdmFunctionParameter(name = "B") int b) {
+      @EdmParameter(name = "A") short a, @EdmParameter(name = "B") int b) {
     return a + b;
   }
 
@@ -84,7 +84,7 @@ public class ExampleJavaFunctions implements ODataFunction {
 
   @EdmFunction(name = "", returnType = @ReturnType())
   public Integer errorNonPrimitiveParameter(
-      @EdmFunctionParameter(name = "A") PostalAddressData a) {
+      @EdmParameter(name = "A") PostalAddressData a) {
     return 1;
   }
 }

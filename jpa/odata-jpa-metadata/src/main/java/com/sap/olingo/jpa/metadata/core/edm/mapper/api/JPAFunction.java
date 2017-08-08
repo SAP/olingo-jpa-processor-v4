@@ -12,7 +12,7 @@ public interface JPAFunction {
    * @return List of import parameter
    * @throws ODataJPAModelException
    */
-  public List<JPAFunctionParameter> getParameter() throws ODataJPAModelException;
+  public List<JPAParameter> getParameter() throws ODataJPAModelException;
 
   /**
    * 
@@ -20,7 +20,7 @@ public interface JPAFunction {
    * @return
    * @throws ODataJPAModelException
    */
-  public JPAFunctionParameter getParameter(String internalName) throws ODataJPAModelException;
+  public JPAParameter getParameter(String internalName) throws ODataJPAModelException;
 
   /**
    * 

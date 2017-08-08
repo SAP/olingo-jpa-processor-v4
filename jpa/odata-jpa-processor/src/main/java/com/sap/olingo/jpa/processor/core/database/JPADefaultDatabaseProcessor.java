@@ -21,7 +21,7 @@ import org.apache.olingo.server.api.uri.queryoption.SearchOption;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionParameter;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPADBAdaptorException;
@@ -97,7 +97,7 @@ public final class JPADefaultDatabaseProcessor implements JPAODataDatabaseProces
     final Query functionQuery = em.createNativeQuery(queryString, returnType.getTypeClass());
     int count = 1;
     try {
-      for (final JPAFunctionParameter parameter : jpaFunction.getParameter()) {
+      for (final JPAParameter parameter : jpaFunction.getParameter()) {
         final UriParameter uriParameter = findParameterByExternalName(parameter, uriResourceFunction.getParameters());
         final Object value = getValue(uriResourceFunction.getFunction(), parameter, uriParameter.getText());
         functionQuery.setParameter(count, value);
@@ -114,7 +114,7 @@ public final class JPADefaultDatabaseProcessor implements JPAODataDatabaseProces
     this.cb = cb;
   }
 
-  private UriParameter findParameterByExternalName(final JPAFunctionParameter parameter,
+  private UriParameter findParameterByExternalName(final JPAParameter parameter,
       final List<UriParameter> uriParameters) throws ODataApplicationException {
     for (final UriParameter uriParameter : uriParameters) {
       if (uriParameter.getName().equals(parameter.getName()))
@@ -143,7 +143,7 @@ public final class JPADefaultDatabaseProcessor implements JPAODataDatabaseProces
     return queryString.replace(PARAMETER_PLACEHOLDER, parameterList.toString());
   }
 
-  private Object getValue(final EdmFunction edmFunction, final JPAFunctionParameter parameter, final String uriValue)
+  private Object getValue(final EdmFunction edmFunction, final JPAParameter parameter, final String uriValue)
       throws ODataApplicationException {
     final String value = uriValue.replaceAll("'", "");
     final EdmParameter edmParam = edmFunction.getParameter(parameter.getName());
