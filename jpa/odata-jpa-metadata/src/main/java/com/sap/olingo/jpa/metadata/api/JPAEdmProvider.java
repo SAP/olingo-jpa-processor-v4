@@ -9,6 +9,8 @@ import javax.persistence.metamodel.Metamodel;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlAbstractEdmProvider;
+import org.apache.olingo.commons.api.edm.provider.CsdlAction;
+import org.apache.olingo.commons.api.edm.provider.CsdlActionImport;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotations;
 import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
@@ -103,8 +105,7 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
 
   @Override
   public CsdlFunctionImport getFunctionImport(final FullQualifiedName entityContainerFQN,
-      final String functionImportName)
-      throws ODataException {
+      final String functionImportName) throws ODataException {
     final CsdlEntityContainer container = serviceDocument.getEdmEntityContainer();
     if (entityContainerFQN.equals(nameBuilder.buildFQN(container.getName()))) {
       return container.getFunctionImport(functionImportName);
@@ -118,6 +119,26 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
       if (schema.getNamespace().equals(functionName.getNamespace())) {
         return schema.getFunctions(functionName.getName());
       }
+    }
+    return null;
+  }
+
+  @Override
+  public List<CsdlAction> getActions(final FullQualifiedName actionName) throws ODataException {
+    for (final CsdlSchema schema : serviceDocument.getEdmSchemas()) {
+      if (schema.getNamespace().equals(actionName.getNamespace())) {
+        return schema.getActions(actionName.getName());
+      }
+    }
+    return null;
+  }
+
+  @Override
+  public CsdlActionImport getActionImport(final FullQualifiedName entityContainerFQN, final String actionImportName)
+      throws ODataException {
+    final CsdlEntityContainer container = serviceDocument.getEdmEntityContainer();
+    if (entityContainerFQN.equals(nameBuilder.buildFQN(container.getName()))) {
+      return container.getActionImport(actionImportName);
     }
     return null;
   }

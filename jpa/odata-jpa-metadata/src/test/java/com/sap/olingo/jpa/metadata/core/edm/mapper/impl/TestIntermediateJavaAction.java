@@ -165,6 +165,15 @@ public class TestIntermediateJavaAction extends TestMappingRoot {
   }
 
   @Test
+  public void checkReturnsReturnTypeFacetForNonNumbers() throws ODataJPAModelException {
+    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "unboundWithImport");
+
+    assertNull(act.getEdmItem().getReturnType().getPrecision());
+    assertNull(act.getEdmItem().getReturnType().getScale());
+    assertNull(act.getEdmItem().getReturnType().getMaxLength());
+  }
+
+  @Test
   public void checkReturnsReturnTypeFacetForStringsAndGeo() throws ODataJPAModelException {
     IntermediateJavaAction act = createAction(ExampleJavaActions.class, "calculateLocation");
 
@@ -197,6 +206,16 @@ public class TestIntermediateJavaAction extends TestMappingRoot {
     assertNotNull(act.getEdmItem().getParameters());
     assertEquals(Integer.valueOf(34), act.getEdmItem().getParameters().get(1).getPrecision());
     assertEquals(Integer.valueOf(10), act.getEdmItem().getParameters().get(1).getScale());
+  }
+
+  @Test
+  public void checkReturnsParameterFacetForNonNumbers() throws ODataJPAModelException {
+    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "unboundWithImport");
+
+    assertNotNull(act.getEdmItem().getParameters());
+    assertNull(act.getEdmItem().getParameters().get(1).getPrecision());
+    assertNull(act.getEdmItem().getParameters().get(1).getScale());
+    assertNull(act.getEdmItem().getParameters().get(1).getMaxLength());
   }
 
   @Test

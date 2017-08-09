@@ -16,11 +16,12 @@ import org.apache.olingo.commons.api.edm.provider.CsdlReturnType;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
 
-public class IntermediateJavaAction extends IntermediateOperation {
+public class IntermediateJavaAction extends IntermediateOperation implements JPAAction {
 
   private CsdlAction edmAction;
   final EdmAction jpaAction;
@@ -98,9 +99,9 @@ public class IntermediateJavaAction extends IntermediateOperation {
           throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.ACTION_PARAM_ONLY_PRIMITIVE,
               jpaParameter.getInternalName(), javaAction.getName(), javaAction.getDeclaringClass().getName());
       }
-      parameter.setPrecision(jpaParameter.getPrecision());
-      parameter.setScale(jpaParameter.getScale());
-      parameter.setMaxLength(jpaParameter.getMaxLength());
+      parameter.setPrecision(nullIfNotSet(jpaParameter.getPrecision()));
+      parameter.setScale(nullIfNotSet(jpaParameter.getScale()));
+      parameter.setMaxLength(nullIfNotSet(jpaParameter.getMaxLength()));
       parameter.setSrid(jpaParameter.getSrid());
       parameterList.add(parameter);
     }
@@ -164,15 +165,21 @@ public class IntermediateJavaAction extends IntermediateOperation {
       edmResultType.setType(determineReturnType(definedReturnType, declairedReturnType, javaOperation));
     }
     edmResultType.setNullable(definedReturnType.isNullable());
-    edmResultType.setPrecision(definedReturnType.precision());
-    edmResultType.setScale(definedReturnType.scale());
-    edmResultType.setMaxLength(definedReturnType.maxLength());
+    edmResultType.setPrecision(nullIfNotSet(definedReturnType.precision()));
+    edmResultType.setScale(nullIfNotSet(definedReturnType.scale()));
+    edmResultType.setMaxLength(nullIfNotSet(definedReturnType.maxLength()));
     if (definedReturnType.srid() != null && !definedReturnType.srid().srid().isEmpty()) {
       final SRID srid = SRID.valueOf(definedReturnType.srid().srid());
       srid.setDimension(definedReturnType.srid().dimension());
       edmResultType.setSrid(srid);
     }
     return edmResultType;
+  }
+
+  private Integer nullIfNotSet(Integer number) {
+    if (number != null && number > -1)
+      return number;
+    return null;
   }
 
   private FullQualifiedName determineReturnType(final ReturnType definedReturnType, final Class<?> declairedReturnType,
