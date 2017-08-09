@@ -233,8 +233,14 @@ public final class JPAODataRequestProcessor implements PrimitiveValueProcessor, 
       final JPARequestProcessor p = factory.createProcessor(em, uriInfo, responseFormat);
       p.retrieveData(request, response, responseFormat);
     } catch (ODataException e) {
-      throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
-          null, e);
+      if(e instanceof ODataApplicationException){
+        throw (ODataApplicationException) e;
+      } else if (e instanceof ODataLibraryException){
+        throw (ODataLibraryException) e;
+      } else {    	  
+        throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
+    			  null, e);
+      }
     }
   }
 
