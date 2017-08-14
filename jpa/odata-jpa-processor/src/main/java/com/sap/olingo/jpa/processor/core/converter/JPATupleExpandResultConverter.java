@@ -34,7 +34,7 @@ class JPATupleExpandResultConverter extends JPATupleAbstractConverter {
   public Link getResult() throws ODataApplicationException {
     final Link link = new Link();
     link.setTitle(assoziation.getLeaf().getExternalName());
-    link.setRel(Constants.NS_ASSOCIATION_LINK_REL + link.getTitle());
+    link.setRel(Constants.NS_NAVIGATION_LINK_REL + link.getTitle());
     link.setType(Constants.ENTITY_NAVIGATION_LINK_TYPE);
     final EntityCollection expandCollection = createEntityCollection();
     if (assoziation.getLeaf().isCollection()) {
