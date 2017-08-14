@@ -41,7 +41,7 @@ import com.sap.olingo.jpa.processor.core.query.JPANavigationProptertyInfo;
 import com.sap.olingo.jpa.processor.core.query.JPAQuery;
 import com.sap.olingo.jpa.processor.core.query.Util;
 
-public final class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor implements JPARequestProcessor {
+public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestProcessor {
   private final ServiceMetadata serviceMetadata;
   private final UriResource lastItem;
 
@@ -80,7 +80,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractRequestProce
     final JPAExpandQueryResult result = query.execute();
     result.putChildren(readExpandEntities(request.getAllHeaders(), null, uriInfo));
     // Convert tuple result into an OData Result
-    final int converterHandle = debugger.startRuntimeMeasurement(this, "getResult");
+    final int converterHandle = debugger.startRuntimeMeasurement(this, "convertResult");
     EntityCollection entityCollection;
     try {
       entityCollection = new JPATupleResultConverter(sd, result, odata.createUriHelper(), serviceMetadata)

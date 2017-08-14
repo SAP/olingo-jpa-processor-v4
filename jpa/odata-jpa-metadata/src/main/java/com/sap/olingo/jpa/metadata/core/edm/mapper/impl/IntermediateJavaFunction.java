@@ -17,9 +17,9 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionType;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionResultParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAJavaFunction;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOperationResultParameter;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
 
@@ -86,9 +86,14 @@ class IntermediateJavaFunction extends IntermediateFunction implements JPAJavaFu
   }
 
   @Override
-  public JPAFunctionResultParameter getResultParameter() {
-    return new IntermediatResultFunctionParameter(jpaFunction.returnType(), javaFunction.getReturnType(),
+  public JPAOperationResultParameter getResultParameter() {
+    return new IntermediatOperationResultParameter(this, jpaFunction.returnType(), javaFunction.getReturnType(),
         IntermediateOperationHelper.isCollection(javaFunction.getReturnType()));
+  }
+
+  @Override
+  public CsdlReturnType getReturnType() {
+    return edmFunction.getReturnType();
   }
 
   @Override

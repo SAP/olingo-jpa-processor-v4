@@ -11,11 +11,11 @@ import org.apache.olingo.commons.api.edm.provider.CsdlReturnType;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionType;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOperationResultParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionResultParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
 
@@ -58,8 +58,13 @@ class IntermediateDataBaseFunction extends IntermediateFunction implements JPADa
   }
 
   @Override
-  public JPAFunctionResultParameter getResultParameter() {
-    return new IntermediatResultFunctionParameter(jpaFunction.returnType());
+  public JPAOperationResultParameter getResultParameter() {
+    return new IntermediatOperationResultParameter(this, jpaFunction.returnType());
+  }
+
+  @Override
+  public CsdlReturnType getReturnType() {
+    return edmFunction.getReturnType();
   }
 
   @Override

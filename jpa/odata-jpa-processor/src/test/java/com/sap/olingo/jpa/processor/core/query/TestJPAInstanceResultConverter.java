@@ -17,7 +17,7 @@ import org.junit.Test;
 
 import com.sap.olingo.jpa.processor.core.converter.JPAEntityResultConverter;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
-import com.sap.olingo.jpa.processor.core.util.EdmEntitySetDouble;
+import com.sap.olingo.jpa.processor.core.util.EdmEntityTypeDouble;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 import com.sap.olingo.jpa.processor.core.util.UriHelperDouble;
@@ -40,7 +40,7 @@ public class TestJPAInstanceResultConverter extends TestBase {
     uriHelper = new UriHelperDouble();
     uriHelper.setKeyPredicates(keyStrings, "DivisionCode");
     cut = new JPAEntityResultConverter(uriHelper, helper.sd,
-        jpaQueryResult, new EdmEntitySetDouble(nameBuilder, "AdministrativeDivisions"));
+        jpaQueryResult, new EdmEntityTypeDouble(nameBuilder, "AdministrativeDivision"));
   }
 
   @Test

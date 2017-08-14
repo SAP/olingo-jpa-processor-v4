@@ -15,7 +15,7 @@ import org.apache.olingo.server.api.uri.queryoption.expression.Literal;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionResultParameter;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOperationResultParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPATypeConvertor;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
@@ -92,7 +92,7 @@ final class JPAFunctionOperator implements JPAOperator {
     return null;
   }
 
-  public JPAFunctionResultParameter getReturnType() {
+  public JPAOperationResultParameter getReturnType() {
     return jpaFunction.getResultParameter();
   }
 

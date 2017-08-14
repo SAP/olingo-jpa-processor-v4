@@ -17,11 +17,12 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAction;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOperationResultParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
 
-public class IntermediateJavaAction extends IntermediateOperation implements JPAAction {
+class IntermediateJavaAction extends IntermediateOperation implements JPAAction {
 
   private CsdlAction edmAction;
   final EdmAction jpaAction;
@@ -43,8 +44,14 @@ public class IntermediateJavaAction extends IntermediateOperation implements JPA
     this.javaConstructor = IntermediateOperationHelper.determineConstructor(javaAction);
   }
 
+  @Override
   public Constructor<?> getConstructor() {
     return javaConstructor;
+  }
+
+  @Override
+  public Method getMethod() {
+    return javaAction;
   }
 
   public List<JPAParameter> getParameter() throws ODataJPAModelException {
@@ -71,6 +78,23 @@ public class IntermediateJavaAction extends IntermediateOperation implements JPA
 
     }
     return parameterList;
+  }
+
+  @Override
+  public JPAParameter getParameter(Parameter declairedParameter) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public JPAOperationResultParameter getResultParameter() {
+    return new IntermediatOperationResultParameter(this, jpaAction.returnType(), javaAction.getReturnType(),
+        IntermediateOperationHelper.isCollection(javaAction.getReturnType()));
+  }
+
+  @Override
+  public CsdlReturnType getReturnType() {
+    return edmAction.getReturnType();
   }
 
   protected List<CsdlParameter> determineEdmInputParameter() throws ODataJPAModelException {
@@ -114,6 +138,11 @@ public class IntermediateJavaAction extends IntermediateOperation implements JPA
   }
 
   @Override
+  protected boolean hasImport() {
+    return !jpaAction.isBound();
+  }
+
+  @Override
   protected void lazyBuildEdmItem() throws ODataJPAModelException {
     if (edmAction == null) {
       edmAction = new CsdlAction();
@@ -126,23 +155,15 @@ public class IntermediateJavaAction extends IntermediateOperation implements JPA
     }
   }
 
-  private String setEntitySetPath() throws ODataJPAModelException {
-    if (jpaAction.entitySetPath() == null || jpaAction.entitySetPath().isEmpty())
-      return null;
-    if (!jpaAction.isBound())
-      // Entity Set Path shall only provided for bound actions. Action method %1$s of class %2$s is unbound.
-      throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.ACTION_UNBOUND_ENTITY_SET,
-          javaAction.getName(), javaAction.getDeclaringClass().getName());
-    if (!edmAction.getReturnType().isCollection() && schema.getEntityType(javaAction.getReturnType()) == null)
-      throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.ACTION_UNBOUND_ENTITY_SET,
-          javaAction.getName(), javaAction.getDeclaringClass().getName());
-    return jpaAction.entitySetPath();
-  }
-
   @Override
   CsdlAction getEdmItem() throws ODataJPAModelException {
     lazyBuildEdmItem();
     return edmAction;
+  }
+
+  @Override
+  boolean isBound() throws ODataJPAModelException {
+    return getEdmItem().isBound();
   }
 
   private CsdlReturnType determineEdmResultType(final ReturnType definedReturnType, final Method javaOperation)
@@ -176,12 +197,6 @@ public class IntermediateJavaAction extends IntermediateOperation implements JPA
     return edmResultType;
   }
 
-  private Integer nullIfNotSet(Integer number) {
-    if (number != null && number > -1)
-      return number;
-    return null;
-  }
-
   private FullQualifiedName determineReturnType(final ReturnType definedReturnType, final Class<?> declairedReturnType,
       final Method javaOperation) throws ODataJPAModelException {
 
@@ -197,13 +212,22 @@ public class IntermediateJavaAction extends IntermediateOperation implements JPA
     }
   }
 
-  @Override
-  protected boolean hasImport() {
-    return !jpaAction.isBound();
+  private Integer nullIfNotSet(Integer number) {
+    if (number != null && number > -1)
+      return number;
+    return null;
   }
 
-  @Override
-  boolean isBound() throws ODataJPAModelException {
-    return getEdmItem().isBound();
+  private String setEntitySetPath() throws ODataJPAModelException {
+    if (jpaAction.entitySetPath() == null || jpaAction.entitySetPath().isEmpty())
+      return null;
+    if (!jpaAction.isBound())
+      // Entity Set Path shall only provided for bound actions. Action method %1$s of class %2$s is unbound.
+      throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.ACTION_UNBOUND_ENTITY_SET,
+          javaAction.getName(), javaAction.getDeclaringClass().getName());
+    if (!edmAction.getReturnType().isCollection() && schema.getEntityType(javaAction.getReturnType()) == null)
+      throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.ACTION_UNBOUND_ENTITY_SET,
+          javaAction.getName(), javaAction.getDeclaringClass().getName());
+    return jpaAction.entitySetPath();
   }
 }
