@@ -31,7 +31,7 @@ import com.sap.olingo.jpa.processor.core.converter.JPAComplexResultConverter;
 import com.sap.olingo.jpa.processor.core.converter.JPAEntityResultConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPASerializerException;
-import com.sap.olingo.jpa.processor.core.serializer.JPAFunctionSerializer;
+import com.sap.olingo.jpa.processor.core.serializer.JPAOperationSerializer;
 
 abstract class JPAOperationRequestProcessor extends JPAAbstractRequestProcessor {
 
@@ -41,11 +41,11 @@ abstract class JPAOperationRequestProcessor extends JPAAbstractRequestProcessor 
   }
 
   protected Annotatable convertResult(final Object result, final EdmType returnType,
-      final JPAOperation jpaFunction) throws ODataApplicationException {
+      final JPAOperation jpaOperation) throws ODataApplicationException {
 
     switch (returnType.getKind()) {
     case PRIMITIVE:
-      if (jpaFunction.getResultParameter().isCollection()) {
+      if (jpaOperation.getResultParameter().isCollection()) {
         final List<Object> response = new ArrayList<Object>();
         response.addAll((Collection<?>) result);
         return new Property(null, "Result", ValueType.COLLECTION_PRIMITIVE, response);
@@ -53,15 +53,15 @@ abstract class JPAOperationRequestProcessor extends JPAAbstractRequestProcessor 
         return null;
       return new Property(null, "Result", ValueType.PRIMITIVE, result);
     case ENTITY:
-      return createEntityCollection((EdmEntityType) returnType, result, odata.createUriHelper(), jpaFunction);
+      return createEntityCollection((EdmEntityType) returnType, result, odata.createUriHelper(), jpaOperation);
     case COMPLEX:
-      if (jpaFunction.getResultParameter().isCollection()) {
+      if (jpaOperation.getResultParameter().isCollection()) {
         return new Property(null, "Result", ValueType.COLLECTION_COMPLEX, createComplexCollection(
-            (EdmComplexType) returnType, jpaFunction, result));
+            (EdmComplexType) returnType, jpaOperation, result));
       } else if (result == null)
         return null;
       return new Property(null, "Result", ValueType.COMPLEX, createComplexValue((EdmComplexType) returnType,
-          jpaFunction, result));
+          jpaOperation, result));
     default:
       break;
     }
@@ -139,7 +139,7 @@ abstract class JPAOperationRequestProcessor extends JPAAbstractRequestProcessor 
       throws ODataJPASerializerException, SerializerException {
 
     if (result != null || result instanceof EntityCollection && ((EntityCollection) result).getEntities().size() > 0) {
-      final SerializerResult serializerResult = ((JPAFunctionSerializer) serializer).serialize(result, returnType);
+      final SerializerResult serializerResult = ((JPAOperationSerializer) serializer).serialize(result, returnType);
       createSuccessResponce(response, responseFormat, serializerResult);
     } else
       response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());

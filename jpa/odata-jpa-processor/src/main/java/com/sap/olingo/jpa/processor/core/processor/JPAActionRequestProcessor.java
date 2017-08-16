@@ -28,16 +28,16 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 
 public class JPAActionRequestProcessor extends JPAOperationRequestProcessor {
 
-  public JPAActionRequestProcessor(final OData odata, final JPAODataSessionContextAccess context,
+  public JPAActionRequestProcessor(final OData odata, final JPAODataSessionContextAccess sessionContext,
       final JPAODataRequestContextAccess requestContext) throws ODataException {
-    super(odata, context, requestContext);
+    super(odata, sessionContext, requestContext);
   }
 
   public void performAction(final ODataRequest request, final ODataResponse response, final ContentType requestFormat,
       final ContentType responseFormat) throws ODataJPAProcessException {
     UriResourceAction resource = (UriResourceAction) uriInfo.getUriResourceParts().get(0);
     try {
-      JPAAction jpaAction = sessionContext.getEdmProvider().getServiceDocument().getAction(resource.getAction());
+      JPAAction jpaAction = sd.getAction(resource.getAction());
       final Constructor<?> c = jpaAction.getConstructor();
 
       try {
@@ -55,21 +55,19 @@ public class JPAActionRequestProcessor extends JPAOperationRequestProcessor {
             deserializer.actionParameters(request.getBody(), resource.getAction()).getActionParameters();
 
         for (Parameter declairedParameter : Arrays.asList(methodParameter)) {
-          jpaAction.getParameter(declairedParameter).getName();
-//          for (UriParameter providedParameter : resource.ggetParameters()) {
-//            JPAParameter jpaParameter = jpaAction.getParameter(declairedParameter.getName());
-//            if (jpaParameter.getName().equals(providedParameter.getName())) {
-//              parameter.add(getValue(resource.getAction(), jpaParameter, providedParameter.getText()));
-//              break;
-//            }
-//          }
+          String externalName = jpaAction.getParameter(declairedParameter).getName();
+          org.apache.olingo.commons.api.data.Parameter param = actionParameter.get(externalName);
+          parameter.add(param.getValue());
         }
-        final EdmType returnType = resource.getAction().getReturnType().getType();
-        final Object result = jpaAction.getMethod().invoke(instance, parameter.toArray());
-        final Annotatable r = convertResult(result, returnType, jpaAction);
+        Annotatable r = null;
+        EdmType returnType = null;
+        if (resource.getAction().getReturnType() != null) {
+          returnType = resource.getAction().getReturnType().getType();
+          final Object result = jpaAction.getMethod().invoke(instance, parameter.toArray());
+          r = convertResult(result, returnType, jpaAction);
+        } else
+          jpaAction.getMethod().invoke(instance, parameter.toArray());
         serializeResult(returnType, response, responseFormat, r);
-
-//       response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
       } catch (InstantiationException e) {
         throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
       } catch (IllegalAccessException e) {

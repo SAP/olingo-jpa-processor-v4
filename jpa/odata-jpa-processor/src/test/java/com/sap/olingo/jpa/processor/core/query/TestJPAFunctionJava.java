@@ -43,7 +43,7 @@ import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.processor.JPAFunctionRequestProcessor;
-import com.sap.olingo.jpa.processor.core.serializer.JPAFunctionSerializer;
+import com.sap.olingo.jpa.processor.core.serializer.JPAOperationSerializer;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import com.sap.olingo.jpa.processor.core.testobjects.TestFunctionParameter;
 
@@ -60,7 +60,7 @@ public class TestJPAFunctionJava {
   private ODataResponse response;
   private UriResourceFunction uriResource;
   private EdmFunction edmFunction;
-  private JPAFunctionSerializer serializer;
+  private JPAOperationSerializer serializer;
   private SerializerResult serializerResult;
 
   @Before
@@ -70,7 +70,7 @@ public class TestJPAFunctionJava {
     requestContext = mock(JPAODataRequestContextAccess.class);
     EntityManager em = mock(EntityManager.class);
     uriInfo = mock(UriInfo.class);
-    serializer = mock(JPAFunctionSerializer.class);
+    serializer = mock(JPAOperationSerializer.class);
     serializerResult = mock(SerializerResult.class);
 
     DataSource ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);

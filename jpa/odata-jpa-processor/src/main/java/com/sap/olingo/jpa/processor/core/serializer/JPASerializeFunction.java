@@ -18,14 +18,14 @@ import org.apache.olingo.server.api.uri.UriResourcePartTyped;
 
 import com.sap.olingo.jpa.processor.core.exception.ODataJPASerializerException;
 
-final class JPASerializeFunction implements JPAFunctionSerializer {
-  private final JPAFunctionSerializer serializer;
+final class JPASerializeFunction implements JPAOperationSerializer {
+  private final JPAOperationSerializer serializer;
 
   public JPASerializeFunction(final UriInfo uriInfo, ContentType responseFormat,
       final JPASerializerFactory jpaSerializerFactory)
       throws ODataJPASerializerException, SerializerException {
 
-    this.serializer = (JPAFunctionSerializer) createSerializer(jpaSerializerFactory, responseFormat, uriInfo);
+    this.serializer = (JPAOperationSerializer) createSerializer(jpaSerializerFactory, responseFormat, uriInfo);
   }
 
   @Override
