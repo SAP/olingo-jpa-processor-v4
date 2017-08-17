@@ -51,7 +51,7 @@ public class TestIntermediateReferences extends TestMappingRoot {
   @Test
   public void checkConvertedToEdmx() throws ODataJPAModelException {
     JPAServiceDocument serviceDocument;
-    serviceDocument = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), new PostProcessor());
+    serviceDocument = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), new PostProcessor(), null);
     assertEquals(1, serviceDocument.getReferences().size());
 
     EdmxReference ref = serviceDocument.getReferences().get(0);

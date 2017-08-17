@@ -32,6 +32,7 @@ final class JPAODataContextImpl implements JPAODataCRUDContext, JPAODataSessionC
   private JPAServiceDebugger debugger;
   private JPAEdmMetadataPostProcessor postProcessor;
   private JPACUDRequestHandler jpaCUDRequestHandler;
+  private String[] packageName;
 
   public JPAODataContextImpl(JPAODataGetHandler jpaoDataGetHandler) throws ODataException {
     super();
@@ -70,7 +71,7 @@ final class JPAODataContextImpl implements JPAODataCRUDContext, JPAODataSessionC
   public JPAEdmProvider getEdmProvider() throws ODataException {
     if (jpaEdm == null)
       jpaEdm = new JPAEdmProvider(this.jpaoDataGetHandler.namespace, this.jpaoDataGetHandler.jpaMetamodel,
-          postProcessor);
+          postProcessor, packageName);
     return jpaEdm;
   }
 
@@ -122,7 +123,7 @@ final class JPAODataContextImpl implements JPAODataCRUDContext, JPAODataSessionC
   public void setMetadataPostProcessor(final JPAEdmMetadataPostProcessor postProcessor) throws ODataException {
     if (this.jpaoDataGetHandler.jpaMetamodel != null)
       jpaEdm = new JPAEdmProvider(this.jpaoDataGetHandler.namespace, this.jpaoDataGetHandler.jpaMetamodel,
-          postProcessor);
+          postProcessor, packageName);
     else
       this.postProcessor = postProcessor;
   }
@@ -135,5 +136,16 @@ final class JPAODataContextImpl implements JPAODataCRUDContext, JPAODataSessionC
   @Override
   public void setReferences(final List<EdmxReference> references) {
     this.references = references;
+  }
+
+  @Override
+  public void setTypePackage(final String... packageName) {
+    this.packageName = packageName;
+
+  }
+
+  @Override
+  public String[] getPackageName() {
+    return packageName;
   }
 }

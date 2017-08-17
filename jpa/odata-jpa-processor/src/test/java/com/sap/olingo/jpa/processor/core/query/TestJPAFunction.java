@@ -23,13 +23,13 @@ import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 
 public class TestJPAFunction {
-  protected static final String         PUNIT_NAME = "org.apache.olingo.jpa";
+  protected static final String PUNIT_NAME = "com.sap.olingo.jpa";
   protected static EntityManagerFactory emf;
-  protected static DataSource           ds;
+  protected static DataSource ds;
 
-  protected TestHelper                helper;
+  protected TestHelper helper;
   protected Map<String, List<String>> headers;
-  protected static JPAEdmNameBuilder  nameBuilder;
+  protected static JPAEdmNameBuilder nameBuilder;
 
   @Before
   public void setup() {

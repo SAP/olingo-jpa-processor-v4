@@ -13,11 +13,13 @@ import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitEx
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitor;
 import org.apache.olingo.server.api.uri.queryoption.expression.Literal;
 
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionParameter;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionResultParameter;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOperationResultParameter;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPATypeConvertor;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 
 /**
  * Handle OData Functions that are implemented e.g. as user defined functions data base functions. This will be mapped
@@ -27,12 +29,12 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
  *
  */
 final class JPAFunctionOperator implements JPAOperator {
-  private final JPAFunction jpaFunction;
+  private final JPADataBaseFunction jpaFunction;
   private final JPAVisitor visitor;
   private final List<UriParameter> uriParams;
 
   public JPAFunctionOperator(final JPAVisitor jpaVisitor, final List<UriParameter> uriParams,
-      final JPAFunction jpaFunction) {
+      final JPADataBaseFunction jpaFunction) {
 
     super();
     this.uriParams = uriParams;
@@ -55,7 +57,12 @@ final class JPAFunctionOperator implements JPAOperator {
     }
 
     final CriteriaBuilder cb = visitor.getCriteriaBuilder();
-    final List<JPAFunctionParameter> parameters = jpaFunction.getParameter();
+    List<JPAParameter> parameters;
+    try {
+      parameters = jpaFunction.getParameter();
+    } catch (ODataJPAModelException e) {
+      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    }
     final Expression<?>[] jpaParameter = new Expression<?>[parameters.size()];
     for (int i = 0; i < parameters.size(); i++) {
       // a. $it/Area b. Area c. 10000
@@ -76,7 +83,7 @@ final class JPAFunctionOperator implements JPAOperator {
     return cb.function(jpaFunction.getDBName(), jpaFunction.getResultParameter().getType(), jpaParameter);
   }
 
-  private UriParameter findUriParameter(final JPAFunctionParameter jpaFunctionParam) {
+  private UriParameter findUriParameter(final JPAParameter jpaFunctionParam) {
     for (final UriParameter uriParam : uriParams) {
       if (uriParam.getName().equals(jpaFunctionParam.getName())) {
         return uriParam;
@@ -85,7 +92,7 @@ final class JPAFunctionOperator implements JPAOperator {
     return null;
   }
 
-  public JPAFunctionResultParameter getReturnType() {
+  public JPAOperationResultParameter getReturnType() {
     return jpaFunction.getResultParameter();
   }
 

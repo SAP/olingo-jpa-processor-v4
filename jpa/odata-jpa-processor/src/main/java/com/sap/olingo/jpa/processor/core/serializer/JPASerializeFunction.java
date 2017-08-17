@@ -1,53 +1,64 @@
 package com.sap.olingo.jpa.processor.core.serializer;
 
-import org.apache.olingo.commons.api.data.ContextURL;
+import java.util.List;
+
+import org.apache.olingo.commons.api.data.Annotatable;
 import org.apache.olingo.commons.api.data.EntityCollection;
-import org.apache.olingo.commons.api.edm.EdmEntityType;
+import org.apache.olingo.commons.api.edm.EdmType;
+import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
+import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.server.api.ODataRequest;
-import org.apache.olingo.server.api.ServiceMetadata;
-import org.apache.olingo.server.api.serializer.EntityCollectionSerializerOptions;
-import org.apache.olingo.server.api.serializer.EntitySerializerOptions;
-import org.apache.olingo.server.api.serializer.ODataSerializer;
 import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.serializer.SerializerResult;
-import org.apache.olingo.server.api.uri.UriHelper;
 import org.apache.olingo.server.api.uri.UriInfo;
+import org.apache.olingo.server.api.uri.UriResource;
+import org.apache.olingo.server.api.uri.UriResourceAction;
 import org.apache.olingo.server.api.uri.UriResourceFunction;
+import org.apache.olingo.server.api.uri.UriResourcePartTyped;
 
-final class JPASerializeFunction implements JPASerializer {
-  private final ServiceMetadata serviceMetadata;
-  private final UriInfo uriInfo;
-  private final ODataSerializer serializer;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPASerializerException;
 
-  JPASerializeFunction(final ServiceMetadata serviceMetadata, final ODataSerializer serializer,
-      final UriHelper uriHelper,
-      final UriInfo uriInfo) {
-    this.uriInfo = uriInfo;
-    this.serializer = serializer;
-    this.serviceMetadata = serviceMetadata;
+final class JPASerializeFunction implements JPAOperationSerializer {
+  private final JPAOperationSerializer serializer;
+
+  public JPASerializeFunction(final UriInfo uriInfo, ContentType responseFormat,
+      final JPASerializerFactory jpaSerializerFactory)
+      throws ODataJPASerializerException, SerializerException {
+
+    this.serializer = (JPAOperationSerializer) createSerializer(jpaSerializerFactory, responseFormat, uriInfo);
   }
 
   @Override
   public SerializerResult serialize(final ODataRequest request, final EntityCollection result)
-      throws SerializerException {
-
-    final UriResourceFunction uriResource = (UriResourceFunction) uriInfo.getUriResourceParts().get(0);
-    final EdmEntityType edmEntityType = (EdmEntityType) uriResource.getFunction().getReturnType().getType();
-
-    final ContextURL contextURL = ContextURL.with()
-        .type(edmEntityType)
-        .build();
-
-    if (uriResource.isCollection()) {
-      final EntityCollectionSerializerOptions options = EntityCollectionSerializerOptions.with()
-          .contextURL(contextURL)
-          .build();
-      return serializer.entityCollection(serviceMetadata, edmEntityType, result, options);
-    } else {
-      final EntitySerializerOptions options = EntitySerializerOptions.with()
-          .contextURL(contextURL)
-          .build();
-      return serializer.entity(serviceMetadata, edmEntityType, result.getEntities().get(0), options);
-    }
+      throws SerializerException, ODataJPASerializerException {
+    return serializer.serialize(request, result);
   }
+
+  @Override
+  public SerializerResult serialize(final Annotatable annotatable, final EdmType entityType)
+      throws SerializerException, ODataJPASerializerException {
+    return serializer.serialize(annotatable, entityType);
+  }
+
+  JPASerializer getSerializer() {
+    return serializer;
+  }
+
+  private JPASerializer createSerializer(final JPASerializerFactory jpaSerializerFactory,
+      final ContentType responseFormat,
+      final UriInfo uriInfo) throws ODataJPASerializerException, SerializerException {
+
+    final List<UriResource> resourceParts = uriInfo.getUriResourceParts();
+    final UriResourcePartTyped operation = (UriResourcePartTyped) resourceParts.get(resourceParts.size() - 1);
+    final EdmTypeKind edmTypeKind = determineReturnEdmTypeKind(operation);
+    return jpaSerializerFactory.createSerializer(responseFormat, uriInfo, edmTypeKind, operation.isCollection());
+  }
+
+  private EdmTypeKind determineReturnEdmTypeKind(final UriResourcePartTyped operation) {
+    if (operation instanceof UriResourceFunction)
+      return ((UriResourceFunction) operation).getFunction().getReturnType().getType().getKind();
+    else
+      return ((UriResourceAction) operation).getAction().getReturnType().getType().getKind();
+  }
+
 }

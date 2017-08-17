@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
+import static org.mockito.Mockito.mock;
+
 import java.lang.reflect.AnnotatedElement;
 import java.util.List;
 
@@ -9,6 +11,8 @@ import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.SingularAttribute;
+
+import org.reflections.Reflections;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
@@ -21,7 +25,7 @@ public class TestHelper {
 
   public TestHelper(final Metamodel metamodel, final String namespace) throws ODataJPAModelException {
     this.jpaMetamodel = metamodel;
-    this.schema = new IntermediateSchema(new JPAEdmNameBuilder(namespace), jpaMetamodel);
+    this.schema = new IntermediateSchema(new JPAEdmNameBuilder(namespace), jpaMetamodel, mock(Reflections.class));
   }
 
   public EntityType<?> getEntityType(final String typeName) {

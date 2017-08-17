@@ -61,7 +61,6 @@ Next we have to create our _persistence.xml_ file. This will be located under _s
 			<property name="eclipselink.weaving" value="static" />
 			<property name="eclipselink.persistence-context.flush-mode" value="commit" />
 			<property name="javax.persistence.validation.mode" value="NONE" />
-			<property name="javax.persistence.validation.mode" value="NONE" />
 			<property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:mem:com.sample" />
 			<property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbcDriver" />	
 		</properties>

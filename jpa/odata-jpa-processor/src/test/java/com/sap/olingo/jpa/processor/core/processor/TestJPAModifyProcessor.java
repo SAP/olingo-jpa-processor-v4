@@ -45,6 +45,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.processor.core.api.JPAAbstractCUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializer;
@@ -54,7 +55,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 public abstract class TestJPAModifyProcessor {
   protected static final String LOCATION_HEADER = "Organization('35')";
   protected static final String PREFERENCE_APPLIED = "return=minimal";
-  protected static final String PUNIT_NAME = "org.apache.olingo.jpa";
+  protected static final String PUNIT_NAME = "com.sap.olingo.jpa";
   protected static EntityManagerFactory emf;
   protected static JPAEdmProvider jpaEdm;
   protected static DataSource ds;
@@ -65,7 +66,7 @@ public abstract class TestJPAModifyProcessor {
 
     ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
     emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, ds);
-    jpaEdm = new JPAEdmProvider(PUNIT_NAME, emf.getMetamodel(), pP);
+    jpaEdm = new JPAEdmProvider(PUNIT_NAME, emf.getMetamodel(), pP, null);
 
   }
 
@@ -85,6 +86,7 @@ public abstract class TestJPAModifyProcessor {
   protected List<UriResource> pathParts = new ArrayList<UriResource>();
   protected SerializerResult serializerResult;
   protected List<String> header = new ArrayList<String>();
+  protected JPAServiceDebugger debugger;
 
   @Before
   public void setUp() throws Exception {
@@ -102,8 +104,10 @@ public abstract class TestJPAModifyProcessor {
     em = mock(EntityManager.class);
     transaction = mock(EntityTransaction.class);
     serializerResult = mock(SerializerResult.class);
+    debugger = mock(JPAServiceDebugger.class);
 
     when(sessionContext.getEdmProvider()).thenReturn(jpaEdm);
+    when(sessionContext.getDebugger()).thenReturn(debugger);
     when(requestContext.getEntityManager()).thenReturn(em);
     when(requestContext.getUriInfo()).thenReturn(uriInfo);
     when(requestContext.getSerializer()).thenReturn(serializer);
@@ -130,7 +134,7 @@ public abstract class TestJPAModifyProcessor {
     Edm edm = mock(Edm.class);
     when(serviceMetadata.getEdm()).thenReturn(edm);
     EdmEntityType edmET = mock(EdmEntityType.class);
-    FullQualifiedName fqn = new FullQualifiedName("org.apache.olingo.jpa.Organization");
+    FullQualifiedName fqn = new FullQualifiedName("com.sap.olingo.jpa.Organization");
     when(edm.getEntityType(fqn)).thenReturn(edmET);
     List<String> keyNames = new ArrayList<String>();
     keyNames.add("ID");

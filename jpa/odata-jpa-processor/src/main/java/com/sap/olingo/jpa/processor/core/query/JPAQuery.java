@@ -65,7 +65,7 @@ public class JPAQuery extends JPAExecutableQuery {
      * .../Organizations/count
      * .../Organizations('3')/Roles/$count
      */
-    final int handle = debugger.startRuntimeMeasurement("JPAQuery", "countResults");
+    final int handle = debugger.startRuntimeMeasurement(this, "countResults");
     final HashMap<String, From<?, ?>> joinTables = new HashMap<String, From<?, ?>>();
 
     final CriteriaQuery<Long> cq = cb.createQuery(Long.class);
@@ -84,7 +84,7 @@ public class JPAQuery extends JPAExecutableQuery {
   public JPAExpandQueryResult execute() throws ODataApplicationException {
     // Pre-process URI parameter, so they can be used at different places
     // TODO check if Path is also required for OrderBy Attributes, as it is for descriptions
-    final int handle = debugger.startRuntimeMeasurement("JPAQuery", "execute");
+    final int handle = debugger.startRuntimeMeasurement(this, "execute");
 
     final List<JPAAssociationAttribute> orderByNaviAttributes = extractOrderByNaviAttributes();
     final List<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
@@ -106,7 +106,7 @@ public class JPAQuery extends JPAExecutableQuery {
     addTopSkip(tq);
 
     final HashMap<String, List<Tuple>> result = new HashMap<String, List<Tuple>>(1);
-    final int resultHandle = debugger.startRuntimeMeasurement("TypedQuery", "getResultList");
+    final int resultHandle = debugger.startRuntimeMeasurement(tq, "getResultList");
     final List<Tuple> intermediateResult = tq.getResultList();
     debugger.stopRuntimeMeasurement(resultHandle);
     result.put("root", intermediateResult);
@@ -125,7 +125,7 @@ public class JPAQuery extends JPAExecutableQuery {
 
   private List<javax.persistence.criteria.Expression<?>> createGroupBy(final Map<String, From<?, ?>> joinTables,
       final List<JPAPath> selectionPathList) throws ODataApplicationException {
-    final int handle = debugger.startRuntimeMeasurement("JPAQuery", "createGroupBy");
+    final int handle = debugger.startRuntimeMeasurement(this, "createGroupBy");
 
     final List<javax.persistence.criteria.Expression<?>> groupBy =
         new ArrayList<javax.persistence.criteria.Expression<?>>();

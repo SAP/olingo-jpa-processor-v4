@@ -84,7 +84,10 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
 
   @Override
   public Class<?> getType() {
-    return jpaAttribute.getJavaType().isPrimitive() ? boxPrimitive() : jpaAttribute.getJavaType();
+    if (valueConverter != null)
+      return jpaAttribute.getJavaType().isPrimitive() ? boxPrimitive(dbType) : dbType;
+    else
+      return jpaAttribute.getJavaType().isPrimitive() ? boxPrimitive(entityType) : entityType;
   }
 
   @Override
@@ -154,10 +157,13 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
             // non-negative integer between zero and twelve. If no
             // value is specified, the temporal property has a
             // precision of zero.
-            // TODO check when precision is mandatory e.g. Timestamp
             // is key
             if (jpaColumn.precision() > 0)
               edmProperty.setPrecision(jpaColumn.precision());
+            else if (edmProperty.getType().equals(EdmPrimitiveTypeKind.DateTimeOffset.getFullQualifiedName().toString())
+                && jpaColumn.precision() == 0)
+              throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.PROPERTY_MISSING_PRECISION,
+                  jpaAttribute.getName());
             if (edmProperty.getType().equals(EdmPrimitiveTypeKind.Decimal.getFullQualifiedName().toString())
                 && jpaColumn.scale() > 0)
               edmProperty.setScale(jpaColumn.scale());
@@ -279,6 +285,7 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
       final Column jpaColunnDetails = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
           .getAnnotation(Column.class);
       if (jpaColunnDetails != null) {
+        // TODO allow default name
         dbFieldName = jpaColunnDetails.name();
         if (dbFieldName.isEmpty()) {
           final StringBuffer s = new StringBuffer(DB_FIELD_NAME_PATTERN);
@@ -352,33 +359,6 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
   @Override
   public void addAnnotations(List<CsdlAnnotation> annotations) {
     edmAnnotations.addAll(annotations);
-  }
-
-  /**
-   * https://docs.oracle.com/javase/tutorial/java/data/autoboxing.html
-   * 
-   * @return
-   */
-  private Class<?> boxPrimitive() {
-
-    if (jpaAttribute.getJavaType().getName().equals("int"))
-      return Integer.class;
-    else if (jpaAttribute.getJavaType().getName().equals("long"))
-      return Long.class;
-    else if (jpaAttribute.getJavaType().getName().equals("boolean"))
-      return Boolean.class;
-    else if (jpaAttribute.getJavaType().getName().equals("byte"))
-      return Byte.class;
-    else if (jpaAttribute.getJavaType().getName().equals("char"))
-      return Character.class;
-    else if (jpaAttribute.getJavaType().getName().equals("float"))
-      return Float.class;
-    else if (jpaAttribute.getJavaType().getName().equals("short"))
-      return Short.class;
-    else if (jpaAttribute.getJavaType().getName().equals("double"))
-      return Double.class;
-
-    return null;
   }
 
   private boolean isLob() {

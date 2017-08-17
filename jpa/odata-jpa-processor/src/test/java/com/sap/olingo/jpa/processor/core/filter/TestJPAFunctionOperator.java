@@ -19,10 +19,8 @@ import org.apache.olingo.server.api.uri.UriResourceFunction;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionResultParameter;
-import com.sap.olingo.jpa.processor.core.filter.JPAFunctionOperator;
-import com.sap.olingo.jpa.processor.core.filter.JPAVisitor;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOperationResultParameter;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 
 public class TestJPAFunctionOperator {
@@ -30,8 +28,8 @@ public class TestJPAFunctionOperator {
   private JPAFunctionOperator cut;
   private UriResourceFunction uriFunction;
   private JPAVisitor jpaVisitor;
-  private JPAFunction jpaFunction;
-  private JPAFunctionResultParameter jpaResultParam;
+  private JPADataBaseFunction jpaFunction;
+  private JPAOperationResultParameter jpaResultParam;
   private List<UriParameter> uriParams;
 
   @Before
@@ -41,8 +39,8 @@ public class TestJPAFunctionOperator {
     jpaVisitor = mock(JPAVisitor.class);
     when(jpaVisitor.getCriteriaBuilder()).thenReturn(cb);
     uriFunction = mock(UriResourceFunction.class);
-    jpaFunction = mock(JPAFunction.class);
-    jpaResultParam = mock(JPAFunctionResultParameter.class);
+    jpaFunction = mock(JPADataBaseFunction.class);
+    jpaResultParam = mock(JPAOperationResultParameter.class);
     when(jpaFunction.getResultParameter()).thenReturn(jpaResultParam);
     List<UriResource> resources = new ArrayList<UriResource>();
     resources.add(uriFunction);

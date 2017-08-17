@@ -2,22 +2,29 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.api;
 
 import java.util.List;
 
-public interface JPAFunction {
-  /**
-   * 
-   * @return Name of the function on the database
-   */
-  public String getDBName();
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+
+public interface JPAFunction extends JPAOperation {
 
   /**
    * 
    * @return List of import parameter
+   * @throws ODataJPAModelException
    */
-  public List<JPAFunctionParameter> getParameter();
+  public List<JPAParameter> getParameter() throws ODataJPAModelException;
 
   /**
    * 
-   * @return The return or result parameter of the function
+   * @param internalName
+   * @return
+   * @throws ODataJPAModelException
    */
-  public JPAFunctionResultParameter getResultParameter();
+  public JPAParameter getParameter(String internalName) throws ODataJPAModelException;
+
+  /**
+   * 
+   * @return The type of function
+   */
+  public EdmFunctionType getFunctionType();
 }

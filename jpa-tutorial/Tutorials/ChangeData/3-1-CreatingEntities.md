@@ -1,9 +1,9 @@
 # 3.1 Creating Entities
-As the first modifying request we want to have a closer look at creating entities. _JPAODataCRUDHandler_ was designed to take over repetitive work like preparing the changes or creating a response depending on the request header. The business logic itself has to be implemented in a class that extends _JPAAbstractCUDRequestHandler_, we want to call it _CUDRequestHandler_, locate it in our new package _tutorial.modify_ and overwrite method _createEntity_. The method has three parameter.  
-1. _et_ is an instance of _JPAEntityType_, which provides a bunch of information about the entity to be created. This starts with internal (name of POJO) and external name (name of OData entity) and ends with a list of attributes and keys.  
-2. _jpaAttributes_ is a map of attributes that are provided by the request. Keys of the map are the attribute names of the POJO. In case of complex/embedded attributes jpaAttributes is deep meaning the attribute is an other map.  
-3. _em_ is an instance of EntityManager. A transaction has already been started, which is done to ensure the transactional integrity required for change sets within $batch requests.  
-The method shall returns an instance of the newly created POJO.  
+As the first modifying request we want to have a closer look at creating entities. _JPAODataCRUDHandler_ was designed to take over repetitive work like preparing the changes or creating a response depending on the request header. The business logic itself has to be implemented in a class that extends _JPAAbstractCUDRequestHandler_, we want to call it _CUDRequestHandler_, locate it in our new package _tutorial.modify_ and overwrite method _createEntity_. The method has three parameter.
+1. _et_ is an instance of _JPAEntityType_, which provides a bunch of information about the entity to be created. This starts with internal (name of POJO) and external name (name of OData entity) and ends with a list of attributes and keys.
+2. _jpaAttributes_ is a map of attributes that are provided by the request. Keys of the map are the attribute names of the POJO. In case of complex/embedded attributes jpaAttributes is deep meaning the attribute is an other map.
+3. _em_ is an instance of EntityManager. A transaction has already been started, which is done to ensure the transactional integrity required for change sets within $batch requests.
+The method shall returns an instance of the newly created POJO.
 
 So lets start creating a new AdministrativeDivision. As a first step we generate setter and getter methods. This can be done in Eclipse after opening _AdministrativeDivision.java_ by choosing _Alt+Shift+S_ and then _Generate Getters and Setters..._ select all others then _children_ and _parent_. Please note that all attributes should be typed with wrapper classes instead of primitive types.
 
@@ -42,8 +42,8 @@ public class CUDRequestHandler extends JPAAbstractCUDRequestHandler {
 			result.setAlternativeCode((String) jpaAttributes.get("alternativeCode"));
 			result.setArea((Integer) jpaAttributes.get("area"));
 			result.setPopulation((Long) jpaAttributes.get("population"));
-			
-			em.persist(result);			
+
+			em.persist(result);
 			return result;
 		} else {
 			return super.createEntity(et, jpaAttributes, em);
@@ -51,7 +51,7 @@ public class CUDRequestHandler extends JPAAbstractCUDRequestHandler {
 	}
 
 }
-```  
+```
 As the last step before we can test our implementation, we have to make a small change at the Service implementation. Up to know we haven't provided the _JPAODataCRUDHandler_ which is our handler implementation. So we have to add _handler.getJPAODataContext().setCUDRequestHandler(new CUDRequestHandler());_:
 
 ```Java
@@ -61,8 +61,8 @@ As the last step before we can test our implementation, we have to make a small 
 			handler.getJPAODataContext().setCUDRequestHandler(new CUDRequestHandler());
 			handler.process(req, resp);
 		} catch (RuntimeException e) {
-	...		
-```  
+	...
+```
 
 Now we are ready to check our implementation with our Rest client (e.g Postman). If we would use e.g. the following JSON
 
@@ -72,25 +72,25 @@ Now we are ready to check our implementation with our Rest client (e.g Postman).
         "DivisionCode": "DE1",
         "CountryCode": "DEU"
     }
-    
-and send a POST, we should get the following response:  
 
-![Result POST AdministrativeDivision](Images/CreateAdminDiv.png)    
+and send a POST, we should get the following response:
+
+![Result POST AdministrativeDivision](Images/CreateAdminDiv.png)
 
 Next you can try the following:
 
-    {  
-        "CodePublisher": "Eurostat",  
-        "CodeID": "NUTS2",  
-        "DivisionCode": "DE11",  
-        "CountryCode": "DEU",  
-        "ParentDivisionCode": "DE1",  
-        "ParentCodeID": "NUTS2"  
-    }  
+    {
+        "CodePublisher": "Eurostat",
+        "CodeID": "NUTS2",
+        "DivisionCode": "DE11",
+        "CountryCode": "DEU",
+        "ParentDivisionCode": "DE1",
+        "ParentCodeID": "NUTS2"
+    }
 
-If we want to play around with other entities we could go ahead the same approach as a above, so manually create an instance of the POJO and fill it step by step, which would get boring. We want to do some more generic stuff.  
+If we want to play around with other entities we could go ahead the same approach as a above, so manually create an instance of the POJO and fill it step by step, which would get boring. We want to do some more generic stuff.
 
-__Please note__ that we have used a simplified model for this tutorial where we map a database field one to one to a property in our API. This is not recommended, as this could make a database change to an API change.  
+__Please note__ that we have used a simplified model for this tutorial where we map a database field one to one to a property in our API. This is not recommended, as this could make a database change to an API change.
 
 We want to create an instance base on the information of the entity type. The first step is to get the Constructors:
 
@@ -196,7 +196,7 @@ Now we are able to set the attributes. Here we have to respect embedded types:
 			}
 		}
 	}
-```	
+```
 
 As the last step before we re-factor createEntity we create a helper method to create the instance:
 ```Java
@@ -214,7 +214,7 @@ Now we can replace the old implementation of createEntity with the following cod
 	...
 		Object instance = createPOJO(et, jpaAttributes);
 		em.persist(instance);
-		return instance;	
+		return instance;
 	...
 ```
 Now lets create a new Person:
@@ -223,17 +223,17 @@ Now lets create a new Person:
         "ID" : "A34",
         "Country" : "CHE",
         "BirthDay": "1992-02-10",
-        "LastName": "Müller",
-        "FirstName": "Frida",  
+        "LastName": "MÃ¼ller",
+        "FirstName": "Frida",
         "Address" : {
             "Country" : "DEU",
-            "StreetName": "Test Starße",
+            "StreetName": "Test StarÃŸe",
             "CityName": "Berlin",
             "PostalCode": "10116",
             "HouseNumber": "23",
             "RegionCodePublisher": "ISO",
             "Region": "DE-BE",
-            "RegionCodeID": "3166-2"    
+            "RegionCodeID": "3166-2"
         },
         "AdministrativeInformation": {
             "Created": {

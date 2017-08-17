@@ -163,4 +163,32 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
       edmAnnotations.add(edmAnnotation);
     }
   }
+
+  /**
+   * https://docs.oracle.com/javase/tutorial/java/data/autoboxing.html
+   * @param javaType
+   * 
+   * @return
+   */
+  protected Class<?> boxPrimitive(Class<?> javaType) {
+
+    if (javaType.getName().equals("int"))
+      return Integer.class;
+    else if (javaType.getName().equals("long"))
+      return Long.class;
+    else if (javaType.getName().equals("boolean"))
+      return Boolean.class;
+    else if (javaType.getName().equals("byte"))
+      return Byte.class;
+    else if (javaType.getName().equals("char"))
+      return Character.class;
+    else if (javaType.getName().equals("float"))
+      return Float.class;
+    else if (javaType.getName().equals("short"))
+      return Short.class;
+    else if (javaType.getName().equals("double"))
+      return Double.class;
+
+    return null;
+  }
 }
