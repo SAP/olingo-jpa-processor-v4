@@ -3,3 +3,4 @@
 /.pmd
 /derby.log
 /test/
+/*.log

@@ -4,18 +4,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.EmbeddableType;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
 
+import org.apache.olingo.commons.api.edm.provider.CsdlAction;
 import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.reflections.Reflections;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
@@ -34,6 +37,7 @@ final class IntermediateSchema extends IntermediateModelElement {
   private final Map<String, IntermediateComplexType> complexTypeListInternalKey;
   private final Map<String, IntermediateEntityType> entityTypeListInternalKey;
   private final Map<String, IntermediateFunction> functionListInternalKey;
+  private final Map<String, IntermediateJavaAction> actionListInternalKey;
   private IntermediateEntityContainer container;
   private final Reflections reflections;
   private CsdlSchema edmSchema;
@@ -47,7 +51,7 @@ final class IntermediateSchema extends IntermediateModelElement {
     this.complexTypeListInternalKey = buildComplexTypeList();
     this.entityTypeListInternalKey = buildEntityTypeList();
     this.functionListInternalKey = buildFunctionList();
-
+    this.actionListInternalKey = buildActionList();
   }
 
   @SuppressWarnings("unchecked")
@@ -58,7 +62,7 @@ final class IntermediateSchema extends IntermediateModelElement {
     edmSchema.setComplexTypes((List<CsdlComplexType>) extractEdmModelElements(complexTypeListInternalKey));
     edmSchema.setEntityTypes((List<CsdlEntityType>) extractEdmModelElements(entityTypeListInternalKey));
     edmSchema.setFunctions((List<CsdlFunction>) extractEdmModelElements(functionListInternalKey));
-
+    edmSchema.setActions((List<CsdlAction>) extractEdmModelElements(actionListInternalKey));
 //  edm:Action
 //  edm:Annotations
 //  edm:Annotation
@@ -144,6 +148,24 @@ final class IntermediateSchema extends IntermediateModelElement {
     return functions;
   }
 
+  JPAAction getAction(final String externalName) {
+    for (final Entry<String, IntermediateJavaAction> action : actionListInternalKey.entrySet()) {
+      if (action.getValue().getExternalName().equals(externalName)) {
+        if (!action.getValue().ignore())
+          return action.getValue();
+      }
+    }
+    return null;
+  }
+
+  List<JPAAction> getActions() {
+    final ArrayList<JPAAction> actions = new ArrayList<JPAAction>();
+    for (final Entry<String, IntermediateJavaAction> action : actionListInternalKey.entrySet()) {
+      actions.add(action.getValue());
+    }
+    return actions;
+  }
+
   void setContainer(final IntermediateEntityContainer container) {
     this.container = container;
   }
@@ -176,9 +198,16 @@ final class IntermediateSchema extends IntermediateModelElement {
 
       funcList.putAll(factory.create(nameBuilder, entity, this));
     }
-
+    // 2. Option: Create Function from Java Classes
     funcList.putAll(factory.create(nameBuilder, reflections, this));
     return funcList;
+  }
+
+  private Map<String, IntermediateJavaAction> buildActionList() throws ODataJPAModelException {
+    final HashMap<String, IntermediateJavaAction> actionList = new HashMap<String, IntermediateJavaAction>();
+    final IntermediateActionFactory factory = new IntermediateActionFactory();
+    actionList.putAll(factory.create(nameBuilder, reflections, this));
+    return actionList;
   }
 
 }

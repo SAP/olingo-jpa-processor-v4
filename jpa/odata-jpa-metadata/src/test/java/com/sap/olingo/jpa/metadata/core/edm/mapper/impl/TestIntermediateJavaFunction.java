@@ -83,7 +83,7 @@ public class TestIntermediateJavaFunction extends TestMappingRoot {
   public void checkReturnsTrueForHasFunctionImport() throws ODataJPAModelException {
     IntermediateJavaFunction act = createFunction(ExampleJavaOneFunction.class, "sum");
 
-    assertTrue(act.hasFunctionImport());
+    assertTrue(act.hasImport());
   }
 
   @Test
@@ -105,7 +105,7 @@ public class TestIntermediateJavaFunction extends TestMappingRoot {
   public void checkIgnoresGivenHasFunctionImport() throws ODataJPAModelException {
     IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "sum");
 
-    assertTrue(act.hasFunctionImport());
+    assertTrue(act.hasImport());
   }
 
   @Test

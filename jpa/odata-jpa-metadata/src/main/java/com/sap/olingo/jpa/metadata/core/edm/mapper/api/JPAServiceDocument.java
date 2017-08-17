@@ -2,6 +2,7 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.api;
 
 import java.util.List;
 
+import org.apache.olingo.commons.api.edm.EdmAction;
 import org.apache.olingo.commons.api.edm.EdmComplexType;
 import org.apache.olingo.commons.api.edm.EdmFunction;
 import org.apache.olingo.commons.api.edm.EdmType;
@@ -35,6 +36,8 @@ public interface JPAServiceDocument extends CustomETagSupport {
   JPAEntityType getEntity(String edmEntitySetName) throws ODataJPAModelException;
 
   JPAFunction getFunction(EdmFunction function);
+
+  JPAAction getAction(EdmAction action);
 
   JPAEntitySet getEntitySet(JPAEntityType entityType) throws ODataJPAModelException;
 

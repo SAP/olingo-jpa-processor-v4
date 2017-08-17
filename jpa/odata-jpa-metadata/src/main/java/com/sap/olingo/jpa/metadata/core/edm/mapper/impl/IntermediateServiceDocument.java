@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.persistence.metamodel.Metamodel;
 
+import org.apache.olingo.commons.api.edm.EdmAction;
 import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.edm.EdmComplexType;
 import org.apache.olingo.commons.api.edm.EdmFunction;
@@ -23,6 +24,7 @@ import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
@@ -174,6 +176,21 @@ class IntermediateServiceDocument implements JPAServiceDocument {
     final IntermediateSchema schema = schemaListInternalKey.get(function.getNamespace());
     if (schema != null)
       return schema.getFunction(function.getName());
+    return null;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getAction(org.apache.olingo.commons.api.edm.
+   * EdmFunction)
+   */
+  @Override
+  public JPAAction getAction(final EdmAction action) {
+    final IntermediateSchema schema = schemaListInternalKey.get(action.getNamespace());
+    if (schema != null)
+      return schema.getAction(action.getName());
     return null;
   }
 

@@ -1,6 +1,6 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.api;
 
-public interface JPAFunctionParameter extends JPAFunctionParamaterFacet {
+public interface JPAParameter extends JPAParamaterFacet {
 
   /**
    * Name of the parameter at the UDF or the java method

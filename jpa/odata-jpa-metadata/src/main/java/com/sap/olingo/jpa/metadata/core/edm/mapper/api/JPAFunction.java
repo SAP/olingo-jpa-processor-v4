@@ -5,14 +5,14 @@ import java.util.List;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
-public interface JPAFunction {
+public interface JPAFunction extends JPAOperation {
 
   /**
    * 
    * @return List of import parameter
    * @throws ODataJPAModelException
    */
-  public List<JPAFunctionParameter> getParameter() throws ODataJPAModelException;
+  public List<JPAParameter> getParameter() throws ODataJPAModelException;
 
   /**
    * 
@@ -20,13 +20,7 @@ public interface JPAFunction {
    * @return
    * @throws ODataJPAModelException
    */
-  public JPAFunctionParameter getParameter(String internalName) throws ODataJPAModelException;
-
-  /**
-   * 
-   * @return The return or result parameter of the function
-   */
-  public JPAFunctionResultParameter getResultParameter();
+  public JPAParameter getParameter(String internalName) throws ODataJPAModelException;
 
   /**
    * 

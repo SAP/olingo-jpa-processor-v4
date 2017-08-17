@@ -9,8 +9,6 @@ import java.lang.annotation.Target;
  * Metadata of a function, see <a href =
  * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406398010">
  * edm:Function.</a><p>
- * By default bound functions are treated as User Defined Functions, whereas unbound functions are teared as Stored
- * Procedures.
  * @author Oliver Grande
  *
  */
@@ -58,7 +56,7 @@ public @interface EdmFunction {
    */
   String name();
 
-  EdmFunctionParameter[] parameter() default {};
+  EdmParameter[] parameter() default {};
 
   /**
    * Defines the name of a User Defined Function on the database

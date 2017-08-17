@@ -20,7 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionResultParameter;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOperationResultParameter;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 
 public class TestJPAFunctionOperator {
@@ -29,7 +29,7 @@ public class TestJPAFunctionOperator {
   private UriResourceFunction uriFunction;
   private JPAVisitor jpaVisitor;
   private JPADataBaseFunction jpaFunction;
-  private JPAFunctionResultParameter jpaResultParam;
+  private JPAOperationResultParameter jpaResultParam;
   private List<UriParameter> uriParams;
 
   @Before
@@ -40,7 +40,7 @@ public class TestJPAFunctionOperator {
     when(jpaVisitor.getCriteriaBuilder()).thenReturn(cb);
     uriFunction = mock(UriResourceFunction.class);
     jpaFunction = mock(JPADataBaseFunction.class);
-    jpaResultParam = mock(JPAFunctionResultParameter.class);
+    jpaResultParam = mock(JPAOperationResultParameter.class);
     when(jpaFunction.getResultParameter()).thenReturn(jpaResultParam);
     List<UriResource> resources = new ArrayList<UriResource>();
     resources.add(uriFunction);

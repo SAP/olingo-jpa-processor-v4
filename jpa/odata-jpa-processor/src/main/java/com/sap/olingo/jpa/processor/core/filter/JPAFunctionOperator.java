@@ -14,8 +14,8 @@ import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitor
 import org.apache.olingo.server.api.uri.queryoption.expression.Literal;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionParameter;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionResultParameter;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOperationResultParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPATypeConvertor;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
@@ -57,7 +57,7 @@ final class JPAFunctionOperator implements JPAOperator {
     }
 
     final CriteriaBuilder cb = visitor.getCriteriaBuilder();
-    List<JPAFunctionParameter> parameters;
+    List<JPAParameter> parameters;
     try {
       parameters = jpaFunction.getParameter();
     } catch (ODataJPAModelException e) {
@@ -83,7 +83,7 @@ final class JPAFunctionOperator implements JPAOperator {
     return cb.function(jpaFunction.getDBName(), jpaFunction.getResultParameter().getType(), jpaParameter);
   }
 
-  private UriParameter findUriParameter(final JPAFunctionParameter jpaFunctionParam) {
+  private UriParameter findUriParameter(final JPAParameter jpaFunctionParam) {
     for (final UriParameter uriParam : uriParams) {
       if (uriParam.getName().equals(jpaFunctionParam.getName())) {
         return uriParam;
@@ -92,7 +92,7 @@ final class JPAFunctionOperator implements JPAOperator {
     return null;
   }
 
-  public JPAFunctionResultParameter getReturnType() {
+  public JPAOperationResultParameter getReturnType() {
     return jpaFunction.getResultParameter();
   }
 

@@ -3,21 +3,13 @@ package com.sap.olingo.jpa.processor.core.processor;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Parameter;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 
 import org.apache.olingo.commons.api.data.Annotatable;
-import org.apache.olingo.commons.api.data.ComplexValue;
-import org.apache.olingo.commons.api.data.EntityCollection;
-import org.apache.olingo.commons.api.data.Property;
-import org.apache.olingo.commons.api.data.ValueType;
-import org.apache.olingo.commons.api.edm.EdmComplexType;
-import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmFunction;
 import org.apache.olingo.commons.api.edm.EdmParameter;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
@@ -32,8 +24,6 @@ import org.apache.olingo.server.api.ODataLibraryException;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.serializer.SerializerException;
-import org.apache.olingo.server.api.serializer.SerializerResult;
-import org.apache.olingo.server.api.uri.UriHelper;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResourceFunction;
 
@@ -41,19 +31,15 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAJavaFunction;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
-import com.sap.olingo.jpa.processor.core.converter.JPAComplexResultConverter;
-import com.sap.olingo.jpa.processor.core.converter.JPAEntityResultConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPADBAdaptorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
-import com.sap.olingo.jpa.processor.core.exception.ODataJPASerializerException;
-import com.sap.olingo.jpa.processor.core.serializer.JPAFunctionSerializer;
 
 /**
  * Functions as User Defined Functions, Native Query, as Criteria Builder does not provide the option to used UDFs in
@@ -61,7 +47,7 @@ import com.sap.olingo.jpa.processor.core.serializer.JPAFunctionSerializer;
  * @author Oliver Grande
  *
  */
-public final class JPAFunctionRequestProcessor extends JPAAbstractGetRequestProcessor {
+public final class JPAFunctionRequestProcessor extends JPAOperationRequestProcessor implements JPARequestProcessor {
 
   private final JPAODataDatabaseProcessor dbProcessor;
 
@@ -85,106 +71,12 @@ public final class JPAFunctionRequestProcessor extends JPAAbstractGetRequestProc
       result = processJavaUDF(uriResourceFunction, (JPADataBaseFunction) jpaFunction, request, response,
           responseFormat);
 
-    final Annotatable annotatable = convertResult(result, uriResourceFunction, jpaFunction);
-    serializeResult(uriResourceFunction, response, responseFormat, annotatable);
+    final EdmType returnType = uriResourceFunction.getFunction().getReturnType().getType();
+    final Annotatable annotatable = convertResult(result, returnType, jpaFunction);
+    serializeResult(returnType, response, responseFormat, annotatable);
   }
 
-  private Annotatable convertResult(final Object result, final UriResourceFunction uriResourceFunction,
-      final JPAFunction jpaFunction) throws ODataApplicationException {
-
-    switch (uriResourceFunction.getFunction().getReturnType().getType().getKind()) {
-    case PRIMITIVE:
-      if (jpaFunction.getResultParameter().isCollection()) {
-        final List<Object> response = new ArrayList<Object>();
-        response.addAll((Collection<?>) result);
-        return new Property(null, "Result", ValueType.COLLECTION_PRIMITIVE, response);
-      } else if (result == null)
-        return null;
-      return new Property(null, "Result", ValueType.PRIMITIVE, result);
-    case ENTITY:
-      return createEntityCollection(uriResourceFunction, result, odata.createUriHelper(), jpaFunction);
-    case COMPLEX:
-      if (jpaFunction.getResultParameter().isCollection()) {
-        return new Property(null, "Result", ValueType.COLLECTION_COMPLEX, createComplexCollection(uriResourceFunction,
-            jpaFunction, result));
-      } else if (result == null)
-        return null;
-      return new Property(null, "Result", ValueType.COMPLEX, createComplexValue(uriResourceFunction, jpaFunction,
-          result));
-    default:
-      break;
-    }
-    return null;
-  }
-
-  private List<ComplexValue> createComplexCollection(final UriResourceFunction uriResourceFunction,
-      final JPAFunction jpaFunction, final Object result) throws ODataApplicationException {
-
-    final List<Object> jpaQueryResult = new ArrayList<Object>();
-    jpaQueryResult.addAll((Collection<?>) result);
-    try {
-      return new JPAComplexResultConverter(sd, jpaQueryResult,
-          (EdmComplexType) uriResourceFunction.getFunction().getReturnType().getType()).getResult();
-    } catch (SerializerException e) {
-      throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.QUERY_RESULT_CONV_ERROR,
-          HttpStatusCode.INTERNAL_SERVER_ERROR, e);
-    } catch (ODataJPAModelException e) {
-      throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.QUERY_RESULT_CONV_ERROR,
-          HttpStatusCode.INTERNAL_SERVER_ERROR, e);
-    } catch (URISyntaxException e) {
-      throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.QUERY_RESULT_CONV_ERROR,
-          HttpStatusCode.INTERNAL_SERVER_ERROR, e);
-    }
-  }
-
-  private ComplexValue createComplexValue(final UriResourceFunction uriResourceFunction, final JPAFunction jpaFunction,
-      final Object result) throws ODataApplicationException {
-
-    final List<Object> jpaQueryResult = new ArrayList<Object>();
-    jpaQueryResult.add(result);
-    try {
-      final List<ComplexValue> valueList = new JPAComplexResultConverter(sd, jpaQueryResult,
-          (EdmComplexType) uriResourceFunction.getFunction().getReturnType().getType()).getResult();
-      return valueList.get(0);
-    } catch (SerializerException e) {
-      throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.QUERY_RESULT_CONV_ERROR,
-          HttpStatusCode.INTERNAL_SERVER_ERROR, e);
-    } catch (ODataJPAModelException e) {
-      throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.QUERY_RESULT_CONV_ERROR,
-          HttpStatusCode.INTERNAL_SERVER_ERROR, e);
-    } catch (URISyntaxException e) {
-      throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.QUERY_RESULT_CONV_ERROR,
-          HttpStatusCode.INTERNAL_SERVER_ERROR, e);
-    }
-  }
-
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  private EntityCollection createEntityCollection(final UriResourceFunction uriResourceFunction, Object result,
-      UriHelper createUriHelper, final JPAFunction jpaFunction) throws ODataApplicationException {
-
-    final List resultList = new ArrayList();
-    if (jpaFunction.getResultParameter().isCollection())
-      resultList.addAll((Collection<?>) result);
-    else if (result == null)
-      return null;
-    else
-      resultList.add(result);
-    final EdmEntitySet returnEntitySet = uriResourceFunction.getFunctionImport().getReturnedEntitySet();
-    try {
-      return new JPAEntityResultConverter(odata.createUriHelper(), sd, resultList, returnEntitySet).getResult();
-    } catch (SerializerException e) {
-      throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.QUERY_RESULT_CONV_ERROR,
-          HttpStatusCode.INTERNAL_SERVER_ERROR, e);
-    } catch (ODataJPAModelException e) {
-      throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.QUERY_RESULT_CONV_ERROR,
-          HttpStatusCode.INTERNAL_SERVER_ERROR, e);
-    } catch (URISyntaxException e) {
-      throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.QUERY_RESULT_CONV_ERROR,
-          HttpStatusCode.INTERNAL_SERVER_ERROR, e);
-    }
-  }
-
-  private Object getValue(final EdmFunction edmFunction, final JPAFunctionParameter parameter, final String uriValue)
+  private Object getValue(final EdmFunction edmFunction, final JPAParameter parameter, final String uriValue)
       throws ODataApplicationException {
     final String value = uriValue.replaceAll("'", "");
     final EdmParameter edmParam = edmFunction.getParameter(parameter.getName());
@@ -214,7 +106,7 @@ public final class JPAFunctionRequestProcessor extends JPAAbstractGetRequestProc
 
       for (Parameter declairedParameter : Arrays.asList(methodParameter)) {
         for (UriParameter providedParameter : uriResourceFunction.getParameters()) {
-          JPAFunctionParameter jpaParameter = jpaFunction.getParameter(declairedParameter.getName());
+          JPAParameter jpaParameter = jpaFunction.getParameter(declairedParameter.getName());
           if (jpaParameter.getName().equals(providedParameter.getName())) {
             parameter.add(getValue(uriResourceFunction.getFunction(), jpaParameter, providedParameter.getText()));
             break;
@@ -231,9 +123,9 @@ public final class JPAFunctionRequestProcessor extends JPAAbstractGetRequestProc
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     } catch (InvocationTargetException e) {
       Throwable cause = e.getCause();
-      if(cause != null && cause instanceof ODataApplicationException){
+      if (cause != null && cause instanceof ODataApplicationException) {
         throw (ODataApplicationException) cause;
-      } else {    	  
+      } else {
         throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
       }
     } catch (ODataJPAModelException e) {
@@ -273,18 +165,5 @@ public final class JPAFunctionRequestProcessor extends JPAAbstractGetRequestProc
 //      createSuccessResponce(response, responseFormat, serializerResult);
 //    } else
 //      response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
-  }
-
-  private void serializeResult(final UriResourceFunction uriResourceFunction, final ODataResponse response,
-      final ContentType responseFormat, final Annotatable result) throws ODataJPASerializerException,
-      SerializerException {
-
-    if (result != null || result instanceof EntityCollection && ((EntityCollection) result).getEntities().size() > 0) {
-      final EdmType returnEntityType = uriResourceFunction.getFunction().getReturnType().getType();
-      final SerializerResult serializerResult = ((JPAFunctionSerializer) serializer).serialize(result,
-          returnEntityType);
-      createSuccessResponce(response, responseFormat, serializerResult);
-    } else
-      response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
   }
 }

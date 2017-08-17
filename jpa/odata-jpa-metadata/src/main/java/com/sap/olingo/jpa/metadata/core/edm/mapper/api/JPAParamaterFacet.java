@@ -1,16 +1,19 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.api;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
+import org.apache.olingo.commons.api.edm.geo.SRID;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
-public interface JPAFunctionParamaterFacet {
+public interface JPAParamaterFacet {
 
   Integer getMaxLength();
 
   Integer getPrecision();
 
   Integer getScale();
+
+  SRID getSrid();
 
   Class<?> getType();
 

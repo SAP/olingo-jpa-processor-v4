@@ -127,6 +127,7 @@ public final class JPAExpandQuery extends JPAExecutableQuery {
     final Map<String, From<?, ?>> joinTables = createFromClause(new ArrayList<JPAAssociationAttribute>(),
         descriptionAttributes);
 
+    // TODO handle Join Column is ignored
     cq.multiselect(createSelectClause(joinTables, selectionPath));
     cq.where(createWhere(joinTables));
 

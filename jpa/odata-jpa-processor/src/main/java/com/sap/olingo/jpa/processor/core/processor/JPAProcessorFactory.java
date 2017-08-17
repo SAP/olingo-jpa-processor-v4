@@ -53,6 +53,16 @@ public final class JPAProcessorFactory {
         new JPAConversionHelper());
   }
 
+  public JPAActionRequestProcessor createActionProcessor(final EntityManager em, final UriInfo uriInfo,
+      final ContentType responseFormat) throws ODataException {
+
+    final JPAODataRequestContextAccess requestContext = new JPARequestContext(em, uriInfo, serializerFactory
+        .createSerializer(responseFormat, uriInfo));
+
+    return new JPAActionRequestProcessor(odata, sessionContext, requestContext);
+
+  }
+
   public JPARequestProcessor createProcessor(final EntityManager em, final UriInfo uriInfo,
       final ContentType responseFormat) throws ODataException {
 
@@ -98,5 +108,4 @@ public final class JPAProcessorFactory {
     }
 
   }
-
 }

@@ -2,12 +2,14 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects;
 
 import javax.persistence.EntityManager;
 
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionParameter;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.ODataAction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.ODataFunction;
 
-public class ExampleJavaEmConstructor implements ODataFunction {
+public class ExampleJavaEmConstructor implements ODataFunction, ODataAction {
 
   public ExampleJavaEmConstructor(EntityManager em) {
     super();
@@ -15,8 +17,11 @@ public class ExampleJavaEmConstructor implements ODataFunction {
 
   @EdmFunction(name = "", returnType = @ReturnType)
   public Integer sum(
-      @EdmFunctionParameter(name = "A") short a, @EdmFunctionParameter(name = "B") int b) {
+      @EdmParameter(name = "A") short a, @EdmParameter(name = "B") int b) {
     return a + b;
   }
 
+  @EdmAction(name = "")
+  public void mul(
+      @EdmParameter(name = "A") short a, @EdmParameter(name = "B") int b) {}
 }

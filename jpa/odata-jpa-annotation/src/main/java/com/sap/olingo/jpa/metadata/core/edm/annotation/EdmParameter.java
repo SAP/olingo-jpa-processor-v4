@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
-public @interface EdmFunctionParameter {
+public @interface EdmParameter {
 
   boolean isCollection() default false;
 
@@ -19,8 +19,7 @@ public @interface EdmFunctionParameter {
   String name();
 
   /**
-   * Defines the name of of the input parameter at a stored procedure or user defined Function.
-   * It is required in case the function shall be executed as a stored procedure
+   * Defines the name of the input parameter at a stored procedure or user defined function.
    * @return Parameter name
    */
   String parameterName() default "";
@@ -32,7 +31,7 @@ public @interface EdmFunctionParameter {
   EdmGeospatial srid() default @EdmGeospatial();
 
   /**
-   * Define the parameter type.<p>
+   * Define the parameter type in case of stored procedure or user defined function.<p>
    * 
    * @return Class of java parameter (row) type. This can be either a simple type like <code> Integer.class</code> or
    * the POJO defining an Entity.

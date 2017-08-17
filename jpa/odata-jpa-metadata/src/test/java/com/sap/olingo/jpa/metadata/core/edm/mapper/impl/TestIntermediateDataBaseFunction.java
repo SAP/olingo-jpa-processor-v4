@@ -18,7 +18,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionParameter;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.testmodel.AssertList;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
@@ -141,7 +141,7 @@ public class TestIntermediateDataBaseFunction extends TestMappingRoot {
     EdmFunction.ReturnType retType = mock(EdmFunction.ReturnType.class);
     // EdmFunctionParameter[] params = new EdmFunctionParameter[0];
     when(func.returnType()).thenReturn(retType);
-    when(func.parameter()).thenReturn(new EdmFunctionParameter[0]);
+    when(func.parameter()).thenReturn(new EdmParameter[0]);
     when(retType.type()).thenAnswer(new Answer<Class<?>>() {
 
       @Override
@@ -163,7 +163,7 @@ public class TestIntermediateDataBaseFunction extends TestMappingRoot {
     EdmFunction.ReturnType retType = mock(EdmFunction.ReturnType.class);
     // EdmFunctionParameter[] params = new EdmFunctionParameter[0];
     when(func.returnType()).thenReturn(retType);
-    when(func.parameter()).thenReturn(new EdmFunctionParameter[0]);
+    when(func.parameter()).thenReturn(new EdmParameter[0]);
     when(retType.type()).thenAnswer(new Answer<Class<?>>() {
       @Override
       public Class<?> answer(InvocationOnMock invocation) throws Throwable {
