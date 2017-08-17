@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.query;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
@@ -11,7 +12,9 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 
@@ -209,6 +212,18 @@ public class TestJPAProcessorExpand extends TestBase {
     assertNotNull(greateGrandParent);
     assertNotNull(greateGrandParent.get("CodeID"));
     assertEquals("NUTS1", greateGrandParent.get("CodeID").asText());
+  }
+
+  @Test
+  public void testNestedExpandNestedExpand3Only1PossibleLevelsSelf() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions(DivisionCode='BE25',CodeID='NUTS2',CodePublisher='Eurostat')?$expand=Parent($expand=Parent($expand=Parent))");
+    helper.assertStatus(200);
+
+    final ObjectNode div = helper.getValue();
+    final ObjectNode parent = (ObjectNode) div.get("Parent");
+    assertNotNull(parent.get("CodeID"));
+    assertEquals("NUTS1", parent.get("CodeID").asText());
   }
 
   @Test
@@ -424,7 +439,6 @@ public class TestJPAProcessorExpand extends TestBase {
     assertEquals(7, children.size());
   }
 
-  @Ignore
   @Test
   public void testExpandLevel1() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -435,23 +449,46 @@ public class TestJPAProcessorExpand extends TestBase {
     assertNotNull(org.get("Parent"));
     final ObjectNode parent = (ObjectNode) org.get("Parent");
     assertNotNull(parent.get("DivisionCode"));
-    final ArrayNode children = (ArrayNode) org.get("Children");
-    assertEquals(7, children.size());
+    final TextNode divCode = (TextNode) parent.get("DivisionCode");
+    assertEquals("BE258", divCode.asText());
   }
 
-  @Ignore
   @Test
-  public void testExpandLevelMax() throws IOException, ODataException {
+  public void testExpandLevel2() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "/AdministrativeDivisions(DivisionCode='BE241',CodeID='NUTS3',CodePublisher='Eurostat')?$expand=Parent($levels=max)");
+        "AdministrativeDivisions(DivisionCode='38025',CodeID='LAU2',CodePublisher='Eurostat')?$expand=Parent($levels=2)");
     helper.assertStatus(200);
 
     final ObjectNode org = helper.getValue();
-    assertNotNull(org.get("Parent"));
+    assertFalse(org.get("Parent") instanceof NullNode);
     final ObjectNode parent = (ObjectNode) org.get("Parent");
-    assertNotNull(parent.get("DivisionCode"));
-    final ArrayNode children = (ArrayNode) org.get("Children");
-    assertEquals(7, children.size());
+    final TextNode parentDivCode = (TextNode) parent.get("DivisionCode");
+    assertEquals("BE258", parentDivCode.asText());
+
+    assertFalse(parent.get("Parent") instanceof NullNode);
+    final ObjectNode grandParent = (ObjectNode) parent.get("Parent");
+    assertNotNull(grandParent.get("DivisionCode"));
+    final TextNode grandparentDivCode = (TextNode) grandParent.get("DivisionCode");
+    assertEquals("BE25", grandparentDivCode.asText());
+  }
+
+  @Test
+  public void testExpandLevelMax() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions(DivisionCode='BE241',CodeID='NUTS3',CodePublisher='Eurostat')?$expand=Parent($levels=max)");
+    helper.assertStatus(200);
+
+    final ObjectNode org = helper.getValue();
+    assertFalse(org.get("Parent") instanceof NullNode);
+    final ObjectNode parent = (ObjectNode) org.get("Parent");
+    final TextNode parentDivCode = (TextNode) parent.get("DivisionCode");
+    assertEquals("BE24", parentDivCode.asText());
+
+    assertFalse(parent.get("Parent") instanceof NullNode);
+    final ObjectNode grandParent = (ObjectNode) parent.get("Parent");
+    assertNotNull(grandParent.get("DivisionCode"));
+    final TextNode grandparentDivCode = (TextNode) grandParent.get("DivisionCode");
+    assertEquals("BE2", grandparentDivCode.asText());
   }
 
   @Test

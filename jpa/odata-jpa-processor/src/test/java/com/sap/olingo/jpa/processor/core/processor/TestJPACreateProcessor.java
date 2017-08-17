@@ -5,12 +5,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyMapOf;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +41,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 public class TestJPACreateProcessor extends TestJPAModifyProcessor {
 
   @Test
-  public void testHockIsCalled() throws ODataJPAModelException, ODataException {
+  public void testHookIsCalled() throws ODataJPAModelException, ODataException {
     ODataResponse response = new ODataResponse();
     ODataRequest request = prepareSimpleRequest();
 
@@ -78,7 +78,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     RequestHandleSpy spy = new RequestHandleSpy();
     when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
 
-    when(helper.convertProperties(Matchers.any(OData.class), Matchers.any(JPAStructuredType.class), Matchers.any(
+    when(convHelper.convertProperties(Matchers.any(OData.class), Matchers.any(JPAStructuredType.class), Matchers.any(
         List.class))).thenReturn(attributes);
 
     processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
@@ -86,6 +86,26 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     assertNotNull(spy.jpaAttributes);
     assertEquals(1, spy.jpaAttributes.size());
     assertEquals("35", spy.jpaAttributes.get("ID"));
+  }
+
+  @Test
+  public void testHeadersProvided() throws ODataJPAProcessorException, SerializerException, ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
+    final Map<String, List<String>> headers = new HashMap<String, List<String>>();
+
+    when(request.getAllHeaders()).thenReturn(headers);
+    headers.put("If-Match", Arrays.asList("2"));
+
+    RequestHandleSpy spy = new RequestHandleSpy();
+    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+
+    processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
+
+    assertNotNull(spy.headers);
+    assertEquals(1, spy.headers.size());
+    assertNotNull(spy.headers.get("If-Match"));
+    assertEquals("2", spy.headers.get("If-Match").get(0));
   }
 
   @Test
@@ -97,8 +117,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     when(sessionContext.getCUDRequestHandler()).thenReturn(handler);
 
     doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
-        HttpStatusCode.BAD_REQUEST)).when(handler).createEntity(any(JPAEntityType.class), anyMapOf(String.class,
-            Object.class), any(EntityManager.class));
+        HttpStatusCode.BAD_REQUEST)).when(handler).createEntity(any(JPARequestEntity.class), any(EntityManager.class));
 
     try {
       processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
@@ -117,8 +136,8 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     when(sessionContext.getCUDRequestHandler()).thenReturn(handler);
 
-    doThrow(NullPointerException.class).when(handler).createEntity(any(JPAEntityType.class), anyMapOf(String.class,
-        Object.class), any(EntityManager.class));
+    doThrow(NullPointerException.class).when(handler).createEntity(any(JPARequestEntity.class), any(
+        EntityManager.class));
 
     try {
       processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
@@ -197,11 +216,37 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
+  public void testRepresentationResponseStatusCodeMapResult() throws ODataJPAProcessorException, SerializerException,
+      ODataException {
+
+    ODataResponse response = new ODataResponse();
+    ODataRequest request = prepareRepresentationRequest(new RequestHandleMapResultSpy());
+
+    processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
+
+    assertEquals(HttpStatusCode.CREATED.getStatusCode(), response.getStatusCode());
+  }
+
+  @Test
   public void testRepresentationResponseContent() throws ODataJPAProcessorException, SerializerException,
       ODataException, IOException {
 
     ODataResponse response = new ODataResponse();
     ODataRequest request = prepareRepresentationRequest(new RequestHandleSpy());
+
+    processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
+    byte[] act = new byte[100];
+    response.getContent().read(act);
+    String s = new String(act).trim();
+    assertEquals("{\"ID\":\"35\"}", s);
+  }
+
+  @Test
+  public void testRepresentationResponseContentMapResult() throws ODataJPAProcessorException, SerializerException,
+      ODataException, IOException {
+
+    ODataResponse response = new ODataResponse();
+    ODataRequest request = prepareRepresentationRequest(new RequestHandleMapResultSpy());
 
     processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
     byte[] act = new byte[100];
@@ -222,19 +267,52 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     assertEquals(LOCATION_HEADER, response.getHeader(HttpHeader.LOCATION));
   }
 
+  @Test
+  public void testRepresentationLocationHeaderMapResult() throws ODataJPAProcessorException, SerializerException,
+      ODataException {
+
+    ODataResponse response = new ODataResponse();
+    ODataRequest request = prepareRepresentationRequest(new RequestHandleMapResultSpy());
+
+    processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
+
+    assertEquals(LOCATION_HEADER, response.getHeader(HttpHeader.LOCATION));
+  }
+
   class RequestHandleSpy extends JPAAbstractCUDRequestHandler {
+    public JPAEntityType et;
+    public Map<String, Object> jpaAttributes;
+    public EntityManager em;
+    public boolean called = false;
+    public Map<String, List<String>> headers;
+
+    @Override
+    public Object createEntity(final JPARequestEntity requestEntity, EntityManager em)
+        throws ODataJPAProcessException {
+      Organization result = new Organization();
+      result.setID("35");
+      this.et = requestEntity.getEntityType();
+      this.jpaAttributes = requestEntity.getData();
+      this.em = em;
+      this.headers = requestEntity.getAllHeader();
+      this.called = true;
+      return result;
+    }
+  }
+
+  class RequestHandleMapResultSpy extends JPAAbstractCUDRequestHandler {
     public JPAEntityType et;
     public Map<String, Object> jpaAttributes;
     public EntityManager em;
     public boolean called = false;
 
     @Override
-    public Object createEntity(JPAEntityType et, Map<String, Object> jpaAttributes, EntityManager em)
+    public Object createEntity(final JPARequestEntity requestEntity, EntityManager em)
         throws ODataJPAProcessException {
-      Organization result = new Organization();
-      result.setID("35");
-      this.et = et;
-      this.jpaAttributes = jpaAttributes;
+      Map<String, Object> result = new HashMap<String, Object>();
+      result.put("iD", "35");
+      this.et = requestEntity.getEntityType();
+      this.jpaAttributes = requestEntity.getData();
       this.em = em;
       this.called = true;
       return result;

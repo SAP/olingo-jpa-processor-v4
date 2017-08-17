@@ -6,7 +6,7 @@ import org.apache.olingo.server.api.serializer.FixedFormatSerializer;
 import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.serializer.SerializerResult;
 
-class JPASerializeCount implements JPASerializer {
+final class JPASerializeCount implements JPASerializer {
   private final FixedFormatSerializer serializer;
 
   JPASerializeCount(final FixedFormatSerializer serializer) {

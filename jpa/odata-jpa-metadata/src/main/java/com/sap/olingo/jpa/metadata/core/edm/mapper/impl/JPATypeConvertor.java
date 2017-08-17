@@ -132,6 +132,35 @@ public final class JPATypeConvertor {
     return false;
   }
 
+  /**
+   * For supported java types see {@link org.apache.olingo.commons.api.edm.EdmPrimitiveType}
+   * @param type
+   * @return
+   */
+  public static boolean isSupportedByOlingo(final Class<?> type) {
+
+    if (type == Boolean.class ||
+        type == Byte.class ||
+        type == Byte[].class ||
+        type == byte[].class ||
+        type == Double.class ||
+        type == Float.class ||
+        type == Integer.class ||
+        type == java.math.BigDecimal.class ||
+        type == java.math.BigInteger.class ||
+        type == java.sql.Time.class ||
+        type == java.sql.Timestamp.class ||
+        type == java.util.Calendar.class ||
+        type == java.util.Date.class ||
+        type == java.util.UUID.class ||
+        type == Long.class ||
+        type == Short.class ||
+        type == String.class) {
+      return true;
+    }
+    return false;
+  }
+
   private static EdmPrimitiveTypeKind convertGeography(final Class<?> jpaType, final Attribute<?, ?> currentAttribute)
       throws ODataJPAModelException {
     if (jpaType.equals(org.apache.olingo.commons.api.edm.geo.Point.class)) {

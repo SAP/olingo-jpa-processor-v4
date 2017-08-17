@@ -27,7 +27,6 @@ public class ExpandItemDouble implements ExpandItem {
 
   @Override
   public LevelsExpandOption getLevelsOption() {
-    fail();
     return null;
   }
 

@@ -3,12 +3,14 @@ package com.sap.olingo.jpa.processor.core.serializer;
 import java.io.InputStream;
 import java.util.List;
 
+import org.apache.olingo.commons.api.data.Annotatable;
 import org.apache.olingo.commons.api.data.Entity;
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.Property;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmKeyPropertyRef;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
+import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataRequest;
@@ -26,7 +28,7 @@ import org.apache.olingo.server.api.uri.UriResourceProperty;
 
 import com.sap.olingo.jpa.processor.core.exception.ODataJPASerializerException;
 
-class JPASerializeValue extends JPASerializePrimitiveAbstract implements JPASerializer {
+final class JPASerializeValue extends JPASerializePrimitiveAbstract {
   private final FixedFormatSerializer serializer;
 
   JPASerializeValue(final ServiceMetadata serviceMetadata, final FixedFormatSerializer serializer,
@@ -75,6 +77,16 @@ class JPASerializeValue extends JPASerializePrimitiveAbstract implements JPASeri
       serializerResult = serializer.primitiveValue(edmPropertyType, info.getProperty().getValue(), options);
     }
     return new JPAValueSerializerResult(serializerResult);
+  }
+
+  @Override
+  public SerializerResult serialize(final Annotatable result, final EdmType entityType)
+      throws SerializerException, ODataJPASerializerException {
+
+    final PrimitiveValueSerializerOptions options = PrimitiveValueSerializerOptions.with().build();
+    return new JPAValueSerializerResult(serializer.primitiveValue((EdmPrimitiveType) entityType, ((Property) result)
+        .getValue(), options));
+
   }
 
   private boolean isStream() {

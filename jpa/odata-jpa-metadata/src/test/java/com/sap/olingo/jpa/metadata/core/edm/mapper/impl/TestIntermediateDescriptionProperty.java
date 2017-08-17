@@ -3,31 +3,41 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Member;
 import java.util.List;
 
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.EmbeddableType;
+import javax.persistence.metamodel.ManagedType;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssoziation;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityTypeAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
+import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 
 public class TestIntermediateDescriptionProperty extends TestMappingRoot {
-  private TestHelper                      helper;
+  private TestHelper helper;
   private IntermediateDescriptionProperty cut;
-  private JPAEdmMetadataPostProcessor     processor;
+  private JPAEdmMetadataPostProcessor processor;
 
   @Before
   public void setup() throws ODataJPAModelException {
@@ -100,6 +110,75 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
   }
 
   @Test
+  public void checkWrongPathElementThrowsEcxeption() {
+
+    Attribute<?, ?> jpaAttribute = mock(Attribute.class);
+    EdmDescriptionAssoziation assoziation = prepareCheckPath(jpaAttribute);
+
+    EdmDescriptionAssoziation.valueAssignment[] valueAssignments = new EdmDescriptionAssoziation.valueAssignment[1];
+    EdmDescriptionAssoziation.valueAssignment valueAssignment = mock(EdmDescriptionAssoziation.valueAssignment.class);
+    valueAssignments[0] = valueAssignment;
+    when(valueAssignment.attribute()).thenReturn("communicationData/dummy");
+    when(assoziation.valueAssignments()).thenReturn(valueAssignments);
+
+    try {
+      cut = new IntermediateDescriptionProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
+          helper.schema);
+      cut.getEdmItem();
+    } catch (ODataJPAModelException e) {
+      return;
+    }
+    fail();
+  }
+
+  @Test
+  public void checkWrongPathStartThrowsEcxeption() {
+
+    Attribute<?, ?> jpaAttribute = mock(Attribute.class);
+    EdmDescriptionAssoziation assoziation = prepareCheckPath(jpaAttribute);
+
+    EdmDescriptionAssoziation.valueAssignment[] valueAssignments = new EdmDescriptionAssoziation.valueAssignment[1];
+    EdmDescriptionAssoziation.valueAssignment valueAssignment = mock(EdmDescriptionAssoziation.valueAssignment.class);
+    valueAssignments[0] = valueAssignment;
+    when(valueAssignment.attribute()).thenReturn("communicationDummy/dummy");
+    when(assoziation.valueAssignments()).thenReturn(valueAssignments);
+
+    try {
+      cut = new IntermediateDescriptionProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
+          helper.schema);
+      cut.getEdmItem();
+    } catch (ODataJPAModelException e) {
+      return;
+    }
+    fail();
+  }
+
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  private EdmDescriptionAssoziation prepareCheckPath(Attribute<?, ?> jpaAttribute) {
+    AnnotatedMember jpaField = mock(AnnotatedMember.class);
+    ManagedType jpaManagedType = mock(ManagedType.class);
+    EdmDescriptionAssoziation assoziation = mock(EdmDescriptionAssoziation.class);
+
+    when(jpaAttribute.getJavaType()).thenAnswer(new Answer<Class<BusinessPartner>>() {
+      @Override
+      public Class<BusinessPartner> answer(InvocationOnMock invocation) throws Throwable {
+        return BusinessPartner.class;
+      }
+    });
+    when(jpaAttribute.getJavaMember()).thenReturn(jpaField);
+    when(jpaAttribute.getName()).thenReturn("dummy");
+    when(jpaAttribute.getDeclaringType()).thenReturn(jpaManagedType);
+    when(jpaManagedType.getJavaType()).thenReturn(BusinessPartner.class);
+
+    when(jpaField.getAnnotation(EdmDescriptionAssoziation.class)).thenReturn(assoziation);
+
+    when(assoziation.descriptionAttribute()).thenReturn("country");
+    when(assoziation.languageAttribute()).thenReturn("language");
+    when(assoziation.localeAttribute()).thenReturn("");
+    return assoziation;
+  }
+
+  @Test
   public void checkAnnotations() throws ODataJPAModelException {
     Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("BusinessPartner"),
         "locationName");
@@ -167,6 +246,13 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
         String jpaManagedTypeClassName) {}
 
     @Override
+    public void processEntityType(IntermediateEntityTypeAccess entity) {}
+
+    @Override
     public void provideReferences(IntermediateReferenceList references) throws ODataJPAModelException {}
+  }
+
+  private interface AnnotatedMember extends Member, AnnotatedElement {
+
   }
 }

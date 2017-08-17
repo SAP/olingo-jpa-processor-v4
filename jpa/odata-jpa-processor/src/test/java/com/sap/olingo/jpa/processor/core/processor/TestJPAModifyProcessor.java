@@ -42,13 +42,10 @@ import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
 import com.sap.olingo.jpa.processor.core.api.JPAAbstractCUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializer;
@@ -56,46 +53,40 @@ import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 
 public abstract class TestJPAModifyProcessor {
-  protected static final String         LOCATION_HEADER    = "Organization('35')";
-  protected static final String         PREFERENCE_APPLIED = "return=minimal";
-  protected static final String         PUNIT_NAME         = "org.apache.olingo.jpa";
+  protected static final String LOCATION_HEADER = "Organization('35')";
+  protected static final String PREFERENCE_APPLIED = "return=minimal";
+  protected static final String PUNIT_NAME = "com.sap.olingo.jpa";
   protected static EntityManagerFactory emf;
-  protected static JPAEdmProvider       jpaEdm;
-  protected static DataSource           ds;
+  protected static JPAEdmProvider jpaEdm;
+  protected static DataSource ds;
 
   @BeforeClass
   public static void setupClass() throws ODataException {
+    JPAEdmMetadataPostProcessor pP = mock(JPAEdmMetadataPostProcessor.class);
+
     ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
     emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, ds);
-    jpaEdm = new JPAEdmProvider(PUNIT_NAME, emf.getMetamodel(), new JPAEdmMetadataPostProcessor() {
-      @Override
-      public void processNavigationProperty(IntermediateNavigationPropertyAccess property,
-          String jpaManagedTypeClassName) {}
-
-      @Override
-      public void processProperty(IntermediatePropertyAccess property, String jpaManagedTypeClassName) {}
-
-      @Override
-      public void provideReferences(IntermediateReferenceList references) throws ODataJPAModelException {}
-    });
+    jpaEdm = new JPAEdmProvider(PUNIT_NAME, emf.getMetamodel(), pP, null);
 
   }
 
-  protected JPACUDRequestProcessor       processor;
-  protected OData                        odata;
-  protected ServiceMetadata              serviceMetadata;
+  protected JPACUDRequestProcessor processor;
+  protected OData odata;
+  protected ServiceMetadata serviceMetadata;
   protected JPAODataSessionContextAccess sessionContext;
   protected JPAODataRequestContextAccess requestContext;
-  protected UriInfo                      uriInfo;
-  protected UriResourceEntitySet         uriEts;
-  protected EntityManager                em;
-  protected JPASerializer                serializer;
-  protected EdmEntitySet                 ets;
-  protected List<UriParameter>           keyPredicates;
-  protected JPAConversionHelper          helper;
-  protected List<UriResource>            pathParts = new ArrayList<UriResource>();
-  protected SerializerResult             serializerResult;
-  protected List<String>                 header    = new ArrayList<String>();
+  protected UriInfo uriInfo;
+  protected UriResourceEntitySet uriEts;
+  protected EntityManager em;
+  protected EntityTransaction transaction;
+  protected JPASerializer serializer;
+  protected EdmEntitySet ets;
+  protected List<UriParameter> keyPredicates;
+  protected JPAConversionHelper convHelper;
+  protected List<UriResource> pathParts = new ArrayList<UriResource>();
+  protected SerializerResult serializerResult;
+  protected List<String> header = new ArrayList<String>();
+  protected JPAServiceDebugger debugger;
 
   @Before
   public void setUp() throws Exception {
@@ -109,12 +100,14 @@ public abstract class TestJPAModifyProcessor {
     serializer = mock(JPASerializer.class);
     uriEts = mock(UriResourceEntitySet.class);
     pathParts.add(uriEts);
-
-    helper = mock(JPAConversionHelper.class);
+    convHelper = mock(JPAConversionHelper.class);
     em = mock(EntityManager.class);
+    transaction = mock(EntityTransaction.class);
     serializerResult = mock(SerializerResult.class);
+    debugger = mock(JPAServiceDebugger.class);
 
     when(sessionContext.getEdmProvider()).thenReturn(jpaEdm);
+    when(sessionContext.getDebugger()).thenReturn(debugger);
     when(requestContext.getEntityManager()).thenReturn(em);
     when(requestContext.getUriInfo()).thenReturn(uriInfo);
     when(requestContext.getSerializer()).thenReturn(serializer);
@@ -123,7 +116,9 @@ public abstract class TestJPAModifyProcessor {
     when(uriEts.getEntitySet()).thenReturn(ets);
     when(uriEts.getKind()).thenReturn(UriResourceKind.entitySet);
     when(ets.getName()).thenReturn("Organizations");
-    processor = new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext, helper);
+    when(em.getTransaction()).thenReturn(transaction);
+    processor = new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext, convHelper);
+
   }
 
   protected ODataRequest prepareRepresentationRequest(JPAAbstractCUDRequestHandler spy)
@@ -139,13 +134,14 @@ public abstract class TestJPAModifyProcessor {
     Edm edm = mock(Edm.class);
     when(serviceMetadata.getEdm()).thenReturn(edm);
     EdmEntityType edmET = mock(EdmEntityType.class);
-    FullQualifiedName fqn = new FullQualifiedName("org.apache.olingo.jpa.Organization");
+    FullQualifiedName fqn = new FullQualifiedName("com.sap.olingo.jpa.Organization");
     when(edm.getEntityType(fqn)).thenReturn(edmET);
     List<String> keyNames = new ArrayList<String>();
     keyNames.add("ID");
     when(edmET.getKeyPredicateNames()).thenReturn(keyNames);
     EdmKeyPropertyRef refType = mock(EdmKeyPropertyRef.class);
     when(edmET.getKeyPropertyRef("ID")).thenReturn(refType);
+    when(edmET.getFullQualifiedName()).thenReturn(fqn);
     EdmProperty edmProperty = mock(EdmProperty.class);
     when(refType.getProperty()).thenReturn(edmProperty);
     when(refType.getName()).thenReturn("ID");
@@ -177,9 +173,9 @@ public abstract class TestJPAModifyProcessor {
     header.add(content);
 
     Entity odataEntity = mock(Entity.class);
-    when(helper.convertInputStream(odata, request, ContentType.JSON, ets)).thenReturn(odataEntity);
-    when(helper.convertKeyToLocal(Matchers.eq(odata), Matchers.eq(request), Matchers.eq(ets), (JPAEntityType) Matchers
-        .anyObject(), Matchers.anyObject())).thenReturn(LOCATION_HEADER);
+    when(convHelper.convertInputStream(odata, request, ContentType.JSON, ets)).thenReturn(odataEntity);
+    when(convHelper.convertKeyToLocal(Matchers.eq(odata), Matchers.eq(request), Matchers.eq(ets),
+        (JPAEntityType) Matchers.anyObject(), Matchers.anyObject())).thenReturn(LOCATION_HEADER);
     return request;
   }
 }

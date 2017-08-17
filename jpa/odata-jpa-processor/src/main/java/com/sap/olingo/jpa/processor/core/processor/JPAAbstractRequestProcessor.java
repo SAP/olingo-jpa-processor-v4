@@ -12,7 +12,7 @@ import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.serializer.SerializerResult;
 import org.apache.olingo.server.api.uri.UriInfo;
 
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
@@ -22,7 +22,7 @@ abstract class JPAAbstractRequestProcessor {
 
   // TODO eliminate transaction handling
   protected final EntityManager em;
-  protected final ServiceDocument sd;
+  protected final JPAServiceDocument sd;
   protected final JPAODataSessionContextAccess sessionContext;
   protected final CriteriaBuilder cb;
   protected final UriInfo uriInfo;
@@ -44,7 +44,7 @@ abstract class JPAAbstractRequestProcessor {
     this.debugger = context.getDebugger();
   }
 
-  protected final void createSuccessResonce(final ODataResponse response, final ContentType responseFormat,
+  protected final void createSuccessResponce(final ODataResponse response, final ContentType responseFormat,
       final SerializerResult serializerResult) {
 
     response.setContent(serializerResult.getContent());

@@ -9,13 +9,13 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
-class JPAPathImpl implements JPAPath {
+final class JPAPathImpl implements JPAPath {
   final private String alias;
   final private List<JPAElement> pathElements;
   final private String dbFieldName;
   final private boolean ignore;
 
-  JPAPathImpl(final String alias, final String dbFieldName, final IntermediateProperty element) {
+  JPAPathImpl(final String alias, final String dbFieldName, final IntermediateModelElement element) {
     final List<JPAElement> pathElementsBuffer = new ArrayList<JPAElement>();
 
     this.alias = alias;

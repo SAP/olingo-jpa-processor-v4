@@ -20,7 +20,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializerFactory;
 
-public class JPAProcessorFactory {
+public final class JPAProcessorFactory {
   private final JPAODataSessionContextAccess sessionContext;
   private final JPASerializerFactory serializerFactory;
   private final OData odata;
@@ -36,14 +36,31 @@ public class JPAProcessorFactory {
   }
 
   public JPACUDRequestProcessor createCUDRequestProcessor(final EntityManager em, final UriInfo uriInfo,
-      final ContentType responseFormat)
-      throws ODataException {
+      final ContentType responseFormat) throws ODataException {
 
     final JPAODataRequestContextAccess requestContext = new JPARequestContext(em, uriInfo, serializerFactory
         .createCUDSerializer(responseFormat, uriInfo));
 
     return new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext,
         new JPAConversionHelper());
+  }
+
+  public JPACUDRequestProcessor createCUDRequestProcessor(EntityManager em, UriInfo uriInfo) throws ODataException {
+
+    final JPAODataRequestContextAccess requestContext = new JPARequestContext(em, uriInfo, null);
+
+    return new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext,
+        new JPAConversionHelper());
+  }
+
+  public JPAActionRequestProcessor createActionProcessor(final EntityManager em, final UriInfo uriInfo,
+      final ContentType responseFormat) throws ODataException {
+
+    final JPAODataRequestContextAccess requestContext = new JPARequestContext(em, uriInfo, serializerFactory
+        .createSerializer(responseFormat, uriInfo));
+
+    return new JPAActionRequestProcessor(odata, sessionContext, requestContext);
+
   }
 
   public JPARequestProcessor createProcessor(final EntityManager em, final UriInfo uriInfo,

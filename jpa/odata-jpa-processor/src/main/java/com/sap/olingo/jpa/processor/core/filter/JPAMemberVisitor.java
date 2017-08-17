@@ -22,7 +22,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import com.sap.olingo.jpa.processor.core.query.Util;
 
-class JPAMemberVisitor implements ExpressionVisitor<JPAPath> {
+final class JPAMemberVisitor implements ExpressionVisitor<JPAPath> {
   private final ArrayList<JPAPath> pathList = new ArrayList<JPAPath>();
   private final JPAEntityType jpaEntityType;
 

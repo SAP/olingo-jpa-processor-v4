@@ -7,13 +7,13 @@ import javax.persistence.Table;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionParameter;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 
 @EdmFunction(
     name = "AllCustomersByABC",
     functionName = "CUSTOMER_BY_ABC",
     returnType = @ReturnType(type = Organization.class, isCollection = true),
-    parameter = { @EdmFunctionParameter(name = "Class", type = Character.class) })
+    parameter = { @EdmParameter(name = "Class", type = Character.class) })
 
 @Entity(name = "Organization")
 @DiscriminatorValue(value = "2")

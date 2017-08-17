@@ -12,9 +12,6 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.Edmx;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.Schema;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.Term;
 
 public class TestAnnotationPOJO {
   private String terms =

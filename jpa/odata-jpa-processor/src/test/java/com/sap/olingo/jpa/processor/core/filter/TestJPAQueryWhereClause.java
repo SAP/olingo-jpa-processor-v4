@@ -99,7 +99,7 @@ public class TestJPAQueryWhereClause extends TestBase {
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
-    assertEquals(228, orgs.size());
+    assertEquals(244, orgs.size());
   }
 
   @Test
@@ -453,6 +453,16 @@ public class TestJPAQueryWhereClause extends TestBase {
     helper.assertStatus(200);
     ArrayNode orgs = helper.getValues();
     assertEquals(3, orgs.size());
+  }
+
+  @Test
+  public void testFilterNavigationPropertyToManyValueNotAny() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$filter=not (Roles/any(d:d/RoleCategory eq 'A'))");
+
+    helper.assertStatus(200);
+    ArrayNode orgs = helper.getValues();
   }
 
   @Test

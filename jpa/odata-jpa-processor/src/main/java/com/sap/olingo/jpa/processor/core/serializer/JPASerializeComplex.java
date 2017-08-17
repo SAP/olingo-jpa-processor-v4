@@ -1,10 +1,12 @@
 package com.sap.olingo.jpa.processor.core.serializer;
 
+import org.apache.olingo.commons.api.data.Annotatable;
 import org.apache.olingo.commons.api.data.ContextURL;
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.Property;
 import org.apache.olingo.commons.api.edm.EdmComplexType;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
+import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.serializer.ComplexSerializerOptions;
@@ -15,17 +17,18 @@ import org.apache.olingo.server.api.uri.UriHelper;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
 
+import com.sap.olingo.jpa.processor.core.exception.ODataJPASerializerException;
 import com.sap.olingo.jpa.processor.core.query.Util;
 
-class JPASerializeComplex implements JPASerializer {
+final class JPASerializeComplex implements JPAOperationSerializer {
   private final ServiceMetadata serviceMetadata;
-  private final UriInfo         uriInfo;
-  private final UriHelper       uriHelper;
+  private final UriInfo uriInfo;
+  private final UriHelper uriHelper;
   private final ODataSerializer serializer;
 
   JPASerializeComplex(final ServiceMetadata serviceMetadata, final ODataSerializer serializer,
-      final UriHelper uriHelper,
-      final UriInfo uriInfo) {
+      final UriHelper uriHelper, final UriInfo uriInfo) {
+
     this.uriInfo = uriInfo;
     this.serializer = serializer;
     this.serviceMetadata = serviceMetadata;
@@ -58,5 +61,16 @@ class JPASerializeComplex implements JPASerializer {
         .build();
 
     return serializer.complex(serviceMetadata, edmPropertyType, property, options);
+  }
+
+  @Override
+  public SerializerResult serialize(Annotatable result, EdmType complexType) throws SerializerException,
+      ODataJPASerializerException {
+
+    final ContextURL contextUrl = ContextURL.with().build();
+    final ComplexSerializerOptions options = ComplexSerializerOptions.with().contextURL(contextUrl).build();
+
+    return serializer.complex(serviceMetadata, (EdmComplexType) complexType, (Property) result,
+        options);
   }
 }

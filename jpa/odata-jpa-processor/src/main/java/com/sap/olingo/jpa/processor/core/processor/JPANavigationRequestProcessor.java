@@ -4,24 +4,34 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Tuple;
+import javax.persistence.TupleElement;
+
+import org.apache.olingo.commons.api.data.Entity;
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
+import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.serializer.SerializerResult;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
+import org.apache.olingo.server.api.uri.UriResourceComplexProperty;
+import org.apache.olingo.server.api.uri.UriResourceKind;
+import org.apache.olingo.server.api.uri.UriResourceNavigation;
+import org.apache.olingo.server.api.uri.UriResourcePrimitiveProperty;
 import org.apache.olingo.server.api.uri.queryoption.CountOption;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.converter.JPATupleResultConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandItemInfo;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandItemInfoFactory;
@@ -30,23 +40,25 @@ import com.sap.olingo.jpa.processor.core.query.JPAExpandQueryResult;
 import com.sap.olingo.jpa.processor.core.query.JPANavigationProptertyInfo;
 import com.sap.olingo.jpa.processor.core.query.JPAQuery;
 import com.sap.olingo.jpa.processor.core.query.Util;
-import com.sap.org.jpa.processor.core.converter.JPATupleResultConverter;
 
-public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor implements JPARequestProcessor {
+public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestProcessor {
   private final ServiceMetadata serviceMetadata;
+  private final UriResource lastItem;
 
   public JPANavigationRequestProcessor(final OData odata, final ServiceMetadata serviceMetadata,
       final JPAODataSessionContextAccess context, final JPAODataRequestContextAccess requestContext)
       throws ODataException {
     super(odata, context, requestContext);
     this.serviceMetadata = serviceMetadata;
+    final List<UriResource> resourceParts = uriInfo.getUriResourceParts();
+    this.lastItem = resourceParts.get(resourceParts.size() - 1);
   }
 
   @Override
   public void retrieveData(final ODataRequest request, final ODataResponse response, final ContentType responseFormat)
       throws ODataException {
 
-    final int handle = debugger.startRuntimeMeasurement("JPANavigationRequestProcessor", "retrieveData");
+    final int handle = debugger.startRuntimeMeasurement(this, "retrieveData");
 
     final List<UriResource> resourceParts = uriInfo.getUriResourceParts();
     final EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(resourceParts);
@@ -68,7 +80,7 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
     final JPAExpandQueryResult result = query.execute();
     result.putChildren(readExpandEntities(request.getAllHeaders(), null, uriInfo));
     // Convert tuple result into an OData Result
-    final int converterHandle = debugger.startRuntimeMeasurement("JPATupleResultConverter", "getResult");
+    final int converterHandle = debugger.startRuntimeMeasurement(this, "convertResult");
     EntityCollection entityCollection;
     try {
       entityCollection = new JPATupleResultConverter(sd, result, odata.createUriHelper(), serviceMetadata)
@@ -87,20 +99,76 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
       // TODO SetCount expects an Integer why not a Long?
       entityCollection.setCount(Integer.valueOf(query.countResults().intValue()));
 
-    if (entityCollection.getEntities() != null && entityCollection.getEntities().size() > 0) {
-      final int serializerHandle = debugger.startRuntimeMeasurement("JPASerializer", "serialize");
+    // 404 Not Found indicates that the resource specified by the request URL does not exist. The response body MAY
+    // provide additional information.
+    // This is the case for individual property, complex type, a navigation property or entity is not available.
+    // See 11.2.6 Requesting Related Entities and 11.2.3 Requesting Individual Properties
+    if (isResultEmpty(entityCollection.getEntities(), result))
+      response.setStatusCode(HttpStatusCode.NOT_FOUND.getStatusCode());
+    // 200 OK indicates that either a result was found or that the a Entity Collection query had no result
+    else if (entityCollection.getEntities() != null) {
+      final int serializerHandle = debugger.startRuntimeMeasurement(serializer, "serialize");
       final SerializerResult serializerResult = serializer.serialize(request, entityCollection);
       debugger.stopRuntimeMeasurement(serializerHandle);
-      createSuccessResonce(response, responseFormat, serializerResult);
+      createSuccessResponce(response, responseFormat, serializerResult);
     } else
-      // 404 Not Found indicates that the resource specified by the request URL does not exist. The response body MAY
-      // provide additional information.
       // A request returns 204 No Content if the requested resource has the null value, or if the service applies a
       // return=minimal preference. In this case, the response body MUST be empty.
-      // Assumption 404 is handled by Olingo during URL parsing
       response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
 
     debugger.stopRuntimeMeasurement(handle);
+  }
+
+  private boolean isResultEmpty(List<Entity> entities, JPAExpandQueryResult result) throws ODataApplicationException {
+
+    if (entities.isEmpty()
+        && lastItem.getKind() == UriResourceKind.entitySet
+        && !Util.determineKeyPredicates(lastItem).isEmpty())
+      // handle ../Organizations('xx')
+      return true;
+    else if (lastItem.getKind() == UriResourceKind.primitiveProperty
+        || lastItem.getKind() == UriResourceKind.navigationProperty
+        || lastItem.getKind() == UriResourceKind.complexProperty) {
+      if (entities.isEmpty())
+        return true;
+
+      Object resultElement = null;
+      String name = "";
+      if (lastItem.getKind() == UriResourceKind.primitiveProperty) {
+        name = ((UriResourcePrimitiveProperty) lastItem).getProperty().getName();
+        Tuple tuple = result.getResult("root").get(0);
+        for (TupleElement<?> element : tuple.getElements()) {
+          if (element.getAlias().endsWith(name)) {
+            resultElement = tuple.get(element.getAlias());
+            break;
+          }
+        }
+      }
+      if (lastItem.getKind() == UriResourceKind.complexProperty) {
+        name = ((UriResourceComplexProperty) lastItem).getProperty().getName();
+        Tuple tuple = result.getResult("root").get(0);
+        for (TupleElement<?> element : tuple.getElements()) {
+          if (element.getAlias().contains(name + "/")
+              && tuple.get(element.getAlias()) != null) {
+            resultElement = tuple.get(element.getAlias());
+            break;
+          }
+        }
+      }
+      if (lastItem.getKind() == UriResourceKind.navigationProperty) {
+        name = ((UriResourceNavigation) lastItem).getProperty().getName();
+        Tuple tuple = result.getResult("root").get(0);
+        if (!tuple.getElements().isEmpty()) {
+          resultElement = tuple;
+        }
+      }
+
+      if (resultElement == null)
+        return true;
+
+      return false;
+    } else
+      return false;
   }
 
   /**
@@ -127,7 +195,7 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
       final List<JPANavigationProptertyInfo> parentHops, final UriInfoResource uriResourceInfo)
       throws ODataException {
 
-    final int handle = debugger.startRuntimeMeasurement("JPANavigationRequestProcessor", "readExpandEntities");
+    final int handle = debugger.startRuntimeMeasurement(this, "readExpandEntities");
 
     final Map<JPAAssociationPath, JPAExpandQueryResult> allExpResults =
         new HashMap<JPAAssociationPath, JPAExpandQueryResult>();
@@ -145,8 +213,9 @@ public class JPANavigationRequestProcessor extends JPAAbstractRequestProcessor i
     for (final JPAExpandItemInfo item : itemInfoList) {
       final JPAExpandQuery expandQuery = new JPAExpandQuery(odata, sessionContext, em, item, headers);
       final JPAExpandQueryResult expandResult = expandQuery.execute();
-
-      expandResult.putChildren(readExpandEntities(headers, item.getHops(), item.getUriInfo()));
+      if (expandResult.getNoResults() > 0)
+        // Only go the next hop if the current one has a result
+        expandResult.putChildren(readExpandEntities(headers, item.getHops(), item.getUriInfo()));
       allExpResults.put(item.getExpandAssociation(), expandResult);
     }
 

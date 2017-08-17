@@ -22,14 +22,15 @@ import org.apache.olingo.server.api.uri.UriResourceFunction;
 import org.apache.olingo.server.api.uri.queryoption.SearchOption;
 import org.apache.olingo.server.api.uri.queryoption.search.SearchTerm;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionParameter;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPADBAdaptorException;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 
 final class JPA_HANA_DatabaseProcessor implements JPAODataDatabaseProcessor {
   private static final String SELECT_BASE_PATTERN = "SELECT * FROM $FUNCTIONNAME$($PARAMETER$)";
@@ -37,17 +38,22 @@ final class JPA_HANA_DatabaseProcessor implements JPAODataDatabaseProcessor {
   private static final String PARAMETER_PLACEHOLDER = "$PARAMETER$";
 
   @Override
-  public List<?> executeFunctionQuery(final UriResourceFunction uriResourceFunction, final JPAFunction jpaFunction,
-      final JPAEntityType returnType, final EntityManager em) throws ODataApplicationException {
+  public List<?> executeFunctionQuery(final UriResourceFunction uriResourceFunction,
+      final JPADataBaseFunction jpaFunction, final JPAEntityType returnType, final EntityManager em)
+      throws ODataApplicationException {
 
     final String queryString = generateQueryString(jpaFunction);
     final Query functionQuery = em.createNativeQuery(queryString, returnType.getTypeClass());
     int count = 1;
-    for (final JPAFunctionParameter parameter : jpaFunction.getParameter()) {
-      final UriParameter uriParameter = findParameterByExternalName(parameter, uriResourceFunction.getParameters());
-      final Object value = getValue(uriResourceFunction.getFunction(), parameter, uriParameter.getText());
-      functionQuery.setParameter(count, value);
-      count += 1;
+    try {
+      for (final JPAParameter parameter : jpaFunction.getParameter()) {
+        final UriParameter uriParameter = findParameterByExternalName(parameter, uriResourceFunction.getParameters());
+        final Object value = getValue(uriResourceFunction.getFunction(), parameter, uriParameter.getText());
+        functionQuery.setParameter(count, value);
+        count += 1;
+      }
+    } catch (ODataJPAModelException e) {
+      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
     return functionQuery.getResultList();
   }
@@ -95,21 +101,25 @@ final class JPA_HANA_DatabaseProcessor implements JPAODataDatabaseProcessor {
     return null;
   }
 
-  private String generateQueryString(final JPAFunction jpaFunction) {
+  private String generateQueryString(final JPADataBaseFunction jpaFunction) throws ODataJPAProcessorException {
     final StringBuffer parameterList = new StringBuffer();
     String queryString = SELECT_BASE_PATTERN;
 
     queryString = queryString.replace(FUNC_NAME_PLACEHOLDER, jpaFunction.getDBName());
-    for (int i = 1; i <= jpaFunction.getParameter().size(); i++) {
-      parameterList.append(',');
-      parameterList.append('?');
-      parameterList.append(i);
+    try {
+      for (int i = 1; i <= jpaFunction.getParameter().size(); i++) {
+        parameterList.append(',');
+        parameterList.append('?');
+        parameterList.append(i);
+      }
+    } catch (ODataJPAModelException e) {
+      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
     parameterList.deleteCharAt(0);
     return queryString.replace(PARAMETER_PLACEHOLDER, parameterList.toString());
   }
 
-  private UriParameter findParameterByExternalName(final JPAFunctionParameter parameter,
+  private UriParameter findParameterByExternalName(final JPAParameter parameter,
       final List<UriParameter> uriParameters)
       throws ODataApplicationException {
     for (final UriParameter uriParameter : uriParameters) {
@@ -120,7 +130,7 @@ final class JPA_HANA_DatabaseProcessor implements JPAODataDatabaseProcessor {
         HttpStatusCode.BAD_REQUEST, parameter.getName());
   }
 
-  private Object getValue(final EdmFunction edmFunction, final JPAFunctionParameter parameter, final String uriValue)
+  private Object getValue(final EdmFunction edmFunction, final JPAParameter parameter, final String uriValue)
       throws ODataApplicationException {
     final String value = uriValue.replaceAll("'", "");
     final EdmParameter edmParam = edmFunction.getParameter(parameter.getName());

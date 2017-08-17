@@ -19,13 +19,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.core.query.JPAExpandQueryResult;
+import com.sap.olingo.jpa.processor.core.converter.JPATupleResultConverter;
 import com.sap.olingo.jpa.processor.core.util.ServiceMetadataDouble;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 import com.sap.olingo.jpa.processor.core.util.TupleDouble;
 import com.sap.olingo.jpa.processor.core.util.UriHelperDouble;
-import com.sap.org.jpa.processor.core.converter.JPATupleResultConverter;
 
 public class TestJPATupleResultConverter extends TestBase {
   public static final int NO_POSTAL_ADDRESS_FIELDS = 8;
@@ -201,7 +200,7 @@ public class TestJPATupleResultConverter extends TestBase {
         helper.sd,
         new JPAExpandQueryResult(result, Long.parseLong("0"), helper.getJPAEntityType("PersonImages")),
         uriHelper,
-        new ServiceMetadataDouble(nameBuilder, "PersonImages"));
+        new ServiceMetadataDouble(nameBuilder, "PersonImage"));
 
     HashMap<String, Object> entityResult;
     byte[] image = { -119, 10 };
@@ -224,7 +223,7 @@ public class TestJPATupleResultConverter extends TestBase {
         helper.sd,
         new JPAExpandQueryResult(result, Long.parseLong("0"), helper.getJPAEntityType("OrganizationImages")),
         uriHelper,
-        new ServiceMetadataDouble(nameBuilder, "OrganizationImages"));
+        new ServiceMetadataDouble(nameBuilder, "OrganizationImage"));
 
     HashMap<String, Object> entityResult;
     byte[] image = { -119, 10 };

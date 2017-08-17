@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
+import static org.mockito.Mockito.mock;
+
 import java.lang.reflect.AnnotatedElement;
 import java.util.List;
 
@@ -10,12 +12,12 @@ import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.SingularAttribute;
 
+import org.reflections.Reflections;
+
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.IntermediateSchema;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
 
 public class TestHelper {
   final private Metamodel jpaMetamodel;
@@ -23,13 +25,22 @@ public class TestHelper {
 
   public TestHelper(final Metamodel metamodel, final String namespace) throws ODataJPAModelException {
     this.jpaMetamodel = metamodel;
-    this.schema = new IntermediateSchema(new JPAEdmNameBuilder(namespace), jpaMetamodel);
+    this.schema = new IntermediateSchema(new JPAEdmNameBuilder(namespace), jpaMetamodel, mock(Reflections.class));
   }
 
   public EntityType<?> getEntityType(final String typeName) {
     for (final EntityType<?> entityType : jpaMetamodel.getEntities()) {
       if (entityType.getJavaType().getSimpleName().equals(typeName)) {
         return entityType;
+      }
+    }
+    return null;
+  }
+
+  public EmbeddableType<?> getComplexType(final String typeName) {
+    for (final EmbeddableType<?> embeddableType : jpaMetamodel.getEmbeddables()) {
+      if (embeddableType.getJavaType().getSimpleName().equals(typeName)) {
+        return embeddableType;
       }
     }
     return null;

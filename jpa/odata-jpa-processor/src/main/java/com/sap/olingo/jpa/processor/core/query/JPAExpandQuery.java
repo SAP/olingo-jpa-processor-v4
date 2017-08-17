@@ -11,6 +11,7 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Subquery;
 
 import org.apache.olingo.commons.api.ex.ODataException;
@@ -22,11 +23,12 @@ import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitException;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
@@ -45,7 +47,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
  * @author Oliver Grande
  *
  */
-public class JPAExpandQuery extends JPAExecutableQuery {
+public final class JPAExpandQuery extends JPAExecutableQuery {
   private final JPAAssociationPath assoziation;
   private final JPAExpandItemInfo item;
 
@@ -86,7 +88,7 @@ public class JPAExpandQuery extends JPAExecutableQuery {
    */
   private JPAExpandQueryResult executeExpandTopSkipQuery() throws ODataApplicationException {
     // TODO make this replacable e.g. by UNION ALL
-    final int handle = debugger.startRuntimeMeasurement("JPAExpandQuery", "executeExpandTopSkipQuery");
+    final int handle = debugger.startRuntimeMeasurement(this, "executeExpandTopSkipQuery");
 
     long skip = 0;
     long top = Long.MAX_VALUE;
@@ -104,11 +106,11 @@ public class JPAExpandQuery extends JPAExecutableQuery {
   }
 
   private JPAExpandQueryResult executeStandardQuery() throws ODataApplicationException {
-    final int handle = debugger.startRuntimeMeasurement("JPAExpandQuery", "executeStandradQuery");
+    final int handle = debugger.startRuntimeMeasurement(this, "executeStandradQuery");
 
     final TypedQuery<Tuple> tupleQuery = createTupleQuery();
 
-    final int resultHandle = debugger.startRuntimeMeasurement("TypedQuery", "getResultList");
+    final int resultHandle = debugger.startRuntimeMeasurement(tupleQuery, "getResultList");
     final List<Tuple> intermediateResult = tupleQuery.getResultList();
     debugger.stopRuntimeMeasurement(resultHandle);
     Map<String, List<Tuple>> result = convertResult(intermediateResult, assoziation, 0, Long.MAX_VALUE);
@@ -118,13 +120,14 @@ public class JPAExpandQuery extends JPAExecutableQuery {
   }
 
   private TypedQuery<Tuple> createTupleQuery() throws ODataApplicationException {
-    final int handle = debugger.startRuntimeMeasurement("JPAExpandQuery", "createTupleQuery");
+    final int handle = debugger.startRuntimeMeasurement(this, "createTupleQuery");
 
     final List<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
     final List<JPAPath> descriptionAttributes = extractDescriptionAttributes(selectionPath);
     final Map<String, From<?, ?>> joinTables = createFromClause(new ArrayList<JPAAssociationAttribute>(),
         descriptionAttributes);
 
+    // TODO handle Join Column is ignored
     cq.multiselect(createSelectClause(joinTables, selectionPath));
     cq.where(createWhere(joinTables));
 
@@ -189,7 +192,12 @@ public class JPAExpandQuery extends JPAExecutableQuery {
 
     try {
       for (final JPAOnConditionItem j : a.getJoinColumnsList()) {
-        orders.add(cb.asc(root.get(j.getRightPath().getLeaf().getInternalName())));
+        Path<?> jpaProperty = root;
+        for (JPAElement pathElement : j.getRightPath().getPath()) {
+          jpaProperty = jpaProperty.get(pathElement.getInternalName());
+        }
+        // orders.add(cb.asc(root.get(j.getRightPath().getLeaf().getInternalName())));
+        orders.add(cb.asc(jpaProperty));
       }
     } catch (ODataJPAModelException e) {
       throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);

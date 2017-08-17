@@ -3,15 +3,19 @@
 	xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
 
-	<persistence-unit name="org.apache.olingo.jpa"
+	<persistence-unit name="com.sap.olingo.jpa"
 		transaction-type="RESOURCE_LOCAL">
 
 		<class>com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescription</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.BestOrganization</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.ByteConverter</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.Comment</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Country</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DateConverter</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.DummyEmbeddedToIgnore</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DummyToBeIgnored</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Organization</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.OrganizationImage</class>
@@ -20,7 +24,7 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.StringConverter</class>
 		<properties>
 			<property name="eclipselink.logging.level.sql" value="WARNING" />
-			<!-- <property name="eclipselink.logging.level" value="FINER"/> -->
+			<property name="eclipselink.logging.level" value="WARNING"/> 
 			<property name="eclipselink.logging.parameters" value="true" />
 			<property name="eclipselink.logging.timestamp" value="true" />
 			<property name="eclipselink.weaving" value="static" />

@@ -1,9 +1,12 @@
 package com.sap.olingo.jpa.processor.core.serializer;
 
+import org.apache.olingo.commons.api.data.Annotatable;
 import org.apache.olingo.commons.api.data.ContextURL;
 import org.apache.olingo.commons.api.data.EntityCollection;
+import org.apache.olingo.commons.api.data.Property;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
+import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.serializer.ODataSerializer;
@@ -14,9 +17,10 @@ import org.apache.olingo.server.api.uri.UriHelper;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
 
+import com.sap.olingo.jpa.processor.core.exception.ODataJPASerializerException;
 import com.sap.olingo.jpa.processor.core.query.Util;
 
-class JPASerializePrimitive extends JPASerializePrimitiveAbstract {
+final class JPASerializePrimitive extends JPASerializePrimitiveAbstract {
   private final ODataSerializer serializer;
 
   JPASerializePrimitive(final ServiceMetadata serviceMetadata, final ODataSerializer serializer,
@@ -47,5 +51,16 @@ class JPASerializePrimitive extends JPASerializePrimitiveAbstract {
     final SerializerResult serializerResult = serializer.primitive(serviceMetadata, edmPropertyType, property
         .getProperty(), options);
     return serializerResult;
+  }
+
+  @Override
+  public SerializerResult serialize(final Annotatable result, final EdmType primitiveType)
+      throws SerializerException, ODataJPASerializerException {
+
+    final ContextURL contextUrl = ContextURL.with().build();
+    final PrimitiveSerializerOptions options = PrimitiveSerializerOptions.with().contextURL(contextUrl).build();
+
+    return serializer.primitive(serviceMetadata, (EdmPrimitiveType) primitiveType, (Property) result,
+        options);
   }
 }

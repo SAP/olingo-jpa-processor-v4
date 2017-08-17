@@ -1,4 +1,5 @@
 package com.sap.olingo.jpa.processor.test;
+
 import static org.junit.Assert.assertNotNull;
 
 import java.sql.Connection;
@@ -164,7 +165,7 @@ public class TestFunctions {
 
     sqlString.append("CREATE FUNCTION IS_PRIME(number Integer) RETURNS Integer ");
     sqlString.append("PARAMETER STYLE JAVA NO SQL LANGUAGE JAVA ");
-    sqlString.append("EXTERNAL NAME 'org.apache.olingo.jpa.processor.core.test_udf.isPrime'");
+    sqlString.append("EXTERNAL NAME 'com.sap.olingo.jpa.processor.core.test_udf.isPrime'");
 
     t.begin();
     Query d = em.createNativeQuery(dropString.toString());

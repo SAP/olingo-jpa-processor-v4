@@ -3,7 +3,6 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.api;
 import java.util.List;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
 
 /**
  * External view on an Intermediate Structured Type.
@@ -59,5 +58,7 @@ public interface JPAStructuredType extends JPAElement {
    * @throws ODataJPAModelException
    */
   public JPAAssociationPath getDeclaredAssociation(JPAAssociationPath associationPath) throws ODataJPAModelException;
+
+  public boolean isAbstract();
 
 }

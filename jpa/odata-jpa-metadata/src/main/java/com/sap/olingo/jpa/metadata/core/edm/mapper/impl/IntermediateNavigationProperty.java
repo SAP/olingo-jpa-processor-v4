@@ -17,12 +17,14 @@ import javax.persistence.metamodel.Attribute.PersistentAttributeType;
 import javax.persistence.metamodel.PluralAttribute;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
+import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlNavigationProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlOnDelete;
 import org.apache.olingo.commons.api.edm.provider.CsdlOnDeleteAction;
 import org.apache.olingo.commons.api.edm.provider.CsdlReferentialConstraint;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.AppliesTo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -38,14 +40,15 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigat
  * @author Oliver Grande
  *
  */
-class IntermediateNavigationProperty extends IntermediateModelElement implements IntermediateNavigationPropertyAccess,
-    JPAAssociationAttribute {
+final class IntermediateNavigationProperty extends IntermediateModelElement implements
+    IntermediateNavigationPropertyAccess, JPAAssociationAttribute {
 
   private final Attribute<?, ?> jpaAttribute;
   private CsdlNavigationProperty edmNaviProperty;
   private CsdlOnDelete edmOnDelete;
   private final IntermediateStructuredType sourceType;
   private IntermediateStructuredType targetType;
+  private JPAAssociationAttribute partner;
   private final IntermediateSchema schema;
   private final List<IntermediateJoinColumn> joinColumns = new ArrayList<IntermediateJoinColumn>();
 
@@ -57,6 +60,11 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
     this.sourceType = parent;
     buildNaviProperty();
 
+  }
+
+  @Override
+  public void addAnnotations(List<CsdlAnnotation> annotations) {
+    edmAnnotations.addAll(annotations);
   }
 
   @Override
@@ -207,14 +215,12 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
         // at the BusinessPartner and at the Roles. JPA only defines the
         // "mappedBy" at the Parent.
         if (mappedBy != null && !mappedBy.isEmpty()) {
-//          edmNaviProperty.setPartner(targetType.getCorrespondingNavigationProperty(sourceType, getInternalName())
-//              .getExternalName());          
-          edmNaviProperty.setPartner(targetType.getAssociation(mappedBy).getExternalName());
+          partner = targetType.getAssociation(mappedBy);
+          edmNaviProperty.setPartner(partner.getExternalName());
         } else {
-          final IntermediateNavigationProperty partner = targetType.getCorrespondingAssiciation(sourceType,
-              getInternalName());
+          partner = targetType.getCorrespondingAssiciation(sourceType, getInternalName());
           if (partner != null) {
-            if (partner.isMapped())
+            if (((IntermediateNavigationProperty) partner).isMapped())
               edmNaviProperty.setPartner(partner.getExternalName());
           }
         }
@@ -222,44 +228,6 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
 
     }
 
-  }
-
-  private void determienReferentialConstraints(final AnnotatedElement annotatedElement) throws ODataJPAModelException {
-
-    final AssociationOverride overwrite = annotatedElement.getAnnotation(AssociationOverride.class);
-    if (overwrite != null) return;
-
-    final List<CsdlReferentialConstraint> constraints = edmNaviProperty.getReferentialConstraints();
-    for (final IntermediateJoinColumn intermediateColumn : joinColumns) {
-
-      final CsdlReferentialConstraint constraint = new CsdlReferentialConstraint();
-      constraints.add(constraint);
-      IntermediateProperty p = null;
-      p = sourceType.getPropertyByDBField(intermediateColumn.getName());
-      if (p != null) {
-        constraint.setProperty(p.getExternalName());
-        p = targetType.getPropertyByDBField(intermediateColumn.getReferencedColumnName());
-        if (p != null)
-          constraint.setReferencedProperty(p.getExternalName());
-        else
-          throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.REFERENCED_PROPERTY_NOT_FOUND,
-              getInternalName(), intermediateColumn.getReferencedColumnName(), targetType.getExternalName());
-      } else {
-        p = sourceType.getPropertyByDBField(intermediateColumn.getReferencedColumnName());
-        if (p != null) {
-          constraint.setProperty(p.getExternalName());
-          p = targetType.getPropertyByDBField(intermediateColumn.getName());
-          if (p != null)
-            constraint.setReferencedProperty(p.getExternalName());
-          else
-            throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.REFERENCED_PROPERTY_NOT_FOUND,
-                getInternalName(), intermediateColumn.getName(), targetType.getExternalName());
-
-        } else
-          throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.REFERENCED_PROPERTY_NOT_FOUND,
-              getInternalName(), intermediateColumn.getReferencedColumnName(), sourceType.getExternalName());
-      }
-    }
   }
 
   @Override
@@ -275,6 +243,11 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
   List<IntermediateJoinColumn> getJoinColumns() throws ODataJPAModelException {
     lazyBuildEdmItem();
     return joinColumns;
+  }
+
+  @Override
+  public JPAAssociationAttribute getPartner() {
+    return partner;
   }
 
   boolean isMapped() {
@@ -313,6 +286,46 @@ class IntermediateNavigationProperty extends IntermediateModelElement implements
           jpaAttribute.getName(), sourceType.internalName);
     postProcessor.processNavigationProperty(this, jpaAttribute.getDeclaringType().getJavaType()
         .getCanonicalName());
+    // Process annotations after post processing, as external name it could have been changed
+    getAnnotations(edmAnnotations, this.jpaAttribute.getJavaMember(), internalName, AppliesTo.NAVIGATION_PROPERTY);
+  }
+
+  private void determienReferentialConstraints(final AnnotatedElement annotatedElement) throws ODataJPAModelException {
+
+    final AssociationOverride overwrite = annotatedElement.getAnnotation(AssociationOverride.class);
+    if (overwrite != null) return;
+
+    final List<CsdlReferentialConstraint> constraints = edmNaviProperty.getReferentialConstraints();
+    for (final IntermediateJoinColumn intermediateColumn : joinColumns) {
+
+      final CsdlReferentialConstraint constraint = new CsdlReferentialConstraint();
+      constraints.add(constraint);
+      IntermediateModelElement p = null;
+      p = sourceType.getPropertyByDBField(intermediateColumn.getName());
+      if (p != null) {
+        constraint.setProperty(p.getExternalName());
+        p = targetType.getPropertyByDBField(intermediateColumn.getReferencedColumnName());
+        if (p != null)
+          constraint.setReferencedProperty(p.getExternalName());
+        else
+          throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.REFERENCED_PROPERTY_NOT_FOUND,
+              getInternalName(), intermediateColumn.getReferencedColumnName(), targetType.getExternalName());
+      } else {
+        p = sourceType.getPropertyByDBField(intermediateColumn.getReferencedColumnName());
+        if (p != null) {
+          constraint.setProperty(p.getExternalName());
+          p = targetType.getPropertyByDBField(intermediateColumn.getName());
+          if (p != null)
+            constraint.setReferencedProperty(p.getExternalName());
+          else
+            throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.REFERENCED_PROPERTY_NOT_FOUND,
+                getInternalName(), intermediateColumn.getName(), targetType.getExternalName());
+
+        } else
+          throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.REFERENCED_PROPERTY_NOT_FOUND,
+              getInternalName(), intermediateColumn.getReferencedColumnName(), sourceType.getExternalName());
+      }
+    }
   }
 
   private void fillMissingName(final boolean isSourceOne, final IntermediateJoinColumn intermediateColumn)

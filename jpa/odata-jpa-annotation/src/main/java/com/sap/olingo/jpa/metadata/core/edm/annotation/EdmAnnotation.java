@@ -20,13 +20,16 @@ import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpress
 @Target({ ElementType.TYPE, ElementType.FIELD })
 @Retention(value = RetentionPolicy.RUNTIME)
 public @interface EdmAnnotation {
-  /**
-   * Full qualified name of term
-   * 
-   */
 
+  /**
+   * Full qualified name of term, e.g. Core.MediaType
+   */
   String term();
 
+  /**
+   * An annotation element MAY provide a SimpleIdentifier value for the Qualifier attribute.
+   * The qualifier attribute allows annotation authors a means of conditionally applying an annotation.
+   */
   String qualifier() default "";
 
   ConstantExpression constantExpression() default @ConstantExpression(type = ConstantExpressionType.Int,

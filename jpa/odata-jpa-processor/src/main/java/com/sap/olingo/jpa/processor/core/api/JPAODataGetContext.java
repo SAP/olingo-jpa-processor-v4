@@ -39,5 +39,15 @@ public interface JPAODataGetContext {
 
   public void setDebugSupport(final DebugSupport jpaDebugSupport);
 
-  public void initDebugger(String debugFormat);
+  public void initDebugger(final String debugFormat);
+
+  /**
+   * Name of the top level package to look for
+   * <ul>
+   * <li> Enumeration Types
+   * <li> Java class based Functions
+   * </ul>
+   * @param packageName
+   */
+  public void setTypePackage(final String... packageName);
 }

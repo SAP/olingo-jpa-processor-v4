@@ -14,6 +14,7 @@ import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriResourceFunction;
 import org.apache.olingo.server.api.uri.queryoption.SearchOption;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
 import com.sap.olingo.jpa.processor.core.api.JPAODataDatabaseProcessor;
@@ -33,8 +34,9 @@ class JPA_DERBY_DatabaseProcessor implements JPAODataDatabaseProcessor {
   }
 
   @Override
-  public List<?> executeFunctionQuery(final UriResourceFunction uriResourceFunction, final JPAFunction jpaFunction,
-      final JPAEntityType returnType, final EntityManager em) throws ODataApplicationException {
+  public List<?> executeFunctionQuery(final UriResourceFunction uriResourceFunction,
+      final JPADataBaseFunction jpaFunction, final JPAEntityType returnType, final EntityManager em)
+      throws ODataApplicationException {
 
     final String queryString = generateQueryString(jpaFunction);
     final Query functionQuery = em.createNativeQuery(queryString, returnType.getTypeClass());

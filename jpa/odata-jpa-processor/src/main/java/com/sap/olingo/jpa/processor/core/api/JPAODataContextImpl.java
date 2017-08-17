@@ -19,7 +19,7 @@ import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseProcessorFacto
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import com.sap.olingo.jpa.processor.core.modify.JPACUDRequestHandler;
 
-class JPAODataContextImpl implements JPAODataCRUDContext, JPAODataSessionContextAccess {
+final class JPAODataContextImpl implements JPAODataCRUDContext, JPAODataSessionContextAccess {
   /**
    * 
    */
@@ -32,6 +32,7 @@ class JPAODataContextImpl implements JPAODataCRUDContext, JPAODataSessionContext
   private JPAServiceDebugger debugger;
   private JPAEdmMetadataPostProcessor postProcessor;
   private JPACUDRequestHandler jpaCUDRequestHandler;
+  private String[] packageName;
 
   public JPAODataContextImpl(JPAODataGetHandler jpaoDataGetHandler) throws ODataException {
     super();
@@ -70,7 +71,7 @@ class JPAODataContextImpl implements JPAODataCRUDContext, JPAODataSessionContext
   public JPAEdmProvider getEdmProvider() throws ODataException {
     if (jpaEdm == null)
       jpaEdm = new JPAEdmProvider(this.jpaoDataGetHandler.namespace, this.jpaoDataGetHandler.jpaMetamodel,
-          postProcessor);
+          postProcessor, packageName);
     return jpaEdm;
   }
 
@@ -122,7 +123,7 @@ class JPAODataContextImpl implements JPAODataCRUDContext, JPAODataSessionContext
   public void setMetadataPostProcessor(final JPAEdmMetadataPostProcessor postProcessor) throws ODataException {
     if (this.jpaoDataGetHandler.jpaMetamodel != null)
       jpaEdm = new JPAEdmProvider(this.jpaoDataGetHandler.namespace, this.jpaoDataGetHandler.jpaMetamodel,
-          postProcessor);
+          postProcessor, packageName);
     else
       this.postProcessor = postProcessor;
   }
@@ -135,5 +136,16 @@ class JPAODataContextImpl implements JPAODataCRUDContext, JPAODataSessionContext
   @Override
   public void setReferences(final List<EdmxReference> references) {
     this.references = references;
+  }
+
+  @Override
+  public void setTypePackage(final String... packageName) {
+    this.packageName = packageName;
+
+  }
+
+  @Override
+  public String[] getPackageName() {
+    return packageName;
   }
 }

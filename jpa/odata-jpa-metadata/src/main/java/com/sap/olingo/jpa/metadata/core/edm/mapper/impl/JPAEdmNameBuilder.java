@@ -7,6 +7,7 @@ import javax.persistence.metamodel.EntityType;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
@@ -15,8 +16,6 @@ public final class JPAEdmNameBuilder {
   // V2 NameBuilder: package org.apache.olingo.odata2.jpa.processor.core.access.model
   private static final String ENTITY_CONTAINER_SUFFIX = "Container";
   private static final String ENTITY_SET_SUFFIX = "s";
-  // private static final String UNDERSCORE = "_";
-  // private static final String FK_PREFIX = "FK";
 
   public static String firstToLower(final String substring) {
     return Character.toLowerCase(substring.charAt(0)) + substring.substring(1);
@@ -219,6 +218,10 @@ public final class JPAEdmNameBuilder {
    */
   final public String buildPropertyName(final String jpaAttributeName) {
     return firstToUpper(jpaAttributeName);
+  }
+
+  final public String buildOperationName(String internalFunctionName) {
+    return firstToUpper(internalFunctionName);
   }
 
 }

@@ -1,34 +1,34 @@
 package com.sap.olingo.jpa.processor.core.modify;
 
-import java.util.Map;
-
 import javax.persistence.EntityManager;
 
-import org.apache.olingo.commons.api.http.HttpMethod;
+import org.apache.olingo.server.api.ODataRequest;
 
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
+import com.sap.olingo.jpa.processor.core.processor.JPARequestEntity;
 
 public interface JPACUDRequestHandler {
   /**
    * 
-   * @param et
-   * @param keyPredicates
+   * @param requestEntity
    * @param em
    * @throws ODataJPAProcessException
    */
-  public void deleteEntity(final JPAEntityType et, final Map<String, Object> keyPredicates, EntityManager em)
+  public void deleteEntity(final JPARequestEntity requestEntity, final EntityManager em)
       throws ODataJPAProcessException;
 
   /**
+   * Hook to create a new entity. Transaction handling is done outside to guarantee transactional behavior of change
+   * sets in batch requests.
    * 
-   * @param et Entity type that shall be created
+   * @param et Metadata about the entity type that shall be created
    * @param jpaAttributes List of attributes with pojo attributes name and converted into JAVA types
-   * @param em Entity manager
-   * @return The newly created instance
+   * @param em Instance of an entity manager.
+   * @return The newly created instance or map of created attributes including default and added values
+   * following the same rules as jpaAttributes
    * @throws ODataJPAProcessException
    */
-  public Object createEntity(JPAEntityType et, Map<String, Object> jpaAttributes, EntityManager em)
+  public Object createEntity(final JPARequestEntity requestEntity, final EntityManager em)
       throws ODataJPAProcessException;
 
   /**
@@ -40,11 +40,11 @@ public interface JPACUDRequestHandler {
    * @param keys List of keys defined in the URI with pojo attributes name and converted into JAVA types
    * @param em Entity manager
    * @param method Method (PUT/PATCH) used for update
+   * @param header
    * @return The response describes the performed changes (Created or Updated) as well as the result of the operation.
    * It must not be null. Even if nothing was changed => update is idempotent
    * @throws ODataJPAProcessException
    */
-  public JPAUpdateResult updateEntity(JPAEntityType et, Map<String, Object> jpaAttributes, Map<String, Object> keys,
-      EntityManager em, HttpMethod method)
-      throws ODataJPAProcessException;
+  public JPAUpdateResult updateEntity(final JPARequestEntity requestEntity, final EntityManager em,
+      final ODataRequest request) throws ODataJPAProcessException;
 }

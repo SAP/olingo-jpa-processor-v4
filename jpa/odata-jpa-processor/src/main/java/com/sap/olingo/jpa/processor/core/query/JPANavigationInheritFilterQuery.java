@@ -10,16 +10,16 @@ import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterElementComplier;
 import com.sap.olingo.jpa.processor.core.filter.JPAOperationConverter;
 
-public class JPANavigationInheritFilterQuery extends JPANavigationQuery {
+public final class JPANavigationInheritFilterQuery extends JPANavigationQuery {
 
   private final JPANavigationProptertyInfo item;
   private final JPAFilterElementComplier filterComplier;
 
-  public JPANavigationInheritFilterQuery(OData odata, ServiceDocument sd, JPAAbstractQuery parent, EntityManager em,
+  public JPANavigationInheritFilterQuery(OData odata, JPAServiceDocument sd, JPAAbstractQuery parent, EntityManager em,
       JPANavigationProptertyInfo naviInfo) throws ODataApplicationException {
 
     super(odata, sd, naviInfo.getUriResiource(), parent, em, naviInfo.getAssociationPath());

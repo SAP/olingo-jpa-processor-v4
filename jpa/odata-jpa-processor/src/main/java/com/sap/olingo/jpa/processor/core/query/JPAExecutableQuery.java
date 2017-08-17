@@ -47,6 +47,7 @@ import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitEx
 import org.apache.olingo.server.api.uri.queryoption.expression.Member;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADescriptionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -54,7 +55,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterComplier;
@@ -242,7 +242,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     }
 
     // Add Fields that are required for Expand
-    final Map<JPAExpandItemWrapper, JPAAssociationPath> associationPathList = Util.determineAssoziations(sd, uriResource
+    final Map<JPAExpandItem, JPAAssociationPath> associationPathList = Util.determineAssoziations(sd, uriResource
         .getUriResourceParts(), uriResource.getExpandOption());
     if (!associationPathList.isEmpty()) {
       Collections.sort(jpaPathList);
@@ -327,7 +327,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
 
     // TODO Functions and orderBy: Part 1 - 11.5.3.1 Invoking a Function
 
-    final int handle = debugger.startRuntimeMeasurement("JPAQuery", "createOrderByList");
+    final int handle = debugger.startRuntimeMeasurement(this, "createOrderByList");
     final List<Order> orders = new ArrayList<Order>();
     if (orderByOption != null) {
       for (final OrderByItem orderByItem : orderByOption.getOrders()) {
@@ -406,7 +406,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
   protected List<Selection<?>> createSelectClause(final Map<String, From<?, ?>> joinTables,
       final List<JPAPath> jpaPathList) throws ODataApplicationException {
 
-    final int handle = debugger.startRuntimeMeasurement("JPAQuery", "createSelectClause");
+    final int handle = debugger.startRuntimeMeasurement(this, "createSelectClause");
 
     final List<Selection<?>> selections = new ArrayList<Selection<?>>();
 
@@ -424,7 +424,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
   protected javax.persistence.criteria.Expression<Boolean> createWhere(final Map<String, From<?, ?>> joinTables)
       throws ODataApplicationException {
 
-    final int handle = debugger.startRuntimeMeasurement("JPAQuery", "createWhere");
+    final int handle = debugger.startRuntimeMeasurement(this, "createWhere");
 
     javax.persistence.criteria.Expression<Boolean> whereCondition = null;
 
@@ -531,7 +531,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
   private javax.persistence.criteria.Expression<Boolean> buildNavigationSubQueries(final Root<?> root)
       throws ODataApplicationException {
 
-    final int handle = debugger.startRuntimeMeasurement("JPAExecutableQuery", "buildNavigationSubQueries");
+    final int handle = debugger.startRuntimeMeasurement(this, "buildNavigationSubQueries");
 
     final List<UriResource> resourceParts = uriResource.getUriResourceParts();
 

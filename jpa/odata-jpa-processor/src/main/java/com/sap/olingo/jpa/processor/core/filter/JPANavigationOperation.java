@@ -39,11 +39,11 @@ import com.sap.olingo.jpa.processor.core.query.JPANavigationQuery;
  * @author Oliver Grande
  *
  */
-class JPANavigationOperation extends JPAExistsOperation implements JPAExpressionOperator {
+final class JPANavigationOperation extends JPAExistsOperation implements JPAExpressionOperator {
 
-  final BinaryOperatorKind      operator;
-  final JPAMemberOperator       jpaMember;
-  final JPALiteralOperator      operand;
+  final BinaryOperatorKind operator;
+  final JPAMemberOperator jpaMember;
+  final JPALiteralOperator operand;
   private final UriResourceKind aggregationType;
 
   JPANavigationOperation(final JPAFilterComplierAccess jpaComplier, final BinaryOperatorKind operator,

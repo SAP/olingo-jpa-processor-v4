@@ -35,6 +35,13 @@ public class TestJPAQueryNavigation extends TestBase {
   }
 
   @Test
+  public void testNoNavigationOneEntityNotFound() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('1000')");
+    helper.assertStatus(404);
+  }
+
+  @Test
   public void testNavigationOneHopAndOrderBy() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -135,7 +142,7 @@ public class TestJPAQueryNavigation extends TestBase {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations('3')/Address/AdministrativeDivision/Parent/Parent");
-    helper.assertStatus(204);
+    helper.assertStatus(404);
   }
 
   @Test
@@ -143,6 +150,6 @@ public class TestJPAQueryNavigation extends TestBase {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations('3')/Address/AdministrativeDivision/Children");
-    helper.assertStatus(204);
+    helper.assertStatus(404);
   }
 }

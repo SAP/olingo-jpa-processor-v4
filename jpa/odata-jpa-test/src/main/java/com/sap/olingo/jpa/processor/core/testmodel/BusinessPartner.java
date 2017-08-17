@@ -25,9 +25,9 @@ import javax.persistence.Version;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAnnotation;
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssozation;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssoziation;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionParameter;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 
@@ -40,7 +40,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
         name = "CountRoles",
         functionName = "COUNT_ROLES",
         returnType = @EdmFunction.ReturnType(isCollection = true),
-        parameter = { @EdmFunctionParameter(name = "Amount", parameterName = "a", type = Integer.class),
+        parameter = { @EdmParameter(name = "Amount", parameterName = "a", type = Integer.class),
         }),
 
     @EdmFunction(
@@ -49,7 +49,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
         isBound = false,
         hasFunctionImport = false,
         returnType = @EdmFunction.ReturnType(type = BigDecimal.class, isCollection = false),
-        parameter = { @EdmFunctionParameter(name = "Path", parameterName = "path", type = String.class),
+        parameter = { @EdmParameter(name = "Path", parameterName = "path", type = String.class),
         }),
 
     @EdmFunction(
@@ -58,7 +58,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
         isBound = false,
         hasFunctionImport = true,
         returnType = @EdmFunction.ReturnType(type = Boolean.class, isNullable = false),
-        parameter = { @EdmFunctionParameter(name = "Number", type = BigDecimal.class, precision = 32, scale = 0) }),
+        parameter = { @EdmParameter(name = "Number", type = BigDecimal.class, precision = 32, scale = 0) }),
 
 })
 
@@ -80,10 +80,10 @@ public abstract class BusinessPartner implements KeyAccess {
   @EdmIgnore
   @Column(name = "\"CustomString1\"")
   @Convert(converter = StringConverter.class)
-  protected String     customString1;
+  protected String customString1;
   @EdmIgnore
   @Column(name = "\"CustomString2\"")
-  protected String     customString2;
+  protected String customString2;
   @EdmIgnore
   @Column(name = "\"CustomNum1\"", precision = 16, scale = 5)
   protected BigDecimal customNum1;
@@ -96,16 +96,16 @@ public abstract class BusinessPartner implements KeyAccess {
 
   @EdmAnnotation(term = "Core.IsLanguageDependent", constantExpression = @EdmAnnotation.ConstantExpression(
       type = ConstantExpressionType.Bool, value = "true"))
-  @EdmDescriptionAssozation(languageAttribute = "key/language", descriptionAttribute = "name",
+  @EdmDescriptionAssoziation(languageAttribute = "key/language", descriptionAttribute = "name",
       valueAssignments = {
-          @EdmDescriptionAssozation.valueAssignment(attribute = "key/codePublisher", value = "ISO"),
-          @EdmDescriptionAssozation.valueAssignment(attribute = "key/codeID", value = "3166-1") })
+          @EdmDescriptionAssoziation.valueAssignment(attribute = "key/codePublisher", value = "ISO"),
+          @EdmDescriptionAssoziation.valueAssignment(attribute = "key/codeID", value = "3166-1") })
   @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "\"DivisionCode\"", referencedColumnName = "\"Country\"")
   private Collection<AdministrativeDivisionDescription> locationName;
 
   @Embedded
-  protected CommunicationData communicationData = new CommunicationData();
+  protected CommunicationData communicationData;
 
   @Embedded
   @AssociationOverrides({
@@ -178,7 +178,7 @@ public abstract class BusinessPartner implements KeyAccess {
     return customString2;
   }
 
-  public long geteTag() {
+  public long getETag() {
     return eTag;
   }
 
@@ -243,7 +243,7 @@ public abstract class BusinessPartner implements KeyAccess {
     this.customString2 = customString2;
   }
 
-  public void seteTag(long eTag) {
+  public void setETag(long eTag) {
     this.eTag = eTag;
   }
 

@@ -18,9 +18,12 @@ import org.apache.olingo.commons.api.edm.provider.CsdlOnDeleteAction;
 import org.apache.olingo.commons.api.edm.provider.CsdlReferentialConstraint;
 import org.junit.Before;
 import org.junit.Test;
+import org.reflections.Reflections;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityTypeAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
@@ -29,13 +32,13 @@ import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
 
 public class TestIntermediateNavigationProperty extends TestMappingRoot {
-  private IntermediateSchema          schema;
-  private TestHelper                  helper;
+  private IntermediateSchema schema;
+  private TestHelper helper;
   private JPAEdmMetadataPostProcessor processor;
 
   @Before
   public void setup() throws ODataJPAModelException {
-    schema = new IntermediateSchema(new JPAEdmNameBuilder(PUNIT_NAME), emf.getMetamodel());
+    schema = new IntermediateSchema(new JPAEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), mock(Reflections.class));
     helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
     processor = mock(JPAEdmMetadataPostProcessor.class);
   }
@@ -262,6 +265,20 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
   }
 
   @Test
+  public void checkGetReferentialConstraintViaEmbeddedId() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("AdministrativeDivision"),
+        "allDescriptions");
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+        schema.getEntityType(AdministrativeDivision.class), jpaAttribute, schema);
+    List<CsdlReferentialConstraint> constraints = property.getProperty().getReferentialConstraints();
+
+    assertEquals(3, constraints.size());
+    for (CsdlReferentialConstraint c : constraints) {
+      assertEquals(c.getReferencedProperty(), c.getProperty());
+    }
+  }
+
+  @Test
   public void checkPostProcessorCalled() throws ODataJPAModelException {
     IntermediateModelElement.setPostProcessor(processor);
 
@@ -292,7 +309,7 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
     IntermediateModelElement.setPostProcessor(pPDouble);
 
     Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("BusinessPartner"), "roles");
-    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+    JPAAssociationAttribute property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
         schema.getStructuredType(jpaAttribute), jpaAttribute, schema);
 
     assertEquals("Wrong name", "RoleAssignment", property.getExternalName());
@@ -329,6 +346,9 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
     }
 
     @Override
+    public void processEntityType(IntermediateEntityTypeAccess entity) {}
+
+    @Override
     public void provideReferences(IntermediateReferenceList references) throws ODataJPAModelException {}
   }
 
@@ -346,9 +366,10 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
     }
 
     @Override
-    public void processProperty(IntermediatePropertyAccess property, String jpaManagedTypeClassName) {
+    public void processProperty(IntermediatePropertyAccess property, String jpaManagedTypeClassName) {}
 
-    }
+    @Override
+    public void processEntityType(IntermediateEntityTypeAccess entity) {}
 
     @Override
     public void provideReferences(IntermediateReferenceList references) throws ODataJPAModelException {}

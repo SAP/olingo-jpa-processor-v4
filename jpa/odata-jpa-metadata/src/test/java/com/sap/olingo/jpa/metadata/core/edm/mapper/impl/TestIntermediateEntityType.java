@@ -5,20 +5,30 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.metamodel.EntityType;
 
+import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlCollection;
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression;
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlExpression;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.reflections.Reflections;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityTypeAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
@@ -32,7 +42,7 @@ public class TestIntermediateEntityType extends TestMappingRoot {
   public void setup() throws ODataJPAModelException {
     IntermediateModelElement.setPostProcessor(new DefaultEdmPostProcessor());
     etList = emf.getMetamodel().getEntities();
-    schema = new IntermediateSchema(new JPAEdmNameBuilder(PUNIT_NAME), emf.getMetamodel());
+    schema = new IntermediateSchema(new JPAEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), mock(Reflections.class));
   }
 
   @Test
@@ -306,10 +316,55 @@ public class TestIntermediateEntityType extends TestMappingRoot {
   }
 
   @Test
+  public void checkHasETagTrueIfInherited() throws ODataJPAModelException {
+    IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "Organization"), schema);
+    assertTrue(et.hasEtag());
+  }
+
+  @Test
   public void checkHasETagFalse() throws ODataJPAModelException {
     IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
         "AdministrativeDivision"), schema);
     assertFalse(et.hasEtag());
+  }
+
+  @Test
+  public void checkIgnoreIfAsEntitySet() throws ODataJPAModelException {
+    IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "BestOrganization"), schema);
+    assertTrue(et.ignore());
+  }
+
+  @Test
+  public void checkAnnotationSet() throws ODataJPAModelException {
+    IntermediateModelElement.setPostProcessor(new PostProcessorSetIgnore());
+    IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "PersonImage"), schema);
+    List<CsdlAnnotation> act = et.getEdmItem().getAnnotations();
+    assertEquals(1, act.size());
+    assertEquals("Core.AcceptableMediaTypes", act.get(0).getTerm());
+  }
+
+  @Test
+  public void checkGetProptertyByDBFieldName() throws ODataJPAModelException {
+    IntermediateStructuredType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "BusinessPartner"), schema);
+    assertEquals("Type", et.getPropertyByDBField("\"Type\"").getExternalName());
+  }
+
+  @Test
+  public void checkGetProptertyByDBFieldNameFromSuperType() throws ODataJPAModelException {
+    IntermediateStructuredType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "Organization"), schema);
+    assertEquals("Type", et.getPropertyByDBField("\"Type\"").getExternalName());
+  }
+
+  @Test
+  public void checkGetProptertyByDBFieldNameFromEmbedded() throws ODataJPAModelException {
+    IntermediateStructuredType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "AdministrativeDivisionDescription"), schema);
+    assertEquals("CodeID", et.getPropertyByDBField("\"CodeID\"").getExternalName());
   }
 
   @Ignore
@@ -335,9 +390,24 @@ public class TestIntermediateEntityType extends TestMappingRoot {
         String jpaManagedTypeClassName) {}
 
     @Override
-    public void provideReferences(IntermediateReferenceList references) throws ODataJPAModelException {
-
+    public void processEntityType(IntermediateEntityTypeAccess entity) {
+      if (entity.getExternalName().equals("PersonImage")) {
+        List<CsdlExpression> items = new ArrayList<CsdlExpression>();
+        CsdlCollection exp = new CsdlCollection();
+        exp.setItems(items);
+        CsdlConstantExpression mimeType = new CsdlConstantExpression(ConstantExpressionType.String, "ogg");
+        items.add(mimeType);
+        CsdlAnnotation annotation = new CsdlAnnotation();
+        annotation.setExpression(exp);
+        annotation.setTerm("Core.AcceptableMediaTypes");
+        List<CsdlAnnotation> annotations = new ArrayList<CsdlAnnotation>();
+        annotations.add(annotation);
+        entity.addAnnotations(annotations);
+      }
     }
+
+    @Override
+    public void provideReferences(IntermediateReferenceList references) throws ODataJPAModelException {}
   }
 
   private EntityType<?> getEntityType(String typeName) {

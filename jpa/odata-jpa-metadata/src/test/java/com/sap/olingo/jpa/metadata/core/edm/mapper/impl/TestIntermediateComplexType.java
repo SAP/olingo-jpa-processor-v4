@@ -1,9 +1,11 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import java.util.Set;
 
@@ -12,22 +14,24 @@ import javax.persistence.metamodel.EmbeddableType;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.reflections.Reflections;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityTypeAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
 
 public class TestIntermediateComplexType extends TestMappingRoot {
   private Set<EmbeddableType<?>> etList;
-  private IntermediateSchema     schema;
+  private IntermediateSchema schema;
 
   @Before
   public void setup() throws ODataJPAModelException {
     IntermediateModelElement.setPostProcessor(new DefaultEdmPostProcessor());
     etList = emf.getMetamodel().getEmbeddables();
-    schema = new IntermediateSchema(new JPAEdmNameBuilder(PUNIT_NAME), emf.getMetamodel());
+    schema = new IntermediateSchema(new JPAEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), mock(Reflections.class));
 
   }
 
@@ -191,6 +195,20 @@ public class TestIntermediateComplexType extends TestMappingRoot {
 
   }
 
+  @Test
+  public void checkGetProptertyIgnoreTrue() throws ODataJPAModelException {
+    IntermediateComplexType ct = new IntermediateComplexType(new JPAEdmNameBuilder(PUNIT_NAME), getEmbeddedableType(
+        "DummyEmbeddedToIgnore"), schema);
+    assertTrue(ct.ignore());
+  }
+
+  @Test
+  public void checkGetProptertyIgnoreFalse() throws ODataJPAModelException {
+    IntermediateComplexType ct = new IntermediateComplexType(new JPAEdmNameBuilder(PUNIT_NAME), getEmbeddedableType(
+        "ChangeInformation"), schema);
+    assertFalse(ct.ignore());
+  }
+
   private class PostProcessorSetIgnore extends JPAEdmMetadataPostProcessor {
 
     @Override
@@ -215,6 +233,9 @@ public class TestIntermediateComplexType extends TestMappingRoot {
 
     @Override
     public void provideReferences(IntermediateReferenceList references) {}
+
+    @Override
+    public void processEntityType(IntermediateEntityTypeAccess entity) {}
   }
 
 }

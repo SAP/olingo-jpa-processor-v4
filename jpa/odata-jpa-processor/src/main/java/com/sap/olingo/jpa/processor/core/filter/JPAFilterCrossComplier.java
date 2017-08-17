@@ -13,7 +13,7 @@ import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitEx
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitor;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
 
 /**
@@ -33,18 +33,18 @@ import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
  *
  */
 //TODO handle $it ...
-public class JPAFilterCrossComplier extends JPAAbstractFilter {
+public final class JPAFilterCrossComplier extends JPAAbstractFilter {
   final JPAOperationConverter converter;
   // TODO Check if it is allowed to select via navigation
   // ...Organizations?$select=Roles/RoleCategory eq 'C'
   // see also https://issues.apache.org/jira/browse/OLINGO-414
   final EntityManager em;
   final OData odata;
-  final ServiceDocument sd;
+  final JPAServiceDocument sd;
   final List<UriResource> uriResourceParts;
   final JPAAbstractQuery parent;
 
-  public JPAFilterCrossComplier(final OData odata, final ServiceDocument sd, final EntityManager em,
+  public JPAFilterCrossComplier(final OData odata, final JPAServiceDocument sd, final EntityManager em,
       final JPAEntityType jpaEntityType, final JPAOperationConverter converter,
       final UriInfoResource uriResource, final JPAAbstractQuery parent) {
 
@@ -104,7 +104,7 @@ public class JPAFilterCrossComplier extends JPAAbstractFilter {
   }
 
   @Override
-  public ServiceDocument getSd() {
+  public JPAServiceDocument getSd() {
     return sd;
   }
 

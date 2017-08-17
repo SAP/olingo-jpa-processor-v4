@@ -78,19 +78,8 @@ public class TermReader {
       for (Schema schema : schemas) {
         String namespace = schema.getNamespace();
         Map<String, CsdlTerm> terms = new HashMap<String, CsdlTerm>();
-        for (Term t : schema.getTerms()) {
-          CsdlTerm edmTerm = new CsdlTerm();
-          edmTerm.setName(t.getName());
-          edmTerm.setAppliesTo(t.getAppliesTo());
-          edmTerm.setBaseTerm(t.getBaseTerm());
-          edmTerm.setDefaultValue(t.getDefaultValue());
-          edmTerm.setMaxLength(t.getMaxLength());
-          edmTerm.setNullable(t.isNullable());
-          edmTerm.setPrecision(t.getPrecision());
-          edmTerm.setScale(t.getScale());
-          edmTerm.setSrid(t.getSrid());
-          edmTerm.setType(t.getType());
-          terms.put(edmTerm.getName(), edmTerm);
+        for (CsdlTerm t : schema.getTerms()) {
+          terms.put(t.getName(), t);
         }
         edmSchemas.put(namespace, terms);
       }

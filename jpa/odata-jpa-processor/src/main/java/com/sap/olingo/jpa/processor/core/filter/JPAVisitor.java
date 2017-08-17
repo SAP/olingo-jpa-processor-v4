@@ -23,8 +23,8 @@ import org.apache.olingo.server.api.uri.queryoption.expression.Member;
 import org.apache.olingo.server.api.uri.queryoption.expression.MethodKind;
 import org.apache.olingo.server.api.uri.queryoption.expression.UnaryOperatorKind;
 
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 
@@ -46,7 +46,7 @@ class JPAVisitor implements JPAExpressionVisitor {
 
   @Override
   public JPAOperator visitAlias(final String aliasName) throws ExpressionVisitException, ODataApplicationException {
-//    int handle = debugger.startRuntimeMeasurement("JPAVisitor", "visitAlias");
+//    int handle = debugger.startRuntimeMeasurement(this, "visitAlias");
 //    debugger.stopRuntimeMeasurement(handle);
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FILTER,
         HttpStatusCode.NOT_IMPLEMENTED, "Alias");
@@ -56,7 +56,7 @@ class JPAVisitor implements JPAExpressionVisitor {
   @Override
   public JPAOperator visitBinaryOperator(final BinaryOperatorKind operator, final JPAOperator left,
       final JPAOperator right) throws ExpressionVisitException, ODataApplicationException {
-    int handle = debugger.startRuntimeMeasurement("JPAVisitor", "visitBinaryOperator");
+    int handle = debugger.startRuntimeMeasurement(this, "visitBinaryOperator");
 
     // TODO Logging
     if (hasNavigation(left) || hasNavigation(right))
@@ -89,7 +89,7 @@ class JPAVisitor implements JPAExpressionVisitor {
   @Override
   public JPAOperator visitEnum(final EdmEnumType type, final List<String> enumValues) throws ExpressionVisitException,
       ODataApplicationException {
-//    int handle = debugger.startRuntimeMeasurement("JPAVisitor", "visitEnum");
+//    int handle = debugger.startRuntimeMeasurement(this, "visitEnum");
 //    debugger.stopRuntimeMeasurement(handle);
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FILTER,
         HttpStatusCode.NOT_IMPLEMENTED, "Enumerations");
@@ -99,7 +99,7 @@ class JPAVisitor implements JPAExpressionVisitor {
   public JPAOperator visitLambdaExpression(final String lambdaFunction, final String lambdaVariable,
       final org.apache.olingo.server.api.uri.queryoption.expression.Expression expression)
       throws ExpressionVisitException, ODataApplicationException {
-//    int handle = debugger.startRuntimeMeasurement("JPAVisitor", "visitLambdaExpression");
+//    int handle = debugger.startRuntimeMeasurement(this, "visitLambdaExpression");
 //    debugger.stopRuntimeMeasurement(handle);
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FILTER,
         HttpStatusCode.NOT_IMPLEMENTED, "Lambda Expression");
@@ -108,7 +108,7 @@ class JPAVisitor implements JPAExpressionVisitor {
   @Override
   public JPAOperator visitLambdaReference(final String variableName) throws ExpressionVisitException,
       ODataApplicationException {
-//    int handle = debugger.startRuntimeMeasurement("JPAVisitor", "visitLambdaReference");
+//    int handle = debugger.startRuntimeMeasurement(this, "visitLambdaReference");
 //    debugger.stopRuntimeMeasurement(handle);
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FILTER,
         HttpStatusCode.NOT_IMPLEMENTED, "Lambda Reference");
@@ -116,7 +116,7 @@ class JPAVisitor implements JPAExpressionVisitor {
 
   @Override
   public JPAOperator visitLiteral(final Literal literal) throws ExpressionVisitException, ODataApplicationException {
-    final int handle = debugger.startRuntimeMeasurement("JPAVisitor", "visitBinaryOperator");
+    final int handle = debugger.startRuntimeMeasurement(this, "visitBinaryOperator");
     debugger.stopRuntimeMeasurement(handle);
     return new JPALiteralOperator(this.jpaComplier.getOdata(), literal);
   }
@@ -124,7 +124,7 @@ class JPAVisitor implements JPAExpressionVisitor {
   @Override
   public JPAOperator visitMember(final Member member) throws ExpressionVisitException, ODataApplicationException {
 
-    final int handle = debugger.startRuntimeMeasurement("JPAVisitor", "visitMember");
+    final int handle = debugger.startRuntimeMeasurement(this, "visitMember");
     if (getLambdaType(member.getResourcePath()) == UriResourceKind.lambdaAny) {
       debugger.stopRuntimeMeasurement(handle);
       return new JPALambdaAnyOperation(this.jpaComplier, member);
@@ -136,8 +136,8 @@ class JPAVisitor implements JPAExpressionVisitor {
       return new JPAAggregationOperationImp(jpaComplier.getParent().getRoot(), jpaComplier.getConverter());
     } else if (isCustomFunction(member.getResourcePath())) {
       final UriResource resource = member.getResourcePath().getUriResourceParts().get(0);
-      final JPAFunction jpaFunction = this.jpaComplier.getSd().getFunction(((UriResourceFunction) resource)
-          .getFunction());
+      final JPADataBaseFunction jpaFunction = (JPADataBaseFunction) this.jpaComplier.getSd().getFunction(
+          ((UriResourceFunction) resource).getFunction());
       final List<UriParameter> odataParams = ((UriResourceFunction) resource).getParameters();
       debugger.stopRuntimeMeasurement(handle);
       return new JPAFunctionOperator(this, odataParams, jpaFunction);
@@ -150,14 +150,14 @@ class JPAVisitor implements JPAExpressionVisitor {
   @Override
   public JPAOperator visitMethodCall(final MethodKind methodCall, final List<JPAOperator> parameters)
       throws ExpressionVisitException, ODataApplicationException {
-    final int handle = debugger.startRuntimeMeasurement("JPAVisitor", "visitMethodCall");
+    final int handle = debugger.startRuntimeMeasurement(this, "visitMethodCall");
     debugger.stopRuntimeMeasurement(handle);
     return new JPAMethodCallImp(this.jpaComplier.getConverter(), methodCall, parameters);
   }
 
   @Override
   public JPAOperator visitTypeLiteral(final EdmType type) throws ExpressionVisitException, ODataApplicationException {
-//    int handle = debugger.startRuntimeMeasurement("JPAVisitor", "visitTypeLiteral");
+//    int handle = debugger.startRuntimeMeasurement(this, "visitTypeLiteral");
 //    debugger.stopRuntimeMeasurement(handle);
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FILTER,
         HttpStatusCode.NOT_IMPLEMENTED, "Type Literal");
@@ -166,7 +166,7 @@ class JPAVisitor implements JPAExpressionVisitor {
   @Override
   public JPAOperator visitUnaryOperator(final UnaryOperatorKind operator, final JPAOperator operand)
       throws ExpressionVisitException, ODataApplicationException {
-    final int handle = debugger.startRuntimeMeasurement("JPAVisitor", "visitBinaryOperator");
+    final int handle = debugger.startRuntimeMeasurement(this, "visitBinaryOperator");
     if (operator == UnaryOperatorKind.NOT) {
       debugger.stopRuntimeMeasurement(handle);
       return new JPAUnaryBooleanOperatorImp(this.jpaComplier.getConverter(), operator, (JPAExpressionOperator) operand);
@@ -216,7 +216,7 @@ class JPAVisitor implements JPAExpressionVisitor {
     return jpaComplier.getConverter().cb;
   }
 
-  ServiceDocument getSd() {
+  JPAServiceDocument getSd() {
     return jpaComplier.getSd();
   }
 
