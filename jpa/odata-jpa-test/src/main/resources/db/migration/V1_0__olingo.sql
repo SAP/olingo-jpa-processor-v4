@@ -44,7 +44,7 @@ insert into "BusinessPartner" values ('9', 0, '2', '','',null,null,'Ninth Org.',
 insert into "BusinessPartner" values ('10', 0, '2', '','',null,null,'Tenth Org.','',null,'Test Road', '12','', 'Test City','03921','ISO', '3166-2','US-ME', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU');
 insert into "BusinessPartner" values ('99', 0, '1', '','',null,null,'Max','Mustermann',null,'Test Starße', '12','', 'Teststadt','10115','ISO', '3166-2','DE-BE', 'DEU', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU'); 
 insert into "BusinessPartner" values ('98', 0, '1', '','',null,null,'John','Doe',null,'Test Road', '55','', 'Test City','76321','ISO', '3166-2','US-TX', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU'); 
-insert into "BusinessPartner" values ('97', 0, '1', '','',null,null,'Urs','Müller',null,'Test Straße', '23','', 'Test Dorf','4123','ISO', '3166-2','CH-BL', 'CHE', '', '','','', '99','2016-07-20 09:21:23', '', null, 'CHE'); 
+insert into "BusinessPartner" values ('97', 0, '1', '','',null,null,'Urs','Müller',null,'Test Straße', '23','', 'Test Dorf','4123','ISO', '3166-2','CH-BL', 'CHE', null,null,null,null, '99','2016-07-20 09:21:23', '', null, 'CHE'); 
 
 CREATE TABLE "PersonImage" (
 	"ID" VARCHAR(32) NOT NULL ,
@@ -529,9 +529,26 @@ insert into "AdministrativeDivision" values( 'ISO', '3166-2','US-WI','USA','3166
 insert into "AdministrativeDivision" values( 'ISO', '3166-2','US-WY','USA','3166-1','USA',null,0,0);
 insert into "AdministrativeDivision" values( 'ISO', '3166-2','US-DC','USA','3166-1','USA',null,0,0);
 --Eurostat 
-insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','BE1', 'BEL',null,null,null,0,0);
-insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','BE2', 'BEL',null,null,null,0,0);
-insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','BE3', 'BEL',null,null,null,0,0);
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','BE1','BEL',null,null,null,0,0);
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','BE2','BEL',null,null,null,0,0);
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','BE3','BEL',null,null,null,0,0);
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','DE1','DEU',null,null,null,0,0);  
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','DE2','DEU',null,null,null,0,0);  
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','DE3','DEU',null,null,null,0,0);  
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','DE4','DEU',null,null,null,0,0);  
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','DE5','DEU',null,null,null,0,0);  
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','DE6','DEU',null,null,null,0,0);  
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','DE7','DEU',null,null,null,0,0);  
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','DE8','DEU',null,null,null,0,0);  
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','DE9','DEU',null,null,null,0,0);  
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','DEA','DEU',null,null,null,0,0);  
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','DEB','DEU',null,null,null,0,0);  
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','DEC','DEU',null,null,null,0,0);  
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','DED','DEU',null,null,null,0,0);  
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','DEE','DEU',null,null,null,0,0);  
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','DEF','DEU',null,null,null,0,0);  
+insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','DEG','DEU',null,null,null,0,0);
+
 
 insert into "AdministrativeDivision" values( 'Eurostat','NUTS2','BE10','BEL','NUTS1','BE1',null,0,0);
 insert into "AdministrativeDivision" values( 'Eurostat','NUTS2','BE21','BEL','NUTS1','BE2',null,0,0);
@@ -655,6 +672,14 @@ insert into "AdministrativeDivision" values( 'Eurostat', 'LAU2', '38014','BEL','
 insert into "AdministrativeDivision" values( 'Eurostat', 'LAU2', '38016','BEL','NUTS3','BE258',null,31004430,11434);	
 insert into "AdministrativeDivision" values( 'Eurostat', 'LAU2', '38025','BEL','NUTS3','BE258',null,96339703,11509);	
 
+CREATE TABLE "Comment" (
+	"ID" INTEGER NOT NULL ,
+	"Text" CLOB,
+	 PRIMARY KEY ("ID"));
+	 
+insert into "Comment" values( 1, 'This is just a test');	
+	 
+	 
 CREATE TABLE "DummyToBeIgnored" (
 	"ID" VARCHAR(32) NOT NULL ,
 	--"uuid" VARCHAR(32) FOR BIT DATA ,

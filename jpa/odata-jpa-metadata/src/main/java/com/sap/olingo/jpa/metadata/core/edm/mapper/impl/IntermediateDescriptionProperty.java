@@ -20,7 +20,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
 
-class IntermediateDescriptionProperty extends IntermediateProperty implements JPADescriptionAttribute {
+final class IntermediateDescriptionProperty extends IntermediateProperty implements JPADescriptionAttribute {
   private IntermediateProperty descriptionProperty;
   private String languageAttribute;
   private String localeAttribute;

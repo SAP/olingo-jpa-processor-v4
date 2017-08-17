@@ -7,7 +7,7 @@ import org.apache.olingo.server.api.uri.UriInfo;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializer;
 
-public class JPARequestContext implements JPAODataRequestContextAccess {
+public final class JPARequestContext implements JPAODataRequestContextAccess {
   private final EntityManager em;
   private final UriInfo uriInfo;
   private final JPASerializer serializer;

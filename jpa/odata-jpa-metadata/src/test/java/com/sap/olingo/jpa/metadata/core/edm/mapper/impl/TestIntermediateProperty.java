@@ -30,11 +30,13 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferen
 public class TestIntermediateProperty extends TestMappingRoot {
   private TestHelper helper;
   private JPAEdmMetadataPostProcessor processor;
+  private IntermediateSchema schema;
 
   @Before
   public void setup() throws ODataJPAModelException {
     helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
     processor = mock(JPAEdmMetadataPostProcessor.class);
+    schema = new IntermediateSchema(new JPAEdmNameBuilder(PUNIT_NAME), emf.getMetamodel());
   }
 
   @Test
@@ -142,6 +144,14 @@ public class TestIntermediateProperty extends TestMappingRoot {
   }
 
   @Test
+  public void checkGetProptertyMaxLengthNullForClob() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getComplexType("DummyEmbeddedToIgnore"), "command");
+    IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
+        helper.schema);
+    assertNull(property.getEdmItem().getMaxLength());
+  }
+
+  @Test
   public void checkGetProptertyPrecisionDecimal() throws ODataJPAModelException {
     Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType("BusinessPartner"), "customNum1");
     IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
@@ -181,6 +191,14 @@ public class TestIntermediateProperty extends TestMappingRoot {
         helper.schema);
     assertNotNull(property.getEdmItem().getMapping());
     assertEquals(Date.class, property.getEdmItem().getMapping().getMappedJavaClass());
+  }
+
+  @Test
+  public void checkGetNoProptertyMapperForClob() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType("Comment"), "text");
+    IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
+        helper.schema);
+    assertNull(property.getEdmItem().getMapping());
   }
 
   @Test

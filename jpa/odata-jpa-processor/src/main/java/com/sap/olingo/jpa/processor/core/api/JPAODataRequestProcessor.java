@@ -23,13 +23,11 @@ import com.sap.olingo.jpa.processor.core.processor.JPACUDRequestProcessor;
 import com.sap.olingo.jpa.processor.core.processor.JPAProcessorFactory;
 import com.sap.olingo.jpa.processor.core.processor.JPARequestProcessor;
 
-public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
+public final class JPAODataRequestProcessor implements PrimitiveValueProcessor,
     ComplexProcessor, CountEntityCollectionProcessor, EntityProcessor, MediaEntityProcessor {
   private final EntityManager em;
   private final JPAODataSessionContextAccess context;
   private JPAProcessorFactory factory;
-//  private OData odata;
-//  private ServiceMetadata serviceMetadata;
 
   public JPAODataRequestProcessor(final JPAODataSessionContextAccess context, final EntityManager em) {
     super();
@@ -40,8 +38,6 @@ public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
   @Override
   public void init(final OData odata, final ServiceMetadata serviceMetadata) {
     this.factory = new JPAProcessorFactory(odata, serviceMetadata, context);
-//    this.odata = odata;
-//    this.serviceMetadata = serviceMetadata;
   }
 
   @Override
@@ -66,11 +62,11 @@ public class JPAODataRequestProcessor implements PrimitiveValueProcessor,
     JPACUDRequestProcessor p;
     try {
       p = factory.createCUDRequestProcessor(em, uriInfo, responseFormat);
-      p.createEntity(request, response, requestFormat, responseFormat);
     } catch (ODataException e) {
       throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
           null, e);
     }
+    p.createEntity(request, response, requestFormat, responseFormat);
   }
 
   @Override

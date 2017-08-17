@@ -2,7 +2,7 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import javax.persistence.JoinColumn;
 
-class IntermediateJoinColumn {
+final class IntermediateJoinColumn {
   private final JoinColumn jpaJoinColumn;
   private String name;
   private String referencedColumnName;

@@ -137,6 +137,7 @@ public abstract class TestJPAModifyProcessor {
     when(edmET.getKeyPredicateNames()).thenReturn(keyNames);
     EdmKeyPropertyRef refType = mock(EdmKeyPropertyRef.class);
     when(edmET.getKeyPropertyRef("ID")).thenReturn(refType);
+    when(edmET.getFullQualifiedName()).thenReturn(fqn);
     EdmProperty edmProperty = mock(EdmProperty.class);
     when(refType.getProperty()).thenReturn(edmProperty);
     when(refType.getName()).thenReturn("ID");

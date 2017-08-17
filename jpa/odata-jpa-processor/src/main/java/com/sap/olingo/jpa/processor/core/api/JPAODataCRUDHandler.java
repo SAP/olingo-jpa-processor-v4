@@ -4,7 +4,7 @@ import javax.sql.DataSource;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 
-public class JPAODataCRUDHandler extends JPAODataGetHandler {
+public final class JPAODataCRUDHandler extends JPAODataGetHandler {
 
   public JPAODataCRUDHandler(String pUnit) throws ODataException {
     super(pUnit);

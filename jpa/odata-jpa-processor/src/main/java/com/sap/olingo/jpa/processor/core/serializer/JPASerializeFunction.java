@@ -14,7 +14,7 @@ import org.apache.olingo.server.api.uri.UriHelper;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriResourceFunction;
 
-class JPASerializeFunction implements JPASerializer {
+final class JPASerializeFunction implements JPASerializer {
   private final ServiceMetadata serviceMetadata;
   private final UriInfo uriInfo;
   private final ODataSerializer serializer;

@@ -27,12 +27,12 @@ import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAUtilException;
 
-public class Util {
+public final class Util {
 
   public static final String VALUE_RESOURCE = "$VALUE";
 
@@ -142,7 +142,7 @@ public class Util {
     return pathName.toString();
   }
 
-  public static JPAAssociationPath determineAssoziation(final ServiceDocument sd, final EdmType naviStart,
+  public static JPAAssociationPath determineAssoziation(final JPAServiceDocument sd, final EdmType naviStart,
       final StringBuffer associationName) throws ODataApplicationException {
     JPAEntityType naviStartType;
 
@@ -155,11 +155,11 @@ public class Util {
     }
   }
 
-  public static Map<JPAExpandItemWrapper, JPAAssociationPath> determineAssoziations(final ServiceDocument sd,
+  public static Map<JPAExpandItem, JPAAssociationPath> determineAssoziations(final JPAServiceDocument sd,
       final List<UriResource> startResourceList, final ExpandOption expandOption) throws ODataApplicationException {
 
-    final Map<JPAExpandItemWrapper, JPAAssociationPath> pathList =
-        new HashMap<JPAExpandItemWrapper, JPAAssociationPath>();
+    final Map<JPAExpandItem, JPAAssociationPath> pathList =
+        new HashMap<JPAExpandItem, JPAAssociationPath>();
     final StringBuffer associationNamePrefix = new StringBuffer();
 
     UriResource startResourceItem = null;
@@ -179,7 +179,8 @@ public class Util {
       // Example2 : ?$expand=Parent/CodeID (NavigationProperty/Property)
       // Example3 : ?$expand=Parent,Children (NavigationProperty, NavigationProperty)
       // Example4 : ?$expand=*
-      // Example4 : ?$expand=*/$ref,Parent
+      // Example5 : ?$expand=*/$ref,Parent
+      // Example6 : ?$expand=Parent($levels=2)
       StringBuffer associationName;
       for (final ExpandItem item : expandOption.getExpandItems()) {
         if (item.isStar()) {
@@ -202,7 +203,6 @@ public class Util {
           for (int i = 0; i < targetResourceList.size(); i++) {
             targetResourceItem = targetResourceList.get(i);
             if (targetResourceItem.getKind() != UriResourceKind.navigationProperty) {
-              // if (i < targetResourceList.size() - 1) {
               associationName.append(((UriResourceProperty) targetResourceItem).getProperty().getName());
               associationName.append(JPAAssociationPath.PATH_SEPERATOR);
             } else {
@@ -210,16 +210,19 @@ public class Util {
               break;
             }
           }
-          pathList.put(new JPAExpandItemWrapper(sd, item), Util.determineAssoziation(sd,
-              ((UriResourcePartTyped) startResourceItem).getType(),
-              associationName));
+          if (item.getLevelsOption() != null)
+            pathList.put(new JPAExpandLevelWrapper(sd, expandOption), Util.determineAssoziation(sd,
+                ((UriResourcePartTyped) startResourceItem).getType(), associationName));
+          else
+            pathList.put(new JPAExpandItemWrapper(sd, item), Util.determineAssoziation(sd,
+                ((UriResourcePartTyped) startResourceItem).getType(), associationName));
         }
       }
     }
     return pathList;
   }
 
-  public static List<JPANavigationProptertyInfo> determineAssoziations(final ServiceDocument sd,
+  public static List<JPANavigationProptertyInfo> determineAssoziations(final JPAServiceDocument sd,
       final List<UriResource> resourceParts) throws ODataApplicationException {
 
     final List<JPANavigationProptertyInfo> pathList = new ArrayList<JPANavigationProptertyInfo>();
@@ -263,7 +266,7 @@ public class Util {
     return false;
   }
 
-  public static JPAAssociationPath determineAssoziationPath(final ServiceDocument sd,
+  public static JPAAssociationPath determineAssoziationPath(final JPAServiceDocument sd,
       final UriResourcePartTyped naviStart, final StringBuffer associationName) throws ODataApplicationException {
 
     JPAEntityType naviStartType;

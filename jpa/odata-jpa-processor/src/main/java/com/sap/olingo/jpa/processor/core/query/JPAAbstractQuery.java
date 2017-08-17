@@ -28,8 +28,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADescriptionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
@@ -41,12 +41,12 @@ public abstract class JPAAbstractQuery {
   protected final EntityManager em;
   protected final CriteriaBuilder cb;
   protected final JPAEntityType jpaEntity;
-  protected final ServiceDocument sd;
+  protected final JPAServiceDocument sd;
   protected final JPAServiceDebugger debugger;
   protected final OData odata;
   protected Locale locale;
 
-  public JPAAbstractQuery(final OData odata, final ServiceDocument sd, final JPAEntityType jpaEntityType,
+  public JPAAbstractQuery(final OData odata, final JPAServiceDocument sd, final JPAEntityType jpaEntityType,
       final EntityManager em)
       throws ODataApplicationException {
     super();
@@ -58,7 +58,7 @@ public abstract class JPAAbstractQuery {
     this.odata = odata;
   }
 
-  public JPAAbstractQuery(final OData odata, final ServiceDocument sd, final EdmEntityType edmEntityType,
+  public JPAAbstractQuery(final OData odata, final JPAServiceDocument sd, final EdmEntityType edmEntityType,
       final EntityManager em)
       throws ODataApplicationException {
     super();
@@ -74,7 +74,7 @@ public abstract class JPAAbstractQuery {
     this.odata = odata;
   }
 
-  public JPAAbstractQuery(final OData odata, final ServiceDocument sd, final JPAEntityType jpaEntityType,
+  public JPAAbstractQuery(final OData odata, final JPAServiceDocument sd, final JPAEntityType jpaEntityType,
       final EntityManager em, final JPAServiceDebugger debugger) {
     super();
     this.em = em;

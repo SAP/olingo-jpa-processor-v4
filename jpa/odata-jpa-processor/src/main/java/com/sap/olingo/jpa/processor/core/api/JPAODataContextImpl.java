@@ -19,7 +19,7 @@ import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseProcessorFacto
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import com.sap.olingo.jpa.processor.core.modify.JPACUDRequestHandler;
 
-class JPAODataContextImpl implements JPAODataCRUDContext, JPAODataSessionContextAccess {
+final class JPAODataContextImpl implements JPAODataCRUDContext, JPAODataSessionContextAccess {
   /**
    * 
    */

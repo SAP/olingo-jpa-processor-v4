@@ -12,6 +12,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPACUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.modify.JPAUpdateResult;
+import com.sap.olingo.jpa.processor.core.processor.JPARequestEntity;
 
 public abstract class JPAAbstractCUDRequestHandler implements JPACUDRequestHandler {
 
@@ -24,7 +25,7 @@ public abstract class JPAAbstractCUDRequestHandler implements JPACUDRequestHandl
   }
 
   @Override
-  public Object createEntity(final JPAEntityType et, final Map<String, Object> jpaAttributes, final EntityManager em)
+  public Object createEntity(final JPARequestEntity requestEntity, final EntityManager em)
       throws ODataJPAProcessException {
 
     throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_CREATE,
@@ -33,9 +34,8 @@ public abstract class JPAAbstractCUDRequestHandler implements JPACUDRequestHandl
   }
 
   @Override
-  public JPAUpdateResult updateEntity(final JPAEntityType et, final Map<String, Object> jpaAttributes,
-      final Map<String, Object> keys, final EntityManager em, final ODataRequest request)
-      throws ODataJPAProcessException {
+  public JPAUpdateResult updateEntity(final JPARequestEntity requestEntity, final EntityManager em,
+      final ODataRequest request) throws ODataJPAProcessException {
 
     throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_UPDATE,
         HttpStatusCode.NOT_IMPLEMENTED);

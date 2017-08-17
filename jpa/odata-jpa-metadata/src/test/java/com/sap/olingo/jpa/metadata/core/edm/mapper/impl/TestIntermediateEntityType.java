@@ -321,6 +321,13 @@ public class TestIntermediateEntityType extends TestMappingRoot {
   }
 
   @Test
+  public void checkIgnoreIfAsEntitySet() throws ODataJPAModelException {
+    IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "BestOrganization"), schema);
+    assertTrue(et.ignore());
+  }
+
+  @Test
   public void checkAnnotationSet() throws ODataJPAModelException {
     IntermediateModelElement.setPostProcessor(new PostProcessorSetIgnore());
     IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
@@ -328,6 +335,27 @@ public class TestIntermediateEntityType extends TestMappingRoot {
     List<CsdlAnnotation> act = et.getEdmItem().getAnnotations();
     assertEquals(1, act.size());
     assertEquals("Core.AcceptableMediaTypes", act.get(0).getTerm());
+  }
+
+  @Test
+  public void checkGetProptertyByDBFieldName() throws ODataJPAModelException {
+    IntermediateStructuredType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "BusinessPartner"), schema);
+    assertEquals("Type", et.getPropertyByDBField("\"Type\"").getExternalName());
+  }
+
+  @Test
+  public void checkGetProptertyByDBFieldNameFromSuperType() throws ODataJPAModelException {
+    IntermediateStructuredType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "Organization"), schema);
+    assertEquals("Type", et.getPropertyByDBField("\"Type\"").getExternalName());
+  }
+
+  @Test
+  public void checkGetProptertyByDBFieldNameFromEmbedded() throws ODataJPAModelException {
+    IntermediateStructuredType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "AdministrativeDivisionDescription"), schema);
+    assertEquals("CodeID", et.getPropertyByDBField("\"CodeID\"").getExternalName());
   }
 
   @Ignore

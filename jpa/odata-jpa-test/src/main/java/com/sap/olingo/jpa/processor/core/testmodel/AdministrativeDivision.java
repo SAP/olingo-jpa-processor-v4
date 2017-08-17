@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -58,17 +59,17 @@ public class AdministrativeDivision implements KeyAccess {
   private String divisionCode;
 
   @Column(name = "\"CountryISOCode\"", length = 4)
-  private String  countryCode;
+  private String countryCode;
   @Column(name = "\"ParentCodeID\"", length = 10)
-  private String  parentCodeID;
+  private String parentCodeID;
   @Column(name = "\"ParentDivisionCode\"", length = 10)
-  private String  parentDivisionCode;
+  private String parentDivisionCode;
   @Column(name = "\"AlternativeCode\"", length = 10)
-  private String  alternativeCode;
+  private String alternativeCode;
   @Column(name = "\"Area\"") // , precision = 34, scale = 0)
-  private Integer area;
+  private Integer area = new Integer(0);
   @Column(name = "\"Population\"", precision = 34, scale = 0)
-  private long    population;
+  private long population;
 
   @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST, optional = true)
   @JoinColumns({
@@ -88,19 +89,17 @@ public class AdministrativeDivision implements KeyAccess {
           insertable = false, updatable = false),
       @JoinColumn(referencedColumnName = "\"DivisionCode\"", name = "\"ParentDivisionCode\"", nullable = false,
           insertable = false, updatable = false) })
-  private List<AdministrativeDivision> children;
+  private List<AdministrativeDivision> children = new ArrayList<AdministrativeDivision>();
 
-//  @EdmIgnore
-//  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, optional = true)
-//  @JoinColumns({
-//      // Surprising side effects with eclipse link
-//            @JoinColumn(referencedColumnName = "\"CodePublisher\"", name = "'ISO'", nullable = false,
-//                insertable = false, updatable = false),
-//            @JoinColumn(referencedColumnName = "\"CodeID\"", name = "'3166-1'", nullable = false,
-//                insertable = false, updatable = false),
-//      @JoinColumn(referencedColumnName = "\"DivisionCode\"", name = "\"CountryISOCode\"", nullable = false,
-//          insertable = false, updatable = false) })
-//  private AdministrativeDivision country;
+  @OneToMany(fetch = FetchType.LAZY)
+  @JoinColumns({
+      @JoinColumn(name = "\"CodePublisher\"", referencedColumnName = "\"CodePublisher\"", insertable = false,
+          updatable = false),
+      @JoinColumn(name = "\"CodeID\"", referencedColumnName = "\"CodeID\"", insertable = false, updatable = false),
+      @JoinColumn(name = "\"DivisionCode\"", referencedColumnName = "\"DivisionCode\"", insertable = false,
+          updatable = false)
+  })
+  private List<AdministrativeDivisionDescription> allDescriptions;
 
   public String getCodePublisher() {
     return codePublisher;
@@ -181,6 +180,22 @@ public class AdministrativeDivision implements KeyAccess {
   @Override
   public Object getKey() {
     return new AdministrativeDivisionKey(codePublisher, codeID, divisionCode);
+  }
+
+  public List<AdministrativeDivision> getChildren() {
+    return children;
+  }
+
+  public void setParent(AdministrativeDivision parent) {
+    this.parent = parent;
+  }
+
+  public void setArea(Integer area) {
+    this.area = area;
+  }
+
+  public void setChildren(List<AdministrativeDivision> children) {
+    this.children = children;
   }
 
 }

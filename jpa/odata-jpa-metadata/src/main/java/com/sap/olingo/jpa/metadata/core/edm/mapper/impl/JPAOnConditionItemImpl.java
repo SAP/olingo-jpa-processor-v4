@@ -5,7 +5,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
 
-class JPAOnConditionItemImpl implements JPAOnConditionItem {
+final class JPAOnConditionItemImpl implements JPAOnConditionItem {
   private final JPAPath jpaLeftAttribute;
   private final JPAPath jpaRightAttribute;
 

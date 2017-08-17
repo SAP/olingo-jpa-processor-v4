@@ -11,7 +11,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunctionImport;
 
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -25,7 +25,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityC
  *
  */
 //TODO How to handle multiple schemas
-class IntermediateEntityContainer extends IntermediateModelElement implements IntermediateEntityContainerAccess {
+final class IntermediateEntityContainer extends IntermediateModelElement implements IntermediateEntityContainerAccess {
   final private Map<String, IntermediateSchema> schemaList;
   final private Map<String, IntermediateEntitySet> entitySetListInternalKey;
 
@@ -71,11 +71,17 @@ class IntermediateEntityContainer extends IntermediateModelElement implements In
         entitySetListInternalKey);
   }
 
-  JPAElement getEntitySet(final JPAEntityType entityType) throws ODataJPAModelException {
+  /**
+   * Internal Entity Type
+   * @param entityType
+   * @return
+   * @throws ODataJPAModelException
+   */
+  JPAEntitySet getEntitySet(final JPAEntityType entityType) throws ODataJPAModelException {
     lazyBuildEdmItem();
     for (final String internalName : entitySetListInternalKey.keySet()) {
       final IntermediateEntitySet modelElement = entitySetListInternalKey.get(internalName);
-      if (modelElement.getEdmItem().getTypeFQN().equals(entityType.getExternalFQN())) {
+      if (modelElement.getEntityType().getExternalFQN().equals(entityType.getExternalFQN())) {
         return modelElement;
       }
     }
@@ -95,7 +101,7 @@ class IntermediateEntityContainer extends IntermediateModelElement implements In
       // Build Entity Sets
       final IntermediateSchema schema = schemaList.get(namespace);
       for (final IntermediateEntityType et : schema.getEntityTypes()) {
-        if (!et.ignore()) {
+        if (!et.ignore() || et.asEntitySet()) {
           final IntermediateEntitySet es = new IntermediateEntitySet(nameBuilder, et);
           entitySetListInternalKey.put(es.internalName, es);
         }

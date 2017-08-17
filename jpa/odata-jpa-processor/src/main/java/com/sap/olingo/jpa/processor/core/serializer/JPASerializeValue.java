@@ -26,7 +26,7 @@ import org.apache.olingo.server.api.uri.UriResourceProperty;
 
 import com.sap.olingo.jpa.processor.core.exception.ODataJPASerializerException;
 
-class JPASerializeValue extends JPASerializePrimitiveAbstract implements JPASerializer {
+final class JPASerializeValue extends JPASerializePrimitiveAbstract implements JPASerializer {
   private final FixedFormatSerializer serializer;
 
   JPASerializeValue(final ServiceMetadata serviceMetadata, final FixedFormatSerializer serializer,

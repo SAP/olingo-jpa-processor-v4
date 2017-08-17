@@ -11,7 +11,7 @@ import org.apache.olingo.server.api.uri.queryoption.expression.Member;
 import org.apache.olingo.server.api.uri.queryoption.expression.Unary;
 import org.apache.olingo.server.api.uri.queryoption.expression.UnaryOperatorKind;
 
-public class JPALambdaAllOperation extends JPALambdaOperation {
+final class JPALambdaAllOperation extends JPALambdaOperation {
 
   JPALambdaAllOperation(final JPAFilterComplierAccess jpaComplier, final Member member) {
     super(jpaComplier, member);

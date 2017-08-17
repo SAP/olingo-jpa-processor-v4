@@ -69,17 +69,21 @@ public class JPAConversionHelper {
         getterMap = new HashMap<String, Object>();
         Method[] methods = instance.getClass().getMethods();
         for (Method meth : methods) {
-          if (meth.getName().substring(0, 3).equals("get")) {
-            String attributeName = meth.getName().substring(3, 4).toLowerCase() + meth.getName().substring(4);
+          String methodName = meth.getName();
+          if (methodName.substring(0, 3).equals("get") && methodName.length() > 3) {
+            String attributeName = methodName.substring(3, 4).toLowerCase() + methodName.substring(4);
             try {
               Object value = meth.invoke(instance);
               getterMap.put(attributeName, value);
             } catch (IllegalAccessException e) {
-              throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+              throw new ODataJPAProcessorException(MessageKeys.ATTRIBUTE_RETRIVAL_FAILED,
+                  HttpStatusCode.INTERNAL_SERVER_ERROR, e, attributeName);
             } catch (IllegalArgumentException e) {
-              throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+              throw new ODataJPAProcessorException(MessageKeys.ATTRIBUTE_RETRIVAL_FAILED,
+                  HttpStatusCode.INTERNAL_SERVER_ERROR, e, attributeName);
             } catch (InvocationTargetException e) {
-              throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+              throw new ODataJPAProcessorException(MessageKeys.ATTRIBUTE_RETRIVAL_FAILED,
+                  HttpStatusCode.INTERNAL_SERVER_ERROR, e, attributeName);
             }
           }
         }
@@ -131,7 +135,6 @@ public class JPAConversionHelper {
    * @return
    * @throws ODataJPAProcessException
    */
-  @SuppressWarnings("unchecked")
   public <T extends Object, S extends Object> Map<String, Object> convertProperties(final OData odata,
       final JPAStructuredType st, final List<Property> odataProperties) throws ODataJPAProcessException {
 
@@ -140,37 +143,44 @@ public class JPAConversionHelper {
     Object jpaAttribute = null;
     for (Property odataProperty : odataProperties) {
       switch (odataProperty.getValueType()) {
-        case COMPLEX:
-          try {
-            JPAPath path = st.getPath(odataProperty.getName());
-            internalName = path.getPath().get(0).getInternalName();
-            JPAStructuredType a = st.getAttribute(internalName).getStructuredType();
-            jpaAttribute = convertProperties(odata, a, ((ComplexValue) odataProperty.getValue()).getValue());
-          } catch (ODataJPAModelException e) {
-            throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-          }
-          break;
-        case PRIMITIVE:
-          try {
-            final JPAAttribute attribute = st.getPath(odataProperty.getName()).getLeaf();
-            internalName = attribute.getInternalName();
-            if (attribute.getConverter() != null) {
-              AttributeConverter<T, S> converter = (AttributeConverter<T, S>) attribute.getConverter();
-              jpaAttribute = converter.convertToEntityAttribute((S) odataProperty.getValue());
-            } else {
-              jpaAttribute = odataProperty.getValue();
-            }
-          } catch (ODataJPAModelException e) {
-            throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-          }
-          break;
-        default:
-          throw new ODataJPAProcessorException(MessageKeys.NOT_SUPPORTED_PROP_TYPE, HttpStatusCode.NOT_IMPLEMENTED,
-              odataProperty.getValueType().name());
+      case COMPLEX:
+        try {
+          JPAPath path = st.getPath(odataProperty.getName());
+          internalName = path.getPath().get(0).getInternalName();
+          JPAStructuredType a = st.getAttribute(internalName).getStructuredType();
+          jpaAttribute = convertProperties(odata, a, ((ComplexValue) odataProperty.getValue()).getValue());
+        } catch (ODataJPAModelException e) {
+          throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+        }
+        break;
+      case PRIMITIVE:
+        try {
+          final JPAAttribute attribute = st.getPath(odataProperty.getName()).getLeaf();
+          internalName = attribute.getInternalName();
+          jpaAttribute = processAttributeConverter(odataProperty.getValue(), attribute);
+        } catch (ODataJPAModelException e) {
+          throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+        }
+        break;
+      default:
+        throw new ODataJPAProcessorException(MessageKeys.NOT_SUPPORTED_PROP_TYPE, HttpStatusCode.NOT_IMPLEMENTED,
+            odataProperty.getValueType().name());
       }
       jpaAttributes.put(internalName, jpaAttribute);
     }
     return jpaAttributes;
+  }
+
+  @SuppressWarnings("unchecked")
+  public <S, T> Object processAttributeConverter(Object value, final JPAAttribute attribute) {
+    Object jpaAttribute;
+    if (attribute.getConverter() != null) {
+      AttributeConverter<T, S> converter = (AttributeConverter<T, S>) attribute.getConverter();
+      jpaAttribute = converter.convertToEntityAttribute((S) value);
+    } else {
+      jpaAttribute = value;
+    }
+    return jpaAttribute;
   }
 
   /**

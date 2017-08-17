@@ -11,6 +11,7 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Subquery;
 
 import org.apache.olingo.commons.api.ex.ODataException;
@@ -23,6 +24,7 @@ import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitEx
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
@@ -45,7 +47,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
  * @author Oliver Grande
  *
  */
-public class JPAExpandQuery extends JPAExecutableQuery {
+public final class JPAExpandQuery extends JPAExecutableQuery {
   private final JPAAssociationPath assoziation;
   private final JPAExpandItemInfo item;
 
@@ -189,7 +191,12 @@ public class JPAExpandQuery extends JPAExecutableQuery {
 
     try {
       for (final JPAOnConditionItem j : a.getJoinColumnsList()) {
-        orders.add(cb.asc(root.get(j.getRightPath().getLeaf().getInternalName())));
+        Path<?> jpaProperty = root;
+        for (JPAElement pathElement : j.getRightPath().getPath()) {
+          jpaProperty = jpaProperty.get(pathElement.getInternalName());
+        }
+        // orders.add(cb.asc(root.get(j.getRightPath().getLeaf().getInternalName())));
+        orders.add(cb.asc(jpaProperty));
       }
     } catch (ODataJPAModelException e) {
       throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);

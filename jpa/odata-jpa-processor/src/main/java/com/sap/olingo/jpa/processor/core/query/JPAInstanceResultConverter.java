@@ -20,9 +20,9 @@ import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.uri.UriHelper;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 public class JPAInstanceResultConverter {
@@ -38,7 +38,7 @@ public class JPAInstanceResultConverter {
   private final List<JPAPath> pathList;
   private final UriHelper odataUriHelper;
 
-  public JPAInstanceResultConverter(final UriHelper uriHelper, final ServiceDocument sd,
+  public JPAInstanceResultConverter(final UriHelper uriHelper, final JPAServiceDocument sd,
       final List<?> jpaQueryResult, final EdmEntitySet edmEntitySet, final Class<?> resultType)
       throws ODataJPAModelException {
     super();

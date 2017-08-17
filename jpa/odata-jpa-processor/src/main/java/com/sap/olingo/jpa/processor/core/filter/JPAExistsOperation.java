@@ -16,7 +16,7 @@ import org.apache.olingo.server.api.uri.UriResourceNavigation;
 import org.apache.olingo.server.api.uri.UriResourcePartTyped;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
 import com.sap.olingo.jpa.processor.core.query.JPANavigationProptertyInfo;
 import com.sap.olingo.jpa.processor.core.query.Util;
@@ -26,7 +26,7 @@ abstract class JPAExistsOperation implements JPAOperator {
   protected final JPAOperationConverter converter;
   protected final List<UriResource> uriResourceParts;
   protected final JPAAbstractQuery root;
-  protected final ServiceDocument sd;
+  protected final JPAServiceDocument sd;
   protected final EntityManager em;
   protected final OData odata;
 
@@ -57,7 +57,7 @@ abstract class JPAExistsOperation implements JPAOperator {
 
   abstract Subquery<?> getExistsQuery() throws ODataApplicationException;
 
-  protected List<JPANavigationProptertyInfo> determineAssoziations(final ServiceDocument sd,
+  protected List<JPANavigationProptertyInfo> determineAssoziations(final JPAServiceDocument sd,
       final List<UriResource> resourceParts) throws ODataApplicationException {
     final List<JPANavigationProptertyInfo> pathList = new ArrayList<JPANavigationProptertyInfo>();
 

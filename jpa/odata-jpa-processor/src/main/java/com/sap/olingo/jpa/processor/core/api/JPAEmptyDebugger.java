@@ -5,7 +5,7 @@ import java.util.Collection;
 
 import org.apache.olingo.server.api.debug.RuntimeMeasurement;
 
-class JPAEmptyDebugger implements JPAServiceDebugger {
+final class JPAEmptyDebugger implements JPAServiceDebugger {
 
   @Override
   public int startRuntimeMeasurement(final String className, final String methodName) {

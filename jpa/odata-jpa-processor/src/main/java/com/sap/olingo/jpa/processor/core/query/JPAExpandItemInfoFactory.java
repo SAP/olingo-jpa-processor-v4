@@ -14,13 +14,11 @@ import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
 import org.apache.olingo.server.api.uri.queryoption.expression.Expression;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 
-public class JPAExpandItemInfoFactory {
-//  public List<JPAExpandItemInfo> buildExpandItemInfo(final ServiceDocument sd, final List<UriResource> startResourceList,
-//      final ExpandOption expandOption, final List<JPANavigationProptertyInfo> grandParentHops)
-//      throws ODataApplicationException {
-  public List<JPAExpandItemInfo> buildExpandItemInfo(ServiceDocument sd, UriInfoResource uriResourceInfo,
+public final class JPAExpandItemInfoFactory {
+
+  public List<JPAExpandItemInfo> buildExpandItemInfo(JPAServiceDocument sd, UriInfoResource uriResourceInfo,
       List<JPANavigationProptertyInfo> grandParentHops) throws ODataApplicationException {
 
     final List<JPAExpandItemInfo> itemList = new ArrayList<JPAExpandItemInfo>();
@@ -35,9 +33,9 @@ public class JPAExpandItemInfoFactory {
     if (startResourceList != null && expandOption != null) {
       final List<JPANavigationProptertyInfo> parentHops = determineParentHops(sd, startResourceList, grandParentHops);
       final UriResource startResourceItem = determineStartResourceItem(startResourceList);
-      final Map<JPAExpandItemWrapper, JPAAssociationPath> expandPath = Util.determineAssoziations(sd, startResourceList,
+      final Map<JPAExpandItem, JPAAssociationPath> expandPath = Util.determineAssoziations(sd, startResourceList,
           expandOption);
-      for (final JPAExpandItemWrapper item : expandPath.keySet()) {
+      for (final JPAExpandItem item : expandPath.keySet()) {
         itemList.add(new JPAExpandItemInfo(item, (UriResourcePartTyped) startResourceItem, filterExpression,
             expandPath.get(item), parentHops));
       }
@@ -56,7 +54,7 @@ public class JPAExpandItemInfoFactory {
     return startResourceItem;
   }
 
-  private List<JPANavigationProptertyInfo> determineParentHops(final ServiceDocument sd,
+  private List<JPANavigationProptertyInfo> determineParentHops(final JPAServiceDocument sd,
       final List<UriResource> startResourceList, final List<JPANavigationProptertyInfo> grandParentHops)
       throws ODataApplicationException {
     List<JPANavigationProptertyInfo> parentHops = new ArrayList<JPANavigationProptertyInfo>();

@@ -16,7 +16,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.core.query.JPAExpandQueryResult;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescriptionKey;
 import com.sap.olingo.jpa.processor.core.util.ServiceMetadataDouble;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
@@ -85,7 +84,7 @@ public class TestJPATupleResultConverterCompoundKey extends TestBase {
         new JPAExpandQueryResult(resultContainer, Long.parseLong("1"), helper.getJPAEntityType(
             "AdministrativeDivisionDescriptions")),
         uriHelper,
-        new ServiceMetadataDouble());
+        new ServiceMetadataDouble(nameBuilder, "AdministrativeDivisionDescription"));
 
     AdministrativeDivisionDescriptionKey country = new AdministrativeDivisionDescriptionKey();
     country.setLanguage("en");

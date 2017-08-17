@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -25,6 +26,10 @@ public class BusinessPartnerRole {
   @JoinColumn(name = "\"BusinessPartnerID\"", insertable = false, updatable = false)
   private BusinessPartner businessPartner;
 
+  @ManyToOne(optional = false, fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+  @JoinColumn(name = "\"BusinessPartnerID\"", insertable = false, updatable = false)
+  private Organization organization;
+
   public String getBusinessPartnerID() {
     return businessPartnerID;
   }
@@ -43,6 +48,19 @@ public class BusinessPartnerRole {
 
   public void setRoleCategory(String roleCategory) {
     this.roleCategory = roleCategory;
+  }
+
+  public void setBusinessPartner(BusinessPartner businessPartner) {
+    this.businessPartner = businessPartner;
+
+  }
+
+  public Organization getOrganization() {
+    return organization;
+  }
+
+  public void setOrganization(Organization organization) {
+    this.organization = organization;
   }
 
 }

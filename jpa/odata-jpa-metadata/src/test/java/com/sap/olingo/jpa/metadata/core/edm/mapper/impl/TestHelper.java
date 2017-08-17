@@ -16,7 +16,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 public class TestHelper {
-  final private Metamodel         jpaMetamodel;
+  final private Metamodel jpaMetamodel;
   final public IntermediateSchema schema;
 
   public TestHelper(final Metamodel metamodel, final String namespace) throws ODataJPAModelException {
@@ -28,6 +28,15 @@ public class TestHelper {
     for (final EntityType<?> entityType : jpaMetamodel.getEntities()) {
       if (entityType.getJavaType().getSimpleName().equals(typeName)) {
         return entityType;
+      }
+    }
+    return null;
+  }
+
+  public EmbeddableType<?> getComplexType(final String typeName) {
+    for (final EmbeddableType<?> embeddableType : jpaMetamodel.getEmbeddables()) {
+      if (embeddableType.getJavaType().getSimpleName().equals(typeName)) {
+        return embeddableType;
       }
     }
     return null;

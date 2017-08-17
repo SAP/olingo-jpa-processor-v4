@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
-import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.queryoption.ApplyOption;
 import org.apache.olingo.server.api.uri.queryoption.CountOption;
@@ -22,17 +21,17 @@ import org.apache.olingo.server.api.uri.queryoption.SkipTokenOption;
 import org.apache.olingo.server.api.uri.queryoption.TopOption;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.ServiceDocument;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 // TODO In case of second level $expand expandItem.getResourcePath() returns an empty UriInfoResource => Bug or
 // Feature?
-public class JPAExpandItemWrapper implements UriInfoResource {
+public class JPAExpandItemWrapper implements JPAExpandItem {
   private final ExpandItem item;
   private final JPAEntityType jpaEntityType;
 
-  public JPAExpandItemWrapper(final ServiceDocument sd, final ExpandItem item) throws ODataApplicationException {
+  public JPAExpandItemWrapper(final JPAServiceDocument sd, final ExpandItem item) throws ODataApplicationException {
     super();
     this.item = item;
     try {
@@ -119,6 +118,12 @@ public class JPAExpandItemWrapper implements UriInfoResource {
     return null;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.sap.olingo.jpa.processor.core.query.JPAExpandItem#getEntityType()
+   */
+  @Override
   public JPAEntityType getEntityType() {
     return jpaEntityType;
   }
