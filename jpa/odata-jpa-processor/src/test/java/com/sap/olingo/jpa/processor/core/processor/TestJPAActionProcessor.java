@@ -57,7 +57,6 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.serializer.JPAOperationSerializer;
 import com.sap.olingo.jpa.processor.core.testmodel.CommunicationData;
-import com.sap.olingo.jpa.processor.core.testobjects.TestFunctionReturnType;
 import com.sap.olingo.jpa.processor.core.testobjects.TestJavaActionNoParameter;
 import com.sap.olingo.jpa.processor.core.testobjects.TestJavaActions;
 
@@ -157,7 +156,7 @@ public class TestJPAActionProcessor {
 
     @SuppressWarnings("rawtypes")
     Constructor c = TestJavaActions.class.getConstructors()[0];
-    Method m = TestJavaActions.class.getMethod("boundWithOutParameter");
+    Method m = TestJavaActions.class.getMethod("unboundWithOutParameter");
     when(action.getConstructor()).thenReturn(c);
     when(action.getMethod()).thenReturn(m);
     when(action.getReturnType()).thenReturn(null);
@@ -173,7 +172,7 @@ public class TestJPAActionProcessor {
 
     @SuppressWarnings("rawtypes")
     Constructor c = TestJavaActions.class.getConstructors()[0];
-    Method m = TestJavaActions.class.getMethod("boundWithOutParameter");
+    Method m = TestJavaActions.class.getMethod("unboundWithOutParameter");
     when(action.getConstructor()).thenReturn(c);
     when(action.getMethod()).thenReturn(m);
     when(action.getReturnType()).thenReturn(null);
@@ -243,7 +242,7 @@ public class TestJPAActionProcessor {
   @Test
   public void testCallsActionVoidOneParameterReturnNoContent() throws ODataJPAProcessException, NoSuchMethodException,
       SecurityException {
-    TestFunctionReturnType.constructorCalls = 0;
+    TestJavaActionNoParameter.resetCalls();
 
     @SuppressWarnings("rawtypes")
     Constructor c = TestJavaActionNoParameter.class.getConstructors()[0];
@@ -263,7 +262,7 @@ public class TestJPAActionProcessor {
   @Test
   public void testCallsActionVoidTwoParameterReturnNoContent() throws ODataJPAProcessException, NoSuchMethodException,
       SecurityException {
-    TestFunctionReturnType.constructorCalls = 0;
+    TestJavaActionNoParameter.resetCalls();
 
     @SuppressWarnings("rawtypes")
     Constructor c = TestJavaActionNoParameter.class.getConstructors()[0];

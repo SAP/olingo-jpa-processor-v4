@@ -16,12 +16,12 @@ import com.sap.olingo.jpa.processor.core.testmodel.CommunicationData;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 
 public class TestFunctionReturnType implements ODataFunction {
-  public static int constructorCalls = 0;
-
-  public TestFunctionReturnType() {
-    super();
-    constructorCalls++;
-  }
+//  public static int constructorCalls = 0;
+//
+//  public TestFunctionReturnType() {
+//    super();
+//    constructorCalls++;
+//  }
 
   @EdmFunction(name = "PrimitiveValue", returnType = @ReturnType)
   public Integer primitiveValue(@EdmParameter(name = "A") short a) {

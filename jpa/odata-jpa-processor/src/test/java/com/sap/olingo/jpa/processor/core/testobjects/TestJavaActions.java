@@ -17,7 +17,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.ODataAction;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
 import com.sap.olingo.jpa.processor.core.testmodel.ChangeInformation;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
-import com.sap.olingo.jpa.processor.core.testmodel.PostalAddressData;
 
 public class TestJavaActions implements ODataAction {
 
@@ -82,11 +81,6 @@ public class TestJavaActions implements ODataAction {
     return Arrays.asList(new ChangeInformation[] { new ChangeInformation() });
   }
 
-  @EdmAction(name = "")
-  public List<String> returnCollectionWithoutReturnType() {
-    return new ArrayList<String>();
-  }
-
   @EdmAction(name = "",
       returnType = @ReturnType(maxLength = 60,
           srid = @EdmGeospatial(dimension = Dimension.GEOGRAPHY, srid = "4326")))
@@ -97,38 +91,8 @@ public class TestJavaActions implements ODataAction {
   }
 
   @EdmAction(name = "")
-  public Integer errorNonPrimitiveParameter(
-      @EdmParameter(name = "A") PostalAddressData a) {
-    return 1;
-  }
-
-  @EdmAction(name = "", isBound = true)
-  public void boundWithOutBindingParameter(
-      @EdmParameter(name = "A", precision = 34, scale = 10) BigDecimal a) {
+  public void unboundWithOutParameter() {
     // Do nothing
   }
 
-  @EdmAction(name = "", isBound = true)
-  public void boundWithOutParameter() {
-    // Do nothing
-  }
-
-  @EdmAction(name = "", isBound = true)
-  public void boundBindingParameterSecondParameter(
-      @EdmParameter(name = "A", precision = 34, scale = 10) BigDecimal a,
-      @EdmParameter(name = "Person") Person person) {
-    // Do nothing
-  }
-
-  @EdmAction(name = "", isBound = false, entitySetPath = "Person/Address")
-  public PostalAddressData errorUnboundWithEntitySetPath(
-      @EdmParameter(name = "Person") Person person) {
-    return null;
-  }
-
-  @EdmAction(name = "", isBound = true, entitySetPath = "Person/Address")
-  public Integer errorPrimitiveTypeWithEntitySetPath(
-      @EdmParameter(name = "Person") Person person) {
-    return null;
-  }
 }
