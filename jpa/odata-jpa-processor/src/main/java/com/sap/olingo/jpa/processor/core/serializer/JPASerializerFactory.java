@@ -95,6 +95,7 @@ public final class JPASerializerFactory {
       return new JPASerializeComplex(serviceMetadata, odata.createSerializer(responseFormat), uriHelper, uriInfo);
     case primitiveProperty:
       return new JPASerializePrimitive(serviceMetadata, odata.createSerializer(responseFormat), uriHelper, uriInfo);
+    case action:
     case function:
       return new JPASerializeFunction(uriInfo, responseFormat, this);
     case count:

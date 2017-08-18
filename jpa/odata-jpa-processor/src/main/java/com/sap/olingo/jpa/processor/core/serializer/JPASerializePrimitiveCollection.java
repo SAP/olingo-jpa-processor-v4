@@ -17,7 +17,7 @@ import org.apache.olingo.server.api.uri.UriInfo;
 
 import com.sap.olingo.jpa.processor.core.exception.ODataJPASerializerException;
 
-final class JPASerializePrimitiveCollection implements JPAFunctionSerializer {
+final class JPASerializePrimitiveCollection implements JPAOperationSerializer {
   private final ServiceMetadata serviceMetadata;
   private final ODataSerializer serializer;
 

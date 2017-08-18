@@ -207,8 +207,8 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
     debugger.stopRuntimeMeasurement(handle);
   }
 
-  public void updateEntity(ODataRequest request, ODataResponse response, ContentType requestFormat,
-      ContentType responseFormat) throws ODataJPAProcessException, ODataLibraryException {
+  public void updateEntity(final ODataRequest request, final ODataResponse response, final ContentType requestFormat,
+      final ContentType responseFormat) throws ODataJPAProcessException, ODataLibraryException {
 
     final int handle = debugger.startRuntimeMeasurement(this, "updateEntity");
     final JPACUDRequestHandler handler = sessionContext.getCUDRequestHandler();

@@ -5,12 +5,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.olingo.commons.api.edm.provider.CsdlAction;
+import org.apache.olingo.commons.api.edm.provider.CsdlActionImport;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunctionImport;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
@@ -52,10 +55,9 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
       edmContainer.setName(getExternalName());
       edmContainer.setEntitySets(buildEntitySets());
       edmContainer.setFunctionImports(buildFunctionImports());
+      edmContainer.setActionImports(buildActionImports());
       edmContainer.setAnnotations(edmAnnotations);
       // TODO Singleton
-      // TODO ActionImport
-
     }
   }
 
@@ -114,7 +116,7 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
    * Creates the FunctionImports. Function Imports have to be created for <i>unbound</i> functions. These are functions,
    * which do not depend on an entity set. E.g. .../MyFunction(). <p>
    * Details are described in : <a href=
-   * " https://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406398042"
+   * "https://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406398042"
    * >OData Version 4.0 Part 3 - 13.6 Element edm:FunctionImport</a>
    * @param CsdlFunction edmFu
    */
@@ -123,14 +125,8 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
     edmFuImport.setName(edmFu.getName());
     edmFuImport.setFunction(nameBuilder.buildFQN(edmFu.getName()));
     edmFuImport.setIncludeInServiceDocument(true);
+    // edmFuImport.setEntitySet(entitySet)
 
-    for (final String internalName : entitySetListInternalKey.keySet()) {
-      final IntermediateEntitySet entitySet = entitySetListInternalKey.get(internalName);
-      if (entitySet.getEntityType().getExternalFQN().equals(edmFu.getReturnType().getTypeFQN())) {
-        edmFuImport.setEntitySet(entitySet.getExternalName());
-        break;
-      }
-    }
     return edmFuImport;
   }
 
@@ -144,11 +140,47 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
 
       if (functions != null) {
         for (final JPAFunction jpaFu : functions) {
-          if (((IntermediateFunction) jpaFu).isBound() == false && ((IntermediateFunction) jpaFu).hasFunctionImport())
+          if (((IntermediateFunction) jpaFu).isBound() == false && ((IntermediateFunction) jpaFu).hasImport())
             edmFunctionImports.add(buildFunctionImport(((IntermediateFunction) jpaFu).getEdmItem()));
         }
       }
     }
     return edmFunctionImports;
   }
+
+  private List<CsdlActionImport> buildActionImports() throws ODataJPAModelException {
+    final List<CsdlActionImport> edmActionImports = new ArrayList<CsdlActionImport>();
+
+    for (final String namespace : schemaList.keySet()) {
+      // Build Entity Sets
+      final IntermediateSchema schema = schemaList.get(namespace);
+      final List<JPAAction> actions = schema.getActions();
+
+      if (actions != null) {
+        for (final JPAAction jpaAc : actions) {
+          if (((IntermediateJavaAction) jpaAc).hasImport())
+            edmActionImports.add(buildActionImport(((IntermediateJavaAction) jpaAc).getEdmItem()));
+        }
+      }
+    }
+    return edmActionImports;
+  }
+
+  /**
+   * Creates the ActionImports. Function Imports have to be created for <i>unbound</i> actions. These are actions,
+   * which do not depend on an entity set. E.g. .../MyAction(). <p>
+   * Details are described in : <a href=
+   * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-
+   * complete.html#_Toc406398038">13.5 Element edm:ActionImport</a>
+   * @param edmAc
+   * @return
+   */
+  private CsdlActionImport buildActionImport(CsdlAction edmAc) {
+    final CsdlActionImport edmAcImport = new CsdlActionImport();
+    edmAcImport.setName(edmAc.getName());
+    edmAcImport.setAction(nameBuilder.buildFQN(edmAc.getName()));
+    // edmAcImport.setEntitySet(entitySet)
+    return edmAcImport;
+  }
+
 }

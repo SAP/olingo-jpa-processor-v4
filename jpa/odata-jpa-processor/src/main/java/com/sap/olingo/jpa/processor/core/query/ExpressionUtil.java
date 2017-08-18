@@ -23,7 +23,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADescriptionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunctionParamaterFacet;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParamaterFacet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPATypeConvertor;
@@ -109,7 +109,7 @@ public final class ExpressionUtil {
     }
   }
 
-  public static Object convertValueOnFacet(final OData odata, JPAFunctionParamaterFacet returnType, final String value)
+  public static Object convertValueOnFacet(final OData odata, JPAParamaterFacet returnType, final String value)
       throws ODataJPAFilterException {
     try {
       final EdmPrimitiveTypeKind edmTypeKind = EdmPrimitiveTypeKind.valueOfFQN(returnType.getTypeFQN());

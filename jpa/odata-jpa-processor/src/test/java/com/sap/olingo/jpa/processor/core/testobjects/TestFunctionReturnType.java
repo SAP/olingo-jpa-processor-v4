@@ -7,7 +7,7 @@ import java.util.List;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionParameter;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.ODataFunction;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeInformation;
@@ -16,20 +16,27 @@ import com.sap.olingo.jpa.processor.core.testmodel.CommunicationData;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 
 public class TestFunctionReturnType implements ODataFunction {
+//  public static int constructorCalls = 0;
+//
+//  public TestFunctionReturnType() {
+//    super();
+//    constructorCalls++;
+//  }
+
   @EdmFunction(name = "PrimitiveValue", returnType = @ReturnType)
-  public Integer primitiveValue(@EdmFunctionParameter(name = "A") short a) {
+  public Integer primitiveValue(@EdmParameter(name = "A") short a) {
     if (a == 0)
       return null;
     return Integer.valueOf(a);
   }
 
   @EdmFunction(name = "ListOfPrimitiveValues", returnType = @ReturnType(type = Integer.class))
-  public List<Integer> listOfPrimitiveValues(@EdmFunctionParameter(name = "A") Integer a) {
+  public List<Integer> listOfPrimitiveValues(@EdmParameter(name = "A") Integer a) {
     return Arrays.asList(new Integer[] { a, a / 2 });
   }
 
   @EdmFunction(name = "ComplexType", returnType = @ReturnType)
-  public CommunicationData complexType(@EdmFunctionParameter(name = "A") int a) {
+  public CommunicationData complexType(@EdmParameter(name = "A") int a) {
     if (a == 0)
       return null;
     CommunicationData result = new CommunicationData();
@@ -38,7 +45,7 @@ public class TestFunctionReturnType implements ODataFunction {
   }
 
   @EdmFunction(name = "ListOfComplexType", returnType = @ReturnType(type = AdministrativeInformation.class))
-  public List<AdministrativeInformation> listOfComplexType(@EdmFunctionParameter(name = "A") String user) {
+  public List<AdministrativeInformation> listOfComplexType(@EdmParameter(name = "A") String user) {
     AdministrativeInformation admin1 = new AdministrativeInformation();
     admin1.setCreated(new ChangeInformation(user, Date.valueOf(LocalDate.now())));
     AdministrativeInformation admin2 = new AdministrativeInformation();
@@ -47,7 +54,7 @@ public class TestFunctionReturnType implements ODataFunction {
   }
 
   @EdmFunction(name = "EntityType", returnType = @ReturnType)
-  public AdministrativeDivision entityType(@EdmFunctionParameter(name = "A") int a) {
+  public AdministrativeDivision entityType(@EdmParameter(name = "A") int a) {
 
     if (a == 0)
       return null;
@@ -60,7 +67,7 @@ public class TestFunctionReturnType implements ODataFunction {
   }
 
   @EdmFunction(name = "ListOfEntityType", returnType = @ReturnType(type = AdministrativeDivision.class))
-  public List<AdministrativeDivision> listOfEntityType(@EdmFunctionParameter(name = "A") Integer a) {
+  public List<AdministrativeDivision> listOfEntityType(@EdmParameter(name = "A") Integer a) {
     return Arrays.asList(new AdministrativeDivision[] { entityType(a), entityType(a / 2) });
   }
 

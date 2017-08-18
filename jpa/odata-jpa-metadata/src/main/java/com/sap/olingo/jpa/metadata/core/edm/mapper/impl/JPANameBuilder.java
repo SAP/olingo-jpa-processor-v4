@@ -2,6 +2,7 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import javax.persistence.metamodel.Attribute;
 
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 
@@ -26,6 +27,10 @@ final class JPANameBuilder {
 
   public String buildFunctionName(final EdmFunction jpaFunction) {
     return jpaFunction.name();
+  }
+
+  public String buildActionName(final EdmAction jpaAction) {
+    return jpaAction.name();
   }
 
   public String buildEntitySetName(final JPAEdmNameBuilder nameBuilder, final JPAStructuredType entityType) {

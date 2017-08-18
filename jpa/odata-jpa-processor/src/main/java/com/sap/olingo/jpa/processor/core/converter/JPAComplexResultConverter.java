@@ -15,7 +15,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 
 public class JPAComplexResultConverter extends JPAStructuredResultConverter {
 
-  public JPAComplexResultConverter(final JPAServiceDocument sd, List<?> jpaQueryResult,
+  public JPAComplexResultConverter(final JPAServiceDocument sd, final List<?> jpaQueryResult,
       final EdmComplexType edmComplexType) throws ODataJPAModelException {
 
     super(jpaQueryResult, sd.getComplexType(edmComplexType));

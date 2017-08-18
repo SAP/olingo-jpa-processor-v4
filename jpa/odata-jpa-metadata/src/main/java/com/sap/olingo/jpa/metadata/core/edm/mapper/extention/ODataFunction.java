@@ -7,6 +7,6 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.extention;
  * @author Oliver Grande
  *
  */
-public interface ODataFunction {
+public interface ODataFunction extends ODataOperation {
 
 }
