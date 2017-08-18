@@ -544,11 +544,11 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
               .getDBFieldName(), property));
         }
       }
-    }
-    final IntermediateStructuredType baseType = getBaseType();
-    if (baseType != null) {
-      resolvedPathMap.putAll(baseType.getResolvedPathMap());
-      intermediatePathMap.putAll(baseType.getIntermediatePathMap());
+      final IntermediateStructuredType baseType = getBaseType();
+      if (baseType != null) {
+        resolvedPathMap.putAll(baseType.getResolvedPathMap());
+        intermediatePathMap.putAll(baseType.getIntermediatePathMap());
+      }
     }
     // }
 

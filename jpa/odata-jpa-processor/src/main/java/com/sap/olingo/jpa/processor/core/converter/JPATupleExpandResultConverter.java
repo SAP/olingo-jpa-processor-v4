@@ -56,8 +56,7 @@ class JPATupleExpandResultConverter extends JPATupleAbstractConverter {
 
     List<Tuple> subResult = null;
     try {
-      subResult = jpaQueryResult.getResult(buildConcatenatedKey(parentRow, assoziation.getJoinColumnsList())
-          .toString());
+      subResult = jpaQueryResult.getResult(buildConcatenatedKey(parentRow, assoziation.getJoinColumnsList()));
     } catch (ODataJPAModelException e) {
       throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
           HttpStatusCode.INTERNAL_SERVER_ERROR, e);
