@@ -4,12 +4,12 @@ The JPA Processor shall fill the gap between [Olingo V4](https://olingo.apache.o
 At the current state the JPA Processor provide support for:  
 1. Generating OData metadata from JPA metadata.  
 2. Processing Get requests by converting them into Criteria Builder queries.  
-3. Supporting entity manipulations. 
- 
+3. Supporting entity manipulations.
+
 More details can be found in the [Tutorials](/jpa-tutorial/Tutorials/Introduction/Introduction.md)    
 
 # Requirements
-As of now the JPA Processor requires at least [Java 1.6](http://www.oracle.com/technetwork/java/javase/downloads/jdk6downloads-1902814.html), but it is very likely that in the future the minimum Java version is changed to [1.8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
+As of now the JPA Processor requires, others than Olingo, minimum Java version  [1.8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
 
 # Download and Installation
 Clone the repository.
@@ -23,9 +23,9 @@ For bugs, questions and ideas for enhancement please open an issue in github.
 # To-Do (upcoming-changes)
 The flowing extensions/changes are planned:
 
-* Rework batch request handling, to handle the _sort order_ problem. 
+* Rework batch request handling, to handle the _sort order_ problem.
 * Enable hooks for retrieving data.  
-* Parallel processing for $expand. 
+* Parallel processing for $expand.
 * Enable collection attributes.   
 
 
