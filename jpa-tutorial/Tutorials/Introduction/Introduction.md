@@ -10,7 +10,7 @@ In order to follow this tutorial, you should have
 
 ## Preparation
 In order to perform the tutorial you need:
-* A Java JDK 1.6 or higher
+* A Java JDK 1.8 or higher
 * A Eclipse IDE for Java EE, or another one that provides the same functionality
 * A web server e.g. Apache Tomcat
 
