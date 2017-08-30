@@ -42,7 +42,7 @@ public class JavaFunctions implements ODataFunction {
 	}
 
 	@EdmFunction(name = "", returnType = @ReturnType)
-	public Integer sum(@EdmFunctionParameter(name = "Summand1") int a, @EdmFunctionParameter(name = "Summand2") int b) {
+	public Integer sum(@EdmParameter(name = "Summand1") int a, @EdmParameter(name = "Summand2") int b) {
 		return a + b;
 	}
 }
