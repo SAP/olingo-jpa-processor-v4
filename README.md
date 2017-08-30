@@ -11,7 +11,7 @@ More details can be found in the [Tutorials](/jpa-tutorial/Tutorials/Introductio
 # Requirements
 The JPA Processor requires, others than Olingo, minimum Java version  [1.8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html). The current version comes with Olingo 4.3.0. If later versions of OLingo are available this may change.
 
-Even so no JPA implementation is preferred, it has to be stated that all test have been performed with [Eclipselink 2.6.2](http://www.eclipse.org/eclipselink/). If you have any isusse with e.g. Hibernate or OpenJPA(https://openjpa.apache.org/) create an issue in github.
+Even so no JPA implementation is preferred, it has to be stated that all test have been performed with [Eclipselink 2.6.2](http://www.eclipse.org/eclipselink/). If you have any isusse with e.g. [Hibernate](http://hibernate.org) or [OpenJPA](https://openjpa.apache.org/) create an issue in github.
 
 # Download and Installation
 The JPA Processor is a collection of [Maven](https://maven.apache.org) projects. To use it you need to 
