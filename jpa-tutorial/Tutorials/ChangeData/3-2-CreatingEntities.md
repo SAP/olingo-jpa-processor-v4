@@ -223,7 +223,7 @@ Now lets create a new Person:
         "ID" : "A34",
         "Country" : "CHE",
         "BirthDay": "1992-02-10",
-        "LastName": "MÃ¼ller",
+        "LastName": "Müller",
         "FirstName": "Frida",
         "Address" : {
             "Country" : "DEU",
@@ -247,4 +247,4 @@ Now lets create a new Person:
         }
     }
 
-Next we want to be able to make change to an existing entity: [Tutorial 3.2 Updating Entities](3.2 Updating Entities.md)
+Next we want to be able to make change to an existing entity: [Tutorial 3.2 Updating Entities](3-2-Updating Entities.md)

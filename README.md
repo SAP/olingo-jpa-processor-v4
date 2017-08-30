@@ -6,13 +6,34 @@ At the current state the JPA Processor provide support for:
 2. Processing Get requests by converting them into Criteria Builder queries.  
 3. Supporting entity manipulations.
 
-More details can be found in the [Tutorials](/jpa-tutorial/Tutorials/Introduction/Introduction.md)    
+More details can be found in the [Tutorials](/jpa-tutorial/Tutorials/Introduction/Introduction.md).
 
 # Requirements
-As of now the JPA Processor requires, others than Olingo, minimum Java version  [1.8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
+The JPA Processor requires, others than Olingo, minimum Java version  [1.8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html). The current version comes with Olingo 4.3.0. If later versions of OLingo are available this may change.
+
+Even so no JPA implementation is preferred, it has to be stated that all test have been performed with [Eclipselink 2.6.2](http://www.eclipse.org/eclipselink/). If you have any isusse with e.g. Hibernate or OpenJPA(https://openjpa.apache.org/) create an issue in github.
 
 # Download and Installation
-Clone the repository.
+The JPA Processor is a collection of [Maven](https://maven.apache.org) projects. To use it you need to 
+clone the repository and declare a dependency to either the metadata generation only:
+
+```
+<dependency>
+	<groupId>com.sap.olingo</groupId>
+	<artifactId>odata-jpa-metadata</artifactId>
+	<version>0.1.9-SNAPSHOT</version>
+</dependency>
+```
+
+Or to the complete processor:
+
+```
+<dependency>
+	<groupId>com.sap.olingo</groupId>
+	<artifactId>odata-jpa-processor</artifactId>
+	<version>0.1.9-SNAPSHOT</version>
+</dependency>
+```
 
 # Limitations
 The project is still in the state of incubation, so some incompatible changes my come up, see To-Do. Nevertheless feel free to use the JPA processor where ever it helps.

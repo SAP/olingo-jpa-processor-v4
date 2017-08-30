@@ -35,9 +35,10 @@ public class Servlet extends HttpServlet {
 	}
 }
 ```
-Now we are able to play around with our OData service. We could e.g. retrieve all the Companies: _http://localhost:8080/Tutorial/Tutorial.svc/Companies_
-or we want to find out which user had created Company('1'): _http://localhost:8080/Tutorial/Tutorial.svc/Companies('1')/AdministrativeInformation/Created/User_
-or we want to get all companies wuth role _A_: _http://localhost:8080/Tutorial/Tutorial.svc/Companies?$filter=Roles/any(d:d/RoleCategory eq 'A')_
-or we want to know which Administrative Division has an Area greater then 40000000: _http://localhost:8080/Tutorial/Tutorial.svc/AdministrativeDivisions?$filter=Area gt 4000000&$count=true_
-or we look for the parents and children of a certain Administrative Division: _http://localhost:8080/Tutorial/Tutorial.svc/AdministrativeDivisions(DivisionCode='BE254',CodeID='NUTS3',CodePublisher='Eurostat')?$expand=Parent($expand=Parent),Children&$format=json_
-or we look for ...
+Now we are able to play around with our OData service. We could e.g.:
+* Retrieve all the Companies: _http://localhost:8080/Tutorial/Tutorial.svc/Companies_
+* Or we want to find out which user had created Company('1'): _http://localhost:8080/Tutorial/Tutorial.svc/Companies('1')/AdministrativeInformation/Created/User_
+* Or we want to get all companies wuth role _A_: _http://localhost:8080/Tutorial/Tutorial.svc/Companies?$filter=Roles/any(d:d/RoleCategory eq 'A')_
+* Or we want to know which Administrative Division has an Area greater then 40000000: _http://localhost:8080/Tutorial/Tutorial.svc/AdministrativeDivisions?$filter=Area gt 4000000&$count=true_
+* Or we look for the parents and children of a certain Administrative Division: _http://localhost:8080/Tutorial/Tutorial.svc/AdministrativeDivisions(DivisionCode='BE254',CodeID='NUTS3',CodePublisher='Eurostat')?$expand=Parent($expand=Parent),Children&$format=json_
+* Or we look for ...
