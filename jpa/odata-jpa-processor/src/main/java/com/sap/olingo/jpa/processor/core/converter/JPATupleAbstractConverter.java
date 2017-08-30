@@ -136,7 +136,7 @@ public abstract class JPATupleAbstractConverter {
       // TODO Clarify host-name and port as part of ID see
       // http://docs.oasis-open.org/odata/odata-atom-format/v4.0/cs02/odata-atom-format-v4.0-cs02.html#_Toc372792702
 
-      final StringBuffer uriString = new StringBuffer(setName);
+      final StringBuilder uriString = new StringBuilder(setName);
       uriString.append("(");
       uriString.append(uriHelper.buildKeyPredicate(edmType, entity));
       uriString.append(")");

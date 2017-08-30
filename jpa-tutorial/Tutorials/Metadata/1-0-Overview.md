@@ -1,7 +1,6 @@
 # 1.0: Overview
 The first series of tutorial shall introduce into the options currently provided to create OData metadata from JPA metadata:
 
-
 [Tutorial 1.1: Create A Simple Entity](1-1-ASimpleEntity.md)  
 [Tutorial 1.2: Use Navigation Properties](1-2-UseNavigationProperties.md)  
 [Tutorial 1.3: Text Associations](1-3-TextAssociations.md)    
@@ -12,5 +11,4 @@ The first series of tutorial shall introduce into the options currently provided
 [Tutorial 1.8: Functions](1-8-Functions.md)  
 [Tutorial 1.9: Changing Generated Metadata](1-9-ChangingGeneratedMetadata.md)  
 [Tutorial 1.10: JPA Converter](1-10-JPAConverter.md)    
-[Tutorial 1.11: Annotations](1-11-Annotations.md)    
-[Open Topics](1-12-OpenTopics.md)    
+[Tutorial 1.11: Annotations](1-11-Annotations.md)
