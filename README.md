@@ -15,7 +15,7 @@ Even so no JPA implementation is preferred, as long as it supports [JSR-338 Java
 
 # Download and Installation
 The JPA Processor is a collection of [Maven](https://maven.apache.org) projects. To use it you need to 
-clone the repository import the projects and declare a dependency to either the metadata generation only:
+clone the repository, import the projects and declare a dependency to either the metadata generation only:
 
 ```
 <dependency>
