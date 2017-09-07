@@ -81,8 +81,11 @@ class IntermediateJavaAction extends IntermediateOperation implements JPAAction 
   }
 
   @Override
-  public JPAParameter getParameter(Parameter declairedParameter) {
-    // TODO Auto-generated method stub
+  public JPAParameter getParameter(Parameter declairedParameter) throws ODataJPAModelException {
+    for (JPAParameter param : getParameter()) {
+      if (param.getInternalName().equals(declairedParameter.getName()))
+        return param;
+    }
     return null;
   }
 

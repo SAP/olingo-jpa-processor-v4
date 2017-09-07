@@ -4,7 +4,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -18,13 +17,17 @@ import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.deserializer.ODataDeserializer;
+import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceAction;
+import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAction;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
-import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
+import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
 
 public class JPAActionRequestProcessor extends JPAOperationRequestProcessor {
 
@@ -34,63 +37,97 @@ public class JPAActionRequestProcessor extends JPAOperationRequestProcessor {
   }
 
   public void performAction(final ODataRequest request, final ODataResponse response, final ContentType requestFormat,
-      final ContentType responseFormat) throws ODataJPAProcessException {
-    UriResourceAction resource = (UriResourceAction) uriInfo.getUriResourceParts().get(0);
+      final ContentType responseFormat) throws ODataApplicationException {
+
+    final List<UriResource> resourceList = uriInfo.getUriResourceParts();
+    final UriResourceAction resource = (UriResourceAction) resourceList.get(resourceList.size() - 1);
     try {
-      JPAAction jpaAction = sd.getAction(resource.getAction());
-      final Constructor<?> c = jpaAction.getConstructor();
+      final JPAAction jpaAction = sd.getAction(resource.getAction());
 
-      try {
-        Object instance;
-        if (c.getParameterCount() == 1)
-          instance = c.newInstance(em);
-        else
-          instance = c.newInstance();
+      final Object instance = createInstanze(jpaAction.getConstructor());
 
-        final List<Object> parameter = new ArrayList<Object>();
-        final Parameter[] methodParameter = jpaAction.getMethod().getParameters();
+      final List<Object> parameter = new ArrayList<>();
+      final Parameter[] methodParameter = jpaAction.getMethod().getParameters();
 
-        final ODataDeserializer deserializer = odata.createDeserializer(requestFormat);
-        final Map<String, org.apache.olingo.commons.api.data.Parameter> actionParameter =
-            deserializer.actionParameters(request.getBody(), resource.getAction()).getActionParameters();
+      final ODataDeserializer deserializer = odata.createDeserializer(requestFormat);
+      final Map<String, org.apache.olingo.commons.api.data.Parameter> actionParameter =
+          deserializer.actionParameters(request.getBody(), resource.getAction()).getActionParameters();
 
-        for (Parameter declairedParameter : Arrays.asList(methodParameter)) {
-          String externalName = jpaAction.getParameter(declairedParameter).getName();
-          org.apache.olingo.commons.api.data.Parameter param = actionParameter.get(externalName);
-          parameter.add(param.getValue());
-        }
-        Annotatable r = null;
-        EdmType returnType = null;
-        if (resource.getAction().getReturnType() != null) {
-          returnType = resource.getAction().getReturnType().getType();
-          final Object result = jpaAction.getMethod().invoke(instance, parameter.toArray());
-          r = convertResult(result, returnType, jpaAction);
-        } else
-          jpaAction.getMethod().invoke(instance, parameter.toArray());
-        serializeResult(returnType, response, responseFormat, r);
-      } catch (InstantiationException e) {
-        throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-      } catch (IllegalAccessException e) {
-        throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-      } catch (IllegalArgumentException e) {
-        throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-      } catch (InvocationTargetException e) {
-        Throwable cause = e.getCause();
-        if (cause != null && cause instanceof ODataApplicationException) {
-          throw (ODataApplicationException) cause;
+      for (int i = 0; i < methodParameter.length; i++) {
+        final Parameter declairedParameter = methodParameter[i];
+        if (i == 0 && resource.getAction().isBound()) {
+          parameter.add(createBindingParameter((UriResourceEntitySet) resourceList.get(resourceList.size() - 2),
+              jpaAction.getParameter(declairedParameter)));
         } else {
-          throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+          // Any nullable parameter values not specified in the request MUST be assumed to have the null value.
+          // This is guaranteed by Olingo => no code needed
+          final String externalName = jpaAction.getParameter(declairedParameter).getName();
+          final org.apache.olingo.commons.api.data.Parameter param = actionParameter.get(externalName);
+          if (param != null)
+            parameter.add(param.getValue());
+          else
+            parameter.add(null);
         }
       }
-    } catch (ODataException e) {
-      Throwable cause = e.getCause();
+      Annotatable r = null;
+      EdmType returnType = null;
+      if (resource.getAction().getReturnType() != null) {
+        returnType = resource.getAction().getReturnType().getType();
+        final Object result = jpaAction.getMethod().invoke(instance, parameter.toArray());
+        r = convertResult(result, returnType, jpaAction);
+      } else
+        jpaAction.getMethod().invoke(instance, parameter.toArray());
+
+      serializeResult(returnType, response, responseFormat, r);
+
+    } catch (InstantiationException | IllegalAccessException | IllegalArgumentException e) {
+      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    } catch (InvocationTargetException | ODataException e) {
+      final Throwable cause = e.getCause();
       if (cause != null && cause instanceof ODataApplicationException) {
-        throw (ODataJPAProcessException) cause;
+        throw (ODataApplicationException) cause;
       } else {
         throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
       }
     }
+  }
 
+  private Object createBindingParameter(UriResourceEntitySet entitySet, JPAParameter parameter)
+      throws ODataJPAModelException, ODataApplicationException {
+    try {
+
+      final JPAConversionHelper helper = new JPAConversionHelper();
+      final JPAModifyUtil util = new JPAModifyUtil();
+      final Constructor<?> c = parameter.getType().getConstructor();
+      final Map<String, Object> jpaAttributes = helper.convertUriKeys(odata, sd.getEntity(entitySet.getEntityType()),
+          entitySet.getKeyPredicates());
+      if (c != null) {
+        final Object param = c.newInstance();
+        util.setAttributesDeep(jpaAttributes, param);
+        return param;
+      }
+    } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
+        | IllegalArgumentException e) {
+      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    } catch (InvocationTargetException e) {
+      Throwable cause = e.getCause();
+      if (cause != null && cause instanceof ODataApplicationException) {
+        throw (ODataApplicationException) cause;
+      } else {
+        throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+      }
+    }
+    return null;
+  }
+
+  protected Object createInstanze(final Constructor<?> c) throws InstantiationException, IllegalAccessException,
+      InvocationTargetException {
+    Object instance;
+    if (c.getParameterCount() == 1)
+      instance = c.newInstance(em);
+    else
+      instance = c.newInstance();
+    return instance;
   }
 
 }

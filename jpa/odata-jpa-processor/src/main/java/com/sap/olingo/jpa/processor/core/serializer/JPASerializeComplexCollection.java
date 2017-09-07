@@ -12,24 +12,17 @@ import org.apache.olingo.server.api.serializer.ComplexSerializerOptions;
 import org.apache.olingo.server.api.serializer.ODataSerializer;
 import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.serializer.SerializerResult;
-import org.apache.olingo.server.api.uri.UriHelper;
-import org.apache.olingo.server.api.uri.UriInfo;
 
 import com.sap.olingo.jpa.processor.core.exception.ODataJPASerializerException;
 
 public class JPASerializeComplexCollection implements JPAOperationSerializer {
   private final ServiceMetadata serviceMetadata;
-  private final UriInfo uriInfo;
-  private final UriHelper uriHelper;
   private final ODataSerializer serializer;
 
-  JPASerializeComplexCollection(final ServiceMetadata serviceMetadata, final ODataSerializer serializer,
-      final UriHelper uriHelper, final UriInfo uriInfo) {
+  JPASerializeComplexCollection(final ServiceMetadata serviceMetadata, final ODataSerializer serializer) {
 
-    this.uriInfo = uriInfo;
     this.serializer = serializer;
     this.serviceMetadata = serviceMetadata;
-    this.uriHelper = uriHelper;
   }
 
   @Override

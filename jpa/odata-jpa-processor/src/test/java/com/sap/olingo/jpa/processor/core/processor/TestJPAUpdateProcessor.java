@@ -265,7 +265,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
     public HttpMethod method;
     public Map<String, List<String>> headers;
     private final JPAUpdateResult change;
-    private Map<String, Object> keys;
+    // private Map<String, Object> keys;
 
     RequestHandleSpy() {
       this(new JPAUpdateResult(true, new Organization()));
@@ -280,7 +280,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
         final ODataRequest request) throws ODataJPAProcessException {
       this.et = requestEntity.getEntityType();
       this.jpaAttributes = requestEntity.getData();
-      this.keys = requestEntity.getKeys();
+      // this.keys = requestEntity.getKeys();
       this.em = em;
       this.called = true;
       this.method = request.getMethod();
