@@ -26,6 +26,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
  */
 public final class JPATypeConvertor {
 
+  private JPATypeConvertor() {}
+
   public static EdmPrimitiveTypeKind convertToEdmSimpleType(final Class<?> type) throws ODataJPAModelException {
     return convertToEdmSimpleType(type, null);
   }
@@ -108,7 +110,7 @@ public final class JPATypeConvertor {
   }
 
   public static boolean isScalarType(final Class<?> type) {
-    if (type == String.class ||
+    return (type == String.class ||
         type == Character.class ||
         type == Long.class ||
         type == Short.class ||
@@ -126,10 +128,7 @@ public final class JPATypeConvertor {
         type == Calendar.class ||
         type == Timestamp.class ||
         type == java.util.Date.class ||
-        type == UUID.class) {
-      return true;
-    }
-    return false;
+        type == UUID.class);
   }
 
   /**
@@ -139,7 +138,7 @@ public final class JPATypeConvertor {
    */
   public static boolean isSupportedByOlingo(final Class<?> type) {
 
-    if (type == Boolean.class ||
+    return (type == Boolean.class ||
         type == Byte.class ||
         type == Byte[].class ||
         type == byte[].class ||
@@ -155,10 +154,7 @@ public final class JPATypeConvertor {
         type == java.util.UUID.class ||
         type == Long.class ||
         type == Short.class ||
-        type == String.class) {
-      return true;
-    }
-    return false;
+        type == String.class);
   }
 
   private static EdmPrimitiveTypeKind convertGeography(final Class<?> jpaType, final Attribute<?, ?> currentAttribute)
