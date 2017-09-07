@@ -26,7 +26,7 @@ public final class JPASerializerFactory {
     this.odata = odata;
     this.serviceMetadata = serviceMetadata;
     this.uriHelper = odata.createUriHelper();
-  };
+  }
 
   public JPASerializer createCUDSerializer(ContentType responseFormat, UriInfo uriInfo) throws SerializerException {
     return new JPASerializeCreate(serviceMetadata, odata.createSerializer(responseFormat), uriInfo);
@@ -63,8 +63,7 @@ public final class JPASerializerFactory {
         return new JPASerializeEntity(serviceMetadata, odata.createSerializer(responseFormat), uriHelper, uriInfo);
     case COMPLEX:
       if (isColletion)
-        return new JPASerializeComplexCollection(serviceMetadata, odata.createSerializer(responseFormat), uriHelper,
-            uriInfo);
+        return new JPASerializeComplexCollection(serviceMetadata, odata.createSerializer(responseFormat));
       else
         return new JPASerializeComplex(serviceMetadata, odata.createSerializer(responseFormat), uriHelper, uriInfo);
     case PRIMITIVE:

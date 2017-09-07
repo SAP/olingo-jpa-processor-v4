@@ -52,7 +52,6 @@ import com.sap.olingo.jpa.processor.core.query.Util;
 
 public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
 
-  private final JPAODataSessionContextAccess sessionContext;
   private final ServiceMetadata serviceMetadata;
   private final JPAConversionHelper helper;
 
@@ -61,7 +60,6 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       JPAConversionHelper cudHelper) throws ODataException {
 
     super(odata, sessionContext, requestContext);
-    this.sessionContext = sessionContext;
     this.serviceMetadata = serviceMetadata;
     this.helper = cudHelper;
   }

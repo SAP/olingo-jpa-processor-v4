@@ -37,6 +37,7 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
     IntermediateEntityTypeAccess {
   private CsdlEntityType edmEntityType;
   private boolean hasEtag;
+  private List<JPAAttribute> key;
   private final boolean asEntitySet;
 
   IntermediateEntityType(final JPAEdmNameBuilder nameBuilder, final EntityType<?> et, final IntermediateSchema schema)
@@ -71,20 +72,22 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
   @Override
   public List<JPAAttribute> getKey() throws ODataJPAModelException {
     lazyBuildEdmItem();
-    final List<JPAAttribute> key = new ArrayList<JPAAttribute>();
 
-    for (final String internalName : this.declaredPropertiesList.keySet()) {
-      final JPAAttribute attribute = this.declaredPropertiesList.get(internalName);
-      if (attribute.isKey()) {
-        if (attribute.isComplex()) {
-          key.addAll(((IntermediateEmbeddedIdProperty) attribute).getStructuredType().getAttributes());
-        } else
-          key.add(attribute);
+    if (key == null) {
+      key = new ArrayList<JPAAttribute>();
+      for (final String internalName : this.declaredPropertiesList.keySet()) {
+        final JPAAttribute attribute = this.declaredPropertiesList.get(internalName);
+        if (attribute.isKey()) {
+          if (attribute.isComplex()) {
+            key.addAll(((IntermediateEmbeddedIdProperty) attribute).getStructuredType().getAttributes());
+          } else
+            key.add(attribute);
+        }
       }
-    }
-    final IntermediateStructuredType baseType = getBaseType();
-    if (baseType != null) {
-      key.addAll(((IntermediateEntityType) baseType).getKey());
+      final IntermediateStructuredType baseType = getBaseType();
+      if (baseType != null) {
+        key.addAll(((IntermediateEntityType) baseType).getKey());
+      }
     }
     return key;
   }

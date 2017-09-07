@@ -34,6 +34,8 @@ public final class ExpressionUtil {
   public static final int CONTAINS_LANGU_COUNTRY = 2;
   public static final String SELECT_ITEM_SEPERATOR = ",";
 
+  private ExpressionUtil() {}
+
   public static Expression<Boolean> createEQExpression(final OData odata, CriteriaBuilder cb, From<?, ?> root,
       JPAEntityType jpaEntity, UriParameter keyPredicate) throws ODataJPAFilterException, ODataJPAModelException {
 
