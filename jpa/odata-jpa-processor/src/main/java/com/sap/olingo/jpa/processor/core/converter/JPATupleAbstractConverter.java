@@ -90,13 +90,7 @@ public abstract class JPATupleAbstractConverter {
             HttpStatusCode.INTERNAL_SERVER_ERROR, e);
       }
     }
-    try {
-      odataEntity.setId(createId(jpaConversionTargetEntity.getKey(), odataEntity));
-    } catch (ODataJPAModelException e) {
-
-      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_KEY_PROPERTY_ERROR,
-          HttpStatusCode.INTERNAL_SERVER_ERROR, jpaConversionTargetEntity.getExternalName());
-    }
+    odataEntity.setId(createId(odataEntity));
     for (final String attribute : complexValueBuffer.keySet()) {
       final ComplexValue complexValue = complexValueBuffer.get(attribute);
       complexValue.getNavigationLinks().addAll(createExpand(row, odataEntity.getId()));
@@ -128,8 +122,8 @@ public abstract class JPATupleAbstractConverter {
     return entityExpandLinks;
   }
 
-  protected URI createId(final List<? extends JPAAttribute> keyAttributes, final Entity entity)
-      throws ODataApplicationException, ODataRuntimeException {
+  protected URI createId(final Entity entity)
+      throws ODataRuntimeException {
 
     try {
       // TODO Clarify host-name and port as part of ID see

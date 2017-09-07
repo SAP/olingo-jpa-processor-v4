@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.persistence.AssociationOverride;
 import javax.persistence.AssociationOverrides;
@@ -506,9 +507,8 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
 
     lazyBuildEdmItem();
     if (resolvedPathMap.size() == 0) {
-      for (final String internalName : declaredPropertiesList.keySet()) {
-        final IntermediateProperty property = declaredPropertiesList.get(internalName);
-        // if (!property.ignore()) {
+      for (final Entry<String, IntermediateProperty> propertyEntity : declaredPropertiesList.entrySet()) {
+        final IntermediateProperty property = propertyEntity.getValue();
         if (property.isComplex()) {
           intermediatePathMap.put(property.getExternalName(),
               new JPAPathImpl(property.getExternalName(), null, property));
@@ -550,7 +550,5 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
         intermediatePathMap.putAll(baseType.getIntermediatePathMap());
       }
     }
-    // }
-
   }
 }

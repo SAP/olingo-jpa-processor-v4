@@ -7,13 +7,16 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.olingo.commons.api.edm.geo.Geospatial.Dimension;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAction;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.ODataAction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaActions;
@@ -231,6 +234,26 @@ public class TestIntermediateJavaAction extends TestMappingRoot {
     assertEquals(Integer.valueOf(100), act.getEdmItem().getParameters().get(0).getMaxLength());
     assertEquals(Dimension.GEOGRAPHY, act.getEdmItem().getParameters().get(0).getSrid().getDimension());
     assertEquals("4326", act.getEdmItem().getParameters().get(0).getSrid().toString());
+  }
+
+  @Test
+  public void checkProvidesAllParameter() throws ODataJPAModelException {
+    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "unboundWithImport");
+    List<JPAParameter> actParams = act.getParameter();
+    assertEquals(2, actParams.size());
+  }
+
+  @Test
+  public void checkProvidesParameterByDeclaired() throws ODataJPAModelException, NoSuchMethodException,
+      SecurityException {
+
+    Method m = ExampleJavaActions.class.getMethod("unboundWithImport", short.class, int.class);
+    Parameter[] params = m.getParameters();
+    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "unboundWithImport");
+    assertNotNull(act.getParameter(params[0]));
+    assertEquals("A", act.getParameter(params[0]).getName());
+    assertNotNull(act.getParameter(params[1]));
+    assertEquals("B", act.getParameter(params[1]).getName());
   }
 
   @Test
