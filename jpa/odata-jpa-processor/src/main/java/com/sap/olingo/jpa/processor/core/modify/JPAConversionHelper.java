@@ -135,8 +135,8 @@ public class JPAConversionHelper {
    * @return
    * @throws ODataJPAProcessException
    */
-  public <T extends Object, S extends Object> Map<String, Object> convertProperties(final OData odata,
-      final JPAStructuredType st, final List<Property> odataProperties) throws ODataJPAProcessException {
+  public Map<String, Object> convertProperties(final OData odata, final JPAStructuredType st,
+      final List<Property> odataProperties) throws ODataJPAProcessException {
 
     final Map<String, Object> jpaAttributes = new HashMap<String, Object>();
     String internalName = null;
@@ -199,8 +199,7 @@ public class JPAConversionHelper {
       try {
         final JPAAttribute attribute = st.getPath(key.getName()).getLeaf();
         internalName = attribute.getInternalName();
-        Object jpaAttribute = ExpressionUtil.convertValueOnAttribute(odata, attribute, key.getText()
-            .toString(), true);
+        Object jpaAttribute = ExpressionUtil.convertValueOnAttribute(odata, attribute, key.getText(), true);
         result.put(internalName, jpaAttribute);
       } catch (ODataJPAModelException e) {
         throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
@@ -245,9 +244,8 @@ public class JPAConversionHelper {
       throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
     }
 
-    final String location = request.getRawBaseUri() + '/'
+    return request.getRawBaseUri() + '/'
         + odata.createUriHelper().buildCanonicalURL(edmEntitySet, createdEntity);
-    return location;
   }
 
   private String convertKeyToLocalMap(final OData odata, final ODataRequest request, EdmEntitySet edmEntitySet,
@@ -263,9 +261,8 @@ public class JPAConversionHelper {
       throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
     }
 
-    final String location = request.getRawBaseUri() + '/'
+    return request.getRawBaseUri() + '/'
         + odata.createUriHelper().buildCanonicalURL(edmEntitySet, createdEntity);
-    return location;
   }
 
   private void collectKeyProperties(Map<String, Object> newPOJO, final List<JPAPath> keyPath,

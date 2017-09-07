@@ -9,12 +9,12 @@ import org.apache.olingo.commons.api.edm.provider.CsdlEnumType;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
-public class IntermediateEnumerationType extends IntermediateModelElement {
+class IntermediateEnumerationType extends IntermediateModelElement {
 
   private CsdlEnumType edmEnumType;
-  private Class<? extends ODataEnum> javaEnum;
+  private Class<?> javaEnum;
 
-  public IntermediateEnumerationType(JPAEdmNameBuilder nameBuilder, Class<? extends ODataEnum> javaEnum) {
+  IntermediateEnumerationType(JPAEdmNameBuilder nameBuilder, Class<? extends ODataEnum> javaEnum) {
     super(nameBuilder, javaEnum.getSimpleName());
     assert javaEnum.isEnum();
     this.javaEnum = javaEnum;
@@ -40,16 +40,18 @@ public class IntermediateEnumerationType extends IntermediateModelElement {
   private List<CsdlEnumMember> buildMembers() {
     List<CsdlEnumMember> members = new ArrayList<CsdlEnumMember>();
 
-    @SuppressWarnings("unchecked")
-    List<Enum<?>> javaMembers = (List<Enum<?>>) Arrays.asList(javaEnum.getEnumConstants());
+    final List<?> javaMembers = Arrays.asList(javaEnum.getEnumConstants());
 
-    for (Enum<?> e : javaMembers) {
-      CsdlEnumMember member = new CsdlEnumMember();
+    for (final Object o : javaMembers) {
+      if (o instanceof Enum) {
+        final Enum<?> e = (Enum<?>) o;
+        CsdlEnumMember member = new CsdlEnumMember();
 
-      e.name();
-      member.setName(e.name());
-      member.setValue(Integer.valueOf(((ODataEnum) e).getValue() == null ? e.ordinal() : ((ODataEnum) e).getValue())
-          .toString());
+        e.name();
+        member.setName(e.name());
+        member.setValue(Integer.valueOf(((ODataEnum) e).getValue() == null ? e.ordinal() : ((ODataEnum) e).getValue())
+            .toString());
+      }
     }
     return members;
   }

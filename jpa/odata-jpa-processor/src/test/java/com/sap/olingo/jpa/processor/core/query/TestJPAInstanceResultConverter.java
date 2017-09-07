@@ -15,9 +15,9 @@ import org.apache.olingo.server.api.serializer.SerializerException;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.sap.olingo.jpa.processor.core.query.JPAInstanceResultConverter;
+import com.sap.olingo.jpa.processor.core.converter.JPAEntityResultConverter;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
-import com.sap.olingo.jpa.processor.core.util.EdmEntitySetDouble;
+import com.sap.olingo.jpa.processor.core.util.EdmEntityTypeDouble;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 import com.sap.olingo.jpa.processor.core.util.UriHelperDouble;
@@ -25,7 +25,7 @@ import com.sap.olingo.jpa.processor.core.util.UriHelperDouble;
 public class TestJPAInstanceResultConverter extends TestBase {
   public static final int NO_POSTAL_ADDRESS_FIELDS = 8;
   public static final int NO_ADMIN_INFO_FIELDS = 2;
-  private JPAInstanceResultConverter cut;
+  private JPAEntityResultConverter cut;
   private List<Object> jpaQueryResult;
   private UriHelperDouble uriHelper;
 
@@ -39,9 +39,8 @@ public class TestJPAInstanceResultConverter extends TestBase {
 
     uriHelper = new UriHelperDouble();
     uriHelper.setKeyPredicates(keyStrings, "DivisionCode");
-    cut = new JPAInstanceResultConverter(uriHelper, helper.sd,
-        jpaQueryResult, new EdmEntitySetDouble(nameBuilder, "AdministrativeDivisions"),
-        AdministrativeDivision.class);
+    cut = new JPAEntityResultConverter(uriHelper, helper.sd,
+        jpaQueryResult, new EdmEntityTypeDouble(nameBuilder, "AdministrativeDivision"));
   }
 
   @Test

@@ -10,6 +10,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -85,6 +86,26 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     assertNotNull(spy.jpaAttributes);
     assertEquals(1, spy.jpaAttributes.size());
     assertEquals("35", spy.jpaAttributes.get("ID"));
+  }
+
+  @Test
+  public void testHeadersProvided() throws ODataJPAProcessorException, SerializerException, ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
+    final Map<String, List<String>> headers = new HashMap<String, List<String>>();
+
+    when(request.getAllHeaders()).thenReturn(headers);
+    headers.put("If-Match", Arrays.asList("2"));
+
+    RequestHandleSpy spy = new RequestHandleSpy();
+    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+
+    processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
+
+    assertNotNull(spy.headers);
+    assertEquals(1, spy.headers.size());
+    assertNotNull(spy.headers.get("If-Match"));
+    assertEquals("2", spy.headers.get("If-Match").get(0));
   }
 
   @Test
@@ -263,6 +284,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     public Map<String, Object> jpaAttributes;
     public EntityManager em;
     public boolean called = false;
+    public Map<String, List<String>> headers;
 
     @Override
     public Object createEntity(final JPARequestEntity requestEntity, EntityManager em)
@@ -272,6 +294,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
       this.et = requestEntity.getEntityType();
       this.jpaAttributes = requestEntity.getData();
       this.em = em;
+      this.headers = requestEntity.getAllHeader();
       this.called = true;
       return result;
     }

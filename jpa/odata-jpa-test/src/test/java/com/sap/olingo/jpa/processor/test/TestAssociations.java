@@ -1,4 +1,5 @@
 package com.sap.olingo.jpa.processor.test;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -27,7 +28,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.Country;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 
 public class TestAssociations {
-  protected static final String PUNIT_NAME = "org.apache.olingo.jpa";
+  protected static final String PUNIT_NAME = "com.sap.olingo.jpa";
   private static final String ENTITY_MANAGER_DATA_SOURCE = "javax.persistence.nonJtaDataSource";
   private static EntityManagerFactory emf;
   private EntityManager em;

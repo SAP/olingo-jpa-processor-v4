@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
@@ -9,6 +10,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +23,7 @@ import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
+import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResourceComplexProperty;
 import org.apache.olingo.server.api.uri.UriResourcePrimitiveProperty;
@@ -63,6 +67,24 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
 
     processor.clearFields(request, new ODataResponse());
     assertTrue(spy.called);
+  }
+
+  @Test
+  public void testHeadersProvided() throws ODataJPAProcessorException, SerializerException, ODataException {
+    final Map<String, List<String>> headers = new HashMap<String, List<String>>();
+
+    when(request.getAllHeaders()).thenReturn(headers);
+    headers.put("If-Match", Arrays.asList("2"));
+
+    RequestHandleSpy spy = new RequestHandleSpy();
+    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+
+    processor.clearFields(request, new ODataResponse());
+
+    assertNotNull(spy.headers);
+    assertEquals(1, spy.headers.size());
+    assertNotNull(spy.headers.get("If-Match"));
+    assertEquals("2", spy.headers.get("If-Match").get(0));
   }
 
   @Test
@@ -380,6 +402,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     public Map<String, Object> jpaAttributes;
     public JPAEntityType et;
     public boolean called;
+    public Map<String, List<String>> headers;
     private int raiseEx;
 
     @Override
@@ -389,6 +412,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
       this.et = requestEntity.getEntityType();
       this.keyPredicates = requestEntity.getKeys();
       this.jpaAttributes = requestEntity.getData();
+      this.headers = requestEntity.getAllHeader();
       called = true;
 
       if (raiseEx == 1)

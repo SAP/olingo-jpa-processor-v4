@@ -53,10 +53,10 @@ import com.sap.olingo.jpa.processor.core.util.UriResourcePropertyDouble;
 
 public class TestJPAQuerySelectClause extends TestBase {
 
-  private JPAExecutableQuery           cut;
-  private JPAEntityType                jpaEntityType;
-  private HashMap<String, From<?, ?>>  joinTables;
-  private Root<?>                      root;
+  private JPAExecutableQuery cut;
+  private JPAEntityType jpaEntityType;
+  private HashMap<String, From<?, ?>> joinTables;
+  private Root<?> root;
   private JPAODataSessionContextAccess context;
 
   @Before
@@ -65,7 +65,7 @@ public class TestJPAQuerySelectClause extends TestBase {
     nameBuilder = new JPAEdmNameBuilder(PUNIT_NAME);
     jpaEntityType = helper.getJPAEntityType("BusinessPartners");
     createHeaders();
-    context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null), ds);
+    context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null, null), ds);
     cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "BusinessPartners"), context, null, emf
         .createEntityManager(), headers);
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());

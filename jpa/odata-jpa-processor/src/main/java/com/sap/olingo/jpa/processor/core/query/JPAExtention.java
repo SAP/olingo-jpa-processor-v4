@@ -1,6 +1,6 @@
 package com.sap.olingo.jpa.processor.core.query;
 
-import com.sap.org.jpa.processor.core.converter.JPAExpandResult;
+import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
 
 public interface JPAExtention {
   /**

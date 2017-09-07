@@ -11,10 +11,6 @@ import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.server.api.debug.DebugSupport;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
-import com.sap.olingo.jpa.processor.core.api.JPAEmptyDebugger;
-import com.sap.olingo.jpa.processor.core.api.JPAODataDatabaseProcessor;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseProcessorFactory;
@@ -24,12 +20,14 @@ public class JPAODataContextAccessDouble implements JPAODataSessionContextAccess
   private final JPAEdmProvider edmProvider;
   private final DataSource ds;
   private final JPAODataDatabaseOperations context;
+  private final String[] packageNames;
 
-  public JPAODataContextAccessDouble(final JPAEdmProvider edmProvider, final DataSource ds) {
+  public JPAODataContextAccessDouble(final JPAEdmProvider edmProvider, final DataSource ds, final String... packages) {
     super();
     this.edmProvider = edmProvider;
     this.ds = ds;
     this.context = new JPADefaultDatabaseProcessor();
+    this.packageNames = packages;
   }
 
   @Override
@@ -73,6 +71,11 @@ public class JPAODataContextAccessDouble implements JPAODataSessionContextAccess
   public JPACUDRequestHandler getCUDRequestHandler() {
     fail();
     return null;
+  }
+
+  @Override
+  public String[] getPackageName() {
+    return packageNames;
   }
 
 }

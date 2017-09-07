@@ -1,24 +1,20 @@
 package com.sap.olingo.jpa.processor.core.modify;
 
-import java.util.Map;
-
 import javax.persistence.EntityManager;
 
 import org.apache.olingo.server.api.ODataRequest;
 
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.processor.JPARequestEntity;
 
 public interface JPACUDRequestHandler {
   /**
    * 
-   * @param et
-   * @param keyPredicates
+   * @param requestEntity
    * @param em
    * @throws ODataJPAProcessException
    */
-  public void deleteEntity(final JPAEntityType et, final Map<String, Object> keyPredicates, final EntityManager em)
+  public void deleteEntity(final JPARequestEntity requestEntity, final EntityManager em)
       throws ODataJPAProcessException;
 
   /**

@@ -1,6 +1,8 @@
 package com.sap.olingo.jpa.processor.core.api;
 
 import javax.persistence.EntityManager;
+import javax.persistence.OptimisticLockException;
+import javax.persistence.RollbackException;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
@@ -11,20 +13,25 @@ import org.apache.olingo.server.api.ODataLibraryException;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.ServiceMetadata;
+import org.apache.olingo.server.api.processor.ActionPrimitiveProcessor;
+import org.apache.olingo.server.api.processor.ComplexCollectionProcessor;
 import org.apache.olingo.server.api.processor.ComplexProcessor;
 import org.apache.olingo.server.api.processor.CountEntityCollectionProcessor;
 import org.apache.olingo.server.api.processor.EntityProcessor;
 import org.apache.olingo.server.api.processor.MediaEntityProcessor;
+import org.apache.olingo.server.api.processor.PrimitiveCollectionProcessor;
 import org.apache.olingo.server.api.processor.PrimitiveValueProcessor;
 import org.apache.olingo.server.api.uri.UriInfo;
 
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
+import com.sap.olingo.jpa.processor.core.processor.JPAActionRequestProcessor;
 import com.sap.olingo.jpa.processor.core.processor.JPACUDRequestProcessor;
 import com.sap.olingo.jpa.processor.core.processor.JPAProcessorFactory;
 import com.sap.olingo.jpa.processor.core.processor.JPARequestProcessor;
 
-public final class JPAODataRequestProcessor implements PrimitiveValueProcessor,
-    ComplexProcessor, CountEntityCollectionProcessor, EntityProcessor, MediaEntityProcessor {
+public final class JPAODataRequestProcessor implements PrimitiveValueProcessor, PrimitiveCollectionProcessor,
+    ComplexProcessor, ComplexCollectionProcessor, CountEntityCollectionProcessor, EntityProcessor,
+    MediaEntityProcessor, ActionPrimitiveProcessor {
   private final EntityManager em;
   private final JPAODataSessionContextAccess context;
   private JPAProcessorFactory factory;
@@ -59,14 +66,15 @@ public final class JPAODataRequestProcessor implements PrimitiveValueProcessor,
       final ContentType requestFormat, final ContentType responseFormat) throws ODataApplicationException,
       ODataLibraryException {
 
-    JPACUDRequestProcessor p;
     try {
-      p = factory.createCUDRequestProcessor(em, uriInfo, responseFormat);
+      final JPACUDRequestProcessor p = factory.createCUDRequestProcessor(em, uriInfo, responseFormat);
+      p.createEntity(request, response, requestFormat, responseFormat);
+      // p.verifyEntities();
     } catch (ODataException e) {
       throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
           null, e);
     }
-    p.createEntity(request, response, requestFormat, responseFormat);
+
   }
 
   @Override
@@ -83,9 +91,8 @@ public final class JPAODataRequestProcessor implements PrimitiveValueProcessor,
       throws ODataApplicationException, ODataLibraryException {
     // Set NULL: .../Organizations('4')/Address
 
-    JPACUDRequestProcessor p;
     try {
-      p = factory.createCUDRequestProcessor(em, uriInfo);
+      final JPACUDRequestProcessor p = factory.createCUDRequestProcessor(em, uriInfo);
       p.clearFields(request, response);
     } catch (ODataException e) {
       throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
@@ -98,8 +105,8 @@ public final class JPAODataRequestProcessor implements PrimitiveValueProcessor,
       throws ODataApplicationException, ODataLibraryException {
 
     try {
-      JPACUDRequestProcessor p = this.factory.createCUDRequestProcessor(this.em, uriInfo);
-      p.deleteEntity(response);
+      final JPACUDRequestProcessor p = this.factory.createCUDRequestProcessor(this.em, uriInfo);
+      p.deleteEntity(request, response);
     } catch (ODataException e) {
       throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
           null, e);
@@ -120,9 +127,8 @@ public final class JPAODataRequestProcessor implements PrimitiveValueProcessor,
     // are nullable.On success, the service MUST respond with 204 No Content and an empty body.
     //
     // Nullable checked by Olingo Core
-    JPACUDRequestProcessor p;
     try {
-      p = factory.createCUDRequestProcessor(em, uriInfo);
+      final JPACUDRequestProcessor p = factory.createCUDRequestProcessor(em, uriInfo);
       p.clearFields(request, response);
     } catch (ODataException e) {
       throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
@@ -134,9 +140,8 @@ public final class JPAODataRequestProcessor implements PrimitiveValueProcessor,
   public void deletePrimitiveValue(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo)
       throws ODataApplicationException, ODataLibraryException {
     // .../Organizations('4')/Address/Country/$value
-    JPACUDRequestProcessor p;
     try {
-      p = factory.createCUDRequestProcessor(em, uriInfo);
+      final JPACUDRequestProcessor p = factory.createCUDRequestProcessor(em, uriInfo);
       p.clearFields(request, response);
     } catch (ODataException e) {
       throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
@@ -171,12 +176,23 @@ public final class JPAODataRequestProcessor implements PrimitiveValueProcessor,
   }
 
   @Override
+  public void readComplexCollection(ODataRequest request, ODataResponse response, UriInfo uriInfo,
+      ContentType responseFormat) throws ODataApplicationException, ODataLibraryException {
+    try {
+      final JPARequestProcessor p = factory.createProcessor(em, uriInfo, responseFormat);
+      p.retrieveData(request, response, responseFormat);
+    } catch (ODataException e) {
+      throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
+          null, e);
+    }
+  }
+
+  @Override
   public void readEntity(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo,
       final ContentType responseFormat) throws ODataApplicationException, ODataLibraryException {
 
-    JPARequestProcessor p;
     try {
-      p = factory.createProcessor(em, uriInfo, responseFormat);
+      final JPARequestProcessor p = factory.createProcessor(em, uriInfo, responseFormat);
       p.retrieveData(request, response, responseFormat);
     } catch (ODataException e) {
       throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
@@ -199,10 +215,8 @@ public final class JPAODataRequestProcessor implements PrimitiveValueProcessor,
   }
 
   @Override
-  public void readPrimitive(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo,
-      final ContentType responseFormat)
-      throws ODataApplicationException, ODataLibraryException {
-
+  public void readPrimitiveCollection(ODataRequest request, ODataResponse response, UriInfo uriInfo,
+      ContentType responseFormat) throws ODataApplicationException, ODataLibraryException {
     try {
       final JPARequestProcessor p = factory.createProcessor(em, uriInfo, responseFormat);
       p.retrieveData(request, response, responseFormat);
@@ -210,15 +224,35 @@ public final class JPAODataRequestProcessor implements PrimitiveValueProcessor,
       throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
           null, e);
     }
+
+  }
+
+  @Override
+  public void readPrimitive(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo,
+      final ContentType responseFormat) throws ODataApplicationException, ODataLibraryException {
+
+    try {
+      final JPARequestProcessor p = factory.createProcessor(em, uriInfo, responseFormat);
+      p.retrieveData(request, response, responseFormat);
+    } catch (ODataException e) {
+      if (e instanceof ODataApplicationException) {
+        throw (ODataApplicationException) e;
+      } else if (e instanceof ODataLibraryException) {
+        throw (ODataLibraryException) e;
+      } else {
+        throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR
+            .getStatusCode(),
+            null, e);
+      }
+    }
   }
 
   @Override
   public void readPrimitiveValue(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo,
       final ContentType responseFormat) throws ODataApplicationException, ODataLibraryException {
 
-    JPARequestProcessor p;
     try {
-      p = factory.createProcessor(em, uriInfo, responseFormat);
+      final JPARequestProcessor p = factory.createProcessor(em, uriInfo, responseFormat);
       p.retrieveData(request, response, responseFormat);
     } catch (ODataException e) {
       throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
@@ -255,13 +289,17 @@ public final class JPAODataRequestProcessor implements PrimitiveValueProcessor,
       final ContentType requestFormat, final ContentType responseFormat) throws ODataApplicationException,
       ODataLibraryException {
 
-    JPACUDRequestProcessor p;
     try {
-      p = factory.createCUDRequestProcessor(em, uriInfo, responseFormat);
+      final JPACUDRequestProcessor p = factory.createCUDRequestProcessor(em, uriInfo, responseFormat);
       p.updateEntity(request, response, requestFormat, responseFormat);
     } catch (ODataException e) {
       throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
           null, e);
+    } catch (RollbackException e) {
+      if (e.getCause() instanceof OptimisticLockException) {
+        throw new ODataJPAProcessorException(e.getCause().getCause(), HttpStatusCode.PRECONDITION_FAILED);
+      }
+      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -290,6 +328,50 @@ public final class JPAODataRequestProcessor implements PrimitiveValueProcessor,
 
     throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_UPDATE,
         HttpStatusCode.NOT_IMPLEMENTED);
+  }
+
+  @Override
+  public void updatePrimitiveCollection(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo,
+      final ContentType requestFormat, final ContentType responseFormat) throws ODataApplicationException,
+      ODataLibraryException {
+    throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_UPDATE,
+        HttpStatusCode.NOT_IMPLEMENTED);
+  }
+
+  @Override
+  public void deletePrimitiveCollection(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo)
+      throws ODataApplicationException, ODataLibraryException {
+    throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
+        HttpStatusCode.NOT_IMPLEMENTED);
+  }
+
+  @Override
+  public void updateComplexCollection(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo,
+      final ContentType requestFormat, final ContentType responseFormat) throws ODataApplicationException,
+      ODataLibraryException {
+    throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_UPDATE,
+        HttpStatusCode.NOT_IMPLEMENTED);
+  }
+
+  @Override
+  public void deleteComplexCollection(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo)
+      throws ODataApplicationException, ODataLibraryException {
+    throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
+        HttpStatusCode.NOT_IMPLEMENTED);
+  }
+
+  @Override
+  public void processActionPrimitive(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo,
+      final ContentType requestFormat, final ContentType responseFormat) throws ODataApplicationException,
+      ODataLibraryException {
+
+    try {
+      final JPAActionRequestProcessor p = this.factory.createActionProcessor(this.em, uriInfo, responseFormat);
+      p.performAction(request, response, requestFormat, responseFormat);
+    } catch (ODataException e) {
+      throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
+          null, e);
+    }
   }
 
 }
