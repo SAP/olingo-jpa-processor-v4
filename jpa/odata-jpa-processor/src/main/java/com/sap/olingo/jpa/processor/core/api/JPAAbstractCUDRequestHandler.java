@@ -39,7 +39,7 @@ public abstract class JPAAbstractCUDRequestHandler implements JPACUDRequestHandl
   }
 
   @Override
-  public void validateChanges() throws ODataJPAProcessException {
+  public void validateChanges(final EntityManager em) throws ODataJPAProcessException {
     // Do nothing. If needed override method.
   }
 }

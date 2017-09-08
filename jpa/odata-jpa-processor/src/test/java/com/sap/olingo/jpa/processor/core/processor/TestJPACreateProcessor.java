@@ -322,7 +322,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     try {
       processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
     } catch (ODataApplicationException e) {
-      verify(handler, never()).validateChanges();
+      verify(handler, never()).validateChanges(em);
       return;
     }
     fail();
@@ -339,7 +339,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     when(sessionContext.getCUDRequestHandler()).thenReturn(handler);
 
     doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
-        HttpStatusCode.BAD_REQUEST)).when(handler).validateChanges();
+        HttpStatusCode.BAD_REQUEST)).when(handler).validateChanges(em);
 
     try {
       processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
@@ -373,7 +373,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     }
 
     @Override
-    public void validateChanges() throws ODataJPAProcessException {
+    public void validateChanges(final EntityManager em) throws ODataJPAProcessException {
       this.noValidateCalls++;
     }
   }

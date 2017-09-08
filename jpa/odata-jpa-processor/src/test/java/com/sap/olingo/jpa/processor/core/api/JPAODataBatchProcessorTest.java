@@ -112,6 +112,6 @@ public class JPAODataBatchProcessorTest {
     when(facade.handleODataRequest(request)).thenReturn(response);
 
     cut.processChangeSet(facade, requests);
-    verify(cudHandler, times(1)).validateChanges();
+    verify(cudHandler, times(1)).validateChanges(em);
   }
 }

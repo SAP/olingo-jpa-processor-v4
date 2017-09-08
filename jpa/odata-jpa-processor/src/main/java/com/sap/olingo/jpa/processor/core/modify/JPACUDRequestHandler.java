@@ -60,5 +60,5 @@ public interface JPACUDRequestHandler {
    * (batch request or deep-insert) and consistency constrains exist between them.
    * @throws ODataJPAProcessException
    */
-  public void validateChanges() throws ODataJPAProcessException;
+  public void validateChanges(final EntityManager em) throws ODataJPAProcessException;
 }

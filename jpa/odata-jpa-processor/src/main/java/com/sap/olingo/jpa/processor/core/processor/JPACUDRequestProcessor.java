@@ -80,7 +80,7 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       final int updateHandle = debugger.startRuntimeMeasurement(handler, "updateEntity");
       handler.updateEntity(requestEntity, em, request);
       if (!foreignTransation)
-        handler.validateChanges();
+        handler.validateChanges(em);
       debugger.stopRuntimeMeasurement(updateHandle);
     } catch (ODataJPAProcessException e) {
       if (!foreignTransation)
@@ -119,7 +119,7 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       final int createHandle = debugger.startRuntimeMeasurement(handler, "createEntity");
       result = handler.createEntity(requestEntity, em);
       if (!foreignTransation)
-        handler.validateChanges();
+        handler.validateChanges(em);
       debugger.stopRuntimeMeasurement(createHandle);
     } catch (ODataJPAProcessException e) {
       if (!foreignTransation)
@@ -190,7 +190,7 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       final int deleteHandle = debugger.startRuntimeMeasurement(handler, "deleteEntity");
       handler.deleteEntity(requestEntity, em);
       if (!foreignTransation)
-        handler.validateChanges();
+        handler.validateChanges(em);
       debugger.stopRuntimeMeasurement(deleteHandle);
     } catch (ODataJPAProcessException e) {
       if (!foreignTransation)
@@ -241,7 +241,7 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       final int updateHandle = debugger.startRuntimeMeasurement(handler, "updateEntity");
       updateResult = handler.updateEntity(requestEntity, em, request);
       if (!foreignTransation)
-        handler.validateChanges();
+        handler.validateChanges(em);
       debugger.stopRuntimeMeasurement(updateHandle);
     } catch (ODataJPAProcessException e) {
       if (!foreignTransation)
@@ -279,8 +279,7 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
           .getEdmEntitySet(), updateResult.getModifyedEntity());
       debugger.stopRuntimeMeasurement(handle);
     } else {
-      createUpdateResponse(request, response, responseFormat, requestEntity.getEntityType(), edmEntitySetInfo
-          .getEdmEntitySet(), updateResult);
+      createUpdateResponse(request, response, responseFormat, requestEntity.getEntityType(), updateResult);
       debugger.stopRuntimeMeasurement(handle);
     }
 
@@ -294,8 +293,6 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
           .getName());
       final Map<String, Object> keys = helper.convertUriKeys(odata, et, edmEntitySetInfo.getKeyPredicates());
       return createRequestEntity(et, odataEntity, keys, headers);
-    } catch (ODataJPAModelException e) {
-      throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
     } catch (ODataException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
     }
@@ -307,8 +304,6 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
     try {
       final JPAEntityType et = sessionContext.getEdmProvider().getServiceDocument().getEntity(edmEntitySet.getName());
       return createRequestEntity(et, odataEntity, new HashMap<String, Object>(0), headers);
-    } catch (ODataJPAModelException e) {
-      throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
     } catch (ODataException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
     }
@@ -326,8 +321,6 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       return new JPARequestEntityImpl(et, jpaAttributes, new HashMap<JPAAssociationPath, List<JPARequestEntity>>(0),
           new HashMap<JPAAssociationPath, List<JPARequestLink>>(0), keys, headers);
 
-    } catch (ODataJPAModelException e) {
-      throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
     } catch (ODataException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
     }
@@ -433,9 +426,7 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       converter = new JPATupleResultConverter(sd, factory.getJPACreateResult(et, result, headers), odata
           .createUriHelper(), serviceMetadata);
       return converter.getResult().getEntities().get(0);
-    } catch (ODataJPAModelException e) {
-      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-    } catch (ODataApplicationException e) {
+    } catch (ODataJPAModelException | ODataApplicationException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
 
@@ -541,7 +532,7 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
   }
 
   private void createUpdateResponse(final ODataRequest request, final ODataResponse response,
-      final ContentType responseFormat, final JPAEntityType et, EdmEntitySet edmEntitySet, JPAUpdateResult updateResult)
+      final ContentType responseFormat, final JPAEntityType et, final JPAUpdateResult updateResult)
       throws SerializerException, ODataJPAProcessorException, ODataJPASerializerException {
 
     // http://docs.oasis-open.org/odata/odata/v4.0/odata-v4.0-part1-protocol.html

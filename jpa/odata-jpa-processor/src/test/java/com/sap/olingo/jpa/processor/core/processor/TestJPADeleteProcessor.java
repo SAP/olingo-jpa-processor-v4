@@ -288,7 +288,7 @@ public class TestJPADeleteProcessor {
     try {
       processor.deleteEntity(request, response);
     } catch (ODataApplicationException e) {
-      verify(handler, never()).validateChanges();
+      verify(handler, never()).validateChanges(em);
       return;
     }
     fail();
@@ -312,7 +312,7 @@ public class TestJPADeleteProcessor {
         new JPAConversionHelper());
 
     doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
-        HttpStatusCode.BAD_REQUEST)).when(handler).validateChanges();
+        HttpStatusCode.BAD_REQUEST)).when(handler).validateChanges(em);
 
     try {
       processor.deleteEntity(request, response);
@@ -339,7 +339,7 @@ public class TestJPADeleteProcessor {
     }
 
     @Override
-    public void validateChanges() throws ODataJPAProcessException {
+    public void validateChanges(final EntityManager em) throws ODataJPAProcessException {
       noValidateCalls++;
     }
   }

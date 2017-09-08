@@ -146,7 +146,7 @@ public final class JPAODataBatchProcessor implements BatchProcessor {
           return new ODataResponsePart(response, false);
         }
       }
-      context.getCUDRequestHandler().validateChanges();
+      context.getCUDRequestHandler().validateChanges(em);
       t.commit();
       context.getDebugger().stopRuntimeMeasurement(handle);
       return new ODataResponsePart(responses, true);
