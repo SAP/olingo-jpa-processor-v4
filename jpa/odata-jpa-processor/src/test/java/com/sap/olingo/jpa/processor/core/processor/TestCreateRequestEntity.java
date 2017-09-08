@@ -77,7 +77,7 @@ public class TestCreateRequestEntity {
   private EdmEntitySet ets;
   private List<UriParameter> keyPredicates;
   private JPAConversionHelper convHelper;
-  private List<UriResource> pathParts = new ArrayList<UriResource>();
+  private List<UriResource> pathParts = new ArrayList<>();
   private Map<String, List<String>> headers;
 
   @Before
@@ -87,7 +87,7 @@ public class TestCreateRequestEntity {
     requestContext = mock(JPAODataRequestContextAccess.class);
     serviceMetadata = mock(ServiceMetadata.class);
     uriInfo = mock(UriInfo.class);
-    keyPredicates = new ArrayList<UriParameter>();
+    keyPredicates = new ArrayList<>();
     ets = mock(EdmEntitySet.class);
     serializer = mock(JPASerializer.class);
     uriEts = mock(UriResourceEntitySet.class);
@@ -95,7 +95,7 @@ public class TestCreateRequestEntity {
     convHelper = new JPAConversionHelper();// mock(JPAConversionHelper.class);
     em = mock(EntityManager.class);
     transaction = mock(EntityTransaction.class);
-    headers = new HashMap<String, List<String>>(0);
+    headers = new HashMap<>(0);
 
     when(sessionContext.getEdmProvider()).thenReturn(jpaEdm);
     when(requestContext.getEntityManager()).thenReturn(em);
@@ -170,7 +170,7 @@ public class TestCreateRequestEntity {
     List<Property> properties = createProperties();
     createODataEntity(properties);
 
-    List<Link> navigationLinks = new ArrayList<Link>();
+    List<Link> navigationLinks = new ArrayList<>();
     addChildrenNavigationLinkDE501(navigationLinks);
     when(oDataEntity.getNavigationLinks()).thenReturn(navigationLinks);
 
@@ -186,7 +186,7 @@ public class TestCreateRequestEntity {
     List<Property> properties = createProperties();
     createODataEntity(properties);
 
-    List<Link> navigationLinks = new ArrayList<Link>();
+    List<Link> navigationLinks = new ArrayList<>();
     addChildrenNavigationLinkDE501(navigationLinks);
     when(oDataEntity.getNavigationLinks()).thenReturn(navigationLinks);
 
@@ -201,7 +201,7 @@ public class TestCreateRequestEntity {
     List<Property> properties = createProperties();
     createODataEntity(properties);
 
-    List<Link> navigationLinks = new ArrayList<Link>();
+    List<Link> navigationLinks = new ArrayList<>();
     addChildrenNavigationLinkDE501(navigationLinks);
     when(oDataEntity.getNavigationLinks()).thenReturn(navigationLinks);
 
@@ -219,7 +219,7 @@ public class TestCreateRequestEntity {
     List<Property> properties = createProperties();
     createODataEntity(properties);
 
-    List<Link> navigationLinks = new ArrayList<Link>();
+    List<Link> navigationLinks = new ArrayList<>();
     addChildrenNavigationLinkDE501(navigationLinks);
     when(oDataEntity.getNavigationLinks()).thenReturn(navigationLinks);
 
@@ -239,7 +239,7 @@ public class TestCreateRequestEntity {
     List<Property> properties = createProperties();
     createODataEntity(properties);
 
-    List<Link> navigationLinks = new ArrayList<Link>();
+    List<Link> navigationLinks = new ArrayList<>();
     addNavigationLinkDE502(navigationLinks);
     when(oDataEntity.getNavigationLinks()).thenReturn(navigationLinks);
 
@@ -253,7 +253,7 @@ public class TestCreateRequestEntity {
   public void testCreateWithLinkToOne() throws ODataJPAProcessorException {
     List<Property> properties = createProperties();
     createODataEntity(properties);
-    List<Link> bindingLinks = new ArrayList<Link>();
+    List<Link> bindingLinks = new ArrayList<>();
     addParentBindingLink(bindingLinks);
     when(oDataEntity.getNavigationBindings()).thenReturn(bindingLinks);
 
@@ -268,7 +268,7 @@ public class TestCreateRequestEntity {
   public void testCreateWithLinkToMany() throws ODataJPAProcessorException {
     List<Property> properties = createProperties();
     createODataEntity(properties);
-    List<Link> bindingLinks = new ArrayList<Link>();
+    List<Link> bindingLinks = new ArrayList<>();
     addChildrenBindingLink(bindingLinks);
     when(oDataEntity.getNavigationBindings()).thenReturn(bindingLinks);
 
@@ -285,7 +285,7 @@ public class TestCreateRequestEntity {
     List<Property> properties = createProperties();
     createODataEntity(properties);
 
-    List<Link> navigationLinks = new ArrayList<Link>();
+    List<Link> navigationLinks = new ArrayList<>();
     addParentNavigationLink(navigationLinks);
     when(oDataEntity.getNavigationLinks()).thenReturn(navigationLinks);
 
@@ -298,7 +298,7 @@ public class TestCreateRequestEntity {
 
   @Test
   public void testCreateOrgWithRoles() throws ODataJPAProcessorException {
-    List<Property> properties = new ArrayList<Property>();
+    List<Property> properties = new ArrayList<>();
     Property property = mock(Property.class);
     when(property.getName()).thenReturn("ID");
     when(property.getValue()).thenReturn("20");
@@ -306,13 +306,13 @@ public class TestCreateRequestEntity {
     properties.add(property);
     createODataEntity(properties);
 //-----------------------------
-    List<Link> navigationLinks = new ArrayList<Link>();
+    List<Link> navigationLinks = new ArrayList<>();
 
     Link navigationLink = mock(Link.class);
     when(navigationLink.getTitle()).thenReturn("Roles");
     navigationLinks.add(navigationLink);
     EntityCollection navigationEntitySet = mock(EntityCollection.class);
-    List<Entity> entityCollection = new ArrayList<Entity>();
+    List<Entity> entityCollection = new ArrayList<>();
 
     Entity navigationEntity1 = mock(Entity.class);
     List<Property> navigationEntityProperties1 = createPropertiesRoles("20", "A");
@@ -369,7 +369,7 @@ public class TestCreateRequestEntity {
     when(navigationLink.getTitle()).thenReturn("Children");
     navigationLinks.add(navigationLink);
     EntityCollection navigationEntitySet = mock(EntityCollection.class);
-    List<Entity> entityCollection = new ArrayList<Entity>();
+    List<Entity> entityCollection = new ArrayList<>();
 
     Entity navigationEntity1 = mock(Entity.class);
     List<Property> navigationEntityProperties1 = createPropertyCodeID(codeValue1);
@@ -387,7 +387,7 @@ public class TestCreateRequestEntity {
   }
 
   private void addChildrenBindingLink(List<Link> bindingLinks) {
-    List<String> links = new ArrayList<String>();
+    List<String> links = new ArrayList<>();
 
     Link bindingLink = mock(Link.class);
     when(bindingLink.getTitle()).thenReturn("Children");
@@ -407,7 +407,7 @@ public class TestCreateRequestEntity {
   }
 
   private List<Property> createPropertyCodeID(String codeID) {
-    List<Property> properties = new ArrayList<Property>();
+    List<Property> properties = new ArrayList<>();
     Property property = mock(Property.class);
     when(property.getName()).thenReturn("CodeID");
     when(property.getValue()).thenReturn(codeID);
@@ -417,7 +417,7 @@ public class TestCreateRequestEntity {
   }
 
   private List<Property> createPropertiesRoles(String BuPaId, String RoleCategory) {
-    List<Property> properties = new ArrayList<Property>();
+    List<Property> properties = new ArrayList<>();
     Property propertyId = mock(Property.class);
     when(propertyId.getName()).thenReturn("BusinessPartnerID");
     when(propertyId.getValue()).thenReturn(BuPaId);

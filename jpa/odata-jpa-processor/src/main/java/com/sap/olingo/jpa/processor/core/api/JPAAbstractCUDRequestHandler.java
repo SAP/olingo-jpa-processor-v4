@@ -37,4 +37,9 @@ public abstract class JPAAbstractCUDRequestHandler implements JPACUDRequestHandl
     throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_UPDATE,
         HttpStatusCode.NOT_IMPLEMENTED);
   }
+
+  @Override
+  public void validateChanges() throws ODataJPAProcessException {
+    // Do nothing. If needed override method.
+  }
 }

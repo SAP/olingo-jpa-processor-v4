@@ -40,7 +40,7 @@ public class TestCriteriaBuilder {
 
   @BeforeClass
   public static void setupClass() {
-    Map<String, Object> properties = new HashMap<String, Object>();
+    Map<String, Object> properties = new HashMap<>();
     properties.put(ENTITY_MANAGER_DATA_SOURCE, DataSourceHelper.createDataSource(
         DataSourceHelper.DB_DERBY));
     emf = Persistence.createEntityManagerFactory(PUNIT_NAME, properties);
@@ -116,7 +116,7 @@ public class TestCriteriaBuilder {
 //    Predicate predicate = exp.in(myList);
 //    criteria.where(predicate);
 
-    List<String> ids = new ArrayList<String>();
+    List<String> ids = new ArrayList<>();
     ids.add("1");
     ids.add("2");
     bupaQ.where(bupaRoot.get("iD").in(ids));
@@ -175,7 +175,7 @@ public class TestCriteriaBuilder {
     sq.select(exp);
 
     cq.where(cb.and(cb.equal(adminDiv.get("key").get("codeID"), "NUTS2"),
-        cb.in(adminDiv).value(sq)));
+        cb.in(sq).value(sq)));
     TypedQuery<Tuple> tq = em.createQuery(cq);
     List<Tuple> act = tq.getResultList();
     System.out.println(act.size());
