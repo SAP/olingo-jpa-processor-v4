@@ -65,7 +65,7 @@ public final class JPAODataBatchProcessor implements BatchProcessor {
     final List<BatchRequestPart> requestParts = odata.createFixedFormatDeserializer()
         .parseBatchRequest(request.getBody(), boundary, options);
 
-    final List<ODataResponsePart> responseParts = new ArrayList<ODataResponsePart>();
+    final List<ODataResponsePart> responseParts = new ArrayList<>();
     for (final BatchRequestPart part : requestParts) {
       responseParts.add(facade.handleBatchRequest(part));
     }
@@ -103,7 +103,7 @@ public final class JPAODataBatchProcessor implements BatchProcessor {
      * to the other processor interfaces.
      */
     final int handle = context.getDebugger().startRuntimeMeasurement(this, "processChangeSet");
-    final List<ODataResponse> responses = new ArrayList<ODataResponse>();
+    final List<ODataResponse> responses = new ArrayList<>();
     final EntityTransaction t = em.getTransaction();
     try {
       t.begin();
@@ -146,6 +146,7 @@ public final class JPAODataBatchProcessor implements BatchProcessor {
           return new ODataResponsePart(response, false);
         }
       }
+      context.getCUDRequestHandler().validateChanges(em);
       t.commit();
       context.getDebugger().stopRuntimeMeasurement(handle);
       return new ODataResponsePart(responses, true);
@@ -170,5 +171,4 @@ public final class JPAODataBatchProcessor implements BatchProcessor {
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
   }
-
 }

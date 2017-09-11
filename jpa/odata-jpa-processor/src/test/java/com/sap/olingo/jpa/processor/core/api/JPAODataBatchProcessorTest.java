@@ -1,6 +1,8 @@
 package com.sap.olingo.jpa.processor.core.api;
 
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -27,6 +29,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
+import com.sap.olingo.jpa.processor.core.modify.JPACUDRequestHandler;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JPAODataBatchProcessorTest {
@@ -34,30 +37,24 @@ public class JPAODataBatchProcessorTest {
 
   @Mock
   private EntityManager em;
-
   @Mock
-  private EntityTransaction et;
-
+  private EntityTransaction transaction;
   @Mock
   private OData odata;
-
   @Mock
   private ServiceMetadata serviceMetadata;
-
   @Mock
   private BatchFacade facade;
-
   @Mock
   private ODataRequest request;
-
   @Mock
   private ODataResponse response;
-
   @Mock
   private RollbackException e;
-
   @Mock
   private JPAODataSessionContextAccess context;
+  @Mock
+  private JPACUDRequestHandler cudHandler;
 
   private List<ODataRequest> requests;
 
@@ -65,18 +62,19 @@ public class JPAODataBatchProcessorTest {
   public void setup() {
     cut = new JPAODataBatchProcessor(context, em);
     cut.init(odata, serviceMetadata);
-    requests = new ArrayList<ODataRequest>();
+    requests = new ArrayList<>();
     requests.add(request);
     when(context.getDebugger()).thenReturn(new JPAEmptyDebugger());
+    when(context.getCUDRequestHandler()).thenReturn(cudHandler);
   }
 
   @Test
   public void whenNotOptimisticLockRollBackExceptionThenThrowODataJPAProcessorExceptionWithHttpCode500()
       throws ODataApplicationException, ODataLibraryException {
-    when(em.getTransaction()).thenReturn(et);
+    when(em.getTransaction()).thenReturn(transaction);
     when(response.getStatusCode()).thenReturn(HttpStatusCode.OK.getStatusCode());
     when(facade.handleODataRequest(request)).thenReturn(response);
-    doThrow(e).when(et).commit();
+    doThrow(e).when(transaction).commit();
 
     try {
       cut.processChangeSet(facade, requests);
@@ -90,10 +88,10 @@ public class JPAODataBatchProcessorTest {
   @Test
   public void whenOptimisticLockRollBackExceptionThenThrowODataJPAProcessorExceptionWithHttpCode412()
       throws ODataApplicationException, ODataLibraryException {
-    when(em.getTransaction()).thenReturn(et);
+    when(em.getTransaction()).thenReturn(transaction);
     when(response.getStatusCode()).thenReturn(HttpStatusCode.OK.getStatusCode());
     when(facade.handleODataRequest(request)).thenReturn(response);
-    doThrow(e).when(et).commit();
+    doThrow(e).when(transaction).commit();
     when(e.getCause()).thenReturn(new OptimisticLockException());
 
     try {
@@ -102,7 +100,18 @@ public class JPAODataBatchProcessorTest {
     } catch (ODataJPAProcessorException e) {
       Assert.assertEquals(HttpStatusCode.PRECONDITION_FAILED.getStatusCode(), e.getStatusCode());
     }
-
   }
 
+  @Test
+  public void whenProcessChangeSetCallValidateChangesOnSccess() throws ODataApplicationException,
+      ODataLibraryException {
+    cut = new JPAODataBatchProcessor(context, em);
+
+    when(em.getTransaction()).thenReturn(transaction);
+    when(response.getStatusCode()).thenReturn(HttpStatusCode.OK.getStatusCode());
+    when(facade.handleODataRequest(request)).thenReturn(response);
+
+    cut.processChangeSet(facade, requests);
+    verify(cudHandler, times(1)).validateChanges(em);
+  }
 }
