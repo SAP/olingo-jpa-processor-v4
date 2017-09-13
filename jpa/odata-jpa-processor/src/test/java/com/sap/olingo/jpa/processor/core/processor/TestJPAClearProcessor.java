@@ -22,6 +22,7 @@ import javax.persistence.EntityManager;
 
 import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.ex.ODataException;
+import org.apache.olingo.commons.api.http.HttpMethod;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataRequest;
@@ -356,7 +357,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
 
     doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
         HttpStatusCode.BAD_REQUEST)).when(handler).updateEntity(any(JPARequestEntity.class), any(EntityManager.class),
-            any(ODataRequest.class));
+            any(HttpMethod.class));
 
     try {
       processor.clearFields(request, response);
@@ -482,7 +483,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
 
     @Override
     public JPAUpdateResult updateEntity(final JPARequestEntity requestEntity, final EntityManager em,
-        final ODataRequest request) throws ODataJPAProcessException {
+        final HttpMethod verb) throws ODataJPAProcessException {
 
       this.et = requestEntity.getEntityType();
       this.keyPredicates = requestEntity.getKeys();

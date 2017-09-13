@@ -78,7 +78,7 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       em.getTransaction().begin();
     try {
       final int updateHandle = debugger.startRuntimeMeasurement(handler, "updateEntity");
-      handler.updateEntity(requestEntity, em, request);
+      handler.updateEntity(requestEntity, em, request.getMethod());
       if (!foreignTransation)
         handler.validateChanges(em);
       debugger.stopRuntimeMeasurement(updateHandle);
@@ -239,7 +239,7 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       // A PUT or PATCH request MUST NOT be treated as an update if an If-None-Match header is specified with a value of
       // "*".
       final int updateHandle = debugger.startRuntimeMeasurement(handler, "updateEntity");
-      updateResult = handler.updateEntity(requestEntity, em, request);
+      updateResult = handler.updateEntity(requestEntity, em, request.getMethod());
       if (!foreignTransation)
         handler.validateChanges(em);
       debugger.stopRuntimeMeasurement(updateHandle);
