@@ -3,7 +3,6 @@ package com.sap.olingo.jpa.processor.core.processor;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.math.BigInteger;
 import java.util.Map;
 
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -23,8 +22,8 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 public final class JPAModifyUtil {
   /**
    * Create a filled instance of a JPA entity key.<p>
-   * For JPA entities having only one key, so do not use an IdClass only the types defined by <code>isPrimitive</code>
-   * are supported.
+   * For JPA entities having only one key, so do not use an IdClass, the corresponding value in <code>jpaKeys</code> is
+   * returned
    * @param et
    * @param jpaKeys
    * @return
@@ -33,14 +32,11 @@ public final class JPAModifyUtil {
   public Object createPrimaryKey(final JPAEntityType et, final Map<String, Object> jpaKeys)
       throws ODataJPAProcessorException {
     try {
-      Object key = null;
-      if (isPrimitive(et.getKeyType())) {
-        Object keyValue = jpaKeys.get(et.getKey().get(0).getInternalName());
-        key = et.getKeyType().getConstructor(String.class).newInstance(keyValue.toString());
-      } else {
-        key = et.getKeyType().getConstructor().newInstance();
-        setAttributes(jpaKeys, key);
-      }
+      if (et.getKey().size() == 1)
+        return jpaKeys.get(et.getKey().get(0).getInternalName());
+
+      final Object key = et.getKeyType().getConstructor().newInstance();
+      setAttributes(jpaKeys, key);
       return key;
     } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
         | IllegalArgumentException | InvocationTargetException | ODataJPAModelException e) {
@@ -133,18 +129,5 @@ public final class JPAModifyUtil {
         }
       }
     }
-  }
-
-  public boolean isPrimitive(Class<?> keyType) {
-    return String.class.equals(keyType) ||
-        Integer.class.equals(keyType) ||
-        Long.class.equals(keyType) ||
-        Short.class.equals(keyType) ||
-        BigInteger.class.equals(keyType) ||
-        Character.class.equals(keyType) ||
-        Byte.class.equals(keyType) ||
-        Float.class.equals(keyType) ||
-        Boolean.class.equals(keyType) ||
-        Double.class.equals(keyType);
   }
 }
