@@ -1,12 +1,12 @@
 # 3.1 Creating Entities
-As the first modifying request we want to have a closer look at creating entities. In general OData describes three way to create entities: As a single entity, which is descussed here, together with related entities, the so called [Deep Insert](3-5-DeepInsert.md) and via [Batch Requests](3-6-BatchRequests.md).
+As the first modifying request we want to have a closer look at creating entities. In general OData describes three way to create entities: As a single entity, which is discussed here, together with related entities, the so called [Deep Insert](3-5-DeepInsert.md) and via [Batch Requests](3-6-BatchRequests.md).
 
 The `JPAODataCRUDHandler` was designed to take over repetitive work like preparing changes or creating a response depending on the request header. The business logic itself has to be implemented in a class that extends `JPAAbstractCUDRequestHandler`, we want to call it `CUDRequestHandler`, locate it in our new package _tutorial.modify_.
 
-The processing of any modification is split into two methods. First a method to perform the change (including consistancy checks) and second in a method (`validateChange`) that allow to validate the changes in the context with other modification, which is mainly required with [Batch Requests](3-6-BatchRequests.md).
+The processing of any modification is split into two methods. First a method to perform the change (including consistency checks) and second in a method (`validateChange`) that allow to validate the changes in the context with other modification, which is mainly required with [Batch Requests](3-6-BatchRequests.md).
 
-Here we concantraite on performing changes and override `createEntity`. The method has two parameter.
-1. _requestEntity_ is a container that provides access to data and information about a request. Form intest here are:
+Here we concentrate on performing changes and override `createEntity`. The method has two parameter.
+1. _requestEntity_ is a container that provides access to data and information about a request. Form interest in this tutorial are:
 	1. `getEntityType` provides an instance of _JPAEntityType_, which provides a bunch of information about the entity to be created. This starts with internal (name of POJO) and external name (name of OData entity) and ends with a list of attributes and keys.
 	2.  `getData` provides a map of attributes that are provided by the request. Keys of the map are the attribute names of the POJO. In case of complex/embedded attributes map is deep meaning the attribute is a map.
 	3. `getModifyUtil` provides an instance of `JPAModifyUtil`, which contains of some helper methods.
@@ -14,7 +14,7 @@ Here we concantraite on performing changes and override `createEntity`. The meth
 
 The method shall either returns an instance of the newly created POJO or a map like the one provided by `getData` including calculated fields.
 
-Lets start creating a new AdministrativeDivision. As a first step we generate setter and getter methods. This can be done in Eclipse after opening _AdministrativeDivision.java_ by choosing _Alt+Shift+S_ and then _Generate Getters and Setters..._ select all others then _children_ and _parent_. Please note that all attributes should be typed with wrapper classes instead of primitive types.
+Lets start creating a new AdministrativeDivision. As a first step we generate setter and getter methods. This can be done in Eclipse after opening `AdministrativeDivision.java` by choosing _Alt+Shift+S_ and then _Generate Getters and Setters..._ select all others then _children_ and _parent_. Please note that all attributes should be typed with wrapper classes instead of primitive types.
 
 Having done that we can start with a simple implementation of our create method. Here we will simply take the values out of the map and put them into a new POJO instance:
 
@@ -33,7 +33,7 @@ import com.sap.olingo.jpa.processor.core.processor.JPARequestEntity;
 public class CUDRequestHandler extends JPAAbstractCUDRequestHandler {
 
 	@Override
-	public Object createEntity(JPAEntityType et, Map<String, Object> jpaAttributes, EntityManager em)
+	public Object createEntity(final JPARequestEntity requestEntity, final EntityManager em)
 			throws ODataJPAProcessException {
 
 		final JPAEntityType et = requestEntity.getEntityType();
@@ -96,7 +96,7 @@ Next you can try the following:
         "ParentDivisionCode": "DE1",
         "ParentCodeID": "NUTS2"
     }
-We can retrieve the newly created entity via `http://localhost:8070/Tutorial/Tutorial.svc/AdministrativeDivisions?$filter=DivisionCode eq 'DE1'`
+We can retrieve the newly created entity via `.../Tutorial/Tutorial.svc/AdministrativeDivisions?$filter=DivisionCode eq 'DE1'`
 
 If we want to play around with other entities we could go ahead the same approach as a above, so manually create an instance of the POJO and fill it step by step, which would get boring. We want to do some more generic stuff.
 
@@ -174,4 +174,4 @@ Now lets generate the setter for Person and create a new one:
         }
     }
 
-Next we want to be able to make change to an existing entity: [Tutorial 3.2 Updating Entities](3-2-Updating Entities.md)
+Next we want to be able to make change to an existing entity: [Tutorial 3.2 Updating Entities](3-3-Updating Entities.md)
