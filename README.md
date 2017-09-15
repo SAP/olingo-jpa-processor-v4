@@ -44,10 +44,10 @@ For bugs, questions and ideas for enhancement please open an issue in github.
 # To-Do (upcoming-changes)
 The flowing extensions/changes are planned:
 
-* Rework batch request handling, to handle the _sort order_ problem.
 * Enable hooks for retrieving data.  
 * Parallel processing for $expand.
-* Enable collection attributes.   
+* Enable collection attributes.
+* Enable Enumeration Types
 
 
 # License
