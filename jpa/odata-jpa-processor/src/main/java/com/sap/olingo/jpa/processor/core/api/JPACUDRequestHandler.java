@@ -1,10 +1,11 @@
-package com.sap.olingo.jpa.processor.core.modify;
+package com.sap.olingo.jpa.processor.core.api;
 
 import javax.persistence.EntityManager;
 
 import org.apache.olingo.commons.api.http.HttpMethod;
 
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
+import com.sap.olingo.jpa.processor.core.modify.JPAUpdateResult;
 import com.sap.olingo.jpa.processor.core.processor.JPARequestEntity;
 
 public interface JPACUDRequestHandler {

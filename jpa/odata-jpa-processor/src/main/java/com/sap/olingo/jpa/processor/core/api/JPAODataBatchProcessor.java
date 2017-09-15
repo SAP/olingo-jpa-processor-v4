@@ -42,7 +42,7 @@ public final class JPAODataBatchProcessor implements BatchProcessor {
   private OData odata;
   private final JPAODataSessionContextAccess context;
 
-  public JPAODataBatchProcessor(JPAODataSessionContextAccess context, EntityManager em) {
+  public JPAODataBatchProcessor(final JPAODataSessionContextAccess context, final EntityManager em) {
     this.em = em;
     this.context = context;
   }
