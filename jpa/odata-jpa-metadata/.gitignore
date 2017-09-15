@@ -2,3 +2,6 @@ target/
 **/target/
 /.pmd
 /*.log
+
+# JDT-specific (Eclipse Java Development Tools)
+.classpath

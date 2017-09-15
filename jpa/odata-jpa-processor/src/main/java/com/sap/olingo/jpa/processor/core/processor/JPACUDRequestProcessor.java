@@ -219,6 +219,13 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
     final EdmEntitySetInfo edmEntitySetInfo = Util.determineTargetEntitySetAndKeys(uriInfo.getUriResourceParts());
     final Entity odataEntity = helper.convertInputStream(odata, request, requestFormat, edmEntitySetInfo
         .getEdmEntitySet());
+    // http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752300
+    // 11.4.3 Update an Entity
+    // ...
+    // The entity MUST NOT contain related entities as inline content. It MAY contain binding information for
+    // navigation properties. For single-valued navigation properties this replaces the relationship. For
+    // collection-valued navigation properties this adds to the relationship.
+    // TODO navigation properties this replaces the relationship
     final JPARequestEntity requestEntity = createRequestEntity(edmEntitySetInfo, odataEntity, request.getAllHeaders());
 
     // Update entity
