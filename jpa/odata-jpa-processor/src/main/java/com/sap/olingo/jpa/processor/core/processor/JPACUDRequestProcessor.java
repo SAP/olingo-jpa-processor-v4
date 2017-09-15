@@ -35,6 +35,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPACUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleResultConverter;
@@ -42,7 +43,6 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPASerializerException;
-import com.sap.olingo.jpa.processor.core.modify.JPACUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
 import com.sap.olingo.jpa.processor.core.modify.JPACreateResultFactory;
 import com.sap.olingo.jpa.processor.core.modify.JPAUpdateResult;
@@ -78,7 +78,7 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       em.getTransaction().begin();
     try {
       final int updateHandle = debugger.startRuntimeMeasurement(handler, "updateEntity");
-      handler.updateEntity(requestEntity, em, request);
+      handler.updateEntity(requestEntity, em, request.getMethod());
       if (!foreignTransation)
         handler.validateChanges(em);
       debugger.stopRuntimeMeasurement(updateHandle);
@@ -219,6 +219,13 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
     final EdmEntitySetInfo edmEntitySetInfo = Util.determineTargetEntitySetAndKeys(uriInfo.getUriResourceParts());
     final Entity odataEntity = helper.convertInputStream(odata, request, requestFormat, edmEntitySetInfo
         .getEdmEntitySet());
+    // http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752300
+    // 11.4.3 Update an Entity
+    // ...
+    // The entity MUST NOT contain related entities as inline content. It MAY contain binding information for
+    // navigation properties. For single-valued navigation properties this replaces the relationship. For
+    // collection-valued navigation properties this adds to the relationship.
+    // TODO navigation properties this replaces the relationship
     final JPARequestEntity requestEntity = createRequestEntity(edmEntitySetInfo, odataEntity, request.getAllHeaders());
 
     // Update entity
@@ -239,7 +246,7 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       // A PUT or PATCH request MUST NOT be treated as an update if an If-None-Match header is specified with a value of
       // "*".
       final int updateHandle = debugger.startRuntimeMeasurement(handler, "updateEntity");
-      updateResult = handler.updateEntity(requestEntity, em, request);
+      updateResult = handler.updateEntity(requestEntity, em, request.getMethod());
       if (!foreignTransation)
         handler.validateChanges(em);
       debugger.stopRuntimeMeasurement(updateHandle);

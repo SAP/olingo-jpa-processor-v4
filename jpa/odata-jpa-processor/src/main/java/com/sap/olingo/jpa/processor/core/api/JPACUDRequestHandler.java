@@ -1,10 +1,11 @@
-package com.sap.olingo.jpa.processor.core.modify;
+package com.sap.olingo.jpa.processor.core.api;
 
 import javax.persistence.EntityManager;
 
-import org.apache.olingo.server.api.ODataRequest;
+import org.apache.olingo.commons.api.http.HttpMethod;
 
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
+import com.sap.olingo.jpa.processor.core.modify.JPAUpdateResult;
 import com.sap.olingo.jpa.processor.core.processor.JPARequestEntity;
 
 public interface JPACUDRequestHandler {
@@ -46,13 +47,13 @@ public interface JPACUDRequestHandler {
    * >OData Version 4.0 Part 1 - 11.4.3 Update an Entity</a>
    * @param requestEntity
    * @param em
-   * @param request
+   * @param httpMethod
    * @return The response describes the performed changes (Created or Updated) as well as the result of the operation.
    * It must not be null. Even if nothing was changed => update is idempotent
    * @throws ODataJPAProcessException
    */
   public JPAUpdateResult updateEntity(final JPARequestEntity requestEntity, final EntityManager em,
-      final ODataRequest request) throws ODataJPAProcessException;
+      final HttpMethod httpMethod) throws ODataJPAProcessException;
 
   /**
    * Hook that is called if all changes of one transaction have been processed. The method shall enable a check all

@@ -14,7 +14,6 @@ import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseProcessorFactory;
-import com.sap.olingo.jpa.processor.core.modify.JPACUDRequestHandler;
 
 public class JPAODataContextAccessDouble implements JPAODataSessionContextAccess {
   private final JPAEdmProvider edmProvider;

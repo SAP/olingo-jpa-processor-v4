@@ -39,9 +39,9 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAAbstractCUDRequestHandler;
+import com.sap.olingo.jpa.processor.core.api.JPACUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
-import com.sap.olingo.jpa.processor.core.modify.JPACUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.modify.JPAUpdateResult;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 
@@ -286,7 +286,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
 
     doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
         HttpStatusCode.BAD_REQUEST)).when(handler).updateEntity(any(JPARequestEntity.class), any(EntityManager.class),
-            any(ODataRequest.class));
+            any(HttpMethod.class));
 
     try {
       processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
@@ -356,13 +356,13 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
 
     @Override
     public JPAUpdateResult updateEntity(final JPARequestEntity requestEntity, final EntityManager em,
-        final ODataRequest request) throws ODataJPAProcessException {
+        final HttpMethod verb) throws ODataJPAProcessException {
       this.et = requestEntity.getEntityType();
       this.jpaAttributes = requestEntity.getData();
       // this.keys = requestEntity.getKeys();
       this.em = em;
       this.called = true;
-      this.method = request.getMethod();
+      this.method = verb;
       this.headers = requestEntity.getAllHeader();
       return change;
     }

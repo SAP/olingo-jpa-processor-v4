@@ -29,7 +29,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
-import com.sap.olingo.jpa.processor.core.modify.JPACUDRequestHandler;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JPAODataBatchProcessorTest {

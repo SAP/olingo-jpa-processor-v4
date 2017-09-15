@@ -7,10 +7,12 @@ import java.util.Map;
 
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 
 /**
- * This class provides some primitive util methods to support modifying operations like create, update or clean.<p>
+ * This class provides some primitive util methods to support modifying operations like create or update.<p>
  * The set method shall fill an object from a given Map. JPA processor provides in a Map the internal, JAVA attribute,
  * names. Based on the JAVA naming conventions the corresponding Setter is called, as long as the Setter has the correct
  * type.
@@ -18,6 +20,30 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
  *
  */
 public final class JPAModifyUtil {
+  /**
+   * Create a filled instance of a JPA entity key.<p>
+   * For JPA entities having only one key, so do not use an IdClass, the corresponding value in <code>jpaKeys</code> is
+   * returned
+   * @param et
+   * @param jpaKeys
+   * @return
+   * @throws ODataJPAProcessorException
+   */
+  public Object createPrimaryKey(final JPAEntityType et, final Map<String, Object> jpaKeys)
+      throws ODataJPAProcessorException {
+    try {
+      if (et.getKey().size() == 1)
+        return jpaKeys.get(et.getKey().get(0).getInternalName());
+
+      final Object key = et.getKeyType().getConstructor().newInstance();
+      setAttributes(jpaKeys, key);
+      return key;
+    } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
+        | IllegalArgumentException | InvocationTargetException | ODataJPAModelException e) {
+      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   /**
    * 
    * @param jpaAttributes
@@ -38,11 +64,7 @@ public final class JPAModifyUtil {
               if (parameters.length == 1 && (value == null || value.getClass() == parameters[0])) {
                 meth.invoke(instanze, value);
               }
-            } catch (IllegalAccessException e) {
-              throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-            } catch (IllegalArgumentException e) {
-              throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-            } catch (InvocationTargetException e) {
+            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
               throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
             }
           }
