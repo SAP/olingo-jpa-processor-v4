@@ -109,4 +109,19 @@ private void processBindingLinks(final Map<JPAAssociationPath, List<JPARequestLi
 }
 ```
 Please note that here the processing of the partner association was skipped, but it should be to hard to add that.
+As a last step we need to call `processBindingLinks`:
+
+```Java
+@Override
+public Object createEntity(final JPARequestEntity requestEntity, final EntityManager em)
+    throws ODataJPAProcessException {
+
+  final Object instance = createOneEntity(requestEntity, em);
+  processRelatedEntities(requestEntity.getRelatedEntities(), requestEntity, instance, requestEntity.getModifyUtil(),
+      em);
+  processBindingLinks(requestEntity.getRelationLinks(), instance, requestEntity.getModifyUtil(), em);
+  return instance;
+}
+
+```
 The last tutorial shall show how batch processing is supported : [Tutorial 3.6 Batch Requests](3-6-BatchRequests.md)
