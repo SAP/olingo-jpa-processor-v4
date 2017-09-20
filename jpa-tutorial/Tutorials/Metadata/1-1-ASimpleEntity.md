@@ -17,9 +17,7 @@ import javax.persistence.Version;
  */
 @Entity(name = "BusinessPartner")
 @Table(schema = "\"OLINGO\"", name = "\"BusinessPartner\"")
-public class BusinessPartner implements Serializable {
-
-	private static final long serialVersionUID = 1L;
+public class BusinessPartner{
 
 	@Id
 	@Column(length = 32)

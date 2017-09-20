@@ -1,1 +1,1 @@
-# 3.5 Batch Requests
+# 3.6 Batch Requests

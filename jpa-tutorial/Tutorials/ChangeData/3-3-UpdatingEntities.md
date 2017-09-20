@@ -1,4 +1,4 @@
-# 3.2 Updating Entities
+# 3.3 Updating Entities
 We had a look at [Creating Entities](3-2-CreatingEntities.md) in the last tutorial, know we want to have a look at update. As update we want to consider all operations that changes a property value. This is broader than the definition in OData. That is not only updates of entities, complex types, primitive types or the raw values are handled, but also setting values to `null` via a delete requests.
 
 To implement updates we have to override `updateEntity`. Again we do not look at `validateChange`. `updateEntity` has three parameter:
@@ -40,4 +40,4 @@ To test the PATCH we can start with changing the instance we created during the 
 Now we have an AlternativeCode, which does not really make sense, so lets get ride of it again by the following DELETE request:
 `.../Tutorial/Tutorial.svc/AdministrativeDivisions(DivisionCode='DE1',CodeID='NUTS1',CodePublisher='Eurostat')/AlternativeCode`
 
-Next we want to delete an entity: [Tutorial 3.3 Updating Entities](3-4-DeletingEntities.md)
+Next we want to delete an entity: [Tutorial 3.4 Updating Entities](3-4-DeletingEntities.md)

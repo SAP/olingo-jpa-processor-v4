@@ -1,4 +1,4 @@
-# 3.1 Creating Entities
+# 3.2 Creating Entities
 As the first modifying request we want to have a closer look at creating entities. In general OData describes three way to create entities: As a single entity, which is discussed here, together with related entities, the so called [Deep Insert](3-5-DeepInsert.md) and via [Batch Requests](3-6-BatchRequests.md).
 
 The `JPAODataCRUDHandler` was designed to take over repetitive work like preparing changes or creating a response depending on the request header. The business logic itself has to be implemented in a class that extends `JPAAbstractCUDRequestHandler`, we want to call it `CUDRequestHandler`, locate it in our new package _tutorial.modify_.
@@ -105,7 +105,7 @@ __Please note__ that we have used a simplified model for this tutorial where we 
 We want to create an instance base on the information of the entity type. The first step is to get the Constructors:
 
 ```Java
-	private Constructor<?> getConstructor(JPAStructuredType st) {
+	private Constructor<?> getConstructor(final JPAStructuredType st) {
 		Constructor<?> cons = null;
 		Constructor<?>[] constructors = st.getTypeClass().getConstructors();
 		for (int i = 0; i < constructors.length; i++) {
@@ -119,7 +119,7 @@ We want to create an instance base on the information of the entity type. The fi
 ```
 Which we can use to create the POJO instance:
 ```Java
-	private Object createInstance(Constructor<?> cons) throws ODataJPAProcessorException {
+	private Object createInstance(final Constructor<?> cons) throws ODataJPAProcessorException {
 		Object instance;
 		try {
 			instance = cons.newInstance();
@@ -174,4 +174,4 @@ Now lets generate the setter for Person and create a new one:
         }
     }
 
-Next we want to be able to make change to an existing entity: [Tutorial 3.2 Updating Entities](3-3-Updating Entities.md)
+Next we want to be able to make change to an existing entity: [Tutorial 3.3 Updating Entities](3-3-Updating Entities.md)

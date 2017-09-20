@@ -1,4 +1,4 @@
-# 3.0 Preparation
+# 3.1 Preparation
 We have created metadata and have seen how we can retrieve information from the database. The next piece in our puzzle is to modify the data. `JPAODataGetHandler` is by purpose not able to handle those request. It has to be replaced by `JPAODataCRUDHandler`.
 
 Before we start, we need to do some preparation steps. First we need a tool to perform our requests. This could be e.g. Postman for Google Chrome, which is used her, or an compatible tool like HttpRequest for Firefox or SOAPUI.
@@ -42,4 +42,4 @@ public class Servlet extends HttpServlet {
 	}
 }
 ```
-With this, we can start to implement a create service: [Tutorial 3.1: Creating Entities](3-1-CreatingEntities.md)
+With this, we can start to implement a create service: [Tutorial 3.2: Creating Entities](3-2-CreatingEntities.md)
