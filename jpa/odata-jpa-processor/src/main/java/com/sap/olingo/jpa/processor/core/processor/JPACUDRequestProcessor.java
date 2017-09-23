@@ -175,8 +175,6 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
         jpaKeyPredicates.put(attribute.getInternalName(), ExpressionUtil.convertValueOnAttribute(odata, attribute,
             uriParam.getText(), true));
       }
-    } catch (ODataJPAModelException e) {
-      throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
     } catch (ODataException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
     }
@@ -351,8 +349,6 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       final Map<JPAAssociationPath, List<JPARequestLink>> relationLinks = createRelationLinks(et, odataEntity);
       return new JPARequestEntityImpl(et, jpaAttributes, relatedEntities, relationLinks, keys, headers);
 
-    } catch (ODataJPAModelException e) {
-      throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
     } catch (ODataException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
     }

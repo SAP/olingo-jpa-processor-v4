@@ -11,6 +11,7 @@ import javax.persistence.AttributeConverter;
 
 import org.apache.olingo.commons.api.data.ComplexValue;
 import org.apache.olingo.commons.api.data.Entity;
+import org.apache.olingo.commons.api.data.Link;
 import org.apache.olingo.commons.api.data.Property;
 import org.apache.olingo.commons.api.data.ValueType;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
@@ -138,7 +139,7 @@ public class JPAConversionHelper {
   public Map<String, Object> convertProperties(final OData odata, final JPAStructuredType st,
       final List<Property> odataProperties) throws ODataJPAProcessException {
 
-    final Map<String, Object> jpaAttributes = new HashMap<String, Object>();
+    final Map<String, Object> jpaAttributes = new HashMap<>();
     String internalName = null;
     Object jpaAttribute = null;
     for (Property odataProperty : odataProperties) {
@@ -148,6 +149,7 @@ public class JPAConversionHelper {
           JPAPath path = st.getPath(odataProperty.getName());
           internalName = path.getPath().get(0).getInternalName();
           JPAStructuredType a = st.getAttribute(internalName).getStructuredType();
+          List<Link> links = ((ComplexValue) odataProperty.getValue()).getNavigationLinks();
           jpaAttribute = convertProperties(odata, a, ((ComplexValue) odataProperty.getValue()).getValue());
         } catch (ODataJPAModelException e) {
           throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
