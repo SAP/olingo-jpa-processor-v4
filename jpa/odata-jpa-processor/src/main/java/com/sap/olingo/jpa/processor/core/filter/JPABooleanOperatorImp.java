@@ -9,12 +9,11 @@ class JPABooleanOperatorImp implements JPABooleanOperator {
 
   private final JPAOperationConverter converter;
   private final BinaryOperatorKind operator;
-  private final JPAExpressionOperator left;
-  private final JPAExpressionOperator right;
+  private final JPAExpression left;
+  private final JPAExpression right;
 
   public JPABooleanOperatorImp(final JPAOperationConverter converter, final BinaryOperatorKind operator,
-      final JPAExpressionOperator left,
-      final JPAExpressionOperator right) {
+      final JPAExpression left, final JPAExpression right) {
     super();
     this.converter = converter;
     this.operator = operator;

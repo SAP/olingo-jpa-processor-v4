@@ -212,6 +212,42 @@ public class TestJPAQueryWhereClause extends TestBase {
   }
 
   @Test
+  public void testFilterAndWithFunction1() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions?$filter=CodePublisher eq 'Eurostat' and contains(tolower(DivisionCode),tolower('BE1'))&$orderby=DivisionCode asc");
+    helper.assertStatus(200);
+
+    ArrayNode orgs = helper.getValues();
+    assertEquals(3, orgs.size());
+    assertEquals("BE1", orgs.get(0).get("DivisionCode").asText());
+  }
+
+  @Test
+  public void testFilterAndWithFunction2() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions?$filter=CodePublisher eq 'Eurostat' and contains(DivisionCode,'BE1')&$orderby=DivisionCode asc");
+    helper.assertStatus(200);
+
+    ArrayNode orgs = helper.getValues();
+    assertEquals(3, orgs.size());
+    assertEquals("BE1", orgs.get(0).get("DivisionCode").asText());
+  }
+
+  @Test
+  public void testFilterAndWithComparisonContainingFunction() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions?$filter=CodePublisher eq 'Eurostat' and tolower(DivisionCode) eq tolower('BE1')");
+    helper.assertStatus(200);
+
+    ArrayNode orgs = helper.getValues();
+    assertEquals(1, orgs.size());
+    assertEquals("BE1", orgs.get(0).get("DivisionCode").asText());
+  }
+
+  @Test
   public void testFilterAddGreater() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -275,9 +311,6 @@ public class TestJPAQueryWhereClause extends TestBase {
 
     ArrayNode orgs = helper.getValues();
     assertEquals(11, orgs.size());
-//    for (JsonNode n : orgs) {
-//      System.out.println(n.get("Name").asText());
-//    }
   }
 
   @Test
@@ -407,7 +440,6 @@ public class TestJPAQueryWhereClause extends TestBase {
     assertEquals(1, orgs.size());
   }
 
-  @Ignore
   @Test
   public void testFilterToUpperInvers() throws IOException, ODataException {
 
@@ -417,7 +449,7 @@ public class TestJPAQueryWhereClause extends TestBase {
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
-    assertEquals(1, orgs.size());
+    assertEquals(19, orgs.size());
   }
 
   @Test
@@ -463,6 +495,7 @@ public class TestJPAQueryWhereClause extends TestBase {
 
     helper.assertStatus(200);
     ArrayNode orgs = helper.getValues();
+    assertEquals(7, orgs.size());
   }
 
   @Test
