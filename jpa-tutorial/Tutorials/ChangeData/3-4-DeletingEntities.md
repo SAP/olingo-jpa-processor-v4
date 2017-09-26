@@ -1,5 +1,5 @@
 # 3.4 Deleting Entities
-After performing the tutorials [Creating Entities](3-2-CreatingEntities.md) and [Updating Entities](3-3-Updating Entities.md) the implementing the delete should be straight forward.
+After performing the tutorials [Creating Entities](3-2-CreatingEntities.md) and [Updating Entities](3-3-Updating Entities.md) implementing the delete should be straight forward.
 
 The implementation starts with overriding `deleteEntity` of `CUDRequestHandler`. All we have to do now is to find the instance and remove it. As DELETE is idempotent we ignore if the instance does not exists. Please note that, as within the tutorials before, we neglect all kinds of checks.
 

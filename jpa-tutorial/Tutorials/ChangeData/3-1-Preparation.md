@@ -1,9 +1,9 @@
 # 3.1 Preparation
 We have created metadata and have seen how we can retrieve information from the database. The next piece in our puzzle is to modify the data. `JPAODataGetHandler` is by purpose not able to handle those request. It has to be replaced by `JPAODataCRUDHandler`.
 
-Before we start, we need to do some preparation steps. First we need a tool to perform our requests. This could be e.g. Postman for Google Chrome, which is used her, or an compatible tool like HttpRequest for Firefox or SOAPUI.
+Before we start, we need to do some preparation steps. First we need a tool to perform our requests. This could be e.g. Postman for Google Chrome or an compatible tool like HttpRequest for Firefox or SOAPUI.
 
-When we make changes, we need also some logic therefore we want to create a new package _tutorial.modify_ which will be the container for the corresponding classes. Last, but not least we switch the service implementation, as mentioned, to use `JPAODataCRUDHandler`, so that it looks as follows:
+When we make changes, we need also some logic, therefore we want to create a new package _tutorial.modify_, which will be the container for the corresponding classes. Last but not least we switch the service implementation, as mentioned, to use `JPAODataCRUDHandler`, so that it looks as follows:
 
 ```Java
 package tutorial.service;

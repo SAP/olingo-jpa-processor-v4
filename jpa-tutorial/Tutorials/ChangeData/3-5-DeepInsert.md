@@ -77,10 +77,10 @@ public Object createEntity(final JPARequestEntity requestEntity, final EntityMan
   return instance;
 }
 ```
-If we now perform a POST on `.../Tutorial/Tutorial.svc/AdministrativeDivisions` using the payload from above, we create four new entries on the database. We can now find them using the following GET request:
+If we now perform a POST on `.../Tutorial/Tutorial.svc/AdministrativeDivisions` using the payload from above, we create four new entries on the database. We can find them using the following GET request:
 `.../Tutorial/Tutorial.svc/AdministrativeDivisions?$filter=CountryCode eq 'DEU' and CodePublisher eq 'Eurostat'&$format=json`
 ## Binding Links
-As already mentioned there is another way to create a new entity together with a link to another entity. In our example we want to create a sub division and link it to its parent:
+As already mentioned there is another way to create a new entity together with a link to another entity. To demonstrate this want to create a sub division and link it to its parent:
 
 ```
 {
@@ -108,7 +108,7 @@ private void processBindingLinks(final Map<JPAAssociationPath, List<JPARequestLi
   }
 }
 ```
-Please note that here the processing of the partner association was skipped, but it should be to hard to add that.
+Please note that here the processing of the partner association was skipped, but it should not be to hard to add that.
 As a last step we need to call `processBindingLinks`:
 
 ```Java

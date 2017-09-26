@@ -1,5 +1,5 @@
 # 3.2 Creating Entities
-As the first modifying request we want to have a closer look at creating entities. In general OData describes three way to create entities: As a single entity, which is discussed here, together with related entities, the so called [Deep Insert](3-5-DeepInsert.md) and via [Batch Requests](3-6-BatchRequests.md).
+As the first modifying request we want to have a closer look at is creating entities. In general OData describes three way to do this: As a single entity, which is discussed here, together with related entities, the so called [Deep Insert](3-5-DeepInsert.md) and via [Batch Requests](3-6-BatchRequests.md).
 
 The `JPAODataCRUDHandler` was designed to take over repetitive work like preparing changes or creating a response depending on the request header. The business logic itself has to be implemented in a class that extends `JPAAbstractCUDRequestHandler`, we want to call it `CUDRequestHandler`, locate it in our new package _tutorial.modify_.
 
@@ -7,16 +7,25 @@ The processing of any modification is split into two methods. First a method to 
 
 Here we concentrate on performing changes and override `createEntity`. The method has two parameter.
 1. _requestEntity_ is a container that provides access to data and information about a request. Form interest in this tutorial are:
-	1. `getEntityType` provides an instance of _JPAEntityType_, which provides a bunch of information about the entity to be created. This starts with internal (name of POJO) and external name (name of OData entity) and ends with a list of attributes and keys.
-	2.  `getData` provides a map of attributes that are provided by the request. Keys of the map are the attribute names of the POJO. In case of complex/embedded attributes map is deep meaning the attribute is a map.
+	1. `getEntityType` provides an instance of _JPAEntityType_, which provides a bunch of information about the entity to be created. This starts with internal name of the JPA POJO and external name (name of OData entity) and ends with a list of attributes and keys.
+	2.  `getData` provides a map of attributes that are provided by the request. Keys of the map are the attribute names of the POJO. In case of complex/embedded attributes map is deep meaning the attribute is a map with the same structure.
 	3. `getModifyUtil` provides an instance of `JPAModifyUtil`, which contains of some helper methods.
-2. _em_ is an instance of EntityManager. A transaction has already been started, which is done to ensure the transactional integrity required for change sets within batch requests.
+2. _em_ is an instance of `EntityManager`. A transaction has already been started, which is done to ensure the transactional integrity required for change sets within batch requests.
 
 The method shall either returns an instance of the newly created POJO or a map like the one provided by `getData` including calculated fields.
 
-Lets start creating a new AdministrativeDivision. As a first step we generate setter and getter methods. This can be done in Eclipse after opening `AdministrativeDivision.java` by choosing _Alt+Shift+S_ and then _Generate Getters and Setters..._ select all others then _children_ and _parent_. Please note that all attributes should be typed with wrapper classes instead of primitive types.
+Lets start creating a new AdministrativeDivision. As a first step we generate setter and getter methods. This can be done in Eclipse after opening `AdministrativeDivision.java` by choosing _Alt+Shift+S_ and then _Generate Getters and Setters..._ select all others then _children_ and _parent_. Please note that all attributes should be typed with wrapper classes instead of primitive types. Assoziations with multiplicity _ToMany_ shall always return an collection, so we change the getter for Children as follows:
 
-Having done that we can start with a simple implementation of our create method. Here we will simply take the values out of the map and put them into a new POJO instance:
+```Java
+public List<AdministrativeDivision> getChildren() {
+	if (children == null)
+		children = new ArrayList<AdministrativeDivision>();
+	return children;
+}
+```
+
+
+Having done that we can start with a simple implementation of our create method. We just take the values out of the map and put them into a new POJO instance:
 
 ```Java
 package tutorial.modify;
@@ -92,9 +101,7 @@ Next you can try the following:
         "CodePublisher": "Eurostat",
         "CodeID": "NUTS2",
         "DivisionCode": "DE11",
-        "CountryCode": "DEU",
-        "ParentDivisionCode": "DE1",
-        "ParentCodeID": "NUTS2"
+        "CountryCode": "DEU"
     }
 We can retrieve the newly created entity via `.../Tutorial/Tutorial.svc/AdministrativeDivisions?$filter=DivisionCode eq 'DE1'`
 
