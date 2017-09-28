@@ -8,7 +8,6 @@ import org.apache.olingo.server.api.debug.DebugSupport;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
-import com.sap.olingo.jpa.processor.core.modify.JPACUDRequestHandler;
 
 public interface JPAODataSessionContextAccess {
   public JPAODataDatabaseProcessor getDatabaseProcessor();

@@ -15,10 +15,10 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 final class JPAAssociationPathImpl implements JPAAssociationPath {
-  final private String alias;
-  final private List<JPAElement> pathElements;
-  final private IntermediateStructuredType sourceType;
-  final private IntermediateStructuredType targetType;
+  private final String alias;
+  private final List<JPAElement> pathElements;
+  private final IntermediateStructuredType sourceType;
+  private final IntermediateStructuredType targetType;
   private final List<IntermediateJoinColumn> joinColumns;
   private final PersistentAttributeType cardinality;
   private final boolean isCollection;
@@ -28,7 +28,7 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
       final IntermediateStructuredType source, final List<IntermediateJoinColumn> joinColumns,
       final JPAAttribute attribute) {
 
-    final List<JPAElement> pathElementsBuffer = new ArrayList<JPAElement>();
+    final List<JPAElement> pathElementsBuffer = new ArrayList<>();
     pathElementsBuffer.add(attribute);
     pathElementsBuffer.addAll(associationPath.getPath());
 
@@ -48,7 +48,7 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
   JPAAssociationPathImpl(final IntermediateNavigationProperty association,
       final IntermediateStructuredType source) throws ODataJPAModelException {
 
-    final List<JPAElement> pathElementsBuffer = new ArrayList<JPAElement>();
+    final List<JPAElement> pathElementsBuffer = new ArrayList<>();
     pathElementsBuffer.add(association);
 
     alias = association.getExternalName();
@@ -86,7 +86,7 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
    */
   @Override
   public List<JPAOnConditionItem> getJoinColumnsList() throws ODataJPAModelException {
-    final List<JPAOnConditionItem> joinColumns = new ArrayList<JPAOnConditionItem>();
+    final List<JPAOnConditionItem> joinColumns = new ArrayList<>();
     for (final IntermediateJoinColumn column : this.joinColumns) {
       // ManyToOne
       if (cardinality == PersistentAttributeType.MANY_TO_ONE

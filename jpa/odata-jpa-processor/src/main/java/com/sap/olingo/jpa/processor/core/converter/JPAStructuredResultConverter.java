@@ -29,7 +29,7 @@ public abstract class JPAStructuredResultConverter {
   public static final String ACCESS_MODIFIER_SET = "set";
   public static final String ACCESS_MODIFIER_IS = "is";
   private static final Map<String, HashMap<String, Method>> METHOD_BUFFER =
-      new HashMap<String, HashMap<String, Method>>();
+      new HashMap<>();
   protected final List<?> jpaQueryResult;
   protected final JPAStructuredType jpaTopLevelType;
 
@@ -45,7 +45,7 @@ public abstract class JPAStructuredResultConverter {
   protected Map<String, Method> getMethods(final Class<?> clazz) {
     HashMap<String, Method> methods = METHOD_BUFFER.get(clazz.getName());
     if (methods == null) {
-      methods = new HashMap<String, Method>();
+      methods = new HashMap<>();
 
       final Method[] allMethods = clazz.getMethods();
       for (final Method m : allMethods) {
@@ -104,11 +104,8 @@ public abstract class JPAStructuredResultConverter {
                 ValueType.PRIMITIVE,
                 null));
         }
-      } catch (IllegalAccessException e) {
-        throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-      } catch (IllegalArgumentException e) {
-        throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-      } catch (InvocationTargetException e) {
+      } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
+          | ODataJPAModelException e) {
         throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
       }
     }

@@ -326,7 +326,7 @@ public class TestJPAProcessorExpand extends TestBase {
     final ArrayNode orgs = helper.getValues();
     final ObjectNode org = (ObjectNode) orgs.get(0);
     assertNotNull(org.get("Roles"));
-    ArrayNode roles = (ArrayNode) org.get("Roles");
+    // ArrayNode roles = (ArrayNode) org.get("Roles");
     // assertEquals("3", child1.get("count").asText());
   }
 

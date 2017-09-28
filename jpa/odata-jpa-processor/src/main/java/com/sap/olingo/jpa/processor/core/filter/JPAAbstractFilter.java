@@ -46,7 +46,7 @@ public abstract class JPAAbstractFilter implements JPAFilterComplier, JPAFilterC
       }
       return Collections.unmodifiableList(visitor.get());
     } else
-      return new ArrayList<JPAPath>();
+      return new ArrayList<>();
   }
 
 }

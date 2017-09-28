@@ -4,6 +4,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
@@ -22,6 +28,7 @@ import org.apache.olingo.commons.api.http.HttpHeader;
 import org.apache.olingo.commons.api.http.HttpMethod;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
+import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.serializer.SerializerException;
@@ -32,6 +39,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAAbstractCUDRequestHandler;
+import com.sap.olingo.jpa.processor.core.api.JPACUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAUpdateResult;
@@ -95,7 +103,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
 
     InputStream is = new ByteArrayInputStream("{\"ID\" : \"35\", \"Country\" : \"USA\"}".getBytes("UTF-8"));
     when(request.getBody()).thenReturn(is);
-    Map<String, Object> jpaAttributes = new HashMap<String, Object>();
+    Map<String, Object> jpaAttributes = new HashMap<>();
     jpaAttributes.put("id", "35");
     jpaAttributes.put("country", "USA");
     when(convHelper.convertProperties(Matchers.any(OData.class), Matchers.any(JPAStructuredType.class), Matchers.any(
@@ -110,7 +118,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
   public void testHeadersProvided() throws ODataJPAProcessorException, SerializerException, ODataException {
     final ODataResponse response = new ODataResponse();
     final ODataRequest request = prepareSimpleRequest();
-    final Map<String, List<String>> headers = new HashMap<String, List<String>>();
+    final Map<String, List<String>> headers = new HashMap<>();
 
     when(request.getAllHeaders()).thenReturn(headers);
     headers.put("If-Match", Arrays.asList("2"));
@@ -243,6 +251,76 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
+  public void testCallsValidateChangesOnSuccessfullProcessing() throws ODataException {
+    ODataResponse response = new ODataResponse();
+    ODataRequest request = prepareSimpleRequest();
+
+    RequestHandleSpy spy = new RequestHandleSpy();
+    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+
+    processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
+    assertEquals(1, spy.noValidateCalls);
+  }
+
+  @Test
+  public void testDoesNotCallsValidateChangesOnForginTransaction() throws ODataException {
+    ODataResponse response = new ODataResponse();
+    ODataRequest request = prepareSimpleRequest();
+
+    RequestHandleSpy spy = new RequestHandleSpy();
+    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(em.getTransaction()).thenReturn(transaction);
+    when(transaction.isActive()).thenReturn(Boolean.TRUE);
+
+    processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
+    assertEquals(0, spy.noValidateCalls);
+  }
+
+  @Test
+  public void testDoesNotCallsValidateChangesOnError() throws ODataException {
+    ODataResponse response = new ODataResponse();
+    ODataRequest request = prepareSimpleRequest();
+
+    JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
+    when(sessionContext.getCUDRequestHandler()).thenReturn(handler);
+
+    doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
+        HttpStatusCode.BAD_REQUEST)).when(handler).updateEntity(any(JPARequestEntity.class), any(EntityManager.class),
+            any(HttpMethod.class));
+
+    try {
+      processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
+    } catch (ODataApplicationException e) {
+      verify(handler, never()).validateChanges(em);
+      return;
+    }
+    fail();
+  }
+
+  @Test
+  public void testDoesRollbackIfValidateRaisesError() throws ODataException {
+    ODataResponse response = new ODataResponse();
+    ODataRequest request = prepareSimpleRequest();
+
+    when(em.getTransaction()).thenReturn(transaction);
+
+    JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
+    when(sessionContext.getCUDRequestHandler()).thenReturn(handler);
+
+    doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
+        HttpStatusCode.BAD_REQUEST)).when(handler).validateChanges(em);
+
+    try {
+      processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
+    } catch (ODataApplicationException e) {
+      verify(transaction, never()).commit();
+      verify(transaction, times(1)).rollback();
+      return;
+    }
+    fail();
+  }
+
+  @Test
   public void testResponseErrorIfNull() throws ODataJPAProcessorException, ODataException {
 
     ODataResponse response = new ODataResponse();
@@ -258,6 +336,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
   }
 
   class RequestHandleSpy extends JPAAbstractCUDRequestHandler {
+    public int noValidateCalls;
     public JPAEntityType et;
     public Map<String, Object> jpaAttributes;
     public EntityManager em;
@@ -277,16 +356,20 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
 
     @Override
     public JPAUpdateResult updateEntity(final JPARequestEntity requestEntity, final EntityManager em,
-        final ODataRequest request) throws ODataJPAProcessException {
+        final HttpMethod verb) throws ODataJPAProcessException {
       this.et = requestEntity.getEntityType();
       this.jpaAttributes = requestEntity.getData();
       // this.keys = requestEntity.getKeys();
       this.em = em;
       this.called = true;
-      this.method = request.getMethod();
+      this.method = verb;
       this.headers = requestEntity.getAllHeader();
       return change;
     }
 
+    @Override
+    public void validateChanges(final EntityManager em) throws ODataJPAProcessException {
+      this.noValidateCalls++;
+    }
   }
 }

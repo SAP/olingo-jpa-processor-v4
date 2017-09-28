@@ -4,3 +4,6 @@
 /derby.log
 /test/
 /*.log
+
+# JDT-specific (Eclipse Java Development Tools)
+.classpath
