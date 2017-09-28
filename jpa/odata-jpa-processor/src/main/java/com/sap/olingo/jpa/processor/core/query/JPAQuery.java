@@ -66,10 +66,9 @@ public class JPAQuery extends JPAExecutableQuery {
      * .../Organizations('3')/Roles/$count
      */
     final int handle = debugger.startRuntimeMeasurement(this, "countResults");
-    final HashMap<String, From<?, ?>> joinTables = new HashMap<String, From<?, ?>>();
+    final HashMap<String, From<?, ?>> joinTables = new HashMap<>();
 
     final CriteriaQuery<Long> cq = cb.createQuery(Long.class);
-    // root = cq.from(jpaEntity.getTypeClass());
 
     joinTables.put(jpaEntity.getTypeClass().getCanonicalName(), root);
 
@@ -105,14 +104,14 @@ public class JPAQuery extends JPAExecutableQuery {
     final TypedQuery<Tuple> tq = em.createQuery(cq);
     addTopSkip(tq);
 
-    final HashMap<String, List<Tuple>> result = new HashMap<String, List<Tuple>>(1);
+    final HashMap<String, List<Tuple>> result = new HashMap<>(1);
     final int resultHandle = debugger.startRuntimeMeasurement(tq, "getResultList");
     final List<Tuple> intermediateResult = tq.getResultList();
     debugger.stopRuntimeMeasurement(resultHandle);
     result.put("root", intermediateResult);
 
     debugger.stopRuntimeMeasurement(handle);
-    return new JPAExpandQueryResult(result, Long.parseLong("0"), jpaEntity);// count()););
+    return new JPAExpandQueryResult(result, Long.parseLong("0"), jpaEntity);
   }
 
   public JPAStructuredType getEntityType() {
@@ -124,11 +123,11 @@ public class JPAQuery extends JPAExecutableQuery {
   }
 
   private List<javax.persistence.criteria.Expression<?>> createGroupBy(final Map<String, From<?, ?>> joinTables,
-      final List<JPAPath> selectionPathList) throws ODataApplicationException {
+      final List<JPAPath> selectionPathList) {
     final int handle = debugger.startRuntimeMeasurement(this, "createGroupBy");
 
     final List<javax.persistence.criteria.Expression<?>> groupBy =
-        new ArrayList<javax.persistence.criteria.Expression<?>>();
+        new ArrayList<>();
 
     for (final JPAPath jpaPath : selectionPathList) {
       groupBy.add(ExpressionUtil.convertToCriteriaPath(joinTables, root, jpaPath));
@@ -139,7 +138,7 @@ public class JPAQuery extends JPAExecutableQuery {
   }
 
   private List<JPAAssociationAttribute> extractOrderByNaviAttributes() throws ODataApplicationException {
-    final List<JPAAssociationAttribute> naviAttributes = new ArrayList<JPAAssociationAttribute>();
+    final List<JPAAssociationAttribute> naviAttributes = new ArrayList<>();
 
     final OrderByOption orderBy = uriResource.getOrderByOption();
     if (orderBy != null) {

@@ -4,6 +4,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
 
 import org.apache.olingo.server.api.ODataApplicationException;
+import org.apache.olingo.server.api.uri.queryoption.expression.UnaryOperatorKind;
 
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 
@@ -20,7 +21,7 @@ public class JPAOperationConverter {
   }
 
   @SuppressWarnings("unchecked")
-  final public <T extends Number> Expression<T> convert(final JPAArithmeticOperator jpaOperator)
+  public final <T extends Number> Expression<T> convert(final JPAArithmeticOperator jpaOperator)
       throws ODataApplicationException {
     switch (jpaOperator.getOperator()) {
     case ADD:
@@ -54,7 +55,7 @@ public class JPAOperationConverter {
     }
   }
 
-  final public Expression<Boolean> convert(final JPABooleanOperatorImp jpaOperator) throws ODataApplicationException {
+  public final Expression<Boolean> convert(final JPABooleanOperatorImp jpaOperator) throws ODataApplicationException {
     switch (jpaOperator.getOperator()) {
     case AND:
       return cb.and(jpaOperator.getLeft(), jpaOperator.getRight());
@@ -65,10 +66,11 @@ public class JPAOperationConverter {
     }
   }
 
-  // TODO check generics!
+//  // TODO check generics!
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  final public Expression<Boolean> convert(final JPAComparisonOperatorImp jpaOperator)
+  public final Expression<Boolean> convert(final JPAComparisonOperatorImp jpaOperator)
       throws ODataApplicationException {
+
     switch (jpaOperator.getOperator()) {
     case EQ:
       if (jpaOperator.getRight() instanceof JPALiteralOperator)
@@ -112,27 +114,42 @@ public class JPAOperationConverter {
   }
 
   @SuppressWarnings("unchecked")
-  public Object convert(final JPAMethodCall jpaFunction) throws ODataApplicationException {
+  public Expression<?> convert(final JPAMethodCall jpaFunction) throws ODataApplicationException {
     switch (jpaFunction.getFunction()) {
     // First String functions
     case LENGTH:
       return cb.length((Expression<String>) (jpaFunction.getParameter(0).get()));
     case CONTAINS:
-      final StringBuffer contains = new StringBuffer();
-      contains.append('%');
-      contains.append((String) ((JPALiteralOperator) jpaFunction.getParameter(1)).get());
-      contains.append('%');
-      return cb.like((Expression<String>) (jpaFunction.getParameter(0).get()), contains.toString());
+      if (jpaFunction.getParameter(1) instanceof JPALiteralOperator) {
+        final StringBuilder contains = new StringBuilder();
+        contains.append('%');
+        contains.append((String) ((JPALiteralOperator) jpaFunction.getParameter(1)).get());
+        contains.append('%');
+        return cb.like((Expression<String>) (jpaFunction.getParameter(0).get()), contains.toString());
+      } else {
+        return cb.like((Expression<String>) (jpaFunction.getParameter(0).get()),
+            (Expression<String>) ((JPAMethodCall) jpaFunction.getParameter(1)).get("%", "%"));
+      }
     case ENDSWITH:
-      final StringBuffer ends = new StringBuffer();
-      ends.append('%');
-      ends.append((String) ((JPALiteralOperator) jpaFunction.getParameter(1)).get());
-      return cb.like((Expression<String>) (jpaFunction.getParameter(0).get()), ends.toString());
+      if (jpaFunction.getParameter(1) instanceof JPALiteralOperator) {
+        final StringBuilder ends = new StringBuilder();
+        ends.append('%');
+        ends.append((String) ((JPALiteralOperator) jpaFunction.getParameter(1)).get());
+        return cb.like((Expression<String>) (jpaFunction.getParameter(0).get()), ends.toString());
+      } else {
+        return cb.like((Expression<String>) (jpaFunction.getParameter(0).get()),
+            (Expression<String>) ((JPAMethodCall) jpaFunction.getParameter(1)).get("%", ""));
+      }
     case STARTSWITH:
-      final StringBuffer starts = new StringBuffer();
-      starts.append((String) ((JPALiteralOperator) jpaFunction.getParameter(1)).get());
-      starts.append('%');
-      return cb.like((Expression<String>) (jpaFunction.getParameter(0).get()), starts.toString());
+      if (jpaFunction.getParameter(1) instanceof JPALiteralOperator) {
+        final StringBuilder starts = new StringBuilder();
+        starts.append((String) ((JPALiteralOperator) jpaFunction.getParameter(1)).get());
+        starts.append('%');
+        return cb.like((Expression<String>) (jpaFunction.getParameter(0).get()), starts.toString());
+      } else {
+        return cb.like((Expression<String>) (jpaFunction.getParameter(0).get()),
+            (Expression<String>) ((JPAMethodCall) jpaFunction.getParameter(1)).get("", "%"));
+      }
     case INDEXOF:
       final String searchString = ((String) ((JPALiteralOperator) jpaFunction.getParameter(1)).get());
       return cb.locate((Expression<String>) (jpaFunction.getParameter(0).get()), searchString);
@@ -142,7 +159,6 @@ public class JPAOperationConverter {
       // SQL databases respectively use 1 as start position of a string
 
       final Expression<Integer> start = convertLiteralToExpression(jpaFunction, 1, 1);
-      // final Integer start = new Integer(((JPALiteralOperator) jpaFunction.getParameter(1)).get().toString()) + 1;
       if (jpaFunction.noParameters() == 3) {
         final Expression<Integer> length = convertLiteralToExpression(jpaFunction, 2, 0);
         return cb.substring((Expression<String>) (jpaFunction.getParameter(0).get()), start, length);
@@ -150,13 +166,13 @@ public class JPAOperationConverter {
         return cb.substring((Expression<String>) (jpaFunction.getParameter(0).get()), start);
 
     case TOLOWER:
-      // TODO Locale!! and inverted parameter sequence
+//      // TODO Locale!! and inverted parameter sequence
       if (jpaFunction.getParameter(0).get() instanceof String)
-        return jpaFunction.getParameter(0).get().toString().toLowerCase();
+        return cb.literal(jpaFunction.getParameter(0).get().toString().toLowerCase());
       return cb.lower((Expression<String>) (jpaFunction.getParameter(0).get()));
     case TOUPPER:
       if (jpaFunction.getParameter(0).get() instanceof String)
-        return jpaFunction.getParameter(0).get().toString().toUpperCase();
+        return cb.literal(jpaFunction.getParameter(0).get().toString().toUpperCase());
       return cb.upper((Expression<String>) (jpaFunction.getParameter(0).get()));
     case TRIM:
       return cb.trim((Expression<String>) (jpaFunction.getParameter(0).get()));
@@ -178,23 +194,21 @@ public class JPAOperationConverter {
     }
   }
 
-  final public Expression<Boolean> convert(final JPAUnaryBooleanOperatorImp jpaOperator)
+  public final Expression<Boolean> convert(final JPAUnaryBooleanOperatorImp jpaOperator)
       throws ODataApplicationException {
-    switch (jpaOperator.getOperator()) {
-    case NOT:
+
+    if (jpaOperator.getOperator() == UnaryOperatorKind.NOT)
       return cb.not(jpaOperator.getLeft());
-    default:
-      return dbConverter.convert(jpaOperator);
-    }
+    return dbConverter.convert(jpaOperator);
+
   }
 
-  final public Expression<Long> convert(final JPAAggregationOperationImp jpaOperator) throws ODataApplicationException {
-    switch (jpaOperator.getAggregation()) {
-    case COUNT:
+  public final Expression<Long> convert(final JPAAggregationOperationImp jpaOperator) throws ODataApplicationException {
+
+    if (jpaOperator.getAggregation() == JPAFilterAggregationType.COUNT)
       return cb.count(jpaOperator.getPath());
-    default:
-      return dbConverter.convert(jpaOperator);
-    }
+    return dbConverter.convert(jpaOperator);
+
   }
 
   @SuppressWarnings("unchecked")

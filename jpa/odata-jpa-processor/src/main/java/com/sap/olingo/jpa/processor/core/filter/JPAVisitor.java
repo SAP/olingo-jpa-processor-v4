@@ -3,6 +3,7 @@ package com.sap.olingo.jpa.processor.core.filter;
 import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.apache.olingo.commons.api.edm.EdmEnumType;
@@ -46,8 +47,7 @@ class JPAVisitor implements JPAExpressionVisitor {
 
   @Override
   public JPAOperator visitAlias(final String aliasName) throws ExpressionVisitException, ODataApplicationException {
-//    int handle = debugger.startRuntimeMeasurement(this, "visitAlias");
-//    debugger.stopRuntimeMeasurement(handle);
+
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FILTER,
         HttpStatusCode.NOT_IMPLEMENTED, "Alias");
   }
@@ -58,7 +58,6 @@ class JPAVisitor implements JPAExpressionVisitor {
       final JPAOperator right) throws ExpressionVisitException, ODataApplicationException {
     int handle = debugger.startRuntimeMeasurement(this, "visitBinaryOperator");
 
-    // TODO Logging
     if (hasNavigation(left) || hasNavigation(right))
       return new JPANavigationOperation(this.jpaComplier, operator, left, right);
     if (operator == BinaryOperatorKind.EQ
@@ -71,8 +70,8 @@ class JPAVisitor implements JPAExpressionVisitor {
       return new JPAComparisonOperatorImp(this.jpaComplier.getConverter(), operator, left, right);
     } else if (operator == BinaryOperatorKind.AND || operator == BinaryOperatorKind.OR) {
       debugger.stopRuntimeMeasurement(handle);
-      return new JPABooleanOperatorImp(this.jpaComplier.getConverter(), operator, (JPAExpressionOperator) left,
-          (JPAExpressionOperator) right);
+      return new JPABooleanOperatorImp(this.jpaComplier.getConverter(), operator, (JPAExpression) left,
+          (JPAExpression) right);
     } else if (operator == BinaryOperatorKind.ADD
         || operator == BinaryOperatorKind.SUB
         || operator == BinaryOperatorKind.MUL
@@ -89,8 +88,7 @@ class JPAVisitor implements JPAExpressionVisitor {
   @Override
   public JPAOperator visitEnum(final EdmEnumType type, final List<String> enumValues) throws ExpressionVisitException,
       ODataApplicationException {
-//    int handle = debugger.startRuntimeMeasurement(this, "visitEnum");
-//    debugger.stopRuntimeMeasurement(handle);
+
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FILTER,
         HttpStatusCode.NOT_IMPLEMENTED, "Enumerations");
   }
@@ -99,8 +97,7 @@ class JPAVisitor implements JPAExpressionVisitor {
   public JPAOperator visitLambdaExpression(final String lambdaFunction, final String lambdaVariable,
       final org.apache.olingo.server.api.uri.queryoption.expression.Expression expression)
       throws ExpressionVisitException, ODataApplicationException {
-//    int handle = debugger.startRuntimeMeasurement(this, "visitLambdaExpression");
-//    debugger.stopRuntimeMeasurement(handle);
+
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FILTER,
         HttpStatusCode.NOT_IMPLEMENTED, "Lambda Expression");
   }
@@ -108,8 +105,7 @@ class JPAVisitor implements JPAExpressionVisitor {
   @Override
   public JPAOperator visitLambdaReference(final String variableName) throws ExpressionVisitException,
       ODataApplicationException {
-//    int handle = debugger.startRuntimeMeasurement(this, "visitLambdaReference");
-//    debugger.stopRuntimeMeasurement(handle);
+
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FILTER,
         HttpStatusCode.NOT_IMPLEMENTED, "Lambda Reference");
   }
@@ -141,7 +137,6 @@ class JPAVisitor implements JPAExpressionVisitor {
       final List<UriParameter> odataParams = ((UriResourceFunction) resource).getParameters();
       debugger.stopRuntimeMeasurement(handle);
       return new JPAFunctionOperator(this, odataParams, jpaFunction);
-      // , this.jpaComplier.getParent().getRoot(), jpaComplier.getConverter().cb);
     }
     debugger.stopRuntimeMeasurement(handle);
     return new JPAMemberOperator(this.jpaComplier.getJpaEntityType(), this.jpaComplier.getParent(), member);
@@ -150,15 +145,17 @@ class JPAVisitor implements JPAExpressionVisitor {
   @Override
   public JPAOperator visitMethodCall(final MethodKind methodCall, final List<JPAOperator> parameters)
       throws ExpressionVisitException, ODataApplicationException {
+
     final int handle = debugger.startRuntimeMeasurement(this, "visitMethodCall");
+    JPAMethodCall method = new JPAMethodCallImp(this.jpaComplier.getConverter(), methodCall, parameters);
+    if (method.get() instanceof Predicate)
+      method = new JPAMethodBasedExpression(this.jpaComplier.getConverter(), methodCall, parameters);
     debugger.stopRuntimeMeasurement(handle);
-    return new JPAMethodCallImp(this.jpaComplier.getConverter(), methodCall, parameters);
+    return method;
   }
 
   @Override
   public JPAOperator visitTypeLiteral(final EdmType type) throws ExpressionVisitException, ODataApplicationException {
-//    int handle = debugger.startRuntimeMeasurement(this, "visitTypeLiteral");
-//    debugger.stopRuntimeMeasurement(handle);
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FILTER,
         HttpStatusCode.NOT_IMPLEMENTED, "Type Literal");
   }
@@ -199,17 +196,15 @@ class JPAVisitor implements JPAExpressionVisitor {
   }
 
   private boolean isAggregation(final UriInfoResource resourcePath) {
-    if (resourcePath.getUriResourceParts().size() == 1 && resourcePath.getUriResourceParts().get(0)
-        .getKind() == UriResourceKind.count)
-      return true;
-    return false;
+
+    return (resourcePath.getUriResourceParts().size() == 1
+        && resourcePath.getUriResourceParts().get(0).getKind() == UriResourceKind.count);
   }
 
   private boolean isCustomFunction(final UriInfoResource resourcePath) {
-    if (resourcePath.getUriResourceParts().size() > 0 && resourcePath.getUriResourceParts().get(
-        0) instanceof UriResourceFunction)
-      return true;
-    return false;
+
+    return (!resourcePath.getUriResourceParts().isEmpty()
+        && resourcePath.getUriResourceParts().get(0) instanceof UriResourceFunction);
   }
 
   CriteriaBuilder getCriteriaBuilder() {

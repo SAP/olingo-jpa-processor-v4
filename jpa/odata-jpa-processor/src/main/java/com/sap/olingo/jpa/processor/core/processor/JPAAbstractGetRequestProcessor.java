@@ -8,9 +8,8 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 
 abstract class JPAAbstractGetRequestProcessor extends JPAAbstractRequestProcessor implements JPARequestProcessor {
 
-  public JPAAbstractGetRequestProcessor(OData odata, JPAODataSessionContextAccess context,
+  JPAAbstractGetRequestProcessor(OData odata, JPAODataSessionContextAccess context,
       JPAODataRequestContextAccess requestContext) throws ODataException {
     super(odata, context, requestContext);
   }
-
 }

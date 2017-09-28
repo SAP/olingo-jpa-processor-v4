@@ -1,6 +1,6 @@
 # 1.6: Navigation Properties And Complex Types
-You may have noticed, that the address has a region. We want to give the opportunity to get more details about the region. 
-So we need to create navigation property to an entity that has this details. The entity, AdministrativeDivision, can contain e.g. the population and the area or a link to a super-ordinate 
+You may have noticed, that the address has a region. We want to give the opportunity to get more details about the region.
+So we need to create navigation property to an entity that has this details. The entity, AdministrativeDivision, can contain e.g. the population and the area or a link to a super-ordinate
 region and is the last one we create. AdministrativeDivision, as  AdministrativeDivisionDescription, has a key build out of three attributes, so as usual we need a separate class for the key:
 ```Java
 package tutorial.model;
@@ -85,43 +85,44 @@ import javax.persistence.Table;
 @Table(schema = "\"OLINGO\"", name = "\"AdministrativeDivision\"")
 public class AdministrativeDivision {
 
-	@Id
-	@Column(name = "\"CodePublisher\"", length = 10)
-	private String codePublisher;
-	@Id
-	@Column(name = "\"CodeID\"", length = 10)
-	private String codeID;
-	@Id
-	@Column(name = "\"DivisionCode\"", length = 10)
-	private String divisionCode;
+  @Id
+  @Column(name = "\"CodePublisher\"", length = 10)
+  private String codePublisher;
+  @Id
+  @Column(name = "\"CodeID\"", length = 10)
+  private String codeID;
+  @Id
+  @Column(name = "\"DivisionCode\"", length = 10)
+  private String divisionCode;
 
-	@Column(name = "\"CountryISOCode\"", length = 4)
-	private String countryCode;
-	@Column(name = "\"ParentCodeID\"", length = 10)
-	private String parentCodeID;
-	@Column(name = "\"ParentDivisionCode\"", length = 10)
-	private String parentDivisionCode;
-	@Column(name = "\"AlternativeCode\"", length = 10)
-	private String alternativeCode;
-	@Column(name = "\"Area\"")
-	private Integer area;
-	@Column(name = "\"Population\"")
-	private Long population;
+  @Column(name = "\"CountryISOCode\"", length = 4)
+  private String countryCode;
+  @Column(name = "\"ParentCodeID\"", length = 10, insertable = false, updatable = false)
+  private String parentCodeID;
+  @Column(name = "\"ParentDivisionCode\"", length = 10, insertable = false, updatable = false)
+  private String parentDivisionCode;
+  @Column(name = "\"AlternativeCode\"", length = 10)
+  private String alternativeCode;
+  @Column(name = "\"Area\"")
+  private Integer area;
+  @Column(name = "\"Population\"")
+  private Long population;
 
-	@ManyToOne(fetch = FetchType.LAZY, optional = true)
-	@JoinColumns({
-			@JoinColumn(referencedColumnName = "\"CodePublisher\"", name = "\"CodePublisher\"", nullable = false, insertable = false, updatable = false),
-			@JoinColumn(referencedColumnName = "\"CodeID\"", name = "\"ParentCodeID\"", nullable = false, insertable = false, updatable = false),
-			@JoinColumn(referencedColumnName = "\"DivisionCode\"", name = "\"ParentDivisionCode\"", nullable = false, insertable = false, updatable = false) })
-	private AdministrativeDivision parent;
+  @ManyToOne(fetch = FetchType.LAZY, optional = true)
+  @JoinColumns({
+      @JoinColumn(referencedColumnName = "\"CodePublisher\"", name = "\"CodePublisher\"", nullable = false,
+          insertable = false, updatable = false),
+      @JoinColumn(referencedColumnName = "\"CodeID\"", name = "\"ParentCodeID\"", nullable = false, insertable = true,
+          updatable = false),
+      @JoinColumn(referencedColumnName = "\"DivisionCode\"", name = "\"ParentDivisionCode\"", nullable = false,
+          insertable = true, updatable = false) })
+  private AdministrativeDivision parent;
 
-	@OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
-	private List<AdministrativeDivision> children;
-
-}
+  @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
+  private List<AdministrativeDivision> children;
 ```
-Please not, that with the current design it is not possible to create a link between regions of different code publisher.  
-Having done that, we can create a association from the address to a administrative division:  
+Please not, that with the current design it is not possible to create a link between regions of different code publisher.
+Having done that, we can create a association from the address to a administrative division:
 ```Java
 @Embeddable
 public class PostalAddressData {
@@ -134,9 +135,9 @@ public class PostalAddressData {
 			@JoinColumn(name = "\"Address.RegionCodePublisher\"", referencedColumnName = "\"CodePublisher\"", nullable = false, insertable = false, updatable = false),
 			@JoinColumn(name = "\"Address.RegionCodeID\"", referencedColumnName = "\"CodeID\"", nullable = false, insertable = false, updatable = false),
 			@JoinColumn(name = "\"Address.Region\"", referencedColumnName = "\"DivisionCode\"", nullable = false, insertable = false, updatable = false) })
-	private AdministrativeDivision administrativeDivision;	
+	private AdministrativeDivision administrativeDivision;
 ```
-If we would now have a look at the metadata, we will notice the navigation property at the complex type PostalAddressData. 
+If we would now have a look at the metadata, we will notice the navigation property at the complex type PostalAddressData.
 ```XML
 <ComplexType Name="PostalAddressData">
 	<Property Name="POBox" Type="Edm.String" MaxLength="255"/>
@@ -155,7 +156,7 @@ If we would now have a look at the metadata, we will notice the navigation prope
 	</NavigationProperty>
 </ComplexType>
 ```
-In case we have nested embedded types like we have with ChangeInformation we have the same problem we had with the attribute names and have to solve in the same way. 
+In case we have nested embedded types like we have with ChangeInformation we have the same problem we had with the attribute names and have to solve in the same way.
 To show that we want to assume that the user is a Person:
 ```Java
 import java.sql.Timestamp;
@@ -177,7 +178,7 @@ public class ChangeInformation {
 	@JoinColumn(name = "\"by\"", referencedColumnName = "\"ID\"", insertable = false, updatable = false)
 	Person user;
 }
-``` 
+```
 Next we have to rename it, so that AdministrativeInformation looks as follows:
 ```Java
 package tutorial.model;
@@ -207,6 +208,6 @@ public class AdministrativeInformation {
 ```
 As it is not so easy to find that the navigation properties are really defined at the Person and the Company we should have a look at the mapping picture:
 
-![JPA - OData Mapping](Metadata/Mapping6.png)   
+![JPA - OData Mapping](Metadata/Mapping6.png)
 
 Next step: [Tutorial 1.7: Suppressing Elements](1-7-SuppressingElements.md)

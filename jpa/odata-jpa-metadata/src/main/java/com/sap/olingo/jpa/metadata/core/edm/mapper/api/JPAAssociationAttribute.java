@@ -9,6 +9,8 @@ public interface JPAAssociationAttribute extends JPAAttribute {
 
   public boolean isCollection();
 
-  JPAAssociationAttribute getPartner();
+  public JPAAssociationAttribute getPartner();
+
+  public JPAAssociationPath getPath() throws ODataJPAModelException;
 
 }

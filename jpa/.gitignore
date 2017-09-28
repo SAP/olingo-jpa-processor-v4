@@ -2,3 +2,8 @@ target/
 **/target/
 /target/
 /.pmd
+.classpath
+
+# --- EclipseIDE stuff START
+.settings/
+.metadata

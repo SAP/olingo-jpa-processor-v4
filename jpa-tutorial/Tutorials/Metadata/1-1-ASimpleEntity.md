@@ -17,9 +17,7 @@ import javax.persistence.Version;
  */
 @Entity(name = "BusinessPartner")
 @Table(schema = "\"OLINGO\"", name = "\"BusinessPartner\"")
-public class BusinessPartner implements Serializable {
-
-	private static final long serialVersionUID = 1L;
+public class BusinessPartner{
 
 	@Id
 	@Column(length = 32)
@@ -62,14 +60,14 @@ Next we have to create our _persistence.xml_ file. This will be located under _s
 			<property name="eclipselink.persistence-context.flush-mode" value="commit" />
 			<property name="javax.persistence.validation.mode" value="NONE" />
 			<property name="javax.persistence.jdbc.url" value="jdbc:hsqldb:mem:com.sample" />
-			<property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbcDriver" />	
+			<property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbcDriver" />
 		</properties>
-	</persistence-unit>	
-</persistence>	
-```	
-The XML file is as of now dominated by information about the logging and the data base connection. Therefore I like to point to two lines. First the name of the persistence-unit, here _Tutorial_. This is important for us for two reasons:  
-  1. It is the link between the metadata and the entity manager  
-  2. It is used as the OData namespace  
+	</persistence-unit>
+</persistence>
+```
+The XML file is as of now dominated by information about the logging and the data base connection. Therefore I like to point to two lines. First the name of the persistence-unit, here _Tutorial_. This is important for us for two reasons:
+  1. It is the link between the metadata and the entity manager
+  2. It is used as the OData namespace
 
 Only one persistence unit is supported, which means also only one OData schema within a Data Services Document is supported. The other one is the declaration of the JPA entity class _<class>tutorial.model.BusinessPartner</class>_. Over the time we will add more here.
 
@@ -91,7 +89,7 @@ Now its time to create our web service. First we want to maintain the _web.xml_ 
 	</servlet-mapping>
 </web-app>
 ```
-Second we create the servlet. For this we create a new package _tutorial.service_ in _/src/main/java_.The class shall have the name _Servlet_, as we have declared it in the _web.xml_ file and inherit from _javax.servlet.http.HttpServlet_. We overwrite the method _service_.    
+Second we create the servlet. For this we create a new package _tutorial.service_ in _/src/main/java_.The class shall have the name _Servlet_, as we have declared it in the _web.xml_ file and inherit from _javax.servlet.http.HttpServlet_. We overwrite the method _service_.
 ```Java
 package tutorial.service;
 
@@ -121,9 +119,9 @@ public class Servlet extends HttpServlet {
 	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		try {
 
-			EntityManagerFactory emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, null);
+			EntityManagerFactory emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, new HashMap<String, Object>());
 			JPAEdmProvider metadataProvider = new JPAEdmProvider(PUNIT_NAME, emf, null);
-		
+
 			OData odata = OData.newInstance();
 			ServiceMetadata edm = odata.createServiceMetadata(metadataProvider, new ArrayList<EdmxReference>());
 			ODataHttpHandler handler = odata.createHandler(edm);
@@ -137,12 +135,12 @@ public class Servlet extends HttpServlet {
 	}
 }
 ```
-Let's have a look at the code. We have created a constants _PUNIT_NAME_ to store the name of our persistence unit. This is used on the hand to create a the Entity Manger Factory. JPA Processor provides a factory for this, which is used here, but it is not mandatory to use it. On the other hand JPAEdmProvider is created. This class is responsible for converting the JPA metadata into OData metadata. The other calls are needed to let Olingo answer the request.    
-Now we can have a look at what we have achieved up to now. For this we want to run our app on a server. To do make a right mouse click on the project and choose _Run As -> Run on Server_ . 
+Let's have a look at the code. We have created a constants _PUNIT_NAME_ to store the name of our persistence unit. This is used on the hand to create a the Entity Manger Factory. JPA Processor provides a factory for this, which is used here, but it is not mandatory to use it. On the other hand JPAEdmProvider is created. This class is responsible for converting the JPA metadata into OData metadata. The other calls are needed to let Olingo answer the request.
+Now we can have a look at what we have achieved up to now. For this we want to run our app on a server. To do make a right mouse click on the project and choose _Run As -> Run on Server_ .
 
-![Run on Server](Metadata/RunOnServer.png)    
+![Run on Server](Metadata/RunOnServer.png)
 
-Choose a web server and start it. With the following url you should now get the service document _http://localhost:8080/Tutorial/Tutorial.svc/_, which should look as follows:    
+Choose a web server and start it. With the following url you should now get the service document _http://localhost:8080/Tutorial/Tutorial.svc/_, which should look as follows:
 ```XML
 <app:service xmlns:atom="http://www.w3.org/2005/Atom" xmlns:app="http://www.w3.org/2007/app" xmlns:metadata="http://docs.oasis-open.org/odata/ns/metadata" metadata:context="$metadata">
 	<app:workspace>
@@ -153,9 +151,9 @@ Choose a web server and start it. With the following url you should now get the 
 	</app:workspace>
 </app:service>
 ```
-With _http://localhost:8080/Tutorial/Tutorial.svc/$metadata_ we can have a look at our metadata document. The following picture should give an overview of the metadata mapping:    
+With _http://localhost:8080/Tutorial/Tutorial.svc/$metadata_ we can have a look at our metadata document. The following picture should give an overview of the metadata mapping:
 
-![JPA - OData Mapping](Metadata/Mapping1.png)    
+![JPA - OData Mapping](Metadata/Mapping1.png)
 
 As already mentioned the persistence unit has become the namespace of our OData schema. In addition it is used to name the container. The JPA Entity name became the OData Entity Type name and its plural is used as the name of the Entity Type Set. Column metadata is converted in to Property metadata, like name, length or precision and scale.
 
