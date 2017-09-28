@@ -4,3 +4,6 @@ target/
 
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
+# --- EclipseIDE stuff START
+.settings/
+.metadata
