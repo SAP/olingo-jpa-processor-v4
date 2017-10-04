@@ -3,6 +3,7 @@ package com.sap.olingo.jpa.processor.core.processor;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 
@@ -10,7 +11,10 @@ import org.apache.olingo.commons.api.http.HttpStatusCode;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAInvocationTargetException;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 
 /**
@@ -26,6 +30,9 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
  *
  */
 public final class JPAModifyUtil {
+
+  private JPAStructuredType st = null;
+
   /**
    * Create a filled instance of a JPA entity key.
    * <p>
@@ -88,11 +95,11 @@ public final class JPAModifyUtil {
    * 
    * @param jpaAttributes
    * @param instanze
-   * @throws ODataJPAProcessorException
+   * @throws ODataJPAProcessException
    */
   @SuppressWarnings("unchecked")
-  public void setAttributesDeep(final Map<String, Object> jpaAttributes, final Object instanze)
-      throws ODataJPAProcessorException {
+  public void setAttributesDeep(final Map<String, Object> jpaAttributes, final Object instanze, JPAStructuredType st)
+      throws ODataJPAProcessException {
     final Method[] methods = instanze.getClass().getMethods();
     for (final Method meth : methods) {
       if (meth.getName().substring(0, 3).equals("set")) {
@@ -119,12 +126,43 @@ public final class JPAModifyUtil {
                   meth.invoke(instanze, embedded);
                 }
                 if (embedded != null) {
-                  setAttributesDeep((Map<String, Object>) value, embedded);
+                  if (this.st == null)
+                    this.st = st;
+                  setAttributesDeep((Map<String, Object>) value, embedded, st.getAttribute(attributeName)
+                      .getStructuredType());
+                  if (this.st.equals(st)) {
+                    this.st = null;
+                  }
                 }
               }
-            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
+            } catch (IllegalAccessException | IllegalArgumentException | ODataJPAModelException
                 | NoSuchMethodException | SecurityException | InstantiationException e) {
               throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+            } catch (InvocationTargetException | ODataJPAProcessException e) {
+              if (e.getCause() instanceof ODataJPAProcessException) {
+                HttpStatusCode code = HttpStatusCode.fromStatusCode(((ODataJPAProcessException) e.getCause())
+                    .getStatusCode());
+                String id = ((ODataJPAProcessException) e.getCause()).getId();
+                String[] tmp = ((ODataJPAProcessException) e.getCause()).getParameter();
+                String[] params = null;
+                try {
+                  if (this.st.equals(st)) {
+                    params = Arrays.copyOf(tmp, tmp.length + 2);
+                    params[params.length - 2] = st.getAttribute(attributeName).getExternalName();
+                    params[params.length - 1] = st.getExternalName();
+                    this.st = null;
+                  } else {
+                    params = Arrays.copyOf(tmp, tmp.length + 1);
+                    params[params.length - 1] = st.getAttribute(attributeName).getExternalName();
+                  }
+                } catch (ODataJPAModelException e1) {
+                  e1.printStackTrace();
+                }
+
+                throw new ODataJPAProcessorException(id, code, e.getCause(), params);
+              } else
+                throw new ODataJPAInvocationTargetException(e);
+
             }
           }
         }
