@@ -3,7 +3,6 @@ package com.sap.olingo.jpa.processor.core.processor;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 
@@ -139,30 +138,27 @@ public final class JPAModifyUtil {
                 | NoSuchMethodException | SecurityException | InstantiationException e) {
               throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
             } catch (InvocationTargetException | ODataJPAProcessException e) {
+              String pathPart = null;
               if (e.getCause() instanceof ODataJPAProcessException) {
-                HttpStatusCode code = HttpStatusCode.fromStatusCode(((ODataJPAProcessException) e.getCause())
-                    .getStatusCode());
-                String id = ((ODataJPAProcessException) e.getCause()).getId();
-                String[] tmp = ((ODataJPAProcessException) e.getCause()).getParameter();
-                String[] params = null;
                 try {
-                  if (this.st.equals(st)) {
-                    params = Arrays.copyOf(tmp, tmp.length + 2);
-                    params[params.length - 2] = st.getAttribute(attributeName).getExternalName();
-                    params[params.length - 1] = st.getExternalName();
+                  pathPart = st.getAttribute(attributeName).getExternalName();
+                  if (this.st != null && this.st.equals(st)) {
+                    String path = st.getExternalName() + "/" + pathPart + "/"
+                        + ((ODataJPAInvocationTargetException) e).getPath();
                     this.st = null;
-                  } else {
-                    params = Arrays.copyOf(tmp, tmp.length + 1);
-                    params[params.length - 1] = st.getAttribute(attributeName).getExternalName();
+                    throw new ODataJPAInvocationTargetException(e.getCause(), path);
                   }
                 } catch (ODataJPAModelException e1) {
-                  e1.printStackTrace();
+                  throw new ODataJPAProcessorException(e1, HttpStatusCode.INTERNAL_SERVER_ERROR);
                 }
+                if (e instanceof ODataJPAInvocationTargetException)
+                  throw new ODataJPAInvocationTargetException(e.getCause(), pathPart + "/"
+                      + ((ODataJPAInvocationTargetException) e).getPath());
+                else
+                  throw new ODataJPAInvocationTargetException(e.getCause(), pathPart);
 
-                throw new ODataJPAProcessorException(id, code, e.getCause(), params);
               } else
                 throw new ODataJPAInvocationTargetException(e);
-
             }
           }
         }
