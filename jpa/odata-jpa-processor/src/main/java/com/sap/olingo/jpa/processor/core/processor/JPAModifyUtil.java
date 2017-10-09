@@ -139,26 +139,22 @@ public final class JPAModifyUtil {
               throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
             } catch (InvocationTargetException | ODataJPAProcessException e) {
               String pathPart = null;
-              if (e.getCause() instanceof ODataJPAProcessException) {
-                try {
-                  pathPart = st.getAttribute(attributeName).getExternalName();
-                  if (this.st != null && this.st.equals(st)) {
-                    String path = st.getExternalName() + "/" + pathPart + "/"
-                        + ((ODataJPAInvocationTargetException) e).getPath();
-                    this.st = null;
-                    throw new ODataJPAInvocationTargetException(e.getCause(), path);
-                  }
-                } catch (ODataJPAModelException e1) {
-                  throw new ODataJPAProcessorException(e1, HttpStatusCode.INTERNAL_SERVER_ERROR);
+              try {
+                pathPart = st.getAttribute(attributeName).getExternalName();
+                if (this.st != null && this.st.equals(st)) {
+                  String path = st.getExternalName() + "/" + pathPart + "/"
+                      + ((ODataJPAInvocationTargetException) e).getPath();
+                  this.st = null;
+                  throw new ODataJPAInvocationTargetException(e.getCause(), path);
                 }
-                if (e instanceof ODataJPAInvocationTargetException)
-                  throw new ODataJPAInvocationTargetException(e.getCause(), pathPart + "/"
-                      + ((ODataJPAInvocationTargetException) e).getPath());
-                else
-                  throw new ODataJPAInvocationTargetException(e.getCause(), pathPart);
-
-              } else
-                throw new ODataJPAInvocationTargetException(e);
+              } catch (ODataJPAModelException e1) {
+                throw new ODataJPAProcessorException(e1, HttpStatusCode.INTERNAL_SERVER_ERROR);
+              }
+              if (e instanceof ODataJPAInvocationTargetException)
+                throw new ODataJPAInvocationTargetException(e.getCause(), pathPart + "/"
+                    + ((ODataJPAInvocationTargetException) e).getPath());
+              else
+                throw new ODataJPAInvocationTargetException(e.getCause(), pathPart);
             }
           }
         }

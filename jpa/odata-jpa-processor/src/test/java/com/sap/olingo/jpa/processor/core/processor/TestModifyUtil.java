@@ -140,6 +140,22 @@ public class TestModifyUtil extends TestBase {
     assertEquals("Test Town", partner.getAddress().getCityName());
   }
 
+  @Test(expected = NullPointerException.class)
+  public void testSetAttributesDeepOneLevelViaGetterWithWrongRequestData() throws Throwable {
+    Map<String, Object> embeddedAttributes = new HashMap<>();
+    Map<String, Object> innerEmbeddedAttributes = new HashMap<>();
+    jpaAttributes.put("iD", "Willi");
+    jpaAttributes.put("administrativeInformation", embeddedAttributes);
+    embeddedAttributes.put("updated", innerEmbeddedAttributes);
+    innerEmbeddedAttributes.put("by", null);
+    try {
+      cut.setAttributesDeep(jpaAttributes, partner, org);
+    } catch (ODataJPAInvocationTargetException e) {
+      assertEquals("Organization/AdministrativeInformation/Updated/By", e.getPath());
+      throw e.getCause();
+    }
+  }
+
   @Test
   public void testDoNotSetAttributesDeepOneLevelIfNotProvided() throws ODataJPAProcessException,
       ODataJPAInvocationTargetException {
