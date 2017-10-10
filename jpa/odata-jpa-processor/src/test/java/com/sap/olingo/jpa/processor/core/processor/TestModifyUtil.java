@@ -23,7 +23,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAInvocationTargetException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
-import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionKey;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
@@ -47,36 +46,36 @@ public class TestModifyUtil extends TestBase {
   }
 
   @Test
-  public void testSetAttributeOneAttribute() throws ODataJPAProcessorException {
+  public void testSetAttributeOneAttribute() throws ODataJPAProcessException {
     jpaAttributes.put("iD", "Willi");
-    cut.setAttributes(jpaAttributes, partner);
+    cut.setAttributes(jpaAttributes, partner, org);
     assertEquals("Willi", partner.getID());
   }
 
   @Test
-  public void testSetAttributeMultipleAttribute() throws ODataJPAProcessorException {
+  public void testSetAttributeMultipleAttribute() throws ODataJPAProcessException {
     jpaAttributes.put("iD", "Willi");
     jpaAttributes.put("type", "2");
-    cut.setAttributes(jpaAttributes, partner);
+    cut.setAttributes(jpaAttributes, partner, org);
     assertEquals("Willi", partner.getID());
     assertEquals("2", partner.getType());
   }
 
   @Test
-  public void testSetAttributeIfAttributeNull() throws ODataJPAProcessorException {
+  public void testSetAttributeIfAttributeNull() throws ODataJPAProcessException {
     partner.setType("2");
     jpaAttributes.put("iD", "Willi");
     jpaAttributes.put("type", null);
-    cut.setAttributes(jpaAttributes, partner);
+    cut.setAttributes(jpaAttributes, partner, org);
     assertEquals("Willi", partner.getID());
     assertNull(partner.getType());
   }
 
   @Test
-  public void testDoNotSetAttributeIfNotInMap() throws ODataJPAProcessorException {
+  public void testDoNotSetAttributeIfNotInMap() throws ODataJPAProcessException {
     partner.setType("2");
     jpaAttributes.put("iD", "Willi");
-    cut.setAttributes(jpaAttributes, partner);
+    cut.setAttributes(jpaAttributes, partner, org);
     assertEquals("Willi", partner.getID());
     assertEquals("2", partner.getType());
   }
@@ -213,7 +212,7 @@ public class TestModifyUtil extends TestBase {
   }
 
   @Test
-  public void testCreatePrimaryKeyOneStringKeyField() throws ODataJPAProcessorException, ODataJPAModelException {
+  public void testCreatePrimaryKeyOneStringKeyField() throws ODataJPAProcessException, ODataJPAModelException {
     final JPAEntityType et = createSingleKeyEntityType();
 
     when(et.getKeyType()).thenAnswer(new Answer<Class<?>>() {
@@ -224,12 +223,12 @@ public class TestModifyUtil extends TestBase {
     });
 
     jpaAttributes.put("iD", "Willi");
-    String act = (String) cut.createPrimaryKey(et, jpaAttributes);
+    String act = (String) cut.createPrimaryKey(et, jpaAttributes, org);
     assertEquals("Willi", act);
   }
 
   @Test
-  public void testCreatePrimaryKeyOneIntegerKeyField() throws ODataJPAProcessorException, ODataJPAModelException {
+  public void testCreatePrimaryKeyOneIntegerKeyField() throws ODataJPAProcessException, ODataJPAModelException {
     final JPAEntityType et = createSingleKeyEntityType();
 
     when(et.getKeyType()).thenAnswer(new Answer<Class<?>>() {
@@ -240,12 +239,12 @@ public class TestModifyUtil extends TestBase {
     });
 
     jpaAttributes.put("iD", new Integer(10));
-    Integer act = (Integer) cut.createPrimaryKey(et, jpaAttributes);
+    Integer act = (Integer) cut.createPrimaryKey(et, jpaAttributes, org);
     assertEquals(new Integer(10), act);
   }
 
   @Test
-  public void testCreatePrimaryKeyOneBigIntegerKeyField() throws ODataJPAProcessorException, ODataJPAModelException {
+  public void testCreatePrimaryKeyOneBigIntegerKeyField() throws ODataJPAProcessException, ODataJPAModelException {
     final JPAEntityType et = createSingleKeyEntityType();
 
     when(et.getKeyType()).thenAnswer(new Answer<Class<?>>() {
@@ -256,12 +255,12 @@ public class TestModifyUtil extends TestBase {
     });
 
     jpaAttributes.put("iD", new BigInteger("10"));
-    BigInteger act = (BigInteger) cut.createPrimaryKey(et, jpaAttributes);
+    BigInteger act = (BigInteger) cut.createPrimaryKey(et, jpaAttributes, org);
     assertEquals(new BigInteger("10"), act);
   }
 
   @Test
-  public void testCreatePrimaryKeyMultipleField() throws ODataJPAProcessorException, ODataJPAModelException {
+  public void testCreatePrimaryKeyMultipleField() throws ODataJPAProcessException, ODataJPAModelException {
     final JPAEntityType et = mock(JPAEntityType.class);
 
     when(et.getKeyType()).thenAnswer(new Answer<Class<?>>() {
@@ -274,7 +273,7 @@ public class TestModifyUtil extends TestBase {
     jpaAttributes.put("codePublisher", "Test");
     jpaAttributes.put("codeID", "10");
     jpaAttributes.put("divisionCode", "10.1");
-    AdministrativeDivisionKey act = (AdministrativeDivisionKey) cut.createPrimaryKey(et, jpaAttributes);
+    AdministrativeDivisionKey act = (AdministrativeDivisionKey) cut.createPrimaryKey(et, jpaAttributes, org);
     assertEquals("Test", act.getCodePublisher());
     assertEquals("10", act.getCodeID());
     assertEquals("10.1", act.getDivisionCode());

@@ -43,14 +43,14 @@ public final class JPAModifyUtil {
    * @return
    * @throws ODataJPAProcessorException
    */
-  public Object createPrimaryKey(final JPAEntityType et, final Map<String, Object> jpaKeys)
-      throws ODataJPAProcessorException {
+  public Object createPrimaryKey(final JPAEntityType et, final Map<String, Object> jpaKeys, JPAStructuredType st)
+      throws ODataJPAProcessException {
     try {
       if (et.getKey().size() == 1)
         return jpaKeys.get(et.getKey().get(0).getInternalName());
 
       final Object key = et.getKeyType().getConstructor().newInstance();
-      setAttributes(jpaKeys, key);
+      setAttributes(jpaKeys, key, st);
       return key;
     } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
         | IllegalArgumentException | InvocationTargetException | ODataJPAModelException e) {
@@ -64,8 +64,8 @@ public final class JPAModifyUtil {
    * @param instanze
    * @throws ODataJPAProcessorException
    */
-  public void setAttributes(final Map<String, Object> jpaAttributes, final Object instanze)
-      throws ODataJPAProcessorException {
+  public void setAttributes(final Map<String, Object> jpaAttributes, final Object instanze, JPAStructuredType st)
+      throws ODataJPAProcessException {
     Method[] methods = instanze.getClass().getMethods();
     for (Method meth : methods) {
       if (meth.getName().substring(0, 3).equals("set")) {
@@ -78,8 +78,15 @@ public final class JPAModifyUtil {
               if (parameters.length == 1 && (value == null || value.getClass() == parameters[0])) {
                 meth.invoke(instanze, value);
               }
-            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            } catch (IllegalAccessException | IllegalArgumentException e) {
               throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+            } catch (InvocationTargetException e) {
+              try {
+                throw new ODataJPAInvocationTargetException(e.getCause(), st.getExternalName() + "/" + st.getAttribute(
+                    attributeName).getExternalName());
+              } catch (ODataJPAModelException e1) {
+                throw new ODataJPAProcessorException(e1, HttpStatusCode.INTERNAL_SERVER_ERROR);
+              }
             }
           }
         }
