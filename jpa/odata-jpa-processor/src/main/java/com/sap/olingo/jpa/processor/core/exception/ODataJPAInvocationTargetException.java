@@ -21,15 +21,6 @@ public class ODataJPAInvocationTargetException extends ODataJPAProcessException 
     }
   }
 
-  public ODataJPAInvocationTargetException(Throwable e, String[] params) {
-    super(MessageKeys.WRONG_VALUE.getKey(), HttpStatusCode.BAD_REQUEST, e, params);
-    if (params.length > 0) {
-      this.path = params[0];
-    } else {
-      this.path = null;
-    }
-  }
-
   public ODataJPAInvocationTargetException(Throwable e, final String path) {
     super(e, HttpStatusCode.BAD_REQUEST);
     this.path = path;
