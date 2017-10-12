@@ -10,7 +10,10 @@ import org.apache.olingo.commons.api.http.HttpStatusCode;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAInvocationTargetException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 
 /**
@@ -26,9 +29,12 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
  *
  */
 public final class JPAModifyUtil {
+
+  private JPAStructuredType st = null;
+
   /**
    * Create a filled instance of a JPA entity key.
-   * <p>
+   * <br>
    * For JPA entities having only one key, so do not use an IdClass, the
    * corresponding value in <code>jpaKeys</code> is returned
    * 
@@ -37,14 +43,14 @@ public final class JPAModifyUtil {
    * @return
    * @throws ODataJPAProcessorException
    */
-  public Object createPrimaryKey(final JPAEntityType et, final Map<String, Object> jpaKeys)
-      throws ODataJPAProcessorException {
+  public Object createPrimaryKey(final JPAEntityType et, final Map<String, Object> jpaKeys, JPAStructuredType st)
+      throws ODataJPAProcessorException, ODataJPAInvocationTargetException {
     try {
       if (et.getKey().size() == 1)
         return jpaKeys.get(et.getKey().get(0).getInternalName());
 
       final Object key = et.getKeyType().getConstructor().newInstance();
-      setAttributes(jpaKeys, key);
+      setAttributes(jpaKeys, key, st);
       return key;
     } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
         | IllegalArgumentException | InvocationTargetException | ODataJPAModelException e) {
@@ -53,13 +59,19 @@ public final class JPAModifyUtil {
   }
 
   /**
+   * Fills instance without filling its embedded components.
    * 
-   * @param jpaAttributes
-   * @param instanze
-   * @throws ODataJPAProcessorException
+   * @param jpaAttributes Map of attributes and values that shall be changed
+   * @param instanze JPA POJO instance to take the changes
+   * @param st Entity Type
+   * @throws ODataJPAProcessorException Thrown when ever a problem with invoking a getter or setter occurs except
+   * InvocationTargetException occurs.
+   * @throws ODataJPAInvocationTargetException Thrown when InvocationTargetException was thrown.
+   * ODataJPAInvocationTargetException contains the original cause and the OData path to the property which should be
+   * changed. The path starts with the entity type. The path parts a separated by {@code JPAPath.PATH_SEPERATOR}.
    */
-  public void setAttributes(final Map<String, Object> jpaAttributes, final Object instanze)
-      throws ODataJPAProcessorException {
+  public void setAttributes(final Map<String, Object> jpaAttributes, final Object instanze, JPAStructuredType st)
+      throws ODataJPAProcessorException, ODataJPAInvocationTargetException {
     Method[] methods = instanze.getClass().getMethods();
     for (Method meth : methods) {
       if (meth.getName().substring(0, 3).equals("set")) {
@@ -72,8 +84,16 @@ public final class JPAModifyUtil {
               if (parameters.length == 1 && (value == null || value.getClass() == parameters[0])) {
                 meth.invoke(instanze, value);
               }
-            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            } catch (IllegalAccessException | IllegalArgumentException e) {
               throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+            } catch (InvocationTargetException e) {
+              try {
+                throw new ODataJPAInvocationTargetException(e.getCause(), st.getExternalName() + JPAPath.PATH_SEPERATOR
+                    + st.getAttribute(
+                        attributeName).getExternalName());
+              } catch (ODataJPAModelException e1) {
+                throw new ODataJPAProcessorException(e1, HttpStatusCode.INTERNAL_SERVER_ERROR);
+              }
             }
           }
         }
@@ -86,13 +106,18 @@ public final class JPAModifyUtil {
    * components it first tries to get an existing instance. If that is non
    * provided a new one is created and set.
    * 
-   * @param jpaAttributes
-   * @param instanze
-   * @throws ODataJPAProcessorException
+   * @param jpaAttributes Map of attributes and values that shall be changed
+   * @param instanze JPA POJO instance to take the changes
+   * @param st Entity Type
+   * @throws ODataJPAProcessorException Thrown when ever a problem with invoking a getter or setter occurs except
+   * InvocationTargetException occurs.
+   * @throws ODataJPAInvocationTargetException Thrown when InvocationTargetException was thrown.
+   * ODataJPAInvocationTargetException contains the original cause and the OData path to the property which should be
+   * changed. The path starts with the entity type. The path parts a separated by {@code JPAPath.PATH_SEPERATOR}.
    */
   @SuppressWarnings("unchecked")
-  public void setAttributesDeep(final Map<String, Object> jpaAttributes, final Object instanze)
-      throws ODataJPAProcessorException {
+  public void setAttributesDeep(final Map<String, Object> jpaAttributes, final Object instanze, JPAStructuredType st)
+      throws ODataJPAProcessorException, ODataJPAInvocationTargetException {
     final Method[] methods = instanze.getClass().getMethods();
     for (final Method meth : methods) {
       if (meth.getName().substring(0, 3).equals("set")) {
@@ -119,12 +144,20 @@ public final class JPAModifyUtil {
                   meth.invoke(instanze, embedded);
                 }
                 if (embedded != null) {
-                  setAttributesDeep((Map<String, Object>) value, embedded);
+                  if (this.st == null)
+                    this.st = st;
+                  setAttributesDeep((Map<String, Object>) value, embedded, st.getAttribute(attributeName)
+                      .getStructuredType());
+                  if (this.st.equals(st)) {
+                    this.st = null;
+                  }
                 }
               }
-            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
+            } catch (IllegalAccessException | IllegalArgumentException | ODataJPAModelException
                 | NoSuchMethodException | SecurityException | InstantiationException e) {
               throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+            } catch (InvocationTargetException | ODataJPAInvocationTargetException e) {
+              handleInvocationTargetException(st, attributeName, e);
             }
           }
         }
@@ -161,4 +194,27 @@ public final class JPAModifyUtil {
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
   }
+
+  private void handleInvocationTargetException(JPAStructuredType st, final String attributeName, Exception e)
+      throws ODataJPAInvocationTargetException, ODataJPAProcessorException {
+
+    String pathPart = null;
+    try {
+      pathPart = st.getAttribute(attributeName).getExternalName();
+      if (this.st != null && this.st.equals(st)) {
+        String path = st.getExternalName() + JPAPath.PATH_SEPERATOR + pathPart + JPAPath.PATH_SEPERATOR
+            + ((ODataJPAInvocationTargetException) e).getPath();
+        this.st = null;
+        throw new ODataJPAInvocationTargetException(e.getCause(), path);
+      }
+    } catch (ODataJPAModelException e1) {
+      throw new ODataJPAProcessorException(e1, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    }
+    if (e instanceof ODataJPAInvocationTargetException)
+      throw new ODataJPAInvocationTargetException(e.getCause(), pathPart + JPAPath.PATH_SEPERATOR
+          + ((ODataJPAInvocationTargetException) e).getPath());
+    else
+      throw new ODataJPAInvocationTargetException(e.getCause(), pathPart);
+  }
+
 }

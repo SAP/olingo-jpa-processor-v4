@@ -14,7 +14,7 @@ public class ODataJPAProcessorException extends ODataJPAProcessException {
    */
   private static final long serialVersionUID = -7188499882306858747L;
 
-  public enum MessageKeys implements ODataJPAMessageKey {
+  public static enum MessageKeys implements ODataJPAMessageKey {
     QUERY_PREPARATION_ERROR,
     QUERY_RESULT_CONV_ERROR,
     QUERY_RESULT_URI_ERROR,
@@ -47,6 +47,11 @@ public class ODataJPAProcessorException extends ODataJPAProcessException {
   public ODataJPAProcessorException(final MessageKeys messageKey, final HttpStatusCode statusCode,
       final Throwable cause, final String... params) {
     super(messageKey.getKey(), statusCode, cause, params);
+  }
+
+  public ODataJPAProcessorException(final String messageKey, final HttpStatusCode statusCode,
+      final Throwable cause, final String[] params) {
+    super(messageKey, statusCode, cause, params);
   }
 
   public ODataJPAProcessorException(final MessageKeys messageKey, final HttpStatusCode statusCode) {
