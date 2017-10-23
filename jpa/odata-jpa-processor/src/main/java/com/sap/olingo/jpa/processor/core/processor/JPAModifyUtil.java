@@ -43,7 +43,7 @@ public final class JPAModifyUtil {
    * @return
    * @throws ODataJPAProcessorException
    */
-  public Object createPrimaryKey(final JPAEntityType et, final Map<String, Object> jpaKeys, JPAStructuredType st)
+  public Object createPrimaryKey(final JPAEntityType et, final Map<String, Object> jpaKeys, final JPAStructuredType st)
       throws ODataJPAProcessorException, ODataJPAInvocationTargetException {
     try {
       if (et.getKey().size() == 1)
@@ -70,7 +70,7 @@ public final class JPAModifyUtil {
    * ODataJPAInvocationTargetException contains the original cause and the OData path to the property which should be
    * changed. The path starts with the entity type. The path parts a separated by {@code JPAPath.PATH_SEPERATOR}.
    */
-  public void setAttributes(final Map<String, Object> jpaAttributes, final Object instanze, JPAStructuredType st)
+  public void setAttributes(final Map<String, Object> jpaAttributes, final Object instanze, final JPAStructuredType st)
       throws ODataJPAProcessorException, ODataJPAInvocationTargetException {
     Method[] methods = instanze.getClass().getMethods();
     for (Method meth : methods) {
@@ -116,8 +116,9 @@ public final class JPAModifyUtil {
    * changed. The path starts with the entity type. The path parts a separated by {@code JPAPath.PATH_SEPERATOR}.
    */
   @SuppressWarnings("unchecked")
-  public void setAttributesDeep(final Map<String, Object> jpaAttributes, final Object instanze, JPAStructuredType st)
-      throws ODataJPAProcessorException, ODataJPAInvocationTargetException {
+  public void setAttributesDeep(final Map<String, Object> jpaAttributes, final Object instanze,
+      final JPAStructuredType st) throws ODataJPAProcessorException, ODataJPAInvocationTargetException {
+
     final Method[] methods = instanze.getClass().getMethods();
     for (final Method meth : methods) {
       if (meth.getName().substring(0, 3).equals("set")) {
@@ -176,7 +177,7 @@ public final class JPAModifyUtil {
    * @throws ODataJPAProcessorException
    */
   @SuppressWarnings("unchecked")
-  public <T> void linkEnties(final Object sourceInstance, final T targetInstance, final JPAAssociationPath pathInfo)
+  public <T> void linkEntities(final Object sourceInstance, final T targetInstance, final JPAAssociationPath pathInfo)
       throws ODataJPAProcessorException {
     final String relationName = pathInfo.getPath().get(0).getInternalName();
     final String methodSuffix = relationName.substring(0, 1).toUpperCase() + relationName.substring(1);
