@@ -6,7 +6,7 @@ At the current state the JPA Processor provide support for:
 2. Processing Get requests by converting them into Criteria Builder queries.  
 3. Supporting entity manipulations.  
 
-More details can be found in the [Tutorial](/jpa-tutorial/Tutorials/Introduction/Introduction.md)
+More details can be found in the [Tutorial](https://github.com/SAP/olingo-jpa-processor-v4/blob/develop/jpa-tutorial/Tutorials/Introduction/Introduction.md)
 ## Dependencies
 ## License
 This project is licensed under the Apache Software License Version 2.0, except as noted otherwise in the [License file](/LICENSE.txt).
