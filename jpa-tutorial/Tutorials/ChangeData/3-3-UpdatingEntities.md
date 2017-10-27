@@ -20,8 +20,8 @@ Putting that together `updateEntity` can look as follows:
 @Override
 public JPAUpdateResult updateEntity(final JPARequestEntity requestEntity, final EntityManager em,
 		final HttpMethod method) throws ODataJPAProcessException {
-
-		if (method == HttpMethod.PATCH || method == HttpMethod.DELETE) {
+		
+    if (method == HttpMethod.PATCH || method == HttpMethod.DELETE) {
       final Object instance = em.find(requestEntity.getEntityType().getTypeClass(), requestEntity.getModifyUtil()
           .createPrimaryKey(requestEntity.getEntityType(), requestEntity.getKeys(), requestEntity.getEntityType()));
       requestEntity.getModifyUtil().setAttributesDeep(requestEntity.getData(), instance, requestEntity.getEntityType());

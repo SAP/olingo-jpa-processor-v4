@@ -52,4 +52,8 @@ The flowing extensions/changes are planned:
 
 # License
 Copyright (c) 2017 SAP SE or an SAP affiliate company. All rights reserved.    
+<<<<<<< HEAD
 This file is licensed under the Apache Software License, v.2 except as noted otherwise in the [License file](/LICENSE.txt).
+=======
+This file is licensed under the Apache Software License, v.2 except as noted otherwise in the [License file](/LICENSE.txt).
+>>>>>>> refs/remotes/origin/develop

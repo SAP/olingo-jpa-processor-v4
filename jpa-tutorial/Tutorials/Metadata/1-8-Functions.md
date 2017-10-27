@@ -42,10 +42,11 @@ public class JavaFunctions implements ODataFunction {
 	}
 
 	@EdmFunction(name = "", returnType = @ReturnType)
-	public Integer sum(@EdmFunctionParameter(name = "Summand1") int a, @EdmFunctionParameter(name = "Summand2") int b) {
+	public Integer sum(@EdmParameter(name = "Summand1") int a, @EdmParameter(name = "Summand2") int b) {
 		return a + b;
 	}
 }
 ```
 
 The method is annotated with the already known `@EdmFunction` annotation. In case the required fields are left empty, like here, the necessary information is taken from the method definition. In fact the return type has be given only if additional facet details shall be provided.
+
