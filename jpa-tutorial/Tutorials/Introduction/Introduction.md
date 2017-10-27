@@ -67,7 +67,7 @@ You can delete the index.jsp if it creates an error, we will not use it. Next st
 <dependency>
 	<groupId>com.sap.olingo</groupId>
 	<artifactId>odata-jpa-processor</artifactId>
-	<version>0.1.9-SNAPSHOT</version>
+	<version>_current version_</version>
 </dependency>
 <build>
 	<finalName>Tutorial</finalName>
@@ -95,8 +95,7 @@ You can delete the index.jsp if it creates an error, we will not use it. Next st
 </build>
 <properties>
 	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	<project.build.source>1.6</project.build.source>
-	<odata.version>4.2.0</odata.version>
+	<project.build.source>1.8</project.build.source>
 </properties>
 ```
 Before we start we should have a look at the data model we want to create step-by-step throughout the tutorial. The data model describes, as mentioned, a simple business partner. The business partner has a name (fields NameLine1 and NameLine2), an address, information about who and when a business partner was created or changed and some fields that a user of the model can give his/her own semantic (CustomString1,CustomString2,CustomNum1,CustomNum2). A business partner can have multiple BusinessPartnerRoles. In addition there is some information about the region the business partner is located at. This information is stored in table AdministrativeDivision. Last, but not least there are textual description for the regions and countries.

@@ -21,7 +21,7 @@ clone the repository, import the projects and declare a dependency to either the
 <dependency>
 	<groupId>com.sap.olingo</groupId>
 	<artifactId>odata-jpa-metadata</artifactId>
-	<version>0.1.9-SNAPSHOT</version>
+	<version>0.2.2-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -31,7 +31,7 @@ Or to the complete processor:
 <dependency>
 	<groupId>com.sap.olingo</groupId>
 	<artifactId>odata-jpa-processor</artifactId>
-	<version>0.1.9-SNAPSHOT</version>
+	<version>0.2.2-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -53,3 +53,4 @@ The flowing extensions/changes are planned:
 # License
 Copyright (c) 2017 SAP SE or an SAP affiliate company. All rights reserved.    
 This file is licensed under the Apache Software License, v.2 except as noted otherwise in the [License file](/LICENSE.txt).
+

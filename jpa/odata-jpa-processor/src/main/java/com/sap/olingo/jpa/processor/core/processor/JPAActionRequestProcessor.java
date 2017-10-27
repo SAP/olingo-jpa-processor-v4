@@ -103,7 +103,7 @@ public class JPAActionRequestProcessor extends JPAOperationRequestProcessor {
           entitySet.getKeyPredicates());
       if (c != null) {
         final Object param = c.newInstance();
-        util.setAttributesDeep(jpaAttributes, param);
+        util.setAttributesDeep(jpaAttributes, param, sd.getEntity(entitySet.getEntityType()));
         return param;
       }
     } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException

@@ -8,7 +8,7 @@ The processing of any modification is split into two methods. First a method to 
 Here we concentrate on performing changes and override `createEntity`. The method has two parameter.
 1. _requestEntity_ is a container that provides access to data and information about a request. Form interest in this tutorial are:
 	1. `getEntityType` provides an instance of _JPAEntityType_, which provides a bunch of information about the entity to be created. This starts with internal name of the JPA POJO and external name (name of OData entity) and ends with a list of attributes and keys.
-	2.  `getData` provides a map of attributes that are provided by the request. Keys of the map are the attribute names of the POJO. In case of complex/embedded attributes map is deep meaning the attribute is a map with the same structure.
+	2. `getData` provides a map of attributes that are provided by the request. Keys of the map are the attribute names of the POJO. In case of complex/embedded attributes map is deep meaning the attribute is a map with the same structure.
 	3. `getModifyUtil` provides an instance of `JPAModifyUtil`, which contains of some helper methods.
 2. _em_ is an instance of `EntityManager`. A transaction has already been started, which is done to ensure the transactional integrity required for change sets within batch requests.
 
@@ -146,7 +146,7 @@ Using `JPAModifyUtil` we can replace the old implementation of `createEntity` wi
 ```Java
 	...
 	final Object instance = createInstance(getConstructor(requestEntity.getEntityType()));
-	requestEntity.getModifyUtil().setAttributesDeep(requestEntity.getData(), instance);
+    requestEntity.getModifyUtil().setAttributesDeep(requestEntity.getData(), instance, requestEntity.getEntityType());
 	em.persist(instance);
 	return instance;
 	...
@@ -181,4 +181,4 @@ Now lets generate the setter for Person and create a new one:
         }
     }
 
-Next we want to be able to make change to an existing entity: [Tutorial 3.3 Updating Entities](3-3-Updating Entities.md)
+Next we want to be able to make change to an existing entity: [Tutorial 3.3 Updating Entities](3-3-UpdatingEntities.md)

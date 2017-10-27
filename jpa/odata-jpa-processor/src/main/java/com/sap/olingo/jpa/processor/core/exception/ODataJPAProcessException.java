@@ -101,6 +101,14 @@ public abstract class ODataJPAProcessException extends ODataApplicationException
       return UNKNOWN_MESSAGE;
   }
 
+  public String[] getParameter() {
+    return parameter;
+  }
+
+  public String getId() {
+    return id;
+  }
+
   public static Enumeration<Locale> getLocales() {
     return locales;
   }

@@ -34,36 +34,37 @@ Processing such a request means that we have to create entities over and over ag
 
 ```Java
 private Object createOneEntity(final JPARequestEntity requestEntity, final EntityManager em)
-    throws ODataJPAProcessorException {
-  final Object instance = createInstance(getConstructor(requestEntity.getEntityType()));
-  requestEntity.getModifyUtil().setAttributesDeep(requestEntity.getData(), instance);
-  em.persist(instance);
-  return instance;
+		throws ODataJPAProcessException {
+	final Object instance = createInstance(getConstructor(requestEntity.getEntityType()));
+	requestEntity.getModifyUtil().setAttributesDeep(requestEntity.getData(), instance, requestEntity.getEntityType());
+	em.persist(instance);
+	entityBuffer.put(instance, requestEntity);
+	return instance;
 }
 ```
 
-Having done that we need to process the related entities, so NUTS2 and NUTS3 level in our example. These are provided via `requestEntity.getRelatedEntities()` grouped by the association: `Map<JPAAssociationPath, List<JPARequestEntity>>`. We had defined, at least for AdministrativeDivision, that the relation is created via the associations and not via the properties, see [Navigation Properties And Complex Types](1-6-NavigationAndComplexTypes.md). This allows us to use method `linkEnties` of `JPAModifyUtil` to create it. As we do not want to think to much about which association we have to deal with, we set the relation on both sides. Last but not least we shall not forget that we have to process the levels recursively.
+Having done that we need to process the related entities, so NUTS2 and NUTS3 level in our example. These are provided via `requestEntity.getRelatedEntities()` grouped by the association: `Map<JPAAssociationPath, List<JPARequestEntity>>`. We had defined, at least for AdministrativeDivision, that the relation is created via the associations and not via the properties, see [Navigation Properties And Complex Types](1-6-NavigationAndComplexTypes.md). This allows us to use method `linkEntities` of `JPAModifyUtil` to create it. As we do not want to think to much about which association we have to deal with, we set the relation on both sides. Last but not least we shall not forget that we have to process the levels recursively.
 ```Java
 private void processRelatedEntities(final Map<JPAAssociationPath, List<JPARequestEntity>> relatedEntities,
-    final JPARequestEntity parent, final Object parentInstance, final JPAModifyUtil util, final EntityManager em)
-    throws ODataJPAProcessorException {
+		final JPARequestEntity parent, final Object parentInstance, final JPAModifyUtil util, final EntityManager em)
+		throws ODataJPAProcessException {
 
-  for (final Map.Entry<JPAAssociationPath, List<JPARequestEntity>> entity : relatedEntities.entrySet()) {
-    final JPAAssociationPath pathInfo = entity.getKey();
-    for (final JPARequestEntity requestEntity : entity.getValue()) {
-      final Object newInstance = createOneEntity(requestEntity, em);
-      util.linkEnties(parentInstance, newInstance, pathInfo);
-      if (pathInfo.getPartner() != null) {
-        try {
-          util.linkEnties(newInstance, parentInstance, pathInfo.getPartner().getPath());
-        } catch (ODataJPAModelException e) {
-          throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-        }
-      }
-      util.linkEnties(parentInstance, newInstance, pathInfo);
-      processRelatedEntities(requestEntity.getRelatedEntities(), requestEntity, newInstance, util, em);
-    }
-  }
+	for (final Map.Entry<JPAAssociationPath, List<JPARequestEntity>> entity : relatedEntities.entrySet()) {
+		final JPAAssociationPath pathInfo = entity.getKey();
+		for (final JPARequestEntity requestEntity : entity.getValue()) {
+			final Object newInstance = createOneEntity(requestEntity, em);
+			util.linkEntities(parentInstance, newInstance, pathInfo);
+			if (pathInfo.getPartner() != null) {
+				try {
+					util.linkEntities(newInstance, parentInstance, pathInfo.getPartner().getPath());
+				} catch (ODataJPAModelException e) {
+					throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+				}
+			}
+			util.linkEntities(parentInstance, newInstance, pathInfo);
+			processRelatedEntities(requestEntity.getRelatedEntities(), requestEntity, newInstance, util, em);
+		}
+	}
 }
 ```
 Last but not least we have to change the implementation of `createEntity`:
@@ -95,17 +96,17 @@ The links are provided via `requestEntity.getRelationLinks()`, which returns a m
 
 ```Java
 private void processBindingLinks(final Map<JPAAssociationPath, List<JPARequestLink>> relationLinks,
-    final Object instance, final JPAModifyUtil util, final EntityManager em) throws ODataJPAProcessorException {
+		final Object instance, final JPAModifyUtil util, final EntityManager em) throws ODataJPAProcessException {
 
-  for (final Entry<JPAAssociationPath, List<JPARequestLink>> entity : relationLinks.entrySet()) {
-    final JPAAssociationPath pathInfo = entity.getKey();
-    for (final JPARequestLink requestLink : entity.getValue()) {
-      final Object targetKey = util.createPrimaryKey((JPAEntityType) pathInfo.getTargetType(), requestLink
-          .getRelatedKeys());
-      final Object target = em.find(pathInfo.getTargetType().getTypeClass(), targetKey);
-      util.linkEnties(instance, target, pathInfo);
-    }
-  }
+	for (final Entry<JPAAssociationPath, List<JPARequestLink>> entity : relationLinks.entrySet()) {
+		final JPAAssociationPath pathInfo = entity.getKey();
+		for (final JPARequestLink requestLink : entity.getValue()) {
+			final Object targetKey = util.createPrimaryKey((JPAEntityType) pathInfo.getTargetType(), requestLink
+					.getRelatedKeys(), (JPAEntityType) pathInfo.getSourceType());
+			final Object target = em.find(pathInfo.getTargetType().getTypeClass(), targetKey);
+			util.linkEntities(instance, target, pathInfo);
+		}
+	}
 }
 ```
 Please note that here the processing of the partner association was skipped, but it should not be to hard to add that.

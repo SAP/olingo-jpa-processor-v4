@@ -20,14 +20,14 @@ Putting that together `updateEntity` can look as follows:
 @Override
 public JPAUpdateResult updateEntity(final JPARequestEntity requestEntity, final EntityManager em,
 		final HttpMethod method) throws ODataJPAProcessException {
-
-	if (method == HttpMethod.PATCH || method == HttpMethod.DELETE) {
-		final Object instance = em.find(requestEntity.getEntityType().getTypeClass(), requestEntity.getModifyUtil()
-				.createPrimaryKey(requestEntity.getEntityType(), requestEntity.getKeys()));
-		requestEntity.getModifyUtil().setAttributesDeep(requestEntity.getData(), instance);
-		return new JPAUpdateResult(false, instance);
-	}
-	return super.updateEntity(requestEntity, em, method);
+		
+    if (method == HttpMethod.PATCH || method == HttpMethod.DELETE) {
+      final Object instance = em.find(requestEntity.getEntityType().getTypeClass(), requestEntity.getModifyUtil()
+          .createPrimaryKey(requestEntity.getEntityType(), requestEntity.getKeys(), requestEntity.getEntityType()));
+      requestEntity.getModifyUtil().setAttributesDeep(requestEntity.getData(), instance, requestEntity.getEntityType());
+      return new JPAUpdateResult(false, instance);
+    }
+    return super.updateEntity(requestEntity, em, method);
 }
 ```
 To test the PATCH we can start with changing the instance we created during the last tutorial using the following request:
@@ -40,4 +40,4 @@ To test the PATCH we can start with changing the instance we created during the 
 Now we have an AlternativeCode, which does not really make sense, so lets get ride of it again by the following DELETE request:
 `.../Tutorial/Tutorial.svc/AdministrativeDivisions(DivisionCode='DE1',CodeID='NUTS1',CodePublisher='Eurostat')/AlternativeCode`
 
-Next we want to delete an entity: [Tutorial 3.4 Updating Entities](3-4-DeletingEntities.md)
+Next we want to delete an entity: [Tutorial 3.4 Deleting Entities](3-4-DeletingEntities.md)

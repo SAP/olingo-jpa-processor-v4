@@ -8,7 +8,8 @@ The implementation starts with overriding `deleteEntity` of `CUDRequestHandler`.
 public void deleteEntity(JPARequestEntity requestEntity, EntityManager em) throws ODataJPAProcessException {
 
   final Object instance = em.find(requestEntity.getEntityType().getTypeClass(),
-      requestEntity.getModifyUtil().createPrimaryKey(requestEntity.getEntityType(), requestEntity.getKeys()));
+      requestEntity.getModifyUtil().createPrimaryKey(requestEntity.getEntityType(), requestEntity.getKeys(),
+          requestEntity.getEntityType()));
   if (instance != null)
     em.remove(instance);
 }

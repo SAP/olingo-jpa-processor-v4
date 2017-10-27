@@ -67,12 +67,13 @@ public class JPAODataGetHandler {
     handler.register(new JPAODataRequestProcessor(context, em));
     handler.register(new JPAODataBatchProcessor(context, em));
     handler.register(context.getEdmProvider().getServiceDocument());
+    handler.register(context.getErrorProcessor());
     handler.process(request, response);
   }
 
   class JPADebugSupportWrapper implements DebugSupport {
 
-    final private DebugSupport debugSupport;
+    private final DebugSupport debugSupport;
     private JPAServiceDebugger debugger;
 
     public JPADebugSupportWrapper(final DebugSupport debugSupport) {
