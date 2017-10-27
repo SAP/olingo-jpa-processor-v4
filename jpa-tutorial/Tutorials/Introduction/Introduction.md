@@ -10,14 +10,14 @@ In order to follow this tutorial, you should have
 
 ## Preparation
 In order to perform the tutorial you need:
-* A Java JDK 1.6 or higher
+* A Java JDK 1.8 or higher
 * A Eclipse IDE for Java EE, or another one that provides the same functionality
 * A web server e.g. Apache Tomcat
 
 ## Create Project
 First step is to create a project. To do so we want to create a new Maven project, by open the Maven Project wizard via File -> New -> Other -> Maven -> Maven Project. Select archetype **webapp**:
 
-![Maven Project Archivetype ](Create Project/MavenProjectArchivetype.png)
+![Maven Project Archivetype](CreateProject/MavenProjectArchivetype.png)
 
 On the next page, enter the following information:
 * Groupd Id: my.group.id
@@ -34,7 +34,7 @@ Now the project facets maintenance screen pops up. make sure that:
 * Java version is 1.6 or higher
 * JPA as version 2.1
 
-![Convert to JPA](Create Project/ConvertJPAProject.png)
+![Convert to JPA](CreateProject/ConvertJPAProject.png)
 
 You can delete the index.jsp if it creates an error, we will not use it. Next step is to create the maven dependencies. For this tutorial we will use [HSBQL](http://hsqldb.org/) as database and [Eclipselink](http://www.eclipse.org/eclipselink/) as JPA implementation, but you can use also another database or JPA implementation that supports JPA 2.1. To create the data on the database we use Flyway. The following snippet shows the additionally required maven dependencies:
 ```XML
@@ -67,7 +67,7 @@ You can delete the index.jsp if it creates an error, we will not use it. Next st
 <dependency>
 	<groupId>com.sap.olingo</groupId>
 	<artifactId>odata-jpa-processor</artifactId>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>_current version_</version>
 </dependency>
 <build>
 	<finalName>Tutorial</finalName>
@@ -95,8 +95,7 @@ You can delete the index.jsp if it creates an error, we will not use it. Next st
 </build>
 <properties>
 	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	<project.build.source>1.6</project.build.source>
-	<odata.version>4.2.0</odata.version>
+	<project.build.source>1.8</project.build.source>
 </properties>
 ```
 Before we start we should have a look at the data model we want to create step-by-step throughout the tutorial. The data model describes, as mentioned, a simple business partner. The business partner has a name (fields NameLine1 and NameLine2), an address, information about who and when a business partner was created or changed and some fields that a user of the model can give his/her own semantic (CustomString1,CustomString2,CustomNum1,CustomNum2). A business partner can have multiple BusinessPartnerRoles. In addition there is some information about the region the business partner is located at. This information is stored in table AdministrativeDivision. Last, but not least there are textual description for the regions and countries.
@@ -104,4 +103,5 @@ Before we start we should have a look at the data model we want to create step-b
 ![Database Tables ](Model/DBTable.png)
 
 
-Now we can start with the first series of tutorial about [using Metadata generation](../Metadata/1-0-Overview.md). Later you can learn in a second series of tutorial [how to retrieve data](../RetrieveData/2-0-Preparation.md). Last, but not least, we will see how to [manipulate data](../ChangeData/3-0-Preparation.md).
+Now we can start with the first series of tutorial about [using Metadata generation](../Metadata/1-0-Overview.md). Later you can learn in a second series of tutorial [how to retrieve data](../RetrieveData/2-0-Overview.md). Last, but not least, we will see how to [manipulate data](../ChangeData/3-0-Overview.md).
+In addition there are documents handling some [special topics](../SpecialTopics/4-0-Overview.md).
