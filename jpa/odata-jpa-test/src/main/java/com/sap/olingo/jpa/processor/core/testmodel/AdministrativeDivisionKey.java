@@ -28,6 +28,30 @@ public class AdministrativeDivisionKey implements Serializable {
     this.divisionCode = divisionCode;
   }
 
+  public String getCodePublisher() {
+    return codePublisher;
+  }
+
+  public void setCodePublisher(String codePublisher) {
+    this.codePublisher = codePublisher;
+  }
+
+  public String getCodeID() {
+    return codeID;
+  }
+
+  public void setCodeID(String codeID) {
+    this.codeID = codeID;
+  }
+
+  public String getDivisionCode() {
+    return divisionCode;
+  }
+
+  public void setDivisionCode(String divisionCode) {
+    this.divisionCode = divisionCode;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;

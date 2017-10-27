@@ -34,6 +34,8 @@ public final class ExpressionUtil {
   public static final int CONTAINS_LANGU_COUNTRY = 2;
   public static final String SELECT_ITEM_SEPERATOR = ",";
 
+  private ExpressionUtil() {}
+
   public static Expression<Boolean> createEQExpression(final OData odata, CriteriaBuilder cb, From<?, ?> root,
       JPAEntityType jpaEntity, UriParameter keyPredicate) throws ODataJPAFilterException, ODataJPAModelException {
 
@@ -94,7 +96,7 @@ public final class ExpressionUtil {
       }
       // Converter
       if (attribute.getConverter() != null) {
-        AttributeConverter<?, T> dbConverter = (AttributeConverter<?, T>) attribute.getConverter();
+        AttributeConverter<?, T> dbConverter = attribute.getConverter();
         return dbConverter.convertToEntityAttribute(
             (T) edmType.valueOfString(targetValue, edmProperty.isNullable(), edmProperty.getMaxLength(),
                 edmProperty.getPrecision(), edmProperty.getScale(), true, attribute.getType()));
@@ -102,9 +104,7 @@ public final class ExpressionUtil {
         return edmType.valueOfString(targetValue, edmProperty.isNullable(), edmProperty.getMaxLength(),
             edmProperty.getPrecision(), edmProperty.getScale(), true, attribute.getType());
 
-    } catch (EdmPrimitiveTypeException e) {
-      throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-    } catch (ODataJPAModelException e) {
+    } catch (EdmPrimitiveTypeException | ODataJPAModelException e) {
       throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
   }
@@ -119,9 +119,7 @@ public final class ExpressionUtil {
       targetValue = edmType.fromUriLiteral(value);
       return edmType.valueOfString(targetValue, true, returnType.getMaxLength(), returnType.getPrecision(), returnType
           .getScale(), true, returnType.getType());
-    } catch (EdmPrimitiveTypeException e) {
-      throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-    } catch (ODataJPAModelException e) {
+    } catch (EdmPrimitiveTypeException | ODataJPAModelException e) {
       throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
   }

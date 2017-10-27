@@ -26,6 +26,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlReferentialConstraint;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.AppliesTo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
@@ -50,7 +51,7 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
   private IntermediateStructuredType targetType;
   private JPAAssociationAttribute partner;
   private final IntermediateSchema schema;
-  private final List<IntermediateJoinColumn> joinColumns = new ArrayList<IntermediateJoinColumn>();
+  private final List<IntermediateJoinColumn> joinColumns = new ArrayList<>();
 
   IntermediateNavigationProperty(final JPAEdmNameBuilder nameBuilder, final IntermediateStructuredType parent,
       final Attribute<?, ?> jpaAttribute, final IntermediateSchema schema) throws ODataJPAModelException {
@@ -68,7 +69,7 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
   }
 
   @Override
-  public AttributeConverter<?, ?> getConverter() {
+  public <X, Y extends Object> AttributeConverter<X, Y> getConverter() {
     return null;
   }
 
@@ -83,8 +84,9 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
   }
 
   @Override
-  public JPAStructuredType getStructuredType() {
-    return null;
+  public JPAStructuredType getStructuredType() throws ODataJPAModelException {
+    lazyBuildEdmItem();
+    return sourceType;
   }
 
   @Override
@@ -126,6 +128,11 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
   @Override
   public void setOnDelete(final CsdlOnDelete onDelete) {
     edmOnDelete = onDelete;
+  }
+
+  @Override
+  public JPAAssociationPath getPath() throws ODataJPAModelException {
+    return getStructuredType().getAssociationPath(getExternalName());
   }
 
   @Override
@@ -189,7 +196,7 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
             joinColumns.add(intermediateColumn);
 
           } else if (mappedBy != null && !mappedBy.isEmpty()) {
-            joinColumns.addAll(targetType.getJoinColumns(sourceType, mappedBy));
+            joinColumns.addAll(targetType.getJoinColumns(mappedBy));
             for (final IntermediateJoinColumn intermediateColumn : joinColumns) {
               final String refColumnName = intermediateColumn.getReferencedColumnName();
               if (refColumnName == null || refColumnName.isEmpty()) {
@@ -358,4 +365,5 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
     }
     return null;
   }
+
 }

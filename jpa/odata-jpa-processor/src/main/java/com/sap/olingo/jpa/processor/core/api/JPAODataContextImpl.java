@@ -9,6 +9,7 @@ import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.debug.DebugSupport;
 import org.apache.olingo.server.api.debug.DefaultDebugSupport;
+import org.apache.olingo.server.api.processor.ErrorProcessor;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
@@ -17,14 +18,13 @@ import com.sap.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseProcessorFactory;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
-import com.sap.olingo.jpa.processor.core.modify.JPACUDRequestHandler;
 
 final class JPAODataContextImpl implements JPAODataCRUDContext, JPAODataSessionContextAccess {
   /**
    * 
    */
   private final JPAODataGetHandler jpaoDataGetHandler;
-  private List<EdmxReference> references = new ArrayList<EdmxReference>();
+  private List<EdmxReference> references = new ArrayList<>();
   private JPADebugSupportWrapper debugSupport;
   private JPAODataDatabaseOperations operationConverter;
   private JPAEdmProvider jpaEdm;
@@ -33,6 +33,7 @@ final class JPAODataContextImpl implements JPAODataCRUDContext, JPAODataSessionC
   private JPAEdmMetadataPostProcessor postProcessor;
   private JPACUDRequestHandler jpaCUDRequestHandler;
   private String[] packageName;
+  private ErrorProcessor errorProcessor;
 
   public JPAODataContextImpl(JPAODataGetHandler jpaoDataGetHandler) throws ODataException {
     super();
@@ -75,9 +76,18 @@ final class JPAODataContextImpl implements JPAODataCRUDContext, JPAODataSessionC
     return jpaEdm;
   }
 
+  public ErrorProcessor getErrorProcessor() {
+    return this.errorProcessor == null ? new JPADefaultErrorProcessor() : this.errorProcessor;
+  }
+
   @Override
   public JPAODataDatabaseOperations getOperationConverter() {
     return operationConverter;
+  }
+
+  @Override
+  public String[] getPackageName() {
+    return packageName;
   }
 
   @Override
@@ -120,6 +130,11 @@ final class JPAODataContextImpl implements JPAODataCRUDContext, JPAODataSessionC
   }
 
   @Override
+  public void setErrorProcessof(ErrorProcessor errorProcessor) {
+    this.errorProcessor = errorProcessor;
+  }
+
+  @Override
   public void setMetadataPostProcessor(final JPAEdmMetadataPostProcessor postProcessor) throws ODataException {
     if (this.jpaoDataGetHandler.jpaMetamodel != null)
       jpaEdm = new JPAEdmProvider(this.jpaoDataGetHandler.namespace, this.jpaoDataGetHandler.jpaMetamodel,
@@ -142,10 +157,5 @@ final class JPAODataContextImpl implements JPAODataCRUDContext, JPAODataSessionC
   public void setTypePackage(final String... packageName) {
     this.packageName = packageName;
 
-  }
-
-  @Override
-  public String[] getPackageName() {
-    return packageName;
   }
 }

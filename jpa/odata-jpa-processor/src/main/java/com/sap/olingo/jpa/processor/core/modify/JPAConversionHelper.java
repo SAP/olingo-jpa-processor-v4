@@ -11,6 +11,7 @@ import javax.persistence.AttributeConverter;
 
 import org.apache.olingo.commons.api.data.ComplexValue;
 import org.apache.olingo.commons.api.data.Entity;
+import org.apache.olingo.commons.api.data.Link;
 import org.apache.olingo.commons.api.data.Property;
 import org.apache.olingo.commons.api.data.ValueType;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
@@ -135,10 +136,10 @@ public class JPAConversionHelper {
    * @return
    * @throws ODataJPAProcessException
    */
-  public <T extends Object, S extends Object> Map<String, Object> convertProperties(final OData odata,
-      final JPAStructuredType st, final List<Property> odataProperties) throws ODataJPAProcessException {
+  public Map<String, Object> convertProperties(final OData odata, final JPAStructuredType st,
+      final List<Property> odataProperties) throws ODataJPAProcessException {
 
-    final Map<String, Object> jpaAttributes = new HashMap<String, Object>();
+    final Map<String, Object> jpaAttributes = new HashMap<>();
     String internalName = null;
     Object jpaAttribute = null;
     for (Property odataProperty : odataProperties) {
@@ -148,6 +149,7 @@ public class JPAConversionHelper {
           JPAPath path = st.getPath(odataProperty.getName());
           internalName = path.getPath().get(0).getInternalName();
           JPAStructuredType a = st.getAttribute(internalName).getStructuredType();
+          List<Link> links = ((ComplexValue) odataProperty.getValue()).getNavigationLinks();
           jpaAttribute = convertProperties(odata, a, ((ComplexValue) odataProperty.getValue()).getValue());
         } catch (ODataJPAModelException e) {
           throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
@@ -199,8 +201,7 @@ public class JPAConversionHelper {
       try {
         final JPAAttribute attribute = st.getPath(key.getName()).getLeaf();
         internalName = attribute.getInternalName();
-        Object jpaAttribute = ExpressionUtil.convertValueOnAttribute(odata, attribute, key.getText()
-            .toString(), true);
+        Object jpaAttribute = ExpressionUtil.convertValueOnAttribute(odata, attribute, key.getText(), true);
         result.put(internalName, jpaAttribute);
       } catch (ODataJPAModelException e) {
         throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
@@ -245,9 +246,8 @@ public class JPAConversionHelper {
       throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
     }
 
-    final String location = request.getRawBaseUri() + '/'
+    return request.getRawBaseUri() + '/'
         + odata.createUriHelper().buildCanonicalURL(edmEntitySet, createdEntity);
-    return location;
   }
 
   private String convertKeyToLocalMap(final OData odata, final ODataRequest request, EdmEntitySet edmEntitySet,
@@ -263,9 +263,8 @@ public class JPAConversionHelper {
       throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
     }
 
-    final String location = request.getRawBaseUri() + '/'
+    return request.getRawBaseUri() + '/'
         + odata.createUriHelper().buildCanonicalURL(edmEntitySet, createdEntity);
-    return location;
   }
 
   private void collectKeyProperties(Map<String, Object> newPOJO, final List<JPAPath> keyPath,

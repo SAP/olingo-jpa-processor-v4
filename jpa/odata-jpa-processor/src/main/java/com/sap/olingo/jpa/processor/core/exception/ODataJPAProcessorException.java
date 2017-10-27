@@ -49,6 +49,11 @@ public class ODataJPAProcessorException extends ODataJPAProcessException {
     super(messageKey.getKey(), statusCode, cause, params);
   }
 
+  public ODataJPAProcessorException(final String messageKey, final HttpStatusCode statusCode,
+      final Throwable cause, final String[] params) {
+    super(messageKey, statusCode, cause, params);
+  }
+
   public ODataJPAProcessorException(final MessageKeys messageKey, final HttpStatusCode statusCode) {
     super(messageKey.getKey(), statusCode);
   }

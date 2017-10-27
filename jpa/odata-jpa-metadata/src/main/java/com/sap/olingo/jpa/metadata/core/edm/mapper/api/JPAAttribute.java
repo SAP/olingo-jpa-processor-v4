@@ -9,9 +9,9 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 
 public interface JPAAttribute extends JPAElement {
 
-  public AttributeConverter<?, ?> getConverter();
+  public <X, Y extends Object> AttributeConverter<X, Y> getConverter();
 
-  public JPAStructuredType getStructuredType();
+  public JPAStructuredType getStructuredType() throws ODataJPAModelException;
 
   public Class<?> getType();
 

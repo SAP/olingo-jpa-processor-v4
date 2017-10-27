@@ -21,7 +21,6 @@ public interface JPARequestEntity {
   /**
    * List of attributes with pojo attributes name and converted into JAVA types. In case the entity contains embedded
    * attributes these are given as maps themselves.<p>
-   * Deep insert list<JPARequestEntity>, list<JPARequestLink>
    * @return
    */
   public Map<String, Object> getData();

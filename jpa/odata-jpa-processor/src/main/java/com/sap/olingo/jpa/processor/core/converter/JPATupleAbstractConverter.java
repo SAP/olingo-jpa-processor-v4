@@ -38,16 +38,16 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 public abstract class JPATupleAbstractConverter {
 
-  public static final String      ACCESS_MODIFIER_GET = "get";
-  public static final String      ACCESS_MODIFIER_SET = "set";
-  public static final String      ACCESS_MODIFIER_IS  = "is";
-  protected final JPAEntityType   jpaConversionTargetEntity;
+  public static final String ACCESS_MODIFIER_GET = "get";
+  public static final String ACCESS_MODIFIER_SET = "set";
+  public static final String ACCESS_MODIFIER_IS = "is";
+  protected final JPAEntityType jpaConversionTargetEntity;
   protected final JPAExpandResult jpaQueryResult;
-  protected final UriHelper       uriHelper;
-  protected final String          setName;
+  protected final UriHelper uriHelper;
+  protected final String setName;
   protected final JPAServiceDocument sd;
   protected final ServiceMetadata serviceMetadata;
-  protected final EdmEntityType   edmType;
+  protected final EdmEntityType edmType;
 
   public JPATupleAbstractConverter(final JPAExpandResult jpaQueryResult,
       final UriHelper uriHelper, final JPAServiceDocument sd, final ServiceMetadata serviceMetadata)
@@ -64,7 +64,7 @@ public abstract class JPATupleAbstractConverter {
   }
 
   protected String buildConcatenatedKey(final Tuple row, final List<JPAOnConditionItem> joinColumns) {
-    final StringBuffer buffer = new StringBuffer();
+    final StringBuilder buffer = new StringBuilder();
     for (final JPAOnConditionItem item : joinColumns) {
       buffer.append(JPAPath.PATH_SEPERATOR);
       // TODO Tuple returns the converted value in case a @Convert(converter = annotation is given
@@ -78,7 +78,6 @@ public abstract class JPATupleAbstractConverter {
     final Map<String, ComplexValue> complexValueBuffer = new HashMap<String, ComplexValue>();
     final Entity odataEntity = new Entity();
 
-    // odataEntity.setType(rowEntity.getExternalFQN().getFullQualifiedNameAsString());
     odataEntity.setType(edmType.getFullQualifiedName().getFullQualifiedNameAsString());
     final List<Property> properties = odataEntity.getProperties();
     // TODO store @Version to fill ETag Header
@@ -91,22 +90,16 @@ public abstract class JPATupleAbstractConverter {
             HttpStatusCode.INTERNAL_SERVER_ERROR, e);
       }
     }
-    try {
-      odataEntity.setId(createId(jpaConversionTargetEntity.getKey(), odataEntity));
-    } catch (ODataJPAModelException e) {
-
-      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_KEY_PROPERTY_ERROR,
-          HttpStatusCode.INTERNAL_SERVER_ERROR, jpaConversionTargetEntity.getExternalName());
-    }
+    odataEntity.setId(createId(odataEntity));
     for (final String attribute : complexValueBuffer.keySet()) {
       final ComplexValue complexValue = complexValueBuffer.get(attribute);
-      complexValue.getNavigationLinks().addAll(createExpand(row, odataEntity.getId())); // , attribute));
+      complexValue.getNavigationLinks().addAll(createExpand(row, odataEntity.getId()));
     }
     odataEntity.getNavigationLinks().addAll(createExpand(row, odataEntity.getId()));
     return odataEntity;
   }
 
-  protected Collection<? extends Link> createExpand(final Tuple row, final URI uri) // , final String attributeName)
+  protected Collection<? extends Link> createExpand(final Tuple row, final URI uri)
       throws ODataApplicationException {
     final List<Link> entityExpandLinks = new ArrayList<Link>();
     // jpaConversionTargetEntity.
@@ -129,14 +122,14 @@ public abstract class JPATupleAbstractConverter {
     return entityExpandLinks;
   }
 
-  protected URI createId(final List<? extends JPAAttribute> keyAttributes, final Entity entity)
-      throws ODataApplicationException, ODataRuntimeException {
+  protected URI createId(final Entity entity)
+      throws ODataRuntimeException {
 
     try {
       // TODO Clarify host-name and port as part of ID see
       // http://docs.oasis-open.org/odata/odata-atom-format/v4.0/cs02/odata-atom-format-v4.0-cs02.html#_Toc372792702
 
-      final StringBuffer uriString = new StringBuffer(setName);
+      final StringBuilder uriString = new StringBuilder(setName);
       uriString.append("(");
       uriString.append(uriHelper.buildKeyPredicate(edmType, entity));
       uriString.append(")");
@@ -153,12 +146,13 @@ public abstract class JPATupleAbstractConverter {
   @SuppressWarnings("unchecked")
   private <T extends Object, S extends Object> void convertAttribute(final Object value, final String externalName,
       final String prefix, final JPAStructuredType jpaStructuredType,
-      final Map<String, ComplexValue> complexValueBuffer,
-      final List<Property> properties) throws ODataJPAModelException {
+      final Map<String, ComplexValue> complexValueBuffer, final List<Property> properties)
+      throws ODataJPAModelException {
 
     ComplexValue complexValue = null;
-    if (jpaStructuredType.getPath(externalName) != null) {
-      final JPAAttribute attribute = (JPAAttribute) jpaStructuredType.getPath(externalName).getPath().get(0);// getLeaf();
+    final JPAPath jpaPath = jpaStructuredType.getPath(externalName);
+    if (jpaPath != null) {
+      final JPAAttribute attribute = (JPAAttribute) jpaPath.getPath().get(0);
       if (attribute != null && !attribute.isKey() && attribute.isComplex()) {
         String bufferKey;
         if (prefix.isEmpty())
@@ -190,7 +184,7 @@ public abstract class JPATupleAbstractConverter {
 
           properties.add(new Property(
               null,
-              jpaStructuredType.getPath(externalName).getLeaf().getExternalName(),
+              jpaPath.getLeaf().getExternalName(),
               ValueType.PRIMITIVE,
               odataValue));
         } else {
@@ -213,19 +207,6 @@ public abstract class JPATupleAbstractConverter {
       throw new ODataRuntimeException(e);
     }
   }
-
-//  protected Map<String, Method> getGetter(final JPAAttribute structuredAttribute) {
-//    HashMap<String, Method> pojoMethods = methodsBuffer.get(structuredAttribute.getInternalName());
-//    if (pojoMethods == null) {
-//      pojoMethods = new HashMap<String, Method>();
-//      final Method[] allMethods = structuredAttribute.getStructuredType().getTypeClass().getMethods();
-//      for (final Method m : allMethods) {
-//        pojoMethods.put(m.getName(), m);
-//      }
-//      methodsBuffer.put(structuredAttribute.getInternalName(), pojoMethods);
-//    }
-//    return pojoMethods;
-//  }
 
   private String determineSetName(final JPAExpandResult jpaQueryResult, final JPAServiceDocument sd)
       throws ODataJPAQueryException {
