@@ -43,7 +43,7 @@ private Object createOneEntity(final JPARequestEntity requestEntity, final Entit
 }
 ```
 
-Having done that we need to process the related entities, so NUTS2 and NUTS3 level in our example. These are provided via `requestEntity.getRelatedEntities()` grouped by the association: `Map<JPAAssociationPath, List<JPARequestEntity>>`. We had defined, at least for AdministrativeDivision, that the relation is created via the associations and not via the properties, see [Navigation Properties And Complex Types](1-6-NavigationAndComplexTypes.md). This allows us to use method `linkEnties` of `JPAModifyUtil` to create it. As we do not want to think to much about which association we have to deal with, we set the relation on both sides. Last but not least we shall not forget that we have to process the levels recursively.
+Having done that we need to process the related entities, so NUTS2 and NUTS3 level in our example. These are provided via `requestEntity.getRelatedEntities()` grouped by the association: `Map<JPAAssociationPath, List<JPARequestEntity>>`. We had defined, at least for AdministrativeDivision, that the relation is created via the associations and not via the properties, see [Navigation Properties And Complex Types](1-6-NavigationAndComplexTypes.md). This allows us to use method `linkEntities` of `JPAModifyUtil` to create it. As we do not want to think to much about which association we have to deal with, we set the relation on both sides. Last but not least we shall not forget that we have to process the levels recursively.
 ```Java
 private void processRelatedEntities(final Map<JPAAssociationPath, List<JPARequestEntity>> relatedEntities,
 		final JPARequestEntity parent, final Object parentInstance, final JPAModifyUtil util, final EntityManager em)

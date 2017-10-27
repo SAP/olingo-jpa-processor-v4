@@ -130,7 +130,7 @@ final class JPAODataContextImpl implements JPAODataCRUDContext, JPAODataSessionC
   }
 
   @Override
-  public void setErrorProcessof(ErrorProcessor errorProcessor) {
+  public void setErrorProcessor(ErrorProcessor errorProcessor) {
     this.errorProcessor = errorProcessor;
   }
 

@@ -32,7 +32,7 @@ public interface JPAODataGetContext {
    * Error Response</a>.
    * @param errorProcessor
    */
-  public void setErrorProcessof(final ErrorProcessor errorProcessor);
+  public void setErrorProcessor(final ErrorProcessor errorProcessor);
 
   /**
    * 
