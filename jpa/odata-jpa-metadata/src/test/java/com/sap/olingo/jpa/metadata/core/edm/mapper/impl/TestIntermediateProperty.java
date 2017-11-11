@@ -71,7 +71,7 @@ public class TestIntermediateProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetProptertyType() throws ODataJPAModelException {
+  public void checkGetProptertySimpleType() throws ODataJPAModelException {
     Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType("BusinessPartner"), "type");
     IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
         helper.schema);
@@ -85,6 +85,22 @@ public class TestIntermediateProperty extends TestMappingRoot {
     IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
         helper.schema);
     assertEquals("Wrong type", PUNIT_NAME + ".CommunicationData", property.getEdmItem().getType());
+  }
+
+  @Test
+  public void checkGetProptertyEnumTypeWithoutConverter() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType("Organization"), "aBCClass");
+    IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
+        helper.schema);
+    assertEquals("Wrong type", "com.sap.olingo.jpa.ABCClassifiaction", property.getEdmItem().getType());
+  }
+
+  @Test
+  public void checkGetProptertyEnumTypeWithConverter() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType("Person"), "accessRights");
+    IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
+        helper.schema);
+    assertEquals("Wrong type", "com.sap.olingo.jpa.AccessRights", property.getEdmItem().getType());
   }
 
   @Test

@@ -2,8 +2,11 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -18,6 +21,7 @@ import org.junit.Test;
 import org.reflections.Reflections;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEnumeration;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntitySetAccess;
@@ -25,6 +29,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityT
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
+import com.sap.olingo.jpa.processor.core.testmodel.ABCClassifiaction;
 
 public class TestIntermediateEntitySet extends TestMappingRoot {
   private IntermediateSchema schema;
@@ -34,9 +39,13 @@ public class TestIntermediateEntitySet extends TestMappingRoot {
   @Before
   public void setup() throws ODataJPAModelException {
     IntermediateModelElement.setPostProcessor(new DefaultEdmPostProcessor());
+    final Reflections r = mock(Reflections.class);
+    when(r.getTypesAnnotatedWith(EdmEnumeration.class)).thenReturn(new HashSet<>(Arrays.asList(new Class<?>[] {
+        ABCClassifiaction.class })));
+
     etList = emf.getMetamodel().getEntities();
     namebuilder = new JPAEdmNameBuilder(PUNIT_NAME);
-    schema = new IntermediateSchema(namebuilder, emf.getMetamodel(), mock(Reflections.class));
+    schema = new IntermediateSchema(namebuilder, emf.getMetamodel(), r);
   }
 
   @Test
@@ -118,7 +127,7 @@ public class TestIntermediateEntitySet extends TestMappingRoot {
       CsdlAnnotation annotation = new CsdlAnnotation();
       annotation.setExpression(mimeType);
       annotation.setTerm("Capabilities.TopSupported");
-      List<CsdlAnnotation> annotations = new ArrayList<CsdlAnnotation>();
+      List<CsdlAnnotation> annotations = new ArrayList<>();
       annotations.add(annotation);
       entitySet.addAnnotations(annotations);
 

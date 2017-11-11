@@ -109,6 +109,16 @@ public final class JPATypeConvertor {
     return convertToEdmSimpleType(attribute.getType(), null);
   }
 
+  public static boolean isSimpleType(final Class<?> type, final Attribute<?, ?> currentAttribute) {
+    return type != null
+        && (isScalarType(type)
+            || type.equals(Byte[].class)
+            || type.equals(Blob.class)
+            || type.equals(Clob.class)
+            || isGeography(currentAttribute)
+            || isGeometry(currentAttribute));
+  }
+
   public static boolean isScalarType(final Class<?> type) {
     return (type == String.class ||
         type == Character.class ||

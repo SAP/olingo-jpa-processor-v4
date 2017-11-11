@@ -18,6 +18,7 @@ import javax.persistence.metamodel.Attribute.PersistentAttributeType;
 import javax.persistence.metamodel.SingularAttribute;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
+import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.geo.SRID;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlMapping;
@@ -73,8 +74,24 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
   }
 
   @Override
-  public AttributeConverter<?, ?> getConverter() {
-    return valueConverter;
+  public void addAnnotations(List<CsdlAnnotation> annotations) {
+    edmAnnotations.addAll(annotations);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <X, Y extends Object> AttributeConverter<X, Y> getConverter() {
+    return (AttributeConverter<X, Y>) valueConverter;
+  }
+
+  @Override
+  public EdmPrimitiveTypeKind getEdmType() throws ODataJPAModelException {
+    return JPATypeConvertor.convertToEdmSimpleType(jpaAttribute.getJavaType());
+  }
+
+  @Override
+  public CsdlProperty getProperty() throws ODataJPAModelException {
+    return getEdmItem();
   }
 
   @Override
@@ -91,8 +108,18 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
   }
 
   @Override
+  public boolean isAssociation() {
+    return false;
+  }
+
+  @Override
   public boolean isComplex() {
     return jpaAttribute.getPersistentAttributeType() == PersistentAttributeType.EMBEDDED ? true : false;
+  }
+
+  @Override
+  public boolean isEtag() {
+    return isVersion;
   }
 
   @Override
@@ -103,8 +130,9 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
       return false;
   }
 
-  boolean isStream() {
-    return streamInfo == null ? false : streamInfo.stream();
+  @Override
+  public boolean isSearchable() {
+    return searchable;
   }
 
   @Override
@@ -112,137 +140,33 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
     if (edmProperty == null) {
       edmProperty = new CsdlProperty();
       edmProperty.setName(this.getExternalName());
-
       edmProperty.setMapping(createMapper());
-
-      if (jpaAttribute.getPersistentAttributeType() == PersistentAttributeType.BASIC)
-        if (valueConverter != null) {
-        edmProperty.setType(JPATypeConvertor.convertToEdmSimpleType(dbType, jpaAttribute)
-            .getFullQualifiedName());
-        } else
-        edmProperty.setType(JPATypeConvertor.convertToEdmSimpleType(entityType, jpaAttribute)
-            .getFullQualifiedName());
-      if (jpaAttribute.getPersistentAttributeType() == PersistentAttributeType.EMBEDDED)
-        edmProperty.setType(nameBuilder.buildFQN(type.getExternalName()));
-
-      if (jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
-        ((AnnotatedElement) jpaAttribute.getJavaMember()).getAnnotations();
-        final Column jpaColumn = ((AnnotatedElement) jpaAttribute.getJavaMember()).getAnnotation(Column.class);
-        if (jpaColumn != null) {
-          edmProperty.setNullable(jpaColumn.nullable());
-          edmProperty.setSrid(getSRID());
-          edmProperty.setDefaultValue(getDeafultValue());
-          // TODO Attribute Unicode
-          if (edmProperty.getTypeAsFQNObject().equals(EdmPrimitiveTypeKind.String.getFullQualifiedName())
-              || edmProperty.getTypeAsFQNObject()
-                  .equals(EdmPrimitiveTypeKind.Binary.getFullQualifiedName())) {
-            if (jpaColumn.length() > 0)
-              edmProperty.setMaxLength(jpaColumn.length());
-            if (isLob())
-              edmProperty.setMaxLength(null);
-          } else if (edmProperty.getType()
-              .equals(EdmPrimitiveTypeKind.Decimal.getFullQualifiedName().toString())
-              || edmProperty.getType()
-                  .equals(EdmPrimitiveTypeKind.DateTimeOffset.getFullQualifiedName().toString())
-              || edmProperty.getType()
-                  .equals(EdmPrimitiveTypeKind.TimeOfDay.getFullQualifiedName().toString())) {
-            // For a decimal property the value of this attribute
-            // specifies the maximum number of digits allowed in the
-            // properties value; it MUST be a positive integer. If
-            // no value is specified, the decimal property has
-            // unspecified precision.
-            // For a temporal property the value of this attribute
-            // specifies the number of decimal places allowed in the
-            // seconds portion of the property's value; it MUST be a
-            // non-negative integer between zero and twelve. If no
-            // value is specified, the temporal property has a
-            // precision of zero.
-            // is key
-            if (jpaColumn.precision() > 0)
-              edmProperty.setPrecision(jpaColumn.precision());
-            else if (edmProperty.getType().equals(EdmPrimitiveTypeKind.DateTimeOffset.getFullQualifiedName().toString())
-                && jpaColumn.precision() == 0)
-              throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.PROPERTY_MISSING_PRECISION,
-                  jpaAttribute.getName());
-            if (edmProperty.getType().equals(EdmPrimitiveTypeKind.Decimal.getFullQualifiedName().toString())
-                && jpaColumn.scale() > 0)
-              edmProperty.setScale(jpaColumn.scale());
-          }
-        }
-      }
-      if (edmProperty != null) {
-        edmProperty.setAnnotations(edmAnnotations);
-      }
+      edmProperty.setType(determineType());
+      setFacet();
+      edmProperty.setAnnotations(edmAnnotations);
     }
   }
 
-  private CsdlMapping createMapper() {
-    if (!isLob()) {
-      CsdlMapping mapping = new CsdlMapping();
-      mapping.setInternalName(this.getExternalName());
-      mapping.setMappedJavaClass(dbType);
-      return mapping;
-    }
-    return null;
+  String getContentType() {
+    return streamInfo.contentType();
   }
 
-  private SRID getSRID() {
-    SRID result = null;
-    if (jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
-      final AnnotatedElement annotatedElement = (AnnotatedElement) jpaAttribute.getJavaMember();
-      final EdmGeospatial spatialDetails = annotatedElement.getAnnotation(EdmGeospatial.class);
-      if (spatialDetails != null) {
-        final String srid = spatialDetails.srid();
-        if (srid.isEmpty())
-          result = SRID.valueOf(null);
-        else
-          result = SRID.valueOf(srid);
-        result.setDimension(spatialDetails.dimension());
-      }
-    }
-    return result;
+  String getContentTypeProperty() {
+    return streamInfo.contentTypeAttribute();
   }
 
-  private String getDeafultValue() throws ODataJPAModelException {
-    String valueString = null;
-    if (jpaAttribute.getJavaMember() instanceof Field
-        && jpaAttribute.getPersistentAttributeType() == PersistentAttributeType.BASIC) {
-      // It is not possible to get the default value directly from the
-      // Field,
-      // only from an instance field.get(Object obj).toString();
-      try {
-        final Field field = (Field) jpaAttribute.getJavaMember();
-        final Constructor<?> constructor = jpaAttribute.getDeclaringType().getJavaType().getConstructor();
-        final Object pojo = constructor.newInstance();
-        field.setAccessible(true);
-        final Object value = field.get(pojo);
-        if (value != null)
-          valueString = value.toString();
-      } catch (NoSuchMethodException e) {
-        throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.PROPERTY_DEFAULT_ERROR, e,
-            jpaAttribute.getName());
-      } catch (InstantiationException e) {
-        // Class could not be instantiated e.g. abstract class like
-        // Business Partner=> default could not be determined
-        // and will be ignored
-      } catch (IllegalAccessException e) {
-        throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.PROPERTY_DEFAULT_ERROR, e,
-            jpaAttribute.getName());
-      } catch (IllegalArgumentException e) {
-        throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.PROPERTY_DEFAULT_ERROR, e,
-            jpaAttribute.getName());
-      } catch (InvocationTargetException e) {
-        throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.PROPERTY_DEFAULT_ERROR, e,
-            jpaAttribute.getName());
-      }
-    }
-    return valueString;
+  String getDBFieldName() {
+    return dbFieldName;
   }
 
   @Override
   CsdlProperty getEdmItem() throws ODataJPAModelException {
     lazyBuildEdmItem();
     return edmProperty;
+  }
+
+  boolean isStream() {
+    return streamInfo == null ? false : streamInfo.stream();
   }
 
   private void buildProperty(final JPAEdmNameBuilder nameBuilder) throws ODataJPAModelException {
@@ -271,10 +195,7 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
           dbType = (Class<?>) types[1];
           if (!JPATypeConvertor.isSupportedByOlingo(entityType))
             valueConverter = (AttributeConverter<?, ?>) jpaConverter.converter().newInstance();
-        } catch (InstantiationException e) {
-          throw new ODataJPAModelException(
-              ODataJPAModelException.MessageKeys.TYPE_MAPPER_COULD_NOT_INSANTIATE, e);
-        } catch (IllegalAccessException e) {
+        } catch (InstantiationException | IllegalAccessException e) {
           throw new ODataJPAModelException(
               ODataJPAModelException.MessageKeys.TYPE_MAPPER_COULD_NOT_INSANTIATE, e);
         }
@@ -288,7 +209,7 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
         // TODO allow default name
         dbFieldName = jpaColunnDetails.name();
         if (dbFieldName.isEmpty()) {
-          final StringBuffer s = new StringBuffer(DB_FIELD_NAME_PATTERN);
+          final StringBuilder s = new StringBuilder(DB_FIELD_NAME_PATTERN);
           s.replace(1, 3, internalName);
           dbFieldName = s.toString();
         }
@@ -319,46 +240,88 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
     getAnnotations(edmAnnotations, this.jpaAttribute.getJavaMember(), internalName, AppliesTo.PROPERTY);
   }
 
-  @Override
-  public boolean isAssociation() {
-    return false;
+  private CsdlMapping createMapper() {
+    if (!isLob()) {
+      CsdlMapping mapping = new CsdlMapping();
+      mapping.setInternalName(this.getExternalName());
+      mapping.setMappedJavaClass(dbType);
+      return mapping;
+    }
+    return null;
   }
 
-  String getDBFieldName() {
-    return dbFieldName;
+  private FullQualifiedName determineType() throws ODataJPAModelException {
+
+    if (jpaAttribute.getPersistentAttributeType() == PersistentAttributeType.BASIC) {
+      final IntermediateModelElement odataType = getODataPrimitiveType();
+      if (odataType == null) {
+        return getSimpleType();
+      } else
+        return odataType.getExternalFQN();
+    }
+    if (jpaAttribute.getPersistentAttributeType() == PersistentAttributeType.EMBEDDED)
+      return nameBuilder.buildFQN(type.getExternalName());
+    else
+      return EdmPrimitiveTypeKind.Boolean.getFullQualifiedName();
   }
 
-  @Override
-  public EdmPrimitiveTypeKind getEdmType() throws ODataJPAModelException {
-    return JPATypeConvertor.convertToEdmSimpleType(jpaAttribute.getJavaType());
+  private FullQualifiedName getSimpleType() throws ODataJPAModelException {
+    Class<?> javaType = null;
+    if (valueConverter != null) {
+      javaType = dbType;
+    } else {
+      javaType = entityType;
+    }
+    return JPATypeConvertor.convertToEdmSimpleType(javaType, jpaAttribute)
+        .getFullQualifiedName();
   }
 
-  @Override
-  public CsdlProperty getProperty() throws ODataJPAModelException {
-    return getEdmItem();
+  private IntermediateModelElement getODataPrimitiveType() {
+    return schema.getEnumerationType(entityType);
   }
 
-  @Override
-  public boolean isSearchable() {
-    return searchable;
+  private String getDeafultValue() throws ODataJPAModelException {
+    String valueString = null;
+    if (jpaAttribute.getJavaMember() instanceof Field
+        && jpaAttribute.getPersistentAttributeType() == PersistentAttributeType.BASIC) {
+      // It is not possible to get the default value directly from the
+      // Field, only from an instance field.get(Object obj).toString(); //NOSONAR
+      try {
+        final Field field = (Field) jpaAttribute.getJavaMember();
+        final Constructor<?> constructor = jpaAttribute.getDeclaringType().getJavaType().getConstructor();
+        final Object pojo = constructor.newInstance();
+        field.setAccessible(true);
+        final Object value = field.get(pojo);
+        if (value != null)
+          valueString = value.toString();
+      } catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException
+          | InvocationTargetException e) {
+        throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.PROPERTY_DEFAULT_ERROR, e,
+            jpaAttribute.getName());
+      } catch (InstantiationException e) {
+        // Class could not be instantiated e.g. abstract class like
+        // Business Partner=> default could not be determined
+        // and will be ignored
+      }
+    }
+    return valueString;
   }
 
-  String getContentType() {
-    return streamInfo.contentType();
-  }
-
-  String getContentTypeProperty() {
-    return streamInfo.contentTypeAttribute();
-  }
-
-  @Override
-  public boolean isEtag() {
-    return isVersion;
-  }
-
-  @Override
-  public void addAnnotations(List<CsdlAnnotation> annotations) {
-    edmAnnotations.addAll(annotations);
+  private SRID getSRID() {
+    SRID result = null;
+    if (jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
+      final AnnotatedElement annotatedElement = (AnnotatedElement) jpaAttribute.getJavaMember();
+      final EdmGeospatial spatialDetails = annotatedElement.getAnnotation(EdmGeospatial.class);
+      if (spatialDetails != null) {
+        final String srid = spatialDetails.srid();
+        if (srid.isEmpty())
+          result = SRID.valueOf(null);
+        else
+          result = SRID.valueOf(srid);
+        result.setDimension(spatialDetails.dimension());
+      }
+    }
+    return result;
   }
 
   private boolean isLob() {
@@ -369,5 +332,53 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
       }
     }
     return false;
+  }
+
+  private void setFacet() throws ODataJPAModelException {
+    if (jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
+      ((AnnotatedElement) jpaAttribute.getJavaMember()).getAnnotations();
+      final Column jpaColumn = ((AnnotatedElement) jpaAttribute.getJavaMember()).getAnnotation(Column.class);
+      if (jpaColumn != null) {
+        edmProperty.setNullable(jpaColumn.nullable());
+        edmProperty.setSrid(getSRID());
+        edmProperty.setDefaultValue(getDeafultValue());
+        // TODO Attribute Unicode
+        if (edmProperty.getTypeAsFQNObject().equals(EdmPrimitiveTypeKind.String.getFullQualifiedName())
+            || edmProperty.getTypeAsFQNObject()
+                .equals(EdmPrimitiveTypeKind.Binary.getFullQualifiedName())) {
+          if (jpaColumn.length() > 0)
+            edmProperty.setMaxLength(jpaColumn.length());
+          if (isLob())
+            edmProperty.setMaxLength(null);
+        } else if (edmProperty.getType()
+            .equals(EdmPrimitiveTypeKind.Decimal.getFullQualifiedName().toString())
+            || edmProperty.getType()
+                .equals(EdmPrimitiveTypeKind.DateTimeOffset.getFullQualifiedName().toString())
+            || edmProperty.getType()
+                .equals(EdmPrimitiveTypeKind.TimeOfDay.getFullQualifiedName().toString())) {
+          // For a decimal property the value of this attribute
+          // specifies the maximum number of digits allowed in the
+          // properties value; it MUST be a positive integer. If
+          // no value is specified, the decimal property has
+          // unspecified precision.
+          // For a temporal property the value of this attribute
+          // specifies the number of decimal places allowed in the
+          // seconds portion of the property's value; it MUST be a
+          // non-negative integer between zero and twelve. If no
+          // value is specified, the temporal property has a
+          // precision of zero.
+          // is key
+          if (jpaColumn.precision() > 0)
+            edmProperty.setPrecision(jpaColumn.precision());
+          else if (edmProperty.getType().equals(EdmPrimitiveTypeKind.DateTimeOffset.getFullQualifiedName().toString())
+              && jpaColumn.precision() == 0)
+            throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.PROPERTY_MISSING_PRECISION,
+                jpaAttribute.getName());
+          if (edmProperty.getType().equals(EdmPrimitiveTypeKind.Decimal.getFullQualifiedName().toString())
+              && jpaColumn.scale() > 0)
+            edmProperty.setScale(jpaColumn.scale());
+        }
+      }
+    }
   }
 }

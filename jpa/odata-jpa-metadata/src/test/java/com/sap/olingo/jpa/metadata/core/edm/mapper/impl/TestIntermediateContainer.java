@@ -21,6 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
+import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
 
@@ -35,8 +36,9 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferen
 import com.sap.olingo.jpa.processor.core.testmodel.TestDataConstants;
 
 public class TestIntermediateContainer extends TestMappingRoot {
-  private static final String PACKAGE = "com.sap.olingo.jpa.metadata.core.edm.mapper.impl";
-  private HashMap<String, IntermediateSchema> schemas = new HashMap<String, IntermediateSchema>();
+  private static final String PACKAGE1 = "com.sap.olingo.jpa.metadata.core.edm.mapper.impl";
+  private static final String PACKAGE2 = "com.sap.olingo.jpa.processor.core.testmodel";
+  private HashMap<String, IntermediateSchema> schemas = new HashMap<>();
   private Set<EntityType<?>> etList;
   private IntermediateSchema schema;
 
@@ -46,10 +48,9 @@ public class TestIntermediateContainer extends TestMappingRoot {
     Reflections r =
         new Reflections(
             new ConfigurationBuilder()
-                .forPackages(PACKAGE)
-                .filterInputsBy(new FilterBuilder().include(FilterBuilder.prefix(
-                    "com.sap.olingo.jpa.metadata.core.edm.mapper.impl")))
-                .setScanners(new SubTypesScanner(false)));
+                .forPackages(PACKAGE1, PACKAGE2)
+                .filterInputsBy(new FilterBuilder().includePackage(PACKAGE1, PACKAGE2))
+                .setScanners(new SubTypesScanner(false), new TypeAnnotationsScanner()));
 
     schema = new IntermediateSchema(new JPAEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), r);
     etList = emf.getMetamodel().getEntities();
@@ -290,7 +291,7 @@ public class TestIntermediateContainer extends TestMappingRoot {
       CsdlAnnotation annotation = new CsdlAnnotation();
       annotation.setExpression(mimeType);
       annotation.setTerm("Capabilities.AsynchronousRequestsSupported");
-      List<CsdlAnnotation> annotations = new ArrayList<CsdlAnnotation>();
+      List<CsdlAnnotation> annotations = new ArrayList<>();
       annotations.add(annotation);
       container.addAnnotations(annotations);
     }

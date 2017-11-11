@@ -29,17 +29,16 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityC
  */
 //TODO How to handle multiple schemas
 final class IntermediateEntityContainer extends IntermediateModelElement implements IntermediateEntityContainerAccess {
-  final private Map<String, IntermediateSchema> schemaList;
-  final private Map<String, IntermediateEntitySet> entitySetListInternalKey;
+  private final Map<String, IntermediateSchema> schemaList;
+  private final Map<String, IntermediateEntitySet> entitySetListInternalKey;
 
   private CsdlEntityContainer edmContainer;
 
-  IntermediateEntityContainer(final JPAEdmNameBuilder nameBuilder, final Map<String, IntermediateSchema> schemaList)
-      throws ODataJPAModelException {
+  IntermediateEntityContainer(final JPAEdmNameBuilder nameBuilder, final Map<String, IntermediateSchema> schemaList) {
     super(nameBuilder, nameBuilder.buildContainerName());
     this.schemaList = schemaList;
     this.setExternalName(nameBuilder.buildContainerName());
-    this.entitySetListInternalKey = new HashMap<String, IntermediateEntitySet>();
+    this.entitySetListInternalKey = new HashMap<>();
   }
 
   @Override
@@ -131,7 +130,7 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
   }
 
   private List<CsdlFunctionImport> buildFunctionImports() throws ODataJPAModelException {
-    final List<CsdlFunctionImport> edmFunctionImports = new ArrayList<CsdlFunctionImport>();
+    final List<CsdlFunctionImport> edmFunctionImports = new ArrayList<>();
 
     for (final String namespace : schemaList.keySet()) {
       // Build Entity Sets
@@ -149,7 +148,7 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
   }
 
   private List<CsdlActionImport> buildActionImports() throws ODataJPAModelException {
-    final List<CsdlActionImport> edmActionImports = new ArrayList<CsdlActionImport>();
+    final List<CsdlActionImport> edmActionImports = new ArrayList<>();
 
     for (final String namespace : schemaList.keySet()) {
       // Build Entity Sets

@@ -30,21 +30,23 @@ CREATE TABLE "BusinessPartner" (
 	"UpdatedBy" VARCHAR(32) NOT NULL ,
 	"UpdatedAt" TIMESTAMP,
     "Country" VARCHAR(4),
+    "ABCClass" int,
+    "AccessRights" int,
 	 PRIMARY KEY ("ID"));
      
-insert into "BusinessPartner" values ('1', 0, '2', '','',6000.5,null,'First Org.','',null,'Test Road', '23','', 'Test City','94321','ISO', '3166-2','US-CA', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA');
-insert into "BusinessPartner" values ('2', 0, '2', '','',null,null,'Second Org.','',null,'Test Road', '45','', 'Test City','76321','ISO', '3166-2','US-TX', 'USA', '', '','','', '97','2016-01-20 09:21:23', '', null, 'USA');
-insert into "BusinessPartner" values ('3', 0, '2', '','',null,null,'Third Org.','',null,'Test Road', '223','', 'Test City','94322','ISO', '3166-2','US-CA', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA');
-insert into "BusinessPartner" values ('4', 0, '2', '','',null,null,'Fourth Org.','',null,'Test Road', '56','', 'Test City','84321','ISO', '3166-2','US-UT', 'USA', '', '','','', '98','2016-01-20 09:21:23', '', null, 'USA');
-insert into "BusinessPartner" values ('5', 0, '2', '','',null,null,'Fifth Org.','',null,'Test Road', '35','', 'Test City','59321','ISO', '3166-2','US-MT', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA');
-insert into "BusinessPartner" values ('6', 0, '2', '','',null,null,'Sixth Org.','',null,'Test Road', '7856','', 'Test City','94324','ISO', '3166-2','US-CA', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA');
-insert into "BusinessPartner" values ('7', 0, '2', '','',null,null,'Seventh Org.','',null,'Test Road', '4','', 'Test City','29321','ISO', '3166-2','US-SC', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA');
-insert into "BusinessPartner" values ('8', 0, '2', '','',null,null,'Eighth Org.','',null,'Test Road', '453','', 'Test City','29221','ISO', '3166-2','US-SC', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA');
-insert into "BusinessPartner" values ('9', 0, '2', '','',null,null,'Ninth Org.','',null,'Test Road', '93','', 'Test City','55021','ISO', '3166-2','US-MN', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA');
-insert into "BusinessPartner" values ('10', 0, '2', '','',null,null,'Tenth Org.','',null,'Test Road', '12','', 'Test City','03921','ISO', '3166-2','US-ME', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU');
-insert into "BusinessPartner" values ('99', 0, '1', '','',null,null,'Max','Mustermann',null,'Test Starße', '12','', 'Teststadt','10115','ISO', '3166-2','DE-BE', 'DEU', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU'); 
-insert into "BusinessPartner" values ('98', 0, '1', '','',null,null,'John','Doe',null,'Test Road', '55','', 'Test City','76321','ISO', '3166-2','US-TX', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU'); 
-insert into "BusinessPartner" values ('97', 0, '1', '','',null,null,'Urs','Müller',null,'Test Straße', '23','', 'Test Dorf','4123','ISO', '3166-2','CH-BL', 'CHE', null,null,null,null, '99','2016-07-20 09:21:23', '', null, 'CHE'); 
+insert into "BusinessPartner" values ('1', 0, '2', '','',6000.5,null,'First Org.','',null,'Test Road', '23','', 'Test City','94321','ISO', '3166-2','US-CA', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA', 0, null);
+insert into "BusinessPartner" values ('2', 0, '2', '','',null,null,'Second Org.','',null,'Test Road', '45','', 'Test City','76321','ISO', '3166-2','US-TX', 'USA', '', '','','', '97','2016-01-20 09:21:23', '', null, 'USA', null, null);
+insert into "BusinessPartner" values ('3', 0, '2', '','',null,null,'Third Org.','',null,'Test Road', '223','', 'Test City','94322','ISO', '3166-2','US-CA', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA', null, null);
+insert into "BusinessPartner" values ('4', 0, '2', '','',null,null,'Fourth Org.','',null,'Test Road', '56','', 'Test City','84321','ISO', '3166-2','US-UT', 'USA', '', '','','', '98','2016-01-20 09:21:23', '', null, 'USA', 1, null);
+insert into "BusinessPartner" values ('5', 0, '2', '','',null,null,'Fifth Org.','',null,'Test Road', '35','', 'Test City','59321','ISO', '3166-2','US-MT', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA', null, null);
+insert into "BusinessPartner" values ('6', 0, '2', '','',null,null,'Sixth Org.','',null,'Test Road', '7856','', 'Test City','94324','ISO', '3166-2','US-CA', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA', null, null);
+insert into "BusinessPartner" values ('7', 0, '2', '','',null,null,'Seventh Org.','',null,'Test Road', '4','', 'Test City','29321','ISO', '3166-2','US-SC', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA', null, null);
+insert into "BusinessPartner" values ('8', 0, '2', '','',null,null,'Eighth Org.','',null,'Test Road', '453','', 'Test City','29221','ISO', '3166-2','US-SC', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA', 2, null);
+insert into "BusinessPartner" values ('9', 0, '2', '','',null,null,'Ninth Org.','',null,'Test Road', '93','', 'Test City','55021','ISO', '3166-2','US-MN', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA', null, null);
+insert into "BusinessPartner" values ('10', 0, '2', '','',null,null,'Tenth Org.','',null,'Test Road', '12','', 'Test City','03921','ISO', '3166-2','US-ME', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU', null, null);
+insert into "BusinessPartner" values ('99', 0, '1', '','',null,null,'Max','Mustermann',null,'Test Starße', '12','', 'Teststadt','10115','ISO', '3166-2','DE-BE', 'DEU', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU', null, null); 
+insert into "BusinessPartner" values ('98', 0, '1', '','',null,null,'John','Doe',null,'Test Road', '55','', 'Test City','76321','ISO', '3166-2','US-TX', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU', null, null); 
+insert into "BusinessPartner" values ('97', 0, '1', '','',null,null,'Urs','Müller',null,'Test Straße', '23','', 'Test Dorf','4123','ISO', '3166-2','CH-BL', 'CHE', null,null,null,null, '99','2016-07-20 09:21:23', '', null, 'CHE', null, null); 
 
 CREATE TABLE "PersonImage" (
 	"ID" VARCHAR(32) NOT NULL ,

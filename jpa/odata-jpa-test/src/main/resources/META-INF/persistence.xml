@@ -6,6 +6,7 @@
 	<persistence-unit name="com.sap.olingo.jpa"
 		transaction-type="RESOURCE_LOCAL">
 
+		<class>com.sap.olingo.jpa.processor.core.testmodel.AccessRightsConverter</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescription</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.BestOrganization</class>
