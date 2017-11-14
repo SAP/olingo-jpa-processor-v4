@@ -96,6 +96,14 @@ public class TestIntermediateProperty extends TestMappingRoot {
   }
 
   @Test
+  public void checkGetProptertyEnumTypeWithoutConverterMustNotHaveMapper() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType("Organization"), "aBCClass");
+    IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
+        helper.schema);
+    assertNull(property.getEdmItem().getMapping());
+  }
+
+  @Test
   public void checkGetProptertyEnumTypeWithConverter() throws ODataJPAModelException {
     Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType("Person"), "accessRights");
     IntermediateProperty property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,

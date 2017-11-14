@@ -38,10 +38,10 @@ class JPAMethodCallImp implements JPAMethodCall {
    * @see com.sap.olingo.jpa.processor.core.filter.JPAFunctionCall#get(String prefix, String suffix)
    */
   @Override
-  public Object get(String prefix, String suffix) throws ODataApplicationException {
+  public Object get(final String prefix, final String suffix) throws ODataApplicationException {
     final List<JPAOperator> paramCopy = new ArrayList<>(parameters);
     if (!parameters.isEmpty() && parameters.get(0) instanceof JPALiteralOperator) {
-      parameters.add(((JPALiteralOperator) parameters.get(0)).clone("%", "%"));
+      parameters.add(((JPALiteralOperator) parameters.get(0)).clone(prefix, suffix));
       parameters.remove(0);
     }
     Expression<?> result = converter.convert(this);

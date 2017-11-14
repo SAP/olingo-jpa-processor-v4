@@ -50,6 +50,18 @@ public class TestJPAQueryWhereClause extends TestBase {
   }
 
   @Test
+  public void testFilterOneEnumEquals() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$filter=ABCClass eq com.sap.olingo.jpa.ABCClassifiaction'A'");
+    helper.assertStatus(200);
+
+    ArrayNode orgs = helper.getValues();
+    assertEquals(1, orgs.size());
+    assertEquals("1", orgs.get(0).get("ID").asText());
+  }
+
+  @Test
   public void testFilterOneEqualsTwoProperties() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -79,6 +91,18 @@ public class TestJPAQueryWhereClause extends TestBase {
 
     ArrayNode orgs = helper.getValues();
     assertEquals(9, orgs.size());
+  }
+
+  @Test
+  public void testFilterOneEnumNotEqual() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Persons?$filter=AccessRights ne com.sap.olingo.jpa.AccessRights'Write'");
+    helper.assertStatus(200);
+
+    ArrayNode persons = helper.getValues();
+    assertEquals(1, persons.size());
+    assertEquals("98", persons.get(0).get("ID").asText());
   }
 
   @Test
@@ -140,6 +164,19 @@ public class TestJPAQueryWhereClause extends TestBase {
 
     ArrayNode orgs = helper.getValues();
     assertEquals(4, orgs.size());
+  }
+
+  @Ignore // TODO Clarify if GT, LE .. not supported by OData or "only" by Olingo
+  @Test
+  public void testFilterOneEnumGreaterThan() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Persons?$filter=AccessRights gt com.sap.olingo.jpa.AccessRights'Read'");
+    helper.assertStatus(200);
+
+    ArrayNode persons = helper.getValues();
+    assertEquals(1, persons.size());
+    assertEquals("99", persons.get(0).get("ID").asText());
   }
 
   @Test

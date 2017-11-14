@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.junit.Before;
@@ -14,6 +13,8 @@ import org.mockito.MockitoAnnotations;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.DayOfWeek;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.FileAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.WrongMember;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.WrongType;
 
 public class TestIntermediateEnumerationType extends TestMappingRoot {
 
@@ -113,23 +114,39 @@ public class TestIntermediateEnumerationType extends TestMappingRoot {
     assertEquals("8", cut.getEdmItem().getMembers().get(3).getValue());
   }
 
-  @Test
+  @Test(expected = ODataJPAModelException.class)
   public void checkThrowsErrorOnIsFlagTrueAndNegativeValue() throws ODataJPAModelException {
-    cut = new IntermediateEnumerationType(new JPAEdmNameBuilder(PUNIT_NAME), FileAccess.class);
+    cut = new IntermediateEnumerationType(new JPAEdmNameBuilder(PUNIT_NAME), WrongMember.class);
     cut.getEdmItem();
-    fail();
+  }
+
+  @Test(expected = ODataJPAModelException.class)
+  public void checkThrowsErrorOnNotSupportedUnderlyingType() throws ODataJPAModelException {
+    cut = new IntermediateEnumerationType(new JPAEdmNameBuilder(PUNIT_NAME), WrongType.class);
+    cut.getEdmItem();
   }
 
   @Test
-  public void checkThrowsErrorOnNotSupportedUnderlyingType() throws ODataJPAModelException {
-    cut = new IntermediateEnumerationType(new JPAEdmNameBuilder(PUNIT_NAME), FileAccess.class);
-    cut.getEdmItem();
-    fail();
+  public void checkOrdinalMemberProvidedFromStringWOConverter() throws ODataJPAModelException {
+    cut = new IntermediateEnumerationType(new JPAEdmNameBuilder(PUNIT_NAME), DayOfWeek.class);
+    assertEquals(DayOfWeek.SUNDAY, cut.valueOf("SUNDAY"));
   }
-//  @Test
-//  public void checkOrdinalMemberProvided() throws ODataJPAModelException {
-//    cut = new IntermediateEnumerationType(new JPAEdmNameBuilder(PUNIT_NAME), DayOfWeek.class);
-//    cut.getEdmItem();
-//    cut.getEdmItem().getName();
-//  }
+
+  @Test
+  public void checkOrdinalMemberProvidedFromNumberWOConverter() throws ODataJPAModelException {
+    cut = new IntermediateEnumerationType(new JPAEdmNameBuilder(PUNIT_NAME), DayOfWeek.class);
+    assertEquals(DayOfWeek.TUESDAY, cut.valueOf(1));
+  }
+
+  @Test
+  public void checkOrdinalMemberProvidedFromStringWithConverter() throws ODataJPAModelException {
+    cut = new IntermediateEnumerationType(new JPAEdmNameBuilder(PUNIT_NAME), FileAccess.class);
+    assertEquals(FileAccess.Create, cut.valueOf("Create"));
+  }
+
+  @Test
+  public void checkOrdinalMemberProvidedFromNumberWithConverter() throws ODataJPAModelException {
+    cut = new IntermediateEnumerationType(new JPAEdmNameBuilder(PUNIT_NAME), FileAccess.class);
+    assertEquals(FileAccess.Write, cut.valueOf((short) 2));
+  }
 }

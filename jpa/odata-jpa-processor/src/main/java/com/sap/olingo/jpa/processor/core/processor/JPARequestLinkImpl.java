@@ -33,8 +33,8 @@ public final class JPARequestLinkImpl implements JPARequestLink {
     this.path = path;
     this.bindingLink = bindingLink;
     this.helper = helper;
-    this.keys = new HashMap<String, Object>();
-    this.values = new HashMap<String, Object>();
+    this.keys = new HashMap<>();
+    this.values = new HashMap<>();
   }
 
   @Override

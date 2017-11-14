@@ -62,4 +62,8 @@ public class Person extends BusinessPartner {
   public void setBirthDay(LocalDate birthDay) {
     this.birthDay = birthDay;
   }
+
+  public AccessRights getAccessRights() {
+    return accessRights;
+  }
 }

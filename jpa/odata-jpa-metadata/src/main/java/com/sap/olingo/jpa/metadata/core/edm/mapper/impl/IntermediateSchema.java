@@ -11,6 +11,7 @@ import javax.persistence.metamodel.EmbeddableType;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.Metamodel;
 
+import org.apache.olingo.commons.api.edm.EdmEnumType;
 import org.apache.olingo.commons.api.edm.provider.CsdlAction;
 import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
@@ -22,6 +23,7 @@ import org.reflections.Reflections;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEnumeration;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEnumerationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -228,6 +230,14 @@ final class IntermediateSchema extends IntermediateModelElement {
 
   public IntermediateEnumerationType getEnumerationType(Class<?> enumType) {
     return this.enumTypeListInternalKey.get(enumType.getSimpleName());
+  }
+
+  public JPAEnumerationAttribute getEnumerationType(EdmEnumType type) {
+    for (final Entry<String, IntermediateEnumerationType> enumeration : this.enumTypeListInternalKey.entrySet()) {
+      if (enumeration.getValue().getExternalFQN().equals(type.getFullQualifiedName()))
+        return enumeration.getValue();
+    }
+    return null;
   }
 
 }

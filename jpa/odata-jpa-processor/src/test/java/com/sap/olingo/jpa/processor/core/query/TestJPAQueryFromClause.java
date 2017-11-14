@@ -41,7 +41,7 @@ public class TestJPAQueryFromClause extends TestBase {
     helper = new TestHelper(emf, PUNIT_NAME);
     jpaEntityType = helper.getJPAEntityType("Organizations");
     JPAODataSessionContextAccess context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null,
-        null), ds);
+        TestBase.enumPackages), ds);
     createHeaders();
     cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "Organizations"), context, null, emf
         .createEntityManager(), headers);
@@ -56,7 +56,7 @@ public class TestJPAQueryFromClause extends TestBase {
 
   @Test
   public void checkFromListOrderByContainsOne() throws ODataJPAModelException, ODataApplicationException {
-    List<JPAAssociationAttribute> orderBy = new ArrayList<JPAAssociationAttribute>();
+    List<JPAAssociationAttribute> orderBy = new ArrayList<>();
     JPAAttribute exp = helper.getJPAAssociation("Organizations", "roles");
     orderBy.add((JPAAssociationAttribute) exp);
 
@@ -66,7 +66,7 @@ public class TestJPAQueryFromClause extends TestBase {
 
   @Test
   public void checkFromListOrderByOuterJoinOne() throws ODataJPAModelException, ODataApplicationException {
-    List<JPAAssociationAttribute> orderBy = new ArrayList<JPAAssociationAttribute>();
+    List<JPAAssociationAttribute> orderBy = new ArrayList<>();
     JPAAttribute exp = helper.getJPAAssociation("Organizations", "roles");
     orderBy.add((JPAAssociationAttribute) exp);
 
@@ -84,7 +84,7 @@ public class TestJPAQueryFromClause extends TestBase {
 
   @Test
   public void checkFromListOrderByOuterJoinOnConditionOne() throws ODataJPAModelException, ODataApplicationException {
-    List<JPAAssociationAttribute> orderBy = new ArrayList<JPAAssociationAttribute>();
+    List<JPAAssociationAttribute> orderBy = new ArrayList<>();
     JPAAttribute exp = helper.getJPAAssociation("Organizations", "roles");
     orderBy.add((JPAAssociationAttribute) exp);
 
@@ -102,8 +102,8 @@ public class TestJPAQueryFromClause extends TestBase {
 
   @Test
   public void checkFromListDescriptionAssozationAllFields() throws ODataApplicationException, ODataJPAModelException {
-    List<JPAAssociationAttribute> orderBy = new ArrayList<JPAAssociationAttribute>();
-    List<JPAPath> descriptionPathList = new ArrayList<JPAPath>();
+    List<JPAAssociationAttribute> orderBy = new ArrayList<>();
+    List<JPAPath> descriptionPathList = new ArrayList<>();
     JPAEntityType entity = helper.getJPAEntityType("Organizations");
     descriptionPathList.add(entity.getPath("Address/CountryName"));
 
@@ -117,8 +117,8 @@ public class TestJPAQueryFromClause extends TestBase {
 
   @Test
   public void checkFromListDescriptionAssozationAllFields2() throws ODataApplicationException, ODataJPAModelException {
-    List<JPAAssociationAttribute> orderBy = new ArrayList<JPAAssociationAttribute>();
-    List<JPAPath> descriptionPathList = new ArrayList<JPAPath>();
+    List<JPAAssociationAttribute> orderBy = new ArrayList<>();
+    List<JPAPath> descriptionPathList = new ArrayList<>();
     JPAEntityType entity = helper.getJPAEntityType("Organizations");
     descriptionPathList.add(entity.getPath("Address/RegionName"));
 

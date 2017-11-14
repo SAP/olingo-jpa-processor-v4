@@ -45,7 +45,8 @@ public class HttpServletRequestDouble implements HttpServletRequest {
 
   @Override
   public Object getAttribute(final String name) {
-    fail();
+    if (!"requestMapping".equals(name))
+      fail();
     return null;
   }
 

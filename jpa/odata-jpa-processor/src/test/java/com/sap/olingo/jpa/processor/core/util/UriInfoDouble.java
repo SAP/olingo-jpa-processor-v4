@@ -26,6 +26,7 @@ import org.apache.olingo.server.api.uri.queryoption.AliasQueryOption;
 import org.apache.olingo.server.api.uri.queryoption.ApplyOption;
 import org.apache.olingo.server.api.uri.queryoption.CountOption;
 import org.apache.olingo.server.api.uri.queryoption.CustomQueryOption;
+import org.apache.olingo.server.api.uri.queryoption.DeltaTokenOption;
 import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
 import org.apache.olingo.server.api.uri.queryoption.FilterOption;
 import org.apache.olingo.server.api.uri.queryoption.FormatOption;
@@ -366,6 +367,11 @@ public class UriInfoDouble implements UriInfo {
 
   @Override
   public ApplyOption getApplyOption() {
+    return null;
+  }
+
+  @Override
+  public DeltaTokenOption getDeltaTokenOption() {
     return null;
   }
 

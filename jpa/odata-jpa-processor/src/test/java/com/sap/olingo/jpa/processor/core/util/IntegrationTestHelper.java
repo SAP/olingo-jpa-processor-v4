@@ -14,6 +14,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.OData;
@@ -69,11 +70,10 @@ public class IntegrationTestHelper {
     this.req = new HttpServletRequestDouble(uriPrefix + urlPath, requestBody);
     this.resp = new HttpServletResponseDouble();
     OData odata = OData.newInstance();
-    String[] packages;
+    String[] packages = TestBase.enumPackages;
     if (functionPackage != null)
-      packages = new String[] { functionPackage };
-    else
-      packages = new String[] {};
+      packages = ArrayUtils.add(packages, functionPackage);
+
     JPAODataSessionContextAccess context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, localEmf,
         null, packages), ds, functionPackage);
 
@@ -108,7 +108,7 @@ public class IntegrationTestHelper {
   }
 
   public List<String> getRawBatchResult() throws IOException {
-    List<String> result = new ArrayList<String>();
+    List<String> result = new ArrayList<>();
 
     InputStream in = resp.getInputStream();
     BufferedReader br = new BufferedReader(new InputStreamReader(in));

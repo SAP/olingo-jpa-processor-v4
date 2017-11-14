@@ -118,6 +118,11 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
   }
 
   @Override
+  public boolean isEnum() {
+    return schema.getEnumerationType(entityType) != null;
+  }
+
+  @Override
   public boolean isEtag() {
     return isVersion;
   }
@@ -140,9 +145,9 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
     if (edmProperty == null) {
       edmProperty = new CsdlProperty();
       edmProperty.setName(this.getExternalName());
-      edmProperty.setMapping(createMapper());
       edmProperty.setType(determineType());
       setFacet();
+      edmProperty.setMapping(createMapper());
       edmProperty.setAnnotations(edmAnnotations);
     }
   }
@@ -241,7 +246,7 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
   }
 
   private CsdlMapping createMapper() {
-    if (!isLob()) {
+    if (!isLob() && !(getConverter() == null && isEnum())) {
       CsdlMapping mapping = new CsdlMapping();
       mapping.setInternalName(this.getExternalName());
       mapping.setMappedJavaClass(dbType);
@@ -263,21 +268,6 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
       return nameBuilder.buildFQN(type.getExternalName());
     else
       return EdmPrimitiveTypeKind.Boolean.getFullQualifiedName();
-  }
-
-  private FullQualifiedName getSimpleType() throws ODataJPAModelException {
-    Class<?> javaType = null;
-    if (valueConverter != null) {
-      javaType = dbType;
-    } else {
-      javaType = entityType;
-    }
-    return JPATypeConvertor.convertToEdmSimpleType(javaType, jpaAttribute)
-        .getFullQualifiedName();
-  }
-
-  private IntermediateModelElement getODataPrimitiveType() {
-    return schema.getEnumerationType(entityType);
   }
 
   private String getDeafultValue() throws ODataJPAModelException {
@@ -305,6 +295,21 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
       }
     }
     return valueString;
+  }
+
+  private IntermediateModelElement getODataPrimitiveType() {
+    return schema.getEnumerationType(entityType);
+  }
+
+  private FullQualifiedName getSimpleType() throws ODataJPAModelException {
+    Class<?> javaType = null;
+    if (valueConverter != null) {
+      javaType = dbType;
+    } else {
+      javaType = entityType;
+    }
+    return JPATypeConvertor.convertToEdmSimpleType(javaType, jpaAttribute)
+        .getFullQualifiedName();
   }
 
   private SRID getSRID() {

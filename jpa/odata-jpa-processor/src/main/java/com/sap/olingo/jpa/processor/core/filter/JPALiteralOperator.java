@@ -16,7 +16,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import com.sap.olingo.jpa.processor.core.query.ExpressionUtil;
 
-public class JPALiteralOperator implements JPAOperator {
+public class JPALiteralOperator implements JPAPrimitiveTypeOperator {
   private final Literal literal;
   private final OData odata;
   private final String literalText;
@@ -32,6 +32,11 @@ public class JPALiteralOperator implements JPAOperator {
     this.literalText = literalText;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.sap.olingo.jpa.processor.core.filter.JPAPrimitiveTypeOperator#get()
+   */
   @Override
   public Object get() throws ODataApplicationException {
     final EdmPrimitiveType edmType = ((EdmPrimitiveType) literal.getType());
@@ -62,11 +67,16 @@ public class JPALiteralOperator implements JPAOperator {
     return ExpressionUtil.convertValueOnFacet(odata, jpaParameter, literalText);
   }
 
-  Literal getLiteral() {
-    return literal;
+  @Override
+  public boolean isNull() {
+    return literal.getText().equals("null");
   }
 
   JPALiteralOperator clone(String prefix, String postfix) {
     return new JPALiteralOperator(odata, literal, "'" + prefix + literal.getText().replaceAll("'", "") + postfix + "'");
+  }
+
+  Literal getLiteral() {
+    return literal;
   }
 }

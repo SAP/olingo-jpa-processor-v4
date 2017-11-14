@@ -18,6 +18,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 public class TestBase {
 
   protected static final String PUNIT_NAME = "com.sap.olingo.jpa";
+  public static final String[] enumPackages = { "com.sap.olingo.jpa.processor.core.testmodel" };
   protected static EntityManagerFactory emf;
   protected TestHelper helper;
   protected Map<String, List<String>> headers;
@@ -32,8 +33,8 @@ public class TestBase {
   }
 
   protected void createHeaders() {
-    headers = new HashMap<String, List<String>>();
-    List<String> languageHeaders = new ArrayList<String>();
+    headers = new HashMap<>();
+    List<String> languageHeaders = new ArrayList<>();
     languageHeaders.add("de-DE,de;q=0.8,en-US;q=0.6,en;q=0.4");
     headers.put("accept-language", languageHeaders);
   }

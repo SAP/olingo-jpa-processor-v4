@@ -36,7 +36,7 @@ public class TestJPAExpandQueryCreateResult extends TestBase {
     createHeaders();
     EdmEntityType targetEntity = new EdmEntityTypeDouble(nameBuilder, "BusinessPartnerRole");
     JPAODataSessionContextAccess context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null,
-        null), ds);
+        TestBase.enumPackages), ds);
     cut = new JPAExpandQuery(
         null, context, emf.createEntityManager(), new ExpandItemDouble(targetEntity).getResourcePath(),
         helper.getJPAAssociationPath("Organizations", "Roles"), helper.sd.getEntity(targetEntity),
@@ -47,8 +47,8 @@ public class TestJPAExpandQueryCreateResult extends TestBase {
   @Test
   public void checkConvertOneResult() throws ODataJPAModelException, ODataApplicationException {
     JPAAssociationPath exp = helper.getJPAAssociationPath("Organizations", "Roles");
-    List<Tuple> result = new ArrayList<Tuple>();
-    HashMap<String, Object> oneResult = new HashMap<String, Object>();
+    List<Tuple> result = new ArrayList<>();
+    HashMap<String, Object> oneResult = new HashMap<>();
     oneResult.put("BusinessPartnerID", "1");
     oneResult.put("RoleCategory", "A");
     Tuple t = new TupleDouble(oneResult);
@@ -64,16 +64,16 @@ public class TestJPAExpandQueryCreateResult extends TestBase {
   @Test
   public void checkConvertTwoResultOneParent() throws ODataJPAModelException, ODataApplicationException {
     JPAAssociationPath exp = helper.getJPAAssociationPath("Organizations", "Roles");
-    List<Tuple> result = new ArrayList<Tuple>();
+    List<Tuple> result = new ArrayList<>();
     HashMap<String, Object> oneResult;
     Tuple t;
 
-    oneResult = new HashMap<String, Object>();
+    oneResult = new HashMap<>();
     oneResult.put("BusinessPartnerID", "2");
     oneResult.put("RoleCategory", "A");
     t = new TupleDouble(oneResult);
     result.add(t);
-    oneResult = new HashMap<String, Object>();
+    oneResult = new HashMap<>();
     oneResult.put("BusinessPartnerID", "2");
     oneResult.put("RoleCategory", "C");
     t = new TupleDouble(oneResult);
@@ -90,16 +90,16 @@ public class TestJPAExpandQueryCreateResult extends TestBase {
   @Test
   public void checkConvertTwoResultOneParentTop1() throws ODataJPAModelException, ODataApplicationException {
     JPAAssociationPath exp = helper.getJPAAssociationPath("Organizations", "Roles");
-    List<Tuple> result = new ArrayList<Tuple>();
+    List<Tuple> result = new ArrayList<>();
     HashMap<String, Object> oneResult;
     Tuple t;
 
-    oneResult = new HashMap<String, Object>();
+    oneResult = new HashMap<>();
     oneResult.put("BusinessPartnerID", "2");
     oneResult.put("RoleCategory", "A");
     t = new TupleDouble(oneResult);
     result.add(t);
-    oneResult = new HashMap<String, Object>();
+    oneResult = new HashMap<>();
     oneResult.put("BusinessPartnerID", "2");
     oneResult.put("RoleCategory", "C");
     t = new TupleDouble(oneResult);
@@ -116,16 +116,16 @@ public class TestJPAExpandQueryCreateResult extends TestBase {
   @Test
   public void checkConvertTwoResultOneParentSkip1() throws ODataJPAModelException, ODataApplicationException {
     JPAAssociationPath exp = helper.getJPAAssociationPath("Organizations", "Roles");
-    List<Tuple> result = new ArrayList<Tuple>();
+    List<Tuple> result = new ArrayList<>();
     HashMap<String, Object> oneResult;
     Tuple t;
 
-    oneResult = new HashMap<String, Object>();
+    oneResult = new HashMap<>();
     oneResult.put("BusinessPartnerID", "2");
     oneResult.put("RoleCategory", "A");
     t = new TupleDouble(oneResult);
     result.add(t);
-    oneResult = new HashMap<String, Object>();
+    oneResult = new HashMap<>();
     oneResult.put("BusinessPartnerID", "2");
     oneResult.put("RoleCategory", "C");
     t = new TupleDouble(oneResult);
@@ -142,16 +142,16 @@ public class TestJPAExpandQueryCreateResult extends TestBase {
   @Test
   public void checkConvertTwoResultTwoParent() throws ODataJPAModelException, ODataApplicationException {
     JPAAssociationPath exp = helper.getJPAAssociationPath("Organizations", "Roles");
-    List<Tuple> result = new ArrayList<Tuple>();
+    List<Tuple> result = new ArrayList<>();
     HashMap<String, Object> oneResult;
     Tuple t;
 
-    oneResult = new HashMap<String, Object>();
+    oneResult = new HashMap<>();
     oneResult.put("BusinessPartnerID", "1");
     oneResult.put("RoleCategory", "A");
     t = new TupleDouble(oneResult);
     result.add(t);
-    oneResult = new HashMap<String, Object>();
+    oneResult = new HashMap<>();
     oneResult.put("BusinessPartnerID", "2");
     oneResult.put("RoleCategory", "C");
     t = new TupleDouble(oneResult);
@@ -169,8 +169,8 @@ public class TestJPAExpandQueryCreateResult extends TestBase {
   @Test
   public void checkConvertOneResultCompundKey() throws ODataJPAModelException, ODataApplicationException {
     JPAAssociationPath exp = helper.getJPAAssociationPath("AdministrativeDivisions", "Parent");
-    List<Tuple> result = new ArrayList<Tuple>();
-    HashMap<String, Object> oneResult = new HashMap<String, Object>();
+    List<Tuple> result = new ArrayList<>();
+    HashMap<String, Object> oneResult = new HashMap<>();
     oneResult.put("CodePublisher", "NUTS");
     oneResult.put("DivisionCode", "BE25");
     oneResult.put("CodeID", "2");
@@ -189,11 +189,11 @@ public class TestJPAExpandQueryCreateResult extends TestBase {
   @Test
   public void checkConvertTwoResultsCompundKey() throws ODataJPAModelException, ODataApplicationException {
     JPAAssociationPath exp = helper.getJPAAssociationPath("AdministrativeDivisions", "Parent");
-    List<Tuple> result = new ArrayList<Tuple>();
+    List<Tuple> result = new ArrayList<>();
     HashMap<String, Object> oneResult;
     Tuple t;
 
-    oneResult = new HashMap<String, Object>();
+    oneResult = new HashMap<>();
     oneResult.put("CodePublisher", "NUTS");
     oneResult.put("DivisionCode", "BE25");
     oneResult.put("CodeID", "2");
@@ -202,7 +202,7 @@ public class TestJPAExpandQueryCreateResult extends TestBase {
     t = new TupleDouble(oneResult);
     result.add(t);
 
-    oneResult = new HashMap<String, Object>();
+    oneResult = new HashMap<>();
     oneResult.put("CodePublisher", "NUTS");
     oneResult.put("DivisionCode", "BE10");
     oneResult.put("CodeID", "2");

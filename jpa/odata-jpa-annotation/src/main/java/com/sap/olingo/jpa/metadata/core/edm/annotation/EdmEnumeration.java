@@ -40,7 +40,7 @@ public @interface EdmEnumeration {
    * Ordinal
    * 
    */
-  Class<? extends AttributeConverter<?, ? extends Number>> converter() default DummyConverter.class;
+  Class<? extends AttributeConverter<? extends Enum<?>, ? extends Number>> converter() default DummyConverter.class;
 
   boolean isFlags() default false;
 

@@ -59,7 +59,7 @@ abstract class JPAExistsOperation implements JPAOperator {
 
   protected List<JPANavigationProptertyInfo> determineAssoziations(final JPAServiceDocument sd,
       final List<UriResource> resourceParts) throws ODataApplicationException {
-    final List<JPANavigationProptertyInfo> pathList = new ArrayList<JPANavigationProptertyInfo>();
+    final List<JPANavigationProptertyInfo> pathList = new ArrayList<>();
 
     StringBuffer associationName = null;
     UriResourceNavigation navigation = null;

@@ -50,4 +50,12 @@ public class Organization extends BusinessPartner {
   public void setName2(String name2) {
     this.name2 = name2;
   }
+
+  public ABCClassifiaction getABCClass() {
+    return aBCClass;
+  }
+
+  public void setABCClass(ABCClassifiaction aBCClass) {
+    this.aBCClass = aBCClass;
+  }
 }
