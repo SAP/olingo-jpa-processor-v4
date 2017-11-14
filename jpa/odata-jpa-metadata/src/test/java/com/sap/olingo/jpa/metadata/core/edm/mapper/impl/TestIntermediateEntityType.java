@@ -6,8 +6,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -24,6 +27,7 @@ import org.junit.Test;
 import org.reflections.Reflections;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEnumeration;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
@@ -32,6 +36,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityT
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
+import com.sap.olingo.jpa.processor.core.testmodel.ABCClassifiaction;
 import com.sap.olingo.jpa.processor.core.testmodel.TestDataConstants;
 
 public class TestIntermediateEntityType extends TestMappingRoot {
@@ -41,8 +46,12 @@ public class TestIntermediateEntityType extends TestMappingRoot {
   @Before
   public void setup() throws ODataJPAModelException {
     IntermediateModelElement.setPostProcessor(new DefaultEdmPostProcessor());
+    final Reflections r = mock(Reflections.class);
+    when(r.getTypesAnnotatedWith(EdmEnumeration.class)).thenReturn(new HashSet<>(Arrays.asList(new Class<?>[] {
+        ABCClassifiaction.class })));
+
     etList = emf.getMetamodel().getEntities();
-    schema = new IntermediateSchema(new JPAEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), mock(Reflections.class));
+    schema = new IntermediateSchema(new JPAEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), r);
   }
 
   @Test
@@ -392,7 +401,7 @@ public class TestIntermediateEntityType extends TestMappingRoot {
     @Override
     public void processEntityType(IntermediateEntityTypeAccess entity) {
       if (entity.getExternalName().equals("PersonImage")) {
-        List<CsdlExpression> items = new ArrayList<CsdlExpression>();
+        List<CsdlExpression> items = new ArrayList<>();
         CsdlCollection exp = new CsdlCollection();
         exp.setItems(items);
         CsdlConstantExpression mimeType = new CsdlConstantExpression(ConstantExpressionType.String, "ogg");
@@ -400,7 +409,7 @@ public class TestIntermediateEntityType extends TestMappingRoot {
         CsdlAnnotation annotation = new CsdlAnnotation();
         annotation.setExpression(exp);
         annotation.setTerm("Core.AcceptableMediaTypes");
-        List<CsdlAnnotation> annotations = new ArrayList<CsdlAnnotation>();
+        List<CsdlAnnotation> annotations = new ArrayList<>();
         annotations.add(annotation);
         entity.addAnnotations(annotations);
       }

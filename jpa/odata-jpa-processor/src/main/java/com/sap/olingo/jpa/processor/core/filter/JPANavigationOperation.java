@@ -15,6 +15,7 @@ import org.apache.olingo.server.api.uri.UriResourceNavigation;
 import org.apache.olingo.server.api.uri.queryoption.ApplyOption;
 import org.apache.olingo.server.api.uri.queryoption.CountOption;
 import org.apache.olingo.server.api.uri.queryoption.CustomQueryOption;
+import org.apache.olingo.server.api.uri.queryoption.DeltaTokenOption;
 import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
 import org.apache.olingo.server.api.uri.queryoption.FilterOption;
 import org.apache.olingo.server.api.uri.queryoption.FormatOption;
@@ -82,13 +83,13 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
 
   @Override
   Subquery<?> getExistsQuery() throws ODataApplicationException {
-    final List<UriResource> allUriResourceParts = new ArrayList<UriResource>(uriResourceParts);
+    final List<UriResource> allUriResourceParts = new ArrayList<>(uriResourceParts);
     allUriResourceParts.addAll(jpaMember.getMember().getResourcePath().getUriResourceParts());
 
     // 1. Determine all relevant associations
     final List<JPANavigationProptertyInfo> naviPathList = determineAssoziations(sd, allUriResourceParts);
     JPAAbstractQuery parent = root;
-    final List<JPANavigationQuery> queryList = new ArrayList<JPANavigationQuery>();
+    final List<JPANavigationQuery> queryList = new ArrayList<>();
 
     // 2. Create the queries and roots
     for (int i = naviPathList.size() - 1; i >= 0; i--) {
@@ -221,7 +222,7 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
 
     @Override
     public List<UriResource> getUriResourceParts() {
-      final List<UriResource> result = new ArrayList<UriResource>();
+      final List<UriResource> result = new ArrayList<>();
       final List<UriResource> source = parentMember.getMember().getResourcePath().getUriResourceParts();
       for (int i = source.size() - 1; i > 0; i--) {
         if (source.get(i).getKind() == UriResourceKind.navigationProperty || source.get(i)
@@ -240,6 +241,11 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
 
     @Override
     public ApplyOption getApplyOption() {
+      return null;
+    }
+
+    @Override
+    public DeltaTokenOption getDeltaTokenOption() {
       return null;
     }
 

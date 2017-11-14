@@ -26,4 +26,6 @@ public interface JPAAttribute extends JPAElement {
   public EdmPrimitiveTypeKind getEdmType() throws ODataJPAModelException;
 
   public CsdlAbstractEdmItem getProperty() throws ODataJPAModelException;
+
+  public boolean isEnum();
 }

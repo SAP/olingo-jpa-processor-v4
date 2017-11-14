@@ -11,6 +11,7 @@ import org.apache.olingo.server.api.uri.UriResourceNavigation;
 import org.apache.olingo.server.api.uri.queryoption.ApplyOption;
 import org.apache.olingo.server.api.uri.queryoption.CountOption;
 import org.apache.olingo.server.api.uri.queryoption.CustomQueryOption;
+import org.apache.olingo.server.api.uri.queryoption.DeltaTokenOption;
 import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
 import org.apache.olingo.server.api.uri.queryoption.FilterOption;
 import org.apache.olingo.server.api.uri.queryoption.FormatOption;
@@ -26,7 +27,7 @@ public class UriInfoResourceDouble implements UriInfoResource {
   private final List<UriResource> resources;
 
   public UriInfoResourceDouble(UriResourceNavigation target) {
-    resources = new ArrayList<UriResource>();
+    resources = new ArrayList<>();
     resources.add(target);
   }
 
@@ -114,6 +115,11 @@ public class UriInfoResourceDouble implements UriInfoResource {
 
   @Override
   public ApplyOption getApplyOption() {
+    return null;
+  }
+
+  @Override
+  public DeltaTokenOption getDeltaTokenOption() {
     return null;
   }
 

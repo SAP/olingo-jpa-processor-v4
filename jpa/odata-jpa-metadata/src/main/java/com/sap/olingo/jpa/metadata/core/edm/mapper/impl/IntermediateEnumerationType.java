@@ -4,31 +4,79 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.persistence.AttributeConverter;
+
+import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
+import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlEnumMember;
 import org.apache.olingo.commons.api.edm.provider.CsdlEnumType;
 
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEnumeration;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEnumeration.DummyConverter;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEnumerationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
 
-class IntermediateEnumerationType extends IntermediateModelElement {
+class IntermediateEnumerationType extends IntermediateModelElement implements JPAEnumerationAttribute {
 
   private CsdlEnumType edmEnumType;
   private Class<?> javaEnum;
+  private EdmEnumeration annotation;
+  private List<?> javaMembers;
 
-  IntermediateEnumerationType(JPAEdmNameBuilder nameBuilder, Class<? extends ODataEnum> javaEnum) {
+  IntermediateEnumerationType(JPAEdmNameBuilder nameBuilder, Class<? extends Enum<?>> javaEnum) {
     super(nameBuilder, javaEnum.getSimpleName());
-    assert javaEnum.isEnum();
+    this.setExternalName(nameBuilder.buildEnumerationTypeName(javaEnum));
     this.javaEnum = javaEnum;
   }
 
   @Override
   protected void lazyBuildEdmItem() throws ODataJPAModelException {
     if (edmEnumType == null) {
+      annotation = getAnnotation();
       edmEnumType = new CsdlEnumType();
-//      edmEnumType.setFlags(isFlags);
+      edmEnumType.setFlags(determineIsFlag());
       edmEnumType.setMembers(buildMembers());
-//      edmEnumType.setName(name);
-//      edmEnumType.setUnderlyingType(underlyingType);
+      edmEnumType.setName(getExternalName());
+      edmEnumType.setUnderlyingType(determineUnderlyingType());
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  private <T> FullQualifiedName determineUnderlyingType() throws ODataJPAModelException {
+    if (javaEnum.getEnumConstants().length == 0)
+      return EdmPrimitiveTypeKind.Int32.getFullQualifiedName();
+    try {
+      final AttributeConverter<T, ? extends Number> converter = (AttributeConverter<T, ? extends Number>) annotation
+          .converter().newInstance();
+      final Number value = converter.convertToDatabaseColumn((T) javaEnum.getEnumConstants()[0]);
+      final EdmPrimitiveTypeKind type = JPATypeConvertor.convertToEdmSimpleType(value.getClass());
+      if (isValidType(type))
+        return type.getFullQualifiedName();
+      // Enumeration '%1$s' has the unsupported type '%2$s'.
+      throw new ODataJPAModelException(MessageKeys.ENUMERATION_UNSUPPORTED_TYPE, javaEnum.getName(), type
+          .getFullQualifiedName().getFullQualifiedNameAsString());
+    } catch (InstantiationException | IllegalAccessException e) {
+      throw new ODataJPAModelException(e);
+    }
+  }
+
+  private boolean isValidType(EdmPrimitiveTypeKind type) {
+    // "Edm.Byte, Edm.SByte, Edm.Int16, Edm.Int32, or Edm.Int64."
+    return type == EdmPrimitiveTypeKind.Byte
+        || type == EdmPrimitiveTypeKind.Int16
+        || type == EdmPrimitiveTypeKind.Int32
+        || type == EdmPrimitiveTypeKind.Int64
+        || type == EdmPrimitiveTypeKind.SByte;
+  }
+
+  private EdmEnumeration getAnnotation() throws ODataJPAModelException {
+    final EdmEnumeration enumAnnotation = javaEnum.getAnnotation(EdmEnumeration.class);
+    if (enumAnnotation == null)
+      // Annotation EdmEnumeration is missing for Enum %1$s.
+      throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.ENUMERATION_ANNOTATION_MISSING, javaEnum
+          .getName());
+    return enumAnnotation;
   }
 
   @Override
@@ -37,23 +85,66 @@ class IntermediateEnumerationType extends IntermediateModelElement {
     return edmEnumType;
   }
 
-  private List<CsdlEnumMember> buildMembers() {
-    List<CsdlEnumMember> members = new ArrayList<CsdlEnumMember>();
+  @SuppressWarnings({ "unchecked" })
+  private <T extends Enum<?>> List<CsdlEnumMember> buildMembers() throws ODataJPAModelException {
+    final List<CsdlEnumMember> members = new ArrayList<>();
+    AttributeConverter<T, ? extends Number> converter = null;
 
-    final List<?> javaMembers = Arrays.asList(javaEnum.getEnumConstants());
+    javaMembers = Arrays.asList(javaEnum.getEnumConstants());
+    try {
+      converter = (AttributeConverter<T, ? extends Number>) annotation.converter().newInstance();
+    } catch (InstantiationException | IllegalAccessException e) {
+      throw new ODataJPAModelException(e);
+    }
 
-    for (final Object o : javaMembers) {
-      if (o instanceof Enum) {
-        final Enum<?> e = (Enum<?>) o;
+    for (final Object constants : javaMembers) {
+      if (constants instanceof Enum) {
+        final Enum<?> e = (Enum<?>) constants;
         CsdlEnumMember member = new CsdlEnumMember();
-
-        e.name();
         member.setName(e.name());
-        member.setValue(Integer.valueOf(((ODataEnum) e).getValue() == null ? e.ordinal() : ((ODataEnum) e).getValue())
-            .toString());
+        Number value = converter.convertToDatabaseColumn((T) e);
+        if (determineIsFlag() && value.longValue() < 0L)
+          // An Enumeration that is marked as Flag must not have a negative value: '%1$s - %2$s'.
+          throw new ODataJPAModelException(MessageKeys.ENUMERATION_NO_NEGATIVE_VALUE, e.name(), javaEnum
+              .getName());
+        member.setValue(String.valueOf(value));
+        members.add(member);
       }
     }
     return members;
+  }
+
+  private boolean determineIsFlag() {
+    return annotation.isFlags();
+  }
+
+  @Override
+  public Enum<?> valueOf(String value) throws ODataJPAModelException {
+    lazyBuildEdmItem();
+    for (Object member : javaMembers)
+      if (((Enum<?>) member).name().equals(value))
+        return (Enum<?>) member;
+    return null;
+  }
+
+  @Override
+  public <T extends Number> Enum<?> valueOf(T value) throws ODataJPAModelException {
+    lazyBuildEdmItem();
+
+    if (annotation.converter() != DummyConverter.class) {
+      try {
+        @SuppressWarnings("unchecked")
+        final AttributeConverter<?, T> converter = (AttributeConverter<?, T>) annotation.converter().newInstance();
+        return (Enum<?>) converter.convertToEntityAttribute(value);
+      } catch (InstantiationException | IllegalAccessException e) {
+        throw new ODataJPAModelException(e);
+      }
+    } else {
+      for (Object member : javaMembers)
+        if (((Enum<?>) member).ordinal() == (Integer) value)
+          return (Enum<?>) member;
+    }
+    return null;
   }
 
 }

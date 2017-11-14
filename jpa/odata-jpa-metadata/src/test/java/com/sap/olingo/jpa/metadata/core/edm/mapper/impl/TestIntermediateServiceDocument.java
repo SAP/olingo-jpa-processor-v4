@@ -23,24 +23,28 @@ public class TestIntermediateServiceDocument extends TestMappingRoot {
 
   @Test
   public void checkServiceDocumentCanBeCreated() throws ODataJPAModelException {
-    new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null, null);
+    new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null,
+        new String[] { "com.sap.olingo.jpa.processor.core.testmodel" });
   }
 
   @Test
   public void checkServiceDocumentGetSchemaList() throws ODataJPAModelException {
-    JPAServiceDocument svc = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null, null);
+    JPAServiceDocument svc = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null,
+        new String[] { "com.sap.olingo.jpa.processor.core.testmodel" });
     assertEquals("Wrong number of schemas", 1, svc.getEdmSchemas().size());
   }
 
   @Test
   public void checkServiceDocumentGetContainer() throws ODataJPAModelException {
-    JPAServiceDocument svc = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null, null);
+    JPAServiceDocument svc = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null,
+        new String[] { "com.sap.olingo.jpa.processor.core.testmodel" });
     assertNotNull("Entity Container not found", svc.getEdmEntityContainer());
   }
 
   @Test
   public void checkServiceDocumentGetContainerFromSchema() throws ODataJPAModelException {
-    JPAServiceDocument svc = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null, null);
+    JPAServiceDocument svc = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null,
+        new String[] { "com.sap.olingo.jpa.processor.core.testmodel" });
     List<CsdlSchema> schemas = svc.getEdmSchemas();
     CsdlSchema schema = schemas.get(0);
     assertNotNull("Entity Container not found", schema.getEntityContainer());
@@ -48,7 +52,8 @@ public class TestIntermediateServiceDocument extends TestMappingRoot {
 
   @Test
   public void checkServiceDocumentGetEntitySetsFromContainer() throws ODataJPAModelException {
-    JPAServiceDocument svc = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null, null);
+    JPAServiceDocument svc = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null,
+        new String[] { "com.sap.olingo.jpa.processor.core.testmodel" });
     CsdlEntityContainer container = svc.getEdmEntityContainer();
     assertNotNull("Entity Container not found", container.getEntitySets());
   }
@@ -60,7 +65,8 @@ public class TestIntermediateServiceDocument extends TestMappingRoot {
     when(target.getEntityType()).thenReturn(et);
     when(et.getFullQualifiedName()).thenReturn(new FullQualifiedName(PUNIT_NAME, "BusinessPartner"));
 
-    JPAServiceDocument svc = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null, null);
+    JPAServiceDocument svc = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null,
+        new String[] { "com.sap.olingo.jpa.processor.core.testmodel" });
     assertTrue(svc.hasETag(target));
   }
 

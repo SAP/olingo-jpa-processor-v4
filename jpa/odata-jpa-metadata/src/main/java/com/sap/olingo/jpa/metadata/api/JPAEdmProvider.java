@@ -17,6 +17,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainerInfo;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
+import org.apache.olingo.commons.api.edm.provider.CsdlEnumType;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunctionImport;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
@@ -120,7 +121,7 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
         return schema.getFunctions(functionName.getName());
       }
     }
-    return null;
+    return null; // NOSONAR see documentation
   }
 
   @Override
@@ -130,7 +131,7 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
         return schema.getActions(actionName.getName());
       }
     }
-    return null;
+    return null; // NOSONAR see documentation
   }
 
   @Override
@@ -139,6 +140,17 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
     final CsdlEntityContainer container = serviceDocument.getEdmEntityContainer();
     if (entityContainerFQN.equals(nameBuilder.buildFQN(container.getName()))) {
       return container.getActionImport(actionImportName);
+    }
+    return null;
+  }
+
+  @Override
+  public CsdlEnumType getEnumType(final FullQualifiedName enumTypeNameFQN) throws ODataException {
+
+    for (final CsdlSchema schema : serviceDocument.getEdmSchemas()) {
+      if (schema.getNamespace().equals(enumTypeNameFQN.getNamespace())) {
+        return schema.getEnumType(enumTypeNameFQN.getName());
+      }
     }
     return null;
   }

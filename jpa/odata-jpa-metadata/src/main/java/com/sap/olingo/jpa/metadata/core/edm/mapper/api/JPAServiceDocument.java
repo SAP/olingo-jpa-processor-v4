@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.olingo.commons.api.edm.EdmAction;
 import org.apache.olingo.commons.api.edm.EdmComplexType;
+import org.apache.olingo.commons.api.edm.EdmEnumType;
 import org.apache.olingo.commons.api.edm.EdmFunction;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
@@ -46,5 +47,7 @@ public interface JPAServiceDocument extends CustomETagSupport {
   CsdlTerm getTerm(FullQualifiedName termName);
 
   JPAStructuredType getComplexType(EdmComplexType edmComplexType);
+
+  JPAEnumerationAttribute getEnumType(EdmEnumType type);
 
 }

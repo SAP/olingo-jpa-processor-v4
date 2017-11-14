@@ -6,7 +6,10 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.persistence.metamodel.Attribute;
@@ -21,12 +24,14 @@ import org.junit.Test;
 import org.reflections.Reflections;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEnumeration;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityTypeAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
+import com.sap.olingo.jpa.processor.core.testmodel.ABCClassifiaction;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
@@ -38,7 +43,11 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
 
   @Before
   public void setup() throws ODataJPAModelException {
-    schema = new IntermediateSchema(new JPAEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), mock(Reflections.class));
+    final Reflections r = mock(Reflections.class);
+    when(r.getTypesAnnotatedWith(EdmEnumeration.class)).thenReturn(new HashSet<>(Arrays.asList(new Class<?>[] {
+        ABCClassifiaction.class })));
+
+    schema = new IntermediateSchema(new JPAEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), r);
     helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
     processor = mock(JPAEdmMetadataPostProcessor.class);
   }

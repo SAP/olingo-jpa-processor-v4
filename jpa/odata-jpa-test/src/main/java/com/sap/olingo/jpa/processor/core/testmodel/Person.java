@@ -27,6 +27,10 @@ public class Person extends BusinessPartner {
   @Column(name = "\"BirthDay\"")
   private LocalDate birthDay;
 
+  @Convert(converter = AccessRightsConverter.class)
+  @Column(name = "\"AccessRights\"")
+  private AccessRights accessRights;
+
   @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
   @JoinColumn(name = "\"ID\"", referencedColumnName = "\"ID\"", insertable = false, updatable = false, nullable = true)
   private PersonImage image;
@@ -57,5 +61,9 @@ public class Person extends BusinessPartner {
 
   public void setBirthDay(LocalDate birthDay) {
     this.birthDay = birthDay;
+  }
+
+  public AccessRights getAccessRights() {
+    return accessRights;
   }
 }
