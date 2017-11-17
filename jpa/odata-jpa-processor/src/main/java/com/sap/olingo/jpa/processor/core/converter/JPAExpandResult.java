@@ -16,7 +16,7 @@ public interface JPAExpandResult {
 
   boolean hasCount();
 
-  Integer getCount();
+  Long getCount(final String string);
 
   JPAEntityType getEntityType();
 

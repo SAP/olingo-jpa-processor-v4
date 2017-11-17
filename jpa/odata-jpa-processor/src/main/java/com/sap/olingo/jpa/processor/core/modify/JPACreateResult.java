@@ -29,7 +29,7 @@ abstract class JPACreateResult implements JPAExpandResult {
 
     this.et = et;
     this.helper = new JPAConversionHelper();
-    this.children = new HashMap<JPAAssociationPath, JPAExpandResult>(0);
+    this.children = new HashMap<>(0);
     this.pathList = et.getPathList();
     this.locale = ExpressionUtil.determineLocale(requestHeaders);
     this.requestHeaders = requestHeaders;
@@ -41,7 +41,7 @@ abstract class JPACreateResult implements JPAExpandResult {
   }
 
   @Override
-  public Integer getCount() {
+  public Long getCount(final String key) {
     return null;
   }
 

@@ -42,7 +42,7 @@ public final class ExpressionUtil {
     JPAPath path = jpaEntity.getPath(keyPredicate.getName());
     JPAAttribute attribute = path.getLeaf();
 
-    return cb.equal(convertToCriteriaPath(root, path), convertValueOnAttribute(odata, attribute, keyPredicate
+    return cb.equal(convertToCriteriaPath(root, path.getPath()), convertValueOnAttribute(odata, attribute, keyPredicate
         .getText()));
 
   }
@@ -55,9 +55,9 @@ public final class ExpressionUtil {
    * @return
    */
   public static Path<?> convertToCriteriaPath(final Map<String, From<?, ?>> joinTables, From<?, ?> root,
-      final JPAPath jpaPath) {
+      final List<JPAElement> jpaPath) {
     Path<?> p = root;
-    for (final JPAElement jpaPathElement : jpaPath.getPath())
+    for (final JPAElement jpaPathElement : jpaPath)
       if (jpaPathElement instanceof JPADescriptionAttribute) {
         final Join<?, ?> join = (Join<?, ?>) joinTables.get(jpaPathElement.getInternalName());
         p = join.get(((JPADescriptionAttribute) jpaPathElement).getDescriptionAttribute().getInternalName());
@@ -66,9 +66,9 @@ public final class ExpressionUtil {
     return p;
   }
 
-  public static Path<?> convertToCriteriaPath(From<?, ?> root, final JPAPath jpaPath) {
+  public static Path<?> convertToCriteriaPath(From<?, ?> root, final List<JPAElement> jpaPath) {
     Path<?> p = root;
-    for (final JPAElement jpaPathElement : jpaPath.getPath())
+    for (final JPAElement jpaPathElement : jpaPath)
       p = p.get(jpaPathElement.getInternalName());
     return p;
   }
