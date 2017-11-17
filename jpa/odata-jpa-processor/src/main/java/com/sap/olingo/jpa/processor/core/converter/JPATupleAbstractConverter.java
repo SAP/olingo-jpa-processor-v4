@@ -99,7 +99,7 @@ public abstract class JPATupleAbstractConverter {
     return odataEntity;
   }
 
-  protected Collection<? extends Link> createExpand(final Tuple row, final URI uri)
+  protected Collection<Link> createExpand(final Tuple row, final URI uri)
       throws ODataApplicationException {
     final List<Link> entityExpandLinks = new ArrayList<>();
     // jpaConversionTargetEntity.
@@ -122,8 +122,7 @@ public abstract class JPATupleAbstractConverter {
     return entityExpandLinks;
   }
 
-  protected URI createId(final Entity entity)
-      throws ODataRuntimeException {
+  protected URI createId(final Entity entity) {
 
     try {
       // TODO Clarify host-name and port as part of ID see

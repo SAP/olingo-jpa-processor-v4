@@ -35,27 +35,27 @@ public class TestJPATupleResultConverterCompoundKey extends TestBase {
   @Before
   public void setup() throws ODataException {
     helper = new TestHelper(emf, PUNIT_NAME);
-    jpaQueryResult = new ArrayList<Tuple>();
+    jpaQueryResult = new ArrayList<>();
     uriHelper = new UriHelperDouble();
-    keyPredicates = new HashMap<String, String>();
+    keyPredicates = new HashMap<>();
   }
 
   @Test
   public void checkConvertsOneResultsTwoKeys() throws ODataApplicationException, ODataJPAModelException {
     // .../BusinessPartnerRoles(BusinessPartnerID='3',RoleCategory='C')
 
-    HashMap<String, List<Tuple>> resultContainer = new HashMap<String, List<Tuple>>(1);
+    HashMap<String, List<Tuple>> resultContainer = new HashMap<>(1);
     resultContainer.put("root", jpaQueryResult);
 
     cut = new JPATupleResultConverter(
         helper.sd,
-        new JPAExpandQueryResult(resultContainer, Long.parseLong("0"), helper.getJPAEntityType("BusinessPartnerRoles")),
+        new JPAExpandQueryResult(resultContainer, null, helper.getJPAEntityType("BusinessPartnerRoles")), // Long.parseLong("0")
         uriHelper,
         new ServiceMetadataDouble(nameBuilder, "BusinessPartnerRole"));
 
     HashMap<String, Object> result;
 
-    result = new HashMap<String, Object>();
+    result = new HashMap<>();
     result.put("BusinessPartnerID", new String("3"));
     result.put("RoleCategory", new String("C"));
     jpaQueryResult.add(new TupleDouble(result));
@@ -76,13 +76,13 @@ public class TestJPATupleResultConverterCompoundKey extends TestBase {
   public void checkConvertsOneResultsEmbeddedKey() throws ODataApplicationException, ODataJPAModelException {
     // .../AdministrativeDivisionDescriptions(CodePublisher='ISO', CodeID='3166-1', DivisionCode='DEU',Language='en')
 
-    HashMap<String, List<Tuple>> resultContainer = new HashMap<String, List<Tuple>>(1);
+    HashMap<String, List<Tuple>> resultContainer = new HashMap<>(1);
     resultContainer.put("root", jpaQueryResult);
 
     cut = new JPATupleResultConverter(
         helper.sd,
-        new JPAExpandQueryResult(resultContainer, Long.parseLong("1"), helper.getJPAEntityType(
-            "AdministrativeDivisionDescriptions")),
+        new JPAExpandQueryResult(resultContainer, null, helper.getJPAEntityType(
+            "AdministrativeDivisionDescriptions")), // Long.parseLong("1")
         uriHelper,
         new ServiceMetadataDouble(nameBuilder, "AdministrativeDivisionDescription"));
 
@@ -91,7 +91,7 @@ public class TestJPATupleResultConverterCompoundKey extends TestBase {
 
     HashMap<String, Object> result;
 
-    result = new HashMap<String, Object>();
+    result = new HashMap<>();
     result.put("CodePublisher", new String("ISO"));
     result.put("CodeID", new String("3166-1"));
     result.put("DivisionCode", new String("DEU"));

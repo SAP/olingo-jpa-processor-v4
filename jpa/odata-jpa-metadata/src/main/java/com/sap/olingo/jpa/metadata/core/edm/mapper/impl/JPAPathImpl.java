@@ -7,16 +7,15 @@ import java.util.List;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 final class JPAPathImpl implements JPAPath {
-  final private String alias;
-  final private List<JPAElement> pathElements;
-  final private String dbFieldName;
-  final private boolean ignore;
+  private final String alias;
+  private final List<JPAElement> pathElements;
+  private final String dbFieldName;
+  private final boolean ignore;
 
   JPAPathImpl(final String alias, final String dbFieldName, final IntermediateModelElement element) {
-    final List<JPAElement> pathElementsBuffer = new ArrayList<JPAElement>();
+    final List<JPAElement> pathElementsBuffer = new ArrayList<>();
 
     this.alias = alias;
     pathElementsBuffer.add(element);
@@ -25,8 +24,7 @@ final class JPAPathImpl implements JPAPath {
     this.ignore = element.ignore();
   }
 
-  JPAPathImpl(final String selection, final String dbFieldName, final List<JPAElement> attribute)
-      throws ODataJPAModelException {
+  JPAPathImpl(final String selection, final String dbFieldName, final List<JPAElement> attribute) {
     this.alias = selection;
     this.pathElements = Collections.unmodifiableList(attribute);
     this.dbFieldName = dbFieldName;
