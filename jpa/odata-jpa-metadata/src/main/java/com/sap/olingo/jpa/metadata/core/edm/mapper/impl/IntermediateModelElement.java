@@ -102,7 +102,7 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
           extractionTarget.add((T) edmItem);
       }
     }
-    return returnNullIfEmpty(extractionTarget);
+    return extractionTarget;
   }
 
   protected IntermediateModelElement findModelElementByEdmItem(final String edmEntityItemName,
