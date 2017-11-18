@@ -37,6 +37,7 @@ final class JPA_HANA_DatabaseProcessor implements JPAODataDatabaseProcessor {
   private static final String FUNC_NAME_PLACEHOLDER = "$FUNCTIONNAME$";
   private static final String PARAMETER_PLACEHOLDER = "$PARAMETER$";
 
+  @SuppressWarnings("unchecked")
   @Override
   public List<?> executeFunctionQuery(final UriResourceFunction uriResourceFunction,
       final JPADataBaseFunction jpaFunction, final JPAEntityType returnType, final EntityManager em)
@@ -65,7 +66,7 @@ final class JPA_HANA_DatabaseProcessor implements JPAODataDatabaseProcessor {
     /*
      * The following code generates a sub-query to filter on the values that matches the search term. This looks
      * cumbersome, but there were problems using the straight forward solution:
-     * return cb.function("CONTAINS", Boolean.class, root.get("name"), cb.literal(term.getSearchTerm()));
+     * return cb.function("CONTAINS", Boolean.class, root.get("name"), cb.literal(term.getSearchTerm())); //NOSONAR
      * in case $search was combined with $filter. In this case the processing aborts with the following error:
      * "org.eclipse.persistence.internal.jpa.querydef.FunctionExpressionImpl cannot be cast to
      * org.eclipse.persistence.internal.jpa.querydef.CompoundExpressionImpl"

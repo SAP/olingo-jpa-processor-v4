@@ -65,7 +65,8 @@ class JPAVisitor implements JPAExpressionVisitor {
         || operator == BinaryOperatorKind.GE
         || operator == BinaryOperatorKind.GT
         || operator == BinaryOperatorKind.LT
-        || operator == BinaryOperatorKind.LE) {
+        || operator == BinaryOperatorKind.LE
+        || operator == BinaryOperatorKind.HAS) {
       debugger.stopRuntimeMeasurement(handle);
       return new JPAComparisonOperatorImp(this.jpaComplier.getConverter(), operator, left, right);
     } else if (operator == BinaryOperatorKind.AND || operator == BinaryOperatorKind.OR) {

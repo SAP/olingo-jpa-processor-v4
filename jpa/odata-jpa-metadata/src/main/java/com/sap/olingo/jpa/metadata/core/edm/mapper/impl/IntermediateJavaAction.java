@@ -56,7 +56,7 @@ class IntermediateJavaAction extends IntermediateOperation implements JPAAction 
 
   public List<JPAParameter> getParameter() throws ODataJPAModelException {
     if (parameterList == null) {
-      parameterList = new ArrayList<JPAParameter>();
+      parameterList = new ArrayList<>();
       Class<?>[] types = javaAction.getParameterTypes();
       Parameter[] declairedParameters = javaAction.getParameters();
       for (int i = 0; i < declairedParameters.length; i++) {
@@ -101,43 +101,52 @@ class IntermediateJavaAction extends IntermediateOperation implements JPAAction 
   }
 
   protected List<CsdlParameter> determineEdmInputParameter() throws ODataJPAModelException {
-    final List<CsdlParameter> parameterList = new ArrayList<CsdlParameter>();
+    final List<CsdlParameter> parameters = new ArrayList<>();
     final List<JPAParameter> jpaParameterList = getParameter();
-    int bindingPosition = 0;
+    Integer bindingPosition = 0;
     for (int i = 0; i < jpaParameterList.size(); i++) {
       final JPAParameter jpaParameter = jpaParameterList.get(i);
       final CsdlParameter parameter = new CsdlParameter();
       parameter.setName(jpaParameter.getName());
-      final EdmPrimitiveTypeKind edmType = JPATypeConvertor.convertToEdmSimpleType(jpaParameter.getType());
-      if (!jpaAction.isBound()) {
-        if (edmType == null)
-          throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.ACTION_PARAM_ONLY_PRIMITIVE,
-              javaAction.getDeclaringClass().getName(), javaAction.getName(), jpaParameter.getInternalName());
-
-        parameter.setType(edmType.getFullQualifiedName());
-      } else if (edmType == null) {
-        final IntermediateStructuredType structuredType = schema.getEntityType(jpaParameter.getType());
-        if (structuredType != null) {
-          if (bindingPosition == 0)
-            bindingPosition = i + 1;
-          parameter.setType(structuredType.getExternalFQN());
-        } else
-          // The type of %1$s of action of method %2$s of class %1$s could not be converted
-          throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.ACTION_PARAM_ONLY_PRIMITIVE,
-              jpaParameter.getInternalName(), javaAction.getName(), javaAction.getDeclaringClass().getName());
-      }
+      parameter.setType(determineParameterType(bindingPosition, i, jpaParameter));
       parameter.setPrecision(nullIfNotSet(jpaParameter.getPrecision()));
       parameter.setScale(nullIfNotSet(jpaParameter.getScale()));
       parameter.setMaxLength(nullIfNotSet(jpaParameter.getMaxLength()));
       parameter.setSrid(jpaParameter.getSrid());
-      parameterList.add(parameter);
+      parameters.add(parameter);
     }
     if (jpaAction.isBound() && bindingPosition != 1)
       // Binding parameter not found within in interface of method %1$s of class %2$s. Binding parameter must be the
       // first parameter.
       throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.ACTION_PARAM_BINGING_NOT_FOUND,
           javaAction.getName(), javaAction.getDeclaringClass().getName());
-    return parameterList;
+    return parameters;
+  }
+
+  private FullQualifiedName determineParameterType(Integer bindingPosition, final int i,
+      final JPAParameter jpaParameter) throws ODataJPAModelException {
+
+    final EdmPrimitiveTypeKind edmType = JPATypeConvertor.convertToEdmSimpleType(jpaParameter.getType());
+    if (!jpaAction.isBound()) {
+      if (edmType == null)
+        throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.ACTION_PARAM_ONLY_PRIMITIVE,
+            javaAction.getDeclaringClass().getName(), javaAction.getName(), jpaParameter.getInternalName());
+
+      // parameter.setType(edmType.getFullQualifiedName());
+      return edmType.getFullQualifiedName();
+    } else if (edmType == null) {
+      final IntermediateStructuredType structuredType = schema.getEntityType(jpaParameter.getType());
+      if (structuredType != null) {
+        if (bindingPosition == 0)
+          bindingPosition = i + 1;
+        // parameter.setType(structuredType.getExternalFQN());
+        return structuredType.getExternalFQN();
+      } else
+        // The type of %1$s of action of method %2$s of class %1$s could not be converted
+        throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.ACTION_PARAM_ONLY_PRIMITIVE,
+            jpaParameter.getInternalName(), javaAction.getName(), javaAction.getDeclaringClass().getName());
+    }
+    return null;
   }
 
   @Override
@@ -183,10 +192,12 @@ class IntermediateJavaAction extends IntermediateOperation implements JPAAction 
         throw new ODataJPAModelException(MessageKeys.ACTION_RETURN_TYPE_EXP, javaOperation.getName(), javaOperation
             .getName());
       edmResultType.setCollection(true);
-      edmResultType.setType(determineReturnType(definedReturnType, definedReturnType.type(), javaOperation));
+      edmResultType.setType(IntermediateOperationHelper.determineReturnType(definedReturnType, definedReturnType.type(),
+          schema, javaOperation.getName()));
     } else {
       edmResultType.setCollection(false);
-      edmResultType.setType(determineReturnType(definedReturnType, declairedReturnType, javaOperation));
+      edmResultType.setType(IntermediateOperationHelper.determineReturnType(definedReturnType, declairedReturnType,
+          schema, javaOperation.getName()));
     }
     edmResultType.setNullable(definedReturnType.isNullable());
     edmResultType.setPrecision(nullIfNotSet(definedReturnType.precision()));
@@ -198,21 +209,6 @@ class IntermediateJavaAction extends IntermediateOperation implements JPAAction 
       edmResultType.setSrid(srid);
     }
     return edmResultType;
-  }
-
-  private FullQualifiedName determineReturnType(final ReturnType definedReturnType, final Class<?> declairedReturnType,
-      final Method javaOperation) throws ODataJPAModelException {
-
-    final IntermediateStructuredType structuredType = schema.getStructuredType(declairedReturnType);
-    if (structuredType != null)
-      return structuredType.getExternalFQN();
-    else {
-      final EdmPrimitiveTypeKind edmType = JPATypeConvertor.convertToEdmSimpleType(declairedReturnType);
-      if (edmType == null)
-        throw new ODataJPAModelException(MessageKeys.FUNC_RETURN_TYPE_INVALID, definedReturnType.type().getName(),
-            declairedReturnType.getName(), javaOperation.getName());
-      return edmType.getFullQualifiedName();
-    }
   }
 
   private Integer nullIfNotSet(Integer number) {

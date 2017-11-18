@@ -32,8 +32,9 @@ class JPA_HSQLDB_DatabaseProcessor implements JPAODataDatabaseProcessor {
   private final static String FUNC_NAME_PLACEHOLDER = "$FUNCTIONNAME$";
   private final static String PARAMETER_PLACEHOLDER = "$PARAMETER$";
 
+  @SuppressWarnings("unchecked")
   @Override
-  public List<?> executeFunctionQuery(final UriResourceFunction uriResourceFunction,
+  public <T> List<T> executeFunctionQuery(final UriResourceFunction uriResourceFunction,
       final JPADataBaseFunction jpaFunction, final JPAEntityType returnType, final EntityManager em)
       throws ODataApplicationException {
 
@@ -54,7 +55,7 @@ class JPA_HSQLDB_DatabaseProcessor implements JPAODataDatabaseProcessor {
   }
 
   private String generateQueryString(final JPADataBaseFunction jpaFunction) throws ODataJPAProcessorException {
-    final StringBuffer parameterList = new StringBuffer();
+    final StringBuilder parameterList = new StringBuilder();
     String queryString = SELECT_BASE_PATTERN;
 
     queryString = queryString.replace(FUNC_NAME_PLACEHOLDER, jpaFunction.getDBName());

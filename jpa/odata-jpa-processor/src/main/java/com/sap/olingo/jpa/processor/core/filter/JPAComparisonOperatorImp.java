@@ -6,7 +6,7 @@ import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.queryoption.expression.BinaryOperatorKind;
 
 //
-class JPAComparisonOperatorImp<T extends Comparable<T>> implements JPAComparisonOperator<T> {
+public class JPAComparisonOperatorImp<T extends Comparable<T>> implements JPAComparisonOperator<T> {
   private final JPAOperationConverter converter;
   private final BinaryOperatorKind operator;
   private final JPAOperator left;

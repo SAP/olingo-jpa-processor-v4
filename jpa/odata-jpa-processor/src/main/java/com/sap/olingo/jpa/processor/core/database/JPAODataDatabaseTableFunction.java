@@ -11,6 +11,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 
 public interface JPAODataDatabaseTableFunction {
-  List<?> executeFunctionQuery(UriResourceFunction uriResourceFunction, JPADataBaseFunction jpaFunction,
+
+  <T> List<T> executeFunctionQuery(UriResourceFunction uriResourceFunction, JPADataBaseFunction jpaFunction,
       JPAEntityType returnType, EntityManager em) throws ODataApplicationException;
 }

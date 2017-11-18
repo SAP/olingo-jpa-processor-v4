@@ -21,7 +21,7 @@ public final class JPAEnumerationOperator implements JPAPrimitiveTypeOperator {
   @Override
   public Object get() throws ODataApplicationException {
     try {
-      return jpaAttribute.valueOf(value);
+      return jpaAttribute.enumOf(value);
     } catch (ODataJPAModelException e) {
       throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
@@ -32,4 +32,11 @@ public final class JPAEnumerationOperator implements JPAPrimitiveTypeOperator {
     return value == null;
   }
 
+  public Number getValue() throws ODataJPAFilterException {
+    try {
+      return jpaAttribute.valueOf(value);
+    } catch (ODataJPAModelException e) {
+      throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    }
+  }
 }

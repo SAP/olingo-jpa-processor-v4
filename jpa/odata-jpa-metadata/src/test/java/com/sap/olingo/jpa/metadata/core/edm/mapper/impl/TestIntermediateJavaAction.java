@@ -144,6 +144,13 @@ public class TestIntermediateJavaAction extends TestMappingRoot {
   }
 
   @Test
+  public void checkReturnsEnumerationTypeAsReturnType() throws ODataJPAModelException {
+    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "returnEnumeration");
+
+    assertEquals("com.sap.olingo.jpa.ABCClassifiaction", act.getEdmItem().getReturnType().getType());
+  }
+
+  @Test
   public void checkReturnsReturnTypeCollectionOfPrimitive() throws ODataJPAModelException {
     IntermediateJavaAction act = createAction(ExampleJavaActions.class, "returnCollection");
 

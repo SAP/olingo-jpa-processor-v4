@@ -18,6 +18,7 @@ import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResourceFunction;
 import org.apache.olingo.server.api.uri.queryoption.SearchOption;
+import org.apache.olingo.server.api.uri.queryoption.expression.BinaryOperatorKind;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -30,16 +31,16 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.filter.JPAAggregationOperation;
 import com.sap.olingo.jpa.processor.core.filter.JPAArithmeticOperator;
 import com.sap.olingo.jpa.processor.core.filter.JPABooleanOperator;
-import com.sap.olingo.jpa.processor.core.filter.JPAComparisonOperator;
+import com.sap.olingo.jpa.processor.core.filter.JPAComparisonOperatorImp;
+import com.sap.olingo.jpa.processor.core.filter.JPAEnumerationOperator;
 import com.sap.olingo.jpa.processor.core.filter.JPAMethodCall;
 import com.sap.olingo.jpa.processor.core.filter.JPAUnaryBooleanOperator;
 
-public final class JPADefaultDatabaseProcessor implements JPAODataDatabaseProcessor, JPAODataDatabaseOperations {
+public class JPADefaultDatabaseProcessor implements JPAODataDatabaseProcessor, JPAODataDatabaseOperations {
   private static final String SELECT_BASE_PATTERN = "SELECT * FROM $FUNCTIONNAME$($PARAMETER$)";
   private static final String FUNC_NAME_PLACEHOLDER = "$FUNCTIONNAME$";
   private static final String PARAMETER_PLACEHOLDER = "$PARAMETER$";
 
-  @SuppressWarnings("unused")
   private CriteriaBuilder cb;
 
   @Override
@@ -62,7 +63,24 @@ public final class JPADefaultDatabaseProcessor implements JPAODataDatabaseProces
   }
 
   @Override
-  public Expression<Boolean> convert(final JPAComparisonOperator<?> jpaOperator) throws ODataApplicationException {
+  public Expression<Boolean> convert(@SuppressWarnings("rawtypes") final JPAComparisonOperatorImp jpaOperator)
+      throws ODataApplicationException {
+    if (jpaOperator.getOperator().equals(BinaryOperatorKind.HAS)) {
+      /*
+       * HAS requires an bitwise AND. This is not part of SQL and so not part of the criterion builder. Different
+       * databases have different ways to support this. On group uses a function, which is called BITAND e.g. H2,
+       * HSQLDB, SAP HANA, DB2
+       * or ORACLE, others have created an operator '&' like PostgesSQL or MySQL.
+       * TO provide a unique, but slightly slower, solution a workaround is used, see
+       * https://stackoverflow.com/questions/20570481/jpa-oracle-bit-operations-using-criteriabuilder#25508741
+       */
+      Long n = ((JPAEnumerationOperator) jpaOperator.getRight()).getValue().longValue();
+      @SuppressWarnings("unchecked")
+      Expression<Integer> div = cb.quot(jpaOperator.getLeft(), n);
+      Expression<Integer> mod = cb.mod(div, 2);
+      return cb.equal(mod, 1);
+
+    }
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
         HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getOperator().name());
   }
@@ -88,8 +106,9 @@ public final class JPADefaultDatabaseProcessor implements JPAODataDatabaseProces
 
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public List<?> executeFunctionQuery(final UriResourceFunction uriResourceFunction,
+  public <T> List<T> executeFunctionQuery(final UriResourceFunction uriResourceFunction,
       final JPADataBaseFunction jpaFunction, final JPAEntityType returnType, final EntityManager em)
       throws ODataApplicationException {
 
@@ -114,7 +133,7 @@ public final class JPADefaultDatabaseProcessor implements JPAODataDatabaseProces
     this.cb = cb;
   }
 
-  private UriParameter findParameterByExternalName(final JPAParameter parameter,
+  protected final UriParameter findParameterByExternalName(final JPAParameter parameter,
       final List<UriParameter> uriParameters) throws ODataApplicationException {
     for (final UriParameter uriParameter : uriParameters) {
       if (uriParameter.getName().equals(parameter.getName()))
@@ -126,7 +145,7 @@ public final class JPADefaultDatabaseProcessor implements JPAODataDatabaseProces
 
   private String generateQueryString(final JPADataBaseFunction jpaFunction) throws ODataJPAProcessorException {
 
-    final StringBuffer parameterList = new StringBuffer();
+    final StringBuilder parameterList = new StringBuilder();
     String queryString = SELECT_BASE_PATTERN;
 
     queryString = queryString.replace(FUNC_NAME_PLACEHOLDER, jpaFunction.getDBName());
