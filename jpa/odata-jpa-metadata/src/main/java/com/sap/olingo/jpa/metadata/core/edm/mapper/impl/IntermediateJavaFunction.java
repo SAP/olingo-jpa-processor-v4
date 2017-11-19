@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
+import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.geo.SRID;
 import org.apache.olingo.commons.api.edm.provider.CsdlParameter;
 import org.apache.olingo.commons.api.edm.provider.CsdlReturnType;
@@ -102,14 +103,25 @@ class IntermediateJavaFunction extends IntermediateFunction implements JPAJavaFu
       CsdlParameter parameter = new CsdlParameter();
       EdmParameter definedParameter = declairedParameter.getAnnotation(EdmParameter.class);
       parameter.setName(nameBuilder.buildPropertyName(definedParameter.name()));
-      EdmPrimitiveTypeKind edmType = JPATypeConvertor.convertToEdmSimpleType(declairedParameter.getType());
-      if (edmType == null)
-        throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.FUNC_PARAM_ONLY_PRIMITIVE, javaFunction
-            .getDeclaringClass().getName(), javaFunction.getName(), definedParameter.name());
-      parameter.setType(edmType.getFullQualifiedName());
+      parameter.setType(determineParameterType(declairedParameter, definedParameter));
       parameters.add(parameter);
     }
     return parameters;
+  }
+
+  private FullQualifiedName determineParameterType(final Parameter declairedParameter,
+      final EdmParameter definedParameter) throws ODataJPAModelException {
+    final EdmPrimitiveTypeKind edmType = JPATypeConvertor.convertToEdmSimpleType(declairedParameter.getType());
+    if (edmType != null)
+      return edmType.getFullQualifiedName();
+    else {
+      final IntermediateEnumerationType enumType = schema.getEnumerationType(declairedParameter.getType());
+      if (enumType != null) {
+        return enumType.getExternalFQN();
+      } else
+        throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.FUNC_PARAM_ONLY_PRIMITIVE, javaFunction
+            .getDeclaringClass().getName(), javaFunction.getName(), definedParameter.name());
+    }
   }
 
   // TODO handle multiple schemas
@@ -163,24 +175,4 @@ class IntermediateJavaFunction extends IntermediateFunction implements JPAJavaFu
   boolean hasImport() {
     return true;
   }
-
-//  private FullQualifiedName determineReturnType(final ReturnType definedReturnType, final Class<?> declairedReturnType)
-//      throws ODataJPAModelException {
-//
-//    IntermediateStructuredType structuredType = schema.getStructuredType(declairedReturnType);
-//    if (structuredType != null)
-//      return structuredType.getExternalFQN();
-//    else {
-//      final IntermediateEnumerationType enumType = schema.getEnumerationType(declairedReturnType);
-//      if (enumType != null) {
-//        return enumType.getExternalFQN();
-//      } else {
-//        final EdmPrimitiveTypeKind edmType = JPATypeConvertor.convertToEdmSimpleType(declairedReturnType);
-//        if (edmType == null)
-//          throw new ODataJPAModelException(MessageKeys.FUNC_RETURN_TYPE_INVALID, definedReturnType.type().getName(),
-//              declairedReturnType.getName(), javaFunction.getName());
-//        return edmType.getFullQualifiedName();
-//      }
-//    }
-//  }
 }

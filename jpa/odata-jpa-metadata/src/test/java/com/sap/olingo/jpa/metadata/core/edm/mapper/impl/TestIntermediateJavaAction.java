@@ -88,6 +88,8 @@ public class TestIntermediateJavaAction extends TestMappingRoot {
     assertTrue(act.getEdmItem().isBound());
     assertEquals(PUNIT_NAME + ".Person", act.getEdmItem().getParameters().get(0).getTypeFQN()
         .getFullQualifiedNameAsString());
+    assertEquals("Edm.Decimal", act.getEdmItem().getParameters().get(1).getTypeFQN()
+        .getFullQualifiedNameAsString());
   }
 
   @Test
@@ -241,6 +243,14 @@ public class TestIntermediateJavaAction extends TestMappingRoot {
     assertEquals(Integer.valueOf(100), act.getEdmItem().getParameters().get(0).getMaxLength());
     assertEquals(Dimension.GEOGRAPHY, act.getEdmItem().getParameters().get(0).getSrid().getDimension());
     assertEquals("4326", act.getEdmItem().getParameters().get(0).getSrid().toString());
+  }
+
+  @Test
+  public void checkReturnsEnumerationTypeAsParameter() throws ODataJPAModelException {
+    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "returnEnumeration");
+
+    assertEquals("com.sap.olingo.jpa.AccessRights", act.getEdmItem().getParameters().get(0).getTypeFQN()
+        .getFullQualifiedNameAsString());
   }
 
   @Test

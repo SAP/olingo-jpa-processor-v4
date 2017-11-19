@@ -103,7 +103,8 @@ class IntermediateJavaAction extends IntermediateOperation implements JPAAction 
   protected List<CsdlParameter> determineEdmInputParameter() throws ODataJPAModelException {
     final List<CsdlParameter> parameters = new ArrayList<>();
     final List<JPAParameter> jpaParameterList = getParameter();
-    Integer bindingPosition = 0;
+    final BindingPosition bindingPosition = new BindingPosition();
+
     for (int i = 0; i < jpaParameterList.size(); i++) {
       final JPAParameter jpaParameter = jpaParameterList.get(i);
       final CsdlParameter parameter = new CsdlParameter();
@@ -115,7 +116,7 @@ class IntermediateJavaAction extends IntermediateOperation implements JPAAction 
       parameter.setSrid(jpaParameter.getSrid());
       parameters.add(parameter);
     }
-    if (jpaAction.isBound() && bindingPosition != 1)
+    if (jpaAction.isBound() && bindingPosition.getPos() != 1)
       // Binding parameter not found within in interface of method %1$s of class %2$s. Binding parameter must be the
       // first parameter.
       throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.ACTION_PARAM_BINGING_NOT_FOUND,
@@ -123,30 +124,26 @@ class IntermediateJavaAction extends IntermediateOperation implements JPAAction 
     return parameters;
   }
 
-  private FullQualifiedName determineParameterType(Integer bindingPosition, final int i,
+  private FullQualifiedName determineParameterType(final BindingPosition bindingPosition, final int i,
       final JPAParameter jpaParameter) throws ODataJPAModelException {
 
     final EdmPrimitiveTypeKind edmType = JPATypeConvertor.convertToEdmSimpleType(jpaParameter.getType());
-    if (!jpaAction.isBound()) {
-      if (edmType == null)
-        throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.ACTION_PARAM_ONLY_PRIMITIVE,
-            javaAction.getDeclaringClass().getName(), javaAction.getName(), jpaParameter.getInternalName());
-
-      // parameter.setType(edmType.getFullQualifiedName());
+    if (edmType != null)
       return edmType.getFullQualifiedName();
-    } else if (edmType == null) {
+    final IntermediateEnumerationType enumType = schema.getEnumerationType(jpaParameter.getType());
+    if (enumType != null) {
+      return enumType.getExternalFQN();
+    } else {
       final IntermediateStructuredType structuredType = schema.getEntityType(jpaParameter.getType());
       if (structuredType != null) {
-        if (bindingPosition == 0)
-          bindingPosition = i + 1;
-        // parameter.setType(structuredType.getExternalFQN());
+        if (bindingPosition.getPos() == 0)
+          bindingPosition.setPos(i + 1);
         return structuredType.getExternalFQN();
       } else
         // The type of %1$s of action of method %2$s of class %1$s could not be converted
         throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.ACTION_PARAM_ONLY_PRIMITIVE,
             jpaParameter.getInternalName(), javaAction.getName(), javaAction.getDeclaringClass().getName());
     }
-    return null;
   }
 
   @Override
@@ -228,5 +225,18 @@ class IntermediateJavaAction extends IntermediateOperation implements JPAAction 
       throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.ACTION_UNBOUND_ENTITY_SET,
           javaAction.getName(), javaAction.getDeclaringClass().getName());
     return jpaAction.entitySetPath();
+  }
+
+  private static class BindingPosition {
+    private Integer pos = 0;
+
+    Integer getPos() {
+      return pos;
+    }
+
+    void setPos(Integer pos) {
+      this.pos = pos;
+    }
+
   }
 }

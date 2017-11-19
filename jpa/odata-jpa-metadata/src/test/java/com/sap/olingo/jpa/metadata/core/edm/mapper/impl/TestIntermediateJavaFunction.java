@@ -109,6 +109,14 @@ public class TestIntermediateJavaFunction extends TestMappingRoot {
   }
 
   @Test
+  public void checkReturnsEnumerationTypeAsParameter() throws ODataJPAModelException {
+    IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "returnEnumerationType");
+
+    assertEquals("com.sap.olingo.jpa.AccessRights", act.getEdmItem().getParameters().get(0).getTypeFQN()
+        .getFullQualifiedNameAsString());
+  }
+
+  @Test
   public void checkIgnoresParameterAsPartFromEdmFunction() throws ODataJPAModelException {
     IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "div");
 
