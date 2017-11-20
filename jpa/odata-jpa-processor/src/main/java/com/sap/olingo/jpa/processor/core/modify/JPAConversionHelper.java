@@ -11,6 +11,7 @@ import javax.persistence.AttributeConverter;
 
 import org.apache.olingo.commons.api.data.ComplexValue;
 import org.apache.olingo.commons.api.data.Entity;
+import org.apache.olingo.commons.api.data.Parameter;
 import org.apache.olingo.commons.api.data.Property;
 import org.apache.olingo.commons.api.data.ValueType;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
@@ -26,7 +27,9 @@ import org.apache.olingo.server.api.uri.UriParameter;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEnumerationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
@@ -187,6 +190,18 @@ public class JPAConversionHelper {
     return jpaAttributes;
   }
 
+  public static Object convertParameter(final Parameter param, final JPAServiceDocument sd)
+      throws ODataJPAModelException {
+    switch (param.getValueType()) {
+    case ENUM:
+      final JPAEnumerationAttribute enumType = sd.getEnumType(param.getType());
+      return enumType.enumOf((Number) param.getValue());
+
+    default:
+      return param.getValue();
+    }
+  }
+
   /**
    * 
    * @param keyPredicates
@@ -319,4 +334,5 @@ public class JPAConversionHelper {
     }
     return null;
   }
+
 }

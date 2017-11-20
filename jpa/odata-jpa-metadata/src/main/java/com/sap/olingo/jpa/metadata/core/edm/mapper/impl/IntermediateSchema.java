@@ -60,6 +60,22 @@ final class IntermediateSchema extends IntermediateModelElement {
     this.actionListInternalKey = buildActionList();
   }
 
+  public IntermediateEnumerationType getEnumerationType(Class<?> enumType) {
+    return this.enumTypeListInternalKey.get(enumType.getSimpleName());
+  }
+
+  public JPAEnumerationAttribute getEnumerationType(EdmEnumType type) {
+    for (final Entry<String, IntermediateEnumerationType> enumeration : this.enumTypeListInternalKey.entrySet()) {
+      if (enumeration.getValue().getExternalFQN().equals(type.getFullQualifiedName()))
+        return enumeration.getValue();
+    }
+    return null;
+  }
+
+  public IntermediateEnumerationType getEnumerationType(String enumName) {
+    return this.enumTypeListInternalKey.get(enumName);
+  }
+
   @SuppressWarnings("unchecked")
   @Override
   protected void lazyBuildEdmItem() throws ODataJPAModelException {
@@ -227,17 +243,4 @@ final class IntermediateSchema extends IntermediateModelElement {
     funcList.putAll(factory.create(nameBuilder, reflections, this));
     return funcList;
   }
-
-  public IntermediateEnumerationType getEnumerationType(Class<?> enumType) {
-    return this.enumTypeListInternalKey.get(enumType.getSimpleName());
-  }
-
-  public JPAEnumerationAttribute getEnumerationType(EdmEnumType type) {
-    for (final Entry<String, IntermediateEnumerationType> enumeration : this.enumTypeListInternalKey.entrySet()) {
-      if (enumeration.getValue().getExternalFQN().equals(type.getFullQualifiedName()))
-        return enumeration.getValue();
-    }
-    return null;
-  }
-
 }

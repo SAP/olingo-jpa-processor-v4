@@ -56,8 +56,8 @@ public final class JPAProcessorFactory {
   public JPAActionRequestProcessor createActionProcessor(final EntityManager em, final UriInfo uriInfo,
       final ContentType responseFormat) throws ODataException {
 
-    final JPAODataRequestContextAccess requestContext = new JPARequestContext(em, uriInfo, serializerFactory
-        .createSerializer(responseFormat, uriInfo));
+    final JPAODataRequestContextAccess requestContext = new JPARequestContext(em, uriInfo,
+        responseFormat != null ? serializerFactory.createSerializer(responseFormat, uriInfo) : null);
 
     return new JPAActionRequestProcessor(odata, sessionContext, requestContext);
 

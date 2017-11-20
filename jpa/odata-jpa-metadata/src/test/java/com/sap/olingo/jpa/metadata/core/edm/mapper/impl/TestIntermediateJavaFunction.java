@@ -114,6 +114,9 @@ public class TestIntermediateJavaFunction extends TestMappingRoot {
 
     assertEquals("com.sap.olingo.jpa.AccessRights", act.getEdmItem().getParameters().get(0).getTypeFQN()
         .getFullQualifiedNameAsString());
+
+    assertEquals("com.sap.olingo.jpa.AccessRights", act.getParameter("arg0").getTypeFQN()
+        .getFullQualifiedNameAsString());
   }
 
   @Test

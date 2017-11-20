@@ -30,6 +30,7 @@ import org.apache.olingo.server.api.uri.UriResourceFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEnumerationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAJavaFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
@@ -81,13 +82,24 @@ public final class JPAFunctionRequestProcessor extends JPAOperationRequestProces
     final String value = uriValue.replaceAll("'", "");
     final EdmParameter edmParam = edmFunction.getParameter(parameter.getName());
     try {
-      return ((EdmPrimitiveType) edmParam.getType()).valueOfString(value, false, edmParam.getMaxLength(),
-          edmParam.getPrecision(), edmParam.getScale(), true, parameter.getType());
-    } catch (EdmPrimitiveTypeException e) {
+      switch (edmParam.getType().getKind()) {
+      case PRIMITIVE:
+        return ((EdmPrimitiveType) edmParam.getType()).valueOfString(value, false, edmParam.getMaxLength(),
+            edmParam.getPrecision(), edmParam.getScale(), true, parameter.getType());
+      case ENUM:
+        final JPAEnumerationAttribute enumeration = sd.getEnumType(parameter.getTypeFQN()
+            .getFullQualifiedNameAsString());
+        return enumeration.enumOf(value);
+      default:
+        throw new ODataJPADBAdaptorException(ODataJPADBAdaptorException.MessageKeys.PARAMETER_CONVERSION_ERROR,
+            HttpStatusCode.NOT_IMPLEMENTED, uriValue, parameter.getName());
+      }
+
+    } catch (EdmPrimitiveTypeException | ODataJPAModelException e) {
       // Unable to convert value %1$s of parameter %2$s
       throw new ODataJPADBAdaptorException(ODataJPADBAdaptorException.MessageKeys.PARAMETER_CONVERSION_ERROR,
           HttpStatusCode.NOT_IMPLEMENTED, uriValue, parameter.getName());
-    }
+    } 
   }
 
   private Object processJavaFunction(final UriResourceFunction uriResourceFunction, final JPAJavaFunction jpaFunction,
@@ -101,7 +113,7 @@ public final class JPAFunctionRequestProcessor extends JPAOperationRequestProces
         instance = c.newInstance(em);
       else
         instance = c.newInstance();
-      final List<Object> parameter = new ArrayList<Object>();
+      final List<Object> parameter = new ArrayList<>();
       final Parameter[] methodParameter = jpaFunction.getMethod().getParameters();
 
       for (Parameter declairedParameter : Arrays.asList(methodParameter)) {
@@ -115,11 +127,7 @@ public final class JPAFunctionRequestProcessor extends JPAOperationRequestProces
       }
 
       return jpaFunction.getMethod().invoke(instance, parameter.toArray());
-    } catch (InstantiationException e) {
-      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-    } catch (IllegalAccessException e) {
-      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-    } catch (IllegalArgumentException e) {
+    } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | ODataJPAModelException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     } catch (InvocationTargetException e) {
       Throwable cause = e.getCause();
@@ -128,8 +136,6 @@ public final class JPAFunctionRequestProcessor extends JPAOperationRequestProces
       } else {
         throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
       }
-    } catch (ODataJPAModelException e) {
-      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
   }
 

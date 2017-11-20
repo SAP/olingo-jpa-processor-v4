@@ -75,7 +75,7 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
   @SuppressWarnings("unchecked")
   @Override
   public Expression<Boolean> get() throws ODataApplicationException {
-    // return converter.cb.greaterThan(getExistsQuery().as("a"), converter.cb.literal('5'));
+    // return converter.cb.greaterThan(getExistsQuery().as("a"), converter.cb.literal('5')); //NOSONAR
     if (aggregationType != null)
       return (Expression<Boolean>) getExistsQuery().getRoots().toArray()[0];
     return converter.cb.exists(getExistsQuery());
@@ -118,7 +118,7 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
   }
 
   private class SubMember implements Member {
-    final private JPAMemberOperator parentMember;
+    private final JPAMemberOperator parentMember;
 
     public SubMember(final JPAMemberOperator parentMember) {
       super();
@@ -153,7 +153,7 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
   }
 
   private class SubResource implements UriInfoResource {
-    final private JPAMemberOperator parentMember;
+    private final JPAMemberOperator parentMember;
 
     public SubResource(final JPAMemberOperator member) {
       super();

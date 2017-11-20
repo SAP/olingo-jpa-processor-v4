@@ -14,6 +14,7 @@ import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.processor.ActionPrimitiveProcessor;
+import org.apache.olingo.server.api.processor.ActionVoidProcessor;
 import org.apache.olingo.server.api.processor.ComplexCollectionProcessor;
 import org.apache.olingo.server.api.processor.ComplexProcessor;
 import org.apache.olingo.server.api.processor.CountEntityCollectionProcessor;
@@ -31,7 +32,8 @@ import com.sap.olingo.jpa.processor.core.processor.JPARequestProcessor;
 
 public final class JPAODataRequestProcessor
     implements PrimitiveValueProcessor, PrimitiveCollectionProcessor, ComplexProcessor, ComplexCollectionProcessor,
-    CountEntityCollectionProcessor, EntityProcessor, MediaEntityProcessor, ActionPrimitiveProcessor {
+    CountEntityCollectionProcessor, EntityProcessor, MediaEntityProcessor, ActionPrimitiveProcessor,
+    ActionVoidProcessor {
   private final EntityManager em;
   private final JPAODataSessionContextAccess context;
   private JPAProcessorFactory factory;
@@ -394,13 +396,28 @@ public final class JPAODataRequestProcessor
 
     try {
       final JPAActionRequestProcessor p = this.factory.createActionProcessor(this.em, uriInfo, responseFormat);
-      p.performAction(request, response, requestFormat, responseFormat);
+      p.performAction(request, response, requestFormat);
     } catch (ODataApplicationException | ODataLibraryException e) {
       throw e;
     } catch (ODataException e) {
       throw new ODataApplicationException(e.getLocalizedMessage(),
           HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), null, e);
     }
+  }
+
+  @Override
+  public void processActionVoid(ODataRequest request, ODataResponse response, UriInfo uriInfo,
+      ContentType requestFormat) throws ODataApplicationException, ODataLibraryException {
+    try {
+      final JPAActionRequestProcessor p = this.factory.createActionProcessor(this.em, uriInfo, null);
+      p.performAction(request, response, requestFormat);
+    } catch (ODataApplicationException | ODataLibraryException e) {
+      throw e;
+    } catch (ODataException e) {
+      throw new ODataApplicationException(e.getLocalizedMessage(),
+          HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), null, e);
+    }
+
   }
 
 }

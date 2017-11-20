@@ -30,24 +30,26 @@ public interface JPAServiceDocument extends CustomETagSupport {
    * @return
    * @throws ODataJPAModelException
    */
-  JPAEntityType getEntity(EdmType edmType) throws ODataJPAModelException;
+  JPAEntityType getEntity(final EdmType edmType) throws ODataJPAModelException;
 
-  JPAEntityType getEntity(FullQualifiedName typeName);
+  JPAEntityType getEntity(final FullQualifiedName typeName);
 
-  JPAEntityType getEntity(String edmEntitySetName) throws ODataJPAModelException;
+  JPAEntityType getEntity(final String edmEntitySetName) throws ODataJPAModelException;
 
-  JPAFunction getFunction(EdmFunction function);
+  JPAFunction getFunction(final EdmFunction function);
 
-  JPAAction getAction(EdmAction action);
+  JPAAction getAction(final EdmAction action);
 
-  JPAEntitySet getEntitySet(JPAEntityType entityType) throws ODataJPAModelException;
+  JPAEntitySet getEntitySet(final JPAEntityType entityType) throws ODataJPAModelException;
 
   List<EdmxReference> getReferences();
 
-  CsdlTerm getTerm(FullQualifiedName termName);
+  CsdlTerm getTerm(final FullQualifiedName termName);
 
-  JPAStructuredType getComplexType(EdmComplexType edmComplexType);
+  JPAStructuredType getComplexType(final EdmComplexType edmComplexType);
 
-  JPAEnumerationAttribute getEnumType(EdmEnumType type);
+  JPAEnumerationAttribute getEnumType(final EdmEnumType type);
+
+  JPAEnumerationAttribute getEnumType(final String string);
 
 }

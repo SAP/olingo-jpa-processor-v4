@@ -11,6 +11,7 @@ public class TestJavaActionNoParameter {
   public static int constructorCalls = 0;
   public static Short param1 = null;
   public static Integer param2 = null;
+  public static FileAccess enumeration = null;
   public static AdministrativeDivision bindingParam = null;
 
   public TestJavaActionNoParameter() {
@@ -49,5 +50,10 @@ public class TestJavaActionNoParameter {
     bindingParam = root;
     param1 = a;
     param2 = b;
+  }
+
+  @EdmAction()
+  public void unboundVoidOneEnumerationParameter(@EdmParameter(name = "AccessRights") FileAccess a) {
+    enumeration = a;
   }
 }

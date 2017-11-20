@@ -21,9 +21,8 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPASerializerException;
 final class JPASerializeFunction implements JPAOperationSerializer {
   private final JPAOperationSerializer serializer;
 
-  public JPASerializeFunction(final UriInfo uriInfo, ContentType responseFormat,
-      final JPASerializerFactory jpaSerializerFactory)
-      throws ODataJPASerializerException, SerializerException {
+  public JPASerializeFunction(final UriInfo uriInfo, final ContentType responseFormat,
+      final JPASerializerFactory jpaSerializerFactory) throws ODataJPASerializerException, SerializerException {
 
     this.serializer = (JPAOperationSerializer) createSerializer(jpaSerializerFactory, responseFormat, uriInfo);
   }
@@ -59,6 +58,11 @@ final class JPASerializeFunction implements JPAOperationSerializer {
       return ((UriResourceFunction) operation).getFunction().getReturnType().getType().getKind();
     else
       return ((UriResourceAction) operation).getAction().getReturnType().getType().getKind();
+  }
+
+  @Override
+  public ContentType getContentType() {
+    return this.serializer.getContentType();
   }
 
 }
