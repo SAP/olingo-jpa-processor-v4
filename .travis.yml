@@ -10,5 +10,3 @@ branches:
   only:
   - master
   - develop
-addons:
-    srcclr: true
