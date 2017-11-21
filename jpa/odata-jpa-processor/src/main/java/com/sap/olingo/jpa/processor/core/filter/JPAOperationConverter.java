@@ -61,6 +61,7 @@ public class JPAOperationConverter {
             .toString()));
       else
         return (Expression<T>) cb.mod(jpaOperator.getLeftAsIntExpression(), jpaOperator.getRightAsIntExpression());
+
     default:
       return dbConverter.convert(jpaOperator);
     }

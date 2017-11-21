@@ -58,20 +58,24 @@ public final class JPASerializerFactory {
     case ENTITY:
       if (isColletion)
         return new JPASerializeEntityCollection(serviceMetadata, odata.createSerializer(responseFormat), uriHelper,
-            uriInfo);
+            uriInfo, responseFormat);
       else
-        return new JPASerializeEntity(serviceMetadata, odata.createSerializer(responseFormat), uriHelper, uriInfo);
+        return new JPASerializeEntity(serviceMetadata, odata.createSerializer(responseFormat), uriHelper, uriInfo,
+            responseFormat);
     case COMPLEX:
       if (isColletion)
-        return new JPASerializeComplexCollection(serviceMetadata, odata.createSerializer(responseFormat));
+        return new JPASerializeComplexCollection(serviceMetadata, odata.createSerializer(responseFormat),
+            responseFormat);
       else
-        return new JPASerializeComplex(serviceMetadata, odata.createSerializer(responseFormat), uriHelper, uriInfo);
+        return new JPASerializeComplex(serviceMetadata, odata.createSerializer(responseFormat), uriHelper, uriInfo,
+            responseFormat);
     case PRIMITIVE:
       if (isColletion)
-        return new JPASerializePrimitiveCollection(serviceMetadata, odata.createSerializer(responseFormat), uriHelper,
-            uriInfo);
+        return new JPASerializePrimitiveCollection(serviceMetadata, odata.createSerializer(responseFormat),
+            responseFormat);
       else
-        return new JPASerializePrimitive(serviceMetadata, odata.createSerializer(responseFormat), uriHelper, uriInfo);
+        return new JPASerializePrimitive(serviceMetadata, odata.createSerializer(responseFormat), uriInfo,
+            responseFormat);
     default:
       throw new ODataJPASerializerException(ODataJPASerializerException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
           HttpStatusCode.NOT_IMPLEMENTED, edmTypeKind.toString());
@@ -87,20 +91,23 @@ public final class JPASerializerFactory {
     case navigationProperty:
       if (isColletion)
         return new JPASerializeEntityCollection(serviceMetadata, odata.createSerializer(responseFormat), uriHelper,
-            uriInfo);
+            uriInfo, responseFormat);
       else
-        return new JPASerializeEntity(serviceMetadata, odata.createSerializer(responseFormat), uriHelper, uriInfo);
+        return new JPASerializeEntity(serviceMetadata, odata.createSerializer(responseFormat), uriHelper, uriInfo,
+            responseFormat);
     case complexProperty:
-      return new JPASerializeComplex(serviceMetadata, odata.createSerializer(responseFormat), uriHelper, uriInfo);
+      return new JPASerializeComplex(serviceMetadata, odata.createSerializer(responseFormat), uriHelper, uriInfo,
+          responseFormat);
     case primitiveProperty:
-      return new JPASerializePrimitive(serviceMetadata, odata.createSerializer(responseFormat), uriHelper, uriInfo);
+      return new JPASerializePrimitive(serviceMetadata, odata.createSerializer(responseFormat), uriInfo,
+          responseFormat);
     case action:
     case function:
       return new JPASerializeFunction(uriInfo, responseFormat, this);
     case count:
       return new JPASerializeCount(odata.createFixedFormatSerializer());
     case value:
-      return new JPASerializeValue(serviceMetadata, odata.createFixedFormatSerializer(), uriHelper, uriInfo);
+      return new JPASerializeValue(serviceMetadata, odata.createFixedFormatSerializer(), uriInfo);
     default:
       throw new ODataJPASerializerException(ODataJPASerializerException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
           HttpStatusCode.NOT_IMPLEMENTED, uriResourceKind.toString());

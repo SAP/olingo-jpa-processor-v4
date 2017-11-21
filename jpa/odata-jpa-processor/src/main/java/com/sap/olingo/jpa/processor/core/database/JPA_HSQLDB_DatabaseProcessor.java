@@ -16,6 +16,7 @@ import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriParameter;
+import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceFunction;
 import org.apache.olingo.server.api.uri.queryoption.SearchOption;
 
@@ -32,13 +33,16 @@ class JPA_HSQLDB_DatabaseProcessor implements JPAODataDatabaseProcessor {
   private final static String FUNC_NAME_PLACEHOLDER = "$FUNCTIONNAME$";
   private final static String PARAMETER_PLACEHOLDER = "$PARAMETER$";
 
+  @SuppressWarnings("unchecked")
   @Override
-  public List<?> executeFunctionQuery(final UriResourceFunction uriResourceFunction,
-      final JPADataBaseFunction jpaFunction, final JPAEntityType returnType, final EntityManager em)
+  public <T> List<T> executeFunctionQuery(final List<UriResource> uriResourceParts,
+      final JPADataBaseFunction jpaFunction, final Class<T> resultClass, final EntityManager em)
       throws ODataApplicationException {
 
+    final UriResourceFunction uriResourceFunction =
+        (UriResourceFunction) uriResourceParts.get(uriResourceParts.size() - 1);
     final String queryString = generateQueryString(jpaFunction);
-    final Query functionQuery = em.createNativeQuery(queryString, returnType.getTypeClass());
+    final Query functionQuery = em.createNativeQuery(queryString, resultClass);
     int count = 1;
     try {
       for (final JPAParameter parameter : jpaFunction.getParameter()) {
@@ -54,7 +58,7 @@ class JPA_HSQLDB_DatabaseProcessor implements JPAODataDatabaseProcessor {
   }
 
   private String generateQueryString(final JPADataBaseFunction jpaFunction) throws ODataJPAProcessorException {
-    final StringBuffer parameterList = new StringBuffer();
+    final StringBuilder parameterList = new StringBuilder();
     String queryString = SELECT_BASE_PATTERN;
 
     queryString = queryString.replace(FUNC_NAME_PLACEHOLDER, jpaFunction.getDBName());

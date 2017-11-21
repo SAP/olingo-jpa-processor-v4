@@ -118,17 +118,18 @@ class IntermediateEnumerationType extends IntermediateModelElement implements JP
     return annotation.isFlags();
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public Enum<?> valueOf(String value) throws ODataJPAModelException {
+  public <T extends Enum<?>> T enumOf(final String value) throws ODataJPAModelException {
     lazyBuildEdmItem();
     for (Object member : javaMembers)
-      if (((Enum<?>) member).name().equals(value))
-        return (Enum<?>) member;
+      if (((T) member).name().equals(value))
+        return (T) member;
     return null;
   }
 
   @Override
-  public <T extends Number> Enum<?> valueOf(T value) throws ODataJPAModelException {
+  public <T extends Number> Enum<?> enumOf(final T value) throws ODataJPAModelException {
     lazyBuildEdmItem();
 
     if (annotation.converter() != DummyConverter.class) {
@@ -145,6 +146,17 @@ class IntermediateEnumerationType extends IntermediateModelElement implements JP
           return (Enum<?>) member;
     }
     return null;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <E extends Enum<?>, T extends Number> T valueOf(final String value) throws ODataJPAModelException {
+    try {
+      AttributeConverter<E, T> converter = (AttributeConverter<E, T>) annotation.converter().newInstance();
+      return converter.convertToDatabaseColumn(enumOf(value));
+    } catch (InstantiationException | IllegalAccessException e) {
+      throw new ODataJPAModelException(e);
+    }
   }
 
 }

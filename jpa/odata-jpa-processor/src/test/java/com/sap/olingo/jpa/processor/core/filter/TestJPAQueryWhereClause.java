@@ -693,4 +693,16 @@ public class TestJPAQueryWhereClause extends TestBase {
     ArrayNode orgs = helper.getValues();
     assertEquals(2, orgs.size());
   }
+
+  @Test
+  public void testFilterOneHas() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Persons?$filter=AccessRights has com.sap.olingo.jpa.AccessRights'Read'");
+
+    helper.assertStatus(200);
+
+    ArrayNode orgs = helper.getValues();
+    assertEquals(1, orgs.size());
+  }
 }

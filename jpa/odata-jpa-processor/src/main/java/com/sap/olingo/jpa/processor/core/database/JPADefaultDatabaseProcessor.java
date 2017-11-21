@@ -16,8 +16,11 @@ import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriParameter;
+import org.apache.olingo.server.api.uri.UriResource;
+import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.UriResourceFunction;
 import org.apache.olingo.server.api.uri.queryoption.SearchOption;
+import org.apache.olingo.server.api.uri.queryoption.expression.BinaryOperatorKind;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -30,16 +33,16 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.filter.JPAAggregationOperation;
 import com.sap.olingo.jpa.processor.core.filter.JPAArithmeticOperator;
 import com.sap.olingo.jpa.processor.core.filter.JPABooleanOperator;
-import com.sap.olingo.jpa.processor.core.filter.JPAComparisonOperator;
+import com.sap.olingo.jpa.processor.core.filter.JPAComparisonOperatorImp;
+import com.sap.olingo.jpa.processor.core.filter.JPAEnumerationOperator;
 import com.sap.olingo.jpa.processor.core.filter.JPAMethodCall;
 import com.sap.olingo.jpa.processor.core.filter.JPAUnaryBooleanOperator;
 
-public final class JPADefaultDatabaseProcessor implements JPAODataDatabaseProcessor, JPAODataDatabaseOperations {
+public class JPADefaultDatabaseProcessor implements JPAODataDatabaseProcessor, JPAODataDatabaseOperations {
   private static final String SELECT_BASE_PATTERN = "SELECT * FROM $FUNCTIONNAME$($PARAMETER$)";
   private static final String FUNC_NAME_PLACEHOLDER = "$FUNCTIONNAME$";
   private static final String PARAMETER_PLACEHOLDER = "$PARAMETER$";
 
-  @SuppressWarnings("unused")
   private CriteriaBuilder cb;
 
   @Override
@@ -62,7 +65,24 @@ public final class JPADefaultDatabaseProcessor implements JPAODataDatabaseProces
   }
 
   @Override
-  public Expression<Boolean> convert(final JPAComparisonOperator<?> jpaOperator) throws ODataApplicationException {
+  public Expression<Boolean> convert(@SuppressWarnings("rawtypes") final JPAComparisonOperatorImp jpaOperator)
+      throws ODataApplicationException {
+    if (jpaOperator.getOperator().equals(BinaryOperatorKind.HAS)) {
+      /*
+       * HAS requires an bitwise AND. This is not part of SQL and so not part of the criterion builder. Different
+       * databases have different ways to support this. On group uses a function, which is called BITAND e.g. H2,
+       * HSQLDB, SAP HANA, DB2
+       * or ORACLE, others have created an operator '&' like PostgesSQL or MySQL.
+       * TO provide a unique, but slightly slower, solution a workaround is used, see
+       * https://stackoverflow.com/questions/20570481/jpa-oracle-bit-operations-using-criteriabuilder#25508741
+       */
+      Long n = ((JPAEnumerationOperator) jpaOperator.getRight()).getValue().longValue();
+      @SuppressWarnings("unchecked")
+      Expression<Integer> div = cb.quot(jpaOperator.getLeft(), n);
+      Expression<Integer> mod = cb.mod(div, 2);
+      return cb.equal(mod, 1);
+
+    }
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
         HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getOperator().name());
   }
@@ -88,16 +108,28 @@ public final class JPADefaultDatabaseProcessor implements JPAODataDatabaseProces
 
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public List<?> executeFunctionQuery(final UriResourceFunction uriResourceFunction,
-      final JPADataBaseFunction jpaFunction, final JPAEntityType returnType, final EntityManager em)
+  public <T> List<T> executeFunctionQuery(final List<UriResource> uriResourceParts,
+      final JPADataBaseFunction jpaFunction, final Class<T> resultClass, final EntityManager em)
       throws ODataApplicationException {
 
     final String queryString = generateQueryString(jpaFunction);
-    final Query functionQuery = em.createNativeQuery(queryString, returnType.getTypeClass());
+    final Query functionQuery = em.createNativeQuery(queryString, resultClass);
+    final UriResourceFunction uriResourceFunction =
+        (UriResourceFunction) uriResourceParts.get(uriResourceParts.size() - 1);
+
     int count = 1;
     try {
-      for (final JPAParameter parameter : jpaFunction.getParameter()) {
+      if (jpaFunction.isBound()) {
+        // TODO Compound key
+        final Object value = ((UriResourceEntitySet) uriResourceParts.get(0)).getKeyPredicates().get(0).getText();
+        functionQuery.setParameter(count, value);
+        count += 1;
+      }
+      for (int i = count - 1; i < jpaFunction.getParameter().size(); i++) {
+
+        final JPAParameter parameter = jpaFunction.getParameter().get(i);
         final UriParameter uriParameter = findParameterByExternalName(parameter, uriResourceFunction.getParameters());
         final Object value = getValue(uriResourceFunction.getFunction(), parameter, uriParameter.getText());
         functionQuery.setParameter(count, value);
@@ -114,7 +146,7 @@ public final class JPADefaultDatabaseProcessor implements JPAODataDatabaseProces
     this.cb = cb;
   }
 
-  private UriParameter findParameterByExternalName(final JPAParameter parameter,
+  protected final UriParameter findParameterByExternalName(final JPAParameter parameter,
       final List<UriParameter> uriParameters) throws ODataApplicationException {
     for (final UriParameter uriParameter : uriParameters) {
       if (uriParameter.getName().equals(parameter.getName()))
@@ -126,7 +158,7 @@ public final class JPADefaultDatabaseProcessor implements JPAODataDatabaseProces
 
   private String generateQueryString(final JPADataBaseFunction jpaFunction) throws ODataJPAProcessorException {
 
-    final StringBuffer parameterList = new StringBuffer();
+    final StringBuilder parameterList = new StringBuilder();
     String queryString = SELECT_BASE_PATTERN;
 
     queryString = queryString.replace(FUNC_NAME_PLACEHOLDER, jpaFunction.getDBName());

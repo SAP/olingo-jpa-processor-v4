@@ -72,13 +72,16 @@ abstract class IntermediateFunction extends IntermediateOperation implements JPA
   }
 
   @Override
-  boolean isBound() throws ODataJPAModelException {
+  public boolean isBound() throws ODataJPAModelException {
     return getEdmItem().isBound();
   }
 
   protected abstract List<CsdlParameter> determineEdmInputParameter() throws ODataJPAModelException;
 
   protected abstract CsdlReturnType determineEdmResultType(final ReturnType returnType) throws ODataJPAModelException;
+
+  protected abstract FullQualifiedName determineParameterType(final Class<?> type,
+      final EdmParameter definedParameter) throws ODataJPAModelException;
 
   protected class IntermediatFunctionParameter implements JPAParameter {
     private final EdmParameter jpaParameter;
@@ -93,7 +96,7 @@ abstract class IntermediateFunction extends IntermediateOperation implements JPA
       this.type = jpaParameter.type();
     }
 
-    public IntermediatFunctionParameter(EdmParameter jpaParameter, String externalName,
+    IntermediatFunctionParameter(EdmParameter jpaParameter, String externalName,
         String internalName, Class<?> type) {
       this.jpaParameter = jpaParameter;
       this.internalName = internalName;
@@ -133,7 +136,7 @@ abstract class IntermediateFunction extends IntermediateOperation implements JPA
 
     @Override
     public FullQualifiedName getTypeFQN() throws ODataJPAModelException {
-      return JPATypeConvertor.convertToEdmSimpleType(jpaParameter.type()).getFullQualifiedName();
+      return determineParameterType(type, jpaParameter);
     }
 
     @Override

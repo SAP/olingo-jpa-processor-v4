@@ -27,9 +27,9 @@ import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpress
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAnnotation;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssoziation;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 
 @Inheritance
 @DiscriminatorColumn(name = "\"Type\"")
@@ -40,7 +40,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
         name = "CountRoles",
         functionName = "COUNT_ROLES",
         returnType = @EdmFunction.ReturnType(isCollection = true),
-        parameter = { @EdmParameter(name = "Amount", parameterName = "a", type = Integer.class),
+        parameter = { @EdmParameter(name = "Amount", parameterName = "a", type = String.class),
         }),
 
     @EdmFunction(

@@ -281,9 +281,10 @@ class IntermediateServiceDocument implements JPAServiceDocument {
   }
 
   private void setContainer() {
+
     for (final Entry<String, IntermediateSchema> schema : schemaListInternalKey.entrySet()) {
       schema.getValue().setContainer(container);
-      return;
+      break;
     }
 
   }
@@ -293,6 +294,15 @@ class IntermediateServiceDocument implements JPAServiceDocument {
     final IntermediateSchema schema = schemaListInternalKey.get(type.getFullQualifiedName().getNamespace());
     if (schema != null)
       return schema.getEnumerationType(type);
+    return null;
+  }
+
+  @Override
+  public JPAEnumerationAttribute getEnumType(String fqnAsString) {
+    final FullQualifiedName fqn = new FullQualifiedName(fqnAsString);
+    final IntermediateSchema schema = schemaListInternalKey.get(fqn.getNamespace());
+    if (schema != null)
+      return schema.getEnumerationType(fqn.getName());
     return null;
   }
 

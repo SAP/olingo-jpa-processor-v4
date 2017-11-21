@@ -6,6 +6,7 @@ import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.Property;
 import org.apache.olingo.commons.api.edm.EdmComplexType;
 import org.apache.olingo.commons.api.edm.EdmType;
+import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.serializer.ComplexSerializerOptions;
@@ -18,11 +19,14 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPASerializerException;
 public class JPASerializeComplexCollection implements JPAOperationSerializer {
   private final ServiceMetadata serviceMetadata;
   private final ODataSerializer serializer;
+  private final ContentType responseFormat;
 
-  JPASerializeComplexCollection(final ServiceMetadata serviceMetadata, final ODataSerializer serializer) {
+  JPASerializeComplexCollection(final ServiceMetadata serviceMetadata, final ODataSerializer serializer,
+      final ContentType responseFormat) {
 
     this.serializer = serializer;
     this.serviceMetadata = serviceMetadata;
+    this.responseFormat = responseFormat;
   }
 
   @Override
@@ -40,6 +44,11 @@ public class JPASerializeComplexCollection implements JPAOperationSerializer {
 
     return serializer.complexCollection(serviceMetadata, (EdmComplexType) complexType, (Property) result,
         options);
+  }
+
+  @Override
+  public ContentType getContentType() {
+    return responseFormat;
   }
 
 }

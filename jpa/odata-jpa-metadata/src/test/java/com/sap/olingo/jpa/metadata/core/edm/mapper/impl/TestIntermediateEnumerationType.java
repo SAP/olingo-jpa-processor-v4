@@ -129,24 +129,24 @@ public class TestIntermediateEnumerationType extends TestMappingRoot {
   @Test
   public void checkOrdinalMemberProvidedFromStringWOConverter() throws ODataJPAModelException {
     cut = new IntermediateEnumerationType(new JPAEdmNameBuilder(PUNIT_NAME), DayOfWeek.class);
-    assertEquals(DayOfWeek.SUNDAY, cut.valueOf("SUNDAY"));
+    assertEquals(DayOfWeek.SUNDAY, cut.enumOf("SUNDAY"));
   }
 
   @Test
   public void checkOrdinalMemberProvidedFromNumberWOConverter() throws ODataJPAModelException {
     cut = new IntermediateEnumerationType(new JPAEdmNameBuilder(PUNIT_NAME), DayOfWeek.class);
-    assertEquals(DayOfWeek.TUESDAY, cut.valueOf(1));
+    assertEquals(DayOfWeek.TUESDAY, cut.enumOf(1));
   }
 
   @Test
   public void checkOrdinalMemberProvidedFromStringWithConverter() throws ODataJPAModelException {
     cut = new IntermediateEnumerationType(new JPAEdmNameBuilder(PUNIT_NAME), FileAccess.class);
-    assertEquals(FileAccess.Create, cut.valueOf("Create"));
+    assertEquals(FileAccess.Create, cut.enumOf("Create"));
   }
 
   @Test
   public void checkOrdinalMemberProvidedFromNumberWithConverter() throws ODataJPAModelException {
     cut = new IntermediateEnumerationType(new JPAEdmNameBuilder(PUNIT_NAME), FileAccess.class);
-    assertEquals(FileAccess.Write, cut.valueOf((short) 2));
+    assertEquals(FileAccess.Write, cut.enumOf((short) 2));
   }
 }
