@@ -160,10 +160,3 @@ public class TestJPAFunctionJava {
     return Arrays.asList(new UriParameter[] { param1, param2 });
   }
 }
-
-//this.serializer = requestContext.getSerializer();
-
-//final EdmParameter edmParam = edmFunction.getParameter(parameter.getName());
-//try {
-//  return ((EdmPrimitiveType) edmParam.getType()).valueOfString(value, false, edmParam.getMaxLength(),
-//      edmParam.getPrecision(), edmParam.getScale(), true, parameter.getType());
