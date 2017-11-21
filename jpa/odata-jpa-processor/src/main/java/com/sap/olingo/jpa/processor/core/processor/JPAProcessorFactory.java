@@ -91,7 +91,7 @@ public final class JPAProcessorFactory {
   }
 
   private void checkFunctionPathSupported(final List<UriResource> resourceParts) throws ODataApplicationException {
-    if (resourceParts.size() > 1)
+    if (resourceParts.size() > 2)
       throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_FUNC_WITH_NAVI,
           HttpStatusCode.NOT_IMPLEMENTED);
   }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlAction;
 import org.apache.olingo.commons.api.edm.provider.CsdlActionImport;
@@ -132,14 +133,14 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
   private List<CsdlFunctionImport> buildFunctionImports() throws ODataJPAModelException {
     final List<CsdlFunctionImport> edmFunctionImports = new ArrayList<>();
 
-    for (final String namespace : schemaList.keySet()) {
+    for (final Entry<String, IntermediateSchema> namespace : schemaList.entrySet()) {
       // Build Entity Sets
-      final IntermediateSchema schema = schemaList.get(namespace);
+      final IntermediateSchema schema = namespace.getValue();
       final List<JPAFunction> functions = schema.getFunctions();
 
       if (functions != null) {
         for (final JPAFunction jpaFu : functions) {
-          if (((IntermediateFunction) jpaFu).isBound() == false && ((IntermediateFunction) jpaFu).hasImport())
+          if (!((IntermediateFunction) jpaFu).isBound() && ((IntermediateFunction) jpaFu).hasImport())
             edmFunctionImports.add(buildFunctionImport(((IntermediateFunction) jpaFu).getEdmItem()));
         }
       }

@@ -18,6 +18,7 @@ import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriParameter;
+import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceFunction;
 import org.apache.olingo.server.api.uri.queryoption.SearchOption;
 import org.apache.olingo.server.api.uri.queryoption.search.SearchTerm;
@@ -39,12 +40,14 @@ final class JPA_HANA_DatabaseProcessor implements JPAODataDatabaseProcessor {
 
   @SuppressWarnings("unchecked")
   @Override
-  public List<?> executeFunctionQuery(final UriResourceFunction uriResourceFunction,
-      final JPADataBaseFunction jpaFunction, final JPAEntityType returnType, final EntityManager em)
+  public <T> java.util.List<T> executeFunctionQuery(final List<UriResource> uriResourceParts,
+      final JPADataBaseFunction jpaFunction, final Class<T> resultClass, final EntityManager em)
       throws ODataApplicationException {
 
+    final UriResourceFunction uriResourceFunction = (UriResourceFunction) uriResourceParts.get(uriResourceParts.size()
+        - 1);
     final String queryString = generateQueryString(jpaFunction);
-    final Query functionQuery = em.createNativeQuery(queryString, returnType.getTypeClass());
+    final Query functionQuery = em.createNativeQuery(queryString, resultClass);
     int count = 1;
     try {
       for (final JPAParameter parameter : jpaFunction.getParameter()) {

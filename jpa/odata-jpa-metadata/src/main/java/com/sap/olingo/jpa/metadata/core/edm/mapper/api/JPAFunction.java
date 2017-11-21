@@ -27,4 +27,6 @@ public interface JPAFunction extends JPAOperation {
    * @return The type of function
    */
   public EdmFunctionType getFunctionType();
+
+  public boolean isBound() throws ODataJPAModelException;
 }

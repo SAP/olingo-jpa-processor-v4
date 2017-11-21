@@ -12,7 +12,32 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
+
 @Entity(name = "Person")
+@EdmFunctions({
+    @EdmFunction(
+        name = "CheckRights",
+        functionName = "CHECK_RIGHTS",
+        hasFunctionImport = true,
+        isBound = false,
+        returnType = @EdmFunction.ReturnType(type = Boolean.class, isCollection = false),
+        parameter = {
+            @EdmParameter(name = "R", parameterName = "Right", type = AccessRights.class),
+            @EdmParameter(name = "U", parameterName = "UserRights", type = Integer.class) }),
+
+    @EdmFunction(
+        name = "ReturnRights",
+        functionName = "RETURN_RIGHTS",
+        hasFunctionImport = true,
+        isBound = false,
+        returnType = @EdmFunction.ReturnType(type = AccessRights.class, isCollection = false),
+        parameter = {
+            @EdmParameter(name = "U", parameterName = "UserRights", type = Integer.class) })
+})
+
 @DiscriminatorValue(value = "1")
 @Table(schema = "\"OLINGO\"", name = "\"BusinessPartner\"")
 public class Person extends BusinessPartner {

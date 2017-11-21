@@ -72,7 +72,7 @@ abstract class IntermediateFunction extends IntermediateOperation implements JPA
   }
 
   @Override
-  boolean isBound() throws ODataJPAModelException {
+  public boolean isBound() throws ODataJPAModelException {
     return getEdmItem().isBound();
   }
 

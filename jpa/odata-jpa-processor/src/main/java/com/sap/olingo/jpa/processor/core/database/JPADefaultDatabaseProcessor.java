@@ -16,6 +16,8 @@ import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriParameter;
+import org.apache.olingo.server.api.uri.UriResource;
+import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.UriResourceFunction;
 import org.apache.olingo.server.api.uri.queryoption.SearchOption;
 import org.apache.olingo.server.api.uri.queryoption.expression.BinaryOperatorKind;
@@ -108,15 +110,26 @@ public class JPADefaultDatabaseProcessor implements JPAODataDatabaseProcessor, J
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> List<T> executeFunctionQuery(final UriResourceFunction uriResourceFunction,
-      final JPADataBaseFunction jpaFunction, final JPAEntityType returnType, final EntityManager em)
+  public <T> List<T> executeFunctionQuery(final List<UriResource> uriResourceParts,
+      final JPADataBaseFunction jpaFunction, final Class<T> resultClass, final EntityManager em)
       throws ODataApplicationException {
 
     final String queryString = generateQueryString(jpaFunction);
-    final Query functionQuery = em.createNativeQuery(queryString, returnType.getTypeClass());
+    final Query functionQuery = em.createNativeQuery(queryString, resultClass);
+    final UriResourceFunction uriResourceFunction =
+        (UriResourceFunction) uriResourceParts.get(uriResourceParts.size() - 1);
+
     int count = 1;
     try {
-      for (final JPAParameter parameter : jpaFunction.getParameter()) {
+      if (jpaFunction.isBound()) {
+        // TODO Compound key
+        final Object value = ((UriResourceEntitySet) uriResourceParts.get(0)).getKeyPredicates().get(0).getText();
+        functionQuery.setParameter(count, value);
+        count += 1;
+      }
+      for (int i = count - 1; i < jpaFunction.getParameter().size(); i++) {
+
+        final JPAParameter parameter = jpaFunction.getParameter().get(i);
         final UriParameter uriParameter = findParameterByExternalName(parameter, uriResourceFunction.getParameters());
         final Object value = getValue(uriResourceFunction.getFunction(), parameter, uriParameter.getText());
         functionQuery.setParameter(count, value);
