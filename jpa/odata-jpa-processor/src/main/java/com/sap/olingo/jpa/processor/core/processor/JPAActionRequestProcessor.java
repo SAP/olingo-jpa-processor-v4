@@ -36,8 +36,8 @@ public class JPAActionRequestProcessor extends JPAOperationRequestProcessor {
     super(odata, sessionContext, requestContext);
   }
 
-  public void performAction(final ODataRequest request, final ODataResponse response, final ContentType requestFormat,
-      final ContentType responseFormat) throws ODataApplicationException {
+  public void performAction(final ODataRequest request, final ODataResponse response, final ContentType requestFormat)
+      throws ODataApplicationException {
 
     final List<UriResource> resourceList = uriInfo.getUriResourceParts();
     final UriResourceAction resource = (UriResourceAction) resourceList.get(resourceList.size() - 1);
@@ -64,7 +64,7 @@ public class JPAActionRequestProcessor extends JPAOperationRequestProcessor {
           final String externalName = jpaAction.getParameter(declairedParameter).getName();
           final org.apache.olingo.commons.api.data.Parameter param = actionParameter.get(externalName);
           if (param != null)
-            parameter.add(param.getValue());
+            parameter.add(JPAConversionHelper.convertParameter(param, sd));
           else
             parameter.add(null);
         }
@@ -77,8 +77,10 @@ public class JPAActionRequestProcessor extends JPAOperationRequestProcessor {
         r = convertResult(result, returnType, jpaAction);
       } else
         jpaAction.getMethod().invoke(instance, parameter.toArray());
-
-      serializeResult(returnType, response, responseFormat, r);
+      if (serializer != null)
+        serializeResult(returnType, response, serializer.getContentType(), r);
+      else
+        response.setStatusCode(successStatusCode);
 
     } catch (InstantiationException | IllegalAccessException | IllegalArgumentException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);

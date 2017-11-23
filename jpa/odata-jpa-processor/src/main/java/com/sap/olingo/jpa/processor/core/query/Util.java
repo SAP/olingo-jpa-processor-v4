@@ -42,7 +42,7 @@ public final class Util {
 
   public static EdmEntitySetInfo determineTargetEntitySetAndKeys(final List<UriResource> resources) {
     EdmEntitySet targetEdmEntitySet = null;
-    List<UriParameter> targteKeyPredicates = new ArrayList<UriParameter>();
+    List<UriParameter> targteKeyPredicates = new ArrayList<>();
     StringBuffer naviPropertyName = new StringBuffer();
 
     for (final UriResource resourceItem : resources) {
@@ -120,7 +120,7 @@ public final class Util {
   }
 
   public static String determineProptertyNavigationPath(final List<UriResource> resources) {
-    final StringBuffer pathName = new StringBuffer();
+    final StringBuilder pathName = new StringBuilder();
     if (resources != null) {
       for (int i = resources.size() - 1; i >= 0; i--) {
         final UriResource resourceItem = resources.get(i);
@@ -159,7 +159,7 @@ public final class Util {
       final List<UriResource> startResourceList, final ExpandOption expandOption) throws ODataApplicationException {
 
     final Map<JPAExpandItem, JPAAssociationPath> pathList =
-        new HashMap<JPAExpandItem, JPAAssociationPath>();
+        new HashMap<>();
     final StringBuffer associationNamePrefix = new StringBuffer();
 
     UriResource startResourceItem = null;
@@ -225,7 +225,7 @@ public final class Util {
   public static List<JPANavigationProptertyInfo> determineAssoziations(final JPAServiceDocument sd,
       final List<UriResource> resourceParts) throws ODataApplicationException {
 
-    final List<JPANavigationProptertyInfo> pathList = new ArrayList<JPANavigationProptertyInfo>();
+    final List<JPANavigationProptertyInfo> pathList = new ArrayList<>();
 
     StringBuffer associationName = null;
     UriResourceNavigation navigation = null;

@@ -315,8 +315,6 @@ public class TestJPAProcessorExpand extends TestBase {
     assertEquals("BE23", children.get(0).get("DivisionCode").asText());
   }
 
-  // TODO check how to handle $count -> Olingo auch mit $top=1;
-  @Ignore
   @Test
   public void testExpandWithCount() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -326,8 +324,46 @@ public class TestJPAProcessorExpand extends TestBase {
     final ArrayNode orgs = helper.getValues();
     final ObjectNode org = (ObjectNode) orgs.get(0);
     assertNotNull(org.get("Roles"));
-    // ArrayNode roles = (ArrayNode) org.get("Roles");
-    // assertEquals("3", child1.get("count").asText());
+    ArrayNode roles = (ArrayNode) org.get("Roles");
+    assertNotNull(org.get("Roles@odata.count"));
+    assertEquals(roles.size(), org.get("Roles@odata.count").asInt());
+  }
+
+  @Test
+  public void testExpandWithCountPath() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations('2')?$expand=Roles/$count");
+    helper.assertStatus(200);
+
+    final ObjectNode org = helper.getValue();
+    assertNotNull(org.get("Roles@odata.count"));
+    assertEquals(2, org.get("Roles@odata.count").asInt());
+  }
+
+  @Ignore // ODataJsonSerializer.writeExpandedNavigationProperty does not write a "@odata.count" for to 1 relations
+  @Test
+  public void testExpandOppositeDirectionWithCount() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerRoles(BusinessPartnerID='1',RoleCategory='A')?$expand=Organization/$count");
+    helper.assertStatus(200);
+
+    final ObjectNode role = helper.getValue();
+    assertNotNull(role.get("Organization"));
+    assertNotNull(role.get("Organization@odata.count"));
+    assertEquals(1, role.get("Organization@odata.count").asText());
+  }
+
+  @Test
+  public void testExpandWithCountAndTop() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$count=true&$expand=Roles($count=true;$top=1)&$orderby=Roles/$count desc");
+    helper.assertStatus(200);
+
+    final ArrayNode orgs = helper.getValues();
+    final ObjectNode org = (ObjectNode) orgs.get(0);
+    assertNotNull(org.get("Roles"));
+    assertNotNull(org.get("Roles@odata.count"));
+    assertEquals(3, org.get("Roles@odata.count").asInt());
   }
 
   @Test

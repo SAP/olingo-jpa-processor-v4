@@ -46,6 +46,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializer;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
+import com.sap.olingo.jpa.processor.core.util.TestBase;
 
 public class TestCreateRequestEntity {
   protected static final String PUNIT_NAME = "com.sap.olingo.jpa";
@@ -59,7 +60,7 @@ public class TestCreateRequestEntity {
 
     ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
     emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, ds);
-    jpaEdm = new JPAEdmProvider(PUNIT_NAME, emf.getMetamodel(), pP, null);
+    jpaEdm = new JPAEdmProvider(PUNIT_NAME, emf.getMetamodel(), pP, TestBase.enumPackages);
 
   }
 

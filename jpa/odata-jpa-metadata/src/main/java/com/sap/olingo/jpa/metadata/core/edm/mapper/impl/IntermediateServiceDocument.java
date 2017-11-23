@@ -5,12 +5,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.persistence.metamodel.Metamodel;
 
 import org.apache.olingo.commons.api.edm.EdmAction;
 import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.edm.EdmComplexType;
+import org.apache.olingo.commons.api.edm.EdmEnumType;
 import org.apache.olingo.commons.api.edm.EdmFunction;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
@@ -20,6 +22,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
 import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
+import org.reflections.scanners.TypeAnnotationsScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
@@ -27,6 +30,7 @@ import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEnumerationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
@@ -59,7 +63,8 @@ class IntermediateServiceDocument implements JPAServiceDocument {
     pP.provideReferences(this.references);
     this.nameBuilder = new JPAEdmNameBuilder(namespace);
     this.jpaMetamodel = jpaMetamodel;
-    this.schemaListInternalKey = buildIntermediateSchemas();
+    this.schemaListInternalKey = new HashMap<>();
+    buildIntermediateSchemas();
     this.container = new IntermediateEntityContainer(nameBuilder, schemaListInternalKey);
     setContainer();
   }
@@ -240,41 +245,65 @@ class IntermediateServiceDocument implements JPAServiceDocument {
     return false;
   }
 
-  private Map<String, IntermediateSchema> buildIntermediateSchemas() throws ODataJPAModelException {
-    final Map<String, IntermediateSchema> schemaList = new HashMap<String, IntermediateSchema>();
+  private void buildIntermediateSchemas()
+      throws ODataJPAModelException {
     final IntermediateSchema schema = new IntermediateSchema(nameBuilder, jpaMetamodel, reflections);
-    schemaList.put(schema.internalName, schema);
-    return schemaList;
+    schemaListInternalKey.put(schema.internalName, schema);
   }
 
   private Reflections createReflections(String... packageName) {
     if (packageName != null && packageName.length > 0) {
       ConfigurationBuilder configBuilder = new ConfigurationBuilder();
-      List<URL> urls = new ArrayList<URL>();
+      List<URL> urls = new ArrayList<>();
       for (int i = 0; i < packageName.length; i++) {
         urls.addAll(ClasspathHelper.forPackage(packageName[i]));
       }
       configBuilder.setUrls(urls);
-      configBuilder.setScanners(new SubTypesScanner(false));
+      configBuilder.setScanners(new SubTypesScanner(false), new TypeAnnotationsScanner());
       return new Reflections(configBuilder);
     } else
       return null;
   }
 
   private List<CsdlSchema> extractEdmSchemas() throws ODataJPAModelException {
-    final List<CsdlSchema> schemas = new ArrayList<CsdlSchema>();
-    for (final String internalName : schemaListInternalKey.keySet()) {
-      schemas.add(schemaListInternalKey.get(internalName).getEdmItem());
+    final List<CsdlSchema> schemas = new ArrayList<>();
+    try {
+      if (schemaListInternalKey.isEmpty())
+        buildIntermediateSchemas();
+      for (final Entry<String, IntermediateSchema> schema : schemaListInternalKey.entrySet()) {
+        schemas.add(schema.getValue().getEdmItem());
+      }
+    } catch (Exception e) {
+      schemaListInternalKey.clear();
+      throw e;
     }
     return schemas;
   }
 
   private void setContainer() {
-    for (final String externalName : schemaListInternalKey.keySet()) {
-      schemaListInternalKey.get(externalName).setContainer(container);
-      return;
+
+    for (final Entry<String, IntermediateSchema> schema : schemaListInternalKey.entrySet()) {
+      schema.getValue().setContainer(container);
+      break;
     }
 
+  }
+
+  @Override
+  public JPAEnumerationAttribute getEnumType(EdmEnumType type) {
+    final IntermediateSchema schema = schemaListInternalKey.get(type.getFullQualifiedName().getNamespace());
+    if (schema != null)
+      return schema.getEnumerationType(type);
+    return null;
+  }
+
+  @Override
+  public JPAEnumerationAttribute getEnumType(String fqnAsString) {
+    final FullQualifiedName fqn = new FullQualifiedName(fqnAsString);
+    final IntermediateSchema schema = schemaListInternalKey.get(fqn.getNamespace());
+    if (schema != null)
+      return schema.getEnumerationType(fqn.getName());
+    return null;
   }
 
 }

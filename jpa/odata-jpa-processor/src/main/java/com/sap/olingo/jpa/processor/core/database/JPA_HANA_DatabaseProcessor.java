@@ -18,6 +18,7 @@ import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriParameter;
+import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceFunction;
 import org.apache.olingo.server.api.uri.queryoption.SearchOption;
 import org.apache.olingo.server.api.uri.queryoption.search.SearchTerm;
@@ -37,13 +38,16 @@ final class JPA_HANA_DatabaseProcessor implements JPAODataDatabaseProcessor {
   private static final String FUNC_NAME_PLACEHOLDER = "$FUNCTIONNAME$";
   private static final String PARAMETER_PLACEHOLDER = "$PARAMETER$";
 
+  @SuppressWarnings("unchecked")
   @Override
-  public List<?> executeFunctionQuery(final UriResourceFunction uriResourceFunction,
-      final JPADataBaseFunction jpaFunction, final JPAEntityType returnType, final EntityManager em)
+  public <T> java.util.List<T> executeFunctionQuery(final List<UriResource> uriResourceParts,
+      final JPADataBaseFunction jpaFunction, final Class<T> resultClass, final EntityManager em)
       throws ODataApplicationException {
 
+    final UriResourceFunction uriResourceFunction = (UriResourceFunction) uriResourceParts.get(uriResourceParts.size()
+        - 1);
     final String queryString = generateQueryString(jpaFunction);
-    final Query functionQuery = em.createNativeQuery(queryString, returnType.getTypeClass());
+    final Query functionQuery = em.createNativeQuery(queryString, resultClass);
     int count = 1;
     try {
       for (final JPAParameter parameter : jpaFunction.getParameter()) {
@@ -65,7 +69,7 @@ final class JPA_HANA_DatabaseProcessor implements JPAODataDatabaseProcessor {
     /*
      * The following code generates a sub-query to filter on the values that matches the search term. This looks
      * cumbersome, but there were problems using the straight forward solution:
-     * return cb.function("CONTAINS", Boolean.class, root.get("name"), cb.literal(term.getSearchTerm()));
+     * return cb.function("CONTAINS", Boolean.class, root.get("name"), cb.literal(term.getSearchTerm())); //NOSONAR
      * in case $search was combined with $filter. In this case the processing aborts with the following error:
      * "org.eclipse.persistence.internal.jpa.querydef.FunctionExpressionImpl cannot be cast to
      * org.eclipse.persistence.internal.jpa.querydef.CompoundExpressionImpl"

@@ -65,11 +65,11 @@ public class TestJPAQuerySelectClause extends TestBase {
     nameBuilder = new JPAEdmNameBuilder(PUNIT_NAME);
     jpaEntityType = helper.getJPAEntityType("BusinessPartners");
     createHeaders();
-    context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null, null), ds);
+    context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null, TestBase.enumPackages), ds);
     cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "BusinessPartners"), context, null, emf
         .createEntityManager(), headers);
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
-    joinTables = new HashMap<String, From<?, ?>>();
+    joinTables = new HashMap<>();
     joinTables.put(jpaEntityType.getInternalName(), root);
   }
 
@@ -97,13 +97,13 @@ public class TestJPAQuerySelectClause extends TestBase {
   public void checkSelectExpandViaIgnoredProperties() throws ODataApplicationException, ODataJPAModelException {
     // Organizations('3')/Address?$expand=AdministrativeDivision
     fillJoinTable(root);
-    List<ExpandItem> expItems = new ArrayList<ExpandItem>();
+    List<ExpandItem> expItems = new ArrayList<>();
     EdmEntityType startEntity = new EdmEntityTypeDouble(nameBuilder, "Organization");
     EdmEntityType targetEntity = new EdmEntityTypeDouble(nameBuilder, "AdministrativeDivision");
 
     ExpandOption expOps = new ExpandOptionDouble("AdministrativeDivision", expItems);
     expItems.add(new ExpandItemDouble(targetEntity));
-    List<UriResource> startResources = new ArrayList<UriResource>();
+    List<UriResource> startResources = new ArrayList<>();
     UriInfoDouble uriInfo = new UriInfoDouble(null);
     uriInfo.setExpandOpts(expOps);
     uriInfo.setUriResources(startResources);
@@ -304,7 +304,7 @@ public class TestJPAQuerySelectClause extends TestBase {
         .createEntityManager(), headers);
 
     UriInfoDouble uriInfo = new UriInfoDouble(new SelectOptionDouble("Address"));
-    List<UriResource> uriResources = new ArrayList<UriResource>();
+    List<UriResource> uriResources = new ArrayList<>();
     uriInfo.setUriResources(uriResources);
     uriResources.add(new UriResourceEntitySetDouble());
     uriResources.add(new UriResourceValueDouble());
@@ -323,7 +323,7 @@ public class TestJPAQuerySelectClause extends TestBase {
         .createEntityManager(), headers);
 
     UriInfoDouble uriInfo = new UriInfoDouble(new SelectOptionDouble("Address"));
-    List<UriResource> uriResources = new ArrayList<UriResource>();
+    List<UriResource> uriResources = new ArrayList<>();
     uriInfo.setUriResources(uriResources);
     uriResources.add(new UriResourceEntitySetDouble());
     uriResources.add(new UriResourceValueDouble());
@@ -343,7 +343,7 @@ public class TestJPAQuerySelectClause extends TestBase {
         .createEntityManager(), headers);
 
     UriInfoDouble uriInfo = new UriInfoDouble(new SelectOptionDouble("Address"));
-    List<UriResource> uriResources = new ArrayList<UriResource>();
+    List<UriResource> uriResources = new ArrayList<>();
     uriInfo.setUriResources(uriResources);
     // BusinessPartnerImages('99')/AdministrativeInformation/Created/By/$value
     uriResources.add(new UriResourceEntitySetDouble());

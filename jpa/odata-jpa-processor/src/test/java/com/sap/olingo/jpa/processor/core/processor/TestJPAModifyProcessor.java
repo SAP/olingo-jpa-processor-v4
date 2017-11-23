@@ -51,6 +51,7 @@ import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializer;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
+import com.sap.olingo.jpa.processor.core.util.TestBase;
 
 public abstract class TestJPAModifyProcessor {
   protected static final String LOCATION_HEADER = "Organization('35')";
@@ -66,7 +67,7 @@ public abstract class TestJPAModifyProcessor {
 
     ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
     emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, ds);
-    jpaEdm = new JPAEdmProvider(PUNIT_NAME, emf.getMetamodel(), pP, null);
+    jpaEdm = new JPAEdmProvider(PUNIT_NAME, emf.getMetamodel(), pP, TestBase.enumPackages);
 
   }
 
@@ -83,9 +84,9 @@ public abstract class TestJPAModifyProcessor {
   protected EdmEntitySet ets;
   protected List<UriParameter> keyPredicates;
   protected JPAConversionHelper convHelper;
-  protected List<UriResource> pathParts = new ArrayList<UriResource>();
+  protected List<UriResource> pathParts = new ArrayList<>();
   protected SerializerResult serializerResult;
-  protected List<String> header = new ArrayList<String>();
+  protected List<String> header = new ArrayList<>();
   protected JPAServiceDebugger debugger;
 
   @Before
@@ -95,7 +96,7 @@ public abstract class TestJPAModifyProcessor {
     requestContext = mock(JPAODataRequestContextAccess.class);
     serviceMetadata = mock(ServiceMetadata.class);
     uriInfo = mock(UriInfo.class);
-    keyPredicates = new ArrayList<UriParameter>();
+    keyPredicates = new ArrayList<>();
     ets = mock(EdmEntitySet.class);
     serializer = mock(JPASerializer.class);
     uriEts = mock(UriResourceEntitySet.class);
@@ -136,7 +137,7 @@ public abstract class TestJPAModifyProcessor {
     EdmEntityType edmET = mock(EdmEntityType.class);
     FullQualifiedName fqn = new FullQualifiedName("com.sap.olingo.jpa.Organization");
     when(edm.getEntityType(fqn)).thenReturn(edmET);
-    List<String> keyNames = new ArrayList<String>();
+    List<String> keyNames = new ArrayList<>();
     keyNames.add("ID");
     when(edmET.getKeyPredicateNames()).thenReturn(keyNames);
     EdmKeyPropertyRef refType = mock(EdmKeyPropertyRef.class);

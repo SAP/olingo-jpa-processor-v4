@@ -111,7 +111,7 @@ public class JPAQuery extends JPAExecutableQuery {
     result.put("root", intermediateResult);
 
     debugger.stopRuntimeMeasurement(handle);
-    return new JPAExpandQueryResult(result, Long.parseLong("0"), jpaEntity);
+    return new JPAExpandQueryResult(result, null, jpaEntity);
   }
 
   public JPAStructuredType getEntityType() {
@@ -130,7 +130,7 @@ public class JPAQuery extends JPAExecutableQuery {
         new ArrayList<>();
 
     for (final JPAPath jpaPath : selectionPathList) {
-      groupBy.add(ExpressionUtil.convertToCriteriaPath(joinTables, root, jpaPath));
+      groupBy.add(ExpressionUtil.convertToCriteriaPath(joinTables, root, jpaPath.getPath()));
     }
 
     debugger.stopRuntimeMeasurement(handle);

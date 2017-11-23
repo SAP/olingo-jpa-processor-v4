@@ -8,7 +8,12 @@ import java.util.Collection;
 
 import javax.persistence.EntityManager;
 
+import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
+import org.apache.olingo.commons.api.edm.FullQualifiedName;
+
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
 
 public class IntermediateOperationHelper {
 
@@ -40,5 +45,25 @@ public class IntermediateOperationHelper {
         return true;
     }
     return false;
+  }
+
+  static FullQualifiedName determineReturnType(final ReturnType definedReturnType, final Class<?> declairedReturnType,
+      final IntermediateSchema schema, final String operationName) throws ODataJPAModelException {
+
+    IntermediateStructuredType structuredType = schema.getStructuredType(declairedReturnType);
+    if (structuredType != null)
+      return structuredType.getExternalFQN();
+    else {
+      final IntermediateEnumerationType enumType = schema.getEnumerationType(declairedReturnType);
+      if (enumType != null) {
+        return enumType.getExternalFQN();
+      } else {
+        final EdmPrimitiveTypeKind edmType = JPATypeConvertor.convertToEdmSimpleType(declairedReturnType);
+        if (edmType == null)
+          throw new ODataJPAModelException(MessageKeys.FUNC_RETURN_TYPE_INVALID, definedReturnType.type().getName(),
+              declairedReturnType.getName(), operationName);
+        return edmType.getFullQualifiedName();
+      }
+    }
   }
 }

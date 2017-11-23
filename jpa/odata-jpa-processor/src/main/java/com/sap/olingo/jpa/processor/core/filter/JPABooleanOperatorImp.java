@@ -36,6 +36,7 @@ class JPABooleanOperatorImp implements JPABooleanOperator {
    * 
    * @see com.sap.olingo.jpa.processor.core.filter.JPABooleanOperator#getOperator()
    */
+  @SuppressWarnings("unchecked")
   @Override
   public BinaryOperatorKind getOperator() {
     return operator;

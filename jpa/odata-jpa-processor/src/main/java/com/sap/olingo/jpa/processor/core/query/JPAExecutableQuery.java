@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
@@ -67,7 +68,6 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
   protected final Root<?> root;
   protected final JPAFilterComplier filter;
   protected final JPAODataSessionContextAccess context;
-  protected final OData odata;
 
   public JPAExecutableQuery(final OData odata, final JPAODataSessionContextAccess context,
       final JPAEntityType jpaEntityType, final EntityManager em, final Map<String, List<String>> requestHeaders,
@@ -81,7 +81,6 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     this.filter = new JPAFilterCrossComplier(odata, sd, em, jpaEntity, new JPAOperationConverter(cb, context
         .getOperationConverter()), uriResource, this);
     this.context = context;
-    this.odata = odata;
   }
 
   @Override
@@ -147,7 +146,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
   private List<JPAPath> buildPathValue(final JPAEntityType jpaEntity, final String select)
       throws ODataApplicationException {
 
-    List<JPAPath> jpaPathList = new ArrayList<JPAPath>();
+    List<JPAPath> jpaPathList = new ArrayList<>();
     String selectString;
     try {
       selectString = select.replace(Util.VALUE_RESOURCE, "");
@@ -176,7 +175,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
   private List<JPAPath> buildPathList(final JPAEntityType jpaEntity, final String[] selectList)
       throws ODataApplicationException {
 
-    final List<JPAPath> jpaPathList = new ArrayList<JPAPath>();
+    final List<JPAPath> jpaPathList = new ArrayList<>();
     try {
       final List<? extends JPAAttribute> jpaKeyList = jpaEntity.getKey();
 
@@ -236,18 +235,35 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
           jpaPathList.add(mimeTypeAttribute);
         }
       }
-    } catch (ODataJPAModelException e1) {
-      // TODO Auto-generated catch block
-      e1.printStackTrace();
+    } catch (ODataJPAModelException e) {
+      throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(),
+          ODataJPAModelException.getLocales().nextElement(), e);
     }
 
     // Add Fields that are required for Expand
+    addExpandSelectionPathList(uriResource, jpaPathList);
+    return jpaPathList;
+
+  }
+
+  /**
+   * In order to be able to link the result of a expand query with the super-ordinate query it is necessary to ensure
+   * that the join columns are selected.<br>
+   * The same columns are required for the count query, for select as well as order by.
+   * @param uriResource
+   * @param jpaPathList
+   * @throws ODataApplicationException
+   * @throws ODataJPAQueryException
+   */
+  protected void addExpandSelectionPathList(final UriInfoResource uriResource, List<JPAPath> jpaPathList)
+      throws ODataApplicationException {
+
     final Map<JPAExpandItem, JPAAssociationPath> associationPathList = Util.determineAssoziations(sd, uriResource
         .getUriResourceParts(), uriResource.getExpandOption());
     if (!associationPathList.isEmpty()) {
       Collections.sort(jpaPathList);
-      for (final UriInfoResource item : associationPathList.keySet()) {
-        final JPAAssociationPath associationPath = associationPathList.get(item);
+      for (final Entry<JPAExpandItem, JPAAssociationPath> item : associationPathList.entrySet()) {
+        final JPAAssociationPath associationPath = item.getValue();
         try {
           for (final JPAOnConditionItem joinItem : associationPath.getJoinColumnsList()) {
             final int insertIndex = Collections.binarySearch(jpaPathList, joinItem.getLeftPath());
@@ -259,8 +275,6 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
         }
       }
     }
-    return jpaPathList;
-
   }
 
   /**
@@ -273,7 +287,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
    */
   protected Map<String, From<?, ?>> createFromClause(final List<JPAAssociationAttribute> orderByTarget,
       final List<JPAPath> descriptionFields) throws ODataApplicationException {
-    final HashMap<String, From<?, ?>> joinTables = new HashMap<String, From<?, ?>>();
+    final HashMap<String, From<?, ?>> joinTables = new HashMap<>();
     // 1. Create root
     joinTables.put(jpaEntity.getInternalName(), root);
 
@@ -290,7 +304,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
   }
 
   private Set<JPAPath> determineAllDescriptionPath(List<JPAPath> descriptionFields) {
-    Set<JPAPath> allPath = new HashSet<JPAPath>(descriptionFields);
+    Set<JPAPath> allPath = new HashSet<>(descriptionFields);
     for (JPAPath path : filter.getMember()) {
       if (path.getLeaf() instanceof JPADescriptionAttribute)
         allPath.add(path);
@@ -300,9 +314,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
 
   /**
    * If asc or desc is not specified, the service MUST order by the specified property in ascending order.
-   * See:
-   * <a
-   * href=
+   * See: <a href=
    * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398305"
    * >OData Version 4.0 Part 1 - 11.2.5.2 System Query Option $orderby</a> <p>
    * 
@@ -320,7 +332,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     // SELECT t0."BusinessPartnerID" ,COUNT(t1."BusinessPartnerID")
     // FROM {oj "OLINGO"."org.apache.olingo.jpa::BusinessPartner" t0
     // LEFT OUTER JOIN "OLINGO"."org.apache.olingo.jpa::BusinessPartnerRole" t1
-    // ON (t1."BusinessPartnerID" = t0."BusinessPartnerID")}
+    // ON (t1."BusinessPartnerID" = t0."BusinessPartnerID")} //NOSONAR
     // WHERE (t0."Type" = ?)
     // GROUP BY t0."BusinessPartnerID"
     // ORDER BY COUNT(t1."BusinessPartnerID") DESC
@@ -328,7 +340,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     // TODO Functions and orderBy: Part 1 - 11.5.3.1 Invoking a Function
 
     final int handle = debugger.startRuntimeMeasurement(this, "createOrderByList");
-    final List<Order> orders = new ArrayList<Order>();
+    final List<Order> orders = new ArrayList<>();
     if (orderByOption != null) {
       for (final OrderByItem orderByItem : orderByOption.getOrders()) {
         final Expression expression = orderByItem.getExpression();
@@ -336,9 +348,9 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
           final UriInfoResource resourcePath = ((Member) expression).getResourcePath();
           JPAStructuredType type = jpaEntity;
           Path<?> p = joinTables.get(jpaEntity.getInternalName());
-          for (final UriResource uriResource : resourcePath.getUriResourceParts()) {
-            if (uriResource instanceof UriResourcePrimitiveProperty) {
-              final EdmProperty edmProperty = ((UriResourcePrimitiveProperty) uriResource).getProperty();
+          for (final UriResource uriResourceItem : resourcePath.getUriResourceParts()) {
+            if (uriResourceItem instanceof UriResourcePrimitiveProperty) {
+              final EdmProperty edmProperty = ((UriResourcePrimitiveProperty) uriResourceItem).getProperty();
               try {
                 final JPAAttribute attribute = type.getPath(edmProperty.getName()).getLeaf();
                 p = p.get(attribute.getInternalName());
@@ -349,8 +361,8 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
                 orders.add(cb.desc(p));
               else
                 orders.add(cb.asc(p));
-            } else if (uriResource instanceof UriResourceComplexProperty) {
-              final EdmProperty edmProperty = ((UriResourceComplexProperty) uriResource).getProperty();
+            } else if (uriResourceItem instanceof UriResourceComplexProperty) {
+              final EdmProperty edmProperty = ((UriResourceComplexProperty) uriResourceItem).getProperty();
               try {
                 final JPAAttribute attribute = type.getPath(edmProperty.getName()).getLeaf();
                 p = p.get(attribute.getInternalName());
@@ -359,8 +371,8 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
                 debugger.stopRuntimeMeasurement(handle);
                 throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
               }
-            } else if (uriResource instanceof UriResourceNavigation) {
-              final EdmNavigationProperty edmNaviProperty = ((UriResourceNavigation) uriResource).getProperty();
+            } else if (uriResourceItem instanceof UriResourceNavigation) {
+              final EdmNavigationProperty edmNaviProperty = ((UriResourceNavigation) uriResourceItem).getProperty();
               From<?, ?> join;
               try {
                 join = joinTables.get(jpaEntity.getAssociationPath(edmNaviProperty.getName()).getLeaf()
@@ -404,15 +416,14 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
    * @throws ODataApplicationException
    */
   protected List<Selection<?>> createSelectClause(final Map<String, From<?, ?>> joinTables,
-      final List<JPAPath> jpaPathList) throws ODataApplicationException {
+      final List<JPAPath> jpaPathList) {
 
     final int handle = debugger.startRuntimeMeasurement(this, "createSelectClause");
-
-    final List<Selection<?>> selections = new ArrayList<Selection<?>>();
+    final List<Selection<?>> selections = new ArrayList<>();
 
     // Build select clause
     for (final JPAPath jpaPath : jpaPathList) {
-      final Path<?> p = ExpressionUtil.convertToCriteriaPath(joinTables, root, jpaPath);
+      final Path<?> p = ExpressionUtil.convertToCriteriaPath(joinTables, root, jpaPath.getPath());
       p.alias(jpaPath.getAlias());
       selections.add(p);
     }
@@ -479,10 +490,9 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     }
   }
 
-  protected List<JPAPath> extractDescriptionAttributes(final List<JPAPath> jpaPathList)
-      throws ODataApplicationException {
-    final List<JPAPath> result = new ArrayList<JPAPath>();
-    // List<JPAPath> jpaPathList = buildSelectionPathList(select);
+  protected List<JPAPath> extractDescriptionAttributes(final List<JPAPath> jpaPathList) {
+
+    final List<JPAPath> result = new ArrayList<>();
     for (final JPAPath p : jpaPathList)
       if (p.getLeaf() instanceof JPADescriptionAttribute)
         result.add(p);
@@ -543,7 +553,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     // 1. Determine all relevant associations
     final List<JPANavigationProptertyInfo> naviPathList = Util.determineAssoziations(sd, resourceParts);
     JPAAbstractQuery parent = this;
-    final List<JPANavigationQuery> queryList = new ArrayList<JPANavigationQuery>();
+    final List<JPANavigationQuery> queryList = new ArrayList<>();
 
     // 2. Create the queries and roots
     for (final JPANavigationProptertyInfo naviInfo : naviPathList) {

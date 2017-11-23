@@ -109,6 +109,17 @@ public class TestIntermediateJavaFunction extends TestMappingRoot {
   }
 
   @Test
+  public void checkReturnsEnumerationTypeAsParameter() throws ODataJPAModelException {
+    IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "returnEnumerationType");
+
+    assertEquals("com.sap.olingo.jpa.AccessRights", act.getEdmItem().getParameters().get(0).getTypeFQN()
+        .getFullQualifiedNameAsString());
+
+    assertEquals("com.sap.olingo.jpa.AccessRights", act.getParameter("arg0").getTypeFQN()
+        .getFullQualifiedNameAsString());
+  }
+
+  @Test
   public void checkIgnoresParameterAsPartFromEdmFunction() throws ODataJPAModelException {
     IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "div");
 
@@ -173,6 +184,21 @@ public class TestIntermediateJavaFunction extends TestMappingRoot {
   public void checkReturnsEntityTypeAsReturnType() throws ODataJPAModelException {
     IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "returnEntity");
     assertEquals("com.sap.olingo.jpa.Person", act.getEdmItem().getReturnType().getType());
+  }
+
+  @Test
+  public void checkReturnsEnumerationTypeAsReturnType() throws ODataJPAModelException {
+
+    IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "returnEnumerationType");
+    assertEquals("com.sap.olingo.jpa.ABCClassifiaction", act.getEdmItem().getReturnType().getType());
+  }
+
+  @Test
+  public void checkReturnsEnumerationCollectionTypeAsReturnType() throws ODataJPAModelException {
+    IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "returnEnumerationCollection");
+
+    assertEquals("com.sap.olingo.jpa.ABCClassifiaction", act.getEdmItem().getReturnType().getType());
+    assertTrue(act.getEdmItem().getReturnType().isCollection());
   }
 
   @Test(expected = ODataJPAModelException.class)

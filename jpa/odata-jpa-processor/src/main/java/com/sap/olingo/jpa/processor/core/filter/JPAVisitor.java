@@ -65,7 +65,8 @@ class JPAVisitor implements JPAExpressionVisitor {
         || operator == BinaryOperatorKind.GE
         || operator == BinaryOperatorKind.GT
         || operator == BinaryOperatorKind.LT
-        || operator == BinaryOperatorKind.LE) {
+        || operator == BinaryOperatorKind.LE
+        || operator == BinaryOperatorKind.HAS) {
       debugger.stopRuntimeMeasurement(handle);
       return new JPAComparisonOperatorImp(this.jpaComplier.getConverter(), operator, left, right);
     } else if (operator == BinaryOperatorKind.AND || operator == BinaryOperatorKind.OR) {
@@ -86,11 +87,15 @@ class JPAVisitor implements JPAExpressionVisitor {
   }
 
   @Override
-  public JPAOperator visitEnum(final EdmEnumType type, final List<String> enumValues) throws ExpressionVisitException,
+  public JPAEnumerationOperator visitEnum(final EdmEnumType type, final List<String> enumValues)
+      throws ExpressionVisitException,
       ODataApplicationException {
-
-    throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FILTER,
-        HttpStatusCode.NOT_IMPLEMENTED, "Enumerations");
+    final int handle = debugger.startRuntimeMeasurement(this, "visitEnum");
+    if (enumValues.size() > 1)
+      throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FILTER,
+          HttpStatusCode.NOT_IMPLEMENTED, "Cellection of Enumerations");
+    debugger.stopRuntimeMeasurement(handle);
+    return new JPAEnumerationOperator(this.jpaComplier.getSd().getEnumType(type), enumValues.get(0));
   }
 
   @Override

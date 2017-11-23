@@ -12,6 +12,8 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmGeospatial;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.ODataAction;
+import com.sap.olingo.jpa.processor.core.testmodel.ABCClassifiaction;
+import com.sap.olingo.jpa.processor.core.testmodel.AccessRights;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
 import com.sap.olingo.jpa.processor.core.testmodel.ChangeInformation;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
@@ -54,9 +56,14 @@ public class ExampleJavaActions implements ODataAction {
     return new Person();
   }
 
+  @EdmAction
+  public ABCClassifiaction returnEnumeration(@EdmParameter(name = "Rights") AccessRights rights) {
+    return ABCClassifiaction.B;
+  }
+
   @EdmAction(name = "", returnType = @ReturnType(type = String.class))
   public List<String> returnCollection() {
-    return new ArrayList<String>();
+    return new ArrayList<>();
   }
 
   @EdmAction(name = "", returnType = @ReturnType(type = ChangeInformation.class))
@@ -66,7 +73,7 @@ public class ExampleJavaActions implements ODataAction {
 
   @EdmAction(name = "")
   public List<String> returnCollectionWithoutReturnType() {
-    return new ArrayList<String>();
+    return new ArrayList<>();
   }
 
   @EdmAction(name = "",

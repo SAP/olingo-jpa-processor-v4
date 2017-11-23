@@ -6,6 +6,7 @@ import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmType;
+import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.serializer.EntitySerializerOptions;
@@ -22,13 +23,15 @@ final class JPASerializeEntity implements JPASerializer, JPAOperationSerializer 
   private final UriInfo uriInfo;
   private final UriHelper uriHelper;
   private final ODataSerializer serializer;
+  private final ContentType responseFormat;
 
   JPASerializeEntity(final ServiceMetadata serviceMetadata, final ODataSerializer serializer,
-      final UriHelper uriHelper, final UriInfo uriInfo) throws SerializerException {
+      final UriHelper uriHelper, final UriInfo uriInfo, final ContentType responseFormat) {
     this.uriInfo = uriInfo;
     this.serializer = serializer;
     this.serviceMetadata = serviceMetadata;
     this.uriHelper = uriHelper;
+    this.responseFormat = responseFormat;
   }
 
   @Override
@@ -65,5 +68,10 @@ final class JPASerializeEntity implements JPASerializer, JPAOperationSerializer 
         .getEntities()
         .get(0),
         options);
+  }
+
+  @Override
+  public ContentType getContentType() {
+    return responseFormat;
   }
 }

@@ -6,6 +6,7 @@ import javax.persistence.Tuple;
 
 import org.apache.olingo.commons.api.data.Entity;
 import org.apache.olingo.commons.api.data.EntityCollection;
+import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.uri.UriHelper;
@@ -14,6 +15,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 public class JPATupleResultConverter extends JPATupleAbstractConverter {
 
@@ -33,8 +35,7 @@ public class JPATupleResultConverter extends JPATupleAbstractConverter {
         if (jpaConversionTargetEntity.hasStream())
           odataEntity.setMediaContentType(determineContentType(jpaConversionTargetEntity, row));
       } catch (ODataJPAModelException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
       }
       odataResults.add(odataEntity);
     }

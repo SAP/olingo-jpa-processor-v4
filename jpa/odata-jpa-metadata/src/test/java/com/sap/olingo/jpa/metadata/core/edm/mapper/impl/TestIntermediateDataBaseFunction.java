@@ -2,6 +2,7 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
@@ -61,7 +62,7 @@ public class TestIntermediateDataBaseFunction extends TestMappingRoot {
         .getStoredProcedure(
             helper.getEntityType("BusinessPartner"), "CountRoles"), BusinessPartner.class, helper.schema);
 
-    List<CsdlParameter> expInput = new ArrayList<CsdlParameter>();
+    List<CsdlParameter> expInput = new ArrayList<>();
     CsdlParameter param = new CsdlParameter();
     param.setName("Amount");
     param.setType(EdmPrimitiveTypeKind.Int32.getFullQualifiedName());
@@ -76,7 +77,7 @@ public class TestIntermediateDataBaseFunction extends TestMappingRoot {
         .getStoredProcedure(
             helper.getEntityType("BusinessPartner"), "IsPrime"), BusinessPartner.class, helper.schema);
 
-    List<CsdlParameter> expInput = new ArrayList<CsdlParameter>();
+    List<CsdlParameter> expInput = new ArrayList<>();
     CsdlParameter param = new CsdlParameter();
     param.setName("Number");
     param.setType(EdmPrimitiveTypeKind.Decimal.getFullQualifiedName());
@@ -85,6 +86,41 @@ public class TestIntermediateDataBaseFunction extends TestMappingRoot {
     param.setScale(0);
     expInput.add(param);
     AssertList.assertEquals(expInput, func.getEdmItem().getParameters());
+  }
+
+  @Test
+  public void checkByEntityAnnotationInputParameterIsEnumeration() throws ODataJPAModelException {
+
+    IntermediateFunction func = new IntermediateDataBaseFunction(new JPAEdmNameBuilder(PUNIT_NAME), helper
+        .getStoredProcedure(helper.getEntityType("Person"), "CheckRights"), BusinessPartner.class, helper.schema);
+
+    assertNotNull(func.getEdmItem().getParameters());
+    assertEquals(2, func.getEdmItem().getParameters().size());
+    assertEquals(PUNIT_NAME + ".AccessRights", func.getEdmItem().getParameters().get(0).getTypeFQN()
+        .getFullQualifiedNameAsString());
+    assertEquals("Edm.Int32", func.getEdmItem().getParameters().get(1).getTypeFQN()
+        .getFullQualifiedNameAsString());
+  }
+
+  @Test
+  public void checkByEntityAnnotationResultParameterIsEmpty() throws ODataJPAModelException {
+    IntermediateFunction func = new IntermediateDataBaseFunction(new JPAEdmNameBuilder(PUNIT_NAME), helper
+        .getStoredProcedure(
+            helper.getEntityType("BusinessPartner"), "CountRoles"), BusinessPartner.class, helper.schema);
+
+    assertEquals(PUNIT_NAME + ".BusinessPartner", func.getEdmItem().getReturnType().getType());
+  }
+
+  @Test
+  public void checkByEntityAnnotationIsBound() throws ODataJPAModelException {
+    IntermediateFunction func = new IntermediateDataBaseFunction(new JPAEdmNameBuilder(PUNIT_NAME), helper
+        .getStoredProcedure(
+            helper.getEntityType("BusinessPartner"), "CountRoles"), BusinessPartner.class, helper.schema);
+
+    assertTrue(func.getEdmItem().isBound());
+    assertTrue(func.isBound());
+    assertEquals(PUNIT_NAME + ".BusinessPartner", func.getEdmItem().getParameters().get(0).getTypeFQN()
+        .getFullQualifiedNameAsString());
   }
 
   @Test
@@ -98,15 +134,6 @@ public class TestIntermediateDataBaseFunction extends TestMappingRoot {
   }
 
   @Test
-  public void checkByEntityAnnotationResultParameterIsEmpty() throws ODataJPAModelException {
-    IntermediateFunction func = new IntermediateDataBaseFunction(new JPAEdmNameBuilder(PUNIT_NAME), helper
-        .getStoredProcedure(
-            helper.getEntityType("BusinessPartner"), "CountRoles"), BusinessPartner.class, helper.schema);
-
-    assertEquals(PUNIT_NAME + ".BusinessPartner", func.getEdmItem().getReturnType().getType());
-  }
-
-  @Test
   public void checkByEntityAnnotationResultParameterIsEntity() throws ODataJPAModelException {
     IntermediateFunction func = new IntermediateFunctionFactory().create(new JPAEdmNameBuilder(
         PUNIT_NAME), helper.getEntityType("Organization"), helper.schema).get("AllCustomersByABC");
@@ -114,7 +141,7 @@ public class TestIntermediateDataBaseFunction extends TestMappingRoot {
   }
 
   @Test
-  public void checkByEntityAnnotationResultParameterIsCollection() throws ODataJPAModelException {
+  public void checkByEntityAnnotationResultParameterIsCollectionFalse() throws ODataJPAModelException {
     IntermediateFunction func = new IntermediateFunctionFactory().create(new JPAEdmNameBuilder(
         PUNIT_NAME), helper.getEntityType("Organization"), helper.schema).get("AllCustomersByABC");
     assertTrue(func.getEdmItem().getReturnType().isCollection());
@@ -122,6 +149,17 @@ public class TestIntermediateDataBaseFunction extends TestMappingRoot {
     func = new IntermediateFunctionFactory().create(new JPAEdmNameBuilder(PUNIT_NAME), helper
         .getEntityType("BusinessPartner"), helper.schema).get("IsPrime");
     assertFalse(func.getEdmItem().getReturnType().isCollection());
+  }
+
+  @Test
+  public void checkByEntityAnnotationResultParameterNotGiven() throws ODataJPAModelException {
+    IntermediateFunction func = new IntermediateDataBaseFunction(new JPAEdmNameBuilder(PUNIT_NAME), helper
+        .getStoredProcedure(
+            helper.getEntityType("BusinessPartner"), "CountRoles"), BusinessPartner.class, helper.schema);
+
+    assertTrue(func.getEdmItem().getReturnType().isCollection());
+    assertEquals(PUNIT_NAME + ".BusinessPartner", func.getEdmItem().getReturnType().getType());
+    assertEquals(BusinessPartner.class, func.getResultParameter().getType());
   }
 
   @Test
@@ -133,6 +171,17 @@ public class TestIntermediateDataBaseFunction extends TestMappingRoot {
     func = new IntermediateFunctionFactory().create(new JPAEdmNameBuilder(PUNIT_NAME), helper
         .getEntityType("BusinessPartner"), helper.schema).get("IsPrime");
     assertFalse(func.getEdmItem().getReturnType().isNullable());
+  }
+
+  @Test
+  public void checkByEntityAnnotationResultParameterEnumerationType() throws ODataJPAModelException {
+
+    IntermediateFunction func = new IntermediateDataBaseFunction(new JPAEdmNameBuilder(PUNIT_NAME), helper
+        .getStoredProcedure(helper.getEntityType("Person"), "ReturnRights"), BusinessPartner.class, helper.schema);
+
+    assertNotNull(func.getEdmItem().getReturnType());
+    assertEquals(PUNIT_NAME + ".AccessRights", func.getEdmItem().getReturnType().getTypeFQN()
+        .getFullQualifiedNameAsString());
   }
 
   @Test
@@ -151,8 +200,7 @@ public class TestIntermediateDataBaseFunction extends TestMappingRoot {
     });
 
     IntermediateFunction act = new IntermediateDataBaseFunction(new JPAEdmNameBuilder(PUNIT_NAME), func,
-        BusinessPartner.class,
-        helper.schema);
+        BusinessPartner.class, helper.schema);
     assertEquals("com.sap.olingo.jpa.ChangeInformation", act.getEdmItem().getReturnType().getTypeFQN()
         .getFullQualifiedNameAsString());
   }

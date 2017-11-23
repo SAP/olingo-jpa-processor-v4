@@ -12,6 +12,7 @@ public interface JPAUnaryBooleanOperator extends JPAExpressionOperator {
 
   public Expression<Boolean> getLeft() throws ODataApplicationException;
 
+  @SuppressWarnings("unchecked")
   @Override
   public UnaryOperatorKind getOperator();
 

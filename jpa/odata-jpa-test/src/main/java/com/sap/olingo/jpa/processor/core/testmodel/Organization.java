@@ -3,6 +3,7 @@ package com.sap.olingo.jpa.processor.core.testmodel;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.Enumerated;
 import javax.persistence.Table;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
@@ -30,6 +31,10 @@ public class Organization extends BusinessPartner {
   @Column(name = "\"NameLine2\"")
   private String name2;
 
+  @Enumerated
+  @Column(name = "\"ABCClass\"")
+  private ABCClassifiaction aBCClass;
+
   public String getName1() {
     return name1;
   }
@@ -44,5 +49,13 @@ public class Organization extends BusinessPartner {
 
   public void setName2(String name2) {
     this.name2 = name2;
+  }
+
+  public ABCClassifiaction getABCClass() {
+    return aBCClass;
+  }
+
+  public void setABCClass(ABCClassifiaction aBCClass) {
+    this.aBCClass = aBCClass;
   }
 }

@@ -75,7 +75,7 @@ public abstract class JPATupleAbstractConverter {
   }
 
   protected Entity convertRow(final JPAEntityType rowEntity, final Tuple row) throws ODataApplicationException {
-    final Map<String, ComplexValue> complexValueBuffer = new HashMap<String, ComplexValue>();
+    final Map<String, ComplexValue> complexValueBuffer = new HashMap<>();
     final Entity odataEntity = new Entity();
 
     odataEntity.setType(edmType.getFullQualifiedName().getFullQualifiedNameAsString());
@@ -99,9 +99,9 @@ public abstract class JPATupleAbstractConverter {
     return odataEntity;
   }
 
-  protected Collection<? extends Link> createExpand(final Tuple row, final URI uri)
+  protected Collection<Link> createExpand(final Tuple row, final URI uri)
       throws ODataApplicationException {
-    final List<Link> entityExpandLinks = new ArrayList<Link>();
+    final List<Link> entityExpandLinks = new ArrayList<>();
     // jpaConversionTargetEntity.
     final Map<JPAAssociationPath, JPAExpandResult> children = jpaQueryResult.getChildren();
     if (children != null) {
@@ -122,8 +122,7 @@ public abstract class JPATupleAbstractConverter {
     return entityExpandLinks;
   }
 
-  protected URI createId(final Entity entity)
-      throws ODataRuntimeException {
+  protected URI createId(final Entity entity) {
 
     try {
       // TODO Clarify host-name and port as part of ID see
@@ -175,10 +174,12 @@ public abstract class JPATupleAbstractConverter {
         convertAttribute(value, attributeName, bufferKey, attribute.getStructuredType(), complexValueBuffer, values);
       } else {
         Object odataValue;
-        if (attribute.getConverter() != null) {
-          AttributeConverter<T, S> converter = (AttributeConverter<T, S>) attribute.getConverter();
+        if (attribute != null && attribute.getConverter() != null) {
+          AttributeConverter<T, S> converter = attribute.getConverter();
           odataValue = converter.convertToDatabaseColumn((T) value);
-        } else
+        } else if (attribute != null && value != null && attribute.isEnum())
+          odataValue = ((Enum<?>) value).ordinal();
+        else
           odataValue = value;
         if (attribute != null && attribute.isKey() && attribute.isComplex()) {
 
