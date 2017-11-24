@@ -186,14 +186,14 @@ public abstract class JPATupleAbstractConverter {
           properties.add(new Property(
               null,
               jpaPath.getLeaf().getExternalName(),
-              ValueType.PRIMITIVE,
+              attribute.isEnum() ? ValueType.ENUM : ValueType.PRIMITIVE,
               odataValue));
         } else {
           // ...$select=Name1,Address/Region
           properties.add(new Property(
               null,
               externalName,
-              ValueType.PRIMITIVE,
+              attribute.isEnum() ? ValueType.ENUM : ValueType.PRIMITIVE,
               odataValue));
         }
       }

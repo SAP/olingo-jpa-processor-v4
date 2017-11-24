@@ -54,7 +54,7 @@ public class Person extends BusinessPartner {
 
   @Convert(converter = AccessRightsConverter.class)
   @Column(name = "\"AccessRights\"")
-  private AccessRights accessRights;
+  private AccessRights[] accessRights;
 
   @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
   @JoinColumn(name = "\"ID\"", referencedColumnName = "\"ID\"", insertable = false, updatable = false, nullable = true)
@@ -88,7 +88,7 @@ public class Person extends BusinessPartner {
     this.birthDay = birthDay;
   }
 
-  public AccessRights getAccessRights() {
+  public AccessRights[] getAccessRights() {
     return accessRights;
   }
 }

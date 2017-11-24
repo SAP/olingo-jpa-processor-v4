@@ -4,16 +4,16 @@ import java.math.BigDecimal;
 
 import javax.persistence.AttributeConverter;
 
-public class WrongTypeConverter implements AttributeConverter<WrongType, BigDecimal> {
+public class WrongTypeConverter implements AttributeConverter<WrongType[], BigDecimal> {
 
   @Override
-  public BigDecimal convertToDatabaseColumn(WrongType attribute) {
+  public BigDecimal convertToDatabaseColumn(WrongType[] attribute) {
     return WrongType.TEST.getValue();
   }
 
   @Override
-  public WrongType convertToEntityAttribute(BigDecimal dbData) {
-    return WrongType.TEST;
+  public WrongType[] convertToEntityAttribute(BigDecimal dbData) {
+    return new WrongType[] { WrongType.TEST };
   }
 
 }

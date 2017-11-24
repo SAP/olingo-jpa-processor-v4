@@ -41,6 +41,14 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
         parameter = {
             @EdmParameter(name = "Area", parameterName = "UnitArea", type = Integer.class),
             @EdmParameter(name = "Population", parameterName = "Population", type = Long.class) }),
+    @EdmFunction(
+        name = "ConvertToQkm",
+        functionName = "\"OLINGO\".\"ConvertToQkm\"",
+        isBound = false,
+        hasFunctionImport = false,
+        returnType = @EdmFunction.ReturnType(isCollection = false, type = Integer.class),
+        parameter = {
+            @EdmParameter(name = "Area", parameterName = "UnitArea", type = Integer.class) }),
 })
 
 @IdClass(AdministrativeDivisionKey.class)

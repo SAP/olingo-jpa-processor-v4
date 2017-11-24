@@ -25,7 +25,9 @@ import org.apache.olingo.server.api.uri.queryoption.expression.MethodKind;
 import org.apache.olingo.server.api.uri.queryoption.expression.UnaryOperatorKind;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEnumerationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 
@@ -91,11 +93,16 @@ class JPAVisitor implements JPAExpressionVisitor {
       throws ExpressionVisitException,
       ODataApplicationException {
     final int handle = debugger.startRuntimeMeasurement(this, "visitEnum");
-    if (enumValues.size() > 1)
-      throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FILTER,
-          HttpStatusCode.NOT_IMPLEMENTED, "Cellection of Enumerations");
+    final JPAEnumerationAttribute jpaEnumerationAttribute = this.jpaComplier.getSd().getEnumType(type);
+    try {
+      if (!jpaEnumerationAttribute.isFlags() && enumValues.size() > 1)
+        throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FILTER,
+            HttpStatusCode.NOT_IMPLEMENTED, "Collection of Enumerations if not flags");
+    } catch (ODataJPAModelException e) {
+      throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    }
     debugger.stopRuntimeMeasurement(handle);
-    return new JPAEnumerationOperator(this.jpaComplier.getSd().getEnumType(type), enumValues.get(0));
+    return new JPAEnumerationOperator(this.jpaComplier.getSd().getEnumType(type), enumValues);
   }
 
   @Override
