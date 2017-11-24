@@ -112,6 +112,7 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
     return childQuery;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public Enum<?> getOperator() {
     return null;

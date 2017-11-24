@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.processor.core.modify;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -323,7 +324,8 @@ public class TestJPACUDRequestHelper {
 
     assertNotNull(act);
     assertEquals(1, act.size());
-    assertEquals(AccessRights.Delete, act.get("accessRights"));
+    AccessRights[] actProperty = (AccessRights[]) act.get("accessRights");
+    assertArrayEquals(new Object[] { AccessRights.Delete }, actProperty);
   }
 
   @Test
