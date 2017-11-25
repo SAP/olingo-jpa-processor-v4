@@ -230,7 +230,7 @@ public class JPAOperationConverter {
       if (((JPAPrimitiveTypeOperator) jpaOperator.getRight()).isNull())
         return nullFunction.apply(jpaOperator.getLeft());
       else
-        return expressionObjectFunction.apply(jpaOperator.getLeft(), jpaOperator.getRightAsComparable());
+        return expressionObjectFunction.apply(jpaOperator.getLeft(), ((JPAOperator) jpaOperator.getRight()).get());
     else
       return allExpressionFunction.apply(jpaOperator.getLeft(), jpaOperator.getRightAsExpression());
   }

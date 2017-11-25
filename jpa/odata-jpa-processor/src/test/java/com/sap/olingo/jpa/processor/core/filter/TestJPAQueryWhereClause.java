@@ -102,7 +102,19 @@ public class TestJPAQueryWhereClause extends TestBase {
 
     ArrayNode persons = helper.getValues();
     assertEquals(1, persons.size());
-    assertEquals("98", persons.get(0).get("ID").asText());
+    assertEquals("97", persons.get(0).get("ID").asText());
+  }
+
+  @Test
+  public void testFilterOneEnumEqualMultipleValues() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Persons?$filter=AccessRights eq com.sap.olingo.jpa.AccessRights'Read,Delete'");
+    helper.assertStatus(200);
+
+    ArrayNode persons = helper.getValues();
+    assertEquals(1, persons.size());
+    assertEquals("97", persons.get(0).get("ID").asText());
   }
 
   @Test

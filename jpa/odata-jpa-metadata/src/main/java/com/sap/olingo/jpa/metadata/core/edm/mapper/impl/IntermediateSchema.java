@@ -61,6 +61,8 @@ final class IntermediateSchema extends IntermediateModelElement {
   }
 
   public IntermediateEnumerationType getEnumerationType(Class<?> enumType) {
+    if (enumType.isArray())
+      return this.enumTypeListInternalKey.get(enumType.getComponentType().getSimpleName());
     return this.enumTypeListInternalKey.get(enumType.getSimpleName());
   }
 

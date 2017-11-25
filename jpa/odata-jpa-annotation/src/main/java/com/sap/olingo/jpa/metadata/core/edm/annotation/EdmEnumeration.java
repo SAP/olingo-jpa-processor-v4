@@ -35,12 +35,11 @@ import javax.persistence.Enumerated;
 public @interface EdmEnumeration {
 
   /**
-   * No converter -> take ordinal
-   * If no converter is given the following assumption as made:
-   * Ordinal
+   * No converter is provided ordinal is taken
    * 
    */
-  Class<? extends AttributeConverter<? extends Enum<?>, ? extends Number>> converter() default DummyConverter.class;
+  // Class<? extends AttributeConverter<List<?>, ? extends Number>> converter() default DummyConverter.class;
+  Class<? extends AttributeConverter<? extends Enum<?>[], ? extends Number>> converter() default DummyConverter.class;
 
   boolean isFlags() default false;
 
@@ -48,17 +47,17 @@ public @interface EdmEnumeration {
    * Converter shall be optional, as java does not support <code>default null</code> a
    * dummy converter implementations is needed.
    */
-  static class DummyConverter implements AttributeConverter<Enum<?>, Integer> {
+  static class DummyConverter implements AttributeConverter<Enum<?>[], Integer> {
 
     @Override
-    public Integer convertToDatabaseColumn(Enum<?> attribute) {
-      return attribute.ordinal();
+    public Integer convertToDatabaseColumn(Enum<?>[] attributes) {
+      return attributes[0].ordinal();
     }
 
     @Enumerated
     @Override
-    public Enum<?> convertToEntityAttribute(Integer dbData) {
-      return null;
+    public Enum<?>[] convertToEntityAttribute(Integer dbData) {
+      return null; // NOSONAR
     }
 
   }
