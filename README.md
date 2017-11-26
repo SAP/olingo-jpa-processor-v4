@@ -57,6 +57,6 @@ This file is licensed under the Apache Software License, v.2 except as noted oth
 
 # Release Notes
 
-|Version|Chages|Incompatible Changes
-|-- |-- |
+|Version|Chages|Incompatible Changes|    
+|-- |-- |-- |    
 |0.2.4|- Switch to Olingo version 4.4.0<br> - Support of Enumeration Types<br>- Support of $count at $expand|Yes|
