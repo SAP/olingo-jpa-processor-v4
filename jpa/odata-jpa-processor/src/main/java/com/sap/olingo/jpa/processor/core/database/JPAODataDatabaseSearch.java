@@ -12,7 +12,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 
 public interface JPAODataDatabaseSearch {
   /**
-   * Search at OData:<p>
+   * Search implemented differently in various databases, why a database specific implementation needs to be provided.
+   * For details about search at OData see:<p>
    * <a href=
    * "http://docs.oasis-open.org/odata/odata/v4.0/os/part1-protocol/odata-v4.0-os-part1-protocol.html#_Toc372793700">
    * OData Version 4.0 Part 1 - 11.2.5.6 System Query Option $search</a><p>

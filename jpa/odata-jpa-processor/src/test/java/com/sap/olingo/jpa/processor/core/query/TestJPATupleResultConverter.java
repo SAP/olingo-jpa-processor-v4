@@ -37,15 +37,15 @@ public class TestJPATupleResultConverter extends TestBase {
   @Before
   public void setup() throws ODataException {
     helper = new TestHelper(emf, PUNIT_NAME);
-    jpaQueryResult = new ArrayList<Tuple>();
-    HashMap<String, List<Tuple>> result = new HashMap<String, List<Tuple>>(1);
+    jpaQueryResult = new ArrayList<>();
+    HashMap<String, List<Tuple>> result = new HashMap<>(1);
     result.put("root", jpaQueryResult);
     uriHelper = new UriHelperDouble();
-    keyPredicates = new HashMap<String, String>();
+    keyPredicates = new HashMap<>();
     uriHelper.setKeyPredicates(keyPredicates, "ID");
     cut = new JPATupleResultConverter(
         helper.sd,
-        new JPAExpandQueryResult(result, Long.parseLong("0"), helper.getJPAEntityType("Organizations")),
+        new JPAExpandQueryResult(result, null, helper.getJPAEntityType("Organizations")),
         uriHelper,
         new ServiceMetadataDouble(nameBuilder, "Organization"));
   }
@@ -57,7 +57,7 @@ public class TestJPATupleResultConverter extends TestBase {
 
   @Test
   public void checkConvertsOneResultOneElement() throws ODataApplicationException {
-    HashMap<String, Object> result = new HashMap<String, Object>();
+    HashMap<String, Object> result = new HashMap<>();
 
     result.put("ID", new String("1"));
     jpaQueryResult.add(new TupleDouble(result));
@@ -71,7 +71,7 @@ public class TestJPATupleResultConverter extends TestBase {
 
   @Test
   public void checkConvertsOneResultOneKey() throws ODataApplicationException {
-    HashMap<String, Object> result = new HashMap<String, Object>();
+    HashMap<String, Object> result = new HashMap<>();
     keyPredicates.put("1", "'1'");
 
     result.put("ID", new String("1"));
@@ -86,11 +86,11 @@ public class TestJPATupleResultConverter extends TestBase {
   public void checkConvertsTwoResultsOneElement() throws ODataApplicationException {
     HashMap<String, Object> result;
 
-    result = new HashMap<String, Object>();
+    result = new HashMap<>();
     result.put("ID", new String("1"));
     jpaQueryResult.add(new TupleDouble(result));
 
-    result = new HashMap<String, Object>();
+    result = new HashMap<>();
     result.put("ID", new String("5"));
     jpaQueryResult.add(new TupleDouble(result));
 
@@ -107,7 +107,7 @@ public class TestJPATupleResultConverter extends TestBase {
   public void checkConvertsOneResultsTwoElements() throws ODataApplicationException {
     HashMap<String, Object> result;
 
-    result = new HashMap<String, Object>();
+    result = new HashMap<>();
     result.put("ID", new String("1"));
     result.put("Name1", new String("Willi"));
     jpaQueryResult.add(new TupleDouble(result));
@@ -124,7 +124,7 @@ public class TestJPATupleResultConverter extends TestBase {
   public void checkConvertsOneResultsOneComplexElement() throws ODataApplicationException {
     HashMap<String, Object> result;
 
-    result = new HashMap<String, Object>();
+    result = new HashMap<>();
     result.put("ID", "1");
     result.put("Address/CityName", "Test City");
     result.put("Address/Country", "GB");
@@ -153,7 +153,7 @@ public class TestJPATupleResultConverter extends TestBase {
 //    AdministrativeInformation adminInfo = new AdministrativeInformation();
 //    adminInfo.setCreated(new ChangeInformation("Joe Doe", Timestamp.valueOf("2016-01-22 12:25:23")));
 //    adminInfo.setUpdated(new ChangeInformation("Joe Doe", Timestamp.valueOf("2016-01-24 14:29:45")));
-    result = new HashMap<String, Object>();
+    result = new HashMap<>();
     result.put("ID", "1");
     result.put("AdministrativeInformation/Created/By", "Joe Doe");
     result.put("AdministrativeInformation/Created/At", "2016-01-22 12:25:23");
@@ -177,7 +177,7 @@ public class TestJPATupleResultConverter extends TestBase {
   public void checkConvertsOneResultsOneElementOfComplexElement() throws ODataApplicationException {
     HashMap<String, Object> result;
 
-    result = new HashMap<String, Object>();
+    result = new HashMap<>();
     result.put("ID", "1");
     result.put("Address/Region", new String("CA"));
     jpaQueryResult.add(new TupleDouble(result));
@@ -194,17 +194,17 @@ public class TestJPATupleResultConverter extends TestBase {
   public void checkConvertMediaStreamStaticMime() throws ODataJPAModelException, NumberFormatException,
       ODataApplicationException {
 
-    HashMap<String, List<Tuple>> result = new HashMap<String, List<Tuple>>(1);
+    HashMap<String, List<Tuple>> result = new HashMap<>(1);
     result.put("root", jpaQueryResult);
     JPATupleResultConverter converter = new JPATupleResultConverter(
         helper.sd,
-        new JPAExpandQueryResult(result, Long.parseLong("0"), helper.getJPAEntityType("PersonImages")),
+        new JPAExpandQueryResult(result, null, helper.getJPAEntityType("PersonImages")),
         uriHelper,
         new ServiceMetadataDouble(nameBuilder, "PersonImage"));
 
     HashMap<String, Object> entityResult;
     byte[] image = { -119, 10 };
-    entityResult = new HashMap<String, Object>();
+    entityResult = new HashMap<>();
     entityResult.put("ID", "1");
     entityResult.put("Image", image);
     jpaQueryResult.add(new TupleDouble(entityResult));
@@ -217,17 +217,17 @@ public class TestJPATupleResultConverter extends TestBase {
   public void checkConvertMediaStreamDynamicMime() throws ODataJPAModelException, NumberFormatException,
       ODataApplicationException {
 
-    HashMap<String, List<Tuple>> result = new HashMap<String, List<Tuple>>(1);
+    HashMap<String, List<Tuple>> result = new HashMap<>(1);
     result.put("root", jpaQueryResult);
     JPATupleResultConverter converter = new JPATupleResultConverter(
         helper.sd,
-        new JPAExpandQueryResult(result, Long.parseLong("0"), helper.getJPAEntityType("OrganizationImages")),
+        new JPAExpandQueryResult(result, null, helper.getJPAEntityType("OrganizationImages")),
         uriHelper,
         new ServiceMetadataDouble(nameBuilder, "OrganizationImage"));
 
     HashMap<String, Object> entityResult;
     byte[] image = { -119, 10 };
-    entityResult = new HashMap<String, Object>();
+    entityResult = new HashMap<>();
     entityResult.put("ID", "9");
     entityResult.put("Image", image);
     entityResult.put("MimeType", "image/svg+xml");

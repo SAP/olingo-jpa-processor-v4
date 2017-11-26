@@ -67,10 +67,6 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     JPAQuery query = null;
     try {
       query = new JPAQuery(odata, targetEdmEntitySet, sessionContext, uriInfo, em, request.getAllHeaders());
-    } catch (ODataJPAModelException e) {
-      debugger.stopRuntimeMeasurement(handle);
-      throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.QUERY_PREPARATION_ERROR,
-          HttpStatusCode.INTERNAL_SERVER_ERROR, e);
     } catch (ODataException e) {
       debugger.stopRuntimeMeasurement(handle);
       throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.QUERY_PREPARATION_ERROR,
@@ -198,7 +194,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     final int handle = debugger.startRuntimeMeasurement(this, "readExpandEntities");
 
     final Map<JPAAssociationPath, JPAExpandQueryResult> allExpResults =
-        new HashMap<JPAAssociationPath, JPAExpandQueryResult>();
+        new HashMap<>();
     // x/a?$expand=b/c($expand=d,e/f)&$filter=...&$top=3&$orderBy=...
     // For performance reasons the expand query should only return results for the results of the higher-level query.
     // The solution for restrictions like a given key or a given filter condition, as it can be propagated to a

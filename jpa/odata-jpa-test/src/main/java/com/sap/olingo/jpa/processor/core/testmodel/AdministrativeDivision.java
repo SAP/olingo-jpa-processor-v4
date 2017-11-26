@@ -16,8 +16,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 
 @EdmFunctions({
     @EdmFunction(
@@ -41,6 +41,14 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
         parameter = {
             @EdmParameter(name = "Area", parameterName = "UnitArea", type = Integer.class),
             @EdmParameter(name = "Population", parameterName = "Population", type = Long.class) }),
+    @EdmFunction(
+        name = "ConvertToQkm",
+        functionName = "\"OLINGO\".\"ConvertToQkm\"",
+        isBound = false,
+        hasFunctionImport = false,
+        returnType = @EdmFunction.ReturnType(isCollection = false, type = Integer.class),
+        parameter = {
+            @EdmParameter(name = "Area", parameterName = "UnitArea", type = Integer.class) }),
 })
 
 @IdClass(AdministrativeDivisionKey.class)
@@ -89,7 +97,7 @@ public class AdministrativeDivision implements KeyAccess {
           insertable = false, updatable = false),
       @JoinColumn(referencedColumnName = "\"DivisionCode\"", name = "\"ParentDivisionCode\"", nullable = false,
           insertable = false, updatable = false) })
-  private List<AdministrativeDivision> children = new ArrayList<AdministrativeDivision>();
+  private List<AdministrativeDivision> children = new ArrayList<>();
 
   @OneToMany(fetch = FetchType.LAZY)
   @JoinColumns({

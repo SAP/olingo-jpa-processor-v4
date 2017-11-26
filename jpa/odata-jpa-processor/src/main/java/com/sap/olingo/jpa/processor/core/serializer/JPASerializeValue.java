@@ -12,6 +12,7 @@ import org.apache.olingo.commons.api.edm.EdmKeyPropertyRef;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
+import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ServiceMetadata;
@@ -19,7 +20,6 @@ import org.apache.olingo.server.api.serializer.FixedFormatSerializer;
 import org.apache.olingo.server.api.serializer.PrimitiveValueSerializerOptions;
 import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.serializer.SerializerResult;
-import org.apache.olingo.server.api.uri.UriHelper;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
@@ -32,9 +32,9 @@ final class JPASerializeValue extends JPASerializePrimitiveAbstract {
   private final FixedFormatSerializer serializer;
 
   JPASerializeValue(final ServiceMetadata serviceMetadata, final FixedFormatSerializer serializer,
-      final UriHelper uriHelper, final UriInfo uriInfo) {
+      final UriInfo uriInfo) {
 
-    super(serviceMetadata, uriHelper, uriInfo);
+    super(serviceMetadata, uriInfo);
     this.serializer = serializer;
   }
 
@@ -106,5 +106,10 @@ final class JPASerializeValue extends JPASerializePrimitiveAbstract {
         return true;
     }
     return false;
+  }
+
+  @Override
+  public ContentType getContentType() {
+    return ContentType.TEXT_PLAIN;
   }
 }

@@ -6,6 +6,7 @@ import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmType;
+import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.serializer.EntityCollectionSerializerOptions;
@@ -23,13 +24,15 @@ final class JPASerializeEntityCollection implements JPASerializer, JPAOperationS
   private final UriInfo uriInfo;
   private final UriHelper uriHelper;
   private final ODataSerializer serializer;
+  private ContentType responseFormat;
 
   JPASerializeEntityCollection(final ServiceMetadata serviceMetadata, final ODataSerializer serializer,
-      final UriHelper uriHelper, final UriInfo uriInfo) {
+      final UriHelper uriHelper, final UriInfo uriInfo, final ContentType responseFormat) {
     this.uriInfo = uriInfo;
     this.serializer = serializer;
     this.serviceMetadata = serviceMetadata;
     this.uriHelper = uriHelper;
+    this.responseFormat = responseFormat;
   }
 
   @Override
@@ -55,9 +58,7 @@ final class JPASerializeEntityCollection implements JPASerializer, JPAOperationS
         .expand(uriInfo.getExpandOption())
         .build();
 
-    final SerializerResult serializerResult = serializer.entityCollection(this.serviceMetadata, targetEdmEntitySet
-        .getEntityType(), result, opts);
-    return serializerResult;
+    return serializer.entityCollection(this.serviceMetadata, targetEdmEntitySet.getEntityType(), result, opts);
 
   }
 
@@ -82,5 +83,10 @@ final class JPASerializeEntityCollection implements JPASerializer, JPAOperationS
         .build();
 
     return serializer.entityCollection(serviceMetadata, (EdmEntityType) entityType, result, options);
+  }
+
+  @Override
+  public ContentType getContentType() {
+    return responseFormat;
   }
 }

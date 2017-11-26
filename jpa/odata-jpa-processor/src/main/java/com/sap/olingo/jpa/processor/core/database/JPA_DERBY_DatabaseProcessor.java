@@ -11,7 +11,7 @@ import javax.persistence.criteria.Root;
 
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
-import org.apache.olingo.server.api.uri.UriResourceFunction;
+import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.queryoption.SearchOption;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
@@ -34,12 +34,12 @@ class JPA_DERBY_DatabaseProcessor implements JPAODataDatabaseProcessor {
   }
 
   @Override
-  public List<?> executeFunctionQuery(final UriResourceFunction uriResourceFunction,
-      final JPADataBaseFunction jpaFunction, final JPAEntityType returnType, final EntityManager em)
+  public <T> java.util.List<T> executeFunctionQuery(final List<UriResource> uriResourceParts,
+      final JPADataBaseFunction jpaFunction, final Class<T> resultClass, final EntityManager em)
       throws ODataApplicationException {
 
     final String queryString = generateQueryString(jpaFunction);
-    final Query functionQuery = em.createNativeQuery(queryString, returnType.getTypeClass());
+    final Query functionQuery = em.createNativeQuery(queryString, resultClass);
 //    int count = 1;
 //    for (final JPAFunctionParameter parameter : jpaFunction.getParameter()) {
 //      final UriParameter uriParameter = findParameterByExternalName(parameter, uriResourceFunction.getParameters());
@@ -89,5 +89,4 @@ class JPA_DERBY_DatabaseProcessor implements JPAODataDatabaseProcessor {
 //          HttpStatusCode.NOT_IMPLEMENTED, uriValue, parameter.getName());
 //    }
 //  }
-
 }

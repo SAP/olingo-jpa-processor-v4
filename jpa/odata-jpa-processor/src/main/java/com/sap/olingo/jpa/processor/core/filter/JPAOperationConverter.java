@@ -1,5 +1,8 @@
 package com.sap.olingo.jpa.processor.core.filter;
 
+import java.util.function.BiFunction;
+import java.util.function.Function;
+
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
 
@@ -18,6 +21,14 @@ public class JPAOperationConverter {
     this.cb = cb;
     this.dbConverter = converterExtension;
     this.dbConverter.setCriterialBuilder(cb);
+  }
+
+  public final Expression<Long> convert(final JPAAggregationOperationImp jpaOperator) throws ODataApplicationException {
+
+    if (jpaOperator.getAggregation() == JPAFilterAggregationType.COUNT)
+      return cb.count(jpaOperator.getPath());
+    return dbConverter.convert(jpaOperator);
+
   }
 
   @SuppressWarnings("unchecked")
@@ -50,6 +61,7 @@ public class JPAOperationConverter {
             .toString()));
       else
         return (Expression<T>) cb.mod(jpaOperator.getLeftAsIntExpression(), jpaOperator.getRightAsIntExpression());
+
     default:
       return dbConverter.convert(jpaOperator);
     }
@@ -66,51 +78,31 @@ public class JPAOperationConverter {
     }
   }
 
-//  // TODO check generics!
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  public final Expression<Boolean> convert(final JPAComparisonOperatorImp jpaOperator)
+  @SuppressWarnings({ "unchecked" })
+  public final Expression<Boolean> convert(@SuppressWarnings("rawtypes") final JPAComparisonOperatorImp jpaOperator)
       throws ODataApplicationException {
 
     switch (jpaOperator.getOperator()) {
     case EQ:
-      if (jpaOperator.getRight() instanceof JPALiteralOperator)
-        if (((JPALiteralOperator) jpaOperator.getRight()).getLiteral().getText().equals("null"))
-          return cb.isNull(jpaOperator.getLeft());
-        else
-          return cb.equal(jpaOperator.getLeft(), jpaOperator.getRightAsComparable());
-      else
-        return cb.equal(jpaOperator.getLeft(), jpaOperator.getRightAsExpression());
+      return equalExpression((l, r) -> (cb.equal(l, r)), (l, r) -> (cb.equal(l, r)), (l) -> (cb.isNull(l)),
+          jpaOperator);
     case NE:
-      if (jpaOperator.getRight() instanceof JPALiteralOperator)
-        if (((JPALiteralOperator) jpaOperator.getRight()).getLiteral().getText().equals("null"))
-          return cb.isNotNull(jpaOperator.getLeft());
-        else
-          return cb.notEqual(jpaOperator.getLeft(), jpaOperator.getRightAsComparable());
-      else
-        return cb.notEqual(jpaOperator.getLeft(), jpaOperator.getRightAsExpression());
+      return equalExpression((l, r) -> (cb.notEqual(l, r)), (l, r) -> (cb.notEqual(l, r)), (l) -> (cb.isNotNull(l)),
+          jpaOperator);
     case GE:
-      if (jpaOperator.getRight() instanceof JPALiteralOperator)
-        return cb.greaterThanOrEqualTo(jpaOperator.getLeft(), jpaOperator.getRightAsComparable());
-      else
-        return cb.greaterThanOrEqualTo(jpaOperator.getLeft(), jpaOperator.getRightAsExpression());
+      return comparisonExpression((l, r) -> (cb.greaterThanOrEqualTo(l, r)), (l, r) -> (cb.greaterThanOrEqualTo(l, r)),
+          jpaOperator);
     case GT:
-      if (jpaOperator.getRight() instanceof JPALiteralOperator)
-        return cb.greaterThan(jpaOperator.getLeft(), jpaOperator.getRightAsComparable());
-      else
-        return cb.greaterThan(jpaOperator.getLeft(), jpaOperator.getRightAsExpression());
+      return comparisonExpression((l, r) -> (cb.greaterThan(l, r)), (l, r) -> (cb.greaterThan(l, r)), jpaOperator);
     case LT:
-      if (jpaOperator.getRight() instanceof JPALiteralOperator)
-        return cb.lessThan(jpaOperator.getLeft(), jpaOperator.getRightAsComparable());
-      else
-        return cb.lessThan(jpaOperator.getLeft(), jpaOperator.getRightAsExpression());
+      return comparisonExpression((l, r) -> (cb.lessThan(l, r)), (l, r) -> (cb.lessThan(l, r)), jpaOperator);
     case LE:
-      if (jpaOperator.getRight() instanceof JPALiteralOperator)
-        return cb.lessThanOrEqualTo(jpaOperator.getLeft(), jpaOperator.getRightAsComparable());
-      else
-        return cb.lessThanOrEqualTo(jpaOperator.getLeft(), jpaOperator.getRightAsExpression());
+      return comparisonExpression((l, r) -> (cb.lessThanOrEqualTo(l, r)), (l, r) -> (cb.lessThanOrEqualTo(l, r)),
+          jpaOperator);
     default:
       return dbConverter.convert(jpaOperator);
     }
+
   }
 
   @SuppressWarnings("unchecked")
@@ -203,12 +195,16 @@ public class JPAOperationConverter {
 
   }
 
-  public final Expression<Long> convert(final JPAAggregationOperationImp jpaOperator) throws ODataApplicationException {
+  @SuppressWarnings({ "unchecked" })
+  private <Y extends Comparable<? super Y>> Expression<Boolean> comparisonExpression(
+      final BiFunction<Expression<? extends Y>, Expression<? extends Y>, Expression<Boolean>> allExpressionFunction,
+      final BiFunction<Expression<? extends Y>, Y, Expression<Boolean>> expressionObjectFunction,
+      final JPAComparisonOperator<? extends Y> jpaOperator) throws ODataApplicationException {
 
-    if (jpaOperator.getAggregation() == JPAFilterAggregationType.COUNT)
-      return cb.count(jpaOperator.getPath());
-    return dbConverter.convert(jpaOperator);
-
+    if (jpaOperator.getRight() instanceof JPAPrimitiveTypeOperator)
+      return expressionObjectFunction.apply(jpaOperator.getLeft(), (Y) jpaOperator.getRightAsComparable());
+    else
+      return allExpressionFunction.apply(jpaOperator.getLeft(), jpaOperator.getRightAsExpression());
   }
 
   @SuppressWarnings("unchecked")
@@ -222,6 +218,21 @@ public class JPAOperationConverter {
         return (Expression<Integer>) jpaFunction.getParameter(parameterIndex).get();
     } else
       return cb.literal(new Integer(parameter.get().toString()) + offset);
+  }
+
+  private Expression<Boolean> equalExpression(
+      final BiFunction<Expression<?>, Expression<?>, Expression<Boolean>> allExpressionFunction,
+      final BiFunction<Expression<?>, Object, Expression<Boolean>> expressionObjectFunction,
+      final Function<Expression<?>, Expression<Boolean>> nullFunction,
+      final JPAComparisonOperator<?> jpaOperator) throws ODataApplicationException {
+
+    if (jpaOperator.getRight() instanceof JPAPrimitiveTypeOperator)
+      if (((JPAPrimitiveTypeOperator) jpaOperator.getRight()).isNull())
+        return nullFunction.apply(jpaOperator.getLeft());
+      else
+        return expressionObjectFunction.apply(jpaOperator.getLeft(), ((JPAOperator) jpaOperator.getRight()).get());
+    else
+      return allExpressionFunction.apply(jpaOperator.getLeft(), jpaOperator.getRightAsExpression());
   }
 
 }

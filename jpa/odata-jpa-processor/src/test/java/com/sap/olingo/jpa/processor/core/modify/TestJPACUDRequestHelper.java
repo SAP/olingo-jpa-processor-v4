@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.processor.core.modify;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -14,6 +15,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import javax.persistence.AttributeConverter;
 
 import org.apache.olingo.commons.api.data.ComplexValue;
 import org.apache.olingo.commons.api.data.Entity;
@@ -44,6 +47,9 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
+import com.sap.olingo.jpa.processor.core.testmodel.ABCClassifiaction;
+import com.sap.olingo.jpa.processor.core.testmodel.AccessRights;
+import com.sap.olingo.jpa.processor.core.testmodel.AccessRightsConverter;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
 import com.sap.olingo.jpa.processor.core.testmodel.DateConverter;
 
@@ -136,7 +142,7 @@ public class TestJPACUDRequestHelper {
     FullQualifiedName fqn = new FullQualifiedName("test", "Organisation");
     FullQualifiedName fqnString = new FullQualifiedName("test", "Organisation");
 
-    List<String> propertyNames = new ArrayList<String>();
+    List<String> propertyNames = new ArrayList<>();
     propertyNames.add("ID");
 
     when(edmTypeId.getFullQualifiedName()).thenReturn(fqnString);
@@ -161,7 +167,7 @@ public class TestJPACUDRequestHelper {
 
   @Test
   public void testConvertPropertiesEmptyList() throws ODataJPAProcessException {
-    List<Property> odataProperties = new ArrayList<Property>();
+    List<Property> odataProperties = new ArrayList<>();
     JPAStructuredType st = mock(JPAStructuredType.class);
 
     Map<String, Object> act = cut.convertProperties(OData.newInstance(), st, odataProperties);
@@ -172,11 +178,11 @@ public class TestJPACUDRequestHelper {
 
   @Test
   public void testConvertPropertiesUnknownValueType() {
-    List<Property> odataProperties = new ArrayList<Property>();
+    List<Property> odataProperties = new ArrayList<>();
     JPAStructuredType st = mock(JPAStructuredType.class);
     Property propertyID = mock(Property.class);
 
-    when(propertyID.getValueType()).thenReturn(ValueType.ENUM);
+    when(propertyID.getValueType()).thenReturn(ValueType.COLLECTION_ENUM);
     when(propertyID.getName()).thenReturn("ID");
     when(propertyID.getValue()).thenReturn("35");
     odataProperties.add(propertyID);
@@ -192,7 +198,7 @@ public class TestJPACUDRequestHelper {
 
   @Test
   public void testConvertPropertiesConvertException() throws ODataJPAModelException {
-    List<Property> odataProperties = new ArrayList<Property>();
+    List<Property> odataProperties = new ArrayList<>();
     JPAStructuredType st = mock(JPAStructuredType.class);
     Property propertyID = mock(Property.class);
 
@@ -212,7 +218,7 @@ public class TestJPACUDRequestHelper {
 
   @Test
   public void testConvertPropertiesOnePrimitiveProperty() throws ODataJPAProcessException, ODataJPAModelException {
-    List<Property> odataProperties = new ArrayList<Property>();
+    List<Property> odataProperties = new ArrayList<>();
     JPAStructuredType st = mock(JPAStructuredType.class);
     Property propertyID = mock(Property.class);
     JPAAttribute attribute = mock(JPAAttribute.class);
@@ -245,8 +251,86 @@ public class TestJPACUDRequestHelper {
   }
 
   @Test
+  public void testConvertPropertiesOneEnumPropertyWithoutConverter() throws ODataJPAProcessException,
+      ODataJPAModelException {
+
+    List<Property> odataProperties = new ArrayList<>();
+    JPAStructuredType st = mock(JPAStructuredType.class);
+    Property propertyID = mock(Property.class);
+    JPAAttribute attribute = mock(JPAAttribute.class);
+    JPAPath path = mock(JPAPath.class);
+    CsdlProperty edmProperty = mock(CsdlProperty.class);
+
+    when(st.getPath("ABCClass")).thenReturn(path);
+    when(path.getLeaf()).thenReturn(attribute);
+    when(attribute.getInternalName()).thenReturn("aBCClass");
+
+    Answer<?> a = (new Answer<Object>() {
+      @Override
+      public Object answer(InvocationOnMock invocation) {
+        return ABCClassifiaction.class;
+      }
+    });
+    when(attribute.getType()).thenAnswer(a);
+    when(attribute.getProperty()).thenReturn(edmProperty);
+    when(attribute.isEnum()).thenReturn(true);
+    when(propertyID.getValueType()).thenReturn(ValueType.ENUM);
+    when(propertyID.getName()).thenReturn("ABCClass");
+    when(propertyID.getValue()).thenReturn(1);
+    odataProperties.add(propertyID);
+
+    Map<String, Object> act = cut.convertProperties(OData.newInstance(), st, odataProperties);
+
+    assertNotNull(act);
+    assertEquals(1, act.size());
+    assertEquals(ABCClassifiaction.B, act.get("aBCClass"));
+  }
+
+  @Test
+  public void testConvertPropertiesOneEnumPropertyWithConverter() throws ODataJPAProcessException,
+      ODataJPAModelException {
+    List<Property> odataProperties = new ArrayList<>();
+    JPAStructuredType st = mock(JPAStructuredType.class);
+    Property propertyID = mock(Property.class);
+    JPAAttribute attribute = mock(JPAAttribute.class);
+    JPAPath path = mock(JPAPath.class);
+    CsdlProperty edmProperty = mock(CsdlProperty.class);
+
+    when(st.getPath("AccessRights")).thenReturn(path);
+    when(path.getLeaf()).thenReturn(attribute);
+    when(attribute.getInternalName()).thenReturn("accessRights");
+
+    Answer<?> a = (new Answer<Object>() {
+      @Override
+      public Object answer(InvocationOnMock invocation) {
+        return AccessRights.class;
+      }
+    });
+    when(attribute.getType()).thenAnswer(a);
+    when(attribute.getProperty()).thenReturn(edmProperty);
+    when(attribute.getConverter()).thenAnswer(new Answer<AttributeConverter<?, ?>>() {
+      @Override
+      public AttributeConverter<?, ?> answer(InvocationOnMock invocation) throws Throwable {
+        return new AccessRightsConverter();
+      }
+    });
+    when(edmProperty.getMaxLength()).thenReturn(100);
+    when(propertyID.getValueType()).thenReturn(ValueType.ENUM);
+    when(propertyID.getName()).thenReturn("AccessRights");
+    when(propertyID.getValue()).thenReturn((short) 8);
+    odataProperties.add(propertyID);
+
+    Map<String, Object> act = cut.convertProperties(OData.newInstance(), st, odataProperties);
+
+    assertNotNull(act);
+    assertEquals(1, act.size());
+    AccessRights[] actProperty = (AccessRights[]) act.get("accessRights");
+    assertArrayEquals(new Object[] { AccessRights.Delete }, actProperty);
+  }
+
+  @Test
   public void testConvertPropertiesOneComplexProperty() throws ODataJPAProcessException, ODataJPAModelException {
-    List<Property> odataProperties = new ArrayList<Property>();
+    List<Property> odataProperties = new ArrayList<>();
     JPAStructuredType st = mock(JPAStructuredType.class);
     Property propertyID = mock(Property.class);
     JPAAttribute attribute = mock(JPAAttribute.class);
@@ -272,7 +356,7 @@ public class TestJPACUDRequestHelper {
     odataProperties.add(propertyID);
 
     ComplexValue cv = new ComplexValue();
-    List<JPAElement> addressPathElements = new ArrayList<JPAElement>();
+    List<JPAElement> addressPathElements = new ArrayList<>();
     JPAElement addressElement = mock(JPAElement.class);
     addressPathElements.add(addressElement);
     when(addressElement.getInternalName()).thenReturn("address");

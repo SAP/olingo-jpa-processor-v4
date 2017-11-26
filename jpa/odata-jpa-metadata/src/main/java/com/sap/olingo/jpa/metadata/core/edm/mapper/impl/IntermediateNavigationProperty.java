@@ -366,4 +366,9 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
     return null;
   }
 
+  @Override
+  public boolean isEnum() {
+    return false;
+  }
+
 }

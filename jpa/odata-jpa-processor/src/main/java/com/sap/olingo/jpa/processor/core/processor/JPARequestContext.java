@@ -12,11 +12,11 @@ public final class JPARequestContext implements JPAODataRequestContextAccess {
   private final UriInfo uriInfo;
   private final JPASerializer serializer;
 
-  public JPARequestContext(final EntityManager em, final UriInfo uriInfo, final JPASerializer getSerializer) {
+  public JPARequestContext(final EntityManager em, final UriInfo uriInfo, final JPASerializer serializer) {
     super();
     this.em = em;
     this.uriInfo = uriInfo;
-    this.serializer = getSerializer;
+    this.serializer = serializer;
   }
 
   @Override

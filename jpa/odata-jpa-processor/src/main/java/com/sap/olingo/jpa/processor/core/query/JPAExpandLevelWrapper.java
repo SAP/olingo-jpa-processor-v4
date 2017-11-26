@@ -11,6 +11,7 @@ import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.queryoption.ApplyOption;
 import org.apache.olingo.server.api.uri.queryoption.CountOption;
 import org.apache.olingo.server.api.uri.queryoption.CustomQueryOption;
+import org.apache.olingo.server.api.uri.queryoption.DeltaTokenOption;
 import org.apache.olingo.server.api.uri.queryoption.ExpandItem;
 import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
 import org.apache.olingo.server.api.uri.queryoption.FilterOption;
@@ -154,7 +155,7 @@ public final class JPAExpandLevelWrapper implements JPAExpandItem {
     private final ExpandOption parentOptions;
 
     private ExpandOptionWrapper(ExpandOption expandOption) {
-      this.items = new ArrayList<ExpandItem>();
+      this.items = new ArrayList<>();
       this.items.add(new ExpandItemWrapper(expandOption.getExpandItems().get(0)));
       this.parentOptions = expandOption;
       expandOption.getExpandItems().get(0).getLevelsOption();
@@ -264,6 +265,11 @@ public final class JPAExpandLevelWrapper implements JPAExpandItem {
     public EdmType getStartTypeFilter() {
       return parentItem.getStartTypeFilter();
     }
+
+    @Override
+    public ApplyOption getApplyOption() {
+      return null;
+    }
   }
 
   private class LevelsExpandOptionWrapper implements LevelsExpandOption {
@@ -289,5 +295,10 @@ public final class JPAExpandLevelWrapper implements JPAExpandItem {
       return level;
     }
 
+  }
+
+  @Override
+  public DeltaTokenOption getDeltaTokenOption() {
+    return null;
   }
 }

@@ -28,7 +28,7 @@ public class TestHelper {
 
   public TestHelper(EntityManagerFactory emf, String namespace) throws ODataException {
     this.jpaMetamodel = emf.getMetamodel();
-    edmProvider = new JPAEdmProvider(namespace, emf, null, null);
+    edmProvider = new JPAEdmProvider(namespace, emf, null, TestBase.enumPackages);
     sd = edmProvider.getServiceDocument();
     sd.getEdmEntityContainer();
   }

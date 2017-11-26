@@ -74,13 +74,13 @@ public class TestJPAFunctionJava {
     serializerResult = mock(SerializerResult.class);
 
     DataSource ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
-    Map<String, Object> properties = new HashMap<String, Object>();
+    Map<String, Object> properties = new HashMap<>();
     properties.put("javax.persistence.nonJtaDataSource", ds);
     final EntityManagerFactory emf = Persistence.createEntityManagerFactory(PUNIT_NAME, properties);
-    uriResources = new ArrayList<UriResource>();
+    uriResources = new ArrayList<>();
     when(uriInfo.getUriResourceParts()).thenReturn(uriResources);
     when(context.getEdmProvider()).thenReturn(new JPAEdmProvider(PUNIT_NAME, emf, null, new String[] {
-        "com.sap.olingo.jpa.processor.core" }));
+        "com.sap.olingo.jpa.processor.core", "com.sap.olingo.jpa.processor.core.testmodel" }));
     when(requestContext.getUriInfo()).thenReturn(uriInfo);
     when(requestContext.getEntityManager()).thenReturn(em);
     when(requestContext.getSerializer()).thenReturn(serializer);
@@ -160,10 +160,3 @@ public class TestJPAFunctionJava {
     return Arrays.asList(new UriParameter[] { param1, param2 });
   }
 }
-
-//this.serializer = requestContext.getSerializer();
-
-//final EdmParameter edmParam = edmFunction.getParameter(parameter.getName());
-//try {
-//  return ((EdmPrimitiveType) edmParam.getType()).valueOfString(value, false, edmParam.getMaxLength(),
-//      edmParam.getPrecision(), edmParam.getScale(), true, parameter.getType());

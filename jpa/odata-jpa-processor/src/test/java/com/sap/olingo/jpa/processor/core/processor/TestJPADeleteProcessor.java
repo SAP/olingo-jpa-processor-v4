@@ -53,6 +53,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
+import com.sap.olingo.jpa.processor.core.util.TestBase;
 
 public class TestJPADeleteProcessor {
   private JPACUDRequestProcessor processor;
@@ -78,7 +79,7 @@ public class TestJPADeleteProcessor {
     JPAEdmMetadataPostProcessor pP = mock(JPAEdmMetadataPostProcessor.class);
     ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
     emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, ds);
-    jpaEdm = new JPAEdmProvider(PUNIT_NAME, emf.getMetamodel(), pP, null);
+    jpaEdm = new JPAEdmProvider(PUNIT_NAME, emf.getMetamodel(), pP, TestBase.enumPackages);
 
   }
 

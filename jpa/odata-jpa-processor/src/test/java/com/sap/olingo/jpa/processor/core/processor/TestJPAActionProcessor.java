@@ -23,6 +23,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 
 import org.apache.olingo.commons.api.data.Annotatable;
 import org.apache.olingo.commons.api.data.Parameter;
+import org.apache.olingo.commons.api.data.ValueType;
 import org.apache.olingo.commons.api.edm.EdmAction;
 import org.apache.olingo.commons.api.edm.EdmComplexType;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
@@ -71,13 +72,14 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.serializer.JPAOperationSerializer;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.CommunicationData;
+import com.sap.olingo.jpa.processor.core.testobjects.FileAccess;
 import com.sap.olingo.jpa.processor.core.testobjects.TestJavaActionNoParameter;
 import com.sap.olingo.jpa.processor.core.testobjects.TestJavaActions;
 
 public class TestJPAActionProcessor {
+
   private JPAActionRequestProcessor cut;
   private ContentType requestFormat;
-  private ContentType responseFormat;
   @Mock
   private ODataRequest request;
   @Mock
@@ -130,6 +132,7 @@ public class TestJPAActionProcessor {
     when(requestContext.getUriInfo()).thenReturn(uriInfo);
     when(requestContext.getSerializer()).thenReturn(serializer);
     when(serializer.serialize(any(Annotatable.class), any(EdmType.class))).thenReturn(serializerResult);
+    when(serializer.getContentType()).thenReturn(ContentType.APPLICATION_JSON);
 
     when(uriInfo.getUriResourceParts()).thenReturn(uriResources);
     when(resource.getAction()).thenReturn(edmAction);
@@ -141,7 +144,6 @@ public class TestJPAActionProcessor {
     when(dResult.getActionParameters()).thenReturn(actionParameter);
 
     requestFormat = ContentType.APPLICATION_JSON;
-    responseFormat = ContentType.APPLICATION_JSON;
 
     cut = new JPAActionRequestProcessor(odata, sessionContext, requestContext);
   }
@@ -154,7 +156,7 @@ public class TestJPAActionProcessor {
 
     setConstructorAndMethod("unboundReturnPrimitivetNoParameter");
 
-    cut.performAction(request, response, requestFormat, responseFormat);
+    cut.performAction(request, response, requestFormat);
 
     assertEquals(1, TestJavaActionNoParameter.constructorCalls);
   }
@@ -172,7 +174,7 @@ public class TestJPAActionProcessor {
     when(action.getConstructor()).thenReturn(c);
     when(action.getMethod()).thenReturn(m);
     when(action.getReturnType()).thenReturn(null);
-    cut.performAction(request, response, requestFormat, responseFormat);
+    cut.performAction(request, response, requestFormat);
 
     assertEquals(1, TestJavaActions.constructorCalls);
   }
@@ -189,7 +191,7 @@ public class TestJPAActionProcessor {
     when(action.getMethod()).thenReturn(m);
     when(action.getReturnType()).thenReturn(null);
 
-    cut.performAction(request, response, requestFormat, responseFormat);
+    cut.performAction(request, response, requestFormat);
     verify(response, times(1)).setStatusCode(204);
   }
 
@@ -212,7 +214,7 @@ public class TestJPAActionProcessor {
     when(rt.getType()).thenReturn(type);
     when(type.getKind()).thenReturn(EdmTypeKind.PRIMITIVE);
 
-    cut.performAction(request, response, requestFormat, responseFormat);
+    cut.performAction(request, response, requestFormat);
     verify(response, times(1)).setStatusCode(200);
     verify(serializer, times(1)).serialize(any(Annotatable.class), eq(type));
   }
@@ -245,7 +247,7 @@ public class TestJPAActionProcessor {
       }
     });
 
-    cut.performAction(request, response, requestFormat, responseFormat);
+    cut.performAction(request, response, requestFormat);
     verify(response, times(1)).setStatusCode(200);
     verify(serializer, times(1)).serialize(any(Annotatable.class), eq(type));
   }
@@ -259,9 +261,25 @@ public class TestJPAActionProcessor {
 
     addParameter(m, new Short("10"), "A", 0);
 
-    cut.performAction(request, response, requestFormat, responseFormat);
+    cut.performAction(request, response, requestFormat);
     verify(response, times(1)).setStatusCode(204);
     assertEquals(new Short((short) 10), TestJavaActionNoParameter.param1);
+  }
+
+  @Test
+  public void testCallsActionVoidOneEnumerationParameterReturnNoContent() throws ODataJPAProcessException,
+      NoSuchMethodException, SecurityException, ODataJPAModelException, NumberFormatException,
+      ODataApplicationException {
+
+    TestJavaActionNoParameter.resetCalls();
+
+    Method m = setConstructorAndMethod("unboundVoidOneEnumerationParameter", FileAccess.class);
+
+    addParameter(m, FileAccess.Create, "AccessRights", 0);
+
+    cut.performAction(request, response, requestFormat);
+    verify(response, times(1)).setStatusCode(204);
+    assertEquals(FileAccess.Create, TestJavaActionNoParameter.enumeration);
   }
 
   @Test
@@ -274,7 +292,7 @@ public class TestJPAActionProcessor {
     addParameter(m, new Short("10"), "A", 0);
     addParameter(m, new Integer("200000"), "B", 1);
 
-    cut.performAction(request, response, requestFormat, responseFormat);
+    cut.performAction(request, response, requestFormat);
     verify(response, times(1)).setStatusCode(204);
     assertEquals(new Short((short) 10), TestJavaActionNoParameter.param1);
   }
@@ -289,7 +307,7 @@ public class TestJPAActionProcessor {
 
     addParameter(m, null, "A", 0);
 
-    cut.performAction(request, response, requestFormat, responseFormat);
+    cut.performAction(request, response, requestFormat);
     verify(response, times(1)).setStatusCode(204);
     assertNull(TestJavaActionNoParameter.param1);
   }
@@ -306,7 +324,7 @@ public class TestJPAActionProcessor {
 
     setBindingParameter(m);
 
-    cut.performAction(request, response, requestFormat, responseFormat);
+    cut.performAction(request, response, requestFormat);
     verify(response, times(1)).setStatusCode(204);
     assertNotNull(TestJavaActionNoParameter.bindingParam);
     assertEquals("LAU2", TestJavaActionNoParameter.bindingParam.getCodeID());
@@ -332,7 +350,7 @@ public class TestJPAActionProcessor {
     when(action.getParameter(m.getParameters()[2])).thenReturn(jpaParam);
     when(jpaParam.getName()).thenReturn("B");
 
-    cut.performAction(request, response, requestFormat, responseFormat);
+    cut.performAction(request, response, requestFormat);
     verify(response, times(1)).setStatusCode(204);
     assertNotNull(TestJavaActionNoParameter.bindingParam);
     assertEquals("LAU2", TestJavaActionNoParameter.bindingParam.getCodeID());
@@ -358,7 +376,7 @@ public class TestJPAActionProcessor {
 
     addParameter(m, 20, "B", 2);
 
-    cut.performAction(request, response, requestFormat, responseFormat);
+    cut.performAction(request, response, requestFormat);
     verify(response, times(1)).setStatusCode(204);
     assertNotNull(TestJavaActionNoParameter.bindingParam);
     assertEquals("LAU2", TestJavaActionNoParameter.bindingParam.getCodeID());
@@ -415,6 +433,7 @@ public class TestJPAActionProcessor {
     Parameter param = mock(Parameter.class);
     when(param.getValue()).thenReturn(value);
     when(param.getName()).thenReturn(name);
+    when(param.getValueType()).thenReturn(ValueType.PRIMITIVE);
     actionParameter.put(name, param);
 
     JPAParameter jpaParam = mock(JPAParameter.class);

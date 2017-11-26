@@ -1,44 +1,52 @@
 SET schema "OLINGO";
     
 --------BUSINESS PARTNER---------------------------------------------------------------------------------------------------------
-CREATE TABLE "BusinessPartner" (
-	"ID" NVARCHAR(32) NOT NULL ,
+CREATE TABLE "BusinessPartner" (   
+	"ID" VARCHAR(32) NOT NULL ,
 	"ETag" BIGINT,
-	"Type" TINYINT,
-	"CustomString1" NVARCHAR(250),
-	"CustomString2" NVARCHAR(250),
-	"CustomNum1" DECIMAL(34,0),
-	"CustomNum2"  DECIMAL(34,0),
-	"NameLine1" NVARCHAR(250),
-	"NameLine2" NVARCHAR(250),
+	"Type" VARCHAR(2),
+	"CustomString1" VARCHAR(250),
+	"CustomString2" VARCHAR(250),
+	"CustomNum1" DECIMAL(16,5),
+	"CustomNum2"  DECIMAL(31,0),
+	"NameLine1" VARCHAR(250),
+	"NameLine2" VARCHAR(250),
 	"BirthDay" DATE,
-	"Address.StreetName" NVARCHAR(200),
-    "Address.StreetNumber" NVARCHAR(60),
-    "Address.PostOfficeBox" NVARCHAR(60),
-    "Address.City" NVARCHAR(100),
-    "Address.PostalCode" NVARCHAR(60),
-    "Address.RegionCodePublisher" NVARCHAR(10) NOT NULL,
-	"Address.RegionCodeID" NVARCHAR(10) NOT NULL,
-    "Address.Region" NVARCHAR(100),
-    "Address.Country" NVARCHAR(100),
-	"CreatedBy" NVARCHAR(32) NOT NULL ,
+	"Address.StreetName" VARCHAR(200),
+    "Address.StreetNumber" VARCHAR(60),
+    "Address.PostOfficeBox" VARCHAR(60),
+    "Address.City" VARCHAR(100),
+    "Address.PostalCode" VARCHAR(60),
+    "Address.RegionCodePublisher" VARCHAR(10) NOT NULL,
+	"Address.RegionCodeID" VARCHAR(10) NOT NULL,
+    "Address.Region" VARCHAR(100),
+    "Address.Country" VARCHAR(100),
+    "Telecom.Phone" VARCHAR(100),
+    "Telecom.Mobile" VARCHAR(100),
+    "Telecom.Fax" VARCHAR(100),
+    "Telecom.Email" VARCHAR(100),
+	"CreatedBy" VARCHAR(32) NOT NULL ,
 	"CreatedAt" TIMESTAMP,   
-	"UpdatedBy" NVARCHAR(32) NOT NULL ,
+	"UpdatedBy" VARCHAR(32) NOT NULL ,
 	"UpdatedAt" TIMESTAMP,
-    "Country" NVARCHAR(4),
+    "Country" VARCHAR(4),
+    "ABCClass" VARCHAR(1),
+    "AccessRights" INTEGER,
 	 PRIMARY KEY ("ID"));
      
-insert into "BusinessPartner" values ('1', 0, 2, '','',null,null,'First Org.','',null,'Test Road', '23','', 'Test City','94321','ISO', '3166-2','US-CA', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA');
-insert into "BusinessPartner" values ('2', 0, 2, '','',null,null,'Second Org.','',null,'Test Road', '45','', 'Test City','76321','ISO', '3166-2','US-TX', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA');
-insert into "BusinessPartner" values ('3', 0, 2, '','',null,null,'Third Org.','',null,'Test Road', '223','', 'Test City','94322','ISO', '3166-2','US-CA', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA');
-insert into "BusinessPartner" values ('4', 0, 2, '','',null,null,'Fourth Org.','',null,'Test Road', '56','', 'Test City','84321','ISO', '3166-2','US-UT', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA');
-insert into "BusinessPartner" values ('5', 0, 2, '','',null,null,'Fifth Org.','',null,'Test Road', '35','', 'Test City','59321','ISO', '3166-2','US-MT', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA');
-insert into "BusinessPartner" values ('6', 0, 2, '','',null,null,'Sixth Org.','',null,'Test Road', '7856','', 'Test City','94324','ISO', '3166-2','US-CA', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA');
-insert into "BusinessPartner" values ('7', 0, 2, '','',null,null,'Seventh Org.','',null,'Test Road', '4','', 'Test City','29321','ISO', '3166-2','US-SC', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA');
-insert into "BusinessPartner" values ('8', 0, 2, '','',null,null,'Eighth Org.','',null,'Test Road', '453','', 'Test City','29221','ISO', '3166-2','US-SC', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA');
-insert into "BusinessPartner" values ('9', 0, 2, '','',null,null,'Ninth Org.','',null,'Test Road', '93','', 'Test City','55021','ISO', '3166-2','US-MN', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA');
-insert into "BusinessPartner" values ('10', 0, 2, '','',null,null,'Tenth Org.','',null,'Test Road', '12','', 'Test City','03921','ISO', '3166-2','US-ME', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU');
-insert into "BusinessPartner" values ('99', 0, 1, '','',null,null,'Max','Mustermann',null,'Test Stra√üe', '12','', 'Teststadt','10115','ISO', '3166-2','DE-BE', 'DEU', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU'); 
+insert into "BusinessPartner" values ('1', 0, '2', '','',6000.5,null,'First Org.','',null,'Test Road', '23','', 'Test City','94321','ISO', '3166-2','US-CA', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA', 'A', null);
+insert into "BusinessPartner" values ('2', 0, '2', '','',null,null,'Second Org.','',null,'Test Road', '45','', 'Test City','76321','ISO', '3166-2','US-TX', 'USA', '', '','','', '97','2016-01-20 09:21:23', '', null, 'USA', 'B', null);
+insert into "BusinessPartner" values ('3', 0, '2', '','',null,null,'Third Org.','',null,'Test Road', '223','', 'Test City','94322','ISO', '3166-2','US-CA', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA', 'C', null);
+insert into "BusinessPartner" values ('4', 0, '2', '','',null,null,'Fourth Org.','',null,'Test Road', '56','', 'Test City','84321','ISO', '3166-2','US-UT', 'USA', '', '','','', '98','2016-01-20 09:21:23', '', null, 'USA', 'C', null);
+insert into "BusinessPartner" values ('5', 0, '2', '','',null,null,'Fifth Org.','',null,'Test Road', '35','', 'Test City','59321','ISO', '3166-2','US-MT', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA', null, null);
+insert into "BusinessPartner" values ('6', 0, '2', '','',null,null,'Sixth Org.','',null,'Test Road', '7856','', 'Test City','94324','ISO', '3166-2','US-CA', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA', null, null);
+insert into "BusinessPartner" values ('7', 0, '2', '','',null,null,'Seventh Org.','',null,'Test Road', '4','', 'Test City','29321','ISO', '3166-2','US-SC', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA', null, null);
+insert into "BusinessPartner" values ('8', 0, '2', '','',null,null,'Eighth Org.','',null,'Test Road', '453','', 'Test City','29221','ISO', '3166-2','US-SC', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA', null, null);
+insert into "BusinessPartner" values ('9', 0, '2', '','',null,null,'Ninth Org.','',null,'Test Road', '93','', 'Test City','55021','ISO', '3166-2','US-MN', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA', null, null);
+insert into "BusinessPartner" values ('10', 0, '2', '','',null,null,'Tenth Org.','',null,'Test Road', '12','', 'Test City','03921','ISO', '3166-2','US-ME', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU', null, null);
+insert into "BusinessPartner" values ('99', 0, '1', '','',null,null,'Max','Mustermann',null,'Test Starﬂe', '12','', 'Teststadt','10115','ISO', '3166-2','DE-BE', 'DEU', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU', null, 1); 
+insert into "BusinessPartner" values ('98', 0, '1', '','',null,null,'John','Doe',null,'Test Road', '55','', 'Test City','76321','ISO', '3166-2','US-TX', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU', null, 2); 
+insert into "BusinessPartner" values ('97', 0, '1', '','',null,null,'Urs','M¸ller',null,'Test Starﬂe', '23','', 'Test Dorf','4123','ISO', '3166-2','CH-BL', 'CHE', '', '','','', '99','2016-07-20 09:21:23', '', null, 'CHE', null, 9); 
 
 --------BUSINESS PARTNER ROLE----------------------------------------------------------------------------------------------------
 CREATE TABLE "BusinessPartnerRole" ( 

@@ -7,13 +7,13 @@ import org.apache.olingo.commons.api.data.Property;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
 import org.apache.olingo.commons.api.edm.EdmType;
+import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.serializer.ODataSerializer;
 import org.apache.olingo.server.api.serializer.PrimitiveSerializerOptions;
 import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.serializer.SerializerResult;
-import org.apache.olingo.server.api.uri.UriHelper;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
 
@@ -22,12 +22,14 @@ import com.sap.olingo.jpa.processor.core.query.Util;
 
 final class JPASerializePrimitive extends JPASerializePrimitiveAbstract {
   private final ODataSerializer serializer;
+  private final ContentType responseFormat;
 
-  JPASerializePrimitive(final ServiceMetadata serviceMetadata, final ODataSerializer serializer,
-      final UriHelper uriHelper, final UriInfo uriInfo) {
+  JPASerializePrimitive(final ServiceMetadata serviceMetadata, final ODataSerializer serializer, final UriInfo uriInfo,
+      final ContentType responseFormat) {
 
-    super(serviceMetadata, uriHelper, uriInfo);
+    super(serviceMetadata, uriInfo);
     this.serializer = serializer;
+    this.responseFormat = responseFormat;
   }
 
   @Override
@@ -48,9 +50,7 @@ final class JPASerializePrimitive extends JPASerializePrimitiveAbstract {
 
     final PrimitiveSerializerOptions options = PrimitiveSerializerOptions.with().contextURL(contextUrl).build();
 
-    final SerializerResult serializerResult = serializer.primitive(serviceMetadata, edmPropertyType, property
-        .getProperty(), options);
-    return serializerResult;
+    return serializer.primitive(serviceMetadata, edmPropertyType, property.getProperty(), options);
   }
 
   @Override
@@ -62,5 +62,10 @@ final class JPASerializePrimitive extends JPASerializePrimitiveAbstract {
 
     return serializer.primitive(serviceMetadata, (EdmPrimitiveType) primitiveType, (Property) result,
         options);
+  }
+
+  @Override
+  public ContentType getContentType() {
+    return responseFormat;
   }
 }

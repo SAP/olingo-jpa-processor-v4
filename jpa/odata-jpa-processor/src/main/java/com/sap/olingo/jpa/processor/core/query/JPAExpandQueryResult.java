@@ -25,16 +25,16 @@ public final class JPAExpandQueryResult implements JPAExpandResult {
 
   private final Map<JPAAssociationPath, JPAExpandResult> childrenResult;
   private final Map<String, List<Tuple>> result;
-  private final Long count;
+  private final Map<String, Long> counts;
   private final JPAEntityType jpaEntityType;
 
-  public JPAExpandQueryResult(final Map<String, List<Tuple>> result, final Long count,
+  public JPAExpandQueryResult(final Map<String, List<Tuple>> result, final Map<String, Long> counts,
       final JPAEntityType jpaEntityType) {
     super();
     assertNotNull(jpaEntityType);
-    childrenResult = new HashMap<JPAAssociationPath, JPAExpandResult>();
+    childrenResult = new HashMap<>();
     this.result = result;
-    this.count = count;
+    this.counts = counts;
     this.jpaEntityType = jpaEntityType;
   }
 
@@ -80,7 +80,7 @@ public final class JPAExpandQueryResult implements JPAExpandResult {
    */
   @Override
   public boolean hasCount() {
-    return count != null;
+    return counts != null;
   }
 
   /*
@@ -89,8 +89,8 @@ public final class JPAExpandQueryResult implements JPAExpandResult {
    * @see org.apache.org.jpa.processor.core.converter.JPAExpandResult#getCount()
    */
   @Override
-  public Integer getCount() {
-    return count != null ? Integer.valueOf(count.intValue()) : null;
+  public Long getCount(final String key) {
+    return counts != null ? counts.get(key) : null;
   }
 
   /*
@@ -114,4 +114,5 @@ public final class JPAExpandQueryResult implements JPAExpandResult {
     }
     return count;
   }
+
 }

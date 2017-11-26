@@ -11,9 +11,11 @@ import org.apache.olingo.commons.api.edm.geo.Geospatial.Dimension;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmGeospatial;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.ODataFunction;
+import com.sap.olingo.jpa.processor.core.testmodel.ABCClassifiaction;
+import com.sap.olingo.jpa.processor.core.testmodel.AccessRights;
 import com.sap.olingo.jpa.processor.core.testmodel.ChangeInformation;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 import com.sap.olingo.jpa.processor.core.testmodel.PostalAddressData;
@@ -54,12 +56,12 @@ public class ExampleJavaFunctions implements ODataFunction {
 
   @EdmFunction(name = "", returnType = @ReturnType(type = String.class))
   public List<String> returnCollection() {
-    return new ArrayList<String>();
+    return new ArrayList<>();
   }
 
   @EdmFunction(name = "", returnType = @ReturnType())
   public List<String> returnCollectionWithoutReturnType() {
-    return new ArrayList<String>();
+    return new ArrayList<>();
   }
 
   @EdmFunction(name = "", returnType = @ReturnType())
@@ -86,5 +88,15 @@ public class ExampleJavaFunctions implements ODataFunction {
   public Integer errorNonPrimitiveParameter(
       @EdmParameter(name = "A") PostalAddressData a) {
     return 1;
+  }
+
+  @EdmFunction(name = "", returnType = @ReturnType())
+  public ABCClassifiaction returnEnumerationType(@EdmParameter(name = "Rights") AccessRights rights) {
+    return ABCClassifiaction.A;
+  }
+
+  @EdmFunction(name = "", returnType = @ReturnType(type = ABCClassifiaction.class))
+  public List<ABCClassifiaction> returnEnumerationCollection() {
+    return new ArrayList<>();
   }
 }

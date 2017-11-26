@@ -37,10 +37,9 @@ class JPATupleExpandResultConverter extends JPATupleAbstractConverter {
     link.setRel(Constants.NS_NAVIGATION_LINK_REL + link.getTitle());
     link.setType(Constants.ENTITY_NAVIGATION_LINK_TYPE);
     final EntityCollection expandCollection = createEntityCollection();
+    expandCollection.setCount(determineCount(expandCollection));
     if (assoziation.getLeaf().isCollection()) {
       link.setInlineEntitySet(expandCollection);
-      // TODO $count@$expand
-      expandCollection.setCount(new Integer(5));
       // TODO link.setHref(parentUri.toASCIIString());
     } else {
       if (expandCollection.getEntities() != null && !expandCollection.getEntities().isEmpty()) {
@@ -50,6 +49,16 @@ class JPATupleExpandResultConverter extends JPATupleAbstractConverter {
       }
     }
     return link;
+  }
+
+  private Integer determineCount(final EntityCollection expandCollection) throws ODataJPAQueryException {
+    try {
+      Long count = jpaQueryResult.getCount(buildConcatenatedKey(parentRow, assoziation.getJoinColumnsList()));
+      return count != null ? Integer.valueOf(count.intValue()) : null;
+    } catch (ODataJPAModelException e) {
+      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
+          HttpStatusCode.INTERNAL_SERVER_ERROR, e);
+    }
   }
 
   private EntityCollection createEntityCollection() throws ODataApplicationException {
