@@ -204,7 +204,7 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
                 if (implicitColumns > 1)
                   throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.NOT_SUPPORTED_NO_IMPLICIT_COLUMNS,
                       getInternalName());
-                intermediateColumn.setReferencedColumnName(((IntermediateProperty) ((IntermediateEntityType) sourceType)
+                intermediateColumn.setReferencedColumnName(((IntermediateSimpleProperty) ((IntermediateEntityType) sourceType)
                     .getKey().get(0)).getDBFieldName());
               }
             }
@@ -342,16 +342,16 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
     final String name = intermediateColumn.getName();
 
     if (isSourceOne && (refColumnName == null || refColumnName.isEmpty()))
-      intermediateColumn.setReferencedColumnName(((IntermediateProperty) ((IntermediateEntityType) sourceType)
+      intermediateColumn.setReferencedColumnName(((IntermediateSimpleProperty) ((IntermediateEntityType) sourceType)
           .getKey().get(0)).getDBFieldName());
     else if (isSourceOne && (name == null || name.isEmpty()))
-      intermediateColumn.setReferencedColumnName(((IntermediateProperty) ((IntermediateEntityType) targetType)
+      intermediateColumn.setReferencedColumnName(((IntermediateSimpleProperty) ((IntermediateEntityType) targetType)
           .getKey().get(0)).getDBFieldName());
     else if (!isSourceOne && (refColumnName == null || refColumnName.isEmpty()))
-      intermediateColumn.setReferencedColumnName(((IntermediateProperty) ((IntermediateEntityType) targetType)
+      intermediateColumn.setReferencedColumnName(((IntermediateSimpleProperty) ((IntermediateEntityType) targetType)
           .getKey().get(0)).getDBFieldName());
     else if (!isSourceOne && (name == null || name.isEmpty()))
-      intermediateColumn.setReferencedColumnName(((IntermediateProperty) ((IntermediateEntityType) sourceType)
+      intermediateColumn.setReferencedColumnName(((IntermediateSimpleProperty) ((IntermediateEntityType) sourceType)
           .getKey().get(0)).getDBFieldName());
   }
 

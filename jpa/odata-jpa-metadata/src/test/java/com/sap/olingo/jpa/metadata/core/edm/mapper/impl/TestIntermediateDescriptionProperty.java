@@ -224,7 +224,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
 
     Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEmbeddedableType("PostalAddressData"),
         "countryName");
-    IntermediatePropertyAccess property = new IntermediateProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
+    IntermediatePropertyAccess property = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
         helper.schema);
 
     assertEquals("Wrong name", "CountryDescription", property.getExternalName());

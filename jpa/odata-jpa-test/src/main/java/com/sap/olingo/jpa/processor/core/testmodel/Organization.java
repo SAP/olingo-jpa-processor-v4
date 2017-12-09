@@ -1,9 +1,15 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
+import java.util.List;
+
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
+import javax.persistence.JoinColumn;
+import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
@@ -30,6 +36,13 @@ public class Organization extends BusinessPartner {
 
   @Column(name = "\"NameLine2\"")
   private String name2;
+
+  @ElementCollection
+  @OrderColumn(name = "\"Order\"")
+  @CollectionTable(schema = "\"OLINGO\"", name = "\"Comment\"",
+      joinColumns = @JoinColumn(name = "\"BusinessPartnerID\""))
+  @Column(name = "\"Text\"")
+  private List<String> comment;
 
   @Enumerated
   @Column(name = "\"ABCClass\"")

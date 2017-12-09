@@ -21,7 +21,11 @@ public class Comment implements Serializable {
   private static final long serialVersionUID = 1L;
 
   @Id
-  private Integer ID;
+  @Column(name = "\"BusinessPartnerID\"")
+  private String businessPartnerID;
+
+  @Column(name = "\"Order\"")
+  private String order;
 
   @Lob
   @Column(name = "\"Text\"")
@@ -32,12 +36,12 @@ public class Comment implements Serializable {
     super();
   }
 
-  public Integer getID() {
-    return this.ID;
+  public String getBusinessPartnerID() {
+    return this.businessPartnerID;
   }
 
-  public void setID(Integer ID) {
-    this.ID = ID;
+  public void setID(String ID) {
+    this.businessPartnerID = ID;
   }
 
 }

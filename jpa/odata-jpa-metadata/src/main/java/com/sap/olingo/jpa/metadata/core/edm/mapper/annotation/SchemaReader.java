@@ -2,7 +2,6 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.annotation;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
@@ -10,14 +9,12 @@ import java.util.Map;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
 public class SchemaReader {
-  final private JacksonXmlModule module;
-  final private XmlMapper xmlMapper;
+  private final JacksonXmlModule module;
+  private final XmlMapper xmlMapper;
 
   public SchemaReader() {
     super();
@@ -27,27 +24,23 @@ public class SchemaReader {
 
   }
 
-  public Map<String, ? extends CsdlSchema> getSchemas(String path) throws JsonParseException,
-      JsonMappingException, IOException {
+  public Map<String, ? extends CsdlSchema> getSchemas(String path) throws IOException {
     return convertEDMX(readFromResource(path));
   }
 
-  public Map<String, ? extends CsdlSchema> getSchemas(URI uri) throws JsonParseException,
-      JsonMappingException, MalformedURLException, IOException {
+  public Map<String, ? extends CsdlSchema> getSchemas(URI uri) throws IOException {
     return convertEDMX(readFromURI(uri));
   }
 
-  public Edmx readFromResource(final String path) throws JsonParseException, JsonMappingException, IOException {
+  public Edmx readFromResource(final String path) throws IOException {
 
     byte[] b = loadXML(path);
     return xmlMapper.readValue(new String(b), Edmx.class);
   }
 
-  public Edmx readFromURI(final URI uri) throws JsonParseException, JsonMappingException, MalformedURLException,
-      IOException {
+  public Edmx readFromURI(final URI uri) throws IOException {
 
     return xmlMapper.readValue(uri.toURL(), Edmx.class);
-
   }
 
   private byte[] loadXML(String path) {
@@ -77,7 +70,7 @@ public class SchemaReader {
     if (edmx != null && edmx.getDataService() != null) {
 
       Schema[] schemas = edmx.getDataService().getSchemas();
-      Map<String, CsdlSchema> edmSchemas = new HashMap<String, CsdlSchema>(schemas.length);
+      Map<String, CsdlSchema> edmSchemas = new HashMap<>(schemas.length);
       for (Schema schema : schemas) {
         String namespace = schema.getNamespace();
         edmSchemas.put(namespace, schema.asCsdlSchema());

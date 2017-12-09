@@ -141,8 +141,8 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
     }
   }
 
-  protected void getAnnotations(List<CsdlAnnotation> edmAnnotations, Class<?> clazz, String internalName,
-      AppliesTo property) throws ODataJPAModelException {
+  protected void getAnnotations(List<CsdlAnnotation> edmAnnotations, Class<?> clazz, String internalName)
+      throws ODataJPAModelException {
     if (clazz instanceof AnnotatedElement) {
       extractAnnotations(edmAnnotations, clazz, internalName);
     }
@@ -175,7 +175,7 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
    * 
    * @return
    */
-  protected Class<?> boxPrimitive(Class<?> javaType) {
+  protected Class<?> boxPrimitive(Class<?> javaType) {// NOSONAR
 
     if (javaType == int.class || javaType == Integer.class)
       return Integer.class;

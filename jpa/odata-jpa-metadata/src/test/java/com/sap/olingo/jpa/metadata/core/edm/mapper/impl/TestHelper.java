@@ -13,6 +13,7 @@ import javax.persistence.metamodel.EmbeddableType;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.Metamodel;
+import javax.persistence.metamodel.PluralAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 
 import org.reflections.Reflections;
@@ -71,6 +72,14 @@ public class TestHelper {
 
   public Attribute<?, ?> getAttribute(final ManagedType<?> et, final String attributeName) {
     for (final SingularAttribute<?, ?> attribute : et.getSingularAttributes()) {
+      if (attribute.getName().equals(attributeName))
+        return attribute;
+    }
+    return null;
+  }
+
+  public PluralAttribute<?, ?, ?> getCollectionAttribute(final ManagedType<?> et, final String attributeName) {
+    for (final PluralAttribute<?, ?, ?> attribute : et.getPluralAttributes()) {
       if (attribute.getName().equals(attributeName))
         return attribute;
     }
