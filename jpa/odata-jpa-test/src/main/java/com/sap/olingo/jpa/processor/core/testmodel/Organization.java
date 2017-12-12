@@ -8,6 +8,7 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
@@ -37,7 +38,7 @@ public class Organization extends BusinessPartner {
   @Column(name = "\"NameLine2\"")
   private String name2;
 
-  @ElementCollection
+  @ElementCollection(fetch = FetchType.LAZY)
   @OrderColumn(name = "\"Order\"")
   @CollectionTable(schema = "\"OLINGO\"", name = "\"Comment\"",
       joinColumns = @JoinColumn(name = "\"BusinessPartnerID\""))
@@ -70,5 +71,13 @@ public class Organization extends BusinessPartner {
 
   public void setABCClass(ABCClassifiaction aBCClass) {
     this.aBCClass = aBCClass;
+  }
+
+  public List<String> getComment() {
+    return comment;
+  }
+
+  public void setComment(List<String> comment) {
+    this.comment = comment;
   }
 }

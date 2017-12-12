@@ -68,7 +68,7 @@ public class Person extends BusinessPartner {
 
   @EdmAnnotation(term = "Core.Description", constantExpression = @EdmAnnotation.ConstantExpression(
       type = ConstantExpressionType.String, value = "Address for inhouse Mail"))
-  @ElementCollection
+  @ElementCollection(fetch = FetchType.LAZY)
   @CollectionTable(schema = "\"OLINGO\"", name = "\"InhouseAddress\"")
   private List<InhouseAddress> inhouseAddress;
 
@@ -102,5 +102,13 @@ public class Person extends BusinessPartner {
 
   public AccessRights[] getAccessRights() {
     return accessRights;
+  }
+
+  public List<InhouseAddress> getInhouseAddress() {
+    return inhouseAddress;
+  }
+
+  public void setInhouseAddress(List<InhouseAddress> inhouseAddress) {
+    this.inhouseAddress = inhouseAddress;
   }
 }

@@ -2,6 +2,7 @@ package com.sap.olingo.jpa.processor.core.testobjects;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -76,6 +77,7 @@ public class TestFunctionReturnType implements ODataFunction {
     Person p = new Person();
     p.setID("1");
     p.setBirthDay(LocalDate.now());
+    p.setInhouseAddress(new ArrayList<>());
     return p;
   }
 }

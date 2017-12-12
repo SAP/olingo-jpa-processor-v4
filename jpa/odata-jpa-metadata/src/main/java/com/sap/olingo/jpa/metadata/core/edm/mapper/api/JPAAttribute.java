@@ -21,6 +21,8 @@ public interface JPAAttribute extends JPAElement {
 
   public boolean isAssociation();
 
+  public boolean isCollection();
+
   public boolean isComplex();
 
   public boolean isEnum();

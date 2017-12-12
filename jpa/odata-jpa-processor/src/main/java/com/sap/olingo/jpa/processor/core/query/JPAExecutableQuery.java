@@ -51,6 +51,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADescriptionAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
@@ -240,10 +241,27 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
           ODataJPAModelException.getLocales().nextElement(), e);
     }
 
+    jpaPathList = removeCollectionProperties(jpaPathList);
     // Add Fields that are required for Expand
     addExpandSelectionPathList(uriResource, jpaPathList);
     return jpaPathList;
 
+  }
+
+  private List<JPAPath> removeCollectionProperties(List<JPAPath> jpaPathList) {
+    List<JPAPath> result = new ArrayList<>();
+    for (final JPAPath jpaPath : jpaPathList) {
+      boolean isCollection = false;
+      for (JPAElement pathElement : jpaPath.getPath()) {
+        if (((JPAAttribute) pathElement).isCollection()) {
+          isCollection = true;
+          break;
+        }
+      }
+      if (!isCollection)
+        result.add(jpaPath);
+    }
+    return result;
   }
 
   /**
@@ -452,7 +470,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
       whereCondition = createWhereByKey(root, whereCondition, keyPredicates);
     }
 
-    whereCondition = addWhereClause(whereCondition, buildNavigationSubQueries(root));
+    whereCondition = addWhereClause(whereCondition, buildNavigationSubQueries());
 
     // http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398301
     // http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part2-url-conventions/odata-v4.0-errata02-os-part2-url-conventions-complete.html#_Toc406398094
@@ -538,7 +556,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
    * WHERE inner = lower))</code><p>
    * This is solved by a three steps approach
    */
-  private javax.persistence.criteria.Expression<Boolean> buildNavigationSubQueries(final Root<?> root)
+  private javax.persistence.criteria.Expression<Boolean> buildNavigationSubQueries()
       throws ODataApplicationException {
 
     final int handle = debugger.startRuntimeMeasurement(this, "buildNavigationSubQueries");

@@ -40,16 +40,18 @@ class IntermediateSimpleProperty extends IntermediateProperty {
   }
 
   @Override
-  void determineStructuredType() {
-    if (jpaAttribute.getPersistentAttributeType() == PersistentAttributeType.EMBEDDED)
-      type = schema.getStructuredType(jpaAttribute);
-    else
-      type = null;
+  public boolean isAssociation() {
+    return false;
   }
 
   @Override
-  public boolean isAssociation() {
+  public boolean isCollection() {
     return false;
+  }
+
+  @Override
+  public boolean isComplex() {
+    return jpaAttribute.getPersistentAttributeType() == PersistentAttributeType.EMBEDDED ? true : false;
   }
 
   @Override
@@ -61,8 +63,42 @@ class IntermediateSimpleProperty extends IntermediateProperty {
   }
 
   @Override
-  public boolean isComplex() {
-    return jpaAttribute.getPersistentAttributeType() == PersistentAttributeType.EMBEDDED ? true : false;
+  Class<?> determineEntityType() {
+    return jpaAttribute.getJavaType();
+  }
+
+  @Override
+  void determineIsVersion() {
+    final Version jpaVersion = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
+        .getAnnotation(Version.class);
+    if (jpaVersion != null) {
+      isVersion = true;
+    }
+  }
+
+  @Override
+  void determineStreamInfo() throws ODataJPAModelException {
+    streamInfo = ((AnnotatedElement) jpaAttribute.getJavaMember()).getAnnotation(EdmMediaStream.class);
+    if (streamInfo != null) {
+      if ((streamInfo.contentType() == null || streamInfo.contentType().isEmpty())
+          && (streamInfo.contentTypeAttribute() == null || streamInfo.contentTypeAttribute().isEmpty()))
+        throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.ANNOTATION_STREAM_INCOMPLETE,
+            internalName);
+    }
+  }
+
+  @Override
+  void determineStructuredType() {
+    if (jpaAttribute.getPersistentAttributeType() == PersistentAttributeType.EMBEDDED)
+      type = schema.getStructuredType(jpaAttribute);
+    else
+      type = null;
+  }
+
+  @Override
+  FullQualifiedName determineType() throws ODataJPAModelException {
+
+    return determineTypeByPersistanceType(jpaAttribute.getPersistentAttributeType());
   }
 
   String getContentType() {
@@ -71,11 +107,6 @@ class IntermediateSimpleProperty extends IntermediateProperty {
 
   String getContentTypeProperty() {
     return streamInfo.contentTypeAttribute();
-  }
-
-  @Override
-  boolean isStream() {
-    return streamInfo == null ? false : streamInfo.stream();
   }
 
   @Override
@@ -114,34 +145,7 @@ class IntermediateSimpleProperty extends IntermediateProperty {
   }
 
   @Override
-  void determineIsVersion() {
-    final Version jpaVersion = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
-        .getAnnotation(Version.class);
-    if (jpaVersion != null) {
-      isVersion = true;
-    }
+  boolean isStream() {
+    return streamInfo == null ? false : streamInfo.stream();
   }
-
-  @Override
-  void determineStreamInfo() throws ODataJPAModelException {
-    streamInfo = ((AnnotatedElement) jpaAttribute.getJavaMember()).getAnnotation(EdmMediaStream.class);
-    if (streamInfo != null) {
-      if ((streamInfo.contentType() == null || streamInfo.contentType().isEmpty())
-          && (streamInfo.contentTypeAttribute() == null || streamInfo.contentTypeAttribute().isEmpty()))
-        throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.ANNOTATION_STREAM_INCOMPLETE,
-            internalName);
-    }
-  }
-
-  @Override
-  FullQualifiedName determineType() throws ODataJPAModelException {
-
-    return determineTypeByPersistanceType(jpaAttribute.getPersistentAttributeType());
-  }
-
-  @Override
-  Class<?> determineEntityType() {
-    return jpaAttribute.getJavaType();
-  }
-
 }

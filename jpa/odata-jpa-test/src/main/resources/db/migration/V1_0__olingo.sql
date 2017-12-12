@@ -677,7 +677,7 @@ insert into "AdministrativeDivision" values( 'Eurostat', 'LAU2', '38025','BEL','
 CREATE TABLE "Comment" (
 	"BusinessPartnerID" VARCHAR(32) NOT NULL ,
 	"Order" INTEGER,
-	"Text" CLOB,
+	"Text" VARCHAR(280),
 	 PRIMARY KEY ("BusinessPartnerID"));
 	 
 insert into "Comment" values( '1', 1, 'This is just a test');	

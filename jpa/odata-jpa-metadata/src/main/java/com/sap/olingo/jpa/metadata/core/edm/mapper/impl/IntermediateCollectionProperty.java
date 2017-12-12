@@ -19,9 +19,13 @@ class IntermediateCollectionProperty extends IntermediateProperty {
   }
 
   @Override
-  protected void lazyBuildEdmItem() throws ODataJPAModelException {
-    super.lazyBuildEdmItem();
-    edmProperty.setCollection(true);
+  public boolean isAssociation() {
+    return false;
+  }
+
+  @Override
+  public boolean isCollection() {
+    return true;
   }
 
   @Override
@@ -30,13 +34,39 @@ class IntermediateCollectionProperty extends IntermediateProperty {
   }
 
   @Override
-  FullQualifiedName determineType() throws ODataJPAModelException {
-    return determineTypeByPersistanceType(getRowType().getPersistenceType());
+  public boolean isEtag() {
+    return false;
   }
 
   @Override
-  public boolean isEtag() {
+  public boolean isKey() {
     return false;
+  }
+
+  @Override
+  public boolean isSearchable() {
+    return false;
+  }
+
+  @Override
+  protected void lazyBuildEdmItem() throws ODataJPAModelException {
+    super.lazyBuildEdmItem();
+    edmProperty.setCollection(true);
+  }
+
+  @Override
+  Class<?> determineEntityType() {
+    return getRowType().getJavaType();
+  }
+
+  @Override
+  void determineIsVersion() {
+    isVersion = false; // Version is always false
+  }
+
+  @Override
+  void determineStreamInfo() throws ODataJPAModelException {
+    // Stream properties not supported
   }
 
   @Override
@@ -48,33 +78,8 @@ class IntermediateCollectionProperty extends IntermediateProperty {
   }
 
   @Override
-  Class<?> determineEntityType() {
-    return getRowType().getJavaType();
-  }
-
-  @Override
-  public boolean isKey() {
-    return false;
-  }
-
-  @Override
-  public boolean isAssociation() {
-    return false;
-  }
-
-  @Override
-  public boolean isSearchable() {
-    return false;
-  }
-
-  @Override
-  void determineStreamInfo() throws ODataJPAModelException {
-    // Stream properties not supported
-  }
-
-  @Override
-  void determineIsVersion() {
-    isVersion = false; // Version is always false
+  FullQualifiedName determineType() throws ODataJPAModelException {
+    return determineTypeByPersistanceType(getRowType().getPersistenceType());
   }
 
   @Override
