@@ -72,7 +72,7 @@ public class JPAQuery extends JPAExecutableQuery {
 
     joinTables.put(jpaEntity.getTypeClass().getCanonicalName(), root);
 
-    final javax.persistence.criteria.Expression<Boolean> whereClause = createWhere(joinTables);
+    final javax.persistence.criteria.Expression<Boolean> whereClause = createWhere();
     if (whereClause != null)
       cq.where(whereClause);
     cq.select(cb.count(root));
@@ -92,7 +92,7 @@ public class JPAQuery extends JPAExecutableQuery {
 
     cq.multiselect(createSelectClause(joinTables, selectionPath));
 
-    final javax.persistence.criteria.Expression<Boolean> whereClause = createWhere(joinTables);
+    final javax.persistence.criteria.Expression<Boolean> whereClause = createWhere();
     if (whereClause != null)
       cq.where(whereClause);
 

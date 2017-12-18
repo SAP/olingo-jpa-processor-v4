@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
+import static com.sap.olingo.jpa.processor.core.query.JPAExpandQueryResult.ROOT_RESULT_KEY;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,7 +40,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.core.api.JPACUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
-import com.sap.olingo.jpa.processor.core.converter.JPATupleResultConverter;
+import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys;
@@ -423,12 +425,12 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
   private Entity convertEntity(JPAEntityType et, Object result, Map<String, List<String>> headers)
       throws ODataJPAProcessorException {
 
-    JPATupleResultConverter converter;
     try {
       JPACreateResultFactory factory = new JPACreateResultFactory();//
-      converter = new JPATupleResultConverter(sd, factory.getJPACreateResult(et, result, headers), odata
-          .createUriHelper(), serviceMetadata);
-      return converter.getResult().getEntities().get(0);
+
+      final JPATupleChildConverter converter = new JPATupleChildConverter(sd, odata.createUriHelper(), serviceMetadata);
+      return converter.getResult(factory.getJPACreateResult(et, result, headers)).get(ROOT_RESULT_KEY).getEntities()
+          .get(0);
     } catch (ODataJPAModelException | ODataApplicationException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }

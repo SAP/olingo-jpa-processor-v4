@@ -226,9 +226,9 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
           edmNaviProperty.setPartner(partner.getExternalName());
         } else {
           partner = targetType.getCorrespondingAssiciation(sourceType, getInternalName());
-          if (partner != null) {
-            if (((IntermediateNavigationProperty) partner).isMapped())
-              edmNaviProperty.setPartner(partner.getExternalName());
+          if (partner != null
+              && ((IntermediateNavigationProperty) partner).isMapped()) {
+            edmNaviProperty.setPartner(partner.getExternalName());
           }
         }
       }

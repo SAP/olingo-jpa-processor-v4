@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.processor.core.query;
 
+import static com.sap.olingo.jpa.processor.core.query.JPAExpandQueryResult.ROOT_RESULT_KEY;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.core.converter.JPATupleResultConverter;
+import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescriptionKey;
 import com.sap.olingo.jpa.processor.core.util.ServiceMetadataDouble;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
@@ -24,10 +25,10 @@ import com.sap.olingo.jpa.processor.core.util.TestHelper;
 import com.sap.olingo.jpa.processor.core.util.TupleDouble;
 import com.sap.olingo.jpa.processor.core.util.UriHelperDouble;
 
-public class TestJPATupleResultConverterCompoundKey extends TestBase {
+public class TestJPATupleChildConverterCompoundKey extends TestBase {
   public static final int NO_POSTAL_ADDRESS_FIELDS = 8;
   public static final int NO_ADMIN_INFO_FIELDS = 2;
-  private JPATupleResultConverter cut;
+  private JPATupleChildConverter cut;
   private List<Tuple> jpaQueryResult;
   private UriHelperDouble uriHelper;
   private Map<String, String> keyPredicates;
@@ -47,11 +48,8 @@ public class TestJPATupleResultConverterCompoundKey extends TestBase {
     HashMap<String, List<Tuple>> resultContainer = new HashMap<>(1);
     resultContainer.put("root", jpaQueryResult);
 
-    cut = new JPATupleResultConverter(
-        helper.sd,
-        new JPAExpandQueryResult(resultContainer, null, helper.getJPAEntityType("BusinessPartnerRoles")), // Long.parseLong("0")
-        uriHelper,
-        new ServiceMetadataDouble(nameBuilder, "BusinessPartnerRole"));
+    cut = new JPATupleChildConverter(helper.sd, uriHelper, new ServiceMetadataDouble(nameBuilder,
+        "BusinessPartnerRole"));
 
     HashMap<String, Object> result;
 
@@ -63,7 +61,9 @@ public class TestJPATupleResultConverterCompoundKey extends TestBase {
     uriHelper.setKeyPredicates(keyPredicates, "BusinessPartnerID");
     keyPredicates.put("3", "BusinessPartnerID='3',RoleCategory='C'");
 
-    EntityCollection act = cut.getResult();
+    EntityCollection act = cut.getResult(new JPAExpandQueryResult(resultContainer, null, helper.getJPAEntityType(
+        "BusinessPartnerRoles"))).get(ROOT_RESULT_KEY);
+
     assertEquals(1, act.getEntities().size());
     assertEquals("3", act.getEntities().get(0).getProperty("BusinessPartnerID").getValue().toString());
     assertEquals("C", act.getEntities().get(0).getProperty("RoleCategory").getValue().toString());
@@ -79,12 +79,8 @@ public class TestJPATupleResultConverterCompoundKey extends TestBase {
     HashMap<String, List<Tuple>> resultContainer = new HashMap<>(1);
     resultContainer.put("root", jpaQueryResult);
 
-    cut = new JPATupleResultConverter(
-        helper.sd,
-        new JPAExpandQueryResult(resultContainer, null, helper.getJPAEntityType(
-            "AdministrativeDivisionDescriptions")), // Long.parseLong("1")
-        uriHelper,
-        new ServiceMetadataDouble(nameBuilder, "AdministrativeDivisionDescription"));
+    cut = new JPATupleChildConverter(helper.sd, uriHelper, new ServiceMetadataDouble(nameBuilder,
+        "AdministrativeDivisionDescription"));
 
     AdministrativeDivisionDescriptionKey country = new AdministrativeDivisionDescriptionKey();
     country.setLanguage("en");
@@ -100,7 +96,9 @@ public class TestJPATupleResultConverterCompoundKey extends TestBase {
     uriHelper.setKeyPredicates(keyPredicates, "DivisionCode");
     keyPredicates.put("DEU", "CodePublisher='ISO',CodeID='3166-1',DivisionCode='DEU',Language='en'");
 
-    EntityCollection act = cut.getResult();
+    EntityCollection act = cut.getResult(new JPAExpandQueryResult(resultContainer, null, helper.getJPAEntityType(
+        "AdministrativeDivisionDescriptions"))).get(ROOT_RESULT_KEY);
+
     assertEquals(1, act.getEntities().size());
     assertEquals("ISO", act.getEntities().get(0).getProperty("CodePublisher").getValue().toString());
     assertEquals("en", act.getEntities().get(0).getProperty("Language").getValue().toString());
