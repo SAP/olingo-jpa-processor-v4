@@ -10,14 +10,20 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 
 public interface JPAExpandResult {
 
-  List<Tuple> getResult(final String key);
+  String ROOT_RESULT_KEY = "root";
+
+  JPAExpandResult getChild(JPAAssociationPath associationPath);
 
   Map<JPAAssociationPath, JPAExpandResult> getChildren();
-
-  boolean hasCount();
 
   Long getCount(final String string);
 
   JPAEntityType getEntityType();
+
+  List<Tuple> getResult(final String key);
+
+  Map<String, List<Tuple>> getResults();
+
+  boolean hasCount();
 
 }

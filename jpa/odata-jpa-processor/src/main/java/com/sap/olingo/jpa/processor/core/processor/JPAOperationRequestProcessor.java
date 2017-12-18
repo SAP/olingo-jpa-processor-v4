@@ -77,7 +77,7 @@ abstract class JPAOperationRequestProcessor extends JPAAbstractRequestProcessor 
     jpaQueryResult.addAll((Collection<?>) result);
     try {
       return new JPAComplexResultConverter(sd, jpaQueryResult, returnType).getResult();
-    } catch (SerializerException | ODataJPAModelException | URISyntaxException e) {
+    } catch (SerializerException | URISyntaxException e) {
       throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.QUERY_RESULT_CONV_ERROR,
           HttpStatusCode.INTERNAL_SERVER_ERROR, e);
     }
@@ -91,7 +91,7 @@ abstract class JPAOperationRequestProcessor extends JPAAbstractRequestProcessor 
     try {
       final List<ComplexValue> valueList = new JPAComplexResultConverter(sd, jpaQueryResult, returnType).getResult();
       return valueList.get(0);
-    } catch (SerializerException | ODataJPAModelException | URISyntaxException e) {
+    } catch (SerializerException | URISyntaxException e) {
       throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.QUERY_RESULT_CONV_ERROR,
           HttpStatusCode.INTERNAL_SERVER_ERROR, e);
     }

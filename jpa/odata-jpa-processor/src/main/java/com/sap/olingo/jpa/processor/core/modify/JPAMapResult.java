@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.modify;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,6 +33,13 @@ final class JPAMapResult extends JPACreateResult {
     return result;
   }
 
+  @Override
+  public Map<String, List<Tuple>> getResults() {
+    final Map<String, List<Tuple>> results = new HashMap<>(1);
+    results.put(ROOT_RESULT_KEY, result);
+    return results;
+  }
+
   @SuppressWarnings("unchecked")
   private void convertPathToTuple(JPATuple tuple, Map<String, Object> jpaEntity, JPAPath path, int index)
       throws ODataJPAProcessorException {
@@ -59,7 +67,7 @@ final class JPAMapResult extends JPACreateResult {
 
   private List<Tuple> createResult() throws ODataJPAProcessorException {
     JPATuple tuple = new JPATuple();
-    List<Tuple> tupleResult = new ArrayList<Tuple>();
+    List<Tuple> tupleResult = new ArrayList<>();
 
     for (JPAPath path : pathList) {
       convertPathToTuple(tuple, jpaEntity, path, 0);

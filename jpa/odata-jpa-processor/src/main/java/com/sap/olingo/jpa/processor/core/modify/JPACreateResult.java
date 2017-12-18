@@ -25,7 +25,7 @@ abstract class JPACreateResult implements JPAExpandResult {
   protected final Map<String, List<String>> requestHeaders;
 
   public JPACreateResult(final JPAEntityType et, final Map<String, List<String>> requestHeaders)
-      throws ODataJPAModelException, ODataJPAProcessorException {
+      throws ODataJPAModelException {
 
     this.et = et;
     this.helper = new JPAConversionHelper();
@@ -38,6 +38,11 @@ abstract class JPACreateResult implements JPAExpandResult {
   @Override
   public Map<JPAAssociationPath, JPAExpandResult> getChildren() {
     return children;
+  }
+
+  @Override
+  public JPAExpandResult getChild(JPAAssociationPath associationPath) {
+    return null;
   }
 
   @Override

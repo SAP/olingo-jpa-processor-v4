@@ -74,7 +74,7 @@ public abstract class JPAStructuredResultConverter {
       final String attributeName = attribute.getInternalName();
       final Method getMethod = getGetter(attributeName, methodMap);
       try {
-        if (attribute != null && attribute.isComplex()) {
+        if (attribute.isComplex()) {
           final ComplexValue complexValue = new ComplexValue();
           properties.add(new Property(
               attribute.getStructuredType().getExternalFQN().getFullQualifiedNameAsString(),

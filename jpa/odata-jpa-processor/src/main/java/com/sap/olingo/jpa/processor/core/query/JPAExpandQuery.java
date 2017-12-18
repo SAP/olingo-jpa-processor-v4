@@ -133,7 +133,7 @@ public final class JPAExpandQuery extends JPAExecutableQuery {
 
     // TODO handle Join Column is ignored
     cq.multiselect(createSelectClause(joinTables, selectionPath));
-    cq.where(createWhere(joinTables));
+    cq.where(createWhere());
 
     final List<Order> orderBy = createOrderByJoinCondition(assoziation);
     orderBy.addAll(createOrderByList(joinTables, uriResource.getOrderByOption()));
@@ -158,14 +158,14 @@ public final class JPAExpandQuery extends JPAExecutableQuery {
 //        GROUP BY "BusinessPartnerID";     //NOSONAR 
       final CriteriaQuery<Tuple> countQuery = cb.createTupleQuery();
       final List<Selection<?>> selectionPath = buildExpandJoinPath();
-      final Map<String, From<?, ?>> joinTables = createFromClause(new ArrayList<JPAAssociationAttribute>(0),
-          new ArrayList<>(0));
+//      final Map<String, From<?, ?>> joinTables = createFromClause(new ArrayList<JPAAssociationAttribute>(0),
+//          new ArrayList<>(0));
 
       Expression<Long> count = cb.count(root);
       count.alias("$count");
       selectionPath.add(count);
       countQuery.multiselect(selectionPath);
-      countQuery.where(createWhere(joinTables));
+      countQuery.where(createWhere());
       countQuery.groupBy(buildExpandCountGroupBy());
       final TypedQuery<Tuple> query = em.createQuery(countQuery);
       List<Tuple> intermediateResult = query.getResultList();
@@ -278,7 +278,7 @@ public final class JPAExpandQuery extends JPAExecutableQuery {
   }
 
   @Override
-  protected Expression<Boolean> createWhere(final Map<String, From<?, ?>> joinTables) throws ODataApplicationException {
+  protected Expression<Boolean> createWhere() throws ODataApplicationException {
 
     Expression<Boolean> whereCondition = null;
     try {
