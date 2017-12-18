@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.processor.core.query;
 
+import static com.sap.olingo.jpa.processor.core.query.JPAExpandQueryResult.ROOT_RESULT_KEY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -19,44 +20,44 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.core.converter.JPATupleResultConverter;
+import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 import com.sap.olingo.jpa.processor.core.util.ServiceMetadataDouble;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 import com.sap.olingo.jpa.processor.core.util.TupleDouble;
 import com.sap.olingo.jpa.processor.core.util.UriHelperDouble;
 
-public class TestJPATupleResultConverter extends TestBase {
+public class TestJPATupleChildConverter extends TestBase {
   public static final int NO_POSTAL_ADDRESS_FIELDS = 8;
   public static final int NO_ADMIN_INFO_FIELDS = 2;
-  private JPATupleResultConverter cut;
+  private JPATupleChildConverter cut;
   private List<Tuple> jpaQueryResult;
   private UriHelperDouble uriHelper;
   private Map<String, String> keyPredicates;
+  private HashMap<String, List<Tuple>> queryResult = new HashMap<>(1);
 
   @Before
   public void setup() throws ODataException {
     helper = new TestHelper(emf, PUNIT_NAME);
     jpaQueryResult = new ArrayList<>();
-    HashMap<String, List<Tuple>> result = new HashMap<>(1);
-    result.put("root", jpaQueryResult);
+
+    queryResult.put(ROOT_RESULT_KEY, jpaQueryResult);
     uriHelper = new UriHelperDouble();
     keyPredicates = new HashMap<>();
     uriHelper.setKeyPredicates(keyPredicates, "ID");
-    cut = new JPATupleResultConverter(
-        helper.sd,
-        new JPAExpandQueryResult(result, null, helper.getJPAEntityType("Organizations")),
-        uriHelper,
-        new ServiceMetadataDouble(nameBuilder, "Organization"));
+
+    cut = new JPATupleChildConverter(helper.sd, uriHelper, new ServiceMetadataDouble(nameBuilder, "Organization"));
+
   }
 
   @Test
-  public void checkConvertsEmptyResult() throws ODataApplicationException {
-    assertNotNull(cut.getResult());
+  public void checkConvertsEmptyResult() throws ODataApplicationException, ODataJPAModelException {
+
+    assertNotNull(cut.getResult(new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType("Organizations"))));
   }
 
   @Test
-  public void checkConvertsOneResultOneElement() throws ODataApplicationException {
+  public void checkConvertsOneResultOneElement() throws ODataApplicationException, ODataJPAModelException {
     HashMap<String, Object> result = new HashMap<>();
 
     result.put("ID", new String("1"));
@@ -64,26 +65,28 @@ public class TestJPATupleResultConverter extends TestBase {
 
     keyPredicates.put("1", "Organizations('1')");
 
-    EntityCollection act = cut.getResult();
+    EntityCollection act = cut.getResult(new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType(
+        "Organizations"))).get(ROOT_RESULT_KEY);
     assertEquals(1, act.getEntities().size());
     assertEquals("1", act.getEntities().get(0).getProperty("ID").getValue().toString());
   }
 
   @Test
-  public void checkConvertsOneResultOneKey() throws ODataApplicationException {
+  public void checkConvertsOneResultOneKey() throws ODataApplicationException, ODataJPAModelException {
     HashMap<String, Object> result = new HashMap<>();
     keyPredicates.put("1", "'1'");
 
     result.put("ID", new String("1"));
     jpaQueryResult.add(new TupleDouble(result));
 
-    EntityCollection act = cut.getResult();
+    EntityCollection act = cut.getResult(new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType(
+        "Organizations"))).get(ROOT_RESULT_KEY);
     assertEquals(1, act.getEntities().size());
     assertEquals("Organizations" + "('1')", act.getEntities().get(0).getId().getPath());
   }
 
   @Test
-  public void checkConvertsTwoResultsOneElement() throws ODataApplicationException {
+  public void checkConvertsTwoResultsOneElement() throws ODataApplicationException, ODataJPAModelException {
     HashMap<String, Object> result;
 
     result = new HashMap<>();
@@ -97,14 +100,15 @@ public class TestJPATupleResultConverter extends TestBase {
     keyPredicates.put("1", "Organizations('1')");
     keyPredicates.put("5", "Organizations('5')");
 
-    EntityCollection act = cut.getResult();
+    EntityCollection act = cut.getResult(new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType(
+        "Organizations"))).get(ROOT_RESULT_KEY);
     assertEquals(2, act.getEntities().size());
     assertEquals("1", act.getEntities().get(0).getProperty("ID").getValue().toString());
     assertEquals("5", act.getEntities().get(1).getProperty("ID").getValue().toString());
   }
 
   @Test
-  public void checkConvertsOneResultsTwoElements() throws ODataApplicationException {
+  public void checkConvertsOneResultsTwoElements() throws ODataApplicationException, ODataJPAModelException {
     HashMap<String, Object> result;
 
     result = new HashMap<>();
@@ -114,14 +118,15 @@ public class TestJPATupleResultConverter extends TestBase {
 
     keyPredicates.put("1", "Organizations('1')");
 
-    EntityCollection act = cut.getResult();
+    EntityCollection act = cut.getResult(new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType(
+        "Organizations"))).get(ROOT_RESULT_KEY);
     assertEquals(1, act.getEntities().size());
     assertEquals("1", act.getEntities().get(0).getProperty("ID").getValue().toString());
     assertEquals("Willi", act.getEntities().get(0).getProperty("Name1").getValue().toString());
   }
 
   @Test
-  public void checkConvertsOneResultsOneComplexElement() throws ODataApplicationException {
+  public void checkConvertsOneResultsOneComplexElement() throws ODataApplicationException, ODataJPAModelException {
     HashMap<String, Object> result;
 
     result = new HashMap<>();
@@ -138,7 +143,8 @@ public class TestJPATupleResultConverter extends TestBase {
 
     keyPredicates.put("1", "Organizations('1')");
 
-    EntityCollection act = cut.getResult();
+    EntityCollection act = cut.getResult(new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType(
+        "Organizations"))).get(ROOT_RESULT_KEY);
     assertEquals(1, act.getEntities().size());
 
     assertEquals(ValueType.COMPLEX, act.getEntities().get(0).getProperty("Address").getValueType());
@@ -147,7 +153,8 @@ public class TestJPATupleResultConverter extends TestBase {
   }
 
   @Test
-  public void checkConvertsOneResultsOneNestedComplexElement() throws ODataApplicationException {
+  public void checkConvertsOneResultsOneNestedComplexElement() throws ODataApplicationException,
+      ODataJPAModelException {
     HashMap<String, Object> result;
 
 //    AdministrativeInformation adminInfo = new AdministrativeInformation();
@@ -163,7 +170,8 @@ public class TestJPATupleResultConverter extends TestBase {
 
     keyPredicates.put("1", "Organizations('1')");
 
-    EntityCollection act = cut.getResult();
+    EntityCollection act = cut.getResult(new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType(
+        "Organizations"))).get(ROOT_RESULT_KEY);
     assertEquals(1, act.getEntities().size());
     // Check first level
     assertEquals(ValueType.COMPLEX, act.getEntities().get(0).getProperty("AdministrativeInformation").getValueType());
@@ -174,7 +182,8 @@ public class TestJPATupleResultConverter extends TestBase {
   }
 
   @Test
-  public void checkConvertsOneResultsOneElementOfComplexElement() throws ODataApplicationException {
+  public void checkConvertsOneResultsOneElementOfComplexElement() throws ODataApplicationException,
+      ODataJPAModelException {
     HashMap<String, Object> result;
 
     result = new HashMap<>();
@@ -184,7 +193,8 @@ public class TestJPATupleResultConverter extends TestBase {
 
     keyPredicates.put("1", "Organizations('1')");
 
-    EntityCollection act = cut.getResult();
+    EntityCollection act = cut.getResult(new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType(
+        "Organizations"))).get(ROOT_RESULT_KEY);
     assertEquals(1, act.getEntities().size());
     assertEquals("CA", ((ComplexValue) act.getEntities().get(0).getProperty("Address").getValue()).getValue().get(0)
         .getValue().toString());
@@ -196,11 +206,8 @@ public class TestJPATupleResultConverter extends TestBase {
 
     HashMap<String, List<Tuple>> result = new HashMap<>(1);
     result.put("root", jpaQueryResult);
-    JPATupleResultConverter converter = new JPATupleResultConverter(
-        helper.sd,
-        new JPAExpandQueryResult(result, null, helper.getJPAEntityType("PersonImages")),
-        uriHelper,
-        new ServiceMetadataDouble(nameBuilder, "PersonImage"));
+
+    cut = new JPATupleChildConverter(helper.sd, uriHelper, new ServiceMetadataDouble(nameBuilder, "PersonImage"));
 
     HashMap<String, Object> entityResult;
     byte[] image = { -119, 10 };
@@ -209,7 +216,9 @@ public class TestJPATupleResultConverter extends TestBase {
     entityResult.put("Image", image);
     jpaQueryResult.add(new TupleDouble(entityResult));
 
-    EntityCollection act = converter.getResult();
+    EntityCollection act = cut.getResult(new JPAExpandQueryResult(result, null, helper.getJPAEntityType(
+        "PersonImages"))).get(ROOT_RESULT_KEY);
+
     assertEquals("image/png", act.getEntities().get(0).getMediaContentType());
   }
 
@@ -219,11 +228,9 @@ public class TestJPATupleResultConverter extends TestBase {
 
     HashMap<String, List<Tuple>> result = new HashMap<>(1);
     result.put("root", jpaQueryResult);
-    JPATupleResultConverter converter = new JPATupleResultConverter(
-        helper.sd,
-        new JPAExpandQueryResult(result, null, helper.getJPAEntityType("OrganizationImages")),
-        uriHelper,
-        new ServiceMetadataDouble(nameBuilder, "OrganizationImage"));
+
+    cut = new JPATupleChildConverter(helper.sd, uriHelper, new ServiceMetadataDouble(nameBuilder,
+        "OrganizationImage"));
 
     HashMap<String, Object> entityResult;
     byte[] image = { -119, 10 };
@@ -233,7 +240,8 @@ public class TestJPATupleResultConverter extends TestBase {
     entityResult.put("MimeType", "image/svg+xml");
     jpaQueryResult.add(new TupleDouble(entityResult));
 
-    EntityCollection act = converter.getResult();
+    EntityCollection act = cut.getResult(new JPAExpandQueryResult(result, null, helper.getJPAEntityType(
+        "OrganizationImages"))).get(ROOT_RESULT_KEY);
     assertEquals("image/svg+xml", act.getEntities().get(0).getMediaContentType());
     assertEquals(2, act.getEntities().get(0).getProperties().size());
   }

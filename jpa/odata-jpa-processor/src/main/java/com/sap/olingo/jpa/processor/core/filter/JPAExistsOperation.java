@@ -61,10 +61,9 @@ abstract class JPAExistsOperation implements JPAOperator {
       final List<UriResource> resourceParts) throws ODataApplicationException {
     final List<JPANavigationProptertyInfo> pathList = new ArrayList<>();
 
-    StringBuffer associationName = null;
+    StringBuilder associationName = null;
     UriResourceNavigation navigation = null;
     if (resourceParts != null && hasNavigation(resourceParts)) {
-      // for (int i = 0; i < resourceParts.size(); i++) {
       for (int i = resourceParts.size() - 1; i >= 0; i--) {
         final UriResource resourcePart = resourceParts.get(i);
         if (resourcePart instanceof UriResourceNavigation) {
@@ -72,7 +71,7 @@ abstract class JPAExistsOperation implements JPAOperator {
             pathList.add(new JPANavigationProptertyInfo(navigation, Util.determineAssoziationPath(sd,
                 ((UriResourcePartTyped) resourceParts.get(i)), associationName), null));
           navigation = (UriResourceNavigation) resourceParts.get(i);
-          associationName = new StringBuffer();
+          associationName = new StringBuilder();
           associationName.insert(0, navigation.getProperty().getName());
         }
         if (navigation != null) {

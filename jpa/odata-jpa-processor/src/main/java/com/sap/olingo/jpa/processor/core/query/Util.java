@@ -34,6 +34,10 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAUtilException;
 
 public final class Util {
 
+  private Util() {
+    // suppress instance creation
+  }
+
   public static final String VALUE_RESOURCE = "$VALUE";
 
   public static EdmEntitySet determineTargetEntitySet(final List<UriResource> resources) {
@@ -43,7 +47,7 @@ public final class Util {
   public static EdmEntitySetInfo determineTargetEntitySetAndKeys(final List<UriResource> resources) {
     EdmEntitySet targetEdmEntitySet = null;
     List<UriParameter> targteKeyPredicates = new ArrayList<>();
-    StringBuffer naviPropertyName = new StringBuffer();
+    StringBuilder naviPropertyName = new StringBuilder();
 
     for (final UriResource resourceItem : resources) {
       if (resourceItem.getKind() == UriResourceKind.entitySet) {
@@ -61,7 +65,7 @@ public final class Util {
             .toString());
         if (edmBindingTarget instanceof EdmEntitySet)
           targetEdmEntitySet = (EdmEntitySet) edmBindingTarget;
-        naviPropertyName = new StringBuffer();
+        naviPropertyName = new StringBuilder();
       }
     }
     return new EdmEntitySetResult(targetEdmEntitySet, targteKeyPredicates);
@@ -82,41 +86,36 @@ public final class Util {
     return targetEdmEntity;
   }
 
-//  /**
-//   * Finds an entity type with which a navigation may starts. Can be used e.g. for filter:
-//   * AdministrativeDivisions?$filter=Parent/CodeID eq 'NUTS1' returns AdministrativeDivision;
-//   * AdministrativeDivisions(...)/Parent?$filter=Parent/CodeID eq 'NUTS1' returns "Parent"
-//   */
-//  public static EdmEntityType determineStartEntityType(final List<UriResource> resources) {
-//    EdmEntityType targetEdmEntity = null;
-//
-//    for (final UriResource resourceItem : resources) {
-//      if (resourceItem.getKind() == UriResourceKind.navigationProperty) {
-//        // first try the simple way like in the example
-//        targetEdmEntity = (EdmEntityType) ((UriResourceNavigation) resourceItem).getType();
-//      }
-//      if (resourceItem.getKind() == UriResourceKind.entitySet) {
-//        // first try the simple way like in the example
-//        targetEdmEntity = ((UriResourceEntitySet) resourceItem).getEntityType();
-//      }
-//    }
-//    return targetEdmEntity;
-//  }
-
   /**
    * Used for Serializer
    */
   public static UriResourceProperty determineStartNavigationPath(final List<UriResource> resources) {
-    UriResourceProperty property = null;
+
+    final int index = determineStartNavigationIndex(resources);
+    if (index >= 0 && resources != null)
+      return (UriResourceProperty) resources.get(index);
+    return null;
+  }
+
+  /**
+   * Finds the index of the first property after the last entity set or navigation resource. This is the resource that
+   * will be returned in case a complex or primitive type is requested.<p>
+   * Example1 : /Organizations -> -1<br>
+   * Example2 : /Organizations('3')/AdministrativeInformation -> 1<br>
+   * Example3 : /Organizations('3')/Roles -> -1<br>
+   * Example4 : /Organizations('3')/Roles/RoleCategory -> 2<br>
+   * Example4 : /Organizations('3')/AdministrativeInformation/Created/User/LastName -> 4
+   */
+  public static int determineStartNavigationIndex(final List<UriResource> resources) {
+
     if (resources != null) {
       for (int i = resources.size() - 1; i >= 0; i--) {
         final UriResource resourceItem = resources.get(i);
         if (resourceItem instanceof UriResourceEntitySet || resourceItem instanceof UriResourceNavigation)
-          break;
-        property = (UriResourceProperty) resourceItem;
+          return i == resources.size() ? -1 : i + 1;
       }
     }
-    return property;
+    return -1;
   }
 
   public static String determineProptertyNavigationPath(final List<UriResource> resources) {
@@ -143,7 +142,7 @@ public final class Util {
   }
 
   public static JPAAssociationPath determineAssoziation(final JPAServiceDocument sd, final EdmType naviStart,
-      final StringBuffer associationName) throws ODataApplicationException {
+      final StringBuilder associationName) throws ODataApplicationException {
     JPAEntityType naviStartType;
 
     try {
@@ -160,7 +159,7 @@ public final class Util {
 
     final Map<JPAExpandItem, JPAAssociationPath> pathList =
         new HashMap<>();
-    final StringBuffer associationNamePrefix = new StringBuffer();
+    final StringBuilder associationNamePrefix = new StringBuilder();
 
     UriResource startResourceItem = null;
     if (startResourceList != null && expandOption != null) {
@@ -181,7 +180,7 @@ public final class Util {
       // Example4 : ?$expand=*
       // Example5 : ?$expand=*/$ref,Parent
       // Example6 : ?$expand=Parent($levels=2)
-      StringBuffer associationName;
+      StringBuilder associationName;
       for (final ExpandItem item : expandOption.getExpandItems()) {
         if (item.isStar()) {
           final EdmEntitySet edmEntitySet = determineTargetEntitySet(startResourceList);
@@ -197,7 +196,7 @@ public final class Util {
           }
         } else {
           final List<UriResource> targetResourceList = item.getResourcePath().getUriResourceParts();
-          associationName = new StringBuffer();
+          associationName = new StringBuilder();
           associationName.append(associationNamePrefix);
           UriResource targetResourceItem = null;
           for (int i = 0; i < targetResourceList.size(); i++) {
@@ -227,13 +226,13 @@ public final class Util {
 
     final List<JPANavigationProptertyInfo> pathList = new ArrayList<>();
 
-    StringBuffer associationName = null;
+    StringBuilder associationName = null;
     UriResourceNavigation navigation = null;
     if (resourceParts != null && hasNavigation(resourceParts)) {
       for (int i = resourceParts.size() - 1; i >= 0; i--) {
         if (resourceParts.get(i) instanceof UriResourceNavigation && navigation == null) {
           navigation = (UriResourceNavigation) resourceParts.get(i);
-          associationName = new StringBuffer();
+          associationName = new StringBuilder();
           associationName.insert(0, navigation.getProperty().getName());
         } else {
           if (resourceParts.get(i) instanceof UriResourceComplexProperty) {
@@ -246,7 +245,7 @@ public final class Util {
                 determineAssoziationPath(sd, ((UriResourcePartTyped) resourceParts.get(i)), associationName), null));
             if (resourceParts.get(i) instanceof UriResourceNavigation) {
               navigation = (UriResourceNavigation) resourceParts.get(i);
-              associationName = new StringBuffer();
+              associationName = new StringBuilder();
               associationName.insert(0, navigation.getProperty().getName());
             }
           }
@@ -267,7 +266,7 @@ public final class Util {
   }
 
   public static JPAAssociationPath determineAssoziationPath(final JPAServiceDocument sd,
-      final UriResourcePartTyped naviStart, final StringBuffer associationName) throws ODataApplicationException {
+      final UriResourcePartTyped naviStart, final StringBuilder associationName) throws ODataApplicationException {
 
     JPAEntityType naviStartType;
     try {

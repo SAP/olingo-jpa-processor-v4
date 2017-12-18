@@ -110,6 +110,19 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
   }
 
   @Override
+  public List<JPAAssociationAttribute> getDeclaredAssociations() throws ODataJPAModelException {
+    lazyBuildCompleteAssociationPathMap();
+
+    List<JPAAssociationAttribute> result = new ArrayList<>();
+    for (final Entry<String, IntermediateNavigationProperty> naviProperty : declaredNaviPropertiesList.entrySet())
+      result.add(naviProperty.getValue());
+    final IntermediateStructuredType baseType = getBaseType();
+    if (baseType != null)
+      result.addAll(baseType.getDeclaredAssociations());
+    return result;
+  }
+
+  @Override
   public JPAAssociationPath getDeclaredAssociation(final JPAAssociationPath associationPath)
       throws ODataJPAModelException {
     lazyBuildCompleteAssociationPathMap();

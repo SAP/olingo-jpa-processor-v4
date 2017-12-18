@@ -4,11 +4,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.Tuple;
-import javax.persistence.TupleElement;
-
+import org.apache.olingo.commons.api.data.ComplexValue;
 import org.apache.olingo.commons.api.data.Entity;
 import org.apache.olingo.commons.api.data.EntityCollection;
+import org.apache.olingo.commons.api.data.Property;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
@@ -21,17 +20,13 @@ import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.serializer.SerializerResult;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
-import org.apache.olingo.server.api.uri.UriResourceComplexProperty;
 import org.apache.olingo.server.api.uri.UriResourceKind;
-import org.apache.olingo.server.api.uri.UriResourceNavigation;
-import org.apache.olingo.server.api.uri.UriResourcePrimitiveProperty;
 import org.apache.olingo.server.api.uri.queryoption.CountOption;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
-import com.sap.olingo.jpa.processor.core.converter.JPATupleResultConverter;
+import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandItemInfo;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandItemInfoFactory;
@@ -79,10 +74,11 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     final int converterHandle = debugger.startRuntimeMeasurement(this, "convertResult");
     EntityCollection entityCollection;
     try {
-      entityCollection = new JPATupleResultConverter(sd, result, odata.createUriHelper(), serviceMetadata)
-          .getResult();
+
+      entityCollection = result.asEntityCollection(new JPATupleChildConverter(sd, odata.createUriHelper(),
+          serviceMetadata)).get("root");
       debugger.stopRuntimeMeasurement(converterHandle);
-    } catch (ODataJPAModelException e) {
+    } catch (ODataApplicationException e) {
       debugger.stopRuntimeMeasurement(converterHandle);
       debugger.stopRuntimeMeasurement(handle);
       throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.QUERY_RESULT_CONV_ERROR,
@@ -99,7 +95,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     // provide additional information.
     // This is the case for individual property, complex type, a navigation property or entity is not available.
     // See 11.2.6 Requesting Related Entities and 11.2.3 Requesting Individual Properties
-    if (isResultEmpty(entityCollection.getEntities(), result))
+    if (isResultEmpty(entityCollection.getEntities()))
       response.setStatusCode(HttpStatusCode.NOT_FOUND.getStatusCode());
     // 200 OK indicates that either a result was found or that the a Entity Collection query had no result
     else if (entityCollection.getEntities() != null) {
@@ -115,7 +111,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     debugger.stopRuntimeMeasurement(handle);
   }
 
-  private boolean isResultEmpty(List<Entity> entities, JPAExpandQueryResult result) throws ODataApplicationException {
+  private boolean isResultEmpty(List<Entity> entities) throws ODataApplicationException {
 
     if (entities.isEmpty()
         && lastItem.getKind() == UriResourceKind.entitySet
@@ -131,38 +127,30 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
       Object resultElement = null;
       String name = "";
       if (lastItem.getKind() == UriResourceKind.primitiveProperty) {
-        name = ((UriResourcePrimitiveProperty) lastItem).getProperty().getName();
-        Tuple tuple = result.getResult("root").get(0);
-        for (TupleElement<?> element : tuple.getElements()) {
-          if (element.getAlias().endsWith(name)) {
-            resultElement = tuple.get(element.getAlias());
-            break;
-          }
+        name = Util.determineStartNavigationPath(uriInfo.getUriResourceParts()).getProperty().getName();
+        final Property property = entities.get(0).getProperty(name);
+        if (property != null) {
+          resultElement = property.getValue();
         }
       }
       if (lastItem.getKind() == UriResourceKind.complexProperty) {
-        name = ((UriResourceComplexProperty) lastItem).getProperty().getName();
-        Tuple tuple = result.getResult("root").get(0);
-        for (TupleElement<?> element : tuple.getElements()) {
-          if (element.getAlias().contains(name + "/")
-              && tuple.get(element.getAlias()) != null) {
-            resultElement = tuple.get(element.getAlias());
-            break;
+        name = Util.determineStartNavigationPath(uriInfo.getUriResourceParts()).getProperty().getName();
+        final Property property = entities.get(0).getProperty(name);
+        if (property != null) {
+          for (Property p : ((ComplexValue) property.getValue()).getValue()) {
+            if (p.getValue() != null) {
+              resultElement = p;
+              break;
+            }
           }
         }
       }
-      if (lastItem.getKind() == UriResourceKind.navigationProperty) {
-        name = ((UriResourceNavigation) lastItem).getProperty().getName();
-        Tuple tuple = result.getResult("root").get(0);
-        if (!tuple.getElements().isEmpty()) {
-          resultElement = tuple;
-        }
+      if (lastItem.getKind() == UriResourceKind.navigationProperty
+          && !entities.get(0).getProperties().isEmpty()) {
+        resultElement = Boolean.FALSE;
       }
 
-      if (resultElement == null)
-        return true;
-
-      return false;
+      return resultElement == null;
     } else
       return false;
   }

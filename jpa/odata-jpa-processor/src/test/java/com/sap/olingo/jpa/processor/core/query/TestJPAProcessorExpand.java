@@ -109,7 +109,7 @@ public class TestJPAProcessorExpand extends TestBase {
     assertNotNull(created.get("User"));
   }
 
-  @Ignore // Not supported by Olingo as of now
+  // @Ignore // Not supported by Olingo as of now
   @Test
   public void testExpandEntitySetViaNonKeyFieldNavi2Hops() throws IOException, ODataException {
 

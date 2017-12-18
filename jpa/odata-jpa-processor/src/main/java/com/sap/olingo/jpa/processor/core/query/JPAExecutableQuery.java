@@ -450,7 +450,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     return selections;
   }
 
-  protected javax.persistence.criteria.Expression<Boolean> createWhere(final Map<String, From<?, ?>> joinTables)
+  protected javax.persistence.criteria.Expression<Boolean> createWhere()
       throws ODataApplicationException {
 
     final int handle = debugger.startRuntimeMeasurement(this, "createWhere");
