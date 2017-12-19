@@ -2,6 +2,7 @@ package com.sap.olingo.jpa.processor.core.query;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -36,7 +37,7 @@ public class TestJPAFunctionSerializer {
   @Before
   public void setup() {
     ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
-    Map<String, Object> properties = new HashMap<String, Object>();
+    Map<String, Object> properties = new HashMap<>();
     properties.put("javax.persistence.nonJtaDataSource", ds);
     emf = Persistence.createEntityManagerFactory(PUNIT_NAME, properties);
     emf.getProperties();
@@ -150,4 +151,11 @@ public class TestJPAFunctionSerializer {
         "com.sap.olingo.jpa.processor.core.query");
     helper.assertStatus(200);
   }
+
+  @Test
+  public void testFunctionReturnsEntityTypeWithCollection() throws IOException, ODataException {
+    // Reminder !!
+    fail();
+  }
+
 }
