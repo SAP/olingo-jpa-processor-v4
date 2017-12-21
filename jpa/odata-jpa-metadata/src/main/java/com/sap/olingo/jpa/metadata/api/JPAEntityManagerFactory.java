@@ -16,7 +16,7 @@ public class JPAEntityManagerFactory {
       return null;
     }
     if (emfMap == null) {
-      emfMap = new HashMap<String, Map<Integer, EntityManagerFactory>>();
+      emfMap = new HashMap<>();
     }
     Integer dsKey = new Integer(ds.hashCode());
     if (emfMap.containsKey(pUnit)) {
@@ -30,7 +30,7 @@ public class JPAEntityManagerFactory {
       return emf;
 
     } else {
-      final Map<Integer, EntityManagerFactory> dsMap = new HashMap<Integer, EntityManagerFactory>();
+      final Map<Integer, EntityManagerFactory> dsMap = new HashMap<>();
       emfMap.put(pUnit, dsMap);
       final EntityManagerFactory emf = Persistence.createEntityManagerFactory(pUnit, ds);
       dsMap.put(dsKey, emf);
@@ -39,7 +39,7 @@ public class JPAEntityManagerFactory {
   }
 
   public static EntityManagerFactory getEntityManagerFactory(final String pUnit, final DataSource ds) {
-    final Map<String, Object> properties = new HashMap<String, Object>();
+    final Map<String, Object> properties = new HashMap<>();
     properties.put(ENTITY_MANAGER_DATA_SOURCE, ds);
     return getEntityManagerFactory(pUnit, properties);
   }

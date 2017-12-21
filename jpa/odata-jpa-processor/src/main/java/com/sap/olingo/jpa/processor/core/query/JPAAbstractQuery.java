@@ -108,19 +108,6 @@ public abstract class JPAAbstractQuery {
     }
     return compundCondition;
   }
-//
-//  protected List<UriParameter> determineKeyPredicates(final UriResource uriResourceItem)
-//      throws ODataApplicationException {
-//
-//    if (uriResourceItem instanceof UriResourceEntitySet)
-//      return ((UriResourceEntitySet) uriResourceItem).getKeyPredicates();
-//    else if (uriResourceItem instanceof UriResourceNavigation)
-//      return ((UriResourceNavigation) uriResourceItem).getKeyPredicates();
-//    else
-//      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
-//          HttpStatusCode.BAD_REQUEST,
-//          uriResourceItem.getKind().name());
-//  }
 
   public abstract <T> Root<T> getRoot();
 
@@ -195,7 +182,7 @@ public abstract class JPAAbstractQuery {
 
     @Override
     public Collection<? extends RuntimeMeasurement> getRuntimeInformation() {
-      return new ArrayList<RuntimeMeasurement>();
+      return new ArrayList<>();
     }
 
   }

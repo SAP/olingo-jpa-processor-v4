@@ -7,7 +7,6 @@ import java.util.List;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResourcePartTyped;
-import org.apache.olingo.server.api.uri.queryoption.expression.Expression;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -18,14 +17,14 @@ public class JPAExpandItemInfo {
   private final List<JPANavigationProptertyInfo> hops;
 
   JPAExpandItemInfo(final JPAExpandItem uriInfo, final UriResourcePartTyped startResourceItem,
-      Expression filterExpression, final JPAAssociationPath expandAssociation,
+      javax.persistence.criteria.Expression<Boolean> filterExpression, final JPAAssociationPath expandAssociation,
       final List<JPANavigationProptertyInfo> hops)
       throws ODataApplicationException {
 
     super();
     this.uriInfo = uriInfo;
     this.expandAssociation = expandAssociation;
-    this.hops = new ArrayList<JPANavigationProptertyInfo>(hops);
+    this.hops = new ArrayList<>(hops);
     this.hops.add(0, new JPANavigationProptertyInfo(startResourceItem, expandAssociation, filterExpression));
   }
 

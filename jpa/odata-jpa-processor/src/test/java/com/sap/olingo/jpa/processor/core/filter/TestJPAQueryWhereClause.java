@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.filter;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
 
@@ -693,6 +694,33 @@ public class TestJPAQueryWhereClause extends TestBase {
     ArrayNode orgs = helper.getValues();
     assertEquals(1, orgs.size());
   };
+
+  @Test
+  public void testFilterNavigationPropertyAndExandThatNavigationProperty() throws IOException,
+      ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions?$filter=Parent/DivisionCode eq 'BE2'&$expand=Parent");
+
+    helper.assertStatus(200);
+    ArrayNode admin = helper.getValues();
+    assertEquals(5, admin.size());
+    assertNotNull(admin.get(3).findValue("Parent"));
+    assertEquals("BE2", admin.get(3).findValue("Parent").get("DivisionCode").asText());
+  };
+
+  @Test
+  public void testFilterWithAllExpand() throws ODataException, IOException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$filter=Name1 eq 'Third Org.'&$expand=Roles");
+
+    helper.assertStatus(200);
+    ArrayNode org = helper.getValues();
+    assertNotNull(org);
+    assertEquals(1, org.size());
+    assertEquals(3, org.get(0).get("Roles").size());
+  }
 
   @Test
   public void testFilterSubstringStartEndIndexToLower() throws IOException, ODataException {

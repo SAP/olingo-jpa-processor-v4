@@ -68,6 +68,7 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
   protected final Root<?> root;
   protected final JPAFilterComplier filter;
   protected final JPAODataSessionContextAccess context;
+  protected javax.persistence.criteria.Expression<Boolean> whereClause;
 
   public JPAExecutableQuery(final OData odata, final JPAODataSessionContextAccess context,
       final JPAEntityType jpaEntityType, final EntityManager em, final Map<String, List<String>> requestHeaders,
@@ -88,6 +89,9 @@ public abstract class JPAExecutableQuery extends JPAAbstractQuery {
     return cq;
   }
 
+  public javax.persistence.criteria.Expression<Boolean> getWhereClause() {
+    return whereClause;
+  }
   /**
    * Applies the $skip and $top options of the OData request to the query. The values are defined as follows:
    * <ul>
