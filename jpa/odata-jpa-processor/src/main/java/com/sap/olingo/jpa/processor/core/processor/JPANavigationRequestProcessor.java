@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.criteria.Expression;
+
 import org.apache.olingo.commons.api.data.ComplexValue;
 import org.apache.olingo.commons.api.data.Entity;
 import org.apache.olingo.commons.api.data.EntityCollection;
@@ -69,7 +71,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     }
 
     final JPAExpandQueryResult result = query.execute();
-    result.putChildren(readExpandEntities(request.getAllHeaders(), null, uriInfo));
+    result.putChildren(readExpandEntities(request.getAllHeaders(), null, uriInfo, query.getWhereClause()));
     // Convert tuple result into an OData Result
     final int converterHandle = debugger.startRuntimeMeasurement(this, "convertResult");
     EntityCollection entityCollection;
@@ -172,12 +174,13 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
    * @param naviStartEdmEntitySet
    * @param parentHops
    * @param uriResourceInfo
+   * @param parentWhere
    * @return
    * @throws ODataException
    */
   private Map<JPAAssociationPath, JPAExpandQueryResult> readExpandEntities(final Map<String, List<String>> headers,
-      final List<JPANavigationProptertyInfo> parentHops, final UriInfoResource uriResourceInfo)
-      throws ODataException {
+      final List<JPANavigationProptertyInfo> parentHops, final UriInfoResource uriResourceInfo,
+      Expression<Boolean> parentWhere) throws ODataException {
 
     final int handle = debugger.startRuntimeMeasurement(this, "readExpandEntities");
 
@@ -187,19 +190,19 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     // For performance reasons the expand query should only return results for the results of the higher-level query.
     // The solution for restrictions like a given key or a given filter condition, as it can be propagated to a
     // sub-query.
-    // For $top and $skip things are more difficult as the criteria query does not support LIMIT and OFFSET, this is
+    // For $top and $skip things are more difficult as the Subquery does not support LIMIT and OFFSET, this is
     // done on the TypedQuery created out of the Criteria Query. In addition not all databases support LIMIT within a
     // sub-query used within EXISTS.
 
     final List<JPAExpandItemInfo> itemInfoList = new JPAExpandItemInfoFactory()
-        .buildExpandItemInfo(sd, uriResourceInfo, parentHops);
-    // .buildExpandItemInfo(sd, uriResourceInfo.getUriResourceParts(), uriResourceInfo.getExpandOption(), parentHops);
+        .buildExpandItemInfo(sd, uriResourceInfo, parentHops, parentWhere);
     for (final JPAExpandItemInfo item : itemInfoList) {
       final JPAExpandQuery expandQuery = new JPAExpandQuery(odata, sessionContext, em, item, headers);
       final JPAExpandQueryResult expandResult = expandQuery.execute();
       if (expandResult.getNoResults() > 0)
         // Only go the next hop if the current one has a result
-        expandResult.putChildren(readExpandEntities(headers, item.getHops(), item.getUriInfo()));
+        expandResult.putChildren(readExpandEntities(headers, item.getHops(), item.getUriInfo(), expandQuery
+            .getWhereClause()));
       allExpResults.put(item.getExpandAssociation(), expandResult);
     }
 

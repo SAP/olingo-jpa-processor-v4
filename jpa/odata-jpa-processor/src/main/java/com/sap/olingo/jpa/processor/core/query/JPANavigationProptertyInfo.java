@@ -2,10 +2,11 @@ package com.sap.olingo.jpa.processor.core.query;
 
 import java.util.List;
 
+import javax.persistence.criteria.Expression;
+
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResourcePartTyped;
-import org.apache.olingo.server.api.uri.queryoption.expression.VisitableExpression;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 
@@ -13,19 +14,19 @@ public final class JPANavigationProptertyInfo {
   private final UriResourcePartTyped navigationTarget;
   private final JPAAssociationPath associationPath;
   private final List<UriParameter> keyPredicates;
-  private final VisitableExpression expression;
+  private final Expression<Boolean> expression;
 
   public JPANavigationProptertyInfo(final UriResourcePartTyped uriResource, final JPAAssociationPath associationPath,
-      VisitableExpression expression) throws ODataApplicationException {
+      Expression<Boolean> filterExpression) throws ODataApplicationException {
     super();
     this.navigationTarget = uriResource;
     this.associationPath = associationPath;
     this.keyPredicates = Util.determineKeyPredicates(uriResource);
-    this.expression = expression; // uriResource.getFilterOption().getExpression();
+    this.expression = filterExpression;
   }
 
   public JPANavigationProptertyInfo(final UriResourcePartTyped uriResiource, final JPAAssociationPath associationPath,
-      final List<UriParameter> keyPredicates, VisitableExpression expression) {
+      final List<UriParameter> keyPredicates, Expression<Boolean> expression) {
     super();
     this.navigationTarget = uriResiource;
     this.associationPath = associationPath;
@@ -45,7 +46,7 @@ public final class JPANavigationProptertyInfo {
     return keyPredicates;
   }
 
-  VisitableExpression getExpression() {
+  Expression<Boolean> getExpression() {
     return expression;
   }
 
