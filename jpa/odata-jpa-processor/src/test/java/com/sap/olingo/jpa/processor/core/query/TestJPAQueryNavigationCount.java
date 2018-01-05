@@ -30,4 +30,23 @@ public class TestJPAQueryNavigationCount extends TestBase {
     assertEquals("3", helper.getRawResult());
   }
 
+  @Test
+  public void testEntitySetCountWithFilterOn() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations/$count?$filter=Address/HouseNumber gt '30'");
+
+    assertEquals(200, helper.getStatus());
+    assertEquals("7", helper.getRawResult());
+  }
+
+  @Test
+  public void testEntitySetCountWithFilterOnDescription() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Persons/$count?$filter=LocationName eq 'Deutschland'");
+
+    assertEquals(200, helper.getStatus());
+    assertEquals("2", helper.getRawResult());
+  }
 }

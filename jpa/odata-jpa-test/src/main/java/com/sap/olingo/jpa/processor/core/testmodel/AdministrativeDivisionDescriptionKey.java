@@ -12,16 +12,15 @@ public class AdministrativeDivisionDescriptionKey implements Serializable {
    */
   private static final long serialVersionUID = 4843041820527005995L;
 
-  // @Id
   @Column(name = "\"CodePublisher\"", length = 10, nullable = false)
   private String codePublisher;
-  // @Id
+
   @Column(name = "\"CodeID\"", length = 10, nullable = false)
   private String codeID;
-  // @Id
+
   @Column(name = "\"DivisionCode\"", length = 10, nullable = false)
   private String divisionCode;
-  // @Id
+
   @Column(name = "\"LanguageISO\"")
   private String language;
 
@@ -73,7 +72,7 @@ public class AdministrativeDivisionDescriptionKey implements Serializable {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(Object obj) { // NOSONAR
     if (this == obj) return true;
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;

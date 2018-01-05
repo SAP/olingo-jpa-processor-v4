@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.From;
 import javax.persistence.criteria.Subquery;
 
 import org.apache.olingo.commons.api.edm.EdmType;
@@ -42,9 +43,20 @@ import com.sap.olingo.jpa.processor.core.query.JPANavigationQuery;
  */
 final class JPANavigationOperation extends JPAExistsOperation implements JPAExpressionOperator {
 
+  public static boolean hasNavigation(final List<UriResource> uriResourceParts) {
+    if (uriResourceParts != null) {
+      for (int i = uriResourceParts.size() - 1; i >= 0; i--) {
+        if (uriResourceParts.get(i) instanceof UriResourceNavigation)
+          return true;
+      }
+    }
+    return false;
+  }
+
   final BinaryOperatorKind operator;
   final JPAMemberOperator jpaMember;
   final JPALiteralOperator operand;
+
   private final UriResourceKind aggregationType;
 
   JPANavigationOperation(final JPAFilterComplierAccess jpaComplier, final BinaryOperatorKind operator,
@@ -62,16 +74,6 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
     }
   }
 
-  public static boolean hasNavigation(final List<UriResource> uriResourceParts) {
-    if (uriResourceParts != null) {
-      for (int i = uriResourceParts.size() - 1; i >= 0; i--) {
-        if (uriResourceParts.get(i) instanceof UriResourceNavigation)
-          return true;
-      }
-    }
-    return false;
-  }
-
   @SuppressWarnings("unchecked")
   @Override
   public Expression<Boolean> get() throws ODataApplicationException {
@@ -79,6 +81,12 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
     if (aggregationType != null)
       return (Expression<Boolean>) getExistsQuery().getRoots().toArray()[0];
     return converter.cb.exists(getExistsQuery());
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public Enum<?> getOperator() {
+    return null;
   }
 
   @Override
@@ -98,10 +106,10 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
         final JPAFilterExpression expression = new JPAFilterExpression(new SubMember(jpaMember), operand.getLiteral(),
             operator);
         queryList.add(new JPANavigationFilterQuery(odata, sd, naviInfo.getUriResiource(), parent, em, naviInfo
-            .getAssociationPath(), expression));
+            .getAssociationPath(), expression, determineFrom(i, naviPathList.size(), parent)));
       } else
         queryList.add(new JPANavigationFilterQuery(odata, sd, naviInfo.getUriResiource(), parent, em, naviInfo
-            .getAssociationPath()));
+            .getAssociationPath(), determineFrom(i, naviPathList.size(), parent)));
       parent = queryList.get(queryList.size() - 1);
     }
     // 3. Create select statements
@@ -112,10 +120,8 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
     return childQuery;
   }
 
-  @SuppressWarnings("unchecked")
-  @Override
-  public Enum<?> getOperator() {
-    return null;
+  private From<?, ?> determineFrom(int i, int size, JPAAbstractQuery parent) {
+    return i == size - 1 ? from : parent.getRoot();
   }
 
   private class SubMember implements Member {
@@ -137,12 +143,12 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
     }
 
     @Override
-    public EdmType getType() {
+    public EdmType getStartTypeFilter() {
       return null;
     }
 
     @Override
-    public EdmType getStartTypeFilter() {
+    public EdmType getType() {
       return null;
     }
 
@@ -162,7 +168,22 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
     }
 
     @Override
+    public ApplyOption getApplyOption() {
+      return null;
+    }
+
+    @Override
+    public CountOption getCountOption() {
+      return null;
+    }
+
+    @Override
     public List<CustomQueryOption> getCustomQueryOptions() {
+      return null;
+    }
+
+    @Override
+    public DeltaTokenOption getDeltaTokenOption() {
       return null;
     }
 
@@ -183,11 +204,6 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
 
     @Override
     public IdOption getIdOption() {
-      return null;
-    }
-
-    @Override
-    public CountOption getCountOption() {
       return null;
     }
 
@@ -237,16 +253,6 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
 
     @Override
     public String getValueForAlias(final String alias) {
-      return null;
-    }
-
-    @Override
-    public ApplyOption getApplyOption() {
-      return null;
-    }
-
-    @Override
-    public DeltaTokenOption getDeltaTokenOption() {
       return null;
     }
 

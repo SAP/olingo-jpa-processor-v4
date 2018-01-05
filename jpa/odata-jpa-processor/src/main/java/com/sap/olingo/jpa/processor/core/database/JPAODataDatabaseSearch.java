@@ -3,7 +3,7 @@ package com.sap.olingo.jpa.processor.core.database;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.From;
 
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.queryoption.SearchOption;
@@ -28,6 +28,6 @@ public interface JPAODataDatabaseSearch {
    * @return
    * @throws ODataApplicationException
    */
-  Expression<Boolean> createSearchWhereClause(CriteriaBuilder cb, CriteriaQuery<?> cq, Root<?> root,
+  Expression<Boolean> createSearchWhereClause(CriteriaBuilder cb, CriteriaQuery<?> cq, From<?, ?> root,
       JPAEntityType entityType, SearchOption searchOption) throws ODataApplicationException;
 }

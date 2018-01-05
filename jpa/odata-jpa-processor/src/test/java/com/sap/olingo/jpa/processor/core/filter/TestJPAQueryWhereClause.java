@@ -10,6 +10,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 
@@ -709,6 +710,21 @@ public class TestJPAQueryWhereClause extends TestBase {
     assertEquals("BE2", admin.get(3).findValue("Parent").get("DivisionCode").asText());
   };
 
+  @Ignore
+  @Test
+  public void testFilterNavigationPropertyViaJoinTable() throws IOException,
+      ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$filter=SupportEngineers/any(d:d/LastName eq 'Doe')");
+
+    helper.assertStatus(200);
+    ArrayNode admin = helper.getValues();
+    assertEquals(1, admin.size());
+    assertEquals("2", admin.get(0).findValue("ID"));
+
+  };
+
   @Test
   public void testFilterWithAllExpand() throws ODataException, IOException {
 
@@ -744,5 +760,17 @@ public class TestJPAQueryWhereClause extends TestBase {
 
     ArrayNode orgs = helper.getValues();
     assertEquals(1, orgs.size());
+  }
+
+  @Test
+  public void testFilterNavigationTarget() throws IOException, ODataException {
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions(DivisionCode='BE2',CodeID='NUTS1',CodePublisher='Eurostat')/Children?$filter=DivisionCode eq 'BE21'");
+    helper.assertStatus(200);
+
+    final ObjectNode div = helper.getValue();
+    final ObjectNode result = (ObjectNode) div.get("value").get(0);
+    assertNotNull(result);
+    assertEquals("BE21", result.get("DivisionCode").asText());
   }
 }

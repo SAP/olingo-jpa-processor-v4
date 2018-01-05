@@ -8,7 +8,6 @@ import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
 import org.apache.olingo.commons.api.edm.EdmEntityType;
@@ -43,13 +42,14 @@ import com.sap.olingo.jpa.processor.core.filter.JPAMemberOperator;
 public class JPANavigationQuery extends JPAAbstractQuery {
   private final List<UriParameter> keyPredicates;
   private final JPAAssociationPath association;
-  private Root<?> queryRoot;
+  private From<?, ?> queryRoot;
   private Subquery<?> subQuery;
   private JPAAbstractQuery parentQuery;
+  private final From<?, ?> from;
 
   public <T extends Object> JPANavigationQuery(final OData odata, final JPAServiceDocument sd,
       final UriResource uriResourceItem, final JPAAbstractQuery parent, final EntityManager em,
-      final JPAAssociationPath association) throws ODataApplicationException {
+      final JPAAssociationPath association, final From<?, ?> from) throws ODataApplicationException {
 
     super(odata, sd, (EdmEntityType) ((UriResourcePartTyped) uriResourceItem).getType(), em);
     this.keyPredicates = Util.determineKeyPredicates(uriResourceItem);
@@ -58,16 +58,7 @@ public class JPANavigationQuery extends JPAAbstractQuery {
     this.subQuery = parent.getQuery().subquery(this.jpaEntity.getKeyType());
     this.queryRoot = subQuery.from(this.jpaEntity.getTypeClass());
     this.locale = parent.getLocale();
-  }
-
-  /**
-   * @return
-   */
-  @SuppressWarnings("unchecked")
-  @Override
-  public Root<?> getRoot() {
-    assert queryRoot != null;
-    return queryRoot;
+    this.from = from;
   }
 
   @Override
@@ -75,46 +66,40 @@ public class JPANavigationQuery extends JPAAbstractQuery {
     return subQuery;
   }
 
+  /**
+   * @return
+   */
+  @Override
+  public From<?, ?> getRoot() {
+    assert queryRoot != null;
+    return queryRoot;
+  }
+
   @SuppressWarnings("unchecked")
   public <T extends Object> Subquery<T> getSubQueryExists(final Subquery<?> childQuery)
       throws ODataApplicationException {
-    final Subquery<T> subQuery = (Subquery<T>) this.subQuery;
+    final Subquery<T> query = (Subquery<T>) this.subQuery;
 
-    List<JPAOnConditionItem> conditionItems;
-    try {
-      conditionItems = association.getJoinColumnsList();
-      if (conditionItems.isEmpty())
-        throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_JOIN_NOT_DEFINED,
-            HttpStatusCode.INTERNAL_SERVER_ERROR, association.getTargetType().getExternalName(), association
-                .getSourceType().getExternalName());
-
-      createSelectClause(subQuery, conditionItems);
-    } catch (ODataJPAModelException e) {
-
-      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_NAVI_PROPERTY_UNKNOWN,
-          HttpStatusCode.INTERNAL_SERVER_ERROR, e, association.getAlias());
-    }
-
+    List<JPAOnConditionItem> conditionItems = determineJoinColumns();
+    createSelectClause(query, conditionItems);
     Expression<Boolean> whereCondition = null;
     if (this.keyPredicates == null || this.keyPredicates.isEmpty())
-      whereCondition = createWhereByAssociation(parentQuery.getRoot(), queryRoot, conditionItems);
+      whereCondition = createWhereByAssociation(from, queryRoot, conditionItems);
     else
       whereCondition = cb.and(
-          createWhereByKey(queryRoot, null, this.keyPredicates),
-          createWhereByAssociation(parentQuery.getRoot(), queryRoot, conditionItems));
+          createWhereByKey(queryRoot, null, this.keyPredicates, jpaEntity),
+          createWhereByAssociation(from, queryRoot, conditionItems));
     if (childQuery != null)
       whereCondition = cb.and(whereCondition, cb.exists(childQuery));
-    subQuery.where(whereCondition);
-    handleAggregation(subQuery, queryRoot, conditionItems);
-    return subQuery;
+    query.where(whereCondition);
+    handleAggregation(query, queryRoot, conditionItems);
+
+    return query;
   }
 
-  protected void handleAggregation(final Subquery<?> subQuery, final Root<?> subRoot,
-      final List<JPAOnConditionItem> conditionItems) throws ODataApplicationException {}
-
   @SuppressWarnings("unchecked")
-  protected <T> void createSelectClause(final Subquery<T> subQuery, final List<JPAOnConditionItem> conditionItems)
-      throws ODataJPAQueryException {
+  protected <T> void createSelectClause(final Subquery<T> subQuery, final List<JPAOnConditionItem> conditionItems) {
+
     Path<?> p = queryRoot;
     for (final JPAElement jpaPathElement : conditionItems.get(0).getLeftPath().getPath())
       p = p.get(jpaPathElement.getInternalName());
@@ -122,7 +107,7 @@ public class JPANavigationQuery extends JPAAbstractQuery {
   }
 
   protected Expression<Boolean> createWhereByAssociation(final From<?, ?> parentFrom, final From<?, ?> subRoot,
-      final List<JPAOnConditionItem> conditionItems) throws ODataApplicationException {
+      final List<JPAOnConditionItem> conditionItems) throws ODataApplicationException { // NOSONAR needed for sub class
 
     Expression<Boolean> whereCondition = null;
     for (final JPAOnConditionItem onItem : conditionItems) {
@@ -146,13 +131,11 @@ public class JPANavigationQuery extends JPAAbstractQuery {
     return locale;
   }
 
-  @Override
-  JPAODataSessionContextAccess getContext() {
-    return parentQuery.getContext();
-  }
+  protected void handleAggregation(final Subquery<?> subQuery, final From<?, ?> subRoot,
+      final List<JPAOnConditionItem> conditionItems) throws ODataApplicationException {}
 
   Expression<Boolean> applyAdditionalFilter(JPAFilterElementComplier filterComplier,
-      Expression<Boolean> whereCondition) throws ODataApplicationException, ODataJPAQueryException {
+      Expression<Boolean> whereCondition) throws ODataApplicationException {
 
     if (filterComplier != null && getAggregationType(filterComplier.getExpressionMember()) == null)
       try {
@@ -181,5 +164,31 @@ public class JPANavigationQuery extends JPAAbstractQuery {
       }
     }
     return null;
+  }
+
+  @Override
+  JPAODataSessionContextAccess getContext() {
+    return parentQuery.getContext();
+  }
+
+  private List<JPAOnConditionItem> determineJoinColumns() throws ODataJPAQueryException {
+
+    try {
+      if (association.getJoinTable() != null) {
+        // The requested service e.g. 'any' or 'all' is not implemented for '%1$s'
+        throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_NOT_IMPLEMENTED,
+            HttpStatusCode.NOT_IMPLEMENTED, association.getAlias());
+      } else {
+        List<JPAOnConditionItem> conditionItems = association.getJoinColumnsList();
+        if (conditionItems.isEmpty())
+          throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_JOIN_NOT_DEFINED,
+              HttpStatusCode.INTERNAL_SERVER_ERROR, association.getTargetType().getExternalName(), association
+                  .getSourceType().getExternalName());
+        return conditionItems;
+      }
+    } catch (ODataJPAModelException e) {
+      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_NAVI_PROPERTY_UNKNOWN,
+          HttpStatusCode.INTERNAL_SERVER_ERROR, e, association.getAlias());
+    }
   }
 }

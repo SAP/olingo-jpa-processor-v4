@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitException;
@@ -11,6 +12,7 @@ import org.apache.olingo.server.api.uri.queryoption.expression.VisitableExpressi
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 public abstract class JPAAbstractFilter implements JPAFilterComplier, JPAFilterComplierAccess {
   final JPAEntityType jpaEntityType;
@@ -32,21 +34,17 @@ public abstract class JPAAbstractFilter implements JPAFilterComplier, JPAFilterC
   }
 
   @Override
-  public List<JPAPath> getMember() {
+  public List<JPAPath> getMember() throws ODataApplicationException {
     final JPAMemberVisitor visitor = new JPAMemberVisitor(jpaEntityType);
     if (expression != null) {
       try {
         expression.accept(visitor);
       } catch (ExpressionVisitException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      } catch (ODataApplicationException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
       }
       return Collections.unmodifiableList(visitor.get());
     } else
-      return new ArrayList<>();
+      return new ArrayList<>(1);
   }
 
 }

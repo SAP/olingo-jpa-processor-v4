@@ -28,7 +28,7 @@ import com.sap.olingo.jpa.processor.core.util.TestHelper;
 import com.sap.olingo.jpa.processor.core.util.TupleDouble;
 
 public class TestJPAExpandQueryCreateResult extends TestBase {
-  private JPAExpandQuery cut;
+  private JPAExpandJoinQuery cut;
 
   @Before
   public void setup() throws ODataException {
@@ -37,7 +37,7 @@ public class TestJPAExpandQueryCreateResult extends TestBase {
     EdmEntityType targetEntity = new EdmEntityTypeDouble(nameBuilder, "BusinessPartnerRole");
     JPAODataSessionContextAccess context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null,
         TestBase.enumPackages), ds);
-    cut = new JPAExpandQuery(
+    cut = new JPAExpandJoinQuery(
         null, context, emf.createEntityManager(), new ExpandItemDouble(targetEntity).getResourcePath(),
         helper.getJPAAssociationPath("Organizations", "Roles"), helper.sd.getEntity(targetEntity),
         new HashMap<String, List<String>>());
@@ -222,4 +222,20 @@ public class TestJPAExpandQueryCreateResult extends TestBase {
     assertEquals("BE1", act.get("NUTS/2/BE10").get(0).get("ParentDivisionCode"));
   }
 
+  @Test
+  public void checkConvertOneResultJoinTable() throws ODataJPAModelException, ODataApplicationException {
+    JPAAssociationPath exp = helper.getJPAAssociationPath("Organizations", "SupportEngineers");
+    List<Tuple> result = new ArrayList<>();
+    HashMap<String, Object> oneResult = new HashMap<>();
+    oneResult.put("ID", "97");
+    oneResult.put("\"OrganizationID\"", "2");
+    Tuple t = new TupleDouble(oneResult);
+    result.add(t);
+
+    Map<String, List<Tuple>> act = cut.convertResult(result, exp, 0, Long.MAX_VALUE);
+
+    assertNotNull(act.get("2"));
+    assertEquals(1, act.get("2").size());
+    assertEquals("97", act.get("2").get(0).get("ID"));
+  }
 }

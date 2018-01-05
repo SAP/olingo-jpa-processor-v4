@@ -10,7 +10,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -32,30 +31,29 @@ import com.sap.olingo.jpa.processor.core.filter.JPAOperationConverter;
 
 public final class JPANavigationFilterQuery extends JPANavigationQuery {
 
-  final private JPAFilterElementComplier filterComplier;
+  private final JPAFilterElementComplier filterComplier;
 
   public JPANavigationFilterQuery(final OData odata, final JPAServiceDocument sd, final UriResource uriResourceItem,
-      final JPAAbstractQuery parent, final EntityManager em, final JPAAssociationPath association)
-      throws ODataApplicationException {
+      final JPAAbstractQuery parent, final EntityManager em, final JPAAssociationPath association,
+      final From<?, ?> from) throws ODataApplicationException {
 
-    super(odata, sd, uriResourceItem, parent, em, association);
+    super(odata, sd, uriResourceItem, parent, em, association, from);
     this.filterComplier = null;
   }
 
   public JPANavigationFilterQuery(final OData odata, final JPAServiceDocument sd, final UriResource uriResourceItem,
       final JPAAbstractQuery parent, final EntityManager em, final JPAAssociationPath association,
-      final VisitableExpression expression) throws ODataApplicationException {
+      final VisitableExpression expression, final From<?, ?> from) throws ODataApplicationException {
 
-    super(odata, sd, uriResourceItem, parent, em, association);
+    super(odata, sd, uriResourceItem, parent, em, association, from);
     this.filterComplier = new JPAFilterElementComplier(odata, sd, em, jpaEntity, new JPAOperationConverter(cb,
         getContext().getOperationConverter()), null, this, expression);
-    createDescriptionJoin(filterComplier);
+    createDescriptionJoin();
   }
 
   @Override
   @SuppressWarnings("unchecked")
-  protected <T> void createSelectClause(final Subquery<T> subQuery, final List<JPAOnConditionItem> conditionItems)
-      throws ODataJPAQueryException {
+  protected <T> void createSelectClause(final Subquery<T> subQuery, final List<JPAOnConditionItem> conditionItems) {
     Path<?> p = getRoot();
 
     for (final JPAElement jpaPathElement : conditionItems.get(0).getRightPath().getPath())
@@ -72,10 +70,10 @@ public final class JPANavigationFilterQuery extends JPANavigationQuery {
   }
 
   @Override
-  protected void handleAggregation(final Subquery<?> subQuery, final Root<?> subRoot,
+  protected void handleAggregation(final Subquery<?> subQuery, final From<?, ?> subRoot,
       final List<JPAOnConditionItem> conditionItems) throws ODataApplicationException {
 
-    final List<Expression<?>> groupByLIst = new ArrayList<Expression<?>>();
+    final List<Expression<?>> groupByLIst = new ArrayList<>();
     if (filterComplier != null && getAggregationType(this.filterComplier.getExpressionMember()) != null) {
       for (final JPAOnConditionItem onItem : conditionItems) {
         Path<?> subPath = subRoot;
@@ -85,7 +83,7 @@ public final class JPANavigationFilterQuery extends JPANavigationQuery {
       }
       subQuery.groupBy(groupByLIst);
 
-      // subQuery.having(cb.greaterThan(cb.count(this.getRoot().get("roleCategory")), new Long(2)));
+      // subQuery.having(cb.greaterThan(cb.count(this.getRoot().get("roleCategory")), new Long(2)))
       try {
         subQuery.having(this.filterComplier.compile());
       } catch (ExpressionVisitException e) {
@@ -94,13 +92,13 @@ public final class JPANavigationFilterQuery extends JPANavigationQuery {
     }
   }
 
-  private void createDescriptionJoin(JPAFilterElementComplier filterComplier) throws ODataApplicationException {
-    final HashMap<String, From<?, ?>> joinTables = new HashMap<String, From<?, ?>>();
-    generateDesciptionJoin(joinTables, determineAllDescriptionPath());
+  private void createDescriptionJoin() throws ODataApplicationException {
+    final HashMap<String, From<?, ?>> joinTables = new HashMap<>();
+    generateDesciptionJoin(joinTables, determineAllDescriptionPath(), getRoot());
   }
 
-  private Set<JPAPath> determineAllDescriptionPath() {
-    Set<JPAPath> allPath = new HashSet<JPAPath>();
+  private Set<JPAPath> determineAllDescriptionPath() throws ODataApplicationException {
+    Set<JPAPath> allPath = new HashSet<>();
     if (filterComplier != null) {
       for (JPAPath path : filterComplier.getMember()) {
         if (path.getLeaf() instanceof JPADescriptionAttribute)

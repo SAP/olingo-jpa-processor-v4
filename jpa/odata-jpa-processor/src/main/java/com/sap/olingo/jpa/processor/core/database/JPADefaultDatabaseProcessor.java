@@ -7,7 +7,7 @@ import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.From;
 
 import org.apache.olingo.commons.api.edm.EdmFunction;
 import org.apache.olingo.commons.api.edm.EdmParameter;
@@ -101,7 +101,7 @@ public class JPADefaultDatabaseProcessor implements JPAODataDatabaseProcessor, J
 
   @Override
   public Expression<Boolean> createSearchWhereClause(final CriteriaBuilder cb, final CriteriaQuery<?> cq,
-      final Root<?> root, final JPAEntityType entityType, final SearchOption searchOption)
+      From<?, ?> root, final JPAEntityType entityType, final SearchOption searchOption)
       throws ODataApplicationException {
     throw new ODataJPADBAdaptorException(ODataJPADBAdaptorException.MessageKeys.NOT_SUPPORTED_SEARCH,
         HttpStatusCode.NOT_IMPLEMENTED);

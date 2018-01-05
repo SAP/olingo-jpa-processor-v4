@@ -11,6 +11,7 @@ import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
+import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceComplexProperty;
@@ -221,6 +222,61 @@ public final class Util {
     return pathList;
   }
 
+  /**
+   * Converts the OData navigation list into a intermediate one. Direction is top - down usage e.g. join query.<p>
+   * The method only supports queries that start with an entity set.
+   * @param sd
+   * @param resourceParts
+   * @param filterOption
+   * @return
+   * @throws ODataApplicationException
+   */
+  public static List<JPANavigationProptertyInfo> determineNavigationPath(final JPAServiceDocument sd,
+      final List<UriResource> resourceParts, final UriInfoResource uriInfo) throws ODataApplicationException {
+
+    final List<JPANavigationProptertyInfo> pathList = new ArrayList<>();
+
+    StringBuilder associationName = null;
+    UriResourcePartTyped source = null;
+    for (UriResource resourcePart : resourceParts) {
+      if (resourcePart instanceof UriResourceNavigation
+          || resourcePart instanceof UriResourceEntitySet) {
+        if (source != null) {
+          extendNavigationPath(associationName, ((UriResourceNavigation) resourcePart).getProperty().getName());
+          pathList.add(new JPANavigationProptertyInfo(sd, source, determineAssoziationPath(sd, source, associationName),
+              null));
+        }
+        source = (UriResourcePartTyped) resourcePart;
+        associationName = new StringBuilder();
+      } else {
+        if (resourcePart instanceof UriResourceComplexProperty) {
+          extendNavigationPath(associationName, ((UriResourceComplexProperty) resourcePart).getProperty().getName());
+        }
+      }
+    }
+    if (source != null)
+      pathList.add(new JPANavigationProptertyInfo(sd, source,
+          determineAssoziationPath(sd, source, associationName), uriInfo));
+    return pathList;
+  }
+
+  private static void extendNavigationPath(StringBuilder associationName, String pathSegment)
+      throws ODataJPAQueryException {
+    if (associationName == null)
+      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
+          HttpStatusCode.NOT_IMPLEMENTED, "");
+    if (associationName.length() > 0)
+      associationName.append(JPAPath.PATH_SEPERATOR);
+    associationName.append(pathSegment);
+  }
+
+  /**
+   * Sub query
+   * @param sd
+   * @param resourceParts
+   * @return
+   * @throws ODataApplicationException
+   */
   public static List<JPANavigationProptertyInfo> determineAssoziations(final JPAServiceDocument sd,
       final List<UriResource> resourceParts) throws ODataApplicationException {
 
@@ -241,7 +297,7 @@ public final class Util {
           }
           if (resourceParts.get(i) instanceof UriResourceNavigation
               || resourceParts.get(i) instanceof UriResourceEntitySet) {
-            pathList.add(new JPANavigationProptertyInfo((UriResourcePartTyped) resourceParts.get(i),
+            pathList.add(new JPANavigationProptertyInfo(sd, (UriResourcePartTyped) resourceParts.get(i),
                 determineAssoziationPath(sd, ((UriResourcePartTyped) resourceParts.get(i)), associationName), null));
             if (resourceParts.get(i) instanceof UriResourceNavigation) {
               navigation = (UriResourceNavigation) resourceParts.get(i);
@@ -271,7 +327,12 @@ public final class Util {
     JPAEntityType naviStartType;
     try {
       if (naviStart instanceof UriResourceEntitySet)
-        naviStartType = sd.getEntity(((UriResourceEntitySet) naviStart).getType());
+        if (((UriResourceEntitySet) naviStart).getTypeFilterOnEntry() != null)
+          naviStartType = sd.getEntity(((UriResourceEntitySet) naviStart).getTypeFilterOnEntry());
+        else
+          naviStartType = sd.getEntity(((UriResourceEntitySet) naviStart).getType());
+      else if (((UriResourceNavigation) naviStart).getTypeFilterOnEntry() != null)
+        naviStartType = sd.getEntity(((UriResourceNavigation) naviStart).getTypeFilterOnEntry());
       else
         naviStartType = sd.getEntity(((UriResourceNavigation) naviStart).getProperty().getType());
       return naviStartType.getAssociationPath(associationName.toString());

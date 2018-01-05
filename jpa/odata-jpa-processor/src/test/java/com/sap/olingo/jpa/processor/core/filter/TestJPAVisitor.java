@@ -43,6 +43,7 @@ public class TestJPAVisitor {
 
     when(compiler.getConverter()).thenReturn(converter);
     when(compiler.getParent()).thenReturn(query);
+    when(compiler.getDebugger()).thenReturn(mock(JPAServiceDebugger.class));
     when(query.getDebugger()).thenReturn(mock(JPAServiceDebugger.class));
 
     cut = new JPAVisitor(compiler);
@@ -58,7 +59,7 @@ public class TestJPAVisitor {
     UriInfoResource info = mock(UriInfoResource.class);
     UriResourceFunction uriFunction = mock(UriResourceFunction.class);
 
-    List<UriResource> resources = new ArrayList<UriResource>();
+    List<UriResource> resources = new ArrayList<>();
     resources.add(uriFunction);
 
     when(member.getResourcePath()).thenReturn(info);

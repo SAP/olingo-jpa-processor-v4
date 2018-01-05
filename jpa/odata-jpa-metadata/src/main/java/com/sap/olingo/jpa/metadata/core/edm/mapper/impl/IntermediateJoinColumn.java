@@ -14,6 +14,13 @@ final class IntermediateJoinColumn {
     this.referencedColumnName = jpaJoinColumn.referencedColumnName();
   }
 
+  public IntermediateJoinColumn(final String name, final String referencedColumnName) {
+    super();
+    this.jpaJoinColumn = null;
+    this.name = name;
+    this.referencedColumnName = referencedColumnName;
+  }
+
   public String getName() {
     return name;
   }
@@ -30,7 +37,4 @@ final class IntermediateJoinColumn {
     this.referencedColumnName = referencedColumnName;
   }
 
-  public JoinColumn getJpaJoinColumn() {
-    return jpaJoinColumn;
-  }
 }

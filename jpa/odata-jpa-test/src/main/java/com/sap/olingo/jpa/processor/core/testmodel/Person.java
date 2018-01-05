@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -9,6 +10,8 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -59,6 +62,12 @@ public class Person extends BusinessPartner {
   @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
   @JoinColumn(name = "\"ID\"", referencedColumnName = "\"ID\"", insertable = false, updatable = false, nullable = true)
   private PersonImage image;
+
+  @ManyToMany
+  @JoinTable(name = "\"SupportRelationship\"", schema = "\"OLINGO\"",
+      joinColumns = @JoinColumn(name = "\"PersonID\""),
+      inverseJoinColumns = @JoinColumn(name = "\"OrganizationID\""))
+  private List<Organization> supportedOrganizations;
 
   public Person() {
     type = "1";

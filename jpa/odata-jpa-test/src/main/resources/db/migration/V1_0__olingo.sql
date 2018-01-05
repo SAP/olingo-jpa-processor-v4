@@ -681,7 +681,16 @@ CREATE TABLE "Comment" (
 	 
 insert into "Comment" values( 1, 'This is just a test');	
 	 
+CREATE TABLE "SupportRelationship" (
+	"ID" INTEGER NOT NULL ,
+	"OrganizationID" VARCHAR(32) NOT NULL ,
+    "PersonID" VARCHAR(32) NOT NULL ,
+	PRIMARY KEY ("ID"));
 	 
+insert into "SupportRelationship" values (1,'1','97');
+insert into "SupportRelationship" values (2,'1','98');
+insert into "SupportRelationship" values (3,'2','97');
+
 CREATE TABLE "DummyToBeIgnored" (
 	"ID" VARCHAR(32) NOT NULL ,
 	--"uuid" VARCHAR(32) FOR BIT DATA ,

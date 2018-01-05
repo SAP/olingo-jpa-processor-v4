@@ -1,9 +1,12 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
@@ -34,6 +37,9 @@ public class Organization extends BusinessPartner {
   @Enumerated
   @Column(name = "\"ABCClass\"")
   private ABCClassifiaction aBCClass;
+
+  @ManyToMany(mappedBy = "supportedOrganizations")
+  private List<Person> supportEngineers;
 
   public String getName1() {
     return name1;
