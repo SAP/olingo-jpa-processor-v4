@@ -84,7 +84,8 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     // Count results if requested
     final CountOption countOption = uriInfo.getCountOption();
     if (countOption != null && countOption.getValue())
-      entityCollection.setCount(query.countResults().intValue());
+      entityCollection.setCount(new JPAJoinQuery(odata, sessionContext, em, request.getAllHeaders(), uriInfo)
+          .countResults().intValue());
 
     // 404 Not Found indicates that the resource specified by the request URL does not exist. The response body MAY
     // provide additional information.
