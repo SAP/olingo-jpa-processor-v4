@@ -380,6 +380,16 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
   }
 
   @Test
+  public void checkGetJoinTableEntityType() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("Person"),
+        "supportedOrganizations");
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+        schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
+
+    assertNotNull(property.getJoinTable().getEntityType());
+  }
+
+  @Test
   public void checkGetJoinTableJoinColumnsMapped() throws ODataJPAModelException {
     Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("Organization"),
         "supportEngineers");

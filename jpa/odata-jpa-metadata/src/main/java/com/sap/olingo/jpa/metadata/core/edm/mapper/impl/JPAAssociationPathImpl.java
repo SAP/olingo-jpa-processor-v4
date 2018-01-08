@@ -162,8 +162,7 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
     final List<JPAPath> result = new ArrayList<>();
     for (final IntermediateJoinColumn column : this.joinColumns) {
       // ManyToOne
-      if (cardinality == PersistentAttributeType.MANY_TO_ONE
-          || cardinality == PersistentAttributeType.MANY_TO_MANY)
+      if (cardinality == PersistentAttributeType.MANY_TO_ONE)
         result.add(targetType.getPathByDBField(column.getReferencedColumnName()));
       else
         result.add(targetType.getPathByDBField(column.getName()));

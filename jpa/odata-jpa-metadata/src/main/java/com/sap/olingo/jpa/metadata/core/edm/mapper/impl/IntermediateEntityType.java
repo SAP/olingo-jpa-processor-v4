@@ -228,20 +228,24 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
     return asEntitySet;
   }
 
+  boolean dbEquals(final String dbCatalog, final String dbSchema, final String dbTableName) {
+    final AnnotatedElement a = jpaManagedType.getJavaType();
+    Table t = null;
+    if (a != null)
+      t = a.getAnnotation(Table.class);
+    if (t == null)
+      return (dbCatalog == null || dbCatalog.isEmpty())
+          && (dbSchema == null || dbSchema.isEmpty())
+          && dbTableName.equals(getTableName());
+    else
+      return dbCatalog.equals(t.catalog())
+          && dbSchema.equals(t.schema())
+          && dbTableName.equals(t.name());
+  }
+
   boolean determineAbstract() {
     final int modifiers = jpaManagedType.getJavaType().getModifiers();
     return Modifier.isAbstract(modifiers);
-  }
-
-  private void determineHasEtag() throws ODataJPAModelException {
-    for (final String internalName : this.declaredPropertiesList.keySet()) {
-      if (declaredPropertiesList.get(internalName).isEtag()) {
-        hasEtag = true;
-        return;
-      }
-    }
-    if (getBaseType() != null && getBaseType() instanceof IntermediateEntityType)
-      hasEtag = ((IntermediateEntityType) getBaseType()).hasEtag();
   }
 
   /**
@@ -292,6 +296,17 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
 
     final EdmAsEntitySet jpaAsEntitySet = this.jpaManagedType.getJavaType().getAnnotation(EdmAsEntitySet.class);
     return jpaAsEntitySet != null;
+  }
+
+  private void determineHasEtag() throws ODataJPAModelException {
+    for (final String internalName : this.declaredPropertiesList.keySet()) {
+      if (declaredPropertiesList.get(internalName).isEtag()) {
+        hasEtag = true;
+        return;
+      }
+    }
+    if (getBaseType() != null && getBaseType() instanceof IntermediateEntityType)
+      hasEtag = ((IntermediateEntityType) getBaseType()).hasEtag();
   }
 
   private <T> List<?> resolveEmbeddedId(final IntermediateEmbeddedIdProperty embeddedId) throws ODataJPAModelException {

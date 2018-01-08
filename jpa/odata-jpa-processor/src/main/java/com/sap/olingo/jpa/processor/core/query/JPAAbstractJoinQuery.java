@@ -142,19 +142,6 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery {
     }
   }
 
-  protected javax.persistence.criteria.Expression<Boolean> addWhereClause(
-      javax.persistence.criteria.Expression<Boolean> whereCondition,
-      final javax.persistence.criteria.Expression<Boolean> additioanlExpression) {
-
-    if (additioanlExpression != null) {
-      if (whereCondition == null)
-        whereCondition = additioanlExpression;
-      else
-        whereCondition = cb.and(whereCondition, additioanlExpression);
-    }
-    return whereCondition;
-  }
-
   protected List<JPAPath> buildEntityPathList(final JPAEntityType jpaEntity) throws ODataApplicationException {
 
     try {

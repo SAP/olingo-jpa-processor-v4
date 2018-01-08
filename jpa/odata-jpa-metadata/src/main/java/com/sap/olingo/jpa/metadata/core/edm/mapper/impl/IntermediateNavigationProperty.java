@@ -317,7 +317,7 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
       final javax.persistence.JoinTable jpaJoinTable = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
           .getAnnotation(
               javax.persistence.JoinTable.class);
-      joinTable = jpaJoinTable != null ? new IntermediateJoinTable(this, jpaJoinTable) : null;
+      joinTable = jpaJoinTable != null ? new IntermediateJoinTable(this, jpaJoinTable, schema) : null;
     }
 
     targetType = schema.getEntityType(targetClass);

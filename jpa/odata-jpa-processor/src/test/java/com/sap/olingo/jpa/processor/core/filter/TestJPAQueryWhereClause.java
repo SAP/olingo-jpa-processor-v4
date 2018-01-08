@@ -710,13 +710,40 @@ public class TestJPAQueryWhereClause extends TestBase {
     assertEquals("BE2", admin.get(3).findValue("Parent").get("DivisionCode").asText());
   };
 
-  @Ignore
   @Test
   public void testFilterNavigationPropertyViaJoinTable() throws IOException,
       ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Organizations?$filter=SupportEngineers/any(d:d/LastName eq 'Doe')");
+        "Persons?$select=ID&$filter=SupportedOrganizations/any()");
+
+    helper.assertStatus(200);
+    ArrayNode admin = helper.getValues();
+    assertEquals(2, admin.size());
+    assertEquals("98", admin.get(0).findValue("ID").asText());
+
+  };
+
+  @Test
+  public void testFilterNavigationPropertyViaJoinTableCount() throws IOException,
+      ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Persons?$select=ID&$filter=SupportedOrganizations//$count gt 1");
+
+    helper.assertStatus(200);
+    ArrayNode admin = helper.getValues();
+    assertEquals(2, admin.size());
+    assertEquals("98", admin.get(0).findValue("ID").asText());
+
+  };
+
+  @Test
+  public void testFilterMappedNavigationPropertyViaJoinTable() throws IOException,
+      ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$select=Name1&$filter=SupportEngineers/any(d:d/LastName eq 'Doe')");
 
     helper.assertStatus(200);
     ArrayNode admin = helper.getValues();

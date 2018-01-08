@@ -53,8 +53,9 @@ public final class JPANavigationFilterQuery extends JPANavigationQuery {
 
   @Override
   @SuppressWarnings("unchecked")
-  protected <T> void createSelectClause(final Subquery<T> subQuery, final List<JPAOnConditionItem> conditionItems) {
-    Path<?> p = getRoot();
+  protected <T> void createSelectClause(final Subquery<T> subQuery, final From<?, ?> from,
+      final List<JPAOnConditionItem> conditionItems) {
+    Path<?> p = from;
 
     for (final JPAElement jpaPathElement : conditionItems.get(0).getRightPath().getPath())
       p = p.get(jpaPathElement.getInternalName());
@@ -65,8 +66,7 @@ public final class JPANavigationFilterQuery extends JPANavigationQuery {
   protected Expression<Boolean> createWhereByAssociation(final From<?, ?> parentFrom, final From<?, ?> subRoot,
       final List<JPAOnConditionItem> conditionItems) throws ODataApplicationException {
 
-    Expression<Boolean> whereCondition = super.createWhereByAssociation(subRoot, parentFrom, conditionItems);
-    return applyAdditionalFilter(filterComplier, whereCondition);
+    return super.createWhereByAssociation(subRoot, parentFrom, conditionItems);
   }
 
   @Override
@@ -90,6 +90,21 @@ public final class JPANavigationFilterQuery extends JPANavigationQuery {
         throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
       }
     }
+  }
+
+  @Override
+  Expression<Boolean> applyAdditionalFilter(final Expression<Boolean> where)
+      throws ODataApplicationException {
+
+    Expression<Boolean> whereCondition = where;
+    if (filterComplier != null && getAggregationType(filterComplier.getExpressionMember()) == null)
+      try {
+      if (filterComplier.getExpressionMember() != null)
+        whereCondition = addWhereClause(whereCondition, filterComplier.compile());
+      } catch (ExpressionVisitException e) {
+      throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+      }
+    return whereCondition;
   }
 
   private void createDescriptionJoin() throws ODataApplicationException {
