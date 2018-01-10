@@ -14,11 +14,11 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 class IntermediateJoinTable implements JPAJoinTable {
   private final IntermediateNavigationProperty intermediateProperty;
   private final JoinTable jpaJoinTable;
+  private final IntermediateStructuredType sourceType;
   private List<IntermediateJoinColumn> joinColumns = null;
   private List<IntermediateJoinColumn> inverseJoinColumns = null;
   private IntermediateNavigationProperty intermediateMappedProperty = null;
   private JPAEntityType jpaEntityType;
-  private final IntermediateStructuredType sourceType;
 
   IntermediateJoinTable(final IntermediateNavigationProperty intermediateProperty, final JoinTable jpaJoinTable,
       final IntermediateSchema schema) throws ODataJPAModelException {
@@ -27,7 +27,18 @@ class IntermediateJoinTable implements JPAJoinTable {
     this.jpaJoinTable = jpaJoinTable;
     this.sourceType = intermediateProperty.getSourceType();
     this.jpaEntityType = schema.getEntityType(jpaJoinTable.catalog(), jpaJoinTable.schema(), jpaJoinTable.name());
+  }
 
+  private IntermediateJoinTable(final IntermediateJoinTable intermediateJoinTable,
+      final IntermediateNavigationProperty mappedProperty)
+      throws ODataJPAModelException {
+    this.jpaJoinTable = intermediateJoinTable.jpaJoinTable;
+    this.sourceType = mappedProperty.getSourceType();
+    this.jpaEntityType = intermediateJoinTable.jpaEntityType;
+    this.intermediateMappedProperty = intermediateJoinTable.intermediateProperty;
+    this.intermediateProperty = intermediateJoinTable.intermediateMappedProperty;
+    this.joinColumns = intermediateJoinTable.buildInverseJoinColumns(mappedProperty);
+    this.inverseJoinColumns = intermediateJoinTable.buildJoinColumns();
   }
 
   @Override
@@ -135,5 +146,9 @@ class IntermediateJoinTable implements JPAJoinTable {
 
     }
     return result;
+  }
+
+  IntermediateJoinTable asMapped(final IntermediateNavigationProperty mappedBy) throws ODataJPAModelException {
+    return new IntermediateJoinTable(this, mappedBy);
   }
 }

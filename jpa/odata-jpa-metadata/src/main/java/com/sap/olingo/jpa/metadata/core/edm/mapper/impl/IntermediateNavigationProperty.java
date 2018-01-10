@@ -238,10 +238,14 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
       final AnnotatedElement annotatedElement) throws ODataJPAModelException {
 
     if (mappedBy != null && !mappedBy.isEmpty()) {
-      joinTable = (IntermediateJoinTable) ((IntermediateNavigationProperty) targetType.getAssociation(
-          mappedBy)).getJoinTable();
+      // Get
+      joinTable = ((IntermediateJoinTable) ((IntermediateNavigationProperty) targetType.getAssociation(
+          mappedBy)).getJoinTable());
+      //
       joinColumns.addAll(joinTable == null ? buildJoinColumnsMapped(mappedBy) : joinTable
           .buildInverseJoinColumns(this));
+      //
+      joinTable = joinTable == null ? null : joinTable.asMapped(this);
     } else
       joinColumns.addAll(joinTable == null ? buildJoinColumnsFromAnnotations(isSourceOne, annotatedElement) : joinTable
           .buildJoinColumns());

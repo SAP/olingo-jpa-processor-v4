@@ -228,7 +228,7 @@ public class TestJPAExpandQueryCreateResult extends TestBase {
     List<Tuple> result = new ArrayList<>();
     HashMap<String, Object> oneResult = new HashMap<>();
     oneResult.put("ID", "97");
-    oneResult.put("\"OrganizationID\"", "2");
+    oneResult.put("\"PersonID\"", "2");
     Tuple t = new TupleDouble(oneResult);
     result.add(t);
 

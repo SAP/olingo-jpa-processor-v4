@@ -13,7 +13,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
-import javax.persistence.Table;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
@@ -42,7 +41,6 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 })
 
 @DiscriminatorValue(value = "1")
-@Table(schema = "\"OLINGO\"", name = "\"BusinessPartner\"")
 public class Person extends BusinessPartner {
 
   @Column(name = "\"NameLine1\"")
@@ -68,6 +66,12 @@ public class Person extends BusinessPartner {
       joinColumns = @JoinColumn(name = "\"PersonID\""),
       inverseJoinColumns = @JoinColumn(name = "\"OrganizationID\""))
   private List<Organization> supportedOrganizations;
+
+  @ManyToMany
+  @JoinTable(name = "\"Membership\"", schema = "\"OLINGO\"",
+      joinColumns = @JoinColumn(name = "\"PersonID\""),
+      inverseJoinColumns = @JoinColumn(name = "\"TeamID\""))
+  private List<Team> teams;
 
   public Person() {
     type = "1";

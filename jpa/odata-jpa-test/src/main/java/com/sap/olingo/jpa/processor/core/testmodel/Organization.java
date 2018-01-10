@@ -7,7 +7,6 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
 import javax.persistence.ManyToMany;
-import javax.persistence.Table;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
@@ -21,7 +20,6 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 
 @Entity(name = "Organization")
 @DiscriminatorValue(value = "2")
-@Table(schema = "\"OLINGO\"", name = "\"BusinessPartner\"")
 public class Organization extends BusinessPartner {
 
   public Organization() {
