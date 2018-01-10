@@ -16,7 +16,7 @@ public class ChangeInformation {
   private String by;
   @Column(precision = 9)
   @Temporal(TemporalType.TIMESTAMP)
-  private Date   at;
+  private Date at;
 
   @ManyToOne
   @JoinColumn(name = "\"by\"", referencedColumnName = "\"ID\"", insertable = false, updatable = false)

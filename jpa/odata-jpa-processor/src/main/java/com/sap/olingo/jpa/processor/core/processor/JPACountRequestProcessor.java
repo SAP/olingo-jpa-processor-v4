@@ -1,9 +1,6 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
-import java.util.List;
-
 import org.apache.olingo.commons.api.data.EntityCollection;
-import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -18,8 +15,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
-import com.sap.olingo.jpa.processor.core.query.JPAQuery;
-import com.sap.olingo.jpa.processor.core.query.Util;
+import com.sap.olingo.jpa.processor.core.query.JPAJoinQuery;
 
 /**
  * <a href=
@@ -50,12 +46,9 @@ public final class JPACountRequestProcessor extends JPAAbstractGetRequestProcess
   protected final EntityCollection countEntities(final ODataRequest request, final ODataResponse response,
       final UriInfo uriInfo) throws ODataException {
 
-    final List<UriResource> resourceParts = uriInfo.getUriResourceParts();
-    final EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(resourceParts);
-
-    JPAQuery query = null;
+    JPAJoinQuery query = null;
     try {
-      query = new JPAQuery(odata, targetEdmEntitySet, sessionContext, uriInfo, em, request.getAllHeaders());
+      query = new JPAJoinQuery(odata, sessionContext, em, request.getAllHeaders(), uriInfo);
     } catch (ODataJPAModelException e) {
       throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.QUERY_PREPARATION_ERROR,
           HttpStatusCode.INTERNAL_SERVER_ERROR, e);

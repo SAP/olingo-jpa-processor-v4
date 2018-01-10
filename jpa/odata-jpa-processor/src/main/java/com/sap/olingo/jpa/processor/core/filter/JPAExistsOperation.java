@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.From;
 import javax.persistence.criteria.Subquery;
 
 import org.apache.olingo.server.api.OData;
@@ -29,6 +30,7 @@ abstract class JPAExistsOperation implements JPAOperator {
   protected final JPAServiceDocument sd;
   protected final EntityManager em;
   protected final OData odata;
+  protected final From<?, ?> from;
 
   JPAExistsOperation(final JPAFilterComplierAccess jpaComplier) {
 
@@ -38,6 +40,7 @@ abstract class JPAExistsOperation implements JPAOperator {
     this.em = jpaComplier.getEntityManager();
     this.converter = jpaComplier.getConverter();
     this.odata = jpaComplier.getOdata();
+    this.from = jpaComplier.getRoot();
   }
 
   public static boolean hasNavigation(final List<UriResource> uriResourceParts) {
@@ -68,7 +71,7 @@ abstract class JPAExistsOperation implements JPAOperator {
         final UriResource resourcePart = resourceParts.get(i);
         if (resourcePart instanceof UriResourceNavigation) {
           if (navigation != null)
-            pathList.add(new JPANavigationProptertyInfo(navigation, Util.determineAssoziationPath(sd,
+            pathList.add(new JPANavigationProptertyInfo(sd, navigation, Util.determineAssoziationPath(sd,
                 ((UriResourcePartTyped) resourceParts.get(i)), associationName), null));
           navigation = (UriResourceNavigation) resourceParts.get(i);
           associationName = new StringBuilder();
@@ -80,7 +83,7 @@ abstract class JPAExistsOperation implements JPAOperator {
             associationName.insert(0, ((UriResourceComplexProperty) resourceParts.get(i)).getProperty().getName());
           }
           if (resourcePart instanceof UriResourceEntitySet)
-            pathList.add(new JPANavigationProptertyInfo(navigation, Util.determineAssoziationPath(sd,
+            pathList.add(new JPANavigationProptertyInfo(sd, navigation, Util.determineAssoziationPath(sd,
                 ((UriResourcePartTyped) resourceParts.get(i)), associationName), null));
         }
       }

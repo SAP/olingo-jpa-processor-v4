@@ -681,7 +681,41 @@ CREATE TABLE "Comment" (
 	 
 insert into "Comment" values( 1, 'This is just a test');	
 	 
+CREATE TABLE "SupportRelationship" (
+	"ID" INTEGER NOT NULL ,
+	"OrganizationID" VARCHAR(32) NOT NULL ,
+    "PersonID" VARCHAR(32) NOT NULL ,
+	PRIMARY KEY ("ID"));
 	 
+insert into "SupportRelationship" values (1,'1','97');
+insert into "SupportRelationship" values (2,'1','98');
+insert into "SupportRelationship" values (3,'2','97');
+
+
+CREATE TABLE "Team" (
+	"TeamKey" VARCHAR(32) NOT NULL ,
+	"Name" VARCHAR(100),
+	 PRIMARY KEY ("TeamKey"));	
+	 
+insert into "Team" values ('A', 'Team Java');
+insert into "Team" values ('B', 'Team Scala');
+insert into "Team" values ('C', 'Team Phyton');
+insert into "Team" values ('D', 'Team Go');	 
+
+
+CREATE TABLE "Membership" (	 
+	"ID" INTEGER NOT NULL ,
+	"PersonID" VARCHAR(32) NOT NULL ,
+    "TeamID" VARCHAR(32) NOT NULL ,
+	PRIMARY KEY ("ID"));
+
+insert into "Membership" values (1,'97','A');
+insert into "Membership" values (2,'97','D');
+insert into "Membership" values (5,'97','C');
+insert into "Membership" values (3,'99','A');	
+insert into "Membership" values (4,'99','B');
+
+
 CREATE TABLE "DummyToBeIgnored" (
 	"ID" VARCHAR(32) NOT NULL ,
 	--"uuid" VARCHAR(32) FOR BIT DATA ,

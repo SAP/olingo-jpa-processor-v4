@@ -152,4 +152,35 @@ public class TestJPAQueryNavigation extends TestBase {
         "Organizations('3')/Address/AdministrativeDivision/Children");
     helper.assertStatus(404);
   }
+
+  @Test
+  public void testNavigationJoinTableDefined() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Persons('97')/SupportedOrganizations");
+    helper.assertStatus(200);
+
+    ArrayNode orgs = helper.getValues();
+    assertEquals(2, orgs.size());
+  }
+
+  @Test
+  public void testNavigationJoinTableDefinedSecondHop() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerRoles(BusinessPartnerID='98',RoleCategory='X')/BusinessPartner/com.sap.olingo.jpa.Person/SupportedOrganizations");
+    helper.assertStatus(200);
+
+    ArrayNode orgs = helper.getValues();
+    assertEquals(1, orgs.size());
+  }
+
+  @Test
+  public void testNavigationJoinTableMappedBy() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('1')/SupportEngineers");
+    helper.assertStatus(200);
+
+    ArrayNode orgs = helper.getValues();
+    assertEquals(2, orgs.size());
+  }
 }

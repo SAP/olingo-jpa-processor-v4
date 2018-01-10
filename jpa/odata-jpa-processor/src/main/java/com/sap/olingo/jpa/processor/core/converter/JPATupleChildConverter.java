@@ -34,7 +34,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
@@ -102,12 +101,12 @@ public class JPATupleChildConverter {
     return result;
   }
 
-  protected String buildConcatenatedKey(final Tuple row, final List<JPAOnConditionItem> joinColumns) {
+  protected String buildConcatenatedKey(final Tuple row, final List<JPAPath> leftColumns) {
     final StringBuilder buffer = new StringBuilder();
-    for (final JPAOnConditionItem item : joinColumns) {
+    for (final JPAPath item : leftColumns) {
       buffer.append(JPAPath.PATH_SEPERATOR);
       // TODO Tuple returns the converted value in case a @Convert(converter = annotation is given
-      buffer.append(row.get(item.getLeftPath().getAlias()));
+      buffer.append(row.get(item.getAlias()));
     }
     buffer.deleteCharAt(0);
     return buffer.toString();
@@ -307,7 +306,7 @@ public class JPATupleChildConverter {
       final JPAExpandResult child)
       throws ODataJPAQueryException {
     try {
-      Long count = child.getCount(buildConcatenatedKey(parentRow, assoziation.getJoinColumnsList()));
+      Long count = child.getCount(buildConcatenatedKey(parentRow, assoziation.getLeftColumnsList()));
       return count != null ? Integer.valueOf(count.intValue()) : null;
     } catch (ODataJPAModelException e) {
       throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
@@ -323,7 +322,7 @@ public class JPATupleChildConverter {
     link.setType(Constants.ENTITY_NAVIGATION_LINK_TYPE);
     try {
       final EntityCollection expandCollection = ((JPAExpandQueryResult) child).getEntityCollection(
-          buildConcatenatedKey(parentRow, assoziation.getJoinColumnsList()));
+          buildConcatenatedKey(parentRow, assoziation.getLeftColumnsList()));
 
       expandCollection.setCount(determineCount(assoziation, parentRow, child));
       if (assoziation.getLeaf().isCollection()) {

@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.From;
 
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
@@ -14,6 +15,7 @@ import org.apache.olingo.server.api.uri.queryoption.expression.VisitableExpressi
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
 
 /**
@@ -29,7 +31,6 @@ public final class JPAFilterElementComplier extends JPAAbstractFilter {
   final JPAServiceDocument sd;
   final List<UriResource> uriResourceParts;
   final JPAAbstractQuery parent;
-  final VisitableExpression expression;
 
   public JPAFilterElementComplier(final OData odata, final JPAServiceDocument sd, final EntityManager em,
       final JPAEntityType jpaEntityType, final JPAOperationConverter converter,
@@ -42,7 +43,7 @@ public final class JPAFilterElementComplier extends JPAAbstractFilter {
     this.sd = sd;
     this.uriResourceParts = uriResourceParts;
     this.parent = parent;
-    this.expression = expression;
+
   }
 
   /*
@@ -99,6 +100,16 @@ public final class JPAFilterElementComplier extends JPAAbstractFilter {
 
   public VisitableExpression getExpressionMember() {
     return expression;
+  }
+
+  @Override
+  public From<?, ?> getRoot() {
+    return parent.getRoot();
+  }
+
+  @Override
+  public JPAServiceDebugger getDebugger() {
+    return parent.getDebugger();
   }
 
 }

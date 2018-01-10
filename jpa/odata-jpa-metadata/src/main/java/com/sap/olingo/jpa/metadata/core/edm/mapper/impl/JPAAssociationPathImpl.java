@@ -10,7 +10,9 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAJoinTable;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
@@ -23,6 +25,24 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
   private final PersistentAttributeType cardinality;
   private final boolean isCollection;
   private final JPAAssociationAttribute partner;
+  private final IntermediateJoinTable joinTable;
+
+  JPAAssociationPathImpl(final IntermediateNavigationProperty association,
+      final IntermediateStructuredType source) throws ODataJPAModelException {
+
+    final List<JPAElement> pathElementsBuffer = new ArrayList<>();
+    pathElementsBuffer.add(association);
+
+    alias = association.getExternalName();
+    this.sourceType = source;
+    this.targetType = (IntermediateStructuredType) association.getTargetEntity();
+    this.joinColumns = association.getJoinColumns();
+    this.pathElements = Collections.unmodifiableList(pathElementsBuffer);
+    this.cardinality = association.getJoinCardinality();
+    this.isCollection = association.isCollection();
+    this.partner = association.getPartner();
+    this.joinTable = (IntermediateJoinTable) association.getJoinTable();
+  }
 
   JPAAssociationPathImpl(final JPAEdmNameBuilder namebuilder, final JPAAssociationPath associationPath,
       final IntermediateStructuredType source, final List<IntermediateJoinColumn> joinColumns,
@@ -43,30 +63,7 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
     this.cardinality = ((JPAAssociationPathImpl) associationPath).getCardinality();
     this.isCollection = associationPath.isCollection();
     this.partner = associationPath.getPartner();
-  }
-
-  JPAAssociationPathImpl(final IntermediateNavigationProperty association,
-      final IntermediateStructuredType source) throws ODataJPAModelException {
-
-    final List<JPAElement> pathElementsBuffer = new ArrayList<>();
-    pathElementsBuffer.add(association);
-
-    alias = association.getExternalName();
-    this.sourceType = source;
-    this.targetType = (IntermediateStructuredType) association.getTargetEntity();
-    this.joinColumns = association.getJoinColumns();
-    this.pathElements = Collections.unmodifiableList(pathElementsBuffer);
-    this.cardinality = association.getJoinCardinality();
-    this.isCollection = association.isCollection();
-    this.partner = association.getPartner();
-  }
-
-  private List<IntermediateJoinColumn> getJoinColumns() {
-    return joinColumns;
-  }
-
-  private PersistentAttributeType getCardinality() {
-    return cardinality;
+    this.joinTable = (IntermediateJoinTable) associationPath.getJoinTable();
   }
 
   /*
@@ -79,6 +76,20 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
     return alias;
   }
 
+  @Override
+  public List<JPAPath> getInverseLestJoinColumnsList() throws ODataJPAModelException {
+    final List<JPAPath> result = new ArrayList<>();
+    for (final IntermediateJoinColumn column : this.joinTable.getInverseJoinColumns()) {
+      // ManyToOne
+      if (cardinality == PersistentAttributeType.MANY_TO_ONE
+          || cardinality == PersistentAttributeType.MANY_TO_MANY)
+        result.add(sourceType.getPathByDBField(column.getName()));
+      else
+        result.add(sourceType.getPathByDBField(column.getReferencedColumnName()));
+    }
+    return result;
+  }
+
   /*
    * (non-Javadoc)
    * 
@@ -86,20 +97,25 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
    */
   @Override
   public List<JPAOnConditionItem> getJoinColumnsList() throws ODataJPAModelException {
-    final List<JPAOnConditionItem> joinColumns = new ArrayList<>();
+    final List<JPAOnConditionItem> result = new ArrayList<>();
     for (final IntermediateJoinColumn column : this.joinColumns) {
       // ManyToOne
       if (cardinality == PersistentAttributeType.MANY_TO_ONE
           || cardinality == PersistentAttributeType.MANY_TO_MANY)
-        joinColumns.add(new JPAOnConditionItemImpl(
+        result.add(new JPAOnConditionItemImpl(
             sourceType.getPathByDBField(column.getName()),
             targetType.getPathByDBField(column.getReferencedColumnName())));
       else
-        joinColumns.add(new JPAOnConditionItemImpl(
+        result.add(new JPAOnConditionItemImpl(
             sourceType.getPathByDBField(column.getReferencedColumnName()),
             targetType.getPathByDBField(column.getName())));
     }
-    return joinColumns;
+    return result;
+  }
+
+  @Override
+  public JPAJoinTable getJoinTable() {
+    return joinTable;
   }
 
   /*
@@ -112,6 +128,25 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
     return (JPAAssociationAttribute) pathElements.get(pathElements.size() - 1);
   }
 
+  @Override
+  public List<JPAPath> getLeftColumnsList() throws ODataJPAModelException {
+    final List<JPAPath> result = new ArrayList<>();
+    for (final IntermediateJoinColumn column : this.joinColumns) {
+      // ManyToOne
+      if (cardinality == PersistentAttributeType.MANY_TO_ONE
+          || cardinality == PersistentAttributeType.MANY_TO_MANY)
+        result.add(sourceType.getPathByDBField(column.getName()));
+      else
+        result.add(sourceType.getPathByDBField(column.getReferencedColumnName()));
+    }
+    return result;
+  }
+
+  @Override
+  public JPAAssociationAttribute getPartner() {
+    return partner;
+  }
+
   /*
    * (non-Javadoc)
    * 
@@ -122,14 +157,17 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
     return pathElements;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath#getTargetType()
-   */
   @Override
-  public JPAStructuredType getTargetType() {
-    return targetType;
+  public List<JPAPath> getRightColumnsList() throws ODataJPAModelException {
+    final List<JPAPath> result = new ArrayList<>();
+    for (final IntermediateJoinColumn column : this.joinColumns) {
+      // ManyToOne
+      if (cardinality == PersistentAttributeType.MANY_TO_ONE)
+        result.add(targetType.getPathByDBField(column.getReferencedColumnName()));
+      else
+        result.add(targetType.getPathByDBField(column.getName()));
+    }
+    return result;
   }
 
   /*
@@ -145,6 +183,16 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
   /*
    * (non-Javadoc)
    * 
+   * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath#getTargetType()
+   */
+  @Override
+  public JPAStructuredType getTargetType() {
+    return targetType;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
    * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath#isCollection()
    */
   @Override
@@ -153,7 +201,18 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
   }
 
   @Override
-  public JPAAssociationAttribute getPartner() {
-    return partner;
+  public String toString() {
+    return "JPAAssociationPathImpl [alias=" + alias + ", pathElements=" + pathElements + ", sourceType=" + sourceType
+        + ", targetType=" + targetType + ", joinColumns=" + joinColumns + ", cardinality=" + cardinality
+        + ", joinTable=" + joinTable + "]";
   }
+
+  private PersistentAttributeType getCardinality() {
+    return cardinality;
+  }
+
+  private List<IntermediateJoinColumn> getJoinColumns() {
+    return joinColumns;
+  }
+
 }

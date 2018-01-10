@@ -360,10 +360,9 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
    */
   JPAPath getPathByDBField(final String dbFieldName) throws ODataJPAModelException {
     lazyBuildCompletePathMap();
-    for (final String internalName : resolvedPathMap.keySet()) {
-      final JPAPath property = resolvedPathMap.get(internalName);
-      if (property.getDBFieldName().equals(dbFieldName))
-        return property;
+    for (final Entry<String, JPAPathImpl> path : resolvedPathMap.entrySet()) {
+      if (path.getValue().getDBFieldName().equals(dbFieldName))
+        return path.getValue();
     }
     return null;
   }
@@ -423,9 +422,8 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
         }
       } else {
         final AttributeOverride overwrite = a.getAnnotation(AttributeOverride.class);
-        if (overwrite != null) {
-          if (overwrite.name().equals(jpaPath.getLeaf().getInternalName()))
-            return overwrite.column().name();
+        if (overwrite != null && overwrite.name().equals(jpaPath.getLeaf().getInternalName())) {
+          return overwrite.column().name();
         }
       }
     }
@@ -450,16 +448,15 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
           }
         } else {
           final AssociationOverride overwrite = a.getAnnotation(AssociationOverride.class);
-          if (overwrite != null) {
-            if (overwrite.name().equals(association.getLeaf().getInternalName())) {
-              for (final JoinColumn column : overwrite.joinColumns())
-                result.add(new IntermediateJoinColumn(column));
-            }
+          if (overwrite != null && overwrite.name().equals(association.getLeaf().getInternalName())) {
+            for (final JoinColumn column : overwrite.joinColumns())
+              result.add(new IntermediateJoinColumn(column));
           }
         }
       }
     }
     return result;
+
   }
 
   private Attribute<?, ?> findCorrespondingAssociation(final IntermediateStructuredType sourceType,

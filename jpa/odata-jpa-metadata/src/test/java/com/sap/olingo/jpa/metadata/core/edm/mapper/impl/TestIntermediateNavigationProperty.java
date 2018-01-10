@@ -2,6 +2,8 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
@@ -335,6 +337,66 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
         schema.getEntityType(AdministrativeDivision.class), jpaAttribute, schema);
 
     assertEquals(CsdlOnDeleteAction.None, property.getProperty().getOnDelete().getAction());
+  }
+
+  @Test
+  public void checkGetJoinTable() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("Person"),
+        "supportedOrganizations");
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+        schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
+
+    assertNotNull(property.getJoinTable());
+  }
+
+  @Test
+  public void checkGetJoinTableName() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("Person"),
+        "supportedOrganizations");
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+        schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
+
+    assertEquals("\"SupportRelationship\"", property.getJoinTable().getTableName());
+  }
+
+  @Test
+  public void checkGetNullIfNoJoinTableGiven() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("AdministrativeDivision"),
+        "parent");
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+        schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
+
+    assertNull(property.getJoinTable());
+  }
+
+  @Test
+  public void checkGetJoinTableJoinColumns() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("Person"),
+        "supportedOrganizations");
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+        schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
+
+    assertFalse(property.getJoinColumns().isEmpty());
+  }
+
+  @Test
+  public void checkGetJoinTableEntityType() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("Person"),
+        "supportedOrganizations");
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+        schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
+
+    assertNotNull(property.getJoinTable().getEntityType());
+  }
+
+  @Test
+  public void checkGetJoinTableJoinColumnsMapped() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("Organization"),
+        "supportEngineers");
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+        schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
+
+    assertFalse(property.getJoinColumns().isEmpty());
   }
 
   private class PostProcessorSetName extends JPAEdmMetadataPostProcessor {

@@ -15,7 +15,6 @@ import javax.persistence.criteria.From;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Root;
 
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -47,8 +46,8 @@ public abstract class JPAAbstractQuery {
   protected Locale locale;
 
   public JPAAbstractQuery(final OData odata, final JPAServiceDocument sd, final JPAEntityType jpaEntityType,
-      final EntityManager em)
-      throws ODataApplicationException {
+      final EntityManager em) {
+
     super();
     this.em = em;
     this.cb = em.getCriteriaBuilder();
@@ -59,8 +58,7 @@ public abstract class JPAAbstractQuery {
   }
 
   public JPAAbstractQuery(final OData odata, final JPAServiceDocument sd, final EdmEntityType edmEntityType,
-      final EntityManager em)
-      throws ODataApplicationException {
+      final EntityManager em) throws ODataApplicationException {
     super();
     this.em = em;
     this.cb = em.getCriteriaBuilder();
@@ -86,7 +84,8 @@ public abstract class JPAAbstractQuery {
   }
 
   protected javax.persistence.criteria.Expression<Boolean> createWhereByKey(final From<?, ?> root,
-      final javax.persistence.criteria.Expression<Boolean> whereCondition, final List<UriParameter> keyPredicates)
+      final javax.persistence.criteria.Expression<Boolean> whereCondition, final List<UriParameter> keyPredicates,
+      JPAEntityType et)
       throws ODataApplicationException {
     // .../Organizations('3')
     // .../BusinessPartnerRoles(BusinessPartnerID='6',RoleCategory='C')
@@ -96,7 +95,7 @@ public abstract class JPAAbstractQuery {
       for (final UriParameter keyPredicate : keyPredicates) {
         javax.persistence.criteria.Expression<Boolean> equalCondition;
         try {
-          equalCondition = ExpressionUtil.createEQExpression(odata, cb, root, jpaEntity, keyPredicate);
+          equalCondition = ExpressionUtil.createEQExpression(odata, cb, root, et, keyPredicate);
         } catch (ODataJPAModelException e) {
           throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
         }
@@ -109,7 +108,7 @@ public abstract class JPAAbstractQuery {
     return compundCondition;
   }
 
-  public abstract <T> Root<T> getRoot();
+  public abstract From<?, ?> getRoot();
 
   public abstract AbstractQuery<?> getQuery();
 
@@ -119,26 +118,13 @@ public abstract class JPAAbstractQuery {
 
   protected abstract Locale getLocale();
 
-  protected void generateDesciptionJoin(final HashMap<String, From<?, ?>> joinTables, Set<JPAPath> pathSet)
-      throws ODataApplicationException {
+  protected void generateDesciptionJoin(final HashMap<String, From<?, ?>> joinTables, final Set<JPAPath> pathSet,
+      final From<?, ?> target) {
+
     for (final JPAPath descriptionFieldPath : pathSet) {
       final JPADescriptionAttribute desciptionField = ((JPADescriptionAttribute) descriptionFieldPath.getLeaf());
-      final List<JPAElement> pathList = descriptionFieldPath.getPath();
-      Join<?, ?> join = null;
-      JoinType jt;
-      for (int i = 0; i < pathList.size(); i++) {
-        if (i == pathList.size() - 1)
-          jt = JoinType.LEFT;
-        else
-          jt = JoinType.INNER;
-        if (i == 0) {
-          join = getRoot().join(pathList.get(i).getInternalName(), jt);
-          join.alias(descriptionFieldPath.getAlias());
-        } else if (i < pathList.size()) {
-          join = join.join(pathList.get(i).getInternalName(), jt);
-          join.alias(pathList.get(i).getExternalName());
-        }
-      }
+      Join<?, ?> join = createJoinFromPath(descriptionFieldPath.getAlias(), descriptionFieldPath.getPath(), target,
+          JoinType.LEFT);
       if (desciptionField.isLocationJoin())
         join.on(createOnCondition(join, desciptionField, getLocale().toString()));
       else
@@ -147,8 +133,29 @@ public abstract class JPAAbstractQuery {
     }
   }
 
+  protected Join<?, ?> createJoinFromPath(final String alias, final List<JPAElement> pathList, final From<?, ?> root,
+      final JoinType finalJoinType) {
+
+    Join<?, ?> join = null;
+    JoinType jt;
+    for (int i = 0; i < pathList.size(); i++) {
+      if (i == pathList.size() - 1)
+        jt = finalJoinType;
+      else
+        jt = JoinType.INNER;
+      if (i == 0) {
+        join = root.join(pathList.get(i).getInternalName(), jt);
+        join.alias(alias);
+      } else if (i < pathList.size()) {
+        join = join.join(pathList.get(i).getInternalName(), jt);
+        join.alias(pathList.get(i).getExternalName());
+      }
+    }
+    return join;
+  }
+
   private Expression<Boolean> createOnCondition(Join<?, ?> join, JPADescriptionAttribute desciptionField,
-      String localValue) throws ODataApplicationException {
+      String localValue) {
 
     Expression<Boolean> result = cb.equal(determienLocalePath(join, desciptionField.getLocaleFieldName()), localValue);
     for (JPAPath value : desciptionField.getFixedValueAssignment().keySet()) {
@@ -159,7 +166,7 @@ public abstract class JPAAbstractQuery {
   }
 
   private javax.persistence.criteria.Expression<?> determienLocalePath(final Join<?, ?> join,
-      final JPAPath jpaPath) throws ODataApplicationException {
+      final JPAPath jpaPath) {
     Path<?> p = join;
     for (final JPAElement pathElement : jpaPath.getPath()) {
       p = p.get(pathElement.getInternalName());
@@ -168,6 +175,17 @@ public abstract class JPAAbstractQuery {
   }
 
   abstract JPAODataSessionContextAccess getContext();
+
+  protected javax.persistence.criteria.Expression<Boolean> addWhereClause(javax.persistence.criteria.Expression<Boolean> whereCondition, final javax.persistence.criteria.Expression<Boolean> additioanlExpression) {
+  
+    if (additioanlExpression != null) {
+      if (whereCondition == null)
+        whereCondition = additioanlExpression;
+      else
+        whereCondition = cb.and(whereCondition, additioanlExpression);
+    }
+    return whereCondition;
+  }
 
   // TODO clean-up
   private class EmptyDebugger implements JPAServiceDebugger {
@@ -178,7 +196,9 @@ public abstract class JPAAbstractQuery {
     }
 
     @Override
-    public void stopRuntimeMeasurement(int handle) {}
+    public void stopRuntimeMeasurement(int handle) {
+      // not needed
+    }
 
     @Override
     public Collection<? extends RuntimeMeasurement> getRuntimeInformation() {
