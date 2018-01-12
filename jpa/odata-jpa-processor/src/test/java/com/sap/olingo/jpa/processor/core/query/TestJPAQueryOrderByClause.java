@@ -135,4 +135,16 @@ public class TestJPAQueryOrderByClause extends TestBase {
     assertEquals(4, orgs.size());
     assertEquals("USA", orgs.get(0).get("CountryCode").asText());
   }
+
+  @Test
+  public void testOrderByNavigationOneHop() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations('3')/Roles?$orderby=RoleCategory desc");
+    helper.assertStatus(200);
+
+    ArrayNode orgs = helper.getValues();
+    assertEquals(3, orgs.size());
+    assertEquals("C", orgs.get(0).get("RoleCategory").asText());
+  }
 }

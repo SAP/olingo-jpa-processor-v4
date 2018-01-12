@@ -39,13 +39,13 @@ abstract class JPALambdaOperation extends JPAExistsOperation {
   }
 
   protected final Subquery<?> getSubQuery(final Expression expression) throws ODataApplicationException {
-    final List<UriResource> allUriResourceParts = new ArrayList<UriResource>(uriResourceParts);
+    final List<UriResource> allUriResourceParts = new ArrayList<>(uriResourceParts);
     allUriResourceParts.addAll(member.getUriResourceParts());
 
     // 1. Determine all relevant associations
     final List<JPANavigationProptertyInfo> naviPathList = determineAssoziations(sd, allUriResourceParts);
     JPAAbstractQuery parent = root;
-    final List<JPANavigationQuery> queryList = new ArrayList<JPANavigationQuery>();
+    final List<JPANavigationQuery> queryList = new ArrayList<>();
 
     // 2. Create the queries and roots
 
@@ -54,10 +54,10 @@ abstract class JPALambdaOperation extends JPAExistsOperation {
       final JPANavigationProptertyInfo naviInfo = naviPathList.get(i);
       if (i == 0) // naviPathList.size() - 1)
         queryList.add(new JPANavigationFilterQuery(odata, sd, naviInfo.getUriResiource(), parent, em, naviInfo
-            .getAssociationPath(), expression));
+            .getAssociationPath(), expression, from));
       else
         queryList.add(new JPANavigationFilterQuery(odata, sd, naviInfo.getUriResiource(), parent, em, naviInfo
-            .getAssociationPath()));
+            .getAssociationPath(), from));
       parent = queryList.get(queryList.size() - 1);
     }
     // 3. Create select statements

@@ -147,6 +147,14 @@ final class IntermediateSchema extends IntermediateModelElement {
     return null;
   }
 
+  JPAEntityType getEntityType(final String dbCatalog, final String dbSchema, final String dbTableName) {
+    for (final Entry<String, IntermediateEntityType> et : entityTypeListInternalKey.entrySet()) {
+      if (et.getValue().dbEquals(dbCatalog, dbSchema, dbTableName))
+        return et.getValue();
+    }
+    return null;
+  }
+
   List<IntermediateEntityType> getEntityTypes() {
     final List<IntermediateEntityType> entityTypes = new ArrayList<>();
     for (final Entry<String, IntermediateEntityType> et : entityTypeListInternalKey.entrySet()) {

@@ -21,6 +21,7 @@ import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.ODataApplicationException;
+import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceComplexProperty;
@@ -31,6 +32,7 @@ import org.apache.olingo.server.api.uri.queryoption.ExpandItem;
 import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -39,7 +41,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.processor.core.api.JPAODataContextAccessDouble;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.testmodel.TestDataConstants;
-import com.sap.olingo.jpa.processor.core.util.EdmEntitySetDouble;
 import com.sap.olingo.jpa.processor.core.util.EdmEntityTypeDouble;
 import com.sap.olingo.jpa.processor.core.util.EdmPropertyDouble;
 import com.sap.olingo.jpa.processor.core.util.ExpandItemDouble;
@@ -53,24 +54,45 @@ import com.sap.olingo.jpa.processor.core.util.UriResourcePropertyDouble;
 
 public class TestJPAQuerySelectClause extends TestBase {
 
-  private JPAExecutableQuery cut;
+  private JPAAbstractJoinQuery cut;
   private JPAEntityType jpaEntityType;
   private HashMap<String, From<?, ?>> joinTables;
   private Root<?> root;
   private JPAODataSessionContextAccess context;
+  private UriInfo uriInfo;
 
   @Before
   public void setup() throws ODataException {
+    buildUriInfo("BusinessPartners", "BusinessPartner");
+
     helper = new TestHelper(emf, PUNIT_NAME);
     nameBuilder = new JPAEdmNameBuilder(PUNIT_NAME);
     jpaEntityType = helper.getJPAEntityType("BusinessPartners");
     createHeaders();
     context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null, TestBase.enumPackages), ds);
-    cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "BusinessPartners"), context, null, emf
-        .createEntityManager(), headers);
+
+    cut = new JPAJoinQuery(null, context, emf.createEntityManager(), headers, uriInfo);
+
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
     joinTables = new HashMap<>();
     joinTables.put(jpaEntityType.getInternalName(), root);
+  }
+
+  private void buildUriInfo(final String esName, final String etName) {
+    uriInfo = Mockito.mock(UriInfo.class);
+    final EdmEntitySet odataEs = Mockito.mock(EdmEntitySet.class);
+    final EdmType odataType = Mockito.mock(EdmEntityType.class);
+    final List<UriResource> resources = new ArrayList<>();
+    final UriResourceEntitySet esResource = Mockito.mock(UriResourceEntitySet.class);
+    Mockito.when(uriInfo.getUriResourceParts()).thenReturn(resources);
+    Mockito.when(esResource.getKeyPredicates()).thenReturn(new ArrayList<>(1));
+    Mockito.when(esResource.getEntitySet()).thenReturn(odataEs);
+    Mockito.when(esResource.getKind()).thenReturn(UriResourceKind.entitySet);
+    Mockito.when(esResource.getType()).thenReturn(odataType);
+    Mockito.when(odataEs.getName()).thenReturn(esName);
+    Mockito.when(odataType.getNamespace()).thenReturn(PUNIT_NAME);
+    Mockito.when(odataType.getName()).thenReturn(etName);
+    resources.add(esResource);
   }
 
   @Test
@@ -78,7 +100,7 @@ public class TestJPAQuerySelectClause extends TestBase {
     fillJoinTable(root);
 
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("*"))));
+        new UriInfoDouble(new SelectOptionDouble("*"))), root);
     assertEquals(jpaEntityType.getPathList().size(), selectClause.size());
 
   }
@@ -88,7 +110,7 @@ public class TestJPAQuerySelectClause extends TestBase {
     fillJoinTable(root);
 
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(new UriInfoDouble(
-        null)));
+        null)), root);
 
     assertEquals(jpaEntityType.getPathList().size(), selectClause.size());
   }
@@ -111,7 +133,7 @@ public class TestJPAQuerySelectClause extends TestBase {
     startResources.add(new UriResourceNavigationDouble(startEntity));
     startResources.add(new UriResourcePropertyDouble(new EdmPropertyDouble("Address")));
 
-    List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(uriInfo));
+    List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(uriInfo), root);
 
     assertContains(selectClause, "Address/RegionCodeID");
   }
@@ -130,7 +152,7 @@ public class TestJPAQuerySelectClause extends TestBase {
   @Test
   public void checkSelectOnePropertyCreatedAt() throws ODataApplicationException, ODataJPAModelException {
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("CreationDateTime"))));
+        new UriInfoDouble(new SelectOptionDouble("CreationDateTime"))), root);
     assertEquals(2, selectClause.size());
     assertContains(selectClause, "CreationDateTime");
     assertContains(selectClause, "ID");
@@ -139,7 +161,7 @@ public class TestJPAQuerySelectClause extends TestBase {
   @Test
   public void checkSelectOnePropertyID() throws ODataApplicationException, ODataJPAModelException {
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("ID"))));
+        new UriInfoDouble(new SelectOptionDouble("ID"))), root);
     assertEquals(1, selectClause.size());
     assertContains(selectClause, "ID");
   }
@@ -147,14 +169,15 @@ public class TestJPAQuerySelectClause extends TestBase {
   @Test
   public void checkSelectOnePropertyPartKey() throws ODataException {
     jpaEntityType = helper.getJPAEntityType("AdministrativeDivisionDescriptions");
-    cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "AdministrativeDivisionDescriptions"), context, null,
-        emf.createEntityManager(), headers);
+    buildUriInfo("AdministrativeDivisionDescriptions", "AdministrativeDivisionDescription");
+
+    cut = new JPAJoinQuery(null, context, emf.createEntityManager(), headers, uriInfo);
 
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
     joinTables.put(jpaEntityType.getInternalName(), root);
 
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble((new SelectOptionDouble("CodePublisher")))));
+        new UriInfoDouble((new SelectOptionDouble("CodePublisher")))), root);
     assertEquals(4, selectClause.size());
     assertContains(selectClause, "CodePublisher");
     assertContains(selectClause, "CodeID");
@@ -165,7 +188,7 @@ public class TestJPAQuerySelectClause extends TestBase {
   @Test
   public void checkSelectPropertyTypeCreatedAt() throws ODataApplicationException, ODataJPAModelException {
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("Type,CreationDateTime"))));
+        new UriInfoDouble(new SelectOptionDouble("Type,CreationDateTime"))), root);
 
     assertEquals(3, selectClause.size());
     assertContains(selectClause, "CreationDateTime");
@@ -178,12 +201,12 @@ public class TestJPAQuerySelectClause extends TestBase {
     jpaEntityType = helper.getJPAEntityType("Organizations");
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
     joinTables.put(jpaEntityType.getInternalName(), root);
+    buildUriInfo("Organizations", "Organization");
 
-    cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "Organizations"), context, null, emf
-        .createEntityManager(), headers);
+    cut = new JPAJoinQuery(null, context, emf.createEntityManager(), headers, uriInfo);
 
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("Type,Name2"))));
+        new UriInfoDouble(new SelectOptionDouble("Type,Name2"))), root);
     assertContains(selectClause, "Name2");
     assertContains(selectClause, "Type");
     assertContains(selectClause, "ID");
@@ -198,13 +221,10 @@ public class TestJPAQuerySelectClause extends TestBase {
     joinTables.put(jpaEntityType.getInternalName(), root);
     fillJoinTable(root);
 
-    cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "Organizations"), context, null, emf
-        .createEntityManager(), headers);
+    cut = new JPAJoinQuery(null, context, emf.createEntityManager(), headers, uriInfo);
 
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("Address"))));
-//    assertContains(selectClause, "Address");
-//    assertContains(selectClause, "ID");
+        new UriInfoDouble(new SelectOptionDouble("Address"))), root);
     assertEquals(TestDataConstants.NO_ATTRIBUTES_POSTAL_ADDRESS + 1, selectClause.size());
   }
 
@@ -215,11 +235,10 @@ public class TestJPAQuerySelectClause extends TestBase {
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
     joinTables.put(jpaEntityType.getInternalName(), root);
 
-    cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "Organizations"), context, null, emf
-        .createEntityManager(), headers);
+    cut = new JPAJoinQuery(null, context, emf.createEntityManager(), headers, uriInfo);
 
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("AdministrativeInformation/Created"))));
+        new UriInfoDouble(new SelectOptionDouble("AdministrativeInformation/Created"))), root);
     assertEquals(3, selectClause.size());
     assertContains(selectClause, "AdministrativeInformation/Created/By");
     assertContains(selectClause, "AdministrativeInformation/Created/At");
@@ -233,11 +252,10 @@ public class TestJPAQuerySelectClause extends TestBase {
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
     joinTables.put(jpaEntityType.getInternalName(), root);
 
-    cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "Organizations"), context, null, emf
-        .createEntityManager(), headers);
+    cut = new JPAJoinQuery(null, context, emf.createEntityManager(), headers, uriInfo);
 
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("AdministrativeInformation"))));
+        new UriInfoDouble(new SelectOptionDouble("AdministrativeInformation"))), root);
     assertEquals(5, selectClause.size());
     assertContains(selectClause, "AdministrativeInformation/Created/By");
     assertContains(selectClause, "AdministrativeInformation/Created/At");
@@ -253,12 +271,11 @@ public class TestJPAQuerySelectClause extends TestBase {
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
     joinTables.put(jpaEntityType.getInternalName(), root);
 
-    cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "Organizations"), context, null, emf
-        .createEntityManager(), headers);
+    cut = new JPAJoinQuery(null, context, emf.createEntityManager(), headers, uriInfo);
 
     // SELECT c.address.geocode FROM Company c WHERE c.name = 'Random House'
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("Address/Country"))));
+        new UriInfoDouble(new SelectOptionDouble("Address/Country"))), root);
     assertContains(selectClause, "Address/Country");
     assertContains(selectClause, "ID");
     assertEquals(2, selectClause.size());
@@ -268,13 +285,12 @@ public class TestJPAQuerySelectClause extends TestBase {
   public void checkSelectTextJoinSingleAttribute() throws ODataException {
     jpaEntityType = helper.getJPAEntityType("Organizations");
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
-    cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "Organizations"), context, null, emf
-        .createEntityManager(), headers);
+    cut = new JPAJoinQuery(null, context, emf.createEntityManager(), headers, uriInfo);
     joinTables.put(jpaEntityType.getInternalName(), root);
     fillJoinTable(root);
 
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("Address/CountryName"))));
+        new UriInfoDouble(new SelectOptionDouble("Address/CountryName"))), root);
     assertContains(selectClause, "Address/CountryName");
     assertContains(selectClause, "ID");
     assertEquals(2, selectClause.size());
@@ -284,13 +300,12 @@ public class TestJPAQuerySelectClause extends TestBase {
   public void checkSelectTextJoinCompextType() throws ODataException {
     jpaEntityType = helper.getJPAEntityType("Organizations");
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
-    cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "Organizations"), context, null, emf
-        .createEntityManager(), headers);
+    cut = new JPAJoinQuery(null, context, emf.createEntityManager(), headers, uriInfo);
     joinTables.put(jpaEntityType.getInternalName(), root);
     fillJoinTable(root);
 
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("Address"))));
+        new UriInfoDouble(new SelectOptionDouble("Address"))), root);
     assertEquals(TestDataConstants.NO_ATTRIBUTES_POSTAL_ADDRESS + 1, selectClause.size());
     assertContains(selectClause, "Address/CountryName");
     assertContains(selectClause, "ID");
@@ -300,8 +315,9 @@ public class TestJPAQuerySelectClause extends TestBase {
   public void checkSelectStreamValueStatic() throws ODataException {
     jpaEntityType = helper.getJPAEntityType("PersonImages");
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
-    cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "PersonImages"), context, null, emf
-        .createEntityManager(), headers);
+    buildUriInfo("PersonImages", "PersonImage");
+
+    cut = new JPAJoinQuery(null, context, emf.createEntityManager(), headers, uriInfo);
 
     UriInfoDouble uriInfo = new UriInfoDouble(new SelectOptionDouble("Address"));
     List<UriResource> uriResources = new ArrayList<>();
@@ -309,7 +325,7 @@ public class TestJPAQuerySelectClause extends TestBase {
     uriResources.add(new UriResourceEntitySetDouble());
     uriResources.add(new UriResourceValueDouble());
 
-    List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(uriInfo));
+    List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(uriInfo), root);
     assertNotNull(selectClause);
     assertContains(selectClause, "Image");
     assertContains(selectClause, "ID");
@@ -319,8 +335,9 @@ public class TestJPAQuerySelectClause extends TestBase {
   public void checkSelectStreamValueDynamic() throws ODataException {
     jpaEntityType = helper.getJPAEntityType("OrganizationImages");
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
-    cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "OrganizationImages"), context, null, emf
-        .createEntityManager(), headers);
+    buildUriInfo("OrganizationImages", "OrganizationImage");
+
+    cut = new JPAJoinQuery(null, context, emf.createEntityManager(), headers, uriInfo);
 
     UriInfoDouble uriInfo = new UriInfoDouble(new SelectOptionDouble("Address"));
     List<UriResource> uriResources = new ArrayList<>();
@@ -328,7 +345,7 @@ public class TestJPAQuerySelectClause extends TestBase {
     uriResources.add(new UriResourceEntitySetDouble());
     uriResources.add(new UriResourceValueDouble());
 
-    List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(uriInfo));
+    List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(uriInfo), root);
     assertNotNull(selectClause);
     assertContains(selectClause, "Image");
     assertContains(selectClause, "MimeType");
@@ -337,22 +354,22 @@ public class TestJPAQuerySelectClause extends TestBase {
 
   @Test
   public void checkSelectPropertyValue() throws ODataException {
-    jpaEntityType = helper.getJPAEntityType("Organizations");
+    jpaEntityType = helper.getJPAEntityType("PersonImages");
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
-    cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "Organizations"), context, null, emf
-        .createEntityManager(), headers);
+    buildUriInfo("PersonImages", "PersonImage");
+    cut = new JPAJoinQuery(null, context, emf.createEntityManager(), headers, uriInfo);
 
-    UriInfoDouble uriInfo = new UriInfoDouble(new SelectOptionDouble("Address"));
+    UriInfoDouble uriInfo = new UriInfoDouble(null);
     List<UriResource> uriResources = new ArrayList<>();
     uriInfo.setUriResources(uriResources);
-    // BusinessPartnerImages('99')/AdministrativeInformation/Created/By/$value
+    // PersonImages('99')/AdministrativeInformation/Created/By/$value
     uriResources.add(new UriResourceEntitySetDouble());
     uriResources.add(new UriResourceComplexPropertyDouble(new EdmPropertyDouble("AdministrativeInformation")));
     uriResources.add(new UriResourceComplexPropertyDouble(new EdmPropertyDouble("Created")));
     uriResources.add(new UriResourcePropertyDouble(new EdmPropertyDouble("By")));
     uriResources.add(new UriResourceValueDouble());
 
-    List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(uriInfo));
+    List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(uriInfo), root);
     assertNotNull(selectClause);
     assertContains(selectClause, "AdministrativeInformation/Created/By");
     assertContains(selectClause, "ID");

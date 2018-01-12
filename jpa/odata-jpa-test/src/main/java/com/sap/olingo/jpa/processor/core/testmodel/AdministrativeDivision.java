@@ -90,13 +90,13 @@ public class AdministrativeDivision implements KeyAccess {
   private AdministrativeDivision parent;
 
   @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  @JoinColumns({
-      @JoinColumn(referencedColumnName = "\"CodePublisher\"", name = "\"CodePublisher\"", nullable = false,
-          insertable = false, updatable = false),
-      @JoinColumn(referencedColumnName = "\"CodeID\"", name = "\"ParentCodeID\"", nullable = false,
-          insertable = false, updatable = false),
-      @JoinColumn(referencedColumnName = "\"DivisionCode\"", name = "\"ParentDivisionCode\"", nullable = false,
-          insertable = false, updatable = false) })
+//  @JoinColumns({
+//      @JoinColumn(referencedColumnName = "\"CodePublisher\"", name = "\"CodePublisher\"", nullable = false,
+//          insertable = false, updatable = false),
+//      @JoinColumn(referencedColumnName = "\"CodeID\"", name = "\"ParentCodeID\"", nullable = false,
+//          insertable = false, updatable = false),
+//      @JoinColumn(referencedColumnName = "\"DivisionCode\"", name = "\"ParentDivisionCode\"", nullable = false,
+//          insertable = false, updatable = false) })
   private List<AdministrativeDivision> children = new ArrayList<>();
 
   @OneToMany(fetch = FetchType.LAZY)

@@ -8,7 +8,6 @@ import org.apache.olingo.commons.api.data.ComplexValue;
 import org.apache.olingo.commons.api.data.Entity;
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.Property;
-import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -30,10 +29,10 @@ import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandItemInfo;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandItemInfoFactory;
-import com.sap.olingo.jpa.processor.core.query.JPAExpandQuery;
+import com.sap.olingo.jpa.processor.core.query.JPAExpandJoinQuery;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandQueryResult;
+import com.sap.olingo.jpa.processor.core.query.JPAJoinQuery;
 import com.sap.olingo.jpa.processor.core.query.JPANavigationProptertyInfo;
-import com.sap.olingo.jpa.processor.core.query.JPAQuery;
 import com.sap.olingo.jpa.processor.core.query.Util;
 
 public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestProcessor {
@@ -55,13 +54,10 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
 
     final int handle = debugger.startRuntimeMeasurement(this, "retrieveData");
 
-    final List<UriResource> resourceParts = uriInfo.getUriResourceParts();
-    final EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(resourceParts);
-
     // Create a JPQL Query and execute it
-    JPAQuery query = null;
+    JPAJoinQuery query = null;
     try {
-      query = new JPAQuery(odata, targetEdmEntitySet, sessionContext, uriInfo, em, request.getAllHeaders());
+      query = new JPAJoinQuery(odata, sessionContext, em, request.getAllHeaders(), uriInfo);
     } catch (ODataException e) {
       debugger.stopRuntimeMeasurement(handle);
       throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.QUERY_PREPARATION_ERROR,
@@ -69,7 +65,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     }
 
     final JPAExpandQueryResult result = query.execute();
-    result.putChildren(readExpandEntities(request.getAllHeaders(), null, uriInfo));
+    result.putChildren(readExpandEntities(request.getAllHeaders(), query.getNavigationInfo(), uriInfo));
     // Convert tuple result into an OData Result
     final int converterHandle = debugger.startRuntimeMeasurement(this, "convertResult");
     EntityCollection entityCollection;
@@ -88,8 +84,8 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     // Count results if requested
     final CountOption countOption = uriInfo.getCountOption();
     if (countOption != null && countOption.getValue())
-      // TODO SetCount expects an Integer why not a Long?
-      entityCollection.setCount(Integer.valueOf(query.countResults().intValue()));
+      entityCollection.setCount(new JPAJoinQuery(odata, sessionContext, em, request.getAllHeaders(), uriInfo)
+          .countResults().intValue());
 
     // 404 Not Found indicates that the resource specified by the request URL does not exist. The response body MAY
     // provide additional information.
@@ -172,12 +168,12 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
    * @param naviStartEdmEntitySet
    * @param parentHops
    * @param uriResourceInfo
+   * @param parentWhere
    * @return
    * @throws ODataException
    */
   private Map<JPAAssociationPath, JPAExpandQueryResult> readExpandEntities(final Map<String, List<String>> headers,
-      final List<JPANavigationProptertyInfo> parentHops, final UriInfoResource uriResourceInfo)
-      throws ODataException {
+      final List<JPANavigationProptertyInfo> parentHops, final UriInfoResource uriResourceInfo) throws ODataException {
 
     final int handle = debugger.startRuntimeMeasurement(this, "readExpandEntities");
 
@@ -187,15 +183,14 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     // For performance reasons the expand query should only return results for the results of the higher-level query.
     // The solution for restrictions like a given key or a given filter condition, as it can be propagated to a
     // sub-query.
-    // For $top and $skip things are more difficult as the criteria query does not support LIMIT and OFFSET, this is
+    // For $top and $skip things are more difficult as the Subquery does not support LIMIT and OFFSET, this is
     // done on the TypedQuery created out of the Criteria Query. In addition not all databases support LIMIT within a
     // sub-query used within EXISTS.
 
     final List<JPAExpandItemInfo> itemInfoList = new JPAExpandItemInfoFactory()
         .buildExpandItemInfo(sd, uriResourceInfo, parentHops);
-    // .buildExpandItemInfo(sd, uriResourceInfo.getUriResourceParts(), uriResourceInfo.getExpandOption(), parentHops);
     for (final JPAExpandItemInfo item : itemInfoList) {
-      final JPAExpandQuery expandQuery = new JPAExpandQuery(odata, sessionContext, em, item, headers);
+      final JPAExpandJoinQuery expandQuery = new JPAExpandJoinQuery(odata, sessionContext, em, item, headers);
       final JPAExpandQueryResult expandResult = expandQuery.execute();
       if (expandResult.getNoResults() > 0)
         // Only go the next hop if the current one has a result

@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.From;
 
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
@@ -14,6 +15,7 @@ import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitor
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
 
 /**
@@ -43,6 +45,7 @@ public final class JPAFilterCrossComplier extends JPAAbstractFilter {
   final JPAServiceDocument sd;
   final List<UriResource> uriResourceParts;
   final JPAAbstractQuery parent;
+  private From<?, ?> root;
 
   public JPAFilterCrossComplier(final OData odata, final JPAServiceDocument sd, final EntityManager em,
       final JPAEntityType jpaEntityType, final JPAOperationConverter converter,
@@ -60,6 +63,25 @@ public final class JPAFilterCrossComplier extends JPAAbstractFilter {
     this.odata = odata;
     this.sd = sd;
     this.parent = parent;
+  }
+
+  public JPAFilterCrossComplier(final OData odata, final JPAServiceDocument sd, final EntityManager em,
+      final JPAEntityType jpaEntityType, final JPAOperationConverter converter,
+      final UriInfoResource uriResource, final JPAAbstractQuery parent, From<?, ?> from) {
+
+    super(jpaEntityType, uriResource);
+
+    if (uriResource != null) {
+      this.uriResourceParts = uriResource.getUriResourceParts();
+    } else {
+      this.uriResourceParts = null;
+    }
+    this.converter = converter;
+    this.em = em;
+    this.odata = odata;
+    this.sd = sd;
+    this.parent = parent;
+    this.root = from;
   }
 
   /*
@@ -116,6 +138,18 @@ public final class JPAFilterCrossComplier extends JPAAbstractFilter {
   @Override
   public JPAAbstractQuery getParent() {
     return parent;
+  }
+
+  @Override
+  public From<?, ?> getRoot() {
+    if (root == null)
+      return parent.getRoot();
+    return root;
+  }
+
+  @Override
+  public JPAServiceDebugger getDebugger() {
+    return parent.getDebugger();
   }
 
 }

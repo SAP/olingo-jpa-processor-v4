@@ -71,7 +71,7 @@ public abstract class BusinessPartner implements KeyAccess {
   @Column(name = "\"ETag\"", nullable = false)
   protected long eTag;
 
-  @Column(name = "\"Type\"", length = 1, nullable = false)
+  @Column(name = "\"Type\"", length = 1, insertable = false, updatable = false, nullable = false)
   protected String type;
 
   @Column(name = "\"CreatedAt\"", precision = 3, insertable = false, updatable = false)

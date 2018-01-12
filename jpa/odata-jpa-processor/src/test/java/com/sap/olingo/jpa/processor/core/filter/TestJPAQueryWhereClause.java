@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.filter;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
 
@@ -9,6 +10,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 
@@ -695,6 +697,102 @@ public class TestJPAQueryWhereClause extends TestBase {
   };
 
   @Test
+  public void testFilterNavigationPropertyAndExandThatNavigationProperty() throws IOException,
+      ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions?$filter=Parent/DivisionCode eq 'BE2'&$expand=Parent");
+
+    helper.assertStatus(200);
+    ArrayNode admin = helper.getValues();
+    assertEquals(5, admin.size());
+    assertNotNull(admin.get(3).findValue("Parent"));
+    assertEquals("BE2", admin.get(3).findValue("Parent").get("DivisionCode").asText());
+  };
+
+  @Test
+  public void testFilterNavigationPropertyViaJoinTableSubtype() throws IOException,
+      ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Persons?$select=ID&$filter=SupportedOrganizations/any()");
+
+    helper.assertStatus(200);
+    ArrayNode admin = helper.getValues();
+    assertEquals(2, admin.size());
+    assertEquals("98", admin.get(0).findValue("ID").asText());
+
+  };
+
+  @Ignore // EclipsLinkProblem see https://bugs.eclipse.org/bugs/show_bug.cgi?id=529565
+  @Test
+  public void testFilterNavigationPropertyViaJoinTableCountSubType() throws IOException, // NOSONAR
+      ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Persons?$select=ID&$filter=SupportedOrganizations/$count gt 1");
+
+    helper.assertStatus(200);
+    ArrayNode admin = helper.getValues();
+    assertEquals(2, admin.size());
+    assertEquals("98", admin.get(0).findValue("ID").asText());
+
+  };
+
+  @Test
+  public void testFilterMappedNavigationPropertyViaJoinTableSubtype() throws IOException,
+      ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$select=Name1&$filter=SupportEngineers/any(d:d/LastName eq 'Doe')");
+
+    helper.assertStatus(200);
+    ArrayNode admin = helper.getValues();
+    assertEquals(1, admin.size());
+    assertEquals("First Org.", admin.get(0).findValue("Name1").asText());
+
+  };
+
+  @Test
+  public void testFilterNavigationPropertyViaJoinTableCount() throws IOException,
+      ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Persons?$filter=Teams/$count eq 0&$select=ID");
+
+    helper.assertStatus(200);
+    ArrayNode admin = helper.getValues();
+    assertEquals(1, admin.size());
+    assertEquals("98", admin.get(0).findValue("ID").asText());
+
+  };
+
+  @Test
+  public void testFilterMappedNavigationPropertyViaJoinTableFilter() throws IOException,
+      ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Teams?$select=Name&$filter=Member/any(d:d/LastName eq 'Mustermann')");
+
+    helper.assertStatus(200);
+    ArrayNode admin = helper.getValues();
+    assertEquals(2, admin.size());
+  };
+
+  @Test
+  public void testFilterWithAllExpand() throws ODataException, IOException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$filter=Name1 eq 'Third Org.'&$expand=Roles");
+
+    helper.assertStatus(200);
+    ArrayNode org = helper.getValues();
+    assertNotNull(org);
+    assertEquals(1, org.size());
+    assertEquals(3, org.get(0).get("Roles").size());
+  }
+
+  @Test
   public void testFilterSubstringStartEndIndexToLower() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -716,5 +814,17 @@ public class TestJPAQueryWhereClause extends TestBase {
 
     ArrayNode orgs = helper.getValues();
     assertEquals(1, orgs.size());
+  }
+
+  @Test
+  public void testFilterNavigationTarget() throws IOException, ODataException {
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions(DivisionCode='BE2',CodeID='NUTS1',CodePublisher='Eurostat')/Children?$filter=DivisionCode eq 'BE21'");
+    helper.assertStatus(200);
+
+    final ObjectNode div = helper.getValue();
+    final ObjectNode result = (ObjectNode) div.get("value").get(0);
+    assertNotNull(result);
+    assertEquals("BE21", result.get("DivisionCode").asText());
   }
 }

@@ -10,8 +10,8 @@ import javax.persistence.Entity;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.OrderColumn;
-import javax.persistence.Table;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
@@ -25,7 +25,6 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 
 @Entity(name = "Organization")
 @DiscriminatorValue(value = "2")
-@Table(schema = "\"OLINGO\"", name = "\"BusinessPartner\"")
 public class Organization extends BusinessPartner {
 
   public Organization() {
@@ -48,6 +47,9 @@ public class Organization extends BusinessPartner {
   @Enumerated
   @Column(name = "\"ABCClass\"")
   private ABCClassifiaction aBCClass;
+
+  @ManyToMany(mappedBy = "supportedOrganizations")
+  private List<Person> supportEngineers;
 
   public String getName1() {
     return name1;

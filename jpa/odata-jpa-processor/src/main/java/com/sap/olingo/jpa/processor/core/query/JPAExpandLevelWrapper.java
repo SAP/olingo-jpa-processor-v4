@@ -128,7 +128,7 @@ public final class JPAExpandLevelWrapper implements JPAExpandItem {
 
   @Override
   public List<UriResource> getUriResourceParts() {
-    return item.getResourcePath() != null ? item.getResourcePath().getUriResourceParts() : null;
+    return item.getResourcePath() != null ? item.getResourcePath().getUriResourceParts() : new ArrayList<>(1);
   }
 
   @Override

@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.persistence.Table;
 import javax.persistence.metamodel.EntityType;
@@ -72,20 +73,21 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
     lazyBuildEdmItem();
 
     if (keyAttributes == null) {
-      keyAttributes = new ArrayList<>();
-      for (final String internalName : this.declaredPropertiesList.keySet()) {
-        final JPAAttribute attribute = this.declaredPropertiesList.get(internalName);
+      final List<JPAAttribute> intermediateKey = new ArrayList<>(); // Cycle break
+      for (final Entry<String, IntermediateProperty> property : this.declaredPropertiesList.entrySet()) {
+        final JPAAttribute attribute = property.getValue();
         if (attribute.isKey()) {
           if (attribute.isComplex()) {
-            keyAttributes.addAll(((IntermediateEmbeddedIdProperty) attribute).getStructuredType().getAttributes());
+            intermediateKey.addAll(((IntermediateEmbeddedIdProperty) attribute).getStructuredType().getAttributes());
           } else
-            keyAttributes.add(attribute);
+            intermediateKey.add(attribute);
         }
       }
       final IntermediateStructuredType baseType = getBaseType();
       if (baseType != null) {
-        keyAttributes.addAll(((IntermediateEntityType) baseType).getKey());
+        intermediateKey.addAll(((IntermediateEntityType) baseType).getKey());
       }
+      keyAttributes = intermediateKey;
     }
     return keyAttributes;
   }
@@ -95,8 +97,8 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
     lazyBuildEdmItem();
 
     final List<JPAPath> result = new ArrayList<>();
-    for (final String internalName : this.declaredPropertiesList.keySet()) {
-      final JPAAttribute attribute = this.declaredPropertiesList.get(internalName);
+    for (final Entry<String, IntermediateProperty> property : this.declaredPropertiesList.entrySet()) {
+      final JPAAttribute attribute = property.getValue();
       if (attribute instanceof IntermediateEmbeddedIdProperty) {
         result.add(intermediatePathMap.get(attribute.getExternalName()));
       } else if (attribute.isKey())
@@ -170,8 +172,8 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
   @Override
   public List<JPAPath> searchChildPath(final JPAPath selectItemPath) {
     final List<JPAPath> result = new ArrayList<>();
-    for (final String pathName : this.resolvedPathMap.keySet()) {
-      final JPAPath p = resolvedPathMap.get(pathName);
+    for (final Entry<String, JPAPathImpl> path : this.resolvedPathMap.entrySet()) {
+      final JPAPath p = path.getValue();
       if (!p.ignore() && p.getAlias().startsWith(selectItemPath.getAlias()))
         result.add(p);
     }
@@ -184,16 +186,16 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
       throws ODataJPAModelException {
 
     final List<T> extractionTarget = new ArrayList<>();
-    for (final String externalName : mappingBuffer.keySet()) {
-      if (!(mappingBuffer.get(externalName)).ignore()
+    for (final Entry<String, ? extends IntermediateModelElement> element : mappingBuffer.entrySet()) {
+      if (!element.getValue().ignore()
           // Skip Streams
-          && !(mappingBuffer.get(externalName) instanceof IntermediateSimpleProperty &&
-              ((IntermediateSimpleProperty) mappingBuffer.get(externalName)).isStream())) {
-        if (mappingBuffer.get(externalName) instanceof IntermediateEmbeddedIdProperty) {
+          && !(element.getValue() instanceof IntermediateSimpleProperty &&
+              ((IntermediateSimpleProperty) element.getValue()).isStream())) {
+        if (element.getValue() instanceof IntermediateEmbeddedIdProperty) {
           extractionTarget.addAll((Collection<? extends T>) resolveEmbeddedId(
-              (IntermediateEmbeddedIdProperty) mappingBuffer.get(externalName)));
+              (IntermediateEmbeddedIdProperty) element.getValue()));
         } else {
-          extractionTarget.add((T) mappingBuffer.get(externalName).getEdmItem());
+          extractionTarget.add((T) element.getValue().getEdmItem());
         }
       }
     }
@@ -227,20 +229,24 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
     return asEntitySet;
   }
 
+  boolean dbEquals(final String dbCatalog, final String dbSchema, final String dbTableName) {
+    final AnnotatedElement a = jpaManagedType.getJavaType();
+    Table t = null;
+    if (a != null)
+      t = a.getAnnotation(Table.class);
+    if (t == null)
+      return (dbCatalog == null || dbCatalog.isEmpty())
+          && (dbSchema == null || dbSchema.isEmpty())
+          && dbTableName.equals(getTableName());
+    else
+      return dbCatalog.equals(t.catalog())
+          && dbSchema.equals(t.schema())
+          && dbTableName.equals(t.name());
+  }
+
   boolean determineAbstract() {
     final int modifiers = jpaManagedType.getJavaType().getModifiers();
     return Modifier.isAbstract(modifiers);
-  }
-
-  private void determineHasEtag() throws ODataJPAModelException {
-    for (final String internalName : this.declaredPropertiesList.keySet()) {
-      if (declaredPropertiesList.get(internalName).isEtag()) {
-        hasEtag = true;
-        return;
-      }
-    }
-    if (getBaseType() != null && getBaseType() instanceof IntermediateEntityType)
-      hasEtag = ((IntermediateEntityType) getBaseType()).hasEtag();
   }
 
   /**
@@ -255,21 +261,20 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
       throws ODataJPAModelException {
     // TODO setAlias
     final List<CsdlPropertyRef> keyList = new ArrayList<>();
-    for (final String internalName : propertyList.keySet()) {
-      if (propertyList.get(internalName).isKey()) {
-        if (propertyList.get(internalName).isComplex()) {
-          final List<JPAAttribute> idAttributes = ((IntermediateComplexType) propertyList.get(internalName)
-              .getStructuredType())
-                  .getAttributes();
+    for (final Entry<String, IntermediateProperty> property : propertyList.entrySet()) {
+      if (property.getValue().isKey()) {
+        if (property.getValue().isComplex()) {
+          final List<JPAAttribute> idAttributes = ((IntermediateComplexType) property.getValue()
+              .getStructuredType()).getAttributes();
           for (final JPAAttribute idAttribute : idAttributes) {
-            final CsdlPropertyRef key = new CsdlPropertyRef();
-            key.setName(idAttribute.getExternalName());
-            keyList.add(key);
+            final CsdlPropertyRef keyElement = new CsdlPropertyRef();
+            keyElement.setName(idAttribute.getExternalName());
+            keyList.add(keyElement);
           }
         } else {
-          final CsdlPropertyRef key = new CsdlPropertyRef();
-          key.setName(propertyList.get(internalName).getExternalName());
-          keyList.add(key);
+          final CsdlPropertyRef keyElement = new CsdlPropertyRef();
+          keyElement.setName(property.getValue().getExternalName());
+          keyList.add(keyElement);
         }
       }
     }
@@ -293,7 +298,19 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
     return jpaAsEntitySet != null;
   }
 
-  private List<?> resolveEmbeddedId(final IntermediateEmbeddedIdProperty embeddedId) throws ODataJPAModelException {
+  private void determineHasEtag() throws ODataJPAModelException {
+    for (final Entry<String, IntermediateProperty> property : this.declaredPropertiesList.entrySet()) {
+      if (property.getValue().isEtag()) {
+        hasEtag = true;
+        return;
+      }
+    }
+    if (getBaseType() != null && getBaseType() instanceof IntermediateEntityType)
+      hasEtag = ((IntermediateEntityType) getBaseType()).hasEtag();
+  }
+
+  private List<CsdlProperty> resolveEmbeddedId(final IntermediateEmbeddedIdProperty embeddedId)
+      throws ODataJPAModelException {
     return ((IntermediateComplexType) embeddedId.getStructuredType()).getEdmItem().getProperties();
   }
 }
