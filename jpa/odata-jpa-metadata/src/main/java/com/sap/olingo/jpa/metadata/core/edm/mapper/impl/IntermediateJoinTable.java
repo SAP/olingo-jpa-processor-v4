@@ -17,11 +17,10 @@ class IntermediateJoinTable implements JPAJoinTable {
   private final IntermediateStructuredType sourceType;
   private List<IntermediateJoinColumn> joinColumns = null;
   private List<IntermediateJoinColumn> inverseJoinColumns = null;
-  private IntermediateNavigationProperty intermediateMappedProperty = null;
   private JPAEntityType jpaEntityType;
 
   IntermediateJoinTable(final IntermediateNavigationProperty intermediateProperty, final JoinTable jpaJoinTable,
-      final IntermediateSchema schema) throws ODataJPAModelException {
+      final IntermediateSchema schema) {
     super();
     this.intermediateProperty = intermediateProperty;
     this.jpaJoinTable = jpaJoinTable;
@@ -30,14 +29,13 @@ class IntermediateJoinTable implements JPAJoinTable {
   }
 
   private IntermediateJoinTable(final IntermediateJoinTable intermediateJoinTable,
-      final IntermediateNavigationProperty mappedProperty)
-      throws ODataJPAModelException {
+      final IntermediateNavigationProperty mappedBy) throws ODataJPAModelException {
+
     this.jpaJoinTable = intermediateJoinTable.jpaJoinTable;
-    this.sourceType = mappedProperty.getSourceType();
+    this.sourceType = intermediateJoinTable.getTargetType();
     this.jpaEntityType = intermediateJoinTable.jpaEntityType;
-    this.intermediateMappedProperty = intermediateJoinTable.intermediateProperty;
-    this.intermediateProperty = intermediateJoinTable.intermediateMappedProperty;
-    this.joinColumns = intermediateJoinTable.buildInverseJoinColumns(mappedProperty);
+    this.intermediateProperty = mappedBy;
+    this.joinColumns = intermediateJoinTable.buildInverseJoinColumns();
     this.inverseJoinColumns = intermediateJoinTable.buildJoinColumns();
   }
 
@@ -52,6 +50,11 @@ class IntermediateJoinTable implements JPAJoinTable {
 
   @Override
   public String getInverseAlias(String dbFieldName) {
+    try {
+      buildInverseJoinColumns();
+    } catch (ODataJPAModelException e) {
+      throw new IllegalArgumentException(e);
+    }
     for (IntermediateJoinColumn column : inverseJoinColumns) {
       if (column.getName().equals(dbFieldName))
         return column.getReferencedColumnName();
@@ -68,22 +71,24 @@ class IntermediateJoinTable implements JPAJoinTable {
     return jpaJoinTable.name();
   }
 
-  List<IntermediateJoinColumn> buildInverseJoinColumns(final IntermediateNavigationProperty mappedProperty)
+  private IntermediateStructuredType getTargetType() throws ODataJPAModelException {
+    return (IntermediateStructuredType) intermediateProperty.getTargetEntity();
+  }
+
+  List<IntermediateJoinColumn> buildInverseJoinColumns()
       throws ODataJPAModelException {
 
-    if (this.intermediateMappedProperty == null)
-      intermediateMappedProperty = mappedProperty;
     if (inverseJoinColumns == null) {
       inverseJoinColumns = new ArrayList<>(jpaJoinTable.inverseJoinColumns().length);
       for (JoinColumn column : jpaJoinTable.inverseJoinColumns()) {
         if (column.referencedColumnName() == null || column.referencedColumnName().isEmpty())
           if (jpaJoinTable.joinColumns().length > 1)
             throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.NOT_SUPPORTED_NO_IMPLICIT_COLUMNS,
-                intermediateMappedProperty.getInternalName());
+                intermediateProperty.getInternalName());
           else
             inverseJoinColumns.add(new IntermediateJoinColumn(
-                ((IntermediateProperty) ((IntermediateEntityType) intermediateMappedProperty.getSourceType()).getKey()
-                    .get(0)).getDBFieldName(), column.name()));
+                ((IntermediateProperty) ((IntermediateEntityType) getTargetType()).getKey().get(0)).getDBFieldName(),
+                column.name()));
         else
           inverseJoinColumns.add(new IntermediateJoinColumn(column.referencedColumnName(), column.name()));
       }
@@ -110,10 +115,6 @@ class IntermediateJoinTable implements JPAJoinTable {
       }
     }
     return joinColumns;
-  }
-
-  List<IntermediateJoinColumn> getInverseJoinColumns() {
-    return inverseJoinColumns;
   }
 
   @Override

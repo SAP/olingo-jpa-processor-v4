@@ -18,6 +18,9 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DateConverter</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DummyEmbeddedToIgnore</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DummyToBeIgnored</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.JoinRelation</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.JoinSource</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.JoinTarget</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Membership</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Organization</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.OrganizationImage</class>

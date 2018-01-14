@@ -29,13 +29,14 @@ import com.sap.olingo.jpa.processor.core.util.TupleDouble;
 
 public class TestJPAExpandQueryCreateResult extends TestBase {
   private JPAExpandJoinQuery cut;
+  private JPAODataSessionContextAccess context;
 
   @Before
   public void setup() throws ODataException {
     helper = new TestHelper(emf, PUNIT_NAME);
     createHeaders();
     EdmEntityType targetEntity = new EdmEntityTypeDouble(nameBuilder, "BusinessPartnerRole");
-    JPAODataSessionContextAccess context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null,
+    context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null,
         TestBase.enumPackages), ds);
     cut = new JPAExpandJoinQuery(
         null, context, emf.createEntityManager(), new ExpandItemDouble(targetEntity).getResourcePath(),
@@ -223,12 +224,19 @@ public class TestJPAExpandQueryCreateResult extends TestBase {
   }
 
   @Test
-  public void checkConvertOneResultJoinTable() throws ODataJPAModelException, ODataApplicationException {
+  public void checkConvertOneResultJoinTable() throws ODataException {
     JPAAssociationPath exp = helper.getJPAAssociationPath("Organizations", "SupportEngineers");
+
+    EdmEntityType targetEntity = new EdmEntityTypeDouble(nameBuilder, "Person");
+    cut = new JPAExpandJoinQuery(
+        null, context, emf.createEntityManager(), new ExpandItemDouble(targetEntity).getResourcePath(),
+        helper.getJPAAssociationPath("Organizations", "SupportEngineers"), helper.sd.getEntity(targetEntity),
+        new HashMap<String, List<String>>());
+
     List<Tuple> result = new ArrayList<>();
     HashMap<String, Object> oneResult = new HashMap<>();
+    oneResult.put("SupportEngineers" + JPAExpandJoinQuery.ALIAS_SEPERATOR + "ID", "2");
     oneResult.put("ID", "97");
-    oneResult.put("\"PersonID\"", "2");
     Tuple t = new TupleDouble(oneResult);
     result.add(t);
 

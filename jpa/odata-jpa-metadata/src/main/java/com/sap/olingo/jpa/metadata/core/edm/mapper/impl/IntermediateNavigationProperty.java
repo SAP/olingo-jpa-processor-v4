@@ -243,7 +243,7 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
           mappedBy)).getJoinTable());
       //
       joinColumns.addAll(joinTable == null ? buildJoinColumnsMapped(mappedBy) : joinTable
-          .buildInverseJoinColumns(this));
+          .buildInverseJoinColumns());
       //
       joinTable = joinTable == null ? null : joinTable.asMapped(this);
     } else
