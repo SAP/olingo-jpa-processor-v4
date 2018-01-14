@@ -28,6 +28,7 @@ import org.reflections.Reflections;
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEnumeration;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityTypeAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
@@ -37,6 +38,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.ABCClassifiaction;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
+import com.sap.olingo.jpa.processor.core.testmodel.JoinSource;
 
 public class TestIntermediateNavigationProperty extends TestMappingRoot {
   private IntermediateSchema schema;
@@ -387,6 +389,22 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
         schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
 
     assertNotNull(property.getJoinTable().getEntityType());
+  }
+
+  @Test
+  public void checkGetJoinTableJoinColumnsNotMapped() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("JoinSource"),
+        "oneToMany");
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+        schema.getEntityType(JoinSource.class), jpaAttribute, schema);
+
+    assertFalse(property.getJoinColumns().isEmpty());
+    assertNotNull(property.getJoinTable());
+    IntermediateJoinTable act = (IntermediateJoinTable) property.getJoinTable();
+    for (JPAOnConditionItem item : act.getJoinColumns()) {
+      assertNotNull(item.getLeftPath());
+      assertNotNull(item.getRightPath());
+    }
   }
 
   @Test
