@@ -277,8 +277,15 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
       // It is not possible to get the default value directly from the
       // Field, only from an instance field.get(Object obj).toString(); //NOSONAR
       try {
+        // Problem: In case of compound key, which is not referenced via @EmbeddedId Hibernate returns a field of the
+        // key class, whereas Eclipselink returns a field of the entity class; which can be checked via
+        // field.getDeclaringClass()
         final Field field = (Field) jpaAttribute.getJavaMember();
-        final Constructor<?> constructor = jpaAttribute.getDeclaringType().getJavaType().getConstructor();
+        Constructor<?> constructor;
+        if (!field.getDeclaringClass().equals(jpaAttribute.getDeclaringType().getJavaType()))
+          constructor = field.getDeclaringClass().getConstructor();
+        else
+          constructor = jpaAttribute.getDeclaringType().getJavaType().getConstructor();
         final Object pojo = constructor.newInstance();
         field.setAccessible(true);
         final Object value = field.get(pojo);
@@ -349,8 +356,7 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
         edmProperty.setDefaultValue(getDeafultValue());
         // TODO Attribute Unicode
         if (edmProperty.getTypeAsFQNObject().equals(EdmPrimitiveTypeKind.String.getFullQualifiedName())
-            || edmProperty.getTypeAsFQNObject()
-                .equals(EdmPrimitiveTypeKind.Binary.getFullQualifiedName())) {
+            || edmProperty.getTypeAsFQNObject().equals(EdmPrimitiveTypeKind.Binary.getFullQualifiedName())) {
           if (jpaColumn.length() > 0)
             edmProperty.setMaxLength(jpaColumn.length());
           if (isLob())
@@ -361,18 +367,11 @@ class IntermediateProperty extends IntermediateModelElement implements Intermedi
                 .equals(EdmPrimitiveTypeKind.DateTimeOffset.getFullQualifiedName().toString())
             || edmProperty.getType()
                 .equals(EdmPrimitiveTypeKind.TimeOfDay.getFullQualifiedName().toString())) {
-          // For a decimal property the value of this attribute
-          // specifies the maximum number of digits allowed in the
-          // properties value; it MUST be a positive integer. If
-          // no value is specified, the decimal property has
-          // unspecified precision.
-          // For a temporal property the value of this attribute
-          // specifies the number of decimal places allowed in the
-          // seconds portion of the property's value; it MUST be a
-          // non-negative integer between zero and twelve. If no
-          // value is specified, the temporal property has a
-          // precision of zero.
-          // is key
+          // For a decimal property the value of this attribute specifies the maximum number of digits allowed in the
+          // properties value; it MUST be a positive integer. If no value is specified, the decimal property has
+          // unspecified precision. For a temporal property the value of this attribute specifies the number of decimal
+          // places allowed in the seconds portion of the property's value; it MUST be a non-negative integer between
+          // zero and twelve. If no value is specified, the temporal property has a precision of zero.
           if (jpaColumn.precision() > 0)
             edmProperty.setPrecision(jpaColumn.precision());
           else if (edmProperty.getType().equals(EdmPrimitiveTypeKind.DateTimeOffset.getFullQualifiedName().toString())

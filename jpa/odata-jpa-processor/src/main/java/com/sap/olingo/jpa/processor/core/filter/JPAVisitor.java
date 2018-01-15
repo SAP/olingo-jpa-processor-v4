@@ -3,8 +3,8 @@ package com.sap.olingo.jpa.processor.core.filter;
 import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.From;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 
 import org.apache.olingo.commons.api.edm.EdmEnumType;
 import org.apache.olingo.commons.api.edm.EdmType;
@@ -44,7 +44,7 @@ class JPAVisitor implements JPAExpressionVisitor {
    */
   JPAVisitor(final JPAFilterComplierAccess jpaFilterCrossComplier) {
     this.jpaComplier = jpaFilterCrossComplier;
-    this.debugger = jpaComplier.getParent().getDebugger();
+    this.debugger = jpaComplier.getDebugger();
   }
 
   @Override
@@ -141,7 +141,7 @@ class JPAVisitor implements JPAExpressionVisitor {
       return new JPALambdaAllOperation(this.jpaComplier, member);
     } else if (isAggregation(member.getResourcePath())) {
       debugger.stopRuntimeMeasurement(handle);
-      return new JPAAggregationOperationImp(jpaComplier.getParent().getRoot(), jpaComplier.getConverter());
+      return new JPAAggregationOperationImp(jpaComplier.getRoot(), jpaComplier.getConverter());
     } else if (isCustomFunction(member.getResourcePath())) {
       final UriResource resource = member.getResourcePath().getUriResourceParts().get(0);
       final JPADataBaseFunction jpaFunction = (JPADataBaseFunction) this.jpaComplier.getSd().getFunction(
@@ -151,7 +151,7 @@ class JPAVisitor implements JPAExpressionVisitor {
       return new JPAFunctionOperator(this, odataParams, jpaFunction);
     }
     debugger.stopRuntimeMeasurement(handle);
-    return new JPAMemberOperator(this.jpaComplier.getJpaEntityType(), this.jpaComplier.getParent(), member);
+    return new JPAMemberOperator(this.jpaComplier.getJpaEntityType(), this.jpaComplier.getRoot(), member);
   }
 
   @Override
@@ -228,8 +228,8 @@ class JPAVisitor implements JPAExpressionVisitor {
   }
 
   @Override
-  public Root<?> getRoot() {
-    return jpaComplier.getParent().getRoot();
+  public From<?, ?> getRoot() {
+    return jpaComplier.getRoot();
   }
 
   @Override

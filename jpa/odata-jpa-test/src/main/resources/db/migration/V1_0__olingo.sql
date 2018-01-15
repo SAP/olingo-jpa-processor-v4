@@ -681,9 +681,70 @@ CREATE TABLE "Comment" (
 	 
 insert into "Comment" values( 1, 'This is just a test');	
 	 
+CREATE TABLE "SupportRelationship" (
+	"ID" INTEGER NOT NULL ,
+	"OrganizationID" VARCHAR(32) NOT NULL ,
+    "PersonID" VARCHAR(32) NOT NULL ,
+	PRIMARY KEY ("ID"));
 	 
+insert into "SupportRelationship" values (1,'1','97');
+insert into "SupportRelationship" values (2,'1','98');
+insert into "SupportRelationship" values (3,'2','97');
+
+
+CREATE TABLE "Team" (
+	"TeamKey" VARCHAR(32) NOT NULL ,
+	"Name" VARCHAR(100),
+	 PRIMARY KEY ("TeamKey"));	
+	 
+insert into "Team" values ('A', 'Team Java');
+insert into "Team" values ('B', 'Team Scala');
+insert into "Team" values ('C', 'Team Phyton');
+insert into "Team" values ('D', 'Team Go');	 
+
+
+CREATE TABLE "Membership" (	 
+	"ID" INTEGER NOT NULL ,
+	"PersonID" VARCHAR(32) NOT NULL ,
+    "TeamID" VARCHAR(32) NOT NULL ,
+	PRIMARY KEY ("ID"));
+
+insert into "Membership" values (1,'97','A');
+insert into "Membership" values (2,'97','D');
+insert into "Membership" values (5,'97','C');
+insert into "Membership" values (3,'99','A');	
+insert into "Membership" values (4,'99','B');
+
+--Just for Join Table test
+CREATE TABLE "JoinSource" (	 
+	"SourceKey" INTEGER NOT NULL ,
+	PRIMARY KEY ("SourceKey"));
+	
+CREATE TABLE "JoinTarget" (	 
+	"TargetKey" INTEGER NOT NULL ,
+	PRIMARY KEY ("TargetKey"));
+	
+CREATE TABLE "JoinRelation" (	 
+	"SourceID" INTEGER NOT NULL ,
+	"TargetID" INTEGER NOT NULL ,
+	PRIMARY KEY ("SourceID", "TargetID"));	
+	
+insert into "JoinSource" values (1);	
+insert into "JoinSource" values (2);
+insert into "JoinTarget" values (20);
+insert into "JoinTarget" values (21);
+insert into "JoinRelation" values (1, 20);
+insert into "JoinRelation" values (1, 21);
+
+CREATE TABLE "JoinHiddenRelation" (	 
+	"SourceID" INTEGER NOT NULL ,
+	"TargetID" INTEGER NOT NULL ,
+	PRIMARY KEY ("SourceID", "TargetID"));	
+	
+insert into "JoinHiddenRelation" values (2, 20);
+insert into "JoinHiddenRelation" values (2, 21);
+--------------------------------------------	
 CREATE TABLE "DummyToBeIgnored" (
 	"ID" VARCHAR(32) NOT NULL ,
 	--"uuid" VARCHAR(32) FOR BIT DATA ,
 	 PRIMARY KEY ("ID"));
-	

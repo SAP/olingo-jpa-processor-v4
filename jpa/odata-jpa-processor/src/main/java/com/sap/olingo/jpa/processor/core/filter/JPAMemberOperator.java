@@ -3,9 +3,9 @@ package com.sap.olingo.jpa.processor.core.filter;
 import java.util.Iterator;
 import java.util.Set;
 
+import javax.persistence.criteria.From;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Root;
 
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
@@ -18,20 +18,19 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
-import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
 import com.sap.olingo.jpa.processor.core.query.Util;
 
 public class JPAMemberOperator implements JPAOperator {
   private final Member member;
   private final JPAEntityType jpaEntityType;
-  private final Root<?> root;
+  private final From<?, ?> root;
 
-  JPAMemberOperator(final JPAEntityType jpaEntityType, final JPAAbstractQuery parent,
+  JPAMemberOperator(final JPAEntityType jpaEntityType, final From<?, ?> parent,
       final Member member) {
     super();
     this.member = member;
     this.jpaEntityType = jpaEntityType;
-    this.root = parent.getRoot();
+    this.root = parent;
   }
 
   public JPAAttribute determineAttribute() throws ODataApplicationException {
@@ -44,8 +43,8 @@ public class JPAMemberOperator implements JPAOperator {
     return determineCriteriaPath(selectItemPath);
   }
 
-  public Member getMember() {// UriInfoResource getMember() {
-    return member; // .getResourcePath();
+  public Member getMember() {
+    return member;
   }
 
   private JPAPath determineAttributePath() throws ODataApplicationException {

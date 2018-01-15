@@ -18,11 +18,17 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DateConverter</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DummyEmbeddedToIgnore</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DummyToBeIgnored</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.JoinRelation</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.JoinSource</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.JoinTarget</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.Membership</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Organization</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.OrganizationImage</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Person</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.PersonImage</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.StringConverter</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.SupportRelationship</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.Team</class>
 		<properties>
 			<property name="eclipselink.logging.level.sql" value="FINEST" />
 			<property name="eclipselink.logging.level" value="WARNING"/> 
