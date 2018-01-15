@@ -7,6 +7,7 @@ import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.From;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
@@ -64,7 +65,7 @@ final class JPA_HANA_DatabaseProcessor implements JPAODataDatabaseProcessor {
 
   @Override
   public Expression<Boolean> createSearchWhereClause(final CriteriaBuilder cb, final CriteriaQuery<?> cq,
-      final Root<?> root, final JPAEntityType entityType, final SearchOption searchOption)
+      final From<?, ?> root, final JPAEntityType entityType, final SearchOption searchOption)
       throws ODataApplicationException {
     /*
      * The following code generates a sub-query to filter on the values that matches the search term. This looks

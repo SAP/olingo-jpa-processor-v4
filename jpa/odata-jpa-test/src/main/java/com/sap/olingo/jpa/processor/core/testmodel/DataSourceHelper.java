@@ -34,14 +34,14 @@ public class DataSourceHelper {
     DriverDataSource ds = null;
     switch (database) {
     case DB_H2:
-      ds = new DriverDataSource(H2_DRIVER_CLASS_NAME, H2_URL, null, null, new String[0]);
+      ds = new DriverDataSource(H2_DRIVER_CLASS_NAME, H2_URL, null, null);
       break;
 
     case DB_HSQLDB:
-      ds = new DriverDataSource(HSQLDB_DRIVER_CLASS_NAME, HSQLDB_URL, null, null, new String[0]);
+      ds = new DriverDataSource(HSQLDB_DRIVER_CLASS_NAME, HSQLDB_URL, null, null);
       break;
     case DB_DERBY:
-      ds = new DriverDataSource(DERBY_DRIVER_CLASS_NAME, DERBY_URL, null, null, new String[0]);
+      ds = new DriverDataSource(DERBY_DRIVER_CLASS_NAME, DERBY_URL, null, null);
       break;
 
     case DB_REMOTE:

@@ -196,4 +196,10 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
 
     return null;
   }
+
+  @Override
+  public String toString() {
+    return "IntermediateModelElement [internalName=" + internalName + ", externalName="
+        + externalName + ", toBeIgnored=" + toBeIgnored + "]";
+  }
 }

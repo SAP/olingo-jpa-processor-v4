@@ -10,7 +10,6 @@ final class JPALambdaAnyOperation extends JPALambdaOperation implements JPAExpre
 
   @Override
   public Enum<?> getOperator() {
-    // TODO Auto-generated method stub
     return null;
   }
 

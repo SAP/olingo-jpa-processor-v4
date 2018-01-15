@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Expression;
 
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
@@ -19,9 +19,6 @@ import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.UriResourceNavigation;
-import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitException;
-import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitor;
-import org.apache.olingo.server.api.uri.queryoption.expression.VisitableExpression;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,18 +27,11 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor;
-import com.sap.olingo.jpa.processor.core.filter.JPAExpressionVisitor;
-import com.sap.olingo.jpa.processor.core.filter.JPAOperator;
-import com.sap.olingo.jpa.processor.core.query.JPAExpandItemInfo;
-import com.sap.olingo.jpa.processor.core.query.JPAExpandItemWrapper;
-import com.sap.olingo.jpa.processor.core.query.JPAExpandQuery;
-import com.sap.olingo.jpa.processor.core.query.JPAExpandQueryResult;
-import com.sap.olingo.jpa.processor.core.query.JPANavigationProptertyInfo;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 
 public class TestJPAExpandResult extends TestBase {
-  private JPAExpandQuery cut;
+  private JPAExpandJoinQuery cut;
   private EntityManager em;
   private JPAODataSessionContextAccess sessionContext;
   private TestHelper helper;
@@ -64,7 +54,7 @@ public class TestJPAExpandResult extends TestBase {
     // .../Organizations?$expand=Roles&$format=json
     JPAExpandItemInfo item = createOrgExpandRoles(null, null);
 
-    cut = new JPAExpandQuery(OData.newInstance(), sessionContext, em, item, headers);
+    cut = new JPAExpandJoinQuery(OData.newInstance(), sessionContext, em, item, headers);
     JPAExpandQueryResult act = cut.execute();
     assertEquals(4, act.getNoResults());
     assertEquals(7, act.getNoResultsDeep());
@@ -77,38 +67,27 @@ public class TestJPAExpandResult extends TestBase {
     UriParameter key = mock(UriParameter.class);
     when(key.getName()).thenReturn("ID");
     when(key.getText()).thenReturn("'2'");
-    List<UriParameter> keyPredicates = new ArrayList<UriParameter>();
+    List<UriParameter> keyPredicates = new ArrayList<>();
     keyPredicates.add(key);
     JPAExpandItemInfo item = createOrgExpandRoles(keyPredicates, null);
 
-    cut = new JPAExpandQuery(OData.newInstance(), sessionContext, em, item, headers);
+    cut = new JPAExpandJoinQuery(OData.newInstance(), sessionContext, em, item, headers);
     JPAExpandQueryResult act = cut.execute();
     assertEquals(1, act.getNoResults());
     assertEquals(2, act.getNoResultsDeep());
   }
 
-  @Test
-  public void testSelectOrgByFilterWithAllExpand() throws ODataException {
-
-    // .../Organizations?$filter=Name1 eq 'Third Org.'&$expand=Roles
-    JPAExpandItemInfo item = createOrgExpandRoles(null, new ExpressionDouble(em.getCriteriaBuilder()));
-
-    cut = new JPAExpandQuery(OData.newInstance(), sessionContext, em, item, headers);
-    JPAExpandQueryResult act = cut.execute();
-    assertEquals(1, act.getNoResults());
-    assertEquals(3, act.getNoResultsDeep());
-  }
-
-  private JPAExpandItemInfo createOrgExpandRoles(final List<UriParameter> keyPredicates, VisitableExpression expression)
-      throws ODataJPAModelException {
+  private JPAExpandItemInfo createOrgExpandRoles(final List<UriParameter> keyPredicates, Expression<Boolean> expression)
+      throws ODataJPAModelException, ODataApplicationException {
     JPAEntityType et = helper.getJPAEntityType("BusinessPartnerRoles");
     JPAExpandItemWrapper uriInfo = mock(JPAExpandItemWrapper.class);
     UriResourceEntitySet uriEts = mock(UriResourceEntitySet.class);
+    when(uriEts.getKeyPredicates()).thenReturn(keyPredicates);
     EdmEntityType edmType = mock(EdmEntityType.class);
 
-    JPANavigationProptertyInfo hop = new JPANavigationProptertyInfo(uriEts, helper.getJPAEntityType("Organizations")
-        .getAssociationPath("Roles"), keyPredicates, expression);
-    List<JPANavigationProptertyInfo> hops = new ArrayList<JPANavigationProptertyInfo>();
+    List<JPANavigationProptertyInfo> hops = new ArrayList<>();
+    JPANavigationProptertyInfo hop = new JPANavigationProptertyInfo(helper.sd, uriEts, helper.getJPAEntityType(
+        "Organizations").getAssociationPath("Roles"), null);
     hops.add(hop);
 
     JPAExpandItemInfo item = mock(JPAExpandItemInfo.class);
@@ -116,8 +95,11 @@ public class TestJPAExpandResult extends TestBase {
     EdmNavigationProperty targetProperty = mock(EdmNavigationProperty.class);
     when(targetProperty.getName()).thenReturn("Roles");
     when(target.getProperty()).thenReturn(targetProperty);
-    List<UriResource> resourceParts = new ArrayList<UriResource>();
+    List<UriResource> resourceParts = new ArrayList<>();
     resourceParts.add(target);
+
+    hop = new JPANavigationProptertyInfo(helper.sd, null, null, et);
+    hops.add(hop);
 
     when(item.getEntityType()).thenReturn(et);
     when(item.getUriInfo()).thenReturn(uriInfo);
@@ -131,26 +113,4 @@ public class TestJPAExpandResult extends TestBase {
     return item;
   }
 
-  private class ExpressionDouble implements VisitableExpression {
-    private final CriteriaBuilder cb;
-
-    private ExpressionDouble(CriteriaBuilder cb) {
-      super();
-      this.cb = cb;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T> T accept(ExpressionVisitor<T> visitor) throws ExpressionVisitException, ODataApplicationException {
-      final JPAExpressionVisitor v = (JPAExpressionVisitor) visitor;
-
-      return (T) new JPAOperator() {
-        @Override
-        public Object get() throws ODataApplicationException {
-          return cb.equal(v.getRoot().get("name1"), cb.literal("Third Org."));
-        }
-      };
-    }
-
-  }
 }

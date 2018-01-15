@@ -54,7 +54,7 @@ public final class ExpressionUtil {
    * @param jpaPath
    * @return
    */
-  public static Path<?> convertToCriteriaPath(final Map<String, From<?, ?>> joinTables, From<?, ?> root,
+  public static Path<?> convertToCriteriaPath(final Map<String, From<?, ?>> joinTables, final From<?, ?> root,
       final List<JPAElement> jpaPath) {
     Path<?> p = root;
     for (final JPAElement jpaPathElement : jpaPath)

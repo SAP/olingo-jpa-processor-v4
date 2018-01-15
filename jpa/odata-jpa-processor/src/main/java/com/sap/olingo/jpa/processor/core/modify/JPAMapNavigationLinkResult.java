@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.modify;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +18,7 @@ final class JPAMapNavigationLinkResult extends JPACreateResult {
   public JPAMapNavigationLinkResult(JPAEntityType targetType, List<JPARequestEntity> entities,
       Map<String, List<String>> requestHeaders) throws ODataJPAProcessorException, ODataJPAModelException {
     super(targetType, requestHeaders);
-    result = new ArrayList<Tuple>();
+    result = new ArrayList<>();
 
     for (JPARequestEntity entity : entities) {
       result.add(new JPAMapResult(entity.getEntityType(), entity.getData(), requestHeaders).getResult("root").get(0));
@@ -29,4 +30,10 @@ final class JPAMapNavigationLinkResult extends JPACreateResult {
     return result;
   }
 
+  @Override
+  public Map<String, List<Tuple>> getResults() {
+    final Map<String, List<Tuple>> results = new HashMap<>(1);
+    results.put(ROOT_RESULT_KEY, result);
+    return results;
+  }
 }

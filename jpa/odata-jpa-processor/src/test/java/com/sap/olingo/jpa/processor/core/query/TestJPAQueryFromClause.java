@@ -14,10 +14,18 @@ import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Root;
 
+import org.apache.olingo.commons.api.edm.EdmEntitySet;
+import org.apache.olingo.commons.api.edm.EdmEntityType;
+import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.ODataApplicationException;
+import org.apache.olingo.server.api.uri.UriInfo;
+import org.apache.olingo.server.api.uri.UriResource;
+import org.apache.olingo.server.api.uri.UriResourceEntitySet;
+import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
@@ -28,23 +36,37 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.core.api.JPAODataContextAccessDouble;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
-import com.sap.olingo.jpa.processor.core.util.EdmEntitySetDouble;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 
 public class TestJPAQueryFromClause extends TestBase {
-  private JPAExecutableQuery cut;
+  private JPAAbstractJoinQuery cut;
   private JPAEntityType jpaEntityType;
 
   @Before
   public void setup() throws ODataException {
+    final UriInfo uriInfo = Mockito.mock(UriInfo.class);
+    final EdmEntitySet odataEs = Mockito.mock(EdmEntitySet.class);
+    final EdmType odataType = Mockito.mock(EdmEntityType.class);
+    final List<UriResource> resources = new ArrayList<>();
+    final UriResourceEntitySet esResource = Mockito.mock(UriResourceEntitySet.class);
+    Mockito.when(uriInfo.getUriResourceParts()).thenReturn(resources);
+    Mockito.when(esResource.getKeyPredicates()).thenReturn(new ArrayList<>(1));
+    Mockito.when(esResource.getEntitySet()).thenReturn(odataEs);
+    Mockito.when(esResource.getKind()).thenReturn(UriResourceKind.entitySet);
+    Mockito.when(esResource.getType()).thenReturn(odataType);
+    Mockito.when(odataEs.getName()).thenReturn("Organizations");
+    Mockito.when(odataType.getNamespace()).thenReturn(PUNIT_NAME);
+    Mockito.when(odataType.getName()).thenReturn("Organization");
+    resources.add(esResource);
+
     helper = new TestHelper(emf, PUNIT_NAME);
     jpaEntityType = helper.getJPAEntityType("Organizations");
     JPAODataSessionContextAccess context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null,
         TestBase.enumPackages), ds);
     createHeaders();
-    cut = new JPAQuery(null, new EdmEntitySetDouble(nameBuilder, "Organizations"), context, null, emf
-        .createEntityManager(), headers);
+
+    cut = new JPAJoinQuery(null, context, emf.createEntityManager(), headers, uriInfo);
   }
 
   @Test

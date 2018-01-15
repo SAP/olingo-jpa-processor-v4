@@ -2,6 +2,7 @@ package com.sap.olingo.jpa.processor.core.modify;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,23 +35,16 @@ final class JPAEntityResult extends JPACreateResult {
     createChildren();
   }
 
-  private void createChildren() throws ODataJPAModelException, ODataJPAProcessorException {
-    for (JPAAssociationPath path : et.getAssociationPathList()) {
-      String pathPropertyName = path.getPath().get(0).getInternalName();
-      Object value = getterMap.get(pathPropertyName);
-      if (value instanceof Collection) {
-        if (!((Collection<?>) value).isEmpty()) {
-          children.put(path, new JPAEntityNavigationLinkResult((JPAEntityType) path.getTargetType(),
-              (Collection<?>) value, requestHeaders));
-        }
-      }
-    }
-
-  }
-
   @Override
   public List<Tuple> getResult(final String key) {
     return result;
+  }
+
+  @Override
+  public Map<String, List<Tuple>> getResults() {
+    final Map<String, List<Tuple>> results = new HashMap<>(1);
+    results.put(ROOT_RESULT_KEY, result);
+    return results;
   }
 
   private void convertPathToTuple(final JPATuple tuple, final Map<String, Object> getterMap, final JPAPath path,
@@ -65,9 +59,23 @@ final class JPAEntityResult extends JPACreateResult {
     }
   }
 
+  private void createChildren() throws ODataJPAModelException, ODataJPAProcessorException {
+    for (JPAAssociationPath path : et.getAssociationPathList()) {
+      String pathPropertyName = path.getPath().get(0).getInternalName();
+      Object value = getterMap.get(pathPropertyName);
+      if (value instanceof Collection) {
+        if (!((Collection<?>) value).isEmpty()) {
+          children.put(path, new JPAEntityNavigationLinkResult((JPAEntityType) path.getTargetType(),
+              (Collection<?>) value, requestHeaders));
+        }
+      }
+    }
+
+  }
+
   private List<Tuple> createResult() throws ODataJPAProcessorException {
     JPATuple tuple = new JPATuple();
-    List<Tuple> tupleResult = new ArrayList<Tuple>();
+    List<Tuple> tupleResult = new ArrayList<>();
 
     for (JPAPath path : pathList) {
       convertPathToTuple(tuple, getterMap, path, 0);
