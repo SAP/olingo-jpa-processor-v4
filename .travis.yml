@@ -9,7 +9,7 @@ cache:
   directories:
     - $HOME/.m2/repository
 script:
-    - cd jpa && mvn --settings ../travis/settings.xml clean verify
+    - cd jpa && mvn clean verify
 branches:
   only:
   - master
