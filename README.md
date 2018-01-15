@@ -57,6 +57,7 @@ This file is licensed under the Apache Software License, v.2 except as noted oth
 
 # Release Notes
 
-|Version|Chages|Incompatible Changes|    
-|-- |-- |-- |    
+|Version|Changes|Incompatible Changes|
+|-- |-- |-- |
 |0.2.4|- Switch to Olingo version 4.4.0<br> - Support of Enumeration Types<br>- Support of $count at $expand|Yes|
+|0.2.6 |- Solution for issue [#21](https://github.com/SAP/olingo-jpa-processor-v4/issues/21)<br> - JPA Join tables can be used e.g. for Many To Many relationship (issue [#22](https://github.com/SAP/olingo-jpa-processor-v4/issues/22)). If such relation shall be used in a filter a corresponding JPA entity is required, which can be hidden from the API using @EdmIgnore. Please be aware that in case both source and target are subtype Eclipselink (version 2.7.1 used) may get confused when generating a subquery for filtering, see [Bug 529565](https://bugs.eclipse.org/bugs/show_bug.cgi?id=529565) | No|
