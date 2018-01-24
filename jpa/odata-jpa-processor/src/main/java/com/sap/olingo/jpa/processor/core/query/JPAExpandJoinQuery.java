@@ -30,7 +30,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAJoinTable;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -53,6 +52,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
  *
  */
 public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
+  static final String ALIAS_SEPERATOR = ".";
   private final JPAAssociationPath assoziation;
 
   public JPAExpandJoinQuery(final OData odata, final JPAODataSessionContextAccess context, final EntityManager em,
@@ -95,20 +95,26 @@ public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
       From<?, ?> target) throws ODataApplicationException {
 
     final List<Selection<?>> selections = new ArrayList<>(super.createSelectClause(joinTables, jpaPathList, target));
-    // For associations with JoinTable the join columns the linking columns to the parent need to be added
     if (assoziation.getJoinTable() != null) {
-      final From<?, ?> parent = determineParentFrom();
-      try {
-        for (JPAPath p : assoziation.getInverseLestJoinColumnsList()) {
-          Path<?> selection = parent.get(p.getLeaf().getInternalName());
-          selection.alias(assoziation.getJoinTable().getInverseAlias(p.getDBFieldName()));
-          selections.add(selection);
-        }
-      } catch (ODataJPAModelException e) {
-        throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-      }
+      // For associations with JoinTable the join columns, linking columns to the parent, need to be added
+      createAdditionSelctionForJoinTable(selections);
     }
     return selections;
+  }
+
+  private void createAdditionSelctionForJoinTable(final List<Selection<?>> selections) throws ODataJPAQueryException {
+    final From<?, ?> parent = determineParentFrom(); // e.g. JoinSource
+    try {
+      for (JPAPath p : assoziation.getLeftColumnsList()) {
+        final Path<?> selection = ExpressionUtil.convertToCriteriaPath(parent, p.getPath());
+        // If source and target of an association use the same name for their key we get conflicts with the alias.
+        // Therefore it is necessary to unify them.
+        selection.alias(assoziation.getAlias() + ALIAS_SEPERATOR + p.getAlias());
+        selections.add(selection);
+      }
+    } catch (ODataJPAModelException e) {
+      throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    }
   }
 
   /**
@@ -157,13 +163,13 @@ public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
 
     if (associationPath.getJoinTable() == null) {
       final List<JPAPath> joinColumns = associationPath.getRightColumnsList();
-      return joinColumns.stream().map(c -> (row.get(c.getAlias())).toString())
+      return joinColumns.stream()
+          .map(c -> (row.get(c.getAlias())).toString())
           .collect(joining(JPAPath.PATH_SEPERATOR));
     } else {
-      final JPAJoinTable joinTable = associationPath.getJoinTable();
-      final List<JPAPath> joinColumns = associationPath.getInverseLestJoinColumnsList();
+      final List<JPAPath> joinColumns = associationPath.getLeftColumnsList();
       return joinColumns.stream()
-          .map(c -> (row.get(joinTable.getInverseAlias(c.getDBFieldName()))).toString())
+          .map(c -> (row.get(assoziation.getAlias() + ALIAS_SEPERATOR + c.getAlias())).toString())
           .collect(joining(JPAPath.PATH_SEPERATOR));
     }
   }
@@ -247,7 +253,7 @@ public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
 
     try {
       final List<JPAPath> joinColumns = associationPath.getJoinTable() == null
-          ? associationPath.getRightColumnsList() : associationPath.getInverseLestJoinColumnsList();
+          ? associationPath.getRightColumnsList() : associationPath.getLeftColumnsList();
       final From<?, ?> from = associationPath.getJoinTable() == null
           ? target : determineParentFrom();
 

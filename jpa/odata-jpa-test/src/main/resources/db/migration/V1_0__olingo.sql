@@ -725,6 +725,36 @@ insert into "Membership" values (5,'97','C');
 insert into "Membership" values (3,'99','A');	
 insert into "Membership" values (4,'99','B');
 
+--Just for Join Table test
+CREATE TABLE "JoinSource" (	 
+	"SourceKey" INTEGER NOT NULL ,
+	PRIMARY KEY ("SourceKey"));
+	
+CREATE TABLE "JoinTarget" (	 
+	"TargetKey" INTEGER NOT NULL ,
+	PRIMARY KEY ("TargetKey"));
+	
+CREATE TABLE "JoinRelation" (	 
+	"SourceID" INTEGER NOT NULL ,
+	"TargetID" INTEGER NOT NULL ,
+	PRIMARY KEY ("SourceID", "TargetID"));	
+	
+insert into "JoinSource" values (1);	
+insert into "JoinSource" values (2);
+insert into "JoinTarget" values (20);
+insert into "JoinTarget" values (21);
+insert into "JoinRelation" values (1, 20);
+insert into "JoinRelation" values (1, 21);
+
+CREATE TABLE "JoinHiddenRelation" (	 
+	"SourceID" INTEGER NOT NULL ,
+	"TargetID" INTEGER NOT NULL ,
+	PRIMARY KEY ("SourceID", "TargetID"));	
+	
+insert into "JoinHiddenRelation" values (2, 20);
+insert into "JoinHiddenRelation" values (2, 21);
+--------------------------------------------	
+
 CREATE TABLE "DummyToBeIgnored" (
 	"ID" VARCHAR(32) NOT NULL ,
 	--"uuid" VARCHAR(32) FOR BIT DATA ,

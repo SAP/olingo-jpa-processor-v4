@@ -35,5 +35,5 @@ public interface JPAAssociationPath {
    * @return
    * @throws ODataJPAModelException
    */
-  List<JPAPath> getInverseLestJoinColumnsList() throws ODataJPAModelException;
+  List<JPAPath> getInverseLeftJoinColumnsList() throws ODataJPAModelException;
 }

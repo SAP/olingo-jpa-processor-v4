@@ -599,4 +599,38 @@ public class TestJPAProcessorExpand extends TestBase {
     assertNotNull(supportOrgs);
     assertEquals(2, supportOrgs.size());
   }
+
+  @Test
+  public void testExpandViaJoinTable1LevelNoSubType() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Persons?$select=LastName&$expand=Teams");
+    helper.assertStatus(200);
+
+    final ObjectNode org = helper.getValue();
+    assertNotNull(org);
+  }
+
+  @Test
+  public void testExpandViaJoinTable1LevelNoMapped() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "JoinSources(1)?$expand=OneToMany");
+    helper.assertStatus(200);
+
+    final ObjectNode org = helper.getValue();
+    assertNotNull(org.get("OneToMany"));
+    ArrayNode oneToMany = (ArrayNode) org.get("OneToMany");
+    assertEquals(2, oneToMany.size());
+  }
+
+  @Test
+  public void testExpandViaJoinTable1LevelNoMappedHidden() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "JoinSources(2)?$expand=OneToManyHidden");
+    helper.assertStatus(200);
+
+    final ObjectNode org = helper.getValue();
+    assertNotNull(org.get("OneToManyHidden"));
+    ArrayNode oneToMany = (ArrayNode) org.get("OneToManyHidden");
+    assertEquals(2, oneToMany.size());
+  }
 }

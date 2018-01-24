@@ -77,15 +77,10 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
   }
 
   @Override
-  public List<JPAPath> getInverseLestJoinColumnsList() throws ODataJPAModelException {
+  public List<JPAPath> getInverseLeftJoinColumnsList() throws ODataJPAModelException {
     final List<JPAPath> result = new ArrayList<>();
-    for (final IntermediateJoinColumn column : this.joinTable.getInverseJoinColumns()) {
-      // ManyToOne
-      if (cardinality == PersistentAttributeType.MANY_TO_ONE
-          || cardinality == PersistentAttributeType.MANY_TO_MANY)
-        result.add(sourceType.getPathByDBField(column.getName()));
-      else
-        result.add(sourceType.getPathByDBField(column.getReferencedColumnName()));
+    for (final IntermediateJoinColumn column : this.joinTable.buildInverseJoinColumns()) {
+      result.add(targetType.getPathByDBField(column.getName()));
     }
     return result;
   }
@@ -133,8 +128,8 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
     final List<JPAPath> result = new ArrayList<>();
     for (final IntermediateJoinColumn column : this.joinColumns) {
       // ManyToOne
-      if (cardinality == PersistentAttributeType.MANY_TO_ONE
-          || cardinality == PersistentAttributeType.MANY_TO_MANY)
+      if (joinTable != null
+          || (cardinality == PersistentAttributeType.MANY_TO_ONE))
         result.add(sourceType.getPathByDBField(column.getName()));
       else
         result.add(sourceType.getPathByDBField(column.getReferencedColumnName()));
