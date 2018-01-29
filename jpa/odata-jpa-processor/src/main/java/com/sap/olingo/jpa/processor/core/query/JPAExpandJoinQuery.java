@@ -52,7 +52,6 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
  *
  */
 public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
-  static final String ALIAS_SEPERATOR = ".";
   private final JPAAssociationPath assoziation;
 
   public JPAExpandJoinQuery(final OData odata, final JPAODataSessionContextAccess context, final EntityManager em,

@@ -12,6 +12,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
+import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.query.ExpressionUtil;
 
@@ -58,6 +59,11 @@ abstract class JPACreateResult implements JPAExpandResult {
   @Override
   public boolean hasCount() {
     return false;
+  }
+
+  @Override
+  public void convert(final JPATupleChildConverter converter) {
+    // No implementation required for CUD operations
   }
 
   protected void addValueToTuple(final JPATuple tuple, final JPAPath path, final int index, Object value)

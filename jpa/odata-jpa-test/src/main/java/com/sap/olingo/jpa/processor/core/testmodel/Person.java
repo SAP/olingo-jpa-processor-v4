@@ -69,7 +69,8 @@ public class Person extends BusinessPartner {
   @EdmAnnotation(term = "Core.Description", constantExpression = @EdmAnnotation.ConstantExpression(
       type = ConstantExpressionType.String, value = "Address for inhouse Mail"))
   @ElementCollection(fetch = FetchType.LAZY)
-  @CollectionTable(schema = "\"OLINGO\"", name = "\"InhouseAddress\"")
+  @CollectionTable(schema = "\"OLINGO\"", name = "\"InhouseAddress\"",
+      joinColumns = @JoinColumn(name = "\"ID\""))
   private List<InhouseAddress> inhouseAddress;
 
   @ManyToMany

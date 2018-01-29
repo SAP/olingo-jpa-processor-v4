@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.processor.core.serializer;
 
+import java.util.List;
+
 import org.apache.olingo.commons.api.data.Annotatable;
 import org.apache.olingo.commons.api.data.ContextURL;
 import org.apache.olingo.commons.api.data.EntityCollection;
@@ -44,8 +46,6 @@ final class JPASerializeComplex implements JPAOperationSerializer {
 
     final EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(uriInfo.getUriResourceParts());
 
-    final Property property = result.getEntities().get(0).getProperties().get(0);
-
     final UriResourceProperty uriProperty = Util.determineStartNavigationPath(uriInfo.getUriResourceParts());
     final EdmComplexType edmPropertyType = (EdmComplexType) uriProperty.getProperty().getType();
 
@@ -63,7 +63,14 @@ final class JPASerializeComplex implements JPAOperationSerializer {
         .expand(uriInfo.getExpandOption())
         .build();
 
-    return serializer.complex(serviceMetadata, edmPropertyType, property, options);
+    if (uriProperty.getProperty().isCollection()) {
+      List<Property> properties = result.getEntities().get(0).getProperties();
+      final Property property = properties.get(properties.size() - 1);
+      return serializer.complexCollection(serviceMetadata, edmPropertyType, property, options);
+    } else {
+      final Property property = result.getEntities().get(0).getProperties().get(0);
+      return serializer.complex(serviceMetadata, edmPropertyType, property, options);
+    }
   }
 
   @Override

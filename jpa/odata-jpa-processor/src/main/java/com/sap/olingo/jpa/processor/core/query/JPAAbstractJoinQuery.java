@@ -53,6 +53,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADescriptionAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
@@ -65,11 +66,11 @@ import com.sap.olingo.jpa.processor.core.filter.JPAFilterCrossComplier;
 import com.sap.olingo.jpa.processor.core.filter.JPAOperationConverter;
 
 public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery {
+  protected static final String ALIAS_SEPERATOR = ".";
   protected final UriInfoResource uriResource;
   protected final CriteriaQuery<Tuple> cq;
   protected Root<?> root;
   protected From<?, ?> target;
-//  protected final JPAFilterComplier filter;
   protected final JPAODataSessionContextAccess context;
   protected List<JPANavigationProptertyInfo> navigationInfo;
 
@@ -81,8 +82,6 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery {
     this.locale = ExpressionUtil.determineLocale(requestHeaders);
     this.uriResource = uriResource;
     this.cq = cb.createTupleQuery();
-//    this.filter = new JPAFilterCrossComplier(odata, sd, em, jpaEntity, new JPAOperationConverter(cb, context
-//        .getOperationConverter()), uriResource, this);
     this.context = context;
   }
 
@@ -197,6 +196,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery {
    * <li>If is required to link $expand with result with the parent result</li>
    * <li>A stream is requested and the property contains the mime type</>
    * </ul>
+   * Not included are collection properties.
    * @param uriResource
    * @return
    * @throws ODataApplicationException
@@ -546,7 +546,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery {
   }
 
   private void buildSelectionAddNavigationAndSelect(final UriInfoResource uriResource, final List<JPAPath> jpaPathList,
-      final SelectOption select) throws ODataApplicationException, ODataJPAModelException, ODataJPAQueryException {
+      final SelectOption select) throws ODataApplicationException, ODataJPAModelException {
     final String pathPrefix = Util.determineProptertyNavigationPath(uriResource.getUriResourceParts()).split(
         "/\\" + Util.VALUE_RESOURCE)[0];
 
@@ -554,7 +554,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery {
       jpaPathList.addAll(buildPathValue(jpaEntity));
     else if (select == null || select.getSelectItems().isEmpty() || select.getSelectItems().get(0).isStar()) {
       if (pathPrefix == null || pathPrefix.isEmpty())
-        jpaPathList.addAll(buildEntityPathList(jpaEntity));
+        copyNonCollectionProperties(jpaPathList, buildEntityPathList(jpaEntity));
       else {
         expandPath(jpaEntity, jpaPathList, pathPrefix);
       }
@@ -588,9 +588,30 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery {
     if (selectItemPath.getLeaf().isComplex()) {
       // Complex Type
       final List<JPAPath> c = jpaEntity.searchChildPath(selectItemPath);
-      jpaPathList.addAll(c);
+      copyNonCollectionProperties(jpaPathList, c);
     } else
-      // Primitive Type
+    // Primitive Type
+    if (!selectItemPath.getLeaf().isCollection())
       jpaPathList.add(selectItemPath);
+  }
+
+  /**
+   * Skips all those properties that are or belong to a collection property. E.g
+   * (Organization)Comment or (Person)InhouseAddress/Room
+   * @param jpaPathList
+   * @param c
+   */
+  private void copyNonCollectionProperties(final List<JPAPath> jpaPathList, final List<JPAPath> c) {
+    for (JPAPath p : c) {
+      boolean skip = false;
+      for (JPAElement pathElement : p.getPath()) {
+        if (pathElement instanceof JPAAttribute && ((JPAAttribute) pathElement).isCollection()) {
+          skip = true;
+          break;
+        }
+      }
+      if (!skip)
+        jpaPathList.add(p);
+    }
   }
 }

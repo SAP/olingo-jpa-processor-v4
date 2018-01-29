@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.processor.core.converter;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -31,6 +33,7 @@ import org.apache.olingo.server.api.uri.UriHelper;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -39,6 +42,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
+import com.sap.olingo.jpa.processor.core.query.JPACollectionQueryResult;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandQueryResult;
 
 /**
@@ -74,6 +78,39 @@ public class JPATupleChildConverter {
     this(converter.sd, converter.uriHelper, converter.serviceMetadata);
   }
 
+  public Map<String, List<Object>> getCollectionResult(JPACollectionQueryResult jpaResult)
+      throws ODataJPAQueryException {
+
+    jpaQueryResult = jpaResult;
+    final Map<String, List<Tuple>> childResult = jpaResult.getResults();
+    final Map<String, List<Object>> result = new HashMap<>(childResult.size());
+    this.jpaConversionTargetEntity = jpaResult.getEntityType();
+    for (Entry<String, List<Tuple>> tuple : childResult.entrySet()) {
+      final List<Object> collection = new ArrayList<>();
+      final List<Tuple> rows = tuple.getValue();
+      for (int i = 0; i < rows.size(); i++) {
+        final Tuple row = rows.set(i, null);
+        for (final TupleElement<?> element : row.getElements()) {
+          try {
+            final JPAPath path = jpaConversionTargetEntity.getPath(element.getAlias());
+            if (path != null) {
+              if (path.getLeaf().isComplex()) {
+                collection.add(getAttributesDeep(row.get(element.getAlias()), path.getLeaf().getStructuredType()));
+              } else
+                collection.add(row.get(element.getAlias()));
+            }
+          } catch (ODataJPAModelException e) {
+            throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
+                HttpStatusCode.INTERNAL_SERVER_ERROR, e);
+          }
+        }
+      }
+      result.put(tuple.getKey(), collection);
+    }
+    childResult.replaceAll((k, v) -> null);
+    return result;
+  }
+
   public Map<String, EntityCollection> getResult(JPAExpandResult jpaResult)
       throws ODataApplicationException {
 
@@ -89,7 +126,7 @@ public class JPATupleChildConverter {
       final List<Entity> entities = entityCollection.getEntities();
       final List<Tuple> rows = tuple.getValue();
 
-      for (int i = 0; i < tuple.getValue().size(); i++) {
+      for (int i = 0; i < rows.size(); i++) {
         final Tuple row = rows.set(i, null);
         final Entity odataEntity = convertRow(jpaConversionTargetEntity, row);
         odataEntity.setMediaContentType(determineContentType(jpaConversionTargetEntity, row));
@@ -144,8 +181,35 @@ public class JPATupleChildConverter {
       }
     }
     odataEntity.setId(createId(odataEntity));
+    properties.addAll(createCollectionProperties(rowEntity, row));
     odataEntity.getNavigationLinks().addAll(createExpand(rowEntity, row, EMPTY_PREFIX));
     return odataEntity;
+  }
+
+  protected List<Property> createCollectionProperties(final JPAStructuredType jpaStructuredType, final Tuple row)
+      throws ODataJPAQueryException {
+    final List<Property> result = new ArrayList<>();
+    try {
+      for (JPACollectionAttribute collection : jpaStructuredType.getDeclaredCollectionAttributes()) {
+        JPAExpandResult child = jpaQueryResult.getChild(collection.asAssociation());
+        if (child != null) {
+          final List<Object> collectionResult = ((JPACollectionQueryResult) child).getPropertyCollection(
+              buildConcatenatedKey(row, collection.asAssociation().getLeftColumnsList()));
+
+          result.add(new Property(
+              null,
+              collection.getExternalName(),
+              collection.isComplex() ? ValueType.COLLECTION_COMPLEX : ValueType.COLLECTION_PRIMITIVE,
+              collectionResult != null ? collectionResult : new ArrayList<>(1)));
+        }
+      }
+    } catch (
+
+    ODataJPAModelException e) {
+      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
+          HttpStatusCode.INTERNAL_SERVER_ERROR, e);
+    }
+    return result;
   }
 
   protected void createComplexValue(final Map<String, ComplexValue> complexValueBuffer,
@@ -163,7 +227,7 @@ public class JPATupleChildConverter {
 
   }
 
-  protected Collection<Link> createExpand(JPAStructuredType jpaStructuredType, final Tuple row,
+  protected Collection<Link> createExpand(final JPAStructuredType jpaStructuredType, final Tuple row,
       final String prefix) throws ODataApplicationException {
     final List<Link> entityExpandLinks = new ArrayList<>();
 
@@ -257,13 +321,16 @@ public class JPATupleChildConverter {
   @SuppressWarnings("unchecked")
   private <T extends Object, S extends Object> void convertPrimitiveAttribute(final Object value,
       final List<Property> properties, final JPAPath jpaPath, final JPAAttribute attribute) {
+
     Object odataValue;
     if (attribute != null && attribute.getConverter() != null) {
       AttributeConverter<T, S> converter = attribute.getConverter();
       odataValue = converter.convertToDatabaseColumn((T) value);
     } else if (attribute != null && value != null && attribute.isEnum())
       odataValue = ((Enum<?>) value).ordinal();
-    else
+    else if (attribute != null && value != null && attribute.isCollection()) {
+      return;
+    } else
       odataValue = value;
     if (attribute != null && attribute.isKey() && attribute.isComplex()) {
 
@@ -341,4 +408,51 @@ public class JPATupleChildConverter {
     }
     return link;
   }
+
+  private ComplexValue getAttributesDeep(final Object instanze, final JPAStructuredType st)
+      throws ODataJPAQueryException {
+
+    final ComplexValue value = new ComplexValue();
+    final Map<String, Method> getterMap = determineGetter(instanze.getClass().getMethods());
+    final List<Property> properties = value.getValue();
+    try {
+      for (JPAAttribute attribute : st.getDeclaredAttributes()) {
+        final Method getter = getterMap.get(attribute.getInternalName());
+        if (getter == null)
+          // Getter for attribute '%1$s' of entity '%2$s' not found, which is required if an embeddable is used a
+          // collection attribute
+          throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_MISSING_GETTER,
+              HttpStatusCode.INTERNAL_SERVER_ERROR, attribute.getInternalName(), st.getInternalName());
+        try {
+          if (attribute.isComplex())
+            assert 1 == 2;
+          else
+            convertPrimitiveAttribute(getter.invoke(instanze), properties, st.getPath(attribute.getExternalName()),
+                attribute);
+
+        } catch (IllegalAccessException | IllegalArgumentException | ODataJPAModelException
+            | InvocationTargetException | SecurityException e) {
+          throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
+              HttpStatusCode.INTERNAL_SERVER_ERROR, e);
+
+        }
+      }
+    } catch (ODataJPAQueryException | ODataJPAModelException e) {
+      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
+          HttpStatusCode.INTERNAL_SERVER_ERROR, e);
+    }
+    return value;
+  }
+
+  private Map<String, Method> determineGetter(final Method[] methods) {
+    final Map<String, Method> getter = new HashMap<>();
+    for (Method meth : methods) {
+      if (meth.getName().substring(0, 3).equals("get")) {
+        final String attributeName = meth.getName().substring(3, 4).toLowerCase() + meth.getName().substring(4);
+        getter.put(attributeName, meth);
+      }
+    }
+    return getter;
+  }
+
 }

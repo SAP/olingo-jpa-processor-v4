@@ -19,8 +19,8 @@ public interface JPAStructuredType extends JPAElement {
    * Searches in the navigation properties that are available for this type via the OData service. That is:
    * <ul>
    * <li> All not ignored navigation properties of this type.
-   * <li> All not ignored navigation properties from supertypes are included
-   * <li> All not ignored navigation properties from embedded types are included.
+   * <li> All not ignored navigation properties from super types.
+   * <li> All not ignored navigation properties from embedded types.
    * </ul>
    * @return null if no navigation property found.
    * @throws ODataJPAModelException
@@ -47,20 +47,51 @@ public interface JPAStructuredType extends JPAElement {
    * List of all associations that are declared at this type. That is:
    * <ul>
    * <li> All not ignored navigation properties of this type.
-   * <li> All not ignored navigation properties from supertypes are included
+   * <li> All not ignored navigation properties from super types.
    * </ul>
    * @return
    * @throws ODataJPAModelException
    */
   public List<JPAAssociationAttribute> getDeclaredAssociations() throws ODataJPAModelException;
 
+  /**
+   * List of all associations that are declared at this type. That is:
+   * <ul>
+   * <li> All not ignored properties of this type.
+   * <li> All not ignored properties from super types.
+   * </ul>
+   * @return
+   * @throws ODataJPAModelException
+   */
+  public List<JPAAttribute> getDeclaredAttributes() throws ODataJPAModelException;
+
+  /**
+   * List of all associations that are declared at this type. That is:
+   * <ul>
+   * <li> All not ignored collection properties of this type.
+   * <li> All not ignored collection properties from super types.
+   * </ul>
+   * @return
+   * @throws ODataJPAModelException
+   */
+  public List<JPACollectionAttribute> getDeclaredCollectionAttributes() throws ODataJPAModelException;
+
+  /**
+   * List of all associations that are declared at this type. That is:
+   * <ul>
+   * <li> All not ignored collection properties of this type.
+   * <li> All not ignored collection properties from super types.
+   * </ul>
+   * @return
+   * @throws ODataJPAModelException
+   */
   public JPAPath getPath(String externalName) throws ODataJPAModelException;
 
   /**
    * List of all attributes that are available for this type via the OData service. That is:
    * <ul>
    * <li> All not ignored properties of the type.
-   * <li> All not ignored properties from supertypes.
+   * <li> All not ignored properties from super types.
    * <li> All not ignored properties from embedded types.
    * </ul>
    * @return List of all attributes that are available via the OData service.

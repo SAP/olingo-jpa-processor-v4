@@ -676,11 +676,12 @@ insert into "AdministrativeDivision" values( 'Eurostat', 'LAU2', '38025','BEL','
 
 CREATE TABLE "Comment" (
 	"BusinessPartnerID" VARCHAR(32) NOT NULL ,
-	"Order" INTEGER,
+	"Order" INTEGER NOT NULL,
 	"Text" VARCHAR(280),
-	 PRIMARY KEY ("BusinessPartnerID"));
+	 PRIMARY KEY ("BusinessPartnerID", "Order"));
 	 
 insert into "Comment" values( '1', 1, 'This is just a test');	
+insert into "Comment" values( '1', 3, 'This is another test');	
 
 CREATE TABLE "InhouseAddress" (
 	"ID" VARCHAR(32) NOT NULL ,
@@ -688,9 +689,10 @@ CREATE TABLE "InhouseAddress" (
 	"Building" VARCHAR(10),
 	"Floor"  SMALLINT,
     "RoomNumber" INTEGER,
-	
    PRIMARY KEY ("ID", "Task"));	
-	 
+insert into "InhouseAddress" values( '99', 'DEV',  '1',-1 ,245 );
+insert into "InhouseAddress" values( '99', 'MAIN', '7', 2 ,32 );
+   
 CREATE TABLE "SupportRelationship" (
 	"ID" INTEGER NOT NULL ,
 	"OrganizationID" VARCHAR(32) NOT NULL ,

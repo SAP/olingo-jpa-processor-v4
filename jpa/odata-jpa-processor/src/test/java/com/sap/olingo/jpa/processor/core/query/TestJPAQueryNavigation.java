@@ -1,6 +1,9 @@
 package com.sap.olingo.jpa.processor.core.query;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
@@ -182,5 +185,35 @@ public class TestJPAQueryNavigation extends TestBase {
 
     ArrayNode orgs = helper.getValues();
     assertEquals(2, orgs.size());
+  }
+
+  @Test
+  public void testNavigationPrimitiveCollectionProperty() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('1')/Comment");
+    helper.assertStatus(200);
+
+    ObjectNode org = helper.getValue();
+    assertNotNull(org.get("value"));
+    assertFalse(org.get("value").isNull());
+    ArrayNode values = (ArrayNode) org.get("value");
+    assertEquals(2, values.size());
+    assertTrue(values.get(0).asText().equals("This is just a test") || values.get(0).asText().equals(
+        "This is another test"));
+    assertTrue(values.get(1).asText().equals("This is just a test") || values.get(1).asText().equals(
+        "This is another test"));
+  }
+
+  @Test
+  public void testNavigationComplexCollectionProperty() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Persons('99')/InhouseAddress");
+    helper.assertStatus(200);
+
+    ObjectNode org = helper.getValue();
+    assertNotNull(org.get("value"));
+    assertFalse(org.get("value").isNull());
+    ArrayNode values = (ArrayNode) org.get("value");
+    assertEquals(2, values.size());
   }
 }

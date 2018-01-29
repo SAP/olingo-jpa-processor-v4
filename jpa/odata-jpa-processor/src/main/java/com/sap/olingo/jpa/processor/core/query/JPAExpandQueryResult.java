@@ -49,10 +49,11 @@ public final class JPAExpandQueryResult implements JPAExpandResult {
     return odataResult;
   }
 
-  private void convert(JPATupleChildConverter converter) throws ODataApplicationException {
+  @Override
+  public void convert(final JPATupleChildConverter converter) throws ODataApplicationException {
     if (odataResult == null) {
       for (Entry<JPAAssociationPath, JPAExpandResult> childResult : childrenResult.entrySet()) {
-        ((JPAExpandQueryResult) childResult.getValue()).convert(converter);
+        childResult.getValue().convert(converter);
       }
       odataResult = converter.getResult(this);
     }
@@ -125,7 +126,7 @@ public final class JPAExpandQueryResult implements JPAExpandResult {
     return counts != null;
   }
 
-  public void putChildren(final Map<JPAAssociationPath, JPAExpandQueryResult> childResults)
+  public void putChildren(final Map<JPAAssociationPath, JPAExpandResult> childResults)
       throws ODataApplicationException {
 
     for (final JPAAssociationPath child : childResults.keySet()) {

@@ -28,6 +28,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
@@ -119,6 +120,33 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
     final IntermediateStructuredType baseType = getBaseType();
     if (baseType != null)
       result.addAll(baseType.getDeclaredAssociations());
+    return result;
+  }
+
+  @Override
+  public List<JPAAttribute> getDeclaredAttributes() throws ODataJPAModelException {
+    lazyBuildEdmItem();
+    List<JPAAttribute> result = new ArrayList<>();
+    for (final Entry<String, IntermediateProperty> property : declaredPropertiesList.entrySet()) {
+      result.add(property.getValue());
+    }
+    final IntermediateStructuredType baseType = getBaseType();
+    if (baseType != null)
+      result.addAll(baseType.getDeclaredAttributes());
+    return result;
+  }
+
+  @Override
+  public List<JPACollectionAttribute> getDeclaredCollectionAttributes() throws ODataJPAModelException {
+    lazyBuildEdmItem();
+    List<JPACollectionAttribute> result = new ArrayList<>();
+    for (final Entry<String, IntermediateProperty> property : declaredPropertiesList.entrySet()) {
+      if (property.getValue().isCollection())
+        result.add((JPACollectionAttribute) property.getValue());
+    }
+    final IntermediateStructuredType baseType = getBaseType();
+    if (baseType != null)
+      result.addAll(baseType.getDeclaredCollectionAttributes());
     return result;
   }
 
@@ -239,7 +267,7 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
         break;
       case ELEMENT_COLLECTION:
         final IntermediateCollectionProperty property = new IntermediateCollectionProperty(nameBuilder,
-            (PluralAttribute<?, ?, ?>) jpaAttribute, schema);
+            (PluralAttribute<?, ?, ?>) jpaAttribute, schema, this);
         declaredPropertiesList.put(property.internalName, property);
         break;
       case ONE_TO_MANY:
