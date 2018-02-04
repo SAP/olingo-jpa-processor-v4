@@ -39,6 +39,7 @@ public final class JPANavigationProptertyInfo {
     this.keyPredicates = original.getKeyPredicates();
     this.uriInfo = original.getUriInfo();
     this.sd = original.getServiceDocument();
+    this.et = this.uriInfo instanceof JPAExpandItem ? ((JPAExpandItem) uriInfo).getEntityType() : null;
   }
 
   public JPANavigationProptertyInfo(final JPAServiceDocument sd, final JPAAssociationPath associationPath,

@@ -20,15 +20,17 @@ public class JPACollectionQueryResult implements JPAExpandResult {
   private Map<String, List<Object>> collectionResult;
   private final Map<String, Long> counts;
   private final JPAEntityType jpaEntityType;
+  private final JPAAssociationPath assoziation;
 
   public JPACollectionQueryResult(final Map<String, List<Tuple>> result, final Map<String, Long> counts,
-      final JPAEntityType jpaEntityType) {
+      final JPAEntityType jpaEntityType, final JPAAssociationPath assoziation) {
     super();
     // assertNotNull(jpaEntityType);
     this.childrenResult = new HashMap<>(1);
     this.jpaResult = result;
     this.counts = counts;
     this.jpaEntityType = jpaEntityType;
+    this.assoziation = assoziation;
   }
 
   @Override
@@ -73,5 +75,9 @@ public class JPACollectionQueryResult implements JPAExpandResult {
   @Override
   public void convert(JPATupleChildConverter converter) throws ODataApplicationException {
     this.collectionResult = converter.getCollectionResult(this);
+  }
+
+  public JPAAssociationPath getAssoziation() {
+    return assoziation;
   }
 }

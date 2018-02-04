@@ -547,8 +547,8 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery {
 
   private void buildSelectionAddNavigationAndSelect(final UriInfoResource uriResource, final List<JPAPath> jpaPathList,
       final SelectOption select) throws ODataApplicationException, ODataJPAModelException {
-    final String pathPrefix = Util.determineProptertyNavigationPath(uriResource.getUriResourceParts()).split(
-        "/\\" + Util.VALUE_RESOURCE)[0];
+
+    final String pathPrefix = Util.determineProptertyNavigationPrefix(uriResource.getUriResourceParts());
 
     if (Util.VALUE_RESOURCE.equals(pathPrefix))
       jpaPathList.addAll(buildPathValue(jpaEntity));
@@ -578,7 +578,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery {
     return allPath;
   }
 
-  private void expandPath(final JPAEntityType jpaEntity, final List<JPAPath> jpaPathList, final String selectItem)
+  protected void expandPath(final JPAEntityType jpaEntity, final List<JPAPath> jpaPathList, final String selectItem)
       throws ODataJPAModelException, ODataJPAQueryException {
 
     final JPAPath selectItemPath = jpaEntity.getPath(selectItem);

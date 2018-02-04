@@ -142,6 +142,10 @@ public final class Util {
     return pathName.toString();
   }
 
+  public static String determineProptertyNavigationPrefix(final List<UriResource> resources) {
+    return Util.determineProptertyNavigationPath(resources).split("/\\" + Util.VALUE_RESOURCE)[0];
+  }
+
   public static JPAAssociationPath determineAssoziation(final JPAServiceDocument sd, final EdmType naviStart,
       final StringBuilder associationName) throws ODataApplicationException {
     JPAEntityType naviStartType;

@@ -29,6 +29,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
+import com.sap.olingo.jpa.processor.core.query.JPACollectionItemInfo;
 import com.sap.olingo.jpa.processor.core.query.JPACollectionJoinQuery;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandItemInfo;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandItemInfoFactory;
@@ -68,6 +69,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     }
 
     final JPAExpandQueryResult result = query.execute();
+    // Read Expand and Collection
     result.putChildren(readExpandEntities(request.getAllHeaders(), query.getNavigationInfo(), uriInfo));
     // Convert tuple result into an OData Result
     final int converterHandle = debugger.startRuntimeMeasurement(this, "convertResult");
@@ -217,9 +219,9 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     }
 
     // process collection attributes
-    final List<JPAExpandItemInfo> collectionInfoList = new JPAExpandItemInfoFactory()
+    final List<JPACollectionItemInfo> collectionInfoList = new JPAExpandItemInfoFactory()
         .buildCollectionItemInfo(sd, uriResourceInfo, parentHops);
-    for (final JPAExpandItemInfo item : collectionInfoList) {
+    for (final JPACollectionItemInfo item : collectionInfoList) {
       final JPACollectionJoinQuery collectionQuery = new JPACollectionJoinQuery(odata, sessionContext, em, item,
           headers);
       final JPAExpandResult expandResult = collectionQuery.execute();

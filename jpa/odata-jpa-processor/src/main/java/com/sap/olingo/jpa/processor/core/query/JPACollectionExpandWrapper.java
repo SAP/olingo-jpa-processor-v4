@@ -79,8 +79,7 @@ public class JPACollectionExpandWrapper implements JPAExpandItem {
 
   @Override
   public SelectOption getSelectOption() {
-    // TODO Auto-generated method stub
-    return null;
+    return uriInfo.getSelectOption();
   }
 
   @Override
