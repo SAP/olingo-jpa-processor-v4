@@ -75,20 +75,21 @@ public final class JPAExpandItemInfoFactory {
     final JPAEntityType et = uriResourceInfo instanceof JPAExpandItem ? ((JPAExpandItem) uriResourceInfo)
         .getEntityType() : null;
 
-    final Object[] types = determineNavigationElements(sd, startResourceList, et);
+    final Object[] pathInfo = determineNavigationElements(sd, startResourceList, et);
     try {
-      if (types[PROPERTY_INDEX] != null) {
-        if (((JPAPath) types[PROPERTY_INDEX]).getLeaf().isCollection()) {
-          final JPACollectionExpandWrapper item = new JPACollectionExpandWrapper((JPAEntityType) types[ET_INDEX],
+      if (pathInfo[PROPERTY_INDEX] != null) {
+        if (((JPAPath) pathInfo[PROPERTY_INDEX]).getLeaf().isCollection()) {
+          final JPACollectionExpandWrapper item = new JPACollectionExpandWrapper((JPAEntityType) pathInfo[ET_INDEX],
               uriResourceInfo);
-          itemList.add(new JPACollectionItemInfo(sd, item, ((JPACollectionAttribute) ((JPAPath) types[PROPERTY_INDEX])
-              .getLeaf()).asAssociation(), grandParentHops));
+          itemList.add(new JPACollectionItemInfo(sd, item,
+              ((JPACollectionAttribute) ((JPAPath) pathInfo[PROPERTY_INDEX])
+                  .getLeaf()).asAssociation(), grandParentHops));
         }
       } else {
 
         if (select == null || select.getSelectItems().isEmpty() || select.getSelectItems().get(0).isStar()) {
           // No navigation, extract all collection attributes
-          final JPAStructuredType st = (JPAStructuredType) types[ST_INDEX];
+          final JPAStructuredType st = (JPAStructuredType) pathInfo[ST_INDEX];
           final Set<JPAElement> collectionProperties = new HashSet<>();
           for (final JPAPath path : st.getPathList()) {
             for (final JPAElement pathElement : path.getPath()) {
@@ -99,17 +100,17 @@ public final class JPAExpandItemInfoFactory {
             }
           }
           for (final JPAElement pathElement : collectionProperties) {
-            final JPACollectionExpandWrapper item = new JPACollectionExpandWrapper((JPAEntityType) types[ET_INDEX],
+            final JPACollectionExpandWrapper item = new JPACollectionExpandWrapper((JPAEntityType) pathInfo[ET_INDEX],
                 uriResourceInfo);
             itemList.add(new JPACollectionItemInfo(sd, item, ((JPACollectionAttribute) pathElement)
                 .asAssociation(), grandParentHops));
           }
         } else {
-          final JPAStructuredType st = (JPAStructuredType) types[ST_INDEX];
-          final List<JPAPath> selectOptions = getCollectionAttributesFromSelection(uriResourceInfo
+          final JPAStructuredType st = (JPAStructuredType) pathInfo[ST_INDEX];
+          final Set<JPAPath> selectOptions = getCollectionAttributesFromSelection(uriResourceInfo
               .getUriResourceParts(), st, uriResourceInfo.getSelectOption());
           for (JPAPath path : selectOptions) {
-            final JPACollectionExpandWrapper item = new JPACollectionExpandWrapper((JPAEntityType) types[ET_INDEX],
+            final JPACollectionExpandWrapper item = new JPACollectionExpandWrapper((JPAEntityType) pathInfo[ET_INDEX],
                 uriResourceInfo);
             itemList.add(new JPACollectionItemInfo(sd, item, ((JPACollectionAttribute) path.getLeaf())
                 .asAssociation(), grandParentHops));
@@ -151,11 +152,11 @@ public final class JPAExpandItemInfoFactory {
     return result;
   }
 
-  protected List<JPAPath> getCollectionAttributesFromSelection(final List<UriResource> resources,
-      final JPAStructuredType jpaEntity,
-      final SelectOption select) throws ODataApplicationException, ODataJPAModelException {
+  protected Set<JPAPath> getCollectionAttributesFromSelection(final List<UriResource> resources,
+      final JPAStructuredType jpaEntity, final SelectOption select) throws ODataApplicationException,
+      ODataJPAModelException {
 
-    final List<JPAPath> collectionAttributes = new ArrayList<>();
+    final Set<JPAPath> collectionAttributes = new HashSet<>();
     if (select == null || select.getSelectItems().isEmpty() || select.getSelectItems().get(0).isStar()) {
       for (final JPAPath selectItemPath : jpaEntity.getPathList()) {
         if (pathContainsCollection(selectItemPath))
@@ -170,11 +171,34 @@ public final class JPAExpandItemInfoFactory {
         if (selectItemPath == null)
           throw new ODataJPAQueryException(MessageKeys.QUERY_PREPARATION_INVALID_SELECTION_PATH,
               HttpStatusCode.BAD_REQUEST);
-        if (pathContainsCollection(selectItemPath))
+        if (((JPAAttribute) selectItemPath.getPath().get(0)).isComplex()
+            && !((JPAAttribute) selectItemPath.getPath().get(0)).isCollection()) {
+          for (final JPAPath selectSubItemPath : ((JPAAttribute) selectItemPath.getPath().get(0)).getStructuredType()
+              .getPathList()) {
+            if (pathContainsCollection(selectSubItemPath))
+              collectionAttributes.add(getCollection(jpaEntity, selectSubItemPath, selectItemPath.getPath().get(0)
+                  .getExternalName()));
+          }
+        } else if (pathContainsCollection(selectItemPath))
           collectionAttributes.add(selectItemPath);
       }
     }
     return collectionAttributes;
+  }
+
+  private JPAPath getCollection(final JPAStructuredType jpaEntity, final JPAPath p, final String prefix)
+      throws ODataJPAModelException {
+
+    final StringBuilder pathAliase = new StringBuilder(prefix);
+    for (JPAElement pathElement : p.getPath()) {
+      pathAliase.append(JPAPath.PATH_SEPERATOR);
+      pathAliase.append(pathElement.getExternalName());
+      if (pathElement instanceof JPAAttribute && ((JPAAttribute) pathElement).isCollection()) {
+
+        return jpaEntity.getPath(pathAliase.toString());
+      }
+    }
+    return null;
   }
 
   private boolean pathContainsCollection(final JPAPath p) {

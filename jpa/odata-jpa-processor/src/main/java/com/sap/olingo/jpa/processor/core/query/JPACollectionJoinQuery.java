@@ -66,7 +66,7 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
   @Override
   protected List<JPAPath> buildSelectionPathList(final UriInfoResource uriResource) throws ODataApplicationException {
     final List<JPAPath> jpaPathList = new ArrayList<>();
-    final String pathPrefix = ""; // Util.determineProptertyNavigationPrefix(uriResource.getUriResourceParts());
+    final String pathPrefix = "";
     final SelectOption select = uriResource.getSelectOption();
     // Following situations have to be handled:
     // - .../Organizations --> Select all collection attributes
@@ -91,8 +91,17 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
           if (selectItemPath == null)
             throw new ODataJPAQueryException(MessageKeys.QUERY_PREPARATION_INVALID_SELECTION_PATH,
                 HttpStatusCode.BAD_REQUEST);
-          if (pathContainsCollection(selectItemPath))
-            jpaPathList.add(selectItemPath);
+          if (pathContainsCollection(selectItemPath)) {
+            if (((JPAAttribute) selectItemPath.getPath().get(0)).isComplex()) {
+              final JPAAttribute attribute = ((JPAAttribute) selectItemPath.getPath().get(0));
+              expandPath(jpaEntity, jpaPathList, pathPrefix.isEmpty() ? attribute.getExternalName() : pathPrefix
+                  + JPAPath.PATH_SEPERATOR + attribute.getExternalName());
+            } else
+              jpaPathList.add(selectItemPath);
+          } else if (selectItemPath.getLeaf().isComplex()) {
+            expandPath(jpaEntity, jpaPathList, pathPrefix.isEmpty() ? this.assoziation.getAlias() : pathPrefix
+                + JPAPath.PATH_SEPERATOR + this.assoziation.getAlias());
+          }
         }
 
       }
@@ -109,6 +118,7 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
 
     final JPAPath selectItemPath = jpaEntity.getPath(selectItem);
     if (selectItemPath == null)
+
       throw new ODataJPAQueryException(MessageKeys.QUERY_PREPARATION_INVALID_SELECTION_PATH,
           HttpStatusCode.BAD_REQUEST);
     if (selectItemPath.getLeaf().isComplex()) {

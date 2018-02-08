@@ -2,6 +2,7 @@ package com.sap.olingo.jpa.processor.core.filter;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 
@@ -826,5 +827,14 @@ public class TestJPAQueryWhereClause extends TestBase {
     final ObjectNode result = (ObjectNode) div.get("value").get(0);
     assertNotNull(result);
     assertEquals("BE21", result.get("DivisionCode").asText());
+  }
+
+  @Test
+  public void testFilterCollectionPropertyToManyValueAll() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$select=ID&$filter=Roles/all(d:d/RoleCategory eq 'A')");
+
+    fail();
   }
 }

@@ -633,4 +633,16 @@ public class TestJPAProcessorExpand extends TestBase {
     ArrayNode oneToMany = (ArrayNode) org.get("OneToManyHidden");
     assertEquals(2, oneToMany.size());
   }
+
+  @Test
+  public void testExpandViaJoinTableComplex() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "JoinSources(1)/Complex?$expand=OneToManyComplex");
+    helper.assertStatus(200);
+
+    final ObjectNode org = helper.getValue();
+    assertNotNull(org.get("OneToManyComplex"));
+    ArrayNode oneToMany = (ArrayNode) org.get("OneToManyComplex");
+    assertEquals(2, oneToMany.size());
+  }
 }

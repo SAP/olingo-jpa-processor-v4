@@ -13,6 +13,18 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 public interface JPAStructuredType extends JPAElement {
   public JPAAssociationAttribute getAssociation(String internalName) throws ODataJPAModelException;
 
+  /**
+   * Searches for an AssociationPath defined by the name used in the OData metadata in all the navigation properties
+   * that are available for this type via the OData service. That is:
+   * <ul>
+   * <li> All not ignored navigation properties of this type.
+   * <li> All not ignored navigation properties from super types.
+   * <li> All not ignored navigation properties from embedded types.
+   * </ul>
+   * @param externalName
+   * @return
+   * @throws ODataJPAModelException
+   */
   public JPAAssociationPath getAssociationPath(String externalName) throws ODataJPAModelException;
 
   /**
@@ -32,6 +44,18 @@ public interface JPAStructuredType extends JPAElement {
   public List<JPAAttribute> getAttributes() throws ODataJPAModelException;
 
   /**
+   * List of the path to all collection properties of this type. That is:
+   * <ul>
+   * <li> All not ignored collection properties of this type.
+   * <li> All not ignored collection properties from super types.
+   * <li> All not ignored collection properties from embedded types.
+   * </ul>
+   * @return
+   * @throws ODataJPAModelException
+   */
+  public List<JPAPath> getCollectionAttributesPath() throws ODataJPAModelException;
+
+  /**
    * In case the type is within the given association path, the sub-path is returned.
    * E.g. structured type is AdministrativeInformation and associationPath = AdministrativeInformation/Created/User
    * Created/User is returned.
@@ -46,8 +70,8 @@ public interface JPAStructuredType extends JPAElement {
   /**
    * List of all associations that are declared at this type. That is:
    * <ul>
-   * <li> All not ignored navigation properties of this type.
-   * <li> All not ignored navigation properties from super types.
+   * <li> All navigation properties of this type.
+   * <li> All navigation properties from super types.
    * </ul>
    * @return
    * @throws ODataJPAModelException
@@ -57,8 +81,8 @@ public interface JPAStructuredType extends JPAElement {
   /**
    * List of all associations that are declared at this type. That is:
    * <ul>
-   * <li> All not ignored properties of this type.
-   * <li> All not ignored properties from super types.
+   * <li> All properties of this type.
+   * <li> All properties from super types.
    * </ul>
    * @return
    * @throws ODataJPAModelException
@@ -68,8 +92,8 @@ public interface JPAStructuredType extends JPAElement {
   /**
    * List of all associations that are declared at this type. That is:
    * <ul>
-   * <li> All not ignored collection properties of this type.
-   * <li> All not ignored collection properties from super types.
+   * <li> All collection properties of this type.
+   * <li> All collection properties from super types.
    * </ul>
    * @return
    * @throws ODataJPAModelException

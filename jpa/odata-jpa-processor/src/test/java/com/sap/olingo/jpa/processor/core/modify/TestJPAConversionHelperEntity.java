@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.modify;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import org.apache.olingo.server.api.serializer.SerializerException;
 import org.junit.Before;
@@ -69,4 +70,8 @@ public class TestJPAConversionHelperEntity extends TestJPAConversionHelper {
 
   }
 
+  @Test
+  public void testConvertCollection() {
+    fail();
+  }
 }

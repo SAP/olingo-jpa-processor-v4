@@ -6,7 +6,7 @@ import javax.persistence.Embeddable;
 @Embeddable
 public class InhouseAddress {
 
-  @Column(name = "\"Task\"", length = 32, nullable = false)
+  @Column(name = "\"Task\"", length = 32, nullable = false) // Workaround olingo problem
   private String taskID;
   @Column(name = "\"Building\"", length = 10)
   private String building;

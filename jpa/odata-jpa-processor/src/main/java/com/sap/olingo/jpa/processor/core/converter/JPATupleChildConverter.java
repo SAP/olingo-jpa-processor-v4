@@ -77,52 +77,75 @@ public class JPATupleChildConverter {
   }
 
   public Map<String, List<Object>> getCollectionResult(JPACollectionQueryResult jpaResult)
-      throws ODataJPAQueryException {
+      throws ODataApplicationException {
 
     jpaQueryResult = jpaResult;
     final List<JPAElement> p = jpaResult.getAssoziation().getPath();
     final boolean isComplex = ((JPACollectionAttribute) p.get(p.size() - 1)).isComplex();
     final Map<String, List<Tuple>> childResult = jpaResult.getResults();
     final Map<String, List<Object>> result = new HashMap<>(childResult.size());
-    this.jpaConversionTargetEntity = jpaResult.getEntityType();
-    for (Entry<String, List<Tuple>> tuple : childResult.entrySet()) {
-      final List<Object> collection = new ArrayList<>();
-      final List<Tuple> rows = tuple.getValue();
-      for (int i = 0; i < rows.size(); i++) {
-        final Tuple row = rows.set(i, null);
-        if (isComplex) {
-          final ComplexValue value = new ComplexValue();
-          for (final TupleElement<?> element : row.getElements()) {
-            try {
-              final JPAPath path = jpaConversionTargetEntity.getPath(element.getAlias());
-              if (path != null) {
-                final JPAAttribute attribute = path.getLeaf();
-                convertPrimitiveAttribute(row.get(element.getAlias()), value.getValue(), path, attribute);
-              }
-            } catch (ODataJPAModelException e) {
-              throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
-                  HttpStatusCode.INTERNAL_SERVER_ERROR, e);
+    try {
+      final JPAStructuredType st = determineCollectionRoot(jpaResult.getEntityType(), p);
+      final String prefix = determinePrefix(jpaResult.getAssoziation().getAlias());
+      for (Entry<String, List<Tuple>> tuple : childResult.entrySet()) {
+        final List<Object> collection = new ArrayList<>();
+        final List<Tuple> rows = tuple.getValue();
+        for (int i = 0; i < rows.size(); i++) {
+          final Tuple row = rows.set(i, null);
+          if (isComplex) {
+            final ComplexValue value = new ComplexValue();
+            final Map<String, ComplexValue> complexValueBuffer = new HashMap<>();
+            complexValueBuffer.put(jpaResult.getAssoziation().getAlias(), value);
+            for (final TupleElement<?> element : row.getElements()) {
+              final JPAPath path = st.getPath(determineAlias(element.getAlias(), prefix));
+              convertAttribute(row.get(element.getAlias()), path, complexValueBuffer,
+                  value.getValue(), row, prefix);
+
             }
-          }
-          collection.add(value);
-        } else {
-          for (final TupleElement<?> element : row.getElements()) {
-            try {
-              final JPAPath path = jpaConversionTargetEntity.getPath(element.getAlias());
+            collection.add(value);
+
+          } else {
+            for (final TupleElement<?> element : row.getElements()) {
+              final JPAPath path = st.getPath(determineAlias(element.getAlias(), prefix));
               if (path != null) {
                 collection.add(row.get(element.getAlias()));
               }
-            } catch (ODataJPAModelException e) {
-              throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
-                  HttpStatusCode.INTERNAL_SERVER_ERROR, e);
+
             }
           }
         }
+        result.put(tuple.getKey(), collection);
       }
-      result.put(tuple.getKey(), collection);
+    } catch (ODataJPAModelException e) {
+      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
+          HttpStatusCode.INTERNAL_SERVER_ERROR, e);
+    } finally {
+      childResult.replaceAll((k, v) -> null);
     }
-    childResult.replaceAll((k, v) -> null);
     return result;
+  }
+
+  private String determineAlias(final String alias, final String prefix) {
+    if (EMPTY_PREFIX.equals(prefix))
+      return alias;
+    return alias.substring(alias.indexOf(prefix) + prefix.length() + 1);
+  }
+
+  private JPAStructuredType determineCollectionRoot(final JPAEntityType et, final List<JPAElement> pathList)
+      throws ODataJPAModelException {
+    if (pathList.size() > 1)
+      return ((JPAAttribute) pathList.get(pathList.size() - 2)).getStructuredType();
+    else
+      return et;
+  }
+
+  private String determinePrefix(String alias) {
+    final String prefix = alias;
+    final int index = prefix.lastIndexOf(JPAPath.PATH_SEPERATOR);
+    if (index < 0)
+      return EMPTY_PREFIX;
+    else
+      return prefix.substring(0, index);
   }
 
   public Map<String, EntityCollection> getResult(JPAExpandResult jpaResult)
@@ -195,17 +218,28 @@ public class JPATupleChildConverter {
       }
     }
     odataEntity.setId(createId(odataEntity));
-    properties.addAll(createCollectionProperties(rowEntity, row));
+    createCollectionProperties(rowEntity, row, properties);
     odataEntity.getNavigationLinks().addAll(createExpand(rowEntity, row, EMPTY_PREFIX));
     return odataEntity;
   }
 
-  protected List<Property> createCollectionProperties(final JPAStructuredType jpaStructuredType, final Tuple row)
-      throws ODataJPAQueryException {
-    final List<Property> result = new ArrayList<>();
+  protected void createCollectionProperties(final JPAStructuredType jpaStructuredType, final Tuple row,
+      final List<Property> properties) throws ODataJPAQueryException {
+
+    List<Property> result;
     try {
-      for (JPACollectionAttribute collection : jpaStructuredType.getDeclaredCollectionAttributes()) {
-        JPAExpandResult child = jpaQueryResult.getChild(collection.asAssociation());
+      for (JPAPath path : jpaStructuredType.getCollectionAttributesPath()) {
+        result = properties;
+        for (int i = 0; i < path.getPath().size() - 1; i++) {
+          for (final Property p : properties) {
+            if (p.getName().equals(path.getPath().get(i).getExternalName())) {
+              result = ((ComplexValue) p.getValue()).getValue();
+              break;
+            }
+          }
+        }
+        final JPACollectionAttribute collection = (JPACollectionAttribute) path.getLeaf();
+        final JPAExpandResult child = jpaQueryResult.getChild(collection.asAssociation());
         if (child != null) {
           final List<Object> collectionResult = ((JPACollectionQueryResult) child).getPropertyCollection(
               buildConcatenatedKey(row, collection.asAssociation().getLeftColumnsList()));
@@ -217,13 +251,10 @@ public class JPATupleChildConverter {
               collectionResult != null ? collectionResult : new ArrayList<>(1)));
         }
       }
-    } catch (
-
-    ODataJPAModelException e) {
+    } catch (ODataJPAModelException e) {
       throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
           HttpStatusCode.INTERNAL_SERVER_ERROR, e);
     }
-    return result;
   }
 
   protected void createComplexValue(final Map<String, ComplexValue> complexValueBuffer,

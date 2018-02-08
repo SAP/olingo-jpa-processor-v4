@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
+import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.NOT_SUPPORTED_NO_IMPLICIT_COLUMNS;
+import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.NOT_SUPPORTED_NO_IMPLICIT_COLUMNS_COMPEX;
 import static javax.persistence.metamodel.Type.PersistenceType.EMBEDDABLE;
 
 import java.lang.reflect.AnnotatedElement;
@@ -16,9 +18,11 @@ import org.apache.olingo.commons.api.edm.FullQualifiedName;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAJoinTable;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
 
@@ -36,6 +40,31 @@ class IntermediateCollectionProperty extends IntermediateProperty implements JPA
   private final IntermediateStructuredType sourceType;
   private JPAJoinTable joinTable; // lazy builded
   private JPAAssociationPathImpl associationPath; // lazy builded
+  private final JPAPath path;
+
+  /**
+   * Copy with in new context
+   * @param jpaElement
+   * @param intermediateStructuredType
+   * @throws ODataJPAModelException
+   */
+  public IntermediateCollectionProperty(final IntermediateCollectionProperty original,
+      final IntermediateStructuredType parent, final IntermediateProperty pathRoot) throws ODataJPAModelException {
+
+    super(original.nameBuilder, original.jpaAttribute, original.schema);
+    this.sourceType = parent;
+
+    final List<JPAElement> newPath = new ArrayList<>();
+    newPath.add(pathRoot);
+    if (original.path != null) {
+      newPath.addAll(original.path.getPath());
+      this.path = new JPAPathImpl(pathRoot + JPAPath.PATH_SEPERATOR + original.getExternalName(), "", newPath);
+    } else {
+      newPath.add(this);
+      this.path = new JPAPathImpl(pathRoot.getExternalName() + JPAPath.PATH_SEPERATOR + original.getExternalName(), "",
+          newPath);
+    }
+  }
 
   IntermediateCollectionProperty(final JPAEdmNameBuilder nameBuilder,
       final PluralAttribute<?, ?, ?> jpaAttribute, final IntermediateSchema schema,
@@ -43,6 +72,17 @@ class IntermediateCollectionProperty extends IntermediateProperty implements JPA
 
     super(nameBuilder, jpaAttribute, schema);
     this.sourceType = parent;
+    this.path = null;
+  }
+
+  @Override
+  public JPAAssociationPath asAssociation() throws ODataJPAModelException {
+    if (this.associationPath == null)
+      this.associationPath = new JPAAssociationPathImpl(this, sourceType, path == null ? sourceType.getPath(
+          getExternalName()) : path,
+          ((IntermediateCollectionTable) getJoinTable()).getLeftJoinColumns());
+    return associationPath;
+
   }
 
   @Override
@@ -120,24 +160,7 @@ class IntermediateCollectionProperty extends IntermediateProperty implements JPA
     return null;
   }
 
-  @Override
-  boolean isStream() {
-    // OData Version 4.0. Part 3: Common Schema Definition Language (CSDL) Plus Errata 03:
-    // Edm.Stream, or a type definition whose underlying type is Edm.Stream, cannot be used in collections or for
-    // non-binding parameters to functions or actions.
-    return false;
-  }
-
-  @Override
-  public JPAAssociationPath asAssociation() throws ODataJPAModelException {
-    if (this.associationPath == null)
-      this.associationPath = new JPAAssociationPathImpl(this, sourceType, ((IntermediateCollectionTable) getJoinTable())
-          .getLeftJoinColumns());
-    return associationPath;
-
-  }
-
-  JPAJoinTable getJoinTable() throws ODataJPAModelException {
+  JPAJoinTable getJoinTable() {
     if (joinTable == null) {
       final javax.persistence.CollectionTable jpaJoinTable = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
           .getAnnotation(javax.persistence.CollectionTable.class);
@@ -146,30 +169,31 @@ class IntermediateCollectionProperty extends IntermediateProperty implements JPA
     return joinTable;
   }
 
+  IntermediateStructuredType getSourceType() {
+    return sourceType;
+  }
+
+  @Override
+  boolean isStream() {
+    // OData Version 4.0. Part 3: Common Schema Definition Language (CSDL) Plus Errata 03:
+    // Edm.Stream, or a type definition whose underlying type is Edm.Stream, cannot be used in collections or for
+    // non-binding parameters to functions or actions.
+    return false;
+  }
+
   private Type<?> getRowType() {
     return ((PluralAttribute<?, ?, ?>) jpaAttribute).getElementType();
   }
 
   private class IntermediateCollectionTable implements JPAJoinTable {
     private final CollectionTable jpaJoinTable;
-    private final List<IntermediateJoinColumn> joinColumns;
+    private List<IntermediateJoinColumn> joinColumns;
     private final JPAEntityType jpaEntityType;
 
-    public IntermediateCollectionTable(final CollectionTable jpaJoinTable, final IntermediateSchema schema)
-        throws ODataJPAModelException {
+    public IntermediateCollectionTable(final CollectionTable jpaJoinTable, final IntermediateSchema schema) {
       super();
       this.jpaJoinTable = jpaJoinTable;
       this.jpaEntityType = schema.getEntityType(jpaJoinTable.catalog(), jpaJoinTable.schema(), jpaJoinTable.name());
-      this.joinColumns = buildJoinColumns();
-    }
-
-    List<IntermediateJoinColumn> getLeftJoinColumns() {
-      return joinColumns;
-    }
-
-    @Override
-    public String getTableName() {
-      return jpaJoinTable.name();
     }
 
     @Override
@@ -182,13 +206,18 @@ class IntermediateCollectionProperty extends IntermediateProperty implements JPA
     }
 
     @Override
+    public JPAEntityType getEntityType() {
+      return jpaEntityType;
+    }
+
+    @Override
     public String getInverseAlias(String dbFieldName) {
       return null;
     }
 
     @Override
-    public JPAEntityType getEntityType() {
-      return jpaEntityType;
+    public List<JPAOnConditionItem> getInversJoinColumns() throws ODataJPAModelException {
+      return new ArrayList<>(1);
     }
 
     @Override
@@ -205,22 +234,27 @@ class IntermediateCollectionProperty extends IntermediateProperty implements JPA
     }
 
     @Override
-    public List<JPAOnConditionItem> getInversJoinColumns() throws ODataJPAModelException {
-      return new ArrayList<>(1);
+    public String getTableName() {
+      return jpaJoinTable.name();
     }
 
-    private List<IntermediateJoinColumn> buildJoinColumns() throws ODataJPAModelException {
+    List<IntermediateJoinColumn> getLeftJoinColumns() throws ODataJPAModelException {
+      return buildJoinColumns(sourceType); // joinColumns
+    }
+
+    private List<IntermediateJoinColumn> buildJoinColumns(final IntermediateStructuredType contextType)
+        throws ODataJPAModelException {
 
       final List<IntermediateJoinColumn> result = new ArrayList<>(jpaJoinTable.joinColumns().length);
-
       for (JoinColumn column : jpaJoinTable.joinColumns()) {
         if (column.referencedColumnName() == null || column.referencedColumnName().isEmpty())
           if (jpaJoinTable.joinColumns().length > 1)
-            throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.NOT_SUPPORTED_NO_IMPLICIT_COLUMNS,
-                getInternalName());
+            throw new ODataJPAModelException(NOT_SUPPORTED_NO_IMPLICIT_COLUMNS, getInternalName());
+          else if (!(contextType instanceof IntermediateEntityType))
+            throw new ODataJPAModelException(NOT_SUPPORTED_NO_IMPLICIT_COLUMNS_COMPEX, contextType.getInternalName());
           else {
             result.add(new IntermediateJoinColumn(
-                ((IntermediateProperty) ((IntermediateEntityType) sourceType).getKey().get(0))
+                ((IntermediateProperty) ((IntermediateEntityType) contextType).getKey().get(0))
                     .getDBFieldName(), column.name()));
           }
         else
