@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -71,7 +72,7 @@ public class Person extends BusinessPartner {
   @ElementCollection(fetch = FetchType.LAZY)
   @CollectionTable(schema = "\"OLINGO\"", name = "\"InhouseAddress\"",
       joinColumns = @JoinColumn(name = "\"ID\""))
-  private List<InhouseAddress> inhouseAddress;
+  private List<InhouseAddress> inhouseAddress = new ArrayList<>();
 
   @ManyToMany
   @JoinTable(name = "\"SupportRelationship\"", schema = "\"OLINGO\"",

@@ -58,7 +58,8 @@ class IntermediateCollectionProperty extends IntermediateProperty implements JPA
     newPath.add(pathRoot);
     if (original.path != null) {
       newPath.addAll(original.path.getPath());
-      this.path = new JPAPathImpl(pathRoot + JPAPath.PATH_SEPERATOR + original.getExternalName(), "", newPath);
+      this.path = new JPAPathImpl(pathRoot.getExternalName() + JPAPath.PATH_SEPERATOR + original.path.getAlias(), "",
+          newPath);
     } else {
       newPath.add(this);
       this.path = new JPAPathImpl(pathRoot.getExternalName() + JPAPath.PATH_SEPERATOR + original.getExternalName(), "",
@@ -79,8 +80,7 @@ class IntermediateCollectionProperty extends IntermediateProperty implements JPA
   public JPAAssociationPath asAssociation() throws ODataJPAModelException {
     if (this.associationPath == null)
       this.associationPath = new JPAAssociationPathImpl(this, sourceType, path == null ? sourceType.getPath(
-          getExternalName()) : path,
-          ((IntermediateCollectionTable) getJoinTable()).getLeftJoinColumns());
+          getExternalName()) : path, ((IntermediateCollectionTable) getJoinTable()).getLeftJoinColumns());
     return associationPath;
 
   }

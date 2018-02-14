@@ -40,7 +40,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
-import com.sap.olingo.jpa.processor.core.query.JPACollectionQueryResult;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandQueryResult;
 
 /**
@@ -66,7 +65,9 @@ public class JPATupleChildConverter {
   protected final ServiceMetadata serviceMetadata;
   protected EdmEntityType edmType;
 
-  public JPATupleChildConverter(JPAServiceDocument sd, UriHelper uriHelper, ServiceMetadata serviceMetadata) {
+  public JPATupleChildConverter(final JPAServiceDocument sd, final UriHelper uriHelper,
+      final ServiceMetadata serviceMetadata) {
+
     this.uriHelper = uriHelper;
     this.sd = sd;
     this.serviceMetadata = serviceMetadata;
@@ -76,7 +77,7 @@ public class JPATupleChildConverter {
     this(converter.sd, converter.uriHelper, converter.serviceMetadata);
   }
 
-  public Map<String, List<Object>> getCollectionResult(JPACollectionQueryResult jpaResult)
+  public Map<String, List<Object>> getCollectionResult(JPACollectionResult jpaResult)
       throws ODataApplicationException {
 
     jpaQueryResult = jpaResult;
@@ -108,7 +109,8 @@ public class JPATupleChildConverter {
             for (final TupleElement<?> element : row.getElements()) {
               final JPAPath path = st.getPath(determineAlias(element.getAlias(), prefix));
               if (path != null) {
-                collection.add(row.get(element.getAlias()));
+                collection.add(convertPrimitiveCollectionAttribute(row.get(element.getAlias()),
+                    (JPACollectionAttribute) p.get(p.size() - 1)));
               }
 
             }
@@ -123,29 +125,6 @@ public class JPATupleChildConverter {
       childResult.replaceAll((k, v) -> null);
     }
     return result;
-  }
-
-  private String determineAlias(final String alias, final String prefix) {
-    if (EMPTY_PREFIX.equals(prefix))
-      return alias;
-    return alias.substring(alias.indexOf(prefix) + prefix.length() + 1);
-  }
-
-  private JPAStructuredType determineCollectionRoot(final JPAEntityType et, final List<JPAElement> pathList)
-      throws ODataJPAModelException {
-    if (pathList.size() > 1)
-      return ((JPAAttribute) pathList.get(pathList.size() - 2)).getStructuredType();
-    else
-      return et;
-  }
-
-  private String determinePrefix(String alias) {
-    final String prefix = alias;
-    final int index = prefix.lastIndexOf(JPAPath.PATH_SEPERATOR);
-    if (index < 0)
-      return EMPTY_PREFIX;
-    else
-      return prefix.substring(0, index);
   }
 
   public Map<String, EntityCollection> getResult(JPAExpandResult jpaResult)
@@ -231,7 +210,7 @@ public class JPATupleChildConverter {
       for (JPAPath path : jpaStructuredType.getCollectionAttributesPath()) {
         result = properties;
         for (int i = 0; i < path.getPath().size() - 1; i++) {
-          for (final Property p : properties) {
+          for (final Property p : result) {
             if (p.getName().equals(path.getPath().get(i).getExternalName())) {
               result = ((ComplexValue) p.getValue()).getValue();
               break;
@@ -241,7 +220,7 @@ public class JPATupleChildConverter {
         final JPACollectionAttribute collection = (JPACollectionAttribute) path.getLeaf();
         final JPAExpandResult child = jpaQueryResult.getChild(collection.asAssociation());
         if (child != null) {
-          final List<Object> collectionResult = ((JPACollectionQueryResult) child).getPropertyCollection(
+          final Collection<Object> collectionResult = ((JPACollectionResult) child).getPropertyCollection(
               buildConcatenatedKey(row, collection.asAssociation().getLeftColumnsList()));
 
           result.add(new Property(
@@ -358,7 +337,7 @@ public class JPATupleChildConverter {
 
     final List<Property> values = complexValueBuffer.get(bufferKey).getValue();
     final int splitIndex = attribute.getExternalName().length() + JPAPath.PATH_SEPERATOR.length();
-    final String attributeName = externalName.substring(splitIndex);
+    final String attributeName = splitIndex < externalName.length() ? externalName.substring(splitIndex) : externalName;
     convertAttribute(value, attribute.getStructuredType().getPath(attributeName), complexValueBuffer, values,
         parentRow, buildPath(attribute, prefix));
   }
@@ -394,6 +373,30 @@ public class JPATupleChildConverter {
     }
   }
 
+  @SuppressWarnings("unchecked")
+  private <T extends Object, S extends Object> S convertPrimitiveCollectionAttribute(final Object value,
+      final JPAAttribute attribute) {
+    if (attribute.getConverter() != null) {
+      final AttributeConverter<T, S> converter = attribute.getConverter();
+      return converter.convertToDatabaseColumn((T) value);
+    }
+    return (S) value;
+  }
+
+  private String determineAlias(final String alias, final String prefix) {
+    if (EMPTY_PREFIX.equals(prefix))
+      return alias;
+    return alias.substring(alias.indexOf(prefix) + prefix.length() + 1);
+  }
+
+  private JPAStructuredType determineCollectionRoot(final JPAEntityType et, final List<JPAElement> pathList)
+      throws ODataJPAModelException {
+    if (pathList.size() > 1)
+      return ((JPAAttribute) pathList.get(pathList.size() - 2)).getStructuredType();
+    else
+      return et;
+  }
+
   private String determineContentType(final JPAEntityType jpaEntity, final Tuple row) throws ODataJPAQueryException {
 
     try {
@@ -424,6 +427,15 @@ public class JPATupleChildConverter {
       throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
           HttpStatusCode.INTERNAL_SERVER_ERROR, e);
     }
+  }
+
+  private String determinePrefix(String alias) {
+    final String prefix = alias;
+    final int index = prefix.lastIndexOf(JPAPath.PATH_SEPERATOR);
+    if (index < 0)
+      return EMPTY_PREFIX;
+    else
+      return prefix.substring(0, index);
   }
 
   private Link getLink(final JPAAssociationPath assoziation, final Tuple parentRow, final JPAExpandResult child)

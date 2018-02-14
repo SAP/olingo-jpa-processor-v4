@@ -12,7 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OrderColumn;
 
 @Embeddable
-public class CollectionPartOfComplex {
+public class CollectionSecondLevelComplex {
 
   @Column(name = "\"Number\"")
   private Long number;
@@ -27,29 +27,29 @@ public class CollectionPartOfComplex {
   @CollectionTable(schema = "\"OLINGO\"", name = "\"Comment\"",
       joinColumns = @JoinColumn(name = "\"BusinessPartnerID\"", referencedColumnName = "\"ID\""))
   @Column(name = "\"Text\"")
-  private List<String> comment;
-
-  public Long getNumber() {
-    return number;
-  }
+  private List<String> comment = new ArrayList<>();;
 
   public void setNumber(Long number) {
     this.number = number;
-  }
-
-  public List<InhouseAddress> getAddress() {
-    return address;
   }
 
   public void setAddress(List<InhouseAddress> address) {
     this.address = address;
   }
 
-  public List<String> getComment() {
-    return comment;
-  }
-
   public void setComment(List<String> comment) {
     this.comment = comment;
+  }
+
+  public Long getNumber() {
+    return number;
+  }
+
+  public List<InhouseAddress> getAddress() {
+    return address;
+  }
+
+  public List<String> getComment() {
+    return comment;
   }
 }

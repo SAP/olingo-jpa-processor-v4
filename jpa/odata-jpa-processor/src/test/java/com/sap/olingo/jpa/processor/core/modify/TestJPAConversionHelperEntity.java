@@ -1,7 +1,6 @@
 package com.sap.olingo.jpa.processor.core.modify;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import org.apache.olingo.server.api.serializer.SerializerException;
 import org.junit.Before;
@@ -68,10 +67,5 @@ public class TestJPAConversionHelperEntity extends TestJPAConversionHelper {
         "localhost.test/AdministrativeDivisionDescriptions(DivisionCode='BE1',CodeID='NUTS1',CodePublisher='Eurostat',Language='fr')",
         act);
 
-  }
-
-  @Test
-  public void testConvertCollection() {
-    fail();
   }
 }

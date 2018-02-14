@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
+import static com.sap.olingo.jpa.processor.core.converter.JPAExpandResult.ROOT_RESULT_KEY;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,7 +79,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     try {
 
       entityCollection = result.asEntityCollection(new JPATupleChildConverter(sd, odata.createUriHelper(),
-          serviceMetadata)).get("root");
+          serviceMetadata)).get(ROOT_RESULT_KEY);
       debugger.stopRuntimeMeasurement(converterHandle);
     } catch (ODataApplicationException e) {
       debugger.stopRuntimeMeasurement(converterHandle);

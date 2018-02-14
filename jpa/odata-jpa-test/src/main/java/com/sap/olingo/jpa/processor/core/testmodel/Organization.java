@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CollectionTable;
@@ -42,7 +43,7 @@ public class Organization extends BusinessPartner {
   @CollectionTable(schema = "\"OLINGO\"", name = "\"Comment\"",
       joinColumns = @JoinColumn(name = "\"BusinessPartnerID\""))
   @Column(name = "\"Text\"")
-  private List<String> comment;
+  private List<String> comment = new ArrayList<>();
 
   @Enumerated
   @Column(name = "\"ABCClass\"")

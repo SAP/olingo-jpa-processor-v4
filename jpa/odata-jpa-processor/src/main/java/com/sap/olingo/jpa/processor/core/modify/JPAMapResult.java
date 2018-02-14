@@ -1,65 +1,66 @@
 package com.sap.olingo.jpa.processor.core.modify;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import javax.persistence.Tuple;
 
+import org.apache.olingo.server.api.ODataApplicationException;
+
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
+import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.processor.JPARequestEntity;
 
-final class JPAMapResult extends JPACreateResult {
-  private final Map<String, Object> jpaEntity;
-  private final List<Tuple> result;
-
+final class JPAMapResult extends JPAMapBaseResult {
   JPAMapResult(final JPAEntityType et, final Map<String, Object> jpaEntity,
-      final Map<String, List<String>> requestHeaders) throws ODataJPAModelException, ODataJPAProcessorException {
+      final Map<String, List<String>> requestHeaders, final JPATupleChildConverter converter)
+      throws ODataJPAModelException, ODataApplicationException {
 
     super(et, requestHeaders);
 
-    this.jpaEntity = jpaEntity;
+    this.valuePairedResult = jpaEntity;
     this.result = createResult();
-    createChildren();
-  }
-
-  @Override
-  public List<Tuple> getResult(final String key) {
-    return result;
-  }
-
-  @Override
-  public Map<String, List<Tuple>> getResults() {
-    final Map<String, List<Tuple>> results = new HashMap<>(1);
-    results.put(ROOT_RESULT_KEY, result);
-    return results;
+    createChildren(converter);
   }
 
   @SuppressWarnings("unchecked")
-  private void convertPathToTuple(JPATuple tuple, Map<String, Object> jpaEntity, JPAPath path, int index)
-      throws ODataJPAProcessorException {
-
-    Object value = jpaEntity.get(path.getPath().get(index).getInternalName());
-    if (path.getPath().size() == index + 1 || value == null) {
-      tuple.addElement(path.getAlias(), path.getLeaf().getType(), value);
-    } else {
-      convertPathToTuple(tuple, (Map<String, Object>) value, path, index + 1);
-    }
-  }
-
-  @SuppressWarnings("unchecked")
-  private void createChildren() throws ODataJPAModelException, ODataJPAProcessorException {
+  private void createChildren(final JPATupleChildConverter converter) throws ODataJPAModelException,
+      ODataApplicationException {
     for (JPAAssociationPath path : et.getAssociationPathList()) {
       String pathPropertyName = path.getPath().get(0).getInternalName();
-      if (jpaEntity.get(pathPropertyName) instanceof List) {
+      if (valuePairedResult.get(pathPropertyName) instanceof List) {
         children.put(path,
-            new JPAMapNavigationLinkResult((JPAEntityType) path.getTargetType(), (List<JPARequestEntity>) jpaEntity.get(
-                pathPropertyName), requestHeaders));
+            new JPAMapNavigationLinkResult((JPAEntityType) path.getTargetType(),
+                (List<JPARequestEntity>) valuePairedResult.get(
+                    pathPropertyName), requestHeaders, converter));
+      }
+    }
+    for (final JPAPath path : et.getCollectionAttributesPath()) {
+      Map<String, Object> attributes = valuePairedResult;
+      for (JPAElement e : path.getPath()) {
+        final Object value = attributes.get(e.getInternalName());
+        if (e instanceof JPAAttribute && ((JPAAttribute) e).isComplex() && !(((JPAAttribute) e).isCollection())
+            && value != null) {
+          attributes = (Map<String, Object>) value;
+          continue;
+        }
+        if (e instanceof JPACollectionAttribute && value != null) {
+          final JPAAssociationPath assPath = ((JPACollectionAttribute) e).asAssociation();
+          final JPAExpandResult child = new JPAMapCollectionResult(et, (Collection<?>) value, requestHeaders,
+              (JPACollectionAttribute) e);
+          child.convert(converter);
+          children.put(assPath, child);
+        }
       }
     }
 
@@ -70,7 +71,8 @@ final class JPAMapResult extends JPACreateResult {
     List<Tuple> tupleResult = new ArrayList<>();
 
     for (JPAPath path : pathList) {
-      convertPathToTuple(tuple, jpaEntity, path, 0);
+      if (notContainsCollection(path))
+        convertPathToTuple(tuple, valuePairedResult, path, 0);
     }
     tupleResult.add(tuple);
     return tupleResult;

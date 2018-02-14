@@ -582,10 +582,12 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
               .getStructuredType()).getIntermediatePathMap();
           for (final Entry<String, JPAPathImpl> path : intermediatePath.entrySet()) {
             pathList = new ArrayList<>();
-            if (path.getValue().getPath().get(0) instanceof IntermediateCollectionProperty)
-              pathList.add(new IntermediateCollectionProperty((IntermediateCollectionProperty) path.getValue().getPath()
-                  .get(0), this, property));
-            else
+            if (path.getValue().getLeaf() instanceof IntermediateCollectionProperty) {
+              if (path.getValue().getPath().size() > 1)
+                pathList.addAll(path.getValue().getPath().subList(0, path.getValue().getPath().size() - 1));
+              pathList.add(new IntermediateCollectionProperty((IntermediateCollectionProperty) path.getValue()
+                  .getLeaf(), this, property));
+            } else
               pathList.addAll(path.getValue().getPath());
             pathList.add(0, property);
             intermediatePathMap.put(nameBuilder.buildPath(property.getExternalName(), path.getKey()),
@@ -642,7 +644,7 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
           && pathList.size() > 1
           && ((IntermediateCollectionProperty) leaf).getSourceType() != this)
         leaf = new IntermediateCollectionProperty((IntermediateCollectionProperty) leaf, this,
-            (IntermediateProperty) pathList.get(pathList.size() - 2));
+            (IntermediateProperty) pathList.get(0)); // pathList.size() - 2
       pathElements.add(leaf);
       return pathElements;
     }

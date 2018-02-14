@@ -12,4 +12,20 @@ public class CollcetionNestedComplex {
 
   @Embedded
   private CollcetionInnerComplex inner;
+
+  public Long getNumber() {
+    return number;
+  }
+
+  public void setNumber(Long number) {
+    this.number = number;
+  }
+
+  public CollcetionInnerComplex getInner() {
+    return inner;
+  }
+
+  public void setInner(CollcetionInnerComplex inner) {
+    this.inner = inner;
+  }
 }

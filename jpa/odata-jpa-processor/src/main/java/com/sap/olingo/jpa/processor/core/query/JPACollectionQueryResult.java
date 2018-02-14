@@ -11,10 +11,11 @@ import org.apache.olingo.server.api.ODataApplicationException;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.processor.core.converter.JPACollectionResult;
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 
-public class JPACollectionQueryResult implements JPAExpandResult {
+public class JPACollectionQueryResult implements JPAExpandResult, JPACollectionResult {
   private final Map<JPAAssociationPath, JPAExpandResult> childrenResult;
   private final Map<String, List<Tuple>> jpaResult;
   private Map<String, List<Object>> collectionResult;
@@ -25,7 +26,6 @@ public class JPACollectionQueryResult implements JPAExpandResult {
   public JPACollectionQueryResult(final Map<String, List<Tuple>> result, final Map<String, Long> counts,
       final JPAEntityType jpaEntityType, final JPAAssociationPath assoziation) {
     super();
-    // assertNotNull(jpaEntityType);
     this.childrenResult = new HashMap<>(1);
     this.jpaResult = result;
     this.counts = counts;
@@ -68,6 +68,7 @@ public class JPACollectionQueryResult implements JPAExpandResult {
     return counts != null;
   }
 
+  @Override
   public List<Object> getPropertyCollection(final String key) {
     return collectionResult.containsKey(key) ? collectionResult.get(key) : new ArrayList<>(1);
   }
@@ -77,6 +78,7 @@ public class JPACollectionQueryResult implements JPAExpandResult {
     this.collectionResult = converter.getCollectionResult(this);
   }
 
+  @Override
   public JPAAssociationPath getAssoziation() {
     return assoziation;
   }

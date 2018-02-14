@@ -430,6 +430,40 @@ public class TestIntermediateEntityType extends TestMappingRoot {
     }
   }
 
+  @Test
+  public void checkAllPathContainsDeepComplexWithPrimitiveCollcetion() throws ODataJPAModelException {
+    IntermediateStructuredType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "CollectionDeep"), schema);
+    final List<JPAPath> act = et.getPathList();
+
+    assertEquals(8, act.size());
+    assertNotNull(et.getPath("FirstLevel/SecondLevel/Comment"));
+    assertTrue(et.getPath("FirstLevel/SecondLevel/Comment").getLeaf().isCollection());
+    final IntermediateCollectionProperty actIntermediate = (IntermediateCollectionProperty) et.getPath(
+        "FirstLevel/SecondLevel/Comment").getLeaf();
+    assertTrue(actIntermediate.asAssociation().getSourceType() instanceof JPAEntityType);
+    assertEquals(3, actIntermediate.asAssociation().getPath().size());
+    assertEquals("FirstLevel/SecondLevel/Comment", actIntermediate.asAssociation().getAlias());
+  }
+
+  @Test
+  public void checkAllPathContainsDeepComplexWithComplexCollcetion() throws ODataJPAModelException {
+    IntermediateStructuredType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "CollectionDeep"), schema);
+
+    assertNotNull(et.getPath("FirstLevel/SecondLevel/Address"));
+    assertTrue(et.getPath("FirstLevel/SecondLevel/Address").getLeaf().isCollection());
+    final IntermediateCollectionProperty actIntermediate = (IntermediateCollectionProperty) et.getPath(
+        "FirstLevel/SecondLevel/Address").getLeaf();
+    assertTrue(actIntermediate.asAssociation().getSourceType() instanceof JPAEntityType);
+    assertEquals(3, actIntermediate.asAssociation().getPath().size());
+    assertEquals("FirstLevel/SecondLevel/Address", actIntermediate.asAssociation().getAlias());
+    for (JPAPath path : et.getPathList()) {
+      String[] pathElements = path.getAlias().split("/");
+      assertEquals(pathElements.length, path.getPath().size());
+    }
+  }
+
   private class PostProcessorSetIgnore extends JPAEdmMetadataPostProcessor {
 
     @Override

@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.processor.core.query;
 
+import static com.sap.olingo.jpa.processor.core.converter.JPAExpandResult.ROOT_RESULT_KEY;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -104,7 +106,7 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPAQuery {
     final int resultHandle = debugger.startRuntimeMeasurement(tq, "getResultList");
     final List<Tuple> intermediateResult = tq.getResultList();
     debugger.stopRuntimeMeasurement(resultHandle);
-    result.put("root", intermediateResult);
+    result.put(ROOT_RESULT_KEY, intermediateResult);
 
     debugger.stopRuntimeMeasurement(handle);
     return new JPAExpandQueryResult(result, null, jpaEntity);

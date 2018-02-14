@@ -722,6 +722,15 @@ insert into "NestedComplex" values('501',3, 1, 1, 1);
 insert into "NestedComplex" values('503',1, 4, 5, 6);   
 insert into "NestedComplex" values('504',1, 1, 3, 6);   
    
+
+CREATE TABLE "CollectionsDeep" (
+	"ID" VARCHAR(32) NOT NULL ,
+	"LevelID" INTEGER,
+	"Number" INTEGER,
+   PRIMARY KEY ("ID"));	
+insert into "CollectionsDeep" values( '501',1,-1 );
+insert into "CollectionsDeep" values( '502',1, 3 ); 
+
 --------------------------------------------	
 
 CREATE TABLE "SupportRelationship" (

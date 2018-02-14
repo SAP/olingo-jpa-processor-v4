@@ -21,6 +21,8 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
@@ -124,7 +126,7 @@ public class TestIntermediateCollectionProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetProptertyReturnsAnnotation() throws ODataJPAModelException {
+  public void checkGetPropertyReturnsAnnotation() throws ODataJPAModelException {
 
     PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         "Person"), "inhouseAddress");
@@ -134,5 +136,25 @@ public class TestIntermediateCollectionProperty extends TestMappingRoot {
     List<CsdlAnnotation> annotations = property.getEdmItem().getAnnotations();
     assertEquals(1, property.getEdmItem().getAnnotations().size());
     assertTrue(annotations.get(0).getExpression().isConstant());
+  }
+
+  @Test
+  public void checkGetDeepComplexPropertyReturnsExternalName() throws ODataJPAModelException {
+
+    final IntermediateStructuredType st = new IntermediateComplexType(new JPAEdmNameBuilder(PUNIT_NAME), helper
+        .getComplexType("CollectionSecondLevelComplex"), helper.schema);
+    for (final JPACollectionAttribute collection : st.getDeclaredCollectionAttributes()) {
+      if (collection.getInternalName().equals("comment")) {
+        assertEquals("Comment", collection.asAssociation().getAlias());
+      }
+    }
+
+    final IntermediateStructuredType stst = new IntermediateComplexType(new JPAEdmNameBuilder(PUNIT_NAME), helper
+        .getComplexType("CollectionFirstLevelComplex"), helper.schema);
+    for (final JPAPath collection : stst.getCollectionAttributesPath()) {
+      if (collection.getLeaf().getInternalName().equals("comment")) {
+        assertEquals("SecondLevel/Comment", collection.getAlias());
+      }
+    }
   }
 }

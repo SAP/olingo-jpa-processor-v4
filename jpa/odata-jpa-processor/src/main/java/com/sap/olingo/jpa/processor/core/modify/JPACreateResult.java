@@ -6,8 +6,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.apache.olingo.server.api.ODataApplicationException;
+
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADescriptionAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -43,7 +47,7 @@ abstract class JPACreateResult implements JPAExpandResult {
 
   @Override
   public JPAExpandResult getChild(JPAAssociationPath associationPath) {
-    return null;
+    return children.get(associationPath);
   }
 
   @Override
@@ -62,7 +66,7 @@ abstract class JPACreateResult implements JPAExpandResult {
   }
 
   @Override
-  public void convert(final JPATupleChildConverter converter) {
+  public void convert(final JPATupleChildConverter converter) throws ODataApplicationException {
     // No implementation required for CUD operations
   }
 
@@ -88,6 +92,13 @@ abstract class JPACreateResult implements JPAExpandResult {
     } else {
       tuple.addElement(path.getAlias(), path.getLeaf().getType(), value);
     }
+  }
+
+  protected boolean notContainsCollection(final JPAPath path) {
+    for (JPAElement e : path.getPath())
+      if (e instanceof JPAAttribute && ((JPAAttribute) e).isCollection())
+        return false;
+    return true;
   }
 
 }

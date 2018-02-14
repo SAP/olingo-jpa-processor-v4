@@ -119,7 +119,7 @@ public class TestJPAQueryCollection extends TestBase {
   }
 
   @Test
-  public void testSelectAllWIthComplexContainingCollection() throws IOException, ODataException {
+  public void testSelectAllWithComplexContainingCollection() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Collections('502')");
     helper.assertStatus(200);
@@ -131,4 +131,20 @@ public class TestJPAQueryCollection extends TestBase {
     assertEquals(2, complex.get("Address").size());
     assertEquals("DEV", complex.get("Address").get(0).get("TaskID").asText());
   }
+
+  @Test
+  public void testSelectAllDeepComplexContainingCollection() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "CollectionDeeps('501')");
+    helper.assertStatus(200);
+
+    final ObjectNode collection = helper.getValue();
+    ObjectNode complex = (ObjectNode) collection.get("FirstLevel");
+    assertEquals(1, complex.get("LevelID").asInt());
+    assertFalse(complex.get("SecondLevel") instanceof NullNode);
+    ObjectNode second = (ObjectNode) complex.get("SecondLevel");
+    ArrayNode address = (ArrayNode) second.get("Address");
+    assertEquals(32, address.get(0).get("RoomNumber").asInt());
+  }
+
 }

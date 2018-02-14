@@ -10,7 +10,7 @@ import org.apache.olingo.server.api.ODataApplicationException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 
-public interface JPAExpandResult {
+public interface JPAExpandResult { // NOSONAR
 
   String ROOT_RESULT_KEY = "root";
 
