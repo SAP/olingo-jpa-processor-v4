@@ -37,7 +37,11 @@ import com.sap.olingo.jpa.processor.core.query.JPANavigationProptertyInfo;
 import com.sap.olingo.jpa.processor.core.query.JPANavigationQuery;
 
 /**
- * In case the query result shall be filtered on an attribute of navigation target a sub-select will be generated.
+ * In case the query result shall be filtered on an attribute of navigation target a sub-select will be generated.<p>
+ * E.g.<br>
+ * - Organizations?$select=ID&$filter=Roles/$count eq 2<br>
+ * - Organizations?$filter=AdministrativeInformation/Created/User/LastName eq 'Mustermann'<br>
+ * - AdministrativeDivisions?$filter=Parent/Parent/CodeID eq 'NUTS1' and DivisionCode eq 'BE212'
  * @author Oliver Grande
  *
  */

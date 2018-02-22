@@ -26,6 +26,7 @@ import org.apache.olingo.server.api.uri.queryoption.ExpandItem;
 import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
@@ -339,7 +340,13 @@ public final class Util {
         naviStartType = sd.getEntity(((UriResourceNavigation) naviStart).getTypeFilterOnEntry());
       else
         naviStartType = sd.getEntity(((UriResourceNavigation) naviStart).getProperty().getType());
-      return naviStartType.getAssociationPath(associationName.toString());
+      JPAAssociationPath path = naviStartType.getAssociationPath(associationName.toString());
+      if (path == null) {
+        final JPACollectionAttribute collcetion = naviStartType.getCollectionAttribute(associationName.toString());
+        if (collcetion != null)
+          path = collcetion.asAssociation();
+      }
+      return path;
     } catch (ODataJPAModelException e) {
       throw new ODataJPAUtilException(ODataJPAUtilException.MessageKeys.UNKNOWN_NAVI_PROPERTY,
           HttpStatusCode.BAD_REQUEST);

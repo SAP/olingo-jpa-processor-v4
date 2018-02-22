@@ -8,6 +8,7 @@ import javax.persistence.criteria.From;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.uri.UriResource;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
@@ -32,5 +33,7 @@ interface JPAFilterComplierAccess {
   From<?, ?> getRoot();
 
   JPAServiceDebugger getDebugger();
+
+  JPAAssociationPath getAssoziation();
 
 }

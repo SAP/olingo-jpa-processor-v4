@@ -267,10 +267,10 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery {
           target, JoinType.INNER);
       joinTables.put(naviInfo.getAssociationPath().getAlias(), target);
     }
-    this.navigationInfo.get(this.navigationInfo.size() - 1).setFromClause(target);
-    this.navigationInfo.get(this.navigationInfo.size() - 1).setFilterCompiler(
-        new JPAFilterCrossComplier(odata, sd, em, jpaEntity, new JPAOperationConverter(cb,
-            context.getOperationConverter()), uriResource, this));
+    final JPANavigationProptertyInfo lastInfo = this.navigationInfo.get(this.navigationInfo.size() - 1);
+    lastInfo.setFromClause(target);
+    lastInfo.setFilterCompiler(new JPAFilterCrossComplier(odata, sd, em, jpaEntity, new JPAOperationConverter(cb,
+        context.getOperationConverter()), uriResource, this, lastInfo.getAssociationPath()));
 
     // 2. OrderBy navigation property
     for (final JPAAssociationAttribute orderBy : orderByTarget) {
@@ -421,8 +421,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery {
   }
 
   protected javax.persistence.criteria.Expression<Boolean> createWhere(final UriInfoResource uriInfo,
-      final List<JPANavigationProptertyInfo> navigationInfo)
-      throws ODataApplicationException {
+      final List<JPANavigationProptertyInfo> navigationInfo) throws ODataApplicationException {
 
     final int handle = debugger.startRuntimeMeasurement(this, "createWhere");
     javax.persistence.criteria.Expression<Boolean> whereCondition = null;

@@ -1,8 +1,8 @@
 package com.sap.olingo.jpa.processor.core.filter;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 
 import java.io.IOException;
 
@@ -11,6 +11,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
@@ -708,6 +709,7 @@ public class TestJPAQueryWhereClause extends TestBase {
     ArrayNode admin = helper.getValues();
     assertEquals(5, admin.size());
     assertNotNull(admin.get(3).findValue("Parent"));
+    assertFalse(admin.get(3).findValue("Parent") instanceof NullNode);
     assertEquals("BE2", admin.get(3).findValue("Parent").get("DivisionCode").asText());
   };
 
@@ -830,11 +832,56 @@ public class TestJPAQueryWhereClause extends TestBase {
   }
 
   @Test
-  public void testFilterCollectionPropertyToManyValueAll() throws IOException, ODataException {
+  public void testFilterCollectionPropertyToManyValue() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Organizations?$select=ID&$filter=Roles/all(d:d/RoleCategory eq 'A')");
+        "Organizations?$select=ID&$filter=contains(Comment, 'just')");
 
-    fail();
+    helper.assertStatus(400); // Olingo rejects a bunch of functions.
+  }
+
+  @Test
+  public void testFilterCollectionPropertyAny() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$select=ID&$filter=Comment/any(s:contains(s, 'just'))");
+
+    helper.assertStatus(200);
+    ArrayNode org = helper.getValues();
+    assertNotNull(org);
+    assertEquals(1, org.size());
+  }
+
+  @Test
+  public void testFilterCollectionPropertyAsPartOfComplexAny() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "CollectionDeeps?$select=ID&$filter=FirstLevel/SecondLevel/Address/any(s:s/TaskID eq 'DEV')");
+
+    helper.assertStatus(200);
+    ArrayNode org = helper.getValues();
+    assertNotNull(org);
+    assertEquals(1, org.size());
+  }
+
+  @Test
+  public void testFilterCollectionOnPropertyWithNavigation() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Persons('99')/InhouseAddress?$filter=TaskID eq 'DEV'");
+
+    helper.assertStatus(200);
+    ArrayNode addr = helper.getValues();
+    assertNotNull(addr);
+    assertEquals(1, addr.size());
+  }
+
+  @Test
+  public void testFilterCollectionPropertyWithOutNavigationThrowsError() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Persons?$select=ID&$filter=InhouseAddress/TaskID eq 'DEV'");
+
+    helper.assertStatus(400); // The URI is malformed
   }
 }

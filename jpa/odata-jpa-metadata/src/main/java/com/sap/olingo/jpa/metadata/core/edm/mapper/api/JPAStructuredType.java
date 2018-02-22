@@ -11,7 +11,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
  *
  */
 public interface JPAStructuredType extends JPAElement {
-  public JPAAssociationAttribute getAssociation(String internalName) throws ODataJPAModelException;
+  public JPAAssociationAttribute getAssociation(final String internalName) throws ODataJPAModelException;
 
   /**
    * Searches for an AssociationPath defined by the name used in the OData metadata in all the navigation properties
@@ -25,7 +25,7 @@ public interface JPAStructuredType extends JPAElement {
    * @return
    * @throws ODataJPAModelException
    */
-  public JPAAssociationPath getAssociationPath(String externalName) throws ODataJPAModelException;
+  public JPAAssociationPath getAssociationPath(final String externalName) throws ODataJPAModelException;
 
   /**
    * Searches in the navigation properties that are available for this type via the OData service. That is:
@@ -39,7 +39,7 @@ public interface JPAStructuredType extends JPAElement {
    */
   public List<JPAAssociationPath> getAssociationPathList() throws ODataJPAModelException;
 
-  public JPAAttribute getAttribute(String internalName) throws ODataJPAModelException;
+  public JPAAttribute getAttribute(final String internalName) throws ODataJPAModelException;
 
   public List<JPAAttribute> getAttributes() throws ODataJPAModelException;
 
@@ -65,7 +65,7 @@ public interface JPAStructuredType extends JPAElement {
    */
   public JPAAssociationPath getDeclaredAssociation(JPAAssociationPath associationPath) throws ODataJPAModelException;
 
-  public JPAAssociationPath getDeclaredAssociation(String externalName) throws ODataJPAModelException;
+  public JPAAssociationPath getDeclaredAssociation(final String externalName) throws ODataJPAModelException;
 
   /**
    * List of all associations that are declared at this type. That is:
@@ -109,7 +109,7 @@ public interface JPAStructuredType extends JPAElement {
    * @return
    * @throws ODataJPAModelException
    */
-  public JPAPath getPath(String externalName) throws ODataJPAModelException;
+  public JPAPath getPath(final String externalName) throws ODataJPAModelException;
 
   /**
    * List of all attributes that are available for this type via the OData service. That is:

@@ -21,6 +21,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlPropertyRef;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAsEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -50,6 +51,14 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
   public void addAnnotations(List<CsdlAnnotation> annotations) {
     this.edmAnnotations.addAll(annotations);
 
+  }
+
+  @Override
+  public JPACollectionAttribute getCollectionAttribute(final String externalName) throws ODataJPAModelException {
+    final JPAPath path = getPath(externalName);
+    if (path != null && path.getLeaf() instanceof JPACollectionAttribute)
+      return (JPACollectionAttribute) path.getLeaf();
+    return null;
   }
 
   @Override
