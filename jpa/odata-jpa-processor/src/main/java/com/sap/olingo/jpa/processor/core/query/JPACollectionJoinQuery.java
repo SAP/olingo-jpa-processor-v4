@@ -242,6 +242,10 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
     final Map<String, From<?, ?>> joinTables = createFromClause(new ArrayList<JPAAssociationAttribute>(),
         descriptionAttributes);
 
+//    final JPANavigationProptertyInfo lastInfo = this.navigationInfo.get(this.navigationInfo.size() - 1);
+//    lastInfo.setFilterCompiler(new JPAFilterCrossComplier(odata, sd, em, jpaEntity, new JPAOperationConverter(cb,
+//        context.getOperationConverter()), uriResource, this, (JPAAssociationPath) null));
+
     // TODO handle Join Column is ignored
     cq.multiselect(createSelectClause(joinTables, selectionPath, target));
     cq.distinct(true);

@@ -832,7 +832,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   }
 
   @Test
-  public void testFilterCollectionPropertyToManyValue() throws IOException, ODataException {
+  public void testFilterCollectionSinplePropertyThrowsError() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations?$select=ID&$filter=contains(Comment, 'just')");
@@ -856,7 +856,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   public void testFilterCollectionPropertyAsPartOfComplexAny() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "CollectionDeeps?$select=ID&$filter=FirstLevel/SecondLevel/Address/any(s:s/TaskID eq 'DEV')");
+        "CollectionDeeps?$filter=FirstLevel/SecondLevel/Address/any(s:s/TaskID eq 'DEV')");
 
     helper.assertStatus(200);
     ArrayNode org = helper.getValues();

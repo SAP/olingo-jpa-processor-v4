@@ -79,6 +79,10 @@ public final class JPAExpandItemInfoFactory {
     try {
       if (pathInfo[PROPERTY_INDEX] != null) {
         if (((JPAPath) pathInfo[PROPERTY_INDEX]).getLeaf().isCollection()) {
+          // BusinessPartnerRoles(BusinessPartnerID='1',RoleCategory='A')/Organization/Comment
+          // Organizations('1')/Comment
+          // Persons('99')/InhouseAddress
+          // Persons('99')/InhouseAddress?$filter=TaskID eq 'DEV'
           final JPACollectionExpandWrapper item = new JPACollectionExpandWrapper((JPAEntityType) pathInfo[ET_INDEX],
               uriResourceInfo);
           itemList.add(new JPACollectionItemInfo(sd, item,
@@ -107,8 +111,8 @@ public final class JPAExpandItemInfoFactory {
           }
         } else {
           final JPAStructuredType st = (JPAStructuredType) pathInfo[ST_INDEX];
-          final Set<JPAPath> selectOptions = getCollectionAttributesFromSelection(uriResourceInfo
-              .getUriResourceParts(), st, uriResourceInfo.getSelectOption());
+          final Set<JPAPath> selectOptions = getCollectionAttributesFromSelection(st, uriResourceInfo
+              .getSelectOption());
           for (JPAPath path : selectOptions) {
             final JPACollectionExpandWrapper item = new JPACollectionExpandWrapper((JPAEntityType) pathInfo[ET_INDEX],
                 uriResourceInfo);
@@ -152,9 +156,8 @@ public final class JPAExpandItemInfoFactory {
     return result;
   }
 
-  protected Set<JPAPath> getCollectionAttributesFromSelection(final List<UriResource> resources,
-      final JPAStructuredType jpaEntity, final SelectOption select) throws ODataApplicationException,
-      ODataJPAModelException {
+  protected Set<JPAPath> getCollectionAttributesFromSelection(final JPAStructuredType jpaEntity,
+      final SelectOption select) throws ODataApplicationException, ODataJPAModelException {
 
     final Set<JPAPath> collectionAttributes = new HashSet<>();
     if (select == null || select.getSelectItems().isEmpty() || select.getSelectItems().get(0).isStar()) {
@@ -163,11 +166,12 @@ public final class JPAExpandItemInfoFactory {
           collectionAttributes.add(selectItemPath);
       }
     } else {
-      final String pathPrefix = ""; // Util.determineProptertyNavigationPrefix(resources);
+      final String pathPrefix = "";
       for (SelectItem sItem : select.getSelectItems()) {
         final String pathItem = sItem.getResourcePath().getUriResourceParts().stream().map(path -> (path
             .getSegmentValue())).collect(Collectors.joining(JPAPath.PATH_SEPERATOR));
-        final JPAPath selectItemPath = jpaEntity.getPath(pathPrefix.isEmpty() ? pathItem : pathPrefix + "/" + pathItem);
+        final JPAPath selectItemPath = jpaEntity.getPath(pathPrefix.isEmpty() ? pathItem : pathPrefix
+            + JPAPath.PATH_SEPERATOR + pathItem);
         if (selectItemPath == null)
           throw new ODataJPAQueryException(MessageKeys.QUERY_PREPARATION_INVALID_SELECTION_PATH,
               HttpStatusCode.BAD_REQUEST);

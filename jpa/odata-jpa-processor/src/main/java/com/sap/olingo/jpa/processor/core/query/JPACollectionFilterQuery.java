@@ -23,34 +23,27 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterElementComplier;
 import com.sap.olingo.jpa.processor.core.filter.JPAOperationConverter;
 
+/**
+ * Create a sub query to filter on collection properties e.g.
+ * CollectionDeeps?$select=ID&$filter=FirstLevel/SecondLevel/Address/any(s:s/TaskID eq 'DEV').
+ * This is done as sub-query instead of a join to have more straightforward way to implement OR or AND conditions
+ * 
+ * @author Oliver Grande
+ *
+ */
 public class JPACollectionFilterQuery extends JPANavigationQuery {
-
-  public JPACollectionFilterQuery(final OData odata, final JPAServiceDocument sd, final EntityManager em,
-      final JPAAbstractQuery parent, final JPAAssociationPath association, final Expression expression,
-      final From<?, ?> from) throws ODataApplicationException {
-
-    super(odata, sd, parent.jpaEntity, em, parent, from, association);
-
-    // Create a sub-query having the key of the parent as result type
-    this.subQuery = parent.getQuery().subquery(this.jpaEntity.getKeyType());
-    this.aggregationType = null;
-    this.filterComplier = new JPAFilterElementComplier(odata, sd, em, jpaEntity, new JPAOperationConverter(cb,
-        getContext().getOperationConverter()), null, this, expression, association);
-    createRoots(this.association);
-  }
 
   public JPACollectionFilterQuery(final OData odata, final JPAServiceDocument sd, final EntityManager em,
       final JPAAbstractQuery parent, final List<UriResource> uriResourceParts, final Expression expression,
       final From<?, ?> from) throws ODataApplicationException {
 
     super(odata, sd, parent.jpaEntity, em, parent, from, determineAssoziation(parent.jpaEntity, uriResourceParts));
-
     // Create a sub-query having the key of the parent as result type
     this.subQuery = parent.getQuery().subquery(this.jpaEntity.getKeyType());
     this.aggregationType = null;
-    this.filterComplier = new JPAFilterElementComplier(odata, sd, em, jpaEntity, new JPAOperationConverter(cb,
-        getContext().getOperationConverter()), null, this, expression, association);
     createRoots(this.association);
+    this.filterComplier = new JPAFilterElementComplier(odata, sd, em, jpaEntity,
+        new JPAOperationConverter(cb, getContext().getOperationConverter()), null, this, expression, association);
   }
 
   private static JPAAssociationPath determineAssoziation(final JPAEntityType jpaEntity,
@@ -97,12 +90,11 @@ public class JPACollectionFilterQuery extends JPANavigationQuery {
     try {
       final List<JPAOnConditionItem> right = association.getJoinTable().getInversJoinColumns();
       createSelectClause(subQuery, queryRoot, right);
-      javax.persistence.criteria.Expression<Boolean> whereCondition = createWhereByAssociation(queryJoinTable,
-          from, right);
+      javax.persistence.criteria.Expression<Boolean> whereCondition = createWhereByAssociation(queryRoot, from,
+          jpaEntity);
       subQuery.where(applyAdditionalFilter(whereCondition));
     } catch (ODataJPAModelException e) {
       throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
-
   }
 }

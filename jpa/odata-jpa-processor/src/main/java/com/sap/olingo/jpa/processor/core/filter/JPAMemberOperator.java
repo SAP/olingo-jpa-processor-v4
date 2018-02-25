@@ -37,13 +37,14 @@ public class JPAMemberOperator implements JPAOperator {
   }
 
   public JPAAttribute determineAttribute() throws ODataApplicationException {
-    return determineAttributePath().getLeaf();
+    final JPAPath path = determineAttributePath();
+    return path == null ? null : path.getLeaf();
   }
 
   @Override
   public Path<?> get() throws ODataApplicationException {
     final JPAPath selectItemPath = determineAttributePath();
-    return determineCriteriaPath(selectItemPath);
+    return selectItemPath == null ? null : determineCriteriaPath(selectItemPath);
   }
 
   public Member getMember() {
@@ -51,17 +52,15 @@ public class JPAMemberOperator implements JPAOperator {
   }
 
   private JPAPath determineAttributePath() throws ODataApplicationException {
-    final StringBuilder path = new StringBuilder();
-    if (association != null) {
-      path.append(association.getAlias());
-      path.append(JPAPath.PATH_SEPERATOR);
-    }
-    path.append(Util.determineProptertyNavigationPath(member.getResourcePath().getUriResourceParts()));
-    if (path.lastIndexOf(JPAPath.PATH_SEPERATOR) == path.length() - 1)
-      path.deleteCharAt(path.length() - 1);
+
+    final String attributePath = Util.determineProptertyNavigationPath(member.getResourcePath().getUriResourceParts());
     JPAPath selectItemPath = null;
     try {
-      selectItemPath = jpaEntityType.getPath(path.toString());
+      selectItemPath = jpaEntityType.getPath(attributePath);
+      if (selectItemPath == null && association != null) {
+        selectItemPath = jpaEntityType.getPath(attributePath.isEmpty() ? association.getAlias() : association.getAlias()
+            + JPAPath.PATH_SEPERATOR + attributePath);
+      }
     } catch (ODataJPAModelException e) {
       throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
@@ -72,26 +71,33 @@ public class JPAMemberOperator implements JPAOperator {
     Path<?> p = root;
     for (final JPAElement jpaPathElement : selectItemPath.getPath()) {
       if (jpaPathElement instanceof JPADescriptionAttribute) {
-        final Set<?> allJoins = root.getJoins();
-        final Iterator<?> iterator = allJoins.iterator();
-        while (iterator.hasNext()) {
-          Join<?, ?> join = (Join<?, ?>) iterator.next();
-          if (join.getAlias() != null && join.getAlias().equals(selectItemPath.getAlias())) {
-            final Set<?> subJoins = join.getJoins();
-            for (final Object sub : subJoins) {
-              // e.g. "Organizations?$filter=Address/RegionName eq 'Kalifornien'
-              // see createFromClause in JPAExecutableQuery
-              if (((Join<?, ?>) sub).getAlias() != null &&
-                  ((Join<?, ?>) sub).getAlias().equals(jpaPathElement.getExternalName())) {
-                join = (Join<?, ?>) sub;
-              }
-            }
-            p = join.get(((JPADescriptionAttribute) jpaPathElement).getDescriptionAttribute().getInternalName());
-            break;
-          }
-        }
+        p = determineDescriptionCriteraPath(selectItemPath, p, jpaPathElement);
       } else
         p = p.get(jpaPathElement.getInternalName());
+    }
+    return p;
+  }
+
+  private Path<?> determineDescriptionCriteraPath(final JPAPath selectItemPath, Path<?> p,
+      final JPAElement jpaPathElement) {
+
+    final Set<?> allJoins = root.getJoins();
+    final Iterator<?> iterator = allJoins.iterator();
+    while (iterator.hasNext()) {
+      Join<?, ?> join = (Join<?, ?>) iterator.next();
+      if (join.getAlias() != null && join.getAlias().equals(selectItemPath.getAlias())) {
+        final Set<?> subJoins = join.getJoins();
+        for (final Object sub : subJoins) {
+          // e.g. "Organizations?$filter=Address/RegionName eq 'Kalifornien'
+          // see createFromClause in JPAExecutableQuery
+          if (((Join<?, ?>) sub).getAlias() != null &&
+              ((Join<?, ?>) sub).getAlias().equals(jpaPathElement.getExternalName())) {
+            join = (Join<?, ?>) sub;
+          }
+        }
+        p = join.get(((JPADescriptionAttribute) jpaPathElement).getDescriptionAttribute().getInternalName());
+        break;
+      }
     }
     return p;
   }

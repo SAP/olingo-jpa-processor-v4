@@ -44,7 +44,7 @@ public class JPACollectionExpandWrapper implements JPAExpandItem {
 
   @Override
   public FilterOption getFilterOption() {
-    return null;
+    return uriInfo.getFilterOption();
   }
 
   @Override

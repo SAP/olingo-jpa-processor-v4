@@ -48,7 +48,7 @@ public final class JPAFilterCrossComplier extends JPAAbstractFilter {
   final JPAAbstractQuery parent;
   private From<?, ?> root;
 
-  public JPAFilterCrossComplier(final OData odata, final JPAServiceDocument sd, final EntityManager em,
+  public JPAFilterCrossComplier(final OData odata, final JPAServiceDocument sd, final EntityManager em, // NOSONAR
       final JPAEntityType jpaEntityType, final JPAOperationConverter converter,
       final UriInfoResource uriResource, final JPAAbstractQuery parent, final JPAAssociationPath assization) {
 
@@ -62,7 +62,7 @@ public final class JPAFilterCrossComplier extends JPAAbstractFilter {
     this.parent = parent;
   }
 
-  public JPAFilterCrossComplier(final OData odata, final JPAServiceDocument sd, final EntityManager em,
+  public JPAFilterCrossComplier(final OData odata, final JPAServiceDocument sd, final EntityManager em, // NOSONAR
       final JPAEntityType jpaEntityType, final JPAOperationConverter converter,
       final UriInfoResource uriResource, final JPAAbstractQuery parent, From<?, ?> from) {
 
