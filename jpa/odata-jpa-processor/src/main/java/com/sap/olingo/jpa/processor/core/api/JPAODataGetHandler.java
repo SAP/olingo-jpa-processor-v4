@@ -9,8 +9,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
+import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.OData;
+import org.apache.olingo.server.api.ODataHandler;
 import org.apache.olingo.server.api.ODataHttpHandler;
 import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.debug.DebugInformation;
@@ -44,6 +46,17 @@ public class JPAODataGetHandler {
     this.context = new JPAODataContextImpl(this);
     this.odata = OData.newInstance();
 
+  }
+
+  public JPAODataGetHandler(final String pUnit, final DataSource ds, final EntityManagerFactory emf, JPAEdmProvider edmProvider) throws ODataException {
+    super();
+    this.namespace = pUnit;
+    this.ds = ds;
+    this.emf = emf;
+    this.jpaMetamodel = emf.getMetamodel();
+    this.context = new JPAODataContextImpl(this);
+    this.context.setEdmProvider(edmProvider);
+    this.odata = OData.newInstance();
   }
 
   public JPAODataGetContext getJPAODataContext() {

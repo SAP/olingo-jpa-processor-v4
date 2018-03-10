@@ -76,6 +76,10 @@ final class JPAODataContextImpl implements JPAODataCRUDContext, JPAODataSessionC
     return jpaEdm;
   }
 
+  public void setEdmProvider(JPAEdmProvider edmProvider) {
+    jpaEdm = edmProvider;
+  }
+
   public ErrorProcessor getErrorProcessor() {
     return this.errorProcessor == null ? new JPADefaultErrorProcessor() : this.errorProcessor;
   }
