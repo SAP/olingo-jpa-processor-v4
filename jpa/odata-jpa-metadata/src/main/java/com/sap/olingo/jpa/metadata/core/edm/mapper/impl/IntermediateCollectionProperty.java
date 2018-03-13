@@ -16,6 +16,7 @@ import javax.persistence.metamodel.Type.PersistenceType;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
@@ -23,6 +24,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAJoinTable;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
 
@@ -36,7 +38,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
  *
  */
 
-class IntermediateCollectionProperty extends IntermediateProperty implements JPACollectionAttribute {
+class IntermediateCollectionProperty extends IntermediateProperty implements JPACollectionAttribute,
+    JPAAssociationAttribute {
   private final IntermediateStructuredType sourceType;
   private JPAJoinTable joinTable; // lazy builded
   private JPAAssociationPathImpl associationPath; // lazy builded
@@ -271,5 +274,20 @@ class IntermediateCollectionProperty extends IntermediateProperty implements JPA
       }
       return result;
     }
+  }
+
+  @Override
+  public JPAStructuredType getTargetEntity() throws ODataJPAModelException {
+    return joinTable.getEntityType();
+  }
+
+  @Override
+  public JPAAssociationAttribute getPartner() {
+    return null;
+  }
+
+  @Override
+  public JPAAssociationPath getPath() throws ODataJPAModelException {
+    return asAssociation();
   }
 }

@@ -4,6 +4,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +24,12 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
+
+/**
+ * Abstract super class to converts a list of JPA POJOs into Olingo format. The POJOs have to have
+ * @author Oliver Grande
+ *
+ */
 
 public abstract class JPAStructuredResultConverter {
 
@@ -75,6 +83,22 @@ public abstract class JPAStructuredResultConverter {
       final Method getMethod = getGetter(attributeName, methodMap);
       try {
         if (attribute.isCollection()) {
+          final Collection<?> odataValue = (Collection<?>) getMethod.invoke(row);
+          final List<Object> collection = new ArrayList<>();
+          if (attribute.isComplex() && odataValue != null) {
+            for (final Object element : odataValue) {
+              final ComplexValue values = new ComplexValue();
+              convertProperties(element, values.getValue(), attribute.getStructuredType());
+              collection.add(values);
+            }
+          } else if (odataValue != null)
+            collection.addAll(odataValue);
+
+          properties.add(new Property(
+              attribute.getExternalFQN().getFullQualifiedNameAsString(),
+              attribute.getExternalName(),
+              attribute.isComplex() ? ValueType.COLLECTION_COMPLEX : ValueType.COLLECTION_PRIMITIVE,
+              collection));
 
         } else if (attribute.isComplex()) {
           final ComplexValue complexValue = new ComplexValue();

@@ -122,7 +122,11 @@ public class Person extends BusinessPartner {
     return inhouseAddress;
   }
 
-  public void setInhouseAddress(List<InhouseAddress> inhouseAddress) {
+  public void setInhouseAddress(final List<InhouseAddress> inhouseAddress) {
     this.inhouseAddress = inhouseAddress;
+  }
+
+  public void addInhouseAddress(final InhouseAddress address) {
+    inhouseAddress.add(address);
   }
 }

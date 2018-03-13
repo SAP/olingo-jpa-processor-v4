@@ -21,6 +21,10 @@ public interface JPAAttribute extends JPAElement {
 
   public boolean isAssociation();
 
+  /**
+   * True is a to n association is involved
+   * @return
+   */
   public boolean isCollection();
 
   public boolean isComplex();

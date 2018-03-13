@@ -31,7 +31,7 @@ import com.sap.olingo.jpa.processor.core.filter.JPAOperationConverter;
  * @author Oliver Grande
  *
  */
-public class JPACollectionFilterQuery extends JPANavigationQuery {
+public final class JPACollectionFilterQuery extends JPANavigationQuery {
 
   public JPACollectionFilterQuery(final OData odata, final JPAServiceDocument sd, final EntityManager em,
       final JPAAbstractQuery parent, final List<UriResource> uriResourceParts, final Expression expression,

@@ -29,6 +29,7 @@ import org.apache.olingo.server.api.uri.queryoption.expression.Expression;
 import org.apache.olingo.server.api.uri.queryoption.expression.Member;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
@@ -78,7 +79,7 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPAQuery {
   }
 
   @Override
-  public JPAExpandQueryResult execute() throws ODataApplicationException {
+  public JPAConvertableResult execute() throws ODataApplicationException {
     // Pre-process URI parameter, so they can be used at different places
     // TODO check if Path is also required for OrderBy Attributes, as it is for descriptions
     final int handle = debugger.startRuntimeMeasurement(this, "execute");
@@ -105,11 +106,17 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPAQuery {
     final HashMap<String, List<Tuple>> result = new HashMap<>(1);
     final int resultHandle = debugger.startRuntimeMeasurement(tq, "getResultList");
     final List<Tuple> intermediateResult = tq.getResultList();
+
     debugger.stopRuntimeMeasurement(resultHandle);
     result.put(ROOT_RESULT_KEY, intermediateResult);
 
     debugger.stopRuntimeMeasurement(handle);
-    return new JPAExpandQueryResult(result, null, jpaEntity);
+    final JPANavigationProptertyInfo lastInfo = this.navigationInfo.get(this.navigationInfo.size() - 1);
+    if (lastInfo.getAssociationPath() != null
+        && (lastInfo.getAssociationPath().getLeaf() instanceof JPACollectionAttribute))
+      return new JPACollectionQueryResult(result, null, jpaEntity, lastInfo.getAssociationPath());
+    else
+      return new JPAExpandQueryResult(result, null, jpaEntity);
   }
 
   @Override

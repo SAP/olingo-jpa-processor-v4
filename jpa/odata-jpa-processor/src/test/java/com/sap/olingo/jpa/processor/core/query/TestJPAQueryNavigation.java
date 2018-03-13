@@ -38,6 +38,17 @@ public class TestJPAQueryNavigation extends TestBase {
   }
 
   @Test
+  public void testNoNavigationOneEntityCollection() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('1')");
+    helper.assertStatus(200);
+
+    ObjectNode org = helper.getValue();
+    ArrayNode comment = (ArrayNode) org.get("Comment");
+    assertEquals(2, comment.size());
+  }
+
+  @Test
   public void testNoNavigationOneEntityNotFound() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('1000')");

@@ -7,15 +7,20 @@ import java.util.Map;
 
 import javax.persistence.Tuple;
 
+import org.apache.olingo.commons.api.data.Entity;
+import org.apache.olingo.commons.api.data.EntityCollection;
+import org.apache.olingo.commons.api.data.Property;
+import org.apache.olingo.commons.api.data.ValueType;
 import org.apache.olingo.server.api.ODataApplicationException;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.processor.core.converter.JPACollectionResult;
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 
-public class JPACollectionQueryResult implements JPAExpandResult, JPACollectionResult {
+public class JPACollectionQueryResult implements JPACollectionResult, JPAConvertableResult {
   private final Map<JPAAssociationPath, JPAExpandResult> childrenResult;
   private final Map<String, List<Tuple>> jpaResult;
   private Map<String, List<Object>> collectionResult;
@@ -82,4 +87,28 @@ public class JPACollectionQueryResult implements JPAExpandResult, JPACollectionR
   public JPAAssociationPath getAssoziation() {
     return assoziation;
   }
+
+  @Override
+  public Map<String, EntityCollection> asEntityCollection(JPATupleChildConverter converter)
+      throws ODataApplicationException {
+    this.collectionResult = converter.getCollectionResult(this);
+    final Map<String, EntityCollection> result = new HashMap<>(1);
+    final EntityCollection collection = new EntityCollection();
+    final Entity odataEntity = new Entity();
+    final JPAAttribute leaf = (JPAAttribute) assoziation.getPath().get(assoziation.getPath().size() - 1);
+
+    odataEntity.getProperties().add(new Property(
+        null,
+        leaf.getExternalName(),
+        leaf.isComplex() ? ValueType.COLLECTION_COMPLEX : ValueType.COLLECTION_PRIMITIVE,
+        collectionResult.get(ROOT_RESULT_KEY) != null ? collectionResult.get(ROOT_RESULT_KEY) : new ArrayList<>(1)));
+    collection.getEntities().add(odataEntity);
+    result.put(ROOT_RESULT_KEY, collection);
+
+    return result;
+  }
+
+  @Override
+  public void putChildren(final Map<JPAAssociationPath, JPAExpandResult> childResults)
+      throws ODataApplicationException {}
 }

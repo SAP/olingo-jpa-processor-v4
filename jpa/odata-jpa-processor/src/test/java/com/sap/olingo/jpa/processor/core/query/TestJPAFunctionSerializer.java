@@ -2,7 +2,6 @@ package com.sap.olingo.jpa.processor.core.query;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -154,8 +153,35 @@ public class TestJPAFunctionSerializer {
 
   @Test
   public void testFunctionReturnsEntityTypeWithCollection() throws IOException, ODataException {
-    // Reminder !!
-    fail();
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds, "ListOfEntityTypeWithCollction(A=1250)",
+        "com.sap.olingo.jpa.processor.core.query");
+    helper.assertStatus(200);
+    ObjectNode r = helper.getValue();
+    assertNotNull(r.get("value"));
+    ObjectNode person = (ObjectNode) r.get("value").get(0);
+    ArrayNode addr = (ArrayNode) person.get("InhouseAddress");
+    assertEquals(2, addr.size());
   }
 
+  @Test
+  public void testFunctionReturnsEntityTypeWithDeepCollection() throws IOException, ODataException {
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds, "EntityTypeWithDeepCollction(A=1250)",
+        "com.sap.olingo.jpa.processor.core.query");
+    helper.assertStatus(200);
+    ObjectNode r = helper.getValue();
+    assertNotNull(r.get("FirstLevel"));
+    ObjectNode first = (ObjectNode) r.get("FirstLevel");
+    assertEquals(10, first.get("LevelID").asInt());
+
+    assertNotNull(first.get("SecondLevel"));
+    ObjectNode second = (ObjectNode) first.get("SecondLevel");
+    assertEquals(5L, second.get("Number").asLong());
+    ArrayNode addr = (ArrayNode) second.get("Address");
+    assertEquals(2, addr.size());
+    assertEquals("ADMIN", addr.get(1).get("TaskID").asText());
+
+    ArrayNode comment = (ArrayNode) second.get("Comment");
+    assertEquals(3, comment.size());
+    assertEquals("Three", comment.get(2).asText());
+  }
 }

@@ -487,7 +487,7 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
   }
 
   private List<IntermediateJoinColumn> determineJoinColumns(final IntermediateModelElement property,
-      final JPAAssociationPath association) {
+      final JPAAssociationPath association) throws ODataJPAModelException {
     final List<IntermediateJoinColumn> result = new ArrayList<>();
 
     final Attribute<?, ?> jpaAttribute = jpaManagedType.getAttribute(property.getInternalName());

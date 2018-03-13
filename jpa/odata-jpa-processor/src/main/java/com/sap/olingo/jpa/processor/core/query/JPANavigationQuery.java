@@ -79,6 +79,7 @@ public abstract class JPANavigationQuery extends JPAAbstractQuery {
   }
 
   protected void createRoots(final JPAAssociationPath association) throws ODataJPAQueryException {
+
     if (association.getJoinTable() != null) {
       if (association.getJoinTable().getEntityType() != null) {
         if (aggregationType != null) {

@@ -52,4 +52,8 @@ public class CollectionSecondLevelComplex {
   public List<String> getComment() {
     return comment;
   }
+
+  public void addInhouseAddress(InhouseAddress address) {
+    this.address.add(address);
+  }
 }

@@ -80,7 +80,7 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
           || select.getSelectItems().isEmpty() || select.getSelectItems().get(0).isStar())
         // If the collection is part of a navigation take all the attributes
         expandPath(jpaEntity, jpaPathList, pathPrefix.isEmpty() ? this.assoziation.getAlias() : pathPrefix
-            + JPAPath.PATH_SEPERATOR + this.assoziation.getAlias());
+            + JPAPath.PATH_SEPERATOR + this.assoziation.getAlias(), true);
       else {
         for (SelectItem sItem : select.getSelectItems()) {
           String pathItem = sItem.getResourcePath().getUriResourceParts().stream().map(path -> (path
@@ -95,12 +95,12 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
             if (((JPAAttribute) selectItemPath.getPath().get(0)).isComplex()) {
               final JPAAttribute attribute = ((JPAAttribute) selectItemPath.getPath().get(0));
               expandPath(jpaEntity, jpaPathList, pathPrefix.isEmpty() ? attribute.getExternalName() : pathPrefix
-                  + JPAPath.PATH_SEPERATOR + attribute.getExternalName());
+                  + JPAPath.PATH_SEPERATOR + attribute.getExternalName(), true);
             } else
               jpaPathList.add(selectItemPath);
           } else if (selectItemPath.getLeaf().isComplex()) {
             expandPath(jpaEntity, jpaPathList, pathPrefix.isEmpty() ? this.assoziation.getAlias() : pathPrefix
-                + JPAPath.PATH_SEPERATOR + this.assoziation.getAlias());
+                + JPAPath.PATH_SEPERATOR + this.assoziation.getAlias(), true);
           }
         }
 
@@ -113,8 +113,8 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
   }
 
   @Override
-  protected void expandPath(final JPAEntityType jpaEntity, final List<JPAPath> jpaPathList, final String selectItem)
-      throws ODataJPAModelException, ODataJPAQueryException {
+  protected void expandPath(final JPAEntityType jpaEntity, final List<JPAPath> jpaPathList, final String selectItem,
+      final boolean targetIsCollection) throws ODataJPAModelException, ODataJPAQueryException {
 
     final JPAPath selectItemPath = jpaEntity.getPath(selectItem);
     if (selectItemPath == null)
@@ -241,10 +241,6 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
     final List<JPAPath> descriptionAttributes = new ArrayList<>(1);
     final Map<String, From<?, ?>> joinTables = createFromClause(new ArrayList<JPAAssociationAttribute>(),
         descriptionAttributes);
-
-//    final JPANavigationProptertyInfo lastInfo = this.navigationInfo.get(this.navigationInfo.size() - 1);
-//    lastInfo.setFilterCompiler(new JPAFilterCrossComplier(odata, sd, em, jpaEntity, new JPAOperationConverter(cb,
-//        context.getOperationConverter()), uriResource, this, (JPAAssociationPath) null));
 
     // TODO handle Join Column is ignored
     cq.multiselect(createSelectClause(joinTables, selectionPath, target));

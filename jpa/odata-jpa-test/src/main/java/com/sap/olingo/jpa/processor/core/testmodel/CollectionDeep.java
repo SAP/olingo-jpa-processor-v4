@@ -18,7 +18,7 @@ public class CollectionDeep {
   @Embedded
   private CollectionFirstLevelComplex firstLevel;
 
-  public void setiD(String iD) {
+  public void setID(String iD) {
     this.iD = iD;
   }
 
@@ -26,7 +26,7 @@ public class CollectionDeep {
     this.firstLevel = firstLevel;
   }
 
-  public String getiD() {
+  public String getID() {
     return iD;
   }
 

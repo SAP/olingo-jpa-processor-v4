@@ -54,7 +54,6 @@ abstract class JPALambdaOperation extends JPAExistsOperation {
       final JPANavigationProptertyInfo naviInfo = naviPathList.get(i);
       if (i == 0)
         if (naviInfo.getUriResiource() instanceof UriResourceProperty)
-          // member.getUriResourceParts();
           queryList.add(new JPACollectionFilterQuery(odata, sd, em, parent, member.getUriResourceParts(), expression,
               from));
         else

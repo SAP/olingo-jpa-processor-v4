@@ -18,7 +18,7 @@ import com.sap.olingo.jpa.processor.core.converter.JPACollectionResult;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 
-public class JPAMapCollectionResult extends JPAMapBaseResult implements JPACollectionResult {
+class JPAMapCollectionResult extends JPAMapBaseResult implements JPACollectionResult {
   private Map<String, List<Object>> converted;
   private final JPAAssociationPath path;
 

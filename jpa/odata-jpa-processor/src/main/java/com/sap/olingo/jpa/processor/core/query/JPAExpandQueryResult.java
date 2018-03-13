@@ -24,7 +24,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
  * @author Oliver Grande
  *
  */
-public final class JPAExpandQueryResult implements JPAExpandResult {
+public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertableResult {
   private final Map<JPAAssociationPath, JPAExpandResult> childrenResult;
   private final Map<String, List<Tuple>> jpaResult;
   private Map<String, EntityCollection> odataResult;
@@ -33,7 +33,7 @@ public final class JPAExpandQueryResult implements JPAExpandResult {
 
   public JPAExpandQueryResult(final Map<String, List<Tuple>> result, final Map<String, Long> counts,
       final JPAEntityType jpaEntityType) {
-    super();
+
     assertNotNull(jpaEntityType);
     childrenResult = new HashMap<>();
     this.jpaResult = result;
@@ -41,7 +41,8 @@ public final class JPAExpandQueryResult implements JPAExpandResult {
     this.jpaEntityType = jpaEntityType;
   }
 
-  public Map<String, EntityCollection> asEntityCollection(JPATupleChildConverter converter)
+  @Override
+  public Map<String, EntityCollection> asEntityCollection(final JPATupleChildConverter converter)
       throws ODataApplicationException {
 
     convert(new JPATupleChildConverter(converter));
@@ -126,6 +127,7 @@ public final class JPAExpandQueryResult implements JPAExpandResult {
     return counts != null;
   }
 
+  @Override
   public void putChildren(final Map<JPAAssociationPath, JPAExpandResult> childResults)
       throws ODataApplicationException {
 

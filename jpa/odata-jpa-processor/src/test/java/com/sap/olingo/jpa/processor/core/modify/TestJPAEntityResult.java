@@ -209,7 +209,7 @@ public class TestJPAEntityResult extends TestJPACreateResult {
     final CollectionSecondLevelComplex secondLevel = new CollectionSecondLevelComplex();
 
     final List<InhouseAddress> addresses = secondLevel.getAddress();
-    collection.setiD("27");
+    collection.setID("27");
     collection.setFirstLevel(firstLevel);
     firstLevel.setLevelID(3);
     firstLevel.setSecondLevel(secondLevel);

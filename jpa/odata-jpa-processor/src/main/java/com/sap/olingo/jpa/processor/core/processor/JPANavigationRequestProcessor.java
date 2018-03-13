@@ -33,6 +33,7 @@ import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.query.JPACollectionItemInfo;
 import com.sap.olingo.jpa.processor.core.query.JPACollectionJoinQuery;
+import com.sap.olingo.jpa.processor.core.query.JPAConvertableResult;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandItemInfo;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandItemInfoFactory;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandJoinQuery;
@@ -70,14 +71,13 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
           HttpStatusCode.INTERNAL_SERVER_ERROR, e);
     }
 
-    final JPAExpandQueryResult result = query.execute();
+    final JPAConvertableResult result = query.execute();
     // Read Expand and Collection
     result.putChildren(readExpandEntities(request.getAllHeaders(), query.getNavigationInfo(), uriInfo));
     // Convert tuple result into an OData Result
     final int converterHandle = debugger.startRuntimeMeasurement(this, "convertResult");
     EntityCollection entityCollection;
     try {
-
       entityCollection = result.asEntityCollection(new JPATupleChildConverter(sd, odata.createUriHelper(),
           serviceMetadata)).get(ROOT_RESULT_KEY);
       debugger.stopRuntimeMeasurement(converterHandle);

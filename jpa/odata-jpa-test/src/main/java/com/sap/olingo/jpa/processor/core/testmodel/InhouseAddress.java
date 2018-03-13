@@ -15,6 +15,15 @@ public class InhouseAddress {
   @Column(name = "\"RoomNumber\"")
   private Integer roomNumber;
 
+  public InhouseAddress() {
+    // Needed by JPA
+  }
+
+  public InhouseAddress(final String taskID, final String building) {
+    this.setTaskID(taskID);
+    this.setBuilding(building);
+  }
+
   public String getBuilding() {
     return building;
   }

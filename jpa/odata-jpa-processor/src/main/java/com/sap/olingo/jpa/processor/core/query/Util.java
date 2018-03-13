@@ -247,15 +247,19 @@ public final class Util {
       if (resourcePart instanceof UriResourceNavigation
           || resourcePart instanceof UriResourceEntitySet) {
         if (source != null) {
-          extendNavigationPath(associationName, ((UriResourceNavigation) resourcePart).getProperty().getName());
+          if (resourcePart instanceof UriResourceProperty)
+            extendNavigationPath(associationName, ((UriResourceProperty) resourcePart).getProperty().getName());
+          else
+            extendNavigationPath(associationName, ((UriResourceNavigation) resourcePart).getProperty().getName());
           pathList.add(new JPANavigationProptertyInfo(sd, source, determineAssoziationPath(sd, source, associationName),
               null));
         }
         source = (UriResourcePartTyped) resourcePart;
         associationName = new StringBuilder();
       } else {
-        if (resourcePart instanceof UriResourceComplexProperty) {
-          extendNavigationPath(associationName, ((UriResourceComplexProperty) resourcePart).getProperty().getName());
+        if (resourcePart instanceof UriResourceComplexProperty
+            || resourcePart instanceof UriResourceProperty && ((UriResourceProperty) resourcePart).isCollection()) {
+          extendNavigationPath(associationName, ((UriResourceProperty) resourcePart).getProperty().getName());
         }
       }
     }
@@ -265,7 +269,7 @@ public final class Util {
     return pathList;
   }
 
-  private static void extendNavigationPath(StringBuilder associationName, String pathSegment)
+  private static void extendNavigationPath(final StringBuilder associationName, final String pathSegment)
       throws ODataJPAQueryException {
     if (associationName == null)
       throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
@@ -329,19 +333,21 @@ public final class Util {
   public static JPAAssociationPath determineAssoziationPath(final JPAServiceDocument sd,
       final UriResourcePartTyped naviStart, final StringBuilder associationName) throws ODataApplicationException {
 
-    JPAEntityType naviStartType;
+    JPAEntityType naviStartType = null;
     try {
       if (naviStart instanceof UriResourceEntitySet)
         if (((UriResourceEntitySet) naviStart).getTypeFilterOnEntry() != null)
           naviStartType = sd.getEntity(((UriResourceEntitySet) naviStart).getTypeFilterOnEntry());
         else
           naviStartType = sd.getEntity(((UriResourceEntitySet) naviStart).getType());
-      else if (((UriResourceNavigation) naviStart).getTypeFilterOnEntry() != null)
+      else if (naviStart instanceof UriResourceNavigation)
+        if (((UriResourceNavigation) naviStart).getTypeFilterOnEntry() != null)
         naviStartType = sd.getEntity(((UriResourceNavigation) naviStart).getTypeFilterOnEntry());
-      else
+        else
         naviStartType = sd.getEntity(((UriResourceNavigation) naviStart).getProperty().getType());
-      JPAAssociationPath path = naviStartType.getAssociationPath(associationName.toString());
-      if (path == null) {
+      JPAAssociationPath path = naviStartType == null ? null : naviStartType.getAssociationPath(associationName
+          .toString());
+      if (path == null && naviStartType != null) {
         final JPACollectionAttribute collcetion = naviStartType.getCollectionAttribute(associationName.toString());
         if (collcetion != null)
           path = collcetion.asAssociation();
