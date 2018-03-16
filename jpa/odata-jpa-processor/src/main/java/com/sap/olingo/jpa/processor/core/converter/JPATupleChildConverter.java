@@ -114,13 +114,13 @@ public class JPATupleChildConverter {
 
   protected void convertAttribute(final Object value, final JPAPath jpaPath,
       final Map<String, ComplexValue> complexValueBuffer, final List<Property> properties, final Tuple parentRow,
-      final String prefix) throws ODataJPAModelException, ODataApplicationException {
+      final String prefix, final String rootURI) throws ODataJPAModelException, ODataApplicationException {
 
     if (jpaPath != null) {
       final JPAAttribute attribute = (JPAAttribute) jpaPath.getPath().get(0);
       if (attribute != null && !attribute.isKey() && attribute.isComplex()) {
         convertComplexAttribute(value, jpaPath.getAlias(), complexValueBuffer, properties, attribute, parentRow,
-            prefix);
+            prefix, rootURI);
       } else if (attribute != null) {
         convertPrimitiveAttribute(value, properties, jpaPath, attribute);
       }
@@ -134,22 +134,34 @@ public class JPATupleChildConverter {
     odataEntity.setType(edmType.getFullQualifiedName().getFullQualifiedNameAsString());
     final List<Property> properties = odataEntity.getProperties();
     // TODO store @Version to fill ETag Header
+    try {
+      for (final JPAAttribute path : rowEntity.getKey()) {
+        convertAttribute(row.get(path.getExternalName()), rowEntity.getPath(path.getExternalName()), complexValueBuffer,
+            properties, row, EMPTY_PREFIX, "");
+      }
+    } catch (final ODataJPAModelException e) {
+      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
+          HttpStatusCode.INTERNAL_SERVER_ERROR, e);
+    }
+    odataEntity.setId(createId(odataEntity));
+
     for (final TupleElement<?> element : row.getElements()) {
       try {
-        convertAttribute(row.get(element.getAlias()), rowEntity.getPath(element.getAlias()), complexValueBuffer,
-            properties, row, EMPTY_PREFIX);
-      } catch (ODataJPAModelException e) {
+        if (odataEntity.getProperty(element.getAlias()) == null)
+          convertAttribute(row.get(element.getAlias()), rowEntity.getPath(element.getAlias()), complexValueBuffer,
+              properties, row, EMPTY_PREFIX, odataEntity.getId().toString());
+      } catch (final ODataJPAModelException e) {
         throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
             HttpStatusCode.INTERNAL_SERVER_ERROR, e);
       }
     }
-    odataEntity.setId(createId(odataEntity));
-    odataEntity.getNavigationLinks().addAll(createExpand(rowEntity, row, EMPTY_PREFIX));
+    odataEntity.getNavigationLinks().addAll(createExpand(rowEntity, row, EMPTY_PREFIX, odataEntity.getId().toString()));
     return odataEntity;
   }
 
   protected void createComplexValue(final Map<String, ComplexValue> complexValueBuffer,
-      final List<Property> properties, final JPAAttribute attribute, final Tuple parentRow, final String bufferKey)
+      final List<Property> properties, final JPAAttribute attribute, final Tuple parentRow, final String bufferKey,
+      final String rootURI)
       throws ODataJPAModelException, ODataApplicationException {
 
     final ComplexValue complexValue = new ComplexValue();
@@ -159,25 +171,26 @@ public class JPATupleChildConverter {
         attribute.getExternalName(),
         ValueType.COMPLEX,
         complexValue));
-    complexValue.getNavigationLinks().addAll(createExpand(attribute.getStructuredType(), parentRow, bufferKey));
+    complexValue.getNavigationLinks().addAll(createExpand(attribute.getStructuredType(), parentRow, bufferKey,
+        rootURI));
 
   }
 
   protected Collection<Link> createExpand(JPAStructuredType jpaStructuredType, final Tuple row,
-      final String prefix) throws ODataApplicationException {
+      final String prefix, final String rootURI) throws ODataApplicationException {
     final List<Link> entityExpandLinks = new ArrayList<>();
 
     JPAAssociationPath path = null;
     try {
       for (final JPAAssociationAttribute a : jpaStructuredType.getDeclaredAssociations()) {
         path = jpaConversionTargetEntity.getAssociationPath(buildPath(prefix, a));
-        JPAExpandResult child = jpaQueryResult.getChild(path);
-
+        final JPAExpandResult child = jpaQueryResult.getChild(path);
+        final String linkURI = rootURI + JPAPath.PATH_SEPERATOR + path.getAlias();
         if (child != null) {
-          final Link expand = getLink(path, row, child);
           // TODO Check how to convert Organizations('3')/AdministrativeInformation?$expand=Created/User
-          entityExpandLinks.add(expand);
-        }
+          entityExpandLinks.add(getLink(path, row, child, linkURI));
+        } else
+          entityExpandLinks.add(getLink(path, linkURI));
       }
     } catch (ODataJPAModelException e) {
       throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_NAVI_PROPERTY_ERROR,
@@ -238,20 +251,20 @@ public class JPATupleChildConverter {
 
   private void convertComplexAttribute(final Object value, final String externalName,
       final Map<String, ComplexValue> complexValueBuffer, final List<Property> properties,
-      final JPAAttribute attribute, final Tuple parentRow, final String prefix) throws ODataJPAModelException,
-      ODataApplicationException {
+      final JPAAttribute attribute, final Tuple parentRow, final String prefix, final String rootURI)
+      throws ODataJPAModelException, ODataApplicationException {
 
     final String bufferKey = buildPath(attribute, prefix);
 
     if (!complexValueBuffer.containsKey(bufferKey)) {
-      createComplexValue(complexValueBuffer, properties, attribute, parentRow, bufferKey);
+      createComplexValue(complexValueBuffer, properties, attribute, parentRow, bufferKey, rootURI);
     }
 
     final List<Property> values = complexValueBuffer.get(bufferKey).getValue();
     final int splitIndex = attribute.getExternalName().length() + JPAPath.PATH_SEPERATOR.length();
     final String attributeName = externalName.substring(splitIndex);
     convertAttribute(value, attribute.getStructuredType().getPath(attributeName), complexValueBuffer, values,
-        parentRow, buildPath(attribute, prefix));
+        parentRow, buildPath(attribute, prefix), rootURI);
   }
 
   @SuppressWarnings("unchecked")
@@ -314,8 +327,8 @@ public class JPATupleChildConverter {
     }
   }
 
-  private Link getLink(final JPAAssociationPath assoziation, final Tuple parentRow, final JPAExpandResult child)
-      throws ODataJPAQueryException {
+  private Link getLink(final JPAAssociationPath assoziation, final Tuple parentRow, final JPAExpandResult child,
+      final String linkURI) throws ODataJPAQueryException {
     final Link link = new Link();
     link.setTitle(assoziation.getLeaf().getExternalName());
     link.setRel(Constants.NS_NAVIGATION_LINK_REL + link.getTitle());
@@ -327,18 +340,27 @@ public class JPATupleChildConverter {
       expandCollection.setCount(determineCount(assoziation, parentRow, child));
       if (assoziation.getLeaf().isCollection()) {
         link.setInlineEntitySet(expandCollection);
-        // TODO link.setHref(parentUri.toASCIIString());
+        link.setHref(linkURI);
       } else {
         if (expandCollection.getEntities() != null && !expandCollection.getEntities().isEmpty()) {
           final Entity expandEntity = expandCollection.getEntities().get(0);
           link.setInlineEntity(expandEntity);
-          // TODO link.setHref(expandCollection.getId().toASCIIString());
+          link.setHref(linkURI);
         }
       }
     } catch (ODataJPAModelException e) {
       throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
           HttpStatusCode.INTERNAL_SERVER_ERROR, e);
     }
+    return link;
+  }
+
+  private Link getLink(final JPAAssociationPath assoziation, final String linkURI) {
+    final Link link = new Link();
+    link.setTitle(assoziation.getLeaf().getExternalName());
+    link.setRel(Constants.NS_NAVIGATION_LINK_REL + link.getTitle());
+    link.setType(Constants.ENTITY_NAVIGATION_LINK_TYPE);
+    link.setHref(linkURI);
     return link;
   }
 }
