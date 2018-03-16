@@ -116,8 +116,7 @@ public class TestJPAProcessorExpand extends TestBase {
         "Organizations('3')/AdministrativeInformation/Created?$expand=User");
     helper.assertStatus(200);
 
-    final ObjectNode org = helper.getValue();
-    final ObjectNode created = (ObjectNode) org.get("Created");
+    final ObjectNode created = helper.getValue();
     @SuppressWarnings("unused")
     final ObjectNode user = (ObjectNode) created.get("User");
   }
