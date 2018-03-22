@@ -62,7 +62,7 @@ public class TestJPAQueryJSONAnnotations extends TestBase {
     assertEquals("Organizations('3')/Roles", org.get("Roles@odata.navigationLink").asText());
   }
 
-  @Ignore // to be checked how to implement this with Olingo
+  @Ignore // See https://issues.apache.org/jira/browse/OLINGO-1248
   @Test
   public void testEntityWithMetadataFullContainNavigationLinkOfComplex() throws IOException, ODataException {
 
