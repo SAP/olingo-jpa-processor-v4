@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 
 public class TestJavaActionNoParameter {
   public static int constructorCalls = 0;

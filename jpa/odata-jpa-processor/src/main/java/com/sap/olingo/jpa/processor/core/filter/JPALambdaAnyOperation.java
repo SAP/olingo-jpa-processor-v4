@@ -8,6 +8,7 @@ final class JPALambdaAnyOperation extends JPALambdaOperation implements JPAExpre
     super(jpaComplier, member);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public Enum<?> getOperator() {
     return null;
