@@ -10,8 +10,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 public class TestSchemaReader {
   private SchemaReader cut;
@@ -22,7 +21,7 @@ public class TestSchemaReader {
   }
 
   @Test
-  public void TestGetNamespaceFromPath() throws JsonParseException, JsonMappingException, IOException {
+  public void TestGetNamespaceFromPath() throws IOException, ODataJPAModelException {
     Map<String, ? extends CsdlSchema> act;
     act = cut.getSchemas("annotations/Org.OData.Core.V1.xml");
     assertNotNull(act.get("Org.OData.Core.V1"));
@@ -31,7 +30,7 @@ public class TestSchemaReader {
   }
 
   @Test
-  public void TestGetAliasFromPath() throws JsonParseException, JsonMappingException, IOException {
+  public void TestGetAliasFromPath() throws IOException, ODataJPAModelException {
     Map<String, ? extends CsdlSchema> act;
     act = cut.getSchemas("annotations/Org.OData.Core.V1.xml");
     assertNotNull(act.get("Org.OData.Core.V1"));
@@ -40,7 +39,7 @@ public class TestSchemaReader {
   }
 
   @Test
-  public void TestGetTermsFromPath() throws JsonParseException, JsonMappingException, IOException {
+  public void TestGetTermsFromPath() throws IOException, ODataJPAModelException {
     Map<String, ? extends CsdlSchema> act;
     act = cut.getSchemas("annotations/Org.OData.Core.V1.xml");
     assertNotNull(act.get("Org.OData.Core.V1"));
@@ -49,7 +48,7 @@ public class TestSchemaReader {
   }
 
   @Test
-  public void TestGetTypeDefinitionFromPath() throws JsonParseException, JsonMappingException, IOException {
+  public void TestGetTypeDefinitionFromPath() throws IOException, ODataJPAModelException {
     Map<String, ? extends CsdlSchema> act;
     act = cut.getSchemas("annotations/Org.OData.Core.V1.xml");
     assertNotNull(act.get("Org.OData.Core.V1"));
@@ -60,7 +59,7 @@ public class TestSchemaReader {
   }
 
   @Test
-  public void TestGetEnumSchemaFromPath() throws JsonParseException, JsonMappingException, IOException {
+  public void TestGetEnumSchemaFromPath() throws IOException, ODataJPAModelException {
     Map<String, ? extends CsdlSchema> act;
     act = cut.getSchemas("annotations/Org.OData.Core.V1.xml");
     assertNotNull(act.get("Org.OData.Core.V1"));
@@ -69,6 +68,18 @@ public class TestSchemaReader {
     assertNotNull(schema.getEnumType("Permission"));
     assertEquals(3, schema.getEnumType("Permission").getMembers().size());
     assertEquals("3", schema.getEnumType("Permission").getMember("ReadWrite").getValue());
+  }
+
+  @Test(expected = ODataJPAModelException.class)
+  public void TestThrowsExceptionOnUnknownPath() throws IOException, ODataJPAModelException {
+
+    cut.getSchemas("annotations/Org.OData.Core.V2.xml");
+  }
+
+  @Test(expected = IOException.class)
+  public void TestThrowsExceptionOnEmptyXML() throws IOException, ODataJPAModelException {
+
+    cut.getSchemas("annotations/empty.xml");
   }
 
 //  csdlSchema.setEnumTypes(asEnumTypes());

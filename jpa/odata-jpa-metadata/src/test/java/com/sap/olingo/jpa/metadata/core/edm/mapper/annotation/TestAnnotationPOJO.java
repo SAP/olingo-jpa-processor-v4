@@ -49,9 +49,9 @@ public class TestAnnotationPOJO {
     assertNotNull(act.getDataService());
 
     Schema[] actSchemas = act.getDataService().getSchemas();
-    assertEquals(actSchemas.length, 1);
+    assertEquals(1, actSchemas.length);
 
     List<Term> actTerms = actSchemas[0].getTerms();
-    assertEquals(actTerms.size(), 3);
+    assertEquals(3, actTerms.size());
   }
 }

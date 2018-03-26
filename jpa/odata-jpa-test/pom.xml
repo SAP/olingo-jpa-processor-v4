@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>com.sap.olingo</groupId>
 		<artifactId>odata-jpa</artifactId>
-		<version>0.2.6-SNAPSHOT</version>
+		<version>0.2.7-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>odata-jpa-test</artifactId>
@@ -34,16 +34,6 @@
 			<artifactId>eclipselink</artifactId>
 			<version>2.7.1</version>
 		</dependency>
-		<!--<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-entitymanager</artifactId>
-			<version>${hibernate.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-java8</artifactId>
-			<version>${hibernate.version}</version>
-		</dependency>-->		
 		<dependency>
 			<groupId>org.eclipse.persistence</groupId>
 			<artifactId>javax.persistence</artifactId>

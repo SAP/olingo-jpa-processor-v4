@@ -42,6 +42,17 @@ public class TestJPAQueryNavigation extends TestBase {
   }
 
   @Test
+  public void testNavigationToComplexValue() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations('3')/AdministrativeInformation/Created");
+    helper.assertStatus(200);
+
+    ObjectNode created = helper.getValue();
+    assertEquals("99", created.get("By").asText());
+  }
+
+  @Test
   public void testNavigationOneHopAndOrderBy() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -63,6 +74,18 @@ public class TestJPAQueryNavigation extends TestBase {
 
     ObjectNode org = helper.getValue();
     assertEquals("2", org.get("ID").asText());
+  }
+
+  @Test
+  public void testNavigationViaComplexTypeToComplexType() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations('3')/AdministrativeInformation/Created/User/AdministrativeInformation");
+    helper.assertStatus(200);
+
+    ObjectNode admin = helper.getValue();
+    ObjectNode created = (ObjectNode) admin.get("Created");
+    assertEquals("99", created.get("By").asText());
   }
 
   @Test
