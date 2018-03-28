@@ -22,7 +22,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferen
 
 final class IntermediateReferences implements IntermediateReferenceList {
   final List<IntermediateReference> references = new ArrayList<>();
-  final List<EdmxReference> edmxReferences = new ArrayList<>();
+  List<EdmxReference> edmxReferences = new ArrayList<>();
   final Map<String, Map<String, CsdlTerm>> terms = new HashMap<>();
   final Map<String, CsdlSchema> schemas = new HashMap<>();
   final Map<String, String> aliasDirectory = new HashMap<>();
@@ -45,7 +45,7 @@ final class IntermediateReferences implements IntermediateReferenceList {
       try {
         Map<? extends String, ? extends CsdlSchema> newSchemas = new SchemaReader().getSchemas(path);
         schemas.putAll(newSchemas);
-        extractTerms(newSchemas);
+        extractTerms();
       } catch (IOException e) {
         // Parsing of %1$s failed with message %2$s
         throw new ODataJPAModelException(MessageKeys.ANNOTATION_PARSE_ERROR, e, path, e.getMessage());
@@ -55,7 +55,7 @@ final class IntermediateReferences implements IntermediateReferenceList {
     return reference;
   }
 
-  private void extractTerms(Map<? extends String, ? extends CsdlSchema> newSchemas) {
+  private void extractTerms() {
     for (Entry<String, CsdlSchema> schema : schemas.entrySet()) {
       Map<String, CsdlTerm> schemaTerms = new HashMap<>();
       for (CsdlTerm term : schema.getValue().getTerms()) {
@@ -75,6 +75,8 @@ final class IntermediateReferences implements IntermediateReferenceList {
         }
       }
     }
+    if (schema == null)
+      return null;
     return schema.get(termName.getName());
   }
 
@@ -89,7 +91,7 @@ final class IntermediateReferences implements IntermediateReferenceList {
 
   List<EdmxReference> getEdmReferences() {
     if (references.size() != edmxReferences.size()) {
-      edmxReferences.removeAll(edmxReferences);
+      edmxReferences = new ArrayList<>(references.size());
       for (IntermediateReference r : references) {
         edmxReferences.add(r.getEdmReference());
       }
@@ -98,10 +100,10 @@ final class IntermediateReferences implements IntermediateReferenceList {
   }
 
   private class IntermediateReference implements IntermediateReferenceList.IntermediateReferenceAccess {
-    final private URI uri;
-    final private String path;
+    private final URI uri;
+    private final String path;
     final EdmxReference edmxReference;
-    final private List<IntermediateReferenceInclude> includes = new ArrayList<>();
+    private final List<IntermediateReferenceInclude> includes = new ArrayList<>();
 
     public IntermediateReference(final URI uri, final String path) {
       super();

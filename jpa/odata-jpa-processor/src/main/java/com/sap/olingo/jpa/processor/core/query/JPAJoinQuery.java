@@ -64,15 +64,15 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPAQuery {
      * .../Organizations('3')/Roles/$count
      */
     final int handle = debugger.startRuntimeMeasurement(this, "countResults");
-    createFromClause(new ArrayList<>(1), new ArrayList<>(1));
-    final CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+    final CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
+    createFromClause(new ArrayList<>(1), new ArrayList<>(1), countQuery);
 
     final javax.persistence.criteria.Expression<Boolean> whereClause = createWhere();
     if (whereClause != null)
-      cq.where(whereClause);
-    cq.select(cb.count(root));
+      countQuery.where(whereClause);
+    countQuery.select(cb.count(root));
     debugger.stopRuntimeMeasurement(handle);
-    return em.createQuery(cq).getSingleResult();
+    return em.createQuery(countQuery).getSingleResult();
   }
 
   private javax.persistence.criteria.Expression<Boolean> createWhere() throws ODataApplicationException {
@@ -87,7 +87,7 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPAQuery {
     final List<JPAAssociationPath> orderByNaviAttributes = extractOrderByNaviAttributes();
     final List<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
     final List<JPAPath> descriptionAttributes = extractDescriptionAttributes(selectionPath);
-    final Map<String, From<?, ?>> joinTables = createFromClause(orderByNaviAttributes, descriptionAttributes);
+    final Map<String, From<?, ?>> joinTables = createFromClause(orderByNaviAttributes, descriptionAttributes, cq);
 
     cq.multiselect(createSelectClause(joinTables, selectionPath, target));
 

@@ -106,9 +106,11 @@ public class JPATupleChildConverter extends JPATupleResultConverter {
             HttpStatusCode.INTERNAL_SERVER_ERROR, e);
       }
     }
+
     odataEntity.setId(createId(odataEntity));
     createCollectionProperties(rowEntity, row, properties);
     odataEntity.getNavigationLinks().addAll(createExpand(rowEntity, row, EMPTY_PREFIX));
+
     return odataEntity;
   }
 
@@ -116,6 +118,7 @@ public class JPATupleChildConverter extends JPATupleResultConverter {
       final List<Property> properties) throws ODataJPAQueryException {
 
     List<Property> result;
+
     try {
       for (JPAPath path : jpaStructuredType.getCollectionAttributesPath()) {
         result = properties;
@@ -205,5 +208,4 @@ public class JPATupleChildConverter extends JPATupleResultConverter {
       throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
   }
-
 }

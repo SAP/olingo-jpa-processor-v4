@@ -273,8 +273,9 @@ public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
 
     final List<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
     final List<JPAPath> descriptionAttributes = extractDescriptionAttributes(selectionPath);
+
     final Map<String, From<?, ?>> joinTables = createFromClause(new ArrayList<JPAAssociationPath>(1),
-        descriptionAttributes);
+        descriptionAttributes, cq);
 
     // TODO handle Join Column is ignored
     cq.multiselect(createSelectClause(joinTables, selectionPath, target));

@@ -9,9 +9,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.persistence.IdClass;
 import javax.persistence.Table;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.IdentifiableType;
+import javax.persistence.metamodel.Type;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
@@ -122,9 +124,17 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
 
   @Override
   public Class<?> getKeyType() {
-    if (jpaManagedType instanceof IdentifiableType<?>)
-      return ((IdentifiableType<?>) jpaManagedType).getIdType().getJavaType();
-    else
+    if (jpaManagedType instanceof IdentifiableType<?>) {
+      Class<?> idClass = null;
+      final Type<?> idType = ((IdentifiableType<?>) jpaManagedType).getIdType();
+      if (idType == null)
+        // Hibernate does not return an IdType in case of compound key that do not use EmbeddableId. So fallback to hand
+        // made evaluation
+        idClass = jpaManagedType.getJavaType().getAnnotation(IdClass.class).value();
+      else
+        idClass = idType.getJavaType();
+      return idClass;
+    } else
       return null;
   }
 

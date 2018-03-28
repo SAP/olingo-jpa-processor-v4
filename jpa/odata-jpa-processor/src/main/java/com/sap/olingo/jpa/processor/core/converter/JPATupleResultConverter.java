@@ -74,8 +74,7 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
 
   protected void convertAttribute(final Object value, final JPAPath jpaPath,
       final Map<String, ComplexValue> complexValueBuffer, final List<Property> properties, final Tuple parentRow,
-      final String prefix)
-      throws ODataJPAModelException, ODataApplicationException {
+      final String prefix) throws ODataJPAModelException, ODataApplicationException {
 
     if (jpaPath != null) {
       final JPAAttribute attribute = (JPAAttribute) jpaPath.getPath().get(0);

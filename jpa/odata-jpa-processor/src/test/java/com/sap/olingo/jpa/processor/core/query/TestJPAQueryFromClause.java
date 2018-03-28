@@ -71,8 +71,9 @@ public class TestJPAQueryFromClause extends TestBase {
 
   @Test
   public void checkFromListContainsRoot() throws ODataApplicationException {
+
     Map<String, From<?, ?>> act = cut.createFromClause(new ArrayList<JPAAssociationPath>(1),
-        new ArrayList<JPAPath>());
+        new ArrayList<JPAPath>(), cut.cq);
     assertNotNull(act.get(jpaEntityType.getInternalName()));
   }
 
@@ -81,7 +82,7 @@ public class TestJPAQueryFromClause extends TestBase {
     final List<JPAAssociationPath> orderBy = new ArrayList<>();
     final JPAAssociationPath exp = buildRoleAssociationPath(orderBy);
 
-    Map<String, From<?, ?>> act = cut.createFromClause(orderBy, new ArrayList<JPAPath>());
+    Map<String, From<?, ?>> act = cut.createFromClause(orderBy, new ArrayList<JPAPath>(), cut.cq);
     assertNotNull(act.get(exp.getAlias()));
   }
 
@@ -90,7 +91,7 @@ public class TestJPAQueryFromClause extends TestBase {
     final List<JPAAssociationPath> orderBy = new ArrayList<>();
     buildRoleAssociationPath(orderBy);
 
-    Map<String, From<?, ?>> act = cut.createFromClause(orderBy, new ArrayList<JPAPath>());
+    Map<String, From<?, ?>> act = cut.createFromClause(orderBy, new ArrayList<JPAPath>(), cut.cq);
 
     @SuppressWarnings("unchecked")
     Root<Organization> root = (Root<Organization>) act.get(jpaEntityType.getInternalName());
@@ -107,7 +108,7 @@ public class TestJPAQueryFromClause extends TestBase {
     final List<JPAAssociationPath> orderBy = new ArrayList<>();
     buildRoleAssociationPath(orderBy);
 
-    Map<String, From<?, ?>> act = cut.createFromClause(orderBy, new ArrayList<JPAPath>());
+    Map<String, From<?, ?>> act = cut.createFromClause(orderBy, new ArrayList<JPAPath>(), cut.cq);
 
     @SuppressWarnings("unchecked")
     Root<Organization> root = (Root<Organization>) act.get(jpaEntityType.getInternalName());
@@ -129,7 +130,7 @@ public class TestJPAQueryFromClause extends TestBase {
     JPAAttribute attri = helper.getJPAAttribute("Organizations", "address");
     JPAAttribute exp = attri.getStructuredType().getAttribute("countryName");
 
-    Map<String, From<?, ?>> act = cut.createFromClause(orderBy, descriptionPathList);
+    Map<String, From<?, ?>> act = cut.createFromClause(orderBy, descriptionPathList, cut.cq);
     assertEquals(2, act.size());
     assertNotNull(act.get(exp.getInternalName()));
   }
@@ -144,7 +145,7 @@ public class TestJPAQueryFromClause extends TestBase {
     JPAAttribute attri = helper.getJPAAttribute("Organizations", "address");
     JPAAttribute exp = attri.getStructuredType().getAttribute("regionName");
 
-    Map<String, From<?, ?>> act = cut.createFromClause(orderBy, descriptionPathList);
+    Map<String, From<?, ?>> act = cut.createFromClause(orderBy, descriptionPathList, cut.cq);
     assertEquals(2, act.size());
     assertNotNull(act.get(exp.getInternalName()));
   }

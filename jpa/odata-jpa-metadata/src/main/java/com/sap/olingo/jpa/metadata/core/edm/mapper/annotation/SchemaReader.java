@@ -11,6 +11,8 @@ import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
 
 public class SchemaReader {
   private final JacksonXmlModule module;
@@ -24,48 +26,43 @@ public class SchemaReader {
 
   }
 
-  public Map<String, ? extends CsdlSchema> getSchemas(String path) throws IOException {
+  public Map<String, CsdlSchema> getSchemas(String path) throws IOException, ODataJPAModelException {
     return convertEDMX(readFromResource(path));
   }
 
-  public Map<String, ? extends CsdlSchema> getSchemas(URI uri) throws IOException {
+  public Map<String, CsdlSchema> getSchemas(URI uri) throws IOException {
     return convertEDMX(readFromURI(uri));
   }
 
-  public Edmx readFromResource(final String path) throws IOException {
+  public Edmx readFromResource(final String path) throws IOException, ODataJPAModelException {
 
     byte[] b = loadXML(path);
     return xmlMapper.readValue(new String(b), Edmx.class);
   }
 
   public Edmx readFromURI(final URI uri) throws IOException {
-
     return xmlMapper.readValue(uri.toURL(), Edmx.class);
   }
 
-  private byte[] loadXML(String path) {
+  private byte[] loadXML(String path) throws IOException, ODataJPAModelException {
 
     InputStream i = null;
     byte[] image = null;
     URL u = this.getClass().getClassLoader().getResource(path);
+    if (u == null)
+      throw new ODataJPAModelException(MessageKeys.FILE_NOT_FOUND, path);
     try {
       i = u.openStream();
       image = new byte[i.available()];
-      i.read(image);
-    } catch (IOException e1) {
-      e1.printStackTrace();
+      i.read(image); // NOSONAR
     } finally {
-      try {
+      if (i != null)
         i.close();
-        return image;
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
     }
-    return null;
+    return image;
   }
 
-  private Map<String, ? extends CsdlSchema> convertEDMX(Edmx edmx) {
+  private Map<String, CsdlSchema> convertEDMX(Edmx edmx) {
 
     if (edmx != null && edmx.getDataService() != null) {
 

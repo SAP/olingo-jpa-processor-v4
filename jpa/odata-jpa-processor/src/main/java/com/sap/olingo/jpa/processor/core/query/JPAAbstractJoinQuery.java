@@ -188,18 +188,19 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery {
    * 
    * @param orderByTarget
    * @param descriptionFields List of the requested fields that of type description
+   * @param query
    * @param queryRoot
    * @return
    * @throws ODataApplicationException
    */
   protected Map<String, From<?, ?>> createFromClause(final List<JPAAssociationPath> orderByTarget,
-      final List<JPAPath> descriptionFields) throws ODataApplicationException {
+      final List<JPAPath> descriptionFields, CriteriaQuery<?> query) throws ODataApplicationException {
 
     final HashMap<String, From<?, ?>> joinTables = new HashMap<>();
     // 1. Create navigation joins
     try {
       final JPAEntityType sourceEt = this.navigationInfo.get(0).getEntityType();
-      this.root = cq.from(sourceEt.getTypeClass());
+      this.root = query.from(sourceEt.getTypeClass());
       joinTables.put(sourceEt.getInternalName(), root);
     } catch (ODataJPAModelException e) {
       throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
