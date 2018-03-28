@@ -22,6 +22,7 @@ import javax.persistence.metamodel.SingularAttribute;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlStructuralType;
+import org.apache.olingo.server.api.uri.UriResourceProperty;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssoziation;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
@@ -83,6 +84,19 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
       associationList.add(associationPat.getValue());
     }
     return associationList;
+  }
+
+  @Override
+  public JPAAttribute getAttribute(final UriResourceProperty uriResourceItem) throws ODataJPAModelException {
+    lazyBuildEdmItem();
+    final String externalName = uriResourceItem.getProperty().getName();
+    for (final Entry<String, IntermediateProperty> property : declaredPropertiesList.entrySet()) {
+      if (property.getValue().getExternalName().equals(externalName))
+        return property.getValue();
+    }
+    if (getBaseType() != null)
+      return getBaseType().getAttribute(uriResourceItem);
+    return null;
   }
 
   @Override

@@ -26,7 +26,6 @@ import org.apache.olingo.server.api.uri.queryoption.SelectItem;
 import org.apache.olingo.server.api.uri.queryoption.SelectOption;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitException;
 
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
@@ -239,7 +238,7 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
 
     final List<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
     final List<JPAPath> descriptionAttributes = new ArrayList<>(1);
-    final Map<String, From<?, ?>> joinTables = createFromClause(new ArrayList<JPAAssociationAttribute>(),
+    final Map<String, From<?, ?>> joinTables = createFromClause(new ArrayList<JPAAssociationPath>(1),
         descriptionAttributes);
 
     // TODO handle Join Column is ignored

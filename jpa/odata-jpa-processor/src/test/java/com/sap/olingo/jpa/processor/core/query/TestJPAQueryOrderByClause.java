@@ -105,6 +105,18 @@ public class TestJPAQueryOrderByClause extends TestBase {
 
     helper.assertStatus(200);
     ArrayNode deeps = helper.getValues();
+    assertEquals("501", deeps.get(0).get("ID").asText());
+    assertEquals("502", deeps.get(1).get("ID").asText());
+  }
+
+  @Test
+  public void testCollcetionOrderBy$CountDesc() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "CollectionDeeps?$orderby=FirstLevel/SecondLevel/Comment/$count desc");
+
+    helper.assertStatus(200);
+    ArrayNode deeps = helper.getValues();
     assertEquals("502", deeps.get(0).get("ID").asText());
     assertEquals("501", deeps.get(1).get("ID").asText());
   }

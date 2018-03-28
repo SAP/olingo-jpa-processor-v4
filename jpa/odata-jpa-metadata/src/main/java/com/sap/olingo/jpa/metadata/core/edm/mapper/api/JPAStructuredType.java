@@ -2,6 +2,8 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.api;
 
 import java.util.List;
 
+import org.apache.olingo.server.api.uri.UriResourceProperty;
+
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 /**
@@ -38,6 +40,8 @@ public interface JPAStructuredType extends JPAElement {
    * @throws ODataJPAModelException
    */
   public List<JPAAssociationPath> getAssociationPathList() throws ODataJPAModelException;
+
+  public JPAAttribute getAttribute(final UriResourceProperty uriResourceItem) throws ODataJPAModelException;
 
   public JPAAttribute getAttribute(final String internalName) throws ODataJPAModelException;
 

@@ -83,12 +83,7 @@ public final class JPAExpandItemInfoFactory {
           // Organizations('1')/Comment
           // Persons('99')/InhouseAddress
           // Persons('99')/InhouseAddress?$filter=TaskID eq 'DEV'
-
-//          final JPACollectionExpandWrapper item = new JPACollectionExpandWrapper((JPAEntityType) pathInfo[ET_INDEX],
-//              uriResourceInfo);
-//          itemList.add(new JPACollectionItemInfo(sd, item,
-//              ((JPACollectionAttribute) ((JPAPath) pathInfo[PROPERTY_INDEX])
-//                  .getLeaf()).asAssociation(), grandParentHops));
+          // Moved
         }
       } else {
 

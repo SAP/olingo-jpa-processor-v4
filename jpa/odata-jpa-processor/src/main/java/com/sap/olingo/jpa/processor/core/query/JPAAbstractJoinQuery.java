@@ -17,15 +17,12 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.From;
-import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 
-import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
-import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -154,42 +151,6 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery {
   }
 
   /**
-   * In order to be able to link the result of a expand query with the super-ordinate query it is necessary to ensure
-   * that the join columns are selected.<br>
-   * The same columns are required for the count query, for select as well as order by.
-   * @param uriResource
-   * @param jpaPathList
-   * @throws ODataApplicationException
-   * @throws ODataJPAQueryException
-   */
-  private void buildSelectionAddExpandSelection(final UriInfoResource uriResource, List<JPAPath> jpaPathList)
-      throws ODataApplicationException {
-
-    final Map<JPAExpandItem, JPAAssociationPath> associationPathList = Util.determineAssoziations(sd, uriResource
-        .getUriResourceParts(), uriResource.getExpandOption());
-    if (!associationPathList.isEmpty()) {
-      final List<JPAPath> tmpPathList = new ArrayList<>(jpaPathList);
-      final List<JPAPath> addPathList = new ArrayList<>();
-
-      Collections.sort(tmpPathList);
-      for (final Entry<JPAExpandItem, JPAAssociationPath> item : associationPathList.entrySet()) {
-        final JPAAssociationPath associationPath = item.getValue();
-        try {
-          for (final JPAPath joinItem : associationPath.getLeftColumnsList()) {
-            final int pathIndex = Collections.binarySearch(tmpPathList, joinItem);
-            final int insertIndex = Collections.binarySearch(addPathList, joinItem);
-            if (pathIndex < 0 && insertIndex < 0)
-              addPathList.add(Math.abs(insertIndex) - 1, joinItem);
-          }
-        } catch (ODataJPAModelException e) {
-          throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
-        }
-      }
-      jpaPathList.addAll(addPathList);
-    }
-  }
-
-  /**
    * Creates the path to all properties that need to be selected from the database. A Property can be included for the
    * following reasons:
    * <ul>
@@ -231,7 +192,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery {
    * @return
    * @throws ODataApplicationException
    */
-  protected Map<String, From<?, ?>> createFromClause(final List<JPAAssociationAttribute> orderByTarget,
+  protected Map<String, From<?, ?>> createFromClause(final List<JPAAssociationPath> orderByTarget,
       final List<JPAPath> descriptionFields) throws ODataApplicationException {
 
     final HashMap<String, From<?, ?>> joinTables = new HashMap<>();
@@ -298,10 +259,12 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery {
     lastInfo.setFromClause(target);
 
     // 2. OrderBy navigation property
-    for (final JPAAssociationAttribute orderBy : orderByTarget) {
-      final Join<?, ?> join = target.join(orderBy.getInternalName(), JoinType.LEFT);
+    for (final JPAAssociationPath orderBy : orderByTarget) {
+      From<?, ?> join = target;
+      for (JPAElement o : orderBy.getPath())
+        join = join.join(o.getInternalName(), JoinType.LEFT);
       // Take on condition from JPA metadata; no explicit on
-      joinTables.put(orderBy.getInternalName(), join);
+      joinTables.put(orderBy.getAlias(), join);
     }
 
     // 3. Description Join determine
@@ -373,29 +336,28 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery {
             final UriInfoResource resourcePath = ((Member) expression).getResourcePath();
             JPAStructuredType type = jpaEntity;
             Path<?> p = target;
+            StringBuilder externalPath = new StringBuilder();
             for (final UriResource uriResourceItem : resourcePath.getUriResourceParts()) {
-              if (uriResourceItem instanceof UriResourcePrimitiveProperty) {
-                final EdmProperty edmProperty = ((UriResourcePrimitiveProperty) uriResourceItem).getProperty();
-                final JPAAttribute attribute = type.getPath(edmProperty.getName()).getLeaf();
-                p = p.get(attribute.getInternalName());
-                if (orderByItem.isDescending())
-                  orders.add(cb.desc(p));
-                else
-                  orders.add(cb.asc(p));
-              } else if (uriResourceItem instanceof UriResourceComplexProperty) {
-                final EdmProperty edmProperty = ((UriResourceComplexProperty) uriResourceItem).getProperty();
-                final JPAAttribute attribute = type.getPath(edmProperty.getName()).getLeaf();
+              if (uriResourceItem instanceof UriResourcePrimitiveProperty
+                  && !((UriResourceProperty) uriResourceItem).isCollection()) {
+                p = p.get(type.getAttribute((UriResourceProperty) uriResourceItem).getInternalName());
+                addOrderByExpression(orders, orderByItem, p);
+              } else if (uriResourceItem instanceof UriResourceComplexProperty
+                  && !((UriResourceProperty) uriResourceItem).isCollection()) {
+                final JPAAttribute attribute = type.getAttribute((UriResourceProperty) uriResourceItem);
+                addPathElement(externalPath, attribute);
                 p = p.get(attribute.getInternalName());
                 type = attribute.getStructuredType();
-              } else if (uriResourceItem instanceof UriResourceNavigation) {
-                final EdmNavigationProperty edmNaviProperty = ((UriResourceNavigation) uriResourceItem).getProperty();
-                From<?, ?> join = joinTables.get(jpaEntity.getAssociationPath(edmNaviProperty.getName()).getLeaf()
-                    .getInternalName());
-                if (orderByItem.isDescending())
-                  orders.add(cb.desc(cb.count(join)));
+              } else if (uriResourceItem instanceof UriResourceNavigation
+                  || (uriResourceItem instanceof UriResourceProperty
+                      && ((UriResourceProperty) uriResourceItem).isCollection())) {
 
+                if (uriResourceItem instanceof UriResourceNavigation)
+                  externalPath.append(((UriResourceNavigation) uriResourceItem).getProperty().getName());
                 else
-                  orders.add(cb.asc(cb.count(join)));
+                  externalPath.append(((UriResourceProperty) uriResourceItem).getProperty().getName());
+                From<?, ?> join = joinTables.get(externalPath.toString());
+                addOrderByExpression(orders, orderByItem, cb.count(join));
               }
             }
           }
@@ -494,6 +456,26 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery {
     }
   }
 
+  protected void expandPath(final JPAEntityType jpaEntity, final List<JPAPath> jpaPathList, final String selectItem,
+      final boolean targetIsCollection)
+      throws ODataJPAModelException, ODataJPAQueryException {
+
+    final JPAPath selectItemPath = jpaEntity.getPath(selectItem);
+    if (selectItemPath == null)
+      throw new ODataJPAQueryException(MessageKeys.QUERY_PREPARATION_INVALID_SELECTION_PATH,
+          HttpStatusCode.BAD_REQUEST);
+    if (selectItemPath.getLeaf().isComplex()) {
+      // Complex Type
+      final List<JPAPath> c = jpaEntity.searchChildPath(selectItemPath);
+      if (targetIsCollection)
+        jpaPathList.addAll(c);
+      else
+        copyNonCollectionProperties(jpaPathList, c);
+    } else // Primitive Type
+    if (!selectItemPath.getLeaf().isCollection() || targetIsCollection)
+      jpaPathList.add(selectItemPath);
+  }
+
   protected List<JPAPath> extractDescriptionAttributes(final List<JPAPath> jpaPathList) {
 
     final List<JPAPath> result = new ArrayList<>();
@@ -523,6 +505,21 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery {
     return false;
   }
 
+  private void addOrderByExpression(final List<Order> orders, final OrderByItem orderByItem,
+      javax.persistence.criteria.Expression<?> expression) {
+
+    if (orderByItem.isDescending())
+      orders.add(cb.desc(expression));
+    else
+      orders.add(cb.asc(expression));
+  }
+
+  private void addPathElement(StringBuilder externalPath, JPAAttribute attribute) {
+    externalPath.append(attribute.getExternalName());
+    externalPath.append(JPAPath.PATH_SEPERATOR);
+
+  }
+
   // Only for streams e.g. .../OrganizationImages('9')/$value
   private List<JPAPath> buildPathValue(final JPAEntityType jpaEntity)
       throws ODataApplicationException {
@@ -537,6 +534,42 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery {
       throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
     }
     return jpaPathList;
+  }
+
+  /**
+   * In order to be able to link the result of a expand query with the super-ordinate query it is necessary to ensure
+   * that the join columns are selected.<br>
+   * The same columns are required for the count query, for select as well as order by.
+   * @param uriResource
+   * @param jpaPathList
+   * @throws ODataApplicationException
+   * @throws ODataJPAQueryException
+   */
+  private void buildSelectionAddExpandSelection(final UriInfoResource uriResource, List<JPAPath> jpaPathList)
+      throws ODataApplicationException {
+
+    final Map<JPAExpandItem, JPAAssociationPath> associationPathList = Util.determineAssoziations(sd, uriResource
+        .getUriResourceParts(), uriResource.getExpandOption());
+    if (!associationPathList.isEmpty()) {
+      final List<JPAPath> tmpPathList = new ArrayList<>(jpaPathList);
+      final List<JPAPath> addPathList = new ArrayList<>();
+
+      Collections.sort(tmpPathList);
+      for (final Entry<JPAExpandItem, JPAAssociationPath> item : associationPathList.entrySet()) {
+        final JPAAssociationPath associationPath = item.getValue();
+        try {
+          for (final JPAPath joinItem : associationPath.getLeftColumnsList()) {
+            final int pathIndex = Collections.binarySearch(tmpPathList, joinItem);
+            final int insertIndex = Collections.binarySearch(addPathList, joinItem);
+            if (pathIndex < 0 && insertIndex < 0)
+              addPathList.add(Math.abs(insertIndex) - 1, joinItem);
+          }
+        } catch (ODataJPAModelException e) {
+          throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
+        }
+      }
+      jpaPathList.addAll(addPathList);
+    }
   }
 
   private void buildSelectionAddKeys(final JPAEntityType jpaEntity, final List<JPAPath> jpaPathList)
@@ -596,37 +629,6 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery {
     }
   }
 
-  private Set<JPAPath> determineAllDescriptionPath(List<JPAPath> descriptionFields, JPAFilterComplier filter)
-      throws ODataApplicationException {
-
-    Set<JPAPath> allPath = new HashSet<>(descriptionFields);
-    for (JPAPath path : filter.getMember()) {
-      if (path.getLeaf() instanceof JPADescriptionAttribute)
-        allPath.add(path);
-    }
-    return allPath;
-  }
-
-  protected void expandPath(final JPAEntityType jpaEntity, final List<JPAPath> jpaPathList, final String selectItem,
-      final boolean targetIsCollection)
-      throws ODataJPAModelException, ODataJPAQueryException {
-
-    final JPAPath selectItemPath = jpaEntity.getPath(selectItem);
-    if (selectItemPath == null)
-      throw new ODataJPAQueryException(MessageKeys.QUERY_PREPARATION_INVALID_SELECTION_PATH,
-          HttpStatusCode.BAD_REQUEST);
-    if (selectItemPath.getLeaf().isComplex()) {
-      // Complex Type
-      final List<JPAPath> c = jpaEntity.searchChildPath(selectItemPath);
-      if (targetIsCollection)
-        jpaPathList.addAll(c);
-      else
-        copyNonCollectionProperties(jpaPathList, c);
-    } else // Primitive Type
-    if (!selectItemPath.getLeaf().isCollection() || targetIsCollection)
-      jpaPathList.add(selectItemPath);
-  }
-
   /**
    * Skips all those properties that are or belong to a collection property. E.g
    * (Organization)Comment or (Person)InhouseAddress/Room
@@ -645,5 +647,16 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery {
       if (!skip)
         jpaPathList.add(p);
     }
+  }
+
+  private Set<JPAPath> determineAllDescriptionPath(List<JPAPath> descriptionFields, JPAFilterComplier filter)
+      throws ODataApplicationException {
+
+    Set<JPAPath> allPath = new HashSet<>(descriptionFields);
+    for (JPAPath path : filter.getMember()) {
+      if (path.getLeaf() instanceof JPADescriptionAttribute)
+        allPath.add(path);
+    }
+    return allPath;
   }
 }
