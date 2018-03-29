@@ -25,6 +25,7 @@ import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.uri.UriHelper;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntitySet;
@@ -96,20 +97,30 @@ public class JPATupleChildConverter extends JPATupleResultConverter {
 
     odataEntity.setType(edmType.getFullQualifiedName().getFullQualifiedNameAsString());
     final List<Property> properties = odataEntity.getProperties();
+
     // TODO store @Version to fill ETag Header
+    try {
+      for (final JPAAttribute path : rowEntity.getKey()) {
+        convertAttribute(row.get(path.getExternalName()), rowEntity.getPath(path.getExternalName()), complexValueBuffer,
+            properties, row, EMPTY_PREFIX, "");
+      }
+    } catch (final ODataJPAModelException e) {
+      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
+          HttpStatusCode.INTERNAL_SERVER_ERROR, e);
+    }
+    odataEntity.setId(createId(odataEntity));
     for (final TupleElement<?> element : row.getElements()) {
       try {
         convertAttribute(row.get(element.getAlias()), rowEntity.getPath(element.getAlias()), complexValueBuffer,
-            properties, row, EMPTY_PREFIX);
+            properties, row, EMPTY_PREFIX, odataEntity.getId().toString());
       } catch (ODataJPAModelException e) {
         throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
             HttpStatusCode.INTERNAL_SERVER_ERROR, e);
       }
     }
 
-    odataEntity.setId(createId(odataEntity));
     createCollectionProperties(rowEntity, row, properties);
-    odataEntity.getNavigationLinks().addAll(createExpand(rowEntity, row, EMPTY_PREFIX));
+    odataEntity.getNavigationLinks().addAll(createExpand(rowEntity, row, EMPTY_PREFIX, odataEntity.getId().toString()));
 
     return odataEntity;
   }

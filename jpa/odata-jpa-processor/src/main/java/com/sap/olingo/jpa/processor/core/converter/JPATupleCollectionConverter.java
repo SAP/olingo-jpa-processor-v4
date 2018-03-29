@@ -45,6 +45,7 @@ public class JPATupleCollectionConverter extends JPATupleResultConverter {
       final JPAStructuredType st = determineCollectionRoot(jpaResult.getEntityType(), jpaResult.getAssoziation()
           .getPath());
       final String prefix = determinePrefix(jpaResult.getAssoziation().getAlias());
+
       for (Entry<String, List<Tuple>> tuple : childResult.entrySet()) {
         final List<Object> collection = new ArrayList<>();
         final List<Tuple> rows = tuple.getValue();
@@ -57,7 +58,7 @@ public class JPATupleCollectionConverter extends JPATupleResultConverter {
             for (final TupleElement<?> element : row.getElements()) {
               final JPAPath path = st.getPath(determineAlias(element.getAlias(), prefix));
               convertAttribute(row.get(element.getAlias()), path, complexValueBuffer,
-                  value.getValue(), row, prefix);
+                  value.getValue(), row, prefix, "");
 
             }
             collection.add(value);

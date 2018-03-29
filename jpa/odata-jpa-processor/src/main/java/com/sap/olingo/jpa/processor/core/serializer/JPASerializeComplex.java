@@ -50,7 +50,50 @@ final class JPASerializeComplex implements JPAOperationSerializer {
       throws SerializerException {
 
     final EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(uriInfo.getUriResourceParts());
+    final List<UriResource> resourceParts = uriInfo.getUriResourceParts();
+    final UriResourceProperty uriProperty = (UriResourceProperty) resourceParts.get(resourceParts.size() - 1);
+    final EdmComplexType edmPropertyType = (EdmComplexType) uriProperty.getProperty().getType();
 
+    final String selectList = uriHelper.buildContextURLSelectList(targetEdmEntitySet.getEntityType(),
+        uriInfo.getExpandOption(), uriInfo.getSelectOption());
+
+    final ContextURL contextUrl = ContextURL.with()
+        .entitySet(targetEdmEntitySet)
+        .navOrPropertyPath(Util.determineProptertyNavigationPath(uriInfo.getUriResourceParts()))
+        .selectList(selectList)
+        .build();
+    final ComplexSerializerOptions options = ComplexSerializerOptions.with()
+        .contextURL(contextUrl)
+        .select(uriInfo.getSelectOption())
+        .expand(uriInfo.getExpandOption())
+        .build();
+
+    if (uriProperty.getProperty().isCollection()) {
+      return serializer.complexCollection(serviceMetadata, edmPropertyType, determineProperty(targetEdmEntitySet,
+          result), options);
+    } else {
+      return serializer.complex(serviceMetadata, edmPropertyType, determineProperty(targetEdmEntitySet, result),
+          options);
+    }
+  }
+
+  @Override
+  public SerializerResult serialize(Annotatable result, EdmType complexType) throws SerializerException,
+      ODataJPASerializerException {
+
+    final ContextURL contextUrl = ContextURL.with().build();
+    final ComplexSerializerOptions options = ComplexSerializerOptions.with().contextURL(contextUrl).build();
+
+    return serializer.complex(serviceMetadata, (EdmComplexType) complexType, (Property) result,
+        options);
+  }
+
+  @Override
+  public ContentType getContentType() {
+    return responseFormat;
+  }
+
+  private Property determineProperty(final EdmEntitySet targetEdmEntitySet, final EntityCollection result) {
     UriResourceProperty uriProperty = null;
     Property property = null;
 
@@ -69,41 +112,7 @@ final class JPASerializeComplex implements JPAOperationSerializer {
         properties = ((ComplexValue) property.getValue()).getValue();
       }
     }
-
-    final EdmComplexType edmPropertyType = (EdmComplexType) uriProperty.getProperty().getType();
-
-    final String selectList = uriHelper.buildContextURLSelectList(targetEdmEntitySet.getEntityType(),
-        uriInfo.getExpandOption(), uriInfo.getSelectOption());
-
-    final ContextURL contextUrl = ContextURL.with()
-        .entitySet(targetEdmEntitySet)
-        .navOrPropertyPath(Util.determineProptertyNavigationPath(uriInfo.getUriResourceParts()))
-        .selectList(selectList)
-        .build();
-    final ComplexSerializerOptions options = ComplexSerializerOptions.with()
-        .contextURL(contextUrl)
-        .select(uriInfo.getSelectOption())
-        .expand(uriInfo.getExpandOption())
-        .build();
-
-    return serializer.complex(serviceMetadata, edmPropertyType, property, options);
-
-  }
-
-  @Override
-  public SerializerResult serialize(Annotatable result, EdmType complexType) throws SerializerException,
-      ODataJPASerializerException {
-
-    final ContextURL contextUrl = ContextURL.with().build();
-    final ComplexSerializerOptions options = ComplexSerializerOptions.with().contextURL(contextUrl).build();
-
-    return serializer.complex(serviceMetadata, (EdmComplexType) complexType, (Property) result,
-        options);
-  }
-
-  @Override
-  public ContentType getContentType() {
-    return responseFormat;
+    return property;
   }
 
   private Property getProperty(final String name, final List<Property> properties) {
