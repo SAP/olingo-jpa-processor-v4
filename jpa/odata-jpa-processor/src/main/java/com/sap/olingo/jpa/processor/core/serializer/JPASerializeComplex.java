@@ -109,7 +109,9 @@ final class JPASerializeComplex implements JPAOperationSerializer {
       if (found && hop.getKind().equals(UriResourceKind.complexProperty)) {
         uriProperty = (UriResourceProperty) hop;
         property = getProperty(uriProperty.getProperty().getName(), properties);
-        properties = ((ComplexValue) property.getValue()).getValue();
+        if (!uriProperty.isCollection() && property != null)// Here it is assumed that the collection is the last hop
+                                                            // anyhow
+          properties = ((ComplexValue) property.getValue()).getValue();
       }
     }
     return property;
