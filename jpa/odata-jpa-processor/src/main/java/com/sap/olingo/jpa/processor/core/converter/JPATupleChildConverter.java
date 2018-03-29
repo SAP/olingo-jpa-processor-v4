@@ -111,8 +111,9 @@ public class JPATupleChildConverter extends JPATupleResultConverter {
     odataEntity.setId(createId(odataEntity));
     for (final TupleElement<?> element : row.getElements()) {
       try {
-        convertAttribute(row.get(element.getAlias()), rowEntity.getPath(element.getAlias()), complexValueBuffer,
-            properties, row, EMPTY_PREFIX, odataEntity.getId().toString());
+        if (odataEntity.getProperty(element.getAlias()) == null)
+          convertAttribute(row.get(element.getAlias()), rowEntity.getPath(element.getAlias()), complexValueBuffer,
+              properties, row, EMPTY_PREFIX, odataEntity.getId().toString());
       } catch (ODataJPAModelException e) {
         throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
             HttpStatusCode.INTERNAL_SERVER_ERROR, e);

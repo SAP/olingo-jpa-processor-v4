@@ -852,6 +852,7 @@ public class TestJPAQueryWhereClause extends TestBase {
     assertEquals(1, org.size());
   }
 
+  @Ignore
   @Test
   public void testFilterCollectionPropertyCount() throws IOException, ODataException {
 
