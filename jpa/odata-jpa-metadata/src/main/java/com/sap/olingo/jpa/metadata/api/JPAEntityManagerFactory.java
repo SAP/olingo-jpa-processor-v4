@@ -18,7 +18,7 @@ public class JPAEntityManagerFactory {
     if (emfMap == null) {
       emfMap = new HashMap<>();
     }
-    Integer dsKey = new Integer(ds.hashCode());
+    Integer dsKey = ds.hashCode();
     if (emfMap.containsKey(pUnit)) {
       final Map<Integer, EntityManagerFactory> dsMap = emfMap.get(pUnit);
       EntityManagerFactory emf = dsMap.get(ds);

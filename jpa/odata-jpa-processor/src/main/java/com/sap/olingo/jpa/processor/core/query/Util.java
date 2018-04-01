@@ -249,7 +249,7 @@ public final class Util {
         source = (UriResourcePartTyped) resourcePart;
         associationName = new StringBuilder();
       } else {
-        if (resourcePart instanceof UriResourceComplexProperty) {
+        if (resourcePart instanceof UriResourceComplexProperty && associationName != null) {
           extendNavigationPath(associationName, ((UriResourceComplexProperty) resourcePart).getProperty().getName());
         }
       }

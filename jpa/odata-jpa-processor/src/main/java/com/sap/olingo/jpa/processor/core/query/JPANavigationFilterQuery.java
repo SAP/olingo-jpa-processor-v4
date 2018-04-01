@@ -82,7 +82,6 @@ public final class JPANavigationFilterQuery extends JPANavigationQuery {
     this.parentQuery = parent;
     this.subQuery = parent.getQuery().subquery(this.jpaEntity.getKeyType());
 
-    this.queryRoot = subQuery.from(this.jpaEntity.getTypeClass());
     this.locale = parent.getLocale();
     this.from = from;
     this.filterComplier = new JPAFilterElementComplier(odata, sd, em, jpaEntity, new JPAOperationConverter(cb,
