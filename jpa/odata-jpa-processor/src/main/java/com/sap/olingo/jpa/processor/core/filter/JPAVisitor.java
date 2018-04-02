@@ -17,6 +17,7 @@ import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceFunction;
 import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.UriResourceNavigation;
+import org.apache.olingo.server.api.uri.UriResourceProperty;
 import org.apache.olingo.server.api.uri.queryoption.expression.BinaryOperatorKind;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitException;
 import org.apache.olingo.server.api.uri.queryoption.expression.Literal;
@@ -201,7 +202,9 @@ class JPAVisitor implements JPAExpressionVisitor {
       final List<UriResource> uriResourceParts = ((JPAMemberOperator) operand).getMember().getResourcePath()
           .getUriResourceParts();
       for (int i = uriResourceParts.size() - 1; i >= 0; i--) {
-        if (uriResourceParts.get(i) instanceof UriResourceNavigation)
+        if (uriResourceParts.get(i) instanceof UriResourceNavigation
+            || (uriResourceParts.get(i) instanceof UriResourceProperty
+                && ((UriResourceProperty) uriResourceParts.get(i)).isCollection()))
           return true;
       }
     }

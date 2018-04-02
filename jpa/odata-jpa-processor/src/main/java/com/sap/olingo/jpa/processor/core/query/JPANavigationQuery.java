@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.processor.core.query;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -15,8 +16,12 @@ import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
+import org.apache.olingo.server.api.uri.UriInfoResource;
+import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceKind;
+import org.apache.olingo.server.api.uri.queryoption.expression.Binary;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitException;
+import org.apache.olingo.server.api.uri.queryoption.expression.VisitableExpression;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
@@ -28,6 +33,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterElementComplier;
+import com.sap.olingo.jpa.processor.core.filter.JPAFilterExpression;
+import com.sap.olingo.jpa.processor.core.filter.JPAMemberOperator;
 
 public abstract class JPANavigationQuery extends JPAAbstractQuery {
 
@@ -84,7 +91,10 @@ public abstract class JPANavigationQuery extends JPAAbstractQuery {
       if (association.getJoinTable().getEntityType() != null) {
         if (aggregationType != null) {
           this.queryJoinTable = subQuery.from(from.getJavaType());
-          this.queryRoot = queryJoinTable.join(association.getLeaf().getInternalName(), JoinType.LEFT);
+          From<?, ?> p = queryJoinTable;
+          for (int i = 0; i < association.getPath().size() - 1; i++)
+            p = p.join(association.getPath().get(i).getInternalName());
+          this.queryRoot = p.join(association.getLeaf().getInternalName(), JoinType.LEFT);
         } else {
           this.queryRoot = subQuery.from(this.jpaEntity.getTypeClass());
           this.queryJoinTable = subQuery.from(association.getJoinTable().getEntityType().getTypeClass());
@@ -155,8 +165,8 @@ public abstract class JPANavigationQuery extends JPAAbstractQuery {
      * AND t1."NameLine2" = 'Mustermann'))
      */
     try {
-      List<JPAOnConditionItem> left = association.getJoinTable().getJoinColumns(); // Team -->
-      List<JPAOnConditionItem> right = association.getJoinTable().getInversJoinColumns(); // Person -->
+      final List<JPAOnConditionItem> left = association.getJoinTable().getJoinColumns(); // Team -->
+      final List<JPAOnConditionItem> right = association.getJoinTable().getInversJoinColumns(); // Person -->
       createSelectClause(subQuery, queryRoot, right);
       Expression<Boolean> whereCondition = createWhereByAssociation(from, queryJoinTable, left);
       whereCondition = cb.and(whereCondition, createWhereByAssociation(queryJoinTable, queryRoot, right));
@@ -190,5 +200,82 @@ public abstract class JPANavigationQuery extends JPAAbstractQuery {
       whereCondition = addWhereClause(whereCondition, equalCondition);
     }
     return whereCondition;
+  }
+
+  @SuppressWarnings("unchecked")
+  protected <T> void createSelectClauseAggregation(final Subquery<T> subQuery, final From<?, ?> from,
+      final List<JPAOnConditionItem> conditionItems) {
+    Path<?> p = from;
+
+    for (final JPAElement jpaPathElement : conditionItems.get(0).getLeftPath().getPath())
+      p = p.get(jpaPathElement.getInternalName());
+    subQuery.select((Expression<T>) p);
+  }
+
+  protected void handleAggregation(final Subquery<?> subQuery, final From<?, ?> subRoot,
+      final List<JPAOnConditionItem> conditionItems) throws ODataApplicationException {
+
+    final List<Expression<?>> groupByLIst = new ArrayList<>();
+    if (filterComplier != null && this.aggregationType != null) {
+      for (final JPAOnConditionItem onItem : conditionItems) {
+        Path<?> subPath = subRoot;
+        for (final JPAElement jpaPathElement : onItem.getRightPath().getPath())
+          subPath = subPath.get(jpaPathElement.getInternalName());
+        groupByLIst.add(subPath);
+      }
+      subQuery.groupBy(groupByLIst);
+
+      try {
+        subQuery.having(this.filterComplier.compile());
+      } catch (ExpressionVisitException e) {
+        throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+      }
+    }
+  }
+
+  protected void createSubQueryJoinTableAggregation() throws ODataApplicationException {
+    /*
+     * SELECT t0."ID"
+     * FROM "OLINGO"."BusinessPartner" t0
+     * WHERE (EXISTS (SELECT t1."ID"
+     * FROM "OLINGO"."BusinessPartner" t1
+     * LEFT OUTER JOIN ("OLINGO"."Membership" t3 JOIN "OLINGO"."Team" t2
+     * ON (t2."TeamKey" = t3."TeamID"))
+     * ON (t3."PersonID" = t1."ID")
+     * WHERE ((t1."ID" = t0."ID")
+     * AND (t1."Type" = '1'))
+     * GROUP BY t1."ID"
+     * HAVING (COUNT(t2."TeamKey") > 0))
+     * AND (t0."Type" = '1'))
+     */
+    try {
+      List<JPAOnConditionItem> left = association.getJoinTable().getJoinColumns(); // Person -->
+      List<JPAOnConditionItem> right = association.getJoinTable().getInversJoinColumns(); // Team -->
+      createSelectClauseAggregation(subQuery, queryJoinTable, left);
+      Expression<Boolean> whereCondition = createWhereByAssociation(from, queryJoinTable, parentQuery.jpaEntity);
+      subQuery.where(applyAdditionalFilter(whereCondition));
+      handleAggregation(subQuery, queryJoinTable, right);
+    } catch (ODataJPAModelException e) {
+      throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  protected UriResourceKind getAggregationType(final VisitableExpression expression) {
+    UriInfoResource member = null;
+    if (expression != null && expression instanceof Binary) {
+      if (((Binary) expression).getLeftOperand() instanceof JPAMemberOperator)
+        member = ((JPAMemberOperator) ((Binary) expression).getLeftOperand()).getMember().getResourcePath();
+      else if (((Binary) expression).getRightOperand() instanceof JPAMemberOperator)
+        member = ((JPAMemberOperator) ((Binary) expression).getRightOperand()).getMember().getResourcePath();
+    } else if (expression != null && expression instanceof JPAFilterExpression)
+      member = ((JPAFilterExpression) expression).getMember();
+
+    if (member != null) {
+      for (final UriResource r : member.getUriResourceParts()) {
+        if (r.getKind() == UriResourceKind.count)
+          return r.getKind();
+      }
+    }
+    return null;
   }
 }

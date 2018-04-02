@@ -586,8 +586,8 @@ public class TestJPAQueryWhereClause extends TestBase {
 
   @Test
   public void testFilterCountNavigationProperty() throws IOException, ODataException {
-//https://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398301
-//Example 43: return all Categories with less than 10 products    
+    // https://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398301
+    // Example 43: return all Categories with less than 10 products
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations?$select=ID&$filter=Roles/$count eq 2");
 
@@ -852,7 +852,6 @@ public class TestJPAQueryWhereClause extends TestBase {
     assertEquals(1, org.size());
   }
 
-  @Ignore
   @Test
   public void testFilterCollectionPropertyCount() throws IOException, ODataException {
 
