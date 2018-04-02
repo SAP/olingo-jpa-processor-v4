@@ -1,12 +1,15 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.DiscriminatorValue;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -14,6 +17,9 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
+
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAnnotation;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
@@ -61,6 +67,13 @@ public class Person extends BusinessPartner {
   @JoinColumn(name = "\"ID\"", referencedColumnName = "\"ID\"", insertable = false, updatable = false, nullable = true)
   private PersonImage image;
 
+  @EdmAnnotation(term = "Core.Description", constantExpression = @EdmAnnotation.ConstantExpression(
+      type = ConstantExpressionType.String, value = "Address for inhouse Mail"))
+  @ElementCollection(fetch = FetchType.LAZY)
+  @CollectionTable(schema = "\"OLINGO\"", name = "\"InhouseAddress\"",
+      joinColumns = @JoinColumn(name = "\"ID\""))
+  private List<InhouseAddress> inhouseAddress = new ArrayList<>();
+
   @ManyToMany
   @JoinTable(name = "\"SupportRelationship\"", schema = "\"OLINGO\"",
       joinColumns = @JoinColumn(name = "\"PersonID\""),
@@ -103,5 +116,17 @@ public class Person extends BusinessPartner {
 
   public AccessRights[] getAccessRights() {
     return accessRights;
+  }
+
+  public List<InhouseAddress> getInhouseAddress() {
+    return inhouseAddress;
+  }
+
+  public void setInhouseAddress(final List<InhouseAddress> inhouseAddress) {
+    this.inhouseAddress = inhouseAddress;
+  }
+
+  public void addInhouseAddress(final InhouseAddress address) {
+    inhouseAddress.add(address);
   }
 }

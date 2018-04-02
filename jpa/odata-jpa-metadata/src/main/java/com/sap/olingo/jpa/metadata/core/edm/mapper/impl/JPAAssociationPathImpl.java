@@ -25,7 +25,7 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
   private final PersistentAttributeType cardinality;
   private final boolean isCollection;
   private final JPAAssociationAttribute partner;
-  private final IntermediateJoinTable joinTable;
+  private final JPAJoinTable joinTable;
 
   JPAAssociationPathImpl(final IntermediateNavigationProperty association,
       final IntermediateStructuredType source) throws ODataJPAModelException {
@@ -41,7 +41,7 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
     this.cardinality = association.getJoinCardinality();
     this.isCollection = association.isCollection();
     this.partner = association.getPartner();
-    this.joinTable = (IntermediateJoinTable) association.getJoinTable();
+    this.joinTable = association.getJoinTable();
   }
 
   JPAAssociationPathImpl(final JPAEdmNameBuilder namebuilder, final JPAAssociationPath associationPath,
@@ -63,7 +63,30 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
     this.cardinality = ((JPAAssociationPathImpl) associationPath).getCardinality();
     this.isCollection = associationPath.isCollection();
     this.partner = associationPath.getPartner();
-    this.joinTable = (IntermediateJoinTable) associationPath.getJoinTable();
+    this.joinTable = associationPath.getJoinTable();
+  }
+
+  /**
+   * Collection Properties
+   * @param collectionProperty
+   * @param source
+   * @param path
+   * @param joinColumns
+   * @throws ODataJPAModelException
+   */
+  public JPAAssociationPathImpl(final IntermediateCollectionProperty collectionProperty,
+      final IntermediateStructuredType source, final JPAPath path, final List<IntermediateJoinColumn> joinColumns)
+      throws ODataJPAModelException {
+
+    alias = path.getAlias();
+    this.sourceType = source;
+    this.targetType = null;
+    this.joinColumns = joinColumns;
+    this.pathElements = path.getPath();
+    this.cardinality = PersistentAttributeType.ONE_TO_MANY;
+    this.isCollection = true;
+    this.partner = null;
+    this.joinTable = collectionProperty.getJoinTable();
   }
 
   /*
@@ -79,9 +102,10 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
   @Override
   public List<JPAPath> getInverseLeftJoinColumnsList() throws ODataJPAModelException {
     final List<JPAPath> result = new ArrayList<>();
-    for (final IntermediateJoinColumn column : this.joinTable.buildInverseJoinColumns()) {
+    if (joinTable instanceof IntermediateJoinTable)
+      for (final IntermediateJoinColumn column : ((IntermediateJoinTable) joinTable).buildInverseJoinColumns()) {
       result.add(targetType.getPathByDBField(column.getName()));
-    }
+      }
     return result;
   }
 

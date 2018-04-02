@@ -13,11 +13,21 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.ByteConverter</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.CollcetionInnerComplex</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.CollcetionNestedComplex</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.Collection</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.CollectionDeep</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.CollectionFirstLevelComplex</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.CollectionPartOfComplex</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.CollectionSecondLevelComplex</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Comment</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Country</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DateConverter</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DummyEmbeddedToIgnore</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DummyToBeIgnored</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.InhouseAddress</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.InhouseAddressTable</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.JoinComplex</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.JoinRelation</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.JoinSource</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.JoinTarget</class>

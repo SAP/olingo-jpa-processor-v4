@@ -22,12 +22,12 @@ import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpress
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlExpression;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.reflections.Reflections;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEnumeration;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
@@ -376,10 +376,92 @@ public class TestIntermediateEntityType extends TestMappingRoot {
     assertEquals("CodeID", et.getPropertyByDBField("\"CodeID\"").getExternalName());
   }
 
-  @Ignore
   @Test
-  public void checkGetPropertyWithEnumerationType() {
+  public void checkAllPathContainsComplexCollcetion() throws ODataJPAModelException {
+    IntermediateStructuredType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "Collection"), schema);
+    final List<JPAPath> act = et.getPathList();
 
+    assertEquals(11, act.size());
+    assertNotNull(et.getPath("Complex/Address"));
+    assertTrue(et.getPath("Complex/Address").getLeaf().isCollection());
+    final IntermediateCollectionProperty actIntermediate = (IntermediateCollectionProperty) et.getPath(
+        "Complex/Address").getLeaf();
+    assertTrue(actIntermediate.asAssociation().getSourceType() instanceof JPAEntityType);
+    assertEquals(2, actIntermediate.asAssociation().getPath().size());
+
+    for (JPAPath p : act) {
+      if (p.getPath().size() > 1
+          && p.getPath().get(0).getExternalName().equals("Complex")
+          && p.getPath().get(1).getExternalName().equals("Address")) {
+        assertTrue(p.getPath().get(1) instanceof IntermediateCollectionProperty);
+        final IntermediateCollectionProperty actProperty = (IntermediateCollectionProperty) p.getPath().get(1);
+        assertNotNull(actProperty.asAssociation());
+        assertEquals(et, actProperty.asAssociation().getSourceType());
+        break;
+      }
+    }
+  }
+
+  @Test
+  public void checkAllPathContainsPrimitiveCollcetion() throws ODataJPAModelException {
+    IntermediateStructuredType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "Collection"), schema);
+    final List<JPAPath> act = et.getPathList();
+
+    assertEquals(11, act.size());
+    assertNotNull(et.getPath("Complex/Comment"));
+    assertTrue(et.getPath("Complex/Comment").getLeaf().isCollection());
+    final IntermediateCollectionProperty actIntermediate = (IntermediateCollectionProperty) et.getPath(
+        "Complex/Comment").getLeaf();
+    assertTrue(actIntermediate.asAssociation().getSourceType() instanceof JPAEntityType);
+    assertEquals("Complex/Comment", actIntermediate.asAssociation().getAlias());
+
+    for (JPAPath p : act) {
+      if (p.getPath().size() > 1
+          && p.getPath().get(0).getExternalName().equals("Complex")
+          && p.getPath().get(1).getExternalName().equals("Comment")) {
+        assertTrue(p.getPath().get(1) instanceof IntermediateCollectionProperty);
+        final IntermediateCollectionProperty actProperty = (IntermediateCollectionProperty) p.getPath().get(1);
+        assertNotNull(actProperty.asAssociation());
+        assertEquals(et, actProperty.asAssociation().getSourceType());
+        break;
+      }
+    }
+  }
+
+  @Test
+  public void checkAllPathContainsDeepComplexWithPrimitiveCollcetion() throws ODataJPAModelException {
+    IntermediateStructuredType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "CollectionDeep"), schema);
+    final List<JPAPath> act = et.getPathList();
+
+    assertEquals(8, act.size());
+    assertNotNull(et.getPath("FirstLevel/SecondLevel/Comment"));
+    assertTrue(et.getPath("FirstLevel/SecondLevel/Comment").getLeaf().isCollection());
+    final IntermediateCollectionProperty actIntermediate = (IntermediateCollectionProperty) et.getPath(
+        "FirstLevel/SecondLevel/Comment").getLeaf();
+    assertTrue(actIntermediate.asAssociation().getSourceType() instanceof JPAEntityType);
+    assertEquals(3, actIntermediate.asAssociation().getPath().size());
+    assertEquals("FirstLevel/SecondLevel/Comment", actIntermediate.asAssociation().getAlias());
+  }
+
+  @Test
+  public void checkAllPathContainsDeepComplexWithComplexCollcetion() throws ODataJPAModelException {
+    IntermediateStructuredType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "CollectionDeep"), schema);
+
+    assertNotNull(et.getPath("FirstLevel/SecondLevel/Address"));
+    assertTrue(et.getPath("FirstLevel/SecondLevel/Address").getLeaf().isCollection());
+    final IntermediateCollectionProperty actIntermediate = (IntermediateCollectionProperty) et.getPath(
+        "FirstLevel/SecondLevel/Address").getLeaf();
+    assertTrue(actIntermediate.asAssociation().getSourceType() instanceof JPAEntityType);
+    assertEquals(3, actIntermediate.asAssociation().getPath().size());
+    assertEquals("FirstLevel/SecondLevel/Address", actIntermediate.asAssociation().getAlias());
+    for (JPAPath path : et.getPathList()) {
+      String[] pathElements = path.getAlias().split("/");
+      assertEquals(pathElements.length, path.getPath().size());
+    }
   }
 
   private class PostProcessorSetIgnore extends JPAEdmMetadataPostProcessor {

@@ -26,7 +26,6 @@ import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceCount;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitException;
 
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -52,11 +51,10 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
  *
  */
 public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
-  static final String ALIAS_SEPERATOR = ".";
   private final JPAAssociationPath assoziation;
 
   public JPAExpandJoinQuery(final OData odata, final JPAODataSessionContextAccess context, final EntityManager em,
-      final JPAExpandItemInfo item, final Map<String, List<String>> requestHeaders) throws ODataException {
+      final JPAInlineItemInfo item, final Map<String, List<String>> requestHeaders) throws ODataException {
 
     super(odata, context, item.getEntityType(), em, requestHeaders, item.getUriInfo());
     this.assoziation = item.getExpandAssociation();
@@ -275,7 +273,8 @@ public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
 
     final List<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
     final List<JPAPath> descriptionAttributes = extractDescriptionAttributes(selectionPath);
-    final Map<String, From<?, ?>> joinTables = createFromClause(new ArrayList<JPAAssociationAttribute>(),
+
+    final Map<String, From<?, ?>> joinTables = createFromClause(new ArrayList<JPAAssociationPath>(1),
         descriptionAttributes, cq);
 
     // TODO handle Join Column is ignored

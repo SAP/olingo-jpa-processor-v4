@@ -13,6 +13,7 @@ import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitException;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitor;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
@@ -47,17 +48,13 @@ public final class JPAFilterCrossComplier extends JPAAbstractFilter {
   final JPAAbstractQuery parent;
   private From<?, ?> root;
 
-  public JPAFilterCrossComplier(final OData odata, final JPAServiceDocument sd, final EntityManager em,
+  public JPAFilterCrossComplier(final OData odata, final JPAServiceDocument sd, final EntityManager em, // NOSONAR
       final JPAEntityType jpaEntityType, final JPAOperationConverter converter,
-      final UriInfoResource uriResource, final JPAAbstractQuery parent) {
+      final UriInfoResource uriResource, final JPAAbstractQuery parent, final JPAAssociationPath assization) {
 
-    super(jpaEntityType, uriResource);
+    super(jpaEntityType, uriResource, assization);
 
-    if (uriResource != null) {
-      this.uriResourceParts = uriResource.getUriResourceParts();
-    } else {
-      this.uriResourceParts = null;
-    }
+    this.uriResourceParts = uriResource != null ? uriResource.getUriResourceParts() : null;
     this.converter = converter;
     this.em = em;
     this.odata = odata;
@@ -65,22 +62,11 @@ public final class JPAFilterCrossComplier extends JPAAbstractFilter {
     this.parent = parent;
   }
 
-  public JPAFilterCrossComplier(final OData odata, final JPAServiceDocument sd, final EntityManager em,
+  public JPAFilterCrossComplier(final OData odata, final JPAServiceDocument sd, final EntityManager em, // NOSONAR
       final JPAEntityType jpaEntityType, final JPAOperationConverter converter,
       final UriInfoResource uriResource, final JPAAbstractQuery parent, From<?, ?> from) {
 
-    super(jpaEntityType, uriResource);
-
-    if (uriResource != null) {
-      this.uriResourceParts = uriResource.getUriResourceParts();
-    } else {
-      this.uriResourceParts = null;
-    }
-    this.converter = converter;
-    this.em = em;
-    this.odata = odata;
-    this.sd = sd;
-    this.parent = parent;
+    this(odata, sd, em, jpaEntityType, converter, uriResource, parent, (JPAAssociationPath) null);
     this.root = from;
   }
 

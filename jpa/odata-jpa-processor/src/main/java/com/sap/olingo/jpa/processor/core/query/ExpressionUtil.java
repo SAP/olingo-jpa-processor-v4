@@ -20,6 +20,7 @@ import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.uri.UriParameter;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADescriptionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -61,6 +62,10 @@ public final class ExpressionUtil {
       if (jpaPathElement instanceof JPADescriptionAttribute) {
         final Join<?, ?> join = (Join<?, ?>) joinTables.get(jpaPathElement.getInternalName());
         p = join.get(((JPADescriptionAttribute) jpaPathElement).getDescriptionAttribute().getInternalName());
+      } else if (jpaPathElement instanceof JPACollectionAttribute) {
+        if (!joinTables.containsKey(jpaPathElement.getExternalName()))
+          joinTables.put(jpaPathElement.getExternalName(), (From<?, ?>) p.get(jpaPathElement.getInternalName()));
+        p = joinTables.get(jpaPathElement.getExternalName());
       } else
         p = p.get(jpaPathElement.getInternalName());
     return p;

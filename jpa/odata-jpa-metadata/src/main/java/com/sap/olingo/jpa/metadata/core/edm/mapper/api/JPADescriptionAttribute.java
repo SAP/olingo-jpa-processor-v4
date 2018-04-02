@@ -1,6 +1,6 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.api;
 
-import java.util.HashMap;
+import java.util.Map;
 
 public interface JPADescriptionAttribute extends JPAAttribute {
 
@@ -10,6 +10,6 @@ public interface JPADescriptionAttribute extends JPAAttribute {
 
   public JPAPath getLocaleFieldName();
 
-  public HashMap<JPAPath, String> getFixedValueAssignment();
+  public Map<JPAPath, String> getFixedValueAssignment();
 
 }
