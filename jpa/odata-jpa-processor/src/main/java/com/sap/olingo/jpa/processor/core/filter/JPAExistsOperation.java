@@ -15,6 +15,7 @@ import org.apache.olingo.server.api.uri.UriResourceComplexProperty;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.UriResourceNavigation;
 import org.apache.olingo.server.api.uri.UriResourcePartTyped;
+import org.apache.olingo.server.api.uri.UriResourceProperty;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
@@ -43,10 +44,10 @@ abstract class JPAExistsOperation implements JPAOperator {
     this.from = jpaComplier.getRoot();
   }
 
-  public static boolean hasNavigation(final List<UriResource> uriResourceParts) {
-    if (uriResourceParts != null) {
-      for (int i = uriResourceParts.size() - 1; i >= 0; i--) {
-        if (uriResourceParts.get(i) instanceof UriResourceNavigation)
+  public static boolean hasNavigation(final List<UriResource> resourceParts) {
+    if (resourceParts != null) {
+      for (int i = resourceParts.size() - 1; i >= 0; i--) {
+        if (resourceParts.get(i) instanceof UriResourceNavigation)
           return true;
       }
     }
@@ -65,7 +66,7 @@ abstract class JPAExistsOperation implements JPAOperator {
     final List<JPANavigationProptertyInfo> pathList = new ArrayList<>();
 
     StringBuilder associationName = null;
-    UriResourceNavigation navigation = null;
+    UriResourcePartTyped navigation = null;
     if (resourceParts != null && hasNavigation(resourceParts)) {
       for (int i = resourceParts.size() - 1; i >= 0; i--) {
         final UriResource resourcePart = resourceParts.get(i);
@@ -75,7 +76,25 @@ abstract class JPAExistsOperation implements JPAOperator {
                 ((UriResourcePartTyped) resourceParts.get(i)), associationName), null));
           navigation = (UriResourceNavigation) resourceParts.get(i);
           associationName = new StringBuilder();
-          associationName.insert(0, navigation.getProperty().getName());
+          associationName.insert(0, ((UriResourceNavigation) navigation).getProperty().getName());
+        }
+        if (navigation != null) {
+          if (resourceParts.get(i) instanceof UriResourceComplexProperty) {
+            associationName.insert(0, JPAPath.PATH_SEPERATOR);
+            associationName.insert(0, ((UriResourceComplexProperty) resourceParts.get(i)).getProperty().getName());
+          }
+          if (resourcePart instanceof UriResourceEntitySet)
+            pathList.add(new JPANavigationProptertyInfo(sd, navigation, Util.determineAssoziationPath(sd,
+                ((UriResourcePartTyped) resourceParts.get(i)), associationName), null));
+        }
+      }
+    } else if (resourceParts != null && hasCollection(resourceParts)) {
+      for (int i = resourceParts.size() - 1; i >= 0; i--) {
+        final UriResource resourcePart = resourceParts.get(i);
+        if (isCollection(resourcePart)) {
+          navigation = (UriResourcePartTyped) resourceParts.get(i);
+          associationName = new StringBuilder();
+          associationName.insert(0, ((UriResourceProperty) navigation).getProperty().getName());
         }
         if (navigation != null) {
           if (resourceParts.get(i) instanceof UriResourceComplexProperty) {
@@ -89,5 +108,21 @@ abstract class JPAExistsOperation implements JPAOperator {
       }
     }
     return pathList;
+  }
+
+  public boolean hasCollection(final List<UriResource> resourceParts) {
+    if (resourceParts != null) {
+      for (int i = resourceParts.size() - 1; i >= 0; i--) {
+        if (isCollection(resourceParts.get(i)))
+          return true;
+      }
+    }
+    return false;
+  }
+
+  public boolean isCollection(UriResource resourcePart) {
+
+    return (resourcePart instanceof UriResourceProperty && ((UriResourceProperty) resourcePart).isCollection());
+
   }
 }

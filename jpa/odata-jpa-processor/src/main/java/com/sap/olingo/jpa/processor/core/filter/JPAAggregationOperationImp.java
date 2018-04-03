@@ -31,7 +31,7 @@ class JPAAggregationOperationImp implements JPAAggregationOperation {
   }
 
   Expression<?> getPath() {
-    return root; // keyPathList;
+    return root;
   }
 
 }

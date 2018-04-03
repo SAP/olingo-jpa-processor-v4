@@ -5,6 +5,7 @@ import javax.persistence.Embeddable;
 
 @Embeddable
 public class CommunicationData {
+
   @Column(name = "\"Telecom.Phone\"")
   private String landlinePhoneNumber;
   @Column(name = "\"Telecom.Mobile\"")

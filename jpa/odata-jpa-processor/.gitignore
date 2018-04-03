@@ -9,3 +9,4 @@ target/
 
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
+/model/

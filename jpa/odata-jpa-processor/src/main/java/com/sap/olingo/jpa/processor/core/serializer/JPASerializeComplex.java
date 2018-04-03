@@ -50,26 +50,8 @@ final class JPASerializeComplex implements JPAOperationSerializer {
       throws SerializerException {
 
     final EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(uriInfo.getUriResourceParts());
-
-    UriResourceProperty uriProperty = null;
-    Property property = null;
-
-    boolean found = false;
-    List<Property> properties = result.getEntities().get(0).getProperties();
-
-    for (UriResource hop : uriInfo.getUriResourceParts()) {
-      if (hop.getKind().equals(UriResourceKind.entitySet)
-          && ((UriResourceEntitySet) hop).getEntitySet() == targetEdmEntitySet
-          || hop.getKind().equals(UriResourceKind.navigationProperty)
-              && ((UriResourceNavigation) hop).getType() == targetEdmEntitySet.getEntityType())
-        found = true;
-      if (found && hop.getKind().equals(UriResourceKind.complexProperty)) {
-        uriProperty = (UriResourceProperty) hop;
-        property = getProperty(uriProperty.getProperty().getName(), properties);
-        properties = ((ComplexValue) property.getValue()).getValue();
-      }
-    }
-
+    final List<UriResource> resourceParts = uriInfo.getUriResourceParts();
+    final UriResourceProperty uriProperty = (UriResourceProperty) resourceParts.get(resourceParts.size() - 1);
     final EdmComplexType edmPropertyType = (EdmComplexType) uriProperty.getProperty().getType();
 
     final String selectList = uriHelper.buildContextURLSelectList(targetEdmEntitySet.getEntityType(),
@@ -86,7 +68,13 @@ final class JPASerializeComplex implements JPAOperationSerializer {
         .expand(uriInfo.getExpandOption())
         .build();
 
-    return serializer.complex(serviceMetadata, edmPropertyType, property, options);
+    if (uriProperty.getProperty().isCollection()) {
+      return serializer.complexCollection(serviceMetadata, edmPropertyType, determineProperty(targetEdmEntitySet,
+          result), options);
+    } else {
+      return serializer.complex(serviceMetadata, edmPropertyType, determineProperty(targetEdmEntitySet, result),
+          options);
+    }
   }
 
   @Override
@@ -103,6 +91,30 @@ final class JPASerializeComplex implements JPAOperationSerializer {
   @Override
   public ContentType getContentType() {
     return responseFormat;
+  }
+
+  private Property determineProperty(final EdmEntitySet targetEdmEntitySet, final EntityCollection result) {
+    UriResourceProperty uriProperty = null;
+    Property property = null;
+
+    boolean found = false;
+    List<Property> properties = result.getEntities().get(0).getProperties();
+
+    for (UriResource hop : uriInfo.getUriResourceParts()) {
+      if (hop.getKind().equals(UriResourceKind.entitySet)
+          && ((UriResourceEntitySet) hop).getEntitySet() == targetEdmEntitySet
+          || hop.getKind().equals(UriResourceKind.navigationProperty)
+              && ((UriResourceNavigation) hop).getType() == targetEdmEntitySet.getEntityType())
+        found = true;
+      if (found && hop.getKind().equals(UriResourceKind.complexProperty)) {
+        uriProperty = (UriResourceProperty) hop;
+        property = getProperty(uriProperty.getProperty().getName(), properties);
+        if (!uriProperty.isCollection() && property != null)// Here it is assumed that the collection is the last hop
+                                                            // anyhow
+          properties = ((ComplexValue) property.getValue()).getValue();
+      }
+    }
+    return property;
   }
 
   private Property getProperty(final String name, final List<Property> properties) {

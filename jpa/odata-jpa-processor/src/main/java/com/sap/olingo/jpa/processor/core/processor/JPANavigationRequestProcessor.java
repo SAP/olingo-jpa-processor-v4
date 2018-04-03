@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
+import static com.sap.olingo.jpa.processor.core.converter.JPAExpandResult.ROOT_RESULT_KEY;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +10,7 @@ import org.apache.olingo.commons.api.data.ComplexValue;
 import org.apache.olingo.commons.api.data.Entity;
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.Property;
+import org.apache.olingo.commons.api.data.ValueType;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -25,8 +28,12 @@ import org.apache.olingo.server.api.uri.queryoption.CountOption;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
+import com.sap.olingo.jpa.processor.core.query.JPACollectionItemInfo;
+import com.sap.olingo.jpa.processor.core.query.JPACollectionJoinQuery;
+import com.sap.olingo.jpa.processor.core.query.JPAConvertableResult;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandItemInfo;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandItemInfoFactory;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandJoinQuery;
@@ -64,15 +71,15 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
           HttpStatusCode.INTERNAL_SERVER_ERROR, e);
     }
 
-    final JPAExpandQueryResult result = query.execute();
+    final JPAConvertableResult result = query.execute();
+    // Read Expand and Collection
     result.putChildren(readExpandEntities(request.getAllHeaders(), query.getNavigationInfo(), uriInfo));
     // Convert tuple result into an OData Result
     final int converterHandle = debugger.startRuntimeMeasurement(this, "convertResult");
     EntityCollection entityCollection;
     try {
-
       entityCollection = result.asEntityCollection(new JPATupleChildConverter(sd, odata.createUriHelper(),
-          serviceMetadata)).get("root");
+          serviceMetadata)).get(ROOT_RESULT_KEY);
       debugger.stopRuntimeMeasurement(converterHandle);
     } catch (ODataApplicationException e) {
       debugger.stopRuntimeMeasurement(converterHandle);
@@ -133,10 +140,15 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
         name = Util.determineStartNavigationPath(uriInfo.getUriResourceParts()).getProperty().getName();
         final Property property = entities.get(0).getProperty(name);
         if (property != null) {
-          for (Property p : ((ComplexValue) property.getValue()).getValue()) {
-            if (p.getValue() != null) {
-              resultElement = p;
-              break;
+          if (property.getValueType() == ValueType.COLLECTION_COMPLEX && property.getValue() != null
+              && !((List<?>) property.getValue()).isEmpty())
+            resultElement = property;
+          else {
+            for (Property p : ((ComplexValue) property.getValue()).getValue()) {
+              if (p.getValue() != null) {
+                resultElement = p;
+                break;
+              }
             }
           }
         }
@@ -154,7 +166,17 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
   /**
    * $expand is implemented as a recursively processing of all expands with a DB round trip per expand item.
    * Alternatively also a <i>big</i> join could be created. This would lead to a transport of redundant data, but has
-   * only one round trip. It has not been measured under which conditions which solution as the better performance.
+   * only one round trip. As of now it has not been measured under which conditions which solution as the better
+   * performance, but
+   * as a big join has also the following draw back:
+   * <ul>
+   * <li>In case a multiple $expands are requested maybe on multiple levels
+   * including filtering and ordering the query becomes very complex which reduces the maintainability and comes with
+   * the risk that some databases are not able to handles those.</li>
+   * <li>The number of returned columns becomes big, which may become a problem for some databases</li>
+   * <li>This hard to create a big join for <code>$level=*</code></li>
+   * </ul>
+   * As the goal was to implement a general solution multiple round trips have been taken.
    * <p>For a general overview see:
    * <a href=
    * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398298"
@@ -172,12 +194,12 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
    * @return
    * @throws ODataException
    */
-  private Map<JPAAssociationPath, JPAExpandQueryResult> readExpandEntities(final Map<String, List<String>> headers,
+  private Map<JPAAssociationPath, JPAExpandResult> readExpandEntities(final Map<String, List<String>> headers,
       final List<JPANavigationProptertyInfo> parentHops, final UriInfoResource uriResourceInfo) throws ODataException {
 
     final int handle = debugger.startRuntimeMeasurement(this, "readExpandEntities");
 
-    final Map<JPAAssociationPath, JPAExpandQueryResult> allExpResults =
+    final Map<JPAAssociationPath, JPAExpandResult> allExpResults =
         new HashMap<>();
     // x/a?$expand=b/c($expand=d,e/f)&$filter=...&$top=3&$orderBy=...
     // For performance reasons the expand query should only return results for the results of the higher-level query.
@@ -198,6 +220,15 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
       allExpResults.put(item.getExpandAssociation(), expandResult);
     }
 
+    // process collection attributes
+    final List<JPACollectionItemInfo> collectionInfoList = new JPAExpandItemInfoFactory()
+        .buildCollectionItemInfo(sd, uriResourceInfo, parentHops);
+    for (final JPACollectionItemInfo item : collectionInfoList) {
+      final JPACollectionJoinQuery collectionQuery = new JPACollectionJoinQuery(odata, sessionContext, em, item,
+          headers);
+      final JPAExpandResult expandResult = collectionQuery.execute();
+      allExpResults.put(item.getExpandAssociation(), expandResult);
+    }
     debugger.stopRuntimeMeasurement(handle);
     return allExpResults;
   }

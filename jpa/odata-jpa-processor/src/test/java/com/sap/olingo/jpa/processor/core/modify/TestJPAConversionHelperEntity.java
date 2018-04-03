@@ -68,5 +68,4 @@ public class TestJPAConversionHelperEntity extends TestJPAConversionHelper {
         act);
 
   }
-
 }

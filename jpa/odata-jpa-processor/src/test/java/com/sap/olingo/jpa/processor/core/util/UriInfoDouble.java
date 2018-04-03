@@ -2,6 +2,7 @@ package com.sap.olingo.jpa.processor.core.util;
 
 import static org.junit.Assert.fail;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.olingo.commons.api.edm.EdmComplexType;
@@ -48,6 +49,7 @@ public class UriInfoDouble implements UriInfo {
   public UriInfoDouble(SelectOption selOpts) {
     super();
     this.selOpts = selOpts;
+    this.uriResources = new ArrayList<>(1);
   }
 
   @Override

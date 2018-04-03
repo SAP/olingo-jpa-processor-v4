@@ -47,6 +47,7 @@ public final class JPATypeConvertor {
 
   public static EdmPrimitiveTypeKind convertToEdmSimpleType(final Class<?> jpaType,
       final Attribute<?, ?> currentAttribute) throws ODataJPAModelException {
+
     if (jpaType.equals(String.class) || jpaType.equals(Character.class) || jpaType.equals(char.class) || jpaType.equals(
         char[].class) || jpaType.equals(Character[].class)) {
       return EdmPrimitiveTypeKind.String;

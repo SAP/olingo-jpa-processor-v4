@@ -192,6 +192,7 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
           break;
         }
 
+//      Determine referential constraint
         buildJoinColumns(mappedBy, isSourceOne, annotatedElement);
         determienReferentialConstraints(annotatedElement);
       }
@@ -319,8 +320,7 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
         this.setIgnore(true);
       }
       final javax.persistence.JoinTable jpaJoinTable = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
-          .getAnnotation(
-              javax.persistence.JoinTable.class);
+          .getAnnotation(javax.persistence.JoinTable.class);
       joinTable = jpaJoinTable != null ? new IntermediateJoinTable(this, jpaJoinTable, schema) : null;
     }
 
@@ -399,16 +399,16 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
     final String name = intermediateColumn.getName();
 
     if (isSourceOne && (refColumnName == null || refColumnName.isEmpty()))
-      intermediateColumn.setReferencedColumnName(((IntermediateProperty) ((IntermediateEntityType) sourceType)
+      intermediateColumn.setReferencedColumnName(((IntermediateSimpleProperty) ((IntermediateEntityType) sourceType)
           .getKey().get(0)).getDBFieldName());
     else if (isSourceOne && (name == null || name.isEmpty()))
-      intermediateColumn.setReferencedColumnName(((IntermediateProperty) ((IntermediateEntityType) targetType)
+      intermediateColumn.setReferencedColumnName(((IntermediateSimpleProperty) ((IntermediateEntityType) targetType)
           .getKey().get(0)).getDBFieldName());
     else if (!isSourceOne && (refColumnName == null || refColumnName.isEmpty()))
-      intermediateColumn.setReferencedColumnName(((IntermediateProperty) ((IntermediateEntityType) targetType)
+      intermediateColumn.setReferencedColumnName(((IntermediateSimpleProperty) ((IntermediateEntityType) targetType)
           .getKey().get(0)).getDBFieldName());
     else if (!isSourceOne && (name == null || name.isEmpty()))
-      intermediateColumn.setReferencedColumnName(((IntermediateProperty) ((IntermediateEntityType) sourceType)
+      intermediateColumn.setReferencedColumnName(((IntermediateSimpleProperty) ((IntermediateEntityType) sourceType)
           .getKey().get(0)).getDBFieldName());
   }
 

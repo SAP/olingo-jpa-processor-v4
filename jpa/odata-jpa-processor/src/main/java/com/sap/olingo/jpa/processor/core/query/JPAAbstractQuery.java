@@ -176,8 +176,10 @@ public abstract class JPAAbstractQuery {
 
   abstract JPAODataSessionContextAccess getContext();
 
-  protected javax.persistence.criteria.Expression<Boolean> addWhereClause(javax.persistence.criteria.Expression<Boolean> whereCondition, final javax.persistence.criteria.Expression<Boolean> additioanlExpression) {
-  
+  protected javax.persistence.criteria.Expression<Boolean> addWhereClause(
+      javax.persistence.criteria.Expression<Boolean> whereCondition,
+      final javax.persistence.criteria.Expression<Boolean> additioanlExpression) {
+
     if (additioanlExpression != null) {
       if (whereCondition == null)
         whereCondition = additioanlExpression;

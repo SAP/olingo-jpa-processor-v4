@@ -13,6 +13,7 @@ import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.UriResourceNavigation;
+import org.apache.olingo.server.api.uri.UriResourceProperty;
 import org.apache.olingo.server.api.uri.queryoption.ApplyOption;
 import org.apache.olingo.server.api.uri.queryoption.CountOption;
 import org.apache.olingo.server.api.uri.queryoption.CustomQueryOption;
@@ -32,12 +33,18 @@ import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitor
 import org.apache.olingo.server.api.uri.queryoption.expression.Member;
 
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
+import com.sap.olingo.jpa.processor.core.query.JPACollectionFilterQuery;
 import com.sap.olingo.jpa.processor.core.query.JPANavigationFilterQuery;
 import com.sap.olingo.jpa.processor.core.query.JPANavigationProptertyInfo;
 import com.sap.olingo.jpa.processor.core.query.JPANavigationQuery;
 
 /**
- * In case the query result shall be filtered on an attribute of navigation target a sub-select will be generated.
+ * In case the query result shall be filtered on an attribute of navigation target a sub-select will be generated.<p>
+ * E.g.<br>
+ * - Organizations?$select=ID&$filter=Roles/$count eq 2<br>
+ * - CollectionDeeps?$filter=FirstLevel/SecondLevel/Comment/$count eq 2&$select=ID<br>
+ * - Organizations?$filter=AdministrativeInformation/Created/User/LastName eq 'Mustermann'<br>
+ * - AdministrativeDivisions?$filter=Parent/Parent/CodeID eq 'NUTS1' and DivisionCode eq 'BE212'
  * @author Oliver Grande
  *
  */
@@ -105,8 +112,12 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
       if (i == 0 && aggregationType == null) {
         final JPAFilterExpression expression = new JPAFilterExpression(new SubMember(jpaMember), operand.getLiteral(),
             operator);
-        queryList.add(new JPANavigationFilterQuery(odata, sd, naviInfo.getUriResiource(), parent, em, naviInfo
-            .getAssociationPath(), expression, determineFrom(i, naviPathList.size(), parent)));
+        if (naviInfo.getUriResiource() instanceof UriResourceProperty)
+          queryList.add(new JPACollectionFilterQuery(odata, sd, em, parent, naviInfo.getAssociationPath(), expression,
+              determineFrom(i, naviPathList.size(), parent)));
+        else
+          queryList.add(new JPANavigationFilterQuery(odata, sd, naviInfo.getUriResiource(), parent, em, naviInfo
+              .getAssociationPath(), expression, determineFrom(i, naviPathList.size(), parent)));
       } else
         queryList.add(new JPANavigationFilterQuery(odata, sd, naviInfo.getUriResiource(), parent, em, naviInfo
             .getAssociationPath(), determineFrom(i, naviPathList.size(), parent)));
@@ -242,8 +253,9 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
       final List<UriResource> result = new ArrayList<>();
       final List<UriResource> source = parentMember.getMember().getResourcePath().getUriResourceParts();
       for (int i = source.size() - 1; i > 0; i--) {
-        if (source.get(i).getKind() == UriResourceKind.navigationProperty || source.get(i)
-            .getKind() == UriResourceKind.entitySet) {
+        if (source.get(i).getKind() == UriResourceKind.navigationProperty
+            || source.get(i).getKind() == UriResourceKind.entitySet
+            || (source.get(i) instanceof UriResourceProperty && ((UriResourceProperty) source.get(i)).isCollection())) {
           break;
         }
         result.add(0, source.get(i));
@@ -256,5 +268,11 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
       return null;
     }
 
+  }
+
+  @Override
+  public String toString() {
+    return "JPANavigationOperation [operator=" + operator + ", jpaMember=" + jpaMember + ", operand=" + operand
+        + ", aggregationType=" + aggregationType + "]";
   }
 }
