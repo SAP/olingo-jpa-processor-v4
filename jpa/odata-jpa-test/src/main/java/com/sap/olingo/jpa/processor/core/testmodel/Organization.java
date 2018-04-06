@@ -1,12 +1,18 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
+import javax.persistence.OrderColumn;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
@@ -31,6 +37,13 @@ public class Organization extends BusinessPartner {
 
   @Column(name = "\"NameLine2\"")
   private String name2;
+
+  @ElementCollection(fetch = FetchType.LAZY)
+  @OrderColumn(name = "\"Order\"")
+  @CollectionTable(schema = "\"OLINGO\"", name = "\"Comment\"",
+      joinColumns = @JoinColumn(name = "\"BusinessPartnerID\""))
+  @Column(name = "\"Text\"")
+  private List<String> comment = new ArrayList<>();
 
   @Enumerated
   @Column(name = "\"ABCClass\"")
@@ -61,5 +74,13 @@ public class Organization extends BusinessPartner {
 
   public void setABCClass(ABCClassifiaction aBCClass) {
     this.aBCClass = aBCClass;
+  }
+
+  public List<String> getComment() {
+    return comment;
+  }
+
+  public void setComment(List<String> comment) {
+    this.comment = comment;
   }
 }

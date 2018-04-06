@@ -105,6 +105,10 @@ class IntermediateJoinTable implements JPAJoinTable {
           if (jpaJoinTable.joinColumns().length > 1)
             throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.NOT_SUPPORTED_NO_IMPLICIT_COLUMNS,
                 intermediateProperty.getInternalName());
+          else if (!(intermediateProperty.getSourceType() instanceof IntermediateEntityType))
+            throw new ODataJPAModelException(
+                ODataJPAModelException.MessageKeys.NOT_SUPPORTED_NO_IMPLICIT_COLUMNS_COMPEX,
+                intermediateProperty.getInternalName());
           else {
             joinColumns.add(new IntermediateJoinColumn(
                 ((IntermediateProperty) ((IntermediateEntityType) intermediateProperty.getSourceType()).getKey().get(0))

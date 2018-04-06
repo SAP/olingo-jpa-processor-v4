@@ -3,7 +3,7 @@ Next we want to add the country our business partner is located at. Please note 
 The table shall not only store the description for countries, but shall be able to store the description of coded representation of a division of countries, which maybe provided by different authorities. Therefore it will get four key fields:  
 1. CodePublisher: Representing the publisher of a code list e.g. [ISO](https://en.wikipedia.org/wiki/International_Organization_for_Standardization) or [Eurostat](https://en.wikipedia.org/wiki/Eurostat)  
 2. CodeID: The ID of the code list. Here [3166-1](https://en.wikipedia.org/wiki/ISO_3166-1) or [NUTS-3](https://de.wikipedia.org/wiki/NUTS)  
-3. DivisionCode: The coded respresentation. So e.g. BEL or CHE  
+3. DivisionCode: The coded representation. So e.g. BEL or CHE  
 4. LanguageISO: Language coded in [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)   
 
 So we need for JPA a key class:  

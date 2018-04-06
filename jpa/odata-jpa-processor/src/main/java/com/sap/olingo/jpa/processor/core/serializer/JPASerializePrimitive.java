@@ -49,8 +49,10 @@ final class JPASerializePrimitive extends JPASerializePrimitiveAbstract {
         .build();
 
     final PrimitiveSerializerOptions options = PrimitiveSerializerOptions.with().contextURL(contextUrl).build();
-
-    return serializer.primitive(serviceMetadata, edmPropertyType, property.getProperty(), options);
+    if (uriProperty.getProperty().isCollection())
+      return serializer.primitiveCollection(serviceMetadata, edmPropertyType, property.getProperty(), options);
+    else
+      return serializer.primitive(serviceMetadata, edmPropertyType, property.getProperty(), options);
   }
 
   @Override

@@ -595,6 +595,15 @@ insert into "AdministrativeDivision" values( 'Eurostat', 'LAU2', '38014','BEL','
 insert into "AdministrativeDivision" values( 'Eurostat', 'LAU2', '38016','BEL','NUTS3','BE258',null,31004430,11434);	
 insert into "AdministrativeDivision" values( 'Eurostat', 'LAU2', '38025','BEL','NUTS3','BE258',null,96339703,11509);	
 
+CREATE TABLE "Comment" (
+	"BusinessPartnerID" VARCHAR(32) NOT NULL ,
+	"Order" INTEGER NOT NULL,
+	"Text" VARCHAR(280),
+	 PRIMARY KEY ("BusinessPartnerID", "Order"));
+	 
+insert into "Comment" values( '1', 1, 'This is just a test');	
+insert into "Comment" values( '1', 3, 'This is another test');	
+
 --------DUMMY FOR TESTING--------------------------------------------------------------------------------------------------------
 CREATE TABLE "DummyToBeIgnored" (
 	"ID" NVARCHAR(32) NOT NULL ,

@@ -58,9 +58,11 @@ This file is licensed under the Apache Software License, v.2 except as noted oth
 # Release Notes
 
 [![Build Status](https://travis-ci.org/SAP/olingo-jpa-processor-v4.svg?branch=develop)](https://travis-ci.org/SAP/odata-v4-jpa-processor)
+[![Coverage Status](https://coveralls.io/repos/github/SAP/olingo-jpa-processor-v4/badge.svg?branch=develop)](https://coveralls.io/github/SAP/olingo-jpa-processor-v4?branch=develop)
 
 |Version|Changes|Incompatible Changes|
 |-- |-- |-- |
 |0.2.4|- Switch to Olingo version 4.4.0<br> - Support of Enumeration Types<br>- Support of $count at $expand|Yes|
 |0.2.6|- Solution for issue [#21](https://github.com/SAP/olingo-jpa-processor-v4/issues/21)<br> - JPA Join tables can be used e.g. for Many To Many relationship (issue [#22](https://github.com/SAP/olingo-jpa-processor-v4/issues/22)). If such relation shall be used in a filter a corresponding JPA entity is required, which can be hidden from the API using @EdmIgnore. Please be aware that in case both source and target are subtype Eclipselink (version 2.7.1 used) may get confused when generating a subquery for filtering, see [Bug 529565](https://bugs.eclipse.org/bugs/show_bug.cgi?id=529565) | No|
 |0.2.7|- Solution for issue [#29](https://github.com/SAP/olingo-jpa-processor-v4/issues/29)<br> - Solution for issue [#35](https://github.com/SAP/olingo-jpa-processor-v4/issues/35)<br> - Solution for issue [#37](https://github.com/SAP/olingo-jpa-processor-v4/issues/37)<br>|No|
+|0.2.8|- Support of Collection Properties<br> - New tutorials 1.7 Suppressing Elements and 1.13 Collection Properties |No|

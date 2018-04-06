@@ -1,6 +1,9 @@
 package com.sap.olingo.jpa.processor.core.query;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
@@ -32,6 +35,17 @@ public class TestJPAQueryNavigation extends TestBase {
 
     ObjectNode org = helper.getValue();
     assertEquals("Third Org.", org.get("Name1").asText());
+  }
+
+  @Test
+  public void testNoNavigationOneEntityCollection() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('1')");
+    helper.assertStatus(200);
+
+    ObjectNode org = helper.getValue();
+    ArrayNode comment = (ArrayNode) org.get("Comment");
+    assertEquals(2, comment.size());
   }
 
   @Test
@@ -205,5 +219,65 @@ public class TestJPAQueryNavigation extends TestBase {
 
     ArrayNode orgs = helper.getValues();
     assertEquals(2, orgs.size());
+  }
+
+  @Test
+  public void testNavigationComplexProperty() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('1')/AdministrativeInformation");
+    helper.assertStatus(200);
+
+    ObjectNode org = helper.getValue();
+
+    assertNotNull(org.get("Created"));
+    assertNotNull(org.get("Updated"));
+  }
+
+  @Test
+  public void testNavigationPrimitiveCollectionProperty() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('1')/Comment");
+    helper.assertStatus(200);
+
+    ObjectNode org = helper.getValue();
+    assertNotNull(org.get("value"));
+    assertFalse(org.get("value").isNull());
+    ArrayNode values = (ArrayNode) org.get("value");
+    assertEquals(2, values.size());
+    assertTrue(values.get(0).asText().equals("This is just a test") || values.get(0).asText().equals(
+        "This is another test"));
+    assertTrue(values.get(1).asText().equals("This is just a test") || values.get(1).asText().equals(
+        "This is another test"));
+  }
+
+  @Test
+  public void testNavigationComplexCollectionProperty() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Persons('99')/InhouseAddress");
+    helper.assertStatus(200);
+
+    ObjectNode org = helper.getValue();
+    assertNotNull(org.get("value"));
+    assertFalse(org.get("value").isNull());
+    ArrayNode values = (ArrayNode) org.get("value");
+    assertEquals(2, values.size());
+  }
+
+  @Test
+  public void testNavigationPrimitiveCollectionPropertyTwoHops() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerRoles(BusinessPartnerID='1',RoleCategory='A')/Organization/Comment");
+    helper.assertStatus(200);
+
+    ObjectNode org = helper.getValue();
+    assertNotNull(org.get("value"));
+    assertFalse(org.get("value").isNull());
+    ArrayNode values = (ArrayNode) org.get("value");
+    assertEquals(2, values.size());
+    assertTrue(values.get(0).asText().equals("This is just a test") || values.get(0).asText().equals(
+        "This is another test"));
+    assertTrue(values.get(1).asText().equals("This is just a test") || values.get(1).asText().equals(
+        "This is another test"));
   }
 }

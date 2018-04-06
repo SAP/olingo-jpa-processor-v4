@@ -1,6 +1,6 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
-import static com.sap.olingo.jpa.processor.core.query.JPAExpandQueryResult.ROOT_RESULT_KEY;
+import static com.sap.olingo.jpa.processor.core.converter.JPAExpandResult.ROOT_RESULT_KEY;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -426,9 +426,8 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       throws ODataJPAProcessorException {
 
     try {
-      JPACreateResultFactory factory = new JPACreateResultFactory();//
-
       final JPATupleChildConverter converter = new JPATupleChildConverter(sd, odata.createUriHelper(), serviceMetadata);
+      final JPACreateResultFactory factory = new JPACreateResultFactory(converter);//
       return converter.getResult(factory.getJPACreateResult(et, result, headers)).get(ROOT_RESULT_KEY).getEntities()
           .get(0);
     } catch (ODataJPAModelException | ODataApplicationException e) {

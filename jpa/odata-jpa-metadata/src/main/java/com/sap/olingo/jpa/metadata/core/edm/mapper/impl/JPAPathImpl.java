@@ -109,4 +109,10 @@ final class JPAPathImpl implements JPAPath {
   public int compareTo(final JPAPath o) {
     return this.alias.compareTo(o.getAlias());
   }
+
+  @Override
+  public String toString() {
+    return "JPAPathImpl [alias=" + alias + ", pathElements=" + pathElements + ", dbFieldName=" + dbFieldName
+        + ", ignore=" + ignore + "]";
+  }
 }

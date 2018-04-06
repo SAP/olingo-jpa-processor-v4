@@ -13,6 +13,7 @@ import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitEx
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitor;
 import org.apache.olingo.server.api.uri.queryoption.expression.VisitableExpression;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
@@ -34,9 +35,10 @@ public final class JPAFilterElementComplier extends JPAAbstractFilter {
 
   public JPAFilterElementComplier(final OData odata, final JPAServiceDocument sd, final EntityManager em,
       final JPAEntityType jpaEntityType, final JPAOperationConverter converter,
-      final List<UriResource> uriResourceParts, final JPAAbstractQuery parent, final VisitableExpression expression) {
+      final List<UriResource> uriResourceParts, final JPAAbstractQuery parent, final VisitableExpression expression,
+      final JPAAssociationPath association) {
 
-    super(jpaEntityType, expression);
+    super(jpaEntityType, expression, association);
     this.converter = converter;
     this.em = em;
     this.odata = odata;

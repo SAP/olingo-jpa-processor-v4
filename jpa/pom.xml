@@ -3,8 +3,8 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.sap.olingo</groupId>
-	<artifactId>odata-jpa</artifactId>
-	<version>0.2.7-SNAPSHOT</version>
+	<artifactId>odata-jpa</artifactId>	
+	<version>0.2.8-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>odata-jpa</name>
@@ -14,7 +14,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.build.source>1.8</project.build.source>
 		<odata.version>4.4.0</odata.version>
-        <jackson.version>2.4.2</jackson.version>
+        <jackson.version>2.7.8</jackson.version>
 	    <powermock.version>1.7.1</powermock.version>
 	</properties>
 
@@ -72,6 +72,24 @@
 						<encoding>${project.build.sourceEncoding}</encoding>
 					</configuration>
 				</plugin>
+				<plugin>
+					<groupId>org.jacoco</groupId>
+					<artifactId>jacoco-maven-plugin</artifactId>
+					<version>0.8.0</version>
+					<executions>
+						<execution>
+							<id>prepare-agent</id>
+							<goals>
+								<goal>prepare-agent</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.eluder.coveralls</groupId>
+					<artifactId>coveralls-maven-plugin</artifactId>
+					<version>${coveralls.version}</version>
+				</plugin>				
 			</plugins>
 		</pluginManagement>
 	</build>
