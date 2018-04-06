@@ -1,21 +1,23 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.sap.olingo</groupId>
-	<artifactId>odata-jpa</artifactId>	
-	<version>0.2.8-SNAPSHOT</version>
+	<artifactId>odata-jpa</artifactId>
+	<version>0.2.9-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>odata-jpa</name>
-	<url>http://maven.apache.org</url>
+	<url>https://github.com/SAP/olingo-jpa-processor-v4</url>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.build.source>1.8</project.build.source>
 		<odata.version>4.4.0</odata.version>
-        <jackson.version>2.7.8</jackson.version>
-	    <powermock.version>1.7.1</powermock.version>
+		<jackson.version>2.7.8</jackson.version>
+		<powermock.version>1.7.1</powermock.version>
+		<coveralls.version>4.3.0</coveralls.version>
 	</properties>
 
 	<profiles>
@@ -71,6 +73,24 @@
 						<compilerArgument>-Xlint:unchecked</compilerArgument>
 						<encoding>${project.build.sourceEncoding}</encoding>
 					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.jacoco</groupId>
+					<artifactId>jacoco-maven-plugin</artifactId>
+					<version>0.8.0</version>
+					<executions>
+						<execution>
+							<id>prepare-agent</id>
+							<goals>
+								<goal>prepare-agent</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.eluder.coveralls</groupId>
+					<artifactId>coveralls-maven-plugin</artifactId>
+					<version>${coveralls.version}</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
