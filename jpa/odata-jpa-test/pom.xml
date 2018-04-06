@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <project
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.sap.olingo</groupId>
@@ -38,12 +39,12 @@
 			<groupId>org.eclipse.persistence</groupId>
 			<artifactId>javax.persistence</artifactId>
 			<version>2.1.0</version>
-		</dependency>	
+		</dependency>
 		<dependency>
 			<groupId>org.hsqldb</groupId>
 			<artifactId>hsqldb</artifactId>
 			<version>2.3.3</version>
-		</dependency>			
+		</dependency>
 		<dependency>
 			<groupId>com.googlecode.flyway</groupId>
 			<artifactId>flyway-core</artifactId>
@@ -65,6 +66,5 @@
 			<version>10.12.1.1</version>
 		</dependency>
 	</dependencies>
-	<build>
-	</build>
+
 </project>

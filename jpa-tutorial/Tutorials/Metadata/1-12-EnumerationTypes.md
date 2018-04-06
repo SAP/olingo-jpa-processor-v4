@@ -149,3 +149,4 @@ public class Person extends BusinessPartner {
 private AccessRights[] accessRights;
 ...
 ```
+Next step: [Tutorial 1.13: Collection Properties](1-13-CollectionProperties.md)
