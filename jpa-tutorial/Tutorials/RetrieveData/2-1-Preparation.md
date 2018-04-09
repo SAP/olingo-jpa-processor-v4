@@ -79,4 +79,4 @@ public class DataSourceHelper {
 	}
 }
 ```  
-With this, we can rebuild our service implementation and start to retrieve data: [Tutorial 2.1: Retrieving Data](2-1-RetrievingData.md)
+With this, we can rebuild our service implementation and start to retrieve data: [Tutorial 2.2: Retrieving Data](2-2-RetrievingData.md)
