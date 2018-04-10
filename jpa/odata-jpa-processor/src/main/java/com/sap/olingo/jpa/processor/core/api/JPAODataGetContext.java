@@ -63,4 +63,11 @@ public interface JPAODataGetContext {
    * @param packageName
    */
   public void setTypePackage(final String... packageName);
+
+  /**
+   * Register a provider that is able to decides based on a given query if the server like to return only a sub set of
+   * the requested results as well as a $skiptoken.
+   * @param provider
+   */
+  public void setPagingProvider(final JPAODataPagingProvider provider);
 }

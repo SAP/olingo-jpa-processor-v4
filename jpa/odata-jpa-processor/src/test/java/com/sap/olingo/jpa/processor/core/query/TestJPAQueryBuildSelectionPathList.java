@@ -47,7 +47,8 @@ public class TestJPAQueryBuildSelectionPathList extends TestBase {
     helper = new TestHelper(emf, PUNIT_NAME);
     nameBuilder = new JPAEdmNameBuilder(PUNIT_NAME);
     createHeaders();
-    context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null, TestBase.enumPackages), ds);
+    context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null, TestBase.enumPackages), ds,
+        null);
 
     cut = new JPAJoinQuery(null, context, emf.createEntityManager(), headers, uriInfo);
 
