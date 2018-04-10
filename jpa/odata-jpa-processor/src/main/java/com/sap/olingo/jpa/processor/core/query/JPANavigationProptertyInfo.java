@@ -76,8 +76,6 @@ public final class JPANavigationProptertyInfo {
    * @param associationPath
    */
   public void setAssociationPath(JPAAssociationPath associationPath) {
-    if (this.associationPath != null)
-      System.out.println("error");
     assert this.associationPath == null;
     this.associationPath = associationPath;
   }

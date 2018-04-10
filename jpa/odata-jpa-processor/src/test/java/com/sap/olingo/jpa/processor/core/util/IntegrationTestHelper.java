@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataBatchProcessor;
 import com.sap.olingo.jpa.processor.core.api.JPAODataContextAccessDouble;
+import com.sap.olingo.jpa.processor.core.api.JPAODataPagingProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestProcessor;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 
@@ -39,31 +40,36 @@ public class IntegrationTestHelper {
 
   public IntegrationTestHelper(EntityManagerFactory localEmf, String urlPath) throws IOException,
       ODataException {
-    this(localEmf, null, urlPath, null, null);
+    this(localEmf, null, urlPath, null, null, null);
   }
 
   public IntegrationTestHelper(EntityManagerFactory localEmf, DataSource ds, String urlPath) throws IOException,
       ODataException {
-    this(localEmf, ds, urlPath, null, null);
+    this(localEmf, ds, urlPath, null, null, null);
   }
 
   public IntegrationTestHelper(EntityManagerFactory localEmf, String urlPath, StringBuffer requestBody)
       throws IOException, ODataException {
-    this(localEmf, null, urlPath, requestBody, null);
+    this(localEmf, null, urlPath, requestBody, null, null);
   }
 
   public IntegrationTestHelper(EntityManagerFactory localEmf, DataSource ds, String urlPath, String functionPackage)
       throws IOException, ODataException {
-    this(localEmf, ds, urlPath, null, functionPackage);
+    this(localEmf, ds, urlPath, null, functionPackage, null);
   }
 
   public IntegrationTestHelper(EntityManagerFactory localEmf, DataSource ds, String urlPath, StringBuffer requestBody)
       throws IOException, ODataException {
-    this(localEmf, ds, urlPath, requestBody, null);
+    this(localEmf, ds, urlPath, requestBody, null, null);
+  }
+
+  public IntegrationTestHelper(final EntityManagerFactory localEmf, final String urlPath,
+      final JPAODataPagingProvider provider) throws IOException, ODataException {
+    this(localEmf, null, urlPath, null, null, provider);
   }
 
   public IntegrationTestHelper(EntityManagerFactory localEmf, DataSource ds, String urlPath, StringBuffer requestBody,
-      String functionPackage) throws IOException, ODataException {
+      String functionPackage, JPAODataPagingProvider provider) throws IOException, ODataException {
 
     super();
     EntityManager em = localEmf.createEntityManager();
@@ -75,7 +81,7 @@ public class IntegrationTestHelper {
       packages = ArrayUtils.add(packages, functionPackage);
 
     JPAODataSessionContextAccess context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, localEmf,
-        null, packages), ds, functionPackage);
+        null, packages), ds, provider, functionPackage);
 
     ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(context.getEdmProvider(),
         new ArrayList<EdmxReference>()));

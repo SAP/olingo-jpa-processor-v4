@@ -25,4 +25,6 @@ public interface JPAODataSessionContextAccess {
   public JPACUDRequestHandler getCUDRequestHandler();
 
   public String[] getPackageName();
+
+  public JPAODataPagingProvider getPagingProvider();
 }

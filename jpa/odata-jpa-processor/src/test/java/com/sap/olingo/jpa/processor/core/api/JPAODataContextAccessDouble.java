@@ -20,13 +20,16 @@ public class JPAODataContextAccessDouble implements JPAODataSessionContextAccess
   private final DataSource ds;
   private final JPAODataDatabaseOperations context;
   private final String[] packageNames;
+  private final JPAODataPagingProvider pagingProvider;
 
-  public JPAODataContextAccessDouble(final JPAEdmProvider edmProvider, final DataSource ds, final String... packages) {
+  public JPAODataContextAccessDouble(final JPAEdmProvider edmProvider, final DataSource ds,
+      final JPAODataPagingProvider provider, final String... packages) {
     super();
     this.edmProvider = edmProvider;
     this.ds = ds;
     this.context = new JPADefaultDatabaseProcessor();
     this.packageNames = packages;
+    this.pagingProvider = provider;
   }
 
   @Override
@@ -75,6 +78,11 @@ public class JPAODataContextAccessDouble implements JPAODataSessionContextAccess
   @Override
   public String[] getPackageName() {
     return packageNames;
+  }
+
+  @Override
+  public JPAODataPagingProvider getPagingProvider() {
+    return pagingProvider;
   }
 
 }

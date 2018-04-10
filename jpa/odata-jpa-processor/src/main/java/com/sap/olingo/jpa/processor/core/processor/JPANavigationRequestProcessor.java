@@ -1,7 +1,13 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
 import static com.sap.olingo.jpa.processor.core.converter.JPAExpandResult.ROOT_RESULT_KEY;
+import static com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys.QUERY_PREPARATION_ERROR;
+import static com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys.QUERY_RESULT_CONV_ERROR;
+import static com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys.QUERY_SERVER_DRIVEN_PAGING_GONE;
+import static com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys.QUERY_SERVER_DRIVEN_PAGING_NOT_IMPLEMENTED;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,8 +30,11 @@ import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.queryoption.CountOption;
+import org.apache.olingo.server.api.uri.queryoption.SystemQueryOption;
+import org.apache.olingo.server.api.uri.queryoption.SystemQueryOptionKind;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
+import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
@@ -60,15 +69,26 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
       throws ODataException {
 
     final int handle = debugger.startRuntimeMeasurement(this, "retrieveData");
-
+    JPAODataPage page = new JPAODataPage(uriInfo, 0, Integer.MAX_VALUE, null);
+    // Server-Driven-Paging
+    if (serverDrivenPaging()) {
+      final String skiptoken = skipToken();
+      if (skiptoken != null && !skiptoken.isEmpty()) {
+        page = sessionContext.getPagingProvider().getNextPage(skiptoken);
+        if (page == null)
+          throw new ODataJPAProcessorException(QUERY_SERVER_DRIVEN_PAGING_GONE, HttpStatusCode.GONE, skiptoken);
+      } else {
+        JPAODataPage firstPage = sessionContext.getPagingProvider().getFristPage(uriInfo);
+        page = firstPage != null ? firstPage : page;
+      }
+    }
     // Create a JPQL Query and execute it
     JPAJoinQuery query = null;
     try {
-      query = new JPAJoinQuery(odata, sessionContext, em, request.getAllHeaders(), uriInfo);
+      query = new JPAJoinQuery(odata, sessionContext, em, request.getAllHeaders(), page);
     } catch (ODataException e) {
       debugger.stopRuntimeMeasurement(handle);
-      throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.QUERY_PREPARATION_ERROR,
-          HttpStatusCode.INTERNAL_SERVER_ERROR, e);
+      throw new ODataJPAProcessorException(QUERY_PREPARATION_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR, e);
     }
 
     final JPAConvertableResult result = query.execute();
@@ -84,10 +104,10 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     } catch (ODataApplicationException e) {
       debugger.stopRuntimeMeasurement(converterHandle);
       debugger.stopRuntimeMeasurement(handle);
-      throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.QUERY_RESULT_CONV_ERROR,
-          HttpStatusCode.INTERNAL_SERVER_ERROR, e);
+      throw new ODataJPAProcessorException(QUERY_RESULT_CONV_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR, e);
     }
-
+    // Set Next Link
+    entityCollection.setNext(buildNextLink(page));
     // Count results if requested
     final CountOption countOption = uriInfo.getCountOption();
     if (countOption != null && countOption.getValue())
@@ -112,6 +132,18 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
       response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
 
     debugger.stopRuntimeMeasurement(handle);
+  }
+
+  private URI buildNextLink(final JPAODataPage page) throws ODataJPAProcessorException {
+    if (page != null && page.getSkiptoken() != null) {
+      try {
+        return new URI(Util.determineTargetEntitySet(uriInfo.getUriResourceParts()).getName() + "?"
+            + SystemQueryOptionKind.SKIPTOKEN.toString() + "='" + page.getSkiptoken() + "'");
+      } catch (URISyntaxException e) {
+        throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+      }
+    }
+    return null;
   }
 
   private boolean isResultEmpty(List<Entity> entities) throws ODataApplicationException {
@@ -231,5 +263,24 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     }
     debugger.stopRuntimeMeasurement(handle);
     return allExpResults;
+  }
+
+  private boolean serverDrivenPaging() throws ODataJPAProcessorException {
+
+    for (SystemQueryOption option : uriInfo.getSystemQueryOptions()) {
+      if (option.getKind() == SystemQueryOptionKind.SKIPTOKEN
+          && sessionContext.getPagingProvider() == null)
+        throw new ODataJPAProcessorException(QUERY_SERVER_DRIVEN_PAGING_NOT_IMPLEMENTED,
+            HttpStatusCode.NOT_IMPLEMENTED);
+    }
+    return sessionContext.getPagingProvider() != null;
+  }
+
+  private String skipToken() {
+    for (SystemQueryOption option : uriInfo.getSystemQueryOptions()) {
+      if (option.getKind() == SystemQueryOptionKind.SKIPTOKEN)
+        return option.getText();
+    }
+    return null;
   }
 }
