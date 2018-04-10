@@ -104,7 +104,6 @@ public class TestJPAProcessorExpand extends TestBase {
     helper.assertStatus(200);
 
     final ObjectNode created = helper.getValue();
-    // ObjectNode created = (ObjectNode) admin.get("Created");
     assertNotNull(created.get("User"));
   }
 
@@ -132,7 +131,7 @@ public class TestJPAProcessorExpand extends TestBase {
     assertEquals("USA", created.get("ParentDivisionCode").asText());
   }
 
-  @Ignore // Version 4.4.0 of olingo does not path the expand correctly
+  // @Ignore // Version 4.4.0 of olingo does not path the expand correctly
   // org.apache.olingo.server.core.uri.parser.ExpandParser -> parseExpandPath
   // see https://issues.apache.org/jira/browse/OLINGO-1143
   @Test
@@ -149,22 +148,7 @@ public class TestJPAProcessorExpand extends TestBase {
 
   }
 
-  @Ignore // Version 4.4.0 of olingo does not path the expand correctly
-  // org.apache.olingo.server.core.uri.parser.ExpandParser -> parseExpandPath
-  // see https://issues.apache.org/jira/browse/OLINGO-1143
-  @Test
-  public void testExpandEntitySetViaNonKeyFieldNavi1Hop() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Organizations('3')/AdministrativeInformation?$expand=Created/User");
-    helper.assertStatus(200);
-
-    final ObjectNode admin = helper.getValue();
-    final ObjectNode created = (ObjectNode) admin.get("Created");
-    assertNotNull(created.get("User"));
-  }
-
-  @Ignore // Version 4.4.0 of olingo does not path the expand correctly
+  // @Ignore // Version 4.4.0 of olingo does not path the expand correctly
   // org.apache.olingo.server.core.uri.parser.ExpandParser -> parseExpandPath
   // see https://issues.apache.org/jira/browse/OLINGO-1143
   @Test
@@ -180,6 +164,21 @@ public class TestJPAProcessorExpand extends TestBase {
     final ObjectNode created = (ObjectNode) admin.get("Created");
     assertNotNull(created.get("User"));
 
+  }
+
+  // @Ignore // Version 4.4.0 of olingo does not path the expand correctly
+  // org.apache.olingo.server.core.uri.parser.ExpandParser -> parseExpandPath
+  // see https://issues.apache.org/jira/browse/OLINGO-1143
+  @Test
+  public void testExpandEntitySetViaNonKeyFieldNavi1Hop() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations('3')/AdministrativeInformation?$expand=Created/User");
+    helper.assertStatus(200);
+
+    final ObjectNode admin = helper.getValue();
+    final ObjectNode created = (ObjectNode) admin.get("Created");
+    assertNotNull(created.get("User"));
   }
 
   @Test
