@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -68,12 +69,25 @@ public class IntegrationTestHelper {
     this(localEmf, null, urlPath, null, null, provider);
   }
 
+  public IntegrationTestHelper(final EntityManagerFactory emf, final String urlPath,
+      final JPAODataPagingProvider provider, final Map<String, List<String>> headers) throws IOException,
+      ODataException {
+    this(emf, null, urlPath, null, null, provider, headers);
+  }
+
   public IntegrationTestHelper(EntityManagerFactory localEmf, DataSource ds, String urlPath, StringBuffer requestBody,
       String functionPackage, JPAODataPagingProvider provider) throws IOException, ODataException {
+    this(localEmf, ds, urlPath, requestBody, functionPackage, provider, null);
+  }
+
+  public IntegrationTestHelper(final EntityManagerFactory localEmf, final DataSource ds, final String urlPath,
+      final StringBuffer requestBody,
+      final String functionPackage, final JPAODataPagingProvider provider, final Map<String, List<String>> headers)
+      throws IOException, ODataException {
 
     super();
     EntityManager em = localEmf.createEntityManager();
-    this.req = new HttpServletRequestDouble(uriPrefix + urlPath, requestBody);
+    this.req = new HttpServletRequestDouble(uriPrefix + urlPath, requestBody, headers);
     this.resp = new HttpServletResponseDouble();
     OData odata = OData.newInstance();
     String[] packages = TestBase.enumPackages;

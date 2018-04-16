@@ -37,7 +37,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
-public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPAQuery {
+public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPAQuery, JPACountQuery {
 
   public JPAJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext, final EntityManager em,
       final Map<String, List<String>> requestHeaders, final JPAODataPage page) throws ODataException {
@@ -68,6 +68,7 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPAQuery {
    * @return
    * @throws ODataApplicationException
    */
+  @Override
   public Long countResults() throws ODataApplicationException {
     /*
      * URL example:

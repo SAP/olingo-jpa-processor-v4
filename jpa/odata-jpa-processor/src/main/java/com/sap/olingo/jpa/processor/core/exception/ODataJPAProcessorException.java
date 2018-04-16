@@ -31,7 +31,8 @@ public class ODataJPAProcessorException extends ODataJPAProcessException {
     WRONG_RETURN_TYPE,
     RETURN_NULL,
     RETURN_MISSING_ENTITY,
-    ATTRIBUTE_RETRIVAL_FAILED;
+    ATTRIBUTE_RETRIVAL_FAILED,
+    ODATA_MAXPAGESIZE_NOT_A_NUMBER;
 
     @Override
     public String getKey() {

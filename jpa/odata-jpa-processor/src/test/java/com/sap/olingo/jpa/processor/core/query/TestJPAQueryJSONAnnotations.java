@@ -7,6 +7,7 @@ import static org.junit.Assert.assertNull;
 import java.io.IOException;
 
 import org.apache.olingo.commons.api.ex.ODataException;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -61,7 +62,7 @@ public class TestJPAQueryJSONAnnotations extends TestBase {
     assertEquals("Organizations('3')/Roles", org.get("Roles@odata.navigationLink").asText());
   }
 
-  // @Ignore // See https://issues.apache.org/jira/browse/OLINGO-1248
+  @Ignore // See https://issues.apache.org/jira/browse/OLINGO-1248
   @Test
   public void testEntityWithMetadataFullContainNavigationLinkOfComplex() throws IOException, ODataException {
 
