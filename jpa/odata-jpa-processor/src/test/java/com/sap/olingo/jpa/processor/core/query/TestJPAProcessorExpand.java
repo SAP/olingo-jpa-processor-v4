@@ -131,7 +131,7 @@ public class TestJPAProcessorExpand extends TestBase {
     assertEquals("USA", created.get("ParentDivisionCode").asText());
   }
 
-  // @Ignore // Version 4.4.0 of olingo does not path the expand correctly
+  @Ignore // Version 4.4.0 of olingo does not path the expand correctly
   // org.apache.olingo.server.core.uri.parser.ExpandParser -> parseExpandPath
   // see https://issues.apache.org/jira/browse/OLINGO-1143
   @Test
@@ -148,25 +148,7 @@ public class TestJPAProcessorExpand extends TestBase {
 
   }
 
-  // @Ignore // Version 4.4.0 of olingo does not path the expand correctly
-  // org.apache.olingo.server.core.uri.parser.ExpandParser -> parseExpandPath
-  // see https://issues.apache.org/jira/browse/OLINGO-1143
-  @Test
-  public void testExpandEntitySetViaNonKeyFieldNavi0HopsCollection() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Organizations?$expand=AdministrativeInformation/Created/User");
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    final ObjectNode org = (ObjectNode) orgs.get(0);
-    final ObjectNode admin = (ObjectNode) org.get("AdministrativeInformation");
-    final ObjectNode created = (ObjectNode) admin.get("Created");
-    assertNotNull(created.get("User"));
-
-  }
-
-  // @Ignore // Version 4.4.0 of olingo does not path the expand correctly
+  @Ignore // Version 4.4.0 of olingo does not path the expand correctly
   // org.apache.olingo.server.core.uri.parser.ExpandParser -> parseExpandPath
   // see https://issues.apache.org/jira/browse/OLINGO-1143
   @Test

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -28,19 +29,23 @@ public class HttpServletRequestDouble implements HttpServletRequest {
     this(uri, null);
   }
 
-  public HttpServletRequestDouble(final String uri, StringBuffer body) throws IOException {
+  public HttpServletRequestDouble(final String uri, final StringBuffer body) throws IOException {
+    this(uri, body, null);
+  }
+
+  public HttpServletRequestDouble(final String uri, final StringBuffer body,
+      final Map<String, List<String>> headers) throws IOException {
+
     super();
     this.reqHeader = new HttpRequestHeaderDouble();
     String[] uriParts = uri.split("\\?");
     this.url = new StringBuffer(uriParts[0]);
-    if (uriParts.length == 2)
-      queryString = uriParts[1];
-    else
-      queryString = null;
+    queryString = (uriParts.length == 2) ? uriParts[1] : null;
+    this.input = body;
     if (uri.contains("$batch")) {
       reqHeader.setBatchRequest();
     }
-    this.input = body;
+    this.reqHeader.setHeaders(headers);
   }
 
   @Override
@@ -241,21 +246,7 @@ public class HttpServletRequestDouble implements HttpServletRequest {
 
   @Override
   public Enumeration<?> getHeaders(final String name) {
-    /*
-     * TODO org.apache.tomcat.util.http.ValuesEnumerator
-     * host : localhost:8090
-     * connection : keep-alive
-     * cache-control : max-age=0
-     * accept : text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,\*\*;q=0.8;
-     * upgrade-insecure-requests : 1
-     * user-agent : Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111
-     * Safari/537.36
-     * dnt : 1
-     * accept-encoding : gzip, deflate, sdch
-     * accept-language : de-DE,de;q=0.8,en-US;q=0.6,en;q=0.4
-     * cookie : JSESSIONID=6155DEA85E65B9842E8474C0EF5330A6
-     * 
-     */
+
     return reqHeader.get(name);
   }
 

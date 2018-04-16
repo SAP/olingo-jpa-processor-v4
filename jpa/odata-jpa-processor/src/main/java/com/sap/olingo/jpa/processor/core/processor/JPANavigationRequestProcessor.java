@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
 import static com.sap.olingo.jpa.processor.core.converter.JPAExpandResult.ROOT_RESULT_KEY;
+import static com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys.ODATA_MAXPAGESIZE_NOT_A_NUMBER;
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys.QUERY_PREPARATION_ERROR;
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys.QUERY_RESULT_CONV_ERROR;
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys.QUERY_SERVER_DRIVEN_PAGING_GONE;
@@ -43,6 +44,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.query.JPACollectionItemInfo;
 import com.sap.olingo.jpa.processor.core.query.JPACollectionJoinQuery;
 import com.sap.olingo.jpa.processor.core.query.JPAConvertableResult;
+import com.sap.olingo.jpa.processor.core.query.JPACountQuery;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandItemInfo;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandItemInfoFactory;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandJoinQuery;
@@ -58,6 +60,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
   public JPANavigationRequestProcessor(final OData odata, final ServiceMetadata serviceMetadata,
       final JPAODataSessionContextAccess context, final JPAODataRequestContextAccess requestContext)
       throws ODataException {
+
     super(odata, context, requestContext);
     this.serviceMetadata = serviceMetadata;
     final List<UriResource> resourceParts = uriInfo.getUriResourceParts();
@@ -69,19 +72,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
       throws ODataException {
 
     final int handle = debugger.startRuntimeMeasurement(this, "retrieveData");
-    JPAODataPage page = new JPAODataPage(uriInfo, 0, Integer.MAX_VALUE, null);
-    // Server-Driven-Paging
-    if (serverDrivenPaging()) {
-      final String skiptoken = skipToken();
-      if (skiptoken != null && !skiptoken.isEmpty()) {
-        page = sessionContext.getPagingProvider().getNextPage(skiptoken);
-        if (page == null)
-          throw new ODataJPAProcessorException(QUERY_SERVER_DRIVEN_PAGING_GONE, HttpStatusCode.GONE, skiptoken);
-      } else {
-        JPAODataPage firstPage = sessionContext.getPagingProvider().getFristPage(uriInfo);
-        page = firstPage != null ? firstPage : page;
-      }
-    }
+    final JPAODataPage page = getPage(request);
     // Create a JPQL Query and execute it
     JPAJoinQuery query = null;
     try {
@@ -140,7 +131,45 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
         return new URI(Util.determineTargetEntitySet(uriInfo.getUriResourceParts()).getName() + "?"
             + SystemQueryOptionKind.SKIPTOKEN.toString() + "='" + page.getSkiptoken() + "'");
       } catch (URISyntaxException e) {
-        throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+        throw new ODataJPAProcessorException(ODATA_MAXPAGESIZE_NOT_A_NUMBER, HttpStatusCode.INTERNAL_SERVER_ERROR, e);
+      }
+    }
+    return null;
+  }
+
+  private JPAODataPage getPage(final ODataRequest request) throws ODataException {
+
+    JPAODataPage page = new JPAODataPage(uriInfo, 0, Integer.MAX_VALUE, null);
+    // Server-Driven-Paging
+    if (serverDrivenPaging()) {
+      final String skiptoken = skipToken();
+      if (skiptoken != null && !skiptoken.isEmpty()) {
+        page = sessionContext.getPagingProvider().getNextPage(skiptoken);
+        if (page == null)
+          throw new ODataJPAProcessorException(QUERY_SERVER_DRIVEN_PAGING_GONE, HttpStatusCode.GONE, skiptoken);
+      } else {
+        final JPACountQuery countQuery = new JPAJoinQuery(odata, sessionContext, em, request.getAllHeaders(), page);
+        final Integer preferedPagesize = getPreferedPagesize(request);
+        final JPAODataPage firstPage = sessionContext.getPagingProvider().getFristPage(uriInfo, preferedPagesize,
+            countQuery, em);
+        page = firstPage != null ? firstPage : page;
+      }
+    }
+    return page;
+  }
+
+  private Integer getPreferedPagesize(final ODataRequest request) throws ODataJPAProcessorException {
+
+    final List<String> preferedHeaders = request.getHeaders("Prefer");
+    if (preferedHeaders != null) {
+      for (String header : preferedHeaders) {
+        if (header.startsWith("odata.maxpagesize")) {
+          try {
+            return Integer.valueOf((header.split("=")[1]));
+          } catch (NumberFormatException e) {
+            throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
+          }
+        }
       }
     }
     return null;
