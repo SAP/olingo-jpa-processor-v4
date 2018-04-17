@@ -56,7 +56,7 @@ public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
   public JPAExpandJoinQuery(final OData odata, final JPAODataSessionContextAccess context, final EntityManager em,
       final JPAInlineItemInfo item, final Map<String, List<String>> requestHeaders) throws ODataException {
 
-    super(odata, context, item.getEntityType(), em, requestHeaders, item.getUriInfo());
+    super(odata, context, item.getEntityType(), em, requestHeaders, item.getUriInfo(), null);
     this.assoziation = item.getExpandAssociation();
     this.navigationInfo = item.getHops();
   }
@@ -76,7 +76,7 @@ public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
       final UriInfoResource uriInfo, final JPAAssociationPath assoziation, final JPAEntityType entityType,
       final Map<String, List<String>> requestHeaders) throws ODataException {
 
-    super(odata, context, entityType, em, requestHeaders, uriInfo);
+    super(odata, context, entityType, em, requestHeaders, uriInfo, null);
     this.assoziation = assoziation;
   }
 

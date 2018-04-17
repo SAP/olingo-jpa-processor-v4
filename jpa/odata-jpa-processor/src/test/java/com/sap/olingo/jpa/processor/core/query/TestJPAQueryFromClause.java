@@ -63,7 +63,7 @@ public class TestJPAQueryFromClause extends TestBase {
     helper = new TestHelper(emf, PUNIT_NAME);
     jpaEntityType = helper.getJPAEntityType("Organizations");
     JPAODataSessionContextAccess context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null,
-        TestBase.enumPackages), ds);
+        TestBase.enumPackages), ds, null);
     createHeaders();
 
     cut = new JPAJoinQuery(null, context, emf.createEntityManager(), headers, uriInfo);

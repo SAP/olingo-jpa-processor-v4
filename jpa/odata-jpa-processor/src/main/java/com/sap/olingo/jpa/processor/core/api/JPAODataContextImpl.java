@@ -34,6 +34,7 @@ final class JPAODataContextImpl implements JPAODataCRUDContext, JPAODataSessionC
   private JPACUDRequestHandler jpaCUDRequestHandler;
   private String[] packageName;
   private ErrorProcessor errorProcessor;
+  private JPAODataPagingProvider pagingProvider;
 
   public JPAODataContextImpl(JPAODataGetHandler jpaoDataGetHandler) throws ODataException {
     super();
@@ -93,6 +94,11 @@ final class JPAODataContextImpl implements JPAODataCRUDContext, JPAODataSessionC
   @Override
   public List<EdmxReference> getReferences() {
     return references;
+  }
+
+  @Override
+  public JPAODataPagingProvider getPagingProvider() {
+    return pagingProvider;
   }
 
   @Override
@@ -157,5 +163,10 @@ final class JPAODataContextImpl implements JPAODataCRUDContext, JPAODataSessionC
   public void setTypePackage(final String... packageName) {
     this.packageName = packageName;
 
+  }
+
+  @Override
+  public void setPagingProvider(final JPAODataPagingProvider provider) {
+    this.pagingProvider = provider;
   }
 }
