@@ -38,7 +38,7 @@ public class JPAExamplePagingProvider implements JPAODataPagingProvider {
 
   @Override
   public JPAODataPage getNextPage(final String skiptoken) {
-    final CacheEntry privousePage = pageCache.get(skiptoken);
+    final CacheEntry privousePage = pageCache.get(skiptoken.replaceAll("'", ""));
     if (privousePage != null) {
       // Calculate next page
       final Integer skip = privousePage.getPage().getSkip() + privousePage.getPage().getTop();

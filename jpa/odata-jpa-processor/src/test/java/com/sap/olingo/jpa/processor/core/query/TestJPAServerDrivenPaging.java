@@ -137,6 +137,23 @@ public class TestJPAServerDrivenPaging extends TestBase {
   }
 
   @Test
+  public void testMaxPageSiteHeaderProvidedInLowerCase() throws IOException, ODataException {
+    headers = new HashMap<>();
+    final List<String> headerValues = new ArrayList<>(1);
+    final UriInfo uriInfo = buildUriInfo();
+    final JPAODataPagingProvider provider = mock(JPAODataPagingProvider.class);
+
+    when(provider.getFristPage(any(), any(), any(), any())).thenReturn(new JPAODataPage(uriInfo, 0, 5, "Hugo"));
+    headerValues.add("odata.maxpagesize=50");
+    headers.put("prefer", headerValues);
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$orderby=ID desc", provider, headers);
+    helper.assertStatus(200);
+
+    verify(provider).getFristPage(any(), isNotNull(Integer.class), any(), any());
+  }
+
+  @Test
   public void testUriInfoProvided() throws IOException, ODataException {
     final UriInfo uriInfo = buildUriInfo();
     final JPAODataPagingProvider provider = mock(JPAODataPagingProvider.class);
