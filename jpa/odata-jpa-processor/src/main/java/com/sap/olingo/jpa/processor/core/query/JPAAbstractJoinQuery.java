@@ -58,6 +58,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys;
@@ -73,16 +74,18 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery {
   protected From<?, ?> target;
   protected final JPAODataSessionContextAccess context;
   protected List<JPANavigationProptertyInfo> navigationInfo;
+  protected final JPAODataPage page;
 
   public JPAAbstractJoinQuery(final OData odata, final JPAODataSessionContextAccess context,
       final JPAEntityType jpaEntityType, final EntityManager em, final Map<String, List<String>> requestHeaders,
-      final UriInfoResource uriResource) throws ODataException {
+      final UriInfoResource uriResource, final JPAODataPage page) throws ODataException {
 
     super(odata, context.getEdmProvider().getServiceDocument(), jpaEntityType, em, context.getDebugger());
     this.locale = ExpressionUtil.determineLocale(requestHeaders);
     this.uriResource = uriResource;
     this.cq = cb.createTupleQuery();
     this.context = context;
+    this.page = page;
   }
 
   @Override
@@ -103,10 +106,14 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery {
    * <li> The $skip system query option specifies a non-negative integer n that excludes the first n items of the
    * queried collection from the result.
    * </ul>
+   * These values can be restricted by a page provided by server driven paging<p>
    * For details see:
    * <a href=
    * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398306"
-   * >OData Version 4.0 Part 1 - 11.2.5.3 System Query Option $top</a>
+   * >OData Version 4.0 Part 1 - 11.2.5.3 System Query Option $top</a> and
+   * <a href=
+   * "http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Server-Driven_Paging"
+   * >OData Version 4.0 Part 1 - 11.2.5.7 Server-Driven Paging</a>
    * 
    * @throws ODataApplicationException
    */
@@ -121,8 +128,10 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery {
      */
 
     final TopOption topOption = uriResource.getTopOption();
-    if (topOption != null) {
-      final int topNumber = topOption.getValue();
+    if (topOption != null || page != null) {
+      int topNumber = topOption != null ? topOption.getValue() : page.getTop();
+      topNumber = topOption != null && page != null ? Math.min(topOption.getValue(), page.getTop())
+          : topNumber;
       if (topNumber >= 0)
         tq.setMaxResults(topNumber);
       else
@@ -131,8 +140,9 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery {
     }
 
     final SkipOption skipOption = uriResource.getSkipOption();
-    if (skipOption != null) {
-      final int skipNumber = skipOption.getValue();
+    if (skipOption != null || page != null) {
+      int skipNumber = skipOption != null ? skipOption.getValue() : page.getSkip();
+      skipNumber = skipOption != null && page != null ? Math.max(skipOption.getValue(), page.getSkip()) : skipNumber;
       if (skipNumber >= 0)
         tq.setFirstResult(skipNumber);
       else

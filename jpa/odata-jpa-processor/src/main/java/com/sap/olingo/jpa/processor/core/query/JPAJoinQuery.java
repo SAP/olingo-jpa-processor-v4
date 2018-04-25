@@ -33,19 +33,31 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
-public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPAQuery {
+public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPAQuery, JPACountQuery {
 
-  public JPAJoinQuery(OData odata, JPAODataSessionContextAccess sessionContext, EntityManager em,
-      Map<String, List<String>> requestHeaders, UriInfo uriInfo) throws ODataException {
+  public JPAJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext, final EntityManager em,
+      final Map<String, List<String>> requestHeaders, final JPAODataPage page) throws ODataException {
+
+    super(odata, sessionContext, sessionContext.getEdmProvider().getServiceDocument().getEntity(
+        Util.determineTargetEntitySet(page.getUriInfo().getUriResourceParts()).getName()),
+        em, requestHeaders, page.getUriInfo(), page);
+
+    this.navigationInfo = Util.determineNavigationPath(sd, uriResource.getUriResourceParts(), page.getUriInfo());
+  }
+
+  public JPAJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext, final EntityManager em,
+      final Map<String, List<String>> requestHeaders, final UriInfo uriInfo) throws ODataException {
 
     super(odata, sessionContext, sessionContext.getEdmProvider().getServiceDocument().getEntity(
         Util.determineTargetEntitySet(uriInfo.getUriResourceParts()).getName()),
-        em, requestHeaders, uriInfo);
+        em, requestHeaders, uriInfo, null);
 
-    this.navigationInfo = Util.determineNavigationPath(sd, uriInfo.getUriResourceParts(), uriInfo);
+    this.navigationInfo = Util.determineNavigationPath(sd, uriResource.getUriResourceParts(), uriInfo);
+
   }
 
   /**
@@ -56,6 +68,7 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPAQuery {
    * @return
    * @throws ODataApplicationException
    */
+  @Override
   public Long countResults() throws ODataApplicationException {
     /*
      * URL example:
@@ -73,10 +86,6 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPAQuery {
     countQuery.select(cb.count(root));
     debugger.stopRuntimeMeasurement(handle);
     return em.createQuery(countQuery).getSingleResult();
-  }
-
-  private javax.persistence.criteria.Expression<Boolean> createWhere() throws ODataApplicationException {
-    return super.createWhere(uriResource, navigationInfo);
   }
 
   @Override
@@ -119,6 +128,10 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPAQuery {
       return new JPAExpandQueryResult(result, null, jpaEntity);
   }
 
+  public List<JPANavigationProptertyInfo> getNavigationInfo() {
+    return navigationInfo;
+  }
+
   @Override
   public AbstractQuery<?> getQuery() {
     return cq;
@@ -137,6 +150,10 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPAQuery {
 
     debugger.stopRuntimeMeasurement(handle);
     return groupBy;
+  }
+
+  private javax.persistence.criteria.Expression<Boolean> createWhere() throws ODataApplicationException {
+    return super.createWhere(uriResource, navigationInfo);
   }
 
   private List<JPAAssociationPath> extractOrderByNaviAttributes() throws ODataApplicationException {
@@ -173,10 +190,6 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPAQuery {
       }
     }
     return naviAttributes;
-  }
-
-  public List<JPANavigationProptertyInfo> getNavigationInfo() {
-    return navigationInfo;
   }
 
 }

@@ -21,7 +21,7 @@ clone the repository, import the projects and declare a dependency to either the
 <dependency>
 	<groupId>com.sap.olingo</groupId>
 	<artifactId>odata-jpa-metadata</artifactId>
-	<version>0.2.4-SNAPSHOT</version>
+	<version>0.2.9-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -31,7 +31,7 @@ Or to the complete processor:
 <dependency>
 	<groupId>com.sap.olingo</groupId>
 	<artifactId>odata-jpa-processor</artifactId>
-	<version>0.2.4-SNAPSHOT</version>
+	<version>0.2.9-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -44,10 +44,12 @@ For bugs, questions and ideas for enhancement please open an issue in github.
 # To-Do (upcoming-changes)
 The flowing extensions/changes are planned:
 
+* Content-ID handling in $batch requets
 * Enable hooks for retrieving data.
+* Support asynchronous requests
 * Parallel processing for $expand.
-* Enable collection attributes.
-* Enable server side paging
+* Enhancements on collection attributes.
+* Enable server side paging an $expand
 * Support of $ref
 
 
@@ -63,6 +65,7 @@ This file is licensed under the Apache Software License, v.2 except as noted oth
 |Version|Changes|Incompatible Changes|
 |-- |-- |-- |
 |0.2.4|- Switch to Olingo version 4.4.0<br> - Support of Enumeration Types<br>- Support of $count at $expand|Yes|
-|0.2.6|- Solution for issue [#21](https://github.com/SAP/olingo-jpa-processor-v4/issues/21)<br> - JPA Join tables can be used e.g. for Many To Many relationship (issue [#22](https://github.com/SAP/olingo-jpa-processor-v4/issues/22)). If such relation shall be used in a filter a corresponding JPA entity is required, which can be hidden from the API using @EdmIgnore. Please be aware that in case both source and target are subtype Eclipselink (version 2.7.1 used) may get confused when generating a subquery for filtering, see [Bug 529565](https://bugs.eclipse.org/bugs/show_bug.cgi?id=529565) | No|
+|0.2.6|- Solution for issue [#21](https://github.com/SAP/olingo-jpa-processor-v4/issues/21)<br> - JPA Join tables can be used e.g. for Many To Many relationship (issue [#22](https://github.com/SAP/olingo-jpa-processor-v4/issues/22)). If such relation shall be used in a filter a corresponding JPA entity is required, which can be hidden from the API using @EdmIgnore. Please be aware that in case both source and target are subtypes Eclipselink (version 2.7.1 used) may get confused when generating a subquery for filtering, see [Bug 529565](https://bugs.eclipse.org/bugs/show_bug.cgi?id=529565) | No|
 |0.2.7|- Solution for issue [#29](https://github.com/SAP/olingo-jpa-processor-v4/issues/29)<br> - Solution for issue [#35](https://github.com/SAP/olingo-jpa-processor-v4/issues/35)<br> - Solution for issue [#37](https://github.com/SAP/olingo-jpa-processor-v4/issues/37)<br>|No|
 |0.2.8|- Support of Collection Properties<br> - New tutorials 1.7 Suppressing Elements and 1.13 Collection Properties |No|
+|0.2.9|- Support on top level server driven paging<br> - New tutorial 4.3 Server Driven Paging |No|  

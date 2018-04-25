@@ -69,7 +69,8 @@ public class TestJPAQuerySelectClause extends TestBase {
     nameBuilder = new JPAEdmNameBuilder(PUNIT_NAME);
     jpaEntityType = helper.getJPAEntityType("BusinessPartners");
     createHeaders();
-    context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null, TestBase.enumPackages), ds);
+    context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null, TestBase.enumPackages), ds,
+        null);
 
     cut = new JPAJoinQuery(null, context, emf.createEntityManager(), headers, uriInfo);
 
