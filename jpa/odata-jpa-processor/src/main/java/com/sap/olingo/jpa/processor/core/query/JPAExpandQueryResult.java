@@ -101,8 +101,8 @@ public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertab
 
   public long getNoResultsDeep() {
     long count = 0;
-    for (String key : jpaResult.keySet()) {
-      count += jpaResult.get(key).size();
+    for (Entry<String, List<Tuple>> result : jpaResult.entrySet()) {
+      count += result.getValue().size();
     }
     return count;
   }
@@ -154,6 +154,7 @@ public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertab
    * @param key
    * @return
    */
+  @Override
   public EntityCollection getEntityCollection(final String key) {
     return odataResult.containsKey(key) ? odataResult.get(key) : new EntityCollection();
   }

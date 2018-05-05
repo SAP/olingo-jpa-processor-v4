@@ -102,6 +102,16 @@ public class AdministrativeDivision implements KeyAccess {
   })
   private List<AdministrativeDivisionDescription> allDescriptions;
 
+  public AdministrativeDivision() {
+    // required fo JPA
+  }
+
+  public AdministrativeDivision(final AdministrativeDivisionKey key) {
+    codePublisher = key.getCodePublisher();
+    codeID = key.getCodeID();
+    divisionCode = key.getDivisionCode();
+  }
+
   public String getCodePublisher() {
     return codePublisher;
   }
@@ -189,6 +199,9 @@ public class AdministrativeDivision implements KeyAccess {
 
   public void setParent(AdministrativeDivision parent) {
     this.parent = parent;
+    this.parentCodeID = parent.getCodeID();
+    this.parentDivisionCode = parent.getDivisionCode();
+
   }
 
   public void setArea(Integer area) {
@@ -198,5 +211,4 @@ public class AdministrativeDivision implements KeyAccess {
   public void setChildren(List<AdministrativeDivision> children) {
     this.children = children;
   }
-
 }

@@ -341,8 +341,8 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
    * @return
    * @throws ODataJPAProcessorException
    */
-  final JPARequestEntity createRequestEntity(JPAEntityType et, Entity odataEntity, Map<String, Object> keys,
-      Map<String, List<String>> headers) throws ODataJPAProcessorException {
+  final JPARequestEntity createRequestEntity(final JPAEntityType et, final Entity odataEntity,
+      final Map<String, Object> keys, final Map<String, List<String>> headers) throws ODataJPAProcessorException {
 
     try {
       final Map<String, Object> jpaAttributes = helper.convertProperties(odata, et, odataEntity.getProperties());
@@ -363,8 +363,8 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
    * @param headers
    * @return
    */
-  final JPARequestEntity createRequestEntity(JPAEntityType et, Map<String, Object> keys,
-      Map<String, List<String>> headers) {
+  final JPARequestEntity createRequestEntity(final JPAEntityType et, final Map<String, Object> keys,
+      final Map<String, List<String>> headers) {
 
     final Map<String, Object> jpaAttributes = new HashMap<>(0);
     final Map<JPAAssociationPath, List<JPARequestEntity>> relatedEntities =

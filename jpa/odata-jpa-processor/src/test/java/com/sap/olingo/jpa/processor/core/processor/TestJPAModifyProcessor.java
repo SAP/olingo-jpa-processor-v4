@@ -24,6 +24,7 @@ import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpHeader;
+import org.apache.olingo.commons.core.edm.primitivetype.EdmString;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ServiceMetadata;
@@ -49,6 +50,8 @@ import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializer;
+import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
+import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionKey;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
@@ -123,9 +126,8 @@ public abstract class TestJPAModifyProcessor {
   }
 
   protected ODataRequest prepareRepresentationRequest(JPAAbstractCUDRequestHandler spy)
-      throws ODataJPAProcessorException,
-      SerializerException,
-      ODataException {
+      throws ODataJPAProcessorException, SerializerException, ODataException {
+
     ODataRequest request = prepareSimpleRequest("return=representation");
 
     when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
@@ -154,6 +156,64 @@ public abstract class TestJPAModifyProcessor {
     when(serializerResult.getContent()).thenReturn(new ByteArrayInputStream("{\"ID\":\"35\"}".getBytes()));
 
     return request;
+  }
+
+  protected ODataRequest prepareLinkRequest(JPAAbstractCUDRequestHandler spy)
+      throws ODataJPAProcessorException, SerializerException, ODataException {
+
+    // .../AdministrativeDivisions(DivisionCode='DE60',CodeID='NUTS2',CodePublisher='Eurostat')
+    final ODataRequest request = prepareSimpleRequest("return=representation");
+    final Edm edm = mock(Edm.class);
+    final EdmEntityType edmET = mock(EdmEntityType.class);
+
+    final FullQualifiedName fqn = new FullQualifiedName("com.sap.olingo.jpa.AdministrativeDivision");
+    final List<String> keyNames = new ArrayList<>();
+
+    final AdministrativeDivisionKey key = new AdministrativeDivisionKey("Eurostat", "NUTS2", "DE60");
+    final AdministrativeDivision div = new AdministrativeDivision(key);
+
+    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(em.find(AdministrativeDivision.class, key)).thenReturn(div);
+    when(serviceMetadata.getEdm()).thenReturn(edm);
+    when(edm.getEntityType(fqn)).thenReturn(edmET);
+    when(ets.getName()).thenReturn("AdministrativeDivisions");
+    when(uriEts.getKeyPredicates()).thenReturn(keyPredicates);
+    keyNames.add("DivisionCode");
+    keyNames.add("CodeID");
+    keyNames.add("CodePublisher");
+    when(edmET.getKeyPredicateNames()).thenReturn(keyNames);
+    when(edmET.getFullQualifiedName()).thenReturn(fqn);
+
+    EdmPrimitiveType type = EdmString.getInstance();
+    EdmKeyPropertyRef refType = mock(EdmKeyPropertyRef.class);
+    EdmProperty edmProperty = mock(EdmProperty.class);
+    when(edmET.getKeyPropertyRef("DivisionCode")).thenReturn(refType);
+    when(refType.getProperty()).thenReturn(edmProperty);
+    when(refType.getName()).thenReturn("DivisionCode");
+    when(edmProperty.getType()).thenReturn(type);
+    when(edmProperty.getMaxLength()).thenReturn(50);
+
+    refType = mock(EdmKeyPropertyRef.class);
+    edmProperty = mock(EdmProperty.class);
+    when(edmET.getKeyPropertyRef("CodeID")).thenReturn(refType);
+    when(refType.getProperty()).thenReturn(edmProperty);
+    when(refType.getName()).thenReturn("CodeID");
+    when(edmProperty.getType()).thenReturn(type);
+    when(edmProperty.getMaxLength()).thenReturn(50);
+
+    refType = mock(EdmKeyPropertyRef.class);
+    edmProperty = mock(EdmProperty.class);
+    when(edmET.getKeyPropertyRef("CodePublisher")).thenReturn(refType);
+    when(refType.getProperty()).thenReturn(edmProperty);
+    when(refType.getName()).thenReturn("CodePublisher");
+    when(edmProperty.getType()).thenReturn(type);
+    when(edmProperty.getMaxLength()).thenReturn(50);
+
+    when(serializer.serialize(Matchers.eq(request), Matchers.any(EntityCollection.class))).thenReturn(serializerResult);
+    when(serializerResult.getContent()).thenReturn(new ByteArrayInputStream("{\"ParentCodeID\":\"NUTS1\"}".getBytes()));
+
+    return request;
+
   }
 
   protected ODataRequest prepareSimpleRequest() throws ODataException, ODataJPAProcessorException, SerializerException {

@@ -31,10 +31,10 @@ import com.sap.olingo.jpa.processor.core.util.TestBase;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 
 public class TestModifyUtil extends TestBase {
-  private JPAModifyUtil       cut;
+  private JPAModifyUtil cut;
   private Map<String, Object> jpaAttributes;
-  private BusinessPartner     partner;
-  private JPAEntityType       org;
+  private BusinessPartner partner;
+  private JPAEntityType org;
 
   @Before
   public void setUp() throws ODataException {
