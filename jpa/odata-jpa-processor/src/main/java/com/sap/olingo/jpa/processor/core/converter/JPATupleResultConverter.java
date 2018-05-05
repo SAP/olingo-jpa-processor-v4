@@ -31,7 +31,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
-import com.sap.olingo.jpa.processor.core.query.JPAExpandQueryResult;
+import com.sap.olingo.jpa.processor.core.query.JPAConvertableResult;
 
 /**
  * Abstract super class for result converter, which convert Tuple based results.
@@ -217,13 +217,13 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
   }
 
   private Link getLink(final JPAAssociationPath assoziation, final Tuple parentRow, final JPAExpandResult child,
-      final String linkURI) throws ODataJPAQueryException {
+      final String linkURI) throws ODataApplicationException {
     final Link link = new Link();
     link.setTitle(assoziation.getLeaf().getExternalName());
     link.setRel(Constants.NS_NAVIGATION_LINK_REL + link.getTitle());
     link.setType(Constants.ENTITY_NAVIGATION_LINK_TYPE);
     try {
-      final EntityCollection expandCollection = ((JPAExpandQueryResult) child).getEntityCollection(
+      final EntityCollection expandCollection = ((JPAConvertableResult) child).getEntityCollection(
           buildConcatenatedKey(parentRow, assoziation.getLeftColumnsList()));
 
       expandCollection.setCount(determineCount(assoziation, parentRow, child));

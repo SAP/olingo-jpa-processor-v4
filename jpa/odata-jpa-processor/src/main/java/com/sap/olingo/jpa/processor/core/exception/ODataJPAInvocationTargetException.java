@@ -9,9 +9,9 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAMessageKey;
  */
 public class ODataJPAInvocationTargetException extends ODataJPAProcessException {
 
-  private static final long   serialVersionUID = 2410838419178517426L;
-  private static final String BUNDEL_NAME      = "processor-exceptions-i18n";
-  private final String        path;
+  private static final long serialVersionUID = 2410838419178517426L;
+  private static final String BUNDEL_NAME = "processor-exceptions-i18n";
+  private final String path;
 
   enum MessageKeys implements ODataJPAMessageKey {
     WRONG_VALUE;

@@ -43,28 +43,27 @@ public final class JPARequestLinkImpl implements JPARequestLink {
   }
 
   @Override
-  public Map<String, Object> getRelatedKeys() {
+  public Map<String, Object> getRelatedKeys() throws ODataJPAProcessorException {
     if (keys.size() == 0) try {
       buildKeys();
     } catch (Exception e) {
-      new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
+      throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
     }
     return keys;
   }
 
   @Override
-  public Map<String, Object> getValues() {
+  public Map<String, Object> getValues() throws ODataJPAProcessorException {
     if (values.size() == 0) try {
       buildKeys();
     } catch (Exception e) {
-      new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
+      throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
     }
     return values;
   }
 
-  private void buildKeys() throws ODataJPAModelException, NoSuchMethodException, SecurityException,
-      InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
-      EdmPrimitiveTypeException {
+  private void buildKeys() throws ODataJPAModelException, NoSuchMethodException, InstantiationException,
+      IllegalAccessException, InvocationTargetException, EdmPrimitiveTypeException {
     OData odata = OData.newInstance();
 
     // TODO replace by Olingo OData Util
