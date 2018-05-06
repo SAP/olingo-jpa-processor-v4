@@ -128,8 +128,12 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
   private URI buildNextLink(final JPAODataPage page) throws ODataJPAProcessorException {
     if (page != null && page.getSkiptoken() != null) {
       try {
-        return new URI(Util.determineTargetEntitySet(uriInfo.getUriResourceParts()).getName() + "?"
-            + SystemQueryOptionKind.SKIPTOKEN.toString() + "='" + page.getSkiptoken() + "'");
+        if (page.getSkiptoken() instanceof String)
+          return new URI(Util.determineTargetEntitySet(uriInfo.getUriResourceParts()).getName() + "?"
+              + SystemQueryOptionKind.SKIPTOKEN.toString() + "='" + page.getSkiptoken() + "'");
+        else
+          return new URI(Util.determineTargetEntitySet(uriInfo.getUriResourceParts()).getName() + "?"
+              + SystemQueryOptionKind.SKIPTOKEN.toString() + "=" + page.getSkiptoken().toString());
       } catch (URISyntaxException e) {
         throw new ODataJPAProcessorException(ODATA_MAXPAGESIZE_NOT_A_NUMBER, HttpStatusCode.INTERNAL_SERVER_ERROR, e);
       }

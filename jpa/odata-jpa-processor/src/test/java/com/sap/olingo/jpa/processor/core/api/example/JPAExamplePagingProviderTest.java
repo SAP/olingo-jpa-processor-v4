@@ -50,7 +50,7 @@ public class JPAExamplePagingProviderTest {
 
     assertEquals(0, act.getSkip());
     assertEquals(2, act.getTop());
-    assertNotNull(toODataString(act.getSkiptoken()));
+    assertNotNull(toODataString((String) act.getSkiptoken()));
     assertEquals(info, act.getUriInfo());
   }
 
@@ -62,7 +62,7 @@ public class JPAExamplePagingProviderTest {
 
     assertEquals(0, act.getSkip());
     assertEquals(5, act.getTop());
-    assertNotNull(toODataString(act.getSkiptoken()));
+    assertNotNull(toODataString((String) act.getSkiptoken()));
     assertEquals(info, act.getUriInfo());
   }
 
@@ -75,7 +75,7 @@ public class JPAExamplePagingProviderTest {
 
     assertEquals(0, act.getSkip());
     assertEquals(10, act.getTop());
-    assertNotNull(toODataString(act.getSkiptoken()));
+    assertNotNull(toODataString((String) act.getSkiptoken()));
     assertEquals(info, act.getUriInfo());
   }
 
@@ -84,7 +84,7 @@ public class JPAExamplePagingProviderTest {
     final UriInfo info = buildUriInfo();
     final JPAExamplePagingProvider cut = createOrgCut(5);
     JPAODataPage act = cut.getFristPage(info, null, countQuery, null);
-    act = cut.getNextPage(toODataString(act.getSkiptoken()));
+    act = cut.getNextPage(toODataString((String) act.getSkiptoken()));
 
     assertEquals(5, act.getSkip());
     assertEquals(5, act.getTop());
@@ -117,7 +117,7 @@ public class JPAExamplePagingProviderTest {
 
     assertEquals(0, act.getSkip());
     assertEquals(3, act.getTop());
-    assertNotNull(toODataString(act.getSkiptoken()));
+    assertNotNull(toODataString((String) act.getSkiptoken()));
     assertEquals(info, act.getUriInfo());
   }
 
@@ -126,7 +126,7 @@ public class JPAExamplePagingProviderTest {
     final UriInfo info = buildUriInfo();
     final JPAExamplePagingProvider cut = createOrgCut(5);
     JPAODataPage act = cut.getFristPage(info, null, countQuery, null);
-    act = cut.getNextPage(toODataString(act.getSkiptoken()));
+    act = cut.getNextPage(toODataString((String) act.getSkiptoken()));
 
     assertNull(act.getSkiptoken());
   }
@@ -145,9 +145,9 @@ public class JPAExamplePagingProviderTest {
     final UriInfo info = buildUriInfo();
     final JPAExamplePagingProvider cut = createOrgCut(2);
     JPAODataPage act = cut.getFristPage(info, null, countQuery, null);
-    act = cut.getNextPage(toODataString(act.getSkiptoken()));
+    act = cut.getNextPage(toODataString((String) act.getSkiptoken()));
 
-    assertNotNull(toODataString(act.getSkiptoken()));
+    assertNotNull(toODataString((String) act.getSkiptoken()));
   }
 
   @Test
@@ -155,10 +155,10 @@ public class JPAExamplePagingProviderTest {
     final UriInfo info = buildUriInfo();
     final JPAExamplePagingProvider cut = createOrgCut(2);
     JPAODataPage act = cut.getFristPage(info, null, countQuery, null);
-    act = cut.getNextPage(toODataString(act.getSkiptoken()));
-    act = cut.getNextPage(toODataString(act.getSkiptoken()));
+    act = cut.getNextPage(toODataString((String) act.getSkiptoken()));
+    act = cut.getNextPage(toODataString((String) act.getSkiptoken()));
 
-    assertNotNull(toODataString(act.getSkiptoken()));
+    assertNotNull(toODataString((String) act.getSkiptoken()));
   }
 
   @Test
@@ -189,7 +189,7 @@ public class JPAExamplePagingProviderTest {
     addTopSkipToUri(info);
     final JPAExamplePagingProvider cut = createOrgCut(5);
     JPAODataPage act = cut.getFristPage(info, null, countQuery, null);
-    act = cut.getNextPage(toODataString(act.getSkiptoken()));
+    act = cut.getNextPage(toODataString((String) act.getSkiptoken()));
 
     assertEquals(7, act.getSkip());
     assertEquals(2, act.getTop());
@@ -203,12 +203,12 @@ public class JPAExamplePagingProviderTest {
 
     final JPAExamplePagingProvider cut = new JPAExamplePagingProvider(sizes, 2);
     final JPAODataPage first = cut.getFristPage(info, null, countQuery, null);
-    assertNotNull(cut.getNextPage(first.getSkiptoken()));
-    final JPAODataPage second = cut.getNextPage(first.getSkiptoken());
-    assertNotNull(cut.getNextPage(second.getSkiptoken()));
-    final JPAODataPage third = cut.getNextPage(second.getSkiptoken());
-    assertNotNull(cut.getNextPage(third.getSkiptoken()));
-    assertNull(cut.getNextPage(first.getSkiptoken()));
+    assertNotNull(cut.getNextPage((String) first.getSkiptoken()));
+    final JPAODataPage second = cut.getNextPage((String) first.getSkiptoken());
+    assertNotNull(cut.getNextPage((String) second.getSkiptoken()));
+    final JPAODataPage third = cut.getNextPage((String) second.getSkiptoken());
+    assertNotNull(cut.getNextPage((String) third.getSkiptoken()));
+    assertNull(cut.getNextPage((String) first.getSkiptoken()));
   }
 
   @Test
@@ -219,12 +219,12 @@ public class JPAExamplePagingProviderTest {
 
     final JPAExamplePagingProvider cut = new JPAExamplePagingProvider(sizes, 10);
     final JPAODataPage first = cut.getFristPage(info, null, countQuery, null);
-    assertNotNull(cut.getNextPage(first.getSkiptoken()));
-    final JPAODataPage second = cut.getNextPage(first.getSkiptoken());
-    assertNotNull(cut.getNextPage(second.getSkiptoken()));
-    final JPAODataPage third = cut.getNextPage(second.getSkiptoken());
-    assertNotNull(cut.getNextPage(third.getSkiptoken()));
-    assertNotNull(cut.getNextPage(first.getSkiptoken()));
+    assertNotNull(cut.getNextPage((String) first.getSkiptoken()));
+    final JPAODataPage second = cut.getNextPage((String) first.getSkiptoken());
+    assertNotNull(cut.getNextPage((String) second.getSkiptoken()));
+    final JPAODataPage third = cut.getNextPage((String) second.getSkiptoken());
+    assertNotNull(cut.getNextPage((String) third.getSkiptoken()));
+    assertNotNull(cut.getNextPage((String) first.getSkiptoken()));
   }
 
   private UriInfo buildUriInfo() {
