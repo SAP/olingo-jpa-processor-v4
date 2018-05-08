@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.processor.core.filter;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -181,6 +183,8 @@ public class JPAOperationConverter {
       // Second Date-Time functions
     case NOW:
       return cb.currentTimestamp();
+    case DATE:
+      return ((Expression<LocalDateTime>) jpaFunction.getParameter(0).get()).as(LocalDate.class);
     default:
       return dbConverter.convert(jpaFunction);
     }
