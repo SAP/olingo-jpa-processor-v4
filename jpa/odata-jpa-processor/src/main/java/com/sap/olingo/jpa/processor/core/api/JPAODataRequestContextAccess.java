@@ -14,4 +14,6 @@ public interface JPAODataRequestContextAccess {
 
   public JPASerializer getSerializer();
 
+  public JPAODataPage getPage();
+
 }

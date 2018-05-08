@@ -616,7 +616,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery {
   private void buildSelectionAddNavigationAndSelect(final UriInfoResource uriResource, final List<JPAPath> jpaPathList,
       final SelectOption select) throws ODataApplicationException, ODataJPAModelException {
 
-    final UriResource last = uriResource.getUriResourceParts().size() > 0 ? uriResource.getUriResourceParts().get(
+    final UriResource last = !uriResource.getUriResourceParts().isEmpty() ? uriResource.getUriResourceParts().get(
         uriResource.getUriResourceParts().size() - 1) : null;
     final boolean targetIsCollection = (last != null && last instanceof UriResourceProperty
         && ((UriResourceProperty) last).isCollection());
