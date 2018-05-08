@@ -20,7 +20,6 @@ import com.sap.olingo.jpa.processor.core.serializer.JPASerializer;
 
 abstract class JPAAbstractRequestProcessor {
 
-  // TODO eliminate transaction handling
   protected final EntityManager em;
   protected final JPAServiceDocument sd;
   protected final JPAODataSessionContextAccess sessionContext;

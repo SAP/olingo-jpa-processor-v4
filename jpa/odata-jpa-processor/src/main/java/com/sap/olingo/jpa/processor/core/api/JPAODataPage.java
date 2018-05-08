@@ -8,7 +8,7 @@ public class JPAODataPage {
   private final Object skiptoken;
   private final UriInfo uriInfo;
 
-  public JPAODataPage(final UriInfo uriInfo, final int skip, final int top, final String skiptoken) {
+  public JPAODataPage(final UriInfo uriInfo, final int skip, final int top, final Object skiptoken) {
     super();
     this.skip = skip;
     this.top = top;
