@@ -221,7 +221,7 @@ public abstract class TestJPAModifyProcessor {
     return prepareSimpleRequest("return=minimal");
   }
 
-  private ODataRequest prepareSimpleRequest(String content) throws ODataException, ODataJPAProcessorException,
+  protected ODataRequest prepareSimpleRequest(String content) throws ODataException, ODataJPAProcessorException,
       SerializerException {
 
     EntityTransaction transaction = mock(EntityTransaction.class);

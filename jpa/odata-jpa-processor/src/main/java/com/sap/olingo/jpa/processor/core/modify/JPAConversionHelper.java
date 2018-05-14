@@ -104,8 +104,8 @@ public class JPAConversionHelper {
   public Entity convertInputStream(final OData odata, final ODataRequest request, final ContentType requestFormat,
       EdmEntitySet edmEntitySet) throws ODataJPAProcessorException {
 
-    InputStream requestInputStream = request.getBody();
-    DeserializerResult result;
+    final InputStream requestInputStream = request.getBody();
+    final DeserializerResult result;
     try {
       ODataDeserializer deserializer;
       if (requestFormat.isCompatible(ContentType.APPLICATION_JSON))
