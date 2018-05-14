@@ -42,6 +42,7 @@ import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.UriResourceNavigation;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Matchers;
 
@@ -366,6 +367,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     fail();
   }
 
+  @Ignore
   @Test
   public void testResponseCreateChildContent() throws ODataJPAProcessorException, SerializerException,
       ODataException, IOException {
