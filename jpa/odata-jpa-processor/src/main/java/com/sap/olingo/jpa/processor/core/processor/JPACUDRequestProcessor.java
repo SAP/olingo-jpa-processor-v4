@@ -10,6 +10,7 @@ import java.util.Map;
 import org.apache.olingo.commons.api.data.Entity;
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.Link;
+import org.apache.olingo.commons.api.data.Property;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
@@ -33,6 +34,7 @@ import org.apache.olingo.server.api.uri.UriResourceValue;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
@@ -345,6 +347,7 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       final Map<String, Object> keys, final Map<String, List<String>> headers) throws ODataJPAProcessorException {
 
     try {
+      // EdmEntitySetInfo a = Util.determineTargetEntitySetAndKeys(uriInfo.getUriResourceParts());
       final Map<String, Object> jpaAttributes = helper.convertProperties(odata, et, odataEntity.getProperties());
       final Map<JPAAssociationPath, List<JPARequestEntity>> relatedEntities = createInlineEntities(et, odataEntity,
           headers);
@@ -397,29 +400,46 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
   }
 
   private Map<JPAAssociationPath, List<JPARequestEntity>> createInlineEntities(JPAEntityType et, Entity odataEntity,
-      Map<String, List<String>> headers)
-      throws ODataJPAModelException, ODataJPAProcessorException {
+      Map<String, List<String>> headers) throws ODataJPAModelException, ODataJPAProcessorException {
 
-    final Map<JPAAssociationPath, List<JPARequestEntity>> relatedEntities =
-        new HashMap<>();
+    final Map<JPAAssociationPath, List<JPARequestEntity>> relatedEntities = new HashMap<>();
 
-    for (Link navigationLink : odataEntity.getNavigationLinks()) {
-      JPAAssociationPath path = et.getAssociationPath(navigationLink.getTitle());
-      final JPAEntityType navigationEt = (JPAEntityType) et.getAssociationPath(navigationLink.getTitle())
-          .getTargetType();
-      final List<JPARequestEntity> inlineEntities = new ArrayList<>();
-      if (path.getLeaf().isCollection()) {
-        for (Entity e : navigationLink.getInlineEntitySet().getEntities()) {
-          inlineEntities.add(createRequestEntity(navigationEt, e, new HashMap<String, Object>(0), headers));
+    for (JPAAssociationPath path : et.getAssociationPathList()) {
+      List<Property> stProperties = odataEntity.getProperties();
+      Property p = null;
+      for (JPAElement pathItem : path.getPath()) {
+        if (pathItem == path.getLeaf()) { // We have reached the target and can process further
+          final Link navigationLink = p != null ? p.asComplex().getNavigationLink(pathItem.getExternalName())
+              : odataEntity.getNavigationLink(pathItem.getExternalName());
+          createInlineEntities((JPAEntityType) path.getTargetType(), headers, relatedEntities, navigationLink, path);
         }
-        relatedEntities.put(path, inlineEntities);
-      } else {
-        inlineEntities.add(createRequestEntity(navigationEt, navigationLink.getInlineEntity(),
-            new HashMap<String, Object>(0), headers));
-        relatedEntities.put(path, inlineEntities);
+        p = findProperty(pathItem.getExternalName(), stProperties);
+        if (p == null) break;
+        if (p.isComplex()) {
+          stProperties = p.asComplex().getValue();
+        }
       }
+
     }
     return relatedEntities;
+  }
+
+  private void createInlineEntities(JPAEntityType st, Map<String, List<String>> headers,
+      final Map<JPAAssociationPath, List<JPARequestEntity>> relatedEntities, Link navigationLink,
+      JPAAssociationPath path) throws ODataJPAProcessorException {
+
+    if (navigationLink == null) return;
+    final List<JPARequestEntity> inlineEntities = new ArrayList<>();
+    if (path.getLeaf().isCollection()) {
+      for (Entity e : navigationLink.getInlineEntitySet().getEntities()) {
+        inlineEntities.add(createRequestEntity(st, e, new HashMap<String, Object>(0), headers));
+      }
+      relatedEntities.put(path, inlineEntities);
+    } else {
+      inlineEntities.add(createRequestEntity(st, navigationLink.getInlineEntity(),
+          new HashMap<String, Object>(0), headers));
+      relatedEntities.put(path, inlineEntities);
+    }
   }
 
   private Entity convertEntity(JPAEntityType et, Object result, Map<String, List<String>> headers)
@@ -573,6 +593,16 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       entities.getEntities().add(updatedEntity);
       createSuccessResponce(response, responseFormat, serializer.serialize(request, entities));
     }
+  }
+
+  private Property findProperty(final String name, final List<Property> properties) {
+
+    for (Property property : properties) {
+      if (name.equals(property.getName())) {
+        return property;
+      }
+    }
+    return null;
   }
 
 }

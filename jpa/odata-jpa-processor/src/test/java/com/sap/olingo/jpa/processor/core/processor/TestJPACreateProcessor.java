@@ -12,7 +12,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +22,14 @@ import java.util.Map;
 
 import javax.persistence.EntityManager;
 
+import org.apache.olingo.commons.api.data.EntityCollection;
+import org.apache.olingo.commons.api.edm.Edm;
+import org.apache.olingo.commons.api.edm.EdmEntityType;
+import org.apache.olingo.commons.api.edm.EdmKeyPropertyRef;
+import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
+import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
+import org.apache.olingo.commons.api.edm.EdmProperty;
+import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpHeader;
@@ -29,6 +39,10 @@ import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.serializer.SerializerException;
+import org.apache.olingo.server.api.uri.UriParameter;
+import org.apache.olingo.server.api.uri.UriResourceKind;
+import org.apache.olingo.server.api.uri.UriResourceNavigation;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Matchers;
 
@@ -39,6 +53,8 @@ import com.sap.olingo.jpa.processor.core.api.JPAAbstractCUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.api.JPACUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
+import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
+import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionKey;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 
 public class TestJPACreateProcessor extends TestJPAModifyProcessor {
@@ -351,6 +367,85 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     fail();
   }
 
+  @Ignore
+  @Test
+  public void testResponseCreateChildContent() throws ODataJPAProcessorException, SerializerException,
+      ODataException, IOException {
+
+    when(ets.getName()).thenReturn("AdministrativeDivisions");
+    final AdministrativeDivision div = new AdministrativeDivision(new AdministrativeDivisionKey("Eurostat", "NUTS1",
+        "DE6"));
+    final RequestHandleSpy spy = new RequestHandleSpy(div);
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareRequestToCreateChild(spy);
+
+    final UriResourceNavigation uriChild = mock(UriResourceNavigation.class);
+    final List<UriParameter> uriKeys = new ArrayList<>();
+    final EdmNavigationProperty naviProperty = mock(EdmNavigationProperty.class);
+
+    createKeyPredicate(uriKeys, "DivisionCode", "DE6");
+    createKeyPredicate(uriKeys, "CodeID", "NUTS1");
+    createKeyPredicate(uriKeys, "CodePublisher", "Eurostat");
+    when(uriChild.getKind()).thenReturn(UriResourceKind.navigationProperty);
+    when(uriChild.getProperty()).thenReturn(naviProperty);
+    when(uriEts.getKeyPredicates()).thenReturn(uriKeys);
+    pathParts.add(uriChild);
+//    targteKeyPredicates = ((UriResourceEntitySet) resourceItem).getKeyPredicates();
+//    if (resourceItem.getKind() == UriResourceKind.navigationProperty) {
+
+    processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
+
+    assertNotNull(spy.requestEntity.getKeys());
+    assertEquals("DE6", spy.requestEntity.getKeys().get("DivisionCode"));
+    assertNotNull(spy.requestEntity.getData().get("Children"));
+  }
+
+  protected ODataRequest prepareRequestToCreateChild(JPAAbstractCUDRequestHandler spy)
+      throws ODataJPAProcessorException, SerializerException, ODataException {
+    // .../AdministrativeDivisions(DivisionCode='DE6',CodeID='NUTS1',CodePublisher='Eurostat')/Children
+    final ODataRequest request = prepareSimpleRequest("return=representation");
+
+    final FullQualifiedName fqn = new FullQualifiedName("com.sap.olingo.jpa.AdministrativeDivision");
+    final List<String> keyNames = Arrays.asList("DivisionCode", "CodeID", "CodePublisher");
+    final Edm edm = mock(Edm.class);
+    final EdmEntityType edmET = mock(EdmEntityType.class);
+
+    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    // when(em.find(AdministrativeDivision.class, any())).thenReturn(div);
+
+    when(serviceMetadata.getEdm()).thenReturn(edm);
+    when(edm.getEntityType(fqn)).thenReturn(edmET);
+    when(edmET.getKeyPredicateNames()).thenReturn(keyNames);
+
+    createKeyProperty(fqn, edmET, "DivisionCode", "DE6");
+    createKeyProperty(fqn, edmET, "CodeID", "NUTS1");
+    createKeyProperty(fqn, edmET, "CodePublisher", "Eurostat");
+
+    when(serializer.serialize(Matchers.eq(request), Matchers.any(EntityCollection.class))).thenReturn(serializerResult);
+    when(serializerResult.getContent()).thenReturn(new ByteArrayInputStream("{\"ID\":\"35\"}".getBytes()));
+
+    return request;
+  }
+
+  private void createKeyPredicate(final List<UriParameter> uriKeys, String name, String value) {
+    UriParameter key = mock(UriParameter.class);
+    uriKeys.add(key);
+    when(key.getName()).thenReturn(name);
+    when(key.getText()).thenReturn(value);
+  }
+
+  private void createKeyProperty(final FullQualifiedName fqn, final EdmEntityType edmET, String name, String value) {
+    final EdmKeyPropertyRef refType = mock(EdmKeyPropertyRef.class);
+    when(edmET.getKeyPropertyRef(name)).thenReturn(refType);
+    when(edmET.getFullQualifiedName()).thenReturn(fqn);
+    final EdmProperty edmProperty = mock(EdmProperty.class);
+    when(refType.getProperty()).thenReturn(edmProperty);
+    when(refType.getName()).thenReturn(name);
+    EdmPrimitiveType type = mock(EdmPrimitiveType.class);
+    when(edmProperty.getType()).thenReturn(type);
+    when(type.toUriLiteral(Matchers.anyString())).thenReturn(value);
+  }
+
   class RequestHandleSpy extends JPAAbstractCUDRequestHandler {
     public int noValidateCalls;
     public JPAEntityType et;
@@ -358,17 +453,28 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     public EntityManager em;
     public boolean called = false;
     public Map<String, List<String>> headers;
+    public JPARequestEntity requestEntity;
+    private final Object result;
+
+    RequestHandleSpy(Object result) {
+      this.result = result;
+    }
+
+    RequestHandleSpy() {
+      this.result = new Organization();
+      ((Organization) result).setID("35");
+    }
 
     @Override
     public Object createEntity(final JPARequestEntity requestEntity, EntityManager em)
         throws ODataJPAProcessException {
-      Organization result = new Organization();
-      result.setID("35");
+
       this.et = requestEntity.getEntityType();
       this.jpaAttributes = requestEntity.getData();
       this.em = em;
       this.headers = requestEntity.getAllHeader();
       this.called = true;
+      this.requestEntity = requestEntity;
       return result;
     }
 
@@ -376,6 +482,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     public void validateChanges(final EntityManager em) throws ODataJPAProcessException {
       this.noValidateCalls++;
     }
+
   }
 
   class RequestHandleMapResultSpy extends JPAAbstractCUDRequestHandler {
@@ -383,6 +490,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     public Map<String, Object> jpaAttributes;
     public EntityManager em;
     public boolean called = false;
+    public JPARequestEntity requestEntity;
 
     @Override
     public Object createEntity(final JPARequestEntity requestEntity, EntityManager em)
@@ -393,6 +501,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
       this.jpaAttributes = requestEntity.getData();
       this.em = em;
       this.called = true;
+      this.requestEntity = requestEntity;
       return result;
     }
   }
