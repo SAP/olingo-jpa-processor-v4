@@ -13,6 +13,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.PostPersist;
+import javax.persistence.PostUpdate;
 import javax.persistence.Table;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
@@ -103,7 +105,7 @@ public class AdministrativeDivision implements KeyAccess {
   private List<AdministrativeDivisionDescription> allDescriptions;
 
   public AdministrativeDivision() {
-    // required fo JPA
+    // required for JPA
   }
 
   public AdministrativeDivision(final AdministrativeDivisionKey key) {
@@ -112,60 +114,61 @@ public class AdministrativeDivision implements KeyAccess {
     divisionCode = key.getDivisionCode();
   }
 
-  public String getCodePublisher() {
-    return codePublisher;
-  }
-
-  public String getCodeID() {
-    return codeID;
-  }
-
-  public String getDivisionCode() {
-    return divisionCode;
-  }
-
-  public String getCountryCode() {
-    return countryCode;
-  }
-
-  public String getParentDivisionCode() {
-    return parentDivisionCode;
+  @PostPersist
+  @PostUpdate
+  public void adjustParent() {
+    for (AdministrativeDivision child : children) {
+      child.setParent(this);
+    }
   }
 
   public String getAlternativeCode() {
     return alternativeCode;
   }
 
-  public AdministrativeDivision getParent() {
-    return parent;
-  }
-
   public int getArea() {
     return area;
   }
 
+  public List<AdministrativeDivision> getChildren() {
+    return children;
+  }
+
+  public String getCodeID() {
+    return codeID;
+  }
+
+  public String getCodePublisher() {
+    return codePublisher;
+  }
+
+  public String getCountryCode() {
+    return countryCode;
+  }
+
+  public String getDivisionCode() {
+    return divisionCode;
+  }
+
+  @Override
+  public Object getKey() {
+    return new AdministrativeDivisionKey(codePublisher, codeID, divisionCode);
+  }
+
+  public AdministrativeDivision getParent() {
+    return parent;
+  }
+
+  public String getParentCodeID() {
+    return parentCodeID;
+  }
+
+  public String getParentDivisionCode() {
+    return parentDivisionCode;
+  }
+
   public long getPopulation() {
     return population;
-  }
-
-  public void setCodePublisher(String codePublisher) {
-    this.codePublisher = codePublisher;
-  }
-
-  public void setCodeID(String codeID) {
-    this.codeID = codeID;
-  }
-
-  public void setDivisionCode(String divisionCode) {
-    this.divisionCode = divisionCode;
-  }
-
-  public void setCountryCode(String countryCode) {
-    this.countryCode = countryCode;
-  }
-
-  public void setParentDivisionCode(String parentDivisionCode) {
-    this.parentDivisionCode = parentDivisionCode;
   }
 
   public void setAlternativeCode(String alternativeCode) {
@@ -176,25 +179,28 @@ public class AdministrativeDivision implements KeyAccess {
     this.area = area;
   }
 
-  public void setPopulation(long population) {
-    this.population = population;
+  public void setArea(Integer area) {
+    this.area = area;
   }
 
-  public String getParentCodeID() {
-    return parentCodeID;
+  public void setChildren(List<AdministrativeDivision> children) {
+    this.children = children;
   }
 
-  public void setParentCodeID(String parentCodeID) {
-    this.parentCodeID = parentCodeID;
+  public void setCodeID(String codeID) {
+    this.codeID = codeID;
   }
 
-  @Override
-  public Object getKey() {
-    return new AdministrativeDivisionKey(codePublisher, codeID, divisionCode);
+  public void setCodePublisher(String codePublisher) {
+    this.codePublisher = codePublisher;
   }
 
-  public List<AdministrativeDivision> getChildren() {
-    return children;
+  public void setCountryCode(String countryCode) {
+    this.countryCode = countryCode;
+  }
+
+  public void setDivisionCode(String divisionCode) {
+    this.divisionCode = divisionCode;
   }
 
   public void setParent(AdministrativeDivision parent) {
@@ -204,11 +210,15 @@ public class AdministrativeDivision implements KeyAccess {
 
   }
 
-  public void setArea(Integer area) {
-    this.area = area;
+  public void setParentCodeID(String parentCodeID) {
+    this.parentCodeID = parentCodeID;
   }
 
-  public void setChildren(List<AdministrativeDivision> children) {
-    this.children = children;
+  public void setParentDivisionCode(String parentDivisionCode) {
+    this.parentDivisionCode = parentDivisionCode;
+  }
+
+  public void setPopulation(long population) {
+    this.population = population;
   }
 }

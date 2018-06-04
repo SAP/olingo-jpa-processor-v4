@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -49,6 +51,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
+import com.sap.olingo.jpa.processor.core.query.EdmEntitySetInfo;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializer;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionKey;
@@ -85,6 +88,7 @@ public abstract class TestJPAModifyProcessor {
   protected EntityTransaction transaction;
   protected JPASerializer serializer;
   protected EdmEntitySet ets;
+  protected EdmEntitySetInfo etsInfo;
   protected List<UriParameter> keyPredicates;
   protected JPAConversionHelper convHelper;
   protected List<UriResource> pathParts = new ArrayList<>();
@@ -101,6 +105,7 @@ public abstract class TestJPAModifyProcessor {
     uriInfo = mock(UriInfo.class);
     keyPredicates = new ArrayList<>();
     ets = mock(EdmEntitySet.class);
+    etsInfo = mock(EdmEntitySetInfo.class);
     serializer = mock(JPASerializer.class);
     uriEts = mock(UriResourceEntitySet.class);
     pathParts.add(uriEts);
@@ -121,6 +126,7 @@ public abstract class TestJPAModifyProcessor {
     when(uriEts.getKind()).thenReturn(UriResourceKind.entitySet);
     when(ets.getName()).thenReturn("Organizations");
     when(em.getTransaction()).thenReturn(transaction);
+    when(etsInfo.getEdmEntitySet()).thenReturn(ets);
     processor = new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext, convHelper);
 
   }
@@ -224,17 +230,18 @@ public abstract class TestJPAModifyProcessor {
   protected ODataRequest prepareSimpleRequest(String content) throws ODataException, ODataJPAProcessorException,
       SerializerException {
 
-    EntityTransaction transaction = mock(EntityTransaction.class);
+    final EntityTransaction transaction = mock(EntityTransaction.class);
     when(em.getTransaction()).thenReturn(transaction);
 
-    ODataRequest request = mock(ODataRequest.class);
+    final ODataRequest request = mock(ODataRequest.class);
     when(request.getHeaders(HttpHeader.PREFER)).thenReturn(header);
     when(sessionContext.getEdmProvider()).thenReturn(jpaEdm);
-
+    when(etsInfo.getEdmEntitySet()).thenReturn(ets);
     header.add(content);
 
     Entity odataEntity = mock(Entity.class);
-    when(convHelper.convertInputStream(odata, request, ContentType.JSON, ets)).thenReturn(odataEntity);
+    when(convHelper.convertInputStream(same(odata), same(request), same(ContentType.JSON), any())).thenReturn(
+        odataEntity);
     when(convHelper.convertKeyToLocal(Matchers.eq(odata), Matchers.eq(request), Matchers.eq(ets),
         (JPAEntityType) Matchers.anyObject(), Matchers.anyObject())).thenReturn(LOCATION_HEADER);
     return request;
