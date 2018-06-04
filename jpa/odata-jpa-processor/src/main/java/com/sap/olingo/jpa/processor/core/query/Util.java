@@ -70,7 +70,37 @@ public final class Util {
         naviPropertyName = new StringBuilder();
       }
     }
-    return new EdmEntitySetResult(targetEdmEntitySet, targteKeyPredicates);
+    return new EdmEntitySetResult(targetEdmEntitySet, targteKeyPredicates, naviPropertyName.toString());
+  }
+
+  public static EdmEntitySetInfo determineModifyEntitySetAndKeys(final List<UriResource> resources) {
+    EdmEntitySet targetEdmEntitySet = null;
+    List<UriParameter> targteKeyPredicates = new ArrayList<>();
+    StringBuilder naviPropertyName = new StringBuilder();
+
+    for (final UriResource resourceItem : resources) {
+      if (resourceItem.getKind() == UriResourceKind.entitySet) {
+        targetEdmEntitySet = ((UriResourceEntitySet) resourceItem).getEntitySet();
+        targteKeyPredicates = ((UriResourceEntitySet) resourceItem).getKeyPredicates();
+      }
+      if (resourceItem.getKind() == UriResourceKind.complexProperty) {
+        naviPropertyName.append(((UriResourceComplexProperty) resourceItem).getProperty().getName());
+        naviPropertyName.append(JPAPath.PATH_SEPERATOR);
+      }
+      if (resourceItem.getKind() == UriResourceKind.navigationProperty) {
+        naviPropertyName.append(((UriResourceNavigation) resourceItem).getProperty().getName());
+        final List<UriParameter> keyPredicates = ((UriResourceNavigation) resourceItem).getKeyPredicates();
+        if (!keyPredicates.isEmpty()) {
+          targteKeyPredicates = keyPredicates;
+          final EdmBindingTarget edmBindingTarget = targetEdmEntitySet.getRelatedBindingTarget(naviPropertyName
+              .toString());
+          if (edmBindingTarget instanceof EdmEntitySet)
+            targetEdmEntitySet = (EdmEntitySet) edmBindingTarget;
+          naviPropertyName = new StringBuilder();
+        }
+      }
+    }
+    return new EdmEntitySetResult(targetEdmEntitySet, targteKeyPredicates, naviPropertyName.toString());
   }
 
   /**

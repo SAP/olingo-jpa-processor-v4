@@ -8,13 +8,17 @@ import java.util.Map;
 
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAInvocationTargetException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys;
 
 /**
  * This class provides some primitive util methods to support modifying
@@ -59,6 +63,31 @@ public final class JPAModifyUtil {
   }
 
   /**
+   * Sets a link between a source and target instance. Prerequisite are
+   * existing setter and getter on the level of the sourceInstance. In case of to n associations it is expected that the
+   * getter always returns a collection. In case structured properties are passed either a getter returns always an
+   * instance or the corresponding type has a parameter less constructor.
+   * 
+   * @param parentInstance
+   * @param newInstance
+   * @param pathInfo
+   * @throws ODataJPAProcessorException
+   */
+
+  public <T> void linkEntities(final Object sourceInstance, final T targetInstance, final JPAAssociationPath pathInfo)
+      throws ODataJPAProcessorException {
+
+    try {
+      final Object source = determineSourceForLink(sourceInstance, pathInfo);
+      setLink(source, targetInstance, pathInfo.getLeaf());
+
+    } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
+        | InvocationTargetException e) {
+      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  /**
    * Fills instance without filling its embedded components.
    * 
    * @param jpaAttributes Map of attributes and values that shall be changed
@@ -89,8 +118,7 @@ public final class JPAModifyUtil {
             } catch (InvocationTargetException e) {
               try {
                 throw new ODataJPAInvocationTargetException(e.getCause(), st.getExternalName() + JPAPath.PATH_SEPERATOR
-                    + st.getAttribute(
-                        attributeName).getExternalName());
+                    + st.getAttribute(attributeName).getExternalName());
               } catch (ODataJPAModelException e1) {
                 throw new ODataJPAProcessorException(e1, HttpStatusCode.INTERNAL_SERVER_ERROR);
               }
@@ -167,33 +195,40 @@ public final class JPAModifyUtil {
   }
 
   /**
-   * Sets a link between a source and target instance. Prerequisite are
-   * existing setter and getter on the level of the sourceInstance. In case of to n associations it is expected that the
-   * getter always returns a collection.
-   * 
-   * @param parentInstance
-   * @param newInstance
+   * Determines the instance a link shall be added to. This may be the entity or a structured type. If the structured
+   * property does not exists, the method creates a new instance.
+   * @param sourceInstance
    * @param pathInfo
+   * @return
+   * @throws NoSuchMethodException
+   * @throws IllegalAccessException
+   * @throws InvocationTargetException
    * @throws ODataJPAProcessorException
    */
-  @SuppressWarnings("unchecked")
-  public <T> void linkEntities(final Object sourceInstance, final T targetInstance, final JPAAssociationPath pathInfo)
-      throws ODataJPAProcessorException {
-    final String relationName = pathInfo.getPath().get(0).getInternalName();
-    final String methodSuffix = relationName.substring(0, 1).toUpperCase() + relationName.substring(1);
-    try {
-      if (pathInfo.isCollection()) {
-        final Method getter = sourceInstance.getClass().getMethod("get" + methodSuffix);
-        ((Collection<T>) getter.invoke(sourceInstance)).add(targetInstance);
-      } else {
-        final Method setter = sourceInstance.getClass().getMethod("set" + methodSuffix,
-            targetInstance.getClass());
-        setter.invoke(sourceInstance, targetInstance);
+  private Object determineSourceForLink(final Object sourceInstance, final JPAAssociationPath pathInfo)
+      throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, ODataJPAProcessorException {
+
+    Object source = sourceInstance;
+    for (JPAElement pathItem : pathInfo.getPath()) {
+      if (pathItem != pathInfo.getLeaf()) {
+        final String relationName = pathItem.getInternalName();
+        final String methodSuffix = relationName.substring(0, 1).toUpperCase() + relationName.substring(1);
+        final Method getter = source.getClass().getMethod("get" + methodSuffix);
+        Object next = getter.invoke(source);
+        if (next == null) {
+          try {
+            final Constructor<?> c = ((JPAAttribute) pathItem).getStructuredType().getTypeClass().getConstructor();
+            next = c.newInstance();
+            final Method setter = source.getClass().getMethod("set" + methodSuffix, next.getClass());
+            setter.invoke(source, next);
+          } catch (ODataJPAModelException | InstantiationException e) {
+            throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+          }
+        }
+        source = next;
       }
-    } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
-        | InvocationTargetException e) {
-      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
+    return source;
   }
 
   private void handleInvocationTargetException(JPAStructuredType st, final String attributeName, Exception e)
@@ -216,6 +251,33 @@ public final class JPAModifyUtil {
           + ((ODataJPAInvocationTargetException) e).getPath());
     else
       throw new ODataJPAInvocationTargetException(e.getCause(), pathPart);
+  }
+
+  @SuppressWarnings("unchecked")
+  private <T> void setLink(final Object sourceInstance, final T targetInstance, final JPAAssociationAttribute attribute)
+      throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, ODataJPAProcessorException {
+
+    final String methodSuffix = attribute.getInternalName().substring(0, 1).toUpperCase() + attribute.getInternalName()
+        .substring(1);
+
+    if (attribute.isCollection()) {
+      final Method getter = sourceInstance.getClass().getMethod("get" + methodSuffix);
+      ((Collection<T>) getter.invoke(sourceInstance)).add(targetInstance);
+    } else {
+      Method setter = null;
+      Class<?> clazz = targetInstance.getClass();
+      while (clazz != null && setter == null) {
+        try {
+          setter = sourceInstance.getClass().getMethod("set" + methodSuffix, clazz);
+        } catch (NoSuchMethodException e) {
+          clazz = clazz.getSuperclass();
+        }
+      }
+      if (setter == null)
+        throw new ODataJPAProcessorException(MessageKeys.SETTER_NOT_FOUND, HttpStatusCode.INTERNAL_SERVER_ERROR, "set"
+            + methodSuffix, sourceInstance.getClass().getName(), targetInstance.getClass().getName());
+      setter.invoke(sourceInstance, targetInstance);
+    }
   }
 
 }
