@@ -14,7 +14,7 @@ public class ODataJPASerializerException extends ODataJPAProcessException {
    */
   private static final long serialVersionUID = -7188499882306858747L;
 
-  public static enum MessageKeys implements ODataJPAMessageKey {
+  public enum MessageKeys implements ODataJPAMessageKey {
     RESULT_NOT_FOUND,
     NOT_SUPPORTED_RESOURCE_TYPE;
 

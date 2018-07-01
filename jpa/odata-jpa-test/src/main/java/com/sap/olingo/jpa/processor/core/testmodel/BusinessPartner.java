@@ -2,6 +2,7 @@ package com.sap.olingo.jpa.processor.core.testmodel;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 
@@ -192,6 +193,8 @@ public abstract class BusinessPartner implements KeyAccess {
   }
 
   public Collection<BusinessPartnerRole> getRoles() {
+    if (roles == null)
+      roles = new ArrayList<>();
     return roles;
   }
 

@@ -32,6 +32,11 @@ public class Organization extends BusinessPartner {
     type = "2";
   }
 
+  public Organization(final String id) {
+    iD = id;
+    type = "2";
+  }
+
   @Column(name = "\"NameLine1\"")
   private String name1;
 

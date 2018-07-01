@@ -3,6 +3,7 @@ package com.sap.olingo.jpa.processor.core.processor;
 import java.util.Map;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 
 public interface JPARequestLink {
   /**
@@ -14,8 +15,9 @@ public interface JPARequestLink {
   /**
    * Map of related keys
    * @return
+   * @throws ODataJPAProcessorException
    */
-  public Map<String, Object> getRelatedKeys();
+  public Map<String, Object> getRelatedKeys() throws ODataJPAProcessorException;
 
-  public Map<String, Object> getValues();
+  public Map<String, Object> getValues() throws ODataJPAProcessorException;
 }

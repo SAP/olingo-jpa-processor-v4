@@ -47,6 +47,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
+import com.sap.olingo.jpa.processor.core.query.EdmEntitySetInfo;
 import com.sap.olingo.jpa.processor.core.testmodel.ABCClassifiaction;
 import com.sap.olingo.jpa.processor.core.testmodel.AccessRights;
 import com.sap.olingo.jpa.processor.core.testmodel.AccessRightsConverter;
@@ -114,13 +115,17 @@ public class TestJPACUDRequestHelper {
 
   @Test
   public void testConvertEmptyInputStream() throws UnsupportedEncodingException {
-    ODataRequest request = mock(ODataRequest.class);
-    EdmEntitySet edmEntitySet = mock(EdmEntitySet.class);
+    final ODataRequest request = mock(ODataRequest.class);
+    final EdmEntitySetInfo etsInfo = mock(EdmEntitySetInfo.class);
+    final EdmEntitySet ets = mock(EdmEntitySet.class);
 
-    InputStream is = new ByteArrayInputStream("".getBytes("UTF-8"));
+    final InputStream is = new ByteArrayInputStream("".getBytes("UTF-8"));
     when(request.getBody()).thenReturn(is);
+    when(etsInfo.getEdmEntitySet()).thenReturn(ets);
+    when(etsInfo.getTargetEdmEntitySet()).thenReturn(ets);
+
     try {
-      cut.convertInputStream(OData.newInstance(), request, ContentType.APPLICATION_JSON, edmEntitySet);
+      cut.convertInputStream(OData.newInstance(), request, ContentType.APPLICATION_JSON, etsInfo);
     } catch (ODataJPAProcessorException e) {
       assertEquals(HttpStatusCode.BAD_REQUEST.getStatusCode(), e.getStatusCode());
       return;
@@ -133,11 +138,12 @@ public class TestJPACUDRequestHelper {
   public void testConvertInputStream() throws UnsupportedEncodingException, ODataJPAProcessorException,
       EdmPrimitiveTypeException {
 
-    ODataRequest request = mock(ODataRequest.class);
-    EdmEntitySet edmEntitySet = mock(EdmEntitySet.class);
-    EdmEntityType edmEntityType = mock(EdmEntityType.class);
-    EdmProperty edmPropertyId = mock(EdmProperty.class);
-    EdmPrimitiveType edmTypeId = mock(EdmPrimitiveType.class);
+    final ODataRequest request = mock(ODataRequest.class);
+    final EdmEntitySetInfo edmEntitySetInfo = mock(EdmEntitySetInfo.class);
+    final EdmEntitySet edmEntitySet = mock(EdmEntitySet.class);
+    final EdmEntityType edmEntityType = mock(EdmEntityType.class);
+    final EdmProperty edmPropertyId = mock(EdmProperty.class);
+    final EdmPrimitiveType edmTypeId = mock(EdmPrimitiveType.class);
 
     FullQualifiedName fqn = new FullQualifiedName("test", "Organisation");
     FullQualifiedName fqnString = new FullQualifiedName("test", "Organisation");
@@ -157,11 +163,12 @@ public class TestJPACUDRequestHelper {
     when(edmEntityType.getProperty("ID")).thenReturn(edmPropertyId);
     when(edmPropertyId.getName()).thenReturn("ID");
     when(edmPropertyId.getType()).thenReturn(edmTypeId);
-
+    when(edmEntitySetInfo.getEdmEntitySet()).thenReturn(edmEntitySet);
+    when(edmEntitySetInfo.getTargetEdmEntitySet()).thenReturn(edmEntitySet);
     InputStream is = new ByteArrayInputStream("{\"ID\" : \"35\"}".getBytes("UTF-8"));
     when(request.getBody()).thenReturn(is);
 
-    Entity act = cut.convertInputStream(OData.newInstance(), request, ContentType.APPLICATION_JSON, edmEntitySet);
+    Entity act = cut.convertInputStream(OData.newInstance(), request, ContentType.APPLICATION_JSON, edmEntitySetInfo);
     assertEquals("35", act.getProperty("ID").getValue());
   }
 

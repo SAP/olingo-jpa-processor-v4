@@ -18,23 +18,27 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAInvocationTargetException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionKey;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
+import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
+import com.sap.olingo.jpa.processor.core.testmodel.Person;
 import com.sap.olingo.jpa.processor.core.testmodel.PostalAddressData;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 
 public class TestModifyUtil extends TestBase {
-  private JPAModifyUtil       cut;
+  private JPAModifyUtil cut;
   private Map<String, Object> jpaAttributes;
-  private BusinessPartner     partner;
-  private JPAEntityType       org;
+  private BusinessPartner partner;
+  private JPAEntityType org;
 
   @Before
   public void setUp() throws ODataException {
@@ -277,6 +281,37 @@ public class TestModifyUtil extends TestBase {
     assertEquals("Test", act.getCodePublisher());
     assertEquals("10", act.getCodeID());
     assertEquals("10.1", act.getDivisionCode());
+  }
+
+  @Test
+  public void testDeepLinkComplexNotExist() throws ODataJPAProcessorException, ODataJPAModelException {
+    final Organization source = new Organization("100");
+    final Person target = new Person();
+    target.setID("A");
+    final JPAAssociationPath path = helper.getJPAAssociationPath("Organizations",
+        "AdministrativeInformation/Updated/User");
+
+    cut.linkEntities(source, target, path);
+
+    assertNotNull(source.getAdministrativeInformation());
+    assertNotNull(source.getAdministrativeInformation().getUpdated());
+    assertEquals(target, source.getAdministrativeInformation().getUpdated().getUser());
+  }
+
+  @Test
+  public void testDirectLink() throws ODataJPAProcessorException, ODataJPAModelException {
+    final Organization source = new Organization("100");
+    final BusinessPartnerRole target = new BusinessPartnerRole();
+    target.setBusinessPartnerID("100");
+    target.setRoleCategory("A");
+    final JPAAssociationPath path = helper.getJPAAssociationPath("Organizations",
+        "Roles");
+
+    cut.linkEntities(source, target, path);
+
+    assertNotNull(source.getRoles());
+    assertNotNull(source.getRoles().toArray()[0]);
+    assertEquals(target, source.getRoles().toArray()[0]);
   }
 
   private JPAEntityType createSingleKeyEntityType() throws ODataJPAModelException {
