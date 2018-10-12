@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.query;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
@@ -118,8 +119,9 @@ public class TestJPAQuerySelectByPath extends TestBase {
     helper.assertStatus(200);
 
     ObjectNode org = helper.getValue();
+    System.out.println(org);
     assertEquals("US-UT", org.get("value").asText());
-    assertEquals("$metadata#Organizations/Address/Region", org.get("@odata.context").asText());
+    assertTrue(org.get("@odata.context").asText().endsWith("$metadata#Organizations/Address/Region"));
   }
 
   @Ignore // TODO check image load
