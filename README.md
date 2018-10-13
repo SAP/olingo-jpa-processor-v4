@@ -43,7 +43,7 @@ For bugs, questions and ideas for enhancement please open an issue in github.
 # To-Do (upcoming-changes)
 The flowing extensions/changes are planned:
 
-* Content-ID handling in $batch requets
+* Content-ID handling in $batch requests
 * Enable hooks for retrieving data.
 * Support asynchronous requests
 * Parallel processing for $expand.
