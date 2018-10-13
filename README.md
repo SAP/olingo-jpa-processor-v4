@@ -9,7 +9,7 @@ At the current state the JPA Processor provide support for:
 More details can be found in the [Tutorials](/jpa-tutorial/Tutorials/Introduction/Introduction.md).
 
 # Requirements
-The JPA Processor requires, others than Olingo, minimum Java version  [1.8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html). The current version comes with Olingo 4.4.0. If later versions of OLingo are available this may change.
+The JPA Processor requires, others than Olingo, minimum Java version  [1.8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html). The current version comes with Olingo 4.5.0. If later versions of OLingo are available this may change.
 
 Even so no JPA implementation is preferred, as long as it supports [JSR-338 Java Persistence 2.1](https://jcp.org/en/jsr/detail?id=317), it has to be stated that all test have been performed with [Eclipselink 2.6.2](http://www.eclipse.org/eclipselink/). If you have any isusse with e.g. [Hibernate](http://hibernate.org) create an issue in github.
 
@@ -21,7 +21,7 @@ clone the repository, import the projects and declare a dependency to either the
 <dependency>
 	<groupId>com.sap.olingo</groupId>
 	<artifactId>odata-jpa-metadata</artifactId>
-	<version>0.2.9-SNAPSHOT</version>
+	<version>0.2.10-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -31,8 +31,7 @@ Or to the complete processor:
 <dependency>
 	<groupId>com.sap.olingo</groupId>
 	<artifactId>odata-jpa-processor</artifactId>
-	<version>0.2.9-SNAPSHOT</version>
-</dependency>
+	<version>0.2.10
 ```
 
 # Limitations
@@ -69,3 +68,4 @@ This file is licensed under the Apache Software License, v.2 except as noted oth
 |0.2.7|- Solution for issue [#29](https://github.com/SAP/olingo-jpa-processor-v4/issues/29)<br> - Solution for issue [#35](https://github.com/SAP/olingo-jpa-processor-v4/issues/35)<br> - Solution for issue [#37](https://github.com/SAP/olingo-jpa-processor-v4/issues/37)<br>|No|
 |0.2.8|- Support of Collection Properties<br> - New tutorials 1.7 Suppressing Elements and 1.13 Collection Properties |No|
 |0.2.9|- Support on top level server driven paging<br> - New tutorial 4.3 Server Driven Paging |No|  
+|0.2.10|- Handling of Content-Id in batch requests<br> - Update to Olingo 4.5.0<br> - Update tutorial 1.6, 3.3, 3.5 and 3.6  |No|  

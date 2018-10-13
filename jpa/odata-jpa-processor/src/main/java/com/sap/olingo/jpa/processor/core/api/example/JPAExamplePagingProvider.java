@@ -19,7 +19,7 @@ import com.sap.olingo.jpa.processor.core.query.JPACountQuery;
 
 public class JPAExamplePagingProvider implements JPAODataPagingProvider {
 
-  private static int DEFAULT_BUFFER_SIZE = 100;
+  private static final int DEFAULT_BUFFER_SIZE = 100;
   private final Map<String, Integer> maxPageSizes;
   private final Map<String, CacheEntry> pageCache;
   private final int cacheSize;
@@ -38,7 +38,7 @@ public class JPAExamplePagingProvider implements JPAODataPagingProvider {
 
   @Override
   public JPAODataPage getNextPage(final String skiptoken) {
-    final CacheEntry privousePage = pageCache.get(skiptoken);
+    final CacheEntry privousePage = pageCache.get(skiptoken.replaceAll("'", ""));
     if (privousePage != null) {
       // Calculate next page
       final Integer skip = privousePage.getPage().getSkip() + privousePage.getPage().getTop();
@@ -95,8 +95,8 @@ public class JPAExamplePagingProvider implements JPAODataPagingProvider {
     if (pageCache.size() == cacheSize)
       pageCache.remove(index.poll());
 
-    pageCache.put(page.getSkiptoken(), new CacheEntry(count, page));
-    index.add(page.getSkiptoken());
+    pageCache.put((String) page.getSkiptoken(), new CacheEntry(count, page));
+    index.add((String) page.getSkiptoken());
   }
 
   private class CacheEntry {

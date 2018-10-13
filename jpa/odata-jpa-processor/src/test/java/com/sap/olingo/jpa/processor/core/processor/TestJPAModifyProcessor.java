@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -24,6 +26,7 @@ import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpHeader;
+import org.apache.olingo.commons.core.edm.primitivetype.EdmString;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ServiceMetadata;
@@ -48,7 +51,10 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
+import com.sap.olingo.jpa.processor.core.query.EdmEntitySetInfo;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializer;
+import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
+import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionKey;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
@@ -82,6 +88,7 @@ public abstract class TestJPAModifyProcessor {
   protected EntityTransaction transaction;
   protected JPASerializer serializer;
   protected EdmEntitySet ets;
+  protected EdmEntitySetInfo etsInfo;
   protected List<UriParameter> keyPredicates;
   protected JPAConversionHelper convHelper;
   protected List<UriResource> pathParts = new ArrayList<>();
@@ -98,6 +105,7 @@ public abstract class TestJPAModifyProcessor {
     uriInfo = mock(UriInfo.class);
     keyPredicates = new ArrayList<>();
     ets = mock(EdmEntitySet.class);
+    etsInfo = mock(EdmEntitySetInfo.class);
     serializer = mock(JPASerializer.class);
     uriEts = mock(UriResourceEntitySet.class);
     pathParts.add(uriEts);
@@ -118,14 +126,14 @@ public abstract class TestJPAModifyProcessor {
     when(uriEts.getKind()).thenReturn(UriResourceKind.entitySet);
     when(ets.getName()).thenReturn("Organizations");
     when(em.getTransaction()).thenReturn(transaction);
+    when(etsInfo.getEdmEntitySet()).thenReturn(ets);
     processor = new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext, convHelper);
 
   }
 
   protected ODataRequest prepareRepresentationRequest(JPAAbstractCUDRequestHandler spy)
-      throws ODataJPAProcessorException,
-      SerializerException,
-      ODataException {
+      throws ODataJPAProcessorException, SerializerException, ODataException {
+
     ODataRequest request = prepareSimpleRequest("return=representation");
 
     when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
@@ -156,25 +164,84 @@ public abstract class TestJPAModifyProcessor {
     return request;
   }
 
+  protected ODataRequest prepareLinkRequest(JPAAbstractCUDRequestHandler spy)
+      throws ODataJPAProcessorException, SerializerException, ODataException {
+
+    // .../AdministrativeDivisions(DivisionCode='DE60',CodeID='NUTS2',CodePublisher='Eurostat')
+    final ODataRequest request = prepareSimpleRequest("return=representation");
+    final Edm edm = mock(Edm.class);
+    final EdmEntityType edmET = mock(EdmEntityType.class);
+
+    final FullQualifiedName fqn = new FullQualifiedName("com.sap.olingo.jpa.AdministrativeDivision");
+    final List<String> keyNames = new ArrayList<>();
+
+    final AdministrativeDivisionKey key = new AdministrativeDivisionKey("Eurostat", "NUTS2", "DE60");
+    final AdministrativeDivision div = new AdministrativeDivision(key);
+
+    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(em.find(AdministrativeDivision.class, key)).thenReturn(div);
+    when(serviceMetadata.getEdm()).thenReturn(edm);
+    when(edm.getEntityType(fqn)).thenReturn(edmET);
+    when(ets.getName()).thenReturn("AdministrativeDivisions");
+    when(uriEts.getKeyPredicates()).thenReturn(keyPredicates);
+    keyNames.add("DivisionCode");
+    keyNames.add("CodeID");
+    keyNames.add("CodePublisher");
+    when(edmET.getKeyPredicateNames()).thenReturn(keyNames);
+    when(edmET.getFullQualifiedName()).thenReturn(fqn);
+
+    EdmPrimitiveType type = EdmString.getInstance();
+    EdmKeyPropertyRef refType = mock(EdmKeyPropertyRef.class);
+    EdmProperty edmProperty = mock(EdmProperty.class);
+    when(edmET.getKeyPropertyRef("DivisionCode")).thenReturn(refType);
+    when(refType.getProperty()).thenReturn(edmProperty);
+    when(refType.getName()).thenReturn("DivisionCode");
+    when(edmProperty.getType()).thenReturn(type);
+    when(edmProperty.getMaxLength()).thenReturn(50);
+
+    refType = mock(EdmKeyPropertyRef.class);
+    edmProperty = mock(EdmProperty.class);
+    when(edmET.getKeyPropertyRef("CodeID")).thenReturn(refType);
+    when(refType.getProperty()).thenReturn(edmProperty);
+    when(refType.getName()).thenReturn("CodeID");
+    when(edmProperty.getType()).thenReturn(type);
+    when(edmProperty.getMaxLength()).thenReturn(50);
+
+    refType = mock(EdmKeyPropertyRef.class);
+    edmProperty = mock(EdmProperty.class);
+    when(edmET.getKeyPropertyRef("CodePublisher")).thenReturn(refType);
+    when(refType.getProperty()).thenReturn(edmProperty);
+    when(refType.getName()).thenReturn("CodePublisher");
+    when(edmProperty.getType()).thenReturn(type);
+    when(edmProperty.getMaxLength()).thenReturn(50);
+
+    when(serializer.serialize(Matchers.eq(request), Matchers.any(EntityCollection.class))).thenReturn(serializerResult);
+    when(serializerResult.getContent()).thenReturn(new ByteArrayInputStream("{\"ParentCodeID\":\"NUTS1\"}".getBytes()));
+
+    return request;
+
+  }
+
   protected ODataRequest prepareSimpleRequest() throws ODataException, ODataJPAProcessorException, SerializerException {
 
     return prepareSimpleRequest("return=minimal");
   }
 
-  private ODataRequest prepareSimpleRequest(String content) throws ODataException, ODataJPAProcessorException,
+  protected ODataRequest prepareSimpleRequest(String content) throws ODataException, ODataJPAProcessorException,
       SerializerException {
 
-    EntityTransaction transaction = mock(EntityTransaction.class);
+    final EntityTransaction transaction = mock(EntityTransaction.class);
     when(em.getTransaction()).thenReturn(transaction);
 
-    ODataRequest request = mock(ODataRequest.class);
+    final ODataRequest request = mock(ODataRequest.class);
     when(request.getHeaders(HttpHeader.PREFER)).thenReturn(header);
     when(sessionContext.getEdmProvider()).thenReturn(jpaEdm);
-
+    when(etsInfo.getEdmEntitySet()).thenReturn(ets);
     header.add(content);
 
     Entity odataEntity = mock(Entity.class);
-    when(convHelper.convertInputStream(odata, request, ContentType.JSON, ets)).thenReturn(odataEntity);
+    when(convHelper.convertInputStream(same(odata), same(request), same(ContentType.JSON), any())).thenReturn(
+        odataEntity);
     when(convHelper.convertKeyToLocal(Matchers.eq(odata), Matchers.eq(request), Matchers.eq(ets),
         (JPAEntityType) Matchers.anyObject(), Matchers.anyObject())).thenReturn(LOCATION_HEADER);
     return request;

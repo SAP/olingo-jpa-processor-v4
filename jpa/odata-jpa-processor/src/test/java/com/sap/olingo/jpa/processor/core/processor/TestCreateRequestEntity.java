@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +18,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.sql.DataSource;
 
+import org.apache.olingo.commons.api.data.ComplexValue;
 import org.apache.olingo.commons.api.data.Entity;
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.Link;
@@ -283,12 +285,13 @@ public class TestCreateRequestEntity {
 
   @Test
   public void testCreateDeepToOne() throws ODataJPAProcessorException {
-    List<Property> properties = createProperties();
+    final List<Property> properties = createProperties();
     createODataEntity(properties);
 
-    List<Link> navigationLinks = new ArrayList<>();
-    addParentNavigationLink(navigationLinks);
+    final List<Link> navigationLinks = new ArrayList<>();
+    final Link navigationLink = addParentNavigationLink(navigationLinks);
     when(oDataEntity.getNavigationLinks()).thenReturn(navigationLinks);
+    when(oDataEntity.getNavigationLink("Parent")).thenReturn(navigationLink);
 
     JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
 
@@ -299,29 +302,26 @@ public class TestCreateRequestEntity {
 
   @Test
   public void testCreateOrgWithRoles() throws ODataJPAProcessorException {
-    List<Property> properties = new ArrayList<>();
-    Property property = mock(Property.class);
-    when(property.getName()).thenReturn("ID");
-    when(property.getValue()).thenReturn("20");
-    when(property.getValueType()).thenReturn(ValueType.PRIMITIVE);
-    properties.add(property);
+
+    final List<Property> properties = new ArrayList<>();
+    createPropertyBuPaID(properties, "20");
     createODataEntity(properties);
 //-----------------------------
-    List<Link> navigationLinks = new ArrayList<>();
+    final List<Link> navigationLinks = new ArrayList<>();
 
-    Link navigationLink = mock(Link.class);
+    final Link navigationLink = mock(Link.class);
     when(navigationLink.getTitle()).thenReturn("Roles");
     navigationLinks.add(navigationLink);
-    EntityCollection navigationEntitySet = mock(EntityCollection.class);
-    List<Entity> entityCollection = new ArrayList<>();
+    final EntityCollection navigationEntitySet = mock(EntityCollection.class);
+    final List<Entity> entityCollection = new ArrayList<>();
 
-    Entity navigationEntity1 = mock(Entity.class);
-    List<Property> navigationEntityProperties1 = createPropertiesRoles("20", "A");
+    final Entity navigationEntity1 = mock(Entity.class);
+    final List<Property> navigationEntityProperties1 = createPropertiesRoles("20", "A");
     when(navigationEntity1.getProperties()).thenReturn(navigationEntityProperties1);//
     entityCollection.add(navigationEntity1);
 
-    Entity navigationEntity2 = mock(Entity.class);
-    List<Property> navigationEntityProperties2 = createPropertiesRoles("20", "C");
+    final Entity navigationEntity2 = mock(Entity.class);
+    final List<Property> navigationEntityProperties2 = createPropertiesRoles("20", "C");
     when(navigationEntity2.getProperties()).thenReturn(navigationEntityProperties2);//
     entityCollection.add(navigationEntity2);
 
@@ -329,23 +329,80 @@ public class TestCreateRequestEntity {
     when(navigationLink.getInlineEntitySet()).thenReturn(navigationEntitySet);
 
     when(oDataEntity.getNavigationLinks()).thenReturn(navigationLinks);
+    when(oDataEntity.getNavigationLink("Roles")).thenReturn(navigationLink);
 //------------------------------------
     when(ets.getName()).thenReturn("Organizations");
-    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
+    final JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
 
     assertNotNull(act);
     assertNotNull(act.getData());
     assertNotNull(findEntitryList(act.getRelatedEntities(), ("roles")));
   }
 
-  private void addParentNavigationLink(List<Link> navigationLinks) {
-    Link navigationLink = mock(Link.class);
+  @Test
+  public void testCreateDeepOneChildViaComplex() throws ODataJPAModelException, ODataException {
+    final List<Property> properties = new ArrayList<>();
+    final List<Property> inlineProperties = new ArrayList<>();
+    final Entity inlineEntity = mock(Entity.class);
+
+    createODataEntity(properties);
+
+    when(ets.getName()).thenReturn("Persons");
+    createPropertyBuPaID(properties, "20");
+    when(inlineEntity.getProperties()).thenReturn(inlineProperties);
+    createPropertyBuPaID(inlineProperties, "200");
+
+    final List<Property> adminProperties = createComplexProperty(properties, "AdministrativeInformation", null, null,
+        oDataEntity);
+    final List<Property> createdProperties = createComplexProperty(adminProperties, "Created", "User", inlineEntity,
+        oDataEntity);
+    createPrimitiveProperty(createdProperties, "99", "By");
+    createPrimitiveProperty(createdProperties, Timestamp.valueOf("2016-01-20 09:21:23.0"), "At");
+
+    final JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
+    final Object actValue = findEntitryList(act.getRelatedEntities(), ("administrativeInformation"));
+
+    assertNotNull(actValue);
+    assertNotNull(((List<?>) actValue).get(0));
+    @SuppressWarnings("unchecked")
+    JPARequestEntity actDeepEntity = ((List<JPARequestEntity>) actValue).get(0);
+    assertEquals("200", actDeepEntity.getData().get("iD"));
+  }
+
+  private List<Property> createComplexProperty(final List<Property> properties, final String name, final String target,
+      final Entity inlineEntity, final Entity oDataEntity) {
+
+    final Property property = mock(Property.class);
+    final ComplexValue cv = mock(ComplexValue.class);
+    final List<Property> cProperties = new ArrayList<>();
+    final Link navigationLink = mock(Link.class);
+
+    when(property.getName()).thenReturn(name);
+    when(property.getValue()).thenReturn(cv);
+    when(property.getValueType()).thenReturn(ValueType.COMPLEX);
+    when(property.isComplex()).thenReturn(true);
+    when(property.asComplex()).thenReturn(cv);
+
+    when(cv.getValue()).thenReturn(cProperties);
+    when(cv.getNavigationLink(target)).thenReturn(navigationLink);
+    when(navigationLink.getInlineEntity()).thenReturn(inlineEntity);
+
+    when(oDataEntity.getProperty(name)).thenReturn(property);
+
+    properties.add(property);
+    return cProperties;
+  }
+
+  private Link addParentNavigationLink(List<Link> navigationLinks) {
+
+    final Link navigationLink = mock(Link.class);
     when(navigationLink.getTitle()).thenReturn("Parent");
     navigationLinks.add(navigationLink);
-    Entity navigationEntity = mock(Entity.class);
+    final Entity navigationEntity = mock(Entity.class);
     when(navigationLink.getInlineEntity()).thenReturn(navigationEntity);
-    List<Property> navigationEntityProperties = createPropertyCodeID("DE5");
+    final List<Property> navigationEntityProperties = createPropertyCodeID("DE5");
     when(navigationEntity.getProperties()).thenReturn(navigationEntityProperties);//
+    return navigationLink;
   }
 
   private void addParentBindingLink(List<Link> bindingLinks) {
@@ -366,17 +423,16 @@ public class TestCreateRequestEntity {
   }
 
   private void addChildrenNavigationLink(List<Link> navigationLinks, String codeValue1, String codeValue2) {
-    Link navigationLink = mock(Link.class);
+    final Link navigationLink = mock(Link.class);
     when(navigationLink.getTitle()).thenReturn("Children");
     navigationLinks.add(navigationLink);
-    EntityCollection navigationEntitySet = mock(EntityCollection.class);
-    List<Entity> entityCollection = new ArrayList<>();
+    final EntityCollection navigationEntitySet = mock(EntityCollection.class);
+    final List<Entity> entityCollection = new ArrayList<>();
 
-    Entity navigationEntity1 = mock(Entity.class);
-    List<Property> navigationEntityProperties1 = createPropertyCodeID(codeValue1);
+    final Entity navigationEntity1 = mock(Entity.class);
+    final List<Property> navigationEntityProperties1 = createPropertyCodeID(codeValue1);
     when(navigationEntity1.getProperties()).thenReturn(navigationEntityProperties1);//
     entityCollection.add(navigationEntity1);
-
     if (codeValue2 != null) {
       Entity navigationEntity2 = mock(Entity.class);
       List<Property> navigationEntityProperties2 = createPropertyCodeID(codeValue2);
@@ -385,6 +441,8 @@ public class TestCreateRequestEntity {
     }
     when(navigationEntitySet.getEntities()).thenReturn(entityCollection);
     when(navigationLink.getInlineEntitySet()).thenReturn(navigationEntitySet);
+    when(oDataEntity.getNavigationLink("Children")).thenReturn(navigationLink);
+
   }
 
   private void addChildrenBindingLink(List<Link> bindingLinks) {
@@ -398,7 +456,7 @@ public class TestCreateRequestEntity {
     links.add("AdministrativeDivisions(DivisionCode='DE101',CodeID='NUTS3',CodePublisher='Eurostat')");
   }
 
-  private void createODataEntity(List<Property> properties) {
+  private void createODataEntity(final List<Property> properties) {
     oDataEntity = mock(Entity.class);
     when(oDataEntity.getProperties()).thenReturn(properties);
   }
@@ -407,28 +465,30 @@ public class TestCreateRequestEntity {
     return createPropertyCodeID("DE50");
   }
 
-  private List<Property> createPropertyCodeID(String codeID) {
+  private List<Property> createPropertyCodeID(final String codeID) {
     List<Property> properties = new ArrayList<>();
-    Property property = mock(Property.class);
-    when(property.getName()).thenReturn("CodeID");
-    when(property.getValue()).thenReturn(codeID);
+    createPrimitiveProperty(properties, codeID, "CodeID");
+    return properties;
+  }
+
+  private void createPropertyBuPaID(final List<Property> properties, final String value) {
+
+    createPrimitiveProperty(properties, value, "ID");
+  }
+
+  private void createPrimitiveProperty(final List<Property> properties, final Object value, final String name) {
+
+    final Property property = mock(Property.class);
+    when(property.getName()).thenReturn(name);
+    when(property.getValue()).thenReturn(value);
     when(property.getValueType()).thenReturn(ValueType.PRIMITIVE);
     properties.add(property);
-    return properties;
   }
 
   private List<Property> createPropertiesRoles(String BuPaId, String RoleCategory) {
     List<Property> properties = new ArrayList<>();
-    Property propertyId = mock(Property.class);
-    when(propertyId.getName()).thenReturn("BusinessPartnerID");
-    when(propertyId.getValue()).thenReturn(BuPaId);
-    when(propertyId.getValueType()).thenReturn(ValueType.PRIMITIVE);
-    properties.add(propertyId);
-    Property propertyCategory = mock(Property.class);
-    when(propertyCategory.getName()).thenReturn("RoleCategory");
-    when(propertyCategory.getValue()).thenReturn(RoleCategory);
-    when(propertyCategory.getValueType()).thenReturn(ValueType.PRIMITIVE);
-    properties.add(propertyCategory);
+    createPrimitiveProperty(properties, BuPaId, "BusinessPartnerID");
+    createPrimitiveProperty(properties, RoleCategory, "RoleCategory");
     return properties;
   }
 
