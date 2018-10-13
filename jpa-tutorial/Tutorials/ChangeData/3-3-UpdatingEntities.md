@@ -17,18 +17,32 @@ For the tutorial we do not accept a PUT, which makes our live a little bit easie
 
 Putting that together `updateEntity` can look as follows:
 ```Java
-@Override
-public JPAUpdateResult updateEntity(final JPARequestEntity requestEntity, final EntityManager em,
+  @Override
+  public JPAUpdateResult updateEntity(final JPARequestEntity requestEntity, final EntityManager em,
 		final HttpMethod method) throws ODataJPAProcessException {
 		
     if (method == HttpMethod.PATCH || method == HttpMethod.DELETE) {
       final Object instance = em.find(requestEntity.getEntityType().getTypeClass(), requestEntity.getModifyUtil()
           .createPrimaryKey(requestEntity.getEntityType(), requestEntity.getKeys(), requestEntity.getEntityType()));
       requestEntity.getModifyUtil().setAttributesDeep(requestEntity.getData(), instance, requestEntity.getEntityType());
+      updateLinks(requestEntity, em, instance);
       return new JPAUpdateResult(false, instance);
     }
     return super.updateEntity(requestEntity, em, method);
-}
+  }
+
+  private void updateLinks(final JPARequestEntity requestEntity, final EntityManager em, final Object instance)
+      throws ODataJPAProcessorException, ODataJPAInvocationTargetException {
+    if (requestEntity.getRelationLinks() != null) {
+      for (Entry<JPAAssociationPath, List<JPARequestLink>> links : requestEntity.getRelationLinks().entrySet()) {
+        for (JPARequestLink link : links.getValue()) {
+          final Object related = em.find(link.getEntityType().getTypeClass(), requestEntity.getModifyUtil()
+              .createPrimaryKey(link.getEntityType(), link.getRelatedKeys(), link.getEntityType()));
+          requestEntity.getModifyUtil().linkEntities(instance, related, links.getKey());
+        }
+      }
+    }
+  }
 ```
 To test the PATCH we can start with changing the instance we created during the last tutorial using the following request:
 ```
@@ -40,4 +54,23 @@ To test the PATCH we can start with changing the instance we created during the 
 Now we have an AlternativeCode, which does not really make sense, so lets get ride of it again by the following DELETE request:
 `.../Tutorial/Tutorial.svc/AdministrativeDivisions(DivisionCode='DE1',CodeID='NUTS1',CodePublisher='Eurostat')/AlternativeCode`
 
-Next we want to delete an entity: [Tutorial 3.4 Deleting Entities](3-4-DeletingEntities.md)
+We are also able to update relations between to entities. As a first step we create a new AdministrativeDivision: 
+```
+...Tutorial/Tutorial.svc/AdministrativeDivisions
+{
+	"DivisionCode": "DE60",
+	"CodeID": "NUTS2",
+	"CodePublisher": "Eurostat",
+	"CountryCode": "DEU"
+}
+```
+Now we can link _DE06_ to its parent, make sure that the Parent association is update enabled, using a PATCH:
+```
+...Tutorial/Tutorial.svc/AdministrativeDivisions(DivisionCode='DE60',CodeID='NUTS2',CodePublisher='Eurostat')
+{
+  "@odata.type":"#Tutorial.AdministrativeDivision",
+  "Parent@odata.bind": 
+    "/AdministrativeDivisions(DivisionCode='DE6',CodeID='NUTS1',CodePublisher='Eurostat')"
+}
+```
+Next we want to be bale to delete an entity: [Tutorial 3.4 Deleting Entities](3-4-DeletingEntities.md)
