@@ -190,9 +190,8 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
   /**
    * $expand is implemented as a recursively processing of all expands with a DB round trip per expand item.
    * Alternatively also a <i>big</i> join could be created. This would lead to a transport of redundant data, but has
-   * only one round trip. As of now it has not been measured under which conditions which solution as the better
-   * performance, but
-   * as a big join has also the following draw back:
+   * only one round trip. As of now it has not been measured under which conditions which solution has the better
+   * performance, but a big join has also the following draw back:
    * <ul>
    * <li>In case a multiple $expands are requested maybe on multiple levels
    * including filtering and ordering the query becomes very complex which reduces the maintainability and comes with
@@ -200,7 +199,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
    * <li>The number of returned columns becomes big, which may become a problem for some databases</li>
    * <li>This hard to create a big join for <code>$level=*</code></li>
    * </ul>
-   * As the goal was to implement a general solution multiple round trips have been taken.
+   * and the goal is to implement a general solution, multiple round trips have been taken.
    * <p>For a general overview see:
    * <a href=
    * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398298"

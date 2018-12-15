@@ -37,7 +37,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
-public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPAQuery, JPACountQuery {
+public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery {
 
   public JPAJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext, final EntityManager em,
       final Map<String, List<String>> requestHeaders, final JPAODataPage page) throws ODataException {
@@ -95,8 +95,7 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPAQuery, JPAC
 
     final List<JPAAssociationPath> orderByNaviAttributes = extractOrderByNaviAttributes();
     final List<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
-    final List<JPAPath> descriptionAttributes = extractDescriptionAttributes(selectionPath);
-    final Map<String, From<?, ?>> joinTables = createFromClause(orderByNaviAttributes, descriptionAttributes, cq);
+    final Map<String, From<?, ?>> joinTables = createFromClause(orderByNaviAttributes, selectionPath, cq);
 
     cq.multiselect(createSelectClause(joinTables, selectionPath, target));
 

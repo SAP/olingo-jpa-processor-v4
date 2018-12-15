@@ -66,7 +66,7 @@ import com.sap.olingo.jpa.processor.core.filter.JPAFilterComplier;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterCrossComplier;
 import com.sap.olingo.jpa.processor.core.filter.JPAOperationConverter;
 
-public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery {
+public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements JPAQuery {
   protected static final String ALIAS_SEPERATOR = ".";
   protected final UriInfoResource uriResource;
   protected final CriteriaQuery<Tuple> cq;
@@ -204,7 +204,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery {
    * @throws ODataApplicationException
    */
   protected Map<String, From<?, ?>> createFromClause(final List<JPAAssociationPath> orderByTarget,
-      final List<JPAPath> descriptionFields, CriteriaQuery<?> query) throws ODataApplicationException {
+      final List<JPAPath> selectionPath, final CriteriaQuery<?> query) throws ODataApplicationException {
 
     final HashMap<String, From<?, ?>> joinTables = new HashMap<>();
     // 1. Create navigation joins
@@ -279,6 +279,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery {
     }
 
     // 3. Description Join determine
+    final List<JPAPath> descriptionFields = extractDescriptionAttributes(selectionPath);
     for (JPANavigationProptertyInfo info : this.navigationInfo) {
       if (info.getFilterCompiler() != null) {
         generateDesciptionJoin(joinTables,
@@ -286,7 +287,39 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery {
                 info.getFilterCompiler()), info.getFromClause());
       }
     }
+    // 4. Collection Attribute Joins
+    generateCollectionAttributeJoin(joinTables, selectionPath);
+
     return joinTables;
+  }
+
+  /*
+   * Create the join condition for a collection property. This attribute can be part of structure type, therefore the
+   * path to the collection property needs to be traversed
+   */
+  protected void generateCollectionAttributeJoin(final Map<String, From<?, ?>> joinTables,
+      final List<JPAPath> jpaPathList) {
+    for (JPAPath path : jpaPathList) {
+      JPAElement collection = null;
+      // 1. check if path contains collection attribute
+      for (JPAElement element : path.getPath()) {
+        if (element instanceof JPACollectionAttribute) {
+          collection = element;
+          break;
+        }
+      }
+      // 2. Check if join exists and create join if not
+      if (collection != null && !joinTables.containsKey(collection.getExternalName())) {
+        From<?, ?> f = target;
+        for (JPAElement element : path.getPath()) {
+          f = f.join(element.getInternalName());
+          if (element instanceof JPACollectionAttribute) {
+            break;
+          }
+        }
+        joinTables.put(collection.getExternalName(), f);
+      }
+    }
   }
 
   protected final javax.persistence.criteria.Expression<Boolean> createKeyWhere(
