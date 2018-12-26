@@ -25,12 +25,14 @@ import org.apache.olingo.commons.api.edm.provider.CsdlOnDeleteAction;
 import org.apache.olingo.commons.api.edm.provider.CsdlReferentialConstraint;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtectedBy;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.AppliesTo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAJoinTable;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 
 /**
@@ -332,6 +334,17 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
         .getCanonicalName());
     // Process annotations after post processing, as external name could have been changed
     getAnnotations(edmAnnotations, this.jpaAttribute.getJavaMember(), internalName, AppliesTo.NAVIGATION_PROPERTY);
+    checkConsistancy();
+  }
+
+  private void checkConsistancy() throws ODataJPAModelException {
+    final EdmProtectedBy jpaProtectedBy = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
+        .getAnnotation(EdmProtectedBy.class);
+    if (jpaProtectedBy != null) {
+      // Navigation Properties do not support EdmProtectedBy
+      throw new ODataJPAModelException(MessageKeys.NOT_SUPPORTED_PROTECTED_NAVIGATION, this.sourceType.getTypeClass()
+          .getCanonicalName(), this.internalName);
+    }
   }
 
   private void determienReferentialConstraints(final AnnotatedElement annotatedElement) throws ODataJPAModelException {

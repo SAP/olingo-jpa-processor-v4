@@ -1,8 +1,12 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.extention;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
+
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 /**
  * Override generated metadata for a property.
@@ -19,4 +23,19 @@ public interface IntermediatePropertyAccess extends IntermediateModelItemAccess 
    * @param annotations
    */
   public void addAnnotations(final List<CsdlAnnotation> annotations);
+
+  public boolean hasProtection();
+
+  /**
+   * Read the name of the claim that shall be matched with this property
+   * @return
+   */
+  public String getProtectionClaimName();
+
+  /**
+   * Provides the path to the protected attributed
+   * @return
+   * @throws ODataJPAModelException
+   */
+  public Optional<JPAPath> getProtectionPath() throws ODataJPAModelException;
 }

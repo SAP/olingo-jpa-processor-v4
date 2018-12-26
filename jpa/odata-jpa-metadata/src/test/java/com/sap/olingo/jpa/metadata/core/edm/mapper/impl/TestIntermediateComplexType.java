@@ -213,8 +213,7 @@ public class TestIntermediateComplexType extends TestMappingRoot {
 
     @Override
     public void processProperty(IntermediatePropertyAccess property, String jpaManagedTypeClassName) {
-      if (jpaManagedTypeClassName.equals(
-          COMM_CANONICAL_NAME)) {
+      if (jpaManagedTypeClassName.equals(COMM_CANONICAL_NAME)) {
         if (property.getInternalName().equals("landlinePhoneNumber")) {
           property.setIgnore(true);
         }

@@ -63,6 +63,12 @@ class IntermediateSimpleProperty extends IntermediateProperty {
   }
 
   @Override
+  void checkConsistancy() {
+    // TODO Auto-generated method stub
+
+  }
+
+  @Override
   Class<?> determineEntityType() {
     return jpaAttribute.getJavaType();
   }
@@ -97,7 +103,6 @@ class IntermediateSimpleProperty extends IntermediateProperty {
 
   @Override
   FullQualifiedName determineType() throws ODataJPAModelException {
-
     return determineTypeByPersistanceType(jpaAttribute.getPersistentAttributeType());
   }
 

@@ -203,7 +203,7 @@ public abstract class JPAAbstractQuery {
     }
 
     @Override
-    public Collection<? extends RuntimeMeasurement> getRuntimeInformation() {
+    public Collection<RuntimeMeasurement> getRuntimeInformation() {
       return new ArrayList<>();
     }
 

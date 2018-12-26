@@ -87,7 +87,7 @@ public class TestIntermediateCollectionProperty extends TestMappingRoot {
   public void checkGetProptertyComplexType() throws ODataJPAModelException {
 
     PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
-        "Person"), "inhouseAddress");
+        Person.class), "inhouseAddress");
     IntermediateCollectionProperty property = new IntermediateCollectionProperty(new JPAEdmNameBuilder(PUNIT_NAME),
         jpaAttribute, helper.schema, helper.schema.getEntityType(Person.class));
     assertEquals(PUNIT_NAME + ".InhouseAddress", property.getEdmItem().getType());
@@ -97,7 +97,7 @@ public class TestIntermediateCollectionProperty extends TestMappingRoot {
   public void checkGetProptertyIgnoreFalse() throws ODataJPAModelException {
 
     PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
-        "Person"), "inhouseAddress");
+        Person.class), "inhouseAddress");
     IntermediateCollectionProperty property = new IntermediateCollectionProperty(new JPAEdmNameBuilder(PUNIT_NAME),
         jpaAttribute, helper.schema, helper.schema.getEntityType(Person.class));
     assertFalse(property.ignore());
@@ -107,7 +107,7 @@ public class TestIntermediateCollectionProperty extends TestMappingRoot {
   public void checkGetProptertyDBFieldName() throws ODataJPAModelException {
 
     PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
-        "Organization"), "comment");
+        Organization.class), "comment");
     IntermediateCollectionProperty property = new IntermediateCollectionProperty(new JPAEdmNameBuilder(PUNIT_NAME),
         jpaAttribute, helper.schema, helper.schema.getEntityType(Organization.class));
     assertEquals("\"Text\"", property.getDBFieldName());
@@ -118,7 +118,7 @@ public class TestIntermediateCollectionProperty extends TestMappingRoot {
 
     IntermediateSimpleProperty.setPostProcessor(processor);
     PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
-        "Organization"), "comment");
+        Organization.class), "comment");
     IntermediateCollectionProperty property = new IntermediateCollectionProperty(new JPAEdmNameBuilder(PUNIT_NAME),
         jpaAttribute, helper.schema, helper.schema.getEntityType(Organization.class));
     property.getEdmItem();
@@ -129,7 +129,7 @@ public class TestIntermediateCollectionProperty extends TestMappingRoot {
   public void checkGetPropertyReturnsAnnotation() throws ODataJPAModelException {
 
     PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
-        "Person"), "inhouseAddress");
+        Person.class), "inhouseAddress");
     IntermediateCollectionProperty property = new IntermediateCollectionProperty(new JPAEdmNameBuilder(PUNIT_NAME),
         jpaAttribute, helper.schema, helper.schema.getEntityType(Person.class));
 
