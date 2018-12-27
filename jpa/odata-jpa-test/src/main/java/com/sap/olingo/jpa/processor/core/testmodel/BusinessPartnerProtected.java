@@ -10,7 +10,7 @@ import javax.persistence.Version;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtectedBy;
 
 @Entity
-@Table(schema = "\"OLINGO\"", name = "\"BusinessPartner\"")
+@Table(schema = "\"OLINGO\"", name = "\"BusinessPartnerProtected\"")
 public class BusinessPartnerProtected {
 
   @Id
@@ -38,7 +38,6 @@ public class BusinessPartnerProtected {
   private String username;
 
   @Embedded
-  @EdmProtectedBy(name = "UserId", path = "created/by")
   private AdministrativeInformation administrativeInformation = new AdministrativeInformation();
 
   @Override

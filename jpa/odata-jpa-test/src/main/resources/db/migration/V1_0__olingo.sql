@@ -799,14 +799,14 @@ insert into "JoinHiddenRelation" values (2, 20);
 insert into "JoinHiddenRelation" values (2, 21);
 
 ------Authorizations------------------------	
-
+--top-secret;  --logo
 CREATE TABLE "User" (	 
 	"UserName"  VARCHAR(60) NOT NULL ,
 	"Password" VARCHAR(60),
 	"Enabled" BOOLEAN,
 	PRIMARY KEY ("UserName"));	
-insert into "User" values ('Willi', '$2a$10$ekL4q.jeDmuc2AhZF/ARUe2KTMczEBHZlML.bN985noWuJcdilbg6', true); --top-secret
-insert into "User" values ('Marvin', '$2a$10$dPD0o8lEbOy0vYtpWkE78.vVBKWElJjiezkFo1nr6hG3EBRx4Gpl.', true); --logo
+insert into "User" values ('Willi', '$2a$10$ekL4q.jeDmuc2AhZF/ARUe2KTMczEBHZlML.bN985noWuJcdilbg6', true); 
+insert into "User" values ('Marvin', '$2a$10$dPD0o8lEbOy0vYtpWkE78.vVBKWElJjiezkFo1nr6hG3EBRx4Gpl.', true);
 
 CREATE TABLE "CountryRestriction" (	 
 	"UserName"  VARCHAR(60) NOT NULL ,
@@ -826,7 +826,11 @@ CREATE VIEW "BusinessPartnerProtected"
 		b."NameLine1",
 		b."NameLine2",
 		b."Country",
-		r. "UserName"  
+		r. "UserName",
+		b."CreatedBy",
+		b."CreatedAt",   
+		b."UpdatedBy",
+		b."UpdatedAt"	
 	FROM "BusinessPartner" as b
 	INNER JOIN "CountryRestriction" as r
 		ON b."Country" >= r."From"

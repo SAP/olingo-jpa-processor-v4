@@ -6,8 +6,8 @@ import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAMode
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Column;
@@ -52,7 +52,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
   protected boolean isVersion;
   protected boolean searchable;
   private String protectionClaimName; // Name of a claim coming e.g. from JWT this property shall be compared with
-  private String externalProtectedPath;
+  private List<String> externalProtectedPath;
 
   public IntermediateProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,
       final IntermediateSchema schema) throws ODataJPAModelException {
@@ -60,6 +60,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
     this.jpaAttribute = jpaAttribute;
     this.schema = schema;
     this.managedType = jpaAttribute.getDeclaringType();
+    this.externalProtectedPath = new ArrayList<>(1);
     buildProperty(nameBuilder);
   }
 
@@ -90,22 +91,22 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
   }
 
   @Override
-  public Optional<JPAPath> getProtectionPath() throws ODataJPAModelException {
-    if (hasProtection()) {
-      Optional<JPAPath> path;
+  public List<JPAPath> getProtectionPath() throws ODataJPAModelException {
+    List<JPAPath> pathList = new ArrayList<>();
+    for (String externalPath : externalProtectedPath) {
+      JPAPath path = null;
       if (type != null)
-        path = Optional.ofNullable(type.getPath(externalProtectedPath));
+        path = type.getPath(externalPath);
       else {
-        path = Optional.ofNullable(schema.getEntityType(jpaAttribute.getDeclaringType().getJavaType()).getPath(
-            externalProtectedPath));
+        path = schema.getEntityType(jpaAttribute.getDeclaringType().getJavaType()).getPath(externalPath);
       }
-      if (path.isPresent())
-        return path;
+      if (path != null)
+        pathList.add(path);
       else
         throw new ODataJPAModelException(COMPLEX_PROPERTY_WRONG_PROTECTION_PATH, this.managedType.getJavaType()
             .getCanonicalName(), this.internalName);
     }
-    return Optional.empty();
+    return pathList;
   }
 
   @Override
@@ -226,30 +227,36 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
         .getAnnotation(EdmProtectedBy.class);
     if (jpaProtectedBy != null) {
       protectionClaimName = jpaProtectedBy.name();
-      externalProtectedPath = jpaProtectedBy.path();
-      if (jpaAttribute.getPersistentAttributeType() == Attribute.PersistentAttributeType.EMBEDDED
-          && externalProtectedPath.isEmpty())
-        throw new ODataJPAModelException(COMPLEX_PROPERTY_MISSING_PROTECTION_PATH, this.managedType.getJavaType()
-            .getCanonicalName(), this.internalName);
-      externalProtectedPath = externalProtectedPath.isEmpty() ? getExternalName() : convertPath(externalProtectedPath);
+      final String[] internalProtectedPath = jpaProtectedBy.path();
+      if (internalProtectedPath.length == 0) {
+        if (jpaAttribute.getPersistentAttributeType() == Attribute.PersistentAttributeType.EMBEDDED)
+          throw new ODataJPAModelException(COMPLEX_PROPERTY_MISSING_PROTECTION_PATH, this.managedType.getJavaType()
+              .getCanonicalName(), this.internalName);
+        externalProtectedPath.add(getExternalName());
+      } else
+        externalProtectedPath = convertPath(internalProtectedPath);
     }
 
   }
 
   /**
    * Converts an internal path into an external path
-   * @param internalPath
+   * @param externalProtectedPath2
    * @return
    */
-  private String convertPath(String internalPath) {
-    String[] pathSegments = internalPath.split(JPAPath.PATH_SEPERATOR);
-    StringBuilder externalPath = new StringBuilder();
-    for (String segement : pathSegments) {
-      externalPath.append(nameBuilder.buildPropertyName(segement));
-      externalPath.append(JPAPath.PATH_SEPERATOR);
+  private List<String> convertPath(final String[] internalPathList) {
+    final List<String> externalPathList = new ArrayList<>(internalPathList.length);
+    for (final String internalPath : internalPathList) {
+      String[] pathSegments = internalPath.split(JPAPath.PATH_SEPERATOR);
+      StringBuilder externalPath = new StringBuilder();
+      for (final String segement : pathSegments) {
+        externalPath.append(nameBuilder.buildPropertyName(segement));
+        externalPath.append(JPAPath.PATH_SEPERATOR);
+      }
+      externalPath.deleteCharAt(externalPath.length() - 1);
+      externalPathList.add(externalPath.toString());
     }
-    externalPath.deleteCharAt(externalPath.length() - 1);
-    return externalPath.toString();
+    return externalPathList;
   }
 
   void determineSearchable() {
