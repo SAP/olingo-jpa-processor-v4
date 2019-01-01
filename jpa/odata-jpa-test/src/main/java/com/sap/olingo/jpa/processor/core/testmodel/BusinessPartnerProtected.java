@@ -1,9 +1,15 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
+import java.util.Collection;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
@@ -39,6 +45,10 @@ public class BusinessPartnerProtected {
 
   @Embedded
   private AdministrativeInformation administrativeInformation = new AdministrativeInformation();
+
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+  @JoinColumn(name = "\"BusinessPartnerID\"", referencedColumnName = "\"ID\"", insertable = false, updatable = false)
+  private Collection<BusinessPartnerRole> roles;
 
   @Override
   public int hashCode() {

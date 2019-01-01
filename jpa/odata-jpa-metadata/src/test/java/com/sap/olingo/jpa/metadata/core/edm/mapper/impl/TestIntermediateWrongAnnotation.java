@@ -98,7 +98,7 @@ public class TestIntermediateWrongAnnotation {
       IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
           jpaAttribute, helper.schema);
       property.getEdmItem();
-      property.getProtectionPath();
+      property.getProtectionPath("UserId");
     } catch (ODataJPAModelException e) {
       assertEquals(COMPLEX_PROPERTY_WRONG_PROTECTION_PATH.name(), e.getId());
       assertFalse(e.getMessage().isEmpty());

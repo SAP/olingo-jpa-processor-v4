@@ -2,7 +2,9 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import java.lang.reflect.AnnotatedElement;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.AssociationOverride;
 import javax.persistence.AttributeConverter;
@@ -30,6 +32,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.AppliesTo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAJoinTable;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
@@ -117,6 +120,11 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
   @Override
   public Class<?> getType() {
     return jpaAttribute.getJavaType();
+  }
+
+  @Override
+  public boolean hasProtection() {
+    return false;
   }
 
   @Override
@@ -434,5 +442,15 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
       }
     }
     return null;
+  }
+
+  @Override
+  public List<JPAPath> getProtectionPath(String claimName) throws ODataJPAModelException {
+    return null;
+  }
+
+  @Override
+  public Set<String> getProtectionClaimNames() {
+    return new HashSet<>(0);
   }
 }

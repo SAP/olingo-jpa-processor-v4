@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.extention;
 
 import java.util.List;
+import java.util.Set;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 
@@ -26,15 +27,15 @@ public interface IntermediatePropertyAccess extends IntermediateModelItemAccess 
   public boolean hasProtection();
 
   /**
-   * Read the name of the claim that shall be matched with this property
+   * Returns a list of names of the claims that shall be matched with this property
    * @return
    */
-  public String getProtectionClaimName();
+  public Set<String> getProtectionClaimNames();
 
   /**
    * Provides a List of path to the protected attributed
    * @return
    * @throws ODataJPAModelException
    */
-  public List<JPAPath> getProtectionPath() throws ODataJPAModelException;
+  public List<JPAPath> getProtectionPath(String claimName) throws ODataJPAModelException;
 }

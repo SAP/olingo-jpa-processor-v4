@@ -26,5 +26,5 @@ public @interface EdmProtectedBy {
    * composed, path segments joined together by forward slashes (/)
    * @return
    */
-  String[] path() default {};
+  String path() default "";
 }

@@ -100,11 +100,6 @@ class IntermediateCollectionProperty extends IntermediateProperty implements JPA
   }
 
   @Override
-  public String getProtectionClaimName() {
-    return "";
-  }
-
-  @Override
   public JPAStructuredType getTargetEntity() throws ODataJPAModelException {
     return joinTable.getEntityType();
   }

@@ -33,6 +33,7 @@ import org.mockito.stubbing.Answer;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtectedBy;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtections;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityTypeAccess;
@@ -446,9 +447,9 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
         "username");
     IntermediatePropertyAccess property = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
         jpaAttribute, helper.schema);
-    assertEquals("UserId", property.getProtectionClaimName());
-    assertNotNull(property.getProtectionPath());
-    List<JPAElement> actPath = property.getProtectionPath().get(0).getPath();
+    assertEquals("UserId", property.getProtectionClaimNames().toArray(new String[] {})[0]);
+    assertNotNull(property.getProtectionPath("UserId"));
+    List<JPAElement> actPath = property.getProtectionPath("UserId").get(0).getPath();
     assertEquals(1, actPath.size());
     assertEquals("username", actPath.get(0).getInternalName());
   }
@@ -458,8 +459,8 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
     Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartnerProtected.class), "eTag");
     IntermediatePropertyAccess property = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
         jpaAttribute, helper.schema);
-    assertTrue(property.getProtectionClaimName().isEmpty());
-    assertTrue(property.getProtectionPath().isEmpty());
+    assertTrue(property.getProtectionClaimNames().isEmpty());
+    assertTrue(property.getProtectionPath("UserId").isEmpty());
   }
 
   @Test
@@ -469,7 +470,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
 
     EdmProtectedBy annotation = Mockito.mock(EdmProtectedBy.class);
     when(annotation.name()).thenReturn("UserId");
-    when(annotation.path()).thenReturn(new String[] { "created/by" });
+    when(annotation.path()).thenReturn("created/by");
 
     MemberDouble memberSpy = new MemberDouble(jpaAttribute.getJavaMember());
     memberSpy.addAnnotation(EdmProtectedBy.class, annotation);
@@ -478,9 +479,9 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
 
     IntermediatePropertyAccess property = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
         attributeSpy, helper.schema);
-    assertEquals("UserId", property.getProtectionClaimName());
-    assertNotNull(property.getProtectionPath());
-    List<JPAElement> actPath = property.getProtectionPath().get(0).getPath();
+    assertEquals("UserId", property.getProtectionClaimNames().toArray(new String[] {})[0]);
+    assertNotNull(property.getProtectionPath("UserId"));
+    List<JPAElement> actPath = property.getProtectionPath("UserId").get(0).getPath();
     assertEquals(2, actPath.size());
     assertEquals("created", actPath.get(0).getInternalName());
     assertEquals("by", actPath.get(1).getInternalName());
@@ -491,26 +492,74 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
     Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartnerProtected.class),
         "administrativeInformation");
 
-    EdmProtectedBy annotation = Mockito.mock(EdmProtectedBy.class);
-    when(annotation.name()).thenReturn("UserId");
-    when(annotation.path()).thenReturn(new String[] { "created/by", "created/at" });
+    EdmProtections protections = Mockito.mock(EdmProtections.class);
+    EdmProtectedBy protectedBy1 = Mockito.mock(EdmProtectedBy.class);
+    when(protectedBy1.name()).thenReturn("UserId");
+    when(protectedBy1.path()).thenReturn("created/by");
+
+    EdmProtectedBy protectedBy2 = Mockito.mock(EdmProtectedBy.class);
+    when(protectedBy2.name()).thenReturn("UserId");
+    when(protectedBy2.path()).thenReturn("updated/by");
+
+    when(protections.value()).thenReturn(new EdmProtectedBy[] { protectedBy1, protectedBy2 });
 
     MemberDouble memberSpy = new MemberDouble(jpaAttribute.getJavaMember());
-    memberSpy.addAnnotation(EdmProtectedBy.class, annotation);
+    memberSpy.addAnnotation(EdmProtections.class, protections);
     Attribute<?, ?> attributeSpy = Mockito.spy(jpaAttribute);
     when(attributeSpy.getJavaMember()).thenReturn(memberSpy);
 
     IntermediatePropertyAccess property = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
         attributeSpy, helper.schema);
-    assertEquals("UserId", property.getProtectionClaimName());
-    assertNotNull(property.getProtectionPath());
+    assertEquals("UserId", property.getProtectionClaimNames().toArray(new String[] {})[0]);
+    assertNotNull(property.getProtectionPath("UserId"));
 
-    List<JPAElement> actPath = property.getProtectionPath().get(0).getPath();
+    List<JPAElement> actPath = property.getProtectionPath("UserId").get(0).getPath();
     assertEquals(2, actPath.size());
     assertEquals("created", actPath.get(0).getInternalName());
     assertEquals("by", actPath.get(1).getInternalName());
 
-    actPath = property.getProtectionPath().get(1).getPath();
+    actPath = property.getProtectionPath("UserId").get(1).getPath();
+    assertEquals(2, actPath.size());
+    assertEquals("updated", actPath.get(0).getInternalName());
+    assertEquals("by", actPath.get(1).getInternalName());
+  }
+
+  @Test
+  public void checkGetComplexProptertyTwoProtectedAttributeTwoClaimName() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartnerProtected.class),
+        "administrativeInformation");
+
+    EdmProtections protections = Mockito.mock(EdmProtections.class);
+    EdmProtectedBy protectedBy1 = Mockito.mock(EdmProtectedBy.class);
+    when(protectedBy1.name()).thenReturn("UserId");
+    when(protectedBy1.path()).thenReturn("created/by");
+
+    EdmProtectedBy protectedBy2 = Mockito.mock(EdmProtectedBy.class);
+    when(protectedBy2.name()).thenReturn("Date");
+    when(protectedBy2.path()).thenReturn("created/at");
+
+    when(protections.value()).thenReturn(new EdmProtectedBy[] { protectedBy1, protectedBy2 });
+
+    MemberDouble memberSpy = new MemberDouble(jpaAttribute.getJavaMember());
+    memberSpy.addAnnotation(EdmProtections.class, protections);
+    Attribute<?, ?> attributeSpy = Mockito.spy(jpaAttribute);
+    when(attributeSpy.getJavaMember()).thenReturn(memberSpy);
+
+    IntermediatePropertyAccess property = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+        attributeSpy, helper.schema);
+
+    assertTrue(property.getProtectionClaimNames().contains("UserId"));
+    assertNotNull(property.getProtectionPath("UserId"));
+    assertEquals(1, property.getProtectionPath("UserId").size());
+    List<JPAElement> actPath = property.getProtectionPath("UserId").get(0).getPath();
+    assertEquals(2, actPath.size());
+    assertEquals("created", actPath.get(0).getInternalName());
+    assertEquals("by", actPath.get(1).getInternalName());
+
+    assertTrue(property.getProtectionClaimNames().contains("Date"));
+    assertNotNull(property.getProtectionPath("Date"));
+    assertEquals(1, property.getProtectionPath("Date").size());
+    actPath = property.getProtectionPath("Date").get(0).getPath();
     assertEquals(2, actPath.size());
     assertEquals("created", actPath.get(0).getInternalName());
     assertEquals("at", actPath.get(1).getInternalName());
