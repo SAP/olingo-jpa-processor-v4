@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -30,6 +31,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEnumeration;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAProtectionInfo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityTypeAccess;
@@ -462,6 +464,69 @@ public class TestIntermediateEntityType extends TestMappingRoot {
       String[] pathElements = path.getAlias().split("/");
       assertEquals(pathElements.length, path.getPath().size());
     }
+  }
+
+  @Test
+  public void checkOneSimpleProtectedProperty() throws ODataJPAModelException {
+    IntermediateStructuredType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "BusinessPartnerProtected"), schema);
+    List<JPAProtectionInfo> act = et.getProtections();
+    assertNotNull(act);
+    assertEquals(1, act.size());
+    assertEquals("Username", act.get(0).getAttribute().getExternalName());
+    assertEquals("UserId", act.get(0).getClaimName());
+  }
+
+  @Test
+  public void checkComplexAndInheritedProtectedProperty() throws ODataJPAModelException {
+    IntermediateStructuredType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "PersonDeepProtected"), schema);
+
+    List<JPAProtectionInfo> act = et.getProtections();
+    assertNotNull(act);
+    assertInherited(act);
+    assertComplexAnnotated(act, "Creator", "Created");
+    assertComplexAnnotated(act, "Updator", "Updated");
+    assertComplexDeep(act);
+    assertEquals(4, act.size());
+  }
+
+  private void assertComplexDeep(List<JPAProtectionInfo> act) {
+    for (final JPAProtectionInfo info : act) {
+      if (info.getClaimName().equals("BuildingNumber")) {
+        assertEquals("Building", info.getAttribute().getExternalName());
+        assertEquals(3, info.getPath().getPath().size());
+        assertEquals("InhouseAddress/InhouseAddress/Building", info.getPath().getAlias());
+        return;
+      }
+    }
+    fail("Deep protected complex attribute not found");
+
+  }
+
+  private void assertComplexAnnotated(List<JPAProtectionInfo> act, final String expClaimName,
+      final String pathElement) {
+    for (final JPAProtectionInfo info : act) {
+      if (info.getClaimName().equals(expClaimName)) {
+        assertEquals("By", info.getAttribute().getExternalName());
+        assertEquals(3, info.getPath().getPath().size());
+        assertEquals("ProtectedAdminInfo/" + pathElement + "/By", info.getPath().getAlias());
+        return;
+      }
+    }
+    fail("Complex attribute not found for: " + expClaimName);
+  }
+
+  private void assertInherited(List<JPAProtectionInfo> act) {
+    for (final JPAProtectionInfo info : act) {
+      if (info.getAttribute().getExternalName().equals("Username")) {
+        assertEquals("UserId", info.getClaimName());
+        assertEquals(1, info.getPath().getPath().size());
+        assertEquals("Username", info.getPath().getAlias());
+        return;
+      }
+    }
+    fail("Inherited not found");
   }
 
   private class PostProcessorSetIgnore extends JPAEdmMetadataPostProcessor {

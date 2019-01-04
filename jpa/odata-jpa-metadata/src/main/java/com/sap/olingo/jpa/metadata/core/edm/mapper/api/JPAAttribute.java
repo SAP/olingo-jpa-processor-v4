@@ -31,7 +31,7 @@ public interface JPAAttribute extends JPAElement {
    * @return
    * @throws ODataJPAModelException
    */
-  public List<JPAPath> getProtectionPath(String claimName) throws ODataJPAModelException;
+  public List<String> getProtectionPath(String claimName) throws ODataJPAModelException;
 
   public Class<?> getType();
 

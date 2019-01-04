@@ -5,7 +5,6 @@ import java.util.Set;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 /**
@@ -37,5 +36,5 @@ public interface IntermediatePropertyAccess extends IntermediateModelItemAccess 
    * @return
    * @throws ODataJPAModelException
    */
-  public List<JPAPath> getProtectionPath(String claimName) throws ODataJPAModelException;
+  public List<String> getProtectionPath(String claimName) throws ODataJPAModelException;
 }

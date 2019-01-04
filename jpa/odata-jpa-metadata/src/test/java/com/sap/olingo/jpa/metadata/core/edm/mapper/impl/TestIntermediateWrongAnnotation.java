@@ -10,6 +10,7 @@ import static org.junit.Assert.fail;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.metamodel.Attribute;
+import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.PluralAttribute;
 
 import org.junit.Before;
@@ -91,14 +92,12 @@ public class TestIntermediateWrongAnnotation {
 
   @Test
   public void checkErrorOnProtectedComplexAttributeWrongPath() {
-    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(ComplextProtectedWrongPath.class),
-        "administrativeInformation");
-
+    // ComplextProtectedWrongPath
+    final EntityType<?> jpaEt = helper.getEntityType(ComplextProtectedWrongPath.class);
     try {
-      IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
-          jpaAttribute, helper.schema);
-      property.getEdmItem();
-      property.getProtectionPath("UserId");
+      IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), jpaEt, helper.schema);
+      et.getEdmItem();
+      et.getProtections();
     } catch (ODataJPAModelException e) {
       assertEquals(COMPLEX_PROPERTY_WRONG_PROTECTION_PATH.name(), e.getId());
       assertFalse(e.getMessage().isEmpty());

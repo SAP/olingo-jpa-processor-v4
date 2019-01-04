@@ -4,10 +4,12 @@ import java.util.Collection;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -15,6 +17,8 @@ import javax.persistence.Version;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtectedBy;
 
+@Inheritance
+@DiscriminatorColumn(name = "\"Type\"")
 @Entity
 @Table(schema = "\"OLINGO\"", name = "\"BusinessPartnerProtected\"")
 public class BusinessPartnerProtected {

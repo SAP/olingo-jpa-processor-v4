@@ -32,7 +32,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.AppliesTo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAJoinTable;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
@@ -445,8 +444,8 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
   }
 
   @Override
-  public List<JPAPath> getProtectionPath(String claimName) throws ODataJPAModelException {
-    return null;
+  public List<String> getProtectionPath(String claimName) throws ODataJPAModelException {
+    return new ArrayList<>(0);
   }
 
   @Override

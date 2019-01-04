@@ -7,6 +7,11 @@ import org.apache.olingo.server.api.uri.UriInfo;
 
 import com.sap.olingo.jpa.processor.core.query.JPACountQuery;
 
+/**
+ * 
+ * @author Oliver Grande
+ *
+ */
 public interface JPAODataPagingProvider {
   /**
    * Returns the page related to a given skiptoken.

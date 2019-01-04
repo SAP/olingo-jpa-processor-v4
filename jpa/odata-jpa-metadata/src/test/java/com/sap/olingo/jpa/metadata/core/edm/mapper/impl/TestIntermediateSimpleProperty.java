@@ -34,7 +34,6 @@ import org.mockito.stubbing.Answer;
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtectedBy;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtections;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityTypeAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
@@ -449,9 +448,9 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
         jpaAttribute, helper.schema);
     assertEquals("UserId", property.getProtectionClaimNames().toArray(new String[] {})[0]);
     assertNotNull(property.getProtectionPath("UserId"));
-    List<JPAElement> actPath = property.getProtectionPath("UserId").get(0).getPath();
+    List<String> actPath = property.getProtectionPath("UserId");
     assertEquals(1, actPath.size());
-    assertEquals("username", actPath.get(0).getInternalName());
+    assertEquals("Username", actPath.get(0));
   }
 
   @Test
@@ -460,7 +459,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
     IntermediatePropertyAccess property = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
         jpaAttribute, helper.schema);
     assertTrue(property.getProtectionClaimNames().isEmpty());
-    assertTrue(property.getProtectionPath("UserId").isEmpty());
+    assertTrue(property.getProtectionPath("Username").isEmpty());
   }
 
   @Test
@@ -481,10 +480,9 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
         attributeSpy, helper.schema);
     assertEquals("UserId", property.getProtectionClaimNames().toArray(new String[] {})[0]);
     assertNotNull(property.getProtectionPath("UserId"));
-    List<JPAElement> actPath = property.getProtectionPath("UserId").get(0).getPath();
-    assertEquals(2, actPath.size());
-    assertEquals("created", actPath.get(0).getInternalName());
-    assertEquals("by", actPath.get(1).getInternalName());
+    List<String> actPath = property.getProtectionPath("UserId");
+    assertEquals(1, actPath.size());
+    assertEquals("AdministrativeInformation/Created/By", actPath.get(0));
   }
 
   @Test
@@ -513,15 +511,10 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
     assertEquals("UserId", property.getProtectionClaimNames().toArray(new String[] {})[0]);
     assertNotNull(property.getProtectionPath("UserId"));
 
-    List<JPAElement> actPath = property.getProtectionPath("UserId").get(0).getPath();
+    List<String> actPath = property.getProtectionPath("UserId");
     assertEquals(2, actPath.size());
-    assertEquals("created", actPath.get(0).getInternalName());
-    assertEquals("by", actPath.get(1).getInternalName());
-
-    actPath = property.getProtectionPath("UserId").get(1).getPath();
-    assertEquals(2, actPath.size());
-    assertEquals("updated", actPath.get(0).getInternalName());
-    assertEquals("by", actPath.get(1).getInternalName());
+    assertEquals("AdministrativeInformation/Created/By", actPath.get(0));
+    assertEquals("AdministrativeInformation/Updated/By", actPath.get(1));
   }
 
   @Test
@@ -549,20 +542,14 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
         attributeSpy, helper.schema);
 
     assertTrue(property.getProtectionClaimNames().contains("UserId"));
-    assertNotNull(property.getProtectionPath("UserId"));
-    assertEquals(1, property.getProtectionPath("UserId").size());
-    List<JPAElement> actPath = property.getProtectionPath("UserId").get(0).getPath();
-    assertEquals(2, actPath.size());
-    assertEquals("created", actPath.get(0).getInternalName());
-    assertEquals("by", actPath.get(1).getInternalName());
+    List<String> actPath = property.getProtectionPath("UserId");
+    assertEquals(1, actPath.size());
+    assertEquals("AdministrativeInformation/Created/By", actPath.get(0));
 
     assertTrue(property.getProtectionClaimNames().contains("Date"));
-    assertNotNull(property.getProtectionPath("Date"));
-    assertEquals(1, property.getProtectionPath("Date").size());
-    actPath = property.getProtectionPath("Date").get(0).getPath();
-    assertEquals(2, actPath.size());
-    assertEquals("created", actPath.get(0).getInternalName());
-    assertEquals("at", actPath.get(1).getInternalName());
+    actPath = property.getProtectionPath("Date");
+    assertEquals(1, actPath.size());
+    assertEquals("AdministrativeInformation/Created/At", actPath.get(0));
   }
 
   @Ignore

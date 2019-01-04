@@ -1,7 +1,6 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.COMPLEX_PROPERTY_MISSING_PROTECTION_PATH;
-import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.COMPLEX_PROPERTY_WRONG_PROTECTION_PATH;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.ParameterizedType;
@@ -56,7 +55,6 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
   protected boolean isVersion;
   protected boolean searchable;
   private final Map<String, List<String>> externalProtectedPathNames;
-  private Map<String, List<JPAPath>> externalProtectedPath;
 
   public IntermediateProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,
       final IntermediateSchema schema) throws ODataJPAModelException {
@@ -95,34 +93,10 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
   }
 
   @Override
-  public List<JPAPath> getProtectionPath(String claimName) throws ODataJPAModelException {
-    // lazy creation of path map
-    if (externalProtectedPath == null)
-      externalProtectedPath = new HashMap<>(externalProtectedPathNames.size());
-    if (externalProtectedPath.containsKey(claimName))
-      return externalProtectedPath.get(claimName);
-
-    List<JPAPath> protectedPathList;
-    if (!externalProtectedPathNames.containsKey(claimName))
-      protectedPathList = new ArrayList<>(0);
-    else {
-      protectedPathList = new ArrayList<>(externalProtectedPathNames.get(claimName).size());
-      for (String externalPath : externalProtectedPathNames.get(claimName)) {
-        JPAPath path = null;
-        if (type != null)
-          path = type.getPath(externalPath);
-        else {
-          path = schema.getEntityType(jpaAttribute.getDeclaringType().getJavaType()).getPath(externalPath);
-        }
-        if (path != null)
-          protectedPathList.add(path);
-        else
-          throw new ODataJPAModelException(COMPLEX_PROPERTY_WRONG_PROTECTION_PATH, this.managedType.getJavaType()
-              .getCanonicalName(), this.internalName);
-      }
-    }
-    externalProtectedPath.put(claimName, protectedPathList);
-    return protectedPathList;
+  public List<String> getProtectionPath(String claimName) throws ODataJPAModelException {
+    if (externalProtectedPathNames.containsKey(claimName))
+      return externalProtectedPathNames.get(claimName);
+    return new ArrayList<>(0);
   }
 
   @Override
@@ -261,20 +235,22 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
       externalNames = externalProtectedPathNames.get(protectionClaimName);
     else
       externalNames = new ArrayList<>(2);
-    String internalProtectedPath = jpaProtectedBy.path();
-    if (internalProtectedPath.length() == 0) {
-      if (jpaAttribute.getPersistentAttributeType() == Attribute.PersistentAttributeType.EMBEDDED)
+    if (jpaAttribute.getPersistentAttributeType() == Attribute.PersistentAttributeType.EMBEDDED) {
+      String internalProtectedPath = jpaProtectedBy.path();
+      if (internalProtectedPath.length() == 0) {
         throw new ODataJPAModelException(COMPLEX_PROPERTY_MISSING_PROTECTION_PATH, this.managedType.getJavaType()
             .getCanonicalName(), this.internalName);
-      externalNames.add(getExternalName());
+      }
+      externalNames.add(getExternalName() + JPAPath.PATH_SEPERATOR + convertPath(jpaProtectedBy.path()));
+
     } else
-      externalNames.add(convertPath(internalProtectedPath));
+      externalNames.add(getExternalName());
     externalProtectedPathNames.put(protectionClaimName, externalNames);
   }
 
   /**
    * Converts an internal path into an external path
-   * @param externalProtectedPath2
+   * @param internalPath
    * @return
    */
   private String convertPath(final String internalPath) {

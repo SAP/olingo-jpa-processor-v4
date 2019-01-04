@@ -8,6 +8,7 @@
 		transaction-type="RESOURCE_LOCAL">
 
 		<class>com.sap.olingo.jpa.processor.core.testmodel.AccessRightsConverter</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.AddressDeepProtected</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescription</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.BestOrganization</class>
@@ -29,6 +30,7 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DummyToBeIgnored</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.InhouseAddress</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.InhouseAddressTable</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.InhouseAddressWithProtection</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.JoinComplex</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.JoinRelation</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.JoinSource</class>
@@ -38,6 +40,7 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.OrganizationImage</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Person</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.PersonImage</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.PersonDeepProtected</class> 
 		<class>com.sap.olingo.jpa.processor.core.testmodel.StringConverter</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.SupportRelationship</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Team</class>

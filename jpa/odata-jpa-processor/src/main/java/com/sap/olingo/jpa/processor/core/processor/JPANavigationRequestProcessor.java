@@ -73,7 +73,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     // Create a JPQL Query and execute it
     JPAJoinQuery query = null;
     try {
-      query = new JPAJoinQuery(odata, sessionContext, em, request.getAllHeaders(), page);
+      query = new JPAJoinQuery(odata, sessionContext, em, request.getAllHeaders(), page, claimsProvider);
     } catch (ODataException e) {
       debugger.stopRuntimeMeasurement(handle);
       throw new ODataJPAProcessorException(QUERY_PREPARATION_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR, e);

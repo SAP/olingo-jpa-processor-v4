@@ -98,7 +98,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     RequestHandleSpy spy = prepareDeleteName2();
 
     processor.clearFields(request, new ODataResponse());
-    assertEquals(spy.et.getExternalName(), "Organization");
+    assertEquals("Organization", spy.et.getExternalName());
   }
 
   @Test
@@ -115,8 +115,8 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     when(uriEts.getKeyPredicates()).thenReturn(keys);
 
     processor.clearFields(request, new ODataResponse());
-    assertEquals(spy.keyPredicates.size(), 1);
-    assertEquals(spy.keyPredicates.get("iD"), "35");
+    assertEquals(1, spy.keyPredicates.size());
+    assertEquals("35", spy.keyPredicates.get("iD"));
   }
 
   @Test
@@ -125,7 +125,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     RequestHandleSpy spy = prepareDeleteName2();
 
     processor.clearFields(request, new ODataResponse());
-    assertEquals(spy.jpaAttributes.size(), 1);
+    assertEquals(1, spy.jpaAttributes.size());
     Object[] keys = spy.jpaAttributes.keySet().toArray();
     assertEquals("name2", keys[0].toString());
   }
@@ -136,7 +136,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     RequestHandleSpy spy = prepareDeleteAddress();
 
     processor.clearFields(request, new ODataResponse());
-    assertEquals(spy.jpaAttributes.size(), 1);
+    assertEquals(1, spy.jpaAttributes.size());
     Object[] keys = spy.jpaAttributes.keySet().toArray();
     assertEquals("address", keys[0].toString());
   }
@@ -151,7 +151,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     pathParts.add(uriProperty);
 
     processor.clearFields(request, new ODataResponse());
-    assertEquals(spy.jpaAttributes.size(), 1);
+    assertEquals(1, spy.jpaAttributes.size());
     Object[] keys = spy.jpaAttributes.keySet().toArray();
     assertEquals("name2", keys[0].toString());
   }
@@ -162,11 +162,11 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     RequestHandleSpy spy = prepareDeleteAddressCountry();
 
     processor.clearFields(request, new ODataResponse());
-    assertEquals(spy.jpaAttributes.size(), 1);
+    assertEquals(1, spy.jpaAttributes.size());
 
     @SuppressWarnings("unchecked")
     Map<String, Object> address = (Map<String, Object>) spy.jpaAttributes.get("address");
-    assertEquals(address.size(), 1);
+    assertEquals(1, address.size());
     Object[] keys = address.keySet().toArray();
     assertEquals("country", keys[0].toString());
   }
@@ -178,12 +178,12 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     RequestHandleSpy spy = prepareDeleteAdminInfo();
 
     processor.clearFields(request, new ODataResponse());
-    assertEquals(spy.jpaAttributes.size(), 1);
+    assertEquals(1, spy.jpaAttributes.size());
 
     Map<String, Object> adminInfo = (Map<String, Object>) spy.jpaAttributes.get("administrativeInformation");
-    assertEquals(adminInfo.size(), 1);
+    assertEquals(1, adminInfo.size());
     Map<String, Object> update = (Map<String, Object>) adminInfo.get("updated");
-    assertEquals(update.size(), 1);
+    assertEquals(1, update.size());
     Object[] keys = update.keySet().toArray();
     assertEquals("by", keys[0].toString());
   }
@@ -199,12 +199,12 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     pathParts.add(uriProperty);
 
     processor.clearFields(request, new ODataResponse());
-    assertEquals(spy.jpaAttributes.size(), 1);
+    assertEquals(1, spy.jpaAttributes.size());
 
     Map<String, Object> adminInfo = (Map<String, Object>) spy.jpaAttributes.get("administrativeInformation");
-    assertEquals(adminInfo.size(), 1);
+    assertEquals(1, adminInfo.size());
     Map<String, Object> update = (Map<String, Object>) adminInfo.get("updated");
-    assertEquals(update.size(), 1);
+    assertEquals(1, update.size());
     Object[] keys = update.keySet().toArray();
     assertEquals("by", keys[0].toString());
   }

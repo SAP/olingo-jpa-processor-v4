@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
+import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.COMPLEX_PROPERTY_WRONG_PROTECTION_PATH;
+
 import java.lang.reflect.AnnotatedElement;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,6 +34,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAProtectionInfo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
@@ -44,6 +47,7 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
   protected final Map<String, JPAAssociationPathImpl> resolvedAssociationPathMap;
   protected final ManagedType<?> jpaManagedType;
   protected final IntermediateSchema schema;
+  protected List<JPAProtectionInfo> protectedAttributes;
 
   IntermediateStructuredType(final JPAEdmNameBuilder nameBuilder, final ManagedType<?> jpaManagedType,
       final IntermediateSchema schema) {
@@ -226,6 +230,12 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
         pathList.add(path.getValue());
     }
     return pathList;
+  }
+
+  @Override
+  public List<JPAProtectionInfo> getProtections() throws ODataJPAModelException {
+    lazyBuildCompleteProtectionList();
+    return protectedAttributes;
   }
 
   @Override
@@ -582,6 +592,37 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
     }
   }
 
+  private void lazyBuildCompleteProtectionList() throws ODataJPAModelException {
+    if (protectedAttributes == null) {
+      lazyBuildEdmItem();
+      this.protectedAttributes = new ArrayList<>();
+      for (JPAAttribute attribute : getAttributes()) {
+        if (attribute.hasProtection()) {
+          if (attribute.isComplex()) {
+            for (final String claimName : attribute.getProtectionClaimNames()) {
+              for (final String pathName : attribute.getProtectionPath(claimName)) {
+                final JPAPath path = this.getPath(pathName);
+                if (path == null) // Annotation EdmProtctedBy found at '%2$s' of '%1$s', but the given 'path' '%3$s'...
+                  throw new ODataJPAModelException(COMPLEX_PROPERTY_WRONG_PROTECTION_PATH, attribute.getInternalName(),
+                      this.getTypeClass().getSimpleName(), pathName);
+                protectedAttributes.add(new ProtectionInfo(path, claimName));
+              }
+            }
+          } else
+            for (final String claimName : attribute.getProtectionClaimNames()) {
+              protectedAttributes.add(new ProtectionInfo(this.getPath(attribute.getExternalName()), claimName));
+            }
+        } else if (attribute.isComplex()) { // Protection at attribute overrides protection within complex
+          for (final JPAProtectionInfo info : attribute.getStructuredType().getProtections()) {
+            // Copy and extend path
+            final String pathName = attribute.getExternalName() + JPAPath.PATH_SEPERATOR + info.getPath().getAlias();
+            protectedAttributes.add(new ProtectionInfo(this.getPath(pathName), info.getClaimName()));
+          }
+        }
+      }
+    }
+  }
+
   private void lazyBuildCompletePathMap() throws ODataJPAModelException {
     ArrayList<JPAElement> pathList;
 
@@ -662,5 +703,36 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
       pathElements.add(leaf);
       return pathElements;
     }
+  }
+
+  private class ProtectionInfo implements JPAProtectionInfo {
+    private final JPAPath pathToAttribute;
+    private final String claimName;
+
+    public ProtectionInfo(final JPAPath path, final String claimName) {
+      this.pathToAttribute = path;
+      this.claimName = claimName;
+    }
+
+    @Override
+    public JPAAttribute getAttribute() {
+      return pathToAttribute.getLeaf();
+    }
+
+    @Override
+    public JPAPath getPath() {
+      return pathToAttribute;
+    }
+
+    @Override
+    public String getClaimName() {
+      return claimName;
+    }
+
+    @Override
+    public String toString() {
+      return "ProtectionInfo [pathToAttribute=" + pathToAttribute.getAlias() + ", claimName=" + claimName + "]";
+    }
+
   }
 }

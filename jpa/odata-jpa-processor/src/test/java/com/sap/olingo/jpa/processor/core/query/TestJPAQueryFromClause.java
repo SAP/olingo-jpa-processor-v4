@@ -74,7 +74,7 @@ public class TestJPAQueryFromClause extends TestBase {
 
     Map<String, From<?, ?>> act = cut.createFromClause(new ArrayList<JPAAssociationPath>(1),
         new ArrayList<JPAPath>(), cut.cq);
-    assertNotNull(act.get(jpaEntityType.getInternalName()));
+    assertNotNull(act.get(jpaEntityType.getExternalFQN().getFullQualifiedNameAsString()));
   }
 
   @Test
@@ -94,7 +94,8 @@ public class TestJPAQueryFromClause extends TestBase {
     Map<String, From<?, ?>> act = cut.createFromClause(orderBy, new ArrayList<JPAPath>(), cut.cq);
 
     @SuppressWarnings("unchecked")
-    Root<Organization> root = (Root<Organization>) act.get(jpaEntityType.getInternalName());
+    Root<Organization> root = (Root<Organization>) act.get(jpaEntityType.getExternalFQN()
+        .getFullQualifiedNameAsString());
     Set<Join<Organization, ?>> joins = root.getJoins();
     assertEquals(1, joins.size());
 
@@ -111,7 +112,8 @@ public class TestJPAQueryFromClause extends TestBase {
     Map<String, From<?, ?>> act = cut.createFromClause(orderBy, new ArrayList<JPAPath>(), cut.cq);
 
     @SuppressWarnings("unchecked")
-    Root<Organization> root = (Root<Organization>) act.get(jpaEntityType.getInternalName());
+    Root<Organization> root = (Root<Organization>) act.get(jpaEntityType.getExternalFQN()
+        .getFullQualifiedNameAsString());
     Set<Join<Organization, ?>> joins = root.getJoins();
     assertEquals(1, joins.size());
 
