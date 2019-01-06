@@ -211,32 +211,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
     createFromClauseRoot(query, joinTables);
     target = root;
     createFromClauseNavigationJoins(joinTables);
-
-    final JPANavigationProptertyInfo lastInfo = this.navigationInfo.get(this.navigationInfo.size() - 1);
-    try {
-      if (lastInfo.getAssociationPath() != null
-          && lastInfo.getAssociationPath().getLeaf() instanceof JPACollectionAttribute
-          && !uriResource.getUriResourceParts().isEmpty()
-          && uriResource.getUriResourceParts().get(uriResource.getUriResourceParts().size() - 1)
-              .getKind() == UriResourceKind.complexProperty) {
-        Path<?> p = target;
-        JPAElement element = null;
-        for (JPAElement pathElement : lastInfo.getAssociationPath().getPath()) {
-          p = p.get(pathElement.getInternalName());
-          element = pathElement;
-        }
-        joinTables.put(lastInfo.getAssociationPath().getAlias(), (From<?, ?>) p);
-        lastInfo.setFilterCompiler(new JPAFilterCrossComplier(odata, sd, em,
-            (JPAEntityType) ((JPAAssociationAttribute) element).getTargetEntity(), new JPAOperationConverter(cb,
-                context.getOperationConverter()), uriResource, this, (From<?, ?>) p));
-      } else
-        lastInfo.setFilterCompiler(new JPAFilterCrossComplier(odata, sd, em, jpaEntity, new JPAOperationConverter(cb,
-            context.getOperationConverter()), uriResource, this, lastInfo.getAssociationPath()));
-    } catch (ODataJPAModelException e) {
-      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_FILTER_ERROR,
-          HttpStatusCode.BAD_REQUEST, e);
-    }
-    lastInfo.setFromClause(target);
+    createFromClauseCollectionsJoins(joinTables);
     // 2. OrderBy navigation property
     createFromClauseOrderBy(orderByTarget, joinTables);
     // 3. Description Join determine
@@ -245,111 +220,6 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
     generateCollectionAttributeJoin(joinTables, selectionPath);
 
     return joinTables;
-  }
-
-  private void createFromClauseDescriptionFields(final List<JPAPath> selectionPath,
-      final HashMap<String, From<?, ?>> joinTables) throws ODataApplicationException {
-    final List<JPAPath> descriptionFields = extractDescriptionAttributes(selectionPath);
-    for (JPANavigationProptertyInfo info : this.navigationInfo) {
-      if (info.getFilterCompiler() != null) {
-        generateDesciptionJoin(joinTables,
-            determineAllDescriptionPath(info.getFromClause() == target ? descriptionFields : new ArrayList<>(1),
-                info.getFilterCompiler()), info.getFromClause());
-      }
-    }
-  }
-
-  private void createFromClauseOrderBy(final List<JPAAssociationPath> orderByTarget,
-      final HashMap<String, From<?, ?>> joinTables) {
-    for (final JPAAssociationPath orderBy : orderByTarget) {
-      From<?, ?> join = target;
-      for (JPAElement o : orderBy.getPath())
-        join = join.join(o.getInternalName(), JoinType.LEFT);
-      // Take on condition from JPA metadata; no explicit on
-      joinTables.put(orderBy.getAlias(), join);
-    }
-  }
-
-  /**
-   * Completes NavigationInfo and add Joins for navigation parts e.g. from <code>../Organizations('3')/Roles</code>
-   * @param joinTables
-   * @throws ODataJPAQueryException
-   */
-  private void createFromClauseNavigationJoins(final HashMap<String, From<?, ?>> joinTables)
-      throws ODataJPAQueryException {
-
-    for (int i = 0; i < this.navigationInfo.size() - 1; i++) {
-      final JPANavigationProptertyInfo naviInfo = this.navigationInfo.get(i);
-
-      EdmType castType = null;
-      if (naviInfo.getUriResiource() instanceof UriResourceNavigation)
-        castType = ((UriResourceNavigation) naviInfo.getUriResiource()).getTypeFilterOnEntry();
-      else
-        castType = ((UriResourceEntitySet) naviInfo.getUriResiource()).getTypeFilterOnEntry();
-      if (castType != null)
-        target = (From<?, ?>) target.as(sd.getEntity(castType.getFullQualifiedName()).getTypeClass());
-      naviInfo.setFromClause(target);
-      if (naviInfo.getUriInfo() != null && naviInfo.getUriInfo().getFilterOption() != null) {
-        try {
-          naviInfo.setFilterCompiler(new JPAFilterCrossComplier(odata, sd, em, naviInfo.getEntityType(),
-              new JPAOperationConverter(cb, context.getOperationConverter()), naviInfo.getUriInfo(), this, naviInfo
-                  .getFromClause()));
-        } catch (ODataJPAModelException e) {
-          throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_FILTER_ERROR,
-              HttpStatusCode.BAD_REQUEST, e);
-        }
-      }
-      target = createJoinFromPath(naviInfo.getAssociationPath().getAlias(), naviInfo.getAssociationPath().getPath(),
-          target, JoinType.INNER);
-      joinTables.put(naviInfo.getAssociationPath().getAlias(), target);
-    }
-  }
-
-  /**
-   * Start point of a Join Query e.g. triggered by <code>../Organizations</code> or
-   * <code>../Organizations('3')/Roles</code>
-   * @param query
-   * @param joinTables
-   * @throws ODataJPAQueryException
-   */
-  private void createFromClauseRoot(final CriteriaQuery<?> query, final HashMap<String, From<?, ?>> joinTables)
-      throws ODataJPAQueryException {
-    try {
-      final JPAEntityType sourceEt = this.navigationInfo.get(0).getEntityType();
-      this.root = query.from(sourceEt.getTypeClass());
-      joinTables.put(sourceEt.getExternalFQN().getFullQualifiedNameAsString(), root);
-    } catch (ODataJPAModelException e) {
-      throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-    }
-  }
-
-  /*
-   * Create the join condition for a collection property. This attribute can be part of structure type, therefore the
-   * path to the collection property needs to be traversed
-   */
-  protected void generateCollectionAttributeJoin(final Map<String, From<?, ?>> joinTables,
-      final List<JPAPath> jpaPathList) {
-    for (JPAPath path : jpaPathList) {
-      JPAElement collection = null;
-      // 1. check if path contains collection attribute
-      for (JPAElement element : path.getPath()) {
-        if (element instanceof JPACollectionAttribute) {
-          collection = element;
-          break;
-        }
-      }
-      // 2. Check if join exists and create join if not
-      if (collection != null && !joinTables.containsKey(collection.getExternalName())) {
-        From<?, ?> f = target;
-        for (JPAElement element : path.getPath()) {
-          f = f.join(element.getInternalName());
-          if (element instanceof JPACollectionAttribute) {
-            break;
-          }
-        }
-        joinTables.put(collection.getExternalName(), f);
-      }
-    }
   }
 
   protected final javax.persistence.criteria.Expression<Boolean> createKeyWhere(
@@ -559,6 +429,35 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
     return result;
   }
 
+  /*
+   * Create the join condition for a collection property. This attribute can be part of structure type, therefore the
+   * path to the collection property needs to be traversed
+   */
+  protected void generateCollectionAttributeJoin(final Map<String, From<?, ?>> joinTables,
+      final List<JPAPath> jpaPathList) {
+    for (JPAPath path : jpaPathList) {
+      JPAElement collection = null;
+      // 1. check if path contains collection attribute
+      for (JPAElement element : path.getPath()) {
+        if (element instanceof JPACollectionAttribute) {
+          collection = element;
+          break;
+        }
+      }
+      // 2. Check if join exists and create join if not
+      if (collection != null && !joinTables.containsKey(collection.getExternalName())) {
+        From<?, ?> f = target;
+        for (JPAElement element : path.getPath()) {
+          f = f.join(element.getInternalName());
+          if (element instanceof JPACollectionAttribute) {
+            break;
+          }
+        }
+        joinTables.put(collection.getExternalName(), f);
+      }
+    }
+  }
+
   @Override
   protected Locale getLocale() {
     return locale;
@@ -720,6 +619,117 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
       }
       if (!skip)
         jpaPathList.add(p);
+    }
+  }
+
+  private void createFromClauseCollectionsJoins(final HashMap<String, From<?, ?>> joinTables)
+      throws ODataJPAQueryException {
+    final JPANavigationProptertyInfo lastInfo = this.navigationInfo.get(this.navigationInfo.size() - 1);
+    try {
+      if (lastInfo.getAssociationPath() != null
+          && lastInfo.getAssociationPath().getLeaf() instanceof JPACollectionAttribute
+          && !uriResource.getUriResourceParts().isEmpty()
+          && uriResource.getUriResourceParts().get(uriResource.getUriResourceParts().size() - 1)
+              .getKind() == UriResourceKind.complexProperty) {
+        Path<?> p = target;
+        JPAElement element = null;
+        for (JPAElement pathElement : lastInfo.getAssociationPath().getPath()) {
+          p = p.get(pathElement.getInternalName());
+          element = pathElement;
+        }
+        joinTables.put(lastInfo.getAssociationPath().getAlias(), (From<?, ?>) p);
+        lastInfo.setFilterCompiler(new JPAFilterCrossComplier(odata, sd, em,
+            (JPAEntityType) ((JPAAssociationAttribute) element).getTargetEntity(), new JPAOperationConverter(cb,
+                context.getOperationConverter()), uriResource, this, (From<?, ?>) p));
+      } else
+        lastInfo.setFilterCompiler(new JPAFilterCrossComplier(odata, sd, em, jpaEntity, new JPAOperationConverter(cb,
+            context.getOperationConverter()), uriResource, this, lastInfo.getAssociationPath()));
+    } catch (ODataJPAModelException e) {
+      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_FILTER_ERROR,
+          HttpStatusCode.BAD_REQUEST, e);
+    }
+    lastInfo.setFromClause(target);
+  }
+
+  private void createFromClauseDescriptionFields(final List<JPAPath> selectionPath,
+      final HashMap<String, From<?, ?>> joinTables) throws ODataApplicationException {
+    final List<JPAPath> descriptionFields = extractDescriptionAttributes(selectionPath);
+    for (JPANavigationProptertyInfo info : this.navigationInfo) {
+      if (info.getFilterCompiler() != null) {
+        generateDesciptionJoin(joinTables,
+            determineAllDescriptionPath(info.getFromClause() == target ? descriptionFields : new ArrayList<>(1),
+                info.getFilterCompiler()), info.getFromClause());
+      }
+    }
+  }
+
+  /**
+   * Completes NavigationInfo and add Joins for navigation parts e.g. from <code>../Organizations('3')/Roles</code>
+   * @param joinTables
+   * @throws ODataJPAQueryException
+   */
+  private void createFromClauseNavigationJoins(final HashMap<String, From<?, ?>> joinTables)
+      throws ODataJPAQueryException {
+
+    for (int i = 0; i < this.navigationInfo.size() - 1; i++) {
+      final JPANavigationProptertyInfo naviInfo = this.navigationInfo.get(i);
+
+      EdmType castType = null;
+      if (naviInfo.getUriResiource() instanceof UriResourceNavigation)
+        castType = ((UriResourceNavigation) naviInfo.getUriResiource()).getTypeFilterOnEntry();
+      else
+        castType = ((UriResourceEntitySet) naviInfo.getUriResiource()).getTypeFilterOnEntry();
+      if (castType != null)
+        target = (From<?, ?>) target.as(sd.getEntity(castType.getFullQualifiedName()).getTypeClass());
+      naviInfo.setFromClause(target);
+      if (naviInfo.getUriInfo() != null && naviInfo.getUriInfo().getFilterOption() != null) {
+        try {
+          naviInfo.setFilterCompiler(new JPAFilterCrossComplier(odata, sd, em, naviInfo.getEntityType(),
+              new JPAOperationConverter(cb, context.getOperationConverter()), naviInfo.getUriInfo(), this, naviInfo
+                  .getFromClause()));
+        } catch (ODataJPAModelException e) {
+          throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_FILTER_ERROR,
+              HttpStatusCode.BAD_REQUEST, e);
+        }
+      }
+      target = createJoinFromPath(naviInfo.getAssociationPath().getAlias(), naviInfo.getAssociationPath().getPath(),
+          target, JoinType.INNER);
+      joinTables.put(naviInfo.getAssociationPath().getAlias(), target);
+    }
+  }
+
+  /**
+   * Add from clause that is needed for orderby clauses that are not part of the navigation part e.g.
+   * <code>"Organizations?$orderby=Roles/$count desc,Address/Region desc"</code>
+   * @param orderByTarget
+   * @param joinTables
+   */
+  private void createFromClauseOrderBy(final List<JPAAssociationPath> orderByTarget,
+      final HashMap<String, From<?, ?>> joinTables) {
+    for (final JPAAssociationPath orderBy : orderByTarget) {
+      From<?, ?> join = target;
+      for (JPAElement o : orderBy.getPath())
+        join = join.join(o.getInternalName(), JoinType.LEFT);
+      // Take on condition from JPA metadata; no explicit on
+      joinTables.put(orderBy.getAlias(), join);
+    }
+  }
+
+  /**
+   * Start point of a Join Query e.g. triggered by <code>../Organizations</code> or
+   * <code>../Organizations('3')/Roles</code>
+   * @param query
+   * @param joinTables
+   * @throws ODataJPAQueryException
+   */
+  private void createFromClauseRoot(final CriteriaQuery<?> query, final HashMap<String, From<?, ?>> joinTables)
+      throws ODataJPAQueryException {
+    try {
+      final JPAEntityType sourceEt = this.navigationInfo.get(0).getEntityType();
+      this.root = query.from(sourceEt.getTypeClass());
+      joinTables.put(sourceEt.getExternalFQN().getFullQualifiedNameAsString(), root);
+    } catch (ODataJPAModelException e) {
+      throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
   }
 

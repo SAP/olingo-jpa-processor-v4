@@ -8,7 +8,8 @@ import java.lang.annotation.Target;
 
 /**
  * Describes which authorization claim shall be used to filter the annotated attribute. In case multiple attributes of
- * an entity are annotated they are connected via an AND operation.
+ * an entity are annotated they are connected via an AND operation. This annotation is respected also if the attribute
+ * is marked to be ignored.
  * @author Oliver Grande
  *
  */

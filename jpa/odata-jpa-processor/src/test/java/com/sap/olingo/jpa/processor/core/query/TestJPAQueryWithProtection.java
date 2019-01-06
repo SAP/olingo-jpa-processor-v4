@@ -69,7 +69,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
     JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add("UserId", new JPAClaimsPair<>("Willi"));
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "BusinessPartnerProtecteds?$select=ID,Name1,Country,Username", claims);
+        "BusinessPartnerProtecteds?$select=ID,Name1,Country", claims);
     helper.assertStatus(200);
 
     final ArrayNode bupa = helper.getValues();
@@ -82,7 +82,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
     claims.add("UserId", new JPAClaimsPair<>("Willi"));
     claims.add("UserId", new JPAClaimsPair<>("Marvin"));
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "BusinessPartnerProtecteds?$select=ID,Name1,Country,Username", claims);
+        "BusinessPartnerProtecteds?$select=ID,Name1,Country", claims);
     helper.assertStatus(200);
 
     final ArrayNode bupa = helper.getValues();
@@ -94,7 +94,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
     JPAODataClaimsProvider claims = null;
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "BusinessPartnerProtecteds?$select=ID,Name1,Country,Username", claims);
+        "BusinessPartnerProtecteds?$select=ID,Name1,Country", claims);
     helper.assertStatus(403);
   }
 
@@ -102,7 +102,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
   public void testRestrictOnePropertyNoValue() throws IOException, ODataException {
     JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "BusinessPartnerProtecteds?$select=ID,Name1,Country,Username", claims);
+        "BusinessPartnerProtecteds?$select=ID,Name1,Country", claims);
     helper.assertStatus(403);
   }
 
@@ -111,7 +111,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
     JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add("UserId", new JPAClaimsPair<>("Marvin", "Willi"));
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "BusinessPartnerProtecteds?$select=ID,Name1,Country,Username", claims);
+        "BusinessPartnerProtecteds?$select=ID,Name1,Country", claims);
     helper.assertStatus(200);
 
     final ArrayNode bupa = helper.getValues();

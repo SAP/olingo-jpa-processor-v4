@@ -15,6 +15,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtectedBy;
 
 @Inheritance
@@ -43,8 +44,9 @@ public class BusinessPartnerProtected {
   @Column(name = "\"Country\"", length = 4)
   private String country;
 
-  @Column(name = "\"UserName\"", length = 60)
   @EdmProtectedBy(name = "UserId")
+  @EdmIgnore
+  @Column(name = "\"UserName\"", length = 60)
   private String username;
 
   @Embedded

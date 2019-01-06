@@ -91,6 +91,17 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
   }
 
   @Override
+  public JPAAttribute getAttribute(final String internalName) throws ODataJPAModelException {
+    lazyBuildEdmItem();
+    JPAAttribute result = declaredPropertiesList.get(internalName);
+    if (result == null && getBaseType() != null)
+      result = getBaseType().getAttribute(internalName);
+    else if (result != null && ((IntermediateModelElement) result).ignore())
+      return null;
+    return result;
+  }
+
+  @Override
   public JPAAttribute getAttribute(final UriResourceProperty uriResourceItem) throws ODataJPAModelException {
     lazyBuildEdmItem();
     final String externalName = uriResourceItem.getProperty().getName();
@@ -101,17 +112,6 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
     if (getBaseType() != null)
       return getBaseType().getAttribute(uriResourceItem);
     return null;
-  }
-
-  @Override
-  public JPAAttribute getAttribute(final String internalName) throws ODataJPAModelException {
-    lazyBuildEdmItem();
-    JPAAttribute result = declaredPropertiesList.get(internalName);
-    if (result == null && getBaseType() != null)
-      result = getBaseType().getAttribute(internalName);
-    else if (result != null && ((IntermediateModelElement) result).ignore())
-      return null;
-    return result;
   }
 
   @Override
@@ -141,6 +141,33 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
         pathList.add(path.getValue());
     }
     return pathList;
+  }
+
+  @Override
+  public JPAAssociationPath getDeclaredAssociation(final JPAAssociationPath associationPath)
+      throws ODataJPAModelException {
+    lazyBuildCompleteAssociationPathMap();
+
+    if (resolvedAssociationPathMap.containsKey(associationPath.getAlias()))
+      return resolvedAssociationPathMap.get(associationPath.getAlias());
+    final IntermediateStructuredType baseType = getBaseType();
+    if (baseType != null)
+      return baseType.getDeclaredAssociation(associationPath);
+    return null;
+  }
+
+  @Override
+  public JPAAssociationPath getDeclaredAssociation(final String externalName) throws ODataJPAModelException {
+    lazyBuildCompleteAssociationPathMap();
+    for (final Entry<String, IntermediateNavigationProperty> naviProperty : declaredNaviPropertiesList.entrySet()) {
+
+      if (externalName.equals(naviProperty.getValue().getExternalName()))
+        return resolvedAssociationPathMap.get(externalName);
+    }
+    final IntermediateStructuredType baseType = getBaseType();
+    if (baseType != null)
+      return baseType.getDeclaredAssociation(externalName);
+    return null;
   }
 
   @Override
@@ -184,41 +211,8 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
   }
 
   @Override
-  public JPAAssociationPath getDeclaredAssociation(final JPAAssociationPath associationPath)
-      throws ODataJPAModelException {
-    lazyBuildCompleteAssociationPathMap();
-
-    if (resolvedAssociationPathMap.containsKey(associationPath.getAlias()))
-      return resolvedAssociationPathMap.get(associationPath.getAlias());
-    final IntermediateStructuredType baseType = getBaseType();
-    if (baseType != null)
-      return baseType.getDeclaredAssociation(associationPath);
-    return null;
-  }
-
-  @Override
-  public JPAAssociationPath getDeclaredAssociation(final String externalName) throws ODataJPAModelException {
-    lazyBuildCompleteAssociationPathMap();
-    for (final Entry<String, IntermediateNavigationProperty> naviProperty : declaredNaviPropertiesList.entrySet()) {
-
-      if (externalName.equals(naviProperty.getValue().getExternalName()))
-        return resolvedAssociationPathMap.get(externalName);
-    }
-    final IntermediateStructuredType baseType = getBaseType();
-    if (baseType != null)
-      return baseType.getDeclaredAssociation(externalName);
-    return null;
-  }
-
-  @Override
   public JPAPath getPath(final String externalName) throws ODataJPAModelException {
-    lazyBuildCompletePathMap();
-    JPAPath targetPath = resolvedPathMap.get(externalName);
-    if (targetPath == null)
-      targetPath = intermediatePathMap.get(externalName);
-    if (targetPath == null || targetPath.ignore())
-      return null;
-    return targetPath;
+    return getPath(externalName, true);
   }
 
   @Override
@@ -332,15 +326,15 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
     return baseEntity != null ? nameBuilder.buildFQN(baseEntity.getExternalName()) : null;
   }
 
+  protected boolean determineHasStream() throws ODataJPAModelException {
+    return getStreamProperty() == null ? false : true;
+  }
+
   protected void determineIgnore() {
     final EdmIgnore jpaIgnore = this.jpaManagedType.getJavaType().getAnnotation(EdmIgnore.class);
     if (jpaIgnore != null) {
       this.setIgnore(true);
     }
-  }
-
-  protected boolean determineHasStream() throws ODataJPAModelException {
-    return getStreamProperty() == null ? false : true;
   }
 
   protected IntermediateStructuredType getBaseType() {
@@ -565,6 +559,16 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
     return null;
   }
 
+  private JPAPath getPath(final String externalName, final boolean respectIgnore) throws ODataJPAModelException {
+    lazyBuildCompletePathMap();
+    JPAPath targetPath = resolvedPathMap.get(externalName);
+    if (targetPath == null)
+      targetPath = intermediatePathMap.get(externalName);
+    if (targetPath == null || targetPath.ignore() && respectIgnore)
+      return null;
+    return targetPath;
+  }
+
   private void lazyBuildCompleteAssociationPathMap() throws ODataJPAModelException {
     JPAAssociationPathImpl associationPath;
     lazyBuildCompletePathMap();
@@ -586,37 +590,6 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
             associationPath = new JPAAssociationPathImpl(nameBuilder, association,
                 this, determineJoinColumns(property, association), property);
             resolvedAssociationPathMap.put(associationPath.getAlias(), associationPath);
-          }
-        }
-      }
-    }
-  }
-
-  private void lazyBuildCompleteProtectionList() throws ODataJPAModelException {
-    if (protectedAttributes == null) {
-      lazyBuildEdmItem();
-      this.protectedAttributes = new ArrayList<>();
-      for (JPAAttribute attribute : getAttributes()) {
-        if (attribute.hasProtection()) {
-          if (attribute.isComplex()) {
-            for (final String claimName : attribute.getProtectionClaimNames()) {
-              for (final String pathName : attribute.getProtectionPath(claimName)) {
-                final JPAPath path = this.getPath(pathName);
-                if (path == null) // Annotation EdmProtctedBy found at '%2$s' of '%1$s', but the given 'path' '%3$s'...
-                  throw new ODataJPAModelException(COMPLEX_PROPERTY_WRONG_PROTECTION_PATH, attribute.getInternalName(),
-                      this.getTypeClass().getSimpleName(), pathName);
-                protectedAttributes.add(new ProtectionInfo(path, claimName));
-              }
-            }
-          } else
-            for (final String claimName : attribute.getProtectionClaimNames()) {
-              protectedAttributes.add(new ProtectionInfo(this.getPath(attribute.getExternalName()), claimName));
-            }
-        } else if (attribute.isComplex()) { // Protection at attribute overrides protection within complex
-          for (final JPAProtectionInfo info : attribute.getStructuredType().getProtections()) {
-            // Copy and extend path
-            final String pathName = attribute.getExternalName() + JPAPath.PATH_SEPERATOR + info.getPath().getAlias();
-            protectedAttributes.add(new ProtectionInfo(this.getPath(pathName), info.getClaimName()));
           }
         }
       }
@@ -681,6 +654,37 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
     }
   }
 
+  private void lazyBuildCompleteProtectionList() throws ODataJPAModelException {
+    if (protectedAttributes == null) {
+      lazyBuildEdmItem();
+      this.protectedAttributes = new ArrayList<>();
+      for (JPAAttribute attribute : getDeclaredAttributes()) {
+        if (attribute.hasProtection()) {
+          if (attribute.isComplex()) {
+            for (final String claimName : attribute.getProtectionClaimNames()) {
+              for (final String pathName : attribute.getProtectionPath(claimName)) {
+                final JPAPath path = this.getPath(pathName, false);
+                if (path == null) // Annotation EdmProtctedBy found at '%2$s' of '%1$s', but the given 'path' '%3$s'...
+                  throw new ODataJPAModelException(COMPLEX_PROPERTY_WRONG_PROTECTION_PATH, attribute.getInternalName(),
+                      this.getTypeClass().getSimpleName(), pathName);
+                protectedAttributes.add(new ProtectionInfo(path, claimName));
+              }
+            }
+          } else
+            for (final String claimName : attribute.getProtectionClaimNames()) {
+              protectedAttributes.add(new ProtectionInfo(this.getPath(attribute.getExternalName(), false), claimName));
+            }
+        } else if (attribute.isComplex()) { // Protection at attribute overrides protection within complex
+          for (final JPAProtectionInfo info : attribute.getStructuredType().getProtections()) {
+            // Copy and extend path
+            final String pathName = attribute.getExternalName() + JPAPath.PATH_SEPERATOR + info.getPath().getAlias();
+            protectedAttributes.add(new ProtectionInfo(this.getPath(pathName, false), info.getClaimName()));
+          }
+        }
+      }
+    }
+  }
+
   private List<JPAElement> rebuildPathList(final List<JPAElement> pathList) throws ODataJPAModelException {
 
     final StringBuilder path = new StringBuilder();
@@ -720,13 +724,13 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
     }
 
     @Override
-    public JPAPath getPath() {
-      return pathToAttribute;
+    public String getClaimName() {
+      return claimName;
     }
 
     @Override
-    public String getClaimName() {
-      return claimName;
+    public JPAPath getPath() {
+      return pathToAttribute;
     }
 
     @Override
