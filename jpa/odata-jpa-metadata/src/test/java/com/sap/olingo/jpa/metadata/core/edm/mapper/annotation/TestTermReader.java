@@ -33,7 +33,7 @@ public class TestTermReader {
     assertNotNull(actEdmx.getDataService());
 
     Schema[] actSchemas = actEdmx.getDataService().getSchemas();
-    assertEquals(actSchemas.length, 1);
+    assertEquals(1, actSchemas.length);
     assertEquals("Org.OData.Measures.V1", actSchemas[0].getNamespace());
   }
 
@@ -77,8 +77,8 @@ public class TestTermReader {
     assertNotNull(actEdmx.getDataService());
 
     Schema[] actSchemas = actEdmx.getDataService().getSchemas();
-    assertEquals(actSchemas.length, 1);
-    assertEquals(actSchemas[0].getNamespace(), "Org.OData.Core.V1");
+    assertEquals(1, actSchemas.length);
+    assertEquals("Org.OData.Core.V1", actSchemas[0].getNamespace());
   }
 
   // TODO This test may not run because of proxy setting problems!! -> find alternative for Integration tests

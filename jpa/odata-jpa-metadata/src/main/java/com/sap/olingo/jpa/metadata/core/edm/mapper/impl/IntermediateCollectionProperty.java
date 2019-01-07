@@ -2,6 +2,7 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.NOT_SUPPORTED_NO_IMPLICIT_COLUMNS;
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.NOT_SUPPORTED_NO_IMPLICIT_COLUMNS_COMPEX;
+import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.NOT_SUPPORTED_PROTECTED_COLLECTION;
 import static javax.persistence.metamodel.Type.PersistenceType.EMBEDDABLE;
 
 import java.lang.reflect.AnnotatedElement;
@@ -86,6 +87,21 @@ class IntermediateCollectionProperty extends IntermediateProperty implements JPA
           getExternalName()) : path, ((IntermediateCollectionTable) getJoinTable()).getLeftJoinColumns());
     return associationPath;
 
+  }
+
+  @Override
+  public JPAAssociationAttribute getPartner() {
+    return null;
+  }
+
+  @Override
+  public JPAAssociationPath getPath() throws ODataJPAModelException {
+    return asAssociation();
+  }
+
+  @Override
+  public JPAStructuredType getTargetEntity() throws ODataJPAModelException {
+    return joinTable.getEntityType();
   }
 
   @Override
@@ -277,17 +293,11 @@ class IntermediateCollectionProperty extends IntermediateProperty implements JPA
   }
 
   @Override
-  public JPAStructuredType getTargetEntity() throws ODataJPAModelException {
-    return joinTable.getEntityType();
-  }
-
-  @Override
-  public JPAAssociationAttribute getPartner() {
-    return null;
-  }
-
-  @Override
-  public JPAAssociationPath getPath() throws ODataJPAModelException {
-    return asAssociation();
+  void checkConsistancy() throws ODataJPAModelException {
+    // Collection Properties do not support EdmProtectedBy
+    if (hasProtection()) {
+      throw new ODataJPAModelException(NOT_SUPPORTED_PROTECTED_COLLECTION, this.managedType.getJavaType()
+          .getCanonicalName(), this.internalName);
+    }
   }
 }

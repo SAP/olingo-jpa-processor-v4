@@ -6,8 +6,8 @@ import java.util.List;
 
 import org.apache.olingo.server.api.debug.RuntimeMeasurement;
 
-class JPACoreDeugger implements JPAServiceDebugger {
-  private final List<RuntimeMeasurement> runtimeInformation = new ArrayList<RuntimeMeasurement>();
+class JPACoreDebugger implements JPAServiceDebugger {
+  private final List<RuntimeMeasurement> runtimeInformation = new ArrayList<>();
 
   @Override
   public int startRuntimeMeasurement(final Object instance, final String methodName) {
@@ -34,7 +34,7 @@ class JPACoreDeugger implements JPAServiceDebugger {
   }
 
   @Override
-  public Collection<? extends RuntimeMeasurement> getRuntimeInformation() {
+  public Collection<RuntimeMeasurement> getRuntimeInformation() {
     return runtimeInformation;
   }
 
