@@ -709,7 +709,7 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
     }
   }
 
-  private class ProtectionInfo implements JPAProtectionInfo {
+  private static class ProtectionInfo implements JPAProtectionInfo {
     private final JPAPath pathToAttribute;
     private final String claimName;
 
