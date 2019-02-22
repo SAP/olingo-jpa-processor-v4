@@ -198,6 +198,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
    * the risk that some databases are not able to handles those.</li>
    * <li>The number of returned columns becomes big, which may become a problem for some databases</li>
    * <li>This hard to create a big join for <code>$level=*</code></li>
+   * <li>Server driven paging seems to be more complicated</li>
    * </ul>
    * and the goal is to implement a general solution, multiple round trips have been taken.
    * <p>For a general overview see:

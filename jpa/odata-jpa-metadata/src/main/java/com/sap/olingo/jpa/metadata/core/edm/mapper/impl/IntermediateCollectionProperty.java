@@ -19,6 +19,7 @@ import org.apache.olingo.commons.api.edm.FullQualifiedName;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -100,6 +101,19 @@ class IntermediateCollectionProperty extends IntermediateProperty implements JPA
   }
 
   @Override
+  public JPAAttribute getTargetAttribute() throws ODataJPAModelException {
+    if (isComplex())
+      return null;
+    else {
+      for (JPAAttribute a : ((IntermediateStructuredType) joinTable.getEntityType()).getAttributes()) {
+        if (dbFieldName.equals(((IntermediateProperty) a).getDBFieldName()))
+          return a;
+      }
+      return null;
+    }
+  }
+
+  @Override
   public JPAStructuredType getTargetEntity() throws ODataJPAModelException {
     return joinTable.getEntityType();
   }
@@ -143,6 +157,15 @@ class IntermediateCollectionProperty extends IntermediateProperty implements JPA
       throw new ODataJPAModelException(MessageKeys.INVALID_COLLECTION_TYPE, getInternalName(), sourceType
           .getInternalName());
     edmProperty.setCollection(true);
+  }
+
+  @Override
+  void checkConsistancy() throws ODataJPAModelException {
+    // Collection Properties do not support EdmProtectedBy
+    if (hasProtection()) {
+      throw new ODataJPAModelException(NOT_SUPPORTED_PROTECTED_COLLECTION, this.managedType.getJavaType()
+          .getCanonicalName(), this.internalName);
+    }
   }
 
   @Override
@@ -289,15 +312,6 @@ class IntermediateCollectionProperty extends IntermediateProperty implements JPA
           result.add(new IntermediateJoinColumn(column.referencedColumnName(), column.name()));
       }
       return result;
-    }
-  }
-
-  @Override
-  void checkConsistancy() throws ODataJPAModelException {
-    // Collection Properties do not support EdmProtectedBy
-    if (hasProtection()) {
-      throw new ODataJPAModelException(NOT_SUPPORTED_PROTECTED_COLLECTION, this.managedType.getJavaType()
-          .getCanonicalName(), this.internalName);
     }
   }
 }
