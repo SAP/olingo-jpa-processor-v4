@@ -31,11 +31,13 @@ public class JPAClaimsPair<T> {
     return "JPAClaimsPair [min=" + min + ", max=" + max + "]";
   }
 
-  public <Y> Y minAs(Class<Y> type) {
+  @SuppressWarnings("unchecked")
+  public <Y> Y minAs() {
     return (Y) min;
   }
 
-  public <Y> Y maxAs(Class<Y> type) {
+  @SuppressWarnings("unchecked")
+  public <Y> Y maxAs() {
     return (Y) max;
   }
 }

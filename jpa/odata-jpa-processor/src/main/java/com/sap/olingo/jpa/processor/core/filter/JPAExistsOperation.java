@@ -95,8 +95,7 @@ abstract class JPAExistsOperation implements JPAOperator {
           navigation = (UriResourcePartTyped) resourceParts.get(i);
           associationName = new StringBuilder();
           associationName.insert(0, ((UriResourceProperty) navigation).getProperty().getName());
-        }
-        if (navigation != null) {
+        } else if (navigation != null) {
           if (resourceParts.get(i) instanceof UriResourceComplexProperty) {
             associationName.insert(0, JPAPath.PATH_SEPERATOR);
             associationName.insert(0, ((UriResourceComplexProperty) resourceParts.get(i)).getProperty().getName());
