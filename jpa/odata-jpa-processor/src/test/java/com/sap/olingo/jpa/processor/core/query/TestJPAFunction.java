@@ -6,8 +6,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
+import javax.persistence.Query;
 import javax.sql.DataSource;
 
 import org.apache.olingo.commons.api.ex.ODataException;
@@ -48,9 +51,38 @@ public class TestJPAFunction {
 
   @Test
   public void testFunctionGenerateQueryString() throws IOException, ODataException, SQLException {
-
+    createFunction();
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds,
         "Siblings(DivisionCode='BE25',CodeID='NUTS2',CodePublisher='Eurostat')");
     helper.assertStatus(200);
+  }
+
+  private void createFunction() {
+    final EntityManager em = emf.createEntityManager();
+    final EntityTransaction t = em.getTransaction();
+    final StringBuilder createSiblingsString = new StringBuilder();
+    createSiblingsString.append(
+        "CREATE FUNCTION  \"OLINGO\".\"Siblings\" (\"Publisher\" VARCHAR(10), \"ID\" VARCHAR(10), \"Division\" VARCHAR(10)) ");
+    createSiblingsString.append(
+        "RETURNS TABLE(\"CodePublisher\" VARCHAR(10),\"CodeID\" VARCHAR(10),\"DivisionCode\" VARCHAR(10),");
+    createSiblingsString.append(
+        "\"CountryISOCode\" VARCHAR(4), \"ParentCodeID\" VARCHAR(10),\"ParentDivisionCode\" VARCHAR(10),");
+    createSiblingsString.append("\"AlternativeCode\" VARCHAR(10),\"Area\" int, \"Population\" BIGINT) ");
+    createSiblingsString.append("READS SQL DATA ");
+    createSiblingsString.append("RETURN TABLE( SELECT * FROM \"AdministrativeDivision\" as a  WHERE ");
+    createSiblingsString.append("EXISTS (SELECT \"CodePublisher\" ");
+    createSiblingsString.append("FROM \"OLINGO\".\"AdministrativeDivision\" as b ");
+    createSiblingsString.append("WHERE b.\"CodeID\" = \"ID\" ");
+    createSiblingsString.append("AND   b.\"DivisionCode\" = \"Division\" ");
+    createSiblingsString.append("AND   b.\"CodePublisher\" = a.\"CodePublisher\" ");
+    createSiblingsString.append("AND   b.\"ParentCodeID\" = a.\"ParentCodeID\" ");
+    createSiblingsString.append("AND   b.\"ParentDivisionCode\" = a.\"ParentDivisionCode\") ");
+    createSiblingsString.append("AND NOT( a.\"CodePublisher\" = \"Publisher\" ");
+    createSiblingsString.append("AND  a.\"CodeID\" = \"ID\" ");
+    createSiblingsString.append("AND  a.\"DivisionCode\" = \"Division\" )); ");
+    t.begin();
+    Query qP = em.createNativeQuery(createSiblingsString.toString());
+    qP.executeUpdate();
+    t.commit();
   }
 }
