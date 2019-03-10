@@ -870,5 +870,4 @@ CREATE FUNCTION  "Siblings" ("Publisher" VARCHAR(10), "ID" VARCHAR(10), "Divisio
 						AND  a."CodeID" = "ID"
 						AND  a."DivisionCode" = "Division" )
 				);
---END;
 	 
