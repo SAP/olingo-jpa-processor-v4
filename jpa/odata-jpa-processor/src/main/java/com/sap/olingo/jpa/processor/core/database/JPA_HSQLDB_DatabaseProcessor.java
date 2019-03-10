@@ -28,8 +28,9 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPADBAdaptorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 
-class JPA_HSQLDB_DatabaseProcessor implements JPAODataDatabaseProcessor {
+public class JPA_HSQLDB_DatabaseProcessor implements JPAODataDatabaseProcessor {
   private static final String SELECT_BASE_PATTERN = "SELECT * FROM TABLE ($FUNCTIONNAME$($PARAMETER$))";
+  private static final String SELECT_COUNT_PATTERN = "SELECT COUNT(*) FROM TABLE ($FUNCTIONNAME$($PARAMETER$))";
   private static final String FUNC_NAME_PLACEHOLDER = "$FUNCTIONNAME$";
   private static final String PARAMETER_PLACEHOLDER = "$PARAMETER$";
 
@@ -41,8 +42,26 @@ class JPA_HSQLDB_DatabaseProcessor implements JPAODataDatabaseProcessor {
 
     final UriResourceFunction uriResourceFunction =
         (UriResourceFunction) uriResourceParts.get(uriResourceParts.size() - 1);
-    final String queryString = generateQueryString(jpaFunction);
+    final String queryString = generateQueryString(SELECT_BASE_PATTERN, jpaFunction);
     final Query functionQuery = em.createNativeQuery(queryString, resultClass);
+    fillParameter(jpaFunction, uriResourceFunction, functionQuery);
+    return functionQuery.getResultList();
+  }
+
+  @Override
+  public Long executeFunctionCountQuery(final List<UriResource> uriResourceParts,
+      final JPADataBaseFunction jpaFunction, final EntityManager em) throws ODataApplicationException {
+
+    final UriResourceFunction uriResourceFunction =
+        (UriResourceFunction) uriResourceParts.get(uriResourceParts.size() - 1);
+    final String queryString = generateQueryString(SELECT_COUNT_PATTERN, jpaFunction);
+    final Query functionQuery = em.createNativeQuery(queryString);
+    fillParameter(jpaFunction, uriResourceFunction, functionQuery);
+    return (Long) functionQuery.getSingleResult();
+  }
+
+  private void fillParameter(final JPADataBaseFunction jpaFunction, final UriResourceFunction uriResourceFunction,
+      final Query functionQuery) throws ODataApplicationException, ODataJPAProcessorException {
     int count = 1;
     try {
       for (final JPAParameter parameter : jpaFunction.getParameter()) {
@@ -54,14 +73,13 @@ class JPA_HSQLDB_DatabaseProcessor implements JPAODataDatabaseProcessor {
     } catch (ODataJPAModelException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
-    return functionQuery.getResultList();
   }
 
-  private String generateQueryString(final JPADataBaseFunction jpaFunction) throws ODataJPAProcessorException {
+  private String generateQueryString(final String queryPattern, final JPADataBaseFunction jpaFunction)
+      throws ODataJPAProcessorException {
     final StringBuilder parameterList = new StringBuilder();
-    String queryString = SELECT_BASE_PATTERN;
 
-    queryString = queryString.replace(FUNC_NAME_PLACEHOLDER, jpaFunction.getDBName());
+    String queryString = queryPattern.replace(FUNC_NAME_PLACEHOLDER, jpaFunction.getDBName());
     try {
       for (int i = 1; i <= jpaFunction.getParameter().size(); i++) {
         parameterList.append(',');
