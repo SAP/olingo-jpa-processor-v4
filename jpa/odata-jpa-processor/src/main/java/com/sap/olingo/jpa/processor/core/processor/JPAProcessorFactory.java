@@ -138,7 +138,7 @@ public final class JPAProcessorFactory {
       } else {
         final JPACountQuery countQuery = new JPAJoinQuery(odata, sessionContext, em, headers, page, Optional.empty());
         final Integer preferedPagesize = getPreferedPagesize(headers);
-        final JPAODataPage firstPage = sessionContext.getPagingProvider().getFristPage(uriInfo, preferedPagesize,
+        final JPAODataPage firstPage = sessionContext.getPagingProvider().getFirstPage(uriInfo, preferedPagesize,
             countQuery, em);
         page = firstPage != null ? firstPage : page;
       }

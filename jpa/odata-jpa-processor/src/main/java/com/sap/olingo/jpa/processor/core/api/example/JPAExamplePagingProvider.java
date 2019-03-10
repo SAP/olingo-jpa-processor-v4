@@ -59,7 +59,7 @@ public class JPAExamplePagingProvider implements JPAODataPagingProvider {
   }
 
   @Override
-  public JPAODataPage getFristPage(final UriInfo uriInfo, final Integer preferedPageSize,
+  public JPAODataPage getFirstPage(final UriInfo uriInfo, final Integer preferedPageSize,
       final JPACountQuery countQuery, final EntityManager em) throws ODataApplicationException {
 
     final UriResource root = uriInfo.getUriResourceParts().get(0);
