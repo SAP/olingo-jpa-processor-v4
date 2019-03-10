@@ -6,9 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 import javax.sql.DataSource;
 
@@ -34,7 +32,7 @@ public class TestJPAFunction {
   @Before
   public void setup() {
     ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
-    Map<String, Object> properties = new HashMap<String, Object>();
+    Map<String, Object> properties = new HashMap<>();
     properties.put("javax.persistence.nonJtaDataSource", ds);
     emf = Persistence.createEntityManagerFactory(PUNIT_NAME, properties);
     emf.getProperties();
@@ -51,33 +49,8 @@ public class TestJPAFunction {
   @Test
   public void testFunctionGenerateQueryString() throws IOException, ODataException, SQLException {
 
-    createSiblingsFunction();
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds,
         "Siblings(DivisionCode='BE25',CodeID='NUTS2',CodePublisher='Eurostat')");
     helper.assertStatus(200);
-  }
-
-  private void createSiblingsFunction() {
-    StringBuffer sqlString = new StringBuffer();
-
-    EntityManager em = emf.createEntityManager();
-    EntityTransaction t = em.getTransaction();
-
-    sqlString.append("create function \"OLINGO\".\"Siblings\""); // \"OLINGO\".
-    sqlString.append("( CodePublisher nvarchar(10), CodeID nvarchar(10), DivisionCode nvarchar(10))");
-    sqlString.append(
-        "RETURNS TABLE (\"CodePublisher\" nvarchar(10), \"CodeID\" nvarchar(10), \"DivisionCode\" nvarchar(10),");
-    sqlString.append(
-        "\"CountryISOCode\"  NVARCHAR(4), \"ParentCodeID\"  NVARCHAR(10), \"ParentDivisionCode\"  NVARCHAR(10),");
-    sqlString.append("\"AlternativeCode\"  NVARCHAR(10),  \"Area\"  DECIMAL(34,0), \"Population\"  BIGINT )");
-    sqlString.append("READS SQL  DATA RETURN TABLE (SELECT ");
-    sqlString.append("a.\"CodePublisher\", a.\"CodeID\", a.\"DivisionCode\", a.\"CountryISOCode\",a.\"ParentCodeID\"");
-    sqlString.append(",a.\"ParentDivisionCode\", a.\"AlternativeCode\",a.\"Area\", a.\"Population\"");
-    sqlString.append("FROM \"OLINGO\".\"AdministrativeDivision\" as a);");
-
-    t.begin();
-    javax.persistence.Query q = em.createNativeQuery(sqlString.toString());
-    q.executeUpdate();
-    t.commit();
   }
 }

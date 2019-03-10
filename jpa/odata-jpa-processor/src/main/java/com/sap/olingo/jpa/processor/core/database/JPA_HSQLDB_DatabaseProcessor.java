@@ -29,9 +29,9 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPADBAdaptorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 
 class JPA_HSQLDB_DatabaseProcessor implements JPAODataDatabaseProcessor {
-  private final static String SELECT_BASE_PATTERN = "SELECT * FROM TABLE ($FUNCTIONNAME$($PARAMETER$))";
-  private final static String FUNC_NAME_PLACEHOLDER = "$FUNCTIONNAME$";
-  private final static String PARAMETER_PLACEHOLDER = "$PARAMETER$";
+  private static final String SELECT_BASE_PATTERN = "SELECT * FROM TABLE ($FUNCTIONNAME$($PARAMETER$))";
+  private static final String FUNC_NAME_PLACEHOLDER = "$FUNCTIONNAME$";
+  private static final String PARAMETER_PLACEHOLDER = "$PARAMETER$";
 
   @SuppressWarnings("unchecked")
   @Override

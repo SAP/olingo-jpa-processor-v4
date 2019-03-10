@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -351,6 +351,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
   public void testDoesNotCallsValidateChangesOnError() throws ODataException {
     ODataResponse response = new ODataResponse();
     ODataRequest request = prepareSimpleRequest();
+    when(request.getMethod()).thenReturn(HttpMethod.POST);
 
     JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     when(sessionContext.getCUDRequestHandler()).thenReturn(handler);

@@ -7,12 +7,12 @@ import static org.junit.Assert.assertNotNull;
 import java.io.IOException;
 
 import org.apache.olingo.commons.api.ex.ODataException;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 
@@ -31,7 +31,7 @@ public class TestJPAQueryCollection extends TestBase {
     assertEquals(2, comment.size());
   }
 
-  @Ignore // See https://issues.apache.org/jira/browse/OLINGO-1231
+  // @Ignore // See https://issues.apache.org/jira/browse/OLINGO-1231
   @Test
   public void testSelectPropertyOfCollection() throws IOException, ODataException {
 
@@ -39,10 +39,11 @@ public class TestJPAQueryCollection extends TestBase {
         "Persons('99')/InhouseAddress?$select=Building");
     helper.assertStatus(200);
 
-    final ArrayNode orgs = helper.getValues();
-    ObjectNode org = (ObjectNode) orgs.get(0);
-    ArrayNode comment = (ArrayNode) org.get("Comment");
-    assertEquals(2, comment.size());
+    final ArrayNode buildings = helper.getValues();
+    assertEquals(2, buildings.size());
+    ObjectNode building = (ObjectNode) buildings.get(0);
+    TextNode number = (TextNode) building.get("Building");
+    assertNotNull(number);
   }
 
   @Test

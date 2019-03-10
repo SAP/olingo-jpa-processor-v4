@@ -2,8 +2,8 @@ package com.sap.olingo.jpa.processor.core.query;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.isNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -13,8 +13,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-
-import javax.persistence.EntityManager;
 
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
@@ -132,7 +130,7 @@ public class TestJPAServerDrivenPaging extends TestBase {
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$orderby=ID desc", provider);
     helper.assertStatus(200);
 
-    verify(provider).getFristPage(any(), any(), any(), isNotNull(EntityManager.class));
+    verify(provider).getFristPage(any(), any(), any(), isNotNull());
   }
 
   @Test
@@ -144,7 +142,7 @@ public class TestJPAServerDrivenPaging extends TestBase {
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$orderby=ID desc", provider);
     helper.assertStatus(200);
 
-    verify(provider).getFristPage(any(), any(), isNotNull(JPACountQuery.class), any());
+    verify(provider).getFristPage(any(), any(), isNotNull(), any());
   }
 
   @Test
@@ -162,7 +160,7 @@ public class TestJPAServerDrivenPaging extends TestBase {
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$orderby=ID desc", provider, headers);
     helper.assertStatus(200);
 
-    verify(provider).getFristPage(any(), isNotNull(Integer.class), any(), any());
+    verify(provider).getFristPage(any(), isNotNull(), any(), any());
   }
 
   @Test
@@ -178,7 +176,7 @@ public class TestJPAServerDrivenPaging extends TestBase {
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$orderby=ID desc", provider, headers);
     helper.assertStatus(200);
 
-    verify(provider).getFristPage(any(), isNotNull(Integer.class), any(), any());
+    verify(provider).getFristPage(any(), isNotNull(), any(), any());
   }
 
   @Test
@@ -192,7 +190,7 @@ public class TestJPAServerDrivenPaging extends TestBase {
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$orderby=ID desc", provider);
     helper.assertStatus(200);
 
-    verify(provider).getFristPage(isNotNull(UriInfo.class), any(), any(), any());
+    verify(provider).getFristPage(isNotNull(), any(), any(), any());
   }
 
   @Test
