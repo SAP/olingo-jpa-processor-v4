@@ -836,10 +836,38 @@ CREATE VIEW "BusinessPartnerProtected"
 		ON b."Country" >= r."From"
 		AND b."Country" <= r."To";
 
-		
 	 
 --------------------------------------------
 CREATE TABLE "DummyToBeIgnored" (
 	"ID" VARCHAR(32) NOT NULL ,
 	--"uuid" VARCHAR(32) FOR BIT DATA ,
 	 PRIMARY KEY ("ID"));
+	 
+--UDF called SQL Language Routines at HSQLDB	 
+--CREATE FUNCTION  "Siblings" ("Publisher" VARCHAR(10), "ID" VARCHAR(10), "Division" VARCHAR(10))
+--	RETURNS TABLE(
+--		"CodePublisher" VARCHAR(10),
+--		"CodeID" VARCHAR(10),
+--		"DivisionCode" VARCHAR(10),
+--		"CountryISOCode" VARCHAR(4),
+--		"ParentCodeID" VARCHAR(10),
+--		"ParentDivisionCode" VARCHAR(10),
+--		"AlternativeCode" VARCHAR(10),
+--		"Area" int, 
+--		"Population" BIGINT)
+--	READS SQL DATA
+--	RETURN TABLE( SELECT * 
+--						FROM "AdministrativeDivision" as a 
+--						WHERE 
+--							EXISTS (SELECT "CodePublisher"
+--											FROM "AdministrativeDivision" as b
+--											WHERE b."CodeID" = "ID"
+--											AND   b."DivisionCode" = "Division" 
+--											AND   b."CodePublisher" = a."CodePublisher"
+--											AND   b."ParentCodeID" = a."ParentCodeID"
+--											AND   b."ParentDivisionCode" = a."ParentDivisionCode") 
+--					    AND NOT( a."CodePublisher" = "Publisher"
+--						AND  a."CodeID" = "ID"
+--						AND  a."DivisionCode" = "Division" )
+--				);
+	 

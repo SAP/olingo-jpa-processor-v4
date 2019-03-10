@@ -23,16 +23,28 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 
 @EdmFunctions({
     @EdmFunction(
+        name = "SiblingsBound",
+        functionName = "\"OLINGO\".\"Siblings\"",
+        isBound = true,
+        hasFunctionImport = false,
+        returnType = @EdmFunction.ReturnType(isCollection = true),
+        parameter = {
+            @EdmParameter(name = "CodePublisher", parameterName = "\"Publisher\"",
+                type = String.class, maxLength = 10),
+            @EdmParameter(name = "CodeID", parameterName = "\"ID\"", type = String.class, maxLength = 10),
+            @EdmParameter(name = "DivisionCode", parameterName = "\"Division\"", type = String.class,
+                maxLength = 10) }),
+    @EdmFunction(
         name = "Siblings",
         functionName = "\"OLINGO\".\"Siblings\"",
         isBound = false,
         hasFunctionImport = true,
         returnType = @EdmFunction.ReturnType(isCollection = true),
         parameter = {
-            @EdmParameter(name = "CodePublisher", parameterName = "\"CodePublisher\"",
+            @EdmParameter(name = "CodePublisher", parameterName = "\"Publisher\"",
                 type = String.class, maxLength = 10),
-            @EdmParameter(name = "CodeID", parameterName = "\"CodeID\"", type = String.class, maxLength = 10),
-            @EdmParameter(name = "DivisionCode", parameterName = "\"DivisionCode\"", type = String.class,
+            @EdmParameter(name = "CodeID", parameterName = "\"ID\"", type = String.class, maxLength = 10),
+            @EdmParameter(name = "DivisionCode", parameterName = "\"Division\"", type = String.class,
                 maxLength = 10) }),
     @EdmFunction(
         name = "PopulationDensity",

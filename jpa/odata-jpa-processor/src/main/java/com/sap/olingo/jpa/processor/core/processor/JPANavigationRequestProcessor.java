@@ -102,12 +102,12 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
       entityCollection.setCount(new JPAJoinQuery(odata, sessionContext, em, request.getAllHeaders(), uriInfo)
           .countResults().intValue());
 
-    // 404 Not Found indicates that the resource specified by the request URL does not exist. The response body MAY
+    // 204 No Content indicates that the resource specified by the request URL has no values. The response body MAY
     // provide additional information.
     // This is the case for individual property, complex type, a navigation property or entity is not available.
-    // See 11.2.6 Requesting Related Entities and 11.2.3 Requesting Individual Properties
+    // See part 1: 11.2.6 Requesting Related Entities and 11.2.3 Requesting Individual Properties
     if (isResultEmpty(entityCollection.getEntities()))
-      response.setStatusCode(HttpStatusCode.NOT_FOUND.getStatusCode());
+      response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
     // 200 OK indicates that either a result was found or that the a Entity Collection query had no result
     else if (entityCollection.getEntities() != null) {
       final int serializerHandle = debugger.startRuntimeMeasurement(serializer, "serialize");
@@ -164,10 +164,10 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
         name = Util.determineStartNavigationPath(uriInfo.getUriResourceParts()).getProperty().getName();
         final Property property = entities.get(0).getProperty(name);
         if (property != null) {
-          if (property.getValueType() == ValueType.COLLECTION_COMPLEX && property.getValue() != null
-              && !((List<?>) property.getValue()).isEmpty())
-            resultElement = property;
-          else {
+          if (property.getValueType() == ValueType.COLLECTION_COMPLEX) {
+            if (property.getValue() != null && !((List<?>) property.getValue()).isEmpty())
+              resultElement = property;
+          } else {
             for (Property p : ((ComplexValue) property.getValue()).getValue()) {
               if (p.getValue() != null) {
                 resultElement = p;

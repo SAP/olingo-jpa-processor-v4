@@ -41,9 +41,9 @@ public class TestFunctions {
   @BeforeClass
   public static void setupClass() {
 
-    Map<String, Object> properties = new HashMap<String, Object>();
+    Map<String, Object> properties = new HashMap<>();
 
-    ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_DERBY);
+    ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
 
     properties.put(ENTITY_MANAGER_DATA_SOURCE, ds);
     emf = Persistence.createEntityManagerFactory(PUNIT_NAME, properties);

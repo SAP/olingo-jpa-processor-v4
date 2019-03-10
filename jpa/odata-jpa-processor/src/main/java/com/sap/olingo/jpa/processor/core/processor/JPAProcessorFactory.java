@@ -138,7 +138,7 @@ public final class JPAProcessorFactory {
       } else {
         final JPACountQuery countQuery = new JPAJoinQuery(odata, sessionContext, em, headers, page, Optional.empty());
         final Integer preferedPagesize = getPreferedPagesize(headers);
-        final JPAODataPage firstPage = sessionContext.getPagingProvider().getFristPage(uriInfo, preferedPagesize,
+        final JPAODataPage firstPage = sessionContext.getPagingProvider().getFirstPage(uriInfo, preferedPagesize,
             countQuery, em);
         page = firstPage != null ? firstPage : page;
       }
@@ -171,7 +171,9 @@ public final class JPAProcessorFactory {
         throw new ODataJPAProcessorException(QUERY_SERVER_DRIVEN_PAGING_NOT_IMPLEMENTED,
             HttpStatusCode.NOT_IMPLEMENTED);
     }
-    return sessionContext.getPagingProvider() != null;
+    final List<UriResource> resourceParts = uriInfo.getUriResourceParts();
+    return sessionContext.getPagingProvider() != null
+        && resourceParts.get(resourceParts.size() - 1).getKind() != UriResourceKind.function;
   }
 
   private String skipToken(final UriInfo uriInfo) {
