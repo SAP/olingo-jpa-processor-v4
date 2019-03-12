@@ -47,7 +47,7 @@ final class EdmEntitySetResult implements EdmEntitySetInfo {
 
   @Override
   public EdmEntitySet getTargetEdmEntitySet() {
-    if (navigationPath == null)
+    if (navigationPath == null || navigationPath.isEmpty())
       return this.edmEntitySet;
     else {
       for (EdmNavigationPropertyBinding navi : this.edmEntitySet.getNavigationPropertyBindings()) {
