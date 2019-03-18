@@ -13,6 +13,7 @@ import org.apache.olingo.server.api.uri.queryoption.expression.Member;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADescriptionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -67,11 +68,17 @@ public class JPAMemberOperator implements JPAOperator {
     return selectItemPath;
   }
 
-  private Path<?> determineCriteriaPath(final JPAPath selectItemPath) {
+  private Path<?> determineCriteriaPath(final JPAPath selectItemPath) throws ODataJPAFilterException {
     Path<?> p = root;
     for (final JPAElement jpaPathElement : selectItemPath.getPath()) {
       if (jpaPathElement instanceof JPADescriptionAttribute) {
         p = determineDescriptionCriteraPath(selectItemPath, p, jpaPathElement);
+      } else if (jpaPathElement instanceof JPACollectionAttribute) {
+        if (!((JPACollectionAttribute) jpaPathElement).isComplex()) try {
+          p = p.get(((JPACollectionAttribute) jpaPathElement).getTargetAttribute().getInternalName());
+        } catch (ODataJPAModelException e) {
+          throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+        }
       } else
         p = p.get(jpaPathElement.getInternalName());
     }

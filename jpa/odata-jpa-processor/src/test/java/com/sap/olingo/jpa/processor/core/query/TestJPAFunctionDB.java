@@ -1,8 +1,8 @@
 package com.sap.olingo.jpa.processor.core.query;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.notNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -105,6 +105,28 @@ public class TestJPAFunctionDB {
 
   @Test
   public void testCallsFunctionWithBooleanReturnType() throws ODataApplicationException, ODataLibraryException,
+      ODataJPAModelException {
+
+    EdmReturnType edmReturnType = mock(EdmReturnType.class);
+    JPAOperationResultParameter resultParam = mock(JPAOperationResultParameter.class);
+    when(function.getResultParameter()).thenReturn(resultParam);
+    when(resultParam.getTypeFQN()).thenReturn(new FullQualifiedName(PUNIT_NAME, "CheckRights"));
+    when(resultParam.getType()).thenAnswer(new Answer<Class<?>>() {
+      @Override
+      public Class<?> answer(InvocationOnMock invocation) throws Throwable {
+        return Boolean.class;
+      }
+    });
+
+    when(edmFunction.getReturnType()).thenReturn(edmReturnType);
+    when(edmReturnType.getType()).thenReturn(new EdmBoolean());
+
+    cut.retrieveData(request, response, ContentType.JSON);
+    verify(dbProcessor, times(1)).executeFunctionQuery(eq(uriResources), eq(function), (Class<?>) notNull(), eq(em));
+  }
+
+  @Test
+  public void testCallsFunctionCount() throws ODataApplicationException, ODataLibraryException,
       ODataJPAModelException {
 
     EdmReturnType edmReturnType = mock(EdmReturnType.class);

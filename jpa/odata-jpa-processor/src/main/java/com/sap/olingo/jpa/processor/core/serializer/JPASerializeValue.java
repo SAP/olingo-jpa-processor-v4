@@ -92,12 +92,9 @@ final class JPASerializeValue extends JPASerializePrimitiveAbstract {
   private boolean isStream() {
     final UriResource successor = uriInfo.getUriResourceParts().get(uriInfo.getUriResourceParts().size() - 2);
 
-    if (successor instanceof UriResourceEntitySet
+    return (successor instanceof UriResourceEntitySet
         || successor instanceof UriResourceNavigation && ((UriResourceNavigation) successor)
-            .getType() instanceof EdmEntityType)
-      return true;
-    else
-      return false;
+            .getType() instanceof EdmEntityType);
   }
 
   private boolean isKey(final List<EdmKeyPropertyRef> keyist, final Property item) {

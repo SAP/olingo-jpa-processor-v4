@@ -9,8 +9,7 @@ import org.junit.Test;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.IntermediateEntityType;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
+import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 
 public class TestJPAPath extends TestMappingRoot {
   private JPAEntityType organization;
@@ -21,7 +20,7 @@ public class TestJPAPath extends TestMappingRoot {
   public void setup() throws ODataJPAModelException {
     helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
     organization = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), helper.getEntityType(
-        "Organization"), helper.schema);
+        Organization.class), helper.schema);
   }
 
   @Test

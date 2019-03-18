@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -32,6 +32,7 @@ import org.apache.olingo.commons.api.edm.EdmKeyPropertyRef;
 import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
 import org.apache.olingo.commons.api.edm.EdmNavigationPropertyBinding;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
+import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeException;
 import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.ex.ODataException;
@@ -47,7 +48,7 @@ import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.UriResourceNavigation;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -103,8 +104,9 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     RequestHandleSpy spy = new RequestHandleSpy();
     when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
 
-    when(convHelper.convertProperties(Matchers.any(OData.class), Matchers.any(JPAStructuredType.class), Matchers.any(
-        List.class))).thenReturn(attributes);
+    when(convHelper.convertProperties(ArgumentMatchers.any(OData.class), ArgumentMatchers.any(JPAStructuredType.class),
+        ArgumentMatchers.any(
+            List.class))).thenReturn(attributes);
 
     processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
 
@@ -495,7 +497,12 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     createKeyProperty(fqn, edmET, "CodeID", "NUTS1");
     createKeyProperty(fqn, edmET, "CodePublisher", "Eurostat");
 
-    when(serializer.serialize(Matchers.eq(request), Matchers.any(EntityCollection.class))).thenReturn(serializerResult);
+    createKeyProperty(fqn, edmET, "DivisionCode", "DE60");
+    createKeyProperty(fqn, edmET, "CodeID", "NUTS2");
+    createKeyProperty(fqn, edmET, "CodePublisher", "Eurostat");
+
+    when(serializer.serialize(ArgumentMatchers.eq(request), ArgumentMatchers.any(EntityCollection.class))).thenReturn(
+        serializerResult);
     when(serializerResult.getContent()).thenReturn(new ByteArrayInputStream("{\"ID\":\"35\"}".getBytes()));
 
     return request;
@@ -508,7 +515,8 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     when(key.getText()).thenReturn("'" + value + "'");
   }
 
-  private void createKeyProperty(final FullQualifiedName fqn, final EdmEntityType edmET, String name, String value) {
+  private void createKeyProperty(final FullQualifiedName fqn, final EdmEntityType edmET, String name, String value)
+      throws EdmPrimitiveTypeException {
     final EdmKeyPropertyRef refType = mock(EdmKeyPropertyRef.class);
     when(edmET.getKeyPropertyRef(name)).thenReturn(refType);
     when(edmET.getFullQualifiedName()).thenReturn(fqn);
@@ -517,7 +525,9 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     when(refType.getName()).thenReturn(name);
     EdmPrimitiveType type = mock(EdmPrimitiveType.class);
     when(edmProperty.getType()).thenReturn(type);
-    when(type.toUriLiteral(Matchers.anyString())).thenReturn(value);
+    when(type.valueToString(ArgumentMatchers.eq(value), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers
+        .any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(value);
+    when(type.toUriLiteral(ArgumentMatchers.anyString())).thenReturn(value);
   }
 
   class RequestHandleSpy extends JPAAbstractCUDRequestHandler {

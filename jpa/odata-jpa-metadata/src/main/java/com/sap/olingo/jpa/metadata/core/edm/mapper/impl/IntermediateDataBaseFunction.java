@@ -74,8 +74,7 @@ class IntermediateDataBaseFunction extends IntermediateFunction implements JPADa
     int noParameterToSkip = 0;
     final List<CsdlParameter> edmInputParameterList = new ArrayList<>();
     if (jpaFunction.isBound()) {
-      // TODO determine number of key fields
-      noParameterToSkip = 1;
+      noParameterToSkip = ((IntermediateEntityType) schema.getEntityType(this.jpaDefiningPOJO)).getKey().size();
       final CsdlParameter edmInputParameter = new CsdlParameter();
       final IntermediateStructuredType et = schema.getEntityType(jpaDefiningPOJO);
       edmInputParameter.setName("Key");

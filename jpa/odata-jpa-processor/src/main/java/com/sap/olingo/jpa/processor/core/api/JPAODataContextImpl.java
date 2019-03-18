@@ -113,7 +113,7 @@ final class JPAODataContextImpl implements JPAODataCRUDContext, JPAODataSessionC
         isDebugMode = debugSupport.isUserAuthorized();
       }
       if (isDebugMode)
-        debugger = new JPACoreDeugger();
+        debugger = new JPACoreDebugger();
       else
         debugger = new JPAEmptyDebugger();
       debugSupport.setDebugger(debugger);

@@ -7,6 +7,11 @@ import org.apache.olingo.server.api.uri.UriInfo;
 
 import com.sap.olingo.jpa.processor.core.query.JPACountQuery;
 
+/**
+ * 
+ * @author Oliver Grande
+ *
+ */
 public interface JPAODataPagingProvider {
   /**
    * Returns the page related to a given skiptoken.
@@ -22,7 +27,7 @@ public interface JPAODataPagingProvider {
    * @return
    * @throws ODataApplicationException
    */
-  JPAODataPage getFristPage(final UriInfo uriInfo, final Integer preferedPageSize, final JPACountQuery countQuery,
+  JPAODataPage getFirstPage(final UriInfo uriInfo, final Integer preferedPageSize, final JPACountQuery countQuery,
       final EntityManager em) throws ODataApplicationException;
 
 }

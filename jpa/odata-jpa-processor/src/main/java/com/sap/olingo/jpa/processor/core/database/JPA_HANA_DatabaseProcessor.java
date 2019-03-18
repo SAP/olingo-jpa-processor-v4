@@ -36,6 +36,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 
 final class JPA_HANA_DatabaseProcessor implements JPAODataDatabaseProcessor {
   private static final String SELECT_BASE_PATTERN = "SELECT * FROM $FUNCTIONNAME$($PARAMETER$)";
+  private static final String SELECT_COUNT_PATTERN = "SELECT COUNT(*) FROM $FUNCTIONNAME$($PARAMETER$)";
   private static final String FUNC_NAME_PLACEHOLDER = "$FUNCTIONNAME$";
   private static final String PARAMETER_PLACEHOLDER = "$PARAMETER$";
 
@@ -107,7 +108,7 @@ final class JPA_HANA_DatabaseProcessor implements JPAODataDatabaseProcessor {
   }
 
   private String generateQueryString(final JPADataBaseFunction jpaFunction) throws ODataJPAProcessorException {
-    final StringBuffer parameterList = new StringBuffer();
+    final StringBuilder parameterList = new StringBuilder();
     String queryString = SELECT_BASE_PATTERN;
 
     queryString = queryString.replace(FUNC_NAME_PLACEHOLDER, jpaFunction.getDBName());

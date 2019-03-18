@@ -36,9 +36,9 @@ public class TestAssociations {
 
   @BeforeClass
   public static void setupClass() {
-    Map<String, Object> properties = new HashMap<String, Object>();
+    Map<String, Object> properties = new HashMap<>();
     properties.put(ENTITY_MANAGER_DATA_SOURCE, DataSourceHelper.createDataSource(
-        DataSourceHelper.DB_DERBY));
+        DataSourceHelper.DB_HSQLDB));
     emf = Persistence.createEntityManagerFactory(PUNIT_NAME, properties);
   }
 

@@ -180,7 +180,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
 
   @Test
   public void checkAnnotations() throws ODataJPAModelException {
-    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("BusinessPartner"),
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(BusinessPartner.class),
         "locationName");
     cut = new IntermediateDescriptionProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
         helper.schema);
@@ -224,7 +224,8 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
 
     Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEmbeddedableType("PostalAddressData"),
         "countryName");
-    IntermediatePropertyAccess property = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
+    IntermediatePropertyAccess property = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+        jpaAttribute,
         helper.schema);
 
     assertEquals("Wrong name", "CountryDescription", property.getExternalName());

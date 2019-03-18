@@ -42,7 +42,7 @@ public abstract class JPANavigationQuery extends JPAAbstractQuery {
   protected Subquery<?> subQuery;
   protected final JPAAbstractQuery parentQuery;
   protected UriResourceKind aggregationType;
-  protected From<?, ?> queryRoot;
+  protected From<?, ?> queryRoot = null;
   protected final From<?, ?> from;
   protected final JPAAssociationPath association;
   protected JPAFilterElementComplier filterComplier;
