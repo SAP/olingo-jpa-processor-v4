@@ -90,8 +90,15 @@ public final class JPAODataRequestProcessor
       final ContentType requestFormat, final ContentType responseFormat)
       throws ODataApplicationException, ODataLibraryException {
 
-    throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_CREATE,
-        HttpStatusCode.NOT_IMPLEMENTED);
+    try {
+      final JPACUDRequestProcessor p = factory.createCUDRequestProcessor(em, uriInfo, responseFormat, claims);
+      p.createEntity(request, response, requestFormat, responseFormat);
+    } catch (ODataApplicationException | ODataLibraryException e) {
+      throw e;
+    } catch (ODataException e) {
+      throw new ODataApplicationException(e.getLocalizedMessage(),
+          HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), null, e);
+    }
   }
 
   @Override
