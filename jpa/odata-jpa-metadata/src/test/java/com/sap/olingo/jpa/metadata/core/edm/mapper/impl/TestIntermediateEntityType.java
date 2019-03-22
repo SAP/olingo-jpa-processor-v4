@@ -257,6 +257,15 @@ public class TestIntermediateEntityType extends TestMappingRoot {
   }
 
   @Test
+  public void checkGetKeyAttributeFromEmbeddedId() throws ODataJPAModelException {
+    IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "AdministrativeDivisionDescription"), schema);
+
+    assertNotNull(et.getAttribute("codePublisher"));
+    assertEquals("CodePublisher", et.getAttribute("codePublisher").getExternalName());
+  }
+
+  @Test
   public void checkGetKeyWithBaseType() throws ODataJPAModelException {
     IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
         "Organization"), schema);
