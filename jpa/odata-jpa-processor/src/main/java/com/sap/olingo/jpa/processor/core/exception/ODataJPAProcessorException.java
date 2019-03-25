@@ -34,6 +34,7 @@ public class ODataJPAProcessorException extends ODataJPAProcessException {
     ATTRIBUTE_RETRIVAL_FAILED,
     ODATA_MAXPAGESIZE_NOT_A_NUMBER,
     SETTER_NOT_FOUND,
+    GETTER_NOT_FOUND,
     BEFORE_IMAGE_MERGED;
 
     @Override

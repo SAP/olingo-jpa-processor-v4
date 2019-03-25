@@ -37,7 +37,7 @@ public class TestJPAQuerySelectByPath extends TestBase {
   public void testNavigationToOwnPrimitivePropertyEntityDoesNotExistEntity() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Persons('9999')/BirthDay");
-    helper.assertStatus(204);
+    helper.assertStatus(404);
   }
 
   @Test

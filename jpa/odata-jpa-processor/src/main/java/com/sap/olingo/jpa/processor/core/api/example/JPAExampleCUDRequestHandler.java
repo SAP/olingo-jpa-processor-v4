@@ -26,8 +26,11 @@ import com.sap.olingo.jpa.processor.core.processor.JPARequestEntity;
 import com.sap.olingo.jpa.processor.core.processor.JPARequestLink;
 
 /**
- * Example implementation at a CUD handler. The main purpose is rapid prototyping.
- * Getter /Setter required
+ * Example implementation at a CUD handler. The main purpose is rapid prototyping.<p/>
+ * The implementation requires Getter and Setter. This includes getter for collection properties and collection
+ * navigation properties that return at least empty collections.<br/>
+ * To link entities constructor injection is used. So each dependent entity needs a constructor that takes a entity type
+ * it depends on as parameter.
  * @author Oliver Grande
  *
  */
@@ -48,8 +51,7 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
       // POST an Entity
       instance = createOneEntity(requestEntity, em, null);
     } else {
-      // POST on Link only
-      // https://issues.oasis-open.org/browse/ODATA-1294
+      // POST on Link only // https://issues.oasis-open.org/browse/ODATA-1294
       instance = findEntity(requestEntity, em);
     }
     processRelatedEntities(requestEntity.getRelatedEntities(), instance, requestEntity.getModifyUtil(), em);
