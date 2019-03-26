@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -43,6 +44,8 @@ import com.sap.olingo.jpa.processor.core.api.JPACUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAUpdateResult;
+import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
+import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionKey;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 
 public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
@@ -335,6 +338,26 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
     fail();
   }
 
+  @Test
+  public void testResponseUpdateLink() throws ODataJPAProcessorException, ODataException {
+
+    final AdministrativeDivisionKey key = new AdministrativeDivisionKey("Eurostat", "NUTS2", "DE60");
+    final AdministrativeDivision resultEntity = new AdministrativeDivision(key);
+
+    final AdministrativeDivisionKey childKey = new AdministrativeDivisionKey("Eurostat", "NUTS3", "DE600");
+    final AdministrativeDivision childEntity = new AdministrativeDivision(childKey);
+
+    final JPAUpdateResult result = new JPAUpdateResult(false, resultEntity);
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareLinkRequest(new RequestHandleSpy(result));
+
+    resultEntity.setChildren(new ArrayList<>(Arrays.asList(childEntity)));
+
+    processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
+    assertNotNull(response);
+
+  }
+
   class RequestHandleSpy extends JPAAbstractCUDRequestHandler {
     public int noValidateCalls;
     public JPAEntityType et;
@@ -350,7 +373,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
       this(new JPAUpdateResult(true, new Organization()));
     }
 
-    RequestHandleSpy(JPAUpdateResult typeOfChange) {
+    RequestHandleSpy(final JPAUpdateResult typeOfChange) {
       this.change = typeOfChange;
     }
 

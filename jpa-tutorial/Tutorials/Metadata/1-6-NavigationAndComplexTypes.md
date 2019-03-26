@@ -113,9 +113,9 @@ public class AdministrativeDivision {
       @JoinColumn(referencedColumnName = "\"CodePublisher\"", name = "\"CodePublisher\"", nullable = false,
           insertable = false, updatable = false),
       @JoinColumn(referencedColumnName = "\"CodeID\"", name = "\"ParentCodeID\"", nullable = false, insertable = true,
-          updatable = false),
+          updatable = true),
       @JoinColumn(referencedColumnName = "\"DivisionCode\"", name = "\"ParentDivisionCode\"", nullable = false,
-          insertable = true, updatable = false) })
+          insertable = true, updatable = true) })
   private AdministrativeDivision parent;
 
   @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)

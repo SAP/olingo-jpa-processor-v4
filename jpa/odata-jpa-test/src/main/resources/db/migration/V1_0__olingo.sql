@@ -674,13 +674,66 @@ insert into "AdministrativeDivision" values( 'Eurostat', 'LAU2', '38014','BEL','
 insert into "AdministrativeDivision" values( 'Eurostat', 'LAU2', '38016','BEL','NUTS3','BE258',null,31004430,11434);	
 insert into "AdministrativeDivision" values( 'Eurostat', 'LAU2', '38025','BEL','NUTS3','BE258',null,96339703,11509);	
 
+--------------------------------------------	
+
 CREATE TABLE "Comment" (
-	"ID" INTEGER NOT NULL ,
-	"Text" CLOB,
-	 PRIMARY KEY ("ID"));
+	"BusinessPartnerID" VARCHAR(32) NOT NULL ,
+	"Order" INTEGER NOT NULL,
+	"Text" VARCHAR(280),
+	 PRIMARY KEY ("BusinessPartnerID", "Order"));
 	 
-insert into "Comment" values( 1, 'This is just a test');	
-	 
+insert into "Comment" values( '1', 1, 'This is just a test');	
+insert into "Comment" values( '1', 3, 'This is another test');	
+insert into "Comment" values( '501', 3, 'This is another test');	
+insert into "Comment" values( '502', 3, 'This is another test');
+insert into "Comment" values( '502', 4, 'This is also test');	
+
+CREATE TABLE "InhouseAddress" (
+	"ID" VARCHAR(32) NOT NULL ,
+	"Task" VARCHAR(32) NOT NULL ,
+	"Building" VARCHAR(10),
+	"Floor"  SMALLINT,
+    "RoomNumber" INTEGER,
+   PRIMARY KEY ("ID", "Task"));	
+insert into "InhouseAddress" values( '99', 'DEV',  '1',-1 ,245 );
+insert into "InhouseAddress" values( '99', 'MAIN', '7', 2 ,32 );
+insert into "InhouseAddress" values( '501', 'MAIN', '7', 2 ,32 );
+insert into "InhouseAddress" values( '502', 'DEV',  '1',-1 ,245 );
+insert into "InhouseAddress" values( '502', 'MAIN',  '7',6 ,12 );
+
+CREATE TABLE "Collections" (
+	"ID" VARCHAR(32) NOT NULL ,
+	"Number" INTEGER,
+   PRIMARY KEY ("ID"));	
+insert into "Collections" values( '501',-1 );
+insert into "Collections" values( '502', 32 );   
+insert into "Collections" values( '503',6541 );
+insert into "Collections" values( '504', 3 );   
+
+CREATE TABLE "NestedComplex" (
+	"ID" VARCHAR(32) NOT NULL,
+	"Number" INTEGER NOT NULL,
+	"Figure1" INTEGER,
+	"Figure2" INTEGER,
+	"Figure3" INTEGER,
+   PRIMARY KEY ("ID", "Number"));		
+   
+insert into "NestedComplex" values('501',1, 1, 1, 1);   
+insert into "NestedComplex" values('501',3, 1, 1, 1);   
+insert into "NestedComplex" values('503',1, 4, 5, 6);   
+insert into "NestedComplex" values('504',1, 1, 3, 6);   
+   
+
+CREATE TABLE "CollectionsDeep" (
+	"ID" VARCHAR(32) NOT NULL ,
+	"LevelID" INTEGER,
+	"Number" INTEGER,
+   PRIMARY KEY ("ID"));	
+insert into "CollectionsDeep" values( '501',1,-1 );
+insert into "CollectionsDeep" values( '502',1, 3 ); 
+
+--------------------------------------------	
+
 CREATE TABLE "SupportRelationship" (
 	"ID" INTEGER NOT NULL ,
 	"OrganizationID" VARCHAR(32) NOT NULL ,
@@ -718,6 +771,7 @@ insert into "Membership" values (4,'99','B');
 --Just for Join Table test
 CREATE TABLE "JoinSource" (	 
 	"SourceKey" INTEGER NOT NULL ,
+	"Number" INTEGER,
 	PRIMARY KEY ("SourceKey"));
 	
 CREATE TABLE "JoinTarget" (	 
@@ -729,8 +783,8 @@ CREATE TABLE "JoinRelation" (
 	"TargetID" INTEGER NOT NULL ,
 	PRIMARY KEY ("SourceID", "TargetID"));	
 	
-insert into "JoinSource" values (1);	
-insert into "JoinSource" values (2);
+insert into "JoinSource" values (1,-1);	
+insert into "JoinSource" values (2,-2);
 insert into "JoinTarget" values (20);
 insert into "JoinTarget" values (21);
 insert into "JoinRelation" values (1, 20);
@@ -744,6 +798,7 @@ CREATE TABLE "JoinHiddenRelation" (
 insert into "JoinHiddenRelation" values (2, 20);
 insert into "JoinHiddenRelation" values (2, 21);
 --------------------------------------------	
+
 CREATE TABLE "DummyToBeIgnored" (
 	"ID" VARCHAR(32) NOT NULL ,
 	--"uuid" VARCHAR(32) FOR BIT DATA ,

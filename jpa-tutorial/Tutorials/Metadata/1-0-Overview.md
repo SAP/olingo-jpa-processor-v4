@@ -13,3 +13,4 @@ The first series of tutorial shall introduce into the options currently provided
 [Tutorial 1.10: JPA Converter](1-10-JPAConverter.md)<br>
 [Tutorial 1.11: Annotations](1-11-Annotations.md)<br>
 [Tutorial 1.12: Enumerations](1-12-EnumerationTypes.md)<br>
+[Tutorial 1.13: Collection Properties](1-13-CollectionProperties.md)<br>

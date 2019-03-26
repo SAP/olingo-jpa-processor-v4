@@ -11,17 +11,20 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 
-/**
- * Entity implementation class for Entity: DummyToBeIgnored
- *
- */
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
+
+@EdmIgnore
 @Entity
 @Table(schema = "\"OLINGO\"", name = "\"Comment\"")
 public class Comment implements Serializable {
   private static final long serialVersionUID = 1L;
 
   @Id
-  private Integer ID;
+  @Column(name = "\"BusinessPartnerID\"")
+  private String businessPartnerID;
+
+  @Column(name = "\"Order\"")
+  private String order;
 
   @Lob
   @Column(name = "\"Text\"")
@@ -32,12 +35,12 @@ public class Comment implements Serializable {
     super();
   }
 
-  public Integer getID() {
-    return this.ID;
+  public String getBusinessPartnerID() {
+    return this.businessPartnerID;
   }
 
-  public void setID(Integer ID) {
-    this.ID = ID;
+  public void setID(String ID) {
+    this.businessPartnerID = ID;
   }
 
 }

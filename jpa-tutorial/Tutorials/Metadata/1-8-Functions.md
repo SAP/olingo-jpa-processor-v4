@@ -50,3 +50,4 @@ public class JavaFunctions implements ODataFunction {
 
 The method is annotated with the already known `@EdmFunction` annotation. In case the required fields are left empty, like here, the necessary information is taken from the method definition. In fact the return type has be given only if additional facet details shall be provided.
 
+Next step: [Tutorial 1.9 Changing Generated Metadata](1-9-ChangingGeneratedMetadata.md)

@@ -104,7 +104,6 @@ public class TestJPAProcessorExpand extends TestBase {
     helper.assertStatus(200);
 
     final ObjectNode created = helper.getValue();
-    // ObjectNode created = (ObjectNode) admin.get("Created");
     assertNotNull(created.get("User"));
   }
 
@@ -162,24 +161,6 @@ public class TestJPAProcessorExpand extends TestBase {
     final ObjectNode admin = helper.getValue();
     final ObjectNode created = (ObjectNode) admin.get("Created");
     assertNotNull(created.get("User"));
-  }
-
-  @Ignore // Version 4.4.0 of olingo does not path the expand correctly
-  // org.apache.olingo.server.core.uri.parser.ExpandParser -> parseExpandPath
-  // see https://issues.apache.org/jira/browse/OLINGO-1143
-  @Test
-  public void testExpandEntitySetViaNonKeyFieldNavi0HopsCollection() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Organizations?$expand=AdministrativeInformation/Created/User");
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    final ObjectNode org = (ObjectNode) orgs.get(0);
-    final ObjectNode admin = (ObjectNode) org.get("AdministrativeInformation");
-    final ObjectNode created = (ObjectNode) admin.get("Created");
-    assertNotNull(created.get("User"));
-
   }
 
   @Test
@@ -635,6 +616,18 @@ public class TestJPAProcessorExpand extends TestBase {
     final ObjectNode org = helper.getValue();
     assertNotNull(org.get("OneToManyHidden"));
     ArrayNode oneToMany = (ArrayNode) org.get("OneToManyHidden");
+    assertEquals(2, oneToMany.size());
+  }
+
+  @Test
+  public void testExpandViaJoinTableComplex() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "JoinSources(1)/Complex?$expand=OneToManyComplex");
+    helper.assertStatus(200);
+
+    final ObjectNode org = helper.getValue();
+    assertNotNull(org.get("OneToManyComplex"));
+    ArrayNode oneToMany = (ArrayNode) org.get("OneToManyComplex");
     assertEquals(2, oneToMany.size());
   }
 }

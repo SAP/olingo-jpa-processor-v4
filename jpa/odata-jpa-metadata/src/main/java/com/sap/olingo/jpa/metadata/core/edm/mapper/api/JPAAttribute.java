@@ -11,21 +11,27 @@ public interface JPAAttribute extends JPAElement {
 
   public <X, Y extends Object> AttributeConverter<X, Y> getConverter();
 
-  public JPAStructuredType getStructuredType() throws ODataJPAModelException;
-
-  public Class<?> getType();
-
-  public boolean isComplex();
-
-  public boolean isKey();
-
-  public boolean isAssociation();
-
-  public boolean isSearchable();
-
   public EdmPrimitiveTypeKind getEdmType() throws ODataJPAModelException;
 
   public CsdlAbstractEdmItem getProperty() throws ODataJPAModelException;
 
+  public JPAStructuredType getStructuredType() throws ODataJPAModelException;
+
+  public Class<?> getType();
+
+  public boolean isAssociation();
+
+  /**
+   * True is a to n association is involved
+   * @return
+   */
+  public boolean isCollection();
+
+  public boolean isComplex();
+
   public boolean isEnum();
+
+  public boolean isKey();
+
+  public boolean isSearchable();
 }

@@ -47,6 +47,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
+import com.sap.olingo.jpa.processor.core.query.EdmEntitySetInfo;
 import com.sap.olingo.jpa.processor.core.testmodel.ABCClassifiaction;
 import com.sap.olingo.jpa.processor.core.testmodel.AccessRights;
 import com.sap.olingo.jpa.processor.core.testmodel.AccessRightsConverter;
@@ -114,13 +115,17 @@ public class TestJPACUDRequestHelper {
 
   @Test
   public void testConvertEmptyInputStream() throws UnsupportedEncodingException {
-    ODataRequest request = mock(ODataRequest.class);
-    EdmEntitySet edmEntitySet = mock(EdmEntitySet.class);
+    final ODataRequest request = mock(ODataRequest.class);
+    final EdmEntitySetInfo etsInfo = mock(EdmEntitySetInfo.class);
+    final EdmEntitySet ets = mock(EdmEntitySet.class);
 
-    InputStream is = new ByteArrayInputStream("".getBytes("UTF-8"));
+    final InputStream is = new ByteArrayInputStream("".getBytes("UTF-8"));
     when(request.getBody()).thenReturn(is);
+    when(etsInfo.getEdmEntitySet()).thenReturn(ets);
+    when(etsInfo.getTargetEdmEntitySet()).thenReturn(ets);
+
     try {
-      cut.convertInputStream(OData.newInstance(), request, ContentType.APPLICATION_JSON, edmEntitySet);
+      cut.convertInputStream(OData.newInstance(), request, ContentType.APPLICATION_JSON, etsInfo);
     } catch (ODataJPAProcessorException e) {
       assertEquals(HttpStatusCode.BAD_REQUEST.getStatusCode(), e.getStatusCode());
       return;
@@ -133,11 +138,12 @@ public class TestJPACUDRequestHelper {
   public void testConvertInputStream() throws UnsupportedEncodingException, ODataJPAProcessorException,
       EdmPrimitiveTypeException {
 
-    ODataRequest request = mock(ODataRequest.class);
-    EdmEntitySet edmEntitySet = mock(EdmEntitySet.class);
-    EdmEntityType edmEntityType = mock(EdmEntityType.class);
-    EdmProperty edmPropertyId = mock(EdmProperty.class);
-    EdmPrimitiveType edmTypeId = mock(EdmPrimitiveType.class);
+    final ODataRequest request = mock(ODataRequest.class);
+    final EdmEntitySetInfo edmEntitySetInfo = mock(EdmEntitySetInfo.class);
+    final EdmEntitySet edmEntitySet = mock(EdmEntitySet.class);
+    final EdmEntityType edmEntityType = mock(EdmEntityType.class);
+    final EdmProperty edmPropertyId = mock(EdmProperty.class);
+    final EdmPrimitiveType edmTypeId = mock(EdmPrimitiveType.class);
 
     FullQualifiedName fqn = new FullQualifiedName("test", "Organisation");
     FullQualifiedName fqnString = new FullQualifiedName("test", "Organisation");
@@ -157,11 +163,12 @@ public class TestJPACUDRequestHelper {
     when(edmEntityType.getProperty("ID")).thenReturn(edmPropertyId);
     when(edmPropertyId.getName()).thenReturn("ID");
     when(edmPropertyId.getType()).thenReturn(edmTypeId);
-
+    when(edmEntitySetInfo.getEdmEntitySet()).thenReturn(edmEntitySet);
+    when(edmEntitySetInfo.getTargetEdmEntitySet()).thenReturn(edmEntitySet);
     InputStream is = new ByteArrayInputStream("{\"ID\" : \"35\"}".getBytes("UTF-8"));
     when(request.getBody()).thenReturn(is);
 
-    Entity act = cut.convertInputStream(OData.newInstance(), request, ContentType.APPLICATION_JSON, edmEntitySet);
+    Entity act = cut.convertInputStream(OData.newInstance(), request, ContentType.APPLICATION_JSON, edmEntitySetInfo);
     assertEquals("35", act.getProperty("ID").getValue());
   }
 
@@ -182,7 +189,7 @@ public class TestJPACUDRequestHelper {
     JPAStructuredType st = mock(JPAStructuredType.class);
     Property propertyID = mock(Property.class);
 
-    when(propertyID.getValueType()).thenReturn(ValueType.COLLECTION_ENUM);
+    when(propertyID.getValueType()).thenReturn(ValueType.COLLECTION_ENTITY);
     when(propertyID.getName()).thenReturn("ID");
     when(propertyID.getValue()).thenReturn("35");
     odataProperties.add(propertyID);
@@ -379,6 +386,186 @@ public class TestJPACUDRequestHelper {
     assertTrue(act.get("address") instanceof Map<?, ?>);
   }
 
-  // AdministrativeDivisionDescription
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testConvertPropertiesOneComplexCollcetionProperty() throws ODataJPAProcessException,
+      ODataJPAModelException {
+    final List<Property> odataProperties = new ArrayList<>();
+    final List<ComplexValue> odataComment = new ArrayList<>();
+    final List<Property> addressProperties = new ArrayList<>();
+    final JPAStructuredType st = createMetadataForSimpleProperty("Address", "address");
+    final JPAStructuredType nb = createMetadataForSimpleProperty("Number", "number");
+    final JPAAttribute attributeAddress = mock(JPAAttribute.class);
+    when(attributeAddress.getStructuredType()).thenReturn(nb);
+    when(st.getAttribute("address")).thenReturn(attributeAddress);
+    final ComplexValue cv1 = mock(ComplexValue.class);
 
+    final Property propertyNumber = mock(Property.class);
+    when(propertyNumber.getValueType()).thenReturn(ValueType.PRIMITIVE);
+    when(propertyNumber.getName()).thenReturn("Number");
+    when(propertyNumber.getValue()).thenReturn(32);
+    addressProperties.add(propertyNumber);
+    when(cv1.getValue()).thenReturn(addressProperties);
+
+    odataComment.add(cv1);
+    Property propertyAddress = mock(Property.class);
+    when(propertyAddress.getValueType()).thenReturn(ValueType.COLLECTION_COMPLEX);
+    when(propertyAddress.getName()).thenReturn("Address");
+    when(propertyAddress.getValue()).thenReturn(odataComment);
+    odataProperties.add(propertyAddress);
+
+    Map<String, Object> act = cut.convertProperties(OData.newInstance(), st, odataProperties);
+    assertNotNull(act.get("address"));
+    assertEquals(1, ((List<Map<String, Object>>) act.get("address")).size());
+    Map<String, Object> actAddr = (Map<String, Object>) ((List<?>) act.get("address")).get(0);
+    assertEquals(32, actAddr.get("number"));
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testConvertPropertiesTwoComplexCollcetionProperty() throws ODataJPAProcessException,
+      ODataJPAModelException {
+    final List<Property> odataProperties = new ArrayList<>();
+    final List<ComplexValue> odataComment = new ArrayList<>();
+    final JPAStructuredType st = createMetadataForSimpleProperty("Address", "address");
+    final JPAStructuredType nb = createMetadataForSimpleProperty("Number", "number");
+    final JPAAttribute attributeAddress = mock(JPAAttribute.class);
+    when(attributeAddress.getStructuredType()).thenReturn(nb);
+    when(st.getAttribute("address")).thenReturn(attributeAddress);
+
+    List<Property> addressProperties = new ArrayList<>();
+    final ComplexValue cv1 = mock(ComplexValue.class);
+    Property propertyNumber = mock(Property.class);
+    when(propertyNumber.getValueType()).thenReturn(ValueType.PRIMITIVE);
+    when(propertyNumber.getName()).thenReturn("Number");
+    when(propertyNumber.getValue()).thenReturn(32);
+    addressProperties.add(propertyNumber);
+    when(cv1.getValue()).thenReturn(addressProperties);
+
+    addressProperties = new ArrayList<>();
+    final ComplexValue cv2 = mock(ComplexValue.class);
+    propertyNumber = mock(Property.class);
+    when(propertyNumber.getValueType()).thenReturn(ValueType.PRIMITIVE);
+    when(propertyNumber.getName()).thenReturn("Number");
+    when(propertyNumber.getValue()).thenReturn(16);
+    addressProperties.add(propertyNumber);
+    when(cv2.getValue()).thenReturn(addressProperties);
+
+    odataComment.add(cv1);
+    odataComment.add(cv2);
+    Property propertyAddress = mock(Property.class);
+    when(propertyAddress.getValueType()).thenReturn(ValueType.COLLECTION_COMPLEX);
+    when(propertyAddress.getName()).thenReturn("Address");
+    when(propertyAddress.getValue()).thenReturn(odataComment);
+    odataProperties.add(propertyAddress);
+
+    Map<String, Object> act = cut.convertProperties(OData.newInstance(), st, odataProperties);
+    assertNotNull(act.get("address"));
+    assertEquals(2, ((List<Map<String, Object>>) act.get("address")).size());
+    Map<String, Object> actAddr1 = (Map<String, Object>) ((List<?>) act.get("address")).get(0);
+    assertEquals(32, actAddr1.get("number"));
+
+    Map<String, Object> actAddr2 = (Map<String, Object>) ((List<?>) act.get("address")).get(1);
+    assertEquals(16, actAddr2.get("number"));
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testConvertPropertiesEmptyComplexCollcetionProperty() throws ODataJPAProcessException,
+      ODataJPAModelException {
+    final List<Property> odataProperties = new ArrayList<>();
+    final List<ComplexValue> odataComment = new ArrayList<>();
+    final JPAStructuredType st = createMetadataForSimpleProperty("Address", "address");
+    final JPAStructuredType nb = createMetadataForSimpleProperty("Number", "number");
+    final JPAAttribute attributeAddress = mock(JPAAttribute.class);
+    when(attributeAddress.getStructuredType()).thenReturn(nb);
+    when(st.getAttribute("address")).thenReturn(attributeAddress);
+
+    Property propertyAddress = mock(Property.class);
+    when(propertyAddress.getValueType()).thenReturn(ValueType.COLLECTION_COMPLEX);
+    when(propertyAddress.getName()).thenReturn("Address");
+    when(propertyAddress.getValue()).thenReturn(odataComment);
+    odataProperties.add(propertyAddress);
+
+    Map<String, Object> act = cut.convertProperties(OData.newInstance(), st, odataProperties);
+    assertNotNull(act.get("address"));
+    assertEquals(0, ((List<Map<String, Object>>) act.get("address")).size());
+  }
+
+  @Test
+  public void testConvertPropertiesOneSimpleCollcetionProperty() throws ODataJPAProcessException,
+      ODataJPAModelException {
+    final List<Property> odataProperties = new ArrayList<>();
+    final List<String> odataComment = new ArrayList<>();
+
+    final JPAStructuredType st = createMetadataForSimpleProperty("Comment", "comment");
+
+    odataComment.add("First Test");
+    Property propertyComment = mock(Property.class);
+    when(propertyComment.getValueType()).thenReturn(ValueType.COLLECTION_PRIMITIVE);
+    when(propertyComment.getName()).thenReturn("Comment");
+    when(propertyComment.getValue()).thenReturn(odataComment);
+    odataProperties.add(propertyComment);
+
+    Map<String, Object> act = cut.convertProperties(OData.newInstance(), st, odataProperties);
+    assertNotNull(act.get("comment"));
+    assertEquals(1, ((List<?>) act.get("comment")).size());
+    assertEquals("First Test", ((List<?>) act.get("comment")).get(0));
+  }
+
+  @Test
+  public void testConvertPropertiesTwoSimpleCollcetionProperty() throws ODataJPAProcessException,
+      ODataJPAModelException {
+    final List<Property> odataProperties = new ArrayList<>();
+    final List<String> odataComment = new ArrayList<>();
+
+    final JPAStructuredType st = createMetadataForSimpleProperty("Comment", "comment");
+
+    odataComment.add("First Test");
+    odataComment.add("Second Test");
+    Property propertyComment = mock(Property.class);
+    when(propertyComment.getValueType()).thenReturn(ValueType.COLLECTION_PRIMITIVE);
+    when(propertyComment.getName()).thenReturn("Comment");
+    when(propertyComment.getValue()).thenReturn(odataComment);
+    odataProperties.add(propertyComment);
+
+    Map<String, Object> act = cut.convertProperties(OData.newInstance(), st, odataProperties);
+    assertNotNull(act.get("comment"));
+    assertEquals(2, ((List<?>) act.get("comment")).size());
+    assertEquals("First Test", ((List<?>) act.get("comment")).get(0));
+    assertEquals("Second Test", ((List<?>) act.get("comment")).get(1));
+  }
+
+  @Test
+  public void testConvertPropertiesEmptySimpleCollcetionProperty() throws ODataJPAProcessException,
+      ODataJPAModelException {
+    final List<Property> odataProperties = new ArrayList<>();
+    final List<String> odataComment = new ArrayList<>();
+
+    final JPAStructuredType st = createMetadataForSimpleProperty("Comment", "comment");
+
+    Property propertyComment = mock(Property.class);
+    when(propertyComment.getValueType()).thenReturn(ValueType.COLLECTION_PRIMITIVE);
+    when(propertyComment.getName()).thenReturn("Comment");
+    when(propertyComment.getValue()).thenReturn(odataComment);
+    odataProperties.add(propertyComment);
+
+    Map<String, Object> act = cut.convertProperties(OData.newInstance(), st, odataProperties);
+    assertNotNull(act.get("comment"));
+    assertTrue(((List<?>) act.get("comment")).isEmpty());
+  }
+
+  private JPAStructuredType createMetadataForSimpleProperty(final String externalName, final String internalName)
+      throws ODataJPAModelException {
+    final JPAStructuredType st = mock(JPAStructuredType.class);
+    final JPAAttribute attribute = mock(JPAAttribute.class);
+    final JPAPath pathID = mock(JPAPath.class);
+    final List<JPAElement> pathElements = new ArrayList<>();
+    pathElements.add(attribute);
+    when(st.getPath(externalName)).thenReturn(pathID);
+    when(pathID.getLeaf()).thenReturn(attribute);
+    when(pathID.getPath()).thenReturn(pathElements);
+    when(attribute.getInternalName()).thenReturn(internalName);
+    return st;
+  }
 }

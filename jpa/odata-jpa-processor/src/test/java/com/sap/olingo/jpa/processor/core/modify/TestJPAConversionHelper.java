@@ -104,10 +104,10 @@ public abstract class TestJPAConversionHelper {
 
   protected void prepareConvertEmbeddedIdToLocation() throws ODataJPAModelException {
     List<JPAPath> keyPath = new ArrayList<JPAPath>();
-  
+
     request = mock(ODataRequest.class);
     when(request.getRawBaseUri()).thenReturn("localhost.test");
-  
+
     edmEntitySet = mock(EdmEntitySet.class);
     et = mock(JPAEntityType.class);
     when(et.getKeyPath()).thenReturn(keyPath);
@@ -119,21 +119,21 @@ public abstract class TestJPAConversionHelper {
     when(keyAttribute.isComplex()).thenReturn(true);
     when(keyAttribute.isKey()).thenReturn(true);
     when(key.getLeaf()).thenReturn(keyAttribute);
-  
+
     JPAStructuredType st = mock(JPAStructuredType.class);
     when(keyAttribute.getStructuredType()).thenReturn(st);
     keyPath = new ArrayList<JPAPath>();
     when(st.getPathList()).thenReturn(keyPath);
-  
+
     addKeyAttribute(keyPath, "CodeID", "codeID");
     addKeyAttribute(keyPath, "CodePublisher", "codePublisher");
     addKeyAttribute(keyPath, "DivisionCode", "divisionCode");
     addKeyAttribute(keyPath, "Language", "language");
-  
+
     odata = mock(OData.class);
     UriHelper uriHelper = new UriHelperSpy(UriHelperSpy.EMBEDDED_ID);
     when(odata.createUriHelper()).thenReturn(uriHelper);
-  
+
   }
 
   class UriHelperSpy implements UriHelper {

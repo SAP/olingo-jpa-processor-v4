@@ -4,7 +4,7 @@ import javax.persistence.metamodel.Attribute;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
-final class IntermediateEmbeddedIdProperty extends IntermediateProperty {
+final class IntermediateEmbeddedIdProperty extends IntermediateSimpleProperty {
   private final Attribute<?, ?> embeddable;
 
   IntermediateEmbeddedIdProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,

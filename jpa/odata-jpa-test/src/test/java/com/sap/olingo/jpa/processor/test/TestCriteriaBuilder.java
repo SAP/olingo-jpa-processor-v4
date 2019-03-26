@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.processor.test;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +32,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
+import com.sap.olingo.jpa.processor.core.testmodel.Person;
 
 public class TestCriteriaBuilder {
   protected static final String PUNIT_NAME = "com.sap.olingo.jpa";
@@ -130,6 +133,28 @@ public class TestCriteriaBuilder {
     roleQ.multiselect(roleRoot.get("businessPartnerID"));
     TypedQuery<Tuple> tq = em.createQuery(roleQ);
     tq.getResultList();
+  }
+
+  @Test
+  public void testFilterOnPrimitiveCollectionAttribute() {
+    CriteriaQuery<Tuple> orgQ = cb.createTupleQuery();
+    Root<Organization> orgRoot = orgQ.from(Organization.class);
+    orgQ.select(orgRoot.get("iD"));
+    orgQ.where(cb.like(orgRoot.get("comment"), "%just%"));
+    TypedQuery<Tuple> tq = em.createQuery(orgQ);
+    List<Tuple> act = tq.getResultList();
+    assertEquals(1, act.size());
+  }
+
+  @Test
+  public void testFilterOnEmbeddedCollectionAttribute() {
+    CriteriaQuery<Tuple> pQ = cb.createTupleQuery();
+    Root<Person> pRoot = pQ.from(Person.class);
+    pQ.select(pRoot.get("iD"));
+    pQ.where(cb.equal(pRoot.get("inhouseAddress").get("taskID"), "MAIN"));
+    TypedQuery<Tuple> tq = em.createQuery(pQ);
+    List<Tuple> act = tq.getResultList();
+    assertEquals(1, act.size());
   }
 
   @Test

@@ -39,6 +39,7 @@ public final class JPANavigationProptertyInfo {
     this.keyPredicates = original.getKeyPredicates();
     this.uriInfo = original.getUriInfo();
     this.sd = original.getServiceDocument();
+    this.et = this.uriInfo instanceof JPAExpandItem ? ((JPAExpandItem) uriInfo).getEntityType() : null;
   }
 
   public JPANavigationProptertyInfo(final JPAServiceDocument sd, final JPAAssociationPath associationPath,
@@ -57,7 +58,7 @@ public final class JPANavigationProptertyInfo {
 
     this.navigationTarget = uriResource;
     this.associationPath = associationPath;
-    this.keyPredicates = Util.determineKeyPredicates(uriResource);
+    this.keyPredicates = uriResource.isCollection() ? new ArrayList<>(1) : Util.determineKeyPredicates(uriResource);
     this.uriInfo = uriInfo;
     this.sd = sd;
   }

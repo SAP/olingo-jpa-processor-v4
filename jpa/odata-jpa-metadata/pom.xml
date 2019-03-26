@@ -6,14 +6,14 @@
 	<parent>
 		<groupId>com.sap.olingo</groupId>
 		<artifactId>odata-jpa</artifactId>
-		<version>0.2.7-SNAPSHOT</version>
+		<version>0.2.10-SNAPSHOT</version>
 	</parent>
 
 
 	<artifactId>odata-jpa-metadata</artifactId>
 
 	<name>odata-jpa-metadata</name>
-	<url>http://maven.apache.org</url>
+	<url>https://github.com/SAP/olingo-jpa-processor-v4</url>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>

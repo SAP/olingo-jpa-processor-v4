@@ -52,7 +52,7 @@ public class TestJPAExpandResult extends TestBase {
   @Test
   public void testSelectAllWithAllExpand() throws ODataException {
     // .../Organizations?$expand=Roles&$format=json
-    JPAExpandItemInfo item = createOrgExpandRoles(null, null);
+    JPAInlineItemInfo item = createOrgExpandRoles(null, null);
 
     cut = new JPAExpandJoinQuery(OData.newInstance(), sessionContext, em, item, headers);
     JPAExpandQueryResult act = cut.execute();
@@ -69,7 +69,7 @@ public class TestJPAExpandResult extends TestBase {
     when(key.getText()).thenReturn("'2'");
     List<UriParameter> keyPredicates = new ArrayList<>();
     keyPredicates.add(key);
-    JPAExpandItemInfo item = createOrgExpandRoles(keyPredicates, null);
+    JPAInlineItemInfo item = createOrgExpandRoles(keyPredicates, null);
 
     cut = new JPAExpandJoinQuery(OData.newInstance(), sessionContext, em, item, headers);
     JPAExpandQueryResult act = cut.execute();
@@ -77,7 +77,7 @@ public class TestJPAExpandResult extends TestBase {
     assertEquals(2, act.getNoResultsDeep());
   }
 
-  private JPAExpandItemInfo createOrgExpandRoles(final List<UriParameter> keyPredicates, Expression<Boolean> expression)
+  private JPAInlineItemInfo createOrgExpandRoles(final List<UriParameter> keyPredicates, Expression<Boolean> expression)
       throws ODataJPAModelException, ODataApplicationException {
     JPAEntityType et = helper.getJPAEntityType("BusinessPartnerRoles");
     JPAExpandItemWrapper uriInfo = mock(JPAExpandItemWrapper.class);
@@ -90,7 +90,7 @@ public class TestJPAExpandResult extends TestBase {
         "Organizations").getAssociationPath("Roles"), null);
     hops.add(hop);
 
-    JPAExpandItemInfo item = mock(JPAExpandItemInfo.class);
+    JPAInlineItemInfo item = mock(JPAInlineItemInfo.class);
     UriResourceNavigation target = mock(UriResourceNavigation.class);
     EdmNavigationProperty targetProperty = mock(EdmNavigationProperty.class);
     when(targetProperty.getName()).thenReturn("Roles");

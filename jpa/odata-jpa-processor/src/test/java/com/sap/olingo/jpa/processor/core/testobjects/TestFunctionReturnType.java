@@ -2,6 +2,7 @@ package com.sap.olingo.jpa.processor.core.testobjects;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -12,7 +13,11 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.ODataFunction;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeInformation;
 import com.sap.olingo.jpa.processor.core.testmodel.ChangeInformation;
+import com.sap.olingo.jpa.processor.core.testmodel.CollectionDeep;
+import com.sap.olingo.jpa.processor.core.testmodel.CollectionFirstLevelComplex;
+import com.sap.olingo.jpa.processor.core.testmodel.CollectionSecondLevelComplex;
 import com.sap.olingo.jpa.processor.core.testmodel.CommunicationData;
+import com.sap.olingo.jpa.processor.core.testmodel.InhouseAddress;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 
 public class TestFunctionReturnType implements ODataFunction {
@@ -76,6 +81,33 @@ public class TestFunctionReturnType implements ODataFunction {
     Person p = new Person();
     p.setID("1");
     p.setBirthDay(LocalDate.now());
+    p.setInhouseAddress(new ArrayList<>());
     return p;
+  }
+
+  @EdmFunction(name = "ListOfEntityTypeWithCollction", returnType = @ReturnType(type = Person.class))
+  public List<Person> listOfEntityTypeWithCollection(@EdmParameter(name = "A") Integer a) {
+    Person person = new Person();
+    person.setID("1");
+    person.addInhouseAddress(new InhouseAddress("DEV", "7"));
+    person.addInhouseAddress(new InhouseAddress("ADMIN", "2"));
+    return Arrays.asList(person);
+  }
+
+  @EdmFunction(name = "EntityTypeWithDeepCollction", returnType = @ReturnType(type = CollectionDeep.class))
+  public CollectionDeep entityTypeWithDeepCollection(@EdmParameter(name = "A") Integer a) {
+    final CollectionDeep deepCollection = new CollectionDeep();
+    final CollectionFirstLevelComplex firstLevel = new CollectionFirstLevelComplex();
+    final CollectionSecondLevelComplex secondLevel = new CollectionSecondLevelComplex();
+    deepCollection.setFirstLevel(firstLevel);
+    deepCollection.setID("1");
+    firstLevel.setLevelID(10);
+    firstLevel.setSecondLevel(secondLevel);
+    secondLevel.setNumber(5L);
+
+    secondLevel.addInhouseAddress(new InhouseAddress("DEV", "7"));
+    secondLevel.addInhouseAddress(new InhouseAddress("ADMIN", "2"));
+    secondLevel.setComment(Arrays.asList("One", "Two", "Three"));
+    return deepCollection;
   }
 }

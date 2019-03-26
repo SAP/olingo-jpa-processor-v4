@@ -50,7 +50,8 @@ public class BusinessPartnerRole {
     this.roleCategory = roleCategory;
   }
 
-  public void setBusinessPartner(BusinessPartner businessPartner) {
+  public <T extends BusinessPartner> void setBusinessPartner(T businessPartner) {
+    businessPartnerID = businessPartner.getID();
     this.businessPartner = businessPartner;
 
   }

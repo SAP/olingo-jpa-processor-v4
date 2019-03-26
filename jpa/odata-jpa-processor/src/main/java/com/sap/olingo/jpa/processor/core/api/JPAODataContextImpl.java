@@ -34,6 +34,7 @@ final class JPAODataContextImpl implements JPAODataCRUDContext, JPAODataSessionC
   private JPACUDRequestHandler jpaCUDRequestHandler;
   private String[] packageName;
   private ErrorProcessor errorProcessor;
+  private JPAODataPagingProvider pagingProvider;
 
   public JPAODataContextImpl(JPAODataGetHandler jpaoDataGetHandler) throws ODataException {
     super();
@@ -100,6 +101,11 @@ final class JPAODataContextImpl implements JPAODataCRUDContext, JPAODataSessionC
   }
 
   @Override
+  public JPAODataPagingProvider getPagingProvider() {
+    return pagingProvider;
+  }
+
+  @Override
   public void initDebugger(final String debugFormat) {
     // see org.apache.olingo.server.core.debug.ServerCoreDebugger
     boolean isDebugMode = false;
@@ -161,5 +167,10 @@ final class JPAODataContextImpl implements JPAODataCRUDContext, JPAODataSessionC
   public void setTypePackage(final String... packageName) {
     this.packageName = packageName;
 
+  }
+
+  @Override
+  public void setPagingProvider(final JPAODataPagingProvider provider) {
+    this.pagingProvider = provider;
   }
 }

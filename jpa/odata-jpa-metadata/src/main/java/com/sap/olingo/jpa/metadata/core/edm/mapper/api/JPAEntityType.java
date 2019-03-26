@@ -54,6 +54,20 @@ public interface JPAEntityType extends JPAStructuredType {
 
   public boolean hasStream() throws ODataJPAModelException;
 
-  public List<JPAPath> searchChildPath(JPAPath selectItemPath);
+  public List<JPAPath> searchChildPath(final JPAPath selectItemPath);
+
+  /**
+   * Searches for a Collection Property defined by the name used in the OData metadata in all the collection properties
+   * that are available for this type via the OData service. That is:
+   * <ul>
+   * <li> All not ignored collection properties of this type.
+   * <li> All not ignored collection properties from super types.
+   * <li> All not ignored collection properties from embedded types.
+   * </ul>
+   * @param externalName
+   * @return
+   * @throws ODataJPAModelException
+   */
+  public JPACollectionAttribute getCollectionAttribute(final String externalName) throws ODataJPAModelException;
 
 }

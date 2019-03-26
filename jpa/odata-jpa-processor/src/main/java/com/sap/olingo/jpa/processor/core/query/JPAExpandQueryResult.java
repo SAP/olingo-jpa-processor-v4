@@ -24,7 +24,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
  * @author Oliver Grande
  *
  */
-public final class JPAExpandQueryResult implements JPAExpandResult {
+public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertableResult {
   private final Map<JPAAssociationPath, JPAExpandResult> childrenResult;
   private final Map<String, List<Tuple>> jpaResult;
   private Map<String, EntityCollection> odataResult;
@@ -33,7 +33,7 @@ public final class JPAExpandQueryResult implements JPAExpandResult {
 
   public JPAExpandQueryResult(final Map<String, List<Tuple>> result, final Map<String, Long> counts,
       final JPAEntityType jpaEntityType) {
-    super();
+
     assertNotNull(jpaEntityType);
     childrenResult = new HashMap<>();
     this.jpaResult = result;
@@ -41,7 +41,8 @@ public final class JPAExpandQueryResult implements JPAExpandResult {
     this.jpaEntityType = jpaEntityType;
   }
 
-  public Map<String, EntityCollection> asEntityCollection(JPATupleChildConverter converter)
+  @Override
+  public Map<String, EntityCollection> asEntityCollection(final JPATupleChildConverter converter)
       throws ODataApplicationException {
 
     convert(new JPATupleChildConverter(converter));
@@ -49,10 +50,11 @@ public final class JPAExpandQueryResult implements JPAExpandResult {
     return odataResult;
   }
 
-  private void convert(JPATupleChildConverter converter) throws ODataApplicationException {
+  @Override
+  public void convert(final JPATupleChildConverter converter) throws ODataApplicationException {
     if (odataResult == null) {
       for (Entry<JPAAssociationPath, JPAExpandResult> childResult : childrenResult.entrySet()) {
-        ((JPAExpandQueryResult) childResult.getValue()).convert(converter);
+        childResult.getValue().convert(converter);
       }
       odataResult = converter.getResult(this);
     }
@@ -99,8 +101,8 @@ public final class JPAExpandQueryResult implements JPAExpandResult {
 
   public long getNoResultsDeep() {
     long count = 0;
-    for (String key : jpaResult.keySet()) {
-      count += jpaResult.get(key).size();
+    for (Entry<String, List<Tuple>> result : jpaResult.entrySet()) {
+      count += result.getValue().size();
     }
     return count;
   }
@@ -125,7 +127,8 @@ public final class JPAExpandQueryResult implements JPAExpandResult {
     return counts != null;
   }
 
-  public void putChildren(final Map<JPAAssociationPath, JPAExpandQueryResult> childResults)
+  @Override
+  public void putChildren(final Map<JPAAssociationPath, JPAExpandResult> childResults)
       throws ODataApplicationException {
 
     for (final JPAAssociationPath child : childResults.keySet()) {
@@ -151,6 +154,7 @@ public final class JPAExpandQueryResult implements JPAExpandResult {
    * @param key
    * @return
    */
+  @Override
   public EntityCollection getEntityCollection(final String key) {
     return odataResult.containsKey(key) ? odataResult.get(key) : new EntityCollection();
   }

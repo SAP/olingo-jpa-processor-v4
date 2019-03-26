@@ -23,7 +23,6 @@ public class UriResourcePropertyDouble implements UriResourceProperty {
 
   @Override
   public boolean isCollection() {
-    fail();
     return false;
   }
 
