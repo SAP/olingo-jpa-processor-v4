@@ -102,12 +102,25 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
       entityCollection.setCount(new JPAJoinQuery(odata, sessionContext, em, request.getAllHeaders(), uriInfo)
           .countResults().intValue());
 
-    // 204 No Content indicates that the resource specified by the request URL has no values. The response body MAY
-    // provide additional information.
-    // This is the case for individual property, complex type, a navigation property or entity is not available.
-    // See part 1: 11.2.6 Requesting Related Entities and 11.2.3 Requesting Individual Properties
+    // See part 1:
+    // -9.1.1 Response Code 200 OK: A request that does not create a resource returns 200 OK if it is completed
+    // successfully and the value of the resource is not null. In this case, the response body MUST contain the value of
+    // the resource specified in the request URL.
+    // - 9.2.1 Response Code 404 Not Found: 404 Not Found indicates that the resource specified by the request URL does
+    // not exist. The response body MAY provide additional information.
+    // - 11.2.1 Requesting Individual Entities: If no entity exists with the key values specified in the request URL,
+    // the service responds with 404 Not Found.
+    // - 11.2.3 Requesting Individual Properties: If the property is single-valued and has the null value, the service
+    // responds with 204 No Content. If the property is not available, for example due to permissions, the service
+    // responds with 404 Not Found.
+    // - 11.2.6 Requesting Related Entities: If the navigation property does not exist on the entity indicated by the
+    // request URL, the service returns 404 Not Found.
+    // If the relationship terminates on a single entity, the response MUST be the format-specific representation of
+    // the related single entity. If no entity is related, the service returns 204 No Content.
     if (isResultEmpty(entityCollection.getEntities()))
       response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
+    else if (doesNoeExists(entityCollection.getEntities()))
+      response.setStatusCode(HttpStatusCode.NOT_FOUND.getStatusCode());
     // 200 OK indicates that either a result was found or that the a Entity Collection query had no result
     else if (entityCollection.getEntities() != null) {
       final int serializerHandle = debugger.startRuntimeMeasurement(serializer, "serialize");
@@ -138,22 +151,27 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     return null;
   }
 
+  private boolean doesNoeExists(List<Entity> entities) throws ODataApplicationException {
+    // handle ../Organizations('xx')
+    return (entities.isEmpty()
+        && (lastItem.getKind() == UriResourceKind.primitiveProperty
+            || lastItem.getKind() == UriResourceKind.complexProperty
+            || lastItem.getKind() == UriResourceKind.entitySet
+                && !Util.determineKeyPredicates(lastItem).isEmpty()));
+
+  }
+
   private boolean isResultEmpty(List<Entity> entities) throws ODataApplicationException {
 
-    if (entities.isEmpty()
-        && lastItem.getKind() == UriResourceKind.entitySet
-        && !Util.determineKeyPredicates(lastItem).isEmpty())
-      // handle ../Organizations('xx')
-      return true;
-    else if (lastItem.getKind() == UriResourceKind.primitiveProperty
+    if (lastItem.getKind() == UriResourceKind.primitiveProperty
         || lastItem.getKind() == UriResourceKind.navigationProperty
         || lastItem.getKind() == UriResourceKind.complexProperty) {
-      if (entities.isEmpty())
-        return true;
 
       Object resultElement = null;
       String name = "";
       if (lastItem.getKind() == UriResourceKind.primitiveProperty) {
+        if (entities.isEmpty())
+          return false;
         name = Util.determineStartNavigationPath(uriInfo.getUriResourceParts()).getProperty().getName();
         final Property property = entities.get(0).getProperty(name);
         if (property != null) {
@@ -161,6 +179,8 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
         }
       }
       if (lastItem.getKind() == UriResourceKind.complexProperty) {
+        if (entities.isEmpty())
+          return false;
         name = Util.determineStartNavigationPath(uriInfo.getUriResourceParts()).getProperty().getName();
         final Property property = entities.get(0).getProperty(name);
         if (property != null) {
@@ -177,11 +197,14 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
           }
         }
       }
-      if (lastItem.getKind() == UriResourceKind.navigationProperty
-          && !entities.get(0).getProperties().isEmpty()) {
-        resultElement = Boolean.FALSE;
-      }
+      if (lastItem.getKind() == UriResourceKind.navigationProperty) {
+        if (entities.isEmpty())
+          return true;
+        else if (!entities.get(0).getProperties().isEmpty()) {
 
+          resultElement = Boolean.FALSE;
+        }
+      }
       return resultElement == null;
     } else
       return false;

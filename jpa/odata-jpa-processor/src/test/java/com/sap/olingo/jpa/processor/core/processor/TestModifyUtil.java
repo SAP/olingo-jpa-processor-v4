@@ -31,6 +31,8 @@ import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 import com.sap.olingo.jpa.processor.core.testmodel.PostalAddressData;
+import com.sap.olingo.jpa.processor.core.testobjects.BusinessPartnerRoleWithoutSetter;
+import com.sap.olingo.jpa.processor.core.testobjects.OrganizationWithoutGetter;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 
@@ -312,6 +314,41 @@ public class TestModifyUtil extends TestBase {
     assertNotNull(source.getRoles());
     assertNotNull(source.getRoles().toArray()[0]);
     assertEquals(target, source.getRoles().toArray()[0]);
+  }
+
+  @Test
+  public void testSetForeignKeyOneKey() throws ODataJPAModelException, ODataJPAProcessorException {
+    final Organization source = new Organization("100");
+    final BusinessPartnerRole target = new BusinessPartnerRole();
+    target.setRoleCategory("A");
+    final JPAAssociationPath path = helper.getJPAAssociationPath("Organizations",
+        "Roles");
+
+    cut.setForeignKey(source, target, path);
+    assertEquals("100", target.getBusinessPartnerID());
+  }
+
+  @Test(expected = ODataJPAProcessorException.class)
+  public void testSetForeignKeyTrhowsExceptionOnMissingGetter() throws ODataJPAModelException,
+      ODataJPAProcessorException {
+    final OrganizationWithoutGetter source = new OrganizationWithoutGetter("100");
+    final BusinessPartnerRole target = new BusinessPartnerRole();
+    target.setRoleCategory("A");
+    final JPAAssociationPath path = helper.getJPAAssociationPath("Organizations",
+        "Roles");
+
+    cut.setForeignKey(source, target, path);
+  }
+
+  @Test(expected = ODataJPAProcessorException.class)
+  public void testSetForeignKeyTrhowsExceptionOnMissingSetter() throws ODataJPAModelException,
+      ODataJPAProcessorException {
+    final Organization source = new Organization("100");
+    final BusinessPartnerRoleWithoutSetter target = new BusinessPartnerRoleWithoutSetter();
+    final JPAAssociationPath path = helper.getJPAAssociationPath("Organizations",
+        "Roles");
+
+    cut.setForeignKey(source, target, path);
   }
 
   private JPAEntityType createSingleKeyEntityType() throws ODataJPAModelException {
