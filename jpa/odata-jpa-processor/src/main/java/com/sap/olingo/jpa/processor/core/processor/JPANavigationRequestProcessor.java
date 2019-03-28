@@ -15,7 +15,6 @@ import org.apache.olingo.commons.api.data.ComplexValue;
 import org.apache.olingo.commons.api.data.Entity;
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.Property;
-import org.apache.olingo.commons.api.data.ValueType;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -28,6 +27,7 @@ import org.apache.olingo.server.api.serializer.SerializerResult;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceKind;
+import org.apache.olingo.server.api.uri.UriResourcePartTyped;
 import org.apache.olingo.server.api.uri.queryoption.CountOption;
 import org.apache.olingo.server.api.uri.queryoption.SystemQueryOptionKind;
 
@@ -102,22 +102,28 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
       entityCollection.setCount(new JPAJoinQuery(odata, sessionContext, em, request.getAllHeaders(), uriInfo)
           .countResults().intValue());
 
-    // See part 1:
-    // -9.1.1 Response Code 200 OK: A request that does not create a resource returns 200 OK if it is completed
-    // successfully and the value of the resource is not null. In this case, the response body MUST contain the value of
-    // the resource specified in the request URL.
-    // - 9.2.1 Response Code 404 Not Found: 404 Not Found indicates that the resource specified by the request URL does
-    // not exist. The response body MAY provide additional information.
-    // - 11.2.1 Requesting Individual Entities: If no entity exists with the key values specified in the request URL,
-    // the service responds with 404 Not Found.
-    // - 11.2.3 Requesting Individual Properties: If the property is single-valued and has the null value, the service
-    // responds with 204 No Content. If the property is not available, for example due to permissions, the service
-    // responds with 404 Not Found.
-    // - 11.2.6 Requesting Related Entities: If the navigation property does not exist on the entity indicated by the
-    // request URL, the service returns 404 Not Found.
-    // If the relationship terminates on a single entity, the response MUST be the format-specific representation of
-    // the related single entity. If no entity is related, the service returns 204 No Content.
-    if (isResultEmpty(entityCollection.getEntities()))
+    /*
+     * See part 1:
+     * -9.1.1 Response Code 200 OK: A request that does not create a resource returns 200 OK if it is completed
+     * successfully and the value of the resource is not null. In this case, the response body MUST contain the value of
+     * the resource specified in the request URL.
+     * - 9.2.1 Response Code 404 Not Found: 404 Not Found indicates that the resource specified by the request URL does
+     * not exist. The response body MAY provide additional information.
+     * - 11.2.1 Requesting Individual Entities:
+     * -- If no entity exists with the key values specified in the request URL, the service responds with 404 Not Found.
+     * - 11.2.3 Requesting Individual Properties:
+     * -- If the property is single-valued and has the null value, the service responds with 204 No Content.
+     * -- If the property is not available, for example due to permissions, the service responds with 404 Not Found.
+     * - 11.2.6 Requesting Related Entities:
+     * -- If the navigation property does not exist on the entity indicated by the request URL, the service returns 404
+     * Not Found.
+     * -- If the relationship terminates on a collection, the response MUST be the format-specific representation of the
+     * collection of related entities. If no entities are related, the response is the format-specific representation of
+     * an empty collection.
+     * -- If the relationship terminates on a single entity, the response MUST be the format-specific representation of
+     * the related single entity. If no entity is related, the service returns 204 No Content.
+     */
+    if (hasNoContent(entityCollection.getEntities()))
       response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
     else if (doesNoeExists(entityCollection.getEntities()))
       response.setStatusCode(HttpStatusCode.NOT_FOUND.getStatusCode());
@@ -151,6 +157,22 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     return null;
   }
 
+  private boolean complexHasNoContent(final List<Entity> entities) {
+    final String name;
+    if (entities.isEmpty())
+      return false;
+    name = Util.determineStartNavigationPath(uriInfo.getUriResourceParts()).getProperty().getName();
+    final Property property = entities.get(0).getProperty(name);
+    if (property != null) {
+      for (Property p : ((ComplexValue) property.getValue()).getValue()) {
+        if (p.getValue() != null) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
   private boolean doesNoeExists(List<Entity> entities) throws ODataApplicationException {
     // handle ../Organizations('xx')
     return (entities.isEmpty()
@@ -158,56 +180,39 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
             || lastItem.getKind() == UriResourceKind.complexProperty
             || lastItem.getKind() == UriResourceKind.entitySet
                 && !Util.determineKeyPredicates(lastItem).isEmpty()));
-
   }
 
-  private boolean isResultEmpty(List<Entity> entities) throws ODataApplicationException {
+  private boolean hasNoContent(List<Entity> entities) {
 
     if (lastItem.getKind() == UriResourceKind.primitiveProperty
         || lastItem.getKind() == UriResourceKind.navigationProperty
         || lastItem.getKind() == UriResourceKind.complexProperty) {
 
-      Object resultElement = null;
-      String name = "";
+      if (((UriResourcePartTyped) this.lastItem).isCollection()) {
+        // Collections always return 200 no matter if type are empty or not
+        return false;
+      }
+
       if (lastItem.getKind() == UriResourceKind.primitiveProperty) {
-        if (entities.isEmpty())
-          return false;
-        name = Util.determineStartNavigationPath(uriInfo.getUriResourceParts()).getProperty().getName();
-        final Property property = entities.get(0).getProperty(name);
-        if (property != null) {
-          resultElement = property.getValue();
-        }
+        return primitiveHasNoContent(entities);
       }
       if (lastItem.getKind() == UriResourceKind.complexProperty) {
-        if (entities.isEmpty())
-          return false;
-        name = Util.determineStartNavigationPath(uriInfo.getUriResourceParts()).getProperty().getName();
-        final Property property = entities.get(0).getProperty(name);
-        if (property != null) {
-          if (property.getValueType() == ValueType.COLLECTION_COMPLEX) {
-            if (property.getValue() != null && !((List<?>) property.getValue()).isEmpty())
-              resultElement = property;
-          } else {
-            for (Property p : ((ComplexValue) property.getValue()).getValue()) {
-              if (p.getValue() != null) {
-                resultElement = p;
-                break;
-              }
-            }
-          }
-        }
+        return complexHasNoContent(entities);
       }
-      if (lastItem.getKind() == UriResourceKind.navigationProperty) {
-        if (entities.isEmpty())
-          return true;
-        else if (!entities.get(0).getProperties().isEmpty()) {
+      if (entities.isEmpty()) {
+        return true;
+      }
+    }
+    return false;
+  }
 
-          resultElement = Boolean.FALSE;
-        }
-      }
-      return resultElement == null;
-    } else
+  private boolean primitiveHasNoContent(final List<Entity> entities) {
+    final String name;
+    if (entities.isEmpty())
       return false;
+    name = Util.determineStartNavigationPath(uriInfo.getUriResourceParts()).getProperty().getName();
+    final Property property = entities.get(0).getProperty(name);
+    return (property != null && property.getValue() == null);
   }
 
   /**
