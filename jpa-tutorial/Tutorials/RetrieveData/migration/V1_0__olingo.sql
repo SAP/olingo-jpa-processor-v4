@@ -44,9 +44,9 @@ insert into "BusinessPartner" values ('7', 0, '2', '','',null,null,'Seventh Org.
 insert into "BusinessPartner" values ('8', 0, '2', '','',null,null,'Eighth Org.','',null,'Test Road', '453','', 'Test City','29221','ISO', '3166-2','US-SC', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA', null, null);
 insert into "BusinessPartner" values ('9', 0, '2', '','',null,null,'Ninth Org.','',null,'Test Road', '93','', 'Test City','55021','ISO', '3166-2','US-MN', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA', null, null);
 insert into "BusinessPartner" values ('10', 0, '2', '','',null,null,'Tenth Org.','',null,'Test Road', '12','', 'Test City','03921','ISO', '3166-2','US-ME', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU', null, null);
-insert into "BusinessPartner" values ('99', 0, '1', '','',null,null,'Max','Mustermann',null,'Test Starße', '12','', 'Teststadt','10115','ISO', '3166-2','DE-BE', 'DEU', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU', null, 1); 
+insert into "BusinessPartner" values ('99', 0, '1', '','',null,null,'Max','Mustermann',null,'Test Starï¿½e', '12','', 'Teststadt','10115','ISO', '3166-2','DE-BE', 'DEU', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU', null, 1); 
 insert into "BusinessPartner" values ('98', 0, '1', '','',null,null,'John','Doe',null,'Test Road', '55','', 'Test City','76321','ISO', '3166-2','US-TX', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU', null, 2); 
-insert into "BusinessPartner" values ('97', 0, '1', '','',null,null,'Urs','Müller',null,'Test Starße', '23','', 'Test Dorf','4123','ISO', '3166-2','CH-BL', 'CHE', '', '','','', '99','2016-07-20 09:21:23', '', null, 'CHE', null, 9); 
+insert into "BusinessPartner" values ('97', 0, '1', '','',null,null,'Urs','Mï¿½ller',null,'Test Starï¿½e', '23','', 'Test Dorf','4123','ISO', '3166-2','CH-BL', 'CHE', '', '','','', '99','2016-07-20 09:21:23', '', null, 'CHE', null, 9); 
 
 --------BUSINESS PARTNER ROLE----------------------------------------------------------------------------------------------------
 CREATE TABLE "BusinessPartnerRole" ( 
@@ -608,3 +608,47 @@ insert into "Comment" values( '1', 3, 'This is another test');
 CREATE TABLE "DummyToBeIgnored" (
 	"ID" NVARCHAR(32) NOT NULL ,
 	 PRIMARY KEY ("ID"));
+	 
+--------User defined scalat functions--------------------------------------------------------------------------------------------
+CREATE FUNCTION  OLINGO."PopulationDensity" ("Area" BIGINT, "Population" BIGINT )
+	RETURNS DOUBLE
+BEGIN ATOMIC
+	IF "Area" <= 0 THEN RETURN 0;
+	ELSE RETURN CAST ( "Population" / "Area" AS DOUBLE);
+	END IF;
+END;
+
+CREATE FUNCTION  OLINGO."ConvertToQkm" ("Area" BIGINT )
+	RETURNS BIGINT
+BEGIN ATOMIC
+    IF "Area" <= 0 THEN RETURN 0;
+	ELSE RETURN "Area" / 1000000;
+    END IF;
+END;
+
+CREATE FUNCTION  "Siblings" ("Publisher" VARCHAR(10), "ID" VARCHAR(10), "Division" VARCHAR(10))
+	RETURNS TABLE(
+		"CodePublisher" VARCHAR(10),
+		"CodeID" VARCHAR(10),
+		"DivisionCode" VARCHAR(10),
+		"CountryISOCode" VARCHAR(4),
+		"ParentCodeID" VARCHAR(10),
+		"ParentDivisionCode" VARCHAR(10),
+		"AlternativeCode" VARCHAR(10),
+		"Area" int, 
+		"Population" BIGINT)
+	READS SQL DATA
+	RETURN TABLE( SELECT * 
+				FROM "AdministrativeDivision" as a 
+				WHERE 
+					EXISTS (SELECT "CodePublisher"
+							FROM "AdministrativeDivision" as b
+							WHERE b."CodeID" = "ID"
+							AND   b."DivisionCode" = "Division" 
+							AND   b."CodePublisher" = a."CodePublisher"
+							AND   b."ParentCodeID" = a."ParentCodeID"
+							AND   b."ParentDivisionCode" = a."ParentDivisionCode") 
+					AND NOT( a."CodePublisher" = "Publisher"
+					AND  a."CodeID" = "ID"
+					AND  a."DivisionCode" = "Division" )
+				);

@@ -1,9 +1,14 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Id;
 
-public class InstanceRestrictionKey {
+public class InstanceRestrictionKey implements Serializable {
+
+  private static final long serialVersionUID = 2019259550692982797L;
+  
   @Id
   @Column(name = "\"UserName\"", length = 60)
   private String username;
