@@ -66,6 +66,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.8.0</version>
 					<configuration>
 						<source>${project.build.source}</source>
 						<target>${project.build.source}</target>
@@ -94,7 +95,7 @@
             <plugin>
                 <groupId>org.eluder.coveralls</groupId>
                 <artifactId>coveralls-maven-plugin</artifactId>
-                <version>4.3.0</version>
+				<version>${coveralls.version}</version>
             </plugin>			
 		</plugins>
 	</build>
