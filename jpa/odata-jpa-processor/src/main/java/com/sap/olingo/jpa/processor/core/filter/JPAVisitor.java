@@ -59,7 +59,7 @@ class JPAVisitor implements JPAExpressionVisitor {
   @Override
   public JPAOperator visitBinaryOperator(final BinaryOperatorKind operator, final JPAOperator left,
       final JPAOperator right) throws ExpressionVisitException, ODataApplicationException {
-    int handle = debugger.startRuntimeMeasurement(this, "visitBinaryOperator");
+    int handle = debugger.startRuntimeMeasurement(this, "visitBinaryOperator"); // NOSONAR
 
     if (hasNavigation(left) || hasNavigation(right))
       return new JPANavigationOperation(this.jpaComplier, operator, left, right);

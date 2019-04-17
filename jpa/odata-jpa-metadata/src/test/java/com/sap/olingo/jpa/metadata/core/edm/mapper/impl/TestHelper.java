@@ -39,33 +39,10 @@ public class TestHelper {
     this.schema = new IntermediateSchema(new JPAEdmNameBuilder(namespace), jpaMetamodel, r);
   }
 
-  public EntityType<?> getEntityType(final String typeName) {
-    for (final EntityType<?> entityType : jpaMetamodel.getEntities()) {
-      if (entityType.getJavaType().getSimpleName().equals(typeName)) {
-        return entityType;
-      }
-    }
-    return null;
-  }
-
-  public EmbeddableType<?> getComplexType(final String typeName) {
-    for (final EmbeddableType<?> embeddableType : jpaMetamodel.getEmbeddables()) {
-      if (embeddableType.getJavaType().getSimpleName().equals(typeName)) {
-        return embeddableType;
-      }
-    }
-    return null;
-  }
-
-  public EdmFunction getStoredProcedure(EntityType<?> jpaEntityType, String string) {
-    if (jpaEntityType.getJavaType() instanceof AnnotatedElement) {
-      final EdmFunctions jpaStoredProcedureList = ((AnnotatedElement) jpaEntityType.getJavaType())
-          .getAnnotation(EdmFunctions.class);
-      if (jpaStoredProcedureList != null) {
-        for (final EdmFunction jpaStoredProcedure : jpaStoredProcedureList.value()) {
-          if (jpaStoredProcedure.name().equals(string)) return jpaStoredProcedure;
-        }
-      }
+  public Object findAttribute(final List<? extends JPAAttribute> attributes, final String searchItem) {
+    for (final JPAAttribute attribute : attributes) {
+      if (attribute.getExternalName().equals(searchItem))
+        return attribute;
     }
     return null;
   }
@@ -86,7 +63,7 @@ public class TestHelper {
     return null;
   }
 
-  public EmbeddableType<?> getEmbeddedableType(String typeName) {
+  public EmbeddableType<?> getComplexType(final String typeName) {
     for (final EmbeddableType<?> embeddableType : jpaMetamodel.getEmbeddables()) {
       if (embeddableType.getJavaType().getSimpleName().equals(typeName)) {
         return embeddableType;
@@ -103,10 +80,48 @@ public class TestHelper {
     return null;
   }
 
-  public Object findAttribute(final List<? extends JPAAttribute> attributes, final String searchItem) {
-    for (final JPAAttribute attribute : attributes) {
-      if (attribute.getExternalName().equals(searchItem))
-        return attribute;
+  public EmbeddableType<?> getEmbeddedableType(String typeName) {
+    for (final EmbeddableType<?> embeddableType : jpaMetamodel.getEmbeddables()) {
+      if (embeddableType.getJavaType().getSimpleName().equals(typeName)) {
+        return embeddableType;
+      }
+    }
+    return null;
+  }
+
+  public EntityType<?> getEntityType(final Class<?> clazz) {
+    for (final EntityType<?> entityType : jpaMetamodel.getEntities()) {
+      if (entityType.getJavaType().getSimpleName().equals(clazz.getSimpleName())) {
+        return entityType;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Provide the Class instead
+   * @param typeName
+   * @return
+   */
+  @Deprecated
+  public EntityType<?> getEntityType(final String typeName) {
+    for (final EntityType<?> entityType : jpaMetamodel.getEntities()) {
+      if (entityType.getJavaType().getSimpleName().equals(typeName)) {
+        return entityType;
+      }
+    }
+    return null;
+  }
+
+  public EdmFunction getStoredProcedure(EntityType<?> jpaEntityType, String string) {
+    if (jpaEntityType.getJavaType() instanceof AnnotatedElement) {
+      final EdmFunctions jpaStoredProcedureList = ((AnnotatedElement) jpaEntityType.getJavaType())
+          .getAnnotation(EdmFunctions.class);
+      if (jpaStoredProcedureList != null) {
+        for (final EdmFunction jpaStoredProcedure : jpaStoredProcedureList.value()) {
+          if (jpaStoredProcedure.name().equals(string)) return jpaStoredProcedure;
+        }
+      }
     }
     return null;
   }

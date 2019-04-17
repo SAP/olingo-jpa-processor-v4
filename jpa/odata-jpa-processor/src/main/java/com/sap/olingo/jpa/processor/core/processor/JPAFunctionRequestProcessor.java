@@ -139,8 +139,8 @@ public final class JPAFunctionRequestProcessor extends JPAOperationRequestProces
 
   private Object processJavaUDF(final List<UriResource> uriResourceParts, final JPADataBaseFunction jpaFunction)
       throws ODataApplicationException {
-
-    return dbProcessor.executeFunctionQuery(uriResourceParts, jpaFunction, determineReturnType(jpaFunction), em);
+    
+    return dbProcessor.executeFunctionQuery(uriResourceParts, jpaFunction,  em);
   }
 
   @SuppressWarnings("unchecked")

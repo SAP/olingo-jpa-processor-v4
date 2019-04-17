@@ -35,11 +35,11 @@ class JPA_DERBY_DatabaseProcessor implements JPAODataDatabaseProcessor {
 
   @Override
   public <T> java.util.List<T> executeFunctionQuery(final List<UriResource> uriResourceParts,
-      final JPADataBaseFunction jpaFunction, final Class<T> resultClass, final EntityManager em)
+      final JPADataBaseFunction jpaFunction, final EntityManager em)
       throws ODataApplicationException {
 
     final String queryString = generateQueryString(jpaFunction);
-    final Query functionQuery = em.createNativeQuery(queryString, resultClass);
+    final Query functionQuery = em.createNativeQuery(queryString, jpaFunction.getResultParameter().getType());
 //    int count = 1;
 //    for (final JPAFunctionParameter parameter : jpaFunction.getParameter()) {
 //      final UriParameter uriParameter = findParameterByExternalName(parameter, uriResourceFunction.getParameters());

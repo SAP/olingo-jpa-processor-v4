@@ -49,10 +49,10 @@ public class TestJPAQueryNavigation extends TestBase {
   }
 
   @Test
-  public void testNoNavigationOneEntityNotFound() throws IOException, ODataException {
+  public void testNoNavigationOneEntityNoContent() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('1000')");
-    helper.assertStatus(404);
+    helper.assertStatus(204);
   }
 
   @Test
@@ -179,7 +179,7 @@ public class TestJPAQueryNavigation extends TestBase {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations('3')/Address/AdministrativeDivision/Parent/Parent");
-    helper.assertStatus(404);
+    helper.assertStatus(204);
   }
 
   @Test
@@ -187,7 +187,7 @@ public class TestJPAQueryNavigation extends TestBase {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations('3')/Address/AdministrativeDivision/Children");
-    helper.assertStatus(404);
+    helper.assertStatus(204);
   }
 
   @Test
@@ -261,6 +261,13 @@ public class TestJPAQueryNavigation extends TestBase {
     assertFalse(org.get("value").isNull());
     ArrayNode values = (ArrayNode) org.get("value");
     assertEquals(2, values.size());
+  }
+
+  @Test
+  public void testNavigationComplexCollectionPropertyEmptyReult() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Persons('98')/InhouseAddress");
+    helper.assertStatus(204);
   }
 
   @Test

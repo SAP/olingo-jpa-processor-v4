@@ -227,6 +227,7 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
     if (edmEntityType == null) {
       buildPropertyList();
       buildNaviPropertyList();
+      buildProtectionInfo();
       postProcessor.processEntityType(this);
 
       edmEntityType = new CsdlEntityType();
@@ -304,6 +305,10 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
   CsdlEntityType getEdmItem() throws ODataJPAModelException {
     lazyBuildEdmItem();
     return edmEntityType;
+  }
+
+  private void buildProtectionInfo() {
+
   }
 
   private List<CsdlAnnotation> determineAnnotations() throws ODataJPAModelException {

@@ -111,11 +111,11 @@ public class JPADefaultDatabaseProcessor implements JPAODataDatabaseProcessor, J
   @SuppressWarnings("unchecked")
   @Override
   public <T> List<T> executeFunctionQuery(final List<UriResource> uriResourceParts,
-      final JPADataBaseFunction jpaFunction, final Class<T> resultClass, final EntityManager em)
+      final JPADataBaseFunction jpaFunction, final EntityManager em)
       throws ODataApplicationException {
 
     final String queryString = generateQueryString(jpaFunction);
-    final Query functionQuery = em.createNativeQuery(queryString, resultClass);
+    final Query functionQuery = em.createNativeQuery(queryString, jpaFunction.getResultParameter().getType());
     final UriResourceFunction uriResourceFunction =
         (UriResourceFunction) uriResourceParts.get(uriResourceParts.size() - 1);
 

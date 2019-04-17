@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>com.sap.olingo</groupId>
 		<artifactId>odata-jpa</artifactId>
-		<version>0.2.10-SNAPSHOT</version>
+		<version>0.3.1-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>odata-jpa-coverage</artifactId>
@@ -60,6 +60,9 @@
 				<groupId>org.eluder.coveralls</groupId>
 				<artifactId>coveralls-maven-plugin</artifactId>
 				<version>${coveralls.version}</version>
+			    <configuration>
+			        <repoToken>SXLQ3g6Ljjof5Crm7jXJPnhCoPuELiJ0m</repoToken>
+			    </configuration>				
 			</plugin>
 		</plugins>
 	</build>

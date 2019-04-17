@@ -853,10 +853,22 @@ public class TestJPAQueryWhereClause extends TestBase {
   }
 
   @Test
-  public void testFilterCollectionPropertyCount() throws IOException, ODataException {
+  public void testFilterCollectionPropertyDeepSimpleCount() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "CollectionDeeps?$filter=FirstLevel/SecondLevel/Comment/$count eq 2&$select=ID");
+
+    helper.assertStatus(200);
+    ArrayNode deep = helper.getValues();
+    assertNotNull(deep);
+    assertEquals(1, deep.size());
+  }
+
+  @Test
+  public void testFilterCollectionPropertyDeepComplexCount() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "CollectionDeeps?$filter=FirstLevel/SecondLevel/Address/$count eq 2&$select=ID");
 
     helper.assertStatus(200);
     ArrayNode deep = helper.getValues();

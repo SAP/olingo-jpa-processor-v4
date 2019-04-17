@@ -5,6 +5,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Subquery;
 
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -48,13 +49,21 @@ public final class JPACollectionFilterQuery extends JPANavigationQuery {
       final JPAAbstractQuery parent, final JPAAssociationPath associationPath, final VisitableExpression expression,
       final From<?, ?> from) throws ODataApplicationException {
 
-    super(odata, sd, parent.jpaEntity, em, parent, from, associationPath);
+    super(odata, sd, determineEntityType(parent, associationPath), em, parent, from, associationPath);
     // Create a sub-query having the key of the parent as result type
     this.subQuery = parent.getQuery().subquery(this.jpaEntity.getKeyType());
     this.filterComplier = new JPAFilterElementComplier(odata, sd, em, jpaEntity,
         new JPAOperationConverter(cb, getContext().getOperationConverter()), null, this, expression, association);
     this.aggregationType = getAggregationType(this.filterComplier.getExpressionMember());
     createRoots(this.association);
+  }
+
+  private static JPAEntityType determineEntityType(final JPAAbstractQuery parent,
+      final JPAAssociationPath associationPath) {
+    if (associationPath.getLeaf().isComplex())
+      return associationPath.getJoinTable().getEntityType();
+    else
+      return parent.jpaEntity;
   }
 
   private static JPAAssociationPath determineAssoziation(final JPAEntityType jpaEntity,
@@ -106,6 +115,30 @@ public final class JPACollectionFilterQuery extends JPANavigationQuery {
   }
 
   @Override
+  protected void createRoots(JPAAssociationPath association) throws ODataJPAQueryException {
+    if (association.getJoinTable() != null) {
+      if (association.getJoinTable().getEntityType() != null) {
+        if (aggregationType != null) {
+          this.queryJoinTable = subQuery.from(from.getJavaType());
+          From<?, ?> p = queryJoinTable;
+          for (int i = 0; i < association.getPath().size() - 1; i++)
+            p = p.join(association.getPath().get(i).getInternalName());
+          this.queryRoot = p.join(association.getLeaf().getInternalName(), JoinType.LEFT);
+        } else {
+          this.queryRoot = this.queryJoinTable = subQuery.from(association.getJoinTable().getEntityType()
+              .getTypeClass());
+        }
+      } else {
+        throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_NOT_IMPLEMENTED,
+            HttpStatusCode.NOT_IMPLEMENTED, association.getAlias());
+      }
+    } else {
+      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_NOT_IMPLEMENTED,
+          HttpStatusCode.NOT_IMPLEMENTED, association.getAlias());
+    }
+  }
+
+  @Override
   protected void createSubQueryJoinTable() throws ODataApplicationException {
     /*
      * SELECT * FROM "BusinessPartner" AS B
@@ -115,9 +148,9 @@ public final class JPACollectionFilterQuery extends JPANavigationQuery {
      * AND C."Text" LIKE '%just%')
      */
     try {
-      final List<JPAOnConditionItem> right = association.getJoinTable().getInversJoinColumns();
-      createSelectClause(subQuery, queryRoot, right);
-      Expression<Boolean> whereCondition = createWhereByAssociation(queryRoot, from, jpaEntity);
+      final List<JPAOnConditionItem> left = association.getJoinTable().getJoinColumns();
+      createSelectClause(subQuery, queryRoot, left);
+      Expression<Boolean> whereCondition = createWhereByAssociation(from, queryJoinTable, left);
       subQuery.where(applyAdditionalFilter(whereCondition));
     } catch (ODataJPAModelException e) {
       throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);

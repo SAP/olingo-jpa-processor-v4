@@ -1,11 +1,12 @@
 # 4.2 Conformance
 The following lists shall give you a rough overview of the topics where the JPA processor gives support. Please note that the decisions for certain functionality where not taken with the goal to fulfill a certain conformance level, but where driven by the need of a project.
 ## OData Minimal Conformance Level
+
 |No|Requirement|State|
 |:--- |:--- |:--- |
 |1|MUST publish a service document at the service root ([section 11.1.1](https://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752280))| X |
 |2|MUST return data according to at least one of the OData defined formats ([section 7](https://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752218))| X |
-|3|MUST support server-driven paging when returning partial results ([section 11.2.5.7](https://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752288))| - |
+|3|MUST support server-driven paging when returning partial results ([section 11.2.5.7](https://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752288))| X |
 |4|MUST return the appropriate OData-Version header ([section 8.1.5](https://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752225))| X |
 |5|MUST conform to the semantics the following headers, or fail the request| |
 |5.1|Accept ([section 8.2.1](https://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752227))| X |
@@ -38,27 +39,27 @@ The following lists shall give you a rough overview of the topics where the JPA 
 |No|Requirment|State|
 |:--- |:--- |:--- |
 |1|MUST conform to the OData Minimal Conformance Level| - |
-|2|MUST successfully parse the [OData-ABNF] and either follow the specification or return 501 Not Implemented for any unsupported functionality (section 9.3.1)| X |
+|2|MUST successfully parse the [OData-ABNF] and either follow the specification or return 501 Not Implemented for any unsupported functionality ([section 9.3.1](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752255))| X |
 |3|MUST support $select| X |
 |4|MUST support casting to a derived type according to [OData‑URL] if derived types are present in the model| - |
 |5|MUST support $top| X |
-|6|MUST support /$value on media entities (section 4.10. in [OData‑URL]) and individual properties (section 11.2.3.1)| X |
-|7|MUST support $filter (section 11.2.5.1)|  |
-|7.1|MUST support eq, ne filter operations on properties of entities in the requested entity set (section 11.2.5.1.1)| X |
-|7.2|MUST support aliases in $filter expressions (section 11.2.5.1.3)| - |
-|7.3|SHOULD support additional filter operations (section 11.2.5.1.1) and MUST return 501 Not Implemented for any unsupported filter operations (section 9.3.1)| X |
-|7.4|SHOULD support the canonical functions (section 11.2.5.1.2) and MUST return 501 Not Implemented for any unsupported canonical functions (section 9.3.1)| ? |
-|7.5|SHOULD support $filter on expanded entities (section 11.2.4.2.1)| X |
-|8|SHOULD publish metadata at $metadata according to [OData-CSDL] (section 11.1.2)| X |
+|6|MUST support /$value on media entities (section 4.10. in [OData‑URL]) and individual properties ([section 11.2.3.1](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752286))| X |
+|7|MUST support $filter ([section 11.2.5.1](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752288))|  |
+|7.1|MUST support eq, ne filter operations on properties of entities in the requested entity set ([section 11.2.5.1.1](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752288))| X |
+|7.2|MUST support aliases in $filter expressions ([section 11.2.5.1.3](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752288))| - |
+|7.3|SHOULD support additional filter operations ([section 11.2.5.1.1](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752288)) and MUST return 501 Not Implemented for any unsupported filter operations ([section 9.3.1](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752255))| X |
+|7.4|SHOULD support the canonical functions ([section 11.2.5.1.2](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752288)) and MUST return 501 Not Implemented for any unsupported canonical functions ([section 9.3.1](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752255))| ? |
+|7.5|SHOULD support $filter on expanded entities ([section 11.2.4.2.1](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752287))| X |
+|8|SHOULD publish metadata at $metadata according to [OData-CSDL] ([section 11.1.2](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752281))| X |
 |9|SHOULD support the [OData-JSON] format| X |
 |10|SHOULD consider supporting basic authentication as specified in [RFC2617] over HTTPS for the highest level of interoperability with generic clients| ? |
-|11|SHOULD support the $search system query option (section 11.2.5.6)| X |
-|12|SHOULD support the $skip system query option (section 11.2.5.4)| X |
-|13|SHOULD support the $count system query option (section 11.2.5.5)| X |
-|14|SHOULD support $expand (section 11.2.4.2)| X |
+|11|SHOULD support the $search system query option ([section 11.2.5.6](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752288))| X |
+|12|SHOULD support the $skip system query option ([section 11.2.5.4](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752288))| X |
+|13|SHOULD support the $count system query option ([section 11.2.5.5](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752288))| X |
+|14|SHOULD support $expand ([section 11.2.4.2](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752287))| X |
 |15|SHOULD support the lambda operators any and all on navigation- and collection-valued properties (section 5.1.1.5 in [OData-URL])| ? |
-|16|SHOULD support the /$count segment on navigation and collection properties (section 11.2.9)| X |
-|17|SHOULD support $orderby asc and desc on individual properties (section 11.2.5.2)| X |
+|16|SHOULD support the /$count segment on navigation and collection properties ([section 11.2.9](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752292))| X |
+|17|SHOULD support $orderby asc and desc on individual properties ([section 11.2.5.2](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752288))| X |
 
 ## OData Advanced Conformance Level
 |No|Requirment|State|

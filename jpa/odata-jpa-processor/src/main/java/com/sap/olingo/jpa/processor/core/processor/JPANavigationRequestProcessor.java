@@ -73,7 +73,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     // Create a JPQL Query and execute it
     JPAJoinQuery query = null;
     try {
-      query = new JPAJoinQuery(odata, sessionContext, em, request.getAllHeaders(), page);
+      query = new JPAJoinQuery(odata, sessionContext, em, request.getAllHeaders(), page, claimsProvider);
     } catch (ODataException e) {
       debugger.stopRuntimeMeasurement(handle);
       throw new ODataJPAProcessorException(QUERY_PREPARATION_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR, e);
@@ -102,12 +102,12 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
       entityCollection.setCount(new JPAJoinQuery(odata, sessionContext, em, request.getAllHeaders(), uriInfo)
           .countResults().intValue());
 
-    // 404 Not Found indicates that the resource specified by the request URL does not exist. The response body MAY
+    // 204 No Content indicates that the resource specified by the request URL has no values. The response body MAY
     // provide additional information.
     // This is the case for individual property, complex type, a navigation property or entity is not available.
-    // See 11.2.6 Requesting Related Entities and 11.2.3 Requesting Individual Properties
+    // See part 1: 11.2.6 Requesting Related Entities and 11.2.3 Requesting Individual Properties
     if (isResultEmpty(entityCollection.getEntities()))
-      response.setStatusCode(HttpStatusCode.NOT_FOUND.getStatusCode());
+      response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
     // 200 OK indicates that either a result was found or that the a Entity Collection query had no result
     else if (entityCollection.getEntities() != null) {
       final int serializerHandle = debugger.startRuntimeMeasurement(serializer, "serialize");
@@ -164,10 +164,10 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
         name = Util.determineStartNavigationPath(uriInfo.getUriResourceParts()).getProperty().getName();
         final Property property = entities.get(0).getProperty(name);
         if (property != null) {
-          if (property.getValueType() == ValueType.COLLECTION_COMPLEX && property.getValue() != null
-              && !((List<?>) property.getValue()).isEmpty())
-            resultElement = property;
-          else {
+          if (property.getValueType() == ValueType.COLLECTION_COMPLEX) {
+            if (property.getValue() != null && !((List<?>) property.getValue()).isEmpty())
+              resultElement = property;
+          } else {
             for (Property p : ((ComplexValue) property.getValue()).getValue()) {
               if (p.getValue() != null) {
                 resultElement = p;
@@ -190,17 +190,17 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
   /**
    * $expand is implemented as a recursively processing of all expands with a DB round trip per expand item.
    * Alternatively also a <i>big</i> join could be created. This would lead to a transport of redundant data, but has
-   * only one round trip. As of now it has not been measured under which conditions which solution as the better
-   * performance, but
-   * as a big join has also the following draw back:
+   * only one round trip. As of now it has not been measured under which conditions which solution has the better
+   * performance, but a big join has also the following draw back:
    * <ul>
    * <li>In case a multiple $expands are requested maybe on multiple levels
    * including filtering and ordering the query becomes very complex which reduces the maintainability and comes with
    * the risk that some databases are not able to handles those.</li>
    * <li>The number of returned columns becomes big, which may become a problem for some databases</li>
    * <li>This hard to create a big join for <code>$level=*</code></li>
+   * <li>Server driven paging seems to be more complicated</li>
    * </ul>
-   * As the goal was to implement a general solution multiple round trips have been taken.
+   * and the goal is to implement a general solution, multiple round trips have been taken.
    * <p>For a general overview see:
    * <a href=
    * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398298"

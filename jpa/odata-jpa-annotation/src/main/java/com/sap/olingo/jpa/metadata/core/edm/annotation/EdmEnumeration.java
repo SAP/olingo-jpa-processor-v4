@@ -35,17 +35,15 @@ import javax.persistence.Enumerated;
 public @interface EdmEnumeration {
 
   /**
-   * No converter is provided ordinal is taken
-   * 
+   * Converter to convert that converts the enumeration value. If no converter is provided, the ordinal is taken.
    */
-  // Class<? extends AttributeConverter<List<?>, ? extends Number>> converter() default DummyConverter.class;
   Class<? extends AttributeConverter<? extends Enum<?>[], ? extends Number>> converter() default DummyConverter.class;
 
   boolean isFlags() default false;
 
   /**
    * Converter shall be optional, as java does not support <code>default null</code> a
-   * dummy converter implementations is needed.
+   * dummy converter implementation is needed.
    */
   static class DummyConverter implements AttributeConverter<Enum<?>[], Integer> {
 

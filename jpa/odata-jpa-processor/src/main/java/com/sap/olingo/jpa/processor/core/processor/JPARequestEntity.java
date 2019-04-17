@@ -2,9 +2,11 @@ package com.sap.olingo.jpa.processor.core.processor;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
 
 /**
  * Representing an entity that should be created or updated by a POST, PUT or PATCH request
@@ -58,5 +60,7 @@ public interface JPARequestEntity {
    * @return
    */
   public JPAModifyUtil getModifyUtil();
+
+  public Optional<JPAODataClaimsProvider> getClaims();
 
 }

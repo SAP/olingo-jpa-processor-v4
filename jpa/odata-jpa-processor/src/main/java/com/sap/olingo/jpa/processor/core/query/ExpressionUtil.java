@@ -63,15 +63,13 @@ public final class ExpressionUtil {
         final Join<?, ?> join = (Join<?, ?>) joinTables.get(jpaPathElement.getInternalName());
         p = join.get(((JPADescriptionAttribute) jpaPathElement).getDescriptionAttribute().getInternalName());
       } else if (jpaPathElement instanceof JPACollectionAttribute) {
-        if (!joinTables.containsKey(jpaPathElement.getExternalName()))
-          joinTables.put(jpaPathElement.getExternalName(), (From<?, ?>) p.get(jpaPathElement.getInternalName()));
         p = joinTables.get(jpaPathElement.getExternalName());
       } else
         p = p.get(jpaPathElement.getInternalName());
     return p;
   }
 
-  public static Path<?> convertToCriteriaPath(From<?, ?> root, final List<JPAElement> jpaPath) {
+  public static Path<?> convertToCriteriaPath(final From<?, ?> root, final List<JPAElement> jpaPath) {
     Path<?> p = root;
     for (final JPAElement jpaPathElement : jpaPath)
       p = p.get(jpaPathElement.getInternalName());

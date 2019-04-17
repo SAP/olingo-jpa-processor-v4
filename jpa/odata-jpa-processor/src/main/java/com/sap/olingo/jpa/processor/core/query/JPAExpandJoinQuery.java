@@ -80,6 +80,7 @@ public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
     this.assoziation = assoziation;
   }
 
+  @Override
   public JPAExpandQueryResult execute() throws ODataApplicationException {
     if (uriResource.getTopOption() != null || uriResource.getSkipOption() != null)
       return executeExpandTopSkipQuery();
@@ -272,10 +273,8 @@ public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
     final int handle = debugger.startRuntimeMeasurement(this, "createTupleQuery");
 
     final List<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
-    final List<JPAPath> descriptionAttributes = extractDescriptionAttributes(selectionPath);
-
     final Map<String, From<?, ?>> joinTables = createFromClause(new ArrayList<JPAAssociationPath>(1),
-        descriptionAttributes, cq);
+        selectionPath, cq);
 
     // TODO handle Join Column is ignored
     cq.multiselect(createSelectClause(joinTables, selectionPath, target));

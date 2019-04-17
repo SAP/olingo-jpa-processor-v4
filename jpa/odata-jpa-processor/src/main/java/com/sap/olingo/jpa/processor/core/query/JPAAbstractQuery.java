@@ -189,6 +189,19 @@ public abstract class JPAAbstractQuery {
     return whereCondition;
   }
 
+  protected javax.persistence.criteria.Expression<Boolean> orWhereClause(
+      javax.persistence.criteria.Expression<Boolean> whereCondition,
+      final javax.persistence.criteria.Expression<Boolean> additioanlExpression) {
+
+    if (additioanlExpression != null) {
+      if (whereCondition == null)
+        whereCondition = additioanlExpression;
+      else
+        whereCondition = cb.or(whereCondition, additioanlExpression);
+    }
+    return whereCondition;
+  }
+
   // TODO clean-up
   private class EmptyDebugger implements JPAServiceDebugger {
 
@@ -203,7 +216,7 @@ public abstract class JPAAbstractQuery {
     }
 
     @Override
-    public Collection<? extends RuntimeMeasurement> getRuntimeInformation() {
+    public Collection<RuntimeMeasurement> getRuntimeInformation() {
       return new ArrayList<>();
     }
 

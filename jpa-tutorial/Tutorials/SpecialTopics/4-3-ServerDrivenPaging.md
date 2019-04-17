@@ -8,7 +8,7 @@ OData describes that a server can restrict the number of returned records e.g. t
 - Number of parallel processed request on a server instance
 - ...
 
-This makes a general implementation impossible. Instead of that a hook implementation can be provided. This hook has to implement interface `com.sap.olingo.jpa.processor.core.api.JPAODataPagingProvider`, which contains two methods `getFristPage` and `getNextPage`. `getFristPage` is called in case a query does not contain a `$skiptoken`. I either returns an instance of `JPAODataPage`, so only a subset of the requested entities will be returned or null and all entities are returned. If a request has a `$skiptoken` method `getNextPage` is called. If this method does not return a `JPAODataPage` instance, a _410, "Gone"_, exception is raised.
+This makes a general implementation impossible. Instead of that a hook implementation can be provided. This hook has to implement interface `com.sap.olingo.jpa.processor.core.api.JPAODataPagingProvider`, which contains two methods `getFirstPage` and `getNextPage`. `getFirstPage` is called in case a query does not contain a `$skiptoken`. It either returns an instance of `JPAODataPage`, so only a subset of the requested entities will be returned or null and all entities are returned. If a request has a `$skiptoken` method `getNextPage` is called. If this method does not return a `JPAODataPage` instance, a _410, "Gone"_, exception is raised.
 
 To get started we want to use `com.sap.olingo.jpa.processor.core.api.example.JPAExamplePagingProvider` as our paging provider. An instance of the class shall be accessible right in the moment the service is started. Therefore it is created in a _listener_ and put in to the servlet context:
 
