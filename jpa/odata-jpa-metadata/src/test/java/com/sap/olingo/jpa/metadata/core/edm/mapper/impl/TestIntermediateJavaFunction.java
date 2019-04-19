@@ -10,7 +10,6 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 
 import org.apache.olingo.commons.api.edm.geo.Geospatial.Dimension;
-import org.apache.olingo.commons.api.edm.provider.CsdlReturnType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +18,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.ODataFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaEmConstructor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaFunctions;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaFunctionsReturnsStream;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaOneFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaPrivateConstructor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaTwoParameterConstructor;
@@ -244,13 +242,6 @@ public class TestIntermediateJavaFunction extends TestMappingRoot {
     assertThrows(ODataJPAModelException.class, () -> {
       createFunction(ExampleJavaTwoParameterConstructor.class, "sum");
     });
-  }
-
-  @Test
-  public void checkStream() throws ODataJPAModelException {
-    final IntermediateJavaFunction act = createFunction(ExampleJavaFunctionsReturnsStream.class, "simpleStream");
-    final CsdlReturnType actReturn = act.getEdmItem().getReturnType();
-    actReturn.getType();
   }
 
   private IntermediateJavaFunction createFunction(Class<? extends ODataFunction> clazz, String method)

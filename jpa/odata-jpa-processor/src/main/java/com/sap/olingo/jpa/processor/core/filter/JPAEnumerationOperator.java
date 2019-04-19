@@ -9,7 +9,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEnumerationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 
-public final class JPAEnumerationOperator implements JPAPrimitiveTypeOperator {
+public final class JPAEnumerationOperator implements JPAEnumerationBasedOperator {
 
   private final JPAEnumerationAttribute jpaAttribute;
   private final List<String> value;
@@ -42,11 +42,22 @@ public final class JPAEnumerationOperator implements JPAPrimitiveTypeOperator {
     return value == null;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.sap.olingo.jpa.processor.core.filter.JPAEnumerationBasedOperator#getValue()
+   */
+  @Override
   public Number getValue() throws ODataJPAFilterException {
     try {
       return jpaAttribute.valueOf(value);
     } catch (ODataJPAModelException e) {
       throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  @Override
+  public String getName() {
+    return "";
   }
 }
