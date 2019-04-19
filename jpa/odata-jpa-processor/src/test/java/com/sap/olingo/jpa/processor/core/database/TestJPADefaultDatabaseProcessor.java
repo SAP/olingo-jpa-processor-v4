@@ -37,7 +37,6 @@ public class TestJPADefaultDatabaseProcessor {
   @Test
   public void testNotSupportedConvertBooleanOperator() throws ODataApplicationException {
     final JPABooleanOperator operator = mock(JPABooleanOperator.class);
-    when(operator.getName()).thenReturn("Hugo");
     assertThrows(ODataJPAFilterException.class, () -> {
       cut.convert(operator);
     });
@@ -46,7 +45,6 @@ public class TestJPADefaultDatabaseProcessor {
   @Test
   public void testNotSupportedConvertAggregationOperator() throws ODataApplicationException {
     final JPAAggregationOperation operator = mock(JPAAggregationOperation.class);
-    when(operator.getName()).thenReturn("Hugo");
     assertThrows(ODataJPAFilterException.class, () -> {
       cut.convert(operator);
     });
@@ -55,7 +53,6 @@ public class TestJPADefaultDatabaseProcessor {
   @Test
   public void testNotSupportedConvertArithmeticOperator() throws ODataApplicationException {
     final JPAArithmeticOperator operator = mock(JPAArithmeticOperator.class);
-    when(operator.getName()).thenReturn("Hugo");
     assertThrows(ODataJPAFilterException.class, () -> {
       cut.convert(operator);
     });
@@ -64,7 +61,6 @@ public class TestJPADefaultDatabaseProcessor {
   @Test
   public void testNotSupportedConvertMethodCall() throws ODataApplicationException {
     final JPAMethodCall operator = mock(JPAMethodCall.class);
-    when(operator.getName()).thenReturn("Hugo");
     assertThrows(ODataJPAFilterException.class, () -> {
       cut.convert(operator);
     });
@@ -73,7 +69,6 @@ public class TestJPADefaultDatabaseProcessor {
   @Test
   public void testNotSupportedConvertUnaryBooleanOperator() throws ODataApplicationException {
     final JPAUnaryBooleanOperator operator = mock(JPAUnaryBooleanOperator.class);
-    when(operator.getName()).thenReturn("Hugo");
     assertThrows(ODataJPAFilterException.class, () -> {
       cut.convert(operator);
     });
@@ -83,7 +78,6 @@ public class TestJPADefaultDatabaseProcessor {
   public void testNotSupportedConvertComparisonOperatorOthersThenHAS() throws ODataApplicationException {
     @SuppressWarnings("unchecked")
     final JPAComparisonOperator<String> operator = mock(JPAComparisonOperator.class);
-    when(operator.getName()).thenReturn("Hugo");
     when(operator.getOperator()).then(new Answer<BinaryOperatorKind>() {
       @Override
       public BinaryOperatorKind answer(InvocationOnMock invocation) throws Throwable {
@@ -105,7 +99,6 @@ public class TestJPADefaultDatabaseProcessor {
     final Expression<Long> left = mock(Expression.class);
     final JPAEnumerationBasedOperator right = mock(JPAEnumerationBasedOperator.class);
 
-    when(operator.getName()).thenReturn("Hugo");
     when(operator.getOperator()).then(new Answer<BinaryOperatorKind>() {
       @Override
       public BinaryOperatorKind answer(InvocationOnMock invocation) throws Throwable {
