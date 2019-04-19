@@ -1,6 +1,6 @@
 package com.sap.olingo.jpa.processor.test;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -24,21 +24,21 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import javax.sql.DataSource;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 
 public class TestFunctions {
-  protected static final String PUNIT_NAME = "org.apache.olingo.jpa";
+  protected static final String PUNIT_NAME = "com.sap.olingo.jpa";
   private static final String ENTITY_MANAGER_DATA_SOURCE = "javax.persistence.nonJtaDataSource";
   private static EntityManagerFactory emf;
   private static DataSource ds;
 
-  @BeforeClass
+  @BeforeAll
   public static void setupClass() {
 
     Map<String, Object> properties = new HashMap<>();
@@ -53,13 +53,13 @@ public class TestFunctions {
 
   private CriteriaBuilder cb;
 
-  @Before
+  @BeforeEach
   public void setup() {
     em = emf.createEntityManager();
     cb = em.getCriteriaBuilder();
   }
 
-  @Ignore
+  @Disabled
   @Test
   public void TestProcedure() throws SQLException {
     StoredProcedureQuery pc = em.createStoredProcedureQuery("\"OLINGO\".\"org.apache.olingo.jpa::Siblings\"");
@@ -138,7 +138,7 @@ public class TestFunctions {
     assertNotNull(one);
   }
 
-  @Ignore
+  @Disabled
   @Test
   public void TestScalarFunctionsWhere() {
     CreateUDFDerby();

@@ -2,7 +2,7 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import javax.persistence.EntityManagerFactory;
 
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 
 import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
@@ -17,7 +17,7 @@ public class TestMappingRoot {
   public static final String ADMIN_CANONICAL_NAME =
       "com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision";
 
-  @BeforeClass
+  @BeforeAll
   public static void setupClass() {
     emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, DataSourceHelper.createDataSource(
         DataSourceHelper.DB_HSQLDB));

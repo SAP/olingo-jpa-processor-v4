@@ -1,15 +1,14 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.exception;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Locale;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAException;
 import com.sap.olingo.jpa.processor.core.testmodel.LocaleEnumeration;
 
 public class TestODataJPAModelException {
@@ -29,7 +28,7 @@ public class TestODataJPAModelException {
   @Test
   public void checkTextInGerman() {
     try {
-      ArrayList<Locale> localesList = new ArrayList<Locale>();
+      ArrayList<Locale> localesList = new ArrayList<>();
       localesList.add(Locale.GERMAN);
       Enumeration<Locale> locales = new LocaleEnumeration(localesList);
       TestException.setLocales(locales);

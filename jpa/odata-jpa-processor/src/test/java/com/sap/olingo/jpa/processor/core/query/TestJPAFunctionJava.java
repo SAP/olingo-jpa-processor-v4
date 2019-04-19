@@ -1,7 +1,7 @@
 package com.sap.olingo.jpa.processor.core.query;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -35,9 +35,9 @@ import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceFunction;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
@@ -63,7 +63,7 @@ public class TestJPAFunctionJava {
   private JPAOperationSerializer serializer;
   private SerializerResult serializerResult;
 
-  @Before
+  @BeforeEach
   public void setup() throws ODataException {
     odata = mock(OData.class);
     context = mock(JPAODataSessionContextAccess.class);
@@ -96,7 +96,7 @@ public class TestJPAFunctionJava {
     cut = new JPAFunctionRequestProcessor(odata, context, requestContext);
   }
 
-  @After
+  @AfterEach
   public void teardown() {
     TestFunctionParameter.calls = 0;
     TestFunctionParameter.param1 = 0;

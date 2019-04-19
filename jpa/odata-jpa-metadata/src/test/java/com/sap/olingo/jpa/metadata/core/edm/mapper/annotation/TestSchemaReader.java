@@ -1,21 +1,22 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.annotation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 import java.util.Map;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 public class TestSchemaReader {
   private SchemaReader cut;
 
-  @Before
+  @BeforeEach
   public void setup() {
     cut = new SchemaReader();
   }
@@ -70,16 +71,19 @@ public class TestSchemaReader {
     assertEquals("3", schema.getEnumType("Permission").getMember("ReadWrite").getValue());
   }
 
-  @Test(expected = ODataJPAModelException.class)
+  @Test
   public void TestThrowsExceptionOnUnknownPath() throws IOException, ODataJPAModelException {
-
-    cut.getSchemas("annotations/Org.OData.Core.V2.xml");
+    assertThrows(ODataJPAModelException.class, () -> {
+      cut.getSchemas("annotations/Org.OData.Core.V2.xml");
+    });
   }
 
-  @Test(expected = IOException.class)
+  @Test
   public void TestThrowsExceptionOnEmptyXML() throws IOException, ODataJPAModelException {
 
-    cut.getSchemas("annotations/empty.xml");
+    assertThrows(IOException.class, () -> {
+      cut.getSchemas("annotations/empty.xml");
+    });
   }
 
 //  csdlSchema.setEnumTypes(asEnumTypes());

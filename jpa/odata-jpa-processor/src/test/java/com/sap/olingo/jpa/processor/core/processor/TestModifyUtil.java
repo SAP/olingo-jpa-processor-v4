@@ -1,8 +1,9 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -13,8 +14,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.olingo.commons.api.ex.ODataException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -42,7 +43,7 @@ public class TestModifyUtil extends TestBase {
   private BusinessPartner partner;
   private JPAEntityType org;
 
-  @Before
+  @BeforeEach
   public void setUp() throws ODataException {
     cut = new JPAModifyUtil();
     jpaAttributes = new HashMap<>();
@@ -145,7 +146,7 @@ public class TestModifyUtil extends TestBase {
     assertEquals("Test Town", partner.getAddress().getCityName());
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void testSetAttributesDeepOneLevelViaGetterWithWrongRequestData() throws Throwable {
     Map<String, Object> embeddedAttributes = new HashMap<>();
     Map<String, Object> innerEmbeddedAttributes = new HashMap<>();
@@ -157,7 +158,7 @@ public class TestModifyUtil extends TestBase {
       cut.setAttributesDeep(jpaAttributes, partner, org);
     } catch (ODataJPAInvocationTargetException e) {
       assertEquals("Organization/AdministrativeInformation/Updated/By", e.getPath());
-      throw e.getCause();
+      assertEquals(NullPointerException.class, e.getCause().getClass());
     }
   }
 
@@ -328,7 +329,7 @@ public class TestModifyUtil extends TestBase {
     assertEquals("100", target.getBusinessPartnerID());
   }
 
-  @Test(expected = ODataJPAProcessorException.class)
+  @Test
   public void testSetForeignKeyTrhowsExceptionOnMissingGetter() throws ODataJPAModelException,
       ODataJPAProcessorException {
     final OrganizationWithoutGetter source = new OrganizationWithoutGetter("100");
@@ -336,11 +337,12 @@ public class TestModifyUtil extends TestBase {
     target.setRoleCategory("A");
     final JPAAssociationPath path = helper.getJPAAssociationPath("Organizations",
         "Roles");
-
-    cut.setForeignKey(source, target, path);
+    assertThrows(ODataJPAProcessorException.class, () -> {
+      cut.setForeignKey(source, target, path);
+    });
   }
 
-  @Test(expected = ODataJPAProcessorException.class)
+  @Test
   public void testSetForeignKeyTrhowsExceptionOnMissingSetter() throws ODataJPAModelException,
       ODataJPAProcessorException {
     final Organization source = new Organization("100");
@@ -348,7 +350,9 @@ public class TestModifyUtil extends TestBase {
     final JPAAssociationPath path = helper.getJPAAssociationPath("Organizations",
         "Roles");
 
-    cut.setForeignKey(source, target, path);
+    assertThrows(ODataJPAProcessorException.class, () -> {
+      cut.setForeignKey(source, target, path);
+    });
   }
 
   private JPAEntityType createSingleKeyEntityType() throws ODataJPAModelException {

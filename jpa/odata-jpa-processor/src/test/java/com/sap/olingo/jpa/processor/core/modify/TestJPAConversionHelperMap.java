@@ -1,13 +1,13 @@
 package com.sap.olingo.jpa.processor.core.modify;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.olingo.server.api.serializer.SerializerException;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -16,7 +16,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 
 public class TestJPAConversionHelperMap extends TestJPAConversionHelper {
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     cut = new JPAConversionHelper();
   }
@@ -25,7 +25,7 @@ public class TestJPAConversionHelperMap extends TestJPAConversionHelper {
   public void testConvertCompoundKeyToLocation() throws ODataJPAProcessorException, SerializerException,
       ODataJPAModelException {
 
-    Map<String, Object> newPOJO = new HashMap<String, Object>();
+    Map<String, Object> newPOJO = new HashMap<>();
     newPOJO.put("businessPartnerID", "35");
     newPOJO.put("roleCategory", "A");
 
@@ -38,8 +38,8 @@ public class TestJPAConversionHelperMap extends TestJPAConversionHelper {
   public void testConvertEmbeddedIdToLocation() throws ODataJPAProcessorException, SerializerException,
       ODataJPAModelException {
 
-    Map<String, Object> newPOJO = new HashMap<String, Object>();
-    Map<String, Object> primaryKey = new HashMap<String, Object>();
+    Map<String, Object> newPOJO = new HashMap<>();
+    Map<String, Object> primaryKey = new HashMap<>();
 
     primaryKey.put("codeID", "NUTS1");
     primaryKey.put("codePublisher", "Eurostat");
@@ -59,7 +59,7 @@ public class TestJPAConversionHelperMap extends TestJPAConversionHelper {
   public void testConvertSimpleKeyToLocation() throws ODataJPAProcessorException, SerializerException,
       ODataJPAModelException {
 
-    Map<String, Object> newPOJO = new HashMap<String, Object>();
+    Map<String, Object> newPOJO = new HashMap<>();
     newPOJO.put("iD", "35");
 
     prepareConvertSimpleKeyToLocation();
