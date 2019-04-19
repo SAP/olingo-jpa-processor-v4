@@ -1,7 +1,7 @@
 package com.sap.olingo.jpa.processor.core.query;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -12,8 +12,8 @@ import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.serializer.SerializerException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.processor.core.converter.JPAEntityResultConverter;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
@@ -29,11 +29,11 @@ public class TestJPAInstanceResultConverter extends TestBase {
   private List<Object> jpaQueryResult;
   private UriHelperDouble uriHelper;
 
-  @Before
+  @BeforeEach
   public void setup() throws ODataException {
     helper = new TestHelper(emf, PUNIT_NAME);
-    jpaQueryResult = new ArrayList<Object>();
-    HashMap<String, String> keyStrings = new HashMap<String, String>();
+    jpaQueryResult = new ArrayList<>();
+    HashMap<String, String> keyStrings = new HashMap<>();
     keyStrings.put("BE21", "DivisionCode='BE21',CodeID='NUTS2',CodePublisher='Eurostat'");
     keyStrings.put("BE22", "DivisionCode='BE22',CodeID='NUTS2',CodePublisher='Eurostat'");
 

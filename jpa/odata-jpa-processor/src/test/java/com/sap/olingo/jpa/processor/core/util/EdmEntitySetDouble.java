@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.processor.core.util;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.List;
 
 import org.apache.olingo.commons.api.edm.EdmAnnotation;
@@ -72,7 +74,7 @@ public class EdmEntitySetDouble implements EdmEntitySet {
 
   @Override
   public EdmMapping getMapping() {
-    org.junit.Assert.fail();
+    fail();
     return null;
   }
 }

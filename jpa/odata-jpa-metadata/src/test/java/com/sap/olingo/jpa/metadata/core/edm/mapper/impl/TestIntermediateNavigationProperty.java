@@ -1,10 +1,10 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -21,8 +21,8 @@ import javax.persistence.metamodel.EntityType;
 import org.apache.olingo.commons.api.edm.provider.CsdlOnDelete;
 import org.apache.olingo.commons.api.edm.provider.CsdlOnDeleteAction;
 import org.apache.olingo.commons.api.edm.provider.CsdlReferentialConstraint;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
@@ -48,7 +48,7 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
   private TestHelper helper;
   private JPAEdmMetadataPostProcessor processor;
 
-  @Before
+  @BeforeEach
   public void setup() throws ODataJPAModelException {
     final Reflections r = mock(Reflections.class);
     when(r.getTypesAnnotatedWith(EdmEnumeration.class)).thenReturn(new HashSet<>(Arrays.asList(new Class<?>[] {
@@ -73,7 +73,7 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
     IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
         schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
 
-    assertEquals("Wrong name", "Roles", property.getEdmItem().getName());
+    assertEquals("Roles", property.getEdmItem().getName(), "Wrong name");
   }
 
   @Test
@@ -82,7 +82,7 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
     IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
         schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
 
-    assertEquals("Wrong name", PUNIT_NAME + ".BusinessPartnerRole", property.getEdmItem().getType());
+    assertEquals(PUNIT_NAME + ".BusinessPartnerRole", property.getEdmItem().getType(), "Wrong name");
   }
 
   @Test
@@ -316,7 +316,7 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
     IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
         schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
 
-    assertEquals("Wrong name", "RoleAssignment", property.getEdmItem().getName());
+    assertEquals("RoleAssignment", property.getEdmItem().getName(), "Wrong name");
   }
 
   @Test
@@ -328,7 +328,7 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
     JPAAssociationAttribute property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
         schema.getStructuredType(jpaAttribute), jpaAttribute, schema);
 
-    assertEquals("Wrong name", "RoleAssignment", property.getExternalName());
+    assertEquals("RoleAssignment", property.getExternalName(), "Wrong name");
   }
 
   @Test

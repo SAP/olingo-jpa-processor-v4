@@ -1,14 +1,14 @@
 package com.sap.olingo.jpa.processor.core.query;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
 
 import org.apache.olingo.commons.api.ex.ODataException;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -52,7 +52,7 @@ public class TestJPAProcessorExpand extends TestBase {
       if (id.equals("2") && (code.equals("A") || code.equals("C")))
         found++;
     }
-    assertEquals("Not all expected results found", 2, found);
+    assertEquals(2, found, "Not all expected results found");
   }
 
   @Test
@@ -131,7 +131,7 @@ public class TestJPAProcessorExpand extends TestBase {
     assertEquals("USA", created.get("ParentDivisionCode").asText());
   }
 
-  @Ignore // Version 4.4.0 of olingo does not path the expand correctly
+  @Disabled // Version 4.4.0 of olingo does not path the expand correctly
   // org.apache.olingo.server.core.uri.parser.ExpandParser -> parseExpandPath
   // see https://issues.apache.org/jira/browse/OLINGO-1143
   @Test
@@ -148,7 +148,7 @@ public class TestJPAProcessorExpand extends TestBase {
 
   }
 
-  @Ignore // Version 4.4.0 of olingo does not path the expand correctly
+  @Disabled // Version 4.4.0 of olingo does not path the expand correctly
   // org.apache.olingo.server.core.uri.parser.ExpandParser -> parseExpandPath
   // see https://issues.apache.org/jira/browse/OLINGO-1143
   @Test
@@ -223,7 +223,7 @@ public class TestJPAProcessorExpand extends TestBase {
     assertEquals("3166-1", parent.get("CodeID").asText());
   }
 
-  @Ignore // TODO check how the result should look like
+  @Disabled // TODO check how the result should look like
   @Test
   public void testExpandWithNavigationToEntity() throws IOException, ODataException {
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -236,7 +236,7 @@ public class TestJPAProcessorExpand extends TestBase {
     assertEquals("1", parent.get("Parent").get("CodeID").asText());
   }
 
-  @Ignore // TODO check with Olingo looks like OData does not support this
+  @Disabled // TODO check with Olingo looks like OData does not support this
   @Test
   public void testExpandWithNavigationToProperty() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -339,7 +339,7 @@ public class TestJPAProcessorExpand extends TestBase {
     assertEquals(2, org.get("Roles@odata.count").asInt());
   }
 
-  @Ignore // ODataJsonSerializer.writeExpandedNavigationProperty does not write a "@odata.count" for to 1 relations
+  @Disabled // ODataJsonSerializer.writeExpandedNavigationProperty does not write a "@odata.count" for to 1 relations
   @Test
   public void testExpandOppositeDirectionWithCount() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,

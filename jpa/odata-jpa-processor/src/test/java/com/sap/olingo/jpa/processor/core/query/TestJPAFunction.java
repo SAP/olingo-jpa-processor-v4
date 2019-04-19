@@ -14,9 +14,9 @@ import javax.persistence.Query;
 import javax.sql.DataSource;
 
 import org.apache.olingo.commons.api.ex.ODataException;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
@@ -32,7 +32,7 @@ public class TestJPAFunction {
   protected Map<String, List<String>> headers;
   protected static JPAEdmNameBuilder nameBuilder;
 
-  @Before
+  @BeforeEach
   public void setup() {
     ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
     Map<String, Object> properties = new HashMap<>();
@@ -41,7 +41,7 @@ public class TestJPAFunction {
     emf.getProperties();
   }
 
-  @Ignore // TODO check is path is in general allowed
+  @Disabled // TODO check is path is in general allowed
   @Test
   public void testNavigationAfterFunctionNotAllowed() throws IOException, ODataException {
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds,

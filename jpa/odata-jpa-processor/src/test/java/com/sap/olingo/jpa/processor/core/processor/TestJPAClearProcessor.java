@@ -1,9 +1,9 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -32,8 +32,8 @@ import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResourceComplexProperty;
 import org.apache.olingo.server.api.uri.UriResourcePrimitiveProperty;
 import org.apache.olingo.server.api.uri.UriResourceValue;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.processor.core.api.JPAAbstractCUDRequestHandler;
@@ -47,7 +47,7 @@ import com.sap.olingo.jpa.processor.core.modify.JPAUpdateResult;
 public class TestJPAClearProcessor extends TestJPAModifyProcessor {
   private ODataRequest request;
 
-  @Before
+  @BeforeEach
   public void setup() throws ODataException {
     request = mock(ODataRequest.class);
     processor = new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext,

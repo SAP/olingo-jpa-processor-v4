@@ -1,14 +1,14 @@
 package com.sap.olingo.jpa.processor.core.query;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.IOException;
 
 import org.apache.olingo.commons.api.ex.ODataException;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
@@ -62,7 +62,7 @@ public class TestJPAQueryJSONAnnotations extends TestBase {
     assertEquals("Organizations('3')/Roles", org.get("Roles@odata.navigationLink").asText());
   }
 
-  @Ignore // See https://issues.apache.org/jira/browse/OLINGO-1248
+  @Disabled // See https://issues.apache.org/jira/browse/OLINGO-1248
   @Test
   public void testEntityWithMetadataFullContainNavigationLinkOfComplex() throws IOException, ODataException {
 

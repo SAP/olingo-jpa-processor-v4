@@ -1,8 +1,8 @@
 package com.sap.olingo.jpa.processor.core.api.example;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -27,8 +27,8 @@ import org.apache.olingo.server.api.uri.queryoption.SkipOption;
 import org.apache.olingo.server.api.uri.queryoption.SystemQueryOptionKind;
 import org.apache.olingo.server.api.uri.queryoption.TopOption;
 import org.apache.olingo.server.api.uri.queryoption.expression.Member;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.query.JPACountQuery;
@@ -36,7 +36,7 @@ import com.sap.olingo.jpa.processor.core.query.JPACountQuery;
 public class JPAExamplePagingProviderTest {
   private JPACountQuery countQuery;
 
-  @Before
+  @BeforeEach
   public void setup() throws ODataApplicationException {
     countQuery = mock(JPACountQuery.class);
     when(countQuery.countResults()).thenReturn(10L);

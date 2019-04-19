@@ -1,7 +1,7 @@
 package com.sap.olingo.jpa.processor.core.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -165,7 +165,7 @@ public class IntegrationTestHelper {
   }
 
   public void assertStatus(int exp) throws IOException {
-    assertEquals(getRawResult(), exp, getStatus());
+    assertEquals(exp, getStatus(), getRawResult());
 
   }
 

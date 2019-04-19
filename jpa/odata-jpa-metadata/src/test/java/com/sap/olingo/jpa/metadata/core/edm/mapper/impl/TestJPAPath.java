@@ -1,10 +1,10 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.olingo.server.api.ODataApplicationException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
@@ -16,7 +16,7 @@ public class TestJPAPath extends TestMappingRoot {
   // private JPAStructuredType postalAddress;
   private TestHelper helper;
 
-  @Before
+  @BeforeEach
   public void setup() throws ODataJPAModelException {
     helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
     organization = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), helper.getEntityType(

@@ -1,8 +1,8 @@
 package com.sap.olingo.jpa.processor.core.query;
 
-import static com.sap.olingo.jpa.processor.core.query.JPAExpandQueryResult.ROOT_RESULT_KEY;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static com.sap.olingo.jpa.processor.core.converter.JPAExpandResult.ROOT_RESULT_KEY;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,8 +16,8 @@ import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.ValueType;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.ODataApplicationException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
@@ -36,7 +36,7 @@ public class TestJPATupleChildConverter extends TestBase {
   private Map<String, String> keyPredicates;
   private HashMap<String, List<Tuple>> queryResult = new HashMap<>(1);
 
-  @Before
+  @BeforeEach
   public void setup() throws ODataException {
     helper = new TestHelper(emf, PUNIT_NAME);
     jpaQueryResult = new ArrayList<>();

@@ -1,9 +1,9 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -20,8 +20,8 @@ import javax.persistence.metamodel.ManagedType;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -39,7 +39,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
   private IntermediateDescriptionProperty cut;
   private JPAEdmMetadataPostProcessor processor;
 
-  @Before
+  @BeforeEach
   public void setup() throws ODataJPAModelException {
     helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
     processor = mock(JPAEdmMetadataPostProcessor.class);
@@ -59,7 +59,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
         "countryName");
     cut = new IntermediateDescriptionProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
         helper.schema);
-    assertEquals("Wrong name", "CountryName", cut.getEdmItem().getName());
+    assertEquals("CountryName", cut.getEdmItem().getName(), "Wrong name");
   }
 
   @Test
@@ -68,7 +68,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
         "regionName");
     cut = new IntermediateDescriptionProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
         helper.schema);
-    assertEquals("Wrong name", "RegionName", cut.getEdmItem().getName());
+    assertEquals("RegionName", cut.getEdmItem().getName(), "Wrong name");
   }
 
   @Test
@@ -77,8 +77,8 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
         "countryName");
     cut = new IntermediateDescriptionProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
         helper.schema);
-    assertEquals("Wrong type", EdmPrimitiveTypeKind.String.getFullQualifiedName().getFullQualifiedNameAsString(),
-        cut.getEdmItem().getType());
+    assertEquals(EdmPrimitiveTypeKind.String.getFullQualifiedName().getFullQualifiedNameAsString(),
+        cut.getEdmItem().getType(), "Wrong type");
   }
 
   @Test
@@ -214,7 +214,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
     cut = new IntermediateDescriptionProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
         helper.schema);
 
-    assertEquals("Wrong name", "CountryDescription", cut.getEdmItem().getName());
+    assertEquals("CountryDescription", cut.getEdmItem().getName(), "Wrong name");
   }
 
   @Test
@@ -228,7 +228,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
         jpaAttribute,
         helper.schema);
 
-    assertEquals("Wrong name", "CountryDescription", property.getExternalName());
+    assertEquals("CountryDescription", property.getExternalName(), "Wrong name");
   }
 
   private class PostProcessorSetName extends JPAEdmMetadataPostProcessor {

@@ -1,10 +1,11 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -24,9 +25,9 @@ import javax.persistence.metamodel.EmbeddableType;
 import javax.persistence.metamodel.ManagedType;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -53,7 +54,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   private TestHelper helper;
   private JPAEdmMetadataPostProcessor processor;
 
-  @Before
+  @BeforeEach
   public void setup() throws ODataJPAModelException {
     helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
     processor = mock(JPAEdmMetadataPostProcessor.class);
@@ -72,7 +73,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
     IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
         jpaAttribute,
         helper.schema);
-    assertEquals("Wrong name", "Type", property.getEdmItem().getName());
+    assertEquals("Type", property.getEdmItem().getName(), "Wrong name");
   }
 
   @Test
@@ -81,7 +82,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
     IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
         jpaAttribute,
         helper.schema);
-    assertEquals("Wrong name", "\"Type\"", property.getDBFieldName());
+    assertEquals("\"Type\"", property.getDBFieldName(), "Wrong name");
   }
 
   @Test
@@ -90,8 +91,8 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
     IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
         jpaAttribute,
         helper.schema);
-    assertEquals("Wrong type", EdmPrimitiveTypeKind.String.getFullQualifiedName().getFullQualifiedNameAsString(),
-        property.getEdmItem().getType());
+    assertEquals(EdmPrimitiveTypeKind.String.getFullQualifiedName().getFullQualifiedNameAsString(),
+        property.getEdmItem().getType(), "Wrong type");
   }
 
   @Test
@@ -101,7 +102,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
     IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
         jpaAttribute,
         helper.schema);
-    assertEquals("Wrong type", PUNIT_NAME + ".CommunicationData", property.getEdmItem().getType());
+    assertEquals(PUNIT_NAME + ".CommunicationData", property.getEdmItem().getType(), "Wrong type");
   }
 
   @Test
@@ -110,7 +111,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
     IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
         jpaAttribute,
         helper.schema);
-    assertEquals("Wrong type", "com.sap.olingo.jpa.ABCClassifiaction", property.getEdmItem().getType());
+    assertEquals("com.sap.olingo.jpa.ABCClassifiaction", property.getEdmItem().getType(), "Wrong type");
   }
 
   @Test
@@ -128,7 +129,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
     IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
         jpaAttribute,
         helper.schema);
-    assertEquals("Wrong type", "com.sap.olingo.jpa.AccessRights", property.getEdmItem().getType());
+    assertEquals("com.sap.olingo.jpa.AccessRights", property.getEdmItem().getType(), "Wrong type");
   }
 
   @Test
@@ -290,7 +291,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
         jpaAttribute,
         helper.schema);
 
-    assertEquals("Wrong name", "ContactPersonName", property.getEdmItem().getName());
+    assertEquals("ContactPersonName", property.getEdmItem().getName(), "Wrong name");
   }
 
   @Test
@@ -303,7 +304,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
         jpaAttribute,
         helper.schema);
 
-    assertEquals("Wrong name", "ContactPersonName", property.getExternalName());
+    assertEquals("ContactPersonName", property.getExternalName(), "Wrong name");
   }
 
   @Test
@@ -385,7 +386,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
     assertEquals(Integer.class, property.getType());
   }
 
-  @Test(expected = ODataJPAModelException.class)
+  @Test
   public void checkThrowsAnExceptionTimestampWithoutPrecision() throws ODataJPAModelException {
     // If Precision missing EdmDateTimeOffset.internalValueToString throws an exception => pre-check
     final Attribute<?, ?> jpaAttribute = mock(Attribute.class);
@@ -420,7 +421,10 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
     IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
         jpaAttribute,
         helper.schema);
-    property.getEdmItem();
+
+    assertThrows(ODataJPAModelException.class, () -> {
+      property.getEdmItem();
+    });
   }
 
   @Test
@@ -552,7 +556,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
     assertEquals("AdministrativeInformation/Created/At", actPath.get(0));
   }
 
-  @Ignore
+  @Disabled
   @Test
   public void checkGetSRID() {
     // Test for spatial data missing

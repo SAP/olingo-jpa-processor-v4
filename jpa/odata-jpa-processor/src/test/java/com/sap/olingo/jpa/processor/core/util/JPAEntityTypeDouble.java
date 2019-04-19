@@ -1,6 +1,6 @@
 package com.sap.olingo.jpa.processor.core.util;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 

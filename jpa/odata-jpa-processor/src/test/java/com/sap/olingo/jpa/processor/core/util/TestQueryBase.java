@@ -17,7 +17,7 @@ import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.UriResourceKind;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
@@ -41,7 +41,7 @@ public class TestQueryBase extends TestBase {
     super();
   }
 
-  @Before
+  @BeforeEach
   public void setup() throws ODataException {
     buildUriInfo("BusinessPartners", "BusinessPartner");
 

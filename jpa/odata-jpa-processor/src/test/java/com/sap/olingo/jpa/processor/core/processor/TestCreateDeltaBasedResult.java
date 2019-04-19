@@ -1,7 +1,8 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -10,8 +11,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.olingo.commons.api.ex.ODataException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
@@ -29,7 +30,7 @@ public class TestCreateDeltaBasedResult extends TestJPAModifyProcessor {
   private Person currentImagePerson;
   private JPAAssociationPath path;
 
-  @Before
+  @BeforeEach
   public void setup() throws ODataException {
     cut = new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext, new JPAConversionHelper());
     pathElements = new ArrayList<>(3);
@@ -53,10 +54,12 @@ public class TestCreateDeltaBasedResult extends TestJPAModifyProcessor {
     assertNull(act);
   }
 
-  @Test(expected = ODataJPAProcessorException.class)
+  @Test
   public void testThrowsExceptionIfBeforeIfManaged() throws ODataJPAProcessorException {
     when(em.contains(beforeImagePerson)).thenReturn(Boolean.TRUE);
-    cut.getLinkedInstanceBasedResultByDelta(currentImagePerson, path, Optional.ofNullable(beforeImagePerson));
+    assertThrows(ODataJPAProcessorException.class, () -> {
+      cut.getLinkedInstanceBasedResultByDelta(currentImagePerson, path, Optional.ofNullable(beforeImagePerson));
+    });
   }
 
   @Test

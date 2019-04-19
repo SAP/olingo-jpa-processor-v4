@@ -1,7 +1,7 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
@@ -18,7 +18,7 @@ public class AssertCollection {
         if (found) {
           break;
         }
-        assertTrue("Cloud not find" + expItem.toString(), found);
+        assertTrue(found, "Cloud not find" + expItem.toString());
       }
     }
   }

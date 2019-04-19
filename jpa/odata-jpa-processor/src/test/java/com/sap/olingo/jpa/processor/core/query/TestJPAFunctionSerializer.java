@@ -1,7 +1,7 @@
 package com.sap.olingo.jpa.processor.core.query;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -14,8 +14,8 @@ import javax.persistence.Persistence;
 import javax.sql.DataSource;
 
 import org.apache.olingo.commons.api.ex.ODataException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -33,7 +33,7 @@ public class TestJPAFunctionSerializer {
   protected Map<String, List<String>> headers;
   protected static JPAEdmNameBuilder nameBuilder;
 
-  @Before
+  @BeforeEach
   public void setup() {
     ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
     Map<String, Object> properties = new HashMap<>();

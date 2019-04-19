@@ -1,14 +1,14 @@
 package com.sap.olingo.jpa.processor.core.filter;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
 
 import org.apache.olingo.commons.api.ex.ODataException;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
@@ -182,7 +182,7 @@ public class TestJPAQueryWhereClause extends TestBase {
     assertEquals(4, orgs.size());
   }
 
-  @Ignore // TODO Clarify if GT, LE .. not supported by OData or "only" by Olingo
+  @Disabled // TODO Clarify if GT, LE .. not supported by OData or "only" by Olingo
   @Test
   public void testFilterOneEnumGreaterThan() throws IOException, ODataException {
 
@@ -456,8 +456,8 @@ public class TestJPAQueryWhereClause extends TestBase {
     assertEquals(2, orgs.size());
   }
 
-  @Ignore // Usage of mult currently creates parser error: The types 'Edm.Double' and '[Int64, Int32, Int16, Byte,
-          // SByte]' are not compatible.
+  @Disabled // Usage of mult currently creates parser error: The types 'Edm.Double' and '[Int64, Int32, Int16, Byte,
+            // SByte]' are not compatible.
   @Test
   public void testFilterSubstringStartCalculated() throws IOException, ODataException {
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -727,7 +727,7 @@ public class TestJPAQueryWhereClause extends TestBase {
 
   };
 
-  @Ignore // EclipsLinkProblem see https://bugs.eclipse.org/bugs/show_bug.cgi?id=529565
+  @Disabled // EclipsLinkProblem see https://bugs.eclipse.org/bugs/show_bug.cgi?id=529565
   @Test
   public void testFilterNavigationPropertyViaJoinTableCountSubType() throws IOException, // NOSONAR
       ODataException {
