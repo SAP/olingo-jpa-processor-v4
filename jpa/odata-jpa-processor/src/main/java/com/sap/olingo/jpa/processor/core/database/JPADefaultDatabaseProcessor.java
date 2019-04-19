@@ -89,7 +89,7 @@ public class JPADefaultDatabaseProcessor implements JPAODataDatabaseProcessor, J
   @Override
   public <T> Expression<T> convert(final JPAMethodCall jpaFunction) throws ODataApplicationException {
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
-        HttpStatusCode.NOT_IMPLEMENTED, jpaFunction.getName());
+        HttpStatusCode.NOT_IMPLEMENTED);
   }
 
   @Override
