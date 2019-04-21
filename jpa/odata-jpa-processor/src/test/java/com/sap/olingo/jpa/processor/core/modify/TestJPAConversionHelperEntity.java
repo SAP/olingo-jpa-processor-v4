@@ -1,10 +1,10 @@
 package com.sap.olingo.jpa.processor.core.modify;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.olingo.server.api.serializer.SerializerException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
@@ -15,7 +15,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 
 public class TestJPAConversionHelperEntity extends TestJPAConversionHelper {
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     cut = new JPAConversionHelper();
   }

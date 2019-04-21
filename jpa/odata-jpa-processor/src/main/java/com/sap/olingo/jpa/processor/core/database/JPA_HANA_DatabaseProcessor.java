@@ -36,19 +36,20 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 
 final class JPA_HANA_DatabaseProcessor implements JPAODataDatabaseProcessor {
   private static final String SELECT_BASE_PATTERN = "SELECT * FROM $FUNCTIONNAME$($PARAMETER$)";
+  private static final String SELECT_COUNT_PATTERN = "SELECT COUNT(*) FROM $FUNCTIONNAME$($PARAMETER$)";
   private static final String FUNC_NAME_PLACEHOLDER = "$FUNCTIONNAME$";
   private static final String PARAMETER_PLACEHOLDER = "$PARAMETER$";
 
   @SuppressWarnings("unchecked")
   @Override
   public <T> java.util.List<T> executeFunctionQuery(final List<UriResource> uriResourceParts,
-      final JPADataBaseFunction jpaFunction, final Class<T> resultClass, final EntityManager em)
+      final JPADataBaseFunction jpaFunction, final EntityManager em)
       throws ODataApplicationException {
 
     final UriResourceFunction uriResourceFunction = (UriResourceFunction) uriResourceParts.get(uriResourceParts.size()
         - 1);
     final String queryString = generateQueryString(jpaFunction);
-    final Query functionQuery = em.createNativeQuery(queryString, resultClass);
+    final Query functionQuery = em.createNativeQuery(queryString, jpaFunction.getResultParameter().getType());
     int count = 1;
     try {
       for (final JPAParameter parameter : jpaFunction.getParameter()) {
@@ -107,7 +108,7 @@ final class JPA_HANA_DatabaseProcessor implements JPAODataDatabaseProcessor {
   }
 
   private String generateQueryString(final JPADataBaseFunction jpaFunction) throws ODataJPAProcessorException {
-    final StringBuffer parameterList = new StringBuffer();
+    final StringBuilder parameterList = new StringBuilder();
     String queryString = SELECT_BASE_PATTERN;
 
     queryString = queryString.replace(FUNC_NAME_PLACEHOLDER, jpaFunction.getDBName());

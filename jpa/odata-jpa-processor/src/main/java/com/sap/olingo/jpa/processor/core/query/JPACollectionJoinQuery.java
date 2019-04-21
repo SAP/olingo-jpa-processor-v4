@@ -48,6 +48,7 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
     this.navigationInfo.addAll(item.getHops().subList(0, item.getHops().size() - 1));
   }
 
+  @Override
   public JPACollectionQueryResult execute() throws ODataApplicationException {
     final int handle = debugger.startRuntimeMeasurement(this, "executeStandradQuery");
 
@@ -237,10 +238,8 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
     final int handle = debugger.startRuntimeMeasurement(this, "createTupleQuery");
 
     final List<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
-    final List<JPAPath> descriptionAttributes = new ArrayList<>(1);
-    final Map<String, From<?, ?>> joinTables = createFromClause(new ArrayList<JPAAssociationPath>(1),
-        descriptionAttributes, cq);
-
+    final Map<String, From<?, ?>> joinTables = createFromClause(new ArrayList<JPAAssociationPath>(1), selectionPath,
+        cq);
     // TODO handle Join Column is ignored
     cq.multiselect(createSelectClause(joinTables, selectionPath, target));
     cq.distinct(true);

@@ -9,5 +9,5 @@ public interface JPAServiceDebugger {
 
   public void stopRuntimeMeasurement(final int handle);
 
-  public Collection<? extends RuntimeMeasurement> getRuntimeInformation();
+  public Collection<RuntimeMeasurement> getRuntimeInformation();
 }

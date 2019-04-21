@@ -1,0 +1,19 @@
+{
+	"properties": [
+		{
+			"name": "odata.jpa.request_mapping",
+			"type": "java.lang.String",
+			"description": "A description for 'odata.jpa.request_mapping'"
+		},
+		{
+			"name": "odata.jpa.punit_name",
+			"type": "java.lang.String",
+			"description": "Name of the JPA processing unit to be used"
+		},
+		{
+			"name": "odata.jpa.root_packages",
+			"type": "java.lang.String",
+			"description": "List of packages JPA processor shall look for Operations and Enumerations"
+		}
+	]
+}

@@ -41,9 +41,9 @@ public interface JPAStructuredType extends JPAElement {
    */
   public List<JPAAssociationPath> getAssociationPathList() throws ODataJPAModelException;
 
-  public JPAAttribute getAttribute(final UriResourceProperty uriResourceItem) throws ODataJPAModelException;
-
   public JPAAttribute getAttribute(final String internalName) throws ODataJPAModelException;
+
+  public JPAAttribute getAttribute(final UriResourceProperty uriResourceItem) throws ODataJPAModelException;
 
   public List<JPAAttribute> getAttributes() throws ODataJPAModelException;
 
@@ -127,8 +127,19 @@ public interface JPAStructuredType extends JPAElement {
    */
   public List<JPAPath> getPathList() throws ODataJPAModelException;
 
+  /**
+   * List of all protected Attributes including protection/claim information. That is:
+   * <ul>
+   * <li> All not ignored protected properties of the type.
+   * <li> All not ignored protected properties from super types.
+   * <li> All not ignored protected properties from embedded types.
+   * </ul>
+   * @return
+   * @throws ODataJPAModelException
+   */
+  public List<JPAProtectionInfo> getProtections() throws ODataJPAModelException;
+
   public Class<?> getTypeClass();
 
   public boolean isAbstract();
-
 }

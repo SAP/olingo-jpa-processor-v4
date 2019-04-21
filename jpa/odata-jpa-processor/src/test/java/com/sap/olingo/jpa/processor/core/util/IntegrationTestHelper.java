@@ -1,7 +1,7 @@
 package com.sap.olingo.jpa.processor.core.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataBatchProcessor;
+import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataContextAccessDouble;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPagingProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestProcessor;
@@ -69,20 +70,25 @@ public class IntegrationTestHelper {
     this(localEmf, null, urlPath, null, null, provider);
   }
 
+  public IntegrationTestHelper(EntityManagerFactory localEmf, final String urlPath, JPAODataClaimsProvider claims)
+      throws IOException, ODataException {
+    this(localEmf, null, urlPath, null, null, null, null, claims);
+  }
+
   public IntegrationTestHelper(final EntityManagerFactory emf, final String urlPath,
       final JPAODataPagingProvider provider, final Map<String, List<String>> headers) throws IOException,
       ODataException {
-    this(emf, null, urlPath, null, null, provider, headers);
+    this(emf, null, urlPath, null, null, provider, headers, null);
   }
 
   public IntegrationTestHelper(EntityManagerFactory localEmf, DataSource ds, String urlPath, StringBuffer requestBody,
       String functionPackage, JPAODataPagingProvider provider) throws IOException, ODataException {
-    this(localEmf, ds, urlPath, requestBody, functionPackage, provider, null);
+    this(localEmf, ds, urlPath, requestBody, functionPackage, provider, null, null);
   }
 
   public IntegrationTestHelper(final EntityManagerFactory localEmf, final DataSource ds, final String urlPath,
-      final StringBuffer requestBody,
-      final String functionPackage, final JPAODataPagingProvider provider, final Map<String, List<String>> headers)
+      final StringBuffer requestBody, final String functionPackage, final JPAODataPagingProvider provider,
+      final Map<String, List<String>> headers, final JPAODataClaimsProvider claims)
       throws IOException, ODataException {
 
     super();
@@ -100,7 +106,7 @@ public class IntegrationTestHelper {
     ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(context.getEdmProvider(),
         new ArrayList<EdmxReference>()));
 
-    handler.register(new JPAODataRequestProcessor(context, em));
+    handler.register(new JPAODataRequestProcessor(context, claims, em));
     handler.register(new JPAODataBatchProcessor(context, em));
     handler.process(req, resp);
 
@@ -159,7 +165,7 @@ public class IntegrationTestHelper {
   }
 
   public void assertStatus(int exp) throws IOException {
-    assertEquals(getRawResult(), exp, getStatus());
+    assertEquals(exp, getStatus(), getRawResult());
 
   }
 

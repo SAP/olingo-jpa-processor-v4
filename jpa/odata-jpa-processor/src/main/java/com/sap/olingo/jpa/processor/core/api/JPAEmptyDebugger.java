@@ -13,11 +13,12 @@ final class JPAEmptyDebugger implements JPAServiceDebugger {
   }
 
   @Override
-  public void stopRuntimeMeasurement(final int handle) {}
-
-  @Override
-  public Collection<? extends RuntimeMeasurement> getRuntimeInformation() {
-    return new ArrayList<RuntimeMeasurement>();
+  public void stopRuntimeMeasurement(final int handle) {
+    // Not needed
   }
 
+  @Override
+  public Collection<RuntimeMeasurement> getRuntimeInformation() {
+    return new ArrayList<>();
+  }
 }

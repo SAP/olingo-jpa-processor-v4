@@ -1,11 +1,11 @@
 package com.sap.olingo.jpa.processor.core.modify;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -34,9 +34,10 @@ import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataRequest;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Matchers;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -57,7 +58,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.DateConverter;
 public class TestJPACUDRequestHelper {
   private JPAConversionHelper cut;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     cut = new JPAConversionHelper();
   }
@@ -104,11 +105,12 @@ public class TestJPACUDRequestHelper {
     assertTrue(exp == act);
   }
 
+  @Disabled
   @Test
-  public void testDifferentInstanceWhenReadingDifferntInstance() throws ODataJPAProcessorException {
+  public void testDifferentInstanceWhenReadingDifferentInstance() throws ODataJPAProcessorException {
 
-    Map<String, Object> exp = cut.buildGetterMap(new BusinessPartnerRole());
-    Map<String, Object> act = cut.buildGetterMap(new BusinessPartnerRole());
+    Map<String, Object> exp = cut.buildGetterMap(new BusinessPartnerRole("100", "A"));
+    Map<String, Object> act = cut.buildGetterMap(new BusinessPartnerRole("100", "A"));
 
     assertFalse(exp == act);
   }
@@ -154,8 +156,9 @@ public class TestJPACUDRequestHelper {
     when(edmTypeId.getFullQualifiedName()).thenReturn(fqnString);
     when(edmTypeId.getKind()).thenReturn(EdmTypeKind.PRIMITIVE);
     when(edmTypeId.getName()).thenReturn("String");
-    when(edmTypeId.valueOfString(Matchers.anyString(), Matchers.anyBoolean(), Matchers.anyInt(), Matchers.anyInt(),
-        Matchers.anyInt(), Matchers.anyBoolean(), (Class<String>) Matchers.anyVararg())).thenReturn("35");
+    when(edmTypeId.valueOfString(ArgumentMatchers.anyString(), ArgumentMatchers.anyBoolean(), ArgumentMatchers.anyInt(),
+        ArgumentMatchers.anyInt(), ArgumentMatchers.anyInt(), ArgumentMatchers.anyBoolean(),
+        (Class<String>) ArgumentMatchers.any())).thenReturn("35");
 
     when(edmEntitySet.getEntityType()).thenReturn(edmEntityType);
     when(edmEntityType.getFullQualifiedName()).thenReturn(fqn);
@@ -213,7 +216,7 @@ public class TestJPACUDRequestHelper {
     when(propertyID.getName()).thenReturn("iD");
     when(propertyID.getValue()).thenReturn("35");
     odataProperties.add(propertyID);
-    when(st.getPath(Matchers.anyString())).thenThrow(new ODataJPAModelException(new NullPointerException()));
+    when(st.getPath(ArgumentMatchers.anyString())).thenThrow(new ODataJPAModelException(new NullPointerException()));
     try {
       cut.convertProperties(OData.newInstance(), st, odataProperties);
     } catch (ODataJPAProcessException e) {

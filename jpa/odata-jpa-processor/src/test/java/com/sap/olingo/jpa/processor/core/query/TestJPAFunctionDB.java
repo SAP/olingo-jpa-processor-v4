@@ -1,8 +1,7 @@
 package com.sap.olingo.jpa.processor.core.query;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.notNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -30,8 +29,8 @@ import org.apache.olingo.server.api.serializer.SerializerResult;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceFunction;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -68,7 +67,7 @@ public class TestJPAFunctionDB {
   private SerializerResult serializerResult;
   private EntityManager em;
 
-  @Before
+  @BeforeEach
   public void setup() throws ODataException {
     final JPAEdmProvider provider = mock(JPAEdmProvider.class);
 
@@ -122,6 +121,28 @@ public class TestJPAFunctionDB {
     when(edmReturnType.getType()).thenReturn(new EdmBoolean());
 
     cut.retrieveData(request, response, ContentType.JSON);
-    verify(dbProcessor, times(1)).executeFunctionQuery(eq(uriResources), eq(function), (Class<?>) notNull(), eq(em));
+    verify(dbProcessor, times(1)).executeFunctionQuery(eq(uriResources), eq(function), eq(em));
+  }
+
+  @Test
+  public void testCallsFunctionCount() throws ODataApplicationException, ODataLibraryException,
+      ODataJPAModelException {
+
+    EdmReturnType edmReturnType = mock(EdmReturnType.class);
+    JPAOperationResultParameter resultParam = mock(JPAOperationResultParameter.class);
+    when(function.getResultParameter()).thenReturn(resultParam);
+    when(resultParam.getTypeFQN()).thenReturn(new FullQualifiedName(PUNIT_NAME, "CheckRights"));
+    when(resultParam.getType()).thenAnswer(new Answer<Class<?>>() {
+      @Override
+      public Class<?> answer(InvocationOnMock invocation) throws Throwable {
+        return Boolean.class;
+      }
+    });
+
+    when(edmFunction.getReturnType()).thenReturn(edmReturnType);
+    when(edmReturnType.getType()).thenReturn(new EdmBoolean());
+
+    cut.retrieveData(request, response, ContentType.JSON);
+    verify(dbProcessor, times(1)).executeFunctionQuery(eq(uriResources), eq(function), eq(em));
   }
 }

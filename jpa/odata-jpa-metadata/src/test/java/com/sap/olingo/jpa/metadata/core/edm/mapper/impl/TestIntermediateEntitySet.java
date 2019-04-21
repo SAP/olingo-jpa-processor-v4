@@ -1,6 +1,6 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -16,8 +16,8 @@ import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
@@ -36,7 +36,7 @@ public class TestIntermediateEntitySet extends TestMappingRoot {
   private Set<EntityType<?>> etList;
   private JPAEdmNameBuilder namebuilder;
 
-  @Before
+  @BeforeEach
   public void setup() throws ODataJPAModelException {
     IntermediateModelElement.setPostProcessor(new DefaultEdmPostProcessor());
     final Reflections r = mock(Reflections.class);
@@ -95,7 +95,7 @@ public class TestIntermediateEntitySet extends TestMappingRoot {
     IntermediateEntitySet set = new IntermediateEntitySet(namebuilder, et);
     set.getEdmItem(); // Trigger build of EdmEntitySet
 
-    assertEquals("Wrong name", "BusinessPartnerList", set.getExternalName());
+    assertEquals("BusinessPartnerList", set.getExternalName(), "Wrong name");
   }
 
   private class PostProcessor extends JPAEdmMetadataPostProcessor {

@@ -1,8 +1,8 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -33,9 +33,9 @@ import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.UriResourceKind;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
@@ -56,7 +56,7 @@ public class TestCreateRequestEntity {
   protected static JPAEdmProvider jpaEdm;
   protected static DataSource ds;
 
-  @BeforeClass
+  @BeforeAll
   public static void setupClass() throws ODataException {
     JPAEdmMetadataPostProcessor pP = mock(JPAEdmMetadataPostProcessor.class);
 
@@ -83,7 +83,7 @@ public class TestCreateRequestEntity {
   private List<UriResource> pathParts = new ArrayList<>();
   private Map<String, List<String>> headers;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     odata = OData.newInstance();
     sessionContext = mock(JPAODataSessionContextAccess.class);
@@ -180,8 +180,8 @@ public class TestCreateRequestEntity {
     JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
 
     Object actValue = findEntitryList(act.getRelatedEntities(), ("children"));
-    assertNotNull("Is null", actValue);
-    assertTrue("Wrong type", actValue instanceof List);
+    assertNotNull(actValue, "Is null");
+    assertTrue(actValue instanceof List, "Wrong type");
   }
 
   @Test
@@ -196,7 +196,7 @@ public class TestCreateRequestEntity {
     JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
 
     Object actValue = findEntitryList(act.getRelatedEntities(), ("children"));
-    assertEquals("Wrong size", 1, ((List<?>) actValue).size());
+    assertEquals(1, ((List<?>) actValue).size(), "Wrong size");
   }
 
   @Test
@@ -212,9 +212,9 @@ public class TestCreateRequestEntity {
 
     Object actValue = findEntitryList(act.getRelatedEntities(), ("children"));
     assertNotNull(((List<?>) actValue).get(0));
-    assertNotNull("Entity type not found", ((JPARequestEntity) ((List<?>) actValue).get(0)).getEntityType());
-    assertEquals("Wrong Type", "AdministrativeDivision", ((JPARequestEntity) ((List<?>) actValue).get(0))
-        .getEntityType().getExternalName());
+    assertNotNull(((JPARequestEntity) ((List<?>) actValue).get(0)).getEntityType(), "Entity type not found");
+    assertEquals("AdministrativeDivision", ((JPARequestEntity) ((List<?>) actValue).get(0))
+        .getEntityType().getExternalName(), "Wrong Type");
   }
 
   @Test
@@ -230,11 +230,11 @@ public class TestCreateRequestEntity {
 
     Object actValue = findEntitryList(act.getRelatedEntities(), ("children"));
     assertNotNull(((List<?>) actValue).get(0));
-    assertNotNull("Entity type not found", ((JPARequestEntity) ((List<?>) actValue).get(0)).getEntityType());
+    assertNotNull(((JPARequestEntity) ((List<?>) actValue).get(0)).getEntityType(), "Entity type not found");
     Map<String, Object> actData = ((JPARequestEntity) ((List<?>) actValue).get(0)).getData();
-    assertNotNull("Data not found", actData);
-    assertNotNull("CodeID not found", actData.get("codeID"));
-    assertEquals("Value not found", "DE501", actData.get("codeID"));
+    assertNotNull(actData, "Data not found");
+    assertNotNull(actData.get("codeID"), "CodeID not found");
+    assertEquals("DE501", actData.get("codeID"), "Value not found");
   }
 
   @Test
@@ -249,7 +249,7 @@ public class TestCreateRequestEntity {
     JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
 
     Object actValue = findEntitryList(act.getRelatedEntities(), ("children"));
-    assertEquals("Wrong size", 2, ((List<?>) actValue).size());
+    assertEquals(2, ((List<?>) actValue).size(), "Wrong size");
   }
 
   @Test

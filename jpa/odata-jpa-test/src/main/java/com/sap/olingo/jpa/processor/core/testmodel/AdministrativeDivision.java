@@ -23,16 +23,28 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 
 @EdmFunctions({
     @EdmFunction(
+        name = "SiblingsBound",
+        functionName = "\"OLINGO\".\"Siblings\"",
+        isBound = true,
+        hasFunctionImport = false,
+        returnType = @EdmFunction.ReturnType(isCollection = true),
+        parameter = {
+            @EdmParameter(name = "CodePublisher", parameterName = "\"Publisher\"",
+                type = String.class, maxLength = 10),
+            @EdmParameter(name = "CodeID", parameterName = "\"ID\"", type = String.class, maxLength = 10),
+            @EdmParameter(name = "DivisionCode", parameterName = "\"Division\"", type = String.class,
+                maxLength = 10) }),
+    @EdmFunction(
         name = "Siblings",
         functionName = "\"OLINGO\".\"Siblings\"",
         isBound = false,
         hasFunctionImport = true,
         returnType = @EdmFunction.ReturnType(isCollection = true),
         parameter = {
-            @EdmParameter(name = "CodePublisher", parameterName = "\"CodePublisher\"",
+            @EdmParameter(name = "CodePublisher", parameterName = "\"Publisher\"",
                 type = String.class, maxLength = 10),
-            @EdmParameter(name = "CodeID", parameterName = "\"CodeID\"", type = String.class, maxLength = 10),
-            @EdmParameter(name = "DivisionCode", parameterName = "\"DivisionCode\"", type = String.class,
+            @EdmParameter(name = "CodeID", parameterName = "\"ID\"", type = String.class, maxLength = 10),
+            @EdmParameter(name = "DivisionCode", parameterName = "\"Division\"", type = String.class,
                 maxLength = 10) }),
     @EdmFunction(
         name = "PopulationDensity",
@@ -77,7 +89,7 @@ public class AdministrativeDivision implements KeyAccess {
   @Column(name = "\"AlternativeCode\"", length = 10)
   private String alternativeCode;
   @Column(name = "\"Area\"") // , precision = 34, scale = 0)
-  private Integer area = new Integer(0);
+  private Integer area = 0;
   @Column(name = "\"Population\"", precision = 34, scale = 0)
   private long population;
 
@@ -220,5 +232,33 @@ public class AdministrativeDivision implements KeyAccess {
 
   public void setPopulation(long population) {
     this.population = population;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((codeID == null) ? 0 : codeID.hashCode());
+    result = prime * result + ((codePublisher == null) ? 0 : codePublisher.hashCode());
+    result = prime * result + ((divisionCode == null) ? 0 : divisionCode.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
+    AdministrativeDivision other = (AdministrativeDivision) obj;
+    if (codeID == null) {
+      if (other.codeID != null) return false;
+    } else if (!codeID.equals(other.codeID)) return false;
+    if (codePublisher == null) {
+      if (other.codePublisher != null) return false;
+    } else if (!codePublisher.equals(other.codePublisher)) return false;
+    if (divisionCode == null) {
+      if (other.divisionCode != null) return false;
+    } else if (!divisionCode.equals(other.divisionCode)) return false;
+    return true;
   }
 }

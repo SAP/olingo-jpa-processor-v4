@@ -1,8 +1,9 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -13,8 +14,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.olingo.commons.api.ex.ODataException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -31,6 +32,8 @@ import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 import com.sap.olingo.jpa.processor.core.testmodel.PostalAddressData;
+import com.sap.olingo.jpa.processor.core.testobjects.BusinessPartnerRoleWithoutSetter;
+import com.sap.olingo.jpa.processor.core.testobjects.OrganizationWithoutGetter;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 
@@ -40,7 +43,7 @@ public class TestModifyUtil extends TestBase {
   private BusinessPartner partner;
   private JPAEntityType org;
 
-  @Before
+  @BeforeEach
   public void setUp() throws ODataException {
     cut = new JPAModifyUtil();
     jpaAttributes = new HashMap<>();
@@ -143,7 +146,7 @@ public class TestModifyUtil extends TestBase {
     assertEquals("Test Town", partner.getAddress().getCityName());
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test
   public void testSetAttributesDeepOneLevelViaGetterWithWrongRequestData() throws Throwable {
     Map<String, Object> embeddedAttributes = new HashMap<>();
     Map<String, Object> innerEmbeddedAttributes = new HashMap<>();
@@ -155,7 +158,7 @@ public class TestModifyUtil extends TestBase {
       cut.setAttributesDeep(jpaAttributes, partner, org);
     } catch (ODataJPAInvocationTargetException e) {
       assertEquals("Organization/AdministrativeInformation/Updated/By", e.getPath());
-      throw e.getCause();
+      assertEquals(NullPointerException.class, e.getCause().getClass());
     }
   }
 
@@ -312,6 +315,44 @@ public class TestModifyUtil extends TestBase {
     assertNotNull(source.getRoles());
     assertNotNull(source.getRoles().toArray()[0]);
     assertEquals(target, source.getRoles().toArray()[0]);
+  }
+
+  @Test
+  public void testSetForeignKeyOneKey() throws ODataJPAModelException, ODataJPAProcessorException {
+    final Organization source = new Organization("100");
+    final BusinessPartnerRole target = new BusinessPartnerRole();
+    target.setRoleCategory("A");
+    final JPAAssociationPath path = helper.getJPAAssociationPath("Organizations",
+        "Roles");
+
+    cut.setForeignKey(source, target, path);
+    assertEquals("100", target.getBusinessPartnerID());
+  }
+
+  @Test
+  public void testSetForeignKeyTrhowsExceptionOnMissingGetter() throws ODataJPAModelException,
+      ODataJPAProcessorException {
+    final OrganizationWithoutGetter source = new OrganizationWithoutGetter("100");
+    final BusinessPartnerRole target = new BusinessPartnerRole();
+    target.setRoleCategory("A");
+    final JPAAssociationPath path = helper.getJPAAssociationPath("Organizations",
+        "Roles");
+    assertThrows(ODataJPAProcessorException.class, () -> {
+      cut.setForeignKey(source, target, path);
+    });
+  }
+
+  @Test
+  public void testSetForeignKeyTrhowsExceptionOnMissingSetter() throws ODataJPAModelException,
+      ODataJPAProcessorException {
+    final Organization source = new Organization("100");
+    final BusinessPartnerRoleWithoutSetter target = new BusinessPartnerRoleWithoutSetter();
+    final JPAAssociationPath path = helper.getJPAAssociationPath("Organizations",
+        "Roles");
+
+    assertThrows(ODataJPAProcessorException.class, () -> {
+      cut.setForeignKey(source, target, path);
+    });
   }
 
   private JPAEntityType createSingleKeyEntityType() throws ODataJPAModelException {

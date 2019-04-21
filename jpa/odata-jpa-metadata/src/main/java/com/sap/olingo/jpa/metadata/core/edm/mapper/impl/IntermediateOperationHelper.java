@@ -3,6 +3,8 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.sql.Blob;
+import java.sql.Clob;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -57,6 +59,10 @@ public class IntermediateOperationHelper {
       final IntermediateEnumerationType enumType = schema.getEnumerationType(declairedReturnType);
       if (enumType != null) {
         return enumType.getExternalFQN();
+      } else if (declairedReturnType.equals(Blob.class) || declairedReturnType.equals(Clob.class)) {
+        // The return type '%1$s' used at method '%3$s' is not supported
+        throw new ODataJPAModelException(MessageKeys.FUNC_RETURN_NOT_SUPPORTED, declairedReturnType.getName(),
+            operationName);
       } else {
         final EdmPrimitiveTypeKind edmType = JPATypeConvertor.convertToEdmSimpleType(declairedReturnType);
         if (edmType == null)

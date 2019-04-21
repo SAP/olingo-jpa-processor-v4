@@ -66,7 +66,7 @@ public class JPAConversionHelper {
    * @return
    * @throws ODataJPAProcessorException
    */
-  public Map<String, Object> buildGetterMap(Object instance) throws ODataJPAProcessorException {
+  public Map<String, Object> buildGetterMap(final Object instance) throws ODataJPAProcessorException {
 
     if (instance != null) {
       final ODataJPAProcessorException[] exception = { null };
@@ -92,7 +92,7 @@ public class JPAConversionHelper {
    * @return
    * @throws ODataJPAProcessorException
    */
-  public Map<String, Object> determineGetter(Object instance) throws ODataJPAProcessorException {
+  public Map<String, Object> determineGetter(final Object instance) throws ODataJPAProcessorException {
     Map<String, Object> getterMap;
     getterMap = new HashMap<>();
     Method[] methods = instance.getClass().getMethods();
@@ -156,8 +156,8 @@ public class JPAConversionHelper {
    */
 
   @SuppressWarnings("unchecked")
-  public String convertKeyToLocal(final OData odata, final ODataRequest request, EdmEntitySet edmEntitySet,
-      JPAEntityType et, Object newPOJO) throws SerializerException, ODataJPAProcessorException {
+  public String convertKeyToLocal(final OData odata, final ODataRequest request, final EdmEntitySet edmEntitySet,
+      final JPAEntityType et, final Object newPOJO) throws SerializerException, ODataJPAProcessorException {
 
     if (newPOJO instanceof Map<?, ?>)
       return convertKeyToLocalMap(odata, request, edmEntitySet, et, (Map<String, Object>) newPOJO);

@@ -1,7 +1,7 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -9,8 +9,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -25,13 +25,13 @@ public class TestIntermediateFunctionFactory extends TestMappingRoot {
   private IntermediateFunctionFactory cut;
   private Set<Class<? extends ODataFunction>> javaFunctions;
 
-  @Before
+  @BeforeEach
   public void setUp() throws ODataJPAModelException {
     helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
 
     reflections = mock(Reflections.class);
     cut = new IntermediateFunctionFactory();
-    javaFunctions = new HashSet<Class<? extends ODataFunction>>();
+    javaFunctions = new HashSet<>();
     when(reflections.getSubTypesOf(ODataFunction.class)).thenReturn(javaFunctions);
   }
 

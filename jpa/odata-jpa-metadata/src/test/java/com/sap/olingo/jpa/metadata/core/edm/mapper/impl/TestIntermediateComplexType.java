@@ -1,22 +1,24 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.metamodel.EmbeddableType;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAProtectionInfo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityTypeAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
@@ -27,7 +29,7 @@ public class TestIntermediateComplexType extends TestMappingRoot {
   private Set<EmbeddableType<?>> etList;
   private IntermediateSchema schema;
 
-  @Before
+  @BeforeEach
   public void setup() throws ODataJPAModelException {
     IntermediateModelElement.setPostProcessor(new DefaultEdmPostProcessor());
     etList = emf.getMetamodel().getEmbeddables();
@@ -54,7 +56,7 @@ public class TestIntermediateComplexType extends TestMappingRoot {
   public void checkGetAllProperties() throws ODataJPAModelException {
     IntermediateComplexType ct = new IntermediateComplexType(new JPAEdmNameBuilder(PUNIT_NAME), getEmbeddedableType(
         "CommunicationData"), schema);
-    assertEquals("Wrong number of entities", 4, ct.getEdmItem().getProperties().size());
+    assertEquals(4, ct.getEdmItem().getProperties().size(), "Wrong number of entities");
   }
 
   @Test
@@ -68,7 +70,7 @@ public class TestIntermediateComplexType extends TestMappingRoot {
   public void checkGetPropertyByNameCorrectEntity() throws ODataJPAModelException {
     IntermediateComplexType ct = new IntermediateComplexType(new JPAEdmNameBuilder(PUNIT_NAME), getEmbeddedableType(
         "CommunicationData"), schema);
-    assertEquals("LandlinePhoneNumber", ct.getEdmItem().getProperty("LandlinePhoneNumber").getName());
+    assertEquals(ct.getEdmItem().getProperty("LandlinePhoneNumber").getName(), "LandlinePhoneNumber");
   }
 
   @Test
@@ -89,7 +91,7 @@ public class TestIntermediateComplexType extends TestMappingRoot {
 
     IntermediateComplexType ct = new IntermediateComplexType(new JPAEdmNameBuilder(PUNIT_NAME), getEmbeddedableType(
         "PostalAddressData"), schema);
-    assertEquals("Wrong number of entities", 1, ct.getEdmItem().getNavigationProperties().size());
+    assertEquals(1, ct.getEdmItem().getNavigationProperties().size(), "Wrong number of entities");
   }
 
   @Test
@@ -119,7 +121,7 @@ public class TestIntermediateComplexType extends TestMappingRoot {
 
     IntermediateComplexType ct = new IntermediateComplexType(new JPAEdmNameBuilder(PUNIT_NAME), getEmbeddedableType(
         "CommunicationData"), schema);
-    assertEquals("Wrong number of entities", 3, ct.getEdmItem().getProperties().size());
+    assertEquals(3, ct.getEdmItem().getProperties().size(), "Wrong number of entities");
   }
 
   @Test
@@ -189,7 +191,7 @@ public class TestIntermediateComplexType extends TestMappingRoot {
     assertNotEquals(ct.getProperty("created"), ct.getProperty("updated"));
   }
 
-  @Ignore
+  @Disabled
   @Test
   public void checkGetPropertyWithEnumerationType() {
 
@@ -209,12 +211,34 @@ public class TestIntermediateComplexType extends TestMappingRoot {
     assertFalse(ct.ignore());
   }
 
+  @Test
+  public void checkOneSimpleProtectedProperty() throws ODataJPAModelException {
+    IntermediateComplexType ct = new IntermediateComplexType(new JPAEdmNameBuilder(PUNIT_NAME), getEmbeddedableType(
+        "InhouseAddressWithProtection"), schema);
+    List<JPAProtectionInfo> act = ct.getProtections();
+    assertNotNull(act);
+    assertEquals(1, act.size());
+    assertEquals("Building", act.get(0).getAttribute().getExternalName());
+    assertEquals("BuildingNumber", act.get(0).getClaimName());
+  }
+
+  @Test
+  public void checkOneComplexProtectedPropertyDeep() throws ODataJPAModelException {
+    IntermediateComplexType ct = new IntermediateComplexType(new JPAEdmNameBuilder(PUNIT_NAME), getEmbeddedableType(
+        "AddressDeepProtected"), schema);
+    List<JPAProtectionInfo> act = ct.getProtections();
+    assertNotNull(act);
+    assertEquals(1, act.size());
+    assertEquals("Building", act.get(0).getAttribute().getExternalName());
+    assertEquals("BuildingNumber", act.get(0).getClaimName());
+    assertEquals(2, act.get(0).getPath().getPath().size());
+  }
+
   private class PostProcessorSetIgnore extends JPAEdmMetadataPostProcessor {
 
     @Override
     public void processProperty(IntermediatePropertyAccess property, String jpaManagedTypeClassName) {
-      if (jpaManagedTypeClassName.equals(
-          COMM_CANONICAL_NAME)) {
+      if (jpaManagedTypeClassName.equals(COMM_CANONICAL_NAME)) {
         if (property.getInternalName().equals("landlinePhoneNumber")) {
           property.setIgnore(true);
         }

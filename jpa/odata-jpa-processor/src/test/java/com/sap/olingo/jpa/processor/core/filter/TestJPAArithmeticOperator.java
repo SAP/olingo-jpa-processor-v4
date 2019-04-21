@@ -1,7 +1,7 @@
 package com.sap.olingo.jpa.processor.core.filter;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -13,18 +13,12 @@ import javax.persistence.criteria.Path;
 
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.queryoption.expression.BinaryOperatorKind;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
-import com.sap.olingo.jpa.processor.core.filter.JPAArithmeticOperator;
-import com.sap.olingo.jpa.processor.core.filter.JPAArithmeticOperatorImp;
-import com.sap.olingo.jpa.processor.core.filter.JPABooleanOperatorImp;
-import com.sap.olingo.jpa.processor.core.filter.JPALiteralOperator;
-import com.sap.olingo.jpa.processor.core.filter.JPAMemberOperator;
-import com.sap.olingo.jpa.processor.core.filter.JPAOperationConverter;
 
 public class TestJPAArithmeticOperator {
   private CriteriaBuilder cb;
@@ -33,7 +27,7 @@ public class TestJPAArithmeticOperator {
   private Path<Integer> expression;
 
   @SuppressWarnings("unchecked")
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     converter = mock(JPAOperationConverter.class);
     cb = mock(CriteriaBuilder.class);

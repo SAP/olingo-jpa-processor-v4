@@ -1,6 +1,6 @@
 package com.sap.olingo.jpa.processor.core.util;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -212,7 +212,7 @@ public class HttpServletResponseDouble implements HttpServletResponse {
   }
 
   class OutPutStream extends ServletOutputStream {
-    List<Integer> buffer = new ArrayList<Integer>();
+    List<Integer> buffer = new ArrayList<>();
 
     @Override
     public void write(int b) throws IOException {

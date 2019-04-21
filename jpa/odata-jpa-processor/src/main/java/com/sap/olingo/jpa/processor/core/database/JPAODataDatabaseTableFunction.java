@@ -12,5 +12,5 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
 public interface JPAODataDatabaseTableFunction {
 
   <T> List<T> executeFunctionQuery(final List<UriResource> uriResourceParts, final JPADataBaseFunction jpaFunction,
-      final Class<T> resultClass, final EntityManager em) throws ODataApplicationException;
+      final EntityManager em) throws ODataApplicationException;
 }

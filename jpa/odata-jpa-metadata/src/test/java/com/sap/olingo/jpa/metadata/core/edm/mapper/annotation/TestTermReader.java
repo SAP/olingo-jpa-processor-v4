@@ -1,8 +1,8 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.annotation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -11,9 +11,9 @@ import java.net.URISyntaxException;
 import java.util.Map;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 public class TestTermReader {
   private TermReader cut;
 
-  @Before
+  @BeforeEach
   public void setup() {
     cut = new TermReader();
   }
@@ -33,7 +33,7 @@ public class TestTermReader {
     assertNotNull(actEdmx.getDataService());
 
     Schema[] actSchemas = actEdmx.getDataService().getSchemas();
-    assertEquals(actSchemas.length, 1);
+    assertEquals(1, actSchemas.length);
     assertEquals("Org.OData.Measures.V1", actSchemas[0].getNamespace());
   }
 
@@ -67,7 +67,7 @@ public class TestTermReader {
   }
 
   // TODO This test may not run because of proxy setting problems!! -> find alternative for Integration tests
-  @Ignore
+  @Disabled
   @Test
   public void TestReadFromURI() throws URISyntaxException, JsonParseException, JsonMappingException,
       MalformedURLException, IOException {
@@ -77,12 +77,12 @@ public class TestTermReader {
     assertNotNull(actEdmx.getDataService());
 
     Schema[] actSchemas = actEdmx.getDataService().getSchemas();
-    assertEquals(actSchemas.length, 1);
-    assertEquals(actSchemas[0].getNamespace(), "Org.OData.Core.V1");
+    assertEquals(1, actSchemas.length);
+    assertEquals("Org.OData.Core.V1", actSchemas[0].getNamespace());
   }
 
   // TODO This test may not run because of proxy setting problems!! -> find alternative for Integration tests
-  @Ignore
+  @Disabled
   @Test
   public void TestGetTermsOneSchemaFromURI() throws URISyntaxException, JsonParseException, JsonMappingException,
       MalformedURLException, IOException {

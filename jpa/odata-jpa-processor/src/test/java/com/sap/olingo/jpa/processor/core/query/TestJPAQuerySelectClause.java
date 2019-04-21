@@ -1,17 +1,12 @@
 package com.sap.olingo.jpa.processor.core.query;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 
 import org.apache.olingo.commons.api.edm.EdmComplexType;
@@ -21,7 +16,6 @@ import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.ODataApplicationException;
-import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceComplexProperty;
@@ -30,71 +24,21 @@ import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.UriResourceValue;
 import org.apache.olingo.server.api.uri.queryoption.ExpandItem;
 import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.Test;
 
-import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
-import com.sap.olingo.jpa.processor.core.api.JPAODataContextAccessDouble;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.testmodel.TestDataConstants;
 import com.sap.olingo.jpa.processor.core.util.EdmEntityTypeDouble;
 import com.sap.olingo.jpa.processor.core.util.EdmPropertyDouble;
 import com.sap.olingo.jpa.processor.core.util.ExpandItemDouble;
 import com.sap.olingo.jpa.processor.core.util.ExpandOptionDouble;
 import com.sap.olingo.jpa.processor.core.util.SelectOptionDouble;
-import com.sap.olingo.jpa.processor.core.util.TestBase;
-import com.sap.olingo.jpa.processor.core.util.TestHelper;
+import com.sap.olingo.jpa.processor.core.util.TestQueryBase;
 import com.sap.olingo.jpa.processor.core.util.UriInfoDouble;
 import com.sap.olingo.jpa.processor.core.util.UriResourceNavigationDouble;
 import com.sap.olingo.jpa.processor.core.util.UriResourcePropertyDouble;
 
-public class TestJPAQuerySelectClause extends TestBase {
-
-  private JPAAbstractJoinQuery cut;
-  private JPAEntityType jpaEntityType;
-  private HashMap<String, From<?, ?>> joinTables;
-  private Root<?> root;
-  private JPAODataSessionContextAccess context;
-  private UriInfo uriInfo;
-
-  @Before
-  public void setup() throws ODataException {
-    buildUriInfo("BusinessPartners", "BusinessPartner");
-
-    helper = new TestHelper(emf, PUNIT_NAME);
-    nameBuilder = new JPAEdmNameBuilder(PUNIT_NAME);
-    jpaEntityType = helper.getJPAEntityType("BusinessPartners");
-    createHeaders();
-    context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null, TestBase.enumPackages), ds,
-        null);
-
-    cut = new JPAJoinQuery(null, context, emf.createEntityManager(), headers, uriInfo);
-
-    root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
-    joinTables = new HashMap<>();
-    joinTables.put(jpaEntityType.getInternalName(), root);
-  }
-
-  private void buildUriInfo(final String esName, final String etName) {
-    uriInfo = Mockito.mock(UriInfo.class);
-    final EdmEntitySet odataEs = Mockito.mock(EdmEntitySet.class);
-    final EdmType odataType = Mockito.mock(EdmEntityType.class);
-    final List<UriResource> resources = new ArrayList<>();
-    final UriResourceEntitySet esResource = Mockito.mock(UriResourceEntitySet.class);
-    Mockito.when(uriInfo.getUriResourceParts()).thenReturn(resources);
-    Mockito.when(esResource.getKeyPredicates()).thenReturn(new ArrayList<>(1));
-    Mockito.when(esResource.getEntitySet()).thenReturn(odataEs);
-    Mockito.when(esResource.getKind()).thenReturn(UriResourceKind.entitySet);
-    Mockito.when(esResource.getType()).thenReturn(odataType);
-    Mockito.when(odataEs.getName()).thenReturn(esName);
-    Mockito.when(odataType.getNamespace()).thenReturn(PUNIT_NAME);
-    Mockito.when(odataType.getName()).thenReturn(etName);
-    resources.add(esResource);
-  }
+public class TestJPAQuerySelectClause extends TestQueryBase {
 
   @Test
   public void checkSelectAll() throws ODataApplicationException, ODataJPAModelException {
@@ -137,17 +81,6 @@ public class TestJPAQuerySelectClause extends TestBase {
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(uriInfo), root);
 
     assertContains(selectClause, "Address/RegionCodeID");
-  }
-
-  private void fillJoinTable(Root<?> joinRoot) {
-    Join<?, ?> join = joinRoot.join("locationName", JoinType.LEFT);
-    joinTables.put("locationName", join);
-    join = joinRoot.join("address", JoinType.LEFT);
-    join = join.join("countryName", JoinType.LEFT);
-    joinTables.put("countryName", join);
-    join = joinRoot.join("address", JoinType.LEFT);
-    join = join.join("regionName", JoinType.LEFT);
-    joinTables.put("regionName", join);
   }
 
   @Test
