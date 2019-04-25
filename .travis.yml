@@ -5,6 +5,7 @@ dist: trusty
 jdk:
     - oraclejdk8
     - oraclejdk9
+    - openjdk8
 cache:
   directories:
     - $HOME/.m2/repository
@@ -16,4 +17,4 @@ branches:
   - develop
 
   after_success:
-  - mvn clean cobertura:cobertura coveralls:report
+  - mvn clean test jacoco:report cobertura:cobertura org.eluder.coveralls:coveralls-maven-plugin:report

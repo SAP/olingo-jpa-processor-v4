@@ -42,3 +42,5 @@ Now we are able to play around with our OData service. We could e.g.:
 * Or we want to know which Administrative Division has an Area greater then 40000000: _http://localhost:8080/Tutorial/Tutorial.svc/AdministrativeDivisions?$filter=Area gt 4000000&$count=true_
 * Or we look for the parents and children of a certain Administrative Division: _http://localhost:8080/Tutorial/Tutorial.svc/AdministrativeDivisions(DivisionCode='BE254',CodeID='NUTS3',CodePublisher='Eurostat')?$expand=Parent($expand=Parent),Children&$format=json_
 * Or we look for ...
+
+Next we will see how we can use functions: [Tutorial 2.3 Using Functions](2-3-UsingFunctions.md)
