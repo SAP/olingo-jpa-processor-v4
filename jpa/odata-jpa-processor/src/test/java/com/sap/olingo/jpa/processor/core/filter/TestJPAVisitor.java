@@ -1,6 +1,6 @@
 package com.sap.olingo.jpa.processor.core.filter;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -17,8 +17,8 @@ import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceFunction;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitException;
 import org.apache.olingo.server.api.uri.queryoption.expression.Member;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
@@ -34,7 +34,7 @@ public class TestJPAVisitor {
   private JPAODataDatabaseOperations extension;
   private JPAOperationConverter converter;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     extension = mock(JPAODataDatabaseOperations.class);
     converter = new JPAOperationConverter(mock(CriteriaBuilder.class), extension);

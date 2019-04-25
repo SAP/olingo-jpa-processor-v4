@@ -1,6 +1,6 @@
 package com.sap.olingo.jpa.processor.core.query;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -11,8 +11,8 @@ import org.apache.olingo.commons.api.edm.EdmEntityContainer;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmNavigationPropertyBinding;
 import org.apache.olingo.server.api.uri.UriParameter;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class TestEdmEntitySetResult {
   private EdmEntitySetResult cut;
@@ -20,7 +20,7 @@ public class TestEdmEntitySetResult {
   private EdmEntitySet es;
   private EdmEntitySet est;
 
-  @Before
+  @BeforeEach
   public void setup() {
     keys = new ArrayList<>();
     es = mock(EdmEntitySet.class);

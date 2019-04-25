@@ -33,8 +33,8 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.filter.JPAAggregationOperation;
 import com.sap.olingo.jpa.processor.core.filter.JPAArithmeticOperator;
 import com.sap.olingo.jpa.processor.core.filter.JPABooleanOperator;
-import com.sap.olingo.jpa.processor.core.filter.JPAComparisonOperatorImp;
-import com.sap.olingo.jpa.processor.core.filter.JPAEnumerationOperator;
+import com.sap.olingo.jpa.processor.core.filter.JPAComparisonOperator;
+import com.sap.olingo.jpa.processor.core.filter.JPAEnumerationBasedOperator;
 import com.sap.olingo.jpa.processor.core.filter.JPAMethodCall;
 import com.sap.olingo.jpa.processor.core.filter.JPAUnaryBooleanOperator;
 
@@ -48,35 +48,34 @@ public class JPADefaultDatabaseProcessor implements JPAODataDatabaseProcessor, J
   @Override
   public Expression<Long> convert(final JPAAggregationOperation jpaOperator) throws ODataApplicationException {
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
-        HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getAggregation().name());
+        HttpStatusCode.NOT_IMPLEMENTED);
   }
 
   @Override
   public <T extends Number> Expression<T> convert(final JPAArithmeticOperator jpaOperator)
       throws ODataApplicationException {
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
-        HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getOperator().name());
+        HttpStatusCode.NOT_IMPLEMENTED);
   }
 
   @Override
   public Expression<Boolean> convert(final JPABooleanOperator jpaOperator) throws ODataApplicationException {
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
-        HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getOperator().name());
+        HttpStatusCode.NOT_IMPLEMENTED);
   }
 
   @Override
-  public Expression<Boolean> convert(@SuppressWarnings("rawtypes") final JPAComparisonOperatorImp jpaOperator)
+  public Expression<Boolean> convert(@SuppressWarnings("rawtypes") final JPAComparisonOperator jpaOperator)
       throws ODataApplicationException {
     if (jpaOperator.getOperator().equals(BinaryOperatorKind.HAS)) {
       /*
        * HAS requires an bitwise AND. This is not part of SQL and so not part of the criterion builder. Different
-       * databases have different ways to support this. On group uses a function, which is called BITAND e.g. H2,
-       * HSQLDB, SAP HANA, DB2
-       * or ORACLE, others have created an operator '&' like PostgesSQL or MySQL.
-       * TO provide a unique, but slightly slower, solution a workaround is used, see
+       * databases have different ways to support this. One group uses a function, which is called BITAND e.g. H2,
+       * HSQLDB, SAP HANA, DB2 or ORACLE, others have created an operator '&' like PostgesSQL or MySQL.
+       * To provide a unique, but slightly slower, solution a workaround is used, see
        * https://stackoverflow.com/questions/20570481/jpa-oracle-bit-operations-using-criteriabuilder#25508741
        */
-      Long n = ((JPAEnumerationOperator) jpaOperator.getRight()).getValue().longValue();
+      Long n = ((JPAEnumerationBasedOperator) jpaOperator.getRight()).getValue().longValue();
       @SuppressWarnings("unchecked")
       Expression<Integer> div = cb.quot(jpaOperator.getLeft(), n);
       Expression<Integer> mod = cb.mod(div, 2);
@@ -84,19 +83,19 @@ public class JPADefaultDatabaseProcessor implements JPAODataDatabaseProcessor, J
 
     }
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
-        HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getOperator().name());
+        HttpStatusCode.NOT_IMPLEMENTED);
   }
 
   @Override
   public <T> Expression<T> convert(final JPAMethodCall jpaFunction) throws ODataApplicationException {
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
-        HttpStatusCode.NOT_IMPLEMENTED, jpaFunction.getFunction().name());
+        HttpStatusCode.NOT_IMPLEMENTED);
   }
 
   @Override
   public Expression<Boolean> convert(final JPAUnaryBooleanOperator jpaOperator) throws ODataApplicationException {
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
-        HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getOperator().name());
+        HttpStatusCode.NOT_IMPLEMENTED);
   }
 
   @Override
@@ -188,5 +187,4 @@ public class JPADefaultDatabaseProcessor implements JPAODataDatabaseProcessor, J
           HttpStatusCode.NOT_IMPLEMENTED, uriValue, parameter.getName());
     }
   }
-
 }

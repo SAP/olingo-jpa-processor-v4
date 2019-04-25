@@ -61,6 +61,17 @@ public interface JPARequestEntity {
    */
   public JPAModifyUtil getModifyUtil();
 
+  /**
+   * 
+   * @return
+   */
   public Optional<JPAODataClaimsProvider> getClaims();
+
+  /**
+   * For the creation of a dependent entity an instance of the requested entity (root entity) is provided. <br> The
+   * instance must not be merged
+   * @return
+   */
+  public Optional<Object> getBeforeImage();
 
 }

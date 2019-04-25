@@ -37,8 +37,8 @@ import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.UriResourceKind;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.ArgumentMatchers;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
@@ -67,7 +67,7 @@ public abstract class TestJPAModifyProcessor {
   protected static JPAEdmProvider jpaEdm;
   protected static DataSource ds;
 
-  @BeforeClass
+  @BeforeAll
   public static void setupClass() throws ODataException {
     JPAEdmMetadataPostProcessor pP = mock(JPAEdmMetadataPostProcessor.class);
 
@@ -96,7 +96,7 @@ public abstract class TestJPAModifyProcessor {
   protected List<String> header = new ArrayList<>();
   protected JPAServiceDebugger debugger;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     odata = OData.newInstance();
     sessionContext = mock(JPAODataSessionContextAccess.class);

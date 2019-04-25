@@ -90,8 +90,8 @@ public final class JPAODataRequestProcessor
       final ContentType requestFormat, final ContentType responseFormat)
       throws ODataApplicationException, ODataLibraryException {
 
-    throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_CREATE,
-        HttpStatusCode.NOT_IMPLEMENTED);
+	throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_CREATE,
+	    HttpStatusCode.NOT_IMPLEMENTED);
   }
 
   @Override

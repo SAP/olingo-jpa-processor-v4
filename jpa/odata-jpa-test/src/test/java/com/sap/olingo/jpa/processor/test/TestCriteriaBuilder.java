@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,10 +21,10 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescription;
@@ -41,7 +42,7 @@ public class TestCriteriaBuilder {
   private EntityManager em;
   private CriteriaBuilder cb;
 
-  @BeforeClass
+  @BeforeAll
   public static void setupClass() {
     Map<String, Object> properties = new HashMap<>();
     properties.put(ENTITY_MANAGER_DATA_SOURCE, DataSourceHelper.createDataSource(
@@ -49,10 +50,12 @@ public class TestCriteriaBuilder {
     emf = Persistence.createEntityManagerFactory(PUNIT_NAME, properties);
   }
 
-  @Before
+  @BeforeEach
   public void setup() {
     em = emf.createEntityManager();
+    assertNotNull(em);
     cb = em.getCriteriaBuilder();
+    assertNotNull(cb);
   }
 
   @SuppressWarnings("unchecked")
@@ -72,7 +75,7 @@ public class TestCriteriaBuilder {
     tq.getResultList();
   }
 
-  @Ignore // To time consuming
+  @Disabled // To time consuming
   @Test
   public void testSubSelect() {
     // https://stackoverflow.com/questions/29719321/combining-conditional-expressions-with-and-and-or-predicates-using-the-jpa-c
@@ -166,7 +169,7 @@ public class TestCriteriaBuilder {
     count.groupBy(roles.get("businessPartnerID"));
     count.orderBy(cb.desc(cb.count(roles)));
     TypedQuery<Tuple> tq = em.createQuery(count);
-    List<Tuple> act = tq.getResultList();
+    tq.getResultList();
     tq.getFirstResult();
   }
 
@@ -182,11 +185,11 @@ public class TestCriteriaBuilder {
     restrictions[2] = cb.equal(adminDiv.get("codePublisher"), "Eurostat");
     count.where(cb.and(restrictions));
     TypedQuery<Tuple> tq = em.createQuery(count);
-    List<Tuple> act = tq.getResultList();
+    tq.getResultList();
     tq.getFirstResult();
   }
 
-  @Ignore
+  @Disabled
   @Test
   public void TestSearchEmbeddedId() {
     CriteriaQuery<Tuple> cq = cb.createTupleQuery();
@@ -206,7 +209,7 @@ public class TestCriteriaBuilder {
     System.out.println(act.size());
   }
 
-  @Ignore
+  @Disabled
   @Test
   public void TestSearchNoSubquery() {
     CriteriaQuery<Tuple> cq = cb.createTupleQuery();

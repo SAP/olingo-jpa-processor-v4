@@ -13,6 +13,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -82,6 +83,27 @@ public final class JPAModifyUtil {
       setLink(source, targetInstance, pathInfo.getLeaf());
 
     } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
+        | InvocationTargetException e) {
+      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  /**
+   * Boxed
+   * missing getter
+   * @param parentInstance
+   * @param newInstance
+   * @param pathInfo
+   * @throws ODataJPAProcessorException
+   */
+  public void setForeignKey(Object parentInstance, Object newInstance, JPAAssociationPath pathInfo)
+      throws ODataJPAProcessorException {
+    try {
+      for (JPAOnConditionItem joinCloumn : pathInfo.getJoinColumnsList()) {
+        setAttribute(newInstance, joinCloumn.getRightPath().getLeaf(), getAttribute(parentInstance, joinCloumn
+            .getLeftPath().getLeaf()));
+      }
+    } catch (ODataJPAModelException | NoSuchMethodException | IllegalAccessException | IllegalArgumentException
         | InvocationTargetException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
@@ -211,8 +233,7 @@ public final class JPAModifyUtil {
     Object source = sourceInstance;
     for (JPAElement pathItem : pathInfo.getPath()) {
       if (pathItem != pathInfo.getLeaf()) {
-        final String relationName = pathItem.getInternalName();
-        final String methodSuffix = relationName.substring(0, 1).toUpperCase() + relationName.substring(1);
+        final String methodSuffix = buildMethodNameSuffix(pathItem);
         final Method getter = source.getClass().getMethod("get" + methodSuffix);
         Object next = getter.invoke(source);
         if (next == null) {
@@ -229,6 +250,11 @@ public final class JPAModifyUtil {
       }
     }
     return source;
+  }
+
+  private String buildMethodNameSuffix(final JPAElement pathItem) {
+    final String relationName = pathItem.getInternalName();
+    return relationName.substring(0, 1).toUpperCase() + relationName.substring(1);
   }
 
   private void handleInvocationTargetException(JPAStructuredType st, final String attributeName, Exception e)
@@ -278,6 +304,26 @@ public final class JPAModifyUtil {
             + methodSuffix, sourceInstance.getClass().getName(), targetInstance.getClass().getName());
       setter.invoke(sourceInstance, targetInstance);
     }
+  }
+
+  private void setAttribute(final Object instance, final JPAElement attribute, final Object value)
+      throws NoSuchMethodException, ODataJPAProcessorException, IllegalAccessException, InvocationTargetException {
+
+    final Method setter = instance.getClass().getMethod("set" + buildMethodNameSuffix(attribute), value.getClass());
+    if (setter == null)
+      throw new ODataJPAProcessorException(MessageKeys.SETTER_NOT_FOUND, HttpStatusCode.INTERNAL_SERVER_ERROR,
+          buildMethodNameSuffix(attribute), instance.getClass().getName(), value.getClass().getName());
+    setter.invoke(instance, value);
+  }
+
+  private Object getAttribute(final Object instance, final JPAElement attribute) throws NoSuchMethodException,
+      ODataJPAProcessorException, IllegalAccessException, InvocationTargetException {
+
+    final Method getter = instance.getClass().getMethod("get" + buildMethodNameSuffix(attribute));
+    if (getter == null)
+      throw new ODataJPAProcessorException(MessageKeys.GETTER_NOT_FOUND, HttpStatusCode.INTERNAL_SERVER_ERROR,
+          buildMethodNameSuffix(attribute), instance.getClass().getName());
+    return getter.invoke(instance);
   }
 
 }

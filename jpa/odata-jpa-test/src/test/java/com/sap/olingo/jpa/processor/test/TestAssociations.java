@@ -1,7 +1,7 @@
 package com.sap.olingo.jpa.processor.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,9 +16,9 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescription;
@@ -34,7 +34,7 @@ public class TestAssociations {
   private EntityManager em;
   private CriteriaBuilder cb;
 
-  @BeforeClass
+  @BeforeAll
   public static void setupClass() {
     Map<String, Object> properties = new HashMap<>();
     properties.put(ENTITY_MANAGER_DATA_SOURCE, DataSourceHelper.createDataSource(
@@ -42,7 +42,7 @@ public class TestAssociations {
     emf = Persistence.createEntityManagerFactory(PUNIT_NAME, properties);
   }
 
-  @Before
+  @BeforeEach
   public void setup() {
     em = emf.createEntityManager();
     cb = em.getCriteriaBuilder();

@@ -5,6 +5,7 @@ dist: trusty
 jdk:
     - oraclejdk8
     - oraclejdk9
+    - oraclejdk11
     - openjdk8
 cache:
   directories:

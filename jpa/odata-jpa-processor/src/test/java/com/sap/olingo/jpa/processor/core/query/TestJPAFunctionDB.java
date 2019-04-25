@@ -29,8 +29,8 @@ import org.apache.olingo.server.api.serializer.SerializerResult;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceFunction;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -67,7 +67,7 @@ public class TestJPAFunctionDB {
   private SerializerResult serializerResult;
   private EntityManager em;
 
-  @Before
+  @BeforeEach
   public void setup() throws ODataException {
     final JPAEdmProvider provider = mock(JPAEdmProvider.class);
 

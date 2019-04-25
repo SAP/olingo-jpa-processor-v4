@@ -1,13 +1,14 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -20,7 +21,7 @@ public class TestIntermediateEnumerationType extends TestMappingRoot {
 
   private IntermediateEnumerationType cut;
 
-  @Before
+  @BeforeEach
   public void setup() {
     MockitoAnnotations.initMocks(this);
   }
@@ -114,16 +115,20 @@ public class TestIntermediateEnumerationType extends TestMappingRoot {
     assertEquals("8", cut.getEdmItem().getMembers().get(3).getValue());
   }
 
-  @Test(expected = ODataJPAModelException.class)
+  @Test
   public void checkThrowsErrorOnIsFlagTrueAndNegativeValue() throws ODataJPAModelException {
     cut = new IntermediateEnumerationType(new JPAEdmNameBuilder(PUNIT_NAME), WrongMember.class);
-    cut.getEdmItem();
+    assertThrows(ODataJPAModelException.class, () -> {
+      cut.getEdmItem();
+    });
   }
 
-  @Test(expected = ODataJPAModelException.class)
+  @Test
   public void checkThrowsErrorOnNotSupportedUnderlyingType() throws ODataJPAModelException {
     cut = new IntermediateEnumerationType(new JPAEdmNameBuilder(PUNIT_NAME), WrongType.class);
-    cut.getEdmItem();
+    assertThrows(ODataJPAModelException.class, () -> {
+      cut.getEdmItem();
+    });
   }
 
   @Test

@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>com.sap.olingo</groupId>
 		<artifactId>odata-jpa</artifactId>
-		<version>0.3.1-SNAPSHOT</version>
+		<version>0.3.2-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>odata-jpa-processor</artifactId>
@@ -20,7 +20,6 @@
 		<jackson.version>2.4.2</jackson.version>
 	</properties>
 	<dependencies>
-
 		<dependency>
 			<groupId>com.sap.olingo</groupId>
 			<artifactId>odata-jpa-test</artifactId>

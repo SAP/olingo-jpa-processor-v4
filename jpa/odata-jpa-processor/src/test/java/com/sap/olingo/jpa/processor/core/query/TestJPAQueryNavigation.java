@@ -1,14 +1,14 @@
 package com.sap.olingo.jpa.processor.core.query;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 
 import org.apache.olingo.commons.api.ex.ODataException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -52,7 +52,7 @@ public class TestJPAQueryNavigation extends TestBase {
   public void testNoNavigationOneEntityNoContent() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('1000')");
-    helper.assertStatus(204);
+    helper.assertStatus(404);
   }
 
   @Test
@@ -187,7 +187,7 @@ public class TestJPAQueryNavigation extends TestBase {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations('3')/Address/AdministrativeDivision/Children");
-    helper.assertStatus(204);
+    helper.assertStatus(200);
   }
 
   @Test
@@ -267,7 +267,7 @@ public class TestJPAQueryNavigation extends TestBase {
   public void testNavigationComplexCollectionPropertyEmptyReult() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Persons('98')/InhouseAddress");
-    helper.assertStatus(204);
+    helper.assertStatus(200);
   }
 
   @Test

@@ -1,9 +1,8 @@
 package com.sap.olingo.jpa.processor.core.database;
 
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -37,8 +36,8 @@ import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.UriResourceFunction;
 import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.queryoption.SearchOption;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.internal.matchers.Equals;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -69,7 +68,7 @@ public class TestJPA_HSQLDB_DatabaseProcessor {
   private UriParameter firstUriParameter;
   private Query functionQuery;
 
-  @Before
+  @BeforeEach
   public void steup() {
     em = mock(EntityManager.class);
     functionQuery = mock(Query.class);
@@ -173,7 +172,7 @@ public class TestJPA_HSQLDB_DatabaseProcessor {
   public void testUnboundConvertsExceptionOnParameterProblem() throws ODataJPAModelException {
 
     createFunctionWithOneParameter();
-    when(uriFunction.getParameters()).thenThrow(ODataJPAModelException.class);
+    when(jpaFunction.getParameter()).thenThrow(ODataJPAModelException.class);
 
     try {
       cut.executeFunctionQuery(uriResourceParts, jpaFunction, em);
@@ -274,7 +273,7 @@ public class TestJPA_HSQLDB_DatabaseProcessor {
   public void testBoundConvertsExceptionOnParameterProblem() throws ODataJPAModelException {
 
     createBoundFunctionWithOneParameter();
-    when(uriEntitySet.getKeyPredicates()).thenThrow(ODataJPAModelException.class);
+    when(jpaFunction.getParameter()).thenThrow(ODataJPAModelException.class);
 
     try {
       cut.executeFunctionQuery(uriResourceParts, jpaFunction, em);
