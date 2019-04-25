@@ -21,7 +21,7 @@ clone the repository, import the projects and declare a dependency to either the
 <dependency>
 	<groupId>com.sap.olingo</groupId>
 	<artifactId>odata-jpa-metadata</artifactId>
-	<version>0.3.1-SNAPSHOT</version>
+	<version>0.3.2-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -31,7 +31,7 @@ Or to the complete processor:
 <dependency>
 	<groupId>com.sap.olingo</groupId>
 	<artifactId>odata-jpa-processor</artifactId>
-	<version>0.3.1-SNAPSHOT</version>
+	<version>0.3.2-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -70,4 +70,5 @@ This file is licensed under the Apache Software License, v.2 except as noted oth
 |0.2.8|- Support of Collection Properties<br> - New tutorials 1.7 Suppressing Elements and 1.13 Collection Properties |No|
 |0.2.9|- Support on top level server driven paging<br> - New tutorial 4.3 Server Driven Paging |No|  
 |0.2.10|- Handling of Content-Id in batch requests<br> - Update to Olingo 4.5.0<br> - Update tutorial 1.6, 3.3, 3.5 and 3.6  |No|  
-|0.3.1|- Support of instance based authorizations<br> - Solution for issue [#60](https://github.com/SAP/olingo-jpa-processor-v4/issues/60)<br> - Solution for issue [#49](https://github.com/SAP/olingo-jpa-processor-v4/issues/49)<br> - Correct typo in interface JPAODataPagingProvider <br> - New tutorials 2.3, 4.4  |Yes|  
+|0.3.1|- Support of instance based authorizations<br> - Solution for issue [#60](https://github.com/SAP/olingo-jpa-processor-v4/issues/60)<br> - Solution for issue [#49](https://github.com/SAP/olingo-jpa-processor-v4/issues/49)<br> - Correct typo in interface JPAODataPagingProvider <br> - New tutorials 2.3, 4.4  |Yes|
+|0.3.2|- Lift unit tests to JUnit 5<br> |No|
