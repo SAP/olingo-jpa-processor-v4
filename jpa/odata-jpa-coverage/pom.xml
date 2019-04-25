@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>com.sap.olingo</groupId>
 		<artifactId>odata-jpa</artifactId>
-		<version>0.3.2-SNAPSHOT</version>
+		<version>0.3.3-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>odata-jpa-coverage</artifactId>
@@ -14,7 +14,6 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.build.source>1.8</project.build.source>
 	</properties>
 
 	<dependencies>
