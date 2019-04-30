@@ -9,6 +9,7 @@
 
 		<class>com.sap.olingo.jpa.processor.core.testmodel.AccessRightsConverter</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.AddressDeepProtected</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.AddressDeepThreeProtections</class> 
 		<class>com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescription</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.BestOrganization</class>
@@ -31,6 +32,7 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.InhouseAddress</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.InhouseAddressTable</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.InhouseAddressWithProtection</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.InhouseAddressWithThreeProtections</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.JoinComplex</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.JoinRelation</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.JoinSource</class>

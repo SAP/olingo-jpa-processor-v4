@@ -9,12 +9,12 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 //Only for Unit Tests
 @EdmIgnore
 @Embeddable
-public class AddressDeepProtected {
+public class AddressDeepThreeProtections {
 
   @Column(name = "\"AddressType\"")
   private String type;
 
   @Embedded
-  private InhouseAddressWithProtection inhouseAddress;
+  private InhouseAddressWithThreeProtections inhouseAddress;
 
 }

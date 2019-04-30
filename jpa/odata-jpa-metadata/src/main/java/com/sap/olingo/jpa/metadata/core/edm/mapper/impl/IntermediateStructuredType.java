@@ -248,33 +248,33 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
       final PersistentAttributeType attributeType = jpaAttribute.getPersistentAttributeType();
 
       switch (attributeType) {
-      case BASIC:
-      case EMBEDDED:
-      case ELEMENT_COLLECTION:
-        break;
-      case ONE_TO_MANY:
-      case ONE_TO_ONE:
-      case MANY_TO_MANY:
-      case MANY_TO_ONE:
-        if (jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
-          final EdmDescriptionAssoziation jpaDescription = ((AnnotatedElement) jpaAttribute.getJavaMember())
-              .getAnnotation(
-                  EdmDescriptionAssoziation.class);
-          if (jpaDescription != null) {
-            final IntermediateDescriptionProperty descProperty = new IntermediateDescriptionProperty(nameBuilder,
-                jpaAttribute, schema);
-            declaredPropertiesList.put(descProperty.internalName, descProperty);
-            break;
+        case BASIC:
+        case EMBEDDED:
+        case ELEMENT_COLLECTION:
+          break;
+        case ONE_TO_MANY:
+        case ONE_TO_ONE:
+        case MANY_TO_MANY:
+        case MANY_TO_ONE:
+          if (jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
+            final EdmDescriptionAssoziation jpaDescription = ((AnnotatedElement) jpaAttribute.getJavaMember())
+                .getAnnotation(
+                    EdmDescriptionAssoziation.class);
+            if (jpaDescription != null) {
+              final IntermediateDescriptionProperty descProperty = new IntermediateDescriptionProperty(nameBuilder,
+                  jpaAttribute, schema);
+              declaredPropertiesList.put(descProperty.internalName, descProperty);
+              break;
+            }
           }
-        }
-        final IntermediateNavigationProperty navProp = new IntermediateNavigationProperty(nameBuilder, this,
-            jpaAttribute,
-            schema);
-        declaredNaviPropertiesList.put(navProp.internalName, navProp);
-        break;
-      default:
-        throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.NOT_SUPPORTED_ATTRIBUTE_TYPE,
-            attributeType.name());
+          final IntermediateNavigationProperty navProp = new IntermediateNavigationProperty(nameBuilder, this,
+              jpaAttribute,
+              schema);
+          declaredNaviPropertiesList.put(navProp.internalName, navProp);
+          break;
+        default:
+          throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.NOT_SUPPORTED_ATTRIBUTE_TYPE,
+              attributeType.name());
       }
     }
   }
@@ -285,33 +285,34 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
       final PersistentAttributeType attributeType = jpaAttribute.getPersistentAttributeType();
 
       switch (attributeType) {
-      case BASIC:
-      case EMBEDDED:
-        if (jpaAttribute instanceof SingularAttribute<?, ?>
-            && ((SingularAttribute<?, ?>) jpaAttribute).isId()
-            && attributeType == PersistentAttributeType.EMBEDDED) {
-          final IntermediateSimpleProperty property = new IntermediateEmbeddedIdProperty(nameBuilder, jpaAttribute,
-              schema);
+        case BASIC:
+        case EMBEDDED:
+          if (jpaAttribute instanceof SingularAttribute<?, ?>
+              && ((SingularAttribute<?, ?>) jpaAttribute).isId()
+              && attributeType == PersistentAttributeType.EMBEDDED) {
+            final IntermediateSimpleProperty property = new IntermediateEmbeddedIdProperty(nameBuilder, jpaAttribute,
+                schema);
+            declaredPropertiesList.put(property.internalName, property);
+          } else {
+            final IntermediateSimpleProperty property = new IntermediateSimpleProperty(nameBuilder, jpaAttribute,
+                schema);
+            declaredPropertiesList.put(property.internalName, property);
+          }
+          break;
+        case ELEMENT_COLLECTION:
+          final IntermediateCollectionProperty property = new IntermediateCollectionProperty(nameBuilder,
+              (PluralAttribute<?, ?, ?>) jpaAttribute, schema, this);
           declaredPropertiesList.put(property.internalName, property);
-        } else {
-          final IntermediateSimpleProperty property = new IntermediateSimpleProperty(nameBuilder, jpaAttribute, schema);
-          declaredPropertiesList.put(property.internalName, property);
-        }
-        break;
-      case ELEMENT_COLLECTION:
-        final IntermediateCollectionProperty property = new IntermediateCollectionProperty(nameBuilder,
-            (PluralAttribute<?, ?, ?>) jpaAttribute, schema, this);
-        declaredPropertiesList.put(property.internalName, property);
-        break;
-      case ONE_TO_MANY:
-      case ONE_TO_ONE:
-      case MANY_TO_MANY:
-      case MANY_TO_ONE:
-        break;
-      default:
-        // Attribute Type '%1$s' as of now not supported
-        throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.NOT_SUPPORTED_ATTRIBUTE_TYPE,
-            attributeType.name());
+          break;
+        case ONE_TO_MANY:
+        case ONE_TO_ONE:
+        case MANY_TO_MANY:
+        case MANY_TO_ONE:
+          break;
+        default:
+          // Attribute Type '%1$s' as of now not supported
+          throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.NOT_SUPPORTED_ATTRIBUTE_TYPE,
+              attributeType.name());
       }
     }
   }
@@ -667,18 +668,20 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
                 if (path == null) // Annotation EdmProtctedBy found at '%2$s' of '%1$s', but the given 'path' '%3$s'...
                   throw new ODataJPAModelException(COMPLEX_PROPERTY_WRONG_PROTECTION_PATH, attribute.getInternalName(),
                       this.getTypeClass().getSimpleName(), pathName);
-                protectedAttributes.add(new ProtectionInfo(path, claimName));
+                protectedAttributes.add(new ProtectionInfo(path, claimName, attribute));
               }
             }
           } else
             for (final String claimName : attribute.getProtectionClaimNames()) {
-              protectedAttributes.add(new ProtectionInfo(this.getPath(attribute.getExternalName(), false), claimName));
+              protectedAttributes.add(new ProtectionInfo(this.getPath(attribute.getExternalName(), false), claimName,
+                  attribute));
             }
         } else if (attribute.isComplex()) { // Protection at attribute overrides protection within complex
           for (final JPAProtectionInfo info : attribute.getStructuredType().getProtections()) {
             // Copy and extend path
             final String pathName = attribute.getExternalName() + JPAPath.PATH_SEPERATOR + info.getPath().getAlias();
-            protectedAttributes.add(new ProtectionInfo(this.getPath(pathName, false), info.getClaimName()));
+            final JPAPath path = this.getPath(pathName, false);
+            protectedAttributes.add(new ProtectionInfo(path, info));
           }
         }
       }
@@ -712,10 +715,25 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
   private static class ProtectionInfo implements JPAProtectionInfo {
     private final JPAPath pathToAttribute;
     private final String claimName;
+    private final boolean wildcardSupported;
 
-    public ProtectionInfo(final JPAPath path, final String claimName) {
+    public ProtectionInfo(final JPAPath path, final String claimName, final JPAAttribute attribute) {
       this.pathToAttribute = path;
       this.claimName = claimName;
+      this.wildcardSupported = ((IntermediateProperty) attribute).protectionWithWildcard(claimName, path.getLeaf()
+          .getType());
+
+    }
+
+    /**
+     * Copy with a new path. This can be used for nested structured types
+     * @param path
+     * @param info
+     */
+    public ProtectionInfo(JPAPath path, JPAProtectionInfo info) {
+      this.pathToAttribute = path;
+      this.claimName = info.getClaimName();
+      this.wildcardSupported = info.supportsWildcards();
     }
 
     @Override
@@ -734,9 +752,14 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
     }
 
     @Override
-    public String toString() {
-      return "ProtectionInfo [pathToAttribute=" + pathToAttribute.getAlias() + ", claimName=" + claimName + "]";
+    public boolean supportsWildcards() {
+      return wildcardSupported;
     }
 
+    @Override
+    public String toString() {
+      return "ProtectionInfo [pathToAttribute=" + pathToAttribute.getAlias() + ", claimName=" + claimName
+          + ", wildcardSupported=" + wildcardSupported + "]";
+    }
   }
 }

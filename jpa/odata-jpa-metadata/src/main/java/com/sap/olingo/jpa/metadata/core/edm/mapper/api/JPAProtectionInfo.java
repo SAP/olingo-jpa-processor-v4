@@ -23,4 +23,10 @@ public interface JPAProtectionInfo {
    * @return
    */
   public String getClaimName();
+
+  /**
+   * Returns the maintained wildcard setting.
+   * @return
+   */
+  public boolean supportsWildcards();
 }

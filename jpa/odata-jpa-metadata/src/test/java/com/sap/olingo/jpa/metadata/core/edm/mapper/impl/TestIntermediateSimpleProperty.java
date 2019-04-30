@@ -445,10 +445,38 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
+  public void checkGetProptertyProtectionSupportsWildCardTrue() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartnerProtected.class),
+        "username");
+    IntermediateProperty property = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+        jpaAttribute, helper.schema);
+    assertTrue(property.protectionWithWildcard("UserId", String.class));
+  }
+
+  //
+  @Test
+  public void checkGetProptertyProtectionSupportsWildCardFalse() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getComplexType("InhouseAddressWithThreeProtections"),
+        "building");
+    IntermediateProperty property = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+        jpaAttribute, helper.schema);
+    assertFalse(property.protectionWithWildcard("BuildingNumber", String.class));
+  }
+
+  @Test
+  public void checkGetProptertyProtectionSupportsWildCardFalseNonString() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getComplexType("InhouseAddressWithThreeProtections"),
+        "roomNumber");
+    IntermediateProperty property = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+        jpaAttribute, helper.schema);
+    assertFalse(property.protectionWithWildcard("RoomNumber", Integer.class));
+  }
+
+  @Test
   public void checkGetProptertyProtectedAttributeClaimName() throws ODataJPAModelException {
     Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartnerProtected.class),
         "username");
-    IntermediatePropertyAccess property = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+    IntermediateProperty property = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
         jpaAttribute, helper.schema);
     assertEquals("UserId", property.getProtectionClaimNames().toArray(new String[] {})[0]);
     assertNotNull(property.getProtectionPath("UserId"));
@@ -460,7 +488,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   @Test
   public void checkGetProptertyNotProtectedAttributeClaimName() throws ODataJPAModelException {
     Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartnerProtected.class), "eTag");
-    IntermediatePropertyAccess property = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+    IntermediateProperty property = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
         jpaAttribute, helper.schema);
     assertTrue(property.getProtectionClaimNames().isEmpty());
     assertTrue(property.getProtectionPath("Username").isEmpty());
@@ -480,7 +508,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
     Attribute<?, ?> attributeSpy = Mockito.spy(jpaAttribute);
     when(attributeSpy.getJavaMember()).thenReturn(memberSpy);
 
-    IntermediatePropertyAccess property = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+    IntermediateProperty property = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
         attributeSpy, helper.schema);
     assertEquals("UserId", property.getProtectionClaimNames().toArray(new String[] {})[0]);
     assertNotNull(property.getProtectionPath("UserId"));
@@ -510,7 +538,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
     Attribute<?, ?> attributeSpy = Mockito.spy(jpaAttribute);
     when(attributeSpy.getJavaMember()).thenReturn(memberSpy);
 
-    IntermediatePropertyAccess property = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+    IntermediateProperty property = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
         attributeSpy, helper.schema);
     assertEquals("UserId", property.getProtectionClaimNames().toArray(new String[] {})[0]);
     assertNotNull(property.getProtectionPath("UserId"));
@@ -542,7 +570,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
     Attribute<?, ?> attributeSpy = Mockito.spy(jpaAttribute);
     when(attributeSpy.getJavaMember()).thenReturn(memberSpy);
 
-    IntermediatePropertyAccess property = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+    IntermediateProperty property = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
         attributeSpy, helper.schema);
 
     assertTrue(property.getProtectionClaimNames().contains("UserId"));
