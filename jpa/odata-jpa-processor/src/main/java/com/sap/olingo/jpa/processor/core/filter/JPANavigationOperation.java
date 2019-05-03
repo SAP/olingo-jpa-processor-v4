@@ -97,6 +97,11 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
   }
 
   @Override
+  public String getName() {
+    return operator.name();
+  }
+
+  @Override
   Subquery<?> getExistsQuery() throws ODataApplicationException {
     final List<UriResource> allUriResourceParts = new ArrayList<>(uriResourceParts);
     allUriResourceParts.addAll(jpaMember.getMember().getResourcePath().getUriResourceParts());

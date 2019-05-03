@@ -56,4 +56,8 @@ public final class JPAEnumerationOperator implements JPAEnumerationBasedOperator
     }
   }
 
+  @Override
+  public String getName() {
+    return "";
+  }
 }
