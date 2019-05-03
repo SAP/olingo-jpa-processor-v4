@@ -3,4 +3,9 @@ target/
 **/target/
 /target/
 /.pmd
-/javaw_33460.log
+.classpath
+
+# --- EclipseIDE stuff START
+.settings/
+.metadata
+*.log

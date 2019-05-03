@@ -4,6 +4,7 @@ import static com.sap.olingo.jpa.processor.core.converter.JPAExpandResult.ROOT_R
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.MISSING_CLAIM;
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.MISSING_CLAIMS_PROVIDER;
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.QUERY_RESULT_ENTITY_TYPE_ERROR;
+import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.WILDCARD_UPPER_NOT_SUPPORTED;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -152,8 +153,9 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
     return cq;
   }
 
-  javax.persistence.criteria.Expression<Boolean> createProtectionWhere(Optional<JPAODataClaimsProvider> claimsProvider)
-      throws ODataJPAQueryException {
+  javax.persistence.criteria.Expression<Boolean> createProtectionWhere(
+      final Optional<JPAODataClaimsProvider> claimsProvider) throws ODataJPAQueryException {
+
     final Map<String, From<?, ?>> dummyJoinTables = new HashMap<>(1);
     javax.persistence.criteria.Expression<Boolean> restriction = null;
     for (final JPANavigationProptertyInfo navi : navigationInfo) { // for all participating entity types/tables
@@ -165,7 +167,8 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
             throw new ODataJPAQueryException(MISSING_CLAIM, HttpStatusCode.FORBIDDEN);
           final Path<?> p = ExpressionUtil.convertToCriteriaPath(dummyJoinTables, navi.getFromClause(), protection
               .getPath().getPath());
-          restriction = addWhereClause(restriction, createProtectionWhereForAttribute(values, p));
+          restriction = addWhereClause(restriction, createProtectionWhereForAttribute(values, p, protection
+              .supportsWildcards()));
         }
       } catch (NoSuchElementException e) {
         throw new ODataJPAQueryException(MISSING_CLAIMS_PROVIDER, HttpStatusCode.FORBIDDEN);
@@ -197,14 +200,25 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
     return groupBy;
   }
 
+  @SuppressWarnings("unchecked")
   private javax.persistence.criteria.Expression<Boolean> createProtectionWhereForAttribute(
-      final List<JPAClaimsPair<?>> values, final Path<?> p) {
+      final List<JPAClaimsPair<?>> values, final Path<?> p, final boolean wildcardsSupported)
+      throws ODataJPAQueryException {
+
     javax.persistence.criteria.Expression<Boolean> attriRestriction = null;
     for (final JPAClaimsPair<?> value : values) { // for each given claim value
       if (value.hasUpperBoundary)
-        attriRestriction = orWhereClause(attriRestriction, createBetween(value, p));
-      else
-        attriRestriction = orWhereClause(attriRestriction, cb.equal(p, value.min));
+        if (wildcardsSupported && ((String) value.min).matches(".*[\\*|\\%|\\+|\\_].*"))
+          throw new ODataJPAQueryException(WILDCARD_UPPER_NOT_SUPPORTED, HttpStatusCode.INTERNAL_SERVER_ERROR);
+        else
+          attriRestriction = orWhereClause(attriRestriction, createBetween(value, p));
+      else {
+        if (wildcardsSupported && ((String) value.min).matches(".*[\\*|\\%|\\+|\\_].*"))
+          attriRestriction = orWhereClause(attriRestriction, cb.like((Path<String>) p,
+              ((String) value.min).replace('*', '%').replace('+', '_')));
+        else
+          attriRestriction = orWhereClause(attriRestriction, cb.equal(p, value.min));
+      }
     }
     return attriRestriction;
   }

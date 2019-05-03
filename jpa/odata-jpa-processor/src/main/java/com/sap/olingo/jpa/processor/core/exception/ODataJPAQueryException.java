@@ -33,7 +33,8 @@ public class ODataJPAQueryException extends ODataJPAProcessException { // NOSONA
     NOT_SUPPORTED_RESOURCE_TYPE,
     QUERY_PREPARATION_NOT_IMPLEMENTED,
     MISSING_CLAIMS_PROVIDER,
-    MISSING_CLAIM;
+    MISSING_CLAIM,
+    WILDCARD_UPPER_NOT_SUPPORTED;
 
     @Override
     public String getKey() {

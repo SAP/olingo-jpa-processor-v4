@@ -64,7 +64,7 @@ public class TestFunctionsHSQLDB {
     count.where(cb.and(cb.greaterThan(
         //
         cb.function("PopulationDensity", Integer.class, adminDiv.get("area"), adminDiv.get("population")),
-        new Integer(60))), cb.equal(adminDiv.get("countryCode"), cb.literal("BEL")));
+        Integer.valueOf(60))), cb.equal(adminDiv.get("countryCode"), cb.literal("BEL")));
     // cb.literal
     TypedQuery<Tuple> tq = em.createQuery(count);
     List<Tuple> act = tq.getResultList();

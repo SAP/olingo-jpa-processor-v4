@@ -27,7 +27,7 @@ class JPACoreDebugger implements JPAServiceDebugger {
   public void stopRuntimeMeasurement(final int handle) {
     if (handle < runtimeInformation.size()) {
       final RuntimeMeasurement runtimeMeasurement = runtimeInformation.get(handle);
-      if (runtimeMeasurement != null) {
+      if (runtimeMeasurement != null && runtimeMeasurement.getTimeStopped() == 0L) {
         runtimeMeasurement.setTimeStopped(System.nanoTime());
       }
     }

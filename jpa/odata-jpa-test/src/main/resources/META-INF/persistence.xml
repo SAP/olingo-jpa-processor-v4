@@ -9,6 +9,7 @@
 
 		<class>com.sap.olingo.jpa.processor.core.testmodel.AccessRightsConverter</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.AddressDeepProtected</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.AddressDeepThreeProtections</class> 
 		<class>com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescription</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.BestOrganization</class>
@@ -26,11 +27,13 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Comment</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Country</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DateConverter</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.DeepProtectedExample</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DummyEmbeddedToIgnore</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DummyToBeIgnored</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.InhouseAddress</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.InhouseAddressTable</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.InhouseAddressWithProtection</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.InhouseAddressWithThreeProtections</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.JoinComplex</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.JoinRelation</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.JoinSource</class>
@@ -41,6 +44,7 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Person</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.PersonImage</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.PersonDeepProtected</class> 
+		<class>com.sap.olingo.jpa.processor.core.testmodel.PersonDeepProtectedHidden</class> 
 		<class>com.sap.olingo.jpa.processor.core.testmodel.StringConverter</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.SupportRelationship</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Team</class>
@@ -63,8 +67,11 @@
 		<class>com.sap.olingo.jpa.processor.core.errormodel.NavigationAttributeProtected</class>
 		<class>com.sap.olingo.jpa.processor.core.errormodel.ComplextProtectedNoPath</class>
 		<class>com.sap.olingo.jpa.processor.core.errormodel.ComplextProtectedWrongPath</class>
-		<class>com.sap.olingo.jpa.processor.core.testmodel.InhouseAddress</class>
+		<class>com.sap.olingo.jpa.processor.core.errormodel.PersonDeepCollectionProtected</class> <!-- -->
+		<class>com.sap.olingo.jpa.processor.core.testmodel.AddressDeepProtected</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.InhouseAddressWithProtection</class>
 		<class>com.sap.olingo.jpa.processor.core.errormodel.Team</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.AccessRightsConverter</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DateConverter</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.StringConverter</class>
 		<exclude-unlisted-classes>true</exclude-unlisted-classes>

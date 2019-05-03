@@ -695,6 +695,7 @@ CREATE TABLE "InhouseAddress" (
 	"Floor"  SMALLINT,
     "RoomNumber" INTEGER,
    PRIMARY KEY ("ID", "Task"));	
+insert into "InhouseAddress" values( '97', 'DEV',  '2', 1, 32 );
 insert into "InhouseAddress" values( '99', 'DEV',  '1',-1 ,245 );
 insert into "InhouseAddress" values( '99', 'MAIN', '7', 2 ,32 );
 insert into "InhouseAddress" values( '501', 'MAIN', '7', 2 ,32 );
@@ -836,7 +837,30 @@ CREATE VIEW "BusinessPartnerProtected"
 		ON b."Country" >= r."From"
 		AND b."Country" <= r."To";
 
-	 
+
+CREATE VIEW "PersonProtected"		
+		AS 
+	SELECT 
+		b."ID", 
+		b."ETag",
+		b."Type",
+		b."NameLine1",
+		b."NameLine2",
+		b."CreatedBy",
+		b."CreatedAt",   
+		b."UpdatedBy",
+		b."UpdatedAt",
+		a."Task" as "AddressType",
+		a."Task",
+		a."Building",
+		a."Floor",
+		a."RoomNumber"	
+	FROM "BusinessPartner" as b
+	LEFT OUTER JOIN  "InhouseAddress"  as a
+		ON b."ID" = a."ID" 
+	WHERE b."Type" = '1'
+	AND   a."Task" = 'DEV';
+	
 --------------------------------------------
 CREATE TABLE "DummyToBeIgnored" (
 	"ID" VARCHAR(32) NOT NULL ,
