@@ -10,8 +10,8 @@ import javax.persistence.TupleElement;
 
 final class JPATuple implements Tuple {
 
-  private List<TupleElement<?>> elements = new ArrayList<TupleElement<?>>();
-  private Map<String, Object> values = new HashMap<String, Object>();
+  private List<TupleElement<?>> elements = new ArrayList<>();
+  private Map<String, Object> values = new HashMap<>();
 
   public void addElement(String alias, Class<?> javaType, Object value) {
     elements.add(new JPATupleElement<Object>(alias, javaType));
@@ -20,13 +20,13 @@ final class JPATuple implements Tuple {
   }
 
   @Override
-  public Object get(int arg0) {
+  public Object get(final int arg0) {
     assert 1 == 2;
     return null;
   }
 
   @Override
-  public <X> X get(int arg0, Class<X> arg1) {
+  public <X> X get(final int arg0, final Class<X> arg1) {
     assert 1 == 2;
     return null;
   }
@@ -41,18 +41,18 @@ final class JPATuple implements Tuple {
    * query result tuple
    */
   @Override
-  public Object get(String alias) {
+  public Object get(final String alias) {
     return values.get(alias);
   }
 
   @Override
-  public <X> X get(String arg0, Class<X> arg1) {
+  public <X> X get(final String arg0, final Class<X> arg1) {
     assert 1 == 2;
     return null;
   }
 
   @Override
-  public <X> X get(TupleElement<X> arg0) {
+  public <X> X get(final TupleElement<X> arg0) {
     return null;
   }
 
@@ -71,7 +71,7 @@ final class JPATuple implements Tuple {
     private final String alias;
     private final Class<? extends X> javaType;
 
-    public JPATupleElement(String alias, Class<? extends X> javaType) {
+    public JPATupleElement(final String alias, final Class<? extends X> javaType) {
       this.alias = alias;
       this.javaType = javaType;
     }

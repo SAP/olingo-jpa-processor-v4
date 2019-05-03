@@ -49,4 +49,9 @@ final class JPAUnaryBooleanOperatorImp implements JPAUnaryBooleanOperator {
     return operator;
   }
 
+  @Override
+  public String getName() {
+    return operator.name();
+  }
+
 }
