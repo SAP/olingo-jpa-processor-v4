@@ -487,9 +487,18 @@ public class TestIntermediateEntityType extends TestMappingRoot {
   }
 
   @Test
+  public void checkOneComplexProtectedProperty() throws ODataJPAModelException {
+    IntermediateStructuredType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "DeepProtectedExample"), schema);
+    List<JPAProtectionInfo> act = et.getProtections();
+    assertNotNull(act);
+    assertEquals(3, act.size());
+  }
+
+  @Test
   public void checkComplexAndInheritedProtectedProperty() throws ODataJPAModelException {
     IntermediateStructuredType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "PersonDeepProtected"), schema);
+        "PersonDeepProtectedHidden"), schema);
 
     List<JPAProtectionInfo> act = et.getProtections();
     assertNotNull(act);

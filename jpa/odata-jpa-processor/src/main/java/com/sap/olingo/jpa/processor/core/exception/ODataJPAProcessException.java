@@ -65,6 +65,7 @@ public abstract class ODataJPAProcessException extends ODataApplicationException
    */
   public ODataJPAProcessException(final String id, final String messageText, final HttpStatusCode statusCode,
       final Throwable cause, final String[] params) {
+
     super("", statusCode.getStatusCode(), Locale.ENGLISH, cause);
     this.id = id;
     this.parameter = params;
