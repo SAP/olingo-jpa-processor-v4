@@ -1,10 +1,10 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -33,8 +33,7 @@ import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.serializer.SerializerException;
-import org.junit.Test;
-import org.mockito.Matchers;
+import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
@@ -109,8 +108,8 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
     Map<String, Object> jpaAttributes = new HashMap<>();
     jpaAttributes.put("id", "35");
     jpaAttributes.put("country", "USA");
-    when(convHelper.convertProperties(Matchers.any(OData.class), Matchers.any(JPAStructuredType.class), Matchers.any(
-        List.class))).thenReturn(jpaAttributes);
+    when(convHelper.convertProperties(any(OData.class), any(JPAStructuredType.class), any(List.class)))
+        .thenReturn(jpaAttributes);
 
     processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
 
@@ -281,10 +280,10 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
 
   @Test
   public void testDoesNotCallsValidateChangesOnError() throws ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
-
-    JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
+    when(request.getMethod()).thenReturn(HttpMethod.PATCH);
+    final JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     when(sessionContext.getCUDRequestHandler()).thenReturn(handler);
 
     doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,

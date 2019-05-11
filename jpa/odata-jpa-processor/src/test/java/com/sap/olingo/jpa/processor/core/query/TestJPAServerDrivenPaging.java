@@ -1,9 +1,9 @@
 package com.sap.olingo.jpa.processor.core.query;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.isNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -13,8 +13,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-
-import javax.persistence.EntityManager;
 
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
@@ -37,7 +35,7 @@ import org.apache.olingo.server.api.uri.queryoption.SelectItem;
 import org.apache.olingo.server.api.uri.queryoption.SelectOption;
 import org.apache.olingo.server.api.uri.queryoption.SystemQueryOptionKind;
 import org.apache.olingo.server.api.uri.queryoption.expression.Member;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
@@ -65,7 +63,7 @@ public class TestJPAServerDrivenPaging extends TestBase {
   @Test
   public void testReturnsFullResultIfProviderDoesNotReturnPage() throws IOException, ODataException {
     final JPAODataPagingProvider provider = mock(JPAODataPagingProvider.class);
-    when(provider.getFristPage(any(), any(), any(), any())).thenReturn(null);
+    when(provider.getFirstPage(any(), any(), any(), any())).thenReturn(null);
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations", provider);
     helper.assertStatus(200);
     assertEquals(10, helper.getValues().size());
@@ -75,7 +73,7 @@ public class TestJPAServerDrivenPaging extends TestBase {
   public void testReturnsPartResultIfProviderPages() throws IOException, ODataException {
 
     final JPAODataPagingProvider provider = mock(JPAODataPagingProvider.class);
-    when(provider.getFristPage(any(), any(), any(), any())).thenAnswer(i -> new JPAODataPage((UriInfo) i
+    when(provider.getFirstPage(any(), any(), any(), any())).thenAnswer(i -> new JPAODataPage((UriInfo) i
         .getArguments()[0], 0, 5, "Hugo"));
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$orderby=ID desc", provider);
     helper.assertStatus(200);
@@ -86,7 +84,7 @@ public class TestJPAServerDrivenPaging extends TestBase {
   public void testReturnsNextLinkIfProviderPages() throws IOException, ODataException {
 
     final JPAODataPagingProvider provider = mock(JPAODataPagingProvider.class);
-    when(provider.getFristPage(any(), any(), any(), any())).thenAnswer(i -> new JPAODataPage((UriInfo) i
+    when(provider.getFirstPage(any(), any(), any(), any())).thenAnswer(i -> new JPAODataPage((UriInfo) i
         .getArguments()[0], 0, 5, "Hugo"));
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$orderby=ID desc", provider);
@@ -99,7 +97,7 @@ public class TestJPAServerDrivenPaging extends TestBase {
   public void testReturnsNextLinkNotAStringIfProviderPages() throws IOException, ODataException {
 
     final JPAODataPagingProvider provider = mock(JPAODataPagingProvider.class);
-    when(provider.getFristPage(any(), any(), any(), any())).thenAnswer(i -> new JPAODataPage((UriInfo) i
+    when(provider.getFirstPage(any(), any(), any(), any())).thenAnswer(i -> new JPAODataPage((UriInfo) i
         .getArguments()[0], 0, 5, new Integer(123456789)));
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$orderby=ID desc", provider);
@@ -126,25 +124,25 @@ public class TestJPAServerDrivenPaging extends TestBase {
   public void testEntityManagerProvided() throws IOException, ODataException {
 
     final JPAODataPagingProvider provider = mock(JPAODataPagingProvider.class);
-    when(provider.getFristPage(any(), any(), any(), any())).thenAnswer(i -> new JPAODataPage((UriInfo) i
+    when(provider.getFirstPage(any(), any(), any(), any())).thenAnswer(i -> new JPAODataPage((UriInfo) i
         .getArguments()[0], 0, 5, "Hugo"));
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$orderby=ID desc", provider);
     helper.assertStatus(200);
 
-    verify(provider).getFristPage(any(), any(), any(), isNotNull(EntityManager.class));
+    verify(provider).getFirstPage(any(), any(), any(), isNotNull());
   }
 
   @Test
   public void testCountQueryProvided() throws IOException, ODataException {
 
     final JPAODataPagingProvider provider = mock(JPAODataPagingProvider.class);
-    when(provider.getFristPage(any(), any(), any(), any())).thenAnswer(i -> new JPAODataPage((UriInfo) i
+    when(provider.getFirstPage(any(), any(), any(), any())).thenAnswer(i -> new JPAODataPage((UriInfo) i
         .getArguments()[0], 0, 5, "Hugo"));
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$orderby=ID desc", provider);
     helper.assertStatus(200);
 
-    verify(provider).getFristPage(any(), any(), isNotNull(JPACountQuery.class), any());
+    verify(provider).getFirstPage(any(), any(), isNotNull(), any());
   }
 
   @Test
@@ -154,7 +152,7 @@ public class TestJPAServerDrivenPaging extends TestBase {
     final List<String> headerValues = new ArrayList<>(1);
     final JPAODataPagingProvider provider = mock(JPAODataPagingProvider.class);
 
-    when(provider.getFristPage(any(), any(), any(), any())).thenAnswer(i -> new JPAODataPage((UriInfo) i
+    when(provider.getFirstPage(any(), any(), any(), any())).thenAnswer(i -> new JPAODataPage((UriInfo) i
         .getArguments()[0], 0, 5, "Hugo"));
     headerValues.add("odata.maxpagesize=50");
     headers.put("Prefer", headerValues);
@@ -162,7 +160,7 @@ public class TestJPAServerDrivenPaging extends TestBase {
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$orderby=ID desc", provider, headers);
     helper.assertStatus(200);
 
-    verify(provider).getFristPage(any(), isNotNull(Integer.class), any(), any());
+    verify(provider).getFirstPage(any(), isNotNull(), any(), any());
   }
 
   @Test
@@ -170,7 +168,7 @@ public class TestJPAServerDrivenPaging extends TestBase {
     headers = new HashMap<>();
     final List<String> headerValues = new ArrayList<>(1);
     final JPAODataPagingProvider provider = mock(JPAODataPagingProvider.class);
-    when(provider.getFristPage(any(), any(), any(), any())).thenAnswer(i -> new JPAODataPage((UriInfo) i
+    when(provider.getFirstPage(any(), any(), any(), any())).thenAnswer(i -> new JPAODataPage((UriInfo) i
         .getArguments()[0], 0, 5, "Hugo"));
     headerValues.add("odata.maxpagesize=50");
     headers.put("prefer", headerValues);
@@ -178,7 +176,7 @@ public class TestJPAServerDrivenPaging extends TestBase {
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$orderby=ID desc", provider, headers);
     helper.assertStatus(200);
 
-    verify(provider).getFristPage(any(), isNotNull(Integer.class), any(), any());
+    verify(provider).getFirstPage(any(), isNotNull(), any(), any());
   }
 
   @Test
@@ -186,13 +184,13 @@ public class TestJPAServerDrivenPaging extends TestBase {
 
     final JPAODataPagingProvider provider = mock(JPAODataPagingProvider.class);
 
-    when(provider.getFristPage(any(), any(), any(), any())).thenAnswer(i -> new JPAODataPage((UriInfo) i
+    when(provider.getFirstPage(any(), any(), any(), any())).thenAnswer(i -> new JPAODataPage((UriInfo) i
         .getArguments()[0], 0, 5, "Hugo"));
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$orderby=ID desc", provider);
     helper.assertStatus(200);
 
-    verify(provider).getFristPage(isNotNull(UriInfo.class), any(), any(), any());
+    verify(provider).getFirstPage(isNotNull(), any(), any(), any());
   }
 
   @Test
@@ -202,7 +200,7 @@ public class TestJPAServerDrivenPaging extends TestBase {
     final List<String> headerValues = new ArrayList<>(1);
     final JPAODataPagingProvider provider = mock(JPAODataPagingProvider.class);
 
-    when(provider.getFristPage(any(), any(), any(), any())).thenAnswer(i -> new JPAODataPage((UriInfo) i
+    when(provider.getFirstPage(any(), any(), any(), any())).thenAnswer(i -> new JPAODataPage((UriInfo) i
         .getArguments()[0], 0, 5, "Hugo"));
     headerValues.add("odata.maxpagesize=Hugo");
     headers.put("Prefer", headerValues);
@@ -236,7 +234,7 @@ public class TestJPAServerDrivenPaging extends TestBase {
     when(selectResource.getProperty()).thenReturn(selectProperty);
     when(selectProperty.getName()).thenReturn("ID");
 
-    when(provider.getFristPage(any(), any(), any(), any())).thenAnswer(i -> new JPAODataPage((UriInfo) i
+    when(provider.getFirstPage(any(), any(), any(), any())).thenAnswer(i -> new JPAODataPage((UriInfo) i
         .getArguments()[0], 0, 5, "Hugo"));
 
     when(provider.getNextPage("'Hugo'")).thenReturn(new JPAODataPage(uriInfo, 5, 5, "Willi"));

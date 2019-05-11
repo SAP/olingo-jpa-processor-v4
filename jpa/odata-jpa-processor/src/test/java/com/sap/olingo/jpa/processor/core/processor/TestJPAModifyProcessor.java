@@ -1,7 +1,7 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.same;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -37,9 +37,9 @@ import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.UriResourceKind;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.mockito.Matchers;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.mockito.ArgumentMatchers;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
@@ -67,7 +67,7 @@ public abstract class TestJPAModifyProcessor {
   protected static JPAEdmProvider jpaEdm;
   protected static DataSource ds;
 
-  @BeforeClass
+  @BeforeAll
   public static void setupClass() throws ODataException {
     JPAEdmMetadataPostProcessor pP = mock(JPAEdmMetadataPostProcessor.class);
 
@@ -96,7 +96,7 @@ public abstract class TestJPAModifyProcessor {
   protected List<String> header = new ArrayList<>();
   protected JPAServiceDebugger debugger;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     odata = OData.newInstance();
     sessionContext = mock(JPAODataSessionContextAccess.class);
@@ -156,9 +156,10 @@ public abstract class TestJPAModifyProcessor {
     when(refType.getName()).thenReturn("ID");
     EdmPrimitiveType type = mock(EdmPrimitiveType.class);
     when(edmProperty.getType()).thenReturn(type);
-    when(type.toUriLiteral(Matchers.anyString())).thenReturn("35");
+    when(type.toUriLiteral(ArgumentMatchers.any())).thenReturn("35");
 
-    when(serializer.serialize(Matchers.eq(request), Matchers.any(EntityCollection.class))).thenReturn(serializerResult);
+    when(serializer.serialize(ArgumentMatchers.eq(request), ArgumentMatchers.any(EntityCollection.class))).thenReturn(
+        serializerResult);
     when(serializerResult.getContent()).thenReturn(new ByteArrayInputStream("{\"ID\":\"35\"}".getBytes()));
 
     return request;
@@ -215,7 +216,8 @@ public abstract class TestJPAModifyProcessor {
     when(edmProperty.getType()).thenReturn(type);
     when(edmProperty.getMaxLength()).thenReturn(50);
 
-    when(serializer.serialize(Matchers.eq(request), Matchers.any(EntityCollection.class))).thenReturn(serializerResult);
+    when(serializer.serialize(ArgumentMatchers.eq(request), ArgumentMatchers.any(EntityCollection.class))).thenReturn(
+        serializerResult);
     when(serializerResult.getContent()).thenReturn(new ByteArrayInputStream("{\"ParentCodeID\":\"NUTS1\"}".getBytes()));
 
     return request;
@@ -242,8 +244,8 @@ public abstract class TestJPAModifyProcessor {
     Entity odataEntity = mock(Entity.class);
     when(convHelper.convertInputStream(same(odata), same(request), same(ContentType.JSON), any())).thenReturn(
         odataEntity);
-    when(convHelper.convertKeyToLocal(Matchers.eq(odata), Matchers.eq(request), Matchers.eq(ets),
-        (JPAEntityType) Matchers.anyObject(), Matchers.anyObject())).thenReturn(LOCATION_HEADER);
+    when(convHelper.convertKeyToLocal(ArgumentMatchers.eq(odata), ArgumentMatchers.eq(request), ArgumentMatchers.eq(
+        ets), ArgumentMatchers.any(JPAEntityType.class), ArgumentMatchers.any())).thenReturn(LOCATION_HEADER);
     return request;
   }
 }

@@ -37,11 +37,14 @@ public final class JPAODataRequestProcessor
   private final EntityManager em;
   private final JPAODataSessionContextAccess context;
   private JPAProcessorFactory factory;
+  private final JPAODataClaimsProvider claims;
 
-  public JPAODataRequestProcessor(final JPAODataSessionContextAccess context, final EntityManager em) {
+  public JPAODataRequestProcessor(final JPAODataSessionContextAccess context, final JPAODataClaimsProvider claims,
+      final EntityManager em) {
     super();
     this.em = em;
     this.context = context;
+    this.claims = claims;
   }
 
   @Override
@@ -55,7 +58,7 @@ public final class JPAODataRequestProcessor
 
     JPARequestProcessor p;
     try {
-      p = factory.createProcessor(em, uriInfo, ContentType.TEXT_PLAIN, request.getAllHeaders());
+      p = factory.createProcessor(em, uriInfo, ContentType.TEXT_PLAIN, request.getAllHeaders(), claims);
       p.retrieveData(request, response, ContentType.TEXT_PLAIN);
     } catch (ODataApplicationException | ODataLibraryException e) {
       throw e;
@@ -71,7 +74,7 @@ public final class JPAODataRequestProcessor
       throws ODataApplicationException, ODataLibraryException {
 
     try {
-      final JPACUDRequestProcessor p = factory.createCUDRequestProcessor(em, uriInfo, responseFormat);
+      final JPACUDRequestProcessor p = factory.createCUDRequestProcessor(em, uriInfo, responseFormat, claims);
       p.createEntity(request, response, requestFormat, responseFormat);
     } catch (ODataApplicationException | ODataLibraryException e) {
       throw e;
@@ -87,8 +90,8 @@ public final class JPAODataRequestProcessor
       final ContentType requestFormat, final ContentType responseFormat)
       throws ODataApplicationException, ODataLibraryException {
 
-    throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_CREATE,
-        HttpStatusCode.NOT_IMPLEMENTED);
+	throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_CREATE,
+	    HttpStatusCode.NOT_IMPLEMENTED);
   }
 
   @Override
@@ -97,7 +100,7 @@ public final class JPAODataRequestProcessor
     // Set NULL: .../Organizations('4')/Address
 
     try {
-      final JPACUDRequestProcessor p = factory.createCUDRequestProcessor(em, uriInfo);
+      final JPACUDRequestProcessor p = factory.createCUDRequestProcessor(em, uriInfo, claims);
       p.clearFields(request, response);
     } catch (ODataApplicationException | ODataLibraryException e) {
       throw e;
@@ -112,7 +115,7 @@ public final class JPAODataRequestProcessor
       throws ODataApplicationException, ODataLibraryException {
 
     try {
-      final JPACUDRequestProcessor p = this.factory.createCUDRequestProcessor(this.em, uriInfo);
+      final JPACUDRequestProcessor p = this.factory.createCUDRequestProcessor(this.em, uriInfo, claims);
       p.deleteEntity(request, response);
     } catch (ODataApplicationException | ODataLibraryException e) {
       throw e;
@@ -143,7 +146,7 @@ public final class JPAODataRequestProcessor
     //
     // Nullable checked by Olingo Core
     try {
-      final JPACUDRequestProcessor p = factory.createCUDRequestProcessor(em, uriInfo);
+      final JPACUDRequestProcessor p = factory.createCUDRequestProcessor(em, uriInfo, claims);
       p.clearFields(request, response);
     } catch (ODataApplicationException | ODataLibraryException e) {
       throw e;
@@ -158,7 +161,7 @@ public final class JPAODataRequestProcessor
       throws ODataApplicationException, ODataLibraryException {
     // .../Organizations('4')/Address/Country/$value
     try {
-      final JPACUDRequestProcessor p = factory.createCUDRequestProcessor(em, uriInfo);
+      final JPACUDRequestProcessor p = factory.createCUDRequestProcessor(em, uriInfo, claims);
       p.clearFields(request, response);
     } catch (ODataApplicationException | ODataLibraryException e) {
       throw e;
@@ -188,7 +191,8 @@ public final class JPAODataRequestProcessor
       final ContentType responseFormat) throws ODataApplicationException, ODataLibraryException {
 
     try {
-      final JPARequestProcessor p = factory.createProcessor(em, uriInfo, responseFormat, request.getAllHeaders());
+      final JPARequestProcessor p = factory.createProcessor(em, uriInfo, responseFormat, request.getAllHeaders(),
+          claims);
       p.retrieveData(request, response, responseFormat);
     } catch (ODataApplicationException | ODataLibraryException e) {
       throw e;
@@ -202,7 +206,8 @@ public final class JPAODataRequestProcessor
   public void readComplexCollection(ODataRequest request, ODataResponse response, UriInfo uriInfo,
       ContentType responseFormat) throws ODataApplicationException, ODataLibraryException {
     try {
-      final JPARequestProcessor p = factory.createProcessor(em, uriInfo, responseFormat, request.getAllHeaders());
+      final JPARequestProcessor p = factory.createProcessor(em, uriInfo, responseFormat, request.getAllHeaders(),
+          claims);
       p.retrieveData(request, response, responseFormat);
     } catch (ODataApplicationException | ODataLibraryException e) {
       throw e;
@@ -217,7 +222,8 @@ public final class JPAODataRequestProcessor
       final ContentType responseFormat) throws ODataApplicationException, ODataLibraryException {
 
     try {
-      final JPARequestProcessor p = factory.createProcessor(em, uriInfo, responseFormat, request.getAllHeaders());
+      final JPARequestProcessor p = factory.createProcessor(em, uriInfo, responseFormat, request.getAllHeaders(),
+          claims);
       p.retrieveData(request, response, responseFormat);
     } catch (ODataApplicationException | ODataLibraryException e) {
       throw e;
@@ -233,7 +239,8 @@ public final class JPAODataRequestProcessor
       final ContentType responseFormat) throws ODataApplicationException, ODataLibraryException {
 
     try {
-      final JPARequestProcessor p = factory.createProcessor(em, uriInfo, responseFormat, request.getAllHeaders());
+      final JPARequestProcessor p = factory.createProcessor(em, uriInfo, responseFormat, request.getAllHeaders(),
+          claims);
       p.retrieveData(request, response, responseFormat);
     } catch (ODataApplicationException | ODataLibraryException e) {
       throw e;
@@ -247,7 +254,8 @@ public final class JPAODataRequestProcessor
   public void readPrimitiveCollection(ODataRequest request, ODataResponse response, UriInfo uriInfo,
       ContentType responseFormat) throws ODataApplicationException, ODataLibraryException {
     try {
-      final JPARequestProcessor p = factory.createProcessor(em, uriInfo, responseFormat, request.getAllHeaders());
+      final JPARequestProcessor p = factory.createProcessor(em, uriInfo, responseFormat, request.getAllHeaders(),
+          claims);
       p.retrieveData(request, response, responseFormat);
     } catch (ODataApplicationException | ODataLibraryException e) {
       throw e;
@@ -263,7 +271,8 @@ public final class JPAODataRequestProcessor
       final ContentType responseFormat) throws ODataApplicationException, ODataLibraryException {
 
     try {
-      final JPARequestProcessor p = factory.createProcessor(em, uriInfo, responseFormat, request.getAllHeaders());
+      final JPARequestProcessor p = factory.createProcessor(em, uriInfo, responseFormat, request.getAllHeaders(),
+          claims);
       p.retrieveData(request, response, responseFormat);
     } catch (ODataApplicationException | ODataLibraryException e) {
       throw e;
@@ -278,7 +287,8 @@ public final class JPAODataRequestProcessor
       final ContentType responseFormat) throws ODataApplicationException, ODataLibraryException {
 
     try {
-      final JPARequestProcessor p = factory.createProcessor(em, uriInfo, responseFormat, request.getAllHeaders());
+      final JPARequestProcessor p = factory.createProcessor(em, uriInfo, responseFormat, request.getAllHeaders(),
+          claims);
       p.retrieveData(request, response, responseFormat);
     } catch (ODataApplicationException | ODataLibraryException e) {
       throw e;
@@ -294,7 +304,8 @@ public final class JPAODataRequestProcessor
       final ContentType responseFormat) throws ODataApplicationException, ODataLibraryException {
 
     try {
-      final JPARequestProcessor p = factory.createProcessor(em, uriInfo, responseFormat, request.getAllHeaders());
+      final JPARequestProcessor p = factory.createProcessor(em, uriInfo, responseFormat, request.getAllHeaders(),
+          claims);
       p.retrieveData(request, response, responseFormat);
     } catch (ODataApplicationException | ODataLibraryException e) {
       throw e;
@@ -319,7 +330,7 @@ public final class JPAODataRequestProcessor
       throws ODataApplicationException, ODataLibraryException {
 
     try {
-      final JPACUDRequestProcessor p = factory.createCUDRequestProcessor(em, uriInfo, responseFormat);
+      final JPACUDRequestProcessor p = factory.createCUDRequestProcessor(em, uriInfo, responseFormat, claims);
       p.updateEntity(request, response, requestFormat, responseFormat);
     } catch (ODataException e) {
       throw new ODataApplicationException(e.getLocalizedMessage(),
@@ -395,7 +406,7 @@ public final class JPAODataRequestProcessor
       throws ODataApplicationException, ODataLibraryException {
 
     try {
-      final JPAActionRequestProcessor p = this.factory.createActionProcessor(this.em, uriInfo, responseFormat);
+      final JPAActionRequestProcessor p = this.factory.createActionProcessor(this.em, uriInfo, responseFormat, claims);
       p.performAction(request, response, requestFormat);
     } catch (ODataApplicationException | ODataLibraryException e) {
       throw e;
@@ -409,7 +420,7 @@ public final class JPAODataRequestProcessor
   public void processActionVoid(ODataRequest request, ODataResponse response, UriInfo uriInfo,
       ContentType requestFormat) throws ODataApplicationException, ODataLibraryException {
     try {
-      final JPAActionRequestProcessor p = this.factory.createActionProcessor(this.em, uriInfo, null);
+      final JPAActionRequestProcessor p = this.factory.createActionProcessor(this.em, uriInfo, null, claims);
       p.performAction(request, response, requestFormat);
     } catch (ODataApplicationException | ODataLibraryException e) {
       throw e;

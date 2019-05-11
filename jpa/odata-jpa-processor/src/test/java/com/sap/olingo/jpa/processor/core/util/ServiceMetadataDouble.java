@@ -1,6 +1,6 @@
 package com.sap.olingo.jpa.processor.core.util;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.HashMap;
 import java.util.List;
@@ -69,12 +69,12 @@ public class ServiceMetadataDouble implements ServiceMetadata {
 
     public EdmDouble() {
       super();
-      typeMap = new HashMap<FullQualifiedName, EdmEntityType>();
+      typeMap = new HashMap<>();
     }
 
     public EdmDouble(String name) {
       super();
-      typeMap = new HashMap<FullQualifiedName, EdmEntityType>();
+      typeMap = new HashMap<>();
       EdmEntityType edmType = new EdmEntityTypeDouble(nameBuilder, name);
       typeMap.put(edmType.getFullQualifiedName(), edmType);
     }

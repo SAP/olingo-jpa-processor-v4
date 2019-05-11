@@ -1,10 +1,10 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -36,9 +36,9 @@ import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
@@ -74,7 +74,7 @@ public class TestJPADeleteProcessor {
   private static JPAEdmProvider jpaEdm;
   private static DataSource ds;
 
-  @BeforeClass
+  @BeforeAll
   public static void setupClass() throws ODataException {
     JPAEdmMetadataPostProcessor pP = mock(JPAEdmMetadataPostProcessor.class);
     ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
@@ -83,7 +83,7 @@ public class TestJPADeleteProcessor {
 
   }
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     odata = OData.newInstance();
     sessionContext = mock(JPAODataSessionContextAccess.class);

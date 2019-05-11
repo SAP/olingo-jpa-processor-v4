@@ -8,7 +8,7 @@ import org.apache.olingo.server.api.ODataApplicationException;
 import com.sap.olingo.jpa.processor.core.filter.JPAAggregationOperation;
 import com.sap.olingo.jpa.processor.core.filter.JPAArithmeticOperator;
 import com.sap.olingo.jpa.processor.core.filter.JPABooleanOperator;
-import com.sap.olingo.jpa.processor.core.filter.JPAComparisonOperatorImp;
+import com.sap.olingo.jpa.processor.core.filter.JPAComparisonOperator;
 import com.sap.olingo.jpa.processor.core.filter.JPAMethodCall;
 import com.sap.olingo.jpa.processor.core.filter.JPAUnaryBooleanOperator;
 
@@ -21,7 +21,7 @@ public interface JPAODataDatabaseOperations {
 
   public Expression<Boolean> convert(final JPABooleanOperator jpaOperator) throws ODataApplicationException;
 
-  public Expression<Boolean> convert(final JPAComparisonOperatorImp jpaOperator) throws ODataApplicationException;
+  public Expression<Boolean> convert(final JPAComparisonOperator jpaOperator) throws ODataApplicationException;
 
   public <T> Expression<T> convert(final JPAMethodCall jpaFunction) throws ODataApplicationException;
 

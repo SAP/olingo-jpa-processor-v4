@@ -1,15 +1,15 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.HashSet;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEnumeration;
@@ -21,7 +21,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.TestDataConstants;
 public class TestIntermediateSchema extends TestMappingRoot {
   private Reflections r;
 
-  @Before
+  @BeforeEach
   public void setup() {
     r = mock(Reflections.class);
     when(r.getTypesAnnotatedWith(EdmEnumeration.class)).thenReturn(new HashSet<>(Arrays.asList(new Class<?>[] {
@@ -37,8 +37,8 @@ public class TestIntermediateSchema extends TestMappingRoot {
   @Test
   public void checkSchemaGetAllEntityTypes() throws ODataJPAModelException {
     IntermediateSchema schema = new IntermediateSchema(new JPAEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), r);
-    assertEquals("Wrong number of entities", TestDataConstants.NO_ENTITY_TYPES, schema.getEdmItem().getEntityTypes()
-        .size());
+    assertEquals(TestDataConstants.NO_ENTITY_TYPES, schema.getEdmItem().getEntityTypes().size(),
+        "Wrong number of entities");
   }
 
   @Test
@@ -57,7 +57,7 @@ public class TestIntermediateSchema extends TestMappingRoot {
   public void checkSchemaGetAllComplexTypes() throws ODataJPAModelException {
     IntermediateSchema schema = new IntermediateSchema(new JPAEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), r);
     // ChangeInformation,CommunicationData,AdministrativeInformation,PostalAddressData
-    assertEquals("Wrong number of complex types", 13, schema.getEdmItem().getComplexTypes().size());
+    assertEquals(15, schema.getEdmItem().getComplexTypes().size(), "Wrong number of complex types");
   }
 
   @Test
@@ -75,6 +75,6 @@ public class TestIntermediateSchema extends TestMappingRoot {
   @Test
   public void checkSchemaGetAllFunctions() throws ODataJPAModelException {
     IntermediateSchema schema = new IntermediateSchema(new JPAEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), r);
-    assertEquals("Wrong number of entities", 9, schema.getEdmItem().getFunctions().size());
+    assertEquals(10, schema.getEdmItem().getFunctions().size(), "Wrong number of entities");
   }
 }

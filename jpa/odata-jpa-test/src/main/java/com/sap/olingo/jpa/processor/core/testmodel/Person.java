@@ -47,7 +47,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 })
 
 @DiscriminatorValue(value = "1")
-public class Person extends BusinessPartner {
+public class Person extends BusinessPartner {// #NOSONAR use equal method from BusinessPartner
 
   @Column(name = "\"NameLine1\"")
   private String firstName;

@@ -56,6 +56,13 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
   }
 
   @Override
+  public JPAAttribute getAttribute(final String internalName) throws ODataJPAModelException {
+    lazyBuildEdmItem();
+    JPAAttribute result = super.getAttribute(internalName);
+    return result != null ? result : getKey(internalName);
+  }
+
+  @Override
   public JPACollectionAttribute getCollectionAttribute(final String externalName) throws ODataJPAModelException {
     final JPAPath path = getPath(externalName);
     if (path != null && path.getLeaf() instanceof JPACollectionAttribute)
@@ -227,6 +234,7 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
     if (edmEntityType == null) {
       buildPropertyList();
       buildNaviPropertyList();
+      buildProtectionInfo();
       postProcessor.processEntityType(this);
 
       edmEntityType = new CsdlEntityType();
@@ -306,6 +314,10 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
     return edmEntityType;
   }
 
+  private void buildProtectionInfo() {
+
+  }
+
   private List<CsdlAnnotation> determineAnnotations() throws ODataJPAModelException {
     getAnnotations(edmAnnotations, this.jpaManagedType.getJavaType(), internalName);
     return edmAnnotations;
@@ -326,6 +338,14 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
     }
     if (getBaseType() != null && getBaseType() instanceof IntermediateEntityType)
       hasEtag = ((IntermediateEntityType) getBaseType()).hasEtag();
+  }
+
+  private JPAAttribute getKey(final String internalName) throws ODataJPAModelException {
+    for (JPAAttribute attribute : getKey()) {
+      if (internalName.equals(attribute.getInternalName()))
+        return attribute;
+    }
+    return null;
   }
 
   private List<CsdlProperty> resolveEmbeddedId(final IntermediateEmbeddedIdProperty embeddedId)

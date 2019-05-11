@@ -1,13 +1,13 @@
 package com.sap.olingo.jpa.processor.core.query;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 
 import org.apache.olingo.commons.api.ex.ODataException;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sap.olingo.jpa.processor.core.testmodel.ImageLoader;
@@ -27,14 +27,14 @@ public class TestJPAQuerySelectByPath extends TestBase {
   }
 
   @Test
-  public void testNavigationToOwnNotExistingPrimitiveProperty() throws IOException, ODataException {
+  public void testNavigationToOwnEmptyPrimitiveProperty() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Persons('99')/BirthDay");
-    helper.assertStatus(404);
+    helper.assertStatus(204);
   }
 
   @Test
-  public void testNavigationToOwnPrimitivePropertyEntityDoesNotExist() throws IOException, ODataException {
+  public void testNavigationToOwnPrimitivePropertyEntityDoesNotExistEntity() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Persons('9999')/BirthDay");
     helper.assertStatus(404);
@@ -63,8 +63,8 @@ public class TestJPAQuerySelectByPath extends TestBase {
   @Test
   public void testNavigationToNotExistingComplexProperty() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "OPersons('97')/CommunicationData");
-    helper.assertStatus(404);
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Persons('97')/CommunicationData");
+    helper.assertStatus(204);
   }
 
   @Test
@@ -124,7 +124,7 @@ public class TestJPAQuerySelectByPath extends TestBase {
     assertTrue(org.get("@odata.context").asText().endsWith("$metadata#Organizations/Address/Region"));
   }
 
-  @Ignore // TODO check image load
+  @Disabled // TODO check image load
   @Test
   public void testNavigationToStreamValue() throws IOException, ODataException {
     new ImageLoader().loadPerson(emf.createEntityManager(), "OlingoOrangeTM.png", "99");
@@ -136,7 +136,7 @@ public class TestJPAQuerySelectByPath extends TestBase {
     assertEquals(93316, act.length, 0);
   }
 
-  @Ignore // TODO check image load
+  @Disabled // TODO check image load
   @Test
   public void testNavigationToStreamValueVia() throws IOException, ODataException {
     new ImageLoader().loadPerson(emf.createEntityManager(), "OlingoOrangeTM.png", "99");
@@ -148,7 +148,7 @@ public class TestJPAQuerySelectByPath extends TestBase {
     assertEquals(93316, act.length, 0);
   }
 
-  @Ignore // TODO check image load
+  @Disabled // TODO check image load
   @Test
   public void testNavigationToComplexAttributeValue() throws IOException, ODataException {
     new ImageLoader().loadPerson(emf.createEntityManager(), "OlingoOrangeTM.png", "99");
@@ -161,7 +161,7 @@ public class TestJPAQuerySelectByPath extends TestBase {
     assertEquals("98", act);
   }
 
-  @Ignore // TODO check image load
+  @Disabled // TODO check image load
   @Test
   public void testNavigationToPrimitiveAttributeValue() throws IOException, ODataException {
     new ImageLoader().loadPerson(emf.createEntityManager(), "OlingoOrangeTM.png", "99");

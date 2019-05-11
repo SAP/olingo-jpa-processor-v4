@@ -1,6 +1,6 @@
 # 1.13 Collection Properties
-If you like to express a composition relationship between an entity type and another type, OData provides the option to create collections of complex or primitive types. As a small example we want to allow our users to comment companies. So a comment belongs exactly to one company and shall be deleted if the company gets deleted.    
-As JPA provides an analog concept with the annotation `@ElementCollection` and `@CollectionTable` we use those to realize the new requirement. We extend Company as follows:
+If you like to express a composition relationship between an entity type and another type, OData provides the option to create collections of complex or primitive types. 
+As a small example we want to allow our users to comment companies. So a comment belongs exactly to one company and shall be deleted if the company gets deleted. As JPA provides an analog concept with the annotation `@ElementCollection` and `@CollectionTable` we use those to realize the new requirement. We extend Company as follows:
 ```Java
 public class Company extends BusinessPartner {
 

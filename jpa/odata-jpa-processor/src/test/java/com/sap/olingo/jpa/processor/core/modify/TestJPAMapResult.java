@@ -13,7 +13,7 @@ import java.util.Map;
 
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
@@ -24,7 +24,7 @@ import com.sap.olingo.jpa.processor.core.util.TestHelper;
 public class TestJPAMapResult extends TestJPACreateResult {
   List<JPARequestEntity> children;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     headers = new HashMap<>();
     jpaEntity = new HashMap<String, Object>();

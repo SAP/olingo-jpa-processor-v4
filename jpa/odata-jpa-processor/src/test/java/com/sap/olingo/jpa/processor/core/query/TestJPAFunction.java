@@ -10,12 +10,13 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
+import javax.persistence.Query;
 import javax.sql.DataSource;
 
 import org.apache.olingo.commons.api.ex.ODataException;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
@@ -31,16 +32,16 @@ public class TestJPAFunction {
   protected Map<String, List<String>> headers;
   protected static JPAEdmNameBuilder nameBuilder;
 
-  @Before
+  @BeforeEach
   public void setup() {
     ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
-    Map<String, Object> properties = new HashMap<String, Object>();
+    Map<String, Object> properties = new HashMap<>();
     properties.put("javax.persistence.nonJtaDataSource", ds);
     emf = Persistence.createEntityManagerFactory(PUNIT_NAME, properties);
     emf.getProperties();
   }
 
-  @Ignore // TODO check is path is in general allowed
+  @Disabled // TODO check is path is in general allowed
   @Test
   public void testNavigationAfterFunctionNotAllowed() throws IOException, ODataException {
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds,
@@ -50,34 +51,38 @@ public class TestJPAFunction {
 
   @Test
   public void testFunctionGenerateQueryString() throws IOException, ODataException, SQLException {
-
-    createSiblingsFunction();
+    createFunction();
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds,
         "Siblings(DivisionCode='BE25',CodeID='NUTS2',CodePublisher='Eurostat')");
     helper.assertStatus(200);
   }
 
-  private void createSiblingsFunction() {
-    StringBuffer sqlString = new StringBuffer();
-
-    EntityManager em = emf.createEntityManager();
-    EntityTransaction t = em.getTransaction();
-
-    sqlString.append("create function \"OLINGO\".\"Siblings\""); // \"OLINGO\".
-    sqlString.append("( CodePublisher nvarchar(10), CodeID nvarchar(10), DivisionCode nvarchar(10))");
-    sqlString.append(
-        "RETURNS TABLE (\"CodePublisher\" nvarchar(10), \"CodeID\" nvarchar(10), \"DivisionCode\" nvarchar(10),");
-    sqlString.append(
-        "\"CountryISOCode\"  NVARCHAR(4), \"ParentCodeID\"  NVARCHAR(10), \"ParentDivisionCode\"  NVARCHAR(10),");
-    sqlString.append("\"AlternativeCode\"  NVARCHAR(10),  \"Area\"  DECIMAL(34,0), \"Population\"  BIGINT )");
-    sqlString.append("READS SQL  DATA RETURN TABLE (SELECT ");
-    sqlString.append("a.\"CodePublisher\", a.\"CodeID\", a.\"DivisionCode\", a.\"CountryISOCode\",a.\"ParentCodeID\"");
-    sqlString.append(",a.\"ParentDivisionCode\", a.\"AlternativeCode\",a.\"Area\", a.\"Population\"");
-    sqlString.append("FROM \"OLINGO\".\"AdministrativeDivision\" as a);");
-
+  private void createFunction() {
+    final EntityManager em = emf.createEntityManager();
+    final EntityTransaction t = em.getTransaction();
+    final StringBuilder createSiblingsString = new StringBuilder();
+    createSiblingsString.append(
+        "CREATE FUNCTION  \"OLINGO\".\"Siblings\" (\"Publisher\" VARCHAR(10), \"ID\" VARCHAR(10), \"Division\" VARCHAR(10)) ");
+    createSiblingsString.append(
+        "RETURNS TABLE(\"CodePublisher\" VARCHAR(10),\"CodeID\" VARCHAR(10),\"DivisionCode\" VARCHAR(10),");
+    createSiblingsString.append(
+        "\"CountryISOCode\" VARCHAR(4), \"ParentCodeID\" VARCHAR(10),\"ParentDivisionCode\" VARCHAR(10),");
+    createSiblingsString.append("\"AlternativeCode\" VARCHAR(10),\"Area\" int, \"Population\" BIGINT) ");
+    createSiblingsString.append("READS SQL DATA ");
+    createSiblingsString.append("RETURN TABLE( SELECT * FROM \"AdministrativeDivision\" as a  WHERE ");
+    createSiblingsString.append("EXISTS (SELECT \"CodePublisher\" ");
+    createSiblingsString.append("FROM \"OLINGO\".\"AdministrativeDivision\" as b ");
+    createSiblingsString.append("WHERE b.\"CodeID\" = \"ID\" ");
+    createSiblingsString.append("AND   b.\"DivisionCode\" = \"Division\" ");
+    createSiblingsString.append("AND   b.\"CodePublisher\" = a.\"CodePublisher\" ");
+    createSiblingsString.append("AND   b.\"ParentCodeID\" = a.\"ParentCodeID\" ");
+    createSiblingsString.append("AND   b.\"ParentDivisionCode\" = a.\"ParentDivisionCode\") ");
+    createSiblingsString.append("AND NOT( a.\"CodePublisher\" = \"Publisher\" ");
+    createSiblingsString.append("AND  a.\"CodeID\" = \"ID\" ");
+    createSiblingsString.append("AND  a.\"DivisionCode\" = \"Division\" )); ");
     t.begin();
-    javax.persistence.Query q = em.createNativeQuery(sqlString.toString());
-    q.executeUpdate();
+    Query qP = em.createNativeQuery(createSiblingsString.toString());
+    qP.executeUpdate();
     t.commit();
   }
 }

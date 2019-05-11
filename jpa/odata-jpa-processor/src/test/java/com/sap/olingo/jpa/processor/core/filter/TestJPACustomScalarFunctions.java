@@ -1,6 +1,6 @@
 package com.sap.olingo.jpa.processor.core.filter;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.util.List;
@@ -13,9 +13,9 @@ import javax.persistence.Query;
 import javax.sql.DataSource;
 
 import org.apache.olingo.commons.api.ex.ODataException;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
@@ -34,7 +34,7 @@ public class TestJPACustomScalarFunctions {
   protected static JPAEdmNameBuilder nameBuilder;
   protected static DataSource ds;
 
-  @BeforeClass
+  @BeforeAll
   public static void setupClass() throws ODataJPAModelException {
     ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
     emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, ds);
@@ -42,7 +42,7 @@ public class TestJPACustomScalarFunctions {
     CreateDenfityFunction();
   }
 
-  @AfterClass
+  @AfterAll
   public static void tearDownClass() throws ODataJPAModelException {
     DropDenfityFunction();
   }

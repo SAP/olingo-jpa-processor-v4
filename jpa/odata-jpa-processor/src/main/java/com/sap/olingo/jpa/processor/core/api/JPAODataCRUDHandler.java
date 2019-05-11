@@ -31,4 +31,5 @@ public final class JPAODataCRUDHandler extends JPAODataGetHandler {
   class JPADefaultCUDRequestHandler extends JPAAbstractCUDRequestHandler {
 
   }
+
 }

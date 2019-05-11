@@ -797,9 +797,77 @@ CREATE TABLE "JoinHiddenRelation" (
 	
 insert into "JoinHiddenRelation" values (2, 20);
 insert into "JoinHiddenRelation" values (2, 21);
---------------------------------------------	
 
+------Authorizations------------------------	
+--top-secret;  --logo
+CREATE TABLE "User" (	 
+	"UserName"  VARCHAR(60) NOT NULL ,
+	"Password" VARCHAR(60),
+	"Enabled" BOOLEAN,
+	PRIMARY KEY ("UserName"));	
+insert into "User" values ('Willi', '$2a$10$ekL4q.jeDmuc2AhZF/ARUe2KTMczEBHZlML.bN985noWuJcdilbg6', true); 
+insert into "User" values ('Marvin', '$2a$10$dPD0o8lEbOy0vYtpWkE78.vVBKWElJjiezkFo1nr6hG3EBRx4Gpl.', true);
+
+CREATE TABLE "CountryRestriction" (	 
+	"UserName"  VARCHAR(60) NOT NULL ,
+	"SequenceNumber" INTEGER NOT NULL,
+	"From"  VARCHAR(4) NOT NULL ,
+	"To"  VARCHAR(4),
+	PRIMARY KEY ("UserName","SequenceNumber"));	
+insert into "CountryRestriction" values ('Willi', 1, 'DEU', 'DEU');
+insert into "CountryRestriction" values ('Marvin', 1, 'CHE', 'ZAF');
+
+CREATE VIEW "BusinessPartnerProtected"
+        AS 
+	SELECT 
+		b."ID", 
+		b."ETag",
+		b."Type",
+		b."NameLine1",
+		b."NameLine2",
+		b."Country",
+		r. "UserName",
+		b."CreatedBy",
+		b."CreatedAt",   
+		b."UpdatedBy",
+		b."UpdatedAt"	
+	FROM "BusinessPartner" as b
+	INNER JOIN "CountryRestriction" as r
+		ON b."Country" >= r."From"
+		AND b."Country" <= r."To";
+
+	 
+--------------------------------------------
 CREATE TABLE "DummyToBeIgnored" (
 	"ID" VARCHAR(32) NOT NULL ,
 	--"uuid" VARCHAR(32) FOR BIT DATA ,
 	 PRIMARY KEY ("ID"));
+	 
+--UDF called SQL Language Routines at HSQLDB	 
+--CREATE FUNCTION  "Siblings" ("Publisher" VARCHAR(10), "ID" VARCHAR(10), "Division" VARCHAR(10))
+--	RETURNS TABLE(
+--		"CodePublisher" VARCHAR(10),
+--		"CodeID" VARCHAR(10),
+--		"DivisionCode" VARCHAR(10),
+--		"CountryISOCode" VARCHAR(4),
+--		"ParentCodeID" VARCHAR(10),
+--		"ParentDivisionCode" VARCHAR(10),
+--		"AlternativeCode" VARCHAR(10),
+--		"Area" int, 
+--		"Population" BIGINT)
+--	READS SQL DATA
+--	RETURN TABLE( SELECT * 
+--						FROM "AdministrativeDivision" as a 
+--						WHERE 
+--							EXISTS (SELECT "CodePublisher"
+--											FROM "AdministrativeDivision" as b
+--											WHERE b."CodeID" = "ID"
+--											AND   b."DivisionCode" = "Division" 
+--											AND   b."CodePublisher" = a."CodePublisher"
+--											AND   b."ParentCodeID" = a."ParentCodeID"
+--											AND   b."ParentDivisionCode" = a."ParentDivisionCode") 
+--					    AND NOT( a."CodePublisher" = "Publisher"
+--						AND  a."CodeID" = "ID"
+--						AND  a."DivisionCode" = "Division" )
+--				);
+	 

@@ -1,13 +1,13 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.exception;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Locale;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.processor.core.testmodel.LocaleEnumeration;
 
@@ -15,7 +15,7 @@ public class TestODataJPAMessageTextBuffer {
   private static String BUNDLE_NAME = "test-i18n";
   private ODataJPAMessageTextBuffer cut;
 
-  @Before
+  @BeforeEach
   public void setup() {
     cut = new ODataJPAMessageTextBuffer(BUNDLE_NAME);
   }
@@ -93,7 +93,7 @@ public class TestODataJPAMessageTextBuffer {
   @Test
   public void checkSetLocalesFirstMatches() {
 
-    ArrayList<Locale> localesList = new ArrayList<Locale>();
+    ArrayList<Locale> localesList = new ArrayList<>();
     localesList.add(Locale.GERMAN);
     localesList.add(Locale.CANADA_FRENCH);
     Enumeration<Locale> locales = new LocaleEnumeration(localesList);
@@ -105,7 +105,7 @@ public class TestODataJPAMessageTextBuffer {
   @Test
   public void checkSetLocalesSecondMatches() {
 
-    ArrayList<Locale> localesList = new ArrayList<Locale>();
+    ArrayList<Locale> localesList = new ArrayList<>();
     localesList.add(Locale.CANADA_FRENCH);
     localesList.add(Locale.GERMAN);
     Enumeration<Locale> locales = new LocaleEnumeration(localesList);
@@ -117,7 +117,7 @@ public class TestODataJPAMessageTextBuffer {
   @Test
   public void checkSetLocalesNonMatches() {
 
-    ArrayList<Locale> localesList = new ArrayList<Locale>();
+    ArrayList<Locale> localesList = new ArrayList<>();
     localesList.add(Locale.CANADA_FRENCH);
     localesList.add(Locale.SIMPLIFIED_CHINESE);
     Enumeration<Locale> locales = new LocaleEnumeration(localesList);

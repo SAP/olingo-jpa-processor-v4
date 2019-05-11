@@ -1,7 +1,7 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -11,9 +11,9 @@ import java.util.Map;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.ex.ODataException;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
@@ -31,16 +31,16 @@ public class TestJPARequestLinkImpl {
   private JPAConversionHelper helper;
   private JPAAssociationAttribute pathLeaf;
 
-  @Before
+  @BeforeEach
   public void setUp() throws ODataJPAModelException {
     helper = new JPAConversionHelper();
-    items = new ArrayList<JPAOnConditionItem>();
+    items = new ArrayList<>();
     path = mock(JPAAssociationPath.class);
     pathLeaf = mock(JPAAssociationAttribute.class);
     when(path.getJoinColumnsList()).thenReturn(items);
   }
 
-  @Ignore
+  @Disabled
   @Test
   public void testCreateMultipleStringKeysChildren() throws ODataJPAModelException, ODataException {
     String link = "AdministrativeDivisions(DivisionCode='DE100',CodeID='NUTS3',CodePublisher='Eurostat')";
@@ -71,7 +71,7 @@ public class TestJPARequestLinkImpl {
     assertEquals("Eurostat", act.get("codePublisher"));
   }
 
-  @Ignore
+  @Disabled
   @Test
   public void testCreateMultipleStringValuesChildren() throws ODataJPAModelException, ODataException {
     String link = "AdministrativeDivisions(DivisionCode='DE100',CodeID='NUTS3',CodePublisher='Eurostat')";
@@ -133,8 +133,8 @@ public class TestJPARequestLinkImpl {
     JPAAttribute bupaKey = mock(JPAAttribute.class);
     JPAAttribute roleKey1 = mock(JPAAttribute.class);
     JPAAttribute roleKey2 = mock(JPAAttribute.class);
-    List<JPAAttribute> bupaKeys = new ArrayList<JPAAttribute>();
-    List<JPAAttribute> roleKeys = new ArrayList<JPAAttribute>();
+    List<JPAAttribute> bupaKeys = new ArrayList<>();
+    List<JPAAttribute> roleKeys = new ArrayList<>();
     bupaKeys.add(bupaKey);
     roleKeys.add(roleKey1);
     roleKeys.add(roleKey2);

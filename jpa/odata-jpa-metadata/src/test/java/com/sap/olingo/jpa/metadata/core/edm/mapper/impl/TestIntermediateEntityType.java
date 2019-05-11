@@ -1,10 +1,11 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -21,8 +22,8 @@ import org.apache.olingo.commons.api.edm.provider.annotation.CsdlCollection;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlExpression;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
@@ -30,6 +31,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEnumeration;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAProtectionInfo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityTypeAccess;
@@ -43,7 +45,7 @@ public class TestIntermediateEntityType extends TestMappingRoot {
   private Set<EntityType<?>> etList;
   private IntermediateSchema schema;
 
-  @Before
+  @BeforeEach
   public void setup() throws ODataJPAModelException {
     IntermediateModelElement.setPostProcessor(new DefaultEdmPostProcessor());
     final Reflections r = mock(Reflections.class);
@@ -73,9 +75,9 @@ public class TestIntermediateEntityType extends TestMappingRoot {
   public void checkGetAllProperties() throws ODataJPAModelException {
     IntermediateStructuredType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
         "BusinessPartner"), schema);
-    assertEquals("Wrong number of entities", TestDataConstants.NO_DEC_ATTRIBUTES_BUISNESS_PARTNER, et.getEdmItem()
+    assertEquals(TestDataConstants.NO_DEC_ATTRIBUTES_BUISNESS_PARTNER, et.getEdmItem()
         .getProperties()
-        .size());
+        .size(), "Wrong number of entities");
   }
 
   @Test
@@ -131,7 +133,7 @@ public class TestIntermediateEntityType extends TestMappingRoot {
   public void checkGetAllNaviProperties() throws ODataJPAModelException {
     IntermediateStructuredType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
         "BusinessPartner"), schema);
-    assertEquals("Wrong number of entities", 1, et.getEdmItem().getNavigationProperties().size());
+    assertEquals(1, et.getEdmItem().getNavigationProperties().size(), "Wrong number of entities");
   }
 
   @Test
@@ -174,7 +176,7 @@ public class TestIntermediateEntityType extends TestMappingRoot {
         actCount++;
       }
     }
-    assertEquals("Not all join columns found", 3, actCount);
+    assertEquals(3, actCount, "Not all join columns found");
   }
 
   @Test
@@ -184,8 +186,8 @@ public class TestIntermediateEntityType extends TestMappingRoot {
 
     IntermediateStructuredType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
         "BusinessPartner"), schema);
-    assertEquals("Wrong number of entities", TestDataConstants.NO_DEC_ATTRIBUTES_BUISNESS_PARTNER - 1, et.getEdmItem()
-        .getProperties().size());
+    assertEquals(TestDataConstants.NO_DEC_ATTRIBUTES_BUISNESS_PARTNER - 1, et.getEdmItem()
+        .getProperties().size(), "Wrong number of entities");
   }
 
   @Test
@@ -213,14 +215,14 @@ public class TestIntermediateEntityType extends TestMappingRoot {
   public void checkGetKeyProperties() throws ODataJPAModelException {
     IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
         "BusinessPartnerRole"), schema);
-    assertEquals("Wrong number of key propeties", 2, et.getEdmItem().getKey().size());
+    assertEquals(2, et.getEdmItem().getKey().size(), "Wrong number of key propeties");
   }
 
   @Test
   public void checkGetAllAttributes() throws ODataJPAModelException {
     IntermediateStructuredType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
         "BusinessPartnerRole"), schema);
-    assertEquals("Wrong number of entities", 2, et.getPathList().size());
+    assertEquals(2, et.getPathList().size(), "Wrong number of entities");
   }
 
   @Test
@@ -232,7 +234,7 @@ public class TestIntermediateEntityType extends TestMappingRoot {
         + TestDataConstants.NO_ATTRIBUTES_COMMUNICATION_DATA
         + 2 * TestDataConstants.NO_ATTRIBUTES_CHANGE_INFO
         + TestDataConstants.NO_ATTRIBUTES_ORGANIZATION;
-    assertEquals("Wrong number of entities", exp, et.getPathList().size());
+    assertEquals(exp, et.getPathList().size(), "Wrong number of entities");
   }
 
   @Test
@@ -252,6 +254,15 @@ public class TestIntermediateEntityType extends TestMappingRoot {
     IntermediateStructuredType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
         "Organization"), schema);
     assertEquals("ID", et.getPath("ID").getAlias());
+  }
+
+  @Test
+  public void checkGetKeyAttributeFromEmbeddedId() throws ODataJPAModelException {
+    IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "AdministrativeDivisionDescription"), schema);
+
+    assertNotNull(et.getAttribute("codePublisher"));
+    assertEquals("CodePublisher", et.getAttribute("codePublisher").getExternalName());
   }
 
   @Test
@@ -462,6 +473,69 @@ public class TestIntermediateEntityType extends TestMappingRoot {
       String[] pathElements = path.getAlias().split("/");
       assertEquals(pathElements.length, path.getPath().size());
     }
+  }
+
+  @Test
+  public void checkOneSimpleProtectedProperty() throws ODataJPAModelException {
+    IntermediateStructuredType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "BusinessPartnerProtected"), schema);
+    List<JPAProtectionInfo> act = et.getProtections();
+    assertNotNull(act);
+    assertEquals(1, act.size());
+    assertEquals("Username", act.get(0).getAttribute().getExternalName());
+    assertEquals("UserId", act.get(0).getClaimName());
+  }
+
+  @Test
+  public void checkComplexAndInheritedProtectedProperty() throws ODataJPAModelException {
+    IntermediateStructuredType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "PersonDeepProtected"), schema);
+
+    List<JPAProtectionInfo> act = et.getProtections();
+    assertNotNull(act);
+    assertInherited(act);
+    assertComplexAnnotated(act, "Creator", "Created");
+    assertComplexAnnotated(act, "Updator", "Updated");
+    assertComplexDeep(act);
+    assertEquals(4, act.size());
+  }
+
+  private void assertComplexDeep(List<JPAProtectionInfo> act) {
+    for (final JPAProtectionInfo info : act) {
+      if (info.getClaimName().equals("BuildingNumber")) {
+        assertEquals("Building", info.getAttribute().getExternalName());
+        assertEquals(3, info.getPath().getPath().size());
+        assertEquals("InhouseAddress/InhouseAddress/Building", info.getPath().getAlias());
+        return;
+      }
+    }
+    fail("Deep protected complex attribute not found");
+
+  }
+
+  private void assertComplexAnnotated(List<JPAProtectionInfo> act, final String expClaimName,
+      final String pathElement) {
+    for (final JPAProtectionInfo info : act) {
+      if (info.getClaimName().equals(expClaimName)) {
+        assertEquals("By", info.getAttribute().getExternalName());
+        assertEquals(3, info.getPath().getPath().size());
+        assertEquals("ProtectedAdminInfo/" + pathElement + "/By", info.getPath().getAlias());
+        return;
+      }
+    }
+    fail("Complex attribute not found for: " + expClaimName);
+  }
+
+  private void assertInherited(List<JPAProtectionInfo> act) {
+    for (final JPAProtectionInfo info : act) {
+      if (info.getAttribute().getExternalName().equals("Username")) {
+        assertEquals("UserId", info.getClaimName());
+        assertEquals(1, info.getPath().getPath().size());
+        assertEquals("Username", info.getPath().getAlias());
+        return;
+      }
+    }
+    fail("Inherited not found");
   }
 
   private class PostProcessorSetIgnore extends JPAEdmMetadataPostProcessor {

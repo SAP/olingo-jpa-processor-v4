@@ -1,10 +1,10 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -32,8 +32,8 @@ import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResourceComplexProperty;
 import org.apache.olingo.server.api.uri.UriResourcePrimitiveProperty;
 import org.apache.olingo.server.api.uri.UriResourceValue;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.processor.core.api.JPAAbstractCUDRequestHandler;
@@ -47,7 +47,7 @@ import com.sap.olingo.jpa.processor.core.modify.JPAUpdateResult;
 public class TestJPAClearProcessor extends TestJPAModifyProcessor {
   private ODataRequest request;
 
-  @Before
+  @BeforeEach
   public void setup() throws ODataException {
     request = mock(ODataRequest.class);
     processor = new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext,
@@ -98,7 +98,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     RequestHandleSpy spy = prepareDeleteName2();
 
     processor.clearFields(request, new ODataResponse());
-    assertEquals(spy.et.getExternalName(), "Organization");
+    assertEquals("Organization", spy.et.getExternalName());
   }
 
   @Test
@@ -115,8 +115,8 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     when(uriEts.getKeyPredicates()).thenReturn(keys);
 
     processor.clearFields(request, new ODataResponse());
-    assertEquals(spy.keyPredicates.size(), 1);
-    assertEquals(spy.keyPredicates.get("iD"), "35");
+    assertEquals(1, spy.keyPredicates.size());
+    assertEquals("35", spy.keyPredicates.get("iD"));
   }
 
   @Test
@@ -125,7 +125,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     RequestHandleSpy spy = prepareDeleteName2();
 
     processor.clearFields(request, new ODataResponse());
-    assertEquals(spy.jpaAttributes.size(), 1);
+    assertEquals(1, spy.jpaAttributes.size());
     Object[] keys = spy.jpaAttributes.keySet().toArray();
     assertEquals("name2", keys[0].toString());
   }
@@ -136,7 +136,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     RequestHandleSpy spy = prepareDeleteAddress();
 
     processor.clearFields(request, new ODataResponse());
-    assertEquals(spy.jpaAttributes.size(), 1);
+    assertEquals(1, spy.jpaAttributes.size());
     Object[] keys = spy.jpaAttributes.keySet().toArray();
     assertEquals("address", keys[0].toString());
   }
@@ -151,7 +151,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     pathParts.add(uriProperty);
 
     processor.clearFields(request, new ODataResponse());
-    assertEquals(spy.jpaAttributes.size(), 1);
+    assertEquals(1, spy.jpaAttributes.size());
     Object[] keys = spy.jpaAttributes.keySet().toArray();
     assertEquals("name2", keys[0].toString());
   }
@@ -162,11 +162,11 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     RequestHandleSpy spy = prepareDeleteAddressCountry();
 
     processor.clearFields(request, new ODataResponse());
-    assertEquals(spy.jpaAttributes.size(), 1);
+    assertEquals(1, spy.jpaAttributes.size());
 
     @SuppressWarnings("unchecked")
     Map<String, Object> address = (Map<String, Object>) spy.jpaAttributes.get("address");
-    assertEquals(address.size(), 1);
+    assertEquals(1, address.size());
     Object[] keys = address.keySet().toArray();
     assertEquals("country", keys[0].toString());
   }
@@ -178,12 +178,12 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     RequestHandleSpy spy = prepareDeleteAdminInfo();
 
     processor.clearFields(request, new ODataResponse());
-    assertEquals(spy.jpaAttributes.size(), 1);
+    assertEquals(1, spy.jpaAttributes.size());
 
     Map<String, Object> adminInfo = (Map<String, Object>) spy.jpaAttributes.get("administrativeInformation");
-    assertEquals(adminInfo.size(), 1);
+    assertEquals(1, adminInfo.size());
     Map<String, Object> update = (Map<String, Object>) adminInfo.get("updated");
-    assertEquals(update.size(), 1);
+    assertEquals(1, update.size());
     Object[] keys = update.keySet().toArray();
     assertEquals("by", keys[0].toString());
   }
@@ -199,12 +199,12 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     pathParts.add(uriProperty);
 
     processor.clearFields(request, new ODataResponse());
-    assertEquals(spy.jpaAttributes.size(), 1);
+    assertEquals(1, spy.jpaAttributes.size());
 
     Map<String, Object> adminInfo = (Map<String, Object>) spy.jpaAttributes.get("administrativeInformation");
-    assertEquals(adminInfo.size(), 1);
+    assertEquals(1, adminInfo.size());
     Map<String, Object> update = (Map<String, Object>) adminInfo.get("updated");
-    assertEquals(update.size(), 1);
+    assertEquals(1, update.size());
     Object[] keys = update.keySet().toArray();
     assertEquals("by", keys[0].toString());
   }
@@ -351,6 +351,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
   public void testDoesNotCallsValidateChangesOnError() throws ODataException {
     ODataResponse response = new ODataResponse();
     ODataRequest request = prepareSimpleRequest();
+    when(request.getMethod()).thenReturn(HttpMethod.POST);
 
     JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     when(sessionContext.getCUDRequestHandler()).thenReturn(handler);

@@ -125,5 +125,4 @@ public Object createEntity(final JPARequestEntity requestEntity, final EntityMan
 
 ```
 
-```
 The last tutorial shall show how batch processing is supported : [Tutorial 3.6 Batch Requests](3-6-BatchRequests.md)
