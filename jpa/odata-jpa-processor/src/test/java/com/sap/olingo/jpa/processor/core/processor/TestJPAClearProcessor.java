@@ -131,6 +131,17 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
+  public void testSimpleCollectionPropertyAttributeProvided() throws ODataApplicationException {
+    // .../Organizations('35')/Comment
+    RequestHandleSpy spy = prepareDeleteComment();
+
+    processor.clearFields(request, new ODataResponse());
+    assertEquals(1, spy.jpaAttributes.size());
+    Object[] keys = spy.jpaAttributes.keySet().toArray();
+    assertEquals("comment", keys[0].toString());
+  }
+
+  @Test
   public void testComplexPropertyHoleProvided() throws ODataApplicationException {
     // .../Organizations('35')/Address
     RequestHandleSpy spy = prepareDeleteAddress();
@@ -402,6 +413,23 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     pathParts.add(uriProperty);
     when(uriProperty.getProperty()).thenReturn(property);
     when(property.getName()).thenReturn("Name2");
+
+    RequestHandleSpy spy = new RequestHandleSpy();
+    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+
+    return spy;
+  }
+
+  private RequestHandleSpy prepareDeleteComment() {
+
+    UriResourcePrimitiveProperty uriProperty;
+    EdmProperty property;
+    uriProperty = mock(UriResourcePrimitiveProperty.class);
+    property = mock(EdmProperty.class);
+
+    pathParts.add(uriProperty);
+    when(uriProperty.getProperty()).thenReturn(property);
+    when(property.getName()).thenReturn("Comment");
 
     RequestHandleSpy spy = new RequestHandleSpy();
     when(sessionContext.getCUDRequestHandler()).thenReturn(spy);

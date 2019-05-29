@@ -112,7 +112,7 @@ public final class JsonDeserializer implements ODataDeserializer {
   private List<Entity> consumeEntitySetArray(final EdmEntityType edmEntityType, final JsonNode jsonNode,
       final ExpandTreeBuilder expandBuilder) throws DeserializerException {
     if (jsonNode.isArray()) {
-      List<Entity> entities = new ArrayList<Entity>();
+      List<Entity> entities = new ArrayList<>();
       for (JsonNode arrayElement : jsonNode) {
         if (arrayElement.isArray() || arrayElement.isValueNode()) {
           throw new DeserializerException(
@@ -200,24 +200,24 @@ public final class JsonDeserializer implements ODataDeserializer {
       // The binding parameter must not occur in the payload.
       parameterNames = parameterNames.subList(1, parameterNames.size());
     }
-    Map<String, Parameter> parameters = new LinkedHashMap<String, Parameter>();
+    Map<String, Parameter> parameters = new LinkedHashMap<>();
     for (final String paramName : parameterNames) {
       final EdmParameter edmParameter = edmAction.getParameter(paramName);
 
       switch (edmParameter.getType().getKind()) {
-      case PRIMITIVE:
-      case DEFINITION:
-      case ENUM:
-      case COMPLEX:
-      case ENTITY:
-        Parameter parameter = createParameter(node.get(paramName), paramName, edmParameter);
-        parameters.put(paramName, parameter);
-        node.remove(paramName);
-        break;
-      default:
-        throw new DeserializerException(
-            "Invalid type kind " + edmParameter.getType().getKind() + " for action parameter: " + paramName,
-            DeserializerException.MessageKeys.INVALID_ACTION_PARAMETER_TYPE, paramName);
+        case PRIMITIVE:
+        case DEFINITION:
+        case ENUM:
+        case COMPLEX:
+        case ENTITY:
+          Parameter parameter = createParameter(node.get(paramName), paramName, edmParameter);
+          parameters.put(paramName, parameter);
+          node.remove(paramName);
+          break;
+        default:
+          throw new DeserializerException(
+              "Invalid type kind " + edmParameter.getType().getKind() + " for action parameter: " + paramName,
+              DeserializerException.MessageKeys.INVALID_ACTION_PARAMETER_TYPE, paramName);
       }
     }
     return parameters;
@@ -296,7 +296,7 @@ public final class JsonDeserializer implements ODataDeserializer {
    */
   private void consumeRemainingJsonNodeFields(final EdmEntityType edmEntityType, final ObjectNode node,
       final Entity entity) throws DeserializerException {
-    final List<String> toRemove = new ArrayList<String>();
+    final List<String> toRemove = new ArrayList<>();
     Iterator<Entry<String, JsonNode>> fieldsIterator = node.fields();
     while (fieldsIterator.hasNext()) {
       Entry<String, JsonNode> field = fieldsIterator.next();
@@ -432,7 +432,7 @@ public final class JsonDeserializer implements ODataDeserializer {
         throw new DeserializerException("Binding annotation: " + key + " must be an array.",
             DeserializerException.MessageKeys.INVALID_ANNOTATION_TYPE, key);
       }
-      List<String> bindingLinkStrings = new ArrayList<String>();
+      List<String> bindingLinkStrings = new ArrayList<>();
       for (JsonNode arrayValue : jsonNode) {
         assertIsNullNode(key, arrayValue);
         if (!arrayValue.isTextual()) {
@@ -486,23 +486,23 @@ public final class JsonDeserializer implements ODataDeserializer {
       final Integer maxLength, final Integer precision, final Integer scale, final boolean isUnicode,
       final EdmMapping mapping, final JsonNode jsonNode, final Property property) throws DeserializerException {
     switch (type.getKind()) {
-    case PRIMITIVE:
-    case DEFINITION:
-    case ENUM:
-      Object value = readPrimitiveValue(name, (EdmPrimitiveType) type, isNullable, maxLength, precision, scale,
-          isUnicode, mapping, jsonNode);
-      property.setValue(type.getKind() == EdmTypeKind.ENUM ? ValueType.ENUM : ValueType.PRIMITIVE, value);
-      break;
-    case COMPLEX:
-      EdmType derivedType = getDerivedType((EdmComplexType) type, jsonNode);
-      property.setType(derivedType.getFullQualifiedName().getFullQualifiedNameAsString());
+      case PRIMITIVE:
+      case DEFINITION:
+      case ENUM:
+        Object value = readPrimitiveValue(name, (EdmPrimitiveType) type, isNullable, maxLength, precision, scale,
+            isUnicode, mapping, jsonNode);
+        property.setValue(type.getKind() == EdmTypeKind.ENUM ? ValueType.ENUM : ValueType.PRIMITIVE, value);
+        break;
+      case COMPLEX:
+        EdmType derivedType = getDerivedType((EdmComplexType) type, jsonNode);
+        property.setType(derivedType.getFullQualifiedName().getFullQualifiedNameAsString());
 
-      value = readComplexNode(name, derivedType, isNullable, jsonNode);
-      property.setValue(ValueType.COMPLEX, value);
-      break;
-    default:
-      throw new DeserializerException("Invalid Type Kind for a property found: " + type.getKind(),
-          DeserializerException.MessageKeys.INVALID_JSON_TYPE_FOR_PROPERTY, name);
+        value = readComplexNode(name, derivedType, isNullable, jsonNode);
+        property.setValue(ValueType.COMPLEX, value);
+        break;
+      default:
+        throw new DeserializerException("Invalid Type Kind for a property found: " + type.getKind(),
+            DeserializerException.MessageKeys.INVALID_JSON_TYPE_FOR_PROPERTY, name);
     }
   }
 
@@ -527,33 +527,33 @@ public final class JsonDeserializer implements ODataDeserializer {
       throw new DeserializerException("Value for property: " + name + " must be an array but is not.",
           DeserializerException.MessageKeys.INVALID_JSON_TYPE_FOR_PROPERTY, name);
     }
-    List<Object> valueArray = new ArrayList<Object>();
+    List<Object> valueArray = new ArrayList<>();
     Iterator<JsonNode> iterator = jsonNode.iterator();
     switch (type.getKind()) {
-    case PRIMITIVE:
-    case DEFINITION:
-    case ENUM:
-      while (iterator.hasNext()) {
-        JsonNode arrayElement = iterator.next();
-        Object value = readPrimitiveValue(name, (EdmPrimitiveType) type, isNullable, maxLength, precision,
-            scale, isUnicode, mapping, arrayElement);
-        valueArray.add(value);
-      }
-      property.setValue(
-          type.getKind() == EdmTypeKind.ENUM ? ValueType.COLLECTION_ENUM : ValueType.COLLECTION_PRIMITIVE,
-          valueArray);
-      break;
-    case COMPLEX:
-      while (iterator.hasNext()) {
-        // read and add all complex properties
-        Object value = readComplexNode(name, type, isNullable, iterator.next());
-        valueArray.add(value);
-      }
-      property.setValue(ValueType.COLLECTION_COMPLEX, valueArray);
-      break;
-    default:
-      throw new DeserializerException("Invalid Type Kind for a property found: " + type.getKind(),
-          DeserializerException.MessageKeys.INVALID_JSON_TYPE_FOR_PROPERTY, name);
+      case PRIMITIVE:
+      case DEFINITION:
+      case ENUM:
+        while (iterator.hasNext()) {
+          JsonNode arrayElement = iterator.next();
+          Object value = readPrimitiveValue(name, (EdmPrimitiveType) type, isNullable, maxLength, precision,
+              scale, isUnicode, mapping, arrayElement);
+          valueArray.add(value);
+        }
+        property.setValue(
+            type.getKind() == EdmTypeKind.ENUM ? ValueType.COLLECTION_ENUM : ValueType.COLLECTION_PRIMITIVE,
+            valueArray);
+        break;
+      case COMPLEX:
+        while (iterator.hasNext()) {
+          // read and add all complex properties
+          Object value = readComplexNode(name, type, isNullable, iterator.next());
+          valueArray.add(value);
+        }
+        property.setValue(ValueType.COLLECTION_COMPLEX, valueArray);
+        break;
+      default:
+        throw new DeserializerException("Invalid Type Kind for a property found: " + type.getKind(),
+            DeserializerException.MessageKeys.INVALID_JSON_TYPE_FOR_PROPERTY, name);
     }
   }
 
@@ -657,8 +657,11 @@ public final class JsonDeserializer implements ODataDeserializer {
     }
   }
 
+  /**
+   * JPA Processor Adoption here. Custom annotations do not throw an error, but will be ignored
+   */
   private void removeAnnotations(final ObjectNode tree) throws DeserializerException {
-    List<String> toRemove = new ArrayList<String>();
+    List<String> toRemove = new ArrayList<>();
     Iterator<Entry<String, JsonNode>> fieldsIterator = tree.fields();
     while (fieldsIterator.hasNext()) {
       Map.Entry<String, JsonNode> field = fieldsIterator.next();
@@ -768,7 +771,7 @@ public final class JsonDeserializer implements ODataDeserializer {
   @Override
   public DeserializerResult entityReferences(final InputStream stream) throws DeserializerException {
     try {
-      List<URI> parsedValues = new ArrayList<URI>();
+      List<URI> parsedValues = new ArrayList<>();
       final ObjectNode tree = parseJsonTree(stream);
       final String key = Constants.JSON_ID;
       JsonNode jsonNode = tree.get(Constants.VALUE);

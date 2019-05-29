@@ -9,7 +9,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
 
 /**
- * Representing an entity that should be created or updated by a POST, PUT or PATCH request
+ * Representing an entity that should be created, updated or deleted by a POST, PUT, PATCH or DELETE request
  * @author Oliver Grande
  *
  */
@@ -21,14 +21,14 @@ public interface JPARequestEntity {
   public JPAEntityType getEntityType();
 
   /**
-   * List of attributes with pojo attributes name and converted into JAVA types. In case the entity contains embedded
+   * List of attributes with pojo attributes name converted into JAVA types. In case the entity contains embedded
    * attributes these are given as maps themselves.<p>
    * @return
    */
   public Map<String, Object> getData();
 
   /**
-   * Contains the key attributes of the entity to be update. Return an empty Map in case of create.
+   * Contains the key attributes of the entity to be update or deleted. Returns an empty Map in case of create.
    * @return
    */
   public Map<String, Object> getKeys();
@@ -62,7 +62,7 @@ public interface JPARequestEntity {
   public JPAModifyUtil getModifyUtil();
 
   /**
-   * 
+   * Provides the given claims of a user
    * @return
    */
   public Optional<JPAODataClaimsProvider> getClaims();

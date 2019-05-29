@@ -229,6 +229,7 @@ public abstract class TestJPAModifyProcessor {
     return prepareSimpleRequest("return=minimal");
   }
 
+  @SuppressWarnings("unchecked")
   protected ODataRequest prepareSimpleRequest(String content) throws ODataException, ODataJPAProcessorException,
       SerializerException {
 
@@ -242,8 +243,8 @@ public abstract class TestJPAModifyProcessor {
     header.add(content);
 
     Entity odataEntity = mock(Entity.class);
-    when(convHelper.convertInputStream(same(odata), same(request), same(ContentType.JSON), any())).thenReturn(
-        odataEntity);
+    when(convHelper.convertInputStream(same(odata), same(request), same(ContentType.JSON), any(List.class)))
+        .thenReturn(odataEntity);
     when(convHelper.convertKeyToLocal(ArgumentMatchers.eq(odata), ArgumentMatchers.eq(request), ArgumentMatchers.eq(
         ets), ArgumentMatchers.any(JPAEntityType.class), ArgumentMatchers.any())).thenReturn(LOCATION_HEADER);
     return request;

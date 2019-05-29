@@ -55,8 +55,6 @@ public class JPAODataRequestProcessorTest {
 
   static Stream<Executable> updatePrimitiveValueMethodsProvider() {
     return Stream.of(() -> {
-      cut.updatePrimitive(null, null, null, null, null);
-    }, () -> {
       cut.updatePrimitiveValue(null, null, null, null, null);
     });
   }
@@ -66,18 +64,6 @@ public class JPAODataRequestProcessorTest {
       cut.updateComplex(null, null, null, null, null);
     }, () -> {
       cut.deleteComplex(null, null, null);
-    });
-  }
-
-  static Stream<Executable> modifyCollectionMethodsProvider() {
-    return Stream.of(() -> {
-      cut.updatePrimitiveCollection(null, null, null, null, null);
-    }, () -> {
-      cut.updateComplexCollection(null, null, null, null, null);
-    }, () -> {
-      cut.deletePrimitiveCollection(null, null, null);
-    }, () -> {
-      cut.deleteComplexCollection(null, null, null);
     });
   }
 
@@ -128,23 +114,6 @@ public class JPAODataRequestProcessorTest {
   public void checkUpdatePrimitveValueThrowsNotImplemented(final Executable m) {
 
     final ODataJPAProcessorException act = assertThrows(ODataJPAProcessorException.class, m);
-    assertEquals(HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), act.getStatusCode());
-  }
-
-  @Test
-  public void checkUpdateComplexValueThrowsNotImplemented() {
-    final ODataJPAProcessorException act = assertThrows(ODataJPAProcessorException.class, () -> {
-      cut.updateComplex(null, null, null, null, null);
-    });
-
-    assertEquals(HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), act.getStatusCode());
-  }
-
-  @ParameterizedTest
-  @MethodSource("modifyCollectionMethodsProvider")
-  public void checkModifyCollctionPropertiesThrowsNotImplemented(final Executable m) {
-    final ODataJPAProcessorException act = assertThrows(ODataJPAProcessorException.class, m);
-
     assertEquals(HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), act.getStatusCode());
   }
 

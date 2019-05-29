@@ -13,6 +13,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -22,10 +23,12 @@ import org.apache.olingo.commons.api.data.ComplexValue;
 import org.apache.olingo.commons.api.data.Entity;
 import org.apache.olingo.commons.api.data.Property;
 import org.apache.olingo.commons.api.data.ValueType;
+import org.apache.olingo.commons.api.edm.EdmComplexType;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeException;
+import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
@@ -34,6 +37,11 @@ import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataRequest;
+import org.apache.olingo.server.api.uri.UriResource;
+import org.apache.olingo.server.api.uri.UriResourceComplexProperty;
+import org.apache.olingo.server.api.uri.UriResourceEntitySet;
+import org.apache.olingo.server.api.uri.UriResourceKind;
+import org.apache.olingo.server.api.uri.UriResourceProperty;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -56,10 +64,15 @@ import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
 import com.sap.olingo.jpa.processor.core.testmodel.DateConverter;
 
 public class TestJPACUDRequestHelper {
+  private static final String COMMENT_INT_PROPERTY_NAME = "comment";
+  private static final String COMMENT_EXT_PROPERTY_NAME = "Comment";
+  private static final String INHOUSE_EXT_PROPERTY_NAME = "InhouseAddress";
   private JPAConversionHelper cut;
+  private List<UriResource> uriResourceParts;
 
   @BeforeEach
   public void setUp() throws Exception {
+    uriResourceParts = new ArrayList<>();
     cut = new JPAConversionHelper();
   }
 
@@ -120,14 +133,19 @@ public class TestJPACUDRequestHelper {
     final ODataRequest request = mock(ODataRequest.class);
     final EdmEntitySetInfo etsInfo = mock(EdmEntitySetInfo.class);
     final EdmEntitySet ets = mock(EdmEntitySet.class);
+    final UriResourceEntitySet uriEs = mock(UriResourceEntitySet.class);
 
     final InputStream is = new ByteArrayInputStream("".getBytes("UTF-8"));
+    uriResourceParts.add(uriEs);
+
+    when(uriEs.getEntitySet()).thenReturn(ets);
+    when(uriEs.getKind()).thenReturn(UriResourceKind.entitySet);
     when(request.getBody()).thenReturn(is);
     when(etsInfo.getEdmEntitySet()).thenReturn(ets);
     when(etsInfo.getTargetEdmEntitySet()).thenReturn(ets);
 
     try {
-      cut.convertInputStream(OData.newInstance(), request, ContentType.APPLICATION_JSON, etsInfo);
+      cut.convertInputStream(OData.newInstance(), request, ContentType.APPLICATION_JSON, uriResourceParts);
     } catch (ODataJPAProcessorException e) {
       assertEquals(HttpStatusCode.BAD_REQUEST.getStatusCode(), e.getStatusCode());
       return;
@@ -137,15 +155,15 @@ public class TestJPACUDRequestHelper {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testConvertInputStream() throws UnsupportedEncodingException, ODataJPAProcessorException,
+  public void testConvertInputStreamEntitySet() throws UnsupportedEncodingException, ODataJPAProcessorException,
       EdmPrimitiveTypeException {
 
     final ODataRequest request = mock(ODataRequest.class);
-    final EdmEntitySetInfo edmEntitySetInfo = mock(EdmEntitySetInfo.class);
     final EdmEntitySet edmEntitySet = mock(EdmEntitySet.class);
     final EdmEntityType edmEntityType = mock(EdmEntityType.class);
     final EdmProperty edmPropertyId = mock(EdmProperty.class);
     final EdmPrimitiveType edmTypeId = mock(EdmPrimitiveType.class);
+    final UriResourceEntitySet uriEs = mock(UriResourceEntitySet.class);
 
     FullQualifiedName fqn = new FullQualifiedName("test", "Organisation");
     FullQualifiedName fqnString = new FullQualifiedName("test", "Organisation");
@@ -153,6 +171,10 @@ public class TestJPACUDRequestHelper {
     List<String> propertyNames = new ArrayList<>();
     propertyNames.add("ID");
 
+    uriResourceParts.add(uriEs);
+
+    when(uriEs.getEntitySet()).thenReturn(edmEntitySet);
+    when(uriEs.getKind()).thenReturn(UriResourceKind.entitySet);
     when(edmTypeId.getFullQualifiedName()).thenReturn(fqnString);
     when(edmTypeId.getKind()).thenReturn(EdmTypeKind.PRIMITIVE);
     when(edmTypeId.getName()).thenReturn("String");
@@ -166,13 +188,177 @@ public class TestJPACUDRequestHelper {
     when(edmEntityType.getProperty("ID")).thenReturn(edmPropertyId);
     when(edmPropertyId.getName()).thenReturn("ID");
     when(edmPropertyId.getType()).thenReturn(edmTypeId);
-    when(edmEntitySetInfo.getEdmEntitySet()).thenReturn(edmEntitySet);
-    when(edmEntitySetInfo.getTargetEdmEntitySet()).thenReturn(edmEntitySet);
     InputStream is = new ByteArrayInputStream("{\"ID\" : \"35\"}".getBytes("UTF-8"));
     when(request.getBody()).thenReturn(is);
 
-    Entity act = cut.convertInputStream(OData.newInstance(), request, ContentType.APPLICATION_JSON, edmEntitySetInfo);
+    Entity act = cut.convertInputStream(OData.newInstance(), request, ContentType.APPLICATION_JSON, uriResourceParts);
     assertEquals("35", act.getProperty("ID").getValue());
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testConvertInputStreamPrimitiveSimpleProperty() throws UnsupportedEncodingException,
+      ODataJPAProcessorException, EdmPrimitiveTypeException {
+
+    final ODataRequest request = mock(ODataRequest.class);
+
+    final EdmEntitySet edmEntitySet = mock(EdmEntitySet.class);
+    final EdmEntityType edmEntityType = mock(EdmEntityType.class);
+    final EdmProperty edmPropertyName = mock(EdmProperty.class);
+    final EdmPrimitiveType edmTypeName = mock(EdmPrimitiveType.class);
+    final UriResourceEntitySet uriEs = mock(UriResourceEntitySet.class);
+    final UriResourceProperty uriProperty = mock(UriResourceProperty.class);
+    FullQualifiedName fqn = new FullQualifiedName("test", "Organisation");
+    FullQualifiedName fqnString = new FullQualifiedName("test", "Organisation");
+
+    List<String> propertyNames = new ArrayList<>();
+    propertyNames.add("Name2");
+
+    uriResourceParts.add(uriEs);
+    uriResourceParts.add(uriProperty);
+
+    when(uriEs.getEntitySet()).thenReturn(edmEntitySet);
+    when(uriEs.getKind()).thenReturn(UriResourceKind.entitySet);
+
+    when(uriProperty.getProperty()).thenReturn(edmPropertyName);
+    when(uriProperty.getKind()).thenReturn(UriResourceKind.primitiveProperty);
+
+    when(edmTypeName.getFullQualifiedName()).thenReturn(fqnString);
+    when(edmTypeName.getKind()).thenReturn(EdmTypeKind.PRIMITIVE);
+    when(edmTypeName.getName()).thenReturn("String");
+    when(edmTypeName.valueOfString(ArgumentMatchers.anyString(), ArgumentMatchers.anyBoolean(), ArgumentMatchers
+        .anyInt(),
+        ArgumentMatchers.anyInt(), ArgumentMatchers.anyInt(), ArgumentMatchers.anyBoolean(),
+        (Class<String>) ArgumentMatchers.any())).thenReturn("Willi");
+
+    when(edmEntitySet.getEntityType()).thenReturn(edmEntityType);
+    when(edmEntityType.getFullQualifiedName()).thenReturn(fqn);
+    when(edmEntityType.getPropertyNames()).thenReturn(propertyNames);
+    when(edmEntityType.getProperty("Name2")).thenReturn(edmPropertyName);
+    when(edmPropertyName.getName()).thenReturn("Name2");
+    when(edmPropertyName.getType()).thenReturn(edmTypeName);
+    InputStream is = new ByteArrayInputStream("{\"value\" : \"Willi\"}".getBytes("UTF-8"));
+    when(request.getBody()).thenReturn(is);
+
+    Entity act = cut.convertInputStream(OData.newInstance(), request, ContentType.APPLICATION_JSON, uriResourceParts);
+    assertEquals("Willi", act.getProperty("Name2").getValue());
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testConvertInputStreamPrimitiveColectionProperty() throws UnsupportedEncodingException,
+      ODataJPAProcessorException, EdmPrimitiveTypeException {
+
+    final ODataRequest request = mock(ODataRequest.class);
+
+    final EdmEntitySet edmEntitySet = mock(EdmEntitySet.class);
+    final EdmEntityType edmEntityType = mock(EdmEntityType.class);
+    final EdmProperty edmPropertyName = mock(EdmProperty.class);
+    final EdmPrimitiveType edmTypeName = mock(EdmPrimitiveType.class);
+    final UriResourceEntitySet uriEs = mock(UriResourceEntitySet.class);
+    final UriResourceProperty uriProperty = mock(UriResourceProperty.class);
+    FullQualifiedName fqn = new FullQualifiedName("test", "Organisation");
+    FullQualifiedName fqnString = new FullQualifiedName("test", "Organisation");
+
+    List<String> propertyNames = new ArrayList<>();
+    propertyNames.add(COMMENT_EXT_PROPERTY_NAME);
+
+    uriResourceParts.add(uriEs);
+    uriResourceParts.add(uriProperty);
+
+    when(uriEs.getEntitySet()).thenReturn(edmEntitySet);
+    when(uriEs.getKind()).thenReturn(UriResourceKind.entitySet);
+
+    when(uriProperty.getProperty()).thenReturn(edmPropertyName);
+    when(uriProperty.getKind()).thenReturn(UriResourceKind.primitiveProperty);
+
+    when(edmTypeName.getFullQualifiedName()).thenReturn(fqnString);
+    when(edmTypeName.getKind()).thenReturn(EdmTypeKind.PRIMITIVE);
+    when(edmTypeName.getName()).thenReturn("String");
+    when(edmTypeName.valueOfString(ArgumentMatchers.eq("YAC"), ArgumentMatchers.anyBoolean(), ArgumentMatchers
+        .anyInt(), ArgumentMatchers.anyInt(), ArgumentMatchers.anyInt(), ArgumentMatchers.anyBoolean(),
+        (Class<String>) ArgumentMatchers.any())).thenReturn("YAC");
+    when(edmTypeName.valueOfString(ArgumentMatchers.eq("WTN"), ArgumentMatchers.anyBoolean(), ArgumentMatchers
+        .anyInt(), ArgumentMatchers.anyInt(), ArgumentMatchers.anyInt(), ArgumentMatchers.anyBoolean(),
+        (Class<String>) ArgumentMatchers.any())).thenReturn("WTN");
+
+    when(edmEntitySet.getEntityType()).thenReturn(edmEntityType);
+    when(edmEntityType.getFullQualifiedName()).thenReturn(fqn);
+    when(edmEntityType.getPropertyNames()).thenReturn(propertyNames);
+    when(edmEntityType.getProperty(COMMENT_EXT_PROPERTY_NAME)).thenReturn(edmPropertyName);
+    when(edmPropertyName.getName()).thenReturn(COMMENT_EXT_PROPERTY_NAME);
+    when(edmPropertyName.getType()).thenReturn(edmTypeName);
+    when(edmPropertyName.isCollection()).thenReturn(true);
+    InputStream is = new ByteArrayInputStream("{ \"value\": [\"YAC\",\"WTN\"] }".getBytes("UTF-8"));
+    when(request.getBody()).thenReturn(is);
+
+    Entity act = cut.convertInputStream(OData.newInstance(), request, ContentType.APPLICATION_JSON, uriResourceParts);
+    assertEquals(ValueType.COLLECTION_PRIMITIVE, act.getProperty(COMMENT_EXT_PROPERTY_NAME).getValueType());
+    final List<String> actValue = (List<String>) act.getProperty(COMMENT_EXT_PROPERTY_NAME).getValue();
+    assertEquals(2, actValue.size());
+    assertEquals("YAC", actValue.get(0));
+    assertEquals("WTN", actValue.get(1));
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testConvertInputStreamComplexColectionProperty() throws UnsupportedEncodingException,
+      ODataJPAProcessorException, EdmPrimitiveTypeException {
+
+    final ODataRequest request = mock(ODataRequest.class);
+
+    final EdmEntitySet edmEntitySet = mock(EdmEntitySet.class);
+    final EdmEntityType edmEntityType = mock(EdmEntityType.class);
+    final EdmProperty edmPropertyInhouse = mock(EdmProperty.class);
+    final EdmComplexType edmTypeInhouse = mock(EdmComplexType.class);
+    final UriResourceEntitySet uriEs = mock(UriResourceEntitySet.class);
+    final UriResourceComplexProperty uriProperty = mock(UriResourceComplexProperty.class);
+    FullQualifiedName fqn = new FullQualifiedName("test", "Person");
+    FullQualifiedName fqnString = new FullQualifiedName("test", "Person");
+
+    List<String> propertyNames = new ArrayList<>();
+    propertyNames.add(INHOUSE_EXT_PROPERTY_NAME);
+
+    uriResourceParts.add(uriEs);
+    uriResourceParts.add(uriProperty);
+
+    when(uriEs.getEntitySet()).thenReturn(edmEntitySet);
+    when(uriEs.getKind()).thenReturn(UriResourceKind.entitySet);
+
+    when(uriProperty.getProperty()).thenReturn(edmPropertyInhouse);
+    when(uriProperty.getKind()).thenReturn(UriResourceKind.complexProperty);
+
+    when(edmTypeInhouse.getFullQualifiedName()).thenReturn(fqnString);
+    when(edmTypeInhouse.getKind()).thenReturn(EdmTypeKind.COMPLEX);
+    when(edmTypeInhouse.getName()).thenReturn(INHOUSE_EXT_PROPERTY_NAME);
+    when(edmTypeInhouse.getPropertyNames()).thenReturn(Arrays.asList("RoomNumber", "Floor", "TaskID", "Building"));
+    EdmProperty edmProperty = createPropertyMock("RoomNumber", EdmPrimitiveTypeKind.Int32, Integer.class, 25);
+    when(edmTypeInhouse.getProperty("RoomNumber")).thenReturn(edmProperty);
+    edmProperty = createPropertyMock("Floor", EdmPrimitiveTypeKind.Int16, Short.class, 2);
+    when(edmTypeInhouse.getProperty("Floor")).thenReturn(edmProperty);
+    edmProperty = createPropertyMock("TaskID", EdmPrimitiveTypeKind.String, String.class, "DEV");
+    when(edmTypeInhouse.getProperty("TaskID")).thenReturn(edmProperty);
+    edmProperty = createPropertyMock("Building", EdmPrimitiveTypeKind.String, String.class, "2");
+    when(edmTypeInhouse.getProperty("Building")).thenReturn(edmProperty);
+
+    when(edmEntitySet.getEntityType()).thenReturn(edmEntityType);
+    when(edmEntityType.getFullQualifiedName()).thenReturn(fqn);
+    when(edmEntityType.getPropertyNames()).thenReturn(propertyNames);
+    when(edmEntityType.getProperty(INHOUSE_EXT_PROPERTY_NAME)).thenReturn(edmPropertyInhouse);
+    when(edmPropertyInhouse.getName()).thenReturn(INHOUSE_EXT_PROPERTY_NAME);
+    when(edmPropertyInhouse.getType()).thenReturn(edmTypeInhouse);
+    when(edmPropertyInhouse.isCollection()).thenReturn(true);
+    InputStream is = new ByteArrayInputStream(
+        "{\"value\": [{\"RoomNumber\": 25, \"Floor\": 2,\"TaskID\": \"DEV\", \"Building\": \"2\" }]}".getBytes(
+            "UTF-8"));
+    when(request.getBody()).thenReturn(is);
+
+    Entity act = cut.convertInputStream(OData.newInstance(), request, ContentType.APPLICATION_JSON, uriResourceParts);
+    assertEquals(ValueType.COLLECTION_COMPLEX, act.getProperty(INHOUSE_EXT_PROPERTY_NAME).getValueType());
+    final List<ComplexValue> actValue = (List<ComplexValue>) act.getProperty(INHOUSE_EXT_PROPERTY_NAME).getValue();
+    assertEquals(1, actValue.size());
+    final ComplexValue actInhouseMail = actValue.get(0);
+    assertNotNull(actInhouseMail.getValue().get(0).getValue());
   }
 
   @Test
@@ -498,64 +684,67 @@ public class TestJPACUDRequestHelper {
   @Test
   public void testConvertPropertiesOneSimpleCollcetionProperty() throws ODataJPAProcessException,
       ODataJPAModelException {
+
     final List<Property> odataProperties = new ArrayList<>();
     final List<String> odataComment = new ArrayList<>();
 
-    final JPAStructuredType st = createMetadataForSimpleProperty("Comment", "comment");
+    final JPAStructuredType st = createMetadataForSimpleProperty(COMMENT_EXT_PROPERTY_NAME, COMMENT_INT_PROPERTY_NAME);
 
     odataComment.add("First Test");
     Property propertyComment = mock(Property.class);
     when(propertyComment.getValueType()).thenReturn(ValueType.COLLECTION_PRIMITIVE);
-    when(propertyComment.getName()).thenReturn("Comment");
+    when(propertyComment.getName()).thenReturn(COMMENT_EXT_PROPERTY_NAME);
     when(propertyComment.getValue()).thenReturn(odataComment);
     odataProperties.add(propertyComment);
 
     Map<String, Object> act = cut.convertProperties(OData.newInstance(), st, odataProperties);
-    assertNotNull(act.get("comment"));
-    assertEquals(1, ((List<?>) act.get("comment")).size());
-    assertEquals("First Test", ((List<?>) act.get("comment")).get(0));
+    assertNotNull(act.get(COMMENT_INT_PROPERTY_NAME));
+    assertEquals(1, ((List<?>) act.get(COMMENT_INT_PROPERTY_NAME)).size());
+    assertEquals("First Test", ((List<?>) act.get(COMMENT_INT_PROPERTY_NAME)).get(0));
   }
 
   @Test
   public void testConvertPropertiesTwoSimpleCollcetionProperty() throws ODataJPAProcessException,
       ODataJPAModelException {
+
     final List<Property> odataProperties = new ArrayList<>();
     final List<String> odataComment = new ArrayList<>();
 
-    final JPAStructuredType st = createMetadataForSimpleProperty("Comment", "comment");
+    final JPAStructuredType st = createMetadataForSimpleProperty(COMMENT_EXT_PROPERTY_NAME, COMMENT_INT_PROPERTY_NAME);
 
     odataComment.add("First Test");
     odataComment.add("Second Test");
     Property propertyComment = mock(Property.class);
     when(propertyComment.getValueType()).thenReturn(ValueType.COLLECTION_PRIMITIVE);
-    when(propertyComment.getName()).thenReturn("Comment");
+    when(propertyComment.getName()).thenReturn(COMMENT_EXT_PROPERTY_NAME);
     when(propertyComment.getValue()).thenReturn(odataComment);
     odataProperties.add(propertyComment);
 
     Map<String, Object> act = cut.convertProperties(OData.newInstance(), st, odataProperties);
-    assertNotNull(act.get("comment"));
-    assertEquals(2, ((List<?>) act.get("comment")).size());
-    assertEquals("First Test", ((List<?>) act.get("comment")).get(0));
-    assertEquals("Second Test", ((List<?>) act.get("comment")).get(1));
+    assertNotNull(act.get(COMMENT_INT_PROPERTY_NAME));
+    assertEquals(2, ((List<?>) act.get(COMMENT_INT_PROPERTY_NAME)).size());
+    assertEquals("First Test", ((List<?>) act.get(COMMENT_INT_PROPERTY_NAME)).get(0));
+    assertEquals("Second Test", ((List<?>) act.get(COMMENT_INT_PROPERTY_NAME)).get(1));
   }
 
   @Test
   public void testConvertPropertiesEmptySimpleCollcetionProperty() throws ODataJPAProcessException,
       ODataJPAModelException {
+
     final List<Property> odataProperties = new ArrayList<>();
     final List<String> odataComment = new ArrayList<>();
 
-    final JPAStructuredType st = createMetadataForSimpleProperty("Comment", "comment");
+    final JPAStructuredType st = createMetadataForSimpleProperty(COMMENT_EXT_PROPERTY_NAME, COMMENT_INT_PROPERTY_NAME);
 
     Property propertyComment = mock(Property.class);
     when(propertyComment.getValueType()).thenReturn(ValueType.COLLECTION_PRIMITIVE);
-    when(propertyComment.getName()).thenReturn("Comment");
+    when(propertyComment.getName()).thenReturn(COMMENT_EXT_PROPERTY_NAME);
     when(propertyComment.getValue()).thenReturn(odataComment);
     odataProperties.add(propertyComment);
 
     Map<String, Object> act = cut.convertProperties(OData.newInstance(), st, odataProperties);
-    assertNotNull(act.get("comment"));
-    assertTrue(((List<?>) act.get("comment")).isEmpty());
+    assertNotNull(act.get(COMMENT_INT_PROPERTY_NAME));
+    assertTrue(((List<?>) act.get(COMMENT_INT_PROPERTY_NAME)).isEmpty());
   }
 
   private JPAStructuredType createMetadataForSimpleProperty(final String externalName, final String internalName)
@@ -570,5 +759,35 @@ public class TestJPACUDRequestHelper {
     when(pathID.getPath()).thenReturn(pathElements);
     when(attribute.getInternalName()).thenReturn(internalName);
     return st;
+  }
+
+  private EdmProperty createPropertyMock(final String propertyName, final EdmPrimitiveTypeKind propertyType,
+      final Class<?> defaultJavaType, final Object value) throws EdmPrimitiveTypeException {
+
+    final EdmProperty edmProperty = mock(EdmProperty.class);
+    final EdmPrimitiveType edmType = mock(EdmPrimitiveType.class);
+    when(edmType.getFullQualifiedName()).thenReturn(propertyType.getFullQualifiedName());
+    when(edmType.getKind()).thenReturn(EdmTypeKind.PRIMITIVE);
+    when(edmType.getName()).thenReturn(propertyType.getFullQualifiedName().getName());
+    when(edmType.getDefaultType()).thenAnswer(new Answer<Class<?>>() {
+      @Override
+      public Class<?> answer(InvocationOnMock invocation) throws Throwable {
+        return defaultJavaType;
+      }
+    });
+    when(edmType.valueOfString(value.toString(), true, 0, 0, 0, true, defaultJavaType)).thenAnswer(
+        new Answer<Object>() {
+          @Override
+          public Object answer(InvocationOnMock invocation) throws Throwable {
+            return value;
+          }
+        });
+    when(edmProperty.getName()).thenReturn(propertyName);
+    when(edmProperty.getType()).thenReturn(edmType);
+    when(edmProperty.isUnicode()).thenReturn(true);
+    when(edmProperty.isPrimitive()).thenReturn(true);
+    when(edmProperty.isCollection()).thenReturn(false);
+    when(edmProperty.isNullable()).thenReturn(true);
+    return edmProperty;
   }
 }

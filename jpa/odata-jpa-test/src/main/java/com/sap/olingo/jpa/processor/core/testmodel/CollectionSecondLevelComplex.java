@@ -27,7 +27,7 @@ public class CollectionSecondLevelComplex {
   @CollectionTable(schema = "\"OLINGO\"", name = "\"Comment\"",
       joinColumns = @JoinColumn(name = "\"BusinessPartnerID\"", referencedColumnName = "\"ID\""))
   @Column(name = "\"Text\"")
-  private List<String> comment = new ArrayList<>();;
+  private List<String> comment = new ArrayList<>();
 
   public void setNumber(Long number) {
     this.number = number;

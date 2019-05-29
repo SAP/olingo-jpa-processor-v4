@@ -161,10 +161,9 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
 
   @Test
   public void checkGetProptertyFacetsNullableTrueComplex() throws ODataJPAModelException {
-    Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEmbeddedableType("PostalAddressData"), "POBox");
+    Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEmbeddedableType("PostalAddressData"), "pOBox");
     IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
-        jpaAttribute,
-        helper.schema);
+        jpaAttribute, helper.schema);
     assertTrue(property.getEdmItem().isNullable());
   }
 
