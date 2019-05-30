@@ -368,6 +368,22 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
+  public void testRepresentationResponseUpdatedWithKey() throws ODataJPAProcessorException, SerializerException,
+      ODataException {
+
+    ODataResponse response = new ODataResponse();
+    ODataRequest request = prepareRepresentationRequest(new RequestHandleSpy(new JPAUpdateResult(false,
+        new Organization())));
+
+    final Map<String, Object> keys = new HashMap<>();
+    keys.put("iD", "35");
+    when(convHelper.convertUriKeys(any(), any(), any())).thenReturn(keys);
+    processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
+
+    assertEquals(HttpStatusCode.OK.getStatusCode(), response.getStatusCode());
+  }
+
+  @Test
   public void testCallsValidateChangesOnSuccessfullProcessing() throws ODataException {
     ODataResponse response = new ODataResponse();
     ODataRequest request = prepareSimpleRequest();

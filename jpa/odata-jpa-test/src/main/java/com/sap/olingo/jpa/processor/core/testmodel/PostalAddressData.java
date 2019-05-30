@@ -98,7 +98,7 @@ public class PostalAddressData {
   }
 
   public void setPOBox(String pOBox) {
-    pOBox = pOBox;
+    this.pOBox = pOBox;
   }
 
   public void setCityName(String cityName) {

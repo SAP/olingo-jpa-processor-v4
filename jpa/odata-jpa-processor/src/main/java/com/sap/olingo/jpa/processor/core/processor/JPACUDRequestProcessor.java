@@ -666,17 +666,18 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
         throw new ODataJPAProcessorException(MessageKeys.RETURN_MISSING_ENTITY, HttpStatusCode.INTERNAL_SERVER_ERROR);
 
       Entity updatedEntity = null;
-      if (!requestEntity.getKeys().isEmpty()) {
-        try {
-          // PATCH .../Organizations('1')/AdministrativeInformation/Updated/User
-          final JPAAssociationPath path = requestEntity.getEntityType().getAssociationPath(edmEntitySetInfo
-              .getNavigationPath());
-          final JPARequestEntity linkedEntity = requestEntity.getRelatedEntities().get(path).get(0);
-          final Object linkedResult = getLinkedResult(updateResult.getModifyedEntity(), path, Optional.empty());
-          updatedEntity = convertEntity(linkedEntity.getEntityType(), linkedResult, request.getAllHeaders());
-        } catch (ODataJPAModelException e) {
-          throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-        }
+      JPAAssociationPath path;
+      try {
+        path = requestEntity.getEntityType().getAssociationPath(edmEntitySetInfo
+            .getNavigationPath());
+      } catch (ODataJPAModelException e) {
+        throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+      }
+      if (path != null) {
+        // PATCH .../Organizations('1')/AdministrativeInformation/Updated/User
+        final JPARequestEntity linkedEntity = requestEntity.getRelatedEntities().get(path).get(0);
+        final Object linkedResult = getLinkedResult(updateResult.getModifyedEntity(), path, Optional.empty());
+        updatedEntity = convertEntity(linkedEntity.getEntityType(), linkedResult, request.getAllHeaders());
       } else {
         updatedEntity = convertEntity(requestEntity.getEntityType(), updateResult.getModifyedEntity(), request
             .getAllHeaders());

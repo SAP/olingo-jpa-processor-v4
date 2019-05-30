@@ -307,8 +307,10 @@ public final class JPAODataRequestProcessor
   public void updateComplex(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo,
       final ContentType requestFormat, final ContentType responseFormat)
       throws ODataApplicationException, ODataLibraryException {
-
-    updateEntity(request, response, uriInfo, requestFormat, responseFormat);
+    // ../Organizations('5')/Address
+    // Not supported yet, as PATCH and PUT are allowed here
+    throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_UPDATE_VALUE,
+        HttpStatusCode.NOT_IMPLEMENTED);
   }
 
   @Override
@@ -319,6 +321,8 @@ public final class JPAODataRequestProcessor
     try {
       final JPACUDRequestProcessor p = factory.createCUDRequestProcessor(em, uriInfo, responseFormat, claims);
       p.updateEntity(request, response, requestFormat, responseFormat);
+    } catch (ODataApplicationException | ODataLibraryException e) {
+      throw e;
     } catch (ODataException e) {
       throw new ODataApplicationException(e.getLocalizedMessage(),
           HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), null, e);
