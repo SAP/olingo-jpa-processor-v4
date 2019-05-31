@@ -30,6 +30,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ValueNode;
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
@@ -105,6 +106,46 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
 
     final ArrayNode bupa = helper.getValues();
     assertEquals(16, bupa.size());
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+      "200, 'Willi;Marvin', 16",
+      "200, 'Willi', 3", })
+  public void testRestrictOnePropertyCount(final int statusCodeValue, final String claimEntries,
+      final int noResults) throws IOException, ODataException {
+
+    JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    final String[] claimEntriesList = claimEntries.split(";");
+    for (final String claimEntry : claimEntriesList) {
+      claims.add("UserId", new JPAClaimsPair<>(claimEntry));
+    }
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerProtecteds/$count", claims);
+    helper.assertStatus(statusCodeValue);
+
+    final ValueNode act = helper.getSingleValue();
+    assertEquals(noResults, act.asInt());
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+      "200, 'Willi;Marvin', 16",
+      "200, 'Willi', 3", })
+  public void testRestrictOnePropertyInlineCount(final int statusCodeValue, final String claimEntries,
+      final int noResults) throws IOException, ODataException {
+
+    JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    final String[] claimEntriesList = claimEntries.split(";");
+    for (final String claimEntry : claimEntriesList) {
+      claims.add("UserId", new JPAClaimsPair<>(claimEntry));
+    }
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerProtecteds?$count=true", claims);
+    helper.assertStatus(statusCodeValue);
+
+    final ValueNode act = helper.getSingleValue("@odata.count");
+    assertEquals(noResults, act.asInt());
   }
 
   @Test
@@ -460,23 +501,6 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
     doReturn(attributes).when(etSpy).getAttributes();
     doReturn(protections).when(etSpy).getProtections();
     doReturn(etSpy).when(sdSpy).getEntity("BusinessPartnerProtecteds");
-    doReturn(etSpy).when(sdSpy).getEntity(odataType);
-    cut = new JPAJoinQuery(null, contextSpy, emf.createEntityManager(), headers, uriInfo);
-    cut.createFromClause(new ArrayList<JPAAssociationPath>(1), new ArrayList<JPAPath>(), cut.cq);
-  }
-
-  private void prepareTestDeep() throws ODataException {
-    buildUriInfo("DeepProtectedExamples", "DeepProtectedExample");
-    odataType = ((UriResourceEntitySet) uriInfo.getUriResourceParts().get(0)).getType();
-    attributes = new ArrayList<>();
-    claimNames = new HashSet<>();
-    pathList = new ArrayList<>();
-    protections = new ArrayList<>();
-
-    etSpy = Mockito.spy(new JPAEntityTypeDouble(sdSpy.getEntity("ProtectionExamples")));
-    doReturn(attributes).when(etSpy).getAttributes();
-    doReturn(protections).when(etSpy).getProtections();
-    doReturn(etSpy).when(sdSpy).getEntity("DeepProtectedExamples");
     doReturn(etSpy).when(sdSpy).getEntity(odataType);
     cut = new JPAJoinQuery(null, contextSpy, emf.createEntityManager(), headers, uriInfo);
     cut.createFromClause(new ArrayList<JPAAssociationPath>(1), new ArrayList<JPAPath>(), cut.cq);

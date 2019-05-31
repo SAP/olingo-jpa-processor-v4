@@ -66,15 +66,22 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
   }
 
   public JPAJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext, final EntityManager em,
-      final Map<String, List<String>> requestHeaders, final UriInfo uriInfo) throws ODataException {
+      final Map<String, List<String>> requestHeaders, final UriInfo uriInfo,
+      Optional<JPAODataClaimsProvider> claimsProvider) throws ODataException {
 
     super(odata, sessionContext, sessionContext.getEdmProvider().getServiceDocument().getEntity(
         Util.determineTargetEntitySet(uriInfo.getUriResourceParts()).getName()),
         em, requestHeaders, uriInfo, null);
 
     this.navigationInfo = Util.determineNavigationPath(sd, uriResource.getUriResourceParts(), uriInfo);
-    this.claimsProvider = Optional.empty();
+    this.claimsProvider = claimsProvider;
 
+  }
+
+  public JPAJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext, final EntityManager em,
+      final Map<String, List<String>> requestHeaders, final UriInfo uriInfo) throws ODataException {
+
+    this(odata, sessionContext, em, requestHeaders, uriInfo, Optional.empty());
   }
 
   /**

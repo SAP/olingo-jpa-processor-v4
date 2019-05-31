@@ -641,9 +641,10 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
         lastInfo.setFilterCompiler(new JPAFilterCrossComplier(odata, sd, em,
             (JPAEntityType) ((JPAAssociationAttribute) element).getTargetEntity(), new JPAOperationConverter(cb,
                 context.getOperationConverter()), uriResource, this, (From<?, ?>) p));
-      } else
+      } else {
         lastInfo.setFilterCompiler(new JPAFilterCrossComplier(odata, sd, em, jpaEntity, new JPAOperationConverter(cb,
             context.getOperationConverter()), uriResource, this, lastInfo.getAssociationPath()));
+      }
     } catch (ODataJPAModelException e) {
       throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_FILTER_ERROR,
           HttpStatusCode.BAD_REQUEST, e);
