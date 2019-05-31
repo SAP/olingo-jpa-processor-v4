@@ -138,8 +138,9 @@ public abstract class BusinessPartner implements KeyAccess {
     if (iD == null) {
       if (other.iD != null)
         return false;
-    } else if (!iD.equals(other.iD))
+    } else if (!iD.equals(other.iD)) {
       return false;
+    }
     return true;
   }
 
@@ -210,55 +211,55 @@ public abstract class BusinessPartner implements KeyAccess {
     return result;
   }
 
-  public void setAddress(PostalAddressData address) {
+  public void setAddress(final PostalAddressData address) {
     this.address = address;
   }
 
-  public void setAdministrativeInformation(AdministrativeInformation administrativeInformation) {
+  public void setAdministrativeInformation(final AdministrativeInformation administrativeInformation) {
     this.administrativeInformation = administrativeInformation;
   }
 
-  public void setCommunicationData(CommunicationData communicationData) {
+  public void setCommunicationData(final CommunicationData communicationData) {
     this.communicationData = communicationData;
   }
 
-  public void setCountry(String country) {
+  public void setCountry(final String country) {
     this.country = country;
   }
 
-  public void setCreationDateTime(Timestamp creationDateTime) {
+  public void setCreationDateTime(final Timestamp creationDateTime) {
     this.creationDateTime = creationDateTime;
   }
 
-  public void setCustomNum1(BigDecimal customNum1) {
+  public void setCustomNum1(final BigDecimal customNum1) {
     this.customNum1 = customNum1;
   }
 
-  public void setCustomNum2(BigDecimal customNum2) {
+  public void setCustomNum2(final BigDecimal customNum2) {
     this.customNum2 = customNum2;
   }
 
-  public void setCustomString1(String customString1) {
+  public void setCustomString1(final String customString1) {
     this.customString1 = customString1;
   }
 
-  public void setCustomString2(String customString2) {
+  public void setCustomString2(final String customString2) {
     this.customString2 = customString2;
   }
 
-  public void setETag(long eTag) {
+  public void setETag(final long eTag) {
     this.eTag = eTag;
   }
 
-  public void setID(String iD) {
+  public void setID(final String iD) {
     this.iD = iD;
   }
 
-  public void setRoles(Collection<BusinessPartnerRole> roles) {
+  public void setRoles(final Collection<BusinessPartnerRole> roles) {
     this.roles = roles;
   }
 
-  public void setType(String type) {
+  public void setType(final String type) {
     this.type = type;
   }
 

@@ -23,6 +23,7 @@ import java.util.Map;
 
 import javax.persistence.EntityManager;
 
+import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpHeader;
@@ -33,6 +34,8 @@ import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.serializer.SerializerException;
+import org.apache.olingo.server.api.uri.UriResourceProperty;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -45,6 +48,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAUpdateResult;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionKey;
+import com.sap.olingo.jpa.processor.core.testmodel.InhouseAddress;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 
 public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
@@ -116,8 +120,119 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
     assertEquals(2, spy.jpaAttributes.size());
   }
 
+  @SuppressWarnings("unchecked")
   @Test
-  public void testHeadersProvided() throws ODataJPAProcessorException, SerializerException, ODataException {
+  public void testProvideSimplePrimitivePutAsPatch() throws ODataJPAProcessorException, SerializerException,
+      ODataException, UnsupportedEncodingException {
+    ODataResponse response = new ODataResponse();
+    ODataRequest request = prepareSimpleRequest();
+
+    final EdmProperty odataProperty = mock(EdmProperty.class);
+    final UriResourceProperty uriProperty = mock(UriResourceProperty.class);
+    pathParts.add(uriProperty);
+    when(uriProperty.getProperty()).thenReturn(odataProperty);
+    when(odataProperty.getName()).thenReturn("StreenName");
+
+    when(request.getMethod()).thenReturn(HttpMethod.PUT);
+
+    RequestHandleSpy spy = new RequestHandleSpy();
+    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+
+    InputStream is = new ByteArrayInputStream("{ \"value\": \"New Road\"}".getBytes("UTF-8"));
+    when(request.getBody()).thenReturn(is);
+    Map<String, Object> jpaAttributes = new HashMap<>();
+    jpaAttributes.put("streetName", "New Road");
+    when(convHelper.convertProperties(any(OData.class), any(JPAStructuredType.class), any(List.class)))
+        .thenReturn(jpaAttributes);
+
+    processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
+
+    assertEquals(1, spy.jpaAttributes.size());
+    assertEquals(HttpMethod.PATCH, spy.method);
+  }
+
+  @Disabled
+  @Test
+  public void testProvideSimpleComplexPutAsPatch() {
+    // Not implemented yet
+    fail();
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testProvidePrimitiveCollectionPutAsPatch() throws ODataJPAProcessorException, SerializerException,
+      ODataException, UnsupportedEncodingException {
+
+    ODataResponse response = new ODataResponse();
+    ODataRequest request = prepareSimpleRequest();
+
+    final EdmProperty odataProperty = mock(EdmProperty.class);
+    final UriResourceProperty uriProperty = mock(UriResourceProperty.class);
+    pathParts.add(uriProperty);
+    when(uriProperty.getProperty()).thenReturn(odataProperty);
+    when(odataProperty.getName()).thenReturn("Comments");
+    when(odataProperty.isCollection()).thenReturn(true);
+
+    when(request.getMethod()).thenReturn(HttpMethod.PUT);
+
+    final RequestHandleSpy spy = new RequestHandleSpy();
+    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+
+    final InputStream is = new ByteArrayInputStream("{ \"value\": \"[\"YAC\",\"WTN\"]\"}".getBytes("UTF-8"));
+    when(request.getBody()).thenReturn(is);
+    final Map<String, Object> jpaAttributes = new HashMap<>();
+    final List<String> lines = new ArrayList<>(2);
+    lines.add("YAC");
+    lines.add("WTN");
+    jpaAttributes.put("comment", lines);
+    when(convHelper.convertProperties(any(OData.class), any(JPAStructuredType.class), any(List.class)))
+        .thenReturn(jpaAttributes);
+
+    processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
+
+    assertEquals(1, spy.jpaAttributes.size());
+    assertEquals(HttpMethod.PATCH, spy.method);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testProvideComplexCollectionPutAsPatch() throws ODataJPAProcessorException, SerializerException,
+      ODataException, UnsupportedEncodingException {
+
+    ODataResponse response = new ODataResponse();
+    ODataRequest request = prepareSimpleRequest();
+    final EdmProperty odataProperty = mock(EdmProperty.class);
+    final UriResourceProperty uriProperty = mock(UriResourceProperty.class);
+    pathParts.add(uriProperty);
+    when(uriProperty.getProperty()).thenReturn(odataProperty);
+    when(odataProperty.getName()).thenReturn("InhouseAddress");
+    when(odataProperty.isCollection()).thenReturn(true);
+
+    when(request.getMethod()).thenReturn(HttpMethod.PUT);
+
+    final RequestHandleSpy spy = new RequestHandleSpy();
+    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+
+    final InputStream is = new ByteArrayInputStream(
+        "{ \"value\": \"[{\"RoomNumber\": 25,\"Floor\": 2,\"TaskID\": \"DEV\",\"Building\": \"2\"}]\"}"
+            .getBytes("UTF-8"));
+    when(request.getBody()).thenReturn(is);
+    final Map<String, Object> jpaAttributes = new HashMap<>();
+    final List<InhouseAddress> lines = new ArrayList<>(2);
+    lines.add(new InhouseAddress("DEV", "2"));
+    jpaAttributes.put("inhouseAddress", lines);
+    when(convHelper.convertProperties(any(OData.class), any(JPAStructuredType.class), any(List.class)))
+        .thenReturn(jpaAttributes);
+
+    processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
+
+    assertEquals(1, spy.jpaAttributes.size());
+    assertEquals(HttpMethod.PATCH, spy.method);
+  }
+
+  @Test
+  public void testHeadersProvided() throws ODataJPAProcessorException, SerializerException,
+      ODataException {
     final ODataResponse response = new ODataResponse();
     final ODataRequest request = prepareSimpleRequest();
     final Map<String, List<String>> headers = new HashMap<>();
@@ -250,6 +365,22 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
       return;
     }
     fail();
+  }
+
+  @Test
+  public void testRepresentationResponseUpdatedWithKey() throws ODataJPAProcessorException, SerializerException,
+      ODataException {
+
+    ODataResponse response = new ODataResponse();
+    ODataRequest request = prepareRepresentationRequest(new RequestHandleSpy(new JPAUpdateResult(false,
+        new Organization())));
+
+    final Map<String, Object> keys = new HashMap<>();
+    keys.put("iD", "35");
+    when(convHelper.convertUriKeys(any(), any(), any())).thenReturn(keys);
+    processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
+
+    assertEquals(HttpStatusCode.OK.getStatusCode(), response.getStatusCode());
   }
 
   @Test

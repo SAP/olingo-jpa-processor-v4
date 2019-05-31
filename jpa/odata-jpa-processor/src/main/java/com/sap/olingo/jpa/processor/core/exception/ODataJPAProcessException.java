@@ -96,10 +96,11 @@ public abstract class ODataJPAProcessException extends ODataApplicationException
       return messageText;
     } else if (getCause() != null) {
       return getCause().getLocalizedMessage();
-    } else if (messageText != null && !messageText.isEmpty())
+    } else if (messageText != null && !messageText.isEmpty()) {
       return messageText;
-    else
+    } else {
       return UNKNOWN_MESSAGE;
+    }
   }
 
   public String[] getParameter() {

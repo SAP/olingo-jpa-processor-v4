@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.processor.core.api.example;
 
+import static com.sap.olingo.jpa.processor.core.api.example.JPAExampleModifyException.MessageKeys.ENTITY_NOT_FOUND;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
@@ -75,6 +77,9 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
     if (method == HttpMethod.PATCH || method == HttpMethod.DELETE) {
       final Object instance = em.find(requestEntity.getEntityType().getTypeClass(), requestEntity.getModifyUtil()
           .createPrimaryKey(requestEntity.getEntityType(), requestEntity.getKeys(), requestEntity.getEntityType()));
+      if (instance == null) {
+        throw new JPAExampleModifyException(ENTITY_NOT_FOUND, HttpStatusCode.NOT_FOUND);
+      }
       requestEntity.getModifyUtil().setAttributesDeep(requestEntity.getData(), instance, requestEntity.getEntityType());
 
       updateLinks(requestEntity, em, instance);
