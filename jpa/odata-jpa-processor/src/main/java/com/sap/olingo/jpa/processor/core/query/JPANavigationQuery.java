@@ -3,6 +3,7 @@ package com.sap.olingo.jpa.processor.core.query;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.AbstractQuery;
@@ -30,6 +31,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterElementComplier;
@@ -48,10 +50,11 @@ public abstract class JPANavigationQuery extends JPAAbstractQuery {
   protected JPAFilterElementComplier filterComplier;
 
   public JPANavigationQuery(final OData odata, final JPAServiceDocument sd, final EdmEntityType edmEntityType,
-      final EntityManager em, final JPAAbstractQuery parent, From<?, ?> from, final JPAAssociationPath association)
+      final EntityManager em, final JPAAbstractQuery parent, From<?, ?> from, final JPAAssociationPath association,
+      final Optional<JPAODataClaimsProvider> claimsProvider)
       throws ODataApplicationException {
 
-    super(odata, sd, edmEntityType, em);
+    super(odata, sd, edmEntityType, em, claimsProvider);
     this.parentQuery = parent;
     this.from = from;
     this.association = association;
@@ -61,7 +64,7 @@ public abstract class JPANavigationQuery extends JPAAbstractQuery {
       final EntityManager em, final JPAAbstractQuery parent, final From<?, ?> from,
       final JPAAssociationPath association) {
 
-    super(odata, sd, jpaEntity, em);
+    super(odata, sd, jpaEntity, em, Optional.empty());
     this.parentQuery = parent;
     this.from = from;
     this.association = association;
@@ -145,10 +148,10 @@ public abstract class JPANavigationQuery extends JPAAbstractQuery {
     Expression<Boolean> whereCondition = where;
     if (filterComplier != null && aggregationType == null)
       try {
-      if (filterComplier.getExpressionMember() != null)
-        whereCondition = addWhereClause(whereCondition, filterComplier.compile());
+        if (filterComplier.getExpressionMember() != null)
+          whereCondition = addWhereClause(whereCondition, filterComplier.compile());
       } catch (ExpressionVisitException e) {
-      throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+        throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
       }
     return whereCondition;
   }

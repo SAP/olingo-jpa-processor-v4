@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.persistence.Tuple;
 
@@ -41,7 +42,7 @@ public class TestJPAExpandQueryCreateResult extends TestBase {
     cut = new JPAExpandJoinQuery(
         null, context, emf.createEntityManager(), new ExpandItemDouble(targetEntity).getResourcePath(),
         helper.getJPAAssociationPath("Organizations", "Roles"), helper.sd.getEntity(targetEntity),
-        new HashMap<String, List<String>>());
+        new HashMap<String, List<String>>(), Optional.empty());
     // new EdmEntitySetDouble(nameBuilder, "Organisations"), null, new HashMap<String, List<String>>());
   }
 
@@ -231,7 +232,7 @@ public class TestJPAExpandQueryCreateResult extends TestBase {
     cut = new JPAExpandJoinQuery(
         null, context, emf.createEntityManager(), new ExpandItemDouble(targetEntity).getResourcePath(),
         helper.getJPAAssociationPath("Organizations", "SupportEngineers"), helper.sd.getEntity(targetEntity),
-        new HashMap<String, List<String>>());
+        new HashMap<String, List<String>>(), Optional.empty());
 
     List<Tuple> result = new ArrayList<>();
     HashMap<String, Object> oneResult = new HashMap<>();

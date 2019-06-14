@@ -15,7 +15,8 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtections;
 @EdmIgnore // Only
 @Entity(name = "PersonDeepProtected")
 @DiscriminatorValue(value = "1")
-public class PersonDeepProtectedHidden extends BusinessPartnerProtected {// #NOSONAR use equal method from BusinessPartner
+public class PersonDeepProtectedHidden extends BusinessPartnerProtected {// #NOSONAR use equal method from
+                                                                         // BusinessPartner
 
   @Convert(converter = DateConverter.class)
   @Column(name = "\"BirthDay\"")

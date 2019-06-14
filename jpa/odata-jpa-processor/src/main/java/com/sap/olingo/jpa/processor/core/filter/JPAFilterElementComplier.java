@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.filter;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.Expression;
@@ -16,6 +17,7 @@ import org.apache.olingo.server.api.uri.queryoption.expression.VisitableExpressi
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
+import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
 
@@ -112,6 +114,11 @@ public final class JPAFilterElementComplier extends JPAAbstractFilter {
   @Override
   public JPAServiceDebugger getDebugger() {
     return parent.getDebugger();
+  }
+
+  @Override
+  public Optional<JPAODataClaimsProvider> getClaimsProvider() {
+    return Optional.empty();
   }
 
 }

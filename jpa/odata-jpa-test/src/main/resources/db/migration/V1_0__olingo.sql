@@ -84,6 +84,7 @@ insert into "BusinessPartnerRole" values ('7',  'C');
 insert into "BusinessPartnerRole" values ('98',  'X');
 insert into "BusinessPartnerRole" values ('99',  'X');
 insert into "BusinessPartnerRole" values ('99',  'Z');
+insert into "BusinessPartnerRole" values ('97',  'Y');
 
 CREATE TABLE "CountryDescription" ( 
 	"ISOCode" VARCHAR(4) NOT NULL ,
@@ -818,24 +819,44 @@ CREATE TABLE "CountryRestriction" (
 insert into "CountryRestriction" values ('Willi', 1, 'DEU', 'DEU');
 insert into "CountryRestriction" values ('Marvin', 1, 'CHE', 'ZAF');
 
+CREATE TABLE "RoleRestriction" (	 
+	"UserName"  VARCHAR(60) NOT NULL ,
+	"SequenceNumber" INTEGER NOT NULL,
+	"From"  VARCHAR(10) NOT NULL ,
+	"To"  VARCHAR(10),
+	PRIMARY KEY ("UserName","SequenceNumber"));	
+insert into "RoleRestriction" values ('Marvin', 1, 'A', 'B');
+insert into "RoleRestriction" values ('Willi', 1, 'A', 'A');
+insert into "RoleRestriction" values ('Willi', 2, 'C', 'C');
+
 CREATE VIEW "BusinessPartnerProtected"
         AS 
-	SELECT 
+	SELECT DISTINCT
 		b."ID", 
 		b."ETag",
 		b."Type",
 		b."NameLine1",
 		b."NameLine2",
 		b."Country",
-		r. "UserName",
+		r."UserName",
+		b."AccessRights",
+		b."BirthDay",
 		b."CreatedBy",
 		b."CreatedAt",   
 		b."UpdatedBy",
-		b."UpdatedAt"	
+		b."UpdatedAt",
+		a."Task" as "AddressType",
+		a."Task",
+		a."Building",
+		a."Floor",
+		a."RoomNumber"	
 	FROM "BusinessPartner" as b
 	INNER JOIN "CountryRestriction" as r
 		ON b."Country" >= r."From"
-		AND b."Country" <= r."To";
+		AND b."Country" <= r."To"
+	LEFT OUTER JOIN  "InhouseAddress"  as a
+		ON b."ID" = a."ID" 
+		AND a."Task" = 'DEV';
 
 
 CREATE VIEW "PersonProtected"		
@@ -861,6 +882,18 @@ CREATE VIEW "PersonProtected"
 	WHERE b."Type" = '1'
 	AND   a."Task" = 'DEV';
 	
+CREATE VIEW "RoleProtected"		
+		AS 
+	SELECT 
+		role."BusinessPartnerID",
+		role."BusinessPartnerRole", 
+		r."UserName"
+	FROM "BusinessPartnerRole" as role
+	INNER JOIN "RoleRestriction" as r
+		ON role."BusinessPartnerRole" >= r."From"
+		AND role."BusinessPartnerRole" <= r."To";
+		
+		
 --------------------------------------------
 CREATE TABLE "DummyToBeIgnored" (
 	"ID" VARCHAR(32) NOT NULL ,

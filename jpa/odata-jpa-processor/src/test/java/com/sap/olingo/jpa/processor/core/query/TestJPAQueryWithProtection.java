@@ -105,12 +105,12 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
     helper.assertStatus(200);
 
     final ArrayNode bupa = helper.getValues();
-    assertEquals(16, bupa.size());
+    assertEquals(13, bupa.size());
   }
 
   @ParameterizedTest
   @CsvSource({
-      "200, 'Willi;Marvin', 16",
+      "200, 'Willi;Marvin', 13",
       "200, 'Willi', 3", })
   public void testRestrictOnePropertyCount(final int statusCodeValue, final String claimEntries,
       final int noResults) throws IOException, ODataException {
@@ -128,9 +128,49 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
     assertEquals(noResults, act.asInt());
   }
 
+  @Test
+  public void testRestrictNavigationResult() throws IOException, ODataException {
+
+    JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    claims.add("UserId", new JPAClaimsPair<>("Marvin"));
+    claims.add("RoleCategory", new JPAClaimsPair<>("A", "B"));
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerProtecteds('3')/RolesProtected", claims);
+    helper.assertStatus(200);
+
+    final ArrayNode act = helper.getValues();
+    assertEquals(2, act.size());
+  }
+
+  @Test
+  public void testRestrictExpandResult() throws IOException, ODataException {
+
+    JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    claims.add("UserId", new JPAClaimsPair<>("Marvin"));
+    claims.add("RoleCategory", new JPAClaimsPair<>("A", "B"));
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerProtecteds?$filter=ID eq '3'&$expand=RolesProtected", claims);
+    helper.assertStatus(200);
+
+    final ArrayNode act = helper.getValues();
+    assertEquals(1, act.size());
+    final ArrayNode actExpand = (ArrayNode) act.get(0).get("RolesProtected");
+    assertEquals(2, actExpand.size());
+  }
+
+  @Test
+  public void testThrowsUnauthorizedOnMissingClaimforRestrictExpandResult() throws IOException, ODataException {
+
+    JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    claims.add("UserId", new JPAClaimsPair<>("Marvin"));
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerProtecteds?$filter=ID eq '3'&$expand=RolesProtected", claims);
+    helper.assertStatus(403);
+  }
+
   @ParameterizedTest
   @CsvSource({
-      "200, 'Willi;Marvin', 16",
+      "200, 'Willi;Marvin', 13",
       "200, 'Willi', 3", })
   public void testRestrictOnePropertyInlineCount(final int statusCodeValue, final String claimEntries,
       final int noResults) throws IOException, ODataException {
@@ -174,7 +214,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
     helper.assertStatus(200);
 
     final ArrayNode bupa = helper.getValues();
-    assertEquals(16, bupa.size());
+    assertEquals(13, bupa.size());
   }
 
   @ParameterizedTest

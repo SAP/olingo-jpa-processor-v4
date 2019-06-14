@@ -8,6 +8,6 @@ public interface TestDataConstants {
   public static final int NO_ATTRIBUTES_ORGANIZATION = 4;
   public static final int NO_ATTRIBUTES_PERSON = 2;
   public static final int NO_DEC_ATTRIBUTES_BUISNESS_PARTNER = 9;
-  public static final int NO_ENTITY_TYPES = 17;
-  public static final int NO_ENTITY_SETS = 18;
+  public static final int NO_ENTITY_TYPES = 18;
+  public static final int NO_ENTITY_SETS = 19;
 }
