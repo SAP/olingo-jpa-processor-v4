@@ -53,6 +53,12 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
   }
 
   public JPAJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext, final EntityManager em,
+      final Map<String, List<String>> requestHeaders, final UriInfo uriInfo) throws ODataException {
+
+    this(odata, sessionContext, em, requestHeaders, uriInfo, Optional.empty());
+  }
+
+  public JPAJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext, final EntityManager em,
       final Map<String, List<String>> requestHeaders, final UriInfo uriInfo,
       Optional<JPAODataClaimsProvider> claimsProvider) throws ODataException {
 
@@ -62,12 +68,6 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
 
     this.navigationInfo = Util.determineNavigationPath(sd, uriResource.getUriResourceParts(), uriInfo);
 
-  }
-
-  public JPAJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext, final EntityManager em,
-      final Map<String, List<String>> requestHeaders, final UriInfo uriInfo) throws ODataException {
-
-    this(odata, sessionContext, em, requestHeaders, uriInfo, Optional.empty());
   }
 
   /**
@@ -107,7 +107,7 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
     final List<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
     final Map<String, From<?, ?>> joinTables = createFromClause(orderByNaviAttributes, selectionPath, cq);
 
-    cq.multiselect(createSelectClause(joinTables, selectionPath, target)).distinct(true); // Detect if needed
+    cq.multiselect(createSelectClause(joinTables, selectionPath, target)).distinct(determineDistinct());
 
     final javax.persistence.criteria.Expression<Boolean> whereClause = createWhere();
     if (whereClause != null)
@@ -163,6 +163,15 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
 
   private javax.persistence.criteria.Expression<Boolean> createWhere() throws ODataApplicationException {
     return addWhereClause(super.createWhere(uriResource, navigationInfo), createProtectionWhere(claimsProvider));
+  }
+
+  /**
+   * Desired if SELECT DISTINCT shall be generated. This is required e.g. if multiple values for the same claims are
+   * present. As a DISTINCT is usually slower the decision algorithm my need to be enhanced in the future
+   * @return
+   */
+  private boolean determineDistinct() {
+    return claimsProvider.isPresent();
   }
 
   private List<JPAAssociationPath> extractOrderByNaviAttributes() throws ODataApplicationException {

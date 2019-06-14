@@ -64,8 +64,9 @@ public final class ExpressionUtil {
         p = join.get(((JPADescriptionAttribute) jpaPathElement).getDescriptionAttribute().getInternalName());
       } else if (jpaPathElement instanceof JPACollectionAttribute) {
         p = joinTables.get(jpaPathElement.getExternalName());
-      } else
+      } else {
         p = p.get(jpaPathElement.getInternalName());
+      }
     return p;
   }
 
@@ -103,10 +104,10 @@ public final class ExpressionUtil {
         return dbConverter.convertToEntityAttribute(
             (T) edmType.valueOfString(targetValue, edmProperty.isNullable(), edmProperty.getMaxLength(),
                 edmProperty.getPrecision(), edmProperty.getScale(), true, attribute.getType()));
-      } else
+      } else {
         return edmType.valueOfString(targetValue, edmProperty.isNullable(), edmProperty.getMaxLength(),
             edmProperty.getPrecision(), edmProperty.getScale(), true, attribute.getType());
-
+      }
     } catch (EdmPrimitiveTypeException | ODataJPAModelException e) {
       throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
