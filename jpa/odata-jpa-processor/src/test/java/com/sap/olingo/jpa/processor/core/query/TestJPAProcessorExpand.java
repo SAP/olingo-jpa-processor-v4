@@ -432,7 +432,7 @@ public class TestJPAProcessorExpand extends TestBase {
 
   @Test
   public void testExpandCompleteEntitySet() throws IOException, ODataException {
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$expand=Roles&orderby=ID");
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$expand=Roles&$orderby=ID");
 
     helper.assertStatus(200);
 

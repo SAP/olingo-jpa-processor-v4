@@ -16,6 +16,7 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerProtected</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRoleProtected</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.ByteConverter</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.CollcetionInnerComplex</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.CollcetionNestedComplex</class>

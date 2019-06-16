@@ -58,10 +58,10 @@ abstract class JPALambdaOperation extends JPAExistsOperation {
               from));
         else
           queryList.add(new JPANavigationFilterQuery(odata, sd, naviInfo.getUriResiource(), parent, em, naviInfo
-              .getAssociationPath(), expression, from));
+              .getAssociationPath(), expression, from, claimsProvider));
       else
         queryList.add(new JPANavigationFilterQuery(odata, sd, naviInfo.getUriResiource(), parent, em, naviInfo
-            .getAssociationPath(), from));
+            .getAssociationPath(), from, claimsProvider));
       parent = queryList.get(queryList.size() - 1);
     }
     // 3. Create select statements

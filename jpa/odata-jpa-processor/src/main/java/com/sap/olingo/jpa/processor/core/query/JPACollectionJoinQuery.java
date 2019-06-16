@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
@@ -42,7 +43,7 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
   public JPACollectionJoinQuery(final OData odata, final JPAODataSessionContextAccess context, final EntityManager em,
       final JPACollectionItemInfo item, final Map<String, List<String>> requestHeaders) throws ODataException {
 
-    super(odata, context, item.getEntityType(), em, requestHeaders, item.getUriInfo(), null);
+    super(odata, context, item.getEntityType(), em, requestHeaders, item.getUriInfo(), null, Optional.empty());
     this.assoziation = item.getExpandAssociation();
     this.navigationInfo = new ArrayList<>(item.getHops().size() - 1);
     this.navigationInfo.addAll(item.getHops().subList(0, item.getHops().size() - 1));

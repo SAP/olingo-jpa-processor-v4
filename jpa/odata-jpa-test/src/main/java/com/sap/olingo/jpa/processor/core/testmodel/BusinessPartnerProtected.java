@@ -54,6 +54,10 @@ public class BusinessPartnerProtected {
 
   @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
   @JoinColumn(name = "\"BusinessPartnerID\"", referencedColumnName = "\"ID\"", insertable = false, updatable = false)
+  private Collection<BusinessPartnerRoleProtected> rolesProtected;
+
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+  @JoinColumn(name = "\"BusinessPartnerID\"", referencedColumnName = "\"ID\"", insertable = false, updatable = false)
   private Collection<BusinessPartnerRole> roles;
 
   @Override

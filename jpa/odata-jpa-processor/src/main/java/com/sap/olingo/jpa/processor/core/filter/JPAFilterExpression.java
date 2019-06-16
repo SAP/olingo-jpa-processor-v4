@@ -7,9 +7,8 @@ import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitEx
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitor;
 import org.apache.olingo.server.api.uri.queryoption.expression.Literal;
 import org.apache.olingo.server.api.uri.queryoption.expression.Member;
-import org.apache.olingo.server.api.uri.queryoption.expression.VisitableExpression;
 
-public final class JPAFilterExpression implements VisitableExpression {
+public final class JPAFilterExpression implements JPAVisitableExpression {
   private Literal literal;
   private BinaryOperatorKind operator;
   private final Member member;
@@ -28,6 +27,7 @@ public final class JPAFilterExpression implements VisitableExpression {
     return visitor.visitBinaryOperator(operator, left, right);
   }
 
+  @Override
   public UriInfoResource getMember() {
     return member.getResourcePath();
   }

@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.Expression;
@@ -54,7 +55,7 @@ public class TestJPAExpandResult extends TestBase {
     // .../Organizations?$expand=Roles&$format=json
     JPAInlineItemInfo item = createOrgExpandRoles(null, null);
 
-    cut = new JPAExpandJoinQuery(OData.newInstance(), sessionContext, em, item, headers);
+    cut = new JPAExpandJoinQuery(OData.newInstance(), sessionContext, em, item, headers, Optional.empty());
     JPAExpandQueryResult act = cut.execute();
     assertEquals(4, act.getNoResults());
     assertEquals(7, act.getNoResultsDeep());
@@ -71,7 +72,7 @@ public class TestJPAExpandResult extends TestBase {
     keyPredicates.add(key);
     JPAInlineItemInfo item = createOrgExpandRoles(keyPredicates, null);
 
-    cut = new JPAExpandJoinQuery(OData.newInstance(), sessionContext, em, item, headers);
+    cut = new JPAExpandJoinQuery(OData.newInstance(), sessionContext, em, item, headers, Optional.empty());
     JPAExpandQueryResult act = cut.execute();
     assertEquals(1, act.getNoResults());
     assertEquals(2, act.getNoResultsDeep());

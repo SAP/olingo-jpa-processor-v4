@@ -48,7 +48,7 @@ public final class JPACountRequestProcessor extends JPAAbstractGetRequestProcess
 
     JPAJoinQuery query = null;
     try {
-      query = new JPAJoinQuery(odata, sessionContext, em, request.getAllHeaders(), uriInfo);
+      query = new JPAJoinQuery(odata, sessionContext, em, request.getAllHeaders(), uriInfo, claimsProvider);
     } catch (ODataJPAModelException e) {
       throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.QUERY_PREPARATION_ERROR,
           HttpStatusCode.INTERNAL_SERVER_ERROR, e);

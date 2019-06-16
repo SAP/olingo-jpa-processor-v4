@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
@@ -32,6 +33,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
@@ -54,9 +56,10 @@ public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
   private final JPAAssociationPath assoziation;
 
   public JPAExpandJoinQuery(final OData odata, final JPAODataSessionContextAccess context, final EntityManager em,
-      final JPAInlineItemInfo item, final Map<String, List<String>> requestHeaders) throws ODataException {
+      final JPAInlineItemInfo item, final Map<String, List<String>> requestHeaders,
+      final Optional<JPAODataClaimsProvider> claimsProvider) throws ODataException {
 
-    super(odata, context, item.getEntityType(), em, requestHeaders, item.getUriInfo(), null);
+    super(odata, context, item.getEntityType(), em, requestHeaders, item.getUriInfo(), null, claimsProvider);
     this.assoziation = item.getExpandAssociation();
     this.navigationInfo = item.getHops();
   }
@@ -74,9 +77,10 @@ public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
    */
   public JPAExpandJoinQuery(final OData odata, final JPAODataSessionContextAccess context, final EntityManager em,
       final UriInfoResource uriInfo, final JPAAssociationPath assoziation, final JPAEntityType entityType,
-      final Map<String, List<String>> requestHeaders) throws ODataException {
+      final Map<String, List<String>> requestHeaders, final Optional<JPAODataClaimsProvider> claimsProvider)
+      throws ODataException {
 
-    super(odata, context, entityType, em, requestHeaders, uriInfo, null);
+    super(odata, context, entityType, em, requestHeaders, uriInfo, null, claimsProvider);
     this.assoziation = assoziation;
   }
 
@@ -301,23 +305,29 @@ public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
     // Given keys: Organizations('1')/Roles(...)
     try {
       whereCondition = createKeyWhere(navigationInfo);
+      whereCondition = addWhereClause(whereCondition, createExpandWhere());
+      whereCondition = addWhereClause(whereCondition, createProtectionWhere(claimsProvider));
     } catch (ODataApplicationException e) {
       debugger.stopRuntimeMeasurement(handle);
       throw e;
     }
+    debugger.stopRuntimeMeasurement(handle);
+    return whereCondition;
+  }
 
+  private javax.persistence.criteria.Expression<Boolean> createExpandWhere() throws ODataApplicationException {
+
+    javax.persistence.criteria.Expression<Boolean> whereCondition = null;
     for (JPANavigationProptertyInfo info : this.navigationInfo) {
       if (info.getFilterCompiler() != null) {
         try {
           whereCondition = addWhereClause(whereCondition, info.getFilterCompiler().compile());
         } catch (ExpressionVisitException e) {
-          debugger.stopRuntimeMeasurement(handle);
           throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_FILTER_ERROR,
               HttpStatusCode.BAD_REQUEST, e);
         }
       }
     }
-    debugger.stopRuntimeMeasurement(handle);
     return whereCondition;
   }
 
