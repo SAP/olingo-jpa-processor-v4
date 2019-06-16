@@ -19,6 +19,7 @@ import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpHeader;
+import org.apache.olingo.commons.api.http.HttpMethod;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
@@ -89,7 +90,7 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       em.getTransaction().begin();
     try {
       final int updateHandle = debugger.startRuntimeMeasurement(handler, DEBUG_UPDATE_ENTITY);
-      handler.updateEntity(requestEntity, em, request.getMethod());
+      handler.updateEntity(requestEntity, em, determineHttpVerb(request, uriInfo.getUriResourceParts()));
       if (!foreignTransation)
         handler.validateChanges(em);
       debugger.stopRuntimeMeasurement(updateHandle);
@@ -117,7 +118,7 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
     final JPACUDRequestHandler handler = sessionContext.getCUDRequestHandler();
 
     final EdmEntitySetInfo edmEntitySetInfo = Util.determineModifyEntitySetAndKeys(uriInfo.getUriResourceParts());
-    final Entity odataEntity = helper.convertInputStream(odata, request, requestFormat, edmEntitySetInfo);
+    final Entity odataEntity = helper.convertInputStream(odata, request, requestFormat, uriInfo.getUriResourceParts());
 
     final JPARequestEntity requestEntity = createRequestEntity(edmEntitySetInfo, odataEntity, request.getAllHeaders());
 
@@ -226,7 +227,8 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
     final int handle = debugger.startRuntimeMeasurement(this, DEBUG_UPDATE_ENTITY);
     final JPACUDRequestHandler handler = sessionContext.getCUDRequestHandler();
     final EdmEntitySetInfo edmEntitySetInfo = Util.determineModifyEntitySetAndKeys(uriInfo.getUriResourceParts());
-    final Entity odataEntity = helper.convertInputStream(odata, request, requestFormat, edmEntitySetInfo);
+    final Entity odataEntity = helper.convertInputStream(odata, request, requestFormat, uriInfo.getUriResourceParts());
+
     // http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752300
     // 11.4.3 Update an Entity
     // ...
@@ -254,7 +256,7 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       // A PUT or PATCH request MUST NOT be treated as an update if an If-None-Match header is specified with a value of
       // "*".
       final int updateHandle = debugger.startRuntimeMeasurement(handler, DEBUG_UPDATE_ENTITY);
-      updateResult = handler.updateEntity(requestEntity, em, request.getMethod());
+      updateResult = handler.updateEntity(requestEntity, em, determineHttpVerb(request, uriInfo.getUriResourceParts()));
       if (!foreignTransation)
         handler.validateChanges(em);
       debugger.stopRuntimeMeasurement(updateHandle);
@@ -298,6 +300,18 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       debugger.stopRuntimeMeasurement(handle);
     }
 
+  }
+
+  private HttpMethod determineHttpVerb(final ODataRequest request, List<UriResource> resourceParts) {
+    final HttpMethod originalMethod = request.getMethod();
+    final HttpMethod targetMethod;
+    final int noResourceParts = resourceParts.size();
+    if (originalMethod == HttpMethod.PUT && resourceParts.get(noResourceParts - 1) instanceof UriResourceProperty) {
+      targetMethod = HttpMethod.PATCH;
+    } else {
+      targetMethod = originalMethod;
+    }
+    return targetMethod;
   }
 
   final JPARequestEntity createRequestEntity(final EdmEntitySet edmEntitySet, final Entity odataEntity,
@@ -414,8 +428,9 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
 
         currentMap = jpaEmbedded;
         st = st.getAttribute(internalName).getStructuredType();
-      } else
+      } else {
         currentMap.put(st.getPath(uriResourceProperty.getProperty().getName()).getLeaf().getInternalName(), null);
+      }
     }
     return jpaAttributes;
   }
@@ -507,9 +522,10 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       } catch (ODataJPAModelException e) {
         throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
       }
-    } else
+    } else {
       createCreateResponse(request, response, responseFormat, requestEntity.getEntityType(), edmEntitySet
           .getEdmEntitySet(), result);
+    }
   }
 
   private Map<JPAAssociationPath, List<JPARequestEntity>> createInlineEntities(final Entity odataEntity,
@@ -650,20 +666,22 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
         throw new ODataJPAProcessorException(MessageKeys.RETURN_MISSING_ENTITY, HttpStatusCode.INTERNAL_SERVER_ERROR);
 
       Entity updatedEntity = null;
-      if (!requestEntity.getKeys().isEmpty()) {
-        try {
-          // PATCH .../Organizations('1')/AdministrativeInformation/Updated/User
-          final JPAAssociationPath path = requestEntity.getEntityType().getAssociationPath(edmEntitySetInfo
-              .getNavigationPath());
-          final JPARequestEntity linkedEntity = requestEntity.getRelatedEntities().get(path).get(0);
-          final Object linkedResult = getLinkedResult(updateResult.getModifyedEntity(), path, Optional.empty());
-          updatedEntity = convertEntity(linkedEntity.getEntityType(), linkedResult, request.getAllHeaders());
-        } catch (ODataJPAModelException e) {
-          throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-        }
-      } else
+      JPAAssociationPath path;
+      try {
+        path = requestEntity.getEntityType().getAssociationPath(edmEntitySetInfo
+            .getNavigationPath());
+      } catch (ODataJPAModelException e) {
+        throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+      }
+      if (path != null) {
+        // PATCH .../Organizations('1')/AdministrativeInformation/Updated/User
+        final JPARequestEntity linkedEntity = requestEntity.getRelatedEntities().get(path).get(0);
+        final Object linkedResult = getLinkedResult(updateResult.getModifyedEntity(), path, Optional.empty());
+        updatedEntity = convertEntity(linkedEntity.getEntityType(), linkedResult, request.getAllHeaders());
+      } else {
         updatedEntity = convertEntity(requestEntity.getEntityType(), updateResult.getModifyedEntity(), request
             .getAllHeaders());
+      }
       EntityCollection entities = new EntityCollection();
       entities.getEntities().add(updatedEntity);
       createSuccessResponce(response, responseFormat, serializer.serialize(request, entities));

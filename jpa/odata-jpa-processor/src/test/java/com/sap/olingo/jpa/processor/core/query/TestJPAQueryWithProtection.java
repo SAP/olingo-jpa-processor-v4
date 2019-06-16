@@ -2,6 +2,7 @@ package com.sap.olingo.jpa.processor.core.query;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
@@ -23,9 +24,13 @@ import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.eclipse.persistence.internal.jpa.querydef.CompoundExpressionImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ValueNode;
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
@@ -38,6 +43,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.core.api.JPAClaimsPair;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.JPAEntityTypeDouble;
 import com.sap.olingo.jpa.processor.core.util.TestQueryBase;
@@ -76,6 +82,19 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
     assertEquals(3, bupa.size());
   }
 
+  @ParameterizedTest
+  @ValueSource(strings = { "Wil*", "Wi%i", "Wil+i", "Will_" })
+  public void testRestrictOnePropertyOneValueWithWildcard(final String minValue) throws IOException, ODataException {
+    JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    claims.add("UserId", new JPAClaimsPair<>(minValue));
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerProtecteds?$select=ID,Name1,Country", claims);
+    helper.assertStatus(200);
+
+    final ArrayNode bupa = helper.getValues();
+    assertEquals(3, bupa.size());
+  }
+
   @Test
   public void testRestrictOnePropertyTwoValues() throws IOException, ODataException {
     JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
@@ -86,7 +105,87 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
     helper.assertStatus(200);
 
     final ArrayNode bupa = helper.getValues();
-    assertEquals(16, bupa.size());
+    assertEquals(13, bupa.size());
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+      "200, 'Willi;Marvin', 13",
+      "200, 'Willi', 3", })
+  public void testRestrictOnePropertyCount(final int statusCodeValue, final String claimEntries,
+      final int noResults) throws IOException, ODataException {
+
+    JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    final String[] claimEntriesList = claimEntries.split(";");
+    for (final String claimEntry : claimEntriesList) {
+      claims.add("UserId", new JPAClaimsPair<>(claimEntry));
+    }
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerProtecteds/$count", claims);
+    helper.assertStatus(statusCodeValue);
+
+    final ValueNode act = helper.getSingleValue();
+    assertEquals(noResults, act.asInt());
+  }
+
+  @Test
+  public void testRestrictNavigationResult() throws IOException, ODataException {
+
+    JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    claims.add("UserId", new JPAClaimsPair<>("Marvin"));
+    claims.add("RoleCategory", new JPAClaimsPair<>("A", "B"));
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerProtecteds('3')/RolesProtected", claims);
+    helper.assertStatus(200);
+
+    final ArrayNode act = helper.getValues();
+    assertEquals(2, act.size());
+  }
+
+  @Test
+  public void testRestrictExpandResult() throws IOException, ODataException {
+
+    JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    claims.add("UserId", new JPAClaimsPair<>("Marvin"));
+    claims.add("RoleCategory", new JPAClaimsPair<>("A", "B"));
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerProtecteds?$filter=ID eq '3'&$expand=RolesProtected", claims);
+    helper.assertStatus(200);
+
+    final ArrayNode act = helper.getValues();
+    assertEquals(1, act.size());
+    final ArrayNode actExpand = (ArrayNode) act.get(0).get("RolesProtected");
+    assertEquals(2, actExpand.size());
+  }
+
+  @Test
+  public void testThrowsUnauthorizedOnMissingClaimforRestrictExpandResult() throws IOException, ODataException {
+
+    JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    claims.add("UserId", new JPAClaimsPair<>("Marvin"));
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerProtecteds?$filter=ID eq '3'&$expand=RolesProtected", claims);
+    helper.assertStatus(403);
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+      "200, 'Willi;Marvin', 13",
+      "200, 'Willi', 3", })
+  public void testRestrictOnePropertyInlineCount(final int statusCodeValue, final String claimEntries,
+      final int noResults) throws IOException, ODataException {
+
+    JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    final String[] claimEntriesList = claimEntries.split(";");
+    for (final String claimEntry : claimEntriesList) {
+      claims.add("UserId", new JPAClaimsPair<>(claimEntry));
+    }
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerProtecteds?$count=true", claims);
+    helper.assertStatus(statusCodeValue);
+
+    final ValueNode act = helper.getSingleValue("@odata.count");
+    assertEquals(noResults, act.asInt());
   }
 
   @Test
@@ -115,7 +214,32 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
     helper.assertStatus(200);
 
     final ArrayNode bupa = helper.getValues();
-    assertEquals(16, bupa.size());
+    assertEquals(13, bupa.size());
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+      "200, '1', 'Max'",
+      "200, '2', 'Urs'",
+      "200, '7', ''",
+  })
+  public void testRestrictOnePropertyDeep(final int statusCodeValue, final String building, final String firstName)
+      throws IOException, ODataException {
+
+    JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    claims.add("Creator", new JPAClaimsPair<>("*"));
+    claims.add("Updator", new JPAClaimsPair<>("*"));
+    claims.add("BuildingNumber", new JPAClaimsPair<>(building));
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "PersonProtecteds?$select=ID,FirstName", claims);
+    helper.assertStatus(statusCodeValue);
+    final ArrayNode persons = helper.getValues();
+
+    if (!firstName.isEmpty()) {
+      assertEquals(1, persons.size());
+      assertEquals(firstName, persons.get(0).get("FirstName").asText());
+    } else
+      assertEquals(0, persons.size());
   }
 
   @Test
@@ -131,7 +255,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
   }
 
   @Test
-  public void testRestrictComplexOnePropertyOnValue() throws ODataException {
+  public void testRestrictComplexOnePropertyOneValue() throws ODataException {
     prepareTest();
     prepareComplexAttributeCreateUser("UserId");
 
@@ -147,6 +271,26 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
 
     final Expression<Boolean> act = ((JPAJoinQuery) cut).createProtectionWhere(Optional.of(claims));
     assertEqual(act);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = { "Mar*", "Mar%", "Mar+", "Mar_" })
+  public void testRestrictComplexOnePropertyOneValueWildcardTrue(final String minValue) throws ODataException {
+    prepareTest();
+    prepareComplexAttributeUser("UserId", "AdministrativeInformation/Created/By", "created", true);
+
+    claimNames.add("UserId");
+    final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    claims.add("UserId", new JPAClaimsPair<>(minValue));
+
+    JPAAttribute aSpy = Mockito.spy(etSpy.getAttribute("administrativeInformation"));
+    doReturn(true).when(aSpy).hasProtection();
+    doReturn(claimNames).when(aSpy).getProtectionClaimNames();
+    doReturn(pathList).when(aSpy).getProtectionPath("UserId");
+    attributes.add(aSpy);
+
+    final Expression<Boolean> act = ((JPAJoinQuery) cut).createProtectionWhere(Optional.of(claims));
+    assertLike(act);
   }
 
   @Test
@@ -167,6 +311,27 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
 
     final Expression<Boolean> act = ((JPAJoinQuery) cut).createProtectionWhere(Optional.of(claims));
     assertBetween(act);
+  }
+
+  @Test
+  public void testRestrictComplexOnePropertyUpperLowerValuesWildcardTrue() throws ODataException {
+    final String claimName = "UserId";
+    prepareTest();
+    prepareComplexAttributeUser(claimName, "AdministrativeInformation/Created/By", "created", true);
+
+    claimNames.add(claimName);
+    final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    claims.add(claimName, new JPAClaimsPair<>("Marv*", "Willi"));
+
+    JPAAttribute aSpy = Mockito.spy(etSpy.getAttribute("administrativeInformation"));
+    doReturn(true).when(aSpy).hasProtection();
+    doReturn(claimNames).when(aSpy).getProtectionClaimNames();
+    doReturn(pathList).when(aSpy).getProtectionPath("UserId");
+    attributes.add(aSpy);
+
+    assertThrows(ODataJPAQueryException.class, () -> ((JPAJoinQuery) cut).createProtectionWhere(Optional.of(
+        claims)));
+
   }
 
   @Test
@@ -286,6 +451,10 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
     assertExpression(act, "equal", 2);
   }
 
+  private void assertLike(Expression<?> act) {
+    assertExpression(act, "like", 2);
+  }
+
   private void assertExpression(Expression<?> act, String operator, int size) {
     assertNotNull(act);
     final List<Expression<?>> actChildren = ((CompoundExpressionImpl) act).getChildExpressions();
@@ -296,6 +465,11 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
 
   private void prepareComplexAttributeUser(final String claimName, final String pathName,
       final String intermediateElement) throws ODataJPAModelException {
+    prepareComplexAttributeUser(claimName, pathName, intermediateElement, false);
+  }
+
+  private void prepareComplexAttributeUser(final String claimName, final String pathName,
+      final String intermediateElement, final boolean wildcardSupported) throws ODataJPAModelException {
 
     final JPAProtectionInfo protection = Mockito.mock(JPAProtectionInfo.class);
     protections.add(protection);
@@ -318,6 +492,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
     doReturn(simpleAttri).when(protection).getAttribute();
     doReturn(jpaPath).when(protection).getPath();
     doReturn(claimName).when(protection).getClaimName();
+    doReturn(wildcardSupported).when(protection).supportsWildcards();
   }
 
   private void prepareComplexAttributeCreateUser(final String claimName) throws ODataJPAModelException {
@@ -369,6 +544,5 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
     doReturn(etSpy).when(sdSpy).getEntity(odataType);
     cut = new JPAJoinQuery(null, contextSpy, emf.createEntityManager(), headers, uriInfo);
     cut.createFromClause(new ArrayList<JPAAssociationPath>(1), new ArrayList<JPAPath>(), cut.cq);
-
   }
 }

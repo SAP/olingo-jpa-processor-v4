@@ -56,4 +56,10 @@ public class InhouseAddress {
     this.taskID = taskID;
   }
 
+  @Override
+  public String toString() {
+    return "InhouseAddress [taskID=" + taskID + ", building=" + building + ", floor=" + floor + ", roomNumber="
+        + roomNumber + "]";
+  }
+
 }

@@ -65,6 +65,7 @@ public abstract class ODataJPAProcessException extends ODataApplicationException
    */
   public ODataJPAProcessException(final String id, final String messageText, final HttpStatusCode statusCode,
       final Throwable cause, final String[] params) {
+
     super("", statusCode.getStatusCode(), Locale.ENGLISH, cause);
     this.id = id;
     this.parameter = params;
@@ -95,10 +96,11 @@ public abstract class ODataJPAProcessException extends ODataApplicationException
       return messageText;
     } else if (getCause() != null) {
       return getCause().getLocalizedMessage();
-    } else if (messageText != null && !messageText.isEmpty())
+    } else if (messageText != null && !messageText.isEmpty()) {
       return messageText;
-    else
+    } else {
       return UNKNOWN_MESSAGE;
+    }
   }
 
   public String[] getParameter() {

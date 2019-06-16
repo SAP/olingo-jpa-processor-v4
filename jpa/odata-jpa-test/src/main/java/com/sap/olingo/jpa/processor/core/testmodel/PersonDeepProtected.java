@@ -1,29 +1,40 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
-import java.time.LocalDate;
+import java.sql.Timestamp;
 
 import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.DiscriminatorValue;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Version;
 
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtectedBy;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtections;
 
-@EdmIgnore // Only
-@Entity(name = "PersonDeepProtected")
-@DiscriminatorValue(value = "1")
-public class PersonDeepProtected extends BusinessPartnerProtected {// #NOSONAR use equal method from BusinessPartner
+@Entity(name = "PersonProtected")
+@Table(schema = "\"OLINGO\"", name = "PersonProtected")
+public class PersonDeepProtected {// #NOSONAR use equal method from BusinessPartner
+//  CREATE VIEW
+//  AS 
+//SELECT b."ID",b."ETag",b."NameLine1",b."NameLine2",b."CreatedBy",b."CreatedAt",b."UpdatedBy",b."UpdatedAt"
 
-  @Convert(converter = DateConverter.class)
-  @Column(name = "\"BirthDay\"")
-  private LocalDate birthDay;
+  @Id
+  @Column(name = "\"ID\"")
+  protected String iD;
 
-  @Convert(converter = AccessRightsConverter.class)
-  @Column(name = "\"AccessRights\"")
-  private AccessRights[] accessRights;
+  @Version
+  @Column(name = "\"ETag\"", nullable = false)
+  protected long eTag;
+
+  @Column(name = "\"NameLine1\"")
+  private String firstName;
+
+  @Column(name = "\"NameLine2\"")
+  private String lastName;
+
+  @Column(name = "\"CreatedAt\"", precision = 3, insertable = false, updatable = false)
+  private Timestamp creationDateTime;
 
   @Embedded
   private AddressDeepProtected inhouseAddress;
@@ -35,20 +46,24 @@ public class PersonDeepProtected extends BusinessPartnerProtected {// #NOSONAR u
   })
   private AdministrativeInformation protectedAdminInfo = new AdministrativeInformation();
 
-  public PersonDeepProtected() {
-    type = "1";
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((iD == null) ? 0 : iD.hashCode());
+    return result;
   }
 
-  public LocalDate getBirthDay() {
-    return birthDay;
-  }
-
-  public void setBirthDay(LocalDate birthDay) {
-    this.birthDay = birthDay;
-  }
-
-  public AccessRights[] getAccessRights() {
-    return accessRights;
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
+    PersonDeepProtected other = (PersonDeepProtected) obj;
+    if (iD == null) {
+      if (other.iD != null) return false;
+    } else if (!iD.equals(other.iD)) return false;
+    return true;
   }
 
 }

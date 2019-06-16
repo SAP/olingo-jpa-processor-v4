@@ -406,6 +406,7 @@ public class TestJPAActionProcessor {
     final CsdlProperty edmProperty = mock(CsdlProperty.class);
     when(sd.getEntity((EdmType) any())).thenReturn(et);
     when(et.getPath("CodeID")).thenReturn(codePath);
+    when(et.getAttribute("codeID")).thenReturn(code);
     when(codePath.getLeaf()).thenReturn(code);
     when(code.getInternalName()).thenReturn("codeID");
     when(code.getType()).thenAnswer(new Answer<Class<?>>() {

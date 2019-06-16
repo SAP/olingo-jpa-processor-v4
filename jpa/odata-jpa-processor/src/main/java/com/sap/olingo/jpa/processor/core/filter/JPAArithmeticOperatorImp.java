@@ -145,4 +145,8 @@ class JPAArithmeticOperatorImp implements JPAArithmeticOperator {
     return (Expression<Integer>) ((JPAMemberOperator) right).get();
   }
 
+  @Override
+  public String getName() {
+    return operator.name();
+  }
 }

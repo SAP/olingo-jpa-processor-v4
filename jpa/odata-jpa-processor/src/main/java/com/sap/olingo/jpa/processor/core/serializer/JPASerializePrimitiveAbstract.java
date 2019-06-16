@@ -26,7 +26,7 @@ public abstract class JPASerializePrimitiveAbstract implements JPASerializer, JP
     Property property = null;
     Object value = null;
 
-    final StringBuffer path = new StringBuffer();
+    final StringBuilder path = new StringBuilder();
 
     for (final Property item : result.getEntities().get(0).getProperties()) {
       if (partOfPath(item, uriResources)) {

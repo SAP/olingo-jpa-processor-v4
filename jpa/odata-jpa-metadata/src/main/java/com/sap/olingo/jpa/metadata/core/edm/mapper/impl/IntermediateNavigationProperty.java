@@ -174,31 +174,31 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
       if (jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
         final AnnotatedElement annotatedElement = (AnnotatedElement) jpaAttribute.getJavaMember();
         switch (jpaAttribute.getPersistentAttributeType()) {
-        case ONE_TO_MANY:
-          final OneToMany cardinalityOtM = annotatedElement.getAnnotation(OneToMany.class);
-          mappedBy = cardinalityOtM.mappedBy();
-          isSourceOne = true;
-          edmNaviProperty.setOnDelete(edmOnDelete != null ? edmOnDelete : setJPAOnDelete(cardinalityOtM.cascade()));
-          break;
-        case ONE_TO_ONE:
-          final OneToOne cardinalityOtO = annotatedElement.getAnnotation(OneToOne.class);
-          edmNaviProperty.setNullable(cardinalityOtO.optional());
-          mappedBy = cardinalityOtO.mappedBy();
-          isSourceOne = true;
-          edmNaviProperty.setOnDelete(edmOnDelete != null ? edmOnDelete : setJPAOnDelete(cardinalityOtO.cascade()));
-          break;
-        case MANY_TO_ONE:
-          final ManyToOne cardinalityMtO = annotatedElement.getAnnotation(ManyToOne.class);
-          edmNaviProperty.setNullable(cardinalityMtO.optional());
-          edmNaviProperty.setOnDelete(edmOnDelete != null ? edmOnDelete : setJPAOnDelete(cardinalityMtO.cascade()));
-          break;
-        case MANY_TO_MANY:
-          final ManyToMany cardinalityMtM = annotatedElement.getAnnotation(ManyToMany.class);
-          mappedBy = cardinalityMtM.mappedBy();
-          edmNaviProperty.setOnDelete(edmOnDelete != null ? edmOnDelete : setJPAOnDelete(cardinalityMtM.cascade()));
-          break;
-        default:
-          break;
+          case ONE_TO_MANY:
+            final OneToMany cardinalityOtM = annotatedElement.getAnnotation(OneToMany.class);
+            mappedBy = cardinalityOtM.mappedBy();
+            isSourceOne = true;
+            edmNaviProperty.setOnDelete(edmOnDelete != null ? edmOnDelete : setJPAOnDelete(cardinalityOtM.cascade()));
+            break;
+          case ONE_TO_ONE:
+            final OneToOne cardinalityOtO = annotatedElement.getAnnotation(OneToOne.class);
+            edmNaviProperty.setNullable(cardinalityOtO.optional());
+            mappedBy = cardinalityOtO.mappedBy();
+            isSourceOne = true;
+            edmNaviProperty.setOnDelete(edmOnDelete != null ? edmOnDelete : setJPAOnDelete(cardinalityOtO.cascade()));
+            break;
+          case MANY_TO_ONE:
+            final ManyToOne cardinalityMtO = annotatedElement.getAnnotation(ManyToOne.class);
+            edmNaviProperty.setNullable(cardinalityMtO.optional());
+            edmNaviProperty.setOnDelete(edmOnDelete != null ? edmOnDelete : setJPAOnDelete(cardinalityMtO.cascade()));
+            break;
+          case MANY_TO_MANY:
+            final ManyToMany cardinalityMtM = annotatedElement.getAnnotation(ManyToMany.class);
+            mappedBy = cardinalityMtM.mappedBy();
+            edmNaviProperty.setOnDelete(edmOnDelete != null ? edmOnDelete : setJPAOnDelete(cardinalityMtM.cascade()));
+            break;
+          default:
+            break;
         }
 
 //      Determine referential constraint

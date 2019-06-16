@@ -162,7 +162,8 @@ class IntermediateCollectionProperty extends IntermediateProperty implements JPA
   @Override
   void checkConsistancy() throws ODataJPAModelException {
     // Collection Properties do not support EdmProtectedBy
-    if (hasProtection()) {
+    if (hasProtection() ||
+        (isComplex() && !getStructuredType().getProtections().isEmpty())) {
       throw new ODataJPAModelException(NOT_SUPPORTED_PROTECTED_COLLECTION, this.managedType.getJavaType()
           .getCanonicalName(), this.internalName);
     }

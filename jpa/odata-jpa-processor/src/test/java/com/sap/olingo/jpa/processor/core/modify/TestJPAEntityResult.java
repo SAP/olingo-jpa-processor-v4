@@ -177,7 +177,8 @@ public class TestJPAEntityResult extends TestJPACreateResult {
     et = helper.getJPAEntityType("Collections");
 
     final Collection collection = new Collection();
-    final List<CollcetionNestedComplex> nested = collection.getNested();
+    final List<CollcetionNestedComplex> nested = new ArrayList<>();
+    collection.setNested(nested);
 
     CollcetionNestedComplex nestedItem = new CollcetionNestedComplex();
     CollcetionInnerComplex inner = new CollcetionInnerComplex();

@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.ValueNode;
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataBatchProcessor;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
@@ -73,6 +74,11 @@ public class IntegrationTestHelper {
   public IntegrationTestHelper(EntityManagerFactory localEmf, final String urlPath, JPAODataClaimsProvider claims)
       throws IOException, ODataException {
     this(localEmf, null, urlPath, null, null, null, null, claims);
+  }
+
+  public IntegrationTestHelper(EntityManagerFactory localEmf, final String urlPath,
+      final JPAODataPagingProvider provider, JPAODataClaimsProvider claims) throws IOException, ODataException {
+    this(localEmf, null, urlPath, null, null, provider, null, claims);
   }
 
   public IntegrationTestHelper(final EntityManagerFactory emf, final String urlPath,
@@ -162,6 +168,22 @@ public class IntegrationTestHelper {
     if (!(value instanceof ObjectNode))
       fail("Wrong result type; ObjectNode expected");
     return (ObjectNode) value;
+  }
+
+  public ValueNode getSingleValue() throws JsonProcessingException, IOException {
+    ObjectMapper mapper = new ObjectMapper();
+    JsonNode value = mapper.readTree(getRawResult());
+    if (!(value instanceof ValueNode))
+      fail("Wrong result type; ValueNode expected");
+    return (ValueNode) value;
+  }
+
+  public ValueNode getSingleValue(final String nodeName) throws JsonProcessingException, IOException {
+    final ObjectMapper mapper = new ObjectMapper();
+    final JsonNode node = mapper.readTree(getRawResult());
+    if (!(node.get(nodeName) instanceof ValueNode))
+      fail("Wrong result type; ArrayNode expected");
+    return (ValueNode) node.get(nodeName);
   }
 
   public void assertStatus(int exp) throws IOException {

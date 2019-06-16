@@ -62,4 +62,8 @@ class JPABooleanOperatorImp implements JPABooleanOperator {
     return right.get();
   }
 
+  @Override
+  public String getName() {
+    return operator.name();
+  }
 }
