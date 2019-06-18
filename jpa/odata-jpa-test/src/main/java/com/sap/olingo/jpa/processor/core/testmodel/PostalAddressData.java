@@ -20,7 +20,7 @@ public class PostalAddressData {
   @Column(name = "\"Address.StreetNumber\"", nullable = true)
   private String houseNumber;
   @Column(name = "\"Address.PostOfficeBox\"", nullable = true)
-  private String POBox;
+  private String pOBox;
   @Column(name = "\"Address.PostalCode\"")
   private String postalCode;
   @Column(name = "\"Address.City\"")
@@ -74,7 +74,7 @@ public class PostalAddressData {
   }
 
   public String getPOBox() {
-    return POBox;
+    return pOBox;
   }
 
   public String getCityName() {
@@ -98,7 +98,7 @@ public class PostalAddressData {
   }
 
   public void setPOBox(String pOBox) {
-    POBox = pOBox;
+    this.pOBox = pOBox;
   }
 
   public void setCityName(String cityName) {
@@ -123,5 +123,11 @@ public class PostalAddressData {
 
   public Collection<AdministrativeDivisionDescription> getRegionName() {
     return regionName;
+  }
+
+  @Override
+  public String toString() {
+    return "PostalAddressData [streetName=" + streetName + ", houseNumber=" + houseNumber + ", pOBox=" + pOBox
+        + ", postalCode=" + postalCode + ", cityName=" + cityName + ", country=" + country + ", region=" + region + "]";
   }
 }

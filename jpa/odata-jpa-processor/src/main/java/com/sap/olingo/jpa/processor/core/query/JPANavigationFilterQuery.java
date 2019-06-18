@@ -3,6 +3,7 @@ package com.sap.olingo.jpa.processor.core.query;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
@@ -25,6 +26,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterElementComplier;
 import com.sap.olingo.jpa.processor.core.filter.JPAOperationConverter;
@@ -34,9 +36,10 @@ public final class JPANavigationFilterQuery extends JPANavigationQuery {
 
   public JPANavigationFilterQuery(final OData odata, final JPAServiceDocument sd, final UriResource uriResourceItem,
       final JPAAbstractQuery parent, final EntityManager em, final JPAAssociationPath association,
-      final From<?, ?> from) throws ODataApplicationException {
+      final From<?, ?> from, final Optional<JPAODataClaimsProvider> claimsProvider) throws ODataApplicationException {
 
-    super(odata, sd, (EdmEntityType) ((UriResourcePartTyped) uriResourceItem).getType(), em, parent, from, association);
+    super(odata, sd, (EdmEntityType) ((UriResourcePartTyped) uriResourceItem).getType(), em, parent, from, association,
+        claimsProvider);
     this.keyPredicates = Util.determineKeyPredicates(uriResourceItem);
     this.subQuery = parent.getQuery().subquery(this.jpaEntity.getKeyType());
 
@@ -48,10 +51,11 @@ public final class JPANavigationFilterQuery extends JPANavigationQuery {
 
   public JPANavigationFilterQuery(final OData odata, final JPAServiceDocument sd, final UriResource uriResourceItem,
       final JPAAbstractQuery parent, final EntityManager em, final JPAAssociationPath association,
-      final VisitableExpression expression, final From<?, ?> from) throws ODataApplicationException {
+      final VisitableExpression expression, final From<?, ?> from,
+      final Optional<JPAODataClaimsProvider> claimsProvider) throws ODataApplicationException {
 
     super(odata, sd, (EdmEntityType) ((UriResourcePartTyped) uriResourceItem).getType(), em, parent, from,
-        association);
+        association, claimsProvider);
     this.keyPredicates = Util.determineKeyPredicates(uriResourceItem);
     this.subQuery = parent.getQuery().subquery(this.jpaEntity.getKeyType());
 
@@ -110,14 +114,15 @@ public final class JPANavigationFilterQuery extends JPANavigationQuery {
     List<JPAOnConditionItem> conditionItems = determineJoinColumns();
     createSelectClause(query, queryRoot, conditionItems);
     Expression<Boolean> whereCondition = null;
-    if (this.keyPredicates == null || this.keyPredicates.isEmpty())
-      whereCondition = createWhereByAssociation(from, queryRoot, conditionItems);
-    else
-      whereCondition = cb.and(
-          createWhereByKey(queryRoot, null, this.keyPredicates, jpaEntity),
-          createWhereByAssociation(from, queryRoot, conditionItems));
-    if (childQuery != null)
+    whereCondition = addWhereClause(
+        createWhereByAssociation(from, queryRoot, conditionItems),
+        createWhereByKey(queryRoot, null, this.keyPredicates, jpaEntity));
+    if (childQuery != null) {
       whereCondition = cb.and(whereCondition, cb.exists(childQuery));
+    }
+    whereCondition = addWhereClause(whereCondition, createProtectionWhereForEntityType(claimsProvider, jpaEntity,
+        queryRoot));
+
     query.where(applyAdditionalFilter(whereCondition));
     handleAggregation(query, queryRoot, conditionItems);
   }

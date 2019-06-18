@@ -79,4 +79,9 @@ public class JPALiteralOperator implements JPAPrimitiveTypeOperator {
   Literal getLiteral() {
     return literal;
   }
+
+  @Override
+  public String getName() {
+    return literal.getText();
+  }
 }

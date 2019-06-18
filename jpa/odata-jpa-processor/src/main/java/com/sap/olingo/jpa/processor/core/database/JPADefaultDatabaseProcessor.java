@@ -48,20 +48,20 @@ public class JPADefaultDatabaseProcessor implements JPAODataDatabaseProcessor, J
   @Override
   public Expression<Long> convert(final JPAAggregationOperation jpaOperator) throws ODataApplicationException {
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
-        HttpStatusCode.NOT_IMPLEMENTED);
+        HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getName());
   }
 
   @Override
   public <T extends Number> Expression<T> convert(final JPAArithmeticOperator jpaOperator)
       throws ODataApplicationException {
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
-        HttpStatusCode.NOT_IMPLEMENTED);
+        HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getName());
   }
 
   @Override
   public Expression<Boolean> convert(final JPABooleanOperator jpaOperator) throws ODataApplicationException {
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
-        HttpStatusCode.NOT_IMPLEMENTED);
+        HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getName());
   }
 
   @Override
@@ -83,19 +83,19 @@ public class JPADefaultDatabaseProcessor implements JPAODataDatabaseProcessor, J
 
     }
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
-        HttpStatusCode.NOT_IMPLEMENTED);
+        HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getName());
   }
 
   @Override
   public <T> Expression<T> convert(final JPAMethodCall jpaFunction) throws ODataApplicationException {
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
-        HttpStatusCode.NOT_IMPLEMENTED);
+        HttpStatusCode.NOT_IMPLEMENTED, jpaFunction.getName());
   }
 
   @Override
   public Expression<Boolean> convert(final JPAUnaryBooleanOperator jpaOperator) throws ODataApplicationException {
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
-        HttpStatusCode.NOT_IMPLEMENTED);
+        HttpStatusCode.NOT_IMPLEMENTED, jpaOperator.getName());
   }
 
   @Override

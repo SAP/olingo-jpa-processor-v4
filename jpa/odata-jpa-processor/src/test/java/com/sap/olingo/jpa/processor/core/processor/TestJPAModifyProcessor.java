@@ -134,27 +134,27 @@ public abstract class TestJPAModifyProcessor {
   protected ODataRequest prepareRepresentationRequest(JPAAbstractCUDRequestHandler spy)
       throws ODataJPAProcessorException, SerializerException, ODataException {
 
-    ODataRequest request = prepareSimpleRequest("return=representation");
+    final ODataRequest request = prepareSimpleRequest("return=representation");
 
     when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
-    Organization org = new Organization();
+    final Organization org = new Organization();
     when(em.find(Organization.class, "35")).thenReturn(org);
     org.setID("35");
-    Edm edm = mock(Edm.class);
+    final Edm edm = mock(Edm.class);
     when(serviceMetadata.getEdm()).thenReturn(edm);
-    EdmEntityType edmET = mock(EdmEntityType.class);
-    FullQualifiedName fqn = new FullQualifiedName("com.sap.olingo.jpa.Organization");
+    final EdmEntityType edmET = mock(EdmEntityType.class);
+    final FullQualifiedName fqn = new FullQualifiedName("com.sap.olingo.jpa.Organization");
     when(edm.getEntityType(fqn)).thenReturn(edmET);
-    List<String> keyNames = new ArrayList<>();
+    final List<String> keyNames = new ArrayList<>();
     keyNames.add("ID");
     when(edmET.getKeyPredicateNames()).thenReturn(keyNames);
-    EdmKeyPropertyRef refType = mock(EdmKeyPropertyRef.class);
+    final EdmKeyPropertyRef refType = mock(EdmKeyPropertyRef.class);
     when(edmET.getKeyPropertyRef("ID")).thenReturn(refType);
     when(edmET.getFullQualifiedName()).thenReturn(fqn);
-    EdmProperty edmProperty = mock(EdmProperty.class);
+    final EdmProperty edmProperty = mock(EdmProperty.class);
     when(refType.getProperty()).thenReturn(edmProperty);
     when(refType.getName()).thenReturn("ID");
-    EdmPrimitiveType type = mock(EdmPrimitiveType.class);
+    final EdmPrimitiveType type = mock(EdmPrimitiveType.class);
     when(edmProperty.getType()).thenReturn(type);
     when(type.toUriLiteral(ArgumentMatchers.any())).thenReturn("35");
 
@@ -229,6 +229,7 @@ public abstract class TestJPAModifyProcessor {
     return prepareSimpleRequest("return=minimal");
   }
 
+  @SuppressWarnings("unchecked")
   protected ODataRequest prepareSimpleRequest(String content) throws ODataException, ODataJPAProcessorException,
       SerializerException {
 
@@ -242,8 +243,8 @@ public abstract class TestJPAModifyProcessor {
     header.add(content);
 
     Entity odataEntity = mock(Entity.class);
-    when(convHelper.convertInputStream(same(odata), same(request), same(ContentType.JSON), any())).thenReturn(
-        odataEntity);
+    when(convHelper.convertInputStream(same(odata), same(request), same(ContentType.JSON), any(List.class)))
+        .thenReturn(odataEntity);
     when(convHelper.convertKeyToLocal(ArgumentMatchers.eq(odata), ArgumentMatchers.eq(request), ArgumentMatchers.eq(
         ets), ArgumentMatchers.any(JPAEntityType.class), ArgumentMatchers.any())).thenReturn(LOCATION_HEADER);
     return request;

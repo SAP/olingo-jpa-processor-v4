@@ -77,4 +77,10 @@ public class EdmEntitySetDouble implements EdmEntitySet {
     fail();
     return null;
   }
+
+  @Override
+  public EdmEntityType getEntityTypeWithAnnotations() {
+    fail();
+    return null;
+  }
 }

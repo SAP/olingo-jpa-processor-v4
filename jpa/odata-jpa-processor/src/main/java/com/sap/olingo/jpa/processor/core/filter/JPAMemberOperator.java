@@ -52,6 +52,11 @@ public class JPAMemberOperator implements JPAOperator {
     return member;
   }
 
+  @Override
+  public String getName() {
+    return member.toString();
+  }
+
   private JPAPath determineAttributePath() throws ODataApplicationException {
 
     final String attributePath = Util.determineProptertyNavigationPath(member.getResourcePath().getUriResourceParts());

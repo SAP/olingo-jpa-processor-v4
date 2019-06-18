@@ -109,4 +109,10 @@ public class EdmPropertyDouble implements EdmProperty {
     return null;
   }
 
+  @Override
+  public EdmType getTypeWithAnnotations() {
+    fail();
+    return null;
+  }
+
 }

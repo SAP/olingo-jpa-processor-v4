@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.filter;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.Expression;
@@ -16,6 +17,7 @@ import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitor
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
+import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
 
@@ -46,11 +48,22 @@ public final class JPAFilterCrossComplier extends JPAAbstractFilter {
   final JPAServiceDocument sd;
   final List<UriResource> uriResourceParts;
   final JPAAbstractQuery parent;
+  final Optional<JPAODataClaimsProvider> claimsProvider;
   private From<?, ?> root;
 
   public JPAFilterCrossComplier(final OData odata, final JPAServiceDocument sd, final EntityManager em, // NOSONAR
       final JPAEntityType jpaEntityType, final JPAOperationConverter converter,
-      final UriInfoResource uriResource, final JPAAbstractQuery parent, final JPAAssociationPath assization) {
+      final UriInfoResource uriResource, final JPAAbstractQuery parent, From<?, ?> from,
+      final Optional<JPAODataClaimsProvider> claimsProvider) {
+
+    this(odata, sd, em, jpaEntityType, converter, uriResource, parent, (JPAAssociationPath) null, claimsProvider);
+    this.root = from;
+  }
+
+  public JPAFilterCrossComplier(final OData odata, final JPAServiceDocument sd, final EntityManager em, // NOSONAR
+      final JPAEntityType jpaEntityType, final JPAOperationConverter converter,
+      final UriInfoResource uriResource, final JPAAbstractQuery parent, final JPAAssociationPath assization,
+      final Optional<JPAODataClaimsProvider> claimsProvider) {
 
     super(jpaEntityType, uriResource, assization);
 
@@ -60,14 +73,7 @@ public final class JPAFilterCrossComplier extends JPAAbstractFilter {
     this.odata = odata;
     this.sd = sd;
     this.parent = parent;
-  }
-
-  public JPAFilterCrossComplier(final OData odata, final JPAServiceDocument sd, final EntityManager em, // NOSONAR
-      final JPAEntityType jpaEntityType, final JPAOperationConverter converter,
-      final UriInfoResource uriResource, final JPAAbstractQuery parent, From<?, ?> from) {
-
-    this(odata, sd, em, jpaEntityType, converter, uriResource, parent, (JPAAssociationPath) null);
-    this.root = from;
+    this.claimsProvider = claimsProvider;
   }
 
   /*
@@ -92,13 +98,18 @@ public final class JPAFilterCrossComplier extends JPAAbstractFilter {
   }
 
   @Override
+  public Optional<JPAODataClaimsProvider> getClaimsProvider() {
+    return claimsProvider;
+  }
+
+  @Override
   public JPAOperationConverter getConverter() {
     return converter;
   }
 
   @Override
-  public JPAEntityType getJpaEntityType() {
-    return jpaEntityType;
+  public JPAServiceDebugger getDebugger() {
+    return parent.getDebugger();
   }
 
   @Override
@@ -107,18 +118,13 @@ public final class JPAFilterCrossComplier extends JPAAbstractFilter {
   }
 
   @Override
+  public JPAEntityType getJpaEntityType() {
+    return jpaEntityType;
+  }
+
+  @Override
   public OData getOdata() {
     return odata;
-  }
-
-  @Override
-  public JPAServiceDocument getSd() {
-    return sd;
-  }
-
-  @Override
-  public List<UriResource> getUriResourceParts() {
-    return uriResourceParts;
   }
 
   @Override
@@ -134,8 +140,13 @@ public final class JPAFilterCrossComplier extends JPAAbstractFilter {
   }
 
   @Override
-  public JPAServiceDebugger getDebugger() {
-    return parent.getDebugger();
+  public JPAServiceDocument getSd() {
+    return sd;
+  }
+
+  @Override
+  public List<UriResource> getUriResourceParts() {
+    return uriResourceParts;
   }
 
 }

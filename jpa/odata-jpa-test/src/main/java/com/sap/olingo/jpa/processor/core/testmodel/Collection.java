@@ -1,6 +1,5 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CollectionTable;
@@ -29,7 +28,7 @@ public class Collection {
   @ElementCollection(fetch = FetchType.LAZY)
   @CollectionTable(schema = "\"OLINGO\"", name = "\"NestedComplex\"",
       joinColumns = @JoinColumn(name = "\"ID\""))
-  private List<CollcetionNestedComplex> nested = new ArrayList<>();
+  private List<CollcetionNestedComplex> nested; // Must not be assigned to an ArrayList
 
   public String getID() {
     return iD;

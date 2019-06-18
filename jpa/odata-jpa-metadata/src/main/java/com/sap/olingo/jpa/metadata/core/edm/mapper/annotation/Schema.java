@@ -26,19 +26,19 @@ class Schema {
   private String alias;
 
   @JacksonXmlProperty(localName = "EnumType")
-  private List<EnumType> enumerations = new ArrayList<EnumType>();
+  private List<EnumType> enumerations = new ArrayList<>();
 
   @JacksonXmlProperty(localName = "TypeDefinition")
-  private List<TypeDefinition> typeDefinitions = new ArrayList<TypeDefinition>();
+  private List<TypeDefinition> typeDefinitions = new ArrayList<>();
 //
 //  @JacksonXmlProperty(localName = "EntityType")
 //  private List<EntityType> entityTypes = new ArrayList<EntityType>();
 //
   @JacksonXmlProperty(localName = "ComplexType")
-  private List<ComplexType> complexTypes = new ArrayList<ComplexType>();
+  private List<ComplexType> complexTypes = new ArrayList<>();
 
   @JacksonXmlProperty(localName = "Term")
-  private List<Term> terms = new ArrayList<Term>();
+  private List<Term> terms = new ArrayList<>();
 
   CsdlSchema asCsdlSchema() {
     CsdlSchema csdlSchema = new CsdlSchema();
@@ -70,7 +70,7 @@ class Schema {
   }
 
   private List<CsdlComplexType> asComplexTypes() {
-    List<CsdlComplexType> csdlComplexType = new ArrayList<CsdlComplexType>();
+    List<CsdlComplexType> csdlComplexType = new ArrayList<>();
 
     for (ComplexType c : complexTypes) {
       csdlComplexType.add(c);
@@ -92,7 +92,7 @@ class Schema {
   }
 
   private List<CsdlEnumType> asEnumTypes() {
-    List<CsdlEnumType> csdlEnumType = new ArrayList<CsdlEnumType>();
+    List<CsdlEnumType> csdlEnumType = new ArrayList<>();
 
     for (EnumType e : enumerations) {
       csdlEnumType.add(e);
@@ -119,7 +119,7 @@ class Schema {
   }
 
   private List<CsdlTypeDefinition> asTypeDefinitions() {
-    List<CsdlTypeDefinition> csdlTypeDefinion = new ArrayList<CsdlTypeDefinition>();
+    List<CsdlTypeDefinition> csdlTypeDefinion = new ArrayList<>();
 
     for (TypeDefinition t : typeDefinitions) {
       csdlTypeDefinion.add(t);
@@ -156,7 +156,7 @@ class Schema {
   }
 
   private List<CsdlTerm> asCsdlTerms() {
-    List<CsdlTerm> csdlTerms = new ArrayList<CsdlTerm>();
+    List<CsdlTerm> csdlTerms = new ArrayList<>();
 
     for (Term t : terms) {
       csdlTerms.add(t);

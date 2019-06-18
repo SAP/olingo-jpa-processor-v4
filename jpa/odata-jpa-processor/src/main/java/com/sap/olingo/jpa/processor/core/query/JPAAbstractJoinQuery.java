@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.processor.core.query;
 
+import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.QUERY_RESULT_ENTITY_TYPE_ERROR;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -8,6 +10,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -58,6 +61,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
@@ -78,9 +82,11 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
 
   public JPAAbstractJoinQuery(final OData odata, final JPAODataSessionContextAccess context,
       final JPAEntityType jpaEntityType, final EntityManager em, final Map<String, List<String>> requestHeaders,
-      final UriInfoResource uriResource, final JPAODataPage page) throws ODataException {
+      final UriInfoResource uriResource, final JPAODataPage page, final Optional<JPAODataClaimsProvider> claimsProvider)
+      throws ODataException {
 
-    super(odata, context.getEdmProvider().getServiceDocument(), jpaEntityType, em, context.getDebugger());
+    super(odata, context.getEdmProvider().getServiceDocument(), jpaEntityType, em, context.getDebugger(),
+        claimsProvider);
     this.locale = ExpressionUtil.determineLocale(requestHeaders);
     this.uriResource = uriResource;
     this.cq = cb.createTupleQuery();
@@ -315,6 +321,22 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
     return orders;
   }
 
+  protected javax.persistence.criteria.Expression<Boolean> createProtectionWhere(
+      final Optional<JPAODataClaimsProvider> claimsProvider) throws ODataJPAQueryException {
+
+    javax.persistence.criteria.Expression<Boolean> restriction = null;
+    for (final JPANavigationProptertyInfo navi : navigationInfo) { // for all participating entity types/tables
+      try {
+        final JPAEntityType et = navi.getEntityType();
+        final From<?, ?> from = navi.getFromClause();
+        restriction = addWhereClause(restriction, createProtectionWhereForEntityType(claimsProvider, et, from));
+      } catch (ODataJPAModelException e) {
+        throw new ODataJPAQueryException(QUERY_RESULT_ENTITY_TYPE_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR);
+      }
+    }
+    return restriction;
+  }
+
   /**
    * The value of the $select query option is a comma-separated list of <b>properties</b>, qualified action names,
    * qualified function names, the <b>star operator (*)</b>, or the star operator prefixed with the namespace or alias
@@ -466,16 +488,6 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
   @Override
   JPAODataSessionContextAccess getContext() {
     return context;
-  }
-
-  boolean hasNavigation(final List<UriResource> uriResourceParts) {
-    if (uriResourceParts != null) {
-      for (int i = uriResourceParts.size() - 1; i >= 0; i--) {
-        if (uriResourceParts.get(i) instanceof UriResourceNavigation)
-          return true;
-      }
-    }
-    return false;
   }
 
   private void addOrderByExpression(final List<Order> orders, final OrderByItem orderByItem,
@@ -640,10 +652,11 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
         joinTables.put(lastInfo.getAssociationPath().getAlias(), (From<?, ?>) p);
         lastInfo.setFilterCompiler(new JPAFilterCrossComplier(odata, sd, em,
             (JPAEntityType) ((JPAAssociationAttribute) element).getTargetEntity(), new JPAOperationConverter(cb,
-                context.getOperationConverter()), uriResource, this, (From<?, ?>) p));
-      } else
+                context.getOperationConverter()), uriResource, this, (From<?, ?>) p, claimsProvider));
+      } else {
         lastInfo.setFilterCompiler(new JPAFilterCrossComplier(odata, sd, em, jpaEntity, new JPAOperationConverter(cb,
-            context.getOperationConverter()), uriResource, this, lastInfo.getAssociationPath()));
+            context.getOperationConverter()), uriResource, this, lastInfo.getAssociationPath(), claimsProvider));
+      }
     } catch (ODataJPAModelException e) {
       throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_FILTER_ERROR,
           HttpStatusCode.BAD_REQUEST, e);
@@ -686,7 +699,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
         try {
           naviInfo.setFilterCompiler(new JPAFilterCrossComplier(odata, sd, em, naviInfo.getEntityType(),
               new JPAOperationConverter(cb, context.getOperationConverter()), naviInfo.getUriInfo(), this, naviInfo
-                  .getFromClause()));
+                  .getFromClause(), claimsProvider));
         } catch (ODataJPAModelException e) {
           throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_FILTER_ERROR,
               HttpStatusCode.BAD_REQUEST, e);

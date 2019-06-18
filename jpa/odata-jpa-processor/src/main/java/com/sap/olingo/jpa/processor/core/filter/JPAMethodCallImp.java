@@ -79,4 +79,8 @@ class JPAMethodCallImp implements JPAMethodCall {
     return parameters.size();
   }
 
+  @Override
+  public String getName() {
+    return methodCall.name();
+  }
 }

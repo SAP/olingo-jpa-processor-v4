@@ -30,8 +30,9 @@ public abstract class JPAAbstractFilter implements JPAFilterComplier, JPAFilterC
     this.jpaEntityType = jpaEntityType;
     if (uriResource != null && uriResource.getFilterOption() != null) {
       this.expression = uriResource.getFilterOption().getExpression();
-    } else
+    } else {
       this.expression = null;
+    }
     this.assoziation = assoziation;
   }
 
@@ -53,8 +54,9 @@ public abstract class JPAAbstractFilter implements JPAFilterComplier, JPAFilterC
         throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
       }
       return Collections.unmodifiableList(visitor.get());
-    } else
+    } else {
       return new ArrayList<>(1);
+    }
   }
 
   @Override

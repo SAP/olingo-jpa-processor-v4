@@ -3,6 +3,7 @@ package com.sap.olingo.jpa.processor.core.query;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.isNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -37,9 +38,13 @@ import org.apache.olingo.server.api.uri.queryoption.SystemQueryOptionKind;
 import org.apache.olingo.server.api.uri.queryoption.expression.Member;
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.sap.olingo.jpa.processor.core.api.JPAClaimsPair;
+import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPagingProvider;
+import com.sap.olingo.jpa.processor.core.util.CountQueryMatcher;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 
@@ -143,6 +148,20 @@ public class TestJPAServerDrivenPaging extends TestBase {
     helper.assertStatus(200);
 
     verify(provider).getFirstPage(any(), any(), isNotNull(), any());
+  }
+
+  @Test
+  public void testCountQueryProvidedWithProtection() throws IOException, ODataException {
+    final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    claims.add("UserId", new JPAClaimsPair<>("Willi"));
+    final JPAODataPagingProvider provider = mock(JPAODataPagingProvider.class);
+    when(provider.getFirstPage(any(), any(), any(), any())).thenAnswer(i -> new JPAODataPage((UriInfo) i
+        .getArguments()[0], 0, 5, "Hugo"));
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "BusinessPartnerProtecteds", provider, claims);
+    helper.assertStatus(200);
+    final ArrayNode act = helper.getValues();
+    assertEquals(3, act.size());
+    verify(provider).getFirstPage(any(), any(), argThat(new CountQueryMatcher(3L)), any());
   }
 
   @Test

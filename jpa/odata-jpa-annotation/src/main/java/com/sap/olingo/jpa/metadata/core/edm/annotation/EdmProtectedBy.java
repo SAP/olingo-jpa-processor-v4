@@ -23,11 +23,16 @@ public @interface EdmProtectedBy {
   String name();
 
   /**
-   * Optional: At complex properties path to the properties that shall be protected by the claim. In case the path is
-   * composed, path segments joined together by forward slashes (/).</p> The correctness of the pass is check late
-   * during
-   * request processing.
+   * Optional: At embedded attributes the path to the attribute that shall be protected by the claim. In case the path
+   * is composed, path segments joined together by forward slashes (/).</p> The correctness of the pass is check late
+   * during request processing.
    * @return
    */
   String path() default "";
+
+  /**
+   * Optional: In case the protected attributes is of type string also wildcards are supported. '*' and '%' representing
+   * zero or more characters and '+' as well as '_' for a single character.
+   */
+  boolean wildcardSupported() default true;
 }

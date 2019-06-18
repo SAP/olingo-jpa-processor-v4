@@ -22,6 +22,7 @@ import com.sap.olingo.jpa.processor.core.errormodel.CollectionAttributeProtected
 import com.sap.olingo.jpa.processor.core.errormodel.ComplextProtectedNoPath;
 import com.sap.olingo.jpa.processor.core.errormodel.ComplextProtectedWrongPath;
 import com.sap.olingo.jpa.processor.core.errormodel.NavigationAttributeProtected;
+import com.sap.olingo.jpa.processor.core.errormodel.PersonDeepCollectionProtected;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 
 public class TestIntermediateWrongAnnotation {
@@ -44,6 +45,24 @@ public class TestIntermediateWrongAnnotation {
     try {
       IntermediateCollectionProperty property = new IntermediateCollectionProperty(new JPAEdmNameBuilder(PUNIT_NAME),
           jpaAttribute, helper.schema, helper.schema.getEntityType(CollectionAttributeProtected.class));
+
+      property.getEdmItem();
+    } catch (ODataJPAModelException e) {
+      assertEquals(NOT_SUPPORTED_PROTECTED_COLLECTION.name(), e.getId());
+      assertFalse(e.getMessage().isEmpty());
+      return;
+    }
+    fail("Missing exception");
+  }
+
+  @Test
+  public void checkErrorOnProtectedCollectionAttributeDeep() {
+    PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
+        PersonDeepCollectionProtected.class), "inhouseAddress");
+
+    try {
+      IntermediateCollectionProperty property = new IntermediateCollectionProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+          jpaAttribute, helper.schema, helper.schema.getEntityType(PersonDeepCollectionProtected.class));
 
       property.getEdmItem();
     } catch (ODataJPAModelException e) {

@@ -103,4 +103,9 @@ public class JPAComparisonOperatorImp<T extends Comparable<T>> implements JPACom
   public Expression<T> getRightAsExpression() throws ODataApplicationException {
     return (Expression<T>) right.get();
   }
+
+  @Override
+  public String getName() {
+    return operator.name();
+  }
 }
