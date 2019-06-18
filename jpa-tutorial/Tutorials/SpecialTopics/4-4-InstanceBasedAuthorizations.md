@@ -134,7 +134,7 @@ Last but not least, the claims have to be forwarded to the JPA processor:
 
 No we can run some queries. As we need to set the Authentication header, we need to use a rest client:
 
-![JPA - OData Mapping](Images\ExampleByCountry.JPG)  
+![JPA - OData Mapping](Images/ExampleByCountry.JPG)  
 
 Feel free to use another user or to play around with the database entries. You can also have a look what happens with 
 `.../CompanyProtectedByCountries?$expand=Roles` or `.../Roles`. You will notice that `.../Roles` is not protected. In cases like this a user can see ids of Companies the user is not allowed to see. Depending on the use case this may be a problem. Various solutions exists for this. Here some of them:
