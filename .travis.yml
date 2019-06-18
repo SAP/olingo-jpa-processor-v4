@@ -17,5 +17,5 @@ branches:
   - master
   - develop
 
-  after_success:
-  - mvn clean test jacoco:report cobertura:cobertura org.eluder.coveralls:coveralls-maven-plugin:report
+after_success:
+    - cd jpa && mvn clean test jacoco:report coveralls:report

@@ -4,7 +4,7 @@ To protect services usually two level of authorizations are used. First level de
 ## User management in the same service
 The instance restrictions grant access to a set of entities. This is done by providing so called [JPAClaimsPair](../../../jpa/odata-jpa-processor/src/main/java/com/sap/olingo/jpa/processor/core/api/JPAClaimsPair.java). One pair contains of a range providing the upper and lower limit of an attribute that is used to grant access to an entity. These pairs are collected by an instance of [JPAODataClaimsProvider](com/sap/olingo/jpa/processor/core/api/JPAODataClaimsProvider.java).
 
-For this part, We want to assume that the service we implement also contains the information about user and their restrictions. As a consequence the only claim we have is the id of the user, which we will get from the Authentication header.
+For this part, we want to assume that the service we implement also contains the information about user and their restrictions. As a consequence the only claim we have is the id of the user, which we will get from the Authentication header.
 
 ### Examples 1: Restrict access to company by country
 We want to grant access to Companies based on their location or in other words user are responsible for Companies from one or multiple countries and should only access those. 
@@ -240,7 +240,52 @@ public class CompanyProtectedByRole {
 }
 ```
 
+## Important note
+The mentioned mechanism creating a join allows a quick and easy introduction of instance restrictions, but comes with a draw back. The join introduces a new field/property without (business) relevance. This can lead at `$filter` requests to unwanted results. Lets have a look at a small example:<br>
+Lets assume that not all user shall see all the Roles of a Company, so we create a join for roles as well:
+```SQL
+CREATE TABLE "RoleRestriction" (	 
+	"UserName"  VARCHAR(60) NOT NULL ,
+	"SequenceNumber" INTEGER NOT NULL,
+	"From"  VARCHAR(10) NOT NULL ,
+	"To"  VARCHAR(10),
+	PRIMARY KEY ("UserName","SequenceNumber"));	
+INSERT INTO "RoleRestriction" VALUES ('Marvin', 1, 'A', 'B');
+INSERT INTO "RoleRestriction" VALUES ('Willi', 1, 'A', 'A');
+INSERT INTO "RoleRestriction" VALUES ('Willi', 2, 'C', 'C');
+
+CREATE VIEW "RoleProtected" AS 
+	SELECT 
+		role."BusinessPartnerID",
+		role."BusinessPartnerRole", 
+		r."UserName"
+	FROM "BusinessPartnerRole" AS role
+	INNER JOIN "RoleRestriction" AS r
+		ON role."BusinessPartnerRole" >= r."From"
+		AND role."BusinessPartnerRole" <= r."To";
+``` 
+and the corresponding JPA POJO with the entity name `BusinessPartnerRoleProtected` and the relation between `CompanyProtectedByCountry`, which we want to call `RolesProtected`. With that we would be able to create requests like: `CompanyProtectedByCountry?$select=ID&$filter=RolesProtected/$count ge 2`. In case, for some reasons, it is decided that instead of restricting access by the User Name the user shall have access to all companies and all roles the query will return 3 instead of two results. Even so it is possible to prevent this with SQL:
+```SQL
+SELECT DISTINCT t0."ID" 
+	FROM "OLINGO"."BusinessPartnerProtected" t0 
+	WHERE (EXISTS (
+		SELECT t1."BusinessPartnerID" 
+			FROM (SELECT DISTINCT t2."BusinessPartnerID", t2."BusinessPartnerRole"
+					FROM "OLINGO"."RoleProtected" t2
+					WHERE (t2."UserName" LIKE '%')) t1
+		  WHERE (t1."BusinessPartnerID" = t0."ID") 
+		  GROUP BY t1."BusinessPartnerID" 
+		  HAVING (COUNT(t1."BusinessPartnerID") >= 2))  
+	AND (t0."UserName" LIKE '%'));
+```
+no way of creating this using JPQL is known. Two options to prevent this are known:
+1. In case User Name (or User Id) for joining, do not support wild cards
+1. Spend an additional database round trip and read the claims before calling the jpa processor and feed the claims provider with the read values.
+
+
 ## Additional Remarks
 If user and authorities are not handled by the service itself, but e.g. via a JWT, all relevant properties have to be forwarded via `JPAODataClaimsProvider`.
 
 For modifying requests the Claims can be retrieved from a provided instance of [JPARequestEntity](../../../jpa/odata-jpa-processor/src/main/java/com/sap/olingo/jpa/processor/core/processor/JPARequestEntity.java) via method `getClaims`
+
+Annotating collection attributes is not supported.
