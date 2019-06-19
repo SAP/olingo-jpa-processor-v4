@@ -2,20 +2,20 @@ language: java
 # for an overview see https://docs.travis-ci.com/user/reference/overview/
 sudo: false
 dist: trusty
-jdk:
-    - oraclejdk8
-    - oraclejdk9
-    - oraclejdk11
-    - openjdk8
-cache:
-  directories:
-    - $HOME/.m2/repository
-script:
-    - cd jpa && mvn clean verify
-branches:
-  only:
-  - master
-  - develop
 
-after_success:
-    - cd jpa && mvn clean test jacoco:report coveralls:report
+cache:
+    directories:
+        - $HOME/.m2
+
+jobs:
+    include:  
+        - name: "JDK openjdk8 + coverage"
+          jdk: openjdk8
+          script: cd ./jpa && mvn clean verify 
+          after_success:
+              - cd ./jpa && mvn clean test jacoco:report coveralls:report
+
+branches:
+    only:
+        - master
+        - develop
