@@ -9,11 +9,20 @@ cache:
 
 jobs:
     include:  
-        - name: "JDK openjdk8 + coverage"
+        - name: "JDK: openjdk8 + coverage"
           jdk: openjdk8
           script: cd ./jpa && mvn clean verify 
           after_success:
-              - mvn clean test jacoco:report coveralls:report
+              - mvn -q clean test jacoco:report coveralls:report
+        - name: "JDK: openjdk11"
+          jdk: openjdk11
+          script: cd ./jpa && mvn -q clean verify
+        - name: "JDK: openjdk12"
+          jdk: openjdk12
+          script: cd ./jpa && mvn -q clean verify          
+        - name: "JDK: oraclejdk8"
+          jdk: oraclejdk8
+          script: cd ./jpa && mvn -q clean verify   
 
 branches:
     only:
