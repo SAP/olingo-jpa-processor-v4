@@ -13,7 +13,7 @@ jobs:
           jdk: openjdk8
           script: cd ./jpa && mvn clean verify 
           after_success:
-              - cd ./jpa && mvn clean test jacoco:report coveralls:report
+              - mvn clean test jacoco:report coveralls:report
 
 branches:
     only:
