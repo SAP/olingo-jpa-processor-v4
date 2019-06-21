@@ -689,8 +689,6 @@ public class TestJPAQueryWhereClause extends TestBase {
     claims.add("RoleCategory", new JPAClaimsPair<>("A", "B"));
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "BusinessPartnerProtecteds?$select=ID&$filter=RolesProtected/$count ge 2", claims); // and ID eq '3'
-//    helper = new IntegrationTestHelper(emf,
-//        "BusinessPartnerRoleProtecteds", claims); // ?Protected
 
     helper.assertStatus(200);
     ArrayNode act = helper.getValues();

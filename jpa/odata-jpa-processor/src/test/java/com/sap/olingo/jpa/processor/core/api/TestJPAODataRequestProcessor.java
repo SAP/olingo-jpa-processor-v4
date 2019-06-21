@@ -30,7 +30,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 
-public class JPAODataRequestProcessorTest {
+public class TestJPAODataRequestProcessor {
 
   private static JPAODataRequestProcessor cut;
   private static EntityManager em;

@@ -13,7 +13,7 @@ public class EntityKeyElement {
   protected List<PropertyRef> propertyRefs;
 
   List<CsdlPropertyRef> getPropertyRef() {
-    List<CsdlPropertyRef> csdlPropertyRefs = new ArrayList<CsdlPropertyRef>();
+    List<CsdlPropertyRef> csdlPropertyRefs = new ArrayList<>();
     for (PropertyRef p : propertyRefs) {
       csdlPropertyRefs.add(p);
     }

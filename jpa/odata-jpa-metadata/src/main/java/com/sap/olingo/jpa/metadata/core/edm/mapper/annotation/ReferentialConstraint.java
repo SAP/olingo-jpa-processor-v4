@@ -6,26 +6,15 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class ReferentialConstraint extends CsdlReferentialConstraint {
 
+  @Override
   @JacksonXmlProperty(localName = "Property", isAttribute = true)
-  protected String property;
+  public CsdlReferentialConstraint setProperty(String property) {
+    return super.setProperty(property);
+  }
+
+  @Override
   @JacksonXmlProperty(localName = "ReferencedProperty", isAttribute = true)
-  protected String referencedProperty;
-
-  @Override
-  public String getProperty() {
-    return property;
+  public CsdlReferentialConstraint setReferencedProperty(String referencedProperty) {
+    return super.setReferencedProperty(referencedProperty);
   }
-
-  @Override
-  public String getReferencedProperty() {
-    return referencedProperty;
-  }
-
-//  @Override
-//  public List<CsdlAnnotation> getAnnotations() {
-//    return super.getAnnotations();
-//  }
-
-//  @XmlElement(name = "Annotation")
-//  protected List<Annotation> annotation;
 }

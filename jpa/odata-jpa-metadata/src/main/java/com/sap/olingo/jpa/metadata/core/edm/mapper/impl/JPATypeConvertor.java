@@ -45,7 +45,7 @@ public final class JPATypeConvertor {
    * @see EdmPrimitiveTypeKind
    */
 
-  public static EdmPrimitiveTypeKind convertToEdmSimpleType(final Class<?> jpaType,
+  public static <T> EdmPrimitiveTypeKind convertToEdmSimpleType(final Class<T> jpaType,
       final Attribute<?, ?> currentAttribute) throws ODataJPAModelException {
 
     if (jpaType.equals(String.class) || jpaType.equals(Character.class) || jpaType.equals(char.class) || jpaType.equals(
@@ -86,8 +86,6 @@ public final class JPATypeConvertor {
       }
     } else if (jpaType.equals(UUID.class)) {
       return EdmPrimitiveTypeKind.Guid;
-    } else if (jpaType.equals(Byte[].class)) {
-      return EdmPrimitiveTypeKind.Binary;
     } else if (jpaType.equals(Blob.class) && isBlob(currentAttribute)) {
       return EdmPrimitiveTypeKind.Binary;
     } else if (jpaType.equals(Clob.class) && isBlob(currentAttribute)) {
@@ -244,10 +242,10 @@ public final class JPATypeConvertor {
   }
 
   private static boolean isGeography(final Attribute<?, ?> currentAttribute) {
-    return currentAttribute != null && getDimension(currentAttribute) == Dimension.GEOGRAPHY ? true : false;
+    return currentAttribute != null && getDimension(currentAttribute) == Dimension.GEOGRAPHY;
   }
 
   private static boolean isGeometry(final Attribute<?, ?> currentAttribute) {
-    return currentAttribute != null && getDimension(currentAttribute) == Dimension.GEOMETRY ? true : false;
+    return currentAttribute != null && getDimension(currentAttribute) == Dimension.GEOMETRY;
   }
 }

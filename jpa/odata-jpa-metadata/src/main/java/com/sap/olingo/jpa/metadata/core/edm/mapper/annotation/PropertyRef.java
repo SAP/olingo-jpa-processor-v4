@@ -6,19 +6,16 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class PropertyRef extends CsdlPropertyRef {
 
+  @Override
   @JacksonXmlProperty(localName = "Name", isAttribute = true)
-  private String name;
+  public CsdlPropertyRef setName(final String name) {
+    return super.setName(name);
+  }
 
+  @Override
   @JacksonXmlProperty(localName = "Alias", isAttribute = true)
-  private String alias;
-
-  @Override
-  public String getName() {
-    return name;
+  public CsdlPropertyRef setAlias(final String alias) {
+    return super.setAlias(alias);
   }
 
-  @Override
-  public String getAlias() {
-    return alias;
-  }
 }
