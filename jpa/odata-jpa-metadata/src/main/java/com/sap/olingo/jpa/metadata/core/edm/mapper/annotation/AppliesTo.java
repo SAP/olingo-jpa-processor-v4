@@ -92,21 +92,21 @@ public enum AppliesTo {
 
   private final String value;
 
-  AppliesTo(String v) {
+  private AppliesTo(String v) {
     value = v;
   }
 
-  public String value() {
-    return value;
-  }
-
-  public static AppliesTo fromValue(String v) {
-    for (AppliesTo c : AppliesTo.values()) {
-      if (c.value.equals(v)) {
-        return c;
-      }
-    }
-    throw new IllegalArgumentException(v);
-  }
+//  public String value() {
+//    return value;
+//  }
+//
+//  public static AppliesTo fromValue(String v) {
+//    for (AppliesTo c : AppliesTo.values()) {
+//      if (c.value.equals(v)) {
+//        return c;
+//      }
+//    }
+//    throw new IllegalArgumentException(v);
+//  }
 
 }

@@ -68,9 +68,7 @@ public class Property extends CsdlProperty {
 
   @JacksonXmlProperty(localName = "SRID", isAttribute = true)
   void setSrid(final String srid) {
-    if (srid != null)
-      super.setSrid(SRID.valueOf(srid));
-    else
-      super.setSrid(null);
+    Objects.requireNonNull(srid);
+    super.setSrid(SRID.valueOf(srid));
   }
 }

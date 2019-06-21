@@ -5,6 +5,12 @@ import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
+/**
+ * Complex Type for vocabulary definitions<br>
+ * Not supported: <code>NavigationProperty</code>, no use case known
+ * @author Oliver Grande
+ *
+ */
 @JsonIgnoreProperties(ignoreUnknown = true)
 class ComplexType extends CsdlComplexType {
 
@@ -37,13 +43,6 @@ class ComplexType extends CsdlComplexType {
   public void setProperties(Property[] properties) {
     for (final Property p : properties) {
       this.properties.add(p);
-    }
-  }
-
-  @JacksonXmlProperty(localName = "NavigationProperty")
-  public void setNavigationProperties(NavigationProperty[] navigationProperties) {
-    for (final NavigationProperty p : navigationProperties) {
-      this.navigationProperties.add(p);
     }
   }
 }

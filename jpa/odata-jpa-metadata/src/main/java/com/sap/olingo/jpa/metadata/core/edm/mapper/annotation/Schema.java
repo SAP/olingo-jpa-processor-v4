@@ -5,8 +5,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.olingo.commons.api.edm.provider.CsdlAction;
 import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
 import org.apache.olingo.commons.api.edm.provider.CsdlEnumType;
+import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
 import org.apache.olingo.commons.api.edm.provider.CsdlTypeDefinition;
@@ -44,6 +46,12 @@ class Schema {
   @JacksonXmlProperty(localName = "Term")
   private List<Term> terms = new ArrayList<>();
 
+  @JacksonXmlProperty(localName = "Function")
+  private List<Function> functions = new ArrayList<>();
+
+  @JacksonXmlProperty(localName = "Action")
+  private List<Action> actions = new ArrayList<>();
+
   CsdlSchema asCsdlSchema() {
     CsdlSchema csdlSchema = new CsdlSchema();
     csdlSchema.setAlias(alias);
@@ -52,69 +60,17 @@ class Schema {
     csdlSchema.setEnumTypes(asEnumTypes());
     csdlSchema.setComplexTypes(asComplexTypes());
     csdlSchema.setTypeDefinitions(asTypeDefinitions());
+    csdlSchema.setFunctions(asFunctions());
+    csdlSchema.setActions(asActions());
     return csdlSchema;
-  }
-
-  String getAlias() {
-    return alias;
-  }
-
-  ComplexType getComplexType(String name) {
-
-    for (ComplexType c : complexTypes) {
-      if (c.getName().equals(name)) {
-        return c;
-      }
-    }
-    return null;
-  }
-
-  List<ComplexType> getComplexTypes() {
-    return Collections.unmodifiableList(complexTypes);
-  }
-
-  EnumType getEnumType(String name) {
-    for (EnumType e : enumerations) {
-      if (e.getName().equals(name)) {
-        return e;
-      }
-    }
-    return null;
-  }
-
-  List<EnumType> getEnumTypes() {
-    return Collections.unmodifiableList(enumerations);
   }
 
   String getNamespace() {
     return namespace;
   }
 
-  Term getTerm(String name) {
-    for (Term t : terms) {
-      if (t.getName().equals(name)) {
-        return t;
-      }
-    }
-    return null;
-  }
-
   List<Term> getTerms() {
     return Collections.unmodifiableList(terms);
-  }
-
-  TypeDefinition getTypeDefinition(String name) {
-
-    for (TypeDefinition e : typeDefinitions) {
-      if (e.getName().equals(name)) {
-        return e;
-      }
-    }
-    return null;
-  }
-
-  List<TypeDefinition> getTypeDefinitions() {
-    return Collections.unmodifiableList(typeDefinitions);
   }
 
   void setAlias(String alias) {
@@ -131,6 +87,11 @@ class Schema {
     this.enumerations.add(enumeration);
   }
 
+  @JsonSetter
+  void setFunctions(Function[] newFunctions) {
+    functions.addAll(Arrays.asList(newFunctions));
+  }
+
   void setNamespace(String namespace) {
     this.namespace = namespace;
   }
@@ -145,6 +106,10 @@ class Schema {
     this.typeDefinitions.add(typeDefinition);
   }
 
+  private List<CsdlAction> asActions() {
+    return Collections.unmodifiableList(actions);
+  }
+
   private List<CsdlComplexType> asComplexTypes() {
     return Collections.unmodifiableList(complexTypes);
   }
@@ -155,6 +120,10 @@ class Schema {
 
   private List<CsdlEnumType> asEnumTypes() {
     return Collections.unmodifiableList(enumerations);
+  }
+
+  private List<CsdlFunction> asFunctions() {
+    return Collections.unmodifiableList(functions);
   }
 
   private List<CsdlTypeDefinition> asTypeDefinitions() {

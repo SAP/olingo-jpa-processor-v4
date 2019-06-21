@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.annotation;
 
+import java.util.Objects;
+
 import org.apache.olingo.commons.api.edm.geo.SRID;
 import org.apache.olingo.commons.api.edm.provider.CsdlTypeDefinition;
 
@@ -47,8 +49,8 @@ class TypeDefinition extends CsdlTypeDefinition {
 
   @JacksonXmlProperty(localName = "SRID", isAttribute = true)
   void setSrid(final String srid) {
-    if (srid != null)
-      super.setSrid(SRID.valueOf(srid));
+    Objects.requireNonNull(srid);
+    super.setSrid(SRID.valueOf(srid));
   }
 
 }
