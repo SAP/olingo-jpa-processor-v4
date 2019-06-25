@@ -26,6 +26,7 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 
+import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -413,7 +414,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
     JPAEntityType naviStartType;
     try {
       if (naviStart instanceof UriResourceEntitySet)
-        naviStartType = sd.getEntity(((UriResourceEntitySet) naviStart).getType());
+        naviStartType = sd.getEntity((EdmEntityType) ((UriResourceEntitySet) naviStart).getType());
       else
         naviStartType = sd.getEntity(((UriResourceNavigation) naviStart).getProperty().getType());
       return naviStartType.getAssociationPath(associationName.toString());
