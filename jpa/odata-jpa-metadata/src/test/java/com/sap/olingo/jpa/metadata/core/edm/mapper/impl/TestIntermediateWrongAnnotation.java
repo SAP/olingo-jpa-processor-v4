@@ -2,11 +2,12 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.COMPLEX_PROPERTY_MISSING_PROTECTION_PATH;
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.COMPLEX_PROPERTY_WRONG_PROTECTION_PATH;
+import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.NOT_SUPPORTED_NAVIGATION_PART_OF_GROUP;
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.NOT_SUPPORTED_PROTECTED_COLLECTION;
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.NOT_SUPPORTED_PROTECTED_NAVIGATION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.metamodel.Attribute;
@@ -22,6 +23,7 @@ import com.sap.olingo.jpa.processor.core.errormodel.CollectionAttributeProtected
 import com.sap.olingo.jpa.processor.core.errormodel.ComplextProtectedNoPath;
 import com.sap.olingo.jpa.processor.core.errormodel.ComplextProtectedWrongPath;
 import com.sap.olingo.jpa.processor.core.errormodel.NavigationAttributeProtected;
+import com.sap.olingo.jpa.processor.core.errormodel.NavigationPropertyPartOfGroup;
 import com.sap.olingo.jpa.processor.core.errormodel.PersonDeepCollectionProtected;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 
@@ -39,89 +41,86 @@ public class TestIntermediateWrongAnnotation {
 
   @Test
   public void checkErrorOnProtectedCollectionAttribute() {
-    PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
+    final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         CollectionAttributeProtected.class), "inhouseAddress");
+    final IntermediateStructuredType entityType = helper.schema.getEntityType(CollectionAttributeProtected.class);
 
-    try {
-      IntermediateCollectionProperty property = new IntermediateCollectionProperty(new JPAEdmNameBuilder(PUNIT_NAME),
-          jpaAttribute, helper.schema, helper.schema.getEntityType(CollectionAttributeProtected.class));
+    final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
+        () -> new IntermediateCollectionProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+            jpaAttribute, helper.schema, entityType));
 
-      property.getEdmItem();
-    } catch (ODataJPAModelException e) {
-      assertEquals(NOT_SUPPORTED_PROTECTED_COLLECTION.name(), e.getId());
-      assertFalse(e.getMessage().isEmpty());
-      return;
-    }
-    fail("Missing exception");
+    assertEquals(NOT_SUPPORTED_PROTECTED_COLLECTION.name(), act.getId());
+    assertFalse(act.getMessage().isEmpty());
+
   }
 
   @Test
   public void checkErrorOnProtectedCollectionAttributeDeep() {
-    PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
+    final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         PersonDeepCollectionProtected.class), "inhouseAddress");
+    final IntermediateStructuredType entityType = helper.schema.getEntityType(PersonDeepCollectionProtected.class);
 
-    try {
-      IntermediateCollectionProperty property = new IntermediateCollectionProperty(new JPAEdmNameBuilder(PUNIT_NAME),
-          jpaAttribute, helper.schema, helper.schema.getEntityType(PersonDeepCollectionProtected.class));
+    final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
+        () -> new IntermediateCollectionProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+            jpaAttribute, helper.schema, entityType));
 
-      property.getEdmItem();
-    } catch (ODataJPAModelException e) {
-      assertEquals(NOT_SUPPORTED_PROTECTED_COLLECTION.name(), e.getId());
-      assertFalse(e.getMessage().isEmpty());
-      return;
-    }
-    fail("Missing exception");
+    assertEquals(NOT_SUPPORTED_PROTECTED_COLLECTION.name(), act.getId());
+    assertFalse(act.getMessage().isEmpty());
   }
 
   @Test
   public void checkErrorOnProtectedNavigationAttribute() {
-    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(NavigationAttributeProtected.class),
-        "teams");
+    final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(
+        NavigationAttributeProtected.class), "teams");
 
-    try {
-      IntermediateModelElement property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
-          helper.schema.getEntityType(NavigationAttributeProtected.class), jpaAttribute, helper.schema);
+    final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
+        () -> new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+            helper.schema.getEntityType(NavigationAttributeProtected.class), jpaAttribute, helper.schema));
 
-      property.getEdmItem();
-    } catch (ODataJPAModelException e) {
-      assertEquals(NOT_SUPPORTED_PROTECTED_NAVIGATION.name(), e.getId());
-      assertFalse(e.getMessage().isEmpty());
-      return;
-    }
-    fail("Missing exception");
+    assertEquals(NOT_SUPPORTED_PROTECTED_NAVIGATION.name(), act.getId());
+    assertFalse(act.getMessage().isEmpty());
   }
 
   @Test
   public void checkErrorOnProtectedComplexAttributeMissingPath() {
-    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(ComplextProtectedNoPath.class),
+    final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(
+        ComplextProtectedNoPath.class),
         "administrativeInformation");
 
-    try {
-      IntermediateModelElement property = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
-          jpaAttribute, helper.schema);
+    final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
+        () -> new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute, helper.schema));
 
-      property.getEdmItem();
-    } catch (ODataJPAModelException e) {
-      assertEquals(COMPLEX_PROPERTY_MISSING_PROTECTION_PATH.name(), e.getId());
-      assertFalse(e.getMessage().isEmpty());
-      return;
-    }
-    fail("Missing exception");
+    assertEquals(COMPLEX_PROPERTY_MISSING_PROTECTION_PATH.name(), act.getId());
+    assertFalse(act.getMessage().isEmpty());
   }
 
   @Test
-  public void checkErrorOnProtectedComplexAttributeWrongPath() {
+  public void checkErrorOnProtectedComplexAttributeWrongPath() throws ODataJPAModelException {
     // ComplextProtectedWrongPath
     final EntityType<?> jpaEt = helper.getEntityType(ComplextProtectedWrongPath.class);
-    try {
-      IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), jpaEt, helper.schema);
-      et.getEdmItem();
-      et.getProtections();
-    } catch (ODataJPAModelException e) {
-      assertEquals(COMPLEX_PROPERTY_WRONG_PROTECTION_PATH.name(), e.getId());
-      assertFalse(e.getMessage().isEmpty());
-      return;
-    }
-    fail("Missing exception");
+    final IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), jpaEt,
+        helper.schema);
+    et.getEdmItem();
+
+    final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
+        () -> et.getProtections());
+
+    assertEquals(COMPLEX_PROPERTY_WRONG_PROTECTION_PATH.name(), act.getId());
+    assertFalse(act.getMessage().isEmpty());
+
+  }
+
+  @Test
+  public void checkErrorOnNavigationPropertyPartOfGroup() throws ODataJPAModelException {
+    final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(
+        NavigationPropertyPartOfGroup.class), "teams");
+    final IntermediateStructuredType entityType = helper.schema.getEntityType(NavigationPropertyPartOfGroup.class);
+
+    final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
+        () -> new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME), entityType, jpaAttribute,
+            helper.schema));
+
+    assertEquals(NOT_SUPPORTED_NAVIGATION_PART_OF_GROUP.name(), act.getId());
+    assertFalse(act.getMessage().isEmpty());
   }
 }

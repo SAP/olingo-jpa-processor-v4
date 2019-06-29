@@ -97,8 +97,9 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
         if (attribute.isKey()) {
           if (attribute.isComplex()) {
             intermediateKey.addAll(((IntermediateEmbeddedIdProperty) attribute).getStructuredType().getAttributes());
-          } else
+          } else {
             intermediateKey.add(attribute);
+          }
         }
       }
       final IntermediateStructuredType baseType = getBaseType();
@@ -119,8 +120,9 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
       final JPAAttribute attribute = property.getValue();
       if (attribute instanceof IntermediateEmbeddedIdProperty) {
         result.add(intermediatePathMap.get(attribute.getExternalName()));
-      } else if (attribute.isKey())
+      } else if (attribute.isKey()) {
         result.add(resolvedPathMap.get(attribute.getExternalName()));
+      }
     }
     final IntermediateStructuredType baseType = getBaseType();
     if (baseType != null) {
@@ -141,8 +143,9 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
       else
         idClass = idType.getJavaType();
       return idClass;
-    } else
+    } else {
       return null;
+    }
   }
 
   @Override
@@ -234,7 +237,6 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
     if (edmEntityType == null) {
       buildPropertyList();
       buildNaviPropertyList();
-      buildProtectionInfo();
       postProcessor.processEntityType(this);
 
       edmEntityType = new CsdlEntityType();
@@ -314,10 +316,6 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
     return edmEntityType;
   }
 
-  private void buildProtectionInfo() {
-
-  }
-
   private List<CsdlAnnotation> determineAnnotations() throws ODataJPAModelException {
     getAnnotations(edmAnnotations, this.jpaManagedType.getJavaType(), internalName);
     return edmAnnotations;
@@ -336,7 +334,7 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
         return;
       }
     }
-    if (getBaseType() != null && getBaseType() instanceof IntermediateEntityType)
+    if (getBaseType() instanceof IntermediateEntityType)
       hasEtag = ((IntermediateEntityType) getBaseType()).hasEtag();
   }
 

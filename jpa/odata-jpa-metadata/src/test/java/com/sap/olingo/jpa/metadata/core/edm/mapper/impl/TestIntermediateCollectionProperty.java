@@ -24,6 +24,7 @@ import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerWithGroups;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 
@@ -157,4 +158,35 @@ public class TestIntermediateCollectionProperty extends TestMappingRoot {
       }
     }
   }
+
+  @Test
+  public void checkIsPartOfGroupReturnsTrueOnNotAnnotated() throws ODataJPAModelException {
+    PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
+        Person.class), "inhouseAddress");
+    final IntermediateSimpleProperty cut = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+        jpaAttribute, helper.schema);
+
+    assertTrue(cut.isPartOfGroup("Test"));
+  }
+
+  @Test
+  public void checkIsPartOfGroupReturnsTrueOnAnnotatedBelogsToIt() throws ODataJPAModelException {
+    PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
+        BusinessPartnerWithGroups.class), "comment");
+    final IntermediateSimpleProperty cut = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+        jpaAttribute, helper.schema);
+
+    assertTrue(cut.isPartOfGroup("Company"));
+  }
+
+  @Test
+  public void checkIsPartOfGroupReturnsFalseOnAnnotatedDoesNotBelogsToIt() throws ODataJPAModelException {
+    PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
+        BusinessPartnerWithGroups.class), "comment");
+    final IntermediateSimpleProperty cut = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+        jpaAttribute, helper.schema);
+
+    assertFalse(cut.isPartOfGroup("Person"));
+  }
+
 }

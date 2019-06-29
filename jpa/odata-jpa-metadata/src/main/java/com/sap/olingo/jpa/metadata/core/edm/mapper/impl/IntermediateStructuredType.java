@@ -328,7 +328,7 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
   }
 
   protected boolean determineHasStream() throws ODataJPAModelException {
-    return getStreamProperty() == null ? false : true;
+    return getStreamProperty() != null;
   }
 
   protected void determineIgnore() {
@@ -472,8 +472,9 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
                 .getStructuredType()).getPropertyByDBField(dbFieldName);
         if (embeddedProperty != null && embeddedProperty.getDBFieldName().equals(dbFieldName))
           return embeddedProperty;
-      } else if (property.getDBFieldName().equals(dbFieldName))
+      } else if (property.getDBFieldName().equals(dbFieldName)) {
         return property;
+      }
     }
     if (getBaseType() != null)
       return getBaseType().getPropertyByDBField(dbFieldName);
@@ -616,8 +617,9 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
                 pathList.addAll(path.getValue().getPath().subList(0, path.getValue().getPath().size() - 1));
               pathList.add(new IntermediateCollectionProperty((IntermediateCollectionProperty) path.getValue()
                   .getLeaf(), this, property));
-            } else
+            } else {
               pathList.addAll(path.getValue().getPath());
+            }
             pathList.add(0, property);
             intermediatePathMap.put(nameBuilder.buildPath(property.getExternalName(), path.getKey()),
                 new JPAPathImpl(nameBuilder.buildPath(property.getExternalName(),
@@ -671,11 +673,12 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
                 protectedAttributes.add(new ProtectionInfo(path, claimName, attribute));
               }
             }
-          } else
+          } else {
             for (final String claimName : attribute.getProtectionClaimNames()) {
               protectedAttributes.add(new ProtectionInfo(this.getPath(attribute.getExternalName(), false), claimName,
                   attribute));
             }
+          }
         } else if (attribute.isComplex()) { // Protection at attribute overrides protection within complex
           for (final JPAProtectionInfo info : attribute.getStructuredType().getProtections()) {
             // Copy and extend path

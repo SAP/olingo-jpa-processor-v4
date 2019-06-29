@@ -44,6 +44,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.util.MemberDouble;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerProtected;
+import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerWithGroups;
 import com.sap.olingo.jpa.processor.core.testmodel.Comment;
 import com.sap.olingo.jpa.processor.core.testmodel.DummyToBeIgnored;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
@@ -89,8 +90,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   public void checkGetProptertySimpleType() throws ODataJPAModelException {
     Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class), "type");
     IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
-        jpaAttribute,
-        helper.schema);
+        jpaAttribute, helper.schema);
     assertEquals(EdmPrimitiveTypeKind.String.getFullQualifiedName().getFullQualifiedNameAsString(),
         property.getEdmItem().getType(), "Wrong type");
   }
@@ -581,6 +581,33 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
     actPath = property.getProtectionPath("Date");
     assertEquals(1, actPath.size());
     assertEquals("AdministrativeInformation/Created/At", actPath.get(0));
+  }
+
+  @Test
+  public void checkIsPartOfGroupReturnsTrueOnNotAnnotated() throws ODataJPAModelException {
+    final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class), "type");
+    final IntermediateSimpleProperty cut = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+        jpaAttribute, helper.schema);
+
+    assertTrue(cut.isPartOfGroup("Test"));
+  }
+
+  @Test
+  public void checkIsPartOfGroupReturnsTrueOnAnnotatedBelogsToIt() throws ODataJPAModelException {
+    final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartnerWithGroups.class),
+        "country");
+    final IntermediateSimpleProperty cut = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+        jpaAttribute, helper.schema);
+    assertTrue(cut.isPartOfGroup("Person"));
+  }
+
+  @Test
+  public void checkIsPartOfGroupReturnsFalseOnAnnotatedDoesNotBelogsToIt() throws ODataJPAModelException {
+    final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartnerWithGroups.class),
+        "country");
+    final IntermediateSimpleProperty cut = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+        jpaAttribute, helper.schema);
+    assertFalse(cut.isPartOfGroup("Test"));
   }
 
   @Disabled

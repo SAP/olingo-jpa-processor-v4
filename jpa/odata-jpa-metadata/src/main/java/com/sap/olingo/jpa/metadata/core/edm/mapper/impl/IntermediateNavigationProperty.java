@@ -28,6 +28,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlReferentialConstraint;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtectedBy;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmVisibleFor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.AppliesTo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
@@ -351,6 +352,12 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
       // Navigation Properties do not support EdmProtectedBy
       throw new ODataJPAModelException(MessageKeys.NOT_SUPPORTED_PROTECTED_NAVIGATION, this.sourceType.getTypeClass()
           .getCanonicalName(), this.internalName);
+    }
+    final EdmVisibleFor jpaFieldGroups = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
+        .getAnnotation(EdmVisibleFor.class);
+    if (jpaFieldGroups != null) {
+      throw new ODataJPAModelException(MessageKeys.NOT_SUPPORTED_NAVIGATION_PART_OF_GROUP,
+          this.sourceType.getTypeClass().getCanonicalName(), this.internalName);
     }
   }
 

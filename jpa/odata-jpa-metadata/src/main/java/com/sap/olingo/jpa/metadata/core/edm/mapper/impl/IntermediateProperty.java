@@ -6,10 +6,13 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Column;
@@ -32,6 +35,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtectedBy;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtections;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmSearchable;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmVisibleFor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.AppliesTo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
@@ -55,6 +59,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
   protected boolean isVersion;
   protected boolean searchable;
   private final Map<String, JPAProtectionInfo> externalProtectedPathNames;
+  private Optional<List<String>> fieldGroups;
 
   public IntermediateProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,
       final IntermediateSchema schema) throws ODataJPAModelException {
@@ -161,6 +166,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
       determineStreamInfo();
       determineIsVersion();
       determineProtection();
+      determineFieldGroups();
       checkConsistancy();
     }
     postProcessor.processProperty(this, jpaAttribute.getDeclaringType().getJavaType().getCanonicalName());
@@ -172,9 +178,9 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
   protected FullQualifiedName determineTypeByPersistanceType(Enum<?> persistanceType) throws ODataJPAModelException {
     if (persistanceType == PersistentAttributeType.BASIC || persistanceType == PersistenceType.BASIC) {
       final IntermediateModelElement odataType = getODataPrimitiveType();
-      if (odataType == null) {
+      if (odataType == null)
         return getSimpleType();
-      } else
+      else
         return odataType.getExternalFQN();
     }
     if (persistanceType == PersistentAttributeType.EMBEDDED || persistanceType == PersistenceType.EMBEDDABLE)
@@ -239,6 +245,19 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
         determineOneProtection(jpaProtectedBy);
       }
     }
+  }
+
+  /**
+   * 
+   */
+  private void determineFieldGroups() {
+    final EdmVisibleFor jpaFieldGroups = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
+        .getAnnotation(EdmVisibleFor.class);
+    if (jpaFieldGroups != null)
+      fieldGroups = Optional.of(Arrays.stream(jpaFieldGroups.value()).collect(Collectors.toList()));
+
+    else
+      fieldGroups = Optional.empty();
   }
 
   private void determineOneProtection(final EdmProtectedBy jpaProtectedBy) throws ODataJPAModelException {
@@ -379,8 +398,9 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
         s.replace(1, 3, internalName);
         dbFieldName = s.toString();
       }
-    } else
+    } else {
       dbFieldName = internalName;
+    }
   }
 
   private void determineIgnore() {
@@ -417,6 +437,14 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
       }
     }
     return false;
+  }
+
+  /**
+   * @param string
+   * @return
+   */
+  protected boolean isPartOfGroup(final String group) {
+    return !fieldGroups.isPresent() || fieldGroups.get().contains(group);
   }
 
 }
