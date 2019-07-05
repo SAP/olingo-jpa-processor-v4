@@ -35,6 +35,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataContextAccessDouble;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.exception.JPAIllicalAccessException;
+import com.sap.olingo.jpa.processor.core.processor.JPAODataRequestContextImpl;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
@@ -44,7 +46,7 @@ public class TestJPAQueryFromClause extends TestBase {
   private JPAEntityType jpaEntityType;
 
   @BeforeEach
-  public void setup() throws ODataException {
+  public void setup() throws ODataException, JPAIllicalAccessException {
     final UriInfo uriInfo = Mockito.mock(UriInfo.class);
     final EdmEntitySet odataEs = Mockito.mock(EdmEntitySet.class);
     final EdmType odataType = Mockito.mock(EdmEntityType.class);
@@ -62,11 +64,14 @@ public class TestJPAQueryFromClause extends TestBase {
 
     helper = new TestHelper(emf, PUNIT_NAME);
     jpaEntityType = helper.getJPAEntityType("Organizations");
-    JPAODataSessionContextAccess context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null,
-        TestBase.enumPackages), ds, null);
+    final JPAODataSessionContextAccess sessionContext = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME,
+        emf, null, TestBase.enumPackages), ds, null);
     createHeaders();
 
-    cut = new JPAJoinQuery(null, context, emf.createEntityManager(), headers, uriInfo);
+    final JPAODataRequestContextImpl requestContext = new JPAODataRequestContextImpl();
+    requestContext.setEntityManager(emf.createEntityManager());
+    requestContext.setUriInfo(uriInfo);
+    cut = new JPAJoinQuery(null, sessionContext, headers, requestContext);
   }
 
   @Test

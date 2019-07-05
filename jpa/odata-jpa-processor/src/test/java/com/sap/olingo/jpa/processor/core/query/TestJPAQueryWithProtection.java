@@ -3,6 +3,7 @@ package com.sap.olingo.jpa.processor.core.query;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
@@ -43,7 +44,9 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.core.api.JPAClaimsPair;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.exception.JPAIllicalAccessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
+import com.sap.olingo.jpa.processor.core.processor.JPAODataRequestContextImpl;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.JPAEntityTypeDouble;
 import com.sap.olingo.jpa.processor.core.util.TestQueryBase;
@@ -60,7 +63,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
 
   @Override
   @BeforeEach
-  public void setup() throws ODataException {
+  public void setup() throws ODataException, JPAIllicalAccessException {
     super.setup();
     contextSpy = Mockito.spy(context);
     JPAEdmProvider providerSpy = Mockito.spy(context.getEdmProvider());
@@ -542,7 +545,14 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
     doReturn(protections).when(etSpy).getProtections();
     doReturn(etSpy).when(sdSpy).getEntity("BusinessPartnerProtecteds");
     doReturn(etSpy).when(sdSpy).getEntity(odataType);
-    cut = new JPAJoinQuery(null, contextSpy, emf.createEntityManager(), headers, uriInfo);
+    final JPAODataRequestContextImpl requestContext = new JPAODataRequestContextImpl();
+    requestContext.setEntityManager(emf.createEntityManager());
+    try {
+      requestContext.setUriInfo(uriInfo);
+    } catch (JPAIllicalAccessException e) {
+      fail();
+    }
+    cut = new JPAJoinQuery(null, contextSpy, headers, requestContext);
     cut.createFromClause(new ArrayList<JPAAssociationPath>(1), new ArrayList<JPAPath>(), cut.cq);
   }
 }

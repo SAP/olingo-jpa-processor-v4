@@ -17,7 +17,7 @@ import org.apache.olingo.server.api.uri.queryoption.expression.VisitableExpressi
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
-import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
 
@@ -117,7 +117,7 @@ public final class JPAFilterElementComplier extends JPAAbstractFilter {
   }
 
   @Override
-  public Optional<JPAODataClaimsProvider> getClaimsProvider() {
+  public Optional<JPAODataClaimProvider> getClaimsProvider() {
     return Optional.empty();
   }
 

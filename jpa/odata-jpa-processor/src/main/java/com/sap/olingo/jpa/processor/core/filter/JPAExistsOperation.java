@@ -20,7 +20,7 @@ import org.apache.olingo.server.api.uri.UriResourceProperty;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
-import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
 import com.sap.olingo.jpa.processor.core.query.JPANavigationProptertyInfo;
 import com.sap.olingo.jpa.processor.core.query.Util;
@@ -34,7 +34,7 @@ abstract class JPAExistsOperation implements JPAOperator {
   protected final EntityManager em;
   protected final OData odata;
   protected final From<?, ?> from;
-  protected final Optional<JPAODataClaimsProvider> claimsProvider;
+  protected final Optional<JPAODataClaimProvider> claimsProvider;
 
   JPAExistsOperation(final JPAFilterComplierAccess jpaComplier) {
 

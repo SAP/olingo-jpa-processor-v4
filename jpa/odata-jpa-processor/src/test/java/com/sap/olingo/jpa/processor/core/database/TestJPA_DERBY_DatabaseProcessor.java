@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 
-public class TestJPA_HSQLDB_DatabaseProcessor extends TestJPA_XXX_DatabaseProcessor {
+public class TestJPA_DERBY_DatabaseProcessor extends TestJPA_XXX_DatabaseProcessor {
 
   @BeforeEach
   public void steup() {
@@ -24,7 +24,7 @@ public class TestJPA_HSQLDB_DatabaseProcessor extends TestJPA_XXX_DatabaseProces
     oneParameterResult = "SELECT * FROM TABLE (Example(?1))";
     twoParameterResult = "SELECT * FROM TABLE (Example(?1,?2))";
     countResult = "SELECT COUNT(*) FROM TABLE (Example(?1))";
-    cut = new JPA_HSQLDB_DatabaseProcessor();
+    cut = new JPA_DERBY_DatabaseProcessor();
   }
 
   @SuppressWarnings("unchecked")

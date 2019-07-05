@@ -40,7 +40,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAProtectionInfo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAClaimsPair;
-import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
@@ -56,10 +57,10 @@ public abstract class JPAAbstractQuery {
   protected final JPAServiceDebugger debugger;
   protected final OData odata;
   protected Locale locale;
-  protected final Optional<JPAODataClaimsProvider> claimsProvider;
+  protected final Optional<JPAODataClaimProvider> claimsProvider;
 
   public JPAAbstractQuery(final OData odata, final JPAServiceDocument sd, final JPAEntityType jpaEntityType,
-      final EntityManager em, final Optional<JPAODataClaimsProvider> claimsProvider) {
+      final EntityManager em, final Optional<JPAODataClaimProvider> claimsProvider) {
 
     super();
     this.em = em;
@@ -72,7 +73,7 @@ public abstract class JPAAbstractQuery {
   }
 
   public JPAAbstractQuery(final OData odata, final JPAServiceDocument sd, final EdmEntityType edmEntityType,
-      final EntityManager em, final Optional<JPAODataClaimsProvider> claimsProvider) throws ODataApplicationException {
+      final EntityManager em, final Optional<JPAODataClaimProvider> claimsProvider) throws ODataApplicationException {
     super();
     this.em = em;
     this.cb = em.getCriteriaBuilder();
@@ -88,8 +89,7 @@ public abstract class JPAAbstractQuery {
   }
 
   public JPAAbstractQuery(final OData odata, final JPAServiceDocument sd, final JPAEntityType jpaEntityType,
-      final EntityManager em, final JPAServiceDebugger debugger,
-      final Optional<JPAODataClaimsProvider> claimsProvider) {
+      final EntityManager em, final JPAServiceDebugger debugger, final Optional<JPAODataClaimProvider> claimsProvider) {
     super();
     this.em = em;
     this.cb = em.getCriteriaBuilder();
@@ -98,6 +98,18 @@ public abstract class JPAAbstractQuery {
     this.debugger = debugger;
     this.odata = odata;
     this.claimsProvider = claimsProvider;
+  }
+
+  public JPAAbstractQuery(final OData odata, final JPAServiceDocument sd, final JPAEntityType jpaEntityType,
+      final JPAServiceDebugger debugger, final JPAODataRequestContextAccess requestContext) {
+    super();
+    this.em = requestContext.getEntityManager();
+    this.cb = em.getCriteriaBuilder();
+    this.sd = sd;
+    this.jpaEntity = jpaEntityType;
+    this.debugger = debugger;
+    this.odata = odata;
+    this.claimsProvider = requestContext.getClaimsProvider();
   }
 
   protected javax.persistence.criteria.Expression<Boolean> createWhereByKey(final From<?, ?> root,
@@ -248,7 +260,7 @@ public abstract class JPAAbstractQuery {
   }
 
   protected javax.persistence.criteria.Expression<Boolean> createProtectionWhereForEntityType(
-      final Optional<JPAODataClaimsProvider> claimsProvider, final JPAEntityType et, final From<?, ?> from)
+      final Optional<JPAODataClaimProvider> claimsProvider, final JPAEntityType et, final From<?, ?> from)
       throws ODataJPAQueryException {
     try {
       javax.persistence.criteria.Expression<Boolean> restriction = null;

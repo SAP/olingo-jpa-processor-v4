@@ -25,6 +25,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.processor.core.api.JPAODataContextAccessDouble;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.exception.JPAIllicalAccessException;
+import com.sap.olingo.jpa.processor.core.processor.JPAODataRequestContextImpl;
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractJoinQuery;
 import com.sap.olingo.jpa.processor.core.query.JPAJoinQuery;
 
@@ -36,13 +38,14 @@ public class TestQueryBase extends TestBase {
   protected Root<?> root;
   protected JPAODataSessionContextAccess context;
   protected UriInfo uriInfo;
+  protected JPAODataRequestContextImpl requestContext;
 
   public TestQueryBase() {
     super();
   }
 
   @BeforeEach
-  public void setup() throws ODataException {
+  public void setup() throws ODataException, JPAIllicalAccessException {
     buildUriInfo("BusinessPartners", "BusinessPartner");
 
     helper = new TestHelper(emf, PUNIT_NAME);
@@ -52,7 +55,10 @@ public class TestQueryBase extends TestBase {
     context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null, TestBase.enumPackages), ds,
         null);
 
-    cut = new JPAJoinQuery(null, context, emf.createEntityManager(), headers, uriInfo);
+    requestContext = new JPAODataRequestContextImpl();
+    requestContext.setEntityManager(emf.createEntityManager());
+    requestContext.setUriInfo(uriInfo);
+    cut = new JPAJoinQuery(null, context, headers, requestContext);
 
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
     joinTables = new HashMap<>();
@@ -74,6 +80,14 @@ public class TestQueryBase extends TestBase {
     Mockito.when(odataType.getNamespace()).thenReturn(PUNIT_NAME);
     Mockito.when(odataType.getName()).thenReturn(etName);
     resources.add(esResource);
+    return odataType;
+  }
+
+  protected EdmType buildRequestContext(final String esName, final String etName) throws JPAIllicalAccessException {
+    final EdmType odataType = buildUriInfo(esName, etName);
+    requestContext = new JPAODataRequestContextImpl();
+    requestContext.setEntityManager(emf.createEntityManager());
+    requestContext.setUriInfo(uriInfo);
     return odataType;
   }
 

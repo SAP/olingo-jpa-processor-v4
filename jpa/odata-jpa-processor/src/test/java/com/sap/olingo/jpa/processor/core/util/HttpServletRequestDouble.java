@@ -18,12 +18,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.olingo.commons.api.http.HttpMethod;
+import org.apache.olingo.server.api.debug.DebugSupport;
 
 public class HttpServletRequestDouble implements HttpServletRequest {
   private final HttpRequestHeaderDouble reqHeader;
   private final String queryString;
   private final StringBuffer url;
   private final StringBuffer input;
+  private String debugFormat;
 
   public HttpServletRequestDouble(final String uri) throws IOException {
     this(uri, null);
@@ -92,7 +94,8 @@ public class HttpServletRequestDouble implements HttpServletRequest {
 
   @Override
   public String getParameter(final String name) {
-    fail();
+    if (DebugSupport.ODATA_DEBUG_QUERY_PARAMETER.equals(name))
+      return debugFormat;
     return null;
   }
 
@@ -121,19 +124,16 @@ public class HttpServletRequestDouble implements HttpServletRequest {
 
   @Override
   public String getScheme() {
-    fail();
     return null;
   }
 
   @Override
   public String getServerName() {
-    fail();
     return null;
   }
 
   @Override
   public int getServerPort() {
-    fail();
     return 0;
   }
 
@@ -145,13 +145,11 @@ public class HttpServletRequestDouble implements HttpServletRequest {
 
   @Override
   public String getRemoteAddr() {
-    fail();
     return null;
   }
 
   @Override
   public String getRemoteHost() {
-    fail();
     return null;
   }
 
@@ -175,7 +173,6 @@ public class HttpServletRequestDouble implements HttpServletRequest {
 
   @Override
   public Enumeration<?> getLocales() {
-    fail();
     return null;
   }
 
@@ -199,31 +196,26 @@ public class HttpServletRequestDouble implements HttpServletRequest {
 
   @Override
   public int getRemotePort() {
-    fail();
     return 0;
   }
 
   @Override
   public String getLocalName() {
-    fail();
     return null;
   }
 
   @Override
   public String getLocalAddr() {
-    fail();
     return null;
   }
 
   @Override
   public int getLocalPort() {
-    fail();
     return 0;
   }
 
   @Override
   public String getAuthType() {
-    fail();
     return null;
   }
 
@@ -271,13 +263,11 @@ public class HttpServletRequestDouble implements HttpServletRequest {
 
   @Override
   public String getPathInfo() {
-    fail();
     return null;
   }
 
   @Override
   public String getPathTranslated() {
-    fail();
     return null;
   }
 
@@ -295,7 +285,6 @@ public class HttpServletRequestDouble implements HttpServletRequest {
 
   @Override
   public String getRemoteUser() {
-    fail();
     return null;
   }
 
@@ -370,4 +359,7 @@ public class HttpServletRequestDouble implements HttpServletRequest {
     return false;
   }
 
+  public void setDebugFormat(final String debugFormat) {
+    this.debugFormat = debugFormat;
+  }
 }

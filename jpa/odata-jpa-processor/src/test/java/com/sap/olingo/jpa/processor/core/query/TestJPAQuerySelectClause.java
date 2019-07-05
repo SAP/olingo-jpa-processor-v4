@@ -24,9 +24,11 @@ import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.UriResourceValue;
 import org.apache.olingo.server.api.uri.queryoption.ExpandItem;
 import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
+import org.apache.olingo.server.api.uri.queryoption.SelectOption;
 import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.exception.JPAIllicalAccessException;
 import com.sap.olingo.jpa.processor.core.testmodel.TestDataConstants;
 import com.sap.olingo.jpa.processor.core.util.EdmEntityTypeDouble;
 import com.sap.olingo.jpa.processor.core.util.EdmPropertyDouble;
@@ -53,9 +55,9 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
   @Test
   public void checkSelectAllWithSelectionNull() throws ODataApplicationException, ODataJPAModelException {
     fillJoinTable(root);
-
-    List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(new UriInfoDouble(
-        null)), root);
+    final SelectOption selOpts = null;
+    final List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
+        new UriInfoDouble(selOpts)), root);
 
     assertEquals(jpaEntityType.getPathList().size(), selectClause.size());
   }
@@ -64,14 +66,15 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
   public void checkSelectExpandViaIgnoredProperties() throws ODataApplicationException, ODataJPAModelException {
     // Organizations('3')/Address?$expand=AdministrativeDivision
     fillJoinTable(root);
-    List<ExpandItem> expItems = new ArrayList<>();
-    EdmEntityType startEntity = new EdmEntityTypeDouble(nameBuilder, "Organization");
-    EdmEntityType targetEntity = new EdmEntityTypeDouble(nameBuilder, "AdministrativeDivision");
+    final List<ExpandItem> expItems = new ArrayList<>();
+    final EdmEntityType startEntity = new EdmEntityTypeDouble(nameBuilder, "Organization");
+    final EdmEntityType targetEntity = new EdmEntityTypeDouble(nameBuilder, "AdministrativeDivision");
+    final SelectOption selOpts = null;
 
     ExpandOption expOps = new ExpandOptionDouble("AdministrativeDivision", expItems);
     expItems.add(new ExpandItemDouble(targetEntity));
     List<UriResource> startResources = new ArrayList<>();
-    UriInfoDouble uriInfo = new UriInfoDouble(null);
+    UriInfoDouble uriInfo = new UriInfoDouble(selOpts);
     uriInfo.setExpandOpts(expOps);
     uriInfo.setUriResources(startResources);
 
@@ -101,11 +104,11 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
   }
 
   @Test
-  public void checkSelectOnePropertyPartKey() throws ODataException {
+  public void checkSelectOnePropertyPartKey() throws ODataException, JPAIllicalAccessException {
     jpaEntityType = helper.getJPAEntityType("AdministrativeDivisionDescriptions");
-    buildUriInfo("AdministrativeDivisionDescriptions", "AdministrativeDivisionDescription");
+    buildRequestContext("AdministrativeDivisionDescriptions", "AdministrativeDivisionDescription");
 
-    cut = new JPAJoinQuery(null, context, emf.createEntityManager(), headers, uriInfo);
+    cut = new JPAJoinQuery(null, context, headers, requestContext);
 
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
     joinTables.put(jpaEntityType.getInternalName(), root);
@@ -131,13 +134,13 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
   }
 
   @Test
-  public void checkSelectSupertypePropertyTypeName2() throws ODataException {
+  public void checkSelectSupertypePropertyTypeName2() throws ODataException, JPAIllicalAccessException {
     jpaEntityType = helper.getJPAEntityType("Organizations");
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
     joinTables.put(jpaEntityType.getInternalName(), root);
-    buildUriInfo("Organizations", "Organization");
+    buildRequestContext("Organizations", "Organization");
 
-    cut = new JPAJoinQuery(null, context, emf.createEntityManager(), headers, uriInfo);
+    cut = new JPAJoinQuery(null, context, headers, requestContext);
 
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
         new UriInfoDouble(new SelectOptionDouble("Type,Name2"))), root);
@@ -155,7 +158,7 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
     joinTables.put(jpaEntityType.getInternalName(), root);
     fillJoinTable(root);
 
-    cut = new JPAJoinQuery(null, context, emf.createEntityManager(), headers, uriInfo);
+    cut = new JPAJoinQuery(null, context, headers, requestContext);
 
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
         new UriInfoDouble(new SelectOptionDouble("Address"))), root);
@@ -168,8 +171,6 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
     jpaEntityType = helper.getJPAEntityType("Organizations");
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
     joinTables.put(jpaEntityType.getInternalName(), root);
-
-    cut = new JPAJoinQuery(null, context, emf.createEntityManager(), headers, uriInfo);
 
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
         new UriInfoDouble(new SelectOptionDouble("AdministrativeInformation/Created"))), root);
@@ -185,8 +186,6 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
     jpaEntityType = helper.getJPAEntityType("Organizations");
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
     joinTables.put(jpaEntityType.getInternalName(), root);
-
-    cut = new JPAJoinQuery(null, context, emf.createEntityManager(), headers, uriInfo);
 
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
         new UriInfoDouble(new SelectOptionDouble("AdministrativeInformation"))), root);
@@ -205,8 +204,6 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
     joinTables.put(jpaEntityType.getInternalName(), root);
 
-    cut = new JPAJoinQuery(null, context, emf.createEntityManager(), headers, uriInfo);
-
     // SELECT c.address.geocode FROM Company c WHERE c.name = 'Random House'
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
         new UriInfoDouble(new SelectOptionDouble("Address/Country"))), root);
@@ -219,7 +216,6 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
   public void checkSelectTextJoinSingleAttribute() throws ODataException {
     jpaEntityType = helper.getJPAEntityType("Organizations");
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
-    cut = new JPAJoinQuery(null, context, emf.createEntityManager(), headers, uriInfo);
     joinTables.put(jpaEntityType.getInternalName(), root);
     fillJoinTable(root);
 
@@ -234,7 +230,6 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
   public void checkSelectTextJoinCompextType() throws ODataException {
     jpaEntityType = helper.getJPAEntityType("Organizations");
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
-    cut = new JPAJoinQuery(null, context, emf.createEntityManager(), headers, uriInfo);
     joinTables.put(jpaEntityType.getInternalName(), root);
     fillJoinTable(root);
 
@@ -246,12 +241,12 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
   }
 
   @Test
-  public void checkSelectStreamValueStatic() throws ODataException {
+  public void checkSelectStreamValueStatic() throws ODataException, JPAIllicalAccessException {
     jpaEntityType = helper.getJPAEntityType("PersonImages");
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
-    buildUriInfo("PersonImages", "PersonImage");
+    buildRequestContext("PersonImages", "PersonImage");
 
-    cut = new JPAJoinQuery(null, context, emf.createEntityManager(), headers, uriInfo);
+    cut = new JPAJoinQuery(null, context, headers, requestContext);
 
     UriInfoDouble uriInfo = new UriInfoDouble(new SelectOptionDouble("Address"));
     List<UriResource> uriResources = new ArrayList<>();
@@ -266,12 +261,12 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
   }
 
   @Test
-  public void checkSelectStreamValueDynamic() throws ODataException {
+  public void checkSelectStreamValueDynamic() throws ODataException, JPAIllicalAccessException {
     jpaEntityType = helper.getJPAEntityType("OrganizationImages");
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
-    buildUriInfo("OrganizationImages", "OrganizationImage");
+    buildRequestContext("OrganizationImages", "OrganizationImage");
 
-    cut = new JPAJoinQuery(null, context, emf.createEntityManager(), headers, uriInfo);
+    cut = new JPAJoinQuery(null, context, headers, requestContext);
 
     UriInfoDouble uriInfo = new UriInfoDouble(new SelectOptionDouble("Address"));
     List<UriResource> uriResources = new ArrayList<>();
@@ -287,14 +282,15 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
   }
 
   @Test
-  public void checkSelectPropertyValue() throws ODataException {
+  public void checkSelectPropertyValue() throws ODataException, JPAIllicalAccessException {
     jpaEntityType = helper.getJPAEntityType("PersonImages");
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
-    buildUriInfo("PersonImages", "PersonImage");
-    cut = new JPAJoinQuery(null, context, emf.createEntityManager(), headers, uriInfo);
+    buildRequestContext("PersonImages", "PersonImage");
+    cut = new JPAJoinQuery(null, context, headers, requestContext);
 
-    UriInfoDouble uriInfo = new UriInfoDouble(null);
-    List<UriResource> uriResources = new ArrayList<>();
+    final SelectOption selOpts = null;
+    final UriInfoDouble uriInfo = new UriInfoDouble(selOpts);
+    final List<UriResource> uriResources = new ArrayList<>();
     uriInfo.setUriResources(uriResources);
     // PersonImages('99')/AdministrativeInformation/Created/By/$value
     uriResources.add(new UriResourceEntitySetDouble());

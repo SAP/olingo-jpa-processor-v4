@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import javax.persistence.EntityManager;
@@ -35,13 +36,14 @@ public class TestJPAODataRequestProcessor {
   private static JPAODataRequestProcessor cut;
   private static EntityManager em;
   private static JPAODataClaimsProvider claims;
-  private static JPAODataSessionContextAccess context;
+  private static JPAODataSessionContextAccess sessionContext;
   private static ODataRequest request;
   private static ODataResponse response;
   private static UriInfo uriInfo;
   private static OData odata;
   private static ServiceMetadata serviceMetadata;
   private static List<UriResource> resourceParts;
+  private static JPAODataRequestContextAccess requestContext;
 
   static Stream<Executable> modifyMediaTypeMethodsProvider() {
     return Stream.of(() -> {
@@ -84,7 +86,8 @@ public class TestJPAODataRequestProcessor {
   public static void classSetup() {
     em = mock(EntityManager.class);
     claims = new JPAODataClaimsProvider();
-    context = mock(JPAODataSessionContextAccess.class);
+    sessionContext = mock(JPAODataSessionContextAccess.class);
+    requestContext = mock(JPAODataRequestContextAccess.class);
     request = mock(ODataRequest.class);
     response = mock(ODataResponse.class);
     uriInfo = mock(UriInfo.class);
@@ -96,8 +99,9 @@ public class TestJPAODataRequestProcessor {
 
     when(uriInfo.getUriResourceParts()).thenReturn(resourceParts);
     when(resourcePart.getKind()).thenReturn(UriResourceKind.navigationProperty);
-
-    cut = new JPAODataRequestProcessor(context, claims, em);
+    when(requestContext.getClaimsProvider()).thenReturn(Optional.ofNullable(claims));
+    when(requestContext.getEntityManager()).thenReturn(em);
+    cut = new JPAODataRequestProcessor(sessionContext, requestContext);
     cut.init(odata, serviceMetadata);
   }
 

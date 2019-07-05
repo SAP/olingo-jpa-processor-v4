@@ -12,7 +12,7 @@ import org.apache.olingo.server.api.uri.UriResource;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
-import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
 
@@ -38,6 +38,6 @@ interface JPAFilterComplierAccess {
 
   JPAAssociationPath getAssoziation();
 
-  Optional<JPAODataClaimsProvider> getClaimsProvider();
+  Optional<JPAODataClaimProvider> getClaimsProvider();
 
 }

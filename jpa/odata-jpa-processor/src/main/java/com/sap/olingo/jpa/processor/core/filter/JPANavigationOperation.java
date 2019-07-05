@@ -55,7 +55,6 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
   final JPAMemberOperator jpaMember;
   final JPALiteralOperator operand;
   final MethodKind methodCall;
-  private JPALiteralOperator methodOperand;
 
   public JPANavigationOperation(final BinaryOperatorKind operator,
       final JPANavigationOperation jpaNavigationOperation, final JPALiteralOperator operand,
@@ -65,7 +64,6 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
     this.methodCall = jpaNavigationOperation.methodCall;
     this.jpaMember = jpaNavigationOperation.jpaMember;
     this.operand = operand;
-    this.methodOperand = jpaNavigationOperation.operand;
   }
 
   JPANavigationOperation(final JPAFilterComplierAccess jpaComplier, final BinaryOperatorKind operator,

@@ -17,7 +17,7 @@ import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitor
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
-import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
 
@@ -48,13 +48,13 @@ public final class JPAFilterCrossComplier extends JPAAbstractFilter {
   final JPAServiceDocument sd;
   final List<UriResource> uriResourceParts;
   final JPAAbstractQuery parent;
-  final Optional<JPAODataClaimsProvider> claimsProvider;
+  final Optional<JPAODataClaimProvider> claimsProvider;
   private From<?, ?> root;
 
   public JPAFilterCrossComplier(final OData odata, final JPAServiceDocument sd, final EntityManager em, // NOSONAR
       final JPAEntityType jpaEntityType, final JPAOperationConverter converter,
       final UriInfoResource uriResource, final JPAAbstractQuery parent, From<?, ?> from,
-      final Optional<JPAODataClaimsProvider> claimsProvider) {
+      final Optional<JPAODataClaimProvider> claimsProvider) {
 
     this(odata, sd, em, jpaEntityType, converter, uriResource, parent, (JPAAssociationPath) null, claimsProvider);
     this.root = from;
@@ -63,7 +63,7 @@ public final class JPAFilterCrossComplier extends JPAAbstractFilter {
   public JPAFilterCrossComplier(final OData odata, final JPAServiceDocument sd, final EntityManager em, // NOSONAR
       final JPAEntityType jpaEntityType, final JPAOperationConverter converter,
       final UriInfoResource uriResource, final JPAAbstractQuery parent, final JPAAssociationPath assization,
-      final Optional<JPAODataClaimsProvider> claimsProvider) {
+      final Optional<JPAODataClaimProvider> claimsProvider) {
 
     super(jpaEntityType, uriResource, assization);
 
@@ -98,7 +98,7 @@ public final class JPAFilterCrossComplier extends JPAAbstractFilter {
   }
 
   @Override
-  public Optional<JPAODataClaimsProvider> getClaimsProvider() {
+  public Optional<JPAODataClaimProvider> getClaimsProvider() {
     return claimsProvider;
   }
 

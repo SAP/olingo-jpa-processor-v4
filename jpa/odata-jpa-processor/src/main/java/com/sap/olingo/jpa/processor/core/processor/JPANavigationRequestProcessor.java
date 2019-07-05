@@ -73,7 +73,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     // Create a JPQL Query and execute it
     JPAJoinQuery query = null;
     try {
-      query = new JPAJoinQuery(odata, sessionContext, em, request.getAllHeaders(), page, claimsProvider);
+      query = new JPAJoinQuery(odata, sessionContext, request.getAllHeaders(), requestContext);
     } catch (ODataException e) {
       debugger.stopRuntimeMeasurement(handle);
       throw new ODataJPAProcessorException(QUERY_PREPARATION_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR, e);
@@ -99,8 +99,8 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     // Count results if requested
     final CountOption countOption = uriInfo.getCountOption();
     if (countOption != null && countOption.getValue())
-      entityCollection.setCount(new JPAJoinQuery(odata, sessionContext, em, request.getAllHeaders(), uriInfo,
-          claimsProvider).countResults().intValue());
+      entityCollection.setCount(new JPAJoinQuery(odata, sessionContext, request.getAllHeaders(), requestContext)
+          .countResults().intValue());
 
     /*
      * See part 1:
@@ -133,12 +133,13 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
       final SerializerResult serializerResult = serializer.serialize(request, entityCollection);
       debugger.stopRuntimeMeasurement(serializerHandle);
       createSuccessResponce(response, responseFormat, serializerResult);
-    } else
+    } else {
       // A request returns 204 No Content if the requested resource has the null value, or if the service applies a
       // return=minimal preference. In this case, the response body MUST be empty.
       response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
 
-    debugger.stopRuntimeMeasurement(handle);
+      debugger.stopRuntimeMeasurement(handle);
+    }
   }
 
   private URI buildNextLink(final JPAODataPage page) throws ODataJPAProcessorException {
@@ -264,8 +265,8 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     final List<JPAExpandItemInfo> itemInfoList = new JPAExpandItemInfoFactory()
         .buildExpandItemInfo(sd, uriResourceInfo, parentHops);
     for (final JPAExpandItemInfo item : itemInfoList) {
-      final JPAExpandJoinQuery expandQuery = new JPAExpandJoinQuery(odata, sessionContext, em, item, headers,
-          claimsProvider);
+      final JPAExpandJoinQuery expandQuery = new JPAExpandJoinQuery(odata, sessionContext, item, headers,
+          requestContext);
       final JPAExpandQueryResult expandResult = expandQuery.execute();
       if (expandResult.getNoResults() > 0)
         // Only go the next hop if the current one has a result

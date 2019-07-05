@@ -26,7 +26,6 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 
-import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -62,8 +61,9 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
+import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys;
@@ -83,7 +83,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
 
   public JPAAbstractJoinQuery(final OData odata, final JPAODataSessionContextAccess context,
       final JPAEntityType jpaEntityType, final EntityManager em, final Map<String, List<String>> requestHeaders,
-      final UriInfoResource uriResource, final JPAODataPage page, final Optional<JPAODataClaimsProvider> claimsProvider)
+      final UriInfoResource uriResource, final JPAODataPage page, final Optional<JPAODataClaimProvider> claimsProvider)
       throws ODataException {
 
     super(odata, context.getEdmProvider().getServiceDocument(), jpaEntityType, em, context.getDebugger(),
@@ -93,6 +93,27 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
     this.cq = cb.createTupleQuery();
     this.context = context;
     this.page = page;
+  }
+
+  public JPAAbstractJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
+      final JPAEntityType jpaEntityType, final JPAODataRequestContextAccess requestContext,
+      final Map<String, List<String>> requestHeaders) throws ODataException {
+
+    this(odata, sessionContext, jpaEntityType, requestContext.getUriInfo(), requestContext, requestHeaders);
+  }
+
+  protected JPAAbstractJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
+      final JPAEntityType jpaEntityType, final UriInfoResource uriInfo,
+      final JPAODataRequestContextAccess requestContext, final Map<String, List<String>> requestHeaders)
+      throws ODataException {
+
+    super(odata, sessionContext.getEdmProvider().getServiceDocument(), jpaEntityType, sessionContext.getDebugger(),
+        requestContext);
+    this.locale = ExpressionUtil.determineLocale(requestHeaders);
+    this.uriResource = uriInfo;
+    this.cq = cb.createTupleQuery();
+    this.context = sessionContext;
+    this.page = requestContext.getPage();
   }
 
   @Override
@@ -323,7 +344,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
   }
 
   protected javax.persistence.criteria.Expression<Boolean> createProtectionWhere(
-      final Optional<JPAODataClaimsProvider> claimsProvider) throws ODataJPAQueryException {
+      final Optional<JPAODataClaimProvider> claimsProvider) throws ODataJPAQueryException {
 
     javax.persistence.criteria.Expression<Boolean> restriction = null;
     for (final JPANavigationProptertyInfo navi : navigationInfo) { // for all participating entity types/tables
@@ -414,7 +435,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
     JPAEntityType naviStartType;
     try {
       if (naviStart instanceof UriResourceEntitySet)
-        naviStartType = sd.getEntity((EdmEntityType) ((UriResourceEntitySet) naviStart).getType());
+        naviStartType = sd.getEntity(((UriResourceEntitySet) naviStart).getType());
       else
         naviStartType = sd.getEntity(((UriResourceNavigation) naviStart).getProperty().getType());
       return naviStartType.getAssociationPath(associationName.toString());
@@ -438,9 +459,9 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
         jpaPathList.addAll(c);
       else
         copyNonCollectionProperties(jpaPathList, c);
-    } else // Primitive Type
-    if (!selectItemPath.getLeaf().isCollection() || targetIsCollection)
+    } else if (!selectItemPath.getLeaf().isCollection() || targetIsCollection) {// Primitive Type
       jpaPathList.add(selectItemPath);
+    }
   }
 
   protected List<JPAPath> extractDescriptionAttributes(final List<JPAPath> jpaPathList) {

@@ -6,9 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
-import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
@@ -22,7 +20,6 @@ import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
-import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceCount;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitException;
@@ -33,7 +30,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
@@ -55,33 +52,31 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
   private final JPAAssociationPath assoziation;
 
-  public JPAExpandJoinQuery(final OData odata, final JPAODataSessionContextAccess context, final EntityManager em,
+  public JPAExpandJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
       final JPAInlineItemInfo item, final Map<String, List<String>> requestHeaders,
-      final Optional<JPAODataClaimsProvider> claimsProvider) throws ODataException {
+      final JPAODataRequestContextAccess requestContext) throws ODataException {
 
-    super(odata, context, item.getEntityType(), em, requestHeaders, item.getUriInfo(), null, claimsProvider);
+    super(odata, sessionContext, item.getEntityType(), item.getUriInfo(), requestContext, requestHeaders);
     this.assoziation = item.getExpandAssociation();
     this.navigationInfo = item.getHops();
   }
 
-  /**
-   * Use for testing
-   * @param odata
-   * @param context
-   * @param em
-   * @param uriInfo
-   * @param assoziation
-   * @param entityType
-   * @param requestHeaders
-   * @throws ODataException
-   */
-  public JPAExpandJoinQuery(final OData odata, final JPAODataSessionContextAccess context, final EntityManager em,
-      final UriInfoResource uriInfo, final JPAAssociationPath assoziation, final JPAEntityType entityType,
-      final Map<String, List<String>> requestHeaders, final Optional<JPAODataClaimsProvider> claimsProvider)
+  public JPAExpandJoinQuery(final OData odata, final JPAODataSessionContextAccess context,
+      final JPAAssociationPath assoziation, final JPAEntityType entityType,
+      final Map<String, List<String>> requestHeaders, final JPAODataRequestContextAccess requestContext)
       throws ODataException {
 
-    super(odata, context, entityType, em, requestHeaders, uriInfo, null, claimsProvider);
+    super(odata, context, entityType, requestContext, requestHeaders);
     this.assoziation = assoziation;
+  }
+
+  public JPAExpandJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
+      final JPAExpandItemInfo item, final Map<String, List<String>> requestHeaders,
+      final JPAODataRequestContextAccess requestContext) throws ODataException {
+
+    super(odata, sessionContext, item.getEntityType(), item.getUriInfo(), requestContext, requestHeaders);
+    this.assoziation = item.getExpandAssociation();
+    this.navigationInfo = item.getHops();
   }
 
   @Override

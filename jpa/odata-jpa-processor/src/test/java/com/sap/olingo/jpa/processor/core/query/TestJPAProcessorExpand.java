@@ -131,9 +131,6 @@ public class TestJPAProcessorExpand extends TestBase {
     assertEquals("USA", created.get("ParentDivisionCode").asText());
   }
 
-  @Disabled // Version 4.4.0 of olingo does not path the expand correctly
-  // org.apache.olingo.server.core.uri.parser.ExpandParser -> parseExpandPath
-  // see https://issues.apache.org/jira/browse/OLINGO-1143
   @Test
   public void testExpandEntitySetViaNonKeyFieldNavi0Hops() throws IOException, ODataException {
 
@@ -148,9 +145,6 @@ public class TestJPAProcessorExpand extends TestBase {
 
   }
 
-  @Disabled // Version 4.4.0 of olingo does not path the expand correctly
-  // org.apache.olingo.server.core.uri.parser.ExpandParser -> parseExpandPath
-  // see https://issues.apache.org/jira/browse/OLINGO-1143
   @Test
   public void testExpandEntitySetViaNonKeyFieldNavi1Hop() throws IOException, ODataException {
 

@@ -22,14 +22,25 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPADBAdaptorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 
-class JPA_DERBY_DatabaseProcessor extends JPAAbstractDatabaseProcessor { // NOSONAR
-  private static final String SELECT_BASE_PATTERN = "SELECT * FROM TABLE ($FUNCTIONNAME$($PARAMETER$))";
-  private static final String SELECT_COUNT_PATTERN = "SELECT COUNT(*) FROM TABLE ($FUNCTIONNAME$($PARAMETER$))";
+/**
+ * Copy template of a database processor for PostgreSQL
+ * 
+ * @author Oliver Grande
+ * Created: 04.07.2019
+ *
+ */
+class JPA_POSTSQL_DatabaseProcessor extends JPAAbstractDatabaseProcessor { // NOSONAR
+  private static final String SELECT_BASE_PATTERN = "SELECT * FROM $FUNCTIONNAME$($PARAMETER$)";
+  private static final String SELECT_COUNT_PATTERN = "SELECT COUNT(*) FROM $FUNCTIONNAME$($PARAMETER$)";
 
   @Override
   public Expression<Boolean> createSearchWhereClause(final CriteriaBuilder cb, final CriteriaQuery<?> cq,
       final From<?, ?> root, final JPAEntityType entityType, final SearchOption searchOption)
       throws ODataApplicationException {
+
+    /*
+     * Even so PostgesSQL has text search, as of know no generic implementation made for search
+     */
     throw new ODataJPADBAdaptorException(ODataJPADBAdaptorException.MessageKeys.NOT_SUPPORTED_SEARCH,
         HttpStatusCode.NOT_IMPLEMENTED);
   }
@@ -38,9 +49,7 @@ class JPA_DERBY_DatabaseProcessor extends JPAAbstractDatabaseProcessor { // NOSO
   @Override
   public <T> java.util.List<T> executeFunctionQuery(final List<UriResource> uriResourceParts,
       final JPADataBaseFunction jpaFunction, final EntityManager em) throws ODataApplicationException {
-    /*
-     * See https://db.apache.org/derby/docs/10.15/ref/rrefsqljtfinvoke.html
-     */
+
     final UriResource last = uriResourceParts.get(uriResourceParts.size() - 1);
 
     if (last.getKind() == UriResourceKind.count) {
@@ -51,7 +60,5 @@ class JPA_DERBY_DatabaseProcessor extends JPAAbstractDatabaseProcessor { // NOSO
     if (last.getKind() == UriResourceKind.function)
       return executeQuery(uriResourceParts, jpaFunction, em, SELECT_BASE_PATTERN);
     throw new ODataJPAProcessorException(NOT_SUPPORTED_FUNC_WITH_NAVI, HttpStatusCode.NOT_IMPLEMENTED);
-
   }
-
 }

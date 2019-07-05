@@ -29,6 +29,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.processor.core.api.JPAODataContextAccessDouble;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.exception.JPAIllicalAccessException;
+import com.sap.olingo.jpa.processor.core.processor.JPAODataRequestContextImpl;
 import com.sap.olingo.jpa.processor.core.util.SelectOptionDouble;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
@@ -37,20 +39,24 @@ import com.sap.olingo.jpa.processor.core.util.UriInfoDouble;
 public class TestJPAQueryBuildSelectionPathList extends TestBase {
 
   private JPAAbstractJoinQuery cut;
-  private JPAODataSessionContextAccess context;
+  private JPAODataSessionContextAccess sessionContext;
   private UriInfo uriInfo;
+  private JPAODataRequestContextImpl requestContext;
 
   @BeforeEach
-  public void setup() throws ODataException {
+  public void setup() throws ODataException, JPAIllicalAccessException {
     buildUriInfo("BusinessPartners", "BusinessPartner");
 
     helper = new TestHelper(emf, PUNIT_NAME);
     nameBuilder = new JPAEdmNameBuilder(PUNIT_NAME);
     createHeaders();
-    context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null, TestBase.enumPackages), ds,
+    sessionContext = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null, TestBase.enumPackages),
+        ds,
         null);
-
-    cut = new JPAJoinQuery(null, context, emf.createEntityManager(), headers, uriInfo);
+    requestContext = new JPAODataRequestContextImpl();
+    requestContext.setEntityManager(emf.createEntityManager());
+    requestContext.setUriInfo(uriInfo);
+    cut = new JPAJoinQuery(null, sessionContext, headers, requestContext);
 
   }
 
@@ -138,8 +144,6 @@ public class TestJPAQueryBuildSelectionPathList extends TestBase {
     when(property.getName()).thenReturn("AdministrativeInformation");
     resourcePath.add(complexResource);
 
-    cut = new JPAJoinQuery(null, context, emf.createEntityManager(), headers, uriInfo);
-
     final List<JPAPath> act = cut.buildSelectionPathList(uriInfo);
     assertEquals(5, act.size());
   }
@@ -158,8 +162,6 @@ public class TestJPAQueryBuildSelectionPathList extends TestBase {
     when(createdResource.getProperty()).thenReturn(createdProperty);
     when(createdProperty.getName()).thenReturn("Created");
     resourcePath.add(createdResource);
-
-    cut = new JPAJoinQuery(null, context, emf.createEntityManager(), headers, uriInfo);
 
     final List<JPAPath> act = cut.buildSelectionPathList(uriInfo);
     assertEquals(3, act.size());
@@ -186,8 +188,6 @@ public class TestJPAQueryBuildSelectionPathList extends TestBase {
     when(byProperty.getName()).thenReturn("By");
     resourcePath.add(byResource);
 
-    cut = new JPAJoinQuery(null, context, emf.createEntityManager(), headers, uriInfo);
-
     final List<JPAPath> act = cut.buildSelectionPathList(uriInfo);
     assertEquals(2, act.size());
   }
@@ -206,8 +206,6 @@ public class TestJPAQueryBuildSelectionPathList extends TestBase {
     when(valueResource.getSegmentValue()).thenReturn(Util.VALUE_RESOURCE.toLowerCase());
     resourcePath.add(valueResource);
 
-    cut = new JPAJoinQuery(null, context, emf.createEntityManager(), headers, uriInfo);
-
     final List<JPAPath> act = cut.buildSelectionPathList(uriInfo);
     assertEquals(2, act.size());
   }
@@ -224,8 +222,6 @@ public class TestJPAQueryBuildSelectionPathList extends TestBase {
     SelectOption selOptions = new SelectOptionDouble("CountryName");
 
     when(uriInfo.getSelectOption()).thenReturn(selOptions);
-
-    cut = new JPAJoinQuery(null, context, emf.createEntityManager(), headers, uriInfo);
 
     final List<JPAPath> act = cut.buildSelectionPathList(uriInfo);
     assertEquals(2, act.size());

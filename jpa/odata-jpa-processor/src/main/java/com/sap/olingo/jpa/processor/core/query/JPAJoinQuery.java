@@ -6,9 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
-import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.AbstractQuery;
@@ -20,7 +18,6 @@ import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
-import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceNavigation;
@@ -34,40 +31,22 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
-import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
+import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery {
 
-  public JPAJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext, final EntityManager em,
-      final Map<String, List<String>> requestHeaders, final JPAODataPage page,
-      Optional<JPAODataClaimsProvider> claimsProvider) throws ODataException {
+  public JPAJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
+      final Map<String, List<String>> requestHeaders, final JPAODataRequestContextAccess requestContext)
+      throws ODataException {
 
     super(odata, sessionContext, sessionContext.getEdmProvider().getServiceDocument().getEntity(
-        Util.determineTargetEntitySet(page.getUriInfo().getUriResourceParts()).getName()),
-        em, requestHeaders, page.getUriInfo(), page, claimsProvider);
+        Util.determineTargetEntitySet(requestContext.getUriInfo().getUriResourceParts()).getName()),
+        requestContext, requestHeaders);
 
-    this.navigationInfo = Util.determineNavigationPath(sd, uriResource.getUriResourceParts(), page.getUriInfo());
-  }
-
-  public JPAJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext, final EntityManager em,
-      final Map<String, List<String>> requestHeaders, final UriInfo uriInfo) throws ODataException {
-
-    this(odata, sessionContext, em, requestHeaders, uriInfo, Optional.empty());
-  }
-
-  public JPAJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext, final EntityManager em,
-      final Map<String, List<String>> requestHeaders, final UriInfo uriInfo,
-      Optional<JPAODataClaimsProvider> claimsProvider) throws ODataException {
-
-    super(odata, sessionContext, sessionContext.getEdmProvider().getServiceDocument().getEntity(
-        Util.determineTargetEntitySet(uriInfo.getUriResourceParts()).getName()),
-        em, requestHeaders, uriInfo, null, claimsProvider);
-
-    this.navigationInfo = Util.determineNavigationPath(sd, uriResource.getUriResourceParts(), uriInfo);
-
+    this.navigationInfo = Util.determineNavigationPath(sd, uriResource.getUriResourceParts(), requestContext
+        .getUriInfo());
   }
 
   /**

@@ -18,6 +18,8 @@ public interface JPAODataRequestContextAccess {
 
   public JPAODataPage getPage();
 
-  public Optional<JPAODataClaimsProvider> getClaimsProvider();
+  public Optional<JPAODataClaimProvider> getClaimsProvider();
+
+  public Optional<JPAODataGroupProvider> getGroupsProvider();
 
 }

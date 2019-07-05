@@ -10,7 +10,7 @@ import java.util.Map;
  * @author Oliver Grande
  *
  */
-public class JPAODataClaimsProvider {
+public class JPAODataClaimsProvider implements JPAODataClaimProvider {
 
   private final Map<String, List<JPAClaimsPair<?>>> claims = new HashMap<>();
 
@@ -21,7 +21,8 @@ public class JPAODataClaimsProvider {
 
   }
 
-  public List<JPAClaimsPair<?>> get(String attributeName) {
+  @Override
+  public List<JPAClaimsPair<?>> get(final String attributeName) { // NOSONAR
     if (!claims.containsKey(attributeName))
       return new ArrayList<>(1);
     return claims.get(attributeName);
