@@ -68,6 +68,9 @@
 		<class>com.sap.olingo.jpa.processor.core.errormodel.CollectionAttributeProtected</class>
 		<class>com.sap.olingo.jpa.processor.core.errormodel.NavigationAttributeProtected</class>
 		<class>com.sap.olingo.jpa.processor.core.errormodel.NavigationPropertyPartOfGroup</class>
+		<class>com.sap.olingo.jpa.processor.core.errormodel.EmbeddedKeyPartOfGroup</class>
+		<class>com.sap.olingo.jpa.processor.core.errormodel.MandatoryPartOfGroup</class>
+		<class>com.sap.olingo.jpa.processor.core.errormodel.KeyPartOfGroup</class>
 		<class>com.sap.olingo.jpa.processor.core.errormodel.ComplextProtectedNoPath</class>
 		<class>com.sap.olingo.jpa.processor.core.errormodel.ComplextProtectedWrongPath</class>
 		<class>com.sap.olingo.jpa.processor.core.errormodel.PersonDeepCollectionProtected</class> 

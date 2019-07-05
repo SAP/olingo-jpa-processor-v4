@@ -447,4 +447,8 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
     return !fieldGroups.isPresent() || fieldGroups.get().contains(group);
   }
 
+  protected boolean isPartOfGroup() {
+    return fieldGroups.isPresent();
+  }
+
 }

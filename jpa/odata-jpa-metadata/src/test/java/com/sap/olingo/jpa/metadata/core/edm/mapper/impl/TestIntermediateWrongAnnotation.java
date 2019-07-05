@@ -2,6 +2,8 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.COMPLEX_PROPERTY_MISSING_PROTECTION_PATH;
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.COMPLEX_PROPERTY_WRONG_PROTECTION_PATH;
+import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.NOT_SUPPORTED_KEY_PART_OF_GROUP;
+import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.NOT_SUPPORTED_MANDATORY_PART_OF_GROUP;
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.NOT_SUPPORTED_NAVIGATION_PART_OF_GROUP;
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.NOT_SUPPORTED_PROTECTED_COLLECTION;
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.NOT_SUPPORTED_PROTECTED_NAVIGATION;
@@ -22,6 +24,9 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.core.errormodel.CollectionAttributeProtected;
 import com.sap.olingo.jpa.processor.core.errormodel.ComplextProtectedNoPath;
 import com.sap.olingo.jpa.processor.core.errormodel.ComplextProtectedWrongPath;
+import com.sap.olingo.jpa.processor.core.errormodel.EmbeddedKeyPartOfGroup;
+import com.sap.olingo.jpa.processor.core.errormodel.KeyPartOfGroup;
+import com.sap.olingo.jpa.processor.core.errormodel.MandatoryPartOfGroup;
 import com.sap.olingo.jpa.processor.core.errormodel.NavigationAttributeProtected;
 import com.sap.olingo.jpa.processor.core.errormodel.NavigationPropertyPartOfGroup;
 import com.sap.olingo.jpa.processor.core.errormodel.PersonDeepCollectionProtected;
@@ -121,6 +126,42 @@ public class TestIntermediateWrongAnnotation {
             helper.schema));
 
     assertEquals(NOT_SUPPORTED_NAVIGATION_PART_OF_GROUP.name(), act.getId());
+    assertFalse(act.getMessage().isEmpty());
+  }
+
+  @Test
+  public void checkErrorOnMandatoryPropertyPartOfGroup() throws ODataJPAModelException {
+    final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(
+        MandatoryPartOfGroup.class), "eTag");
+
+    final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
+        () -> new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute, helper.schema));
+
+    assertEquals(NOT_SUPPORTED_MANDATORY_PART_OF_GROUP.name(), act.getId());
+    assertFalse(act.getMessage().isEmpty());
+  }
+
+  @Test
+  public void checkErrorOnKeyPropertyPartOfGroup() throws ODataJPAModelException {
+    final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(
+        KeyPartOfGroup.class), "iD");
+
+    final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
+        () -> new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute, helper.schema));
+
+    assertEquals(NOT_SUPPORTED_KEY_PART_OF_GROUP.name(), act.getId());
+    assertFalse(act.getMessage().isEmpty());
+  }
+
+  @Test
+  public void checkErrorOnEmbeddedKeyPropertyPartOfGroup() throws ODataJPAModelException {
+    final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(
+        EmbeddedKeyPartOfGroup.class), "key");
+
+    final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
+        () -> new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute, helper.schema));
+
+    assertEquals(NOT_SUPPORTED_KEY_PART_OF_GROUP.name(), act.getId());
     assertFalse(act.getMessage().isEmpty());
   }
 }

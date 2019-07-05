@@ -96,9 +96,9 @@ public enum AppliesTo {
     value = v;
   }
 
-//  public String value() {
-//    return value;
-//  }
+  public String value() {
+    return value;
+  }
 //
 //  public static AppliesTo fromValue(String v) {
 //    for (AppliesTo c : AppliesTo.values()) {
