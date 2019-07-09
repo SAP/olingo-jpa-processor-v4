@@ -48,6 +48,7 @@ public class BusinessPartnerWithGroups implements KeyAccess {
   @Column(name = "\"Type\"", length = 1, insertable = false, updatable = false, nullable = false)
   protected String type;
 
+  @EdmVisibleFor("Company")
   @Column(name = "\"CreatedAt\"", precision = 3, insertable = false, updatable = false)
   private Timestamp creationDateTime;
 

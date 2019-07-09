@@ -55,7 +55,7 @@ class IntermediateSimpleProperty extends IntermediateProperty {
 
   @Override
   public boolean isComplex() {
-    return jpaAttribute.getPersistentAttributeType() == PersistentAttributeType.EMBEDDED ? true : false;
+    return jpaAttribute.getPersistentAttributeType() == PersistentAttributeType.EMBEDDED;
   }
 
   @Override
@@ -158,6 +158,6 @@ class IntermediateSimpleProperty extends IntermediateProperty {
 
   @Override
   boolean isStream() {
-    return streamInfo == null ? false : streamInfo.stream();
+    return streamInfo != null && streamInfo.stream();
   }
 }

@@ -86,7 +86,7 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
     final List<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
     final Map<String, From<?, ?>> joinTables = createFromClause(orderByNaviAttributes, selectionPath, cq);
 
-    cq.multiselect(createSelectClause(joinTables, selectionPath, target)).distinct(determineDistinct());
+    cq.multiselect(createSelectClause(joinTables, selectionPath, target, groupsProvider)).distinct(determineDistinct());
 
     final javax.persistence.criteria.Expression<Boolean> whereClause = createWhere();
     if (whereClause != null)

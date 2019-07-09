@@ -106,6 +106,16 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
   }
 
   @Override
+  public Set<String> getProtectionClaimNames() {
+    return new HashSet<>(0);
+  }
+
+  @Override
+  public List<String> getProtectionPath(String claimName) throws ODataJPAModelException {
+    return new ArrayList<>(0);
+  }
+
+  @Override
   public JPAStructuredType getStructuredType() throws ODataJPAModelException {
     lazyBuildEdmItem();
     return sourceType;
@@ -448,15 +458,5 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
       }
     }
     return null;
-  }
-
-  @Override
-  public List<String> getProtectionPath(String claimName) throws ODataJPAModelException {
-    return new ArrayList<>(0);
-  }
-
-  @Override
-  public Set<String> getProtectionClaimNames() {
-    return new HashSet<>(0);
   }
 }

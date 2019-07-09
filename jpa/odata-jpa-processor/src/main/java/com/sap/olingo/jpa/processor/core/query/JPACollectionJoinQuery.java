@@ -33,6 +33,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys;
@@ -133,7 +134,8 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
 
   @Override
   protected List<Selection<?>> createSelectClause(final Map<String, From<?, ?>> joinTables, // NOSONAR
-      final List<JPAPath> jpaPathList, final From<?, ?> target) throws ODataApplicationException { // NOSONAR Allow
+      final List<JPAPath> jpaPathList, final From<?, ?> target, final Optional<JPAODataGroupProvider> groups)
+      throws ODataApplicationException { // NOSONAR Allow
     // subclasses to throw an exception
 
     final int handle = debugger.startRuntimeMeasurement(this, "createSelectClause");
@@ -242,7 +244,7 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
     final Map<String, From<?, ?>> joinTables = createFromClause(new ArrayList<JPAAssociationPath>(1), selectionPath,
         cq);
     // TODO handle Join Column is ignored
-    cq.multiselect(createSelectClause(joinTables, selectionPath, target));
+    cq.multiselect(createSelectClause(joinTables, selectionPath, target, groupsProvider));
     cq.distinct(true);
     final javax.persistence.criteria.Expression<Boolean> whereClause = createWhere();
     if (whereClause != null)

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
@@ -30,6 +31,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
@@ -90,9 +92,10 @@ public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
 
   @Override
   protected List<Selection<?>> createSelectClause(Map<String, From<?, ?>> joinTables, List<JPAPath> jpaPathList,
-      From<?, ?> target) throws ODataApplicationException {
+      From<?, ?> target, final Optional<JPAODataGroupProvider> groups) throws ODataApplicationException {
 
-    final List<Selection<?>> selections = new ArrayList<>(super.createSelectClause(joinTables, jpaPathList, target));
+    final List<Selection<?>> selections = new ArrayList<>(super.createSelectClause(joinTables, jpaPathList, target,
+        groups));
     if (assoziation.getJoinTable() != null) {
       // For associations with JoinTable the join columns, linking columns to the parent, need to be added
       createAdditionSelctionForJoinTable(selections);
@@ -276,7 +279,7 @@ public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
         selectionPath, cq);
 
     // TODO handle Join Column is ignored
-    cq.multiselect(createSelectClause(joinTables, selectionPath, target));
+    cq.multiselect(createSelectClause(joinTables, selectionPath, target, groupsProvider));
     cq.distinct(true);
     final javax.persistence.criteria.Expression<Boolean> whereClause = createWhere();
     if (whereClause != null)

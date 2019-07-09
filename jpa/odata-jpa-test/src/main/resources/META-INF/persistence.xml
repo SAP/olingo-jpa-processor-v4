@@ -51,16 +51,13 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.SupportRelationship</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Team</class>
 		<properties>
-			<property name="eclipselink.logging.level.sql"
-				value="FINEST" />
+			<property name="eclipselink.logging.level.sql" value="WARNING"  />
 			<property name="eclipselink.logging.level" value="WARNING" />
 			<property name="eclipselink.logging.parameters" value="true" />
 			<property name="eclipselink.logging.timestamp" value="true" />
 			<property name="eclipselink.weaving" value="static" />
-			<property name="eclipselink.persistence-context.flush-mode"
-				value="commit" />
-			<property name="javax.persistence.validation.mode"
-				value="NONE" />
+			<property name="eclipselink.persistence-context.flush-mode" value="commit" />
+			<property name="javax.persistence.validation.mode" value="NONE" />
 			<property name="eclipselink.logging.level" value="WARNING" />
 		</properties>
 	</persistence-unit>
@@ -88,8 +85,7 @@
 			<property name="eclipselink.persistence-context.flush-mode"
 				value="commit" />
 			<property name="eclipselink.logging.level" value="WARNING" />
-			<property name="eclipselink.logging.level.sql"
-				value="FINEST" />
+			<property name="eclipselink.logging.level.sql" value="WARNING" />
 		</properties>
 	</persistence-unit>
 </persistence>

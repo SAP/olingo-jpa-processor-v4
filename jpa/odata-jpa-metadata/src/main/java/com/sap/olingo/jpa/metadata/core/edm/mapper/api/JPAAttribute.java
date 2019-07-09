@@ -52,4 +52,5 @@ public interface JPAAttribute extends JPAElement {
   public boolean isSearchable();
 
   public boolean hasProtection();
+
 }

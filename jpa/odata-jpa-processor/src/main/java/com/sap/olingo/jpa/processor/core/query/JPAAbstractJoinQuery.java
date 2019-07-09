@@ -62,6 +62,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
@@ -375,21 +376,24 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
    * 
    * @param joinTables
    * @param jpaPathList
+   * @param optional
    * @return
    * @throws ODataApplicationException
    */
   protected List<Selection<?>> createSelectClause(final Map<String, From<?, ?>> joinTables, // NOSONAR
-      final List<JPAPath> jpaPathList, final From<?, ?> target) throws ODataApplicationException { // NOSONAR Allow
-    // subclasses to throw an exception
+      final List<JPAPath> jpaPathList, final From<?, ?> target, Optional<JPAODataGroupProvider> groups)
+      throws ODataApplicationException { // NOSONAR Allow subclasses to throw an exception
 
     final int handle = debugger.startRuntimeMeasurement(this, "createSelectClause");
     final List<Selection<?>> selections = new ArrayList<>();
 
     // Build select clause
     for (final JPAPath jpaPath : jpaPathList) {
-      final Path<?> p = ExpressionUtil.convertToCriteriaPath(joinTables, target, jpaPath.getPath());
-      p.alias(jpaPath.getAlias());
-      selections.add(p);
+      if (jpaPath.isPartOfGroups(groups.isPresent() ? groups.get().getGroups() : new ArrayList<>(0))) {
+        final Path<?> p = ExpressionUtil.convertToCriteriaPath(joinTables, target, jpaPath.getPath());
+        p.alias(jpaPath.getAlias());
+        selections.add(p);
+      }
     }
     debugger.stopRuntimeMeasurement(handle);
     return selections;
@@ -614,7 +618,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
 
     final UriResource last = !uriResource.getUriResourceParts().isEmpty() ? uriResource.getUriResourceParts().get(
         uriResource.getUriResourceParts().size() - 1) : null;
-    final boolean targetIsCollection = (last != null && last instanceof UriResourceProperty
+    final boolean targetIsCollection = (last instanceof UriResourceProperty
         && ((UriResourceProperty) last).isCollection());
     final String pathPrefix = Util.determineProptertyNavigationPrefix(uriResource.getUriResourceParts());
 
