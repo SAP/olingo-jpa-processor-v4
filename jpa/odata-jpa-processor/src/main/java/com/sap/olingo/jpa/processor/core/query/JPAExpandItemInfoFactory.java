@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -30,6 +31,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys;
 
@@ -61,13 +63,14 @@ public final class JPAExpandItemInfoFactory {
    * Navigate to collection property e.g. ../Organizations('1')/Comment
    * @param sd
    * @param uriResourceInfo
+   * @param optional
    * @param parentHops
    * @return
    * @throws ODataApplicationException
    */
   public List<JPACollectionItemInfo> buildCollectionItemInfo(final JPAServiceDocument sd,
-      final UriInfoResource uriResourceInfo, final List<JPANavigationProptertyInfo> grandParentHops)
-      throws ODataApplicationException {
+      final UriInfoResource uriResourceInfo, final List<JPANavigationProptertyInfo> grandParentHops,
+      Optional<JPAODataGroupProvider> groups) throws ODataApplicationException {
 
     final List<JPACollectionItemInfo> itemList = new ArrayList<>();
     final List<UriResource> startResourceList = uriResourceInfo.getUriResourceParts();
@@ -94,7 +97,9 @@ public final class JPAExpandItemInfoFactory {
           for (final JPAPath path : st.getPathList()) {
             for (final JPAElement pathElement : path.getPath()) {
               if (pathElement instanceof JPAAttribute && ((JPAAttribute) pathElement).isCollection()) {
-                collectionProperties.add(pathElement);
+                if (path.isPartOfGroups(groups.isPresent() ? groups.get().getGroups() : new ArrayList<>(0))) {
+                  collectionProperties.add(pathElement);
+                }
                 break;
               }
             }
@@ -137,9 +142,9 @@ public final class JPAExpandItemInfoFactory {
             result[ST_INDEX] = result[ET_INDEX] = sd.getEntity(((UriResourcePartTyped) uriElement)
                 .getType());
           } else if (uriElement instanceof UriResourceComplexProperty
-              && !((UriResourceProperty) uriElement).isCollection())
+              && !((UriResourceProperty) uriElement).isCollection()) {
             result[ST_INDEX] = sd.getComplexType(((UriResourceComplexProperty) uriElement).getComplexType());
-          else if (uriElement instanceof UriResourceProperty
+          } else if (uriElement instanceof UriResourceProperty
               && result[ST_INDEX] != null) {
             result[PROPERTY_INDEX] = ((JPAStructuredType) result[ST_INDEX]).getPath(((UriResourceProperty) uriElement)
                 .getProperty().getName());
@@ -179,8 +184,9 @@ public final class JPAExpandItemInfoFactory {
               collectionAttributes.add(getCollection(jpaEntity, selectSubItemPath, selectItemPath.getPath().get(0)
                   .getExternalName()));
           }
-        } else if (pathContainsCollection(selectItemPath))
+        } else if (pathContainsCollection(selectItemPath)) {
           collectionAttributes.add(selectItemPath);
+        }
       }
     }
     return collectionAttributes;

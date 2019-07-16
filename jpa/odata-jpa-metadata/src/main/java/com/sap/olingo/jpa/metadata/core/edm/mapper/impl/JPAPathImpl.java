@@ -2,11 +2,9 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.NOT_SUPPORTED_MIXED_PART_OF_GROUP;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Stream;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
@@ -14,12 +12,12 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 final class JPAPathImpl implements JPAPath {
-  private static final Stream<String> EMPTY_FILED_GROUPS = new ArrayList<String>(0).stream();
+  private static final List<String> EMPTY_FILED_GROUPS = Collections.emptyList();
   private final String alias;
   private final List<JPAElement> pathElements;
   private final String dbFieldName;
   private final boolean ignore;
-  private final Stream<String> fieldGroups;
+  private final List<String> fieldGroups;
 
   JPAPathImpl(final String alias, final String dbFieldName, final IntermediateProperty element)
       throws ODataJPAModelException {
@@ -132,7 +130,7 @@ final class JPAPathImpl implements JPAPath {
    * @return
    * @throws ODataJPAModelException
    */
-  private Stream<String> determineFieldGroups() throws ODataJPAModelException {
+  private List<String> determineFieldGroups() throws ODataJPAModelException {
     List<String> groups = null;
     for (JPAElement pathElement : pathElements) {
       if (pathElement instanceof IntermediateProperty && ((IntermediateProperty) pathElement).isPartOfGroup()) {
@@ -145,7 +143,7 @@ final class JPAPathImpl implements JPAPath {
         }
       }
     }
-    return groups == null ? EMPTY_FILED_GROUPS : groups.stream();
+    return groups == null ? EMPTY_FILED_GROUPS : groups;
   }
 
   /**
@@ -153,7 +151,11 @@ final class JPAPathImpl implements JPAPath {
    * @return
    */
   private boolean fieldGroupMatches(final List<String> groups) {
-    return fieldGroups.anyMatch(groups::contains);
+    for (final String group : groups) {
+      if (fieldGroups.contains(group))
+        return true;
+    }
+    return false;
   }
 
 }

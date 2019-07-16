@@ -49,13 +49,6 @@ public class TestJPAExpandQueryCreateResult extends TestBase {
 
     cut = new JPAExpandJoinQuery(null, context, helper.getJPAAssociationPath("Organizations", "Roles"),
         helper.sd.getEntity(targetEntity), new HashMap<String, List<String>>(), requestContext);
-
-//    cut = new JPAExpandJoinQuery(
-//        null, context, emf.createEntityManager(), ,
-//        helper.getJPAAssociationPath("Organizations", "Roles"), helper.sd.getEntity(targetEntity),
-//        new HashMap<String, List<String>>(), Optional.empty());
-
-    // new EdmEntitySetDouble(nameBuilder, "Organisations"), null, new HashMap<String, List<String>>());
   }
 
   @Test

@@ -1,4 +1,4 @@
-package com.sap.olingo.jpa.processor.core.modify;
+package com.sap.olingo.jpa.processor.core.converter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,12 +8,12 @@ import java.util.Map;
 import javax.persistence.Tuple;
 import javax.persistence.TupleElement;
 
-final class JPATuple implements Tuple {
+public final class JPATuple implements Tuple {
 
   private List<TupleElement<?>> elements = new ArrayList<>();
   private Map<String, Object> values = new HashMap<>();
 
-  public void addElement(String alias, Class<?> javaType, Object value) {
+  public void addElement(final String alias, Class<?> javaType, final Object value) {
     elements.add(new JPATupleElement<Object>(alias, javaType));
     values.put(alias, value);
 
@@ -63,7 +63,7 @@ final class JPATuple implements Tuple {
 
   @Override
   public Object[] toArray() {
-    return null;
+    return new Object[] {};
   }
 
   private class JPATupleElement<X> implements TupleElement<X> {

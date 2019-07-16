@@ -3,6 +3,7 @@ package com.sap.olingo.jpa.processor.core.query;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 
@@ -94,11 +95,18 @@ public class TestJPAQueryCollection extends TestBase {
     helper.assertStatus(200);
 
     final ObjectNode collection = helper.getValue();
-    ObjectNode complex = (ObjectNode) collection.get("Complex");
+    final ObjectNode complex = (ObjectNode) collection.get("Complex");
     assertEquals(32L, complex.get("Number").asLong());
     assertFalse(complex.get("Address") instanceof NullNode);
     assertEquals(2, complex.get("Address").size());
-    assertEquals("DEV", complex.get("Address").get(0).get("TaskID").asText());
+    for (int i = 0; i < complex.get("Address").size(); i++) {
+      final ObjectNode address = (ObjectNode) complex.get("Address").get(i);
+      if (address.get("Building").asText().equals("1")) {
+        assertEquals("DEV", address.get("TaskID").asText());
+        return;
+      }
+    }
+    fail("Task not found");
   }
 
   @Test
@@ -130,7 +138,14 @@ public class TestJPAQueryCollection extends TestBase {
     assertEquals(32L, complex.get("Number").asLong());
     assertFalse(complex.get("Address") instanceof NullNode);
     assertEquals(2, complex.get("Address").size());
-    assertEquals("DEV", complex.get("Address").get(0).get("TaskID").asText());
+    for (int i = 0; i < complex.get("Address").size(); i++) {
+      final ObjectNode address = (ObjectNode) complex.get("Address").get(i);
+      if (address.get("Building").asText().equals("1")) {
+        assertEquals("DEV", address.get("TaskID").asText());
+        return;
+      }
+    }
+    fail("Task not found");
   }
 
   @Test

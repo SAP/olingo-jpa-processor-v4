@@ -93,7 +93,7 @@ public class TestJPAODataRequestProcessor {
     uriInfo = mock(UriInfo.class);
     odata = mock(OData.class);
     serviceMetadata = mock(ServiceMetadata.class);
-    resourceParts = new ArrayList<>(1);
+    resourceParts = new ArrayList<>(0);
     UriResource resourcePart = mock(UriResource.class);
     resourceParts.add(resourcePart);
 

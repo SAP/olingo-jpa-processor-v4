@@ -2,8 +2,9 @@ package com.sap.olingo.jpa.processor.core.query;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import javax.persistence.criteria.Selection;
 
@@ -26,7 +27,7 @@ public class TestJPAQuerySelectWithGroupClause extends TestGroupBase {
     fillJoinTable(root);
 
     final List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("*"))), root, Optional.empty());
+        new UriInfoDouble(new SelectOptionDouble("*"))), root, Collections.emptyList());
 
     assertContains(selectClause, "ID");
     assertContainsNot(selectClause, "Country");
@@ -38,10 +39,10 @@ public class TestJPAQuerySelectWithGroupClause extends TestGroupBase {
   public void checkSelectAllWithOneGroupReturnsAlsoThose() throws ODataException, JPAIllicalAccessException {
     root = emf.getCriteriaBuilder().createTupleQuery().from(BusinessPartnerWithGroups.class);
     fillJoinTable(root);
-    final JPAODataGroupsProvider groups = new JPAODataGroupsProvider();
-    groups.addGroup("Person");
+    final List<String> groups = new ArrayList<>();
+    groups.add("Person");
     final List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("*"))), root, Optional.of(groups));
+        new UriInfoDouble(new SelectOptionDouble("*"))), root, groups);
 
     assertContains(selectClause, "ID");
     assertContains(selectClause, "Country");
@@ -53,11 +54,11 @@ public class TestJPAQuerySelectWithGroupClause extends TestGroupBase {
   public void checkSelectAllWithTwoGroupReturnsAlsoThose() throws ODataException, JPAIllicalAccessException {
     root = emf.getCriteriaBuilder().createTupleQuery().from(BusinessPartnerWithGroups.class);
     fillJoinTable(root);
-    final JPAODataGroupsProvider groups = new JPAODataGroupsProvider();
-    groups.addGroup("Person");
-    groups.addGroup("Company");
+    final List<String> groups = new ArrayList<>();
+    groups.add("Person");
+    groups.add("Company");
     final List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("*"))), root, Optional.of(groups));
+        new UriInfoDouble(new SelectOptionDouble("*"))), root, groups);
 
     assertContains(selectClause, "ID");
     assertContains(selectClause, "Country");
@@ -69,12 +70,12 @@ public class TestJPAQuerySelectWithGroupClause extends TestGroupBase {
   public void checkSelectTwoWithOneGroupReturnsAll() throws ODataApplicationException, ODataJPAModelException {
     root = emf.getCriteriaBuilder().createTupleQuery().from(BusinessPartnerWithGroups.class);
     fillJoinTable(root);
-    final JPAODataGroupsProvider groups = new JPAODataGroupsProvider();
-    groups.addGroup("Person");
-    groups.addGroup("Company");
+    final List<String> groups = new ArrayList<>();
+    groups.add("Person");
+    groups.add("Company");
 
     final List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("Type,CreationDateTime"))), root, Optional.of(groups));
+        new UriInfoDouble(new SelectOptionDouble("Type,CreationDateTime"))), root, groups);
 
     assertContains(selectClause, "ID");
     assertContainsNot(selectClause, "Country");
@@ -86,11 +87,11 @@ public class TestJPAQuerySelectWithGroupClause extends TestGroupBase {
   public void checkSelectTwoWithOneGroupReturnsOnlyID() throws ODataApplicationException, ODataJPAModelException {
     root = emf.getCriteriaBuilder().createTupleQuery().from(BusinessPartnerWithGroups.class);
     fillJoinTable(root);
-    final JPAODataGroupsProvider groups = new JPAODataGroupsProvider();
-    groups.addGroup("Test");
+    final List<String> groups = new ArrayList<>();
+    groups.add("Test");
 
     final List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("Type,CreationDateTime"))), root, Optional.of(groups));
+        new UriInfoDouble(new SelectOptionDouble("Type,CreationDateTime"))), root, groups);
 
     assertContains(selectClause, "ID");
     assertContainsNot(selectClause, "Country");
@@ -106,7 +107,7 @@ public class TestJPAQuerySelectWithGroupClause extends TestGroupBase {
     groups.addGroup("Test");
 
     final List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("Type,CreationDateTime"))), root, Optional.empty());
+        new UriInfoDouble(new SelectOptionDouble("Type,CreationDateTime"))), root, Collections.emptyList());
 
     assertContains(selectClause, "ID");
     assertContainsNot(selectClause, "Country");

@@ -1,13 +1,14 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
 import javax.persistence.Column;
-import javax.persistence.Id;
+import javax.persistence.Embeddable;
 
+@Embeddable
 public class InstanceRestrictionKey {
-  @Id
+
   @Column(name = "\"UserName\"", length = 60)
   private String username;
-  @Id
+
   @Column(name = "\"SequenceNumber\"")
   private Integer sequenceNumber;
 

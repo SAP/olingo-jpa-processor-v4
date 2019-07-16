@@ -221,7 +221,7 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
 
     @Override
     public List<CustomQueryOption> getCustomQueryOptions() {
-      return new ArrayList<>(1);
+      return new ArrayList<>(0);
     }
 
     @Override

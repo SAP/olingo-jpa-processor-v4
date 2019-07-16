@@ -3,10 +3,14 @@ package com.sap.olingo.jpa.processor.core.query;
 import static java.util.stream.Collectors.joining;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
@@ -33,7 +37,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys;
@@ -44,30 +47,42 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
   public JPACollectionJoinQuery(final OData odata, final JPAODataSessionContextAccess context, final EntityManager em,
       final JPACollectionItemInfo item, final Map<String, List<String>> requestHeaders) throws ODataException {
 
-    super(odata, context, item.getEntityType(), em, requestHeaders, item.getUriInfo(), null, Optional.empty());
+    super(odata, context, item.getEntityType(), em, requestHeaders, item.getUriInfo(), null, Optional.empty(),
+        new ArrayList<>(item.getHops().subList(0, item.getHops().size() - 1)));
     this.assoziation = item.getExpandAssociation();
-    this.navigationInfo = new ArrayList<>(item.getHops().size() - 1);
-    this.navigationInfo.addAll(item.getHops().subList(0, item.getHops().size() - 1));
+
   }
 
   @Override
   public JPACollectionQueryResult execute() throws ODataApplicationException {
     final int handle = debugger.startRuntimeMeasurement(this, "executeStandradQuery");
+    try {
+      final TypedQuery<Tuple> tupleQuery = createTupleQuery();
+      final int resultHandle = debugger.startRuntimeMeasurement(tupleQuery, "getResultList");
+      final List<Tuple> intermediateResult = tupleQuery.getResultList();
+      debugger.stopRuntimeMeasurement(resultHandle);
 
-    final TypedQuery<Tuple> tupleQuery = createTupleQuery();
-    final int resultHandle = debugger.startRuntimeMeasurement(tupleQuery, "getResultList");
-    final List<Tuple> intermediateResult = tupleQuery.getResultList();
-    debugger.stopRuntimeMeasurement(resultHandle);
+      Map<String, List<Tuple>> result = convertResult(intermediateResult, assoziation, 0, Long.MAX_VALUE);
 
-    Map<String, List<Tuple>> result = convertResult(intermediateResult, assoziation, 0, Long.MAX_VALUE);
-
-    debugger.stopRuntimeMeasurement(handle);
-    return new JPACollectionQueryResult(result, new HashMap<String, Long>(1), jpaEntity, this.assoziation);
+      try {
+        final Set<JPAPath> requestedSelection = new HashSet<>();
+        buildSelectionAddNavigationAndSelect(uriResource, requestedSelection, uriResource.getSelectOption());
+        debugger.stopRuntimeMeasurement(handle);
+        return new JPACollectionQueryResult(result, new HashMap<String, Long>(1), jpaEntity, this.assoziation,
+            requestedSelection);
+      } catch (ODataJPAModelException e) {
+        throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR
+            .getStatusCode(), ODataJPAModelException.getLocales().nextElement(), e);
+      }
+    } catch (JPANoSelectionException e) {
+      return new JPACollectionQueryResult(Collections.emptyMap(), Collections.emptyMap(), this.jpaEntity, assoziation,
+          Collections.emptyList());
+    }
   }
 
   @Override
-  protected List<JPAPath> buildSelectionPathList(final UriInfoResource uriResource) throws ODataApplicationException {
-    final List<JPAPath> jpaPathList = new ArrayList<>();
+  protected Set<JPAPath> buildSelectionPathList(final UriInfoResource uriResource) throws ODataApplicationException {
+    final Set<JPAPath> jpaPathList = new HashSet<>();
     final String pathPrefix = "";
     final SelectOption select = uriResource.getSelectOption();
     // Following situations have to be handled:
@@ -115,8 +130,8 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
   }
 
   @Override
-  protected void expandPath(final JPAEntityType jpaEntity, final List<JPAPath> jpaPathList, final String selectItem,
-      final boolean targetIsCollection) throws ODataJPAModelException, ODataJPAQueryException {
+  protected void expandPath(final JPAEntityType jpaEntity, final Collection<JPAPath> jpaPathList,
+      final String selectItem, final boolean targetIsCollection) throws ODataJPAModelException, ODataJPAQueryException {
 
     final JPAPath selectItemPath = jpaEntity.getPath(selectItem);
     if (selectItemPath == null)
@@ -127,14 +142,15 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
       // Complex Type
       final List<JPAPath> p = jpaEntity.searchChildPath(selectItemPath);
       jpaPathList.addAll(p);
-    } else
+    } else {
       // Primitive Type
       jpaPathList.add(selectItemPath);
+    }
   }
 
   @Override
   protected List<Selection<?>> createSelectClause(final Map<String, From<?, ?>> joinTables, // NOSONAR
-      final List<JPAPath> jpaPathList, final From<?, ?> target, final Optional<JPAODataGroupProvider> groups)
+      final Collection<JPAPath> jpaPathList, final From<?, ?> target, final List<String> groups)
       throws ODataApplicationException { // NOSONAR Allow
     // subclasses to throw an exception
 
@@ -237,12 +253,12 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
     return orders;
   }
 
-  private TypedQuery<Tuple> createTupleQuery() throws ODataApplicationException {
+  private TypedQuery<Tuple> createTupleQuery() throws ODataApplicationException, JPANoSelectionException {
     final int handle = debugger.startRuntimeMeasurement(this, "createTupleQuery");
 
-    final List<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
+    final Collection<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
     final Map<String, From<?, ?>> joinTables = createFromClause(new ArrayList<JPAAssociationPath>(1), selectionPath,
-        cq);
+        cq, lastInfo);
     // TODO handle Join Column is ignored
     cq.multiselect(createSelectClause(joinTables, selectionPath, target, groupsProvider));
     cq.distinct(true);

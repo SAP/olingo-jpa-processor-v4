@@ -49,7 +49,7 @@ public class UriInfoDouble implements UriInfo {
   public UriInfoDouble(final SelectOption selOpts) {
     super();
     this.selOpts = selOpts;
-    this.uriResources = new ArrayList<>(1);
+    this.uriResources = new ArrayList<>(0);
   }
 
   public UriInfoDouble(final UriInfoResource resourcePath) {

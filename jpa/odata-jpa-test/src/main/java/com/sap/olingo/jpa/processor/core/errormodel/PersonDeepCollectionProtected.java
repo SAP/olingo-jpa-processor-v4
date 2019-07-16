@@ -13,7 +13,7 @@ import javax.persistence.Version;
 
 import com.sap.olingo.jpa.processor.core.testmodel.AddressDeepProtected;
 
-@Entity(name = "PersonDeepProtected")
+@Entity(name = "PersonDeepCollectionProtected")
 
 public class PersonDeepCollectionProtected {// #NOSONAR use equal method from
   @Id

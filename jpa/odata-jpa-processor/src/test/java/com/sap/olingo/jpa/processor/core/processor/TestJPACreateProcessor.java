@@ -434,7 +434,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     final EdmNavigationProperty naviProperty = mock(EdmNavigationProperty.class);
     final EdmNavigationPropertyBinding naviBinding = mock(EdmNavigationPropertyBinding.class);
     final EdmEntityContainer container = mock(EdmEntityContainer.class);
-    final List<EdmNavigationPropertyBinding> naviBindings = new ArrayList<>(1);
+    final List<EdmNavigationPropertyBinding> naviBindings = new ArrayList<>(0);
     final EdmEntitySet targetEts = mock(EdmEntitySet.class);
     naviBindings.add(naviBinding);
 

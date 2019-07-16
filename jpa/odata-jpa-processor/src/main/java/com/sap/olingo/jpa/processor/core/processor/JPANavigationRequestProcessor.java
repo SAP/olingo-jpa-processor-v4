@@ -251,7 +251,6 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
       final List<JPANavigationProptertyInfo> parentHops, final UriInfoResource uriResourceInfo) throws ODataException {
 
     final int handle = debugger.startRuntimeMeasurement(this, "readExpandEntities");
-
     final Map<JPAAssociationPath, JPAExpandResult> allExpResults =
         new HashMap<>();
     // x/a?$expand=b/c($expand=d,e/f)&$filter=...&$top=3&$orderBy=...
@@ -276,7 +275,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
 
     // process collection attributes
     final List<JPACollectionItemInfo> collectionInfoList = new JPAExpandItemInfoFactory()
-        .buildCollectionItemInfo(sd, uriResourceInfo, parentHops);
+        .buildCollectionItemInfo(sd, uriResourceInfo, parentHops, requestContext.getGroupsProvider());
     for (final JPACollectionItemInfo item : collectionInfoList) {
       final JPACollectionJoinQuery collectionQuery = new JPACollectionJoinQuery(odata, sessionContext, em, item,
           headers);

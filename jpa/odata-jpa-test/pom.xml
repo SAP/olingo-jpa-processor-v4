@@ -16,7 +16,7 @@
 	<url>https://github.com/SAP/olingo-jpa-processor-v4</url>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<hibernate.version>5.2.12.Final</hibernate.version>
+		<hibernate.version>5.4.3.Final</hibernate.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -38,11 +38,6 @@
 			<groupId>com.sap.olingo</groupId>
 			<artifactId>odata-jpa-annotation</artifactId>
 			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.persistence</groupId>
-			<artifactId>eclipselink</artifactId>
-			<version>2.7.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.persistence</groupId>
@@ -75,6 +70,52 @@
 			<version>10.12.1.1</version>
 		</dependency>
 	</dependencies>
+	<profiles>
+		<profile>
+			<id>default</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>org.eclipse.persistence</groupId>
+					<artifactId>eclipselink</artifactId>
+					<version>2.7.1</version>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>open-jpa</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>org.apache.openjpa</groupId>
+					<artifactId>openjpa-all</artifactId>
+					<version>3.1.0</version>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>hibernate</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>org.hibernate</groupId>
+					<artifactId>hibernate-entitymanager</artifactId>
+					<version>${hibernate.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.hibernate</groupId>
+					<artifactId>hibernate-java8</artifactId>
+					<version>${hibernate.version}</version>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
 	<build>
 	</build>
 </project>

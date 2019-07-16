@@ -54,12 +54,33 @@ public class JPAODataGetHandler {
   }
 
   public void process(final HttpServletRequest request, final HttpServletResponse response) throws ODataException {
-    final EntityManager em = emf.createEntityManager();
-    try {
-      process(request, response, em);
-    } finally {
-      em.close();
+    if (emf != null && this.requestContext.getEntityManager() == null) {
+      final EntityManager em = emf.createEntityManager();
+      try {
+        process(request, response, em);
+      } finally {
+        em.close();
+      }
+    } else {
+      processInternal(request, response);
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  private void processInternal(final HttpServletRequest request, final HttpServletResponse response)
+      throws ODataException {
+    final EntityManager em = this.requestContext.getEntityManager();
+    this.jpaMetamodel = em.getMetamodel();
+    final ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(context.getEdmProvider(), context
+        .getEdmProvider().getReferences()));
+    context.getEdmProvider().setRequestLocales(request.getLocales());
+    context.initDebugger(request.getParameter(DebugSupport.ODATA_DEBUG_QUERY_PARAMETER));
+    handler.register(context.getDebugSupport());
+    handler.register(new JPAODataRequestProcessor(context, requestContext));
+    handler.register(new JPAODataBatchProcessor(context, em));
+    handler.register(context.getEdmProvider().getServiceDocument());
+    handler.register(context.getErrorProcessor());
+    handler.process(request, response);
   }
 
   /**
@@ -72,23 +93,13 @@ public class JPAODataGetHandler {
    * @throws ODataException
    */
   @Deprecated
-  @SuppressWarnings("unchecked")
   public void process(final HttpServletRequest request, final HttpServletResponse response,
       final JPAODataClaimProvider claims, final EntityManager em) throws ODataException {
 
     this.requestContext.setClaimsProvider(claims);
     this.requestContext.setEntityManager(em);
-    this.jpaMetamodel = em.getMetamodel();
-    final ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(context.getEdmProvider(), context
-        .getEdmProvider().getReferences()));
-    context.getEdmProvider().setRequestLocales(request.getLocales());
-    context.initDebugger(request.getParameter(DebugSupport.ODATA_DEBUG_QUERY_PARAMETER));
-    handler.register(context.getDebugSupport());
-    handler.register(new JPAODataRequestProcessor(context, requestContext));
-    handler.register(new JPAODataBatchProcessor(context, em));
-    handler.register(context.getEdmProvider().getServiceDocument());
-    handler.register(context.getErrorProcessor());
-    handler.process(request, response);
+
+    process(request, response);
   }
 
   /**
@@ -100,22 +111,11 @@ public class JPAODataGetHandler {
    * @throws ODataException
    */
   @Deprecated
-  @SuppressWarnings("unchecked")
   public void process(final HttpServletRequest request, final HttpServletResponse response, final EntityManager em)
       throws ODataException {
 
-    this.jpaMetamodel = em.getMetamodel();
     this.requestContext.setEntityManager(em);
-    final ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(context.getEdmProvider(), context
-        .getEdmProvider().getReferences()));
-    context.getEdmProvider().setRequestLocales(request.getLocales());
-    context.initDebugger(request.getParameter(DebugSupport.ODATA_DEBUG_QUERY_PARAMETER));
-    handler.register(context.getDebugSupport());
-    handler.register(new JPAODataRequestProcessor(context, requestContext));
-    handler.register(new JPAODataBatchProcessor(context, em));
-    handler.register(context.getEdmProvider().getServiceDocument());
-    handler.register(context.getErrorProcessor());
-    handler.process(request, response);
+    process(request, response);
   }
 
   class JPADebugSupportWrapper implements DebugSupport {

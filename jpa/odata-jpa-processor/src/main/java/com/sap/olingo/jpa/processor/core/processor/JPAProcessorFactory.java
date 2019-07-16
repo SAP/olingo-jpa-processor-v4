@@ -3,7 +3,7 @@ package com.sap.olingo.jpa.processor.core.processor;
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys.QUERY_SERVER_DRIVEN_PAGING_GONE;
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys.QUERY_SERVER_DRIVEN_PAGING_NOT_IMPLEMENTED;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -192,6 +192,6 @@ public final class JPAProcessorFactory {
         return header.getValue();
       }
     }
-    return new ArrayList<>(1);
+    return Collections.emptyList();
   }
 }

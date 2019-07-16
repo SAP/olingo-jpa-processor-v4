@@ -12,13 +12,17 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.AddressDeepThreeProtections</class> 
 		<class>com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescription</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescriptionKey</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.AdministrativeInformation</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.BestOrganization</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerProtected</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRoleProtected</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRoleWithGroup</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerWithGroups</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.ByteConverter</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.ChangeInformation</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.CollcetionInnerComplex</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.CollcetionNestedComplex</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Collection</class>
@@ -27,7 +31,9 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.CollectionPartOfComplex</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.CollectionSecondLevelComplex</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Comment</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.CommunicationData</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Country</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.CountryKey</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DateConverter</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DeepProtectedExample</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DummyEmbeddedToIgnore</class>
@@ -47,22 +53,34 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.PersonImage</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.PersonDeepProtected</class> 
 		<class>com.sap.olingo.jpa.processor.core.testmodel.PersonDeepProtectedHidden</class> 
+		<class>com.sap.olingo.jpa.processor.core.testmodel.PostalAddressData</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.StringConverter</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.SupportRelationship</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Team</class>
 		<properties>
-			<property name="eclipselink.logging.level.sql" value="WARNING"  />
+			<property name="javax.persistence.validation.mode" value="NONE" />
+			<property name="eclipselink.logging.level.sql" value="FINE"  />
 			<property name="eclipselink.logging.level" value="WARNING" />
 			<property name="eclipselink.logging.parameters" value="true" />
 			<property name="eclipselink.logging.timestamp" value="true" />
 			<property name="eclipselink.weaving" value="static" />
+			<property name="eclipse.weaving" value="true"/>
 			<property name="eclipselink.persistence-context.flush-mode" value="commit" />
-			<property name="javax.persistence.validation.mode" value="NONE" />
 			<property name="eclipselink.logging.level" value="WARNING" />
+
+			<!--  -->
+			<property name="openjpa.DynamicEnhancementAgent" value="true"/>
+			<property name="openjpa.RuntimeUnenhancedClasses" value="unsupported"/>
+			<property name="openjpa.ConnectionFactoryProperties" value="PrintParameters=true"/>
+			<!--  -->
+			<property name="hibernate.create_empty_composites.enabled" value ="true"/>
+			<property name="hibernate.show_sql" value = "true" />
+			<property name="hibernate.format_sql" value="true"/>
 		</properties>
 	</persistence-unit>
 	<persistence-unit name="error">
 		<class>com.sap.olingo.jpa.processor.core.errormodel.CollectionAttributeProtected</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.CountryKey</class>
 		<class>com.sap.olingo.jpa.processor.core.errormodel.NavigationAttributeProtected</class>
 		<class>com.sap.olingo.jpa.processor.core.errormodel.NavigationPropertyPartOfGroup</class>
 		<class>com.sap.olingo.jpa.processor.core.errormodel.EmbeddedKeyPartOfGroup</class>
@@ -82,10 +100,14 @@
 			<property name="eclipselink.logging.parameters" value="true" />
 			<property name="eclipselink.logging.timestamp" value="true" />
 			<property name="eclipselink.weaving" value="static" />
-			<property name="eclipselink.persistence-context.flush-mode"
-				value="commit" />
+			<property name="eclipselink.persistence-context.flush-mode" value="commit" />
 			<property name="eclipselink.logging.level" value="WARNING" />
 			<property name="eclipselink.logging.level.sql" value="WARNING" />
+			<property name="eclipselink.logging.level.metadata" value="ALL"/>
+			<!--  -->
+			<property name="openjpa.DynamicEnhancementAgent" value="true"/>
+			<property name="openjpa.RuntimeUnenhancedClasses" value="unsupported"/>
+			<property name="openjpa.ConnectionFactoryProperties" value="PrintParameters=true"/>			
 		</properties>
 	</persistence-unit>
 </persistence>

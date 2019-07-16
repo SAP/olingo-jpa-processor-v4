@@ -18,7 +18,6 @@ import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.Inheritance;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderColumn;
@@ -33,10 +32,10 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssoziation
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmVisibleFor;
 
-@Inheritance
 @Entity(name = "BusinessPartnerWithGroups")
 @Table(schema = "\"OLINGO\"", name = "\"BusinessPartner\"")
 public class BusinessPartnerWithGroups implements KeyAccess {
+
   @Id
   @Column(name = "\"ID\"")
   protected String iD;
@@ -108,7 +107,7 @@ public class BusinessPartnerWithGroups implements KeyAccess {
   private AdministrativeInformation administrativeInformation = new AdministrativeInformation();
 
   @OneToMany(mappedBy = "businessPartner", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-  private Collection<BusinessPartnerRole> roles;
+  private Collection<BusinessPartnerRoleWithGroup> roles;
 
   @Override
   public boolean equals(Object obj) {
@@ -126,10 +125,6 @@ public class BusinessPartnerWithGroups implements KeyAccess {
       return false;
     }
     return true;
-  }
-
-  public PostalAddressData getAddress() {
-    return address;
   }
 
   public AdministrativeInformation getAdministrativeInformation() {
@@ -177,7 +172,7 @@ public class BusinessPartnerWithGroups implements KeyAccess {
     return iD;
   }
 
-  public Collection<BusinessPartnerRole> getRoles() {
+  public Collection<BusinessPartnerRoleWithGroup> getRoles() {
     if (roles == null)
       roles = new ArrayList<>();
     return roles;
@@ -193,10 +188,6 @@ public class BusinessPartnerWithGroups implements KeyAccess {
     int result = 1;
     result = prime * result + ((iD == null) ? 0 : iD.hashCode());
     return result;
-  }
-
-  public void setAddress(final PostalAddressData address) {
-    this.address = address;
   }
 
   public void setAdministrativeInformation(final AdministrativeInformation administrativeInformation) {
@@ -239,7 +230,7 @@ public class BusinessPartnerWithGroups implements KeyAccess {
     this.iD = iD;
   }
 
-  public void setRoles(final Collection<BusinessPartnerRole> roles) {
+  public void setRoles(final Collection<BusinessPartnerRoleWithGroup> roles) {
     this.roles = roles;
   }
 

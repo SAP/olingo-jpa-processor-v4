@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
@@ -67,7 +68,7 @@ public class TestJPAQueryBuildSelectionPathList extends TestBase {
     final List<UriResource> resources = new ArrayList<>();
     final UriResourceEntitySet esResource = mock(UriResourceEntitySet.class);
     when(uriInfo.getUriResourceParts()).thenReturn(resources);
-    when(esResource.getKeyPredicates()).thenReturn(new ArrayList<>(1));
+    when(esResource.getKeyPredicates()).thenReturn(new ArrayList<>(0));
     when(esResource.getEntitySet()).thenReturn(odataEs);
     when(esResource.getKind()).thenReturn(UriResourceKind.entitySet);
     when(esResource.getType()).thenReturn(odataType);
@@ -80,57 +81,59 @@ public class TestJPAQueryBuildSelectionPathList extends TestBase {
 
   @Test
   public void checkSelectAllAsNoSelectionGiven() throws ODataApplicationException {
-    final List<JPAPath> act = cut.buildSelectionPathList(uriInfo);
+    final Collection<JPAPath> act = cut.buildSelectionPathList(uriInfo);
     assertEquals(23, act.size());
   }
 
   @Test
   public void checkSelectAllAsStarGiven() throws ODataApplicationException {
 
-    final List<JPAPath> act = cut.buildSelectionPathList(new UriInfoDouble(new SelectOptionDouble("*")));
+    final Collection<JPAPath> act = cut.buildSelectionPathList(new UriInfoDouble(new SelectOptionDouble("*")));
     assertEquals(23, act.size());
   }
 
   @Test
   public void checkSelectPrimitiveWithKey() throws ODataApplicationException {
-    final List<JPAPath> act = cut.buildSelectionPathList(new UriInfoDouble(new SelectOptionDouble("Country")));
+    final Collection<JPAPath> act = cut.buildSelectionPathList(new UriInfoDouble(new SelectOptionDouble("Country")));
     assertEquals(2, act.size());
   }
 
   @Test
   public void checkSelectAllFromComplexWithKey() throws ODataApplicationException {
-    final List<JPAPath> act = cut.buildSelectionPathList(new UriInfoDouble(new SelectOptionDouble("Address")));
+    final Collection<JPAPath> act = cut.buildSelectionPathList(new UriInfoDouble(new SelectOptionDouble("Address")));
     assertEquals(10, act.size());
   }
 
   @Test
   public void checkSelectKeyNoDuplicates() throws ODataApplicationException {
-    final List<JPAPath> act = cut.buildSelectionPathList(new UriInfoDouble(new SelectOptionDouble("ID")));
+    final Collection<JPAPath> act = cut.buildSelectionPathList(new UriInfoDouble(new SelectOptionDouble("ID")));
     assertEquals(1, act.size());
   }
 
   @Test
   public void checkSelectAllFromNavigationComplexPrimitiveWithKey() throws ODataApplicationException {
-    final List<JPAPath> act = cut.buildSelectionPathList(new UriInfoDouble(new SelectOptionDouble(
+    final Collection<JPAPath> act = cut.buildSelectionPathList(new UriInfoDouble(new SelectOptionDouble(
         "Address/CountryName")));
     assertEquals(2, act.size());
   }
 
   @Test
   public void checkSelectTwoPrimitiveWithKey() throws ODataApplicationException {
-    final List<JPAPath> act = cut.buildSelectionPathList(new UriInfoDouble(new SelectOptionDouble("Country,ETag")));
+    final Collection<JPAPath> act = cut.buildSelectionPathList(new UriInfoDouble(new SelectOptionDouble(
+        "Country,ETag")));
     assertEquals(3, act.size());
   }
 
   @Test
   public void checkSelectAllFromComplexAndOnePrimitiveWithKey() throws ODataApplicationException {
-    final List<JPAPath> act = cut.buildSelectionPathList(new UriInfoDouble(new SelectOptionDouble("Address,ETag")));
+    final Collection<JPAPath> act = cut.buildSelectionPathList(new UriInfoDouble(new SelectOptionDouble(
+        "Address,ETag")));
     assertEquals(11, act.size());
   }
 
   @Test
   public void checkSelectAllFromNavgateComplexPrimitiveAndOnePrimitiveWithKey() throws ODataApplicationException {
-    final List<JPAPath> act = cut.buildSelectionPathList(new UriInfoDouble(new SelectOptionDouble(
+    final Collection<JPAPath> act = cut.buildSelectionPathList(new UriInfoDouble(new SelectOptionDouble(
         "Address/CountryName,Country")));
     assertEquals(3, act.size());
   }
@@ -144,7 +147,7 @@ public class TestJPAQueryBuildSelectionPathList extends TestBase {
     when(property.getName()).thenReturn("AdministrativeInformation");
     resourcePath.add(complexResource);
 
-    final List<JPAPath> act = cut.buildSelectionPathList(uriInfo);
+    final Collection<JPAPath> act = cut.buildSelectionPathList(uriInfo);
     assertEquals(5, act.size());
   }
 
@@ -163,7 +166,7 @@ public class TestJPAQueryBuildSelectionPathList extends TestBase {
     when(createdProperty.getName()).thenReturn("Created");
     resourcePath.add(createdResource);
 
-    final List<JPAPath> act = cut.buildSelectionPathList(uriInfo);
+    final Collection<JPAPath> act = cut.buildSelectionPathList(uriInfo);
     assertEquals(3, act.size());
   }
 
@@ -188,7 +191,7 @@ public class TestJPAQueryBuildSelectionPathList extends TestBase {
     when(byProperty.getName()).thenReturn("By");
     resourcePath.add(byResource);
 
-    final List<JPAPath> act = cut.buildSelectionPathList(uriInfo);
+    final Collection<JPAPath> act = cut.buildSelectionPathList(uriInfo);
     assertEquals(2, act.size());
   }
 
@@ -206,7 +209,7 @@ public class TestJPAQueryBuildSelectionPathList extends TestBase {
     when(valueResource.getSegmentValue()).thenReturn(Util.VALUE_RESOURCE.toLowerCase());
     resourcePath.add(valueResource);
 
-    final List<JPAPath> act = cut.buildSelectionPathList(uriInfo);
+    final Collection<JPAPath> act = cut.buildSelectionPathList(uriInfo);
     assertEquals(2, act.size());
   }
 
@@ -223,7 +226,7 @@ public class TestJPAQueryBuildSelectionPathList extends TestBase {
 
     when(uriInfo.getSelectOption()).thenReturn(selOptions);
 
-    final List<JPAPath> act = cut.buildSelectionPathList(uriInfo);
+    final Collection<JPAPath> act = cut.buildSelectionPathList(uriInfo);
     assertEquals(2, act.size());
   }
 }

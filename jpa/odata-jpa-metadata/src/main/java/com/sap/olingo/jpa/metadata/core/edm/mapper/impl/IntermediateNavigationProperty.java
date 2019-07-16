@@ -158,6 +158,11 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
   }
 
   @Override
+  public boolean isEtag() {
+    return false;
+  }
+
+  @Override
   public boolean isKey() {
     return false;
   }

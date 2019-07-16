@@ -72,7 +72,7 @@ public class TestQueryBase extends TestBase {
     final List<UriResource> resources = new ArrayList<>();
     final UriResourceEntitySet esResource = Mockito.mock(UriResourceEntitySet.class);
     Mockito.when(uriInfo.getUriResourceParts()).thenReturn(resources);
-    Mockito.when(esResource.getKeyPredicates()).thenReturn(new ArrayList<>(1));
+    Mockito.when(esResource.getKeyPredicates()).thenReturn(new ArrayList<>(0));
     Mockito.when(esResource.getEntitySet()).thenReturn(odataEs);
     Mockito.when(esResource.getKind()).thenReturn(UriResourceKind.entitySet);
     Mockito.when(esResource.getType()).thenReturn(odataType);

@@ -6,7 +6,7 @@ import java.util.List;
 
 public class JPAODataGroupsProvider implements JPAODataGroupProvider {
 
-  private final List<String> groups = new ArrayList<>(1);
+  private final List<String> groups = new ArrayList<>(0);
 
   @Override
   public List<String> getGroups() {

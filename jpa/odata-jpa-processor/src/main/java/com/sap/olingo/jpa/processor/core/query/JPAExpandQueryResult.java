@@ -1,10 +1,14 @@
 package com.sap.olingo.jpa.processor.core.query;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 
+import javax.annotation.Nonnull;
 import javax.persistence.Tuple;
 
 import org.apache.olingo.commons.api.data.EntityCollection;
@@ -13,6 +17,7 @@ import org.apache.olingo.server.api.ODataApplicationException;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
@@ -25,20 +30,32 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
  *
  */
 public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertableResult {
+  private static final Map<String, List<Tuple>> EMPTY_RESULT;
   private final Map<JPAAssociationPath, JPAExpandResult> childrenResult;
   private final Map<String, List<Tuple>> jpaResult;
   private Map<String, EntityCollection> odataResult;
   private final Map<String, Long> counts;
   private final JPAEntityType jpaEntityType;
+  private final Collection<JPAPath> requestedSelection;
+
+  static {
+    EMPTY_RESULT = new HashMap<>(1);
+    EMPTY_RESULT.put(JPAExpandResult.ROOT_RESULT_KEY, Collections.emptyList());
+  }
+
+  public JPAExpandQueryResult(final JPAEntityType jpaEntityType, final Collection<JPAPath> selectionPath) {
+    this(EMPTY_RESULT, Collections.emptyMap(), jpaEntityType, selectionPath);
+  }
 
   public JPAExpandQueryResult(final Map<String, List<Tuple>> result, final Map<String, Long> counts,
-      final JPAEntityType jpaEntityType) {
+      @Nonnull final JPAEntityType jpaEntityType, final Collection<JPAPath> selectionPath) {
 
-    assertNotNull(jpaEntityType);
+    Objects.requireNonNull(jpaEntityType);
     childrenResult = new HashMap<>();
     this.jpaResult = result;
     this.counts = counts;
     this.jpaEntityType = jpaEntityType;
+    this.requestedSelection = selectionPath;
   }
 
   @Override
@@ -56,7 +73,7 @@ public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertab
       for (Entry<JPAAssociationPath, JPAExpandResult> childResult : childrenResult.entrySet()) {
         childResult.getValue().convert(converter);
       }
-      odataResult = converter.getResult(this);
+      odataResult = converter.getResult(this, requestedSelection);
     }
   }
 
@@ -137,11 +154,6 @@ public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertab
             HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
     childrenResult.putAll(childResults);
-  }
-
-  private void assertNotNull(final Object instance) {
-    if (instance == null)
-      throw new NullPointerException();
   }
 
   @Override

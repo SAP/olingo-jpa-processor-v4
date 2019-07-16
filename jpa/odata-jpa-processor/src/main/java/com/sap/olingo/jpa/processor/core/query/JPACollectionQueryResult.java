@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.query;
 
-import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,26 +17,41 @@ import org.apache.olingo.server.api.ODataApplicationException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.processor.core.converter.JPACollectionResult;
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 
 public class JPACollectionQueryResult implements JPACollectionResult, JPAConvertableResult {
+  private static final Map<String, List<Tuple>> EMPTY_RESULT;
   private final Map<JPAAssociationPath, JPAExpandResult> childrenResult;
   private final Map<String, List<Tuple>> jpaResult;
   private Map<String, List<Object>> collectionResult;
   private final Map<String, Long> counts;
   private final JPAEntityType jpaEntityType;
   private final JPAAssociationPath assoziation;
+  private final Collection<JPAPath> requestedSelection;
+
+  static {
+    EMPTY_RESULT = new HashMap<>(1);
+    EMPTY_RESULT.put(JPAExpandResult.ROOT_RESULT_KEY, Collections.emptyList());
+  }
+
+  public JPACollectionQueryResult(final JPAEntityType jpaEntityType, final JPAAssociationPath assoziation,
+      final Collection<JPAPath> selectionPath) {
+    this(EMPTY_RESULT, Collections.emptyMap(), jpaEntityType, assoziation, selectionPath);
+  }
 
   public JPACollectionQueryResult(final Map<String, List<Tuple>> result, final Map<String, Long> counts,
-      final JPAEntityType jpaEntityType, final JPAAssociationPath assoziation) {
+      final JPAEntityType jpaEntityType, final JPAAssociationPath assoziation,
+      final Collection<JPAPath> selectionPath) {
     super();
     this.childrenResult = new HashMap<>(1);
     this.jpaResult = result;
     this.counts = counts;
     this.jpaEntityType = jpaEntityType;
     this.assoziation = assoziation;
+    this.requestedSelection = selectionPath;
   }
 
   @Override
@@ -75,12 +91,13 @@ public class JPACollectionQueryResult implements JPACollectionResult, JPAConvert
 
   @Override
   public List<Object> getPropertyCollection(final String key) {
-    return collectionResult.containsKey(key) ? collectionResult.get(key) : new ArrayList<>(1);
+    return collectionResult.containsKey(key) ? collectionResult.get(key) : Collections.emptyList();
   }
 
   @Override
   public void convert(JPATupleChildConverter converter) throws ODataApplicationException {
-    this.collectionResult = converter.getCollectionResult(this);
+    this.collectionResult = converter.getCollectionResult(this, requestedSelection);
+
   }
 
   @Override
@@ -91,7 +108,7 @@ public class JPACollectionQueryResult implements JPACollectionResult, JPAConvert
   @Override
   public Map<String, EntityCollection> asEntityCollection(JPATupleChildConverter converter)
       throws ODataApplicationException {
-    this.collectionResult = converter.getCollectionResult(this);
+    this.collectionResult = converter.getCollectionResult(this, requestedSelection);
     final Map<String, EntityCollection> result = new HashMap<>(1);
     final EntityCollection collection = new EntityCollection();
     final Entity odataEntity = new Entity();
@@ -101,7 +118,8 @@ public class JPACollectionQueryResult implements JPACollectionResult, JPAConvert
         null,
         leaf.getExternalName(),
         leaf.isComplex() ? ValueType.COLLECTION_COMPLEX : ValueType.COLLECTION_PRIMITIVE,
-        collectionResult.get(ROOT_RESULT_KEY) != null ? collectionResult.get(ROOT_RESULT_KEY) : new ArrayList<>(1)));
+        collectionResult.get(ROOT_RESULT_KEY) != null ? collectionResult.get(ROOT_RESULT_KEY) : Collections
+            .emptyList()));
     collection.getEntities().add(odataEntity);
     result.put(ROOT_RESULT_KEY, collection);
 
