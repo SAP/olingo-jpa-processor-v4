@@ -7,7 +7,7 @@ import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
-import org.apache.olingo.server.api.uri.UriInfo;
+import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 
@@ -43,7 +43,7 @@ public final class JPACountRequestProcessor extends JPAAbstractGetRequestProcess
     }
   }
 
-  protected final EntityCollection countEntities(final ODataRequest request, final UriInfo uriInfo)
+  protected final EntityCollection countEntities(final ODataRequest request, final UriInfoResource uriInfo)
       throws ODataException {
 
     JPAJoinQuery query = null;

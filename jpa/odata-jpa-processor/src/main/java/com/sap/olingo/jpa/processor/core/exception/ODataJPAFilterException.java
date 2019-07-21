@@ -15,7 +15,8 @@ public class ODataJPAFilterException extends ODataJPAProcessException {
     NOT_SUPPORTED_FILTER,
     NOT_SUPPORTED_OPERATOR_TYPE,
     NOT_SUPPORTED_FUNCTION_COLLECTION,
-    NOT_SUPPORTED_FUNCTION_NOT_SCALAR;
+    NOT_SUPPORTED_FUNCTION_NOT_SCALAR,
+    NOT_ALLOWED_MEMBER;
 
     @Override
     public String getKey() {

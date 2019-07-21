@@ -40,4 +40,6 @@ interface JPAFilterComplierAccess {
 
   Optional<JPAODataClaimProvider> getClaimsProvider();
 
+  List<String> getGroups();
+
 }

@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 import javax.persistence.EntityManager;
 
 import org.apache.olingo.server.api.uri.UriInfo;
+import org.apache.olingo.server.api.uri.UriInfoResource;
 
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
@@ -23,7 +24,7 @@ public final class JPAODataRequestContextImpl implements JPAODataRequestContext,
   private Optional<JPAODataClaimProvider> claims = Optional.empty();
   private Optional<JPAODataGroupProvider> groups = Optional.empty();
   private EntityManager em;
-  private UriInfo uriInfo;
+  private UriInfoResource uriInfo;
   private JPASerializer serializer;
   private JPAODataPage page;
 
@@ -35,11 +36,11 @@ public final class JPAODataRequestContextImpl implements JPAODataRequestContext,
 
   }
 
-  JPAODataRequestContextImpl(final UriInfo uriInfo, final JPAODataRequestContextAccess context) {
+  public JPAODataRequestContextImpl(final UriInfoResource uriInfo, final JPAODataRequestContextAccess context) {
     this(uriInfo, null, context);
   }
 
-  JPAODataRequestContextImpl(final UriInfo uriInfo, @Nullable final JPASerializer serializer,
+  JPAODataRequestContextImpl(final UriInfoResource uriInfo, @Nullable final JPASerializer serializer,
       final JPAODataRequestContextAccess context) {
     copyContextValues(context);
     this.serializer = serializer;
@@ -66,7 +67,7 @@ public final class JPAODataRequestContextImpl implements JPAODataRequestContext,
   }
 
   @Override
-  public UriInfo getUriInfo() {
+  public UriInfoResource getUriInfo() {
     return this.uriInfo;
   }
 

@@ -24,6 +24,7 @@ import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 
 public class JPACollectionQueryResult implements JPACollectionResult, JPAConvertableResult {
   private static final Map<String, List<Tuple>> EMPTY_RESULT;
+
   private final Map<JPAAssociationPath, JPAExpandResult> childrenResult;
   private final Map<String, List<Tuple>> jpaResult;
   private Map<String, List<Object>> collectionResult;
@@ -34,12 +35,24 @@ public class JPACollectionQueryResult implements JPACollectionResult, JPAConvert
 
   static {
     EMPTY_RESULT = new HashMap<>(1);
-    EMPTY_RESULT.put(JPAExpandResult.ROOT_RESULT_KEY, Collections.emptyList());
+    putEmptyResult();
+  }
+
+  /**
+   * Add an empty list as result for root to the EMPTY_RESULT. This is needed, as the conversion eats up the database
+   * result.
+   * @see JPATupleChildConverter
+   * @return
+   */
+  private static Map<String, List<Tuple>> putEmptyResult() {
+    EMPTY_RESULT.put(ROOT_RESULT_KEY, Collections.emptyList());
+    return EMPTY_RESULT;
   }
 
   public JPACollectionQueryResult(final JPAEntityType jpaEntityType, final JPAAssociationPath assoziation,
       final Collection<JPAPath> selectionPath) {
-    this(EMPTY_RESULT, Collections.emptyMap(), jpaEntityType, assoziation, selectionPath);
+
+    this(putEmptyResult(), Collections.emptyMap(), jpaEntityType, assoziation, selectionPath);
   }
 
   public JPACollectionQueryResult(final Map<String, List<Tuple>> result, final Map<String, Long> counts,
@@ -52,57 +65,6 @@ public class JPACollectionQueryResult implements JPACollectionResult, JPAConvert
     this.jpaEntityType = jpaEntityType;
     this.assoziation = assoziation;
     this.requestedSelection = selectionPath;
-  }
-
-  @Override
-  public JPAExpandResult getChild(final JPAAssociationPath associationPath) {
-    return null;
-  }
-
-  @Override
-  public Map<JPAAssociationPath, JPAExpandResult> getChildren() {
-    return childrenResult;
-  }
-
-  @Override
-  public Long getCount(final String key) {
-    return counts != null ? counts.get(key) : null;
-  }
-
-  @Override
-  public JPAEntityType getEntityType() {
-    return jpaEntityType;
-  }
-
-  @Override
-  public List<Tuple> getResult(final String key) {
-    return jpaResult.get(key);
-  }
-
-  @Override
-  public Map<String, List<Tuple>> getResults() {
-    return jpaResult;
-  }
-
-  @Override
-  public boolean hasCount() {
-    return counts != null;
-  }
-
-  @Override
-  public List<Object> getPropertyCollection(final String key) {
-    return collectionResult.containsKey(key) ? collectionResult.get(key) : Collections.emptyList();
-  }
-
-  @Override
-  public void convert(JPATupleChildConverter converter) throws ODataApplicationException {
-    this.collectionResult = converter.getCollectionResult(this, requestedSelection);
-
-  }
-
-  @Override
-  public JPAAssociationPath getAssoziation() {
-    return assoziation;
   }
 
   @Override
@@ -127,14 +89,65 @@ public class JPACollectionQueryResult implements JPACollectionResult, JPAConvert
   }
 
   @Override
-  public void putChildren(final Map<JPAAssociationPath, JPAExpandResult> childResults)
-      throws ODataApplicationException {
-    // Not needed yet. Collections with navigation properties not supported
+  public void convert(JPATupleChildConverter converter) throws ODataApplicationException {
+    this.collectionResult = converter.getCollectionResult(this, requestedSelection);
+
+  }
+
+  @Override
+  public JPAAssociationPath getAssoziation() {
+    return assoziation;
+  }
+
+  @Override
+  public JPAExpandResult getChild(final JPAAssociationPath associationPath) {
+    return null;
+  }
+
+  @Override
+  public Map<JPAAssociationPath, JPAExpandResult> getChildren() {
+    return childrenResult;
+  }
+
+  @Override
+  public Long getCount(final String key) {
+    return counts != null ? counts.get(key) : null;
   }
 
   @Override
   public EntityCollection getEntityCollection(String key) {
     // Not needed yet. Collections with navigation properties not supported
     return new EntityCollection();
+  }
+
+  @Override
+  public JPAEntityType getEntityType() {
+    return jpaEntityType;
+  }
+
+  @Override
+  public List<Object> getPropertyCollection(final String key) {
+    return collectionResult.containsKey(key) ? collectionResult.get(key) : Collections.emptyList();
+  }
+
+  @Override
+  public List<Tuple> getResult(final String key) {
+    return jpaResult.get(key);
+  }
+
+  @Override
+  public Map<String, List<Tuple>> getResults() {
+    return jpaResult;
+  }
+
+  @Override
+  public boolean hasCount() {
+    return counts != null;
+  }
+
+  @Override
+  public void putChildren(final Map<JPAAssociationPath, JPAExpandResult> childResults)
+      throws ODataApplicationException {
+    // Not needed yet. Collections with navigation properties not supported
   }
 }

@@ -55,12 +55,15 @@ public class BusinessPartnerWithGroups implements KeyAccess {
   @Column(name = "\"CustomString1\"")
   @Convert(converter = StringConverter.class)
   protected String customString1;
+
   @EdmIgnore
   @Column(name = "\"CustomString2\"")
   protected String customString2;
+
   @EdmIgnore
   @Column(name = "\"CustomNum1\"", precision = 16, scale = 5)
   protected BigDecimal customNum1;
+
   @EdmIgnore
   @Column(name = "\"CustomNum2\"", precision = 34)
   protected BigDecimal customNum2;
@@ -108,6 +111,11 @@ public class BusinessPartnerWithGroups implements KeyAccess {
 
   @OneToMany(mappedBy = "businessPartner", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
   private Collection<BusinessPartnerRoleWithGroup> roles;
+
+  @ElementCollection(fetch = FetchType.LAZY)
+  @CollectionTable(schema = "\"OLINGO\"", name = "\"InhouseAddress\"",
+      joinColumns = @JoinColumn(name = "\"ID\""))
+  private List<InhouseAddressWithGroup> inhouseAddress = new ArrayList<>();
 
   @Override
   public boolean equals(Object obj) {

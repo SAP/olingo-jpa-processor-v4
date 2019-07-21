@@ -129,10 +129,11 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
         final VisitableExpression expression = createExpression();
         if (naviInfo.getUriResiource() instanceof UriResourceProperty) {
           queryList.add(new JPACollectionFilterQuery(odata, sd, em, parent, naviInfo.getAssociationPath(), expression,
-              determineFrom(i, naviPathList.size(), parent)));
+              determineFrom(i, naviPathList.size(), parent), groups));
         } else {
           queryList.add(new JPANavigationFilterQuery(odata, sd, naviInfo.getUriResiource(), parent, em, naviInfo
-              .getAssociationPath(), expression, determineFrom(i, naviPathList.size(), parent), claimsProvider));
+              .getAssociationPath(), expression, determineFrom(i, naviPathList.size(), parent), claimsProvider,
+              groups));
         }
       } else {
         queryList.add(new JPANavigationFilterQuery(odata, sd, naviInfo.getUriResiource(), parent, em, naviInfo

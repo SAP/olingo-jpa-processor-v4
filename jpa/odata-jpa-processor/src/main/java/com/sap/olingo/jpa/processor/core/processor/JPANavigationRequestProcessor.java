@@ -278,7 +278,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
         .buildCollectionItemInfo(sd, uriResourceInfo, parentHops, requestContext.getGroupsProvider());
     for (final JPACollectionItemInfo item : collectionInfoList) {
       final JPACollectionJoinQuery collectionQuery = new JPACollectionJoinQuery(odata, sessionContext, em, item,
-          headers);
+          headers, new JPAODataRequestContextImpl(item.getUriInfo(), requestContext));
       final JPAExpandResult expandResult = collectionQuery.execute();
       allExpResults.put(item.getExpandAssociation(), expandResult);
     }

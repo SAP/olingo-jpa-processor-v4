@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import com.sap.olingo.jpa.processor.core.api.JPAODataGroupsProvider;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 
@@ -161,6 +162,44 @@ public class TestJPAQueryCollection extends TestBase {
     ObjectNode second = (ObjectNode) complex.get("SecondLevel");
     ArrayNode address = (ArrayNode) second.get("Address");
     assertEquals(32, address.get(0).get("RoomNumber").asInt());
+  }
+
+  @Test
+  public void testSelectCollectionWithoutRequiredGroup() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerWithGroupss('1')?$select=Comment");
+    helper.assertStatus(200);
+
+    final ObjectNode collection = helper.getValue();
+    final ArrayNode act = (ArrayNode) collection.get("Comment");
+    assertEquals(0, act.size());
+
+  }
+
+  @Test
+  public void testSelectCollectionWithRequiredGroup() throws IOException, ODataException {
+    final JPAODataGroupsProvider groups = new JPAODataGroupsProvider();
+    groups.addGroup("Company");
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerWithGroupss('1')?$select=Comment", groups);
+    helper.assertStatus(200);
+
+    final ObjectNode collection = helper.getValue();
+    final ArrayNode act = (ArrayNode) collection.get("Comment");
+    assertEquals(2, act.size());
+  }
+
+  @Test
+  public void testSelectCollection() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations('1')?$select=Comment");
+    helper.assertStatus(200);
+
+    final ObjectNode collection = helper.getValue();
+    final ArrayNode act = (ArrayNode) collection.get("Comment");
+    assertEquals(2, act.size());
   }
 
 }

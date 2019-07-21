@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 
@@ -162,38 +163,57 @@ public class TestJPAQuerySelectByPath extends TestBase {
   }
 
   @Test
+  public void testNavigationToCollectionComplexGroupedPropertyNoGroups() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerWithGroupss('99')/InhouseAddress");
+    helper.assertStatus(200);
+    final ArrayNode act = (ArrayNode) helper.getValue().get("value");
+    assertEquals(2, act.size());
+    final ObjectNode addr = (ObjectNode) act.get(0);
+    assertFalse(addr.get("TaskID").isNull());
+    assertTrue(addr.get("RoomNumber").isNull());
+  }
+
+  @Test
   public void testNavigationToCollcetionGroupedPropertyNoGroups() throws IOException, ODataException {
 
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "BusinessPartnerWithGroupss('1')/Comment");
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "BusinessPartnerWithGroupss('1')/Comment");
+    helper.assertStatus(200);
+    // Ensure empty result works correct
+    helper = new IntegrationTestHelper(emf, "BusinessPartnerWithGroupss('1')/Comment");
     helper.assertStatus(200);
   }
 
   @Test
-  public void testNoNavigationButGroupsWithoutGoup() throws IOException, ODataException {
+  public void testNoNavigationButGroupsWithoutGroup() throws IOException, ODataException {
 
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "BusinessPartnerWithGroupss?$top=1");
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "BusinessPartnerWithGroupss('99')");
     helper.assertStatus(200);
 
-    final ObjectNode act = (ObjectNode) helper.getValue().get("value").get(0);
+    final ObjectNode act = helper.getValue();
     assertPresentNotNull(act, "ETag");
     assertPresentButNull(act, "CreationDateTime");
     assertPresentButNull(act, "Country");
     assertPresentButAllNull(act, "CommunicationData");
+    assertPresentNotEmpty(act, "InhouseAddress", "RoomNumber");
     assertPresentButNull(act, "Comment");
   }
 
   @Test
-  public void testNoNavigationButGroupsWithOneGoup() throws IOException, ODataException {
+  public void testNoNavigationButGroupsWithOneGroup() throws IOException, ODataException {
+
     final JPAODataGroupsProvider groups = new JPAODataGroupsProvider();
     groups.addGroup("Person");
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "BusinessPartnerWithGroupss?$top=1", groups);
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "BusinessPartnerWithGroupss('99')", groups);
     helper.assertStatus(200);
 
-    ObjectNode act = (ObjectNode) helper.getValue().get("value").get(0);
+    ObjectNode act = helper.getValue();
     assertPresentNotNull(act, "ETag");
     assertPresentButNull(act, "CreationDateTime");
     assertPresentNotNull(act, "Country");
     assertPresentNotNull(act, "CommunicationData");
+    assertPresentNotEmpty(act, "InhouseAddress", "RoomNumber");
     assertPresentButNull(act, "Comment");
   }
 
@@ -267,5 +287,17 @@ public class TestJPAQuerySelectByPath extends TestBase {
       assertFalse(((ArrayNode) target).size() == 0);
     else
       assertFalse(act.get(property).isNull());
+  }
+
+  private void assertPresentNotEmpty(final ObjectNode act, final String property, final String nullProperty) {
+    assertTrue(act.has(property));
+    final JsonNode target = act.get(property);
+    if (target instanceof ArrayNode) {
+      assertTrue(((ArrayNode) target).size() > 0);
+      ((ArrayNode) target).forEach(n -> assertFalse(n.isNull()));
+      assertTrue(target.get(0).get(nullProperty).isNull());
+    } else {
+      fail();
+    }
   }
 }

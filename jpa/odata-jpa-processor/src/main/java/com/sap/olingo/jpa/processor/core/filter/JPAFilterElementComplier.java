@@ -34,11 +34,12 @@ public final class JPAFilterElementComplier extends JPAAbstractFilter {
   final JPAServiceDocument sd;
   final List<UriResource> uriResourceParts;
   final JPAAbstractQuery parent;
+  final List<String> groups;
 
   public JPAFilterElementComplier(final OData odata, final JPAServiceDocument sd, final EntityManager em,
       final JPAEntityType jpaEntityType, final JPAOperationConverter converter,
       final List<UriResource> uriResourceParts, final JPAAbstractQuery parent, final VisitableExpression expression,
-      final JPAAssociationPath association) {
+      final JPAAssociationPath association, final List<String> groups) {
 
     super(jpaEntityType, expression, association);
     this.converter = converter;
@@ -47,6 +48,7 @@ public final class JPAFilterElementComplier extends JPAAbstractFilter {
     this.sd = sd;
     this.uriResourceParts = uriResourceParts;
     this.parent = parent;
+    this.groups = groups;
 
   }
 
@@ -121,4 +123,8 @@ public final class JPAFilterElementComplier extends JPAAbstractFilter {
     return Optional.empty();
   }
 
+  @Override
+  public List<String> getGroups() {
+    return groups;
+  }
 }

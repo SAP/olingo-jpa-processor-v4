@@ -23,7 +23,7 @@ import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 /**
- * Builds a hierarchy of expand results. One instance contains on the on hand of the result itself, a map which has the
+ * Builds a hierarchy of expand results. One instance contains on the one hand of the result itself, a map which has the
  * join columns values of the parent as its key and on the other hand a map that point the results of the next expand.
  * The join columns are concatenated in the order they are stored in the corresponding Association Path.
  * @author Oliver Grande
@@ -40,11 +40,22 @@ public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertab
 
   static {
     EMPTY_RESULT = new HashMap<>(1);
-    EMPTY_RESULT.put(JPAExpandResult.ROOT_RESULT_KEY, Collections.emptyList());
+    putEmptyResult();
+  }
+
+  /**
+   * Add an empty list as result for root to the EMPTY_RESULT. This is needed, as the conversion eats up the database
+   * result.
+   * @see JPATupleChildConverter
+   * @return
+   */
+  private static Map<String, List<Tuple>> putEmptyResult() {
+    EMPTY_RESULT.put(ROOT_RESULT_KEY, Collections.emptyList());
+    return EMPTY_RESULT;
   }
 
   public JPAExpandQueryResult(final JPAEntityType jpaEntityType, final Collection<JPAPath> selectionPath) {
-    this(EMPTY_RESULT, Collections.emptyMap(), jpaEntityType, selectionPath);
+    this(putEmptyResult(), Collections.emptyMap(), jpaEntityType, selectionPath);
   }
 
   public JPAExpandQueryResult(final Map<String, List<Tuple>> result, final Map<String, Long> counts,

@@ -12,7 +12,7 @@ import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.serializer.SerializerResult;
-import org.apache.olingo.server.api.uri.UriInfo;
+import org.apache.olingo.server.api.uri.UriInfoResource;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
@@ -27,7 +27,7 @@ abstract class JPAAbstractRequestProcessor {
   protected final JPAServiceDocument sd;
   protected final JPAODataSessionContextAccess sessionContext;
   protected final CriteriaBuilder cb;
-  protected final UriInfo uriInfo;
+  protected final UriInfoResource uriInfo;
   protected final JPASerializer serializer;
   protected final OData odata;
   protected final JPAServiceDebugger debugger;

@@ -15,7 +15,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.AbstractQuery;
@@ -66,11 +65,13 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterComplier;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterCrossComplier;
 import com.sap.olingo.jpa.processor.core.filter.JPAOperationConverter;
+import com.sap.olingo.jpa.processor.core.processor.JPAODataRequestContextImpl;
 
 public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements JPAQuery {
   protected static final String ALIAS_SEPERATOR = ".";
@@ -82,23 +83,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
   protected final JPAODataPage page;
   protected final List<JPANavigationProptertyInfo> navigationInfo;
   protected final JPANavigationProptertyInfo lastInfo;
-
-  public JPAAbstractJoinQuery(final OData odata, final JPAODataSessionContextAccess context,
-      final JPAEntityType jpaEntityType, final EntityManager em, final Map<String, List<String>> requestHeaders,
-      final UriInfoResource uriResource, final JPAODataPage page, final Optional<JPAODataClaimProvider> claimsProvider,
-      final List<JPANavigationProptertyInfo> navigationInfo)
-      throws ODataException {
-
-    super(odata, context.getEdmProvider().getServiceDocument(), jpaEntityType, em, context.getDebugger(),
-        claimsProvider);
-    this.locale = ExpressionUtil.determineLocale(requestHeaders);
-    this.uriResource = uriResource;
-    this.cq = cb.createTupleQuery();
-    this.context = context;
-    this.page = page;
-    this.navigationInfo = navigationInfo;
-    this.lastInfo = determineLastInfo(navigationInfo);
-  }
+  protected final JPAODataRequestContextAccess requestContext;
 
   public JPAAbstractJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
       final JPAEntityType jpaEntityType, final JPAODataRequestContextAccess requestContext,
@@ -112,11 +97,11 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
   protected JPAAbstractJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
       final JPAEntityType jpaEntityType, final UriInfoResource uriInfo,
       final JPAODataRequestContextAccess requestContext, final Map<String, List<String>> requestHeaders,
-      final List<JPANavigationProptertyInfo> navigationInfo)
-      throws ODataException {
+      final List<JPANavigationProptertyInfo> navigationInfo) throws ODataException {
 
     super(odata, sessionContext.getEdmProvider().getServiceDocument(), jpaEntityType, sessionContext.getDebugger(),
         requestContext);
+    this.requestContext = requestContext;
     this.locale = ExpressionUtil.determineLocale(requestHeaders);
     this.uriResource = uriInfo;
     this.cq = cb.createTupleQuery();
@@ -524,32 +509,14 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
    * path to the collection property needs to be traversed
    */
   protected void generateCollectionAttributeJoin(final Map<String, From<?, ?>> joinTables,
-      final Collection<JPAPath> jpaPathList, final JPANavigationProptertyInfo lastInfo) throws JPANoSelectionException {
+      final Collection<JPAPath> jpaPathList, final JPANavigationProptertyInfo lastInfo) throws JPANoSelectionException,
+      ODataJPAProcessorException {
+
     for (JPAPath path : jpaPathList) {
-      JPAElement collection = null;
       // 1. check if path contains collection attribute
-      for (JPAElement element : path.getPath()) {
-        if (element instanceof JPACollectionAttribute) {
-          if (path.isPartOfGroups(groupsProvider)) {
-            collection = element;
-          } else if (lastInfo.getAssociationPath() != null
-              && (lastInfo.getAssociationPath().getLeaf() instanceof JPACollectionAttribute)) {
-            throw new JPANoSelectionException();
-          }
-          break;
-        }
-      }
+      final JPAElement collection = findCollection(lastInfo, path);
       // 2. Check if join exists and create join if not
-      if (collection != null && !joinTables.containsKey(collection.getExternalName())) {
-        From<?, ?> f = target;
-        for (JPAElement element : path.getPath()) {
-          f = f.join(element.getInternalName());
-          if (element instanceof JPACollectionAttribute) {
-            break;
-          }
-        }
-        joinTables.put(collection.getExternalName(), f);
-      }
+      addCollection(joinTables, path, collection);
     }
   }
 
@@ -561,6 +528,21 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
   @Override
   JPAODataSessionContextAccess getContext() {
     return context;
+  }
+
+  private void addCollection(final Map<String, From<?, ?>> joinTables, final JPAPath path,
+      final JPAElement collection) {
+
+    if (collection != null && !joinTables.containsKey(collection.getExternalName())) {
+      From<?, ?> f = target;
+      for (JPAElement element : path.getPath()) {
+        f = f.join(element.getInternalName());
+        if (element instanceof JPACollectionAttribute) {
+          break;
+        }
+      }
+      joinTables.put(collection.getExternalName(), f);
+    }
   }
 
   private void addOrderByExpression(final List<Order> orders, final OrderByItem orderByItem,
@@ -660,6 +642,16 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
     }
   }
 
+  private boolean checkCollectionIsPartOfGroup(final String collectionPath) throws ODataJPAProcessorException {
+
+    try {
+      final JPAPath path = jpaEntity.getPath(collectionPath);
+      return path.isPartOfGroups(groupsProvider);
+    } catch (ODataJPAModelException e) {
+      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   private void convertSelectIntoPath(final SelectOption select, final Collection<JPAPath> jpaPathList,
       final boolean targetIsCollection, final String pathPrefix) throws ODataJPAModelException, ODataJPAQueryException {
 
@@ -693,7 +685,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
 
   private void createFromClauseCollectionsJoins(final HashMap<String, From<?, ?>> joinTables)
       throws ODataJPAQueryException {
-    final JPANavigationProptertyInfo lastInfo = this.navigationInfo.get(this.navigationInfo.size() - 1);
+
     try {
       if (lastInfo.getAssociationPath() != null
           && lastInfo.getAssociationPath().getLeaf() instanceof JPACollectionAttribute
@@ -707,12 +699,16 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
           element = pathElement;
         }
         joinTables.put(lastInfo.getAssociationPath().getAlias(), (From<?, ?>) p);
-        lastInfo.setFilterCompiler(new JPAFilterCrossComplier(odata, sd, em,
-            (JPAEntityType) ((JPAAssociationAttribute) element).getTargetEntity(), new JPAOperationConverter(cb,
-                context.getOperationConverter()), uriResource, this, (From<?, ?>) p, claimsProvider));
+        final JPAEntityType targetEt = (JPAEntityType) ((JPAAssociationAttribute) element).getTargetEntity();
+        final JPAOperationConverter converter = new JPAOperationConverter(cb, context.getOperationConverter());
+        final JPAODataRequestContextAccess subContext = new JPAODataRequestContextImpl(uriResource, requestContext);
+        lastInfo.setFilterCompiler(new JPAFilterCrossComplier(odata, sd, targetEt, converter, this, (From<?, ?>) p,
+            lastInfo.getAssociationPath(), subContext));
       } else {
-        lastInfo.setFilterCompiler(new JPAFilterCrossComplier(odata, sd, em, jpaEntity, new JPAOperationConverter(cb,
-            context.getOperationConverter()), uriResource, this, lastInfo.getAssociationPath(), claimsProvider));
+        final JPAOperationConverter converter = new JPAOperationConverter(cb, context.getOperationConverter());
+        final JPAODataRequestContextAccess subContext = new JPAODataRequestContextImpl(uriResource, requestContext);
+        lastInfo.setFilterCompiler(new JPAFilterCrossComplier(odata, sd, jpaEntity, converter, this, lastInfo
+            .getAssociationPath(), subContext));
       }
     } catch (ODataJPAModelException e) {
       throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_FILTER_ERROR,
@@ -754,9 +750,11 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
       naviInfo.setFromClause(target);
       if (naviInfo.getUriInfo() != null && naviInfo.getUriInfo().getFilterOption() != null) {
         try {
-          naviInfo.setFilterCompiler(new JPAFilterCrossComplier(odata, sd, em, naviInfo.getEntityType(),
-              new JPAOperationConverter(cb, context.getOperationConverter()), naviInfo.getUriInfo(), this, naviInfo
-                  .getFromClause(), claimsProvider));
+          final JPAOperationConverter converter = new JPAOperationConverter(cb, context.getOperationConverter());
+          final JPAODataRequestContextAccess subContext = new JPAODataRequestContextImpl(naviInfo.getUriInfo(),
+              requestContext);
+          naviInfo.setFilterCompiler(new JPAFilterCrossComplier(odata, sd, naviInfo.getEntityType(), converter, this,
+              naviInfo.getFromClause(), null, subContext));
         } catch (ODataJPAModelException e) {
           throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_FILTER_ERROR,
               HttpStatusCode.BAD_REQUEST, e);
@@ -812,5 +810,26 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
         allPath.add(path);
     }
     return allPath;
+  }
+
+  private JPAElement findCollection(final JPANavigationProptertyInfo lastInfo, final JPAPath path)
+      throws ODataJPAProcessorException, JPANoSelectionException {
+
+    JPAElement collection = null;
+    final StringBuilder collectionPath = new StringBuilder();
+    for (JPAElement element : path.getPath()) {
+      collectionPath.append(element.getExternalName());
+      if (element instanceof JPACollectionAttribute) {
+        if (checkCollectionIsPartOfGroup(collectionPath.toString())) {
+          collection = element;
+        } else if (lastInfo.getAssociationPath() != null
+            && (lastInfo.getAssociationPath().getLeaf() instanceof JPACollectionAttribute)) {
+          throw new JPANoSelectionException();
+        }
+        break;
+      }
+      collectionPath.append(JPAPath.PATH_SEPERATOR);
+    }
+    return collection;
   }
 }

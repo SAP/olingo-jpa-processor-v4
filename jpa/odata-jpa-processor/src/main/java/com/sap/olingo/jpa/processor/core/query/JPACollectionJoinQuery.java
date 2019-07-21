@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -37,6 +36,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys;
@@ -45,12 +45,12 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
   private final JPAAssociationPath assoziation;
 
   public JPACollectionJoinQuery(final OData odata, final JPAODataSessionContextAccess context, final EntityManager em,
-      final JPACollectionItemInfo item, final Map<String, List<String>> requestHeaders) throws ODataException {
+      final JPACollectionItemInfo item, final Map<String, List<String>> requestHeaders,
+      JPAODataRequestContextAccess requestContext) throws ODataException {
 
-    super(odata, context, item.getEntityType(), em, requestHeaders, item.getUriInfo(), null, Optional.empty(),
-        new ArrayList<>(item.getHops().subList(0, item.getHops().size() - 1)));
+    super(odata, context, item.getEntityType(), requestContext,
+        requestHeaders, new ArrayList<>(item.getHops().subList(0, item.getHops().size() - 1)));
     this.assoziation = item.getExpandAssociation();
-
   }
 
   @Override
@@ -75,8 +75,7 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
             .getStatusCode(), ODataJPAModelException.getLocales().nextElement(), e);
       }
     } catch (JPANoSelectionException e) {
-      return new JPACollectionQueryResult(Collections.emptyMap(), Collections.emptyMap(), this.jpaEntity, assoziation,
-          Collections.emptyList());
+      return new JPACollectionQueryResult(this.jpaEntity, assoziation, Collections.emptyList());
     }
   }
 
@@ -113,8 +112,9 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
               final JPAAttribute attribute = ((JPAAttribute) selectItemPath.getPath().get(0));
               expandPath(jpaEntity, jpaPathList, pathPrefix.isEmpty() ? attribute.getExternalName() : pathPrefix
                   + JPAPath.PATH_SEPERATOR + attribute.getExternalName(), true);
-            } else
+            } else {
               jpaPathList.add(selectItemPath);
+            }
           } else if (selectItemPath.getLeaf().isComplex()) {
             expandPath(jpaEntity, jpaPathList, pathPrefix.isEmpty() ? this.assoziation.getAlias() : pathPrefix
                 + JPAPath.PATH_SEPERATOR + this.assoziation.getAlias(), true);
@@ -164,9 +164,11 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
 
     // Build select clause
     for (final JPAPath jpaPath : jpaPathList) {
-      final Path<?> p = ExpressionUtil.convertToCriteriaPath(joinTables, target, jpaPath.getPath());
-      p.alias(jpaPath.getAlias());
-      selections.add(p);
+      if (jpaPath.isPartOfGroups(groups)) {
+        final Path<?> p = ExpressionUtil.convertToCriteriaPath(joinTables, target, jpaPath.getPath());
+        p.alias(jpaPath.getAlias());
+        selections.add(p);
+      }
     }
 
     debugger.stopRuntimeMeasurement(handle);

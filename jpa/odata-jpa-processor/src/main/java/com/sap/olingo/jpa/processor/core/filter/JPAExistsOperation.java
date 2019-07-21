@@ -35,6 +35,7 @@ abstract class JPAExistsOperation implements JPAOperator {
   protected final OData odata;
   protected final From<?, ?> from;
   protected final Optional<JPAODataClaimProvider> claimsProvider;
+  protected final List<String> groups;
 
   JPAExistsOperation(final JPAFilterComplierAccess jpaComplier) {
 
@@ -46,6 +47,7 @@ abstract class JPAExistsOperation implements JPAOperator {
     this.odata = jpaComplier.getOdata();
     this.from = jpaComplier.getRoot();
     this.claimsProvider = jpaComplier.getClaimsProvider();
+    this.groups = jpaComplier.getGroups();
   }
 
   @Override
@@ -116,6 +118,5 @@ abstract class JPAExistsOperation implements JPAOperator {
   public boolean isCollection(UriResource resourcePart) {
 
     return (resourcePart instanceof UriResourceProperty && ((UriResourceProperty) resourcePart).isCollection());
-
   }
 }
