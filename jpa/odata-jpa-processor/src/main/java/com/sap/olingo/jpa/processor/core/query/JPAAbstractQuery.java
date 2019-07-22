@@ -60,7 +60,7 @@ public abstract class JPAAbstractQuery {
   protected final OData odata;
   protected Locale locale;
   protected final Optional<JPAODataClaimProvider> claimsProvider;
-  protected final List<String> groupsProvider;
+  protected final List<String> groups;
 
   public JPAAbstractQuery(final OData odata, final JPAServiceDocument sd, final JPAEntityType jpaEntityType,
       final EntityManager em, final Optional<JPAODataClaimProvider> claimsProvider) {
@@ -73,11 +73,12 @@ public abstract class JPAAbstractQuery {
     this.debugger = new EmptyDebugger();
     this.odata = odata;
     this.claimsProvider = claimsProvider;
-    this.groupsProvider = Collections.emptyList();
+    this.groups = Collections.emptyList();
   }
 
   public JPAAbstractQuery(final OData odata, final JPAServiceDocument sd, final JPAEntityType jpaEntityType,
       final EntityManager em, final JPAServiceDebugger debugger, final Optional<JPAODataClaimProvider> claimsProvider) {
+    
     super();
     this.em = em;
     this.cb = em.getCriteriaBuilder();
@@ -86,7 +87,7 @@ public abstract class JPAAbstractQuery {
     this.debugger = debugger;
     this.odata = odata;
     this.claimsProvider = claimsProvider;
-    this.groupsProvider = Collections.emptyList();
+    this.groups = Collections.emptyList();
   }
 
   public JPAAbstractQuery(final OData odata, final JPAServiceDocument sd, final EdmEntityType edmEntityType,
@@ -103,13 +104,13 @@ public abstract class JPAAbstractQuery {
     this.debugger = new EmptyDebugger();
     this.odata = odata;
     this.claimsProvider = claimsProvider;
-    this.groupsProvider = Collections.emptyList();
+    this.groups = Collections.emptyList();
   }
 
   public JPAAbstractQuery(final OData odata, final JPAServiceDocument sd, final JPAEntityType jpaEntityType,
       final JPAServiceDebugger debugger, final JPAODataRequestContextAccess requestContext) {
     super();
-    final Optional<JPAODataGroupProvider> groups = requestContext.getGroupsProvider();
+    final Optional<JPAODataGroupProvider> groupsProvider = requestContext.getGroupsProvider();
     this.em = requestContext.getEntityManager();
     this.cb = em.getCriteriaBuilder();
     this.sd = sd;
@@ -117,7 +118,7 @@ public abstract class JPAAbstractQuery {
     this.debugger = debugger;
     this.odata = odata;
     this.claimsProvider = requestContext.getClaimsProvider();
-    this.groupsProvider = groups.isPresent() ? groups.get().getGroups() : Collections.emptyList();
+    this.groups = groupsProvider.isPresent() ? groupsProvider.get().getGroups() : Collections.emptyList();
   }
 
   protected javax.persistence.criteria.Expression<Boolean> createWhereByKey(final From<?, ?> root,
@@ -170,10 +171,10 @@ public abstract class JPAAbstractQuery {
     }
   }
 
-  protected Join<?, ?> createJoinFromPath(final String alias, final List<JPAElement> pathList, final From<?, ?> root,
-      final JoinType finalJoinType) {
+  protected <T, S> Join<T, S> createJoinFromPath(final String alias, final List<JPAElement> pathList,
+      final From<T, S> root, final JoinType finalJoinType) {
 
-    Join<?, ?> join = null;
+    Join<T, S> join = null;
     JoinType jt;
     for (int i = 0; i < pathList.size(); i++) {
       if (i == pathList.size() - 1)

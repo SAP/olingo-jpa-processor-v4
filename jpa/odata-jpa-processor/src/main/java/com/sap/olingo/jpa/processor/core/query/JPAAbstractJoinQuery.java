@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.processor.core.query;
 
+import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_NOT_ALLOWED_MEMBER;
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.QUERY_RESULT_ENTITY_TYPE_ERROR;
 
 import java.util.ArrayList;
@@ -331,6 +332,11 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
               if (uriResourceItem instanceof UriResourcePrimitiveProperty
                   && !((UriResourceProperty) uriResourceItem).isCollection()) {
                 p = p.get(type.getAttribute((UriResourceProperty) uriResourceItem).getInternalName());
+                final JPAPath path = type.getPath(((UriResourceProperty) uriResourceItem).getProperty().getName());
+                if (!path.isPartOfGroups(groups)) {
+                  throw new ODataJPAQueryException(QUERY_PREPARATION_NOT_ALLOWED_MEMBER, HttpStatusCode.FORBIDDEN,
+                      path.getAlias());
+                }
                 addOrderByExpression(orders, orderByItem, p);
               } else if (uriResourceItem instanceof UriResourceComplexProperty
                   && !((UriResourceProperty) uriResourceItem).isCollection()) {
@@ -646,7 +652,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
 
     try {
       final JPAPath path = jpaEntity.getPath(collectionPath);
-      return path.isPartOfGroups(groupsProvider);
+      return path.isPartOfGroups(groups);
     } catch (ODataJPAModelException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }

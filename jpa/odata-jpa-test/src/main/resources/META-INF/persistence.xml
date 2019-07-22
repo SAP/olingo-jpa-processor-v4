@@ -42,6 +42,7 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.InhouseAddressTable</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.InhouseAddressWithProtection</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.InhouseAddressWithThreeProtections</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.InhouseAddressWithGroup</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.JoinComplex</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.JoinRelation</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.JoinSource</class>
@@ -54,6 +55,7 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.PersonDeepProtected</class> 
 		<class>com.sap.olingo.jpa.processor.core.testmodel.PersonDeepProtectedHidden</class> 
 		<class>com.sap.olingo.jpa.processor.core.testmodel.PostalAddressData</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.PostalAddressDataWithGroup</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.StringConverter</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.SupportRelationship</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Team</class>

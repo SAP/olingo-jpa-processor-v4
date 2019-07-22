@@ -262,7 +262,7 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
     final Map<String, From<?, ?>> joinTables = createFromClause(new ArrayList<JPAAssociationPath>(1), selectionPath,
         cq, lastInfo);
     // TODO handle Join Column is ignored
-    cq.multiselect(createSelectClause(joinTables, selectionPath, target, groupsProvider));
+    cq.multiselect(createSelectClause(joinTables, selectionPath, target, groups));
     cq.distinct(true);
     final javax.persistence.criteria.Expression<Boolean> whereClause = createWhere();
     if (whereClause != null)

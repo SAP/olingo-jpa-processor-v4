@@ -104,7 +104,7 @@ public class BusinessPartnerWithGroups implements KeyAccess {
               @JoinColumn(referencedColumnName = "\"Address.RegionCodeID\"", name = "\"CodeID\""),
               @JoinColumn(referencedColumnName = "\"Address.Region\"", name = "\"DivisionCode\"") })
   })
-  private PostalAddressData address = new PostalAddressData();
+  private PostalAddressDataWithGroup address = new PostalAddressDataWithGroup();
 
   @Embedded
   private AdministrativeInformation administrativeInformation = new AdministrativeInformation();

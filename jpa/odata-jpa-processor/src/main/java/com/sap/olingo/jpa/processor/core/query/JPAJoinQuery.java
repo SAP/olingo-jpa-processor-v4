@@ -104,7 +104,7 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
     try {
       final Map<String, From<?, ?>> joinTables = createFromClause(orderByNaviAttributes, selectionPath, cq, lastInfo);
 
-      cq.multiselect(createSelectClause(joinTables, selectionPath, target, groupsProvider)).distinct(
+      cq.multiselect(createSelectClause(joinTables, selectionPath, target, groups)).distinct(
           determineDistinct());
 
       final javax.persistence.criteria.Expression<Boolean> whereClause = createWhere();
@@ -172,8 +172,8 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
   }
 
   private List<JPAAssociationPath> extractOrderByNaviAttributes() throws ODataApplicationException {
-    final List<JPAAssociationPath> naviAttributes = new ArrayList<>();
 
+    final List<JPAAssociationPath> naviAttributes = new ArrayList<>();
     final OrderByOption orderBy = uriResource.getOrderByOption();
     if (orderBy != null) {
       for (final OrderByItem orderByItem : orderBy.getOrders()) {
