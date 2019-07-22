@@ -8,7 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
-@Entity(name = "Team")
+@Entity(name = "ErrorTeam")
 @Table(schema = "\"OLINGO\"", name = "\"Team\"")
 public class Team {
 

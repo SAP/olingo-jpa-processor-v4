@@ -2,6 +2,7 @@ package com.sap.olingo.jpa.processor.core.modify;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +16,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.converter.JPACollectionResult;
+import com.sap.olingo.jpa.processor.core.converter.JPATuple;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 
@@ -51,7 +53,7 @@ class JPAMapCollectionResult extends JPAMapBaseResult implements JPACollectionRe
 
   @Override
   public void convert(final JPATupleChildConverter converter) throws ODataApplicationException {
-    converted = converter.getCollectionResult(this);
+    converted = converter.getCollectionResult(this, Collections.emptySet());
   }
 
   @Override

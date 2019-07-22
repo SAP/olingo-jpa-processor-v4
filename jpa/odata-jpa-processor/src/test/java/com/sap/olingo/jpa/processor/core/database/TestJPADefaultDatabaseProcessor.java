@@ -26,52 +26,45 @@ import com.sap.olingo.jpa.processor.core.filter.JPAEnumerationBasedOperator;
 import com.sap.olingo.jpa.processor.core.filter.JPAMethodCall;
 import com.sap.olingo.jpa.processor.core.filter.JPAUnaryBooleanOperator;
 
-public class TestJPADefaultDatabaseProcessor {
-  private JPADefaultDatabaseProcessor cut;
+public class TestJPADefaultDatabaseProcessor extends TestJPA_XXX_DatabaseProcessor {
 
   @BeforeEach
   public void setup() {
+    initEach();
+    oneParameterResult = "SELECT * FROM Example(?1)";
+    twoParameterResult = "SELECT * FROM Example(?1,?2)";
+    countResult = "SELECT COUNT(*) FROM Example(?1)";
     cut = new JPADefaultDatabaseProcessor();
   }
 
   @Test
   public void testNotSupportedConvertBooleanOperator() throws ODataApplicationException {
     final JPABooleanOperator operator = mock(JPABooleanOperator.class);
-    assertThrows(ODataJPAFilterException.class, () -> {
-      cut.convert(operator);
-    });
+    assertThrows(ODataJPAFilterException.class, () -> ((JPAODataDatabaseOperations) cut).convert(operator));
   }
 
   @Test
   public void testNotSupportedConvertAggregationOperator() throws ODataApplicationException {
     final JPAAggregationOperation operator = mock(JPAAggregationOperation.class);
-    assertThrows(ODataJPAFilterException.class, () -> {
-      cut.convert(operator);
-    });
+    assertThrows(ODataJPAFilterException.class, () -> ((JPAODataDatabaseOperations) cut).convert(operator));
   }
 
   @Test
   public void testNotSupportedConvertArithmeticOperator() throws ODataApplicationException {
     final JPAArithmeticOperator operator = mock(JPAArithmeticOperator.class);
-    assertThrows(ODataJPAFilterException.class, () -> {
-      cut.convert(operator);
-    });
+    assertThrows(ODataJPAFilterException.class, () -> ((JPAODataDatabaseOperations) cut).convert(operator));
   }
 
   @Test
   public void testNotSupportedConvertMethodCall() throws ODataApplicationException {
     final JPAMethodCall operator = mock(JPAMethodCall.class);
-    assertThrows(ODataJPAFilterException.class, () -> {
-      cut.convert(operator);
-    });
+    assertThrows(ODataJPAFilterException.class, () -> ((JPAODataDatabaseOperations) cut).convert(operator));
   }
 
   @Test
   public void testNotSupportedConvertUnaryBooleanOperator() throws ODataApplicationException {
     final JPAUnaryBooleanOperator operator = mock(JPAUnaryBooleanOperator.class);
-    assertThrows(ODataJPAFilterException.class, () -> {
-      cut.convert(operator);
-    });
+    assertThrows(ODataJPAFilterException.class, () -> ((JPAODataDatabaseOperations) cut).convert(operator));
   }
 
   @Test
@@ -84,9 +77,7 @@ public class TestJPADefaultDatabaseProcessor {
         return BinaryOperatorKind.SUB;
       }
     });
-    assertThrows(ODataJPAFilterException.class, () -> {
-      cut.convert(operator);
-    });
+    assertThrows(ODataJPAFilterException.class, () -> ((JPAODataDatabaseOperations) cut).convert(operator));
   }
 
   @SuppressWarnings("unchecked")
@@ -117,8 +108,8 @@ public class TestJPADefaultDatabaseProcessor {
     });
     when(cb.mod(cbResult, 2)).thenReturn(cbResult);
     when(cb.equal(cbResult, 1)).thenReturn(cbPredicate);
-    cut.setCriterialBuilder(cb);
-    final Expression<Boolean> act = cut.convert(operator);
+    ((JPAODataDatabaseOperations) cut).setCriterialBuilder(cb);
+    final Expression<Boolean> act = ((JPAODataDatabaseOperations) cut).convert(operator);
     assertNotNull(act);
   }
 

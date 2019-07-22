@@ -1,128 +1,56 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.annotation;
 
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
+import java.util.Objects;
+
 import org.apache.olingo.commons.api.edm.geo.SRID;
 import org.apache.olingo.commons.api.edm.provider.CsdlTypeDefinition;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 class TypeDefinition extends CsdlTypeDefinition {
 
-  TypeDefinition() {
-    super();
-  }
-
+  @Override
   @JacksonXmlProperty(localName = "Name", isAttribute = true)
-  private String name;
+  public CsdlTypeDefinition setName(final String name) {
+    return super.setName(name);
+  }
+
+  @Override
   @JacksonXmlProperty(localName = "UnderlyingType", isAttribute = true)
-  private String underlyingType;
+  public CsdlTypeDefinition setUnderlyingType(final String underlyingType) {
+    return super.setUnderlyingType(underlyingType);
+  }
+
+  @Override
   @JacksonXmlProperty(localName = "MaxLength", isAttribute = true)
-  private Integer maxLength;
+  public CsdlTypeDefinition setMaxLength(final Integer maxLength) {
+    return super.setMaxLength(maxLength);
+  }
+
+  @Override
   @JacksonXmlProperty(localName = "Precision", isAttribute = true)
-  private Integer precision;
+  public CsdlTypeDefinition setPrecision(final Integer precision) {
+    return super.setPrecision(precision);
+  }
+
+  @Override
   @JacksonXmlProperty(localName = "Scale", isAttribute = true)
-  private Integer scale;
-  @JacksonXmlProperty(localName = "SRID", isAttribute = true)
-  private String srid;
+  public CsdlTypeDefinition setScale(final Integer scale) {
+    return super.setScale(scale);
+  }
+
+  @Override
   @JacksonXmlProperty(localName = "Unicode", isAttribute = true)
-  private Boolean isUnicode;
-
-//@JacksonXmlProperty(localName = "Annotation")
-//protected List<Annotation> annotations;
-
-  @Override
-  public String getName() {
-    return name;
+  public CsdlTypeDefinition setUnicode(final boolean unicode) {
+    return super.setUnicode(unicode);
   }
 
-  @Override
-  public String getUnderlyingType() {
-    return underlyingType;
+  @JacksonXmlProperty(localName = "SRID", isAttribute = true)
+  void setSrid(final String srid) {
+    Objects.requireNonNull(srid);
+    super.setSrid(SRID.valueOf(srid));
   }
-
-  @Override
-  public Integer getMaxLength() {
-    return maxLength;
-  }
-
-  @Override
-  public Integer getPrecision() {
-    return new Integer(precision.intValue());
-  }
-
-  @Override
-  public Integer getScale() {
-    return scale;
-  }
-
-  @Override
-  public boolean isUnicode() {
-    return isUnicode;
-  }
-
-  @Override
-  public SRID getSrid() {
-    if (srid != null)
-      return SRID.valueOf(srid);
-    else
-      return null;
-  }
-
-  @Override
-  public TypeDefinition setName(String name) {
-    this.name = name;
-    return this;
-  }
-
-  @JsonSetter
-  @Override
-  public CsdlTypeDefinition setUnderlyingType(String underlyingType) {
-    this.underlyingType = underlyingType;
-    return this;
-  }
-
-  @Override
-  public CsdlTypeDefinition setUnderlyingType(FullQualifiedName underlyingType) {
-    this.underlyingType = underlyingType.getFullQualifiedNameAsString();
-    return this;
-  }
-
-  @Override
-  public CsdlTypeDefinition setMaxLength(Integer maxLength) {
-    this.maxLength = maxLength;
-    return this;
-  }
-
-  @Override
-  public CsdlTypeDefinition setPrecision(Integer precision) {
-    this.precision = precision;
-    return this;
-  }
-
-  @Override
-  public CsdlTypeDefinition setScale(Integer scale) {
-    this.scale = scale;
-    return this;
-  }
-
-  @Override
-  public CsdlTypeDefinition setUnicode(boolean unicode) {
-    this.isUnicode = unicode;
-    return this;
-  }
-
-  @Override
-  public CsdlTypeDefinition setSrid(SRID srid) {
-    this.srid = srid.toString();
-    return this;
-  }
-
-//  @Override
-//  public List<CsdlAnnotation> getAnnotations() {
-//    return annotations;
-//  }
 
 }

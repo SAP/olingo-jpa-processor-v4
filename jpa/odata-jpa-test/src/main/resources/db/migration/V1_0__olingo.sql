@@ -72,19 +72,20 @@ insert into "OrganizationImage" values ('9',null,'image/svg+xml','99','2016-01-2
 CREATE TABLE "BusinessPartnerRole" ( 
 	"BusinessPartnerID" VARCHAR(32) NOT NULL ,
 	"BusinessPartnerRole" VARCHAR(10) NOT NULL, 
+	"Details"  VARCHAR(256),
      PRIMARY KEY ("BusinessPartnerID","BusinessPartnerRole"));
 
-insert into "BusinessPartnerRole" values ('1',  'A');
-insert into "BusinessPartnerRole" values ('3',  'A');
-insert into "BusinessPartnerRole" values ('3',  'B');
-insert into "BusinessPartnerRole" values ('3',  'C');
-insert into "BusinessPartnerRole" values ('2',  'A');
-insert into "BusinessPartnerRole" values ('2',  'C');
-insert into "BusinessPartnerRole" values ('7',  'C');
-insert into "BusinessPartnerRole" values ('98',  'X');
-insert into "BusinessPartnerRole" values ('99',  'X');
-insert into "BusinessPartnerRole" values ('99',  'Z');
-insert into "BusinessPartnerRole" values ('97',  'Y');
+insert into "BusinessPartnerRole" values ('1',  'A', null);
+insert into "BusinessPartnerRole" values ('3',  'A', 'Test');
+insert into "BusinessPartnerRole" values ('3',  'B', 'YAT');
+insert into "BusinessPartnerRole" values ('3',  'C', 'Last Detail');
+insert into "BusinessPartnerRole" values ('2',  'A', null);
+insert into "BusinessPartnerRole" values ('2',  'C', null);
+insert into "BusinessPartnerRole" values ('7',  'C', null);
+insert into "BusinessPartnerRole" values ('98',  'X', null);
+insert into "BusinessPartnerRole" values ('99',  'X', null);
+insert into "BusinessPartnerRole" values ('99',  'Z', null);
+insert into "BusinessPartnerRole" values ('97',  'Y', null);
 
 CREATE TABLE "CountryDescription" ( 
 	"ISOCode" VARCHAR(4) NOT NULL ,

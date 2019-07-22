@@ -4,6 +4,7 @@ import static com.sap.olingo.jpa.processor.core.converter.JPAExpandResult.ROOT_R
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -396,8 +397,8 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
     try {
       final JPATupleChildConverter converter = new JPATupleChildConverter(sd, odata.createUriHelper(), serviceMetadata);
       final JPACreateResultFactory factory = new JPACreateResultFactory(converter);//
-      return converter.getResult(factory.getJPACreateResult(et, result, headers)).get(ROOT_RESULT_KEY).getEntities()
-          .get(0);
+      return converter.getResult(factory.getJPACreateResult(et, result, headers), Collections.emptySet())
+          .get(ROOT_RESULT_KEY).getEntities().get(0);
     } catch (ODataJPAModelException | ODataApplicationException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }

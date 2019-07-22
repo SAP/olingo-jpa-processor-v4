@@ -104,7 +104,7 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
     final List<JPAPath> result = new ArrayList<>();
     if (joinTable instanceof IntermediateJoinTable)
       for (final IntermediateJoinColumn column : ((IntermediateJoinTable) joinTable).buildInverseJoinColumns()) {
-      result.add(targetType.getPathByDBField(column.getName()));
+        result.add(targetType.getPathByDBField(column.getName()));
       }
     return result;
   }
@@ -151,12 +151,15 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
   public List<JPAPath> getLeftColumnsList() throws ODataJPAModelException {
     final List<JPAPath> result = new ArrayList<>();
     for (final IntermediateJoinColumn column : this.joinColumns) {
-      // ManyToOne
-      if (joinTable != null
-          || (cardinality == PersistentAttributeType.MANY_TO_ONE))
-        result.add(sourceType.getPathByDBField(column.getName()));
-      else
-        result.add(sourceType.getPathByDBField(column.getReferencedColumnName()));
+      JPAPath columnPath = null;
+      if (joinTable != null || (cardinality == PersistentAttributeType.MANY_TO_ONE)) {
+        columnPath = sourceType.getPathByDBField(column.getName());
+
+      } else {
+        columnPath = sourceType.getPathByDBField(column.getReferencedColumnName());
+      }
+      if (columnPath != null)
+        result.add(columnPath);
     }
     return result;
   }
@@ -180,11 +183,14 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
   public List<JPAPath> getRightColumnsList() throws ODataJPAModelException {
     final List<JPAPath> result = new ArrayList<>();
     for (final IntermediateJoinColumn column : this.joinColumns) {
-      // ManyToOne
+      JPAPath columnPath = null;
       if (cardinality == PersistentAttributeType.MANY_TO_ONE)
-        result.add(targetType.getPathByDBField(column.getReferencedColumnName()));
+        columnPath = targetType.getPathByDBField(column.getReferencedColumnName());
       else
-        result.add(targetType.getPathByDBField(column.getName()));
+        columnPath = targetType.getPathByDBField(column.getName());
+
+      if (columnPath != null)
+        result.add(columnPath);
     }
     return result;
   }

@@ -4,6 +4,7 @@ import static com.sap.olingo.jpa.processor.core.converter.JPAExpandResult.ROOT_R
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +63,7 @@ public class TestJPATupleChildConverterCompoundKey extends TestBase {
     keyPredicates.put("3", "BusinessPartnerID='3',RoleCategory='C'");
 
     EntityCollection act = cut.getResult(new JPAExpandQueryResult(resultContainer, null, helper.getJPAEntityType(
-        "BusinessPartnerRoles"))).get(ROOT_RESULT_KEY);
+        "BusinessPartnerRoles"), Collections.emptyList()), Collections.emptyList()).get(ROOT_RESULT_KEY);
 
     assertEquals(1, act.getEntities().size());
     assertEquals("3", act.getEntities().get(0).getProperty("BusinessPartnerID").getValue().toString());
@@ -97,7 +98,7 @@ public class TestJPATupleChildConverterCompoundKey extends TestBase {
     keyPredicates.put("DEU", "CodePublisher='ISO',CodeID='3166-1',DivisionCode='DEU',Language='en'");
 
     EntityCollection act = cut.getResult(new JPAExpandQueryResult(resultContainer, null, helper.getJPAEntityType(
-        "AdministrativeDivisionDescriptions"))).get(ROOT_RESULT_KEY);
+        "AdministrativeDivisionDescriptions"), Collections.emptyList()), Collections.emptyList()).get(ROOT_RESULT_KEY);
 
     assertEquals(1, act.getEntities().size());
     assertEquals("ISO", act.getEntities().get(0).getProperty("CodePublisher").getValue().toString());

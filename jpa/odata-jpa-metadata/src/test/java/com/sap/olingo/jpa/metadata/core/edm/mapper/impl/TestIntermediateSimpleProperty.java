@@ -89,8 +89,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   public void checkGetProptertySimpleType() throws ODataJPAModelException {
     Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class), "type");
     IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
-        jpaAttribute,
-        helper.schema);
+        jpaAttribute, helper.schema);
     assertEquals(EdmPrimitiveTypeKind.String.getFullQualifiedName().getFullQualifiedNameAsString(),
         property.getEdmItem().getType(), "Wrong type");
   }

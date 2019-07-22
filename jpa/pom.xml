@@ -5,7 +5,7 @@
 
 	<groupId>com.sap.olingo</groupId>
 	<artifactId>odata-jpa</artifactId>
-	<version>0.3.3-SNAPSHOT</version>
+	<version>0.3.4-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>odata-jpa</name>
@@ -54,6 +54,13 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
 					<version>3.0.0-M3</version>
+					<configuration>
+						<properties>
+							<configurationParameters>
+								junit.platform.output.capture.stdout = false
+							</configurationParameters>
+						</properties>
+					</configuration>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>

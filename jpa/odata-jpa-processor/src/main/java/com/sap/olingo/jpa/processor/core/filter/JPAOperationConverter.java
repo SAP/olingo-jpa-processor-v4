@@ -58,8 +58,7 @@ public class JPAOperationConverter {
       case MOD:
         if (jpaOperator.getRight() instanceof JPALiteralOperator)
           return (Expression<T>) cb.mod(jpaOperator.getLeftAsIntExpression(), new Integer(jpaOperator.getRightAsNumber(
-              cb)
-              .toString()));
+              cb).toString()));
         else
           return (Expression<T>) cb.mod(jpaOperator.getLeftAsIntExpression(), jpaOperator.getRightAsIntExpression());
 

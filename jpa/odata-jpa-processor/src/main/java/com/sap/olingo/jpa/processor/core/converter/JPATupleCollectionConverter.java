@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.converter;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +33,8 @@ public class JPATupleCollectionConverter extends JPATupleResultConverter {
   }
 
   @Override
-  public Map<String, List<Object>> getResult(final JPAExpandResult dbResult) throws ODataApplicationException {
+  public Map<String, List<Object>> getResult(final JPAExpandResult dbResult,
+      final Collection<JPAPath> reqestedSelection) throws ODataApplicationException {
 
     jpaQueryResult = dbResult;
     final JPACollectionResult jpaResult = (JPACollectionResult) dbResult;
@@ -58,7 +60,7 @@ public class JPATupleCollectionConverter extends JPATupleResultConverter {
             for (final TupleElement<?> element : row.getElements()) {
               final JPAPath path = st.getPath(determineAlias(element.getAlias(), prefix));
               convertAttribute(row.get(element.getAlias()), path, complexValueBuffer,
-                  value.getValue(), row, prefix, "");
+                  value.getValue(), row, prefix, null);
 
             }
             collection.add(value);

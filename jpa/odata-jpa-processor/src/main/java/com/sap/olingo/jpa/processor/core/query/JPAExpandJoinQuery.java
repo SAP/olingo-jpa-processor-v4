@@ -3,12 +3,14 @@ package com.sap.olingo.jpa.processor.core.query;
 import static java.util.stream.Collectors.joining;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Set;
 
-import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
@@ -33,7 +35,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
@@ -55,49 +57,84 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
   private final JPAAssociationPath assoziation;
 
-  public JPAExpandJoinQuery(final OData odata, final JPAODataSessionContextAccess context, final EntityManager em,
+  public JPAExpandJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
       final JPAInlineItemInfo item, final Map<String, List<String>> requestHeaders,
-      final Optional<JPAODataClaimsProvider> claimsProvider) throws ODataException {
+      final JPAODataRequestContextAccess requestContext) throws ODataException {
 
-    super(odata, context, item.getEntityType(), em, requestHeaders, item.getUriInfo(), null, claimsProvider);
+    super(odata, sessionContext, item.getEntityType(), item.getUriInfo(), requestContext, requestHeaders,
+        item.getHops());
     this.assoziation = item.getExpandAssociation();
-    this.navigationInfo = item.getHops();
   }
 
-  /**
-   * Use for testing
-   * @param odata
-   * @param context
-   * @param em
-   * @param uriInfo
-   * @param assoziation
-   * @param entityType
-   * @param requestHeaders
-   * @throws ODataException
-   */
-  public JPAExpandJoinQuery(final OData odata, final JPAODataSessionContextAccess context, final EntityManager em,
-      final UriInfoResource uriInfo, final JPAAssociationPath assoziation, final JPAEntityType entityType,
-      final Map<String, List<String>> requestHeaders, final Optional<JPAODataClaimsProvider> claimsProvider)
+  public JPAExpandJoinQuery(final OData odata, final JPAODataSessionContextAccess context,
+      final JPAAssociationPath assoziation, final JPAEntityType entityType,
+      final Map<String, List<String>> requestHeaders, final JPAODataRequestContextAccess requestContext)
       throws ODataException {
 
-    super(odata, context, entityType, em, requestHeaders, uriInfo, null, claimsProvider);
+    super(odata, context, entityType, requestContext, requestHeaders, Collections.emptyList());
     this.assoziation = assoziation;
   }
 
+//  public JPAExpandJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
+//      final JPAExpandItemInfo item, final Map<String, List<String>> requestHeaders,
+//      final JPAODataRequestContextAccess requestContext) throws ODataException {
+//
+//    super(odata, sessionContext, item.getEntityType(), item.getUriInfo(), requestContext, requestHeaders,
+//        item.getHops());
+//    this.assoziation = item.getExpandAssociation();
+//
+//  }
+
+  /**
+   * Process a expand query, which may contains a $skip and/or a $top option.<p>
+   * This is a tricky problem, as it can not be done easily with SQL. It could be that a database offers special
+   * solutions. There is an worth reading blog regards this topic:
+   * <a href="http://www.xaprb.com/blog/2006/12/07/how-to-select-the-firstleastmax-row-per-group-in-sql/">How to select
+   * the first/least/max row per group in SQL</a>
+   * @return query result
+   * @throws ODataApplicationException
+   */
   @Override
   public JPAExpandQueryResult execute() throws ODataApplicationException {
-    if (uriResource.getTopOption() != null || uriResource.getSkipOption() != null)
-      return executeExpandTopSkipQuery();
-    else {
-      return executeStandardQuery();
+    final int handle = debugger.startRuntimeMeasurement(this, "execute");
+
+    long skip = 0;
+    long top = Long.MAX_VALUE;
+    try {
+      final TypedQuery<Tuple> tupleQuery = createTupleQuery();
+      final int resultHandle = debugger.startRuntimeMeasurement(tupleQuery, "getResultList");
+      final List<Tuple> intermediateResult = tupleQuery.getResultList();
+      debugger.stopRuntimeMeasurement(resultHandle);
+      if (uriResource.getTopOption() != null || uriResource.getSkipOption() != null) {
+        // Simplest solution for the problem. Read all and throw away, what is not requested
+        if (uriResource.getSkipOption() != null)
+          skip = uriResource.getSkipOption().getValue();
+        if (uriResource.getTopOption() != null)
+          top = uriResource.getTopOption().getValue();
+      }
+      final Map<String, List<Tuple>> result = convertResult(intermediateResult, assoziation, skip, top);
+      try {
+        final Set<JPAPath> requestedSelection = new HashSet<>();
+        buildSelectionAddNavigationAndSelect(uriResource, requestedSelection, uriResource.getSelectOption());
+        debugger.stopRuntimeMeasurement(handle);
+        return new JPAExpandQueryResult(result, count(), jpaEntity, requestedSelection);
+
+      } catch (ODataJPAModelException e) {
+        throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR
+            .getStatusCode(), ODataJPAModelException.getLocales().nextElement(), e);
+      }
+    } catch (JPANoSelectionException e) {
+      return new JPAExpandQueryResult(Collections.emptyMap(), Collections.emptyMap(), this.jpaEntity, Collections
+          .emptyList());
     }
   }
 
   @Override
-  protected List<Selection<?>> createSelectClause(Map<String, From<?, ?>> joinTables, List<JPAPath> jpaPathList,
-      From<?, ?> target) throws ODataApplicationException {
+  protected List<Selection<?>> createSelectClause(Map<String, From<?, ?>> joinTables, Collection<JPAPath> jpaPathList,
+      From<?, ?> target, final List<String> groups) throws ODataApplicationException {
 
-    final List<Selection<?>> selections = new ArrayList<>(super.createSelectClause(joinTables, jpaPathList, target));
+    final List<Selection<?>> selections = new ArrayList<>(super.createSelectClause(joinTables, jpaPathList, target,
+        groups));
     if (assoziation.getJoinTable() != null) {
       // For associations with JoinTable the join columns, linking columns to the parent, need to be added
       createAdditionSelctionForJoinTable(selections);
@@ -273,15 +310,15 @@ public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
     return orders;
   }
 
-  private TypedQuery<Tuple> createTupleQuery() throws ODataApplicationException {
+  private TypedQuery<Tuple> createTupleQuery() throws ODataApplicationException, JPANoSelectionException {
     final int handle = debugger.startRuntimeMeasurement(this, "createTupleQuery");
 
-    final List<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
+    final Set<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
     final Map<String, From<?, ?>> joinTables = createFromClause(new ArrayList<JPAAssociationPath>(1),
-        selectionPath, cq);
+        selectionPath, cq, lastInfo);
 
     // TODO handle Join Column is ignored
-    cq.multiselect(createSelectClause(joinTables, selectionPath, target));
+    cq.multiselect(createSelectClause(joinTables, selectionPath, target, groups));
     cq.distinct(true);
     final javax.persistence.criteria.Expression<Boolean> whereClause = createWhere();
     if (whereClause != null)
@@ -340,46 +377,16 @@ public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
         HttpStatusCode.BAD_REQUEST);
   }
 
-  /**
-   * Process a expand query, which contains a $skip and/or a $top option.<p>
-   * This is a tricky problem, as it can not be done easily with SQL. It could be that a database offers special
-   * solutions.
-   * There is an worth reading blog regards this topic:
-   * <a href="http://www.xaprb.com/blog/2006/12/07/how-to-select-the-firstleastmax-row-per-group-in-sql/">How to select
-   * the first/least/max row per group in SQL</a>
-   * @return query result
-   * @throws ODataApplicationException
-   */
-  private JPAExpandQueryResult executeExpandTopSkipQuery() throws ODataApplicationException {
-    // TODO make this replacable e.g. by UNION ALL or use of window functions
-    final int handle = debugger.startRuntimeMeasurement(this, "executeExpandTopSkipQuery");
-
-    long skip = 0;
-    long top = Long.MAX_VALUE;
-    final TypedQuery<Tuple> tupleQuery = createTupleQuery();
-    // Simplest solution for the problem. Read all and throw away, what is not requested
-    final List<Tuple> intermediateResult = tupleQuery.getResultList();
-    if (uriResource.getSkipOption() != null)
-      skip = uriResource.getSkipOption().getValue();
-    if (uriResource.getTopOption() != null)
-      top = uriResource.getTopOption().getValue();
-
-    Map<String, List<Tuple>> result = convertResult(intermediateResult, assoziation, skip, top);
-    debugger.stopRuntimeMeasurement(handle);
-    return new JPAExpandQueryResult(result, count(), jpaEntity);
+  @Override
+  protected Set<JPAPath> buildSelectionPathList(UriInfoResource uriResource) throws ODataApplicationException {
+    try {
+      final Set<JPAPath> jpaPathList = super.buildSelectionPathList(uriResource);
+      jpaPathList.addAll(assoziation.getRightColumnsList());
+      return jpaPathList;
+    } catch (ODataJPAModelException e) {
+      throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR
+          .getStatusCode(), ODataJPAModelException.getLocales().nextElement(), e);
+    }
   }
 
-  private JPAExpandQueryResult executeStandardQuery() throws ODataApplicationException {
-    final int handle = debugger.startRuntimeMeasurement(this, "executeStandradQuery");
-
-    final TypedQuery<Tuple> tupleQuery = createTupleQuery();
-    final int resultHandle = debugger.startRuntimeMeasurement(tupleQuery, "getResultList");
-    final List<Tuple> intermediateResult = tupleQuery.getResultList();
-    debugger.stopRuntimeMeasurement(resultHandle);
-
-    Map<String, List<Tuple>> result = convertResult(intermediateResult, assoziation, 0, Long.MAX_VALUE);
-
-    debugger.stopRuntimeMeasurement(handle);
-    return new JPAExpandQueryResult(result, count(), jpaEntity);
-  }
 }
