@@ -57,7 +57,7 @@ public class TestIntermediateSchema extends TestMappingRoot {
   public void checkSchemaGetAllComplexTypes() throws ODataJPAModelException {
     IntermediateSchema schema = new IntermediateSchema(new JPAEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), r);
     // ChangeInformation,CommunicationData,AdministrativeInformation,PostalAddressData
-    assertEquals(16, schema.getEdmItem().getComplexTypes().size(), "Wrong number of complex types");
+    assertEquals(18, schema.getEdmItem().getComplexTypes().size(), "Wrong number of complex types");
   }
 
   @Test
