@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.query;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.olingo.commons.api.edm.EdmType;
@@ -128,7 +129,7 @@ public final class JPAExpandLevelWrapper implements JPAExpandItem {
 
   @Override
   public List<UriResource> getUriResourceParts() {
-    return item.getResourcePath() != null ? item.getResourcePath().getUriResourceParts() : new ArrayList<>(1);
+    return item.getResourcePath() != null ? item.getResourcePath().getUriResourceParts() : Collections.emptyList();
   }
 
   @Override

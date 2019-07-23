@@ -1,11 +1,14 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.annotation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.olingo.commons.api.edm.provider.CsdlAction;
 import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
 import org.apache.olingo.commons.api.edm.provider.CsdlEnumType;
+import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
 import org.apache.olingo.commons.api.edm.provider.CsdlTypeDefinition;
@@ -13,6 +16,12 @@ import org.apache.olingo.commons.api.edm.provider.CsdlTypeDefinition;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+
+/**
+ * http://docs.oasis-open.org/odata/ns/edmx
+ * @author Oliver Grande
+ *
+ */
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 class Schema {
@@ -30,15 +39,18 @@ class Schema {
 
   @JacksonXmlProperty(localName = "TypeDefinition")
   private List<TypeDefinition> typeDefinitions = new ArrayList<>();
-//
-//  @JacksonXmlProperty(localName = "EntityType")
-//  private List<EntityType> entityTypes = new ArrayList<EntityType>();
-//
+
   @JacksonXmlProperty(localName = "ComplexType")
   private List<ComplexType> complexTypes = new ArrayList<>();
 
   @JacksonXmlProperty(localName = "Term")
   private List<Term> terms = new ArrayList<>();
+
+  @JacksonXmlProperty(localName = "Function")
+  private List<Function> functions = new ArrayList<>();
+
+  @JacksonXmlProperty(localName = "Action")
+  private List<Action> actions = new ArrayList<>();
 
   CsdlSchema asCsdlSchema() {
     CsdlSchema csdlSchema = new CsdlSchema();
@@ -48,143 +60,73 @@ class Schema {
     csdlSchema.setEnumTypes(asEnumTypes());
     csdlSchema.setComplexTypes(asComplexTypes());
     csdlSchema.setTypeDefinitions(asTypeDefinitions());
+    csdlSchema.setFunctions(asFunctions());
+    csdlSchema.setActions(asActions());
     return csdlSchema;
-  }
-
-  String getAlias() {
-    return alias;
-  }
-
-  ComplexType getComplexType(String name) {
-
-    for (ComplexType c : complexTypes) {
-      if (c.getName().equals(name)) {
-        return c;
-      }
-    }
-    return null;
-  }
-
-  List<ComplexType> getComplexTypes() {
-    return Collections.unmodifiableList(complexTypes);
-  }
-
-  private List<CsdlComplexType> asComplexTypes() {
-    List<CsdlComplexType> csdlComplexType = new ArrayList<>();
-
-    for (ComplexType c : complexTypes) {
-      csdlComplexType.add(c);
-    }
-    return Collections.unmodifiableList(csdlComplexType);
-  }
-
-  EnumType getEnumType(String name) {
-    for (EnumType e : enumerations) {
-      if (e.getName().equals(name)) {
-        return e;
-      }
-    }
-    return null;
-  }
-
-  List<EnumType> getEnumTypes() {
-    return Collections.unmodifiableList(enumerations);
-  }
-
-  private List<CsdlEnumType> asEnumTypes() {
-    List<CsdlEnumType> csdlEnumType = new ArrayList<>();
-
-    for (EnumType e : enumerations) {
-      csdlEnumType.add(e);
-    }
-    return Collections.unmodifiableList(csdlEnumType);
   }
 
   String getNamespace() {
     return namespace;
   }
 
-  TypeDefinition getTypeDefinition(String name) {
-
-    for (TypeDefinition e : typeDefinitions) {
-      if (e.getName().equals(name)) {
-        return e;
-      }
-    }
-    return null;
-  }
-
-  List<TypeDefinition> getTypeDefinitions() {
-    return Collections.unmodifiableList(typeDefinitions);
-  }
-
-  private List<CsdlTypeDefinition> asTypeDefinitions() {
-    List<CsdlTypeDefinition> csdlTypeDefinion = new ArrayList<>();
-
-    for (TypeDefinition t : typeDefinitions) {
-      csdlTypeDefinion.add(t);
-    }
-    return Collections.unmodifiableList(csdlTypeDefinion);
+  List<Term> getTerms() {
+    return Collections.unmodifiableList(terms);
   }
 
   void setAlias(String alias) {
     this.alias = alias;
   }
 
+  @JsonSetter
+  void setComplexTypes(ComplexType[] newComplexTypes) {
+    complexTypes.addAll(Arrays.asList(newComplexTypes));
+  }
+
+  @JsonSetter
+  void setEnumerations(EnumType enumeration) {
+    this.enumerations.add(enumeration);
+  }
+
+  @JsonSetter
+  void setFunctions(Function[] newFunctions) {
+    functions.addAll(Arrays.asList(newFunctions));
+  }
+
   void setNamespace(String namespace) {
     this.namespace = namespace;
   }
 
-  /*
-   * &lt;element name="Action" type="{http://docs.oasis-open.org/odata/ns/edm}TAction"/>
-   * &lt;element name="Function" type="{http://docs.oasis-open.org/odata/ns/edm}TFunction"/>
-   * &lt;element name="Annotations" type="{http://docs.oasis-open.org/odata/ns/edm}TAnnotations"/>
-   * &lt;element name="EntityContainer" type="{http://docs.oasis-open.org/odata/ns/edm}TEntityContainer"/>
-   * &lt;element ref="{http://docs.oasis-open.org/odata/ns/edm}Annotation"/>
-   */
-  Term getTerm(String name) {
-    for (Term t : terms) {
-      if (t.getName().equals(name)) {
-        return t;
-      }
-    }
-    return null;
+  @JsonSetter
+  void setTerms(Term[] newTerms) {
+    terms.addAll(Arrays.asList(newTerms));
   }
 
-  List<Term> getTerms() {
-    return Collections.unmodifiableList(terms);
+  @JsonSetter
+  void setTypeDefinitions(TypeDefinition typeDefinition) {
+    this.typeDefinitions.add(typeDefinition);
+  }
+
+  private List<CsdlAction> asActions() {
+    return Collections.unmodifiableList(actions);
+  }
+
+  private List<CsdlComplexType> asComplexTypes() {
+    return Collections.unmodifiableList(complexTypes);
   }
 
   private List<CsdlTerm> asCsdlTerms() {
-    List<CsdlTerm> csdlTerms = new ArrayList<>();
-
-    for (Term t : terms) {
-      csdlTerms.add(t);
-    }
-    return Collections.unmodifiableList(csdlTerms);
+    return Collections.unmodifiableList(terms);
   }
 
-  @JsonSetter
-  void setComplexTypes(ComplexType[] newComplexTypes) {
-    for (ComplexType t : newComplexTypes) {
-      complexTypes.add(t);
-    }
+  private List<CsdlEnumType> asEnumTypes() {
+    return Collections.unmodifiableList(enumerations);
   }
 
-  @JsonSetter
-  void setEnumerations(ArrayList<EnumType> enumerations) {
-    this.enumerations = enumerations;
+  private List<CsdlFunction> asFunctions() {
+    return Collections.unmodifiableList(functions);
   }
 
-  @JsonSetter
-  void setTerms(Term[] newTerms) {
-    for (Term t : newTerms) {
-      terms.add(t);
-    }
-  }
-
-  @JsonSetter
-  void setTypeDefinitions(ArrayList<TypeDefinition> typeDefinitions) {
-    this.typeDefinitions = typeDefinitions;
+  private List<CsdlTypeDefinition> asTypeDefinitions() {
+    return Collections.unmodifiableList(typeDefinitions);
   }
 }

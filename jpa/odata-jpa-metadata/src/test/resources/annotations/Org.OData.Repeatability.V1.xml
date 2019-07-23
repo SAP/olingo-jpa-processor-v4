@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Technical Committee:
+  OASIS Open Data Protocol (OData) TC
+  https://www.oasis-open.org/committees/odata
+  Chairs:
+  - Ralf Handl (ralf.handl@sap.com), SAP SE
+  - Mike Pizzo (Ram.Jeyaraman@microsoft.com), Microsoft
+  Editors:
+  - Ralf Handl (ralf.handl@sap.com), SAP SE
+  - Ram Jeyaraman (Ram.Jeyaraman@microsoft.com), Microsoft
+  - Michael Pizzo (mikep@microsoft.com), Microsoft
+  Additional artifacts:
+  This vocabulary is one component of a Work Product that also includes the following vocabulary components:
+  - OData Aggregation Vocabulary. Latest version: https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Aggregation.V1.xml.
+  - OData Authorization Vocabulary. Latest version: https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Authorization.V1.xml.
+  - OData Capabilities Vocabulary. Latest version: https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Capabilities.V1.xml.
+  - OData Core Vocabulary. Latest version: https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Core.V1.xml.
+  - OData Measures Vocabulary. Latest version: https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Measures.V1.xml.
+  - OData Repeatability Vocabulary. Latest version: https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Repeatability.V1.xml.
+  - OData Validation Vocabulary. Latest version: https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Validation.V1.xml.
+  Related work:
+  This vocabulary replaces or supersedes:
+  - None.
+  This vocabulary is related to:
+  - OData Version 4.01 Part 1: Protocol. Latest version: http://docs.oasis-open.org/odata/odata/v4.01/odata-v4.01-part1-protocol.html.
+  - OData Version 4.01 Part 2: URL Conventions. Latest version: http://docs.oasis-open.org/odata/odata/v4.01/odata-v4.01-part2-url-conventions.html.
+  - OData Common Schema Definition Language (CSDL) JSON Representation Version 4.01. Latest version: http://docs.oasis-open.org/odata/odata-csdl-json/v4.01/odata-csdl-json-v4.01.html.
+  - OData Common Schema Definition Language (CSDL) XML Representation Version 4.01. Latest version: http://docs.oasis-open.org/odata/odata-csdl-xml/v4.01/odata-csdl-xml-v4.01.html.
+  - OData JSON Format Version 4.01. Latest version: http://docs.oasis-open.org/odata/odata-json-format/v4.01/odata-json-format-v4.01.html.
+  - OData Extension for Data Aggregation Version 4.0. Latest version: http://docs.oasis-open.org/odata/odata-data-aggregation-ext/v4.0/odata-data-aggregation-ext-v4.0.html.
+  - Repeatable Requests Version 1.0. Latest version: https://docs.oasis-open.org/odata/repeatable-requests/v1.0/repeatable-requests-v1.0.html.
+  Abstract:
+  This document contains terms describing repeatable requests.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:Reference Uri="https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Core.V1.xml">
+    <edmx:Include Alias="Core" Namespace="Org.OData.Core.V1" />
+  </edmx:Reference>
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Org.OData.Repeatability.V1" Alias="Repeatability">
+      <Annotation Term="Core.Description">
+        <String>Terms describing repeatable requests</String>
+      </Annotation>
+      <Annotation Term="Core.Links">
+        <Collection>
+          <Record>
+            <PropertyValue Property="rel" String="latest-version" />
+            <PropertyValue Property="href"
+              String="https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Repeatability.V1.xml" />
+          </Record>
+          <Record>
+            <PropertyValue Property="rel" String="alternate" />
+            <PropertyValue Property="href"
+              String="https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Repeatability.V1.json" />
+          </Record>
+          <Record>
+            <PropertyValue Property="rel" String="describedby" />
+            <PropertyValue Property="href"
+              String="https://github.com/oasis-tcs/odata-vocabularies/blob/master/vocabularies/Org.OData.Repeatability.V1.md" />
+          </Record>
+        </Collection>
+      </Annotation>
+
+      <Term Name="Supported" Type="Core.Tag" Nullable="false" DefaultValue="true"
+        AppliesTo="EntityContainer Action ActionImport EntitySet">
+        <Annotation Term="Core.Description"
+          String="Repeatable requests are supported for the annotated service, entity set, or action" />
+      </Term>
+      <Term Name="DeleteByClientIDSupported" Type="Core.Tag" Nullable="false" DefaultValue="true" AppliesTo="EntityContainer">
+        <Annotation Term="Core.Description" String="Deletion of remembered requests by client ID is supported" />
+        <Annotation Term="Core.LongDescription">
+          <String>Clients that specify a `RepeatabilityClientID` header can delete all remembered requests for that client ID by sending a `DELETE $RepeatableRequests/{ClientID}` request to the service root.</String>
+        </Annotation>
+      </Term>
+      <Term Name="DeleteByRequestIDSupported" Type="Core.Tag" Nullable="false" DefaultValue="true" AppliesTo="EntityContainer">
+        <Annotation Term="Core.Description" String="Deletion of remembered requests by request ID is supported" />
+        <Annotation Term="Core.LongDescription">
+          <String>Clients can delete a single remembered request by sending a `DELETE $RepeatableRequest/{RequestID}` request to the service root.</String>
+        </Annotation>
+      </Term>
+
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

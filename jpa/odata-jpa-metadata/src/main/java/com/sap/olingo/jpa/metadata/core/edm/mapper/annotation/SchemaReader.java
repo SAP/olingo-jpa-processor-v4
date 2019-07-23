@@ -36,11 +36,17 @@ public class SchemaReader {
 
   public Edmx readFromResource(final String path) throws IOException, ODataJPAModelException {
 
+    if (path == null || path.isEmpty()) {
+      return null;
+    }
     byte[] b = loadXML(path);
     return xmlMapper.readValue(new String(b), Edmx.class);
   }
 
   public Edmx readFromURI(final URI uri) throws IOException {
+    if (uri == null) {
+      return null;
+    }
     return xmlMapper.readValue(uri.toURL(), Edmx.class);
   }
 

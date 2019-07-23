@@ -26,7 +26,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterElementComplier;
 import com.sap.olingo.jpa.processor.core.filter.JPAOperationConverter;
@@ -36,7 +36,7 @@ public final class JPANavigationFilterQuery extends JPANavigationQuery {
 
   public JPANavigationFilterQuery(final OData odata, final JPAServiceDocument sd, final UriResource uriResourceItem,
       final JPAAbstractQuery parent, final EntityManager em, final JPAAssociationPath association,
-      final From<?, ?> from, final Optional<JPAODataClaimsProvider> claimsProvider) throws ODataApplicationException {
+      final From<?, ?> from, final Optional<JPAODataClaimProvider> claimsProvider) throws ODataApplicationException {
 
     super(odata, sd, (EdmEntityType) ((UriResourcePartTyped) uriResourceItem).getType(), em, parent, from, association,
         claimsProvider);
@@ -52,7 +52,8 @@ public final class JPANavigationFilterQuery extends JPANavigationQuery {
   public JPANavigationFilterQuery(final OData odata, final JPAServiceDocument sd, final UriResource uriResourceItem,
       final JPAAbstractQuery parent, final EntityManager em, final JPAAssociationPath association,
       final VisitableExpression expression, final From<?, ?> from,
-      final Optional<JPAODataClaimsProvider> claimsProvider) throws ODataApplicationException {
+      final Optional<JPAODataClaimProvider> claimsProvider, final List<String> groups)
+      throws ODataApplicationException {
 
     super(odata, sd, (EdmEntityType) ((UriResourcePartTyped) uriResourceItem).getType(), em, parent, from,
         association, claimsProvider);
@@ -62,7 +63,7 @@ public final class JPANavigationFilterQuery extends JPANavigationQuery {
     this.locale = parent.getLocale();
 
     this.filterComplier = new JPAFilterElementComplier(odata, sd, em, jpaEntity, new JPAOperationConverter(cb,
-        getContext().getOperationConverter()), null, this, expression, null);
+        getContext().getOperationConverter()), null, this, expression, null, groups);
     this.aggregationType = getAggregationType(this.filterComplier.getExpressionMember());
     createRoots(association);
     createDescriptionJoin();

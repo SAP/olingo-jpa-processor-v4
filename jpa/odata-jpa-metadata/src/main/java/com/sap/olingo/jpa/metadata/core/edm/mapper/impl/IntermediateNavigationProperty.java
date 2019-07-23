@@ -28,6 +28,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlReferentialConstraint;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtectedBy;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmVisibleFor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.AppliesTo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
@@ -105,6 +106,16 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
   }
 
   @Override
+  public Set<String> getProtectionClaimNames() {
+    return new HashSet<>(0);
+  }
+
+  @Override
+  public List<String> getProtectionPath(String claimName) throws ODataJPAModelException {
+    return new ArrayList<>(0);
+  }
+
+  @Override
   public JPAStructuredType getStructuredType() throws ODataJPAModelException {
     lazyBuildEdmItem();
     return sourceType;
@@ -143,6 +154,11 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
 
   @Override
   public boolean isEnum() {
+    return false;
+  }
+
+  @Override
+  public boolean isEtag() {
     return false;
   }
 
@@ -352,6 +368,12 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
       throw new ODataJPAModelException(MessageKeys.NOT_SUPPORTED_PROTECTED_NAVIGATION, this.sourceType.getTypeClass()
           .getCanonicalName(), this.internalName);
     }
+    final EdmVisibleFor jpaFieldGroups = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
+        .getAnnotation(EdmVisibleFor.class);
+    if (jpaFieldGroups != null) {
+      throw new ODataJPAModelException(MessageKeys.NOT_SUPPORTED_NAVIGATION_PART_OF_GROUP,
+          this.sourceType.getTypeClass().getCanonicalName(), this.internalName);
+    }
   }
 
   private void determienReferentialConstraints(final AnnotatedElement annotatedElement) throws ODataJPAModelException {
@@ -441,15 +463,5 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
       }
     }
     return null;
-  }
-
-  @Override
-  public List<String> getProtectionPath(String claimName) throws ODataJPAModelException {
-    return new ArrayList<>(0);
-  }
-
-  @Override
-  public Set<String> getProtectionClaimNames() {
-    return new HashSet<>(0);
   }
 }

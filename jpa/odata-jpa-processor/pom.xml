@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>com.sap.olingo</groupId>
 		<artifactId>odata-jpa</artifactId>
-		<version>0.3.3-SNAPSHOT</version>
+		<version>0.3.4-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>odata-jpa-processor</artifactId>
@@ -58,6 +58,11 @@
 			<artifactId>servlet-api</artifactId>
 			<version>${javax.version}</version>
 			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.google.code.findbugs</groupId>
+			<artifactId>jsr305</artifactId>
+			<version>3.0.2</version>
 		</dependency>
 	</dependencies>
 </project>

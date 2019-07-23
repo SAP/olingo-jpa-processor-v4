@@ -1,6 +1,5 @@
 package com.sap.olingo.jpa.processor.core.filter;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -55,7 +54,7 @@ public abstract class JPAAbstractFilter implements JPAFilterComplier, JPAFilterC
       }
       return Collections.unmodifiableList(visitor.get());
     } else {
-      return new ArrayList<>(1);
+      return Collections.emptyList();
     }
   }
 

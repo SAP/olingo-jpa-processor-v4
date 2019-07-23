@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.api;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -22,7 +23,6 @@ import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.batch.BatchFacade;
-import org.eclipse.persistence.jpa.jpql.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -77,7 +77,7 @@ public class JPAODataBatchProcessorTest {
 
     try {
       cut.processChangeSet(facade, requests);
-      Assert.fail("Should have thrown ODataJPAProcessorException!");
+      fail("Should have thrown ODataJPAProcessorException!");
     } catch (ODataJPAProcessorException e) {
       assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), e.getStatusCode());
     }
@@ -95,7 +95,7 @@ public class JPAODataBatchProcessorTest {
 
     try {
       cut.processChangeSet(facade, requests);
-      Assert.fail("Should have thrown ODataJPAProcessorException!");
+      fail("Should have thrown ODataJPAProcessorException!");
     } catch (ODataJPAProcessorException e) {
       assertEquals(HttpStatusCode.PRECONDITION_FAILED.getStatusCode(), e.getStatusCode());
     }

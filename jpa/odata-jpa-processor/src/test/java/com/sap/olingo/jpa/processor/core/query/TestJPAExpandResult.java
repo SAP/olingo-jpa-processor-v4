@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor;
@@ -35,6 +36,7 @@ public class TestJPAExpandResult extends TestBase {
   private JPAExpandJoinQuery cut;
   private EntityManager em;
   private JPAODataSessionContextAccess sessionContext;
+  private JPAODataRequestContextAccess requestContext;
   private TestHelper helper;
 
   @BeforeEach
@@ -43,19 +45,21 @@ public class TestJPAExpandResult extends TestBase {
     helper = new TestHelper(emf, PUNIT_NAME);
     em = emf.createEntityManager();
     sessionContext = mock(JPAODataSessionContextAccess.class);
+    requestContext = mock(JPAODataRequestContextAccess.class);
     JPAServiceDebugger debugger = mock(JPAServiceDebugger.class);
 
     when(sessionContext.getEdmProvider()).thenReturn(helper.edmProvider);
     when(sessionContext.getOperationConverter()).thenReturn(new JPADefaultDatabaseProcessor());
     when(sessionContext.getDebugger()).thenReturn(debugger);
+    when(requestContext.getClaimsProvider()).thenReturn(Optional.empty());
+    when(requestContext.getEntityManager()).thenReturn(em);
   }
 
   @Test
   public void testSelectAllWithAllExpand() throws ODataException {
     // .../Organizations?$expand=Roles&$format=json
     JPAInlineItemInfo item = createOrgExpandRoles(null, null);
-
-    cut = new JPAExpandJoinQuery(OData.newInstance(), sessionContext, em, item, headers, Optional.empty());
+    cut = new JPAExpandJoinQuery(OData.newInstance(), sessionContext, item, headers, requestContext);
     JPAExpandQueryResult act = cut.execute();
     assertEquals(4, act.getNoResults());
     assertEquals(7, act.getNoResultsDeep());
@@ -72,7 +76,7 @@ public class TestJPAExpandResult extends TestBase {
     keyPredicates.add(key);
     JPAInlineItemInfo item = createOrgExpandRoles(keyPredicates, null);
 
-    cut = new JPAExpandJoinQuery(OData.newInstance(), sessionContext, em, item, headers, Optional.empty());
+    cut = new JPAExpandJoinQuery(OData.newInstance(), sessionContext, item, headers, requestContext);
     JPAExpandQueryResult act = cut.execute();
     assertEquals(1, act.getNoResults());
     assertEquals(2, act.getNoResultsDeep());

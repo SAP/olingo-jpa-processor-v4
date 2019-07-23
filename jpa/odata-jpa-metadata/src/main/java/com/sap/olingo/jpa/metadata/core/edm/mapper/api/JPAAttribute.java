@@ -47,9 +47,12 @@ public interface JPAAttribute extends JPAElement {
 
   public boolean isEnum();
 
+  public boolean isEtag();
+
   public boolean isKey();
 
   public boolean isSearchable();
 
   public boolean hasProtection();
+
 }

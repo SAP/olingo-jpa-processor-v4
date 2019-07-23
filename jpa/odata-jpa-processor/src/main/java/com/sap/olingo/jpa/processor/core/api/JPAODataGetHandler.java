@@ -18,30 +18,29 @@ import org.apache.olingo.server.api.debug.DebugSupport;
 import org.apache.olingo.server.api.debug.RuntimeMeasurement;
 
 import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
+import com.sap.olingo.jpa.processor.core.processor.JPAODataRequestContextImpl;
 
 public class JPAODataGetHandler {
   final String namespace;
   public final EntityManagerFactory emf;
   private final JPAODataContextImpl context;
+  private final JPAODataRequestContextImpl requestContext;
   final DataSource ds;
   final OData odata;
   Metamodel jpaMetamodel;
 
   public JPAODataGetHandler(final String pUnit) throws ODataException {
-    this.namespace = pUnit;
-    this.ds = null;
-    this.emf = null;
-    this.context = new JPAODataContextImpl(this);
-    this.odata = OData.newInstance();
+    this(pUnit, null);
   }
 
   public JPAODataGetHandler(final String pUnit, final DataSource ds) throws ODataException {
     super();
     this.namespace = pUnit;
     this.ds = ds;
-    this.emf = JPAEntityManagerFactory.getEntityManagerFactory(pUnit, ds);
-    this.jpaMetamodel = emf.getMetamodel();
+    this.emf = ds != null ? JPAEntityManagerFactory.getEntityManagerFactory(pUnit, ds) : null;
+    this.jpaMetamodel = emf != null ? emf.getMetamodel() : null;
     this.context = new JPAODataContextImpl(this);
+    this.requestContext = new JPAODataRequestContextImpl();
     this.odata = OData.newInstance();
 
   }
@@ -50,36 +49,73 @@ public class JPAODataGetHandler {
     return context;
   }
 
+  public JPAODataRequestContext getJPAODataRequestContext() {
+    return requestContext;
+  }
+
   public void process(final HttpServletRequest request, final HttpServletResponse response) throws ODataException {
-    final EntityManager em = emf.createEntityManager();
-    try {
-      process(request, response, null, em);
-    } finally {
-      em.close();
+    if (emf != null && this.requestContext.getEntityManager() == null) {
+      final EntityManager em = emf.createEntityManager();
+      try {
+        process(request, response, em);
+      } finally {
+        em.close();
+      }
+    } else {
+      processInternal(request, response);
     }
   }
 
   @SuppressWarnings("unchecked")
-  public void process(final HttpServletRequest request, final HttpServletResponse response,
-      final JPAODataClaimsProvider claims, final EntityManager em) throws ODataException {
-
+  private void processInternal(final HttpServletRequest request, final HttpServletResponse response)
+      throws ODataException {
+    final EntityManager em = this.requestContext.getEntityManager();
     this.jpaMetamodel = em.getMetamodel();
     final ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(context.getEdmProvider(), context
         .getEdmProvider().getReferences()));
     context.getEdmProvider().setRequestLocales(request.getLocales());
     context.initDebugger(request.getParameter(DebugSupport.ODATA_DEBUG_QUERY_PARAMETER));
     handler.register(context.getDebugSupport());
-    handler.register(new JPAODataRequestProcessor(context, claims, em));
+    handler.register(new JPAODataRequestProcessor(context, requestContext));
     handler.register(new JPAODataBatchProcessor(context, em));
     handler.register(context.getEdmProvider().getServiceDocument());
     handler.register(context.getErrorProcessor());
     handler.process(request, response);
   }
 
+  /**
+   * @deprecated (Will be removed with 1.0.0, parameter <code>claims</code> and <code>em</code> not longer supported,
+   * use Request Context (<code>getJPAODataRequestContext</code>) instead)
+   * @param request
+   * @param response
+   * @param claims
+   * @param em
+   * @throws ODataException
+   */
+  @Deprecated
+  public void process(final HttpServletRequest request, final HttpServletResponse response,
+      final JPAODataClaimProvider claims, final EntityManager em) throws ODataException {
+
+    this.requestContext.setClaimsProvider(claims);
+    this.requestContext.setEntityManager(em);
+
+    process(request, response);
+  }
+
+  /**
+   * @deprecated (Will be removed with 1.0.0, parameter <code>em</code> not longer supported,
+   * use Request Context (<code>getJPAODataRequestContext</code>) instead)
+   * @param request
+   * @param response
+   * @param em
+   * @throws ODataException
+   */
+  @Deprecated
   public void process(final HttpServletRequest request, final HttpServletResponse response, final EntityManager em)
       throws ODataException {
 
-    process(request, response, null, em);
+    this.requestContext.setEntityManager(em);
+    process(request, response);
   }
 
   class JPADebugSupportWrapper implements DebugSupport {

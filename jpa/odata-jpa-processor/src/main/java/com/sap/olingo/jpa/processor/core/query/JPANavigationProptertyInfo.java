@@ -1,6 +1,6 @@
 package com.sap.olingo.jpa.processor.core.query;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.persistence.criteria.From;
@@ -47,7 +47,7 @@ public final class JPANavigationProptertyInfo {
     super();
     this.navigationTarget = null;
     this.associationPath = associationPath;
-    this.keyPredicates = new ArrayList<>(1);
+    this.keyPredicates = Collections.emptyList();
     this.uriInfo = uriInfo;
     this.sd = sd;
     this.et = et;
@@ -58,7 +58,8 @@ public final class JPANavigationProptertyInfo {
 
     this.navigationTarget = uriResource;
     this.associationPath = associationPath;
-    this.keyPredicates = uriResource.isCollection() ? new ArrayList<>(1) : Util.determineKeyPredicates(uriResource);
+    this.keyPredicates = uriResource.isCollection() ? Collections.emptyList() : Util.determineKeyPredicates(
+        uriResource);
     this.uriInfo = uriInfo;
     this.sd = sd;
   }

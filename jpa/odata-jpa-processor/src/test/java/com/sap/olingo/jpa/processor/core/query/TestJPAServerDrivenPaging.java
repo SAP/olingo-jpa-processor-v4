@@ -168,7 +168,7 @@ public class TestJPAServerDrivenPaging extends TestBase {
   public void testMaxPageSizeHeaderProvided() throws IOException, ODataException {
 
     headers = new HashMap<>();
-    final List<String> headerValues = new ArrayList<>(1);
+    final List<String> headerValues = new ArrayList<>(0);
     final JPAODataPagingProvider provider = mock(JPAODataPagingProvider.class);
 
     when(provider.getFirstPage(any(), any(), any(), any())).thenAnswer(i -> new JPAODataPage((UriInfo) i
@@ -185,7 +185,7 @@ public class TestJPAServerDrivenPaging extends TestBase {
   @Test
   public void testMaxPageSizeHeaderProvidedInLowerCase() throws IOException, ODataException {
     headers = new HashMap<>();
-    final List<String> headerValues = new ArrayList<>(1);
+    final List<String> headerValues = new ArrayList<>(0);
     final JPAODataPagingProvider provider = mock(JPAODataPagingProvider.class);
     when(provider.getFirstPage(any(), any(), any(), any())).thenAnswer(i -> new JPAODataPage((UriInfo) i
         .getArguments()[0], 0, 5, "Hugo"));
@@ -216,7 +216,7 @@ public class TestJPAServerDrivenPaging extends TestBase {
   public void testMaxPageSiteHeaderNotANumber() throws IOException, ODataException {
 
     headers = new HashMap<>();
-    final List<String> headerValues = new ArrayList<>(1);
+    final List<String> headerValues = new ArrayList<>(0);
     final JPAODataPagingProvider provider = mock(JPAODataPagingProvider.class);
 
     when(provider.getFirstPage(any(), any(), any(), any())).thenAnswer(i -> new JPAODataPage((UriInfo) i
@@ -243,7 +243,7 @@ public class TestJPAServerDrivenPaging extends TestBase {
     selItems.add(selItem);
 
     final UriInfoResource selectPath = mock(UriInfoResource.class);
-    final List<UriResource> selectPathItems = new ArrayList<>(1);
+    final List<UriResource> selectPathItems = new ArrayList<>(0);
     final UriResourcePrimitiveProperty selectResource = mock(UriResourcePrimitiveProperty.class);
     final EdmProperty selectProperty = mock(EdmProperty.class);
     selectPathItems.add(selectResource);

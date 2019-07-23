@@ -20,6 +20,9 @@ public interface JPAODataGetContext {
    */
   public void setDatabaseProcessor(final JPAODataDatabaseProcessor databaseProcessor);
 
+  /**
+   * @param jpaDebugSupport
+   */
   public void setDebugSupport(final DebugSupport jpaDebugSupport);
 
   /**

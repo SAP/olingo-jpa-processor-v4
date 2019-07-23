@@ -1,10 +1,14 @@
 package com.sap.olingo.jpa.processor.core.query;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 
+import javax.annotation.Nonnull;
 import javax.persistence.Tuple;
 
 import org.apache.olingo.commons.api.data.EntityCollection;
@@ -13,32 +17,56 @@ import org.apache.olingo.server.api.ODataApplicationException;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 /**
- * Builds a hierarchy of expand results. One instance contains on the on hand of the result itself, a map which has the
+ * Builds a hierarchy of expand results. One instance contains on the one hand of the result itself, a map which has the
  * join columns values of the parent as its key and on the other hand a map that point the results of the next expand.
  * The join columns are concatenated in the order they are stored in the corresponding Association Path.
  * @author Oliver Grande
  *
  */
 public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertableResult {
+  private static final Map<String, List<Tuple>> EMPTY_RESULT;
   private final Map<JPAAssociationPath, JPAExpandResult> childrenResult;
   private final Map<String, List<Tuple>> jpaResult;
   private Map<String, EntityCollection> odataResult;
   private final Map<String, Long> counts;
   private final JPAEntityType jpaEntityType;
+  private final Collection<JPAPath> requestedSelection;
+
+  static {
+    EMPTY_RESULT = new HashMap<>(1);
+    putEmptyResult();
+  }
+
+  /**
+   * Add an empty list as result for root to the EMPTY_RESULT. This is needed, as the conversion eats up the database
+   * result.
+   * @see JPATupleChildConverter
+   * @return
+   */
+  private static Map<String, List<Tuple>> putEmptyResult() {
+    EMPTY_RESULT.put(ROOT_RESULT_KEY, Collections.emptyList());
+    return EMPTY_RESULT;
+  }
+
+  public JPAExpandQueryResult(final JPAEntityType jpaEntityType, final Collection<JPAPath> selectionPath) {
+    this(putEmptyResult(), Collections.emptyMap(), jpaEntityType, selectionPath);
+  }
 
   public JPAExpandQueryResult(final Map<String, List<Tuple>> result, final Map<String, Long> counts,
-      final JPAEntityType jpaEntityType) {
+      @Nonnull final JPAEntityType jpaEntityType, final Collection<JPAPath> selectionPath) {
 
-    assertNotNull(jpaEntityType);
+    Objects.requireNonNull(jpaEntityType);
     childrenResult = new HashMap<>();
     this.jpaResult = result;
     this.counts = counts;
     this.jpaEntityType = jpaEntityType;
+    this.requestedSelection = selectionPath;
   }
 
   @Override
@@ -56,7 +84,7 @@ public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertab
       for (Entry<JPAAssociationPath, JPAExpandResult> childResult : childrenResult.entrySet()) {
         childResult.getValue().convert(converter);
       }
-      odataResult = converter.getResult(this);
+      odataResult = converter.getResult(this, requestedSelection);
     }
   }
 
@@ -137,11 +165,6 @@ public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertab
             HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
     childrenResult.putAll(childResults);
-  }
-
-  private void assertNotNull(final Object instance) {
-    if (instance == null)
-      throw new NullPointerException();
   }
 
   @Override

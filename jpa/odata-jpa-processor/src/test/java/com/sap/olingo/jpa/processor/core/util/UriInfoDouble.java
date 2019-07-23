@@ -46,10 +46,16 @@ public class UriInfoDouble implements UriInfo {
   private ExpandOption expandOpts;
   private List<UriResource> uriResources;
 
-  public UriInfoDouble(SelectOption selOpts) {
+  public UriInfoDouble(final SelectOption selOpts) {
     super();
     this.selOpts = selOpts;
-    this.uriResources = new ArrayList<>(1);
+    this.uriResources = new ArrayList<>(0);
+  }
+
+  public UriInfoDouble(final UriInfoResource resourcePath) {
+    super();
+    this.selOpts = null;
+    this.uriResources = resourcePath.getUriResourceParts();
   }
 
   @Override
