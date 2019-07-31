@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -17,6 +18,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -47,6 +49,10 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.processor.core.api.JPAAbstractCUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.api.JPACUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataGroupsProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
@@ -199,6 +205,46 @@ public class TestJPADeleteProcessor {
   }
 
   @Test
+  public void testClaimsProvided() throws ODataJPAProcessorException, SerializerException,
+      ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = mock(ODataRequest.class);
+
+    final RequestHandleSpy spy = new RequestHandleSpy();
+    final JPAODataClaimProvider provider = new JPAODataClaimsProvider();
+    final Optional<JPAODataClaimProvider> claims = Optional.of(provider);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getClaimsProvider()).thenReturn(claims);
+
+    processor.deleteEntity(request, response);
+
+    assertNotNull(spy.claims);
+    assertTrue(spy.claims.isPresent());
+    assertEquals(provider, spy.claims.get());
+  }
+
+  @Test
+  public void testGroupsProvided() throws ODataJPAProcessorException, SerializerException,
+      ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = mock(ODataRequest.class);
+
+    final RequestHandleSpy spy = new RequestHandleSpy();
+    final JPAODataGroupsProvider provider = new JPAODataGroupsProvider();
+    provider.addGroup("Person");
+    // final List<String> groups = new ArrayList<>(Arrays.asList("Person"));
+    final Optional<JPAODataGroupProvider> groups = Optional.of(provider);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getGroupsProvider()).thenReturn(groups);
+
+    processor.deleteEntity(request, response);
+
+    assertNotNull(spy.groups);
+    assertFalse(spy.groups.isEmpty());
+    assertEquals("Person", spy.groups.get(0));
+  }
+
+  @Test
   public void testConvertKeySingleAttribute() throws ODataJPAProcessException {
     ODataResponse response = new ODataResponse();
     ODataRequest request = mock(ODataRequest.class);
@@ -330,6 +376,8 @@ public class TestJPADeleteProcessor {
     public Map<String, Object> keyPredicates;
     public JPAEntityType et;
     public Map<String, List<String>> headers;
+    public Optional<JPAODataClaimProvider> claims;
+    public List<String> groups;
 
     @Override
     public void deleteEntity(final JPARequestEntity entity, final EntityManager em) {
@@ -337,6 +385,8 @@ public class TestJPADeleteProcessor {
       this.keyPredicates = entity.getKeys();
       this.et = entity.getEntityType();
       this.headers = entity.getAllHeader();
+      this.claims = entity.getClaims();
+      this.groups = entity.getGroups();
     }
 
     @Override

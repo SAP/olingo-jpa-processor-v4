@@ -25,8 +25,8 @@ import org.apache.olingo.server.api.uri.UriHelper;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOperation;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.converter.JPAComplexResultConverter;
 import com.sap.olingo.jpa.processor.core.converter.JPAEntityResultConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
@@ -46,26 +46,28 @@ abstract class JPAOperationRequestProcessor extends JPAAbstractRequestProcessor 
       final JPAOperation jpaOperation) throws ODataApplicationException {
 
     switch (returnType.getKind()) {
-    case PRIMITIVE:
-      if (jpaOperation.getResultParameter().isCollection()) {
-        final List<Object> response = new ArrayList<>();
-        response.addAll((Collection<?>) result);
-        return new Property(null, RESULT, ValueType.COLLECTION_PRIMITIVE, response);
-      } else if (result == null)
-        return null;
-      return new Property(null, RESULT, ValueType.PRIMITIVE, result);
-    case ENTITY:
-      return createEntityCollection((EdmEntityType) returnType, result, odata.createUriHelper(), jpaOperation);
-    case COMPLEX:
-      if (jpaOperation.getResultParameter().isCollection()) {
-        return new Property(null, RESULT, ValueType.COLLECTION_COMPLEX, createComplexCollection(
-            (EdmComplexType) returnType, result));
-      } else if (result == null)
-        return null;
-      return new Property(null, RESULT, ValueType.COMPLEX, createComplexValue((EdmComplexType) returnType,
-          result));
-    default:
-      break;
+      case PRIMITIVE:
+        if (jpaOperation.getResultParameter().isCollection()) {
+          final List<Object> response = new ArrayList<>();
+          response.addAll((Collection<?>) result);
+          return new Property(null, RESULT, ValueType.COLLECTION_PRIMITIVE, response);
+        } else if (result == null) {
+          return null;
+        }
+        return new Property(null, RESULT, ValueType.PRIMITIVE, result);
+      case ENTITY:
+        return createEntityCollection((EdmEntityType) returnType, result, odata.createUriHelper(), jpaOperation);
+      case COMPLEX:
+        if (jpaOperation.getResultParameter().isCollection()) {
+          return new Property(null, RESULT, ValueType.COLLECTION_COMPLEX, createComplexCollection(
+              (EdmComplexType) returnType, result));
+        } else if (result == null) {
+          return null;
+        }
+        return new Property(null, RESULT, ValueType.COMPLEX, createComplexValue((EdmComplexType) returnType,
+            result));
+      default:
+        break;
     }
     return null;
   }

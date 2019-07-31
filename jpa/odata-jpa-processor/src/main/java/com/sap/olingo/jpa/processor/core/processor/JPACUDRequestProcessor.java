@@ -46,8 +46,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPACUDRequestHandler;
-import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAInvocationTargetException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
@@ -360,13 +360,15 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
         final Map<JPAAssociationPath, List<JPARequestEntity>> relatedEntities = createInlineEntities(et, odataEntity,
             headers);
         final Map<JPAAssociationPath, List<JPARequestLink>> relationLinks = createRelationLinks(et, odataEntity);
-        return new JPARequestEntityImpl(et, jpaAttributes, relatedEntities, relationLinks, keys, headers);
+        return new JPARequestEntityImpl(et, jpaAttributes, relatedEntities, relationLinks, keys, headers,
+            requestContext);
       } else {
         // Handle requests like POST
         // .../AdministrativeDivisions(DivisionCode='DE6',CodeID='NUTS1',CodePublisher='Eurostat')/Children
         final Map<JPAAssociationPath, List<JPARequestEntity>> relatedEntities = createInlineEntities(odataEntity,
             jpaAssociationPath, headers);
-        return new JPARequestEntityImpl(et, new HashMap<>(0), relatedEntities, new HashMap<>(1), keys, headers);
+        return new JPARequestEntityImpl(et, Collections.emptyMap(), relatedEntities, Collections.emptyMap(), keys,
+            headers, requestContext);
       }
 
     } catch (ODataException e) {
@@ -388,7 +390,7 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
     final Map<JPAAssociationPath, List<JPARequestEntity>> relatedEntities = new HashMap<>(0);
     final Map<JPAAssociationPath, List<JPARequestLink>> relationLinks = new HashMap<>(0);
 
-    return new JPARequestEntityImpl(et, jpaAttributes, relatedEntities, relationLinks, keys, headers);
+    return new JPARequestEntityImpl(et, jpaAttributes, relatedEntities, relationLinks, keys, headers, requestContext);
   }
 
   private Entity convertEntity(JPAEntityType et, Object result, Map<String, List<String>> headers)
@@ -623,8 +625,8 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       final Map<String, Object> keys = helper.convertUriKeys(odata, et, edmEntitySetInfo.getKeyPredicates());
       final Map<String, Object> jpaAttributes = convertUriPath(et, resourceParts);
 
-      return new JPARequestEntityImpl(et, jpaAttributes, new HashMap<JPAAssociationPath, List<JPARequestEntity>>(0),
-          new HashMap<JPAAssociationPath, List<JPARequestLink>>(0), keys, headers);
+      return new JPARequestEntityImpl(et, jpaAttributes, Collections.emptyMap(), Collections.emptyMap(), keys, headers,
+          requestContext);
 
     } catch (ODataException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);

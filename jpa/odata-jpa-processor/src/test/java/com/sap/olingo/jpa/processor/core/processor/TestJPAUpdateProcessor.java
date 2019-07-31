@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -20,6 +21,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 
@@ -43,6 +45,10 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAAbstractCUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.api.JPACUDRequestHandler;
+import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataGroupsProvider;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAUpdateResult;
@@ -249,6 +255,46 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
     assertEquals(1, spy.headers.size());
     assertNotNull(spy.headers.get("If-Match"));
     assertEquals("2", spy.headers.get("If-Match").get(0));
+  }
+
+  @Test
+  public void testClaimsProvided() throws ODataJPAProcessorException, SerializerException,
+      ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
+
+    final RequestHandleSpy spy = new RequestHandleSpy();
+    final JPAODataClaimProvider provider = new JPAODataClaimsProvider();
+    final Optional<JPAODataClaimProvider> claims = Optional.of(provider);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getClaimsProvider()).thenReturn(claims);
+
+    processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
+
+    assertNotNull(spy.claims);
+    assertTrue(spy.claims.isPresent());
+    assertEquals(provider, spy.claims.get());
+  }
+
+  @Test
+  public void testGroupsProvided() throws ODataJPAProcessorException, SerializerException,
+      ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
+
+    final RequestHandleSpy spy = new RequestHandleSpy();
+    final JPAODataGroupsProvider provider = new JPAODataGroupsProvider();
+    provider.addGroup("Person");
+    // final List<String> groups = new ArrayList<>(Arrays.asList("Person"));
+    final Optional<JPAODataGroupProvider> groups = Optional.of(provider);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getGroupsProvider()).thenReturn(groups);
+
+    processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
+
+    assertNotNull(spy.groups);
+    assertFalse(spy.groups.isEmpty());
+    assertEquals("Person", spy.groups.get(0));
   }
 
   @Test
@@ -497,7 +543,8 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
     public HttpMethod method;
     public Map<String, List<String>> headers;
     private final JPAUpdateResult change;
-    // private Map<String, Object> keys;
+    public Optional<JPAODataClaimProvider> claims;
+    public List<String> groups;
 
     RequestHandleSpy() {
       this(new JPAUpdateResult(true, new Organization()));
@@ -517,6 +564,8 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
       this.called = true;
       this.method = verb;
       this.headers = requestEntity.getAllHeader();
+      this.claims = requestEntity.getClaims();
+      this.groups = requestEntity.getGroups();
       return change;
     }
 

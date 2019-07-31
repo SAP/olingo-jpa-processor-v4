@@ -1,7 +1,5 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
-import java.util.Optional;
-
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 
@@ -16,7 +14,6 @@ import org.apache.olingo.server.api.uri.UriInfoResource;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializer;
@@ -32,7 +29,7 @@ abstract class JPAAbstractRequestProcessor {
   protected final OData odata;
   protected final JPAServiceDebugger debugger;
   protected int successStatusCode = HttpStatusCode.OK.getStatusCode();
-  protected final Optional<JPAODataClaimProvider> claimsProvider;
+  // protected final Optional<JPAODataClaimProvider> claimsProvider;
   protected final JPAODataRequestContextAccess requestContext;
 
   public JPAAbstractRequestProcessor(final OData odata, final JPAODataCRUDContextAccess context,
@@ -46,7 +43,7 @@ abstract class JPAAbstractRequestProcessor {
     this.serializer = requestContext.getSerializer();
     this.odata = odata;
     this.debugger = requestContext.getDebugger();
-    this.claimsProvider = requestContext.getClaimsProvider();
+    // this.claimsProvider = requestContext.getClaimsProvider();
     this.requestContext = requestContext;
   }
 
