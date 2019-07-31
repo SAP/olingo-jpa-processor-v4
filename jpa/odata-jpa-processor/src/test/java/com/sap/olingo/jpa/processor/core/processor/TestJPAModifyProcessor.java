@@ -46,8 +46,8 @@ import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.processor.core.api.JPAAbstractCUDRequestHandler;
+import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
@@ -80,7 +80,7 @@ public abstract class TestJPAModifyProcessor {
   protected JPACUDRequestProcessor processor;
   protected OData odata;
   protected ServiceMetadata serviceMetadata;
-  protected JPAODataSessionContextAccess sessionContext;
+  protected JPAODataCRUDContextAccess sessionContext;
   protected JPAODataRequestContextAccess requestContext;
   protected UriInfo uriInfo;
   protected UriResourceEntitySet uriEts;
@@ -99,7 +99,7 @@ public abstract class TestJPAModifyProcessor {
   @BeforeEach
   public void setUp() throws Exception {
     odata = OData.newInstance();
-    sessionContext = mock(JPAODataSessionContextAccess.class);
+    sessionContext = mock(JPAODataCRUDContextAccess.class);
     requestContext = mock(JPAODataRequestContextAccess.class);
     serviceMetadata = mock(ServiceMetadata.class);
     uriInfo = mock(UriInfo.class);
@@ -116,7 +116,7 @@ public abstract class TestJPAModifyProcessor {
     debugger = mock(JPAServiceDebugger.class);
 
     when(sessionContext.getEdmProvider()).thenReturn(jpaEdm);
-    when(sessionContext.getDebugger()).thenReturn(debugger);
+    when(requestContext.getDebugger()).thenReturn(debugger);
     when(requestContext.getEntityManager()).thenReturn(em);
     when(requestContext.getUriInfo()).thenReturn(uriInfo);
     when(requestContext.getSerializer()).thenReturn(serializer);
@@ -136,7 +136,7 @@ public abstract class TestJPAModifyProcessor {
 
     final ODataRequest request = prepareSimpleRequest("return=representation");
 
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
     final Organization org = new Organization();
     when(em.find(Organization.class, "35")).thenReturn(org);
     org.setID("35");
@@ -179,7 +179,7 @@ public abstract class TestJPAModifyProcessor {
     final AdministrativeDivisionKey key = new AdministrativeDivisionKey("Eurostat", "NUTS2", "DE60");
     final AdministrativeDivision div = new AdministrativeDivision(key);
 
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
     when(em.find(AdministrativeDivision.class, key)).thenReturn(div);
     when(serviceMetadata.getEdm()).thenReturn(edm);
     when(edm.getEntityType(fqn)).thenReturn(edmET);

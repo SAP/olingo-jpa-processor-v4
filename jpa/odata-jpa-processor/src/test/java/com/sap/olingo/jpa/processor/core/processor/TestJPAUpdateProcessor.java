@@ -59,7 +59,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
     ODataRequest request = prepareSimpleRequest();
 
     RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
 
@@ -74,7 +74,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
     when(request.getMethod()).thenReturn(HttpMethod.PATCH);
 
     RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
 
@@ -89,7 +89,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
     when(request.getMethod()).thenReturn(HttpMethod.PATCH);
 
     RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
 
@@ -105,7 +105,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
     when(request.getMethod()).thenReturn(HttpMethod.PATCH);
 
     RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     InputStream is = new ByteArrayInputStream("{\"ID\" : \"35\", \"Country\" : \"USA\"}".getBytes("UTF-8"));
     when(request.getBody()).thenReturn(is);
@@ -136,7 +136,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
     when(request.getMethod()).thenReturn(HttpMethod.PUT);
 
     RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     InputStream is = new ByteArrayInputStream("{ \"value\": \"New Road\"}".getBytes("UTF-8"));
     when(request.getBody()).thenReturn(is);
@@ -176,7 +176,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
     when(request.getMethod()).thenReturn(HttpMethod.PUT);
 
     final RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     final InputStream is = new ByteArrayInputStream("{ \"value\": \"[\"YAC\",\"WTN\"]\"}".getBytes("UTF-8"));
     when(request.getBody()).thenReturn(is);
@@ -211,7 +211,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
     when(request.getMethod()).thenReturn(HttpMethod.PUT);
 
     final RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     final InputStream is = new ByteArrayInputStream(
         "{ \"value\": \"[{\"RoomNumber\": 25,\"Floor\": 2,\"TaskID\": \"DEV\",\"Building\": \"2\"}]\"}"
@@ -241,7 +241,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
     headers.put("If-Match", Arrays.asList("2"));
 
     RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
 
@@ -259,7 +259,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
 
     when(request.getMethod()).thenReturn(HttpMethod.PATCH);
     RequestHandleSpy spy = new RequestHandleSpy(new JPAUpdateResult(false, new Organization()));
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
 
@@ -274,7 +274,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
 
     when(request.getMethod()).thenReturn(HttpMethod.PATCH);
     RequestHandleSpy spy = new RequestHandleSpy(new JPAUpdateResult(true, new Organization()));
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
 
@@ -289,7 +289,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
 
     when(request.getMethod()).thenReturn(HttpMethod.PATCH);
     RequestHandleSpy spy = new RequestHandleSpy(new JPAUpdateResult(false, new Organization()));
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
 
@@ -304,7 +304,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
 
     when(request.getMethod()).thenReturn(HttpMethod.PATCH);
     RequestHandleSpy spy = new RequestHandleSpy(new JPAUpdateResult(true, new Organization()));
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
 
@@ -389,7 +389,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
     ODataRequest request = prepareSimpleRequest();
 
     RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
     assertEquals(1, spy.noValidateCalls);
@@ -401,7 +401,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
     ODataRequest request = prepareSimpleRequest();
 
     RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
     when(em.getTransaction()).thenReturn(transaction);
     when(transaction.isActive()).thenReturn(Boolean.TRUE);
 
@@ -415,7 +415,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
     final ODataRequest request = prepareSimpleRequest();
     when(request.getMethod()).thenReturn(HttpMethod.PATCH);
     final JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
-    when(sessionContext.getCUDRequestHandler()).thenReturn(handler);
+    when(requestContext.getCUDRequestHandler()).thenReturn(handler);
 
     doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
         HttpStatusCode.BAD_REQUEST)).when(handler).updateEntity(any(JPARequestEntity.class), any(EntityManager.class),
@@ -438,7 +438,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
     when(em.getTransaction()).thenReturn(transaction);
 
     JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
-    when(sessionContext.getCUDRequestHandler()).thenReturn(handler);
+    when(requestContext.getCUDRequestHandler()).thenReturn(handler);
 
     doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
         HttpStatusCode.BAD_REQUEST)).when(handler).validateChanges(em);

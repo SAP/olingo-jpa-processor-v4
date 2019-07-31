@@ -1,10 +1,12 @@
-package com.sap.olingo.jpa.processor.core.api;
+package com.sap.olingo.jpa.processor.core.processor;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import org.apache.olingo.server.api.debug.RuntimeMeasurement;
+
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 
 class JPACoreDebugger implements JPAServiceDebugger {
   private final List<RuntimeMeasurement> runtimeInformation = new ArrayList<>();

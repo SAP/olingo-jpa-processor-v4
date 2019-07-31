@@ -11,7 +11,6 @@ import javax.persistence.EntityManager;
 import javax.sql.DataSource;
 
 import org.apache.olingo.commons.api.ex.ODataException;
-import org.apache.olingo.server.api.debug.DebugSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -43,7 +42,7 @@ public class TestJPAODataGetHandler extends TestBase {
     cut = new JPAODataGetHandler(PUNIT_NAME);
     assertNotNull(cut.getJPAODataContext());
     assertNull(cut.ds);
-    assertNull(cut.emf);
+    assertFalse(cut.emf.isPresent());
     assertNotNull(cut.odata);
     assertNotNull(cut.namespace);
   }
@@ -115,13 +114,57 @@ public class TestJPAODataGetHandler extends TestBase {
   }
 
   @Test
-  public void testInitDebugger() throws IOException, ODataException {
-    request.setDebugFormat(DebugSupport.ODATA_DEBUG_JSON);
-    cut = new JPAODataGetHandler(PUNIT_NAME, ds);
-    cut.getJPAODataContext().setTypePackage(enumPackages);
+  public void testGetHandlerProvidingContext() throws ODataException {
+    final JPAODataCRUDContextAccess context = JPAODataServiceContext.with()
+        .setDataSource(ds)
+        .setPUnit(PUNIT_NAME)
+        .build();
+    cut = new JPAODataGetHandler(context);
+    assertNotNull(cut);
+  }
+
+  @Test
+  public void testGetRequestContextProvidingSessionContext() throws ODataException {
+    final JPAODataCRUDContextAccess context = JPAODataServiceContext.with()
+        .setDataSource(ds).setPUnit(PUNIT_NAME).build();
+    cut = new JPAODataGetHandler(context);
+    assertNotNull(cut.getJPAODataRequestContext());
+  }
+
+  @Test
+  public void testPropertiesInstanceProvidingSessionContext() throws ODataException {
+
+    final JPAODataCRUDContextAccess context = JPAODataServiceContext.with()
+        .setDataSource(ds).setPUnit(PUNIT_NAME).build();
+    cut = new JPAODataGetHandler(context);
+    assertNull(cut.ds);
+    assertNotNull(cut.odata);
+    assertNull(cut.namespace);
+  }
+
+  @Test
+  public void testProcessOnlyProvidingSessionContext() throws ODataException {
+
+    final JPAODataCRUDContextAccess context = JPAODataServiceContext.with()
+        .setDataSource(ds)
+        .setPUnit(PUNIT_NAME)
+        .setTypePackage(enumPackages)
+        .build();
+    new JPAODataGetHandler(context).process(request, response);
+    assertEquals(200, response.getStatus());
+  }
+
+  @Test
+  public void testProcessWithEntityManagerProvidingSessionContext() throws ODataException {
+
+    final JPAODataCRUDContextAccess context = JPAODataServiceContext.with()
+        .setDataSource(ds)
+        .setPUnit(PUNIT_NAME)
+        .setTypePackage(enumPackages)
+        .build();
+    cut = new JPAODataGetHandler(context);
+    cut.getJPAODataRequestContext().setEntityManager(emf.createEntityManager());
     cut.process(request, response);
-    final JPAServiceDebugger act = ((JPAODataSessionContextAccess) cut.getJPAODataContext()).getDebugger();
-    assertNotNull(act);
-    assertFalse(act instanceof JPAEmptyDebugger);
+    assertEquals(200, response.getStatus());
   }
 }

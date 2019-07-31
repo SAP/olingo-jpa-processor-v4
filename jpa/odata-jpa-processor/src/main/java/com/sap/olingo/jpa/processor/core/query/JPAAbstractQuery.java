@@ -41,10 +41,10 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAProtectionInfo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAClaimsPair;
+import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
@@ -78,7 +78,7 @@ public abstract class JPAAbstractQuery {
 
   public JPAAbstractQuery(final OData odata, final JPAServiceDocument sd, final JPAEntityType jpaEntityType,
       final EntityManager em, final JPAServiceDebugger debugger, final Optional<JPAODataClaimProvider> claimsProvider) {
-    
+
     super();
     this.em = em;
     this.cb = em.getCriteriaBuilder();
@@ -108,14 +108,14 @@ public abstract class JPAAbstractQuery {
   }
 
   public JPAAbstractQuery(final OData odata, final JPAServiceDocument sd, final JPAEntityType jpaEntityType,
-      final JPAServiceDebugger debugger, final JPAODataRequestContextAccess requestContext) {
+      final JPAODataRequestContextAccess requestContext) {
     super();
     final Optional<JPAODataGroupProvider> groupsProvider = requestContext.getGroupsProvider();
     this.em = requestContext.getEntityManager();
     this.cb = em.getCriteriaBuilder();
     this.sd = sd;
     this.jpaEntity = jpaEntityType;
-    this.debugger = debugger;
+    this.debugger = requestContext.getDebugger();
     this.odata = odata;
     this.claimsProvider = requestContext.getClaimsProvider();
     this.groups = groupsProvider.isPresent() ? groupsProvider.get().getGroups() : Collections.emptyList();
@@ -212,7 +212,7 @@ public abstract class JPAAbstractQuery {
     return p;
   }
 
-  abstract JPAODataSessionContextAccess getContext();
+  abstract JPAODataCRUDContextAccess getContext();
 
   protected javax.persistence.criteria.Expression<Boolean> addWhereClause(
       javax.persistence.criteria.Expression<Boolean> whereCondition,

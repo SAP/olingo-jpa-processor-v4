@@ -82,7 +82,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     headers.put("If-Match", Arrays.asList("2"));
 
     RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.clearFields(request, new ODataResponse());
 
@@ -338,7 +338,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     ODataRequest request = prepareSimpleRequest();
 
     RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.clearFields(request, response);
     assertEquals(1, spy.noValidateCalls);
@@ -350,7 +350,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     ODataRequest request = prepareSimpleRequest();
 
     RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
     when(em.getTransaction()).thenReturn(transaction);
     when(transaction.isActive()).thenReturn(Boolean.TRUE);
 
@@ -365,7 +365,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     when(request.getMethod()).thenReturn(HttpMethod.POST);
 
     JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
-    when(sessionContext.getCUDRequestHandler()).thenReturn(handler);
+    when(requestContext.getCUDRequestHandler()).thenReturn(handler);
 
     doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
         HttpStatusCode.BAD_REQUEST)).when(handler).updateEntity(any(JPARequestEntity.class), any(EntityManager.class),
@@ -388,7 +388,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     when(em.getTransaction()).thenReturn(transaction);
 
     JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
-    when(sessionContext.getCUDRequestHandler()).thenReturn(handler);
+    when(requestContext.getCUDRequestHandler()).thenReturn(handler);
 
     doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
         HttpStatusCode.BAD_REQUEST)).when(handler).validateChanges(em);
@@ -415,7 +415,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     when(property.getName()).thenReturn("Name2");
 
     RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     return spy;
   }
@@ -432,7 +432,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     when(property.getName()).thenReturn("Comment");
 
     RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     return spy;
   }
@@ -449,7 +449,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     when(property.getName()).thenReturn("Address");
 
     RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     return spy;
   }
@@ -496,7 +496,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     when(property.getName()).thenReturn("By");
 
     RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     return spy;
   }

@@ -26,7 +26,7 @@ import org.apache.olingo.server.api.uri.UriHelper;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOperation;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.converter.JPAComplexResultConverter;
 import com.sap.olingo.jpa.processor.core.converter.JPAEntityResultConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
@@ -37,7 +37,7 @@ abstract class JPAOperationRequestProcessor extends JPAAbstractRequestProcessor 
 
   private static final String RESULT = "Result";
 
-  public JPAOperationRequestProcessor(OData odata, JPAODataSessionContextAccess context,
+  public JPAOperationRequestProcessor(OData odata, JPAODataCRUDContextAccess context,
       JPAODataRequestContextAccess requestContext) throws ODataException {
     super(odata, context, requestContext);
   }

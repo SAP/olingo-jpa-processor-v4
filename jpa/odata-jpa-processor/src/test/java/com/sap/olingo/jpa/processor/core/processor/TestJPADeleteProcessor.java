@@ -46,8 +46,8 @@ import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.processor.core.api.JPAAbstractCUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.api.JPACUDRequestHandler;
+import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
@@ -59,7 +59,7 @@ public class TestJPADeleteProcessor {
   private JPACUDRequestProcessor processor;
   private OData odata;
   private ServiceMetadata serviceMetadata;
-  private JPAODataSessionContextAccess sessionContext;
+  private JPAODataCRUDContextAccess sessionContext;
   private JPAODataRequestContextAccess requestContext;
   private UriInfo uriInfo;
   private UriResourceEntitySet uriEts;
@@ -86,7 +86,7 @@ public class TestJPADeleteProcessor {
   @BeforeEach
   public void setUp() throws Exception {
     odata = OData.newInstance();
-    sessionContext = mock(JPAODataSessionContextAccess.class);
+    sessionContext = mock(JPAODataCRUDContextAccess.class);
     requestContext = mock(JPAODataRequestContextAccess.class);
     serviceMetadata = mock(ServiceMetadata.class);
     uriInfo = mock(UriInfo.class);
@@ -100,7 +100,7 @@ public class TestJPADeleteProcessor {
     pathParts.add(uriEts);
 
     when(sessionContext.getEdmProvider()).thenReturn(jpaEdm);
-    when(sessionContext.getDebugger()).thenReturn(debugger);
+    when(requestContext.getDebugger()).thenReturn(debugger);
     when(requestContext.getEntityManager()).thenReturn(emf.createEntityManager());
     when(requestContext.getUriInfo()).thenReturn(uriInfo);
     when(uriInfo.getUriResourceParts()).thenReturn(pathParts);
@@ -115,7 +115,7 @@ public class TestJPADeleteProcessor {
   public void testSuccessReturnCode() throws ODataApplicationException {
     ODataResponse response = new ODataResponse();
     ODataRequest request = mock(ODataRequest.class);
-    when(sessionContext.getCUDRequestHandler()).thenReturn(new RequestHandleSpy());
+    when(requestContext.getCUDRequestHandler()).thenReturn(new RequestHandleSpy());
 
     processor.deleteEntity(request, response);
     assertEquals(204, response.getStatusCode());
@@ -129,7 +129,7 @@ public class TestJPADeleteProcessor {
     doThrow(NullPointerException.class).when(handler).deleteEntity(any(JPARequestEntity.class), any(
         EntityManager.class));
 
-    when(sessionContext.getCUDRequestHandler()).thenReturn(handler);
+    when(requestContext.getCUDRequestHandler()).thenReturn(handler);
 
     try {
       processor.deleteEntity(request, response);
@@ -148,7 +148,7 @@ public class TestJPADeleteProcessor {
     doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
         HttpStatusCode.BAD_REQUEST)).when(handler).deleteEntity(any(JPARequestEntity.class), any(EntityManager.class));
 
-    when(sessionContext.getCUDRequestHandler()).thenReturn(handler);
+    when(requestContext.getCUDRequestHandler()).thenReturn(handler);
 
     try {
       processor.deleteEntity(request, response);
@@ -168,7 +168,7 @@ public class TestJPADeleteProcessor {
 
     keyPredicates.add(param);
 
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     when(param.getName()).thenReturn("ID");
     when(param.getText()).thenReturn("'1'");
@@ -188,7 +188,7 @@ public class TestJPADeleteProcessor {
     headers.put("If-Match", Arrays.asList("2"));
 
     RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.deleteEntity(request, response);
 
@@ -207,7 +207,7 @@ public class TestJPADeleteProcessor {
 
     keyPredicates.add(param);
 
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     when(param.getName()).thenReturn("ID");
     when(param.getText()).thenReturn("'1'");
@@ -227,7 +227,7 @@ public class TestJPADeleteProcessor {
     UriParameter param1 = mock(UriParameter.class);
     UriParameter param2 = mock(UriParameter.class);
 
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
     when(ets.getName()).thenReturn("BusinessPartnerRoles");
     when(param1.getName()).thenReturn("BusinessPartnerID");
     when(param1.getText()).thenReturn("'1'");
@@ -251,7 +251,7 @@ public class TestJPADeleteProcessor {
     ODataRequest request = mock(ODataRequest.class);
 
     RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.deleteEntity(request, response);
     assertEquals(1, spy.noValidateCalls);
@@ -263,7 +263,7 @@ public class TestJPADeleteProcessor {
     ODataRequest request = mock(ODataRequest.class);
 
     RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
     when(em.getTransaction()).thenReturn(transaction);
     when(transaction.isActive()).thenReturn(Boolean.TRUE);
     when(requestContext.getEntityManager()).thenReturn(em);
@@ -281,7 +281,7 @@ public class TestJPADeleteProcessor {
     ODataRequest request = mock(ODataRequest.class);
 
     JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
-    when(sessionContext.getCUDRequestHandler()).thenReturn(handler);
+    when(requestContext.getCUDRequestHandler()).thenReturn(handler);
 
     doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
         HttpStatusCode.BAD_REQUEST)).when(handler).deleteEntity(any(JPARequestEntity.class), any(EntityManager.class));
@@ -301,13 +301,13 @@ public class TestJPADeleteProcessor {
     ODataRequest request = mock(ODataRequest.class);
 
     RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
     when(em.getTransaction()).thenReturn(transaction);
     when(transaction.isActive()).thenReturn(Boolean.FALSE);
     when(requestContext.getEntityManager()).thenReturn(em);
 
     JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
-    when(sessionContext.getCUDRequestHandler()).thenReturn(handler);
+    when(requestContext.getCUDRequestHandler()).thenReturn(handler);
 
     processor = new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext,
         new JPAConversionHelper());

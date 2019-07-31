@@ -42,7 +42,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.processor.JPAFunctionRequestProcessor;
 import com.sap.olingo.jpa.processor.core.serializer.JPAOperationSerializer;
 
@@ -52,7 +52,7 @@ public class TestJPAFunctionDB {
   private JPAODataDatabaseProcessor dbProcessor;
 
   private OData odata;
-  private JPAODataSessionContextAccess context;
+  private JPAODataCRUDContextAccess context;
   private JPAODataRequestContextAccess requestContext;
   private ODataRequest request;
   private ODataResponse response;
@@ -78,7 +78,7 @@ public class TestJPAFunctionDB {
     odata = mock(OData.class);
     serializer = mock(JPAOperationSerializer.class);
     serializerResult = mock(SerializerResult.class);
-    context = mock(JPAODataSessionContextAccess.class);
+    context = mock(JPAODataCRUDContextAccess.class);
     requestContext = mock(JPAODataRequestContextAccess.class);
     dbProcessor = mock(JPAODataDatabaseProcessor.class);
     sd = mock(JPAServiceDocument.class);

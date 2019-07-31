@@ -44,7 +44,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAClaimsPair;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.JPAIllicalAccessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.processor.JPAODataRequestContextImpl;
@@ -53,7 +53,7 @@ import com.sap.olingo.jpa.processor.core.util.JPAEntityTypeDouble;
 import com.sap.olingo.jpa.processor.core.util.TestQueryBase;
 
 public class TestJPAQueryWithProtection extends TestQueryBase {
-  private JPAODataSessionContextAccess contextSpy;
+  private JPAODataCRUDContextAccess contextSpy;
   private JPAServiceDocument sdSpy;
   private EdmType odataType;
   private List<JPAAttribute> attributes;

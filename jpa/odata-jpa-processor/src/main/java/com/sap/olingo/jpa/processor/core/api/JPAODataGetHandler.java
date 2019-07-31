@@ -1,6 +1,6 @@
 package com.sap.olingo.jpa.processor.core.api;
 
-import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -12,41 +12,66 @@ import javax.sql.DataSource;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataHttpHandler;
-import org.apache.olingo.server.api.ODataResponse;
-import org.apache.olingo.server.api.debug.DebugInformation;
 import org.apache.olingo.server.api.debug.DebugSupport;
-import org.apache.olingo.server.api.debug.RuntimeMeasurement;
 
 import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
 import com.sap.olingo.jpa.processor.core.processor.JPAODataRequestContextImpl;
 
 public class JPAODataGetHandler {
-  final String namespace;
-  public final EntityManagerFactory emf;
-  private final JPAODataContextImpl context;
+  public final Optional<EntityManagerFactory> emf;
+  private final JPAODataServiceContext serviceContext;
   private final JPAODataRequestContextImpl requestContext;
-  final DataSource ds;
   final OData odata;
-  Metamodel jpaMetamodel;
+  @Deprecated
+  final DataSource ds;
+  @Deprecated
+  final String namespace;
+  @Deprecated
+  final Metamodel jpaMetamodel;
 
-  public JPAODataGetHandler(final String pUnit) throws ODataException {
-    this(pUnit, null);
+  /**
+   * @deprecated (Will be removed with 1.0.0, use service context builder, <code>JPAODataServiceContext.with()</code>
+   * instead
+   * @param pUnit
+   * @throws ODataException
+   */
+  @Deprecated
+  public JPAODataGetHandler(final String pUnit) throws ODataException {// NOSONAR
+    this(pUnit, (DataSource) null);
   }
 
+  /**
+   * @deprecated (Will be removed with 1.0.0, use service context builder, <code>JPAODataServiceContext.with()</code>
+   * instead
+   * @param pUnit
+   * @param ds
+   * @throws ODataException
+   */
+  @Deprecated
   public JPAODataGetHandler(final String pUnit, final DataSource ds) throws ODataException {
     super();
     this.namespace = pUnit;
     this.ds = ds;
-    this.emf = ds != null ? JPAEntityManagerFactory.getEntityManagerFactory(pUnit, ds) : null;
-    this.jpaMetamodel = emf != null ? emf.getMetamodel() : null;
-    this.context = new JPAODataContextImpl(this);
+    this.emf = ds != null ? Optional.ofNullable(JPAEntityManagerFactory.getEntityManagerFactory(pUnit, ds))
+        : Optional.empty();
+    this.jpaMetamodel = emf.isPresent() ? emf.get().getMetamodel() : null;
+    this.serviceContext = new JPAODataServiceContext(this);
     this.requestContext = new JPAODataRequestContextImpl();
     this.odata = OData.newInstance();
+  }
 
+  public JPAODataGetHandler(final JPAODataCRUDContextAccess serviceContext) {
+    this.namespace = null;
+    this.ds = null;
+    this.emf = serviceContext.getEntityManagerFactory();
+    this.jpaMetamodel = null;
+    this.serviceContext = (JPAODataServiceContext) serviceContext;
+    this.requestContext = new JPAODataRequestContextImpl();
+    this.odata = OData.newInstance();
   }
 
   public JPAODataGetContext getJPAODataContext() {
-    return context;
+    return serviceContext;
   }
 
   public JPAODataRequestContext getJPAODataRequestContext() {
@@ -54,8 +79,8 @@ public class JPAODataGetHandler {
   }
 
   public void process(final HttpServletRequest request, final HttpServletResponse response) throws ODataException {
-    if (emf != null && this.requestContext.getEntityManager() == null) {
-      final EntityManager em = emf.createEntityManager();
+    if (emf.isPresent() && this.requestContext.getEntityManager() == null) {
+      final EntityManager em = emf.get().createEntityManager();
       try {
         process(request, response, em);
       } finally {
@@ -66,21 +91,20 @@ public class JPAODataGetHandler {
     }
   }
 
-  @SuppressWarnings("unchecked")
-  private void processInternal(final HttpServletRequest request, final HttpServletResponse response)
+  /**
+   * @deprecated (Will be removed with 1.0.0, parameter <code>em</code> not longer supported,
+   * use Request Context (<code>getJPAODataRequestContext</code>) instead)
+   * @param request
+   * @param response
+   * @param em
+   * @throws ODataException
+   */
+  @Deprecated
+  public void process(final HttpServletRequest request, final HttpServletResponse response, final EntityManager em)
       throws ODataException {
-    final EntityManager em = this.requestContext.getEntityManager();
-    this.jpaMetamodel = em.getMetamodel();
-    final ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(context.getEdmProvider(), context
-        .getEdmProvider().getReferences()));
-    context.getEdmProvider().setRequestLocales(request.getLocales());
-    context.initDebugger(request.getParameter(DebugSupport.ODATA_DEBUG_QUERY_PARAMETER));
-    handler.register(context.getDebugSupport());
-    handler.register(new JPAODataRequestProcessor(context, requestContext));
-    handler.register(new JPAODataBatchProcessor(context, em));
-    handler.register(context.getEdmProvider().getServiceDocument());
-    handler.register(context.getErrorProcessor());
-    handler.process(request, response);
+
+    this.requestContext.setEntityManager(em);
+    process(request, response);
   }
 
   /**
@@ -102,84 +126,26 @@ public class JPAODataGetHandler {
     process(request, response);
   }
 
-  /**
-   * @deprecated (Will be removed with 1.0.0, parameter <code>em</code> not longer supported,
-   * use Request Context (<code>getJPAODataRequestContext</code>) instead)
-   * @param request
-   * @param response
-   * @param em
-   * @throws ODataException
-   */
-  @Deprecated
-  public void process(final HttpServletRequest request, final HttpServletResponse response, final EntityManager em)
+  @SuppressWarnings("unchecked")
+  private void processInternal(final HttpServletRequest request, final HttpServletResponse response)
       throws ODataException {
 
-    this.requestContext.setEntityManager(em);
-    process(request, response);
+    final ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(serviceContext.getEdmProvider(),
+        serviceContext.getEdmProvider().getReferences()));
+    serviceContext.getEdmProvider().setRequestLocales(request.getLocales());
+    requestContext.setDebugFormat(request.getParameter(DebugSupport.ODATA_DEBUG_QUERY_PARAMETER));
+    setCUDHandler();
+    handler.register(requestContext.getDebugSupport());
+    handler.register(new JPAODataRequestProcessor(serviceContext, requestContext));
+    handler.register(new JPAODataBatchProcessor(requestContext));
+    handler.register(serviceContext.getEdmProvider().getServiceDocument());
+    handler.register(serviceContext.getErrorProcessor());
+    handler.process(request, response);
   }
 
-  class JPADebugSupportWrapper implements DebugSupport {
-
-    private final DebugSupport debugSupport;
-    private JPAServiceDebugger debugger;
-
-    public JPADebugSupportWrapper(final DebugSupport debugSupport) {
-      super();
-      this.debugSupport = debugSupport;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.olingo.server.api.debug.DebugSupport#createDebugResponse(java.lang.String,
-     * org.apache.olingo.server.api.debug.DebugInformation)
-     */
-    @Override
-    public ODataResponse createDebugResponse(final String debugFormat, final DebugInformation debugInfo) {
-      joinRuntimeInfo(debugInfo);
-      return debugSupport.createDebugResponse(debugFormat, debugInfo);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.olingo.server.api.debug.DebugSupport#init(org.apache.olingo.server.api.OData)
-     */
-    @Override
-    public void init(final OData odata) {
-      debugSupport.init(odata);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.olingo.server.api.debug.DebugSupport#isUserAuthorized()
-     */
-    @Override
-    public boolean isUserAuthorized() {
-      return debugSupport.isUserAuthorized();
-    }
-
-    void setDebugger(final JPAServiceDebugger debugger) {
-      this.debugger = debugger;
-    }
-
-    private void joinRuntimeInfo(final DebugInformation debugInfo) {
-      // Olingo create a tree for runtime measurement in DebugTabRuntime.add(final RuntimeMeasurement
-      // runtimeMeasurement). The current algorithm (V4.3.0) not working well for batch requests if the own runtime info
-      // is just appended (addAll), so insert sorted:
-      final List<RuntimeMeasurement> olingoInfo = debugInfo.getRuntimeInformation();
-      int startIndex = 0;
-      for (RuntimeMeasurement m : debugger.getRuntimeInformation()) {
-        for (; startIndex < olingoInfo.size(); startIndex++) {
-          if (olingoInfo.get(startIndex).getTimeStarted() > m.getTimeStarted()) {
-            break;
-          }
-        }
-        olingoInfo.add(startIndex, m);
-        startIndex += 1;
-      }
-    }
+  private void setCUDHandler() {
+    if (serviceContext.getCUDRequestHandler() != null && requestContext.getCUDRequestHandler() == null)
+      requestContext.setCUDRequestHandler(serviceContext.getCUDRequestHandler());
   }
 
 }

@@ -62,10 +62,10 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys;
@@ -80,13 +80,13 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
   protected final CriteriaQuery<Tuple> cq;
   protected Root<?> root;
   protected From<?, ?> target;
-  protected final JPAODataSessionContextAccess context;
+  protected final JPAODataCRUDContextAccess context;
   protected final JPAODataPage page;
   protected final List<JPANavigationProptertyInfo> navigationInfo;
   protected final JPANavigationProptertyInfo lastInfo;
   protected final JPAODataRequestContextAccess requestContext;
 
-  public JPAAbstractJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
+  public JPAAbstractJoinQuery(final OData odata, final JPAODataCRUDContextAccess sessionContext,
       final JPAEntityType jpaEntityType, final JPAODataRequestContextAccess requestContext,
       final Map<String, List<String>> requestHeaders, final List<JPANavigationProptertyInfo> navigationInfo)
       throws ODataException {
@@ -95,13 +95,12 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
         navigationInfo);
   }
 
-  protected JPAAbstractJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
+  protected JPAAbstractJoinQuery(final OData odata, final JPAODataCRUDContextAccess sessionContext,
       final JPAEntityType jpaEntityType, final UriInfoResource uriInfo,
       final JPAODataRequestContextAccess requestContext, final Map<String, List<String>> requestHeaders,
       final List<JPANavigationProptertyInfo> navigationInfo) throws ODataException {
 
-    super(odata, sessionContext.getEdmProvider().getServiceDocument(), jpaEntityType, sessionContext.getDebugger(),
-        requestContext);
+    super(odata, sessionContext.getEdmProvider().getServiceDocument(), jpaEntityType, requestContext);
     this.requestContext = requestContext;
     this.locale = ExpressionUtil.determineLocale(requestHeaders);
     this.uriResource = uriInfo;
@@ -532,7 +531,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
   }
 
   @Override
-  JPAODataSessionContextAccess getContext() {
+  JPAODataCRUDContextAccess getContext() {
     return context;
   }
 

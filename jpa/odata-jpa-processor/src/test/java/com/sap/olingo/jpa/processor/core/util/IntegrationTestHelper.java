@@ -29,12 +29,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ValueNode;
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataBatchProcessor;
+import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataContextAccessDouble;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPagingProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestProcessor;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.processor.JPAODataRequestContextImpl;
 
 public class IntegrationTestHelper {
@@ -114,7 +114,7 @@ public class IntegrationTestHelper {
     if (functionPackage != null)
       packages = ArrayUtils.add(packages, functionPackage);
 
-    final JPAODataSessionContextAccess sessionContext = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME,
+    final JPAODataCRUDContextAccess sessionContext = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME,
         localEmf, null, packages), ds, provider, functionPackage);
 
     final ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(sessionContext.getEdmProvider(),
@@ -123,7 +123,7 @@ public class IntegrationTestHelper {
     requestContext.setGroupsProvider(groups);
     requestContext.setEntityManager(em);
     handler.register(new JPAODataRequestProcessor(sessionContext, requestContext));
-    handler.register(new JPAODataBatchProcessor(sessionContext, em));
+    handler.register(new JPAODataBatchProcessor(requestContext));
     handler.process(req, resp);
 
   }

@@ -24,7 +24,7 @@ import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.processor.core.api.JPAODataContextAccessDouble;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.JPAIllicalAccessException;
 import com.sap.olingo.jpa.processor.core.processor.JPAODataRequestContextImpl;
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractJoinQuery;
@@ -36,7 +36,7 @@ public class TestGroupBase extends TestBase {
   protected JPAEntityType jpaEntityType;
   protected HashMap<String, From<?, ?>> joinTables;
   protected Root<?> root;
-  protected JPAODataSessionContextAccess context;
+  protected JPAODataCRUDContextAccess context;
   protected UriInfo uriInfo;
   protected JPAODataRequestContextImpl requestContext;
 

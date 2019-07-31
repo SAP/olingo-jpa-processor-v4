@@ -22,7 +22,7 @@ import org.apache.olingo.server.api.uri.queryoption.SystemQueryOptionKind;
 
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.JPAIllicalAccessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
@@ -31,13 +31,13 @@ import com.sap.olingo.jpa.processor.core.query.JPAJoinQuery;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializerFactory;
 
 public final class JPAProcessorFactory {
-  private final JPAODataSessionContextAccess sessionContext;
+  private final JPAODataCRUDContextAccess sessionContext;
   private final JPASerializerFactory serializerFactory;
   private final OData odata;
   private final ServiceMetadata serviceMetadata;
 
   public JPAProcessorFactory(final OData odata, final ServiceMetadata serviceMetadata,
-      final JPAODataSessionContextAccess context) {
+      final JPAODataCRUDContextAccess context) {
     super();
     this.sessionContext = context;
     this.serializerFactory = new JPASerializerFactory(odata, serviceMetadata);
