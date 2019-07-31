@@ -34,11 +34,11 @@ public final class JPAODataRequestProcessor
     CountEntityCollectionProcessor, EntityProcessor, MediaEntityProcessor, ActionPrimitiveProcessor,
     ActionVoidProcessor {
 
-  private final JPAODataSessionContextAccess sessionContext;
+  private final JPAODataCRUDContextAccess sessionContext;
   private final JPAODataRequestContextAccess requestContext;
   private JPAProcessorFactory factory;
 
-  public JPAODataRequestProcessor(final JPAODataSessionContextAccess sessionContext,
+  public JPAODataRequestProcessor(final JPAODataCRUDContextAccess sessionContext,
       final JPAODataRequestContextAccess requestContext) {
     super();
     this.sessionContext = sessionContext;

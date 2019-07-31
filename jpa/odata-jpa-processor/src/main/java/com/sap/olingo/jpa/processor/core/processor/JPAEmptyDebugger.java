@@ -1,11 +1,13 @@
-package com.sap.olingo.jpa.processor.core.api;
+package com.sap.olingo.jpa.processor.core.processor;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.olingo.server.api.debug.RuntimeMeasurement;
 
-final class JPAEmptyDebugger implements JPAServiceDebugger {
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
+
+public final class JPAEmptyDebugger implements JPAServiceDebugger {
 
   @Override
   public int startRuntimeMeasurement(final Object instance, final String methodName) {

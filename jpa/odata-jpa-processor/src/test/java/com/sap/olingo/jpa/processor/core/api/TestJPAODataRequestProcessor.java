@@ -36,7 +36,7 @@ public class TestJPAODataRequestProcessor {
   private static JPAODataRequestProcessor cut;
   private static EntityManager em;
   private static JPAODataClaimsProvider claims;
-  private static JPAODataSessionContextAccess sessionContext;
+  private static JPAODataCRUDContextAccess sessionContext;
   private static ODataRequest request;
   private static ODataResponse response;
   private static UriInfo uriInfo;
@@ -75,8 +75,6 @@ public class TestJPAODataRequestProcessor {
       cut.createEntity(request, response, uriInfo, ContentType.APPLICATION_JSON, ContentType.APPLICATION_JSON);
     }, () -> {
       cut.updateEntity(request, response, uriInfo, ContentType.APPLICATION_JSON, ContentType.APPLICATION_JSON);
-//    }, () -> {
-//      cut.deleteEntity(request, response, uriInfo);
     }, () -> {
       cut.readEntity(request, response, uriInfo, ContentType.APPLICATION_JSON);
     });
@@ -86,7 +84,7 @@ public class TestJPAODataRequestProcessor {
   public static void classSetup() {
     em = mock(EntityManager.class);
     claims = new JPAODataClaimsProvider();
-    sessionContext = mock(JPAODataSessionContextAccess.class);
+    sessionContext = mock(JPAODataCRUDContextAccess.class);
     requestContext = mock(JPAODataRequestContextAccess.class);
     request = mock(ODataRequest.class);
     response = mock(ODataResponse.class);
@@ -125,14 +123,12 @@ public class TestJPAODataRequestProcessor {
   @MethodSource("throwsSerializerExceptionMethodsProvider")
   public void checkCreateEntityPropagateSerializerException(final Executable m) throws SerializerException {
 
-    // when(odata.createSerializer(ContentType.APPLICATION_JSON)).thenThrow(SerializerException.class);
     assertThrows(ODataException.class, m);
   }
 
   @Test
   public void checkUpdateEntityPropagateSerializerException() throws SerializerException {
 
-    // when(odata.createSerializer(ContentType.APPLICATION_JSON)).thenThrow(SerializerException.class);
     assertThrows(ODataException.class, () -> {
       cut.updateEntity(request, response, uriInfo, ContentType.APPLICATION_JSON, ContentType.APPLICATION_JSON);
     });

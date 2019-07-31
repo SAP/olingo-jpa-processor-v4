@@ -1,10 +1,14 @@
 package com.sap.olingo.jpa.processor.core.api;
 
 import java.util.List;
+import java.util.Optional;
+
+import javax.persistence.EntityManagerFactory;
 
 import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.debug.DebugSupport;
+import org.apache.olingo.server.api.processor.ErrorProcessor;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
@@ -14,11 +18,15 @@ import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
  * @author Oliver Grande
  *
  */
-public interface JPAODataSessionContextAccess {
+public interface JPAODataCRUDContextAccess {
+
   public JPAODataDatabaseProcessor getDatabaseProcessor();
 
-  public JPAServiceDebugger getDebugger();
-
+  /**
+   * @deprecated (will be removed with 1.0.0; use request context)
+   * @return
+   */
+  @Deprecated
   public DebugSupport getDebugSupport();
 
   public JPAEdmProvider getEdmProvider() throws ODataException;
@@ -27,6 +35,11 @@ public interface JPAODataSessionContextAccess {
 
   public List<EdmxReference> getReferences();
 
+  /**
+   * @deprecated (will be removed with 1.0.0; use request context)
+   * @return
+   */
+  @Deprecated
   public JPACUDRequestHandler getCUDRequestHandler();
 
   /**
@@ -43,4 +56,12 @@ public interface JPAODataSessionContextAccess {
    * @return
    */
   public JPAODataPagingProvider getPagingProvider();
+
+  public default Optional<EntityManagerFactory> getEntityManagerFactory() {
+    return Optional.empty();
+  }
+
+  public default ErrorProcessor getErrorProcessor() {
+    return null;
+  }
 }

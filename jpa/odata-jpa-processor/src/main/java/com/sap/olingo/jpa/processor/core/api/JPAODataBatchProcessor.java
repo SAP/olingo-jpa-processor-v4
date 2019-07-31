@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.OptimisticLockException;
 import javax.persistence.RollbackException;
@@ -38,13 +37,11 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
  */
 public final class JPAODataBatchProcessor implements BatchProcessor {
 
-  private final EntityManager em;
+  private final JPAODataRequestContextAccess requestContext;
   private OData odata;
-  private final JPAODataSessionContextAccess context;
 
-  public JPAODataBatchProcessor(final JPAODataSessionContextAccess context, final EntityManager em) {
-    this.em = em;
-    this.context = context;
+  public JPAODataBatchProcessor(final JPAODataRequestContextAccess requestContext) {
+    this.requestContext = requestContext;
   }
 
   @Override
@@ -56,7 +53,7 @@ public final class JPAODataBatchProcessor implements BatchProcessor {
   public void processBatch(final BatchFacade facade, final ODataRequest request, final ODataResponse response)
       throws ODataApplicationException, ODataLibraryException {
 
-    final int handle = context.getDebugger().startRuntimeMeasurement(this, "processBatch");
+    final int handle = requestContext.getDebugger().startRuntimeMeasurement(this, "processBatch");
     final String boundary = facade.extractBoundaryFromContentType(request.getHeader(HttpHeader.CONTENT_TYPE));
     final BatchOptions options = BatchOptions.with()
         .rawBaseUri(request.getRawBaseUri())
@@ -76,7 +73,7 @@ public final class JPAODataBatchProcessor implements BatchProcessor {
     response.setHeader(HttpHeader.CONTENT_TYPE, ContentType.MULTIPART_MIXED + ";boundary=" + responseBoundary);
     response.setContent(responseContent);
     response.setStatusCode(HttpStatusCode.ACCEPTED.getStatusCode());
-    context.getDebugger().stopRuntimeMeasurement(handle);
+    requestContext.getDebugger().stopRuntimeMeasurement(handle);
   }
 
   @Override
@@ -102,9 +99,9 @@ public final class JPAODataBatchProcessor implements BatchProcessor {
      * To keep things simple, we dispatch the requests within the Change Set
      * to the other processor interfaces.
      */
-    final int handle = context.getDebugger().startRuntimeMeasurement(this, "processChangeSet");
+    final int handle = requestContext.getDebugger().startRuntimeMeasurement(this, "processChangeSet");
     final List<ODataResponse> responses = new ArrayList<>();
-    final EntityTransaction t = em.getTransaction();
+    final EntityTransaction t = requestContext.getEntityManager().getTransaction();
     try {
       t.begin();
       for (final ODataRequest request : requests) {
@@ -141,33 +138,31 @@ public final class JPAODataBatchProcessor implements BatchProcessor {
            * ODataResponsePart and setting the second parameter
            * "isChangeSet" to false.
            */
-          context.getDebugger().stopRuntimeMeasurement(handle);
+          requestContext.getDebugger().stopRuntimeMeasurement(handle);
           // TODO odata.continue-on-error header
           return new ODataResponsePart(response, false);
         }
       }
-      context.getCUDRequestHandler().validateChanges(em);
+      requestContext.getCUDRequestHandler().validateChanges(requestContext.getEntityManager());
       t.commit();
-      context.getDebugger().stopRuntimeMeasurement(handle);
+      requestContext.getDebugger().stopRuntimeMeasurement(handle);
       return new ODataResponsePart(responses, true);
     } catch (ODataApplicationException e) {
       t.rollback();
-      context.getDebugger().stopRuntimeMeasurement(handle);
+      requestContext.getDebugger().stopRuntimeMeasurement(handle);
       throw e;
     } catch (ODataLibraryException e) {
-      // The batch request is malformed or the processor implementation is
-      // not correct.
-      // Throwing an exception will stop the whole batch request not only
-      // the Change Set!
+      // The batch request is malformed or the processor implementation is not correct.
+      // Throwing an exception will stop the whole batch request not only the Change Set!
       t.rollback();
-      context.getDebugger().stopRuntimeMeasurement(handle);
+      requestContext.getDebugger().stopRuntimeMeasurement(handle);
       throw e;
     } catch (RollbackException e) {
       if (e.getCause() instanceof OptimisticLockException) {
-        context.getDebugger().stopRuntimeMeasurement(handle);
+        requestContext.getDebugger().stopRuntimeMeasurement(handle);
         throw new ODataJPAProcessorException(e.getCause().getCause(), HttpStatusCode.PRECONDITION_FAILED);
       }
-      context.getDebugger().stopRuntimeMeasurement(handle);
+      requestContext.getDebugger().stopRuntimeMeasurement(handle);
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
   }

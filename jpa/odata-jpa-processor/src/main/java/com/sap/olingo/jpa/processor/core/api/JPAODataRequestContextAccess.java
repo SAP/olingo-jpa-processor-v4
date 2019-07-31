@@ -22,4 +22,8 @@ public interface JPAODataRequestContextAccess {
 
   public Optional<JPAODataGroupProvider> getGroupsProvider();
 
+  public JPACUDRequestHandler getCUDRequestHandler();
+
+  public JPAServiceDebugger getDebugger();
+
 }

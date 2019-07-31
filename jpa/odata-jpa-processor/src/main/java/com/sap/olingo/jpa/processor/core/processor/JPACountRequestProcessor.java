@@ -13,7 +13,7 @@ import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.query.JPAJoinQuery;
 
@@ -24,7 +24,7 @@ import com.sap.olingo.jpa.processor.core.query.JPAJoinQuery;
  */
 public final class JPACountRequestProcessor extends JPAAbstractGetRequestProcessor {
 
-  public JPACountRequestProcessor(final OData odata, final JPAODataSessionContextAccess context,
+  public JPACountRequestProcessor(final OData odata, final JPAODataCRUDContextAccess context,
       final JPAODataRequestContextAccess requestContext) throws ODataException {
     super(odata, context, requestContext);
   }

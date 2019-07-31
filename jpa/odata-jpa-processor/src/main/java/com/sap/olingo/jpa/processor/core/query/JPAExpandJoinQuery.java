@@ -36,7 +36,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 /**
@@ -57,7 +57,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
   private final JPAAssociationPath assoziation;
 
-  public JPAExpandJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
+  public JPAExpandJoinQuery(final OData odata, final JPAODataCRUDContextAccess sessionContext,
       final JPAInlineItemInfo item, final Map<String, List<String>> requestHeaders,
       final JPAODataRequestContextAccess requestContext) throws ODataException {
 
@@ -66,7 +66,7 @@ public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
     this.assoziation = item.getExpandAssociation();
   }
 
-  public JPAExpandJoinQuery(final OData odata, final JPAODataSessionContextAccess context,
+  public JPAExpandJoinQuery(final OData odata, final JPAODataCRUDContextAccess context,
       final JPAAssociationPath assoziation, final JPAEntityType entityType,
       final Map<String, List<String>> requestHeaders, final JPAODataRequestContextAccess requestContext)
       throws ODataException {

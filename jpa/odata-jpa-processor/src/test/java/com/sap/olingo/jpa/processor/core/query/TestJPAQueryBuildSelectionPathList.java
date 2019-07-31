@@ -29,7 +29,7 @@ import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.processor.core.api.JPAODataContextAccessDouble;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.JPAIllicalAccessException;
 import com.sap.olingo.jpa.processor.core.processor.JPAODataRequestContextImpl;
 import com.sap.olingo.jpa.processor.core.util.SelectOptionDouble;
@@ -40,7 +40,7 @@ import com.sap.olingo.jpa.processor.core.util.UriInfoDouble;
 public class TestJPAQueryBuildSelectionPathList extends TestBase {
 
   private JPAAbstractJoinQuery cut;
-  private JPAODataSessionContextAccess sessionContext;
+  private JPAODataCRUDContextAccess sessionContext;
   private UriInfo uriInfo;
   private JPAODataRequestContextImpl requestContext;
 
