@@ -20,7 +20,7 @@ import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataContextAccessDouble;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.JPAIllicalAccessException;
 import com.sap.olingo.jpa.processor.core.processor.JPAODataRequestContextImpl;
 import com.sap.olingo.jpa.processor.core.util.EdmEntityTypeDouble;
@@ -32,7 +32,7 @@ import com.sap.olingo.jpa.processor.core.util.UriInfoDouble;
 
 public class TestJPAExpandQueryCreateResult extends TestBase {
   private JPAExpandJoinQuery cut;
-  private JPAODataSessionContextAccess context;
+  private JPAODataCRUDContextAccess context;
   private JPAODataRequestContextImpl requestContext;
 
   @BeforeEach

@@ -39,7 +39,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataContextAccessDouble;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupsProvider;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.JPAIllicalAccessException;
 import com.sap.olingo.jpa.processor.core.processor.JPAODataRequestContextImpl;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
@@ -49,7 +49,7 @@ import com.sap.olingo.jpa.processor.core.util.TestHelper;
 public class TestJPAQueryFromClause extends TestBase {
   private JPAAbstractJoinQuery cut;
   private JPAEntityType jpaEntityType;
-  private JPAODataSessionContextAccess sessionContext;
+  private JPAODataCRUDContextAccess sessionContext;
 
   @BeforeEach
   public void setup() throws ODataException, JPAIllicalAccessException {

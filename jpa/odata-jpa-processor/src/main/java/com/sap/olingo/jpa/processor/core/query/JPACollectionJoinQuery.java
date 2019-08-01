@@ -37,14 +37,14 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys;
 
 public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
   private final JPAAssociationPath assoziation;
 
-  public JPACollectionJoinQuery(final OData odata, final JPAODataSessionContextAccess context, final EntityManager em,
+  public JPACollectionJoinQuery(final OData odata, final JPAODataCRUDContextAccess context, final EntityManager em,
       final JPACollectionItemInfo item, final Map<String, List<String>> requestHeaders,
       JPAODataRequestContextAccess requestContext) throws ODataException {
 

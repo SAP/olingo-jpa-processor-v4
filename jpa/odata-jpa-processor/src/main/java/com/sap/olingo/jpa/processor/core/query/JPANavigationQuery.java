@@ -32,7 +32,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterElementComplier;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterExpression;
@@ -83,7 +83,7 @@ public abstract class JPANavigationQuery extends JPAAbstractQuery {
   }
 
   @Override
-  JPAODataSessionContextAccess getContext() {
+  JPAODataCRUDContextAccess getContext() {
     return parentQuery.getContext();
   }
 

@@ -15,7 +15,7 @@ import com.sap.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseProcessorFactory;
 
-public class JPAODataContextAccessDouble implements JPAODataSessionContextAccess {
+public class JPAODataContextAccessDouble implements JPAODataCRUDContextAccess {
   private final JPAEdmProvider edmProvider;
   private final DataSource ds;
   private final JPAODataDatabaseOperations context;
@@ -65,11 +65,6 @@ public class JPAODataContextAccessDouble implements JPAODataSessionContextAccess
   }
 
   @Override
-  public JPAServiceDebugger getDebugger() {
-    return new JPAEmptyDebugger();
-  }
-
-  @Override
   public JPACUDRequestHandler getCUDRequestHandler() {
     fail();
     return null;
@@ -84,5 +79,4 @@ public class JPAODataContextAccessDouble implements JPAODataSessionContextAccess
   public JPAODataPagingProvider getPagingProvider() {
     return pagingProvider;
   }
-
 }

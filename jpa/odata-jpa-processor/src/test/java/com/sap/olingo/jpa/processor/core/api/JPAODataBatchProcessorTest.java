@@ -29,6 +29,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
+import com.sap.olingo.jpa.processor.core.processor.JPAEmptyDebugger;
 
 public class JPAODataBatchProcessorTest {
   private JPAODataBatchProcessor cut;
@@ -50,21 +51,24 @@ public class JPAODataBatchProcessorTest {
   @Mock
   private RollbackException e;
   @Mock
-  private JPAODataSessionContextAccess context;
+  private JPAODataCRUDContextAccess context;
   @Mock
   private JPACUDRequestHandler cudHandler;
+  @Mock
+  private JPAODataRequestContextAccess requestContext;
 
   private List<ODataRequest> requests;
 
   @BeforeEach
   public void setup() {
     MockitoAnnotations.initMocks(this);
-    cut = new JPAODataBatchProcessor(context, em);
+    when(requestContext.getEntityManager()).thenReturn(em);
+    when(requestContext.getCUDRequestHandler()).thenReturn(cudHandler);
+    cut = new JPAODataBatchProcessor(requestContext);
     cut.init(odata, serviceMetadata);
     requests = new ArrayList<>();
     requests.add(request);
-    when(context.getDebugger()).thenReturn(new JPAEmptyDebugger());
-    when(context.getCUDRequestHandler()).thenReturn(cudHandler);
+    when(requestContext.getDebugger()).thenReturn(new JPAEmptyDebugger());
   }
 
   @Test
@@ -104,7 +108,7 @@ public class JPAODataBatchProcessorTest {
   @Test
   public void whenProcessChangeSetCallValidateChangesOnSccess() throws ODataApplicationException,
       ODataLibraryException {
-    cut = new JPAODataBatchProcessor(context, em);
+    cut = new JPAODataBatchProcessor(requestContext);
 
     when(em.getTransaction()).thenReturn(transaction);
     when(response.getStatusCode()).thenReturn(HttpStatusCode.OK.getStatusCode());

@@ -67,7 +67,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.serializer.JPAOperationSerializer;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
@@ -91,7 +91,7 @@ public class TestJPAActionProcessor {
   @Mock
   private JPAOperationSerializer serializer;
   @Mock
-  private JPAODataSessionContextAccess sessionContext;
+  private JPAODataCRUDContextAccess sessionContext;
   @Mock
   private JPAODataRequestContextAccess requestContext;
   @Mock

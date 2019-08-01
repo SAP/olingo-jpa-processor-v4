@@ -32,9 +32,9 @@ import org.apache.olingo.server.api.uri.queryoption.CountOption;
 import org.apache.olingo.server.api.uri.queryoption.SystemQueryOptionKind;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
+import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
@@ -55,7 +55,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
   private final JPAODataPage page;
 
   public JPANavigationRequestProcessor(final OData odata, final ServiceMetadata serviceMetadata,
-      final JPAODataSessionContextAccess context, final JPAODataRequestContextAccess requestContext)
+      final JPAODataCRUDContextAccess context, final JPAODataRequestContextAccess requestContext)
       throws ODataException {
 
     super(odata, context, requestContext);
@@ -137,9 +137,8 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
       // A request returns 204 No Content if the requested resource has the null value, or if the service applies a
       // return=minimal preference. In this case, the response body MUST be empty.
       response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
-
-      debugger.stopRuntimeMeasurement(handle);
     }
+    debugger.stopRuntimeMeasurement(handle);
   }
 
   private URI buildNextLink(final JPAODataPage page) throws ODataJPAProcessorException {

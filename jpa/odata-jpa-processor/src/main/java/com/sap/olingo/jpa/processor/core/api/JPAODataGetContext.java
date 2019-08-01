@@ -10,7 +10,9 @@ import org.apache.olingo.server.api.processor.ErrorProcessor;
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 
+@Deprecated
 public interface JPAODataGetContext {
+
   public void initDebugger(final String debugFormat);
 
   /**
