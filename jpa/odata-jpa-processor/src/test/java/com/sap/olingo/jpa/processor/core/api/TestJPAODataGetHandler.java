@@ -167,4 +167,26 @@ public class TestJPAODataGetHandler extends TestBase {
     cut.process(request, response);
     assertEquals(200, response.getStatus());
   }
+
+  @Test
+  public void testProcessOnlyProvidingSessionContextWithEm() throws ODataException {
+
+    final JPAODataCRUDContextAccess context = JPAODataServiceContext.with()
+        .setPUnit(PUNIT_NAME)
+        .setTypePackage(enumPackages)
+        .build();
+    cut = new JPAODataGetHandler(context);
+    cut.getJPAODataRequestContext().setEntityManager(emf.createEntityManager());
+    cut.process(request, response);
+    assertEquals(200, response.getStatus());
+  }
+
+  @Test
+  public void testProcessWithEm() throws ODataException {
+    cut = new JPAODataGetHandler(PUNIT_NAME);
+    cut.getJPAODataContext().setTypePackage(enumPackages);
+    cut.process(request, response, emf.createEntityManager());
+    assertEquals(200, response.getStatus());
+  }
+
 }
