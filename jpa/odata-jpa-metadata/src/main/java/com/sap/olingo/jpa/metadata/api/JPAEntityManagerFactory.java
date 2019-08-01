@@ -47,5 +47,4 @@ public class JPAEntityManagerFactory {
     properties.put(ENTITY_MANAGER_DATA_SOURCE, ds);
     return getEntityManagerFactory(pUnit, properties);
   }
-
 }

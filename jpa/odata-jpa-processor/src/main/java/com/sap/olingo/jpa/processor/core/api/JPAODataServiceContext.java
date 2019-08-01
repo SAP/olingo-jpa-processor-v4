@@ -3,8 +3,11 @@ package com.sap.olingo.jpa.processor.core.api;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
+import javax.annotation.Nonnull;
+import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceException;
 import javax.sql.DataSource;
@@ -32,6 +35,7 @@ public final class JPAODataServiceContext implements JPAODataCRUDContext, JPAODa
   /**
    * 
    */
+  @Deprecated
   private final JPAODataGetHandler jpaODataGetHandler;
   private List<EdmxReference> references = new ArrayList<>(); //
   private JPADebugSupportWrapper debugSupport; //
@@ -44,6 +48,7 @@ public final class JPAODataServiceContext implements JPAODataCRUDContext, JPAODa
   private ErrorProcessor errorProcessor; //
   private JPAODataPagingProvider pagingProvider;
   private Optional<EntityManagerFactory> emf;
+  private final String namespace;
 
   public static Builder with() {
     return new Builder();
@@ -57,6 +62,7 @@ public final class JPAODataServiceContext implements JPAODataCRUDContext, JPAODa
   JPAODataServiceContext(JPAODataGetHandler jpaODataGetHandler) throws ODataException {
     super();
     this.jpaODataGetHandler = jpaODataGetHandler;
+    this.namespace = jpaODataGetHandler.namespace;
     this.debugSupport = new JPADebugSupportWrapper(new DefaultDebugSupport());
     operationConverter = new JPADefaultDatabaseProcessor();
     try {
@@ -67,19 +73,20 @@ public final class JPAODataServiceContext implements JPAODataCRUDContext, JPAODa
 
   }
 
-  private JPAODataServiceContext(final Builder builder) throws ODataException {
+  private JPAODataServiceContext(final Builder builder) {
 
     this.jpaODataGetHandler = null;
     operationConverter = builder.operationConverter;
     databaseProcessor = builder.databaseProcessor;
     references = builder.references;
     postProcessor = builder.postProcessor;
-    jpaCUDRequestHandler = builder.jpaCUDRequestHandler;
+    jpaCUDRequestHandler = null;
     packageName = builder.packageName;
     errorProcessor = builder.errorProcessor;
     pagingProvider = builder.pagingProvider;
     jpaEdm = builder.jpaEdm;
     emf = builder.emf;
+    namespace = builder.namespace;
   }
 
   @Override
@@ -99,9 +106,16 @@ public final class JPAODataServiceContext implements JPAODataCRUDContext, JPAODa
 
   @Override
   public JPAEdmProvider getEdmProvider() throws ODataException {
-    if (jpaEdm == null)
-      jpaEdm = new JPAEdmProvider(this.jpaODataGetHandler.namespace, this.jpaODataGetHandler.jpaMetamodel,
-          postProcessor, packageName);
+    if (jpaEdm == null && jpaODataGetHandler != null && jpaODataGetHandler.jpaMetamodel != null)
+      jpaEdm = new JPAEdmProvider(namespace, jpaODataGetHandler.jpaMetamodel, postProcessor, packageName);
+    return jpaEdm;
+  }
+
+  public JPAEdmProvider getEdmProvider(@Nonnull final EntityManager em) throws ODataException {
+    if (jpaEdm == null) {
+      Objects.nonNull(em);
+      jpaEdm = new JPAEdmProvider(this.namespace, em.getMetamodel(), postProcessor, packageName);
+    }
     return jpaEdm;
   }
 
@@ -245,7 +259,6 @@ public final class JPAODataServiceContext implements JPAODataCRUDContext, JPAODa
     private JPAODataDatabaseOperations operationConverter = new JPADefaultDatabaseProcessor();
     private JPAODataDatabaseProcessor databaseProcessor;
     private JPAEdmMetadataPostProcessor postProcessor;
-    private JPACUDRequestHandler jpaCUDRequestHandler;
     private String[] packageName;
     private ErrorProcessor errorProcessor;
     private JPAODataPagingProvider pagingProvider;
