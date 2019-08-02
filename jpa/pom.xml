@@ -15,7 +15,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.build.source>1.8</project.build.source>
 		<odata.version>4.6.0</odata.version>
-		<jackson.version>2.7.8</jackson.version>
+		<jackson.version>2.9.8</jackson.version>
 		<powermock.version>1.7.1</powermock.version>
 		<coveralls.version>4.3.0</coveralls.version>
 	</properties>
