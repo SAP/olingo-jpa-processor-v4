@@ -31,7 +31,7 @@ _Right click on the new project --> Configure --> Convert to JPA Project ..._
 
 Now the project facets maintenance screen pops up. make sure that:
 * Dynamic Web Module has at least version 2.5
-* Java version is 1.6 or higher
+* Java version is 1.8 or higher
 * JPA as version 2.1
 
 ![Convert to JPA](CreateProject/ConvertJPAProject.png)

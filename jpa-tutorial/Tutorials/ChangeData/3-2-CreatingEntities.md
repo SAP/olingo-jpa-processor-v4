@@ -1,25 +1,25 @@
 # 3.2 Creating Entities
-As the first modifying request we want to have a closer look at is creating entities. In general OData describes three way to do this: As a single entity, which is discussed here, together with related entities, the so called [Deep Insert](3-5-DeepInsert.md) and via [Batch Requests](3-6-BatchRequests.md).
+As the first modifying request we want to have a closer look at creating entities. In general OData describes three way to do this: As a single entity, which is discussed here, together with related entities, the so called [Deep Insert](3-5-DeepInsert.md) and via [Batch Requests](3-6-BatchRequests.md).
 
 The `JPAODataCRUDHandler` was designed to take over repetitive work like preparing changes or creating a response depending on the request header. The business logic itself has to be implemented in a class that extends `JPAAbstractCUDRequestHandler`, we want to call it `CUDRequestHandler`, locate it in our new package _tutorial.modify_.
 
-The processing of any modification is split into two methods. First a method to perform the change (including consistency checks) and second in a method (`validateChange`) that allow to validate the changes in the context with other modification, which is mainly required with [Batch Requests](3-6-BatchRequests.md).
+The processing of any modification is split into two methods. First a method to perform the change (including consistency checks) and second in a method (`validateChange`) that allows to validate the changes in the context with other modification, which is mainly required with [Batch Requests](3-6-BatchRequests.md).
 
 Here we concentrate on performing changes and override `createEntity`. The method has two parameter.
 1. _requestEntity_ is a container that provides access to data and information about a request. Form interest in this tutorial are:
 	1. `getEntityType` provides an instance of _JPAEntityType_, which provides a bunch of information about the entity to be created. This starts with internal name of the JPA POJO and external name (name of OData entity) and ends with a list of attributes and keys.
 	2. `getData` provides a map of attributes that are provided by the request. Keys of the map are the attribute names of the POJO. In case of complex/embedded attributes map is deep meaning the attribute is a map with the same structure.
 	3. `getModifyUtil` provides an instance of `JPAModifyUtil`, which contains of some helper methods.
-2. _em_ is an instance of `EntityManager`. A transaction has already been started, which is done to ensure the transactional integrity required for change sets within batch requests.
+2. _em_ is an instance of `EntityManager`. A transaction has already been started, which is done to ensure the transactional integrity required for _change sets_ within batch requests.
 
-The method shall either returns an instance of the newly created POJO or a map like the one provided by `getData` including calculated fields.
+`createEntity` shall either returns an instance of the newly created POJO or a map like the one provided by `getData` including calculated fields.
 
 Lets start creating a new AdministrativeDivision. As a first step we generate setter and getter methods. This can be done in Eclipse after opening `AdministrativeDivision.java` by choosing _Alt+Shift+S_ and then _Generate Getters and Setters..._ select all others then _children_ and _parent_. Please note that all attributes should be typed with wrapper classes instead of primitive types. Assoziations with multiplicity _ToMany_ shall always return an collection, so we change the getter for Children as follows:
 
 ```Java
 public List<AdministrativeDivision> getChildren() {
 	if (children == null)
-		children = new ArrayList<AdministrativeDivision>();
+		children = new ArrayList<>();
 	return children;
 }
 ```
@@ -71,14 +71,16 @@ public class CUDRequestHandler extends JPAAbstractCUDRequestHandler {
 
 }
 ```
-As the last step before we can test our implementation, we have to make a small change at the Service implementation. Up to know we haven't provided the `JPAODataCRUDHandler` which is our handler implementation. So we have to add `handler.getJPAODataContext().setCUDRequestHandler(new CUDRequestHandler());`:
+As the last step before we can test our implementation, we have to make a small change at the Service implementation. Up to know we haven't provided the `JPAODataCRUDHandler` our own handler implementation. As the handler may contain request specific information e.g. to be able to perform checks within `validateChange`, the handler is part of the request context. 
+So we have to add ` handler.getJPAODataRequestContext().setCUDRequestHandler(new CUDRequestHandler());`:
 
 ```Java
 	...
-			JPAODataCRUDHandler handler = new JPAODataCRUDHandler(PUNIT_NAME);
-			handler.getJPAODataContext().setCUDRequestHandler(new CUDRequestHandler());
-			handler.process(req, resp, em);
-		} catch (RuntimeException e) {
+      final JPAODataCRUDHandler handler = new JPAODataCRUDHandler(serviceContext);
+      handler.getJPAODataRequestContext().setEntityManager(em);
+      handler.getJPAODataRequestContext().setCUDRequestHandler(new CUDRequestHandler());
+      handler.process(req, resp);
+    } catch (RuntimeException | ODataException e) {
 	...
 ```
 
@@ -107,9 +109,9 @@ We can retrieve the newly created entity via `.../Tutorial/Tutorial.svc/Administ
 
 If we want to play around with other entities we could go ahead the same approach as a above, so manually create an instance of the POJO and fill it step by step, which would get boring. We want to do some more generic stuff.
 
-__Please note__ that we have used a simplified model for this tutorial where we map a database table field one to one to a property in our API. This is __not__ recommended, as this could make a table change to API change.
+__Please note__ that we have used a simplified model for this tutorial where we map a database table field one to one to a property in our API. This is __not__ recommended, as this could make a table change a API change.
 
-We want to create an instance base on the information of the entity type. The first step is to get the Constructors:
+Instead of writing code for each entity type, we want to create an instance base on the information of the entity type. The first step is to get the Constructors:
 
 ```Java
 	private Constructor<?> getConstructor(final JPAStructuredType st) {

@@ -119,7 +119,8 @@ Now we can go to our servlet and create the claims. For the tutorial we want to 
     if (auth != null && !auth.isEmpty()) {
       final String[] authDetails = auth.split(" ");
       if (authDetails.length == 2 && authDetails[0].equals("Basic")) {
-        final String[] baseAuth = new String(Base64.decode(authDetails[1]), StandardCharsets.UTF_8).split(":");
+        final String[] baseAuth = new String(Base64.getDecoder().decode(authDetails[1]), StandardCharsets.UTF_8)
+            .split(":");
         final JPAClaimsPair<String> user = new JPAClaimsPair<>(baseAuth[0]);
         claims.add("UserId", user);
       }
@@ -129,7 +130,8 @@ Now we can go to our servlet and create the claims. For the tutorial we want to 
 ```
 Last but not least, the claims have to be forwarded to the JPA processor:
 ```Java
-      handler.process(req, resp, createClaims(req), em);
+      handler.getJPAODataRequestContext().setClaimsProvider(createClaims(req));
+      handler.process(req, resp);
 ```
 
 No we can run some queries. As we need to set the Authentication header, we need to use a rest client:
