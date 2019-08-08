@@ -168,7 +168,7 @@ class JPAVisitor implements JPAExpressionVisitor {
     }
     debugger.stopRuntimeMeasurement(handle);
     return new JPAMemberOperator(this.jpaComplier.getJpaEntityType(), this.jpaComplier.getRoot(), member, jpaComplier
-        .getAssoziation());
+        .getAssoziation(), this.jpaComplier.getGroups());
   }
 
   @Override

@@ -11,6 +11,10 @@ public class JPAEntityManagerFactory {
   private static final String ENTITY_MANAGER_DATA_SOURCE = "javax.persistence.nonJtaDataSource";
   private static Map<String, Map<Integer, EntityManagerFactory>> emfMap;
 
+  private JPAEntityManagerFactory() {
+    throw new IllegalStateException("JPAEntityManagerFactory class");
+  }
+
   public static EntityManagerFactory getEntityManagerFactory(final String pUnit, final Map<String, Object> ds) {
     if (pUnit == null) {
       return null;
@@ -21,7 +25,7 @@ public class JPAEntityManagerFactory {
     Integer dsKey = ds.hashCode();
     if (emfMap.containsKey(pUnit)) {
       final Map<Integer, EntityManagerFactory> dsMap = emfMap.get(pUnit);
-      EntityManagerFactory emf = dsMap.get(ds);
+      EntityManagerFactory emf = dsMap.get(dsKey);
 
       if (emf != null)
         return emf;
@@ -43,5 +47,4 @@ public class JPAEntityManagerFactory {
     properties.put(ENTITY_MANAGER_DATA_SOURCE, ds);
     return getEntityManagerFactory(pUnit, properties);
   }
-
 }

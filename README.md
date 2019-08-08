@@ -17,7 +17,7 @@ At the current state the JPA Processor provide support for:
 More details can be found in the [Tutorials](/jpa-tutorial/Tutorials/Introduction/Introduction.md).
 
 # Requirements
-The JPA Processor requires, others than Olingo, minimum Java version  [1.8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html). The current version comes with Olingo 4.5.0. If later versions of Olingo are available this may change.
+The JPA Processor requires, others than Olingo, minimum Java version  [1.8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html). The current version comes with Olingo 4.6.0. If later versions of Olingo are available this may change.
 
 Even so no JPA implementation is preferred, as long as it supports [JSR-338 Java Persistence 2.1](https://jcp.org/en/jsr/detail?id=317), it has to be stated that all test have been performed with [Eclipselink 2.6.2](http://www.eclipse.org/eclipselink/). If you have any isusse with e.g. [Hibernate](http://hibernate.org) create an issue in github.
 
@@ -29,7 +29,7 @@ clone the repository, import the projects and declare a dependency to either the
 <dependency>
 	<groupId>com.sap.olingo</groupId>
 	<artifactId>odata-jpa-metadata</artifactId>
-	<version>0.3.2-SNAPSHOT</version>
+	<version>0.3.4-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -39,7 +39,7 @@ Or to the complete processor:
 <dependency>
 	<groupId>com.sap.olingo</groupId>
 	<artifactId>odata-jpa-processor</artifactId>
-	<version>0.3.2-SNAPSHOT</version>
+	<version>0.3.4-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -52,6 +52,7 @@ For bugs, questions and ideas for enhancement please open an issue in github.
 # To-Do (upcoming-changes)
 The flowing extensions/changes are planned:
 
+* Transient fields
 * Enable hooks for retrieving data
 * Support of $ref
 * ETag on $metadata
@@ -78,3 +79,4 @@ This file is licensed under the Apache Software License, v.2 except as noted oth
 |0.3.1|- Support of instance based authorizations<br> - Solution for issue [#60](https://github.com/SAP/olingo-jpa-processor-v4/issues/60)<br> - Solution for issue [#49](https://github.com/SAP/olingo-jpa-processor-v4/issues/49)<br> - Correct typo in interface JPAODataPagingProvider <br> - New tutorials 2.3, 4.4  |Yes|
 |0.3.2|- Lift unit tests to JUnit 5<br> - Correction of http return codes on empty responses |No|
 |0.3.3|- Support of PUT requests on collection properties and simple primitive properties<br> - Update to Olingo 4.6.0 <br> - Solution for issue [#69](https://github.com/SAP/olingo-jpa-processor-v4/issues/69) <br> - Solution for issue [#71](https://github.com/SAP/olingo-jpa-processor-v4/issues/71)<br>- Update tutorial [4.4](jpa-tutorial/Tutorials/SpecialTopics/4-4-InstanceBasedAuthorizations.md)|No
+|0.3.4|- Support of $select as part of $expand<br> - Support of field groups<br> - Introduction of a request context, which includes deprecation of methods <br> - Etag now written into response e.g. @odata.etag when JSON was requested<br> - Solution for issue [#78](https://github.com/SAP/olingo-jpa-processor-v4/issues/78) <br> - Updated tutorials: [2.2](jpa-tutorial/Tutorials/RetrieveData/2-2-RetrievingData.md), [2.3](jpa-tutorial/Tutorials/RetrieveData/2-3-UsingFunctions.md), [3.1](jpa-tutorial/Tutorials/ChangeData/3-1-Preparation.md), [3.2](jpa-tutorial/Tutorials/ChangeData/3-2-CreatingEntities.md),  [4.4](jpa-tutorial/Tutorials/SpecialTopics/4-4-InstanceBasedAuthorizations.md)  |Yes

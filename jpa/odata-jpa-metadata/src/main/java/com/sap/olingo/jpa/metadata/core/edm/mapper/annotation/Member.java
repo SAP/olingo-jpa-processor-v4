@@ -8,31 +8,15 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Member extends CsdlEnumMember {
 
+  @Override
   @JacksonXmlProperty(localName = "Name", isAttribute = true)
-  private String name;
+  public CsdlEnumMember setName(final String name) {
+    return super.setName(name);
+  }
 
+  @Override
   @JacksonXmlProperty(localName = "Value", isAttribute = true)
-  private String value;
-
-  @Override
-  public String getName() {
-    return name;
-  }
-
-  @Override
-  public String getValue() {
-    return value;
-  }
-
-  @Override
-  public CsdlEnumMember setName(String name) {
-    this.name = name;
-    return this;
-  }
-
-  @Override
-  public CsdlEnumMember setValue(String value) {
-    this.value = value;
-    return this;
+  public CsdlEnumMember setValue(final String value) {
+    return super.setValue(value);
   }
 }

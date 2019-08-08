@@ -55,7 +55,6 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
   final JPAMemberOperator jpaMember;
   final JPALiteralOperator operand;
   final MethodKind methodCall;
-  private JPALiteralOperator methodOperand;
 
   public JPANavigationOperation(final BinaryOperatorKind operator,
       final JPANavigationOperation jpaNavigationOperation, final JPALiteralOperator operand,
@@ -65,7 +64,6 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
     this.methodCall = jpaNavigationOperation.methodCall;
     this.jpaMember = jpaNavigationOperation.jpaMember;
     this.operand = operand;
-    this.methodOperand = jpaNavigationOperation.operand;
   }
 
   JPANavigationOperation(final JPAFilterComplierAccess jpaComplier, final BinaryOperatorKind operator,
@@ -131,10 +129,11 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
         final VisitableExpression expression = createExpression();
         if (naviInfo.getUriResiource() instanceof UriResourceProperty) {
           queryList.add(new JPACollectionFilterQuery(odata, sd, em, parent, naviInfo.getAssociationPath(), expression,
-              determineFrom(i, naviPathList.size(), parent)));
+              determineFrom(i, naviPathList.size(), parent), groups));
         } else {
           queryList.add(new JPANavigationFilterQuery(odata, sd, naviInfo.getUriResiource(), parent, em, naviInfo
-              .getAssociationPath(), expression, determineFrom(i, naviPathList.size(), parent), claimsProvider));
+              .getAssociationPath(), expression, determineFrom(i, naviPathList.size(), parent), claimsProvider,
+              groups));
         }
       } else {
         queryList.add(new JPANavigationFilterQuery(odata, sd, naviInfo.getUriResiource(), parent, em, naviInfo
@@ -223,7 +222,7 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
 
     @Override
     public List<CustomQueryOption> getCustomQueryOptions() {
-      return new ArrayList<>(1);
+      return new ArrayList<>(0);
     }
 
     @Override

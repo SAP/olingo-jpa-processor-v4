@@ -17,16 +17,25 @@ Making queries on functions is more difficult. The reason for this is that JPA, 
 * `SELECT * FROM <FUNCTIONNAME>(<PARAMETER LIST>)`: E.g. SAP HANA,  PostgreSQL
 
 This requires a database specific implementation. The JPA Processor provides the interface 
-[JPAODataDatabaseProcessor](../../../jpa/odata-jpa-processor/src/main/java/com/sap/olingo/jpa/processor/core/api/JPAODataDatabaseProcessor.java) for this. As of now the interface is in __beta__ state. For this tutorial we want to copy class [JPA_HSQLDB_DatabaseProcessor](../../../jpa/odata-jpa-processor/src/main/java/com/sap/olingo/jpa/processor/core/database/JPA_HSQLDB_DatabaseProcessor.java), beta as well, to package `tutorial.service` with the new name `HSQLDatabaseProcessor`. After that we need to register the database processor at our OData Handler. This is done, within our `Servlet`:
+[JPAODataDatabaseProcessor](../../../jpa/odata-jpa-processor/src/main/java/com/sap/olingo/jpa/processor/core/api/JPAODataDatabaseProcessor.java) for this. As of now the interface is in __beta__ state. For this tutorial we want to copy class [JPA_HSQLDB_DatabaseProcessor](../../../jpa/odata-jpa-processor/src/main/java/com/sap/olingo/jpa/processor/core/database/JPA_HSQLDB_DatabaseProcessor.java), beta as well, to package `tutorial.service` with the new name `HSQLDatabaseProcessor`. After that we need to register the database processor at our service context. This is done, within the `Listener`:
 
 ```Java
 		...
-		try {
-
-			JPAODataGetHandler handler = new JPAODataGetHandler(PUNIT_NAME,
-					DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB));
-			handler.getJPAODataContext().setDatabaseProcessor(new HSQLDatabaseProcessor());
-			handler.process(req, resp);
+  @Override
+  public void contextInitialized(ServletContextEvent sce) {
+    final DataSource ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
+    try {
+      final JPAODataCRUDContextAccess serviceContext = JPAODataServiceContext.with()
+          .setPUnit(PUNIT_NAME)
+          .setDataSource(ds)
+          .setTypePackage("tutorial.operations", "tutorial.model")
+          .setDatabaseProcessor(new HSQLDatabaseProcessor())
+          .build();
+      sce.getServletContext().setAttribute("ServiceContext", serviceContext);
+    } catch (ODataException e) {
+      // Log error
+    }
+  }
 		...
 ```
 Having done that we can call the Siblings function:

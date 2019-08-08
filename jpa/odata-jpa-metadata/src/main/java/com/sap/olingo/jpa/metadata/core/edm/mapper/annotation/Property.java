@@ -1,187 +1,74 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.annotation;
 
+import java.util.Objects;
+
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.geo.SRID;
-import org.apache.olingo.commons.api.edm.provider.CsdlMapping;
 import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Property extends CsdlProperty {
 
+  @Override
   @JacksonXmlProperty(localName = "Name", isAttribute = true)
-  private String name;
+  public CsdlProperty setName(final String name) {
+    Objects.requireNonNull(name);
+    return super.setName(name);
+  }
+
+  @Override
   @JacksonXmlProperty(localName = "Type", isAttribute = true)
-  private FullQualifiedName type;
-  @JacksonXmlProperty(localName = "Nullable", isAttribute = true)
-  private Boolean isNullable;
+  public CsdlProperty setType(final String type) {
+    Objects.requireNonNull(type);
+    if (type.startsWith("Collection")) {
+      setCollection(true);
+      return super.setType(new FullQualifiedName(type.split("[()]")[1]));
+    }
+    return super.setType(new FullQualifiedName(type));
+  }
+
+  @Override
   @JacksonXmlProperty(localName = "DefaultValue", isAttribute = true)
-  private String defaultValue;
-  @JacksonXmlProperty(localName = "Unicode", isAttribute = true)
-  private Boolean isUnicode;
+  public CsdlProperty setDefaultValue(final String defaultValue) {
+    return super.setDefaultValue(defaultValue);
+  }
+
+  @Override
+  @JacksonXmlProperty(localName = "Nullable", isAttribute = true)
+  public CsdlProperty setNullable(final boolean nullable) {
+    return super.setNullable(nullable);
+  }
+
+  @Override
   @JacksonXmlProperty(localName = "MaxLength", isAttribute = true)
-  private Integer maxLength;
+  public CsdlProperty setMaxLength(final Integer maxLength) {
+    return super.setMaxLength(maxLength);
+  }
+
+  @Override
   @JacksonXmlProperty(localName = "Precision", isAttribute = true)
-  private Integer precision;
+  public CsdlProperty setPrecision(final Integer precision) {
+    return super.setPrecision(precision);
+  }
+
+  @Override
   @JacksonXmlProperty(localName = "Scale", isAttribute = true)
-  private Integer scale;
+  public CsdlProperty setScale(final Integer scale) {
+    return super.setScale(scale);
+  }
+
+  @Override
+  @JacksonXmlProperty(localName = "Unicode", isAttribute = true)
+  public CsdlProperty setUnicode(final boolean unicode) {
+    return super.setUnicode(unicode);
+  }
+
   @JacksonXmlProperty(localName = "SRID", isAttribute = true)
-  private SRID srid;
-
-  @Override
-  public String getName() {
-    return name;
+  void setSrid(final String srid) {
+    Objects.requireNonNull(srid);
+    super.setSrid(SRID.valueOf(srid));
   }
-
-  @Override
-  public String getType() {
-    // TODO Auto-generated method stub
-    return super.getType();
-  }
-
-  @Override
-  public FullQualifiedName getTypeAsFQNObject() {
-    // TODO Auto-generated method stub
-    return super.getTypeAsFQNObject();
-  }
-
-  @Override
-  public boolean isCollection() {
-//    final int collStartIdx = typeExpression.indexOf("Collection(");
-//    final int collEndIdx = typeExpression.lastIndexOf(')');
-    return false;
-  }
-
-  @Override
-  public String getDefaultValue() {
-    return defaultValue;
-  }
-
-  @Override
-  public boolean isNullable() {
-    return isNullable;
-  }
-
-  @Override
-  public Integer getMaxLength() {
-    return new Integer(maxLength);
-  }
-
-  @Override
-  public Integer getPrecision() {
-    return precision;
-  }
-
-  @Override
-  public Integer getScale() {
-    return scale;
-  }
-
-  @Override
-  public boolean isUnicode() {
-    return isUnicode;
-  }
-
-  @Override
-  public String getMimeType() {
-    return super.getMimeType();
-  }
-
-  @Override
-  public CsdlMapping getMapping() {
-    return super.getMapping();
-  }
-
-  @Override
-  public SRID getSrid() {
-    return srid;
-  }
-
-  @Override
-  public CsdlProperty setName(String name) {
-    this.name = name;
-    return this;
-  }
-
-  @Override
-  public CsdlProperty setType(FullQualifiedName type) {
-    this.type = type;
-    return this;
-  }
-
-  @JsonSetter
-  @Override
-  public CsdlProperty setType(String type) {
-    this.type = new FullQualifiedName(type);
-    return this;
-  }
-
-  @Override
-  public CsdlProperty setCollection(boolean isCollection) {
-    return this;
-  }
-
-  @Override
-  public CsdlProperty setDefaultValue(String defaultValue) {
-    this.defaultValue = defaultValue;
-    return this;
-  }
-
-  @Override
-  public CsdlProperty setNullable(boolean nullable) {
-    this.isNullable = nullable;
-    return this;
-  }
-
-  @Override
-  public CsdlProperty setMaxLength(Integer maxLength) {
-    this.maxLength = maxLength;
-    return this;
-  }
-
-  @Override
-  public CsdlProperty setPrecision(Integer precision) {
-    this.precision = precision;
-    return this;
-  }
-
-  @Override
-  public CsdlProperty setScale(Integer scale) {
-    this.scale = scale;
-    return this;
-  }
-
-  @Override
-  public CsdlProperty setUnicode(boolean unicode) {
-    this.isUnicode = unicode;
-    return this;
-  }
-
-  @Override
-  public CsdlProperty setMimeType(String mimeType) {
-    return this;
-  }
-
-  @Override
-  public CsdlProperty setMapping(CsdlMapping mapping) {
-    return this;
-  }
-
-  @Override
-  public CsdlProperty setSrid(SRID srid) {
-    this.srid = srid;
-    return this;
-  }
-
-  @JsonSetter
-  void setSrid(String srid) {
-    if (srid != null)
-      this.srid = SRID.valueOf(srid);
-    else
-      this.srid = null;
-  }
-
 }

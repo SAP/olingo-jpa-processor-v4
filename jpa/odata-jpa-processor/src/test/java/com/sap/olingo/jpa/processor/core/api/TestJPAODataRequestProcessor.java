@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import javax.persistence.EntityManager;
@@ -30,18 +31,19 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 
-public class JPAODataRequestProcessorTest {
+public class TestJPAODataRequestProcessor {
 
   private static JPAODataRequestProcessor cut;
   private static EntityManager em;
   private static JPAODataClaimsProvider claims;
-  private static JPAODataSessionContextAccess context;
+  private static JPAODataCRUDContextAccess sessionContext;
   private static ODataRequest request;
   private static ODataResponse response;
   private static UriInfo uriInfo;
   private static OData odata;
   private static ServiceMetadata serviceMetadata;
   private static List<UriResource> resourceParts;
+  private static JPAODataRequestContextAccess requestContext;
 
   static Stream<Executable> modifyMediaTypeMethodsProvider() {
     return Stream.of(() -> {
@@ -73,8 +75,6 @@ public class JPAODataRequestProcessorTest {
       cut.createEntity(request, response, uriInfo, ContentType.APPLICATION_JSON, ContentType.APPLICATION_JSON);
     }, () -> {
       cut.updateEntity(request, response, uriInfo, ContentType.APPLICATION_JSON, ContentType.APPLICATION_JSON);
-//    }, () -> {
-//      cut.deleteEntity(request, response, uriInfo);
     }, () -> {
       cut.readEntity(request, response, uriInfo, ContentType.APPLICATION_JSON);
     });
@@ -84,20 +84,22 @@ public class JPAODataRequestProcessorTest {
   public static void classSetup() {
     em = mock(EntityManager.class);
     claims = new JPAODataClaimsProvider();
-    context = mock(JPAODataSessionContextAccess.class);
+    sessionContext = mock(JPAODataCRUDContextAccess.class);
+    requestContext = mock(JPAODataRequestContextAccess.class);
     request = mock(ODataRequest.class);
     response = mock(ODataResponse.class);
     uriInfo = mock(UriInfo.class);
     odata = mock(OData.class);
     serviceMetadata = mock(ServiceMetadata.class);
-    resourceParts = new ArrayList<>(1);
+    resourceParts = new ArrayList<>(0);
     UriResource resourcePart = mock(UriResource.class);
     resourceParts.add(resourcePart);
 
     when(uriInfo.getUriResourceParts()).thenReturn(resourceParts);
     when(resourcePart.getKind()).thenReturn(UriResourceKind.navigationProperty);
-
-    cut = new JPAODataRequestProcessor(context, claims, em);
+    when(requestContext.getClaimsProvider()).thenReturn(Optional.ofNullable(claims));
+    when(requestContext.getEntityManager()).thenReturn(em);
+    cut = new JPAODataRequestProcessor(sessionContext, requestContext);
     cut.init(odata, serviceMetadata);
   }
 
@@ -121,14 +123,12 @@ public class JPAODataRequestProcessorTest {
   @MethodSource("throwsSerializerExceptionMethodsProvider")
   public void checkCreateEntityPropagateSerializerException(final Executable m) throws SerializerException {
 
-    // when(odata.createSerializer(ContentType.APPLICATION_JSON)).thenThrow(SerializerException.class);
     assertThrows(ODataException.class, m);
   }
 
   @Test
   public void checkUpdateEntityPropagateSerializerException() throws SerializerException {
 
-    // when(odata.createSerializer(ContentType.APPLICATION_JSON)).thenThrow(SerializerException.class);
     assertThrows(ODataException.class, () -> {
       cut.updateEntity(request, response, uriInfo, ContentType.APPLICATION_JSON, ContentType.APPLICATION_JSON);
     });

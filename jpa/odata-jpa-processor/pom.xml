@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>com.sap.olingo</groupId>
 		<artifactId>odata-jpa</artifactId>
-		<version>0.3.3-SNAPSHOT</version>
+		<version>0.3.4-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>odata-jpa-processor</artifactId>
@@ -17,7 +17,6 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<javax.version>2.5</javax.version>
-		<jackson.version>2.4.2</jackson.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -58,6 +57,21 @@
 			<artifactId>servlet-api</artifactId>
 			<version>${javax.version}</version>
 			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.google.code.findbugs</groupId>
+			<artifactId>jsr305</artifactId>
+			<version>3.0.2</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-xml</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+			<version>${jackson.version}</version>
 		</dependency>
 	</dependencies>
 </project>

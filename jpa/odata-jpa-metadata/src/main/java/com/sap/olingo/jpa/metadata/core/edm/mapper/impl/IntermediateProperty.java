@@ -6,10 +6,12 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Column;
@@ -32,6 +34,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtectedBy;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtections;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmSearchable;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmVisibleFor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.AppliesTo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
@@ -39,6 +42,16 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
 
+/**
+ * Properties can be classified by two different aspects:
+ * <ol>
+ * <li> If they are complex, so are structured, or primitive</li>
+ * <li> If they are a collection of instances or if they are simple and can have up to one instance</li>
+ * </ol>
+ * So properties maybe e.g. a complex collection property or a simple primitive property
+ * @author Oliver Grande
+ *
+ */
 abstract class IntermediateProperty extends IntermediateModelElement implements IntermediatePropertyAccess,
     JPAAttribute {
 
@@ -55,6 +68,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
   protected boolean isVersion;
   protected boolean searchable;
   private final Map<String, JPAProtectionInfo> externalProtectedPathNames;
+  private List<String> fieldGroups;
 
   public IntermediateProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,
       final IntermediateSchema schema) throws ODataJPAModelException {
@@ -97,20 +111,6 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
     if (externalProtectedPathNames.containsKey(claimName))
       return externalProtectedPathNames.get(claimName).getPath();
     return new ArrayList<>(0);
-  }
-
-  /**
-   * Determines if wildcards are supported. In case a complex type is annotated this depends on the type of the target
-   * attribute. To prevent deed locks during metadata generation the determination is done late.
-   * @param <T>
-   * @param claimName
-   * @param clazz
-   * @return
-   */
-  <T> boolean protectionWithWildcard(final String claimName, final Class<T> clazz) {
-    if (externalProtectedPathNames.containsKey(claimName))
-      return externalProtectedPathNames.get(claimName).supportsWildcards(clazz);
-    return true;
   }
 
   @Override
@@ -161,6 +161,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
       determineStreamInfo();
       determineIsVersion();
       determineProtection();
+      determineFieldGroups();
       checkConsistancy();
     }
     postProcessor.processProperty(this, jpaAttribute.getDeclaringType().getJavaType().getCanonicalName());
@@ -172,9 +173,9 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
   protected FullQualifiedName determineTypeByPersistanceType(Enum<?> persistanceType) throws ODataJPAModelException {
     if (persistanceType == PersistentAttributeType.BASIC || persistanceType == PersistenceType.BASIC) {
       final IntermediateModelElement odataType = getODataPrimitiveType();
-      if (odataType == null) {
+      if (odataType == null)
         return getSimpleType();
-      } else
+      else
         return odataType.getExternalFQN();
     }
     if (persistanceType == PersistentAttributeType.EMBEDDED || persistanceType == PersistenceType.EMBEDDABLE)
@@ -241,45 +242,6 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
     }
   }
 
-  private void determineOneProtection(final EdmProtectedBy jpaProtectedBy) throws ODataJPAModelException {
-
-    List<String> externalNames;
-    final String protectionClaimName = jpaProtectedBy.name();
-    if (externalProtectedPathNames.containsKey(protectionClaimName))
-      externalNames = externalProtectedPathNames.get(protectionClaimName).getPath();
-    else
-      externalNames = new ArrayList<>(2);
-    if (jpaAttribute.getPersistentAttributeType() == Attribute.PersistentAttributeType.EMBEDDED) {
-      String internalProtectedPath = jpaProtectedBy.path();
-      if (internalProtectedPath.length() == 0) {
-        throw new ODataJPAModelException(COMPLEX_PROPERTY_MISSING_PROTECTION_PATH, this.managedType.getJavaType()
-            .getCanonicalName(), this.internalName);
-      }
-      externalNames.add(getExternalName() + JPAPath.PATH_SEPERATOR + convertPath(jpaProtectedBy.path()));
-    } else
-      externalNames.add(getExternalName());
-    externalProtectedPathNames.put(protectionClaimName, new JPAProtectionInfo(externalNames, jpaProtectedBy
-        .wildcardSupported()));
-  }
-
-  /**
-   * Converts an internal path into an external path
-   * @param internalPath
-   * @return
-   */
-  private String convertPath(final String internalPath) {
-
-    String[] pathSegments = internalPath.split(JPAPath.PATH_SEPERATOR);
-    StringBuilder externalPath = new StringBuilder();
-    for (final String segement : pathSegments) {
-      externalPath.append(nameBuilder.buildPropertyName(segement));
-      externalPath.append(JPAPath.PATH_SEPERATOR);
-    }
-    externalPath.deleteCharAt(externalPath.length() - 1);
-
-    return externalPath.toString();
-  }
-
   void determineSearchable() {
     final EdmSearchable jpaSearchable = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
         .getAnnotation(EdmSearchable.class);
@@ -294,6 +256,13 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
   abstract FullQualifiedName determineType() throws ODataJPAModelException;
 
   abstract String getDeafultValue() throws ODataJPAModelException;
+
+  /**
+   * @return
+   */
+  List<String> getGroups() {
+    return fieldGroups;
+  }
 
   IntermediateModelElement getODataPrimitiveType() {
     return schema.getEnumerationType(entityType);
@@ -327,7 +296,25 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
     return result;
   }
 
+  boolean isPartOfGroup() {
+    return !fieldGroups.isEmpty();
+  }
+
   abstract boolean isStream();
+
+  /**
+   * Determines if wildcards are supported. In case a complex type is annotated this depends on the type of the target
+   * attribute. To prevent deed locks during metadata generation the determination is done late.
+   * @param <T>
+   * @param claimName
+   * @param clazz
+   * @return
+   */
+  <T> boolean protectionWithWildcard(final String claimName, final Class<T> clazz) {
+    if (externalProtectedPathNames.containsKey(claimName))
+      return externalProtectedPathNames.get(claimName).supportsWildcards(clazz);
+    return true;
+  }
 
   void setFacet() throws ODataJPAModelException {
     if (jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
@@ -368,6 +355,24 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
     }
   }
 
+  /**
+   * Converts an internal path into an external path
+   * @param internalPath
+   * @return
+   */
+  private String convertPath(final String internalPath) {
+
+    String[] pathSegments = internalPath.split(JPAPath.PATH_SEPERATOR);
+    StringBuilder externalPath = new StringBuilder();
+    for (final String segement : pathSegments) {
+      externalPath.append(nameBuilder.buildPropertyName(segement));
+      externalPath.append(JPAPath.PATH_SEPERATOR);
+    }
+    externalPath.deleteCharAt(externalPath.length() - 1);
+
+    return externalPath.toString();
+  }
+
   private void determineDBFieldName() {
     final Column jpaColunnDetails = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
         .getAnnotation(Column.class);
@@ -379,8 +384,21 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
         s.replace(1, 3, internalName);
         dbFieldName = s.toString();
       }
-    } else
+    } else {
       dbFieldName = internalName;
+    }
+  }
+
+  /**
+   * 
+   */
+  private void determineFieldGroups() {
+    final EdmVisibleFor jpaFieldGroups = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
+        .getAnnotation(EdmVisibleFor.class);
+    if (jpaFieldGroups != null)
+      fieldGroups = Arrays.stream(jpaFieldGroups.value()).collect(Collectors.toList());
+    else
+      fieldGroups = new ArrayList<>(0);
   }
 
   private void determineIgnore() {
@@ -407,6 +425,28 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
             ODataJPAModelException.MessageKeys.TYPE_MAPPER_COULD_NOT_INSANTIATE, e);
       }
     }
+  }
+
+  private void determineOneProtection(final EdmProtectedBy jpaProtectedBy) throws ODataJPAModelException {
+
+    List<String> externalNames;
+    final String protectionClaimName = jpaProtectedBy.name();
+    if (externalProtectedPathNames.containsKey(protectionClaimName))
+      externalNames = externalProtectedPathNames.get(protectionClaimName).getPath();
+    else
+      externalNames = new ArrayList<>(2);
+    if (jpaAttribute.getPersistentAttributeType() == Attribute.PersistentAttributeType.EMBEDDED) {
+      String internalProtectedPath = jpaProtectedBy.path();
+      if (internalProtectedPath.length() == 0) {
+        throw new ODataJPAModelException(COMPLEX_PROPERTY_MISSING_PROTECTION_PATH, this.managedType.getJavaType()
+            .getCanonicalName(), this.internalName);
+      }
+      externalNames.add(getExternalName() + JPAPath.PATH_SEPERATOR + convertPath(jpaProtectedBy.path()));
+    } else {
+      externalNames.add(getExternalName());
+    }
+    externalProtectedPathNames.put(protectionClaimName, new JPAProtectionInfo(externalNames, jpaProtectedBy
+        .wildcardSupported()));
   }
 
   private boolean isLob() {

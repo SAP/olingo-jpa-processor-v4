@@ -31,8 +31,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterElementComplier;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterExpression;
@@ -51,8 +51,7 @@ public abstract class JPANavigationQuery extends JPAAbstractQuery {
 
   public JPANavigationQuery(final OData odata, final JPAServiceDocument sd, final EdmEntityType edmEntityType,
       final EntityManager em, final JPAAbstractQuery parent, From<?, ?> from, final JPAAssociationPath association,
-      final Optional<JPAODataClaimsProvider> claimsProvider)
-      throws ODataApplicationException {
+      final Optional<JPAODataClaimProvider> claimsProvider) throws ODataApplicationException {
 
     super(odata, sd, edmEntityType, em, claimsProvider);
     this.parentQuery = parent;
@@ -84,7 +83,7 @@ public abstract class JPANavigationQuery extends JPAAbstractQuery {
   }
 
   @Override
-  JPAODataSessionContextAccess getContext() {
+  JPAODataCRUDContextAccess getContext() {
     return parentQuery.getContext();
   }
 
@@ -265,14 +264,14 @@ public abstract class JPANavigationQuery extends JPAAbstractQuery {
 
   protected UriResourceKind getAggregationType(final VisitableExpression expression) {
     UriInfoResource member = null;
-    if (expression != null && expression instanceof Binary) {
+    if (expression instanceof Binary) {
       if (((Binary) expression).getLeftOperand() instanceof JPAMemberOperator)
         member = ((JPAMemberOperator) ((Binary) expression).getLeftOperand()).getMember().getResourcePath();
       else if (((Binary) expression).getRightOperand() instanceof JPAMemberOperator)
         member = ((JPAMemberOperator) ((Binary) expression).getRightOperand()).getMember().getResourcePath();
-    } else if (expression != null && expression instanceof JPAFilterExpression)
+    } else if (expression instanceof JPAFilterExpression) {
       member = ((JPAFilterExpression) expression).getMember();
-
+    }
     if (member != null) {
       for (final UriResource r : member.getUriResourceParts()) {
         if (r.getKind() == UriResourceKind.count)

@@ -57,7 +57,7 @@ The following lists shall give you a rough overview of the topics where the JPA 
 |12|SHOULD support the $skip system query option ([section 11.2.5.4](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752288))| X |
 |13|SHOULD support the $count system query option ([section 11.2.5.5](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752288))| X |
 |14|SHOULD support $expand ([section 11.2.4.2](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752287))| X |
-|15|SHOULD support the lambda operators any and all on navigation- and collection-valued properties (section 5.1.1.5 in [OData-URL])| ? |
+|15|SHOULD support the lambda operators any and all on navigation- and collection-valued properties ([section 5.1.1.5](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part2-url-conventions/odata-v4.0-errata03-os-part2-url-conventions-complete.html#_Toc453752358))| X |
 |16|SHOULD support the /$count segment on navigation and collection properties ([section 11.2.9](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752292))| X |
 |17|SHOULD support $orderby asc and desc on individual properties ([section 11.2.5.2](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752288))| X |
 
@@ -65,14 +65,14 @@ The following lists shall give you a rough overview of the topics where the JPA 
 |No|Requirment|State|
 |:--- |:--- |:--- |
 |1|MUST conform to at least the OData Intermediate Conformance Level| - |
-|2|MUST publish metadata at $metadata according to [OData-CSDL] (section 11.1.2)| X |
-|3|MUST support the [OData-JSON] format| X |
-|4|MUST support the /$count segment on navigation and collection properties (section 11.2.9)| X |
-|5|MUST support the lambda operators any and all on navigation- and collection-valued properties (section 5.1.1.5 in [OData-URL])| ? |
-|6|MUST support the $skip system query option (section 11.2.5.4)| X |
-|7|MUST support the $count system query option (section 11.2.5.5)| X |
-|8|MUST support $orderby asc and desc on individual properties (section 11.2.5.2)| X |
-|9|MUST support $expand (section 11.2.4.2)|   |
+|2|MUST publish metadata at $metadata according to [OData-CSDL](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part3-csdl/odata-v4.0-errata03-os-part3-csdl-complete.html) ([section 11.1.2](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752281))| X |
+|3|MUST support the [OData-JSON](http://docs.oasis-open.org/odata/odata-json-format/v4.0/os/odata-json-format-v4.0-os.html) format| X |
+|4|MUST support the /$count segment on navigation and collection properties ([section 11.2.9](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752292))| X |
+|5|MUST support the lambda operators any and all on navigation- and collection-valued properties ([OData-URL section 5.1.1.5](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part2-url-conventions/odata-v4.0-errata03-os-part2-url-conventions-complete.html#_Toc453752358))| X |
+|6|MUST support the $skip system query option ([section 11.2.5.4](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752288))| X |
+|7|MUST support the $count system query option ([section 11.2.5.5](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752288))| X |
+|8|MUST support $orderby asc and desc on individual properties ([section 11.2.5.2](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752288))| X |
+|9|MUST support $expand ([section 11.2.4.2](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752287))|   |
 |9.1|MUST support returning references for expanded properties (section 11.2.4.2)| ? |
 |9.2|MUST support $filter on expanded entities (section 11.2.4.2.1)| X |
 |9.3|MUST support cast segment in expand with derived types (section 11.2.4.2.1)| ? |
@@ -81,10 +81,10 @@ The following lists shall give you a rough overview of the topics where the JPA 
 |9.6|SHOULD support $top and $skip on expanded properties (section 11.2.4.2.1)| X |
 |9.7|SHOULD support $search on expanded properties (section 11.2.4.2.1)| X |
 |9.8|SHOULD support $levels for recursive expand (section 11.2.4.2.1.1)| X |
-|10|MUST support the $search system query option (section 11.2.5.6)| ? |
+|10|MUST support the $search system query option ([section 11.2.5.6](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752288))| ? |
 |11|MUST support batch requests (section11.7 and all subsections)| ? |
-|12|MUST support the resource path conventions defined in [OData-URL]| X |
-|13|SHOULD support Asynchronous operations (section 8.2.8.8)| - |
-|14|SHOULD support Delta change tracking (section 8.2.8.6)| - |
-|15|SHOULD support cross-join queries defined in [OData-URL]| - |
-|16|SHOULD support a conforming OData service interface over metadata (section 11.1.3)| - |
+|12|MUST support the resource path conventions defined in [OData-URL](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part2-url-conventions/odata-v4.0-errata03-os-part2-url-conventions-complete.html)| X |
+|13|SHOULD support Asynchronous operations ([section 8.2.8.8](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752234))| - |
+|14|SHOULD support Delta change tracking ([section 8.2.8.6](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752234))| - |
+|15|SHOULD support cross-join queries defined in [OData-URL](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part2-url-conventions/odata-v4.0-errata03-os-part2-url-conventions-complete.html)| - |
+|16|SHOULD support a conforming OData service interface over metadata ([section 11.1.3](http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752282))| - |

@@ -7,13 +7,13 @@ import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
-import org.apache.olingo.server.api.uri.UriInfo;
+import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.query.JPAJoinQuery;
 
@@ -24,7 +24,7 @@ import com.sap.olingo.jpa.processor.core.query.JPAJoinQuery;
  */
 public final class JPACountRequestProcessor extends JPAAbstractGetRequestProcessor {
 
-  public JPACountRequestProcessor(final OData odata, final JPAODataSessionContextAccess context,
+  public JPACountRequestProcessor(final OData odata, final JPAODataCRUDContextAccess context,
       final JPAODataRequestContextAccess requestContext) throws ODataException {
     super(odata, context, requestContext);
   }
@@ -35,7 +35,7 @@ public final class JPACountRequestProcessor extends JPAAbstractGetRequestProcess
     final UriResource uriResource = uriInfo.getUriResourceParts().get(0);
 
     if (uriResource instanceof UriResourceEntitySet) {
-      final EntityCollection result = countEntities(request, response, uriInfo);
+      final EntityCollection result = countEntities(request, uriInfo);
       createSuccessResponce(response, ContentType.TEXT_PLAIN, serializer.serialize(request, result));
     } else {
       throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
@@ -43,12 +43,12 @@ public final class JPACountRequestProcessor extends JPAAbstractGetRequestProcess
     }
   }
 
-  protected final EntityCollection countEntities(final ODataRequest request, final ODataResponse response,
-      final UriInfo uriInfo) throws ODataException {
+  protected final EntityCollection countEntities(final ODataRequest request, final UriInfoResource uriInfo)
+      throws ODataException {
 
     JPAJoinQuery query = null;
     try {
-      query = new JPAJoinQuery(odata, sessionContext, em, request.getAllHeaders(), uriInfo, claimsProvider);
+      query = new JPAJoinQuery(odata, sessionContext, request.getAllHeaders(), requestContext);
     } catch (ODataJPAModelException e) {
       throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.QUERY_PREPARATION_ERROR,
           HttpStatusCode.INTERNAL_SERVER_ERROR, e);

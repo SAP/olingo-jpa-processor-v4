@@ -1,10 +1,14 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
+import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.NOT_SUPPORTED_KEY_PART_OF_GROUP;
+import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.NOT_SUPPORTED_MANDATORY_PART_OF_GROUP;
+
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 
+import javax.persistence.Column;
 import javax.persistence.Version;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.Attribute.PersistentAttributeType;
@@ -51,7 +55,7 @@ class IntermediateSimpleProperty extends IntermediateProperty {
 
   @Override
   public boolean isComplex() {
-    return jpaAttribute.getPersistentAttributeType() == PersistentAttributeType.EMBEDDED ? true : false;
+    return jpaAttribute.getPersistentAttributeType() == PersistentAttributeType.EMBEDDED;
   }
 
   @Override
@@ -63,8 +67,14 @@ class IntermediateSimpleProperty extends IntermediateProperty {
   }
 
   @Override
-  void checkConsistancy() {
-    // No yet
+  void checkConsistancy() throws ODataJPAModelException {
+    final Column jpaColumn = ((AnnotatedElement) jpaAttribute.getJavaMember()).getAnnotation(Column.class);
+    if (jpaColumn != null && isPartOfGroup() && !jpaColumn.nullable())
+      throw new ODataJPAModelException(NOT_SUPPORTED_MANDATORY_PART_OF_GROUP, jpaAttribute.getDeclaringType()
+          .getJavaType().getCanonicalName(), jpaAttribute.getName());
+    if (isPartOfGroup() && isKey())
+      throw new ODataJPAModelException(NOT_SUPPORTED_KEY_PART_OF_GROUP, jpaAttribute.getDeclaringType()
+          .getJavaType().getCanonicalName(), jpaAttribute.getName());
   }
 
   @Override
@@ -148,6 +158,6 @@ class IntermediateSimpleProperty extends IntermediateProperty {
 
   @Override
   boolean isStream() {
-    return streamInfo == null ? false : streamInfo.stream();
+    return streamInfo != null && streamInfo.stream();
   }
 }

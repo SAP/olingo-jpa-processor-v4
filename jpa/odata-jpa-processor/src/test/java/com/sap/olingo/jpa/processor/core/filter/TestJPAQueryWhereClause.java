@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sap.olingo.jpa.processor.core.api.JPAClaimsPair;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataGroupsProvider;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 
@@ -689,8 +690,6 @@ public class TestJPAQueryWhereClause extends TestBase {
     claims.add("RoleCategory", new JPAClaimsPair<>("A", "B"));
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "BusinessPartnerProtecteds?$select=ID&$filter=RolesProtected/$count ge 2", claims); // and ID eq '3'
-//    helper = new IntegrationTestHelper(emf,
-//        "BusinessPartnerRoleProtecteds", claims); // ?Protected
 
     helper.assertStatus(200);
     ArrayNode act = helper.getValues();
@@ -1038,7 +1037,7 @@ public class TestJPAQueryWhereClause extends TestBase {
         "Persons('99')/InhouseAddress?$filter=TaskID eq 'DEV'");
 
     helper.assertStatus(200);
-    ArrayNode addr = helper.getValues();
+    final ArrayNode addr = helper.getValues();
     assertNotNull(addr);
     assertEquals(1, addr.size());
   }
@@ -1046,9 +1045,89 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterCollectionPropertyWithOutNavigationThrowsError() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Persons?$select=ID&$filter=InhouseAddress/TaskID eq 'DEV'");
 
     helper.assertStatus(400); // The URI is malformed
+  }
+
+  @Test
+  public void testFilterOnGroupedSimplePropertyWithoutGroupsReturnsForbidden() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerWithGroupss?$filter=Country eq 'DEU'");
+    helper.assertStatus(403);
+  }
+
+  @Test
+  public void testFilterOnGroupedSimplePropertyGroupsProvided() throws IOException, ODataException {
+    final JPAODataGroupsProvider groups = new JPAODataGroupsProvider();
+    groups.addGroup("Person");
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerWithGroupss?$filter=Country eq 'DEU'", groups);
+    helper.assertStatus(200);
+    final ArrayNode act = helper.getValues();
+    for (int i = 0; i < act.size(); i++) {
+      final ObjectNode bupa = (ObjectNode) act.get(i);
+      if (bupa.get("ID").asText().equals("99")) {
+        final ArrayNode inhouse = (ArrayNode) bupa.get("InhouseAddress");
+        assertFalse(inhouse.isNull());
+        assertEquals(2, inhouse.size());
+      }
+    }
+  }
+
+  @Test
+  public void testFilterNavigationPropertyRequiresGroupsReturnsForbidden() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerWithGroupss?$select=ID&$filter=Roles/any(d:d/Details eq 'A')");
+    helper.assertStatus(403);
+  }
+
+  @Test
+  public void testFilterNavigationPropertyRequiresGroupsProvided() throws IOException, ODataException {
+
+    final JPAODataGroupsProvider groups = new JPAODataGroupsProvider();
+    groups.addGroup("Company");
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerWithGroupss?$select=ID&$filter=Roles/any(d:d/Details eq 'A')", groups);
+    helper.assertStatus(200);
+  }
+
+  @Test
+  public void testFilterCollectionPropertyRequiresGroupsReturnsForbidden() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerWithGroupss?$select=ID&$filter=Comment/any(s:contains(s, 'just'))");
+    helper.assertStatus(403);
+  }
+
+  @Test
+  public void testFilterCollectionPropertyRequiresGroupsProvided() throws IOException, ODataException {
+
+    final JPAODataGroupsProvider groups = new JPAODataGroupsProvider();
+    groups.addGroup("Company");
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerWithGroupss?$select=ID&$filter=Comment/any(s:contains(s, 'just'))", groups);
+    helper.assertStatus(200);
+  }
+
+  @Test
+  public void testFilterCollectionProtectedPropertyRequiresGroupsReturnsForbidden() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerWithGroupss('99')/InhouseAddress?$filter=RoomNumber eq 1");
+    helper.assertStatus(403);
+  }
+
+  @Test
+  public void testFilterCollectionProtectedPropertyRequiresGroupsProvided() throws IOException, ODataException {
+
+    final JPAODataGroupsProvider groups = new JPAODataGroupsProvider();
+    groups.addGroup("Company");
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerWithGroupss('99')/InhouseAddress?$filter=RoomNumber eq 1", groups);
+    helper.assertStatus(200);
   }
 }

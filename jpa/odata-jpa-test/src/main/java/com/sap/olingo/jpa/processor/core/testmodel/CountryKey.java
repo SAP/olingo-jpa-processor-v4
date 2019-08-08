@@ -3,18 +3,18 @@ package com.sap.olingo.jpa.processor.core.testmodel;
 import java.io.Serializable;
 
 import javax.persistence.Column;
-import javax.persistence.Id;
+import javax.persistence.Embeddable;
 
+@Embeddable
 public class CountryKey implements Serializable {
   /**
    * 
    */
   private static final long serialVersionUID = 229175464207091262L;
 
-  @Id
   @Column(name = "\"ISOCode\"")
   private String code;
-  @Id
+
   @Column(name = "\"LanguageISO\"")
   private String language;
 

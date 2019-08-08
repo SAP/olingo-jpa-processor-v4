@@ -40,20 +40,21 @@ public final class JPACollectionFilterQuery extends JPANavigationQuery {
 
   public JPACollectionFilterQuery(final OData odata, final JPAServiceDocument sd, final EntityManager em,
       final JPAAbstractQuery parent, final List<UriResource> uriResourceParts, final VisitableExpression expression,
-      final From<?, ?> from) throws ODataApplicationException {
+      final From<?, ?> from, final List<String> groups) throws ODataApplicationException {
 
-    this(odata, sd, em, parent, determineAssoziation(parent.jpaEntity, uriResourceParts), expression, from);
+    this(odata, sd, em, parent, determineAssoziation(parent.jpaEntity, uriResourceParts), expression, from, groups);
   }
 
   public JPACollectionFilterQuery(final OData odata, final JPAServiceDocument sd, final EntityManager em,
       final JPAAbstractQuery parent, final JPAAssociationPath associationPath, final VisitableExpression expression,
-      final From<?, ?> from) throws ODataApplicationException {
+      final From<?, ?> from, final List<String> groups) throws ODataApplicationException {
 
     super(odata, sd, determineEntityType(parent, associationPath), em, parent, from, associationPath);
     // Create a sub-query having the key of the parent as result type
     this.subQuery = parent.getQuery().subquery(this.jpaEntity.getKeyType());
     this.filterComplier = new JPAFilterElementComplier(odata, sd, em, jpaEntity,
-        new JPAOperationConverter(cb, getContext().getOperationConverter()), null, this, expression, association);
+        new JPAOperationConverter(cb, getContext().getOperationConverter()), null, this, expression, association,
+        groups);
     this.aggregationType = getAggregationType(this.filterComplier.getExpressionMember());
     createRoots(this.association);
   }

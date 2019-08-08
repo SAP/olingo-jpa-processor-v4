@@ -1,6 +1,5 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,8 +22,8 @@ import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.scanners.TypeAnnotationsScanner;
-import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
+import org.reflections.util.FilterBuilder;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAction;
@@ -254,15 +253,13 @@ class IntermediateServiceDocument implements JPAServiceDocument {
   private Reflections createReflections(String... packageName) {
     if (packageName != null && packageName.length > 0) {
       ConfigurationBuilder configBuilder = new ConfigurationBuilder();
-      List<URL> urls = new ArrayList<>();
-      for (int i = 0; i < packageName.length; i++) {
-        urls.addAll(ClasspathHelper.forPackage(packageName[i]));
-      }
-      configBuilder.setUrls(urls);
       configBuilder.setScanners(new SubTypesScanner(false), new TypeAnnotationsScanner());
+      configBuilder.forPackages(packageName);
+      configBuilder.filterInputsBy(new FilterBuilder().includePackage(packageName));
       return new Reflections(configBuilder);
-    } else
+    } else {
       return null;
+    }
   }
 
   private List<CsdlSchema> extractEdmSchemas() throws ODataJPAModelException {

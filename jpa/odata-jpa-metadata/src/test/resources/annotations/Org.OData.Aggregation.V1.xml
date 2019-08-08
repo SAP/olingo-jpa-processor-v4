@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Technical Committee:
+  OASIS Open Data Protocol (OData) TC
+  https://www.oasis-open.org/committees/odata
+  Chairs:
+  - Ralf Handl (ralf.handl@sap.com), SAP SE
+  - Ram Jeyaraman (Ram.Jeyaraman@microsoft.com), Microsoft
+  Editors:
+  - Ralf Handl (ralf.handl@sap.com), SAP SE
+  - Ram Jeyaraman (Ram.Jeyaraman@microsoft.com), Microsoft
+  - Michael Pizzo (mikep@microsoft.com), Microsoft
+  Additional artifacts:
+  This vocabulary is one component of a Work Product that also includes the following vocabulary components:
+  - OData Core Vocabulary. Latest version: https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Core.V1.xml.
+  - OData Measures Vocabulary. Latest version: https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Measures.V1.xml.
+  - OData Capabilities Vocabulary. Latest version: https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Capabilities.V1.xml.
+  - OData Validation Vocabulary. Latest version: https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Validation.V1.xml.
+  - OData Aggregation Vocabulary. Latest version: https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Aggregation.V1.xml.
+  - OData Authorization Vocabulary. Latest version: https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Authorization.V1.xml.
+  Related work:
+  This vocabulary replaces or supersedes:
+  - OData Extension for Data Aggregation Version 4.0 Aggregation Vocabulary.
+  This vocabulary is related to:
+  - OData Version 4.01 Part 1: Protocol. Latest version: http://docs.oasis-open.org/odata/odata/v4.01/odata-v4.01-part1-protocol.html.
+  - OData Version 4.01 Part 2: URL Conventions. Latest version: http://docs.oasis-open.org/odata/odata/v4.01/odata-v4.01-part2-url-conventions.html.
+  - OData Common Schema Definition Language (CSDL) JSON Representation Version 4.01. Latest version: http://docs.oasis-open.org/odata/odata-csdl-json/v4.01/odata-csdl-json-v4.01.html.
+  - OData Common Schema Definition Language (CSDL) XML Representation Version 4.01. Latest version: http://docs.oasis-open.org/odata/odata-csdl-xml/v4.01/odata-csdl-xml-v4.01.html.
+  - OData JSON Format Version 4.01. Latest version: http://docs.oasis-open.org/odata/odata-json-format/v4.01/odata-json-format-v4.01.html.
+  - OData Extension for Data Aggregation Version 4.0. Latest version: http://docs.oasis-open.org/odata/odata-data-aggregation-ext/v4.0/odata-data-aggregation-ext-v4.0.html.
+  Abstract:
+  This vocabulary defines terms to describe which data in a given entity model can be aggregated, and how.
+-->
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+  <edmx:Reference Uri="https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Core.V1.xml">
+    <edmx:Include Namespace="Org.OData.Core.V1" Alias="Core" />
+  </edmx:Reference>
+  <edmx:DataServices>
+    <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Org.OData.Aggregation.V1" Alias="Aggregation">
+      <Annotation Term="Core.Description">
+        <String>Terms to describe which data in a given entity model can be aggregated, and how.</String>
+      </Annotation>
+      <Annotation Term="Core.Links">
+        <Collection>
+          <Record>
+            <PropertyValue Property="rel" String="latest-version" />
+            <PropertyValue Property="href"
+              String="https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Aggregation.V1.xml" />
+          </Record>
+          <Record>
+            <PropertyValue Property="rel" String="alternate" />
+            <PropertyValue Property="href"
+              String="https://oasis-tcs.github.io/odata-vocabularies/vocabularies/Org.OData.Aggregation.V1.json" />
+          </Record>
+          <Record>
+            <PropertyValue Property="rel" String="describedby" />
+            <PropertyValue Property="href"
+              String="https://github.com/oasis-tcs/odata-vocabularies/blob/master/vocabularies/Org.OData.Aggregation.V1.md" />
+          </Record>
+        </Collection>
+      </Annotation>
+
+      <Term Name="ApplySupported" Type="Aggregation.ApplySupportedType" AppliesTo="EntityType ComplexType EntityContainer">
+        <Annotation Term="Core.Description">
+          <String>This structured type or entity container supports the $apply system query option</String>
+        </Annotation>
+      </Term>
+      <ComplexType Name="ApplySupportedType">
+        <Property Name="Transformations" Type="Collection(Edm.String)" Nullable="false">
+          <Annotation Term="Core.Description" String="Transformations that can be used in $apply" />
+        </Property>
+        <Property Name="CustomAggregationMethods" Type="Collection(Edm.String)" Nullable="false">
+          <Annotation Term="Core.Description"
+            String="Qualified names of custom aggregation methods that can be used in aggregate(...with...)" />
+        </Property>
+        <Property Name="Rollup" Nullable="false" DefaultValue="MultipleHierarchies" Type="Aggregation.RollupType">
+          <Annotation Term="Core.Description" String="The service supports rollup hierarchies in a groupby transformation" />
+        </Property>
+        <Property Name="PropertyRestrictions" Nullable="false" DefaultValue="false" Type="Edm.Boolean">
+          <Annotation Term="Core.Description"
+            String="Only properties tagged as Groupable can be used in the groupby transformation, and only those tagged as Aggregatable can be used in the aggregate transformation" />
+        </Property>
+      </ComplexType>
+
+      <EnumType Name="RollupType">
+        <Annotation Term="Core.Description" String="The number of rollup operators allowed in a groupby transformation" />
+        <Member Name="None">
+          <Annotation Term="Core.Description" String="No rollup support" />
+        </Member>
+        <Member Name="SingleHierarchy">
+          <Annotation Term="Core.Description" String="Only one rollup operator per groupby" />
+        </Member>
+        <Member Name="MultipleHierarchies">
+          <Annotation Term="Core.Description" String="Full rollup support" />
+        </Member>
+      </EnumType>
+
+      <Term Name="Groupable" Type="Core.Tag" AppliesTo="Property NavigationProperty" DefaultValue="true">
+        <Annotation Term="Core.Description" String="This property can be used in the groupby transformation" />
+      </Term>
+
+      <Term Name="Aggregatable" Type="Core.Tag" AppliesTo="Property NavigationProperty" DefaultValue="true">
+        <Annotation Term="Core.Description" String="This property can be used in the aggregate transformation" />
+      </Term>
+
+      <Term Name="CustomAggregate" Type="Edm.String" AppliesTo="EntityType ComplexType EntityContainer">
+        <Annotation Term="Core.Description" String="Dynamic property that can be used in the aggregate transformation" />
+        <Annotation Term="Core.LongDescription"
+          String="This term MUST be applied with a Qualifier, the Qualifier value is the name of the dynamic property. The value of the annotation MUST be the qualified name of a primitive type. The aggregated values will be of that type." />
+      </Term>
+
+      <Term Name="ContextDefiningProperties" Type="Collection(Edm.PropertyPath)" Nullable="false" AppliesTo="Property Annotation">
+        <Annotation Term="Core.Description"
+          String="The annotated property or custom aggregate is only well-defined in the context of these properties" />
+        <Annotation Term="Core.LongDescription">
+          <String>The context-defining properties need either be part of the result entities, or be restricted to a single value by a pre-filter operation. Examples are postal codes within a country, or monetary amounts whose context is the unit of currency.</String>
+        </Annotation>
+      </Term>
+
+      <Term Name="LeveledHierarchy" Type="Collection(Edm.PropertyPath)" Nullable="false" AppliesTo="EntityType ComplexType">
+        <Annotation Term="Core.Description"
+          String="Defines a leveled hierarchy by defining an ordered list of properties in the hierarchy" />
+      </Term>
+
+      <Term Name="RecursiveHierarchy" Type="Aggregation.RecursiveHierarchyType" AppliesTo="EntityType ComplexType">
+        <Annotation Term="Core.Description" String="Defines a recursive hierarchy." />
+      </Term>
+
+      <ComplexType Name="RecursiveHierarchyType">
+        <Property Name="NodeProperty" Type="Edm.PropertyPath" Nullable="false">
+          <Annotation Term="Core.Description" String="Property holding the hierarchy node value" />
+        </Property>
+        <Property Name="ParentNavigationProperty" Type="Edm.NavigationPropertyPath" Nullable="false">
+          <Annotation Term="Core.Description" String="Property for navigating to the parent node" />
+        </Property>
+        <Property Name="DistanceFromRootProperty" Type="Edm.PropertyPath" Nullable="true">
+          <Annotation Term="Core.Description" String="Property holding the number of edges between the node and the root node" />
+        </Property>
+        <Property Name="IsLeafProperty" Type="Edm.PropertyPath" Nullable="true">
+          <Annotation Term="Core.RequiresType" String="Edm.Boolean" />
+          <Annotation Term="Core.Description" String="Property indicating whether the node is a leaf of the hierarchy" />
+        </Property>
+      </ComplexType>
+
+      <Function Name="isroot" IsBound="true">
+        <Annotation Term="Core.Description"
+          String="Returns true, if and only if the value of the node property of the specified hierarchy is the root of the hierarchy" />
+        <Parameter Name="Entity" Type="Edm.EntityType" Nullable="false" />
+        <Parameter Name="Hierarchy" Type="Edm.String" Nullable="false" />
+        <ReturnType Type="Edm.Boolean" Nullable="false" />
+      </Function>
+
+      <Function Name="isdescendant" IsBound="true">
+        <Annotation Term="Core.Description"
+          String="Returns true, if and only if the value of the node property of the specified hierarchy is a descendant of the given parent node with a distance of less than or equal to the optionally specified maximum distance" />
+        <Parameter Name="Entity" Type="Edm.EntityType" Nullable="false" />
+        <Parameter Name="Hierarchy" Type="Edm.String" Nullable="false" />
+        <Parameter Name="Node" Type="Edm.PrimitiveType" Nullable="false" />
+        <Parameter Name="MaxDistance" Type="Edm.Int16" Nullable="true" />
+        <ReturnType Type="Edm.Boolean" Nullable="false" />
+      </Function>
+
+      <Function Name="isancestor" IsBound="true">
+        <Annotation Term="Core.Description"
+          String="Returns true, if and only if the value of the node property of the specified hierarchy is an ancestor of the given child node with a distance of less than or equal to the optionally specified maximum distance" />
+        <Parameter Name="Entity" Type="Edm.EntityType" Nullable="false" />
+        <Parameter Name="Hierarchy" Type="Edm.String" Nullable="false" />
+        <Parameter Name="Node" Type="Edm.PrimitiveType" Nullable="false" />
+        <Parameter Name="MaxDistance" Type="Edm.Int16" />
+        <ReturnType Type="Edm.Boolean" Nullable="false" />
+      </Function>
+
+      <Function Name="issibling" IsBound="true">
+        <Annotation Term="Core.Description"
+          String="Returns true, if and only if the value of the node property of the specified hierarchy has the same parent node as the specified node" />
+        <Parameter Name="Entity" Type="Edm.EntityType" Nullable="false" />
+        <Parameter Name="Hierarchy" Type="Edm.String" Nullable="false" />
+        <Parameter Name="Node" Type="Edm.PrimitiveType" Nullable="false" />
+        <ReturnType Type="Edm.Boolean" Nullable="false" />
+      </Function>
+
+      <Function Name="isleaf" IsBound="true">
+        <Annotation Term="Core.Description"
+          String="Returns true, if and only if the value of the node property of the specified hierarchy has no descendants" />
+        <Parameter Name="Entity" Type="Edm.EntityType" Nullable="false" />
+        <Parameter Name="Hierarchy" Type="Edm.String" Nullable="false" />
+        <ReturnType Type="Edm.Boolean" Nullable="false" />
+      </Function>
+
+      <Term Name="AvailableOnAggregates" Type="Aggregation.AvailableOnAggregatesType" AppliesTo="Action Function">
+        <Annotation Term="Core.Description"
+          String="This action or function is available on aggregated entities if the RequiredProperties are still defined" />
+      </Term>
+      <ComplexType Name="AvailableOnAggregatesType">
+        <Property Name="RequiredProperties" Type="Collection(Edm.PropertyPath)" Nullable="false">
+          <Annotation Term="Core.Description" String="Properties required to apply this action or function" />
+        </Property>
+      </ComplexType>
+
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

@@ -34,7 +34,7 @@ public class JPACollectionExpandWrapper implements JPAExpandItem {
 
   @Override
   public List<CustomQueryOption> getCustomQueryOptions() {
-    return new ArrayList<>(1);
+    return new ArrayList<>(0);
   }
 
   @Override

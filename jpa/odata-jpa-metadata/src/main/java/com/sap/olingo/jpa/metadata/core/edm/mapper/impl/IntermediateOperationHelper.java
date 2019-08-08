@@ -23,7 +23,7 @@ public class IntermediateOperationHelper {
 // Must not create instances
   }
 
-  static Constructor<?> determineConstructor(Method javaFunction) throws ODataJPAModelException {
+  static Constructor<?> determineConstructor(final Method javaFunction) throws ODataJPAModelException {
     Constructor<?> result = null;
     Constructor<?>[] constructors = javaFunction.getDeclaringClass().getConstructors();
     for (Constructor<?> constructor : Arrays.asList(constructors)) {

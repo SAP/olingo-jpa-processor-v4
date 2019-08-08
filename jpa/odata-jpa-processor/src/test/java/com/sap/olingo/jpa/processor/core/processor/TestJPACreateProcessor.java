@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -20,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 
@@ -56,6 +58,10 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAAbstractCUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.api.JPACUDRequestHandler;
+import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataGroupsProvider;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
@@ -72,7 +78,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     ODataRequest request = prepareSimpleRequest();
 
     RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
 
@@ -85,7 +91,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     ODataRequest request = prepareSimpleRequest();
 
     RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
 
@@ -102,7 +108,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     attributes.put("ID", "35");
 
     RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     when(convHelper.convertProperties(ArgumentMatchers.any(OData.class), ArgumentMatchers.any(JPAStructuredType.class),
         ArgumentMatchers.any(
@@ -125,7 +131,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     headers.put("If-Match", Arrays.asList("2"));
 
     RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
 
@@ -136,12 +142,52 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
+  public void testClaimsProvided() throws ODataJPAProcessorException, SerializerException,
+      ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
+
+    final RequestHandleSpy spy = new RequestHandleSpy();
+    final JPAODataClaimProvider provider = new JPAODataClaimsProvider();
+    final Optional<JPAODataClaimProvider> claims = Optional.of(provider);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getClaimsProvider()).thenReturn(claims);
+
+    processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
+
+    assertNotNull(spy.claims);
+    assertTrue(spy.claims.isPresent());
+    assertEquals(provider, spy.claims.get());
+  }
+
+  @Test
+  public void testGroupsProvided() throws ODataJPAProcessorException, SerializerException,
+      ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
+
+    final RequestHandleSpy spy = new RequestHandleSpy();
+    final JPAODataGroupsProvider provider = new JPAODataGroupsProvider();
+    provider.addGroup("Person");
+    // final List<String> groups = new ArrayList<>(Arrays.asList("Person"));
+    final Optional<JPAODataGroupProvider> groups = Optional.of(provider);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getGroupsProvider()).thenReturn(groups);
+
+    processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
+
+    assertNotNull(spy.groups);
+    assertFalse(spy.groups.isEmpty());
+    assertEquals("Person", spy.groups.get(0));
+  }
+
+  @Test
   public void testThrowExpectedExceptionInCaseOfError() throws ODataException {
     ODataResponse response = new ODataResponse();
     ODataRequest request = prepareSimpleRequest();
 
     JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
-    when(sessionContext.getCUDRequestHandler()).thenReturn(handler);
+    when(requestContext.getCUDRequestHandler()).thenReturn(handler);
 
     doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
         HttpStatusCode.BAD_REQUEST)).when(handler).createEntity(any(JPARequestEntity.class), any(EntityManager.class));
@@ -161,7 +207,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     ODataRequest request = prepareSimpleRequest();
 
     JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
-    when(sessionContext.getCUDRequestHandler()).thenReturn(handler);
+    when(requestContext.getCUDRequestHandler()).thenReturn(handler);
 
     doThrow(NullPointerException.class).when(handler).createEntity(any(JPARequestEntity.class), any(
         EntityManager.class));
@@ -182,7 +228,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     ODataRequest request = prepareSimpleRequest();
 
     RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
 
@@ -196,7 +242,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     ODataRequest request = prepareSimpleRequest();
 
     RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
 
@@ -209,7 +255,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     ODataRequest request = prepareSimpleRequest();
 
     RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
 
@@ -223,7 +269,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     ODataRequest request = prepareSimpleRequest();
 
     RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
 
@@ -312,7 +358,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     ODataRequest request = prepareSimpleRequest();
 
     RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
     assertEquals(1, spy.noValidateCalls);
@@ -324,7 +370,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     ODataRequest request = prepareSimpleRequest();
 
     RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
     when(em.getTransaction()).thenReturn(transaction);
     when(transaction.isActive()).thenReturn(Boolean.TRUE);
 
@@ -338,7 +384,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     ODataRequest request = prepareSimpleRequest();
 
     JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
-    when(sessionContext.getCUDRequestHandler()).thenReturn(handler);
+    when(requestContext.getCUDRequestHandler()).thenReturn(handler);
 
     doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
         HttpStatusCode.BAD_REQUEST)).when(handler).createEntity(any(JPARequestEntity.class), any(EntityManager.class));
@@ -360,7 +406,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     when(em.getTransaction()).thenReturn(transaction);
 
     JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
-    when(sessionContext.getCUDRequestHandler()).thenReturn(handler);
+    when(requestContext.getCUDRequestHandler()).thenReturn(handler);
 
     doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
         HttpStatusCode.BAD_REQUEST)).when(handler).validateChanges(em);
@@ -434,7 +480,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     final EdmNavigationProperty naviProperty = mock(EdmNavigationProperty.class);
     final EdmNavigationPropertyBinding naviBinding = mock(EdmNavigationPropertyBinding.class);
     final EdmEntityContainer container = mock(EdmEntityContainer.class);
-    final List<EdmNavigationPropertyBinding> naviBindings = new ArrayList<>(1);
+    final List<EdmNavigationPropertyBinding> naviBindings = new ArrayList<>(0);
     final EdmEntitySet targetEts = mock(EdmEntitySet.class);
     naviBindings.add(naviBinding);
 
@@ -487,7 +533,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     final Edm edm = mock(Edm.class);
     final EdmEntityType edmET = mock(EdmEntityType.class);
 
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     when(serviceMetadata.getEdm()).thenReturn(edm);
     when(edm.getEntityType(fqn)).thenReturn(edmET);
@@ -539,6 +585,8 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     public Map<String, List<String>> headers;
     public JPARequestEntity requestEntity;
     private final Object result;
+    public Optional<JPAODataClaimProvider> claims;
+    public List<String> groups;
 
     RequestHandleSpy(Object result) {
       this.result = result;
@@ -559,6 +607,8 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
       this.headers = requestEntity.getAllHeader();
       this.called = true;
       this.requestEntity = requestEntity;
+      this.claims = requestEntity.getClaims();
+      this.groups = requestEntity.getGroups();
       return result;
     }
 

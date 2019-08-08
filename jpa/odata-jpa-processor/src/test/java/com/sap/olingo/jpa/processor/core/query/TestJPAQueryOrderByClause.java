@@ -8,6 +8,7 @@ import org.apache.olingo.commons.api.ex.ODataException;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.sap.olingo.jpa.processor.core.api.JPAODataGroupsProvider;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 
@@ -170,5 +171,41 @@ public class TestJPAQueryOrderByClause extends TestBase {
     ArrayNode orgs = helper.getValues();
     assertEquals(3, orgs.size());
     assertEquals("C", orgs.get(0).get("RoleCategory").asText());
+  }
+
+  @Test
+  public void testOrderByGroupedPropertyWithoutGroup() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerWithGroupss?$orderby=Country desc");
+    helper.assertStatus(403);
+  }
+
+  @Test
+  public void testOrderByPropertyWithGroupsOneGroup() throws IOException, ODataException {
+
+    final JPAODataGroupsProvider groups = new JPAODataGroupsProvider();
+    groups.addGroup("Person");
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerWithGroupss?$orderby=Country desc", groups);
+    helper.assertStatus(200);
+  }
+
+  @Test
+  public void testOrderByGroupedComplexPropertyWithoutGroup() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerWithGroupss?$orderby=Address/Country desc");
+    helper.assertStatus(403);
+  }
+
+  @Test
+  public void testOrderByGroupedComplexPropertyWithGroupsOneGroup() throws IOException, ODataException {
+
+    final JPAODataGroupsProvider groups = new JPAODataGroupsProvider();
+    groups.addGroup("Company");
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerWithGroupss?$orderby=Address/Country desc", groups);
+    helper.assertStatus(200);
   }
 }
