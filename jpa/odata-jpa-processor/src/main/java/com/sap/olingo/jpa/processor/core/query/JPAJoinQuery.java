@@ -1,32 +1,25 @@
 package com.sap.olingo.jpa.processor.core.query;
 
 import static com.sap.olingo.jpa.processor.core.converter.JPAExpandResult.ROOT_RESULT_KEY;
-import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.MISSING_CLAIM;
-import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.MISSING_CLAIMS_PROVIDER;
-import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.QUERY_RESULT_ENTITY_TYPE_ERROR;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 
-import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.From;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Predicate;
 
 import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
-import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceNavigation;
@@ -40,40 +33,33 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAProtectionInfo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.core.api.JPAClaimsPair;
-import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
-import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery {
 
-  private final Optional<JPAODataClaimsProvider> claimsProvider;
+  private static List<JPANavigationProptertyInfo> determineNavigationInfo(
+      final JPAODataCRUDContextAccess sessionContext, final UriInfoResource uriResource) throws ODataException {
 
-  public JPAJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext, final EntityManager em,
-      final Map<String, List<String>> requestHeaders, final JPAODataPage page,
-      Optional<JPAODataClaimsProvider> claimsProvider) throws ODataException {
-
-    super(odata, sessionContext, sessionContext.getEdmProvider().getServiceDocument().getEntity(
-        Util.determineTargetEntitySet(page.getUriInfo().getUriResourceParts()).getName()),
-        em, requestHeaders, page.getUriInfo(), page);
-
-    this.navigationInfo = Util.determineNavigationPath(sd, uriResource.getUriResourceParts(), page.getUriInfo());
-    this.claimsProvider = claimsProvider;
+    return Util.determineNavigationPath(sessionContext.getEdmProvider().getServiceDocument(), uriResource
+        .getUriResourceParts(), uriResource);
   }
 
-  public JPAJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext, final EntityManager em,
-      final Map<String, List<String>> requestHeaders, final UriInfo uriInfo) throws ODataException {
+  private static JPAEntityType determineTargetEntityType(final JPAODataCRUDContextAccess sessionContext,
+      final JPAODataRequestContextAccess requestContext) throws ODataException {
 
-    super(odata, sessionContext, sessionContext.getEdmProvider().getServiceDocument().getEntity(
-        Util.determineTargetEntitySet(uriInfo.getUriResourceParts()).getName()),
-        em, requestHeaders, uriInfo, null);
+    return sessionContext.getEdmProvider().getServiceDocument().getEntity(Util.determineTargetEntitySet(requestContext
+        .getUriInfo().getUriResourceParts()).getName());
+  }
 
-    this.navigationInfo = Util.determineNavigationPath(sd, uriResource.getUriResourceParts(), uriInfo);
-    this.claimsProvider = Optional.empty();
+  public JPAJoinQuery(final OData odata, final JPAODataCRUDContextAccess sessionContext,
+      final Map<String, List<String>> requestHeaders, final JPAODataRequestContextAccess requestContext)
+      throws ODataException {
 
+    super(odata, sessionContext, determineTargetEntityType(sessionContext, requestContext),
+        requestContext, requestHeaders, determineNavigationInfo(sessionContext, requestContext.getUriInfo()));
   }
 
   /**
@@ -94,14 +80,18 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
      */
     final int handle = debugger.startRuntimeMeasurement(this, "countResults");
     final CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
-    createFromClause(new ArrayList<>(1), new ArrayList<>(1), countQuery);
+    try {
+      createFromClause(Collections.emptyList(), Collections.emptyList(), countQuery, lastInfo);
 
-    final javax.persistence.criteria.Expression<Boolean> whereClause = createWhere();
-    if (whereClause != null)
-      countQuery.where(whereClause);
-    countQuery.select(cb.count(root));
-    debugger.stopRuntimeMeasurement(handle);
-    return em.createQuery(countQuery).getSingleResult();
+      final javax.persistence.criteria.Expression<Boolean> whereClause = createWhere();
+      if (whereClause != null)
+        countQuery.where(whereClause);
+      countQuery.select(cb.countDistinct(target));
+      debugger.stopRuntimeMeasurement(handle);
+      return em.createQuery(countQuery).getSingleResult();
+    } catch (JPANoSelectionException e) {
+      return 0L;
+    }
   }
 
   @Override
@@ -110,37 +100,38 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
     final int handle = debugger.startRuntimeMeasurement(this, "execute");
 
     final List<JPAAssociationPath> orderByNaviAttributes = extractOrderByNaviAttributes();
-    final List<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
-    final Map<String, From<?, ?>> joinTables = createFromClause(orderByNaviAttributes, selectionPath, cq);
+    final Collection<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
+    try {
+      final Map<String, From<?, ?>> joinTables = createFromClause(orderByNaviAttributes, selectionPath, cq, lastInfo);
 
-    cq.multiselect(createSelectClause(joinTables, selectionPath, target));
+      cq.multiselect(createSelectClause(joinTables, selectionPath, target, groups)).distinct(
+          determineDistinct());
 
-    final javax.persistence.criteria.Expression<Boolean> whereClause = createWhere();
-    if (whereClause != null)
-      cq.where(whereClause);
+      final javax.persistence.criteria.Expression<Boolean> whereClause = createWhere();
+      if (whereClause != null)
+        cq.where(whereClause);
 
-    cq.orderBy(createOrderByList(joinTables, uriResource.getOrderByOption()));
+      cq.orderBy(createOrderByList(joinTables, uriResource.getOrderByOption()));
 
-    if (!orderByNaviAttributes.isEmpty())
-      cq.groupBy(createGroupBy(joinTables, selectionPath));
+      if (!orderByNaviAttributes.isEmpty())
+        cq.groupBy(createGroupBy(joinTables, selectionPath));
 
-    final TypedQuery<Tuple> tq = em.createQuery(cq);
-    addTopSkip(tq);
+      final TypedQuery<Tuple> tq = em.createQuery(cq);
+      addTopSkip(tq);
 
-    final HashMap<String, List<Tuple>> result = new HashMap<>(1);
-    final int resultHandle = debugger.startRuntimeMeasurement(tq, "getResultList");
-    final List<Tuple> intermediateResult = tq.getResultList();
+      final HashMap<String, List<Tuple>> result = new HashMap<>(1);
+      final int resultHandle = debugger.startRuntimeMeasurement(tq, "getResultList");
+      final List<Tuple> intermediateResult = tq.getResultList();
 
-    debugger.stopRuntimeMeasurement(resultHandle);
-    result.put(ROOT_RESULT_KEY, intermediateResult);
+      debugger.stopRuntimeMeasurement(resultHandle);
+      result.put(ROOT_RESULT_KEY, intermediateResult);
 
-    debugger.stopRuntimeMeasurement(handle);
-    final JPANavigationProptertyInfo lastInfo = this.navigationInfo.get(this.navigationInfo.size() - 1);
-    if (lastInfo.getAssociationPath() != null
-        && (lastInfo.getAssociationPath().getLeaf() instanceof JPACollectionAttribute))
-      return new JPACollectionQueryResult(result, null, jpaEntity, lastInfo.getAssociationPath());
-    else
-      return new JPAExpandQueryResult(result, null, jpaEntity);
+      debugger.stopRuntimeMeasurement(handle);
+      return returnResult(selectionPath, result);
+    } catch (JPANoSelectionException e) {
+      debugger.stopRuntimeMeasurement(handle);
+      return returnEmptyResult(selectionPath);
+    }
   }
 
   public List<JPANavigationProptertyInfo> getNavigationInfo() {
@@ -152,38 +143,8 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
     return cq;
   }
 
-  javax.persistence.criteria.Expression<Boolean> createProtectionWhere(Optional<JPAODataClaimsProvider> claimsProvider)
-      throws ODataJPAQueryException {
-    final Map<String, From<?, ?>> dummyJoinTables = new HashMap<>(1);
-    javax.persistence.criteria.Expression<Boolean> restriction = null;
-    for (final JPANavigationProptertyInfo navi : navigationInfo) { // for all participating entity types/tables
-      try {
-        final JPAEntityType et = navi.getEntityType();
-        for (final JPAProtectionInfo protection : et.getProtections()) { // look for protected attributes
-          final List<JPAClaimsPair<?>> values = claimsProvider.get().get(protection.getClaimName()); // NOSONAR
-          if (values.isEmpty())
-            throw new ODataJPAQueryException(MISSING_CLAIM, HttpStatusCode.FORBIDDEN);
-          final Path<?> p = ExpressionUtil.convertToCriteriaPath(dummyJoinTables, navi.getFromClause(), protection
-              .getPath().getPath());
-          restriction = addWhereClause(restriction, createProtectionWhereForAttribute(values, p));
-        }
-      } catch (NoSuchElementException e) {
-        throw new ODataJPAQueryException(MISSING_CLAIMS_PROVIDER, HttpStatusCode.FORBIDDEN);
-      } catch (ODataJPAModelException e) {
-        throw new ODataJPAQueryException(QUERY_RESULT_ENTITY_TYPE_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR);
-      }
-    }
-    return restriction;
-  }
-
-  @SuppressWarnings({ "unchecked" })
-  private <Y extends Comparable<? super Y>> Predicate createBetween(
-      final JPAClaimsPair<?> value, final Path<?> p) {
-    return cb.between((javax.persistence.criteria.Expression<? extends Y>) p, (Y) value.min, (Y) value.max);
-  }
-
   private List<javax.persistence.criteria.Expression<?>> createGroupBy(final Map<String, From<?, ?>> joinTables,
-      final List<JPAPath> selectionPathList) {
+      final Collection<JPAPath> selectionPathList) {
     final int handle = debugger.startRuntimeMeasurement(this, "createGroupBy");
 
     final List<javax.persistence.criteria.Expression<?>> groupBy =
@@ -197,25 +158,22 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
     return groupBy;
   }
 
-  private javax.persistence.criteria.Expression<Boolean> createProtectionWhereForAttribute(
-      final List<JPAClaimsPair<?>> values, final Path<?> p) {
-    javax.persistence.criteria.Expression<Boolean> attriRestriction = null;
-    for (final JPAClaimsPair<?> value : values) { // for each given claim value
-      if (value.hasUpperBoundary)
-        attriRestriction = orWhereClause(attriRestriction, createBetween(value, p));
-      else
-        attriRestriction = orWhereClause(attriRestriction, cb.equal(p, value.min));
-    }
-    return attriRestriction;
-  }
-
   private javax.persistence.criteria.Expression<Boolean> createWhere() throws ODataApplicationException {
     return addWhereClause(super.createWhere(uriResource, navigationInfo), createProtectionWhere(claimsProvider));
   }
 
-  private List<JPAAssociationPath> extractOrderByNaviAttributes() throws ODataApplicationException {
-    final List<JPAAssociationPath> naviAttributes = new ArrayList<>();
+  /**
+   * Desired if SELECT DISTINCT shall be generated. This is required e.g. if multiple values for the same claims are
+   * present. As a DISTINCT is usually slower the decision algorithm my need to be enhanced in the future
+   * @return
+   */
+  private boolean determineDistinct() {
+    return claimsProvider.isPresent();
+  }
 
+  private List<JPAAssociationPath> extractOrderByNaviAttributes() throws ODataApplicationException {
+
+    final List<JPAAssociationPath> naviAttributes = new ArrayList<>();
     final OrderByOption orderBy = uriResource.getOrderByOption();
     if (orderBy != null) {
       for (final OrderByItem orderByItem : orderBy.getOrders()) {
@@ -249,4 +207,18 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
     return naviAttributes;
   }
 
+  private JPAConvertableResult returnEmptyResult(final Collection<JPAPath> selectionPath) {
+    if (lastInfo.getAssociationPath() != null
+        && (lastInfo.getAssociationPath().getLeaf() instanceof JPACollectionAttribute))
+      return new JPACollectionQueryResult(jpaEntity, lastInfo.getAssociationPath(), selectionPath);
+    return new JPAExpandQueryResult(jpaEntity, selectionPath);
+  }
+
+  private JPAConvertableResult returnResult(final Collection<JPAPath> selectionPath,
+      final HashMap<String, List<Tuple>> result) {
+    if (lastInfo.getAssociationPath() != null
+        && (lastInfo.getAssociationPath().getLeaf() instanceof JPACollectionAttribute))
+      return new JPACollectionQueryResult(result, null, jpaEntity, lastInfo.getAssociationPath(), selectionPath);
+    return new JPAExpandQueryResult(result, null, jpaEntity, selectionPath);
+  }
 }

@@ -20,29 +20,35 @@ import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataContextAccessDouble;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
+import com.sap.olingo.jpa.processor.core.exception.JPAIllicalAccessException;
+import com.sap.olingo.jpa.processor.core.processor.JPAODataRequestContextImpl;
 import com.sap.olingo.jpa.processor.core.util.EdmEntityTypeDouble;
 import com.sap.olingo.jpa.processor.core.util.ExpandItemDouble;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 import com.sap.olingo.jpa.processor.core.util.TupleDouble;
+import com.sap.olingo.jpa.processor.core.util.UriInfoDouble;
 
 public class TestJPAExpandQueryCreateResult extends TestBase {
   private JPAExpandJoinQuery cut;
-  private JPAODataSessionContextAccess context;
+  private JPAODataCRUDContextAccess context;
+  private JPAODataRequestContextImpl requestContext;
 
   @BeforeEach
-  public void setup() throws ODataException {
+  public void setup() throws ODataException, JPAIllicalAccessException {
     helper = new TestHelper(emf, PUNIT_NAME);
     createHeaders();
     EdmEntityType targetEntity = new EdmEntityTypeDouble(nameBuilder, "BusinessPartnerRole");
     context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null,
         TestBase.enumPackages), ds, null);
-    cut = new JPAExpandJoinQuery(
-        null, context, emf.createEntityManager(), new ExpandItemDouble(targetEntity).getResourcePath(),
-        helper.getJPAAssociationPath("Organizations", "Roles"), helper.sd.getEntity(targetEntity),
-        new HashMap<String, List<String>>());
-    // new EdmEntitySetDouble(nameBuilder, "Organisations"), null, new HashMap<String, List<String>>());
+
+    requestContext = new JPAODataRequestContextImpl();
+    requestContext.setEntityManager(emf.createEntityManager());
+    requestContext.setUriInfo(new UriInfoDouble(new ExpandItemDouble(targetEntity).getResourcePath()));
+
+    cut = new JPAExpandJoinQuery(null, context, helper.getJPAAssociationPath("Organizations", "Roles"),
+        helper.sd.getEntity(targetEntity), new HashMap<String, List<String>>(), requestContext);
   }
 
   @Test
@@ -228,10 +234,8 @@ public class TestJPAExpandQueryCreateResult extends TestBase {
     JPAAssociationPath exp = helper.getJPAAssociationPath("Organizations", "SupportEngineers");
 
     EdmEntityType targetEntity = new EdmEntityTypeDouble(nameBuilder, "Person");
-    cut = new JPAExpandJoinQuery(
-        null, context, emf.createEntityManager(), new ExpandItemDouble(targetEntity).getResourcePath(),
-        helper.getJPAAssociationPath("Organizations", "SupportEngineers"), helper.sd.getEntity(targetEntity),
-        new HashMap<String, List<String>>());
+    cut = new JPAExpandJoinQuery(null, context, helper.getJPAAssociationPath("Organizations", "SupportEngineers"),
+        helper.sd.getEntity(targetEntity), new HashMap<String, List<String>>(), requestContext);
 
     List<Tuple> result = new ArrayList<>();
     HashMap<String, Object> oneResult = new HashMap<>();

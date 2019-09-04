@@ -12,7 +12,6 @@ import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceKind;
-import org.apache.olingo.server.api.uri.UriResourceNavigation;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
 import org.apache.olingo.server.api.uri.queryoption.ApplyOption;
 import org.apache.olingo.server.api.uri.queryoption.CountOption;
@@ -31,6 +30,8 @@ import org.apache.olingo.server.api.uri.queryoption.TopOption;
 import org.apache.olingo.server.api.uri.queryoption.expression.BinaryOperatorKind;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitor;
 import org.apache.olingo.server.api.uri.queryoption.expression.Member;
+import org.apache.olingo.server.api.uri.queryoption.expression.MethodKind;
+import org.apache.olingo.server.api.uri.queryoption.expression.VisitableExpression;
 
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
 import com.sap.olingo.jpa.processor.core.query.JPACollectionFilterQuery;
@@ -50,28 +51,27 @@ import com.sap.olingo.jpa.processor.core.query.JPANavigationQuery;
  */
 final class JPANavigationOperation extends JPAExistsOperation implements JPAExpressionOperator {
 
-  public static boolean hasNavigation(final List<UriResource> uriResourceParts) {
-    if (uriResourceParts != null) {
-      for (int i = uriResourceParts.size() - 1; i >= 0; i--) {
-        if (uriResourceParts.get(i) instanceof UriResourceNavigation)
-          return true;
-      }
-    }
-    return false;
-  }
-
   final BinaryOperatorKind operator;
   final JPAMemberOperator jpaMember;
   final JPALiteralOperator operand;
+  final MethodKind methodCall;
 
-  private final UriResourceKind aggregationType;
+  public JPANavigationOperation(final BinaryOperatorKind operator,
+      final JPANavigationOperation jpaNavigationOperation, final JPALiteralOperator operand,
+      final JPAFilterComplierAccess jpaComplier) {
+    super(jpaComplier);
+    this.operator = operator;
+    this.methodCall = jpaNavigationOperation.methodCall;
+    this.jpaMember = jpaNavigationOperation.jpaMember;
+    this.operand = operand;
+  }
 
   JPANavigationOperation(final JPAFilterComplierAccess jpaComplier, final BinaryOperatorKind operator,
       final JPAOperator left, final JPAOperator right) {
 
     super(jpaComplier);
-    this.aggregationType = null;
     this.operator = operator;
+    this.methodCall = null;
     if (left instanceof JPAMemberOperator) {
       jpaMember = (JPAMemberOperator) left;
       operand = (JPALiteralOperator) right;
@@ -81,12 +81,23 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
     }
   }
 
-  @SuppressWarnings("unchecked")
+  public JPANavigationOperation(final JPAFilterComplierAccess jpaComplier, final MethodKind methodCall,
+      final List<JPAOperator> parameters) {
+    super(jpaComplier);
+    this.operator = null;
+    this.methodCall = methodCall;
+    if (parameters.get(0) instanceof JPAMemberOperator) {
+      jpaMember = (JPAMemberOperator) parameters.get(0);
+      operand = parameters.size() > 1 ? (JPALiteralOperator) parameters.get(1) : null;
+    } else {
+      jpaMember = (JPAMemberOperator) parameters.get(1);
+      operand = (JPALiteralOperator) parameters.get(0);
+    }
+  }
+
   @Override
   public Expression<Boolean> get() throws ODataApplicationException {
     // return converter.cb.greaterThan(getExistsQuery().as("a"), converter.cb.literal('5')); //NOSONAR
-    if (aggregationType != null)
-      return (Expression<Boolean>) getExistsQuery().getRoots().toArray()[0];
     return converter.cb.exists(getExistsQuery());
   }
 
@@ -94,6 +105,11 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
   @Override
   public Enum<?> getOperator() {
     return null;
+  }
+
+  @Override
+  public String getName() {
+    return operator != null ? operator.name() : methodCall.name();
   }
 
   @Override
@@ -109,18 +125,20 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
     // 2. Create the queries and roots
     for (int i = naviPathList.size() - 1; i >= 0; i--) {
       final JPANavigationProptertyInfo naviInfo = naviPathList.get(i);
-      if (i == 0 && aggregationType == null) {
-        final JPAFilterExpression expression = new JPAFilterExpression(new SubMember(jpaMember), operand.getLiteral(),
-            operator);
-        if (naviInfo.getUriResiource() instanceof UriResourceProperty)
+      if (i == 0) {
+        final VisitableExpression expression = createExpression();
+        if (naviInfo.getUriResiource() instanceof UriResourceProperty) {
           queryList.add(new JPACollectionFilterQuery(odata, sd, em, parent, naviInfo.getAssociationPath(), expression,
-              determineFrom(i, naviPathList.size(), parent)));
-        else
+              determineFrom(i, naviPathList.size(), parent), groups));
+        } else {
           queryList.add(new JPANavigationFilterQuery(odata, sd, naviInfo.getUriResiource(), parent, em, naviInfo
-              .getAssociationPath(), expression, determineFrom(i, naviPathList.size(), parent)));
-      } else
+              .getAssociationPath(), expression, determineFrom(i, naviPathList.size(), parent), claimsProvider,
+              groups));
+        }
+      } else {
         queryList.add(new JPANavigationFilterQuery(odata, sd, naviInfo.getUriResiource(), parent, em, naviInfo
-            .getAssociationPath(), determineFrom(i, naviPathList.size(), parent)));
+            .getAssociationPath(), determineFrom(i, naviPathList.size(), parent), claimsProvider));
+      }
       parent = queryList.get(queryList.size() - 1);
     }
     // 3. Create select statements
@@ -129,6 +147,20 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
       childQuery = queryList.get(i).getSubQueryExists(childQuery);
     }
     return childQuery;
+  }
+
+  private VisitableExpression createExpression() {
+    if (operator != null && methodCall == null) {
+      return new JPAFilterExpression(new SubMember(jpaMember), operand.getLiteral(),
+          operator);
+    }
+    if (operator == null && methodCall != null) {
+      return new JPAMethodExpression(new SubMember(jpaMember), operand, this.methodCall);
+    } else {
+      final JPAVisitableExpression expression = new JPAMethodExpression(new SubMember(jpaMember),
+          operand, this.methodCall);
+      return new JPABinaryExpression(expression, operand.getLiteral(), operator);
+    }
   }
 
   private From<?, ?> determineFrom(int i, int size, JPAAbstractQuery parent) {
@@ -190,7 +222,7 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
 
     @Override
     public List<CustomQueryOption> getCustomQueryOptions() {
-      return null;
+      return new ArrayList<>(0);
     }
 
     @Override
@@ -273,6 +305,6 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
   @Override
   public String toString() {
     return "JPANavigationOperation [operator=" + operator + ", jpaMember=" + jpaMember + ", operand=" + operand
-        + ", aggregationType=" + aggregationType + "]";
+        + ", methodCall=" + methodCall + "]";
   }
 }

@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.Expression;
@@ -24,7 +25,8 @@ import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
@@ -33,7 +35,8 @@ import com.sap.olingo.jpa.processor.core.util.TestHelper;
 public class TestJPAExpandResult extends TestBase {
   private JPAExpandJoinQuery cut;
   private EntityManager em;
-  private JPAODataSessionContextAccess sessionContext;
+  private JPAODataCRUDContextAccess sessionContext;
+  private JPAODataRequestContextAccess requestContext;
   private TestHelper helper;
 
   @BeforeEach
@@ -41,20 +44,22 @@ public class TestJPAExpandResult extends TestBase {
     createHeaders();
     helper = new TestHelper(emf, PUNIT_NAME);
     em = emf.createEntityManager();
-    sessionContext = mock(JPAODataSessionContextAccess.class);
+    sessionContext = mock(JPAODataCRUDContextAccess.class);
+    requestContext = mock(JPAODataRequestContextAccess.class);
     JPAServiceDebugger debugger = mock(JPAServiceDebugger.class);
 
     when(sessionContext.getEdmProvider()).thenReturn(helper.edmProvider);
     when(sessionContext.getOperationConverter()).thenReturn(new JPADefaultDatabaseProcessor());
-    when(sessionContext.getDebugger()).thenReturn(debugger);
+    when(requestContext.getDebugger()).thenReturn(debugger);
+    when(requestContext.getClaimsProvider()).thenReturn(Optional.empty());
+    when(requestContext.getEntityManager()).thenReturn(em);
   }
 
   @Test
   public void testSelectAllWithAllExpand() throws ODataException {
     // .../Organizations?$expand=Roles&$format=json
     JPAInlineItemInfo item = createOrgExpandRoles(null, null);
-
-    cut = new JPAExpandJoinQuery(OData.newInstance(), sessionContext, em, item, headers);
+    cut = new JPAExpandJoinQuery(OData.newInstance(), sessionContext, item, headers, requestContext);
     JPAExpandQueryResult act = cut.execute();
     assertEquals(4, act.getNoResults());
     assertEquals(7, act.getNoResultsDeep());
@@ -71,7 +76,7 @@ public class TestJPAExpandResult extends TestBase {
     keyPredicates.add(key);
     JPAInlineItemInfo item = createOrgExpandRoles(keyPredicates, null);
 
-    cut = new JPAExpandJoinQuery(OData.newInstance(), sessionContext, em, item, headers);
+    cut = new JPAExpandJoinQuery(OData.newInstance(), sessionContext, item, headers, requestContext);
     JPAExpandQueryResult act = cut.execute();
     assertEquals(1, act.getNoResults());
     assertEquals(2, act.getNoResultsDeep());

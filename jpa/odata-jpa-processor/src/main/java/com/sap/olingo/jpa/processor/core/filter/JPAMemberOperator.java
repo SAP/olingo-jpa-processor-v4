@@ -1,6 +1,9 @@
 package com.sap.olingo.jpa.processor.core.filter;
 
+import static com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException.MessageKeys.NOT_ALLOWED_MEMBER;
+
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.criteria.From;
@@ -29,12 +32,15 @@ public class JPAMemberOperator implements JPAOperator {
   private final JPAAssociationPath association;
 
   JPAMemberOperator(final JPAEntityType jpaEntityType, final From<?, ?> parent,
-      final Member member, final JPAAssociationPath association) {
+      final Member member, final JPAAssociationPath association, final List<String> list)
+      throws ODataApplicationException {
+
     super();
     this.member = member;
     this.jpaEntityType = jpaEntityType;
     this.root = parent;
     this.association = association;
+    checkGroup(determineAttributePath(), list);
   }
 
   public JPAAttribute determineAttribute() throws ODataApplicationException {
@@ -50,6 +56,11 @@ public class JPAMemberOperator implements JPAOperator {
 
   public Member getMember() {
     return member;
+  }
+
+  @Override
+  public String getName() {
+    return member.toString();
   }
 
   private JPAPath determineAttributePath() throws ODataApplicationException {
@@ -79,8 +90,9 @@ public class JPAMemberOperator implements JPAOperator {
         } catch (ODataJPAModelException e) {
           throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
         }
-      } else
+      } else {
         p = p.get(jpaPathElement.getInternalName());
+      }
     }
     return p;
   }
@@ -107,5 +119,21 @@ public class JPAMemberOperator implements JPAOperator {
       }
     }
     return p;
+  }
+
+  private void checkGroup(final JPAPath path, final List<String> groups) throws ODataJPAFilterException {
+    JPAPath orgPath = path;
+    if (association != null && association.getPath() != null) {
+      final JPAAttribute st = ((JPAAttribute) this.association.getPath().get(0));
+      if (st.isComplex()) {
+        try {
+          orgPath = st.getStructuredType().getPath(path.getLeaf().getExternalName());
+        } catch (ODataJPAModelException e) {
+          // Ignore exception and use path
+        }
+      }
+    }
+    if (orgPath != null && !orgPath.isPartOfGroups(groups))
+      throw new ODataJPAFilterException(NOT_ALLOWED_MEMBER, HttpStatusCode.FORBIDDEN, orgPath.getAlias());
   }
 }

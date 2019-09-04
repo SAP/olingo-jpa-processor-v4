@@ -1,10 +1,12 @@
-package com.sap.olingo.jpa.processor.core.api;
+package com.sap.olingo.jpa.processor.core.processor;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import org.apache.olingo.server.api.debug.RuntimeMeasurement;
+
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 
 class JPACoreDebugger implements JPAServiceDebugger {
   private final List<RuntimeMeasurement> runtimeInformation = new ArrayList<>();
@@ -27,7 +29,7 @@ class JPACoreDebugger implements JPAServiceDebugger {
   public void stopRuntimeMeasurement(final int handle) {
     if (handle < runtimeInformation.size()) {
       final RuntimeMeasurement runtimeMeasurement = runtimeInformation.get(handle);
-      if (runtimeMeasurement != null) {
+      if (runtimeMeasurement != null && runtimeMeasurement.getTimeStopped() == 0L) {
         runtimeMeasurement.setTimeStopped(System.nanoTime());
       }
     }

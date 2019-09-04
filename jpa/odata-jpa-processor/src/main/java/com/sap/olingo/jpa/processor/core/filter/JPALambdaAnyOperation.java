@@ -14,4 +14,9 @@ final class JPALambdaAnyOperation extends JPALambdaOperation implements JPAExpre
     return null;
   }
 
+  @Override
+  public String getName() {
+    return "ANY";
+  }
+
 }

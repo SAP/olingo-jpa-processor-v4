@@ -71,7 +71,7 @@ Content-Type: application/json
 --xyz--
 --abc--
 ```
-By purpose the oder of the AdministrativeDivisions is from bottom to top, so the links point to entities that do not exist when a AdministrativeDivision is created. As a consequence we would get an error if we now execute the request. A response may look like this:
+By purpose the order of the AdministrativeDivisions is from bottom to top, so the links point to entities that do not exist when a AdministrativeDivision is created. As a consequence we would get an error if we now execute the request. A response may look like this:
 
 ```
 --batch_7b9f8232-e51d-46b3-8b3d-74d06b02477b

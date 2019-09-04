@@ -34,4 +34,9 @@ class JPAAggregationOperationImp implements JPAAggregationOperation {
     return root;
   }
 
+  @Override
+  public String getName() {
+    return JPAFilterAggregationType.COUNT.name();
+  }
+
 }

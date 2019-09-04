@@ -70,11 +70,12 @@ final class JPASerializeValue extends JPASerializePrimitiveAbstract {
       final UriResourceProperty uriProperty = (UriResourceProperty) uriInfo.getUriResourceParts().get(uriInfo
           .getUriResourceParts().size() - 2);
 
-      final EdmPrimitiveType edmPropertyType = (EdmPrimitiveType) uriProperty.getProperty().getType();
+      final EdmPrimitiveType edmPropertyType = (EdmPrimitiveType) uriProperty.getType();
 
       final JPAPrimitivePropertyInfo info = determinePrimitiveProperty(result, uriInfo.getUriResourceParts());
       final PrimitiveValueSerializerOptions options = PrimitiveValueSerializerOptions.with().build();
-      serializerResult = serializer.primitiveValue(edmPropertyType, info.getProperty().getValue(), options);
+      if (!info.getProperty().isNull())
+        serializerResult = serializer.primitiveValue(edmPropertyType, info.getProperty().getValue(), options);
     }
     return new JPAValueSerializerResult(serializerResult);
   }

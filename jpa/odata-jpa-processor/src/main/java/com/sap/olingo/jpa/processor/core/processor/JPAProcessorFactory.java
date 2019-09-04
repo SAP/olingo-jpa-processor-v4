@@ -3,13 +3,10 @@ package com.sap.olingo.jpa.processor.core.processor;
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys.QUERY_SERVER_DRIVEN_PAGING_GONE;
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys.QUERY_SERVER_DRIVEN_PAGING_NOT_IMPLEMENTED;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
-
-import javax.persistence.EntityManager;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
@@ -23,10 +20,10 @@ import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.queryoption.SystemQueryOption;
 import org.apache.olingo.server.api.uri.queryoption.SystemQueryOptionKind;
 
-import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
+import com.sap.olingo.jpa.processor.core.exception.JPAIllicalAccessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
 import com.sap.olingo.jpa.processor.core.query.JPACountQuery;
@@ -34,13 +31,13 @@ import com.sap.olingo.jpa.processor.core.query.JPAJoinQuery;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializerFactory;
 
 public final class JPAProcessorFactory {
-  private final JPAODataSessionContextAccess sessionContext;
+  private final JPAODataCRUDContextAccess sessionContext;
   private final JPASerializerFactory serializerFactory;
   private final OData odata;
   private final ServiceMetadata serviceMetadata;
 
   public JPAProcessorFactory(final OData odata, final ServiceMetadata serviceMetadata,
-      final JPAODataSessionContextAccess context) {
+      final JPAODataCRUDContextAccess context) {
     super();
     this.sessionContext = context;
     this.serializerFactory = new JPASerializerFactory(odata, serviceMetadata);
@@ -48,61 +45,65 @@ public final class JPAProcessorFactory {
     this.serviceMetadata = serviceMetadata;
   }
 
-  public JPACUDRequestProcessor createCUDRequestProcessor(final EntityManager em, final UriInfo uriInfo,
-      final ContentType responseFormat, final JPAODataClaimsProvider claims) throws ODataException {
+  public JPACUDRequestProcessor createCUDRequestProcessor(final UriInfo uriInfo, final ContentType responseFormat,
+      final JPAODataRequestContextAccess context) throws ODataException {
 
-    final JPAODataRequestContextAccess requestContext = new JPARequestContext(em, uriInfo, serializerFactory
-        .createCUDSerializer(responseFormat, uriInfo), claims);
-
-    return new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext,
-        new JPAConversionHelper());
-  }
-
-  public JPACUDRequestProcessor createCUDRequestProcessor(EntityManager em, UriInfo uriInfo,
-      final JPAODataClaimsProvider claims) throws ODataException {
-
-    final JPAODataRequestContextAccess requestContext = new JPARequestContext(em, uriInfo, null, claims);
+    final JPAODataRequestContextAccess requestContext = new JPAODataRequestContextImpl(uriInfo, serializerFactory
+        .createCUDSerializer(responseFormat, uriInfo), context);
 
     return new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext,
         new JPAConversionHelper());
   }
 
-  public JPAActionRequestProcessor createActionProcessor(final EntityManager em, final UriInfo uriInfo,
-      final ContentType responseFormat, final JPAODataClaimsProvider claims) throws ODataException {
+  public JPACUDRequestProcessor createCUDRequestProcessor(final UriInfo uriInfo,
+      final JPAODataRequestContextAccess context) throws ODataException {
 
-    final JPAODataRequestContextAccess requestContext = new JPARequestContext(em, uriInfo,
-        responseFormat != null ? serializerFactory.createSerializer(responseFormat, uriInfo) : null, claims);
+    final JPAODataRequestContextAccess requestContext = new JPAODataRequestContextImpl(uriInfo, context);
+
+    return new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext,
+        new JPAConversionHelper());
+  }
+
+  public JPAActionRequestProcessor createActionProcessor(final UriInfo uriInfo, final ContentType responseFormat,
+      final JPAODataRequestContextAccess context) throws ODataException {
+
+    final JPAODataRequestContextAccess requestContext = new JPAODataRequestContextImpl(uriInfo,
+        responseFormat != null ? serializerFactory.createSerializer(responseFormat, uriInfo) : null, context);
 
     return new JPAActionRequestProcessor(odata, sessionContext, requestContext);
 
   }
 
-  public JPARequestProcessor createProcessor(final EntityManager em, final UriInfo uriInfo,
-      final ContentType responseFormat, final Map<String, List<String>> header, final JPAODataClaimsProvider claims)
-      throws ODataException {
+  public JPARequestProcessor createProcessor(final UriInfo uriInfo, final ContentType responseFormat,
+      final Map<String, List<String>> header, final JPAODataRequestContextAccess context) throws ODataException {
 
     final List<UriResource> resourceParts = uriInfo.getUriResourceParts();
     final UriResource lastItem = resourceParts.get(resourceParts.size() - 1);
-    final JPAODataPage page = getPage(header, uriInfo, em);
-    final JPAODataRequestContextAccess requestContext = new JPARequestContext(em, page, serializerFactory
-        .createSerializer(responseFormat, page.getUriInfo()), claims);
+    final JPAODataPage page = getPage(header, uriInfo, context);
+    JPAODataRequestContextAccess requestContext;
+    try {
+      requestContext = new JPAODataRequestContextImpl(page, serializerFactory
+          .createSerializer(responseFormat, page.getUriInfo()), context);
+    } catch (JPAIllicalAccessException e) {
+      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    }
 
     switch (lastItem.getKind()) {
-    case count:
-      return new JPACountRequestProcessor(odata, sessionContext, requestContext);
-    case function:
-      checkFunctionPathSupported(resourceParts);
-      return new JPAFunctionRequestProcessor(odata, sessionContext, requestContext);
-    case complexProperty:
-    case primitiveProperty:
-    case navigationProperty:
-    case entitySet:
-    case value:
-      checkNavigationPathSupported(resourceParts);
-      return new JPANavigationRequestProcessor(odata, serviceMetadata, sessionContext, requestContext);
-    default:
-      throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
-          HttpStatusCode.NOT_IMPLEMENTED, lastItem.getKind().toString());
+      case count:
+        return new JPACountRequestProcessor(odata, sessionContext, requestContext);
+      case function:
+        checkFunctionPathSupported(resourceParts);
+        return new JPAFunctionRequestProcessor(odata, sessionContext, requestContext);
+      case complexProperty:
+      case primitiveProperty:
+      case navigationProperty:
+      case entitySet:
+      case value:
+        checkNavigationPathSupported(resourceParts);
+        return new JPANavigationRequestProcessor(odata, serviceMetadata, sessionContext, requestContext);
+      default:
+        throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
+            HttpStatusCode.NOT_IMPLEMENTED, lastItem.getKind().toString());
     }
   }
 
@@ -124,8 +125,8 @@ public final class JPAProcessorFactory {
     }
   }
 
-  private JPAODataPage getPage(final Map<String, List<String>> headers, final UriInfo uriInfo, final EntityManager em)
-      throws ODataException {
+  private JPAODataPage getPage(final Map<String, List<String>> headers, final UriInfo uriInfo,
+      final JPAODataRequestContextAccess requestContext) throws ODataException {
 
     JPAODataPage page = new JPAODataPage(uriInfo, 0, Integer.MAX_VALUE, null);
     // Server-Driven-Paging
@@ -136,10 +137,11 @@ public final class JPAProcessorFactory {
         if (page == null)
           throw new ODataJPAProcessorException(QUERY_SERVER_DRIVEN_PAGING_GONE, HttpStatusCode.GONE, skiptoken);
       } else {
-        final JPACountQuery countQuery = new JPAJoinQuery(odata, sessionContext, em, headers, page, Optional.empty());
+        final JPACountQuery countQuery = new JPAJoinQuery(odata, sessionContext, headers,
+            new JPAODataRequestContextImpl(uriInfo, requestContext));
         final Integer preferedPagesize = getPreferedPagesize(headers);
         final JPAODataPage firstPage = sessionContext.getPagingProvider().getFirstPage(uriInfo, preferedPagesize,
-            countQuery, em);
+            countQuery, requestContext.getEntityManager());
         page = firstPage != null ? firstPage : page;
       }
     }
@@ -190,6 +192,6 @@ public final class JPAProcessorFactory {
         return header.getValue();
       }
     }
-    return new ArrayList<>(1);
+    return Collections.emptyList();
   }
 }

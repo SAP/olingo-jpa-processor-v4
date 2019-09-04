@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>com.sap.olingo</groupId>
 		<artifactId>odata-jpa</artifactId>
-		<version>0.3.2-SNAPSHOT</version>
+		<version>0.3.4-SNAPSHOT</version>
 	</parent>
 
 
@@ -18,12 +18,14 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<dependencies> 		
+		<!--  Testing -->
 		<dependency>
 			<groupId>com.sap.olingo</groupId>
 			<artifactId>odata-jpa-test</artifactId>
 			<scope>test</scope>
 			<version>${project.version}</version>
 		</dependency>
+		<!--  Testing -->
 		<dependency>
 			<groupId>com.sap.olingo</groupId>
 			<artifactId>odata-jpa-annotation</artifactId>
@@ -45,8 +47,6 @@
 			<artifactId>odata-commons-api</artifactId>
 			<version>${odata.version}</version>
 		</dependency>
-		<!-- <dependency> <groupId>org.apache.olingo</groupId> <artifactId>odata-client-core</artifactId> 
-			<version>${odata.version}</version> </dependency> -->
 		<dependency>
 			<groupId>org.apache.olingo</groupId>
 			<artifactId>odata-server-api</artifactId>

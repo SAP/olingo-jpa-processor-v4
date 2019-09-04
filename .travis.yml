@@ -2,20 +2,29 @@ language: java
 # for an overview see https://docs.travis-ci.com/user/reference/overview/
 sudo: false
 dist: trusty
-jdk:
-    - oraclejdk8
-    - oraclejdk9
-    - oraclejdk11
-    - openjdk8
-cache:
-  directories:
-    - $HOME/.m2/repository
-script:
-    - cd jpa && mvn clean verify
-branches:
-  only:
-  - master
-  - develop
 
-  after_success:
-  - mvn clean test jacoco:report cobertura:cobertura org.eluder.coveralls:coveralls-maven-plugin:report
+cache:
+    directories:
+        - $HOME/.m2
+
+jobs:
+    include:  
+        - name: "JDK: openjdk8 + coverage"
+          jdk: openjdk8
+          script: cd ./jpa && mvn clean verify 
+          after_success:
+              - mvn -q test jacoco:report coveralls:report
+        - name: "JDK: openjdk11"
+          jdk: openjdk11
+          script: cd ./jpa && mvn -q verify
+        - name: "JDK: openjdk12"
+          jdk: openjdk12
+          script: cd ./jpa && mvn -q verify          
+        - name: "JDK: oraclejdk8"
+          jdk: oraclejdk8
+          script: cd ./jpa && mvn -q verify   
+
+branches:
+    only:
+        - master
+        - develop

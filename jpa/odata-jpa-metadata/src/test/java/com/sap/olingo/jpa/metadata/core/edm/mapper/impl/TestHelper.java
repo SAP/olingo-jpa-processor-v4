@@ -98,21 +98,6 @@ public class TestHelper {
     return null;
   }
 
-  /**
-   * Provide the Class instead
-   * @param typeName
-   * @return
-   */
-  @Deprecated
-  public EntityType<?> getEntityType(final String typeName) {
-    for (final EntityType<?> entityType : jpaMetamodel.getEntities()) {
-      if (entityType.getJavaType().getSimpleName().equals(typeName)) {
-        return entityType;
-      }
-    }
-    return null;
-  }
-
   public EdmFunction getStoredProcedure(EntityType<?> jpaEntityType, String string) {
     if (jpaEntityType.getJavaType() instanceof AnnotatedElement) {
       final EdmFunctions jpaStoredProcedureList = ((AnnotatedElement) jpaEntityType.getJavaType())

@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -17,6 +18,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 
@@ -38,6 +40,10 @@ import org.junit.jupiter.api.Test;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.processor.core.api.JPAAbstractCUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.api.JPACUDRequestHandler;
+import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataGroupsProvider;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys;
@@ -82,7 +88,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     headers.put("If-Match", Arrays.asList("2"));
 
     RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.clearFields(request, new ODataResponse());
 
@@ -90,6 +96,46 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     assertEquals(1, spy.headers.size());
     assertNotNull(spy.headers.get("If-Match"));
     assertEquals("2", spy.headers.get("If-Match").get(0));
+  }
+
+  @Test
+  public void testClaimsProvided() throws ODataJPAProcessorException, SerializerException,
+      ODataException {
+
+    final ODataRequest request = prepareSimpleRequest();
+
+    final RequestHandleSpy spy = new RequestHandleSpy();
+    final JPAODataClaimProvider provider = new JPAODataClaimsProvider();
+    final Optional<JPAODataClaimProvider> claims = Optional.of(provider);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getClaimsProvider()).thenReturn(claims);
+
+    processor.clearFields(request, new ODataResponse());
+
+    assertNotNull(spy.claims);
+    assertTrue(spy.claims.isPresent());
+    assertEquals(provider, spy.claims.get());
+  }
+
+  @Test
+  public void testGroupsProvided() throws ODataJPAProcessorException, SerializerException,
+      ODataException {
+
+    final ODataRequest request = prepareSimpleRequest();
+
+    final RequestHandleSpy spy = new RequestHandleSpy();
+    final JPAODataGroupsProvider provider = new JPAODataGroupsProvider();
+    provider.addGroup("Person");
+    // final List<String> groups = new ArrayList<>(Arrays.asList("Person"));
+    final Optional<JPAODataGroupProvider> groups = Optional.of(provider);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getGroupsProvider()).thenReturn(groups);
+
+    processor.clearFields(request, new ODataResponse());
+
+    assertNotNull(spy.groups);
+    assertFalse(spy.groups.isEmpty());
+    assertEquals("Person", spy.groups.get(0));
   }
 
   @Test
@@ -128,6 +174,17 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     assertEquals(1, spy.jpaAttributes.size());
     Object[] keys = spy.jpaAttributes.keySet().toArray();
     assertEquals("name2", keys[0].toString());
+  }
+
+  @Test
+  public void testSimpleCollectionPropertyAttributeProvided() throws ODataApplicationException {
+    // .../Organizations('35')/Comment
+    RequestHandleSpy spy = prepareDeleteComment();
+
+    processor.clearFields(request, new ODataResponse());
+    assertEquals(1, spy.jpaAttributes.size());
+    Object[] keys = spy.jpaAttributes.keySet().toArray();
+    assertEquals("comment", keys[0].toString());
   }
 
   @Test
@@ -327,7 +384,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     ODataRequest request = prepareSimpleRequest();
 
     RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.clearFields(request, response);
     assertEquals(1, spy.noValidateCalls);
@@ -339,7 +396,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     ODataRequest request = prepareSimpleRequest();
 
     RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
     when(em.getTransaction()).thenReturn(transaction);
     when(transaction.isActive()).thenReturn(Boolean.TRUE);
 
@@ -354,7 +411,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     when(request.getMethod()).thenReturn(HttpMethod.POST);
 
     JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
-    when(sessionContext.getCUDRequestHandler()).thenReturn(handler);
+    when(requestContext.getCUDRequestHandler()).thenReturn(handler);
 
     doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
         HttpStatusCode.BAD_REQUEST)).when(handler).updateEntity(any(JPARequestEntity.class), any(EntityManager.class),
@@ -377,7 +434,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     when(em.getTransaction()).thenReturn(transaction);
 
     JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
-    when(sessionContext.getCUDRequestHandler()).thenReturn(handler);
+    when(requestContext.getCUDRequestHandler()).thenReturn(handler);
 
     doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
         HttpStatusCode.BAD_REQUEST)).when(handler).validateChanges(em);
@@ -404,7 +461,24 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     when(property.getName()).thenReturn("Name2");
 
     RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
+
+    return spy;
+  }
+
+  private RequestHandleSpy prepareDeleteComment() {
+
+    UriResourcePrimitiveProperty uriProperty;
+    EdmProperty property;
+    uriProperty = mock(UriResourcePrimitiveProperty.class);
+    property = mock(EdmProperty.class);
+
+    pathParts.add(uriProperty);
+    when(uriProperty.getProperty()).thenReturn(property);
+    when(property.getName()).thenReturn("Comment");
+
+    RequestHandleSpy spy = new RequestHandleSpy();
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     return spy;
   }
@@ -421,7 +495,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     when(property.getName()).thenReturn("Address");
 
     RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     return spy;
   }
@@ -468,7 +542,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     when(property.getName()).thenReturn("By");
 
     RequestHandleSpy spy = new RequestHandleSpy();
-    when(sessionContext.getCUDRequestHandler()).thenReturn(spy);
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     return spy;
   }
@@ -481,6 +555,8 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     public boolean called;
     public Map<String, List<String>> headers;
     private int raiseEx;
+    public Optional<JPAODataClaimProvider> claims;
+    public List<String> groups;
 
     @Override
     public JPAUpdateResult updateEntity(final JPARequestEntity requestEntity, final EntityManager em,
@@ -490,6 +566,8 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
       this.keyPredicates = requestEntity.getKeys();
       this.jpaAttributes = requestEntity.getData();
       this.headers = requestEntity.getAllHeader();
+      this.claims = requestEntity.getClaims();
+      this.groups = requestEntity.getGroups();
       called = true;
 
       if (raiseEx == 1)

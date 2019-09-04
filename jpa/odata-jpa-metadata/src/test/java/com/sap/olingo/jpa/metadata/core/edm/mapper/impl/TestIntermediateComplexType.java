@@ -15,6 +15,8 @@ import javax.persistence.metamodel.EmbeddableType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.reflections.Reflections;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
@@ -232,6 +234,33 @@ public class TestIntermediateComplexType extends TestMappingRoot {
     assertEquals("Building", act.get(0).getAttribute().getExternalName());
     assertEquals("BuildingNumber", act.get(0).getClaimName());
     assertEquals(2, act.get(0).getPath().getPath().size());
+    assertEquals(true, act.get(0).supportsWildcards());
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+      "Building, BuildingNumber",
+      "Floor, Floor",
+      "RoomNumber, RoomNumber"
+  })
+  public void checkOneComplexProtectedPropertyDeepWoWildcards(final String externalName, final String claim)
+      throws ODataJPAModelException {
+
+    IntermediateComplexType ct = new IntermediateComplexType(new JPAEdmNameBuilder(PUNIT_NAME), getEmbeddedableType(
+        "AddressDeepThreeProtections"), schema);
+    List<JPAProtectionInfo> act = ct.getProtections();
+    assertNotNull(act);
+    assertEquals(3, act.size());
+    JPAProtectionInfo targetAttribute = null;
+    for (final JPAProtectionInfo a : act) {
+      if (a.getAttribute().getExternalName().equals(externalName)) {
+        targetAttribute = a;
+      }
+    }
+    assertNotNull(targetAttribute);
+    assertEquals(claim, targetAttribute.getClaimName());
+    assertEquals(2, act.get(0).getPath().getPath().size());
+    assertFalse(act.get(0).supportsWildcards());
   }
 
   private class PostProcessorSetIgnore extends JPAEdmMetadataPostProcessor {

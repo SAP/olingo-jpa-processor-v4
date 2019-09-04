@@ -34,6 +34,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPADBAdaptorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 
+@Deprecated
 final class JPA_HANA_DatabaseProcessor implements JPAODataDatabaseProcessor {
   private static final String SELECT_BASE_PATTERN = "SELECT * FROM $FUNCTIONNAME$($PARAMETER$)";
   private static final String SELECT_COUNT_PATTERN = "SELECT COUNT(*) FROM $FUNCTIONNAME$($PARAMETER$)";

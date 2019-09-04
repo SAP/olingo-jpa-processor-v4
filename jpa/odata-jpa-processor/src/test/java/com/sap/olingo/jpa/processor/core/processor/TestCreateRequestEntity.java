@@ -43,7 +43,7 @@ import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializer;
@@ -70,7 +70,7 @@ public class TestCreateRequestEntity {
   private JPACUDRequestProcessor cut;
   private Entity oDataEntity;
   private ServiceMetadata serviceMetadata;
-  private JPAODataSessionContextAccess sessionContext;
+  private JPAODataCRUDContextAccess sessionContext;
   private JPAODataRequestContextAccess requestContext;
   private UriInfo uriInfo;
   private UriResourceEntitySet uriEts;
@@ -86,7 +86,7 @@ public class TestCreateRequestEntity {
   @BeforeEach
   public void setUp() throws Exception {
     odata = OData.newInstance();
-    sessionContext = mock(JPAODataSessionContextAccess.class);
+    sessionContext = mock(JPAODataCRUDContextAccess.class);
     requestContext = mock(JPAODataRequestContextAccess.class);
     serviceMetadata = mock(ServiceMetadata.class);
     uriInfo = mock(UriInfo.class);

@@ -72,18 +72,20 @@ insert into "OrganizationImage" values ('9',null,'image/svg+xml','99','2016-01-2
 CREATE TABLE "BusinessPartnerRole" ( 
 	"BusinessPartnerID" VARCHAR(32) NOT NULL ,
 	"BusinessPartnerRole" VARCHAR(10) NOT NULL, 
+	"Details"  VARCHAR(256),
      PRIMARY KEY ("BusinessPartnerID","BusinessPartnerRole"));
 
-insert into "BusinessPartnerRole" values ('1',  'A');
-insert into "BusinessPartnerRole" values ('3',  'A');
-insert into "BusinessPartnerRole" values ('3',  'B');
-insert into "BusinessPartnerRole" values ('3',  'C');
-insert into "BusinessPartnerRole" values ('2',  'A');
-insert into "BusinessPartnerRole" values ('2',  'C');
-insert into "BusinessPartnerRole" values ('7',  'C');
-insert into "BusinessPartnerRole" values ('98',  'X');
-insert into "BusinessPartnerRole" values ('99',  'X');
-insert into "BusinessPartnerRole" values ('99',  'Z');
+insert into "BusinessPartnerRole" values ('1',  'A', null);
+insert into "BusinessPartnerRole" values ('3',  'A', 'Test');
+insert into "BusinessPartnerRole" values ('3',  'B', 'YAT');
+insert into "BusinessPartnerRole" values ('3',  'C', 'Last Detail');
+insert into "BusinessPartnerRole" values ('2',  'A', null);
+insert into "BusinessPartnerRole" values ('2',  'C', null);
+insert into "BusinessPartnerRole" values ('7',  'C', null);
+insert into "BusinessPartnerRole" values ('98',  'X', null);
+insert into "BusinessPartnerRole" values ('99',  'X', null);
+insert into "BusinessPartnerRole" values ('99',  'Z', null);
+insert into "BusinessPartnerRole" values ('97',  'Y', null);
 
 CREATE TABLE "CountryDescription" ( 
 	"ISOCode" VARCHAR(4) NOT NULL ,
@@ -695,6 +697,7 @@ CREATE TABLE "InhouseAddress" (
 	"Floor"  SMALLINT,
     "RoomNumber" INTEGER,
    PRIMARY KEY ("ID", "Task"));	
+insert into "InhouseAddress" values( '97', 'DEV',  '2', 1, 32 );
 insert into "InhouseAddress" values( '99', 'DEV',  '1',-1 ,245 );
 insert into "InhouseAddress" values( '99', 'MAIN', '7', 2 ,32 );
 insert into "InhouseAddress" values( '501', 'MAIN', '7', 2 ,32 );
@@ -817,26 +820,81 @@ CREATE TABLE "CountryRestriction" (
 insert into "CountryRestriction" values ('Willi', 1, 'DEU', 'DEU');
 insert into "CountryRestriction" values ('Marvin', 1, 'CHE', 'ZAF');
 
+CREATE TABLE "RoleRestriction" (	 
+	"UserName"  VARCHAR(60) NOT NULL ,
+	"SequenceNumber" INTEGER NOT NULL,
+	"From"  VARCHAR(10) NOT NULL ,
+	"To"  VARCHAR(10),
+	PRIMARY KEY ("UserName","SequenceNumber"));	
+insert into "RoleRestriction" values ('Marvin', 1, 'A', 'B');
+insert into "RoleRestriction" values ('Willi', 1, 'A', 'A');
+insert into "RoleRestriction" values ('Willi', 2, 'C', 'C');
+
 CREATE VIEW "BusinessPartnerProtected"
         AS 
-	SELECT 
+	SELECT DISTINCT
 		b."ID", 
 		b."ETag",
 		b."Type",
 		b."NameLine1",
 		b."NameLine2",
 		b."Country",
-		r. "UserName",
+		r."UserName",
+		b."AccessRights",
+		b."BirthDay",
 		b."CreatedBy",
 		b."CreatedAt",   
 		b."UpdatedBy",
-		b."UpdatedAt"	
+		b."UpdatedAt",
+		a."Task" as "AddressType",
+		a."Task",
+		a."Building",
+		a."Floor",
+		a."RoomNumber"	
 	FROM "BusinessPartner" as b
 	INNER JOIN "CountryRestriction" as r
 		ON b."Country" >= r."From"
-		AND b."Country" <= r."To";
+		AND b."Country" <= r."To"
+	LEFT OUTER JOIN  "InhouseAddress"  as a
+		ON b."ID" = a."ID" 
+		AND a."Task" = 'DEV';
 
-	 
+
+CREATE VIEW "PersonProtected"		
+		AS 
+	SELECT 
+		b."ID", 
+		b."ETag",
+		b."Type",
+		b."NameLine1",
+		b."NameLine2",
+		b."CreatedBy",
+		b."CreatedAt",   
+		b."UpdatedBy",
+		b."UpdatedAt",
+		a."Task" as "AddressType",
+		a."Task",
+		a."Building",
+		a."Floor",
+		a."RoomNumber"	
+	FROM "BusinessPartner" as b
+	LEFT OUTER JOIN  "InhouseAddress"  as a
+		ON b."ID" = a."ID" 
+	WHERE b."Type" = '1'
+	AND   a."Task" = 'DEV';
+	
+CREATE VIEW "RoleProtected"		
+		AS 
+	SELECT 
+		role."BusinessPartnerID",
+		role."BusinessPartnerRole", 
+		r."UserName"
+	FROM "BusinessPartnerRole" as role
+	INNER JOIN "RoleRestriction" as r
+		ON role."BusinessPartnerRole" >= r."From"
+		AND role."BusinessPartnerRole" <= r."To";
+		
+		
 --------------------------------------------
 CREATE TABLE "DummyToBeIgnored" (
 	"ID" VARCHAR(32) NOT NULL ,

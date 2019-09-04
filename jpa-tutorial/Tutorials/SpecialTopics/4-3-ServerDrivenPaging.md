@@ -1,6 +1,6 @@
 # 4.3 Server Driven Paging
 ## Implementation
-OData describes that a server can restrict the number of returned records e.g. to prevent DoS attack respectively to prevent that the server die with an OutOfMemory exception. Implementing this so called [Server-Driven Paging](http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398310) requires the knowledge about a couple of details such as:
+OData describes that a server can restrict the number of returned records e.g. to prevent DoS attacks respectively to prevent that the server dies with an OutOfMemory exception. Implementing this so called [Server-Driven Paging](http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398310) requires the knowledge about a couple of details such as:
 
 - Heap Size of the web server
 - Width respectively memory consumption of an entity
@@ -8,65 +8,61 @@ OData describes that a server can restrict the number of returned records e.g. t
 - Number of parallel processed request on a server instance
 - ...
 
-This makes a general implementation impossible. Instead of that a hook implementation can be provided. This hook has to implement interface `com.sap.olingo.jpa.processor.core.api.JPAODataPagingProvider`, which contains two methods `getFirstPage` and `getNextPage`. `getFirstPage` is called in case a query does not contain a `$skiptoken`. It either returns an instance of `JPAODataPage`, so only a subset of the requested entities will be returned or null and all entities are returned. If a request has a `$skiptoken` method `getNextPage` is called. If this method does not return a `JPAODataPage` instance, a _410, "Gone"_, exception is raised.
+This makes a general implementation impossible. Instead of that a hook implementation can be provided. This hook has to implement interface [`com.sap.olingo.jpa.processor.core.api.JPAODataPagingProvider`](https://github.com/SAP/olingo-jpa-processor-v4/blob/develop/jpa/odata-jpa-processor/src/main/java/com/sap/olingo/jpa/processor/core/api/JPAODataPagingProvider.java), which contains two methods `getFirstPage` and `getNextPage`. `getFirstPage` is called in case a query does not contain a `$skiptoken`. It either returns an instance of `JPAODataPage`, so only a subset of the requested entities will be returned or null and all entities are returned. If a request has a `$skiptoken` method `getNextPage` is called. If this method does not return a `JPAODataPage` instance, a _410, "Gone"_, exception is raised.
 
-To get started we want to use `com.sap.olingo.jpa.processor.core.api.example.JPAExamplePagingProvider` as our paging provider. An instance of the class shall be accessible right in the moment the service is started. Therefore it is created in a _listener_ and put in to the servlet context:
+To get started we want to use `com.sap.olingo.jpa.processor.core.api.example.JPAExamplePagingProvider` as our paging provider. As all requests would need to share the same provider instance we have to add it to the service context, which means we have to adopt the `Listener` implementation.
 
+The constructor of `JPAExamplePagingProvider` takes two parameter. On the one hand the buffer size, which describes how many pages a cache inside the paging provider holds, and on the other hand a map that holds the page size for some chosen entity sets. First of all we want to create a constants for the buffer size:
 ```Java
-package tutorial.service;
-
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import javax.sql.DataSource;
 
-import com.sap.olingo.jpa.processor.core.api.example.JPAExamplePagingProvider;
+import org.apache.olingo.commons.api.ex.ODataException;
+
+import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataServiceContext;
 
 public class Listener implements ServletContextListener {
+  private static final String PUNIT_NAME = "Tutorial";
   private static final int BUFFER_SIZE = 10;
-
-  // Create Paging Provider
-  @Override
-  public void contextInitialized(ServletContextEvent sce) {
+  ...
+```
+Next we create private method that creates the paging provider:
+```Java
+  private PagingProvider buildPagingProvider() {
     final Map<String, Integer> pageSizes = new HashMap<>();
-
     pageSizes.put("Companies", 5);
     pageSizes.put("AdministrativeDivisions", 10);
 
-    sce.getServletContext().setAttribute("PagingProvider", new JPAExamplePagingProvider(pageSizes, BUFFER_SIZE));
+    return new PagingProvider(pageSizes, BUFFER_SIZE);
   }
-
-  @Override
-  public void contextDestroyed(ServletContextEvent sce) {
-    sce.getServletContext().setAttribute("PagingProvider", null);
-  }
-}
 ```
-As you can see the constructor takes two parameter. On the one hand the buffer size, which describes how many pages a cache inside the paging provider holds, and on the other hand a map that holds the page size for some chosen entity sets. To trigger the call of the listener it has to be added to the `web.xml`:
 
-```
-  ...
-  <listener>
-    <listener-class>tutorial.service.Listener</listener-class>
-  </listener>
-</web-app>
-```
-Last, but not least we have to register the hook
-
+Last, but not least, we ste the paging provider with in the service contest:
 ```Java
 public class Servlet extends HttpServlet {
 
-  private static final long serialVersionUID = 1L;
-  private static final String PUNIT_NAME = "Tutorial";
-
-  @Override
-  protected void service(final HttpServletRequest req, final HttpServletResponse resp)
-      throws ServletException, IOException {
   ...
-  handler.getJPAODataContext().setPagingProvider((JPAODataPagingProvider) getServletContext().getAttribute(
-    "PagingProvider"));
-  handler.process(req, resp, em);  
+  @Override
+  public void contextInitialized(ServletContextEvent sce) {
+    final DataSource ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
+    try {
+      final JPAODataCRUDContextAccess serviceContext = JPAODataServiceContext.with()
+          .setPUnit(PUNIT_NAME)
+          .setDataSource(ds)
+          .setTypePackage("tutorial.operations", "tutorial.model")
+          .setDatabaseProcessor(new HSQLDatabaseProcessor())
+          .setPagingProvider(buildPagingProvider())
+          .build();
+      sce.getServletContext().setAttribute("ServiceContext", serviceContext);
+    } catch (ODataException e) {
+      // Log error
+    }
+  }
   ...  
 ```
 Now we are ready to start the web server.

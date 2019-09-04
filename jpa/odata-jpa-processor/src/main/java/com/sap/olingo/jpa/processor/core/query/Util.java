@@ -310,47 +310,6 @@ public final class Util {
     associationName.append(pathSegment);
   }
 
-  /**
-   * Sub query
-   * @param sd
-   * @param resourceParts
-   * @return
-   * @throws ODataApplicationException
-   */
-  public static List<JPANavigationProptertyInfo> determineAssoziations(final JPAServiceDocument sd,
-      final List<UriResource> resourceParts) throws ODataApplicationException {
-
-    final List<JPANavigationProptertyInfo> pathList = new ArrayList<>();
-
-    StringBuilder associationName = null;
-    UriResourceNavigation navigation = null;
-    if (resourceParts != null && hasNavigation(resourceParts)) {
-      for (int i = resourceParts.size() - 1; i >= 0; i--) {
-        if (resourceParts.get(i) instanceof UriResourceNavigation && navigation == null) {
-          navigation = (UriResourceNavigation) resourceParts.get(i);
-          associationName = new StringBuilder();
-          associationName.insert(0, navigation.getProperty().getName());
-        } else {
-          if (resourceParts.get(i) instanceof UriResourceComplexProperty) {
-            associationName.insert(0, JPAPath.PATH_SEPERATOR);
-            associationName.insert(0, ((UriResourceComplexProperty) resourceParts.get(i)).getProperty().getName());
-          }
-          if (resourceParts.get(i) instanceof UriResourceNavigation
-              || resourceParts.get(i) instanceof UriResourceEntitySet) {
-            pathList.add(new JPANavigationProptertyInfo(sd, (UriResourcePartTyped) resourceParts.get(i),
-                determineAssoziationPath(sd, ((UriResourcePartTyped) resourceParts.get(i)), associationName), null));
-            if (resourceParts.get(i) instanceof UriResourceNavigation) {
-              navigation = (UriResourceNavigation) resourceParts.get(i);
-              associationName = new StringBuilder();
-              associationName.insert(0, navigation.getProperty().getName());
-            }
-          }
-        }
-      }
-    }
-    return pathList;
-  }
-
   public static boolean hasNavigation(final List<UriResource> uriResourceParts) {
     if (uriResourceParts != null) {
       for (int i = uriResourceParts.size() - 1; i >= 0; i--) {

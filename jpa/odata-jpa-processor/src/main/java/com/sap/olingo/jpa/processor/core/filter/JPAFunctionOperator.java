@@ -96,6 +96,11 @@ final class JPAFunctionOperator implements JPAOperator {
     return jpaFunction.getResultParameter();
   }
 
+  @Override
+  public String getName() {
+    return jpaFunction.getDBName();
+  }
+
   private class ParameterLiteral implements Literal {
 
     public ParameterLiteral(final String text) {

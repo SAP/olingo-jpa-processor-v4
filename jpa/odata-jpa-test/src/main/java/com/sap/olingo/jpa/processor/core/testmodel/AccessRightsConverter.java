@@ -27,7 +27,7 @@ public class AccessRightsConverter implements AttributeConverter<AccessRights[],
       return null; // NOSONAR
     final List<AccessRights> accesses = new ArrayList<>();
     for (AccessRights e : Arrays.asList(AccessRights.values())) {
-      if (e.getValue() == dbData)
+      if ((e.getValue() & dbData) != 0)
         accesses.add(e);
     }
     return accesses.toArray(new AccessRights[] {});

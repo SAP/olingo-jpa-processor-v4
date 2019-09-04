@@ -49,6 +49,16 @@ class JPAVisitor implements JPAExpressionVisitor {
   }
 
   @Override
+  public OData getOdata() {
+    return jpaComplier.getOdata();
+  }
+
+  @Override
+  public From<?, ?> getRoot() {
+    return jpaComplier.getRoot();
+  }
+
+  @Override
   public JPAOperator visitAlias(final String aliasName) throws ExpressionVisitException, ODataApplicationException {
 
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FILTER,
@@ -61,6 +71,14 @@ class JPAVisitor implements JPAExpressionVisitor {
       final JPAOperator right) throws ExpressionVisitException, ODataApplicationException {
     int handle = debugger.startRuntimeMeasurement(this, "visitBinaryOperator"); // NOSONAR
 
+    if (operator == BinaryOperatorKind.AND || operator == BinaryOperatorKind.OR) {
+      // Connecting operations have to be handled first, as JPANavigationOperation do not need special treatment
+      debugger.stopRuntimeMeasurement(handle);
+      return new JPABooleanOperatorImp(this.jpaComplier.getConverter(), operator, (JPAExpression) left,
+          (JPAExpression) right);
+    }
+    if (left instanceof JPANavigationOperation || right instanceof JPANavigationOperation)
+      return handleBinaryWithNavigation(operator, left, right);
     if (hasNavigation(left) || hasNavigation(right))
       return new JPANavigationOperation(this.jpaComplier, operator, left, right);
     if (operator == BinaryOperatorKind.EQ
@@ -72,19 +90,16 @@ class JPAVisitor implements JPAExpressionVisitor {
         || operator == BinaryOperatorKind.HAS) {
       debugger.stopRuntimeMeasurement(handle);
       return new JPAComparisonOperatorImp(this.jpaComplier.getConverter(), operator, left, right);
-    } else if (operator == BinaryOperatorKind.AND || operator == BinaryOperatorKind.OR) {
-      debugger.stopRuntimeMeasurement(handle);
-      return new JPABooleanOperatorImp(this.jpaComplier.getConverter(), operator, (JPAExpression) left,
-          (JPAExpression) right);
-    } else if (operator == BinaryOperatorKind.ADD
+    }
+    if (operator == BinaryOperatorKind.ADD
         || operator == BinaryOperatorKind.SUB
         || operator == BinaryOperatorKind.MUL
         || operator == BinaryOperatorKind.DIV
         || operator == BinaryOperatorKind.MOD) {
       debugger.stopRuntimeMeasurement(handle);
       return new JPAArithmeticOperatorImp(this.jpaComplier.getConverter(), operator, left, right);
-    } else
-      debugger.stopRuntimeMeasurement(handle);
+    }
+    debugger.stopRuntimeMeasurement(handle);
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
         HttpStatusCode.NOT_IMPLEMENTED, operator.name());
   }
@@ -153,7 +168,7 @@ class JPAVisitor implements JPAExpressionVisitor {
     }
     debugger.stopRuntimeMeasurement(handle);
     return new JPAMemberOperator(this.jpaComplier.getJpaEntityType(), this.jpaComplier.getRoot(), member, jpaComplier
-        .getAssoziation());
+        .getAssoziation(), this.jpaComplier.getGroups());
   }
 
   @Override
@@ -161,6 +176,15 @@ class JPAVisitor implements JPAExpressionVisitor {
       throws ExpressionVisitException, ODataApplicationException {
 
     final int handle = debugger.startRuntimeMeasurement(this, "visitMethodCall");
+    if (!parameters.isEmpty()) {
+      if (parameters.get(0) instanceof JPANavigationOperation ||
+          parameters.size() == 2 && parameters.get(1) instanceof JPANavigationOperation)
+        throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FILTER,
+            HttpStatusCode.NOT_IMPLEMENTED, "Nested method calls together with navigation");
+      if ((hasNavigation(parameters.get(0)) || parameters.size() == 2 && hasNavigation(parameters.get(1)))) {
+        return new JPANavigationOperation(this.jpaComplier, methodCall, parameters);
+      }
+    }
     JPAMethodCall method = new JPAMethodCallImp(this.jpaComplier.getConverter(), methodCall, parameters);
     if (method.get() instanceof Predicate)
       method = new JPAMethodBasedExpression(this.jpaComplier.getConverter(), methodCall, parameters);
@@ -188,6 +212,10 @@ class JPAVisitor implements JPAExpressionVisitor {
     }
   }
 
+  CriteriaBuilder getCriteriaBuilder() {
+    return jpaComplier.getConverter().cb;
+  }
+
   UriResourceKind getLambdaType(final UriInfoResource member) {
     for (final UriResource r : member.getUriResourceParts()) {
       if (r.getKind() == UriResourceKind.lambdaAny
@@ -195,6 +223,10 @@ class JPAVisitor implements JPAExpressionVisitor {
         return r.getKind();
     }
     return null;
+  }
+
+  JPAServiceDocument getSd() {
+    return jpaComplier.getSd();
   }
 
   boolean hasNavigation(final JPAOperator operand) {
@@ -211,6 +243,19 @@ class JPAVisitor implements JPAExpressionVisitor {
     return false;
   }
 
+  private JPAOperator handleBinaryWithNavigation(final BinaryOperatorKind operator, final JPAOperator left,
+      final JPAOperator right) throws ODataJPAFilterException {
+    if (left instanceof JPANavigationOperation && right instanceof JPANavigationOperation)
+      throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FILTER,
+          HttpStatusCode.NOT_IMPLEMENTED, "Binary operations comparing two navigations");
+
+    if (left instanceof JPANavigationOperation) {
+      return new JPANavigationOperation(operator, (JPANavigationOperation) left, (JPALiteralOperator) right,
+          jpaComplier);
+    }
+    return new JPANavigationOperation(operator, (JPANavigationOperation) right, (JPALiteralOperator) left, jpaComplier);
+  }
+
   private boolean isAggregation(final UriInfoResource resourcePath) {
 
     return (resourcePath.getUriResourceParts().size() == 1
@@ -221,23 +266,5 @@ class JPAVisitor implements JPAExpressionVisitor {
 
     return (!resourcePath.getUriResourceParts().isEmpty()
         && resourcePath.getUriResourceParts().get(0) instanceof UriResourceFunction);
-  }
-
-  CriteriaBuilder getCriteriaBuilder() {
-    return jpaComplier.getConverter().cb;
-  }
-
-  JPAServiceDocument getSd() {
-    return jpaComplier.getSd();
-  }
-
-  @Override
-  public From<?, ?> getRoot() {
-    return jpaComplier.getRoot();
-  }
-
-  @Override
-  public OData getOdata() {
-    return jpaComplier.getOdata();
   }
 }

@@ -2,6 +2,7 @@ package com.sap.olingo.jpa.processor.core.filter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.Expression;
@@ -19,6 +20,7 @@ import org.apache.olingo.server.api.uri.UriResourceProperty;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
+import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
 import com.sap.olingo.jpa.processor.core.query.JPANavigationProptertyInfo;
 import com.sap.olingo.jpa.processor.core.query.Util;
@@ -32,6 +34,8 @@ abstract class JPAExistsOperation implements JPAOperator {
   protected final EntityManager em;
   protected final OData odata;
   protected final From<?, ?> from;
+  protected final Optional<JPAODataClaimProvider> claimsProvider;
+  protected final List<String> groups;
 
   JPAExistsOperation(final JPAFilterComplierAccess jpaComplier) {
 
@@ -42,16 +46,8 @@ abstract class JPAExistsOperation implements JPAOperator {
     this.converter = jpaComplier.getConverter();
     this.odata = jpaComplier.getOdata();
     this.from = jpaComplier.getRoot();
-  }
-
-  public static boolean hasNavigation(final List<UriResource> resourceParts) {
-    if (resourceParts != null) {
-      for (int i = resourceParts.size() - 1; i >= 0; i--) {
-        if (resourceParts.get(i) instanceof UriResourceNavigation)
-          return true;
-      }
-    }
-    return false;
+    this.claimsProvider = jpaComplier.getClaimsProvider();
+    this.groups = jpaComplier.getGroups();
   }
 
   @Override
@@ -67,7 +63,7 @@ abstract class JPAExistsOperation implements JPAOperator {
 
     StringBuilder associationName = null;
     UriResourcePartTyped navigation = null;
-    if (resourceParts != null && hasNavigation(resourceParts)) {
+    if (resourceParts != null && Util.hasNavigation(resourceParts)) {
       for (int i = resourceParts.size() - 1; i >= 0; i--) {
         final UriResource resourcePart = resourceParts.get(i);
         if (resourcePart instanceof UriResourceNavigation) {
@@ -122,6 +118,5 @@ abstract class JPAExistsOperation implements JPAOperator {
   public boolean isCollection(UriResource resourcePart) {
 
     return (resourcePart instanceof UriResourceProperty && ((UriResourceProperty) resourcePart).isCollection());
-
   }
 }

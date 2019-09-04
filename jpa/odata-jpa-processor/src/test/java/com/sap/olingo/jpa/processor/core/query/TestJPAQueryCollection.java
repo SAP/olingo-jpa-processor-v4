@@ -3,6 +3,7 @@ package com.sap.olingo.jpa.processor.core.query;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 
@@ -13,6 +14,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import com.sap.olingo.jpa.processor.core.api.JPAODataGroupsProvider;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 
@@ -94,11 +96,18 @@ public class TestJPAQueryCollection extends TestBase {
     helper.assertStatus(200);
 
     final ObjectNode collection = helper.getValue();
-    ObjectNode complex = (ObjectNode) collection.get("Complex");
+    final ObjectNode complex = (ObjectNode) collection.get("Complex");
     assertEquals(32L, complex.get("Number").asLong());
     assertFalse(complex.get("Address") instanceof NullNode);
     assertEquals(2, complex.get("Address").size());
-    assertEquals("DEV", complex.get("Address").get(0).get("TaskID").asText());
+    for (int i = 0; i < complex.get("Address").size(); i++) {
+      final ObjectNode address = (ObjectNode) complex.get("Address").get(i);
+      if (address.get("Building").asText().equals("1")) {
+        assertEquals("DEV", address.get("TaskID").asText());
+        return;
+      }
+    }
+    fail("Task not found");
   }
 
   @Test
@@ -130,7 +139,14 @@ public class TestJPAQueryCollection extends TestBase {
     assertEquals(32L, complex.get("Number").asLong());
     assertFalse(complex.get("Address") instanceof NullNode);
     assertEquals(2, complex.get("Address").size());
-    assertEquals("DEV", complex.get("Address").get(0).get("TaskID").asText());
+    for (int i = 0; i < complex.get("Address").size(); i++) {
+      final ObjectNode address = (ObjectNode) complex.get("Address").get(i);
+      if (address.get("Building").asText().equals("1")) {
+        assertEquals("DEV", address.get("TaskID").asText());
+        return;
+      }
+    }
+    fail("Task not found");
   }
 
   @Test
@@ -146,6 +162,44 @@ public class TestJPAQueryCollection extends TestBase {
     ObjectNode second = (ObjectNode) complex.get("SecondLevel");
     ArrayNode address = (ArrayNode) second.get("Address");
     assertEquals(32, address.get(0).get("RoomNumber").asInt());
+  }
+
+  @Test
+  public void testSelectCollectionWithoutRequiredGroup() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerWithGroupss('1')?$select=Comment");
+    helper.assertStatus(200);
+
+    final ObjectNode collection = helper.getValue();
+    final ArrayNode act = (ArrayNode) collection.get("Comment");
+    assertEquals(0, act.size());
+
+  }
+
+  @Test
+  public void testSelectCollectionWithRequiredGroup() throws IOException, ODataException {
+    final JPAODataGroupsProvider groups = new JPAODataGroupsProvider();
+    groups.addGroup("Company");
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerWithGroupss('1')?$select=Comment", groups);
+    helper.assertStatus(200);
+
+    final ObjectNode collection = helper.getValue();
+    final ArrayNode act = (ArrayNode) collection.get("Comment");
+    assertEquals(2, act.size());
+  }
+
+  @Test
+  public void testSelectCollection() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations('1')?$select=Comment");
+    helper.assertStatus(200);
+
+    final ObjectNode collection = helper.getValue();
+    final ArrayNode act = (ArrayNode) collection.get("Comment");
+    assertEquals(2, act.size());
   }
 
 }

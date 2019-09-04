@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,82 +17,78 @@ import javax.persistence.Persistence;
 import javax.persistence.Query;
 
 public class ImageLoader {
+  /**
+   * 
+   */
   private static final String SELECT_PERSON_IMAGE =
       "SELECT * FROM \"OLINGO\".\"PersonImage\" WHERE ID = '$&1'";
   private static final String SELECT_ORGANIZATION_IMAGE =
       "SELECT * FROM \"OLINGO\".\"OrganizationImage\" WHERE ID = '$&1'";
   private static final String PATH = "images/";
-  private static final String TEST_IMAGE = "test.png";
   private static final String ENTITY_MANAGER_DATA_SOURCE = "javax.persistence.nonJtaDataSource";
   private static final String PUNIT_NAME = "com.sap.olingo.jpa";
 
-  public static void main(String[] args) throws Exception {
-    ImageLoader i = new ImageLoader();
-    EntityManager em = createEntityManager();
+  public static void main(String[] args) throws IOException {
+
+    final ImageLoader i = new ImageLoader();
+    final EntityManager em = createEntityManager();
     i.loadPerson(em, "OlingoOrangeTM.png", "99");
-
   }
 
-  public void loadPerson(EntityManager em, String imageName, String businessPartnerID) {
-    byte[] image = loadImage(imageName);
+  public void loadPerson(EntityManager em, String imageName, String businessPartnerID) throws IOException {
+
+    final byte[] image = loadImage(imageName);
     storePersonImageDB(em, image, businessPartnerID, SELECT_PERSON_IMAGE);
-    storeImageLocal(image, "restored.png");
   }
 
-  public void loadPerson(String imageName, String businessPartnerID) {
-    byte[] image = loadImage(imageName);
+  public void loadPerson(String imageName, String businessPartnerID) throws IOException {
+
+    final byte[] image = loadImage(imageName);
     storePersonImageDB(createEntityManager(), image, businessPartnerID, SELECT_PERSON_IMAGE);
-    storeImageLocal(image, "restored.png");
   }
 
-  public void loadOrg(EntityManager em, String imageName, String businessPartnerID) {
-    byte[] image = loadImage(imageName);
+  public void loadOrg(EntityManager em, String imageName, String businessPartnerID) throws IOException {
+
+    final byte[] image = loadImage(imageName);
     storeOrgImageDB(em, image, businessPartnerID, SELECT_ORGANIZATION_IMAGE);
-    storeImageLocal(image, "restored.png");
   }
 
-  public void loadOrg(String imageName, String businessPartnerID) {
-    byte[] image = loadImage(imageName);
+  public void loadOrg(String imageName, String businessPartnerID) throws IOException {
+
+    final byte[] image = loadImage(imageName);
     storeOrgImageDB(createEntityManager(), image, businessPartnerID, SELECT_ORGANIZATION_IMAGE);
-    storeImageLocal(image, "restored.png");
   }
 
   private void storePersonImageDB(EntityManager em, byte[] image, String businessPartnerID, String query) {
 
-    String s = query.replace("$&1", businessPartnerID);
-    Query q = em.createNativeQuery(s, PersonImage.class);
+    final String s = query.replace("$&1", businessPartnerID);
+    final Query q = em.createNativeQuery(s, PersonImage.class);
     @SuppressWarnings("unchecked")
-    List<PersonImage> result = q.getResultList();
+    final List<PersonImage> result = q.getResultList();
     result.get(0).setImage(image);
     updateDB(em, result);
 
-    Query storedImageQ = em.createNativeQuery(s, PersonImage.class);
+    final Query storedImageQ = em.createNativeQuery(s, PersonImage.class);
     @SuppressWarnings("unchecked")
-    List<PersonImage> result2 = storedImageQ.getResultList();
-    byte[] storedImage = result2.get(0).getImage();
-    System.out.println(storedImage.length);
+    final List<PersonImage> result2 = storedImageQ.getResultList();
+    final byte[] storedImage = result2.get(0).getImage();
     compareImage(image, storedImage);
-    storeImageLocal(storedImage, TEST_IMAGE);
-
   }
 
   private void storeOrgImageDB(EntityManager em, byte[] image, String businessPartnerID, String query) {
 
-    String s = query.replace("$&1", businessPartnerID);
-    Query q = em.createNativeQuery(s, OrganizationImage.class);
+    final String s = query.replace("$&1", businessPartnerID);
+    final Query q = em.createNativeQuery(s, OrganizationImage.class);
     @SuppressWarnings("unchecked")
-    List<OrganizationImage> result = q.getResultList();
+    final List<OrganizationImage> result = q.getResultList();
     result.get(0).setImage(image);
     updateDB(em, result);
 
-    Query storedImageQ = em.createNativeQuery(s, OrganizationImage.class);
+    final Query storedImageQ = em.createNativeQuery(s, OrganizationImage.class);
     @SuppressWarnings("unchecked")
-    List<OrganizationImage> result2 = storedImageQ.getResultList();
-    byte[] storedImage = result2.get(0).getImage();
-    System.out.println(storedImage.length);
+    final List<OrganizationImage> result2 = storedImageQ.getResultList();
+    final byte[] storedImage = result2.get(0).getImage();
     compareImage(image, storedImage);
-    storeImageLocal(storedImage, TEST_IMAGE);
-
   }
 
   private void updateDB(EntityManager em, List<?> result) {
@@ -100,67 +98,47 @@ public class ImageLoader {
   }
 
   private static EntityManager createEntityManager() {
-    final Map<String, Object> properties = new HashMap<String, Object>();
+    final Map<String, Object> properties = new HashMap<>();
     properties.put(ENTITY_MANAGER_DATA_SOURCE, DataSourceHelper.createDataSource(DataSourceHelper.DB_H2));
     final EntityManagerFactory emf = Persistence.createEntityManagerFactory(PUNIT_NAME, properties);
-    EntityManager em = emf.createEntityManager();
-    return em;
+    return emf.createEntityManager();
   }
 
   private void compareImage(byte[] image, byte[] storedImage) {
     if (image.length != storedImage.length)
-      System.out.println("[Image]: length miss match");
+      fail("[Image]: length miss match");
     else {
       for (int i = 0; i < image.length; i++) {
         if (image[i] != storedImage[i]) {
-          System.out.println("[Image]: missmatch at" + Integer.toString(i));
+          fail("[Image]: missmatch at" + Integer.toString(i));
           break;
         }
       }
     }
   }
 
-  public void storeImageLocal(byte[] storedImage, String fileName) {
+  public void storeImageLocal(final byte[] storedImage, final String fileName) throws IOException {
 
-    String home = System.getProperty("user.home");
-    String filePath = home + "\\" + "Downloads" + "\\" + fileName;
+    final String home = System.getProperty("user.home");
+    final String filePath = home + "\\Downloads\\" + fileName;
 
-    OutputStream o = null;
-    try {
-      o = new FileOutputStream(filePath);
+    try (final OutputStream o = new FileOutputStream(filePath)) {
       o.write(storedImage);
       o.flush();
-    } catch (IOException e) {
-      e.printStackTrace();
-    } finally {
-      try {
-        o.close();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
     }
-
   }
 
-  private byte[] loadImage(String imageName) {
-    String path = PATH + imageName;
-    InputStream i = null;
+  private byte[] loadImage(final String imageName) throws IOException {
+
+    final String path = PATH + imageName;
     byte[] image = null;
-    URL u = this.getClass().getClassLoader().getResource(path);
-    try {
-      i = u.openStream();
+    final URL u = this.getClass().getClassLoader().getResource(path);
+    try (final InputStream i = u.openStream()) {
       image = new byte[i.available()];
-      i.read(image);
-    } catch (IOException e1) {
-      e1.printStackTrace();
-    } finally {
-      try {
-        i.close();
-        return image;
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
+      final int noBytes = i.read(image);
+      if (noBytes == -1)
+        return new byte[] {};
+      return image;
     }
-    return null;
   }
 }

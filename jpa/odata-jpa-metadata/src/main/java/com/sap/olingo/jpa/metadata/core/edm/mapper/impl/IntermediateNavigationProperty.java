@@ -28,6 +28,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlReferentialConstraint;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtectedBy;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmVisibleFor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.AppliesTo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
@@ -105,6 +106,16 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
   }
 
   @Override
+  public Set<String> getProtectionClaimNames() {
+    return new HashSet<>(0);
+  }
+
+  @Override
+  public List<String> getProtectionPath(String claimName) throws ODataJPAModelException {
+    return new ArrayList<>(0);
+  }
+
+  @Override
   public JPAStructuredType getStructuredType() throws ODataJPAModelException {
     lazyBuildEdmItem();
     return sourceType;
@@ -147,6 +158,11 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
   }
 
   @Override
+  public boolean isEtag() {
+    return false;
+  }
+
+  @Override
   public boolean isKey() {
     return false;
   }
@@ -174,31 +190,31 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
       if (jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
         final AnnotatedElement annotatedElement = (AnnotatedElement) jpaAttribute.getJavaMember();
         switch (jpaAttribute.getPersistentAttributeType()) {
-        case ONE_TO_MANY:
-          final OneToMany cardinalityOtM = annotatedElement.getAnnotation(OneToMany.class);
-          mappedBy = cardinalityOtM.mappedBy();
-          isSourceOne = true;
-          edmNaviProperty.setOnDelete(edmOnDelete != null ? edmOnDelete : setJPAOnDelete(cardinalityOtM.cascade()));
-          break;
-        case ONE_TO_ONE:
-          final OneToOne cardinalityOtO = annotatedElement.getAnnotation(OneToOne.class);
-          edmNaviProperty.setNullable(cardinalityOtO.optional());
-          mappedBy = cardinalityOtO.mappedBy();
-          isSourceOne = true;
-          edmNaviProperty.setOnDelete(edmOnDelete != null ? edmOnDelete : setJPAOnDelete(cardinalityOtO.cascade()));
-          break;
-        case MANY_TO_ONE:
-          final ManyToOne cardinalityMtO = annotatedElement.getAnnotation(ManyToOne.class);
-          edmNaviProperty.setNullable(cardinalityMtO.optional());
-          edmNaviProperty.setOnDelete(edmOnDelete != null ? edmOnDelete : setJPAOnDelete(cardinalityMtO.cascade()));
-          break;
-        case MANY_TO_MANY:
-          final ManyToMany cardinalityMtM = annotatedElement.getAnnotation(ManyToMany.class);
-          mappedBy = cardinalityMtM.mappedBy();
-          edmNaviProperty.setOnDelete(edmOnDelete != null ? edmOnDelete : setJPAOnDelete(cardinalityMtM.cascade()));
-          break;
-        default:
-          break;
+          case ONE_TO_MANY:
+            final OneToMany cardinalityOtM = annotatedElement.getAnnotation(OneToMany.class);
+            mappedBy = cardinalityOtM.mappedBy();
+            isSourceOne = true;
+            edmNaviProperty.setOnDelete(edmOnDelete != null ? edmOnDelete : setJPAOnDelete(cardinalityOtM.cascade()));
+            break;
+          case ONE_TO_ONE:
+            final OneToOne cardinalityOtO = annotatedElement.getAnnotation(OneToOne.class);
+            edmNaviProperty.setNullable(cardinalityOtO.optional());
+            mappedBy = cardinalityOtO.mappedBy();
+            isSourceOne = true;
+            edmNaviProperty.setOnDelete(edmOnDelete != null ? edmOnDelete : setJPAOnDelete(cardinalityOtO.cascade()));
+            break;
+          case MANY_TO_ONE:
+            final ManyToOne cardinalityMtO = annotatedElement.getAnnotation(ManyToOne.class);
+            edmNaviProperty.setNullable(cardinalityMtO.optional());
+            edmNaviProperty.setOnDelete(edmOnDelete != null ? edmOnDelete : setJPAOnDelete(cardinalityMtO.cascade()));
+            break;
+          case MANY_TO_MANY:
+            final ManyToMany cardinalityMtM = annotatedElement.getAnnotation(ManyToMany.class);
+            mappedBy = cardinalityMtM.mappedBy();
+            edmNaviProperty.setOnDelete(edmOnDelete != null ? edmOnDelete : setJPAOnDelete(cardinalityMtM.cascade()));
+            break;
+          default:
+            break;
         }
 
 //      Determine referential constraint
@@ -352,6 +368,12 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
       throw new ODataJPAModelException(MessageKeys.NOT_SUPPORTED_PROTECTED_NAVIGATION, this.sourceType.getTypeClass()
           .getCanonicalName(), this.internalName);
     }
+    final EdmVisibleFor jpaFieldGroups = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
+        .getAnnotation(EdmVisibleFor.class);
+    if (jpaFieldGroups != null) {
+      throw new ODataJPAModelException(MessageKeys.NOT_SUPPORTED_NAVIGATION_PART_OF_GROUP,
+          this.sourceType.getTypeClass().getCanonicalName(), this.internalName);
+    }
   }
 
   private void determienReferentialConstraints(final AnnotatedElement annotatedElement) throws ODataJPAModelException {
@@ -441,15 +463,5 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
       }
     }
     return null;
-  }
-
-  @Override
-  public List<String> getProtectionPath(String claimName) throws ODataJPAModelException {
-    return new ArrayList<>(0);
-  }
-
-  @Override
-  public Set<String> getProtectionClaimNames() {
-    return new HashSet<>(0);
   }
 }

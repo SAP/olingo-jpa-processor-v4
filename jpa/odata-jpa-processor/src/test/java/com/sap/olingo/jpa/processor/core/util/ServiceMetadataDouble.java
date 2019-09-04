@@ -179,7 +179,19 @@ public class ServiceMetadataDouble implements ServiceMetadata {
     @Override
     public List<EdmFunction> getBoundFunctionsWithBindingType(FullQualifiedName bindingParameterTypeName,
         Boolean isBindingParameterCollection) {
-      // TODO Check what this is used for
+      fail();
+      return null;
+    }
+
+    @Override
+    public EdmComplexType getComplexTypeWithAnnotations(FullQualifiedName arg0) {
+      fail();
+      return null;
+    }
+
+    @Override
+    public EdmEntityType getEntityTypeWithAnnotations(FullQualifiedName arg0) {
+      fail();
       return null;
     }
 
