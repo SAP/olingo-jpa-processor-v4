@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 
-import ${package}.Template;
+import ${package}.model.Template;
 
 public class ProcessorConfiguration {
   @Value("${odata.jpa.punit_name}")
@@ -24,8 +24,9 @@ public class ProcessorConfiguration {
   }
   
   @Bean
-  public LocalContainerEntityManagerFactoryBean customerEntityManagerFactory(EntityManagerFactoryBuilder builder) {
+  public LocalContainerEntityManagerFactoryBean customerEntityManagerFactory(final EntityManagerFactoryBuilder builder) {
     return builder.dataSource(dataSource()).packages(Template.class).persistenceUnit(punit).build();
   }
 
+  
 }
