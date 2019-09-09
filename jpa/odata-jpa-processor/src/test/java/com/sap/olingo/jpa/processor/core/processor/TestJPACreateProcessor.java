@@ -182,6 +182,19 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
+  public void testThrowExceptionOnAccessTransaction() throws ODataException {
+    ODataResponse response = new ODataResponse();
+    ODataRequest request = prepareSimpleRequest();
+
+    JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
+    when(requestContext.getCUDRequestHandler()).thenReturn(handler);
+
+    when(em.getTransaction().isActive()).thenThrow(new IllegalStateException("Transaction is not accessible when using JTA with JPA-compliant transaction access enabled"));
+
+    processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
+  }
+  
+  @Test
   public void testThrowExpectedExceptionInCaseOfError() throws ODataException {
     ODataResponse response = new ODataResponse();
     ODataRequest request = prepareSimpleRequest();
