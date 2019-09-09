@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.persistence.EntityManager;
 
@@ -63,6 +65,7 @@ import com.sap.olingo.jpa.processor.core.query.Util;
 
 public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
 
+  private static final Logger log = Logger.getLogger(JPACUDRequestProcessor.class.getName());
   private static final String DEBUG_CREATE_ENTITY = "createEntity";
   private static final String DEBUG_UPDATE_ENTITY = "updateEntity";
   private final ServiceMetadata serviceMetadata;
@@ -125,7 +128,12 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
 
     // Create entity
     Object result = null;
-    final boolean foreignTransation = em.getTransaction().isActive();
+    boolean foreignTransation = true;
+    try {
+    	foreignTransation = em.getTransaction().isActive();
+    } catch(IllegalStateException ex) {
+    	log.log(Level.WARNING, "Can not check isActive for transaction", ex);
+    }
     if (!foreignTransation)
       em.getTransaction().begin();
     try {
