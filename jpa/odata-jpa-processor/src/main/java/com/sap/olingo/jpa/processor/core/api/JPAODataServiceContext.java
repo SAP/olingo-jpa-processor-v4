@@ -262,7 +262,7 @@ public final class JPAODataServiceContext implements JPAODataCRUDContext, JPAODa
     private String[] packageName;
     private ErrorProcessor errorProcessor;
     private JPAODataPagingProvider pagingProvider;
-    private Optional<EntityManagerFactory> emf;
+    private Optional<EntityManagerFactory> emf = Optional.empty();
     private DataSource ds;
     private JPAEdmProvider jpaEdm;
 
@@ -270,10 +270,8 @@ public final class JPAODataServiceContext implements JPAODataCRUDContext, JPAODa
       try {
         if (packageName == null)
           packageName = new String[0];
-        if (ds != null && namespace != null)
+        if (!emf.isPresent() && ds != null && namespace != null)
           emf = Optional.ofNullable(JPAEntityManagerFactory.getEntityManagerFactory(namespace, ds));
-        else
-          emf = Optional.empty();
         if (emf.isPresent())
           jpaEdm = new JPAEdmProvider(namespace, emf.get().getMetamodel(), postProcessor, packageName);
         if (databaseProcessor == null) {
@@ -285,13 +283,24 @@ public final class JPAODataServiceContext implements JPAODataCRUDContext, JPAODa
       return new JPAODataServiceContext(this);
     }
 
+    /**
+     * A database processor allows database specific implementations for search and odata function with function import
+     * that are implemented as database functions.<br>
+     * In case no database processor is provided and non could be determined via an data source
+     * {@link JPADefaultDatabaseProcessor} is used.
+     * @param databaseProcessor
+     * @return
+     */
     public Builder setDatabaseProcessor(final JPAODataDatabaseProcessor databaseProcessor) {
       this.databaseProcessor = databaseProcessor;
       return this;
     }
 
     /**
-     * 
+     * The data source is used to create an entity manager factory if not provided, see
+     * {@link Builder#setEntityManagerFactory(EntityManagerFactory)}, and to determine the type of
+     * database used to select an integrated database processor, in case the database processor was not set via
+     * {@link Builder#setDatabaseProcessor(JPAODataDatabaseProcessor)}}.
      * @param ds
      * @return
      */
@@ -346,7 +355,7 @@ public final class JPAODataServiceContext implements JPAODataCRUDContext, JPAODa
     }
 
     /**
-     * 
+     * The name of the persistence unit to be used. This is also taken as name space of the odata service.
      * @param pUnit
      * @return
      */
@@ -375,6 +384,17 @@ public final class JPAODataServiceContext implements JPAODataCRUDContext, JPAODa
      */
     public Builder setTypePackage(final String... packageName) {
       this.packageName = packageName;
+      return this;
+    }
+
+    /**
+     * Set an externally created entity manager factory.<br>
+     * This is necessary e.g. in case a spring based service shall run without a <code>persistance.xml</code>.
+     * @param emf
+     * @return
+     */
+    public Builder setEntityManagerFactory(final EntityManagerFactory emf) {
+      this.emf = Optional.of(emf);
       return this;
     }
   }
