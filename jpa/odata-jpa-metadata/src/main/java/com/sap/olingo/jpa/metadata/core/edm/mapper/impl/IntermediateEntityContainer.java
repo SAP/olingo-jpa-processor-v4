@@ -81,10 +81,9 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
    */
   JPAEntitySet getEntitySet(final JPAEntityType entityType) throws ODataJPAModelException {
     lazyBuildEdmItem();
-    for (final String internalName : entitySetListInternalKey.keySet()) {
-      final IntermediateEntitySet modelElement = entitySetListInternalKey.get(internalName);
-      if (modelElement.getEntityType().getExternalFQN().equals(entityType.getExternalFQN())) {
-        return modelElement;
+    for (final Entry<String, IntermediateEntitySet> entitySet : entitySetListInternalKey.entrySet()) {
+      if (entitySet.getValue().getEntityType().getExternalFQN().equals(entityType.getExternalFQN())) {
+        return entitySet.getValue();
       }
     }
     return null;
@@ -99,10 +98,8 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
    */
   @SuppressWarnings("unchecked")
   private List<CsdlEntitySet> buildEntitySets() throws ODataJPAModelException {
-    for (final String namespace : schemaList.keySet()) {
-      // Build Entity Sets
-      final IntermediateSchema schema = schemaList.get(namespace);
-      for (final IntermediateEntityType et : schema.getEntityTypes()) {
+    for (final Entry<String, IntermediateSchema> schema : schemaList.entrySet()) {
+      for (final IntermediateEntityType et : schema.getValue().getEntityTypes()) {
         if (!et.ignore() || et.asEntitySet()) {
           final IntermediateEntitySet es = new IntermediateEntitySet(nameBuilder, et);
           entitySetListInternalKey.put(es.internalName, es);
