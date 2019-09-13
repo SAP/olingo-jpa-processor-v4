@@ -2,6 +2,7 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.atLeastOnce;
@@ -189,6 +190,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
     assertEquals("Core.IsLanguageDependent", annotations.get(0).getTerm());
     assertEquals(ConstantExpressionType.Bool, annotations.get(0).getExpression().asConstant().getType());
     assertEquals("true", annotations.get(0).getExpression().asConstant().getValue());
+    assertNull(annotations.get(0).getQualifier());
   }
 
   @Test

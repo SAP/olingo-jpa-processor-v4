@@ -15,6 +15,7 @@ import javax.persistence.metamodel.PluralAttribute;
 import javax.persistence.metamodel.Type.PersistenceType;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -156,5 +157,20 @@ public class TestIntermediateCollectionProperty extends TestMappingRoot {
         assertEquals("SecondLevel/Comment", collection.getAlias());
       }
     }
+  }
+
+  @Test
+  public void checkAnnotations() throws ODataJPAModelException {
+    PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
+        Person.class), "inhouseAddress");
+    IntermediateCollectionProperty cut = new IntermediateCollectionProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+        jpaAttribute, helper.schema, helper.schema.getEntityType(Person.class));
+
+    List<CsdlAnnotation> annotations = cut.getEdmItem().getAnnotations();
+    assertEquals(1, annotations.size());
+    assertEquals("Core.Description", annotations.get(0).getTerm());
+    assertEquals(ConstantExpressionType.String, annotations.get(0).getExpression().asConstant().getType());
+    assertEquals("Address for inhouse Mail", annotations.get(0).getExpression().asConstant().getValue());
+    assertEquals("Address", annotations.get(0).getQualifier());
   }
 }
