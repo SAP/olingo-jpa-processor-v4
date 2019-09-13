@@ -244,20 +244,6 @@ public class TestJPACUDRequestHelper {
   }
 
   @Test
-  public void testConvertInputStreamWithAnnotationEntitySet() throws UnsupportedEncodingException,
-      ODataJPAProcessorException, EdmPrimitiveTypeException {
-
-    final ODataRequest request = mock(ODataRequest.class);
-    prepareEntitySet();
-    InputStream is = new ByteArrayInputStream("{\"@jpa.odata.context\": \"$metadata#Organisations\", \"ID\" : \"35\"}"
-        .getBytes("UTF-8"));
-    when(request.getBody()).thenReturn(is);
-
-    Entity act = cut.convertInputStream(OData.newInstance(), request, ContentType.APPLICATION_JSON, uriResourceParts);
-    assertEquals("35", act.getProperty("ID").getValue());
-  }
-
-  @Test
   public void testConvertInputStreamWithAnnotationPrimitiveSimpleProperty() throws UnsupportedEncodingException,
       ODataJPAProcessorException, EdmPrimitiveTypeException {
 
