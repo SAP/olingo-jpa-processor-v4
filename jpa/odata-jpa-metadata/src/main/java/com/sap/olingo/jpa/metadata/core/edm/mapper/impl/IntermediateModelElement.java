@@ -153,9 +153,10 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
     final EdmAnnotation jpaAnnotation = element.getAnnotation(EdmAnnotation.class);
 
     if (jpaAnnotation != null) {
-      CsdlAnnotation edmAnnotation = new CsdlAnnotation();
+      final CsdlAnnotation edmAnnotation = new CsdlAnnotation();
+      final String qualifier = jpaAnnotation.qualifier();
       edmAnnotation.setTerm(jpaAnnotation.term());
-      edmAnnotation.setQualifier(jpaAnnotation.qualifier());
+      edmAnnotation.setQualifier(qualifier.isEmpty() ? null : qualifier);
       if (!(jpaAnnotation.constantExpression().type() == ConstantExpressionType.Int
           && jpaAnnotation.constantExpression().value().equals("default"))
           && !(jpaAnnotation.dynamicExpression().path().isEmpty())) {

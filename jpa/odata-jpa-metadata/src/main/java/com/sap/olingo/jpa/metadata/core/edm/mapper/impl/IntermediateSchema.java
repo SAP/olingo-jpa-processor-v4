@@ -51,7 +51,7 @@ final class IntermediateSchema extends IntermediateModelElement {
   IntermediateSchema(final JPAEdmNameBuilder nameBuilder, final Metamodel jpaMetamodel, final Reflections reflections)
       throws ODataJPAModelException {
 
-    super(nameBuilder, nameBuilder.buildNamespace());
+    super(nameBuilder, nameBuilder.getNamespace());
     this.reflections = reflections;
     this.jpaMetamodel = jpaMetamodel;
     this.enumTypeListInternalKey = buildEnumerationTypeList();
@@ -83,7 +83,7 @@ final class IntermediateSchema extends IntermediateModelElement {
   @Override
   protected void lazyBuildEdmItem() throws ODataJPAModelException {
     edmSchema = new CsdlSchema();
-    edmSchema.setNamespace(nameBuilder.buildNamespace());
+    edmSchema.setNamespace(nameBuilder.getNamespace());
     edmSchema.setEnumTypes((List<CsdlEnumType>) extractEdmModelElements(enumTypeListInternalKey));
     edmSchema.setComplexTypes((List<CsdlComplexType>) extractEdmModelElements(complexTypeListInternalKey));
     edmSchema.setEntityTypes((List<CsdlEntityType>) extractEdmModelElements(entityTypeListInternalKey));

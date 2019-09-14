@@ -82,7 +82,7 @@ public class EdmEntityTypeDouble implements EdmEntityType {
 
   @Override
   public String getNamespace() {
-    return nameBuilder.buildNamespace();
+    return nameBuilder.getNamespace();
   }
 
   @Override
