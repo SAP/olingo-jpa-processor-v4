@@ -17,6 +17,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionType;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAJavaFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOperationResultParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;

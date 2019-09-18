@@ -5,14 +5,14 @@ import javax.persistence.metamodel.EmbeddableType;
 import javax.persistence.metamodel.EntityType;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
-import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 
-public final class JPAEdmNameBuilder {
+public final class JPADefaultEdmNameBuilder implements JPAEdmNameBuilder {
   // V2 NameBuilder: package org.apache.olingo.odata2.jpa.processor.core.access.model
   private static final String ENTITY_CONTAINER_SUFFIX = "Container";
   private static final String ENTITY_SET_SUFFIX = "s";
@@ -27,38 +27,27 @@ public final class JPAEdmNameBuilder {
 
   private final String namespace;
 
-  public JPAEdmNameBuilder(final String namespace) {
+  public JPADefaultEdmNameBuilder(final String namespace) {
     super();
     this.namespace = namespace;
   }
 
-  /*
-   * ************************************************************************
-   * EDM Complex Type Name - RULES
-   * ************************************************************************
-   * Complex Type Name = JPA Embeddable Type Simple Name.
-   * ************************************************************************
-   * EDM Complex Type Name - RULES
-   * ************************************************************************
+  /**
+   * EDM Complex Type Name - RULE: <p>
+   * Use JPA Embeddable Type Simple Name as Complex Type Name
    */
+  @Override
   public final String buildComplexTypeName(final EmbeddableType<?> jpaEnbeddedType) {
     return jpaEnbeddedType.getJavaType().getSimpleName();
   }
 
-  /*
-   * ************************************************************************
-   * EDM EntityContainer Name - RULES
-   * ************************************************************************
-   * Entity Container Name = EDM Namespace + Literal "Container"
-   * Container names are simple identifiers:
-   * http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-
-   * complete.html#_SimpleIdentifier
-   * So contain only letter, digits and underscores. However namespaces
-   * can contain also dots => eliminate dots and convert to camel case
-   * ************************************************************************
-   * EDM EntityContainer Name - RULES
-   * ************************************************************************
+  /**
+   * EDM EntityContainer Name - RULE: <p>
+   * The Entity Container Name is build of EDM Namespace + Literal "Container". Container names are simple identifiers,
+   * so contain only letter, digits and underscores. However namespaces
+   * can contain also dots => eliminate dots and convert to camel case.
    */
+  @Override
   public String buildContainerName() {
     final StringBuilder containerName = new StringBuilder();
     final String[] elements = namespace.split("\\.");
@@ -69,20 +58,12 @@ public final class JPAEdmNameBuilder {
     return containerName.toString();
   }
 
-  /*
-   * ************************************************************************
-   * EDM EntitySet Name - RULES
-   * ************************************************************************
-   * The naming bases on the assumption that English nouns are used.
+  /**
+   * EDM EntitySet Name - RULE:<p>
+   * Use plural of entity type name. The naming bases on the assumption that English nouns are used.<br>
    * Entity Set Name = JPA Entity Type Name + Literal "s"
-   * ************************************************************************
-   * EDM EntitySet Name - RULES
-   * ************************************************************************
    */
-  public final String buildEntitySetName(final CsdlEntityType entityType) {
-    return buildEntitySetName(entityType.getName());
-  }
-
+  @Override
   public final String buildEntitySetName(final String entityTypeName) {
     if (entityTypeName.charAt(entityTypeName.length() - 1) == 'y'
         && entityTypeName.charAt(entityTypeName.length() - 2) != 'a'
@@ -95,16 +76,11 @@ public final class JPAEdmNameBuilder {
     return entityTypeName + ENTITY_SET_SUFFIX;
   }
 
-  /*
-   * ************************************************************************
-   * EDM EntityType Name - RULES
-   * ************************************************************************
-   * EDM Entity Type Name = JPA Entity Name EDM Entity Type Internal Name =
-   * JPA Entity Name
-   * ************************************************************************
-   * EDM Entity Type Name - RULES
-   * ************************************************************************
+  /**
+   * EDM EntityType Name - RULE:<p>
+   * Use JPA Entity Name as EDM Entity Type Name
    */
+  @Override
   public String buildEntityTypeName(final EntityType<?> jpaEntityType) {
     return jpaEntityType.getName();
   }
@@ -118,15 +94,7 @@ public final class JPAEdmNameBuilder {
     return new FullQualifiedName(getNamespace(), name);
   }
 
-  /*
-   * ************************************************************************
-   * EDM Schema Name - RULES
-   * ************************************************************************
-   * Java Persistence Unit name is set as Schema's Namespace
-   * ************************************************************************
-   * EDM Schema Name - RULES
-   * ************************************************************************
-   */
+  @Override
   public final String getNamespace() {
     return namespace;
   }
@@ -154,6 +122,7 @@ public final class JPAEdmNameBuilder {
    * ************************************************************************
    */
   // TODO respect subtype name
+  @Override
   public final String buildNaviPropertyBindingName(final JPAAssociationPath associationPath,
       final JPAAttribute parent) {
     final StringBuilder name = new StringBuilder();
@@ -191,12 +160,9 @@ public final class JPAEdmNameBuilder {
    * @param jpaAttribute
    * @return
    */
+  @Override
   public final String buildNaviPropertyName(final Attribute<?, ?> jpaAttribute) {
     return buildPropertyName(jpaAttribute.getName());
-  }
-
-  public final String buildPath(final String pathRoot, final String pathElement) {
-    return pathRoot + JPAPath.PATH_SEPERATOR + pathElement;
   }
 
   /*
@@ -217,6 +183,7 @@ public final class JPAEdmNameBuilder {
    * @param jpaAttributeName
    * @return
    */
+  @Override
   public final String buildPropertyName(final String jpaAttributeName) {
     return firstToUpper(jpaAttributeName);
   }
@@ -226,6 +193,7 @@ public final class JPAEdmNameBuilder {
    * @param internalOperationName
    * @return
    */
+  @Override
   public final String buildOperationName(final String internalOperationName) {
     return firstToUpper(internalOperationName);
   }
@@ -235,6 +203,7 @@ public final class JPAEdmNameBuilder {
    * @param javaEnum
    * @return
    */
+  @Override
   public final String buildEnumerationTypeName(final Class<? extends Enum<?>> javaEnum) {
     return javaEnum.getSimpleName();
   }

@@ -22,7 +22,7 @@ import org.mockito.Mockito;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
 import com.sap.olingo.jpa.processor.core.api.JPAODataContextAccessDouble;
 import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.JPAIllicalAccessException;
@@ -49,7 +49,7 @@ public class TestGroupBase extends TestBase {
     uriInfo = buildUriInfo("BusinessPartnerWithGroupss", "BusinessPartnerWithGroups");
 
     helper = new TestHelper(emf, PUNIT_NAME);
-    nameBuilder = new JPAEdmNameBuilder(PUNIT_NAME);
+    nameBuilder = new JPADefaultEdmNameBuilder(PUNIT_NAME);
     jpaEntityType = helper.getJPAEntityType("BusinessPartnerWithGroupss");
     createHeaders();
     context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null, TestBase.enumPackages), ds,

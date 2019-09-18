@@ -14,6 +14,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionType;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOperationResultParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -78,7 +79,7 @@ class IntermediateDataBaseFunction extends IntermediateFunction implements JPADa
       final CsdlParameter edmInputParameter = new CsdlParameter();
       final IntermediateStructuredType et = schema.getEntityType(jpaDefiningPOJO);
       edmInputParameter.setName("Key");
-      edmInputParameter.setType(nameBuilder.buildFQN(et.getEdmItem().getName()));
+      edmInputParameter.setType(buildFQN(et.getEdmItem().getName()));
       edmInputParameter.setNullable(false);
       edmInputParameterList.add(edmInputParameter);
     }
@@ -149,12 +150,12 @@ class IntermediateDataBaseFunction extends IntermediateFunction implements JPADa
     if (returnType.type() == Object.class) {
       final IntermediateStructuredType et = schema.getEntityType(jpaDefiningPOJO);
       this.setIgnore(et.ignore()); // If the result type shall be ignored, ignore also a function that returns it
-      return nameBuilder.buildFQN(et.getEdmItem().getName());
+      return buildFQN(et.getEdmItem().getName());
     } else {
       final IntermediateStructuredType st = schema.getStructuredType(returnType.type());
       if (st != null) {
         this.setIgnore(st.ignore()); // If the result type shall be ignored, ignore also a function that returns it
-        return nameBuilder.buildFQN(st.getEdmItem().getName());
+        return buildFQN(st.getEdmItem().getName());
       } else {
         final IntermediateEnumerationType enumType = schema.getEnumerationType(returnType.type());
         if (enumType != null) {

@@ -11,6 +11,7 @@ import org.reflections.Reflections;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.ODataFunction;
 
@@ -27,17 +28,17 @@ final class IntermediateFunctionFactory extends IntermediateOperationFactory {
   Map<? extends String, ? extends IntermediateFunction> create(final JPAEdmNameBuilder nameBuilder,
       final EntityType<?> jpaEntityType, final IntermediateSchema schema) throws ODataJPAModelException {
 
-    final Map<String, IntermediateFunction> funcList = new HashMap<String, IntermediateFunction>();
+    final Map<String, IntermediateFunction> funcList = new HashMap<>();
 
     if (jpaEntityType.getJavaType() instanceof AnnotatedElement) {
-      final EdmFunctions jpaStoredProcedureList = ((AnnotatedElement) jpaEntityType.getJavaType())
+      final EdmFunctions jpaStoredProcedureList = jpaEntityType.getJavaType()
           .getAnnotation(EdmFunctions.class);
       if (jpaStoredProcedureList != null) {
         for (final EdmFunction jpaStoredProcedure : jpaStoredProcedureList.value()) {
           putFunction(nameBuilder, jpaEntityType, schema, funcList, jpaStoredProcedure);
         }
       } else {
-        final EdmFunction jpaStoredProcedure = ((AnnotatedElement) jpaEntityType.getJavaType())
+        final EdmFunction jpaStoredProcedure = jpaEntityType.getJavaType()
             .getAnnotation(EdmFunction.class);
         if (jpaStoredProcedure != null)
           putFunction(nameBuilder, jpaEntityType, schema, funcList, jpaStoredProcedure);

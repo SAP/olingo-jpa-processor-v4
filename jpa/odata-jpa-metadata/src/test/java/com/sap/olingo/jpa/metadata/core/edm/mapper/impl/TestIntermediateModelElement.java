@@ -42,7 +42,7 @@ public class TestIntermediateModelElement {
 
   @BeforeEach
   public void setup() {
-    cut = new IntermediateModelElementTest(new JPAEdmNameBuilder("Dummy"), "Test");
+    cut = new IntermediateModelElementTest(new JPADefaultEdmNameBuilder("Dummy"), "Test");
   }
 
   @ParameterizedTest
@@ -63,7 +63,7 @@ public class TestIntermediateModelElement {
 
   private class IntermediateModelElementTest extends IntermediateModelElement {
 
-    public IntermediateModelElementTest(JPAEdmNameBuilder nameBuilder, String internalName) {
+    public IntermediateModelElementTest(JPADefaultEdmNameBuilder nameBuilder, String internalName) {
       super(nameBuilder, internalName);
     }
 

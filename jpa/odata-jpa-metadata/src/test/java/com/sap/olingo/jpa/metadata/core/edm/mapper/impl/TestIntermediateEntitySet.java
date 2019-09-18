@@ -34,7 +34,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.ABCClassifiaction;
 public class TestIntermediateEntitySet extends TestMappingRoot {
   private IntermediateSchema schema;
   private Set<EntityType<?>> etList;
-  private JPAEdmNameBuilder namebuilder;
+  private JPADefaultEdmNameBuilder namebuilder;
 
   @BeforeEach
   public void setup() throws ODataJPAModelException {
@@ -44,7 +44,7 @@ public class TestIntermediateEntitySet extends TestMappingRoot {
         ABCClassifiaction.class })));
 
     etList = emf.getMetamodel().getEntities();
-    namebuilder = new JPAEdmNameBuilder(PUNIT_NAME);
+    namebuilder = new JPADefaultEdmNameBuilder(PUNIT_NAME);
     schema = new IntermediateSchema(namebuilder, emf.getMetamodel(), r);
   }
 
@@ -61,7 +61,7 @@ public class TestIntermediateEntitySet extends TestMappingRoot {
 
   @Test
   public void checkODataEntityTypeDiffers() throws ODataJPAModelException {
-    IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+    IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
         "BestOrganization"), schema);
     IntermediateEntitySet set = new IntermediateEntitySet(namebuilder, et);
 
@@ -71,7 +71,7 @@ public class TestIntermediateEntitySet extends TestMappingRoot {
 
   @Test
   public void checkODataEntityTypeSame() throws ODataJPAModelException {
-    IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+    IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
         "Organization"), schema);
     IntermediateEntitySet set = new IntermediateEntitySet(namebuilder, et);
 
@@ -81,7 +81,7 @@ public class TestIntermediateEntitySet extends TestMappingRoot {
 
   @Test
   public void checkEdmItemContainsODataEntityType() throws ODataJPAModelException {
-    IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+    IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
         "BestOrganization"), schema);
     IntermediateEntitySet set = new IntermediateEntitySet(namebuilder, et);
     CsdlEntitySet act = set.getEdmItem();

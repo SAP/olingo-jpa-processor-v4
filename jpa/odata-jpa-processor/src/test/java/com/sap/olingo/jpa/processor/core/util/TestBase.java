@@ -11,8 +11,9 @@ import javax.sql.DataSource;
 import org.junit.jupiter.api.BeforeAll;
 
 import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 
 public class TestBase {
@@ -29,7 +30,7 @@ public class TestBase {
   public static void setupClass() throws ODataJPAModelException {
     ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_DERBY);
     emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, ds);
-    nameBuilder = new JPAEdmNameBuilder(PUNIT_NAME);
+    nameBuilder = new JPADefaultEdmNameBuilder(PUNIT_NAME);
   }
 
   protected void createHeaders() {

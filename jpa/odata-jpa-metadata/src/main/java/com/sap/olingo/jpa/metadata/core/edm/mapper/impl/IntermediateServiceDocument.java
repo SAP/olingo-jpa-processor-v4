@@ -27,6 +27,7 @@ import org.reflections.util.FilterBuilder;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAction;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEnumerationAttribute;
@@ -60,7 +61,7 @@ class IntermediateServiceDocument implements JPAServiceDocument {
     this.reflections = createReflections(packageName);
     this.references = new IntermediateReferences();
     pP.provideReferences(this.references);
-    this.nameBuilder = new JPAEdmNameBuilder(namespace);
+    this.nameBuilder = new JPADefaultEdmNameBuilder(namespace);
     this.jpaMetamodel = jpaMetamodel;
     this.schemaListInternalKey = new HashMap<>();
     buildIntermediateSchemas();

@@ -16,6 +16,7 @@ import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpress
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAnnotation;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.AppliesTo;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateModelItemAccess;
 
@@ -47,7 +48,7 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
 
   @Override
   public FullQualifiedName getExternalFQN() {
-    return nameBuilder.buildFQN(getExternalName());
+    return buildFQN(getExternalName());
   }
 
   @Override
@@ -196,6 +197,15 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
       return Double.class;
 
     return null;
+  }
+
+  /**
+   * 
+   * @param name
+   * @return
+   */
+  protected final FullQualifiedName buildFQN(final String name) {
+    return new FullQualifiedName(nameBuilder.getNamespace(), name);
   }
 
   @Override

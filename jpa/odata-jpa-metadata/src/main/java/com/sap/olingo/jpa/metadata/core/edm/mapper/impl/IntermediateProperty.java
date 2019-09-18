@@ -37,6 +37,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmSearchable;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmVisibleFor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.AppliesTo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -179,7 +180,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
         return odataType.getExternalFQN();
     }
     if (persistanceType == PersistentAttributeType.EMBEDDED || persistanceType == PersistenceType.EMBEDDABLE)
-      return nameBuilder.buildFQN(type.getExternalName());
+      return buildFQN(type.getExternalName());
     else
       return EdmPrimitiveTypeKind.Boolean.getFullQualifiedName();
   }

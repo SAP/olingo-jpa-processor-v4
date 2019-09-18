@@ -6,6 +6,7 @@ import java.util.Map;
 import org.reflections.Reflections;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAction;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.ODataAction;
 
