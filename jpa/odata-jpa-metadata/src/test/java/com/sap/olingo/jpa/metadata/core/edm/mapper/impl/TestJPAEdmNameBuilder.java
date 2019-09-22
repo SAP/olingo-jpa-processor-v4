@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 public class TestJPAEdmNameBuilder {
-  private JPAEdmNameBuilder cut;
+  private JPADefaultEdmNameBuilder cut;
 
   @BeforeEach
   public void setup() throws ODataJPAModelException {
@@ -17,13 +17,13 @@ public class TestJPAEdmNameBuilder {
 
   @Test
   public void CheckBuildContainerNameSimple() {
-    cut = new JPAEdmNameBuilder("cdw");
+    cut = new JPADefaultEdmNameBuilder("cdw");
     assertEquals("CdwContainer", cut.buildContainerName());
   }
 
   @Test
   public void CheckBuildContainerNameComplex() {
-    cut = new JPAEdmNameBuilder("org.apache.olingo.jpa");
+    cut = new JPADefaultEdmNameBuilder("org.apache.olingo.jpa");
     assertEquals("OrgApacheOlingoJpaContainer", cut.buildContainerName());
   }
 }

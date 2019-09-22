@@ -51,7 +51,7 @@ public class TestIntermediateWrongAnnotation {
     final IntermediateStructuredType entityType = helper.schema.getEntityType(CollectionAttributeProtected.class);
 
     final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
-        () -> new IntermediateCollectionProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+        () -> new IntermediateCollectionProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
             jpaAttribute, helper.schema, entityType));
 
     assertEquals(NOT_SUPPORTED_PROTECTED_COLLECTION.name(), act.getId());
@@ -66,7 +66,7 @@ public class TestIntermediateWrongAnnotation {
     final IntermediateStructuredType entityType = helper.schema.getEntityType(PersonDeepCollectionProtected.class);
 
     final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
-        () -> new IntermediateCollectionProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+        () -> new IntermediateCollectionProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
             jpaAttribute, helper.schema, entityType));
 
     assertEquals(NOT_SUPPORTED_PROTECTED_COLLECTION.name(), act.getId());
@@ -79,7 +79,7 @@ public class TestIntermediateWrongAnnotation {
         NavigationAttributeProtected.class), "teams");
 
     final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
-        () -> new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+        () -> new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
             helper.schema.getEntityType(NavigationAttributeProtected.class), jpaAttribute, helper.schema));
 
     assertEquals(NOT_SUPPORTED_PROTECTED_NAVIGATION.name(), act.getId());
@@ -93,7 +93,7 @@ public class TestIntermediateWrongAnnotation {
         "administrativeInformation");
 
     final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
-        () -> new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute, helper.schema));
+        () -> new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME), jpaAttribute, helper.schema));
 
     assertEquals(COMPLEX_PROPERTY_MISSING_PROTECTION_PATH.name(), act.getId());
     assertFalse(act.getMessage().isEmpty());
@@ -103,7 +103,7 @@ public class TestIntermediateWrongAnnotation {
   public void checkErrorOnProtectedComplexAttributeWrongPath() throws ODataJPAModelException {
     // ComplextProtectedWrongPath
     final EntityType<?> jpaEt = helper.getEntityType(ComplextProtectedWrongPath.class);
-    final IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), jpaEt,
+    final IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), jpaEt,
         helper.schema);
     et.getEdmItem();
 
@@ -122,7 +122,7 @@ public class TestIntermediateWrongAnnotation {
     final IntermediateStructuredType entityType = helper.schema.getEntityType(NavigationPropertyPartOfGroup.class);
 
     final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
-        () -> new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME), entityType, jpaAttribute,
+        () -> new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME), entityType, jpaAttribute,
             helper.schema));
 
     assertEquals(NOT_SUPPORTED_NAVIGATION_PART_OF_GROUP.name(), act.getId());
@@ -135,7 +135,7 @@ public class TestIntermediateWrongAnnotation {
         MandatoryPartOfGroup.class), "eTag");
 
     final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
-        () -> new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute, helper.schema));
+        () -> new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME), jpaAttribute, helper.schema));
 
     assertEquals(NOT_SUPPORTED_MANDATORY_PART_OF_GROUP.name(), act.getId());
     assertFalse(act.getMessage().isEmpty());
@@ -147,7 +147,7 @@ public class TestIntermediateWrongAnnotation {
         KeyPartOfGroup.class), "iD");
 
     final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
-        () -> new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute, helper.schema));
+        () -> new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME), jpaAttribute, helper.schema));
 
     assertEquals(NOT_SUPPORTED_KEY_PART_OF_GROUP.name(), act.getId());
     assertFalse(act.getMessage().isEmpty());
@@ -159,7 +159,7 @@ public class TestIntermediateWrongAnnotation {
         EmbeddedKeyPartOfGroup.class), "key");
 
     final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
-        () -> new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute, helper.schema));
+        () -> new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME), jpaAttribute, helper.schema));
 
     assertEquals(NOT_SUPPORTED_KEY_PART_OF_GROUP.name(), act.getId());
     assertFalse(act.getMessage().isEmpty());

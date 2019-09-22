@@ -38,18 +38,18 @@ public class TestIntermediateActionFactory extends TestMappingRoot {
   @Test
   public void checkReturnEmptyMapIfReflectionsNull() throws ODataJPAModelException {
     Reflections r = null;
-    assertNotNull(cut.create(new JPAEdmNameBuilder(PUNIT_NAME), r, helper.schema));
+    assertNotNull(cut.create(new JPADefaultEdmNameBuilder(PUNIT_NAME), r, helper.schema));
   }
 
   @Test
   public void checkReturnEmptyMapIfNoJavaFunctionsFound() throws ODataJPAModelException {
-    assertNotNull(cut.create(new JPAEdmNameBuilder(PUNIT_NAME), reflections, helper.schema));
+    assertNotNull(cut.create(new JPADefaultEdmNameBuilder(PUNIT_NAME), reflections, helper.schema));
   }
 
   @Test
   public void checkReturnMapWithOneIfOneJavaFunctionsFound() throws ODataJPAModelException {
     javaActions.add(ExampleJavaOneAction.class);
-    Map<? extends String, ? extends IntermediateJavaAction> act = cut.create(new JPAEdmNameBuilder(PUNIT_NAME),
+    Map<? extends String, ? extends IntermediateJavaAction> act = cut.create(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         reflections, helper.schema);
     assertEquals(1, act.size());
   }
@@ -57,7 +57,7 @@ public class TestIntermediateActionFactory extends TestMappingRoot {
   @Test
   public void checkReturnMapWithTwoIfTwoJavaFunctionsFound() throws ODataJPAModelException {
     javaActions.add(ExampleJavaTwoActions.class);
-    Map<? extends String, ? extends IntermediateJavaAction> act = cut.create(new JPAEdmNameBuilder(PUNIT_NAME),
+    Map<? extends String, ? extends IntermediateJavaAction> act = cut.create(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         reflections, helper.schema);
     assertEquals(2, act.size());
   }
@@ -66,7 +66,7 @@ public class TestIntermediateActionFactory extends TestMappingRoot {
   public void checkReturnMapWithWithJavaFunctionsFromTwoClassesFound() throws ODataJPAModelException {
     javaActions.add(ExampleJavaOneAction.class);
     javaActions.add(ExampleJavaTwoActions.class);
-    Map<? extends String, ? extends IntermediateJavaAction> act = cut.create(new JPAEdmNameBuilder(PUNIT_NAME),
+    Map<? extends String, ? extends IntermediateJavaAction> act = cut.create(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         reflections, helper.schema);
     assertEquals(3, act.size());
   }

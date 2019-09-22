@@ -32,6 +32,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmVisibleFor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.AppliesTo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAJoinTable;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -184,7 +185,7 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
       boolean isSourceOne = false;
       edmNaviProperty = new CsdlNavigationProperty();
       edmNaviProperty.setName(getExternalName());
-      edmNaviProperty.setType(nameBuilder.buildFQN(targetType.getExternalName()));
+      edmNaviProperty.setType(buildFQN(targetType.getExternalName()));
       edmNaviProperty.setCollection(jpaAttribute.isCollection());
       // Optional --> ReleationAnnotation
       if (jpaAttribute.getJavaMember() instanceof AnnotatedElement) {

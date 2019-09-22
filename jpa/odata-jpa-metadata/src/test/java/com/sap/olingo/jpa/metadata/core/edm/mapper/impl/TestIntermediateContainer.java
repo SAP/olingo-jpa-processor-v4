@@ -52,7 +52,7 @@ public class TestIntermediateContainer extends TestMappingRoot {
                 .filterInputsBy(new FilterBuilder().includePackage(PACKAGE1, PACKAGE2))
                 .setScanners(new SubTypesScanner(false), new TypeAnnotationsScanner()));
 
-    schema = new IntermediateSchema(new JPAEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), r);
+    schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), r);
     etList = emf.getMetamodel().getEntities();
     schemas.put(PUNIT_NAME, schema);
   }
@@ -60,27 +60,30 @@ public class TestIntermediateContainer extends TestMappingRoot {
   @Test
   public void checkContainerCanBeCreated() throws ODataJPAModelException {
 
-    new IntermediateEntityContainer(new JPAEdmNameBuilder(PUNIT_NAME), schemas);
+    new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(PUNIT_NAME), schemas);
   }
 
   @Test
   public void checkGetName() throws ODataJPAModelException {
 
-    IntermediateEntityContainer container = new IntermediateEntityContainer(new JPAEdmNameBuilder(PUNIT_NAME), schemas);
+    IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        schemas);
     assertEquals("ComSapOlingoJpaContainer", container.getExternalName());
   }
 
   @Test
   public void checkGetNoEntitySets() throws ODataJPAModelException {
 
-    IntermediateEntityContainer container = new IntermediateEntityContainer(new JPAEdmNameBuilder(PUNIT_NAME), schemas);
+    IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        schemas);
     assertEquals(TestDataConstants.NO_ENTITY_SETS, container.getEdmItem().getEntitySets().size());
   }
 
   @Test
   public void checkGetEntitySetName() throws ODataJPAModelException {
 
-    IntermediateEntityContainer container = new IntermediateEntityContainer(new JPAEdmNameBuilder(PUNIT_NAME), schemas);
+    IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        schemas);
     List<CsdlEntitySet> entitySets = container.getEdmItem().getEntitySets();
     for (CsdlEntitySet entitySet : entitySets) {
       if (entitySet.getName().equals("BusinessPartners")) return;
@@ -91,11 +94,12 @@ public class TestIntermediateContainer extends TestMappingRoot {
   @Test
   public void checkGetEntitySetType() throws ODataJPAModelException {
 
-    IntermediateEntityContainer container = new IntermediateEntityContainer(new JPAEdmNameBuilder(PUNIT_NAME), schemas);
-    List<CsdlEntitySet> entitySets = container.getEdmItem().getEntitySets();
-    for (CsdlEntitySet entitySet : entitySets) {
+    final IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), schemas);
+    final List<CsdlEntitySet> entitySets = container.getEdmItem().getEntitySets();
+    for (final CsdlEntitySet entitySet : entitySets) {
       if (entitySet.getName().equals("BusinessPartners")) {
-        assertEquals(new JPAEdmNameBuilder(PUNIT_NAME).buildFQN("BusinessPartner"), entitySet.getTypeFQN());
+        assertEquals(container.buildFQN("BusinessPartner"), entitySet.getTypeFQN());
         return;
       }
     }
@@ -105,7 +109,8 @@ public class TestIntermediateContainer extends TestMappingRoot {
   @Test
   public void checkGetNoNavigationPropertyBindings() throws ODataJPAModelException {
 
-    IntermediateEntityContainer container = new IntermediateEntityContainer(new JPAEdmNameBuilder(PUNIT_NAME), schemas);
+    IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        schemas);
 
     List<CsdlEntitySet> entitySets = container.getEdmItem().getEntitySets();
     for (CsdlEntitySet entitySet : entitySets) {
@@ -120,7 +125,8 @@ public class TestIntermediateContainer extends TestMappingRoot {
   @Test
   public void checkGetNavigationPropertyBindingsPath() throws ODataJPAModelException {
 
-    IntermediateEntityContainer container = new IntermediateEntityContainer(new JPAEdmNameBuilder(PUNIT_NAME), schemas);
+    IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        schemas);
 
     List<CsdlEntitySet> entitySets = container.getEdmItem().getEntitySets();
     for (CsdlEntitySet entitySet : entitySets) {
@@ -137,7 +143,8 @@ public class TestIntermediateContainer extends TestMappingRoot {
   @Test
   public void checkGetNavigationPropertyBindingsTarget() throws ODataJPAModelException {
 
-    IntermediateEntityContainer container = new IntermediateEntityContainer(new JPAEdmNameBuilder(PUNIT_NAME), schemas);
+    IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        schemas);
 
     List<CsdlEntitySet> entitySets = container.getEdmItem().getEntitySets();
     for (CsdlEntitySet entitySet : entitySets) {
@@ -156,7 +163,8 @@ public class TestIntermediateContainer extends TestMappingRoot {
   @Test
   public void checkGetNavigationPropertyBindingsPathComplexType() throws ODataJPAModelException {
 
-    IntermediateEntityContainer container = new IntermediateEntityContainer(new JPAEdmNameBuilder(PUNIT_NAME), schemas);
+    IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        schemas);
 
     List<CsdlEntitySet> entitySets = container.getEdmItem().getEntitySets();
     for (CsdlEntitySet entitySet : entitySets) {
@@ -173,7 +181,8 @@ public class TestIntermediateContainer extends TestMappingRoot {
   @Test
   public void checkGetNavigationPropertyBindingsPathComplexTypeNested() throws ODataJPAModelException {
 
-    IntermediateEntityContainer container = new IntermediateEntityContainer(new JPAEdmNameBuilder(PUNIT_NAME), schemas);
+    IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        schemas);
 
     List<CsdlEntitySet> entitySets = container.getEdmItem().getEntitySets();
     for (CsdlEntitySet entitySet : entitySets) {
@@ -190,7 +199,8 @@ public class TestIntermediateContainer extends TestMappingRoot {
   @Test
   public void checkGetNoFunctionImportIfBound() throws ODataJPAModelException {
 
-    IntermediateEntityContainer container = new IntermediateEntityContainer(new JPAEdmNameBuilder(PUNIT_NAME), schemas);
+    IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        schemas);
 
     List<CsdlFunctionImport> funcImports = container.getEdmItem().getFunctionImports();
     for (CsdlFunctionImport funcImport : funcImports) {
@@ -203,7 +213,8 @@ public class TestIntermediateContainer extends TestMappingRoot {
   @Test
   public void checkGetNoFunctionImportIfUnBoundHasImportFalse() throws ODataJPAModelException {
 
-    IntermediateEntityContainer container = new IntermediateEntityContainer(new JPAEdmNameBuilder(PUNIT_NAME), schemas);
+    IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        schemas);
 
     List<CsdlFunctionImport> funcImports = container.getEdmItem().getFunctionImports();
     for (CsdlFunctionImport funcImport : funcImports) {
@@ -215,7 +226,8 @@ public class TestIntermediateContainer extends TestMappingRoot {
 
   @Test
   public void checkGetNoFunctionImportForJavaBasedFunction() throws ODataJPAModelException {
-    IntermediateEntityContainer container = new IntermediateEntityContainer(new JPAEdmNameBuilder(PUNIT_NAME), schemas);
+    IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        schemas);
 
     List<CsdlFunctionImport> funcImports = container.getEdmItem().getFunctionImports();
     for (CsdlFunctionImport funcImport : funcImports) {
@@ -229,7 +241,8 @@ public class TestIntermediateContainer extends TestMappingRoot {
   @Test
   public void checkGetFunctionImportIfUnBoundHasImportTrue() throws ODataJPAModelException {
 
-    IntermediateEntityContainer container = new IntermediateEntityContainer(new JPAEdmNameBuilder(PUNIT_NAME), schemas);
+    IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        schemas);
 
     List<CsdlFunctionImport> funcImports = container.getEdmItem().getFunctionImports();
     for (CsdlFunctionImport funcImport : funcImports) {
@@ -242,7 +255,8 @@ public class TestIntermediateContainer extends TestMappingRoot {
   @Test
   public void checkAnnotationSet() throws ODataJPAModelException {
     IntermediateModelElement.setPostProcessor(new PostProcessorSetIgnore());
-    IntermediateEntityContainer container = new IntermediateEntityContainer(new JPAEdmNameBuilder(PUNIT_NAME), schemas);
+    IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        schemas);
     List<CsdlAnnotation> act = container.getEdmItem().getAnnotations();
     assertEquals(1, act.size());
     assertEquals("Capabilities.AsynchronousRequestsSupported", act.get(0).getTerm());
@@ -251,10 +265,11 @@ public class TestIntermediateContainer extends TestMappingRoot {
   @Test
   public void checkReturnEntitySetBasedOnInternalEntityType() throws ODataJPAModelException {
 
-    IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+    IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
         "BestOrganization"), schema);
 
-    IntermediateEntityContainer container = new IntermediateEntityContainer(new JPAEdmNameBuilder(PUNIT_NAME), schemas);
+    IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        schemas);
 
     JPAElement act = container.getEntitySet(et);
     assertNotNull(act);
