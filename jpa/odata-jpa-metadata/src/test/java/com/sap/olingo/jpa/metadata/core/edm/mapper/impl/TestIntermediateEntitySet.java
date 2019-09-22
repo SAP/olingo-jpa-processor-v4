@@ -81,11 +81,11 @@ public class TestIntermediateEntitySet extends TestMappingRoot {
 
   @Test
   public void checkEdmItemContainsODataEntityType() throws ODataJPAModelException {
-    IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "BestOrganization"), schema);
-    IntermediateEntitySet set = new IntermediateEntitySet(namebuilder, et);
-    CsdlEntitySet act = set.getEdmItem();
-    assertEquals(namebuilder.buildFQN("BusinessPartner").getFullQualifiedNameAsString(), act.getType());
+    final IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        getEntityType("BestOrganization"), schema);
+    final IntermediateEntitySet set = new IntermediateEntitySet(namebuilder, et);
+    final CsdlEntitySet act = set.getEdmItem();
+    assertEquals(et.buildFQN("BusinessPartner").getFullQualifiedNameAsString(), act.getType());
   }
 
   @Test

@@ -3,6 +3,7 @@
  */
 package com.sap.olingo.jpa.metadata.core.edm.mapper.api;
 
+import javax.annotation.Nonnull;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.EmbeddableType;
 import javax.persistence.metamodel.EntityType;
@@ -10,21 +11,30 @@ import javax.persistence.metamodel.EntityType;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
 
 /**
+ * A name builder creates, based on information from the JPA entity model names, the names of the corresponding element
+ * of the OData entity data model (EDM)
  * @author Oliver Grande
  * Created: 15.09.2019
  *
  */
 public interface JPAEdmNameBuilder {
 
-  String buildComplexTypeName(EmbeddableType<?> jpaEnbeddedType);
+  /**
+   * 
+   * @param jpaEnbeddedType
+   * @return
+   */
+  @Nonnull
+  String buildComplexTypeName(final EmbeddableType<?> jpaEnbeddedType);
 
   /**
-   * Container names are
-   * <a
+   * Container names are <a
    * href="http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_SimpleIdentifier">
    * Simple Identifier</a>,
    * so can contain only letters, digits and underscores.
+   * @return non empty unique name of an Entity Set
    */
+  @Nonnull
   String buildContainerName();
 
   default String buildEntitySetName(final CsdlEntityType entityType) {
@@ -32,54 +42,62 @@ public interface JPAEdmNameBuilder {
   }
 
   /**
-   * The name of an
-   * <a
+   * Create a name of an <a
    * href="http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_12.2_The_edm:EntitySet">
    * Entity Set</a> derived from the name of the corresponding entity type.
    * @param entityTypeName
-   * @return
+   * @return non empty unique name of an Entity Set
    */
+  @Nonnull
   String buildEntitySetName(final String entityTypeName);
 
+  /**
+   * Creates the name of an <a
+   * href="http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406397976">Entity
+   * Type</a> derived from JPA Entity Type.
+   * @param jpaEntityType
+   * @return non empty unique name of an Entity Type
+   */
+  @Nonnull
   String buildEntityTypeName(final EntityType<?> jpaEntityType);
 
   /**
-   * Convert the internal java class name of an enumeration into the external entity data model name.
+   * Converts the internal java class name of an enumeration into the external entity data model <a
+   * href="http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406397991">
+   * Enumeration Type</a> name.
    * @param javaEnum
-   * @return
+   * @return non empty unique name of an Enumeration
    */
-  String buildEnumerationTypeName(Class<? extends Enum<?>> javaEnum);
-
-  /**
-   * Creates the name of a <a
-   * href="http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406398035">
-   * Navigation Property Binding</a>.
-   * @param associationPath
-   * @param parent
-   * @return
-   */
-  String buildNaviPropertyBindingName(final JPAAssociationPath associationPath, final JPAAttribute parent);
+  @Nonnull
+  String buildEnumerationTypeName(final Class<? extends Enum<?>> javaEnum);
 
   /**
    * Converts the name of an JPA association attribute into the name of an EDM navigation property
    * @param jpaAttribute
-   * @return
+   * @return non empty unique name of a Navigation Property
    */
-  String buildNaviPropertyName(Attribute<?, ?> jpaAttribute);
+  @Nonnull
+  String buildNaviPropertyName(final Attribute<?, ?> jpaAttribute);
 
   /**
    * Convert the internal name of a java based operation into the external entity data model name.
    * @param internalOperationName
-   * @return
+   * @return non empty unique name of an Operation (Function or Action)
    */
-  String buildOperationName(String internalOperationName);
+  @Nonnull
+  String buildOperationName(final String internalOperationName);
 
   /**
    * Converts the name of an JPA attribute into the name of an EDM property
    * @param jpaAttributeName
-   * @return
+   * @return non empty unique name of a property
    */
-  String buildPropertyName(String jpaAttributeName);
+  @Nonnull
+  String buildPropertyName(final String jpaAttributeName);
 
+  /**
+   * @return name space to a schema
+   */
+  @Nonnull
   String getNamespace();
 }

@@ -590,8 +590,8 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
           final IntermediateStructuredType is = (IntermediateStructuredType) property.getStructuredType();
 
           for (final JPAAssociationPath association : is.getAssociationPathList()) {
-            associationPath = new JPAAssociationPathImpl(nameBuilder, association,
-                this, determineJoinColumns(property, association), property);
+            associationPath = new JPAAssociationPathImpl(association, this, determineJoinColumns(property, association),
+                property);
             resolvedAssociationPathMap.put(associationPath.getAlias(), associationPath);
           }
         }

@@ -4,13 +4,7 @@ import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.EmbeddableType;
 import javax.persistence.metamodel.EntityType;
 
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
-
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 
 public final class JPADefaultEdmNameBuilder implements JPAEdmNameBuilder {
   // V2 NameBuilder: package org.apache.olingo.odata2.jpa.processor.core.access.model
@@ -85,78 +79,17 @@ public final class JPADefaultEdmNameBuilder implements JPAEdmNameBuilder {
     return jpaEntityType.getName();
   }
 
-  /**
-   * 
-   * @param name
-   * @return
-   */
-  public final FullQualifiedName buildFQN(final String name) {
-    return new FullQualifiedName(getNamespace(), name);
-  }
-
   @Override
   public final String getNamespace() {
     return namespace;
   }
 
-  /*
-   * ************************************************************************
-   * EDM Navigation Property Binding - RULES
-   * ************************************************************************
-   * V4 specification states:
-   * A navigation property binding MUST name a navigation property of the
-   * entity set’s, singleton's, or containment navigation property's entity
-   * type or one of its subtypes in the Path attribute. If the navigation
-   * property is defined on a subtype, the path attribute MUST contain the
-   * QualifiedName of the subtype, followed by a forward slash, followed by
-   * the navigation property name. If the navigation property is defined on
-   * a complex type used in the definition of the entity set’s entity type,
-   * the path attribute MUST contain a forward-slash separated list of complex
-   * property names and qualified type names that describe the path leading
-   * to the navigation property.
-   * 
-   * http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-
-   * complete.html#_Toc406398035
-   * ************************************************************************
-   * EDM Property Name - RULES
-   * ************************************************************************
-   */
-  // TODO respect subtype name
-  @Override
-  public final String buildNaviPropertyBindingName(final JPAAssociationPath associationPath,
-      final JPAAttribute parent) {
-    final StringBuilder name = new StringBuilder();
-
-    name.append(parent.getExternalName());
-    for (final JPAElement pathElement : associationPath.getPath()) {
-      name.append(JPAPath.PATH_SEPERATOR);
-      name.append(pathElement.getExternalName());
-
-    }
-    return name.toString();
-  }
-
-  /*
-   * ************************************************************************
-   * EDM Navigation Property Name - RULES
-   * ************************************************************************
-   * V2 rules were navigation target entity name + Details. In case of
-   * multiple navigation properties with the same target an counter was added
-   * 
-   * New rules for V4:
+  /**
+   * EDM Navigation Property Name - RULE:<p>
    * OData requires: "The name of the navigation property MUST be unique
    * within the set of structural and navigation properties of the containing
    * structured type and any of its base types."
-   * The is fulfilled by taking the property name it self. In addition it
-   * could be expected that, in case of multiple navigation properties with
-   * the same target, the name is more expressive, if the property name is
-   * well chosen;-)
-   * ************************************************************************
-   * EDM Navigation Property Name - RULES
-   * ************************************************************************
-   */
-  /**
-   * Converts the name of an JPA association attribute into the name of an EDM navigation property
+   * This is fulfilled by taking the property name it self.
    * @param jpaAttribute
    * @return
    */
@@ -165,21 +98,10 @@ public final class JPADefaultEdmNameBuilder implements JPAEdmNameBuilder {
     return buildPropertyName(jpaAttribute.getName());
   }
 
-  /*
-   * ************************************************************************
-   * EDM Property Name - RULES
-   * ************************************************************************
-   * OData Property Names are represented in Camel Case. The first character
-   * of JPA Attribute Name is converted to an UpperCase Character and set as
-   * OData Property Name. JPA Attribute Name is set as Internal Name for OData
-   * Property. The Column name (annotated as @Column(name="x")) is set as
-   * column name in the mapping object.
-   * ************************************************************************
-   * EDM Property Name - RULES
-   * ************************************************************************
-   */
   /**
-   * Converts the name of an JPA attribute into the name of an EDM property
+   * EDM Property Name - RULE:<p>
+   * OData Property Names are represented in Camel Case. The first character
+   * of JPA Attribute Name is converted to an UpperCase Character.
    * @param jpaAttributeName
    * @return
    */

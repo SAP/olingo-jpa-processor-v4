@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.persistence.metamodel.Attribute.PersistentAttributeType;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAJoinTable;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
@@ -45,15 +45,14 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
     this.joinTable = association.getJoinTable();
   }
 
-  JPAAssociationPathImpl(final JPAEdmNameBuilder namebuilder, final JPAAssociationPath associationPath,
-      final IntermediateStructuredType source, final List<IntermediateJoinColumn> joinColumns,
-      final JPAAttribute attribute) {
+  JPAAssociationPathImpl(final JPAAssociationPath associationPath, final IntermediateStructuredType source,
+      final List<IntermediateJoinColumn> joinColumns, final JPAAttribute attribute) {
 
     final List<JPAElement> pathElementsBuffer = new ArrayList<>();
     pathElementsBuffer.add(attribute);
     pathElementsBuffer.addAll(associationPath.getPath());
 
-    alias = namebuilder.buildNaviPropertyBindingName(associationPath, attribute);
+    alias = buildNaviPropertyBindingName(associationPath, attribute);
     this.sourceType = source;
     this.targetType = (IntermediateStructuredType) associationPath.getTargetType();
     if (joinColumns.isEmpty())
@@ -241,4 +240,34 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
     return joinColumns;
   }
 
+  /**
+   * A navigation property binding MUST name a navigation property of the
+   * entity set’s, singleton's, or containment navigation property's entity
+   * type or one of its subtypes in the Path attribute. If the navigation
+   * property is defined on a subtype, the path attribute MUST contain the
+   * QualifiedName of the subtype, followed by a forward slash, followed by
+   * the navigation property name. If the navigation property is defined on
+   * a complex type used in the definition of the entity set’s entity type,
+   * the path attribute MUST contain a forward-slash separated list of complex
+   * property names and qualified type names that describe the path leading
+   * to the navigation property. See <a
+   * href="http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406398035">
+   * Navigation Property Binding</a>.
+   * @param associationPath
+   * @param parent
+   * @return non empty unique name of a Navigation Property Binding
+   */
+  // TODO respect subtype name
+  @Nonnull
+  private String buildNaviPropertyBindingName(final JPAAssociationPath associationPath, final JPAAttribute parent) {
+    final StringBuilder name = new StringBuilder();
+
+    name.append(parent.getExternalName());
+    for (final JPAElement pathElement : associationPath.getPath()) {
+      name.append(JPAPath.PATH_SEPERATOR);
+      name.append(pathElement.getExternalName());
+
+    }
+    return name.toString();
+  }
 }

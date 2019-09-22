@@ -23,8 +23,9 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 class IntermediateDataBaseFunction extends IntermediateFunction implements JPADataBaseFunction {
   private final Class<?> jpaDefiningPOJO;
 
-  IntermediateDataBaseFunction(JPAEdmNameBuilder nameBuilder, EdmFunction jpaFunction, Class<?> definingPOJO,
-      IntermediateSchema schema) throws ODataJPAModelException {
+  IntermediateDataBaseFunction(final JPAEdmNameBuilder nameBuilder, final EdmFunction jpaFunction,
+      final Class<?> definingPOJO, final IntermediateSchema schema) {
+
     super(nameBuilder, jpaFunction, schema, IntNameBuilder.buildFunctionName(jpaFunction));
     this.setExternalName(jpaFunction.name());
     this.jpaDefiningPOJO = definingPOJO;
@@ -52,7 +53,7 @@ class IntermediateDataBaseFunction extends IntermediateFunction implements JPADa
   @Override
   public JPAParameter getParameter(String internalName) {
     for (JPAParameter parameter : getParameter()) {
-      if (parameter.getInternalName() == internalName)
+      if (parameter.getInternalName().equals(internalName))
         return parameter;
     }
     return null;
@@ -140,8 +141,9 @@ class IntermediateDataBaseFunction extends IntermediateFunction implements JPADa
       final IntermediateEnumerationType enumType = schema.getEnumerationType(definedParameter.type());
       if (enumType != null) {
         return enumType.getExternalFQN();
-      } else
+      } else {
         throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.FUNC_CONV_ERROR);
+      }
     }
   }
 

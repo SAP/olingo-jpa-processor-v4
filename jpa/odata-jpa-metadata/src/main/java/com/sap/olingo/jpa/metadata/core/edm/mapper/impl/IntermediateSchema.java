@@ -62,13 +62,13 @@ final class IntermediateSchema extends IntermediateModelElement {
     this.actionListInternalKey = buildActionList();
   }
 
-  public IntermediateEnumerationType getEnumerationType(Class<?> enumType) {
+  public IntermediateEnumerationType getEnumerationType(final Class<?> enumType) {
     if (enumType.isArray())
       return this.enumTypeListInternalKey.get(enumType.getComponentType().getSimpleName());
     return this.enumTypeListInternalKey.get(enumType.getSimpleName());
   }
 
-  public JPAEnumerationAttribute getEnumerationType(EdmEnumType type) {
+  public JPAEnumerationAttribute getEnumerationType(final EdmEnumType type) {
     for (final Entry<String, IntermediateEnumerationType> enumeration : this.enumTypeListInternalKey.entrySet()) {
       if (enumeration.getValue().getExternalFQN().equals(type.getFullQualifiedName()))
         return enumeration.getValue();
@@ -76,8 +76,12 @@ final class IntermediateSchema extends IntermediateModelElement {
     return null;
   }
 
-  public IntermediateEnumerationType getEnumerationType(String enumName) {
-    return this.enumTypeListInternalKey.get(enumName);
+  public IntermediateEnumerationType getEnumerationType(final String externalName) {
+    for (final Entry<String, IntermediateEnumerationType> enumeration : this.enumTypeListInternalKey.entrySet()) {
+      if (enumeration.getValue().getExternalName().equals(externalName))
+        return enumeration.getValue();
+    }
+    return null;
   }
 
   @SuppressWarnings("unchecked")

@@ -35,7 +35,7 @@ abstract class IntermediateFunction extends IntermediateOperation implements JPA
   protected final IntermediateSchema schema;
 
   IntermediateFunction(final JPAEdmNameBuilder nameBuilder, final EdmFunction jpaFunction,
-      final IntermediateSchema schema, final String internalName) throws ODataJPAModelException {
+      final IntermediateSchema schema, final String internalName) {
 
     super(nameBuilder, internalName);
     this.jpaFunction = jpaFunction;

@@ -29,12 +29,16 @@ class IntermediateJavaFunction extends IntermediateFunction implements JPAJavaFu
   private final Constructor<?> javaConstructor;
   private List<JPAParameter> parameterList;
 
-  IntermediateJavaFunction(JPAEdmNameBuilder nameBuilder, EdmFunction jpaFunction, Method javaFunction,
-      IntermediateSchema schema) throws ODataJPAModelException {
+  IntermediateJavaFunction(final JPAEdmNameBuilder nameBuilder, final EdmFunction jpaFunction,
+      final Method javaFunction, final IntermediateSchema schema) throws ODataJPAModelException {
+
     super(nameBuilder, jpaFunction, schema,
         IntNameBuilder.buildFunctionName(jpaFunction).isEmpty() ? javaFunction.getName() : IntNameBuilder
             .buildFunctionName(jpaFunction));
-    this.setExternalName(nameBuilder.buildOperationName(internalName));
+
+    this.setExternalName(jpaFunction.name().isEmpty()
+        ? nameBuilder.buildOperationName(internalName)
+        : jpaFunction.name());
     this.javaFunction = javaFunction;
     this.javaConstructor = IntermediateOperationHelper.determineConstructor(javaFunction);
   }
@@ -72,7 +76,6 @@ class IntermediateJavaFunction extends IntermediateFunction implements JPAJavaFu
             .buildPropertyName(definedParameter.name()), declairedParameter.getName(), types[i]);
         parameterList.add(parameter);
       }
-
     }
     return parameterList;
   }

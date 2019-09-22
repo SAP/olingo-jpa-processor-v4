@@ -14,13 +14,6 @@ class IntermediateOperationParameter extends IntermediateModelElement implements
   private final String externalName;
   private final Class<?> type;
 
-  IntermediateOperationParameter(final JPAEdmNameBuilder nameBuilder, final EdmParameter jpaParameter) {
-    super(nameBuilder, jpaParameter.parameterName());
-    this.jpaParameter = jpaParameter;
-    this.externalName = jpaParameter.name();
-    this.type = jpaParameter.type();
-  }
-
   IntermediateOperationParameter(final JPAEdmNameBuilder nameBuilder, final EdmParameter jpaParameter,
       final String externalName, final String internalName, final Class<?> type) {
     super(nameBuilder, internalName);
