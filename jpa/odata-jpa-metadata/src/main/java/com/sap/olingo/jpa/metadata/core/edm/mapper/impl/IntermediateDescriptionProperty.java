@@ -15,6 +15,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssoziation
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssoziation.valueAssignment;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADescriptionAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;

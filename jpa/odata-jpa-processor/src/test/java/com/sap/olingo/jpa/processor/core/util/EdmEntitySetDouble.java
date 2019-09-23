@@ -13,7 +13,7 @@ import org.apache.olingo.commons.api.edm.EdmMapping;
 import org.apache.olingo.commons.api.edm.EdmNavigationPropertyBinding;
 import org.apache.olingo.commons.api.edm.EdmTerm;
 
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 
 public class EdmEntitySetDouble implements EdmEntitySet {
   private final String name;

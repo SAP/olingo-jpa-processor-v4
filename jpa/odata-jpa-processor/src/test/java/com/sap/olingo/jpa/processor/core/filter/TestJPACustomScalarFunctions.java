@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
@@ -31,14 +31,14 @@ public class TestJPACustomScalarFunctions {
   protected static EntityManagerFactory emf;
   protected TestHelper helper;
   protected Map<String, List<String>> headers;
-  protected static JPAEdmNameBuilder nameBuilder;
+  protected static JPADefaultEdmNameBuilder nameBuilder;
   protected static DataSource ds;
 
   @BeforeAll
   public static void setupClass() throws ODataJPAModelException {
     ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
     emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, ds);
-    nameBuilder = new JPAEdmNameBuilder(PUNIT_NAME);
+    nameBuilder = new JPADefaultEdmNameBuilder(PUNIT_NAME);
     CreateDenfityFunction();
   }
 

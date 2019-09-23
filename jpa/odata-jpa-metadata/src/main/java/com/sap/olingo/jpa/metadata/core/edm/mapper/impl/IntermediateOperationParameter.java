@@ -5,6 +5,7 @@ import org.apache.olingo.commons.api.edm.geo.SRID;
 import org.apache.olingo.commons.api.edm.provider.CsdlAbstractEdmItem;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
@@ -12,13 +13,6 @@ class IntermediateOperationParameter extends IntermediateModelElement implements
   private final EdmParameter jpaParameter;
   private final String externalName;
   private final Class<?> type;
-
-  IntermediateOperationParameter(final JPAEdmNameBuilder nameBuilder, final EdmParameter jpaParameter) {
-    super(nameBuilder, jpaParameter.parameterName());
-    this.jpaParameter = jpaParameter;
-    this.externalName = jpaParameter.name();
-    this.type = jpaParameter.type();
-  }
 
   IntermediateOperationParameter(final JPAEdmNameBuilder nameBuilder, final EdmParameter jpaParameter,
       final String externalName, final String internalName, final Class<?> type) {

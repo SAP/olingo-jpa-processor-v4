@@ -15,6 +15,7 @@ import javax.persistence.metamodel.PluralAttribute;
 import javax.persistence.metamodel.Type.PersistenceType;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -32,7 +33,7 @@ public class TestIntermediateCollectionProperty extends TestMappingRoot {
   private TestHelper helper;
   private JPAEdmMetadataPostProcessor processor;
 
-  private JPAEdmNameBuilder nameBuilder;
+  private JPADefaultEdmNameBuilder nameBuilder;
   private PluralAttribute<?, ?, ?> jpaAttribute;
   private ManagedType<?> managedType;
 
@@ -40,7 +41,7 @@ public class TestIntermediateCollectionProperty extends TestMappingRoot {
   public void setup() throws ODataJPAModelException {
     helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
     processor = mock(JPAEdmMetadataPostProcessor.class);
-    nameBuilder = new JPAEdmNameBuilder(PUNIT_NAME);
+    nameBuilder = new JPADefaultEdmNameBuilder(PUNIT_NAME);
     jpaAttribute = mock(PluralAttribute.class);
     managedType = mock(ManagedType.class);
   }
@@ -88,7 +89,7 @@ public class TestIntermediateCollectionProperty extends TestMappingRoot {
 
     PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         Person.class), "inhouseAddress");
-    IntermediateCollectionProperty property = new IntermediateCollectionProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+    IntermediateCollectionProperty property = new IntermediateCollectionProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         jpaAttribute, helper.schema, helper.schema.getEntityType(Person.class));
     assertEquals(PUNIT_NAME + ".InhouseAddress", property.getEdmItem().getType());
   }
@@ -98,7 +99,7 @@ public class TestIntermediateCollectionProperty extends TestMappingRoot {
 
     PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         Person.class), "inhouseAddress");
-    IntermediateCollectionProperty property = new IntermediateCollectionProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+    IntermediateCollectionProperty property = new IntermediateCollectionProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         jpaAttribute, helper.schema, helper.schema.getEntityType(Person.class));
     assertFalse(property.ignore());
   }
@@ -108,7 +109,7 @@ public class TestIntermediateCollectionProperty extends TestMappingRoot {
 
     PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         Organization.class), "comment");
-    IntermediateCollectionProperty property = new IntermediateCollectionProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+    IntermediateCollectionProperty property = new IntermediateCollectionProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         jpaAttribute, helper.schema, helper.schema.getEntityType(Organization.class));
     assertEquals("\"Text\"", property.getDBFieldName());
   }
@@ -119,7 +120,7 @@ public class TestIntermediateCollectionProperty extends TestMappingRoot {
     IntermediateSimpleProperty.setPostProcessor(processor);
     PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         Organization.class), "comment");
-    IntermediateCollectionProperty property = new IntermediateCollectionProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+    IntermediateCollectionProperty property = new IntermediateCollectionProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         jpaAttribute, helper.schema, helper.schema.getEntityType(Organization.class));
     property.getEdmItem();
     verify(processor, atLeastOnce()).processProperty(property, ORG_CANONICAL_NAME);
@@ -130,7 +131,7 @@ public class TestIntermediateCollectionProperty extends TestMappingRoot {
 
     PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         Person.class), "inhouseAddress");
-    IntermediateCollectionProperty property = new IntermediateCollectionProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+    IntermediateCollectionProperty property = new IntermediateCollectionProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         jpaAttribute, helper.schema, helper.schema.getEntityType(Person.class));
 
     List<CsdlAnnotation> annotations = property.getEdmItem().getAnnotations();
@@ -141,7 +142,7 @@ public class TestIntermediateCollectionProperty extends TestMappingRoot {
   @Test
   public void checkGetDeepComplexPropertyReturnsExternalName() throws ODataJPAModelException {
 
-    final IntermediateStructuredType st = new IntermediateComplexType(new JPAEdmNameBuilder(PUNIT_NAME), helper
+    final IntermediateStructuredType st = new IntermediateComplexType(new JPADefaultEdmNameBuilder(PUNIT_NAME), helper
         .getComplexType("CollectionSecondLevelComplex"), helper.schema);
     for (final JPACollectionAttribute collection : st.getDeclaredCollectionAttributes()) {
       if (collection.getInternalName().equals("comment")) {
@@ -149,12 +150,27 @@ public class TestIntermediateCollectionProperty extends TestMappingRoot {
       }
     }
 
-    final IntermediateStructuredType stst = new IntermediateComplexType(new JPAEdmNameBuilder(PUNIT_NAME), helper
+    final IntermediateStructuredType stst = new IntermediateComplexType(new JPADefaultEdmNameBuilder(PUNIT_NAME), helper
         .getComplexType("CollectionFirstLevelComplex"), helper.schema);
     for (final JPAPath collection : stst.getCollectionAttributesPath()) {
       if (collection.getLeaf().getInternalName().equals("comment")) {
         assertEquals("SecondLevel/Comment", collection.getAlias());
       }
     }
+  }
+
+  @Test
+  public void checkAnnotations() throws ODataJPAModelException {
+    PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
+        Person.class), "inhouseAddress");
+    IntermediateCollectionProperty cut = new IntermediateCollectionProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        jpaAttribute, helper.schema, helper.schema.getEntityType(Person.class));
+
+    List<CsdlAnnotation> annotations = cut.getEdmItem().getAnnotations();
+    assertEquals(1, annotations.size());
+    assertEquals("Core.Description", annotations.get(0).getTerm());
+    assertEquals(ConstantExpressionType.String, annotations.get(0).getExpression().asConstant().getType());
+    assertEquals("Address for inhouse Mail", annotations.get(0).getExpression().asConstant().getValue());
+    assertEquals("Address", annotations.get(0).getQualifier());
   }
 }

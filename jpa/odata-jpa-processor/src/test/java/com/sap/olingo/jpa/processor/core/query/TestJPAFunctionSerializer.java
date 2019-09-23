@@ -19,7 +19,6 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
@@ -31,7 +30,6 @@ public class TestJPAFunctionSerializer {
 
   protected TestHelper helper;
   protected Map<String, List<String>> headers;
-  protected static JPAEdmNameBuilder nameBuilder;
 
   @BeforeEach
   public void setup() {
