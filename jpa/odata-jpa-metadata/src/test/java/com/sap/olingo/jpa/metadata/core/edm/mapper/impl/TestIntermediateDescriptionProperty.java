@@ -2,6 +2,7 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.atLeastOnce;
@@ -50,14 +51,14 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
   public void checkProptertyCanBeCreated() throws ODataJPAModelException {
     EmbeddableType<?> et = helper.getEmbeddedableType("PostalAddressData");
     Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(et, "countryName");
-    new IntermediateDescriptionProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute, helper.schema);
+    new IntermediateDescriptionProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME), jpaAttribute, helper.schema);
   }
 
   @Test
   public void checkGetProptertyNameOneToMany() throws ODataJPAModelException {
     Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEmbeddedableType("PostalAddressData"),
         "countryName");
-    cut = new IntermediateDescriptionProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
+    cut = new IntermediateDescriptionProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME), jpaAttribute,
         helper.schema);
     assertEquals("CountryName", cut.getEdmItem().getName(), "Wrong name");
   }
@@ -66,7 +67,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
   public void checkGetProptertyNameManyToMany() throws ODataJPAModelException {
     Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEmbeddedableType("PostalAddressData"),
         "regionName");
-    cut = new IntermediateDescriptionProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
+    cut = new IntermediateDescriptionProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME), jpaAttribute,
         helper.schema);
     assertEquals("RegionName", cut.getEdmItem().getName(), "Wrong name");
   }
@@ -75,7 +76,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
   public void checkGetProptertyType() throws ODataJPAModelException {
     Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEmbeddedableType("PostalAddressData"),
         "countryName");
-    cut = new IntermediateDescriptionProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
+    cut = new IntermediateDescriptionProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME), jpaAttribute,
         helper.schema);
     assertEquals(EdmPrimitiveTypeKind.String.getFullQualifiedName().getFullQualifiedNameAsString(),
         cut.getEdmItem().getType(), "Wrong type");
@@ -85,7 +86,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
   public void checkGetProptertyIgnoreFalse() throws ODataJPAModelException {
     Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEmbeddedableType("PostalAddressData"),
         "countryName");
-    IntermediatePropertyAccess property = new IntermediateDescriptionProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+    IntermediatePropertyAccess property = new IntermediateDescriptionProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         jpaAttribute,
         helper.schema);
     assertFalse(property.ignore());
@@ -95,7 +96,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
   public void checkGetProptertyFacetsNullableTrue() throws ODataJPAModelException {
     Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEmbeddedableType("PostalAddressData"),
         "countryName");
-    cut = new IntermediateDescriptionProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
+    cut = new IntermediateDescriptionProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME), jpaAttribute,
         helper.schema);
     assertTrue(cut.getEdmItem().isNullable());
   }
@@ -104,7 +105,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
   public void checkGetProptertyMaxLength() throws ODataJPAModelException {
     Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEmbeddedableType("PostalAddressData"),
         "countryName");
-    cut = new IntermediateDescriptionProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
+    cut = new IntermediateDescriptionProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME), jpaAttribute,
         helper.schema);
     assertEquals(new Integer(100), cut.getEdmItem().getMaxLength());
   }
@@ -122,7 +123,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
     when(assoziation.valueAssignments()).thenReturn(valueAssignments);
 
     try {
-      cut = new IntermediateDescriptionProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
+      cut = new IntermediateDescriptionProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME), jpaAttribute,
           helper.schema);
       cut.getEdmItem();
     } catch (ODataJPAModelException e) {
@@ -144,7 +145,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
     when(assoziation.valueAssignments()).thenReturn(valueAssignments);
 
     try {
-      cut = new IntermediateDescriptionProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
+      cut = new IntermediateDescriptionProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME), jpaAttribute,
           helper.schema);
       cut.getEdmItem();
     } catch (ODataJPAModelException e) {
@@ -182,13 +183,14 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
   public void checkAnnotations() throws ODataJPAModelException {
     Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(BusinessPartner.class),
         "locationName");
-    cut = new IntermediateDescriptionProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
+    cut = new IntermediateDescriptionProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME), jpaAttribute,
         helper.schema);
     List<CsdlAnnotation> annotations = cut.getEdmItem().getAnnotations();
     assertEquals(1, annotations.size());
     assertEquals("Core.IsLanguageDependent", annotations.get(0).getTerm());
     assertEquals(ConstantExpressionType.Bool, annotations.get(0).getExpression().asConstant().getType());
     assertEquals("true", annotations.get(0).getExpression().asConstant().getValue());
+    assertNull(annotations.get(0).getQualifier());
   }
 
   @Test
@@ -197,7 +199,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
     IntermediateModelElement.setPostProcessor(processor);
     Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEmbeddedableType("PostalAddressData"),
         "countryName");
-    cut = new IntermediateDescriptionProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
+    cut = new IntermediateDescriptionProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME), jpaAttribute,
         helper.schema);
 
     cut.getEdmItem();
@@ -211,7 +213,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
 
     Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEmbeddedableType("PostalAddressData"),
         "countryName");
-    cut = new IntermediateDescriptionProperty(new JPAEdmNameBuilder(PUNIT_NAME), jpaAttribute,
+    cut = new IntermediateDescriptionProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME), jpaAttribute,
         helper.schema);
 
     assertEquals("CountryDescription", cut.getEdmItem().getName(), "Wrong name");
@@ -224,7 +226,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
 
     Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEmbeddedableType("PostalAddressData"),
         "countryName");
-    IntermediatePropertyAccess property = new IntermediateSimpleProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+    IntermediatePropertyAccess property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         jpaAttribute,
         helper.schema);
 

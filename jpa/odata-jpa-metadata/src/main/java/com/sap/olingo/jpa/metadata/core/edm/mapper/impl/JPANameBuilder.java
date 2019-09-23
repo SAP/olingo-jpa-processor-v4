@@ -2,8 +2,11 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import javax.persistence.metamodel.Attribute;
 
+import org.apache.olingo.commons.api.edm.FullQualifiedName;
+
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 
 /**
@@ -34,6 +37,10 @@ final class JPANameBuilder {
   }
 
   public String buildEntitySetName(final JPAEdmNameBuilder nameBuilder, final JPAStructuredType entityType) {
-    return nameBuilder.buildFQN(entityType.getInternalName()).getFullQualifiedNameAsString();
+    return buildFQN(entityType.getInternalName(), nameBuilder).getFullQualifiedNameAsString();
+  }
+
+  protected final FullQualifiedName buildFQN(final String name, final JPAEdmNameBuilder nameBuilder) {
+    return new FullQualifiedName(nameBuilder.getNamespace(), name);
   }
 }

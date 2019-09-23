@@ -249,7 +249,7 @@ public class TestIntermediateJavaFunction extends TestMappingRoot {
     for (Method m : Arrays.asList(clazz.getMethods())) {
       EdmFunction functionDescribtion = m.getAnnotation(EdmFunction.class);
       if (functionDescribtion != null && method.equals(m.getName())) {
-        return new IntermediateJavaFunction(new JPAEdmNameBuilder(PUNIT_NAME), functionDescribtion, m, helper.schema);
+        return new IntermediateJavaFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME), functionDescribtion, m, helper.schema);
       }
     }
     return null;

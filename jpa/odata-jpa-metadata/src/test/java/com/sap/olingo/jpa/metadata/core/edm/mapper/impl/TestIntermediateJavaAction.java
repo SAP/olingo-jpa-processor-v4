@@ -364,7 +364,7 @@ public class TestIntermediateJavaAction extends TestMappingRoot {
     for (Method m : Arrays.asList(clazz.getMethods())) {
       EdmAction actionDescribtion = m.getAnnotation(EdmAction.class);
       if (actionDescribtion != null && method.equals(m.getName())) {
-        return new IntermediateJavaAction(new JPAEdmNameBuilder(PUNIT_NAME), actionDescribtion, m, helper.schema);
+        return new IntermediateJavaAction(new JPADefaultEdmNameBuilder(PUNIT_NAME), actionDescribtion, m, helper.schema);
       }
     }
     return null;

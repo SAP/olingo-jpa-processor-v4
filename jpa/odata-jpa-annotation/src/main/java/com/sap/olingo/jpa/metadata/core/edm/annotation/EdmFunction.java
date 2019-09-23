@@ -51,10 +51,11 @@ public @interface EdmFunction {
   }
 
   /**
-   * Defines the name of the function in the service document
+   * Defines the name of the function in the service document. This is a required attribute for database based functions
+   * and can be omitted for java based functions.
    * @return
    */
-  String name();
+  String name() default "";
 
   EdmParameter[] parameter() default {};
 

@@ -17,6 +17,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionType;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAJavaFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOperationResultParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
@@ -28,12 +29,16 @@ class IntermediateJavaFunction extends IntermediateFunction implements JPAJavaFu
   private final Constructor<?> javaConstructor;
   private List<JPAParameter> parameterList;
 
-  IntermediateJavaFunction(JPAEdmNameBuilder nameBuilder, EdmFunction jpaFunction, Method javaFunction,
-      IntermediateSchema schema) throws ODataJPAModelException {
+  IntermediateJavaFunction(final JPAEdmNameBuilder nameBuilder, final EdmFunction jpaFunction,
+      final Method javaFunction, final IntermediateSchema schema) throws ODataJPAModelException {
+
     super(nameBuilder, jpaFunction, schema,
         IntNameBuilder.buildFunctionName(jpaFunction).isEmpty() ? javaFunction.getName() : IntNameBuilder
             .buildFunctionName(jpaFunction));
-    this.setExternalName(nameBuilder.buildOperationName(internalName));
+
+    this.setExternalName(jpaFunction.name().isEmpty()
+        ? nameBuilder.buildOperationName(internalName)
+        : jpaFunction.name());
     this.javaFunction = javaFunction;
     this.javaConstructor = IntermediateOperationHelper.determineConstructor(javaFunction);
   }
@@ -71,7 +76,6 @@ class IntermediateJavaFunction extends IntermediateFunction implements JPAJavaFu
             .buildPropertyName(definedParameter.name()), declairedParameter.getName(), types[i]);
         parameterList.add(parameter);
       }
-
     }
     return parameterList;
   }

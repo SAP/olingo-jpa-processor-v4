@@ -14,6 +14,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlEnumType;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEnumeration;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEnumeration.DummyConverter;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEnumerationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
@@ -25,7 +26,7 @@ class IntermediateEnumerationType extends IntermediateModelElement implements JP
   private EdmEnumeration annotation;
   private List<?> javaMembers;
 
-  IntermediateEnumerationType(JPAEdmNameBuilder nameBuilder, Class<? extends Enum<?>> javaEnum) {
+  IntermediateEnumerationType(final JPAEdmNameBuilder nameBuilder, final Class<? extends Enum<?>> javaEnum) {
     super(nameBuilder, javaEnum.getSimpleName());
     this.setExternalName(nameBuilder.buildEnumerationTypeName(javaEnum));
     this.javaEnum = javaEnum;

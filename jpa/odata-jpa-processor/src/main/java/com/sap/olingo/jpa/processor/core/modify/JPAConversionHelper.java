@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,6 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys;
-import com.sap.olingo.jpa.processor.core.processor.deserializer.JsonDeserializer;
 import com.sap.olingo.jpa.processor.core.query.EdmEntitySetInfo;
 import com.sap.olingo.jpa.processor.core.query.ExpressionUtil;
 import com.sap.olingo.jpa.processor.core.query.Util;
@@ -401,11 +401,7 @@ public class JPAConversionHelper {
 
   private ODataDeserializer createDeserrializer(final OData odata, final ContentType requestFormat)
       throws DeserializerException {
-    if (requestFormat.isCompatible(ContentType.APPLICATION_JSON)) {
-      return new JsonDeserializer(requestFormat);
-    } else {
-      return odata.createDeserializer(requestFormat);
-    }
+    return odata.createDeserializer(requestFormat, Arrays.asList("4.00"));
   }
 
   private <T> Object findEnumConstantsByOrdinal(T[] enumConstants, Object value) {

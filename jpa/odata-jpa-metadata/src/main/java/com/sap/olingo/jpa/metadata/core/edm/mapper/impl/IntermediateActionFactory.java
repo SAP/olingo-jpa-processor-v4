@@ -6,6 +6,7 @@ import java.util.Map;
 import org.reflections.Reflections;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAction;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.ODataAction;
 
@@ -18,10 +19,10 @@ class IntermediateActionFactory extends IntermediateOperationFactory {
   }
 
   @SuppressWarnings("unchecked")
-  Map<? extends String, ? extends IntermediateJavaAction> create(final JPAEdmNameBuilder nameBuilder,
+  <F extends IntermediateJavaAction> Map<String, F> create(final JPAEdmNameBuilder nameBuilder,
       final Reflections reflections, final IntermediateSchema schema) throws ODataJPAModelException {
 
-    return (Map<? extends String, ? extends IntermediateJavaAction>) createOperationMap(nameBuilder, reflections,
+    return (Map<String, F>) createOperationMap(nameBuilder, reflections,
         schema, ODataAction.class, EdmAction.class);
   }
 

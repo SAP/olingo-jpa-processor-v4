@@ -67,8 +67,9 @@ public class Person extends BusinessPartner {// #NOSONAR use equal method from B
   @JoinColumn(name = "\"ID\"", referencedColumnName = "\"ID\"", insertable = false, updatable = false, nullable = true)
   private PersonImage image;
 
-  @EdmAnnotation(term = "Core.Description", constantExpression = @EdmAnnotation.ConstantExpression(
-      type = ConstantExpressionType.String, value = "Address for inhouse Mail"))
+  @EdmAnnotation(term = "Core.Description", qualifier = "Address",
+      constantExpression = @EdmAnnotation.ConstantExpression(type = ConstantExpressionType.String,
+          value = "Address for inhouse Mail"))
   @ElementCollection(fetch = FetchType.LAZY)
   @CollectionTable(schema = "\"OLINGO\"", name = "\"InhouseAddress\"",
       joinColumns = @JoinColumn(name = "\"ID\""))

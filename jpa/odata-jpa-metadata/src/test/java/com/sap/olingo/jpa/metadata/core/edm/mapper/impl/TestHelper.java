@@ -36,7 +36,7 @@ public class TestHelper {
         ABCClassifiaction.class, AccessRights.class })));
 
     this.jpaMetamodel = metamodel;
-    this.schema = new IntermediateSchema(new JPAEdmNameBuilder(namespace), jpaMetamodel, r);
+    this.schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(namespace), jpaMetamodel, r);
   }
 
   public Object findAttribute(final List<? extends JPAAttribute> attributes, final String searchItem) {

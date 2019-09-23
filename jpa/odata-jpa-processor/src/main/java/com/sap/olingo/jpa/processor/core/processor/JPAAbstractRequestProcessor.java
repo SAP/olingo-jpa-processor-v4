@@ -29,7 +29,6 @@ abstract class JPAAbstractRequestProcessor {
   protected final OData odata;
   protected final JPAServiceDebugger debugger;
   protected int successStatusCode = HttpStatusCode.OK.getStatusCode();
-  // protected final Optional<JPAODataClaimProvider> claimsProvider;
   protected final JPAODataRequestContextAccess requestContext;
 
   public JPAAbstractRequestProcessor(final OData odata, final JPAODataCRUDContextAccess context,
@@ -43,7 +42,6 @@ abstract class JPAAbstractRequestProcessor {
     this.serializer = requestContext.getSerializer();
     this.odata = odata;
     this.debugger = requestContext.getDebugger();
-    // this.claimsProvider = requestContext.getClaimsProvider();
     this.requestContext = requestContext;
   }
 
