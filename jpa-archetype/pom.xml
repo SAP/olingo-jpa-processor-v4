@@ -1,0 +1,21 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.sap.olingo</groupId>
+	<artifactId>odata-jpa-archetype</artifactId>
+	<version>0.3.6</version>
+	<packaging>pom</packaging>
+	<url>https://github.com/SAP/olingo-jpa-processor-v4</url>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.build.source>1.8</project.build.source>
+		<odata.jpa.version>0.3.6-SNAPSHOT</odata.jpa.version>
+	</properties>
+
+	<modules>
+		<module>odata-jpa-archetype-spring</module>
+	</modules>
+</project>
