@@ -88,8 +88,9 @@ abstract class JPACreateResult implements JPAExpandResult {
             break;
           }
         }
-      } else
+      } else {
         tuple.addElement(path.getAlias(), path.getLeaf().getType(), null);
+      }
     } else {
       tuple.addElement(path.getAlias(), path.getLeaf().getType(), value);
     }
