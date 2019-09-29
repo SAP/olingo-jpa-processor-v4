@@ -132,8 +132,8 @@ public class JPAODataGetHandler {
       throws ODataException {
 
     final JPAEdmProvider jpaEdm = serviceContext.getEdmProvider() == null
-        && serviceContext instanceof JPAODataServiceContext ? serviceContext.getEdmProvider(requestContext
-            .getEntityManager())
+        && serviceContext instanceof JPAODataServiceContext
+            ? serviceContext.getEdmProvider(requestContext.getEntityManager())
             : serviceContext.getEdmProvider();
 
     final ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(jpaEdm, jpaEdm.getReferences()));
