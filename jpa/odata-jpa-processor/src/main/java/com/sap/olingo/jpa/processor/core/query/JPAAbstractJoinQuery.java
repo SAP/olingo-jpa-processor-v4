@@ -230,6 +230,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
       buildSelectionAddMimeType(jpaEntity, jpaPathList);
       buildSelectionAddKeys(jpaEntity, jpaPathList);
       buildSelectionAddExpandSelection(uriResource, jpaPathList);
+      buildSelectionAddETag(jpaEntity, jpaPathList);
     } catch (ODataJPAModelException e) {
       throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR
           .getStatusCode(), ODataJPAModelException.getLocales().nextElement(), e);
@@ -361,6 +362,9 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
         debugger.stopRuntimeMeasurement(handle);
         throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
       }
+    } else {
+      // Ensure results get ordered by primary key. By this it is ensured that the results will match the sub-select
+      // results for $expand with $skip and $top
     }
     debugger.stopRuntimeMeasurement(handle);
     return orders;
@@ -397,20 +401,20 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
    * >OData Version 4.0 Part 2 - 5.1.3 System Query Option $select</a>
    * 
    * @param joinTables
-   * @param jpaPathList
+   * @param requestedProperties
    * @param optional
    * @return
    * @throws ODataApplicationException
    */
   protected List<Selection<?>> createSelectClause(final Map<String, From<?, ?>> joinTables, // NOSONAR
-      final Collection<JPAPath> jpaPathList, final From<?, ?> target, final List<String> groups)
+      final Collection<JPAPath> requestedProperties, final From<?, ?> target, final List<String> groups)
       throws ODataApplicationException { // NOSONAR Allow subclasses to throw an exception
 
     final int handle = debugger.startRuntimeMeasurement(this, "createSelectClause");
     final List<Selection<?>> selections = new ArrayList<>();
 
     // Build select clause
-    for (final JPAPath jpaPath : jpaPathList) {
+    for (final JPAPath jpaPath : requestedProperties) {
       if (jpaPath.isPartOfGroups(groups)) {
         final Path<?> p = ExpressionUtil.convertToCriteriaPath(joinTables, target, jpaPath.getPath());
         p.alias(jpaPath.getAlias());
@@ -615,6 +619,13 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
       }
       jpaPathList.addAll(addPathList);
     }
+  }
+
+  private void buildSelectionAddETag(final JPAEntityType jpaEntity, final Collection<JPAPath> jpaPathList)
+      throws ODataJPAModelException {
+    if (jpaEntity.hasEtag())
+      jpaPathList.add(jpaEntity.getEtagPath());
+
   }
 
   private void buildSelectionAddKeys(final JPAEntityType jpaEntity, final Collection<JPAPath> jpaPathList)

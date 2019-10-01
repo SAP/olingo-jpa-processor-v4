@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.query;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -27,9 +28,10 @@ import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
-import com.sap.olingo.jpa.processor.core.api.JPAODataContextAccessDouble;
 import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataContextAccessDouble;
 import com.sap.olingo.jpa.processor.core.exception.JPAIllicalAccessException;
 import com.sap.olingo.jpa.processor.core.processor.JPAODataRequestContextImpl;
 import com.sap.olingo.jpa.processor.core.util.SelectOptionDouble;
@@ -95,26 +97,26 @@ public class TestJPAQueryBuildSelectionPathList extends TestBase {
   @Test
   public void checkSelectPrimitiveWithKey() throws ODataApplicationException {
     final Collection<JPAPath> act = cut.buildSelectionPathList(new UriInfoDouble(new SelectOptionDouble("Country")));
-    assertEquals(2, act.size());
+    assertEquals(3, act.size());
   }
 
   @Test
   public void checkSelectAllFromComplexWithKey() throws ODataApplicationException {
     final Collection<JPAPath> act = cut.buildSelectionPathList(new UriInfoDouble(new SelectOptionDouble("Address")));
-    assertEquals(10, act.size());
+    assertEquals(11, act.size());
   }
 
   @Test
   public void checkSelectKeyNoDuplicates() throws ODataApplicationException {
     final Collection<JPAPath> act = cut.buildSelectionPathList(new UriInfoDouble(new SelectOptionDouble("ID")));
-    assertEquals(1, act.size());
+    assertEquals(2, act.size());
   }
 
   @Test
   public void checkSelectAllFromNavigationComplexPrimitiveWithKey() throws ODataApplicationException {
     final Collection<JPAPath> act = cut.buildSelectionPathList(new UriInfoDouble(new SelectOptionDouble(
         "Address/CountryName")));
-    assertEquals(2, act.size());
+    assertEquals(3, act.size());
   }
 
   @Test
@@ -135,7 +137,7 @@ public class TestJPAQueryBuildSelectionPathList extends TestBase {
   public void checkSelectAllFromNavgateComplexPrimitiveAndOnePrimitiveWithKey() throws ODataApplicationException {
     final Collection<JPAPath> act = cut.buildSelectionPathList(new UriInfoDouble(new SelectOptionDouble(
         "Address/CountryName,Country")));
-    assertEquals(3, act.size());
+    assertEquals(4, act.size());
   }
 
   @Test
@@ -148,7 +150,7 @@ public class TestJPAQueryBuildSelectionPathList extends TestBase {
     resourcePath.add(complexResource);
 
     final Collection<JPAPath> act = cut.buildSelectionPathList(uriInfo);
-    assertEquals(5, act.size());
+    assertEquals(6, act.size());
   }
 
   @Test
@@ -167,7 +169,7 @@ public class TestJPAQueryBuildSelectionPathList extends TestBase {
     resourcePath.add(createdResource);
 
     final Collection<JPAPath> act = cut.buildSelectionPathList(uriInfo);
-    assertEquals(3, act.size());
+    assertEquals(4, act.size());
   }
 
   @Test
@@ -192,7 +194,7 @@ public class TestJPAQueryBuildSelectionPathList extends TestBase {
     resourcePath.add(byResource);
 
     final Collection<JPAPath> act = cut.buildSelectionPathList(uriInfo);
-    assertEquals(2, act.size());
+    assertEquals(3, act.size());
   }
 
   @Test
@@ -210,7 +212,7 @@ public class TestJPAQueryBuildSelectionPathList extends TestBase {
     resourcePath.add(valueResource);
 
     final Collection<JPAPath> act = cut.buildSelectionPathList(uriInfo);
-    assertEquals(2, act.size());
+    assertEquals(3, act.size());
   }
 
   @Test
@@ -227,6 +229,27 @@ public class TestJPAQueryBuildSelectionPathList extends TestBase {
     when(uriInfo.getSelectOption()).thenReturn(selOptions);
 
     final Collection<JPAPath> act = cut.buildSelectionPathList(uriInfo);
+    assertEquals(3, act.size());
+  }
+
+  @Test
+  public void checkSelectContainesVersionEvenSoIgnored() throws ODataApplicationException, ODataJPAModelException {
+    final List<UriResource> resourcePath = buildUriInfo("BusinessPartnerProtecteds", "BusinessPartnerProtected");
+    final UriResourcePrimitiveProperty byResource = mock(UriResourcePrimitiveProperty.class);
+    final EdmProperty byProperty = mock(EdmProperty.class);
+    when(byResource.getProperty()).thenReturn(byProperty);
+    when(byProperty.getName()).thenReturn("ID");
+    resourcePath.add(byResource);
+
+    final UriResourceValue valueResource = mock(UriResourceValue.class);
+    when(valueResource.getSegmentValue()).thenReturn(Util.VALUE_RESOURCE.toLowerCase());
+    resourcePath.add(valueResource);
+    final Collection<JPAPath> act = cut.buildSelectionPathList(uriInfo);
     assertEquals(2, act.size());
+    for (final JPAPath actElement : act) {
+      if ("ETag".equals(actElement.getLeaf().getExternalName()))
+        return;
+    }
+    fail("ETag not found");
   }
 }

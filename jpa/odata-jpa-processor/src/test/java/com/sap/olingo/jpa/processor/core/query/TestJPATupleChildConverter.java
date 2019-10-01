@@ -128,6 +128,27 @@ public class TestJPATupleChildConverter extends TestBase {
   }
 
   @Test
+  public void checkConvertsOneResultsTwoElementsSelectionWithEtag() throws ODataApplicationException,
+      ODataJPAModelException {
+
+    cut = new JPATupleChildConverter(helper.sd, uriHelper, new ServiceMetadataDouble(nameBuilder,
+        "BusinessPartnerProtected"));
+    HashMap<String, Object> result;
+    result = new HashMap<>();
+    result.put("ID", new String("1"));
+    result.put("ETag", new Integer(2));
+    jpaQueryResult.add(new TupleDouble(result));
+
+    EntityCollection act = cut.getResult(new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType(
+        "BusinessPartnerProtecteds"), Collections.emptyList()), Collections.emptyList()).get(ROOT_RESULT_KEY);
+    assertEquals(1, act.getEntities().size());
+    assertEquals(1, act.getEntities().get(0).getProperties().size());
+    assertEquals("1", act.getEntities().get(0).getProperties().get(0).getValue());
+    assertEquals("ID", act.getEntities().get(0).getProperties().get(0).getName());
+    assertEquals("2", act.getEntities().get(0).getETag());
+  }
+
+  @Test
   public void checkConvertsOneResultsOneComplexElement() throws ODataApplicationException, ODataJPAModelException {
     HashMap<String, Object> result;
 
