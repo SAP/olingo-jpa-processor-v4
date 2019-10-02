@@ -56,7 +56,6 @@ public final class JPAODataRequestProcessor
 
     JPARequestProcessor p;
     try {
-
       p = factory.createProcessor(uriInfo, ContentType.TEXT_PLAIN, request.getAllHeaders(), requestContext);
       p.retrieveData(request, response, ContentType.TEXT_PLAIN);
     } catch (ODataApplicationException | ODataLibraryException e) {

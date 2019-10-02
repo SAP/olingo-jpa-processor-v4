@@ -15,6 +15,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunctionImport;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAction;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
@@ -81,10 +82,9 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
    */
   JPAEntitySet getEntitySet(final JPAEntityType entityType) throws ODataJPAModelException {
     lazyBuildEdmItem();
-    for (final String internalName : entitySetListInternalKey.keySet()) {
-      final IntermediateEntitySet modelElement = entitySetListInternalKey.get(internalName);
-      if (modelElement.getEntityType().getExternalFQN().equals(entityType.getExternalFQN())) {
-        return modelElement;
+    for (final Entry<String, IntermediateEntitySet> entitySet : entitySetListInternalKey.entrySet()) {
+      if (entitySet.getValue().getEntityType().getExternalFQN().equals(entityType.getExternalFQN())) {
+        return entitySet.getValue();
       }
     }
     return null;
@@ -99,10 +99,8 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
    */
   @SuppressWarnings("unchecked")
   private List<CsdlEntitySet> buildEntitySets() throws ODataJPAModelException {
-    for (final String namespace : schemaList.keySet()) {
-      // Build Entity Sets
-      final IntermediateSchema schema = schemaList.get(namespace);
-      for (final IntermediateEntityType et : schema.getEntityTypes()) {
+    for (final Entry<String, IntermediateSchema> schema : schemaList.entrySet()) {
+      for (final IntermediateEntityType et : schema.getValue().getEntityTypes()) {
         if (!et.ignore() || et.asEntitySet()) {
           final IntermediateEntitySet es = new IntermediateEntitySet(nameBuilder, et);
           entitySetListInternalKey.put(es.internalName, es);
@@ -123,7 +121,7 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
   private CsdlFunctionImport buildFunctionImport(final CsdlFunction edmFu) {
     final CsdlFunctionImport edmFuImport = new CsdlFunctionImport();
     edmFuImport.setName(edmFu.getName());
-    edmFuImport.setFunction(nameBuilder.buildFQN(edmFu.getName()));
+    edmFuImport.setFunction(buildFQN(edmFu.getName()));
     edmFuImport.setIncludeInServiceDocument(true);
     // edmFuImport.setEntitySet(entitySet)
 
@@ -151,9 +149,9 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
   private List<CsdlActionImport> buildActionImports() throws ODataJPAModelException {
     final List<CsdlActionImport> edmActionImports = new ArrayList<>();
 
-    for (final String namespace : schemaList.keySet()) {
+    for (final Entry<String, IntermediateSchema> namespace : schemaList.entrySet()) {
       // Build Entity Sets
-      final IntermediateSchema schema = schemaList.get(namespace);
+      final IntermediateSchema schema = namespace.getValue();
       final List<JPAAction> actions = schema.getActions();
 
       if (actions != null) {
@@ -178,7 +176,7 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
   private CsdlActionImport buildActionImport(CsdlAction edmAc) {
     final CsdlActionImport edmAcImport = new CsdlActionImport();
     edmAcImport.setName(edmAc.getName());
-    edmAcImport.setAction(nameBuilder.buildFQN(edmAc.getName()));
+    edmAcImport.setAction(buildFQN(edmAc.getName()));
     // edmAcImport.setEntitySet(entitySet)
     return edmAcImport;
   }

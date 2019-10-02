@@ -3,6 +3,7 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.NOT_SUPPORTED_MIXED_PART_OF_GROUP;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -31,9 +32,9 @@ public class TestJPAPath extends TestMappingRoot {
   @BeforeEach
   public void setup() throws ODataJPAModelException {
     helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
-    organization = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), helper.getEntityType(
+    organization = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), helper.getEntityType(
         Organization.class), helper.schema);
-    bupaWithGroup = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), helper.getEntityType(
+    bupaWithGroup = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), helper.getEntityType(
         BusinessPartnerWithGroups.class), helper.schema);
   }
 
@@ -205,5 +206,27 @@ public class TestJPAPath extends TestMappingRoot {
 
     assertEquals(NOT_SUPPORTED_MIXED_PART_OF_GROUP.getKey(), act.getId());
     assertFalse(act.getMessage().isEmpty());
+  }
+
+  @Test
+  public void checkTwoNotEqualIfAliasNotEqual() throws ODataApplicationException, ODataJPAModelException {
+    final JPAPath cut = organization.getPath("Address/Country");
+    final JPAPath act = new JPAPathImpl("Address", cut.getDBFieldName(), cut.getPath());
+    assertNotEquals(act, cut);
+  }
+
+  @Test
+  public void checkTwoNotEqualIfElementListNotEqual() throws ODataApplicationException, ODataJPAModelException {
+    final JPAPath cut = organization.getPath("Address/Country");
+    final List<JPAElement> pathList = new ArrayList<>(cut.getPath());
+    pathList.remove(0);
+    final JPAPath act = new JPAPathImpl("Address/Country", cut.getDBFieldName(), pathList);
+    assertNotEquals(act, cut);
+  }
+
+  @Test
+  public void checkTwoEqualIfSame() throws ODataApplicationException, ODataJPAModelException {
+    final JPAPath cut = organization.getPath("Address/Country");
+    assertEquals(cut, cut);
   }
 }

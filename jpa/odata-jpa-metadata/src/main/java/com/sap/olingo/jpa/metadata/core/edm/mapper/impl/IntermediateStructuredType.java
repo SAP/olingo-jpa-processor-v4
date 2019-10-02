@@ -32,6 +32,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAProtectionInfo;
@@ -324,7 +325,7 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
       // Abstract entity type '%1$s' must not inherit from a non-abstract entity type '%2$s'
       throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.INHERITANCE_NOT_ALLOWED,
           this.internalName, baseEntity.internalName);
-    return baseEntity != null ? nameBuilder.buildFQN(baseEntity.getExternalName()) : null;
+    return baseEntity != null ? buildFQN(baseEntity.getExternalName()) : null;
   }
 
   protected boolean determineHasStream() throws ODataJPAModelException {
@@ -589,8 +590,8 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
           final IntermediateStructuredType is = (IntermediateStructuredType) property.getStructuredType();
 
           for (final JPAAssociationPath association : is.getAssociationPathList()) {
-            associationPath = new JPAAssociationPathImpl(nameBuilder, association,
-                this, determineJoinColumns(property, association), property);
+            associationPath = new JPAAssociationPathImpl(association, this, determineJoinColumns(property, association),
+                property);
             resolvedAssociationPathMap.put(associationPath.getAlias(), associationPath);
           }
         }
@@ -621,9 +622,9 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
               pathList.addAll(path.getValue().getPath());
             }
             pathList.add(0, property);
-            intermediatePathMap.put(nameBuilder.buildPath(property.getExternalName(), path.getKey()),
-                new JPAPathImpl(nameBuilder.buildPath(property.getExternalName(),
-                    path.getKey()), null, pathList));
+            final JPAPath newPath = new JPAPathImpl(buildPath(property.getExternalName(), path.getKey()), null,
+                pathList);
+            intermediatePathMap.put(newPath.getAlias(), newPath);
           }
 
           final Map<String, JPAPathImpl> resolvedPath = ((IntermediateStructuredType) property
@@ -638,7 +639,7 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
                   pathList);
             } else {
 
-              newPath = new JPAPathImpl(nameBuilder.buildPath(property.getExternalName(), path.getKey()),
+              newPath = new JPAPathImpl(buildPath(property.getExternalName(), path.getKey()),
                   determineDBFieldName(property, path.getValue()), rebuildPathList(pathList));
             }
             resolvedPathMap.put(newPath.getAlias(), newPath);
@@ -655,6 +656,10 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
         intermediatePathMap.putAll(baseType.getIntermediatePathMap());
       }
     }
+  }
+
+  private String buildPath(final String pathRoot, final String pathElement) {
+    return pathRoot + JPAPath.PATH_SEPERATOR + pathElement;
   }
 
   private void lazyBuildCompleteProtectionList() throws ODataJPAModelException {

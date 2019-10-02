@@ -23,6 +23,7 @@ import org.reflections.Reflections;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEnumeration;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAction;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEnumerationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
@@ -51,7 +52,7 @@ final class IntermediateSchema extends IntermediateModelElement {
   IntermediateSchema(final JPAEdmNameBuilder nameBuilder, final Metamodel jpaMetamodel, final Reflections reflections)
       throws ODataJPAModelException {
 
-    super(nameBuilder, nameBuilder.buildNamespace());
+    super(nameBuilder, nameBuilder.getNamespace());
     this.reflections = reflections;
     this.jpaMetamodel = jpaMetamodel;
     this.enumTypeListInternalKey = buildEnumerationTypeList();
@@ -61,13 +62,13 @@ final class IntermediateSchema extends IntermediateModelElement {
     this.actionListInternalKey = buildActionList();
   }
 
-  public IntermediateEnumerationType getEnumerationType(Class<?> enumType) {
+  public IntermediateEnumerationType getEnumerationType(final Class<?> enumType) {
     if (enumType.isArray())
       return this.enumTypeListInternalKey.get(enumType.getComponentType().getSimpleName());
     return this.enumTypeListInternalKey.get(enumType.getSimpleName());
   }
 
-  public JPAEnumerationAttribute getEnumerationType(EdmEnumType type) {
+  public JPAEnumerationAttribute getEnumerationType(final EdmEnumType type) {
     for (final Entry<String, IntermediateEnumerationType> enumeration : this.enumTypeListInternalKey.entrySet()) {
       if (enumeration.getValue().getExternalFQN().equals(type.getFullQualifiedName()))
         return enumeration.getValue();
@@ -75,15 +76,19 @@ final class IntermediateSchema extends IntermediateModelElement {
     return null;
   }
 
-  public IntermediateEnumerationType getEnumerationType(String enumName) {
-    return this.enumTypeListInternalKey.get(enumName);
+  public IntermediateEnumerationType getEnumerationType(final String externalName) {
+    for (final Entry<String, IntermediateEnumerationType> enumeration : this.enumTypeListInternalKey.entrySet()) {
+      if (enumeration.getValue().getExternalName().equals(externalName))
+        return enumeration.getValue();
+    }
+    return null;
   }
 
   @SuppressWarnings("unchecked")
   @Override
   protected void lazyBuildEdmItem() throws ODataJPAModelException {
     edmSchema = new CsdlSchema();
-    edmSchema.setNamespace(nameBuilder.buildNamespace());
+    edmSchema.setNamespace(nameBuilder.getNamespace());
     edmSchema.setEnumTypes((List<CsdlEnumType>) extractEdmModelElements(enumTypeListInternalKey));
     edmSchema.setComplexTypes((List<CsdlComplexType>) extractEdmModelElements(complexTypeListInternalKey));
     edmSchema.setEntityTypes((List<CsdlEntityType>) extractEdmModelElements(entityTypeListInternalKey));

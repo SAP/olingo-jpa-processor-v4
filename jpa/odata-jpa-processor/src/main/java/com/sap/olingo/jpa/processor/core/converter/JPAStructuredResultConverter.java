@@ -22,7 +22,7 @@ import org.apache.olingo.server.api.serializer.SerializerException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 /**
@@ -139,7 +139,7 @@ public abstract class JPAStructuredResultConverter {
 
   private Method getGetter(final String attributeName, final Map<String, Method> methodMap)
       throws ODataJPAQueryException {
-    final String getterName = ACCESS_MODIFIER_GET + JPAEdmNameBuilder.firstToUpper(attributeName);
+    final String getterName = ACCESS_MODIFIER_GET + JPADefaultEdmNameBuilder.firstToUpper(attributeName);
 
     if (methodMap.get(getterName) == null)
       throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_ACCESS_NOT_FOUND,
