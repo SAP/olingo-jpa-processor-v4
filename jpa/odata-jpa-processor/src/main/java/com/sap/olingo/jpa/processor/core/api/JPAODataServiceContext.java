@@ -26,6 +26,8 @@ import org.apache.olingo.server.api.processor.ErrorProcessor;
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
 import com.sap.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseProcessorFactory;
@@ -265,15 +267,18 @@ public final class JPAODataServiceContext implements JPAODataCRUDContext, JPAODa
     private Optional<EntityManagerFactory> emf = Optional.empty();
     private DataSource ds;
     private JPAEdmProvider jpaEdm;
+    private JPAEdmNameBuilder nameBuilder;
 
     public JPAODataCRUDContextAccess build() throws ODataException {
       try {
+        if (nameBuilder == null)
+          nameBuilder = new JPADefaultEdmNameBuilder(namespace);
         if (packageName == null)
           packageName = new String[0];
         if (!emf.isPresent() && ds != null && namespace != null)
           emf = Optional.ofNullable(JPAEntityManagerFactory.getEntityManagerFactory(namespace, ds));
         if (emf.isPresent())
-          jpaEdm = new JPAEdmProvider(namespace, emf.get().getMetamodel(), postProcessor, packageName);
+          jpaEdm = new JPAEdmProvider(emf.get().getMetamodel(), postProcessor, packageName, nameBuilder);
         if (databaseProcessor == null) {
           databaseProcessor = new JPAODataDatabaseProcessorFactory().create(ds);
         }
@@ -355,7 +360,9 @@ public final class JPAODataServiceContext implements JPAODataCRUDContext, JPAODa
     }
 
     /**
-     * The name of the persistence unit to be used. This is also taken as name space of the odata service.
+     * The name of the persistence-unit to be used. It is taken to create a entity manager factory
+     * ({@link Builder#setEntityManagerFactory(EntityManagerFactory)}), if not provided and
+     * as namespace of the OData service, in case the default name builder shall be used.
      * @param pUnit
      * @return
      */
@@ -395,6 +402,18 @@ public final class JPAODataServiceContext implements JPAODataCRUDContext, JPAODa
      */
     public Builder setEntityManagerFactory(final EntityManagerFactory emf) {
       this.emf = Optional.of(emf);
+      return this;
+    }
+
+    /**
+     * Set a custom EDM name builder {@link JPAEdmNameBuilder}. If non is provided {@link JPADefaultEdmNameBuilder} is
+     * used, which uses the provided persistence-unit name ({@link JPAODataServiceContext.Builder#setPUnit}) as
+     * namespace.
+     * @param nameBuilder
+     * @return
+     */
+    public Builder setEdmNameBuilder(final JPAEdmNameBuilder nameBuilder) {
+      this.nameBuilder = nameBuilder;
       return this;
     }
   }
