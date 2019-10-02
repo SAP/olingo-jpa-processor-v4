@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
@@ -24,10 +25,13 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
+import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityTypeAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
 import com.sap.olingo.jpa.processor.core.api.example.JPAExamplePagingProvider;
 import com.sap.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
@@ -187,6 +191,37 @@ public class TestJPAODataServiceContextBuilder {
         .setPUnit(PUNIT_NAME)
         .build());
 
+  }
+
+  @Test
+  public void checkJPAEdmContainsDefaultNameBuilder() throws ODataException, SQLException {
+
+    cut = JPAODataServiceContext.with()
+        .setDataSource(ds)
+        .setPUnit(PUNIT_NAME)
+        .setTypePackage(enumPackages)
+        .build();
+    final JPAEdmProvider act = cut.getEdmProvider();
+    assertNotNull(act);
+    assertNotNull(act.getEdmNameBuilder());
+    assertTrue(act.getEdmNameBuilder() instanceof JPADefaultEdmNameBuilder);
+  }
+
+  @Test
+  public void checkJPAEdmContainsCustomNameBuilder() throws ODataException, SQLException {
+
+    final JPAEdmNameBuilder nameBuilder = mock(JPAEdmNameBuilder.class);
+    when(nameBuilder.getNamespace()).thenReturn("unit.test");
+    cut = JPAODataServiceContext.with()
+        .setDataSource(ds)
+        .setPUnit(PUNIT_NAME)
+        .setTypePackage(enumPackages)
+        .setEdmNameBuilder(nameBuilder)
+        .build();
+    final JPAEdmProvider act = cut.getEdmProvider();
+    assertNotNull(act);
+    assertNotNull(act.getEdmNameBuilder());
+    assertEquals(nameBuilder, act.getEdmNameBuilder());
   }
 
   private class TestEdmPostProcessor extends JPAEdmMetadataPostProcessor {
