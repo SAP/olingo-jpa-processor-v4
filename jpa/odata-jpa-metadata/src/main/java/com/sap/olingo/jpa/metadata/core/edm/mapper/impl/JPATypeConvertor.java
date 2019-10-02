@@ -205,6 +205,25 @@ public final class JPATypeConvertor {
     } else if (jpaType.equals(org.apache.olingo.commons.api.edm.geo.GeospatialCollection.class)) {
       return EdmPrimitiveTypeKind.GeometryCollection;
     }
+    
+    if (jpaType.equals(com.vividsolutions.jts.geom.Point.class)) {
+	  return EdmPrimitiveTypeKind.GeometryPoint;
+	} else if (jpaType.equals(com.vividsolutions.jts.geom.MultiPoint.class)) {
+	  return EdmPrimitiveTypeKind.GeometryMultiPoint;
+	} else if (jpaType.equals(com.vividsolutions.jts.geom.LineString.class)) {
+	  return EdmPrimitiveTypeKind.GeometryLineString;
+	} else if (jpaType.equals(com.vividsolutions.jts.geom.MultiLineString.class)) {
+	  return EdmPrimitiveTypeKind.GeometryMultiLineString;
+	} else if (jpaType.equals(com.vividsolutions.jts.geom.Polygon.class)) {
+	  return EdmPrimitiveTypeKind.GeometryPolygon;
+	} else if (jpaType.equals(com.vividsolutions.jts.geom.MultiPolygon.class)) {
+	  return EdmPrimitiveTypeKind.GeometryMultiPolygon;
+	} else if (jpaType.equals(com.vividsolutions.jts.geom.GeometryCollection.class)) {
+	  return EdmPrimitiveTypeKind.GeometryCollection;
+	} else if (jpaType.equals(com.vividsolutions.jts.geom.Geometry.class)) {
+	  return EdmPrimitiveTypeKind.Geometry;
+	}
+    
     // Type (%1$s) of attribute (%2$s) is not supported. Mapping not possible
     throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.TYPE_NOT_SUPPORTED,
         jpaType.getName(), currentAttribute.getName());
