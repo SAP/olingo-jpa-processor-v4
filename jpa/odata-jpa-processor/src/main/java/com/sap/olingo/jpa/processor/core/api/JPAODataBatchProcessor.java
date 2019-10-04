@@ -4,6 +4,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.persistence.EntityTransaction;
 import javax.persistence.OptimisticLockException;
@@ -25,6 +27,7 @@ import org.apache.olingo.server.api.deserializer.batch.ODataResponsePart;
 import org.apache.olingo.server.api.processor.BatchProcessor;
 
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys;
 
 /**
  * 
@@ -37,6 +40,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
  */
 public final class JPAODataBatchProcessor implements BatchProcessor {
 
+  private static final Logger log = Logger.getLogger(JPAODataBatchProcessor.class.getName());
   private final JPAODataRequestContextAccess requestContext;
   private OData odata;
 
@@ -101,12 +105,20 @@ public final class JPAODataBatchProcessor implements BatchProcessor {
      */
     final int handle = requestContext.getDebugger().startRuntimeMeasurement(this, "processChangeSet");
     final List<ODataResponse> responses = new ArrayList<>();
-    final EntityTransaction t = requestContext.getEntityManager().getTransaction();
+    EntityTransaction t = null;
     try {
-      t.begin();
+    	t = requestContext.getEntityManager().getTransaction();
+    } catch(IllegalStateException ex) {
+    	log.log(Level.WARNING, "Can not check isActive for transaction", ex);
+    }
+    try {
+      if(t != null) {    	  
+    	t.begin();
+      }
       for (final ODataRequest request : requests) {
         // Actual request dispatching to the other processor interfaces.
         final ODataResponse response = facade.handleODataRequest(request);
+        requestContext.getDebugger().stopRuntimeMeasurement(handle);
 
         // Determine if an error occurred while executing the request.
         // Exceptions thrown by the processors get caught and result in
@@ -117,7 +129,11 @@ public final class JPAODataBatchProcessor implements BatchProcessor {
           // response as a part of the change set
           responses.add(response);
         } else {
-          t.rollback();
+          if(t != null) {
+            t.rollback();
+          } else {
+        	  throw new ODataJPAProcessorException(MessageKeys.BATCH_FAILED, HttpStatusCode.INTERNAL_SERVER_ERROR);
+          }
           /*
            * In addition the response must be provided as follows:
            * 
@@ -144,17 +160,23 @@ public final class JPAODataBatchProcessor implements BatchProcessor {
         }
       }
       requestContext.getCUDRequestHandler().validateChanges(requestContext.getEntityManager());
-      t.commit();
+      if(t != null) {
+        t.commit();
+      }
       requestContext.getDebugger().stopRuntimeMeasurement(handle);
       return new ODataResponsePart(responses, true);
     } catch (ODataApplicationException e) {
-      t.rollback();
+      if(t != null) {
+        t.rollback();
+      }
       requestContext.getDebugger().stopRuntimeMeasurement(handle);
       throw e;
     } catch (ODataLibraryException e) {
       // The batch request is malformed or the processor implementation is not correct.
       // Throwing an exception will stop the whole batch request not only the Change Set!
-      t.rollback();
+      if(t != null) {
+        t.rollback();
+      }
       requestContext.getDebugger().stopRuntimeMeasurement(handle);
       throw e;
     } catch (RollbackException e) {

@@ -9,7 +9,7 @@ import org.apache.olingo.commons.api.edm.geo.Geospatial.Dimension;
 import org.apache.olingo.commons.api.edm.geo.SRID;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
+@Target({ ElementType.FIELD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
 public @interface EdmGeospatial {
   /**
    * Olingo Geospatial dimension. Possible Values are GEOMETRY and GEOGRAPHY.
