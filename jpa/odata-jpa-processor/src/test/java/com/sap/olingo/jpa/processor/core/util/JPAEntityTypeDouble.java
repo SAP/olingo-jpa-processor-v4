@@ -197,4 +197,10 @@ public class JPAEntityTypeDouble implements JPAEntityType {
     return base.getProtections();
   }
 
+  @Override
+  public JPAPath getEtagPath() throws ODataJPAModelException {
+    fail();
+    return null;
+  }
+
 }

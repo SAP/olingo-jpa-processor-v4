@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import javax.persistence.IdClass;
 import javax.persistence.Table;
@@ -40,7 +41,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityT
 final class IntermediateEntityType extends IntermediateStructuredType implements JPAEntityType,
     IntermediateEntityTypeAccess {
   private CsdlEntityType edmEntityType;
-  private boolean hasEtag;
+  private Optional<JPAPath> etagPath;
   private List<JPAAttribute> keyAttributes;
   private final boolean asEntitySet;
 
@@ -48,6 +49,7 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
     super(nameBuilder, et, schema);
     this.setExternalName(nameBuilder.buildEntityTypeName(et));
     asEntitySet = determineAsEntitySet();
+    etagPath = Optional.empty();
   }
 
   @Override
@@ -85,6 +87,13 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
     }
     // Ensure that Ignore is ignored
     return getPathByDBField(getProperty(propertyInternalName).getDBFieldName());
+  }
+
+  @Override
+  public JPAPath getEtagPath() throws ODataJPAModelException {
+    if (hasEtag() && etagPath.isPresent())
+      return etagPath.get();
+    return null;
   }
 
   @Override
@@ -138,8 +147,8 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
       Class<?> idClass = null;
       final Type<?> idType = ((IdentifiableType<?>) jpaManagedType).getIdType();
       if (idType == null)
-        // Hibernate does not return an IdType in case of compound key that do not use EmbeddableId. So fallback to hand
-        // made evaluation
+        // Hibernate does not return an IdType in case of compound key that do not use
+        // EmbeddableId. So fallback to hand made evaluation
         idClass = jpaManagedType.getJavaType().getAnnotation(IdClass.class).value();
       else
         idClass = idType.getJavaType();
@@ -180,7 +189,7 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
   @Override
   public boolean hasEtag() throws ODataJPAModelException {
     lazyBuildEdmItem();
-    return hasEtag;
+    return etagPath.isPresent();
   }
 
   @Override
@@ -331,12 +340,11 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
   private void determineHasEtag() throws ODataJPAModelException {
     for (final Entry<String, IntermediateProperty> property : this.declaredPropertiesList.entrySet()) {
       if (property.getValue().isEtag()) {
-        hasEtag = true;
-        return;
+        etagPath = Optional.of(getPath(property.getValue().getExternalName(), false));
       }
     }
     if (getBaseType() instanceof IntermediateEntityType)
-      hasEtag = ((IntermediateEntityType) getBaseType()).hasEtag();
+      etagPath = Optional.ofNullable(((IntermediateEntityType) getBaseType()).getEtagPath());
   }
 
   private JPAAttribute getKey(final String internalName) throws ODataJPAModelException {

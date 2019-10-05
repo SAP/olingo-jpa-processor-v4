@@ -67,6 +67,6 @@ final class JPAEntityNavigationLinkResult extends JPACreateResult implements JPA
   @Override
   public EntityCollection getEntityCollection(String key) throws ODataApplicationException {
     if (odataResult == null) asEntityCollection(converter);
-    return odataResult.containsKey(key) ? odataResult.get(key) : new EntityCollection();
+    return odataResult.containsKey(ROOT_RESULT_KEY) ? odataResult.get(ROOT_RESULT_KEY) : new EntityCollection();
   }
 }

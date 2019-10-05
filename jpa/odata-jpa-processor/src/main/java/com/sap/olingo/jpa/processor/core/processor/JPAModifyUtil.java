@@ -66,6 +66,31 @@ public final class JPAModifyUtil {
   }
 
   /**
+   * 
+   * @param et
+   * @param instance
+   * @return
+   * @throws ODataJPAProcessorException
+   * @throws ODataJPAInvocationTargetException
+   */
+  public Object createPrimaryKey(final JPAEntityType et, final Object instance) throws ODataJPAProcessorException {
+    try {
+      if (et.getKey().size() == 1)
+        return getAttribute(instance, et.getKey().get(0));
+
+      final Object key = et.getKeyType().getConstructor().newInstance();
+      for (final JPAAttribute keyElement : et.getKey()) {
+        setAttribute(key, keyElement, getAttribute(instance, keyElement));
+      }
+
+      return key;
+    } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
+        | IllegalArgumentException | InvocationTargetException | ODataJPAModelException e) {
+      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  /**
    * Sets a link between a source and target instance. Prerequisite are
    * existing setter and getter on the level of the sourceInstance. In case of to n associations it is expected that the
    * getter always returns a collection. In case structured properties are passed either a getter returns always an

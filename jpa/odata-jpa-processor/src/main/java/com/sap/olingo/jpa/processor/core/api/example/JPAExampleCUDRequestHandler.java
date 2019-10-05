@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.processor.core.api.example;
 
+import static com.sap.olingo.jpa.processor.core.api.example.JPAExampleModifyException.MessageKeys.ENTITY_ALREADY_EXISTS;
 import static com.sap.olingo.jpa.processor.core.api.example.JPAExampleModifyException.MessageKeys.ENTITY_NOT_FOUND;
 
 import java.lang.reflect.Constructor;
@@ -52,11 +53,16 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
     if (requestEntity.getKeys().isEmpty()) {
       // POST an Entity
       instance = createOneEntity(requestEntity, em, null);
+      final Object old = em.find(requestEntity.getEntityType().getTypeClass(),
+          requestEntity.getModifyUtil().createPrimaryKey(requestEntity.getEntityType(), instance));
+      if (old != null)
+        throw new JPAExampleModifyException(ENTITY_ALREADY_EXISTS, HttpStatusCode.BAD_REQUEST);
     } else {
       // POST on Link only // https://issues.oasis-open.org/browse/ODATA-1294
       instance = findEntity(requestEntity, em);
     }
     processRelatedEntities(requestEntity.getRelatedEntities(), instance, requestEntity.getModifyUtil(), em);
+    em.persist(instance);
     return instance;
   }
 
@@ -111,7 +117,6 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
 
     final Object instance = createInstance(getConstructor(requestEntity.getEntityType(), parent), parent);
     requestEntity.getModifyUtil().setAttributesDeep(requestEntity.getData(), instance, requestEntity.getEntityType());
-    em.persist(instance);
     entityBuffer.put(instance, requestEntity);
     return instance;
   }

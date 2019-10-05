@@ -91,17 +91,19 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
   public void checkSelectOnePropertyCreatedAt() throws ODataApplicationException, ODataJPAModelException {
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
         new UriInfoDouble(new SelectOptionDouble("CreationDateTime"))), root, Collections.emptyList());
-    assertEquals(2, selectClause.size());
+    assertEquals(3, selectClause.size());
     assertContains(selectClause, "CreationDateTime");
     assertContains(selectClause, "ID");
+    assertContains(selectClause, "ETag");
   }
 
   @Test
   public void checkSelectOnePropertyID() throws ODataApplicationException, ODataJPAModelException {
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
         new UriInfoDouble(new SelectOptionDouble("ID"))), root, Collections.emptyList());
-    assertEquals(1, selectClause.size());
+    assertEquals(2, selectClause.size());
     assertContains(selectClause, "ID");
+    assertContains(selectClause, "ETag");
   }
 
   @Test
@@ -128,9 +130,10 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
         new UriInfoDouble(new SelectOptionDouble("Type,CreationDateTime"))), root, Collections.emptyList());
 
-    assertEquals(3, selectClause.size());
+    assertEquals(4, selectClause.size());
     assertContains(selectClause, "CreationDateTime");
     assertContains(selectClause, "Type");
+    assertContains(selectClause, "ETag");
     assertContains(selectClause, "ID");
   }
 
@@ -163,7 +166,7 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
 
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
         new UriInfoDouble(new SelectOptionDouble("Address"))), root, Collections.emptyList());
-    assertEquals(TestDataConstants.NO_ATTRIBUTES_POSTAL_ADDRESS + 1, selectClause.size());
+    assertEquals(TestDataConstants.NO_ATTRIBUTES_POSTAL_ADDRESS + 2, selectClause.size());
   }
 
   @Test
@@ -175,9 +178,10 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
 
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
         new UriInfoDouble(new SelectOptionDouble("AdministrativeInformation/Created"))), root, Collections.emptyList());
-    assertEquals(3, selectClause.size());
+    assertEquals(4, selectClause.size());
     assertContains(selectClause, "AdministrativeInformation/Created/By");
     assertContains(selectClause, "AdministrativeInformation/Created/At");
+    assertContains(selectClause, "ETag");
     assertContains(selectClause, "ID");
   }
 
@@ -190,11 +194,12 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
 
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
         new UriInfoDouble(new SelectOptionDouble("AdministrativeInformation"))), root, Collections.emptyList());
-    assertEquals(5, selectClause.size());
+    assertEquals(6, selectClause.size());
     assertContains(selectClause, "AdministrativeInformation/Created/By");
     assertContains(selectClause, "AdministrativeInformation/Created/At");
     assertContains(selectClause, "AdministrativeInformation/Updated/By");
     assertContains(selectClause, "AdministrativeInformation/Updated/At");
+    assertContains(selectClause, "ETag");
     assertContains(selectClause, "ID");
   }
 
@@ -210,7 +215,8 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
         new UriInfoDouble(new SelectOptionDouble("Address/Country"))), root, Collections.emptyList());
     assertContains(selectClause, "Address/Country");
     assertContains(selectClause, "ID");
-    assertEquals(2, selectClause.size());
+    assertContains(selectClause, "ETag");
+    assertEquals(3, selectClause.size());
   }
 
   @Test
@@ -224,7 +230,8 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
         new UriInfoDouble(new SelectOptionDouble("Address/CountryName"))), root, Collections.emptyList());
     assertContains(selectClause, "Address/CountryName");
     assertContains(selectClause, "ID");
-    assertEquals(2, selectClause.size());
+    assertContains(selectClause, "ETag");
+    assertEquals(3, selectClause.size());
   }
 
   @Test
@@ -236,8 +243,9 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
 
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
         new UriInfoDouble(new SelectOptionDouble("Address"))), root, Collections.emptyList());
-    assertEquals(TestDataConstants.NO_ATTRIBUTES_POSTAL_ADDRESS + 1, selectClause.size());
+    assertEquals(TestDataConstants.NO_ATTRIBUTES_POSTAL_ADDRESS + 2, selectClause.size());
     assertContains(selectClause, "Address/CountryName");
+    assertContains(selectClause, "ETag");
     assertContains(selectClause, "ID");
   }
 

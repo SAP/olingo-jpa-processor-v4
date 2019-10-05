@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.annotation.Nonnull;
 import javax.persistence.Tuple;
 import javax.persistence.TupleElement;
 
@@ -102,6 +103,7 @@ public class JPATupleChildConverter extends JPATupleResultConverter {
     // Creates and add the key of an entity. In general OData allows a server to add additional properties that are not
     // part of $select. As Olingo adds the key properties (with null) anyhow this can be done here already
     createId(rowEntity, row, odataEntity);
+    createEtag(rowEntity, row, odataEntity);
     if (reqestedSelection.isEmpty())
       convertRowWithOutSelection(rowEntity, row, complexValueBuffer, odataEntity, properties);
     else
@@ -226,6 +228,24 @@ public class JPATupleChildConverter extends JPATupleResultConverter {
           HttpStatusCode.INTERNAL_SERVER_ERROR, e);
     }
     odataEntity.setId(createId(odataEntity));
+  }
+
+  private void createEtag(@Nonnull JPAEntityType rowEntity, Tuple row, Entity odataEntity)
+      throws ODataJPAQueryException {
+
+    try {
+      if (rowEntity.hasEtag()) {
+        final String etagAlias = rowEntity.getEtagPath().getAlias();
+        final Object etag = row.get(etagAlias);
+        if (etag != null) {
+          odataEntity.setETag(etag.toString());
+        }
+      }
+
+    } catch (ODataJPAModelException e) {
+      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
+          HttpStatusCode.INTERNAL_SERVER_ERROR, e);
+    }
   }
 
   protected EdmEntityType determineEdmType() {

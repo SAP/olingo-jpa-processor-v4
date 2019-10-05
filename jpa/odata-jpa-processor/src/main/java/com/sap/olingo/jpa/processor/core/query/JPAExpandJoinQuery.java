@@ -35,8 +35,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 /**
@@ -113,19 +113,18 @@ public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
           top = uriResource.getTopOption().getValue();
       }
       final Map<String, List<Tuple>> result = convertResult(intermediateResult, assoziation, skip, top);
-      try {
-        final Set<JPAPath> requestedSelection = new HashSet<>();
-        buildSelectionAddNavigationAndSelect(uriResource, requestedSelection, uriResource.getSelectOption());
-        debugger.stopRuntimeMeasurement(handle);
-        return new JPAExpandQueryResult(result, count(), jpaEntity, requestedSelection);
 
-      } catch (ODataJPAModelException e) {
-        throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR
-            .getStatusCode(), ODataJPAModelException.getLocales().nextElement(), e);
-      }
+      final Set<JPAPath> requestedSelection = new HashSet<>();
+      buildSelectionAddNavigationAndSelect(uriResource, requestedSelection, uriResource.getSelectOption());
+      debugger.stopRuntimeMeasurement(handle);
+      return new JPAExpandQueryResult(result, count(), jpaEntity, requestedSelection);
+
     } catch (JPANoSelectionException e) {
       return new JPAExpandQueryResult(Collections.emptyMap(), Collections.emptyMap(), this.jpaEntity, Collections
           .emptyList());
+    } catch (ODataJPAModelException e) {
+      throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR
+          .getStatusCode(), ODataJPAModelException.getLocales().nextElement(), e);
     }
   }
 

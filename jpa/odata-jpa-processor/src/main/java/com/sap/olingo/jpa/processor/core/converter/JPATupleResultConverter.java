@@ -207,9 +207,6 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
           attribute.isEnum() ? ValueType.ENUM : ValueType.PRIMITIVE,
           odataValue));
     }
-    if (odataEntity != null && attribute != null && odataValue != null && attribute.isEtag()) {
-      odataEntity.setETag(odataValue.toString());
-    }
   }
 
   Integer determineCount(final JPAAssociationPath assoziation, final Tuple parentRow, final JPAExpandResult child)
