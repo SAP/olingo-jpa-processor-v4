@@ -27,6 +27,10 @@ public class User {
     this.username = username;
   }
 
+  public String getId() {
+    return this.username;
+  }
+
   public String getPassword() {
     return password;
   }
@@ -41,5 +45,9 @@ public class User {
 
   public void setEnabled(Boolean enabled) {
     this.enabled = enabled;
+  }
+
+  public void setUsername(String username) {
+    this.username = username;
   }
 }

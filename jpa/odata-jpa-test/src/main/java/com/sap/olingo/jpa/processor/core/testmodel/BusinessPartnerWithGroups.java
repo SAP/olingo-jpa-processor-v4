@@ -1,10 +1,11 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 import javax.persistence.AssociationOverride;
@@ -249,8 +250,7 @@ public class BusinessPartnerWithGroups implements KeyAccess {
   @PrePersist
   public void onCreate() {
     administrativeInformation = new AdministrativeInformation();
-    long time = new Date().getTime();
-    ChangeInformation created = new ChangeInformation("99", new Timestamp(time));
+    ChangeInformation created = new ChangeInformation("99", Date.valueOf(LocalDate.now()));
     administrativeInformation.setCreated(created);
     administrativeInformation.setUpdated(created);
   }

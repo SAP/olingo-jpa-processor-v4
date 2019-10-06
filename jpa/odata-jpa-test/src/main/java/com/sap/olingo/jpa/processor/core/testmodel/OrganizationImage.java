@@ -27,27 +27,27 @@ public class OrganizationImage {
   @Embedded
   private AdministrativeInformation administrativeInformation = new AdministrativeInformation();
 
-  String getID() {
+  public String getID() {
     return ID;
   }
 
-  void setID(String iD) {
+  public void setID(final String iD) {
     ID = iD;
   }
 
-  byte[] getImage() {
+  public byte[] getImage() {
     return image;
   }
 
-  void setImage(byte[] image) {
+  public void setImage(final byte[] image) {
     this.image = image;
   }
 
-  AdministrativeInformation getAdministrativeInformation() {
+  public AdministrativeInformation getAdministrativeInformation() {
     return administrativeInformation;
   }
 
-  void setAdministrativeInformation(AdministrativeInformation administrativeInformation) {
+  public void setAdministrativeInformation(final AdministrativeInformation administrativeInformation) {
     this.administrativeInformation = administrativeInformation;
   }
 
@@ -55,7 +55,7 @@ public class OrganizationImage {
     return mimeType;
   }
 
-  void setMimeType(String mimeType) {
+  void setMimeType(final String mimeType) {
     this.mimeType = mimeType;
   }
 }

@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.modify;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -13,6 +14,7 @@ import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescription;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescriptionKey;
+import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
 import com.sap.olingo.jpa.processor.core.testmodel.CollcetionInnerComplex;
 import com.sap.olingo.jpa.processor.core.testmodel.CollcetionNestedComplex;
@@ -72,6 +74,20 @@ public class TestJPAEntityResult extends TestJPACreateResult {
     ((Organization) jpaEntity).setID("01");
     ((Organization) jpaEntity).setCustomString1("Dummy");
 
+    cut = new JPAEntityResult(et, jpaEntity, headers, converter);
+  }
+
+  @Override
+  protected void createCutGetResultWithDescriptionProperty() throws ODataJPAModelException, ODataApplicationException {
+    et = helper.getJPAEntityType("Organizations");
+    jpaEntity = new Organization();
+
+    final AdministrativeDivisionDescription description = new AdministrativeDivisionDescription();
+    description.setKey(new AdministrativeDivisionDescriptionKey("ISO", "3166", "DEU", "en"));
+    description.setName("MyDivision");
+    ((BusinessPartner) jpaEntity).setLocationName(Arrays.asList(description));
+    ((BusinessPartner) jpaEntity).setID("Willi");
+    ((BusinessPartner) jpaEntity).setETag(7l);
     cut = new JPAEntityResult(et, jpaEntity, headers, converter);
   }
 
@@ -228,4 +244,5 @@ public class TestJPAEntityResult extends TestJPACreateResult {
     cut = new JPAEntityResult(et, jpaEntity, headers, converter);
 
   }
+
 }

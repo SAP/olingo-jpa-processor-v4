@@ -24,6 +24,19 @@ public class AdministrativeDivisionDescriptionKey implements Serializable {
   @Column(name = "\"LanguageISO\"")
   private String language;
 
+  public AdministrativeDivisionDescriptionKey() {
+    // Needed for JPA
+  }
+
+  public AdministrativeDivisionDescriptionKey(final String codePublisher, final String codeID,
+      final String divisionCode, final String language) {
+    super();
+    this.codePublisher = codePublisher;
+    this.codeID = codeID;
+    this.divisionCode = divisionCode;
+    this.language = language;
+  }
+
   public String getLanguage() {
     return language;
   }
@@ -50,10 +63,6 @@ public class AdministrativeDivisionDescriptionKey implements Serializable {
 
   public void setDivisionCode(String divisonCode) {
     this.divisionCode = divisonCode;
-  }
-
-  public static long getSerialversionuid() {
-    return serialVersionUID;
   }
 
   public void setLanguage(String language) {

@@ -42,13 +42,18 @@ abstract class JPACreateResult implements JPAExpandResult {
   }
 
   @Override
-  public Map<JPAAssociationPath, JPAExpandResult> getChildren() {
-    return children;
+  public void convert(final JPATupleChildConverter converter) throws ODataApplicationException {
+    // No implementation required for CUD operations
   }
 
   @Override
   public JPAExpandResult getChild(JPAAssociationPath associationPath) {
     return children.get(associationPath);
+  }
+
+  @Override
+  public Map<JPAAssociationPath, JPAExpandResult> getChildren() {
+    return children;
   }
 
   @Override
@@ -66,25 +71,20 @@ abstract class JPACreateResult implements JPAExpandResult {
     return false;
   }
 
-  @Override
-  public void convert(final JPATupleChildConverter converter) throws ODataApplicationException {
-    // No implementation required for CUD operations
-  }
-
   protected void addValueToTuple(final JPATuple tuple, final JPAPath path, final int index, Object value)
       throws ODataJPAProcessorException {
     if (path.getPath().get(index) instanceof JPADescriptionAttribute) {
       @SuppressWarnings("unchecked")
       Collection<Object> desc = (Collection<Object>) value;
       if (desc != null) {
-
-        for (Object entry : desc) {
-          final Map<String, Object> descGetterMap = helper.buildGetterMap(entry);
-          JPADescriptionAttribute jpaAttribute = (JPADescriptionAttribute) path.getPath().get(index);
-          value = descGetterMap.get(jpaAttribute.getLocaleFieldName().getPath().get(0).getInternalName());
-          if (locale.getLanguage().equals(value)
-              || locale.toString().equals(value)) {
-            tuple.addElement(path.getAlias(), path.getLeaf().getType(), value);
+        for (final Object entry : desc) {
+          final Map<String, Object> descGetterMap = entryAsMap(entry);
+          final JPADescriptionAttribute jpaAttribute = (JPADescriptionAttribute) path.getPath().get(index);
+          final String providedLocale = determineLocale(descGetterMap, jpaAttribute);
+          if (locale.getLanguage().equals(providedLocale)
+              || locale.toString().equals(providedLocale)) {
+            final Object desciption = descGetterMap.get(jpaAttribute.getDescriptionAttribute().getInternalName());
+            tuple.addElement(path.getAlias(), path.getLeaf().getType(), desciption);
             break;
           }
         }
@@ -96,6 +96,23 @@ abstract class JPACreateResult implements JPAExpandResult {
     }
   }
 
+  protected void convertPathToTuple(final JPATuple tuple, final Map<String, Object> jpaEntity, final JPAPath path,
+      final int index) throws ODataJPAProcessorException {
+
+    final Object value = jpaEntity.get(path.getPath().get(index).getInternalName());
+    if (path.getPath().size() == index + 1 || value == null) {
+      addValueToTuple(tuple, path, index, value);
+    } else {
+      final Map<String, Object> embeddedGetterMap = entryAsMap(value);
+      convertPathToTuple(tuple, embeddedGetterMap, path, index + 1);
+    }
+  }
+
+  protected abstract String determineLocale(final Map<String, Object> descGetterMap,
+      JPAPath localeAttribute, final int index) throws ODataJPAProcessorException;
+
+  protected abstract Map<String, Object> entryAsMap(final Object entry) throws ODataJPAProcessorException;
+
   protected boolean notContainsCollection(final JPAPath path) {
     for (JPAElement e : path.getPath())
       if (e instanceof JPAAttribute && ((JPAAttribute) e).isCollection())
@@ -103,4 +120,8 @@ abstract class JPACreateResult implements JPAExpandResult {
     return true;
   }
 
+  private String determineLocale(final Map<String, Object> descGetterMap,
+      final JPADescriptionAttribute descAttribute) throws ODataJPAProcessorException {
+    return determineLocale(descGetterMap, descAttribute.getLocaleFieldName(), 0);
+  }
 }

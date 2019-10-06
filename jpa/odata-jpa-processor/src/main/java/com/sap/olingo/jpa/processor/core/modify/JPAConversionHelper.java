@@ -288,14 +288,7 @@ public class JPAConversionHelper {
         String attributeName = methodName.substring(3, 4).toLowerCase() + methodName.substring(4);
         try {
           Object value = meth.invoke(instance);
-//          if (value instanceof Collection<?>) {
-//            List<Map<String, Object>> assoziated = new ArrayList<>(((Collection<?>) value).size());
-//            for (Object i : ((Collection<?>) value))
-//              assoziated.add(this.determineGetter(i));
-//            getterMap.put(attributeName, assoziated);
-//          } else {
           getterMap.put(attributeName, value);
-//          }
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
           throw new ODataJPAProcessorException(MessageKeys.ATTRIBUTE_RETRIVAL_FAILED,
               HttpStatusCode.INTERNAL_SERVER_ERROR, e, attributeName);

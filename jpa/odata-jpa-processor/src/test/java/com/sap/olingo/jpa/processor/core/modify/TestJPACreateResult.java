@@ -105,6 +105,17 @@ public abstract class TestJPACreateResult extends TestBase {
   }
 
   @Test
+  public void testGetResultWithDescriptionProperty() throws ODataJPAModelException, ODataApplicationException {
+
+    createCutGetResultWithDescriptionProperty();
+    final List<Tuple> act = cut.getResult("root");
+    assertEquals(1, act.size());
+    final Tuple actResult = act.get(0);
+    assertEquals(7L, actResult.get("ETag"));
+    assertEquals("MyDivision", actResult.get("LocationName"));
+  }
+
+  @Test
   public void testGetResultWithTwoLinked() throws ODataJPAModelException, ODataApplicationException {
     createCutGetResultWithWithTwoLinked();
     Map<JPAAssociationPath, JPAExpandResult> act = cut.getChildren();
@@ -239,6 +250,12 @@ public abstract class TestJPACreateResult extends TestBase {
     assertTrue(found);
   }
 
+  @Test
+  public void testHasCountReturns() throws ODataJPAModelException, ODataApplicationException {
+    createCutProvidesEmptyMap();
+    assertFalse(cut.hasCount());
+  }
+
   private void assertDoesNotContain(final List<Tuple> result, final String prefix) {
     for (Tuple t : result) {
       for (TupleElement<?> e : t.getElements())
@@ -262,6 +279,9 @@ public abstract class TestJPACreateResult extends TestBase {
       ODataApplicationException;
 
   protected abstract void createCutGetResultWithWithOneLinked() throws ODataJPAModelException,
+      ODataApplicationException;
+
+  protected abstract void createCutGetResultWithDescriptionProperty() throws ODataJPAModelException,
       ODataApplicationException;
 
   protected abstract void createCutGetResultSimpleEntity() throws ODataJPAModelException, ODataApplicationException;

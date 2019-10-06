@@ -53,4 +53,12 @@ public class ComplextProtectedNoPath {
     return eTag;
   }
 
+  public void setiD(String iD) {
+    this.iD = iD;
+  }
+
+  public void seteTag(long eTag) {
+    this.eTag = eTag;
+  }
+
 }
