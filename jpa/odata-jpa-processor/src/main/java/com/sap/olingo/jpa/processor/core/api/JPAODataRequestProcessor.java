@@ -72,7 +72,8 @@ public final class JPAODataRequestProcessor
       ODataLibraryException {
 
     try {
-      final JPACUDRequestProcessor p = factory.createCUDRequestProcessor(uriInfo, responseFormat, requestContext);
+      final JPACUDRequestProcessor p = factory.createCUDRequestProcessor(uriInfo, responseFormat, requestContext,
+          request.getAllHeaders());
       p.createEntity(request, response, requestFormat, responseFormat);
     } catch (ODataApplicationException | ODataLibraryException e) {
       throw e;
@@ -317,7 +318,8 @@ public final class JPAODataRequestProcessor
       throws ODataApplicationException, ODataLibraryException {
 
     try {
-      final JPACUDRequestProcessor p = factory.createCUDRequestProcessor(uriInfo, responseFormat, requestContext);
+      final JPACUDRequestProcessor p = factory.createCUDRequestProcessor(uriInfo, responseFormat, requestContext,
+          request.getAllHeaders());
       p.updateEntity(request, response, requestFormat, responseFormat);
     } catch (ODataApplicationException | ODataLibraryException e) {
       throw e;
@@ -413,7 +415,8 @@ public final class JPAODataRequestProcessor
       throws ODataApplicationException, ODataLibraryException {
 
     try {
-      final JPAActionRequestProcessor p = this.factory.createActionProcessor(uriInfo, responseFormat, requestContext);
+      final JPAActionRequestProcessor p = this.factory.createActionProcessor(uriInfo, responseFormat, request
+          .getAllHeaders(), requestContext);
       p.performAction(request, response, requestFormat);
     } catch (ODataApplicationException | ODataLibraryException e) {
       throw e;
@@ -427,7 +430,8 @@ public final class JPAODataRequestProcessor
   public void processActionVoid(ODataRequest request, ODataResponse response, UriInfo uriInfo,
       ContentType requestFormat) throws ODataApplicationException, ODataLibraryException {
     try {
-      final JPAActionRequestProcessor p = this.factory.createActionProcessor(uriInfo, null, requestContext);
+      final JPAActionRequestProcessor p = this.factory.createActionProcessor(uriInfo, null, request.getAllHeaders(),
+          requestContext);
       p.performAction(request, response, requestFormat);
     } catch (ODataApplicationException | ODataLibraryException e) {
       throw e;
