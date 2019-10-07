@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.apache.olingo.server.api.serializer.SerializerException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -22,6 +23,7 @@ public class TestJPAConversionHelperMap extends TestJPAConversionHelper {
   }
 
   @Override
+  @Test
   public void testConvertCompoundKeyToLocation() throws ODataJPAProcessorException, SerializerException,
       ODataJPAModelException {
 
@@ -35,6 +37,7 @@ public class TestJPAConversionHelperMap extends TestJPAConversionHelper {
   }
 
   @Override
+  @Test
   public void testConvertEmbeddedIdToLocation() throws ODataJPAProcessorException, SerializerException,
       ODataJPAModelException {
 
@@ -56,6 +59,7 @@ public class TestJPAConversionHelperMap extends TestJPAConversionHelper {
   }
 
   @Override
+  @Test
   public void testConvertSimpleKeyToLocation() throws ODataJPAProcessorException, SerializerException,
       ODataJPAModelException {
 

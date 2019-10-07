@@ -39,8 +39,24 @@ public class Comment implements Serializable {
     return this.businessPartnerID;
   }
 
-  public void setID(String ID) {
-    this.businessPartnerID = ID;
+  public String getOrder() {
+    return order;
+  }
+
+  public void setOrder(String order) {
+    this.order = order;
+  }
+
+  public Clob getText() {
+    return text;
+  }
+
+  public void setText(Clob text) {
+    this.text = text;
+  }
+
+  public void setBusinessPartnerID(String businessPartnerID) {
+    this.businessPartnerID = businessPartnerID;
   }
 
 }

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
@@ -34,6 +35,7 @@ import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
 import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 import org.apache.olingo.commons.api.format.ContentType;
+import org.apache.olingo.commons.api.http.HttpHeader;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataRequest;
@@ -69,16 +71,20 @@ public class TestJPACUDRequestHelper {
   private static final String INHOUSE_EXT_PROPERTY_NAME = "InhouseAddress";
   private JPAConversionHelper cut;
   private List<UriResource> uriResourceParts;
+  private ODataRequest request;
+  private List<String> headers;
 
   @BeforeEach
   public void setUp() throws Exception {
+    request = mock(ODataRequest.class);
+    headers = new ArrayList<>(1);
     uriResourceParts = new ArrayList<>();
     cut = new JPAConversionHelper();
   }
 
   @Test
   public void testConvertEmptyInputStream() throws UnsupportedEncodingException {
-    final ODataRequest request = mock(ODataRequest.class);
+
     final EdmEntitySetInfo etsInfo = mock(EdmEntitySetInfo.class);
     final EdmEntitySet ets = mock(EdmEntitySet.class);
     final UriResourceEntitySet uriEs = mock(UriResourceEntitySet.class);
@@ -105,8 +111,6 @@ public class TestJPACUDRequestHelper {
   @Test
   public void testConvertInputStreamComplexColectionProperty() throws UnsupportedEncodingException,
       ODataJPAProcessorException, EdmPrimitiveTypeException {
-
-    final ODataRequest request = mock(ODataRequest.class);
 
     final EdmEntitySet edmEntitySet = mock(EdmEntitySet.class);
     final EdmEntityType edmEntityType = mock(EdmEntityType.class);
@@ -166,7 +170,6 @@ public class TestJPACUDRequestHelper {
   public void testConvertInputStreamEntitySet() throws UnsupportedEncodingException, ODataJPAProcessorException,
       EdmPrimitiveTypeException {
 
-    final ODataRequest request = mock(ODataRequest.class);
     prepareEntitySet();
     InputStream is = new ByteArrayInputStream("{\"ID\" : \"35\"}".getBytes("UTF-8"));
     when(request.getBody()).thenReturn(is);
@@ -175,12 +178,56 @@ public class TestJPACUDRequestHelper {
     assertEquals("35", act.getProperty("ID").getValue());
   }
 
+  @Test
+  public void testConvertInputStreamEntitySetWithAnnotationV400() throws UnsupportedEncodingException,
+      ODataJPAProcessorException, EdmPrimitiveTypeException {
+
+    headers.add("4.00");
+    prepareEntitySet();
+    InputStream is = new ByteArrayInputStream(
+        "{\"@odata.context\": \"$metadata#test.Organisation\", \"@odata.type\": \"#test.Organisation\", \"ID\" : \"35\"}"
+            .getBytes("UTF-8"));
+    when(request.getBody()).thenReturn(is);
+    when(request.getHeaders(HttpHeader.ODATA_VERSION)).thenReturn(headers);
+
+    Entity act = cut.convertInputStream(OData.newInstance(), request, ContentType.APPLICATION_JSON, uriResourceParts);
+    assertEquals("35", act.getProperty("ID").getValue());
+  }
+
+  @Test
+  public void testConvertInputStreamEntitySetWithAnnotationV401() throws UnsupportedEncodingException,
+      ODataJPAProcessorException, EdmPrimitiveTypeException {
+
+    headers.add("4.01");
+    prepareEntitySet();
+    InputStream is = new ByteArrayInputStream(
+        "{\"@context\": \"$metadata#test.Organisation\", \"@type\": \"#test.Organisation\", \"ID\" : \"35\"}"
+            .getBytes("UTF-8"));
+    when(request.getBody()).thenReturn(is);
+    when(request.getHeaders(HttpHeader.ODATA_VERSION)).thenReturn(headers);
+
+    Entity act = cut.convertInputStream(OData.newInstance(), request, ContentType.APPLICATION_JSON, uriResourceParts);
+    assertEquals("35", act.getProperty("ID").getValue());
+  }
+
+  @Test
+  public void testConvertInputStreamEntitySetThrowsExceptioOnAnnotationMissmatch() throws UnsupportedEncodingException,
+      ODataJPAProcessorException, EdmPrimitiveTypeException {
+
+    prepareEntitySet();
+    InputStream is = new ByteArrayInputStream(
+        "{\"@context\": \"$metadata#com.sap.olingo.jpa.Organization\", \"@type\": \"#com.sap.olingo.jpa.Organization\", \"ID\" : \"35\"}"
+            .getBytes("UTF-8"));
+    when(request.getBody()).thenReturn(is);
+
+    assertThrows(ODataJPAProcessorException.class, () -> cut.convertInputStream(OData.newInstance(), request,
+        ContentType.APPLICATION_JSON, uriResourceParts));
+  }
+
   @SuppressWarnings("unchecked")
   @Test
   public void testConvertInputStreamPrimitiveColectionProperty() throws UnsupportedEncodingException,
       ODataJPAProcessorException, EdmPrimitiveTypeException {
-
-    final ODataRequest request = mock(ODataRequest.class);
 
     final EdmEntitySet edmEntitySet = mock(EdmEntitySet.class);
     final EdmEntityType edmEntityType = mock(EdmEntityType.class);
@@ -244,12 +291,25 @@ public class TestJPACUDRequestHelper {
   }
 
   @Test
-  public void testConvertInputStreamWithAnnotationPrimitiveSimpleProperty() throws UnsupportedEncodingException,
+  public void testConvertInputStreamWithAnnotationV400PrimitiveSimpleProperty() throws UnsupportedEncodingException,
       ODataJPAProcessorException, EdmPrimitiveTypeException {
 
     final ODataRequest request = preparePrimitiveSimpleProperty();
     InputStream is = new ByteArrayInputStream(
         "{ \"@jpa.odata.context\": \"$metadata#Organisations\", \"value\" : \"Willi\"}".getBytes("UTF-8"));
+    when(request.getBody()).thenReturn(is);
+
+    Entity act = cut.convertInputStream(OData.newInstance(), request, ContentType.APPLICATION_JSON, uriResourceParts);
+    assertEquals("Willi", act.getProperty("Name2").getValue());
+  }
+
+  @Test
+  public void testConvertInputStreamWithAnnotationV401PrimitiveSimpleProperty() throws UnsupportedEncodingException,
+      ODataJPAProcessorException, EdmPrimitiveTypeException {
+
+    final ODataRequest request = preparePrimitiveSimpleProperty();
+    InputStream is = new ByteArrayInputStream(
+        "{ \"@context\": \"$metadata#Organisations\", \"value\" : \"Willi\"}".getBytes("UTF-8"));
     when(request.getBody()).thenReturn(is);
 
     Entity act = cut.convertInputStream(OData.newInstance(), request, ContentType.APPLICATION_JSON, uriResourceParts);
@@ -280,6 +340,7 @@ public class TestJPACUDRequestHelper {
   @Test
   public void testConvertPropertiesEmptyComplexCollcetionProperty() throws ODataJPAProcessException,
       ODataJPAModelException {
+
     final List<Property> odataProperties = new ArrayList<>();
     final List<ComplexValue> odataComment = new ArrayList<>();
     final JPAStructuredType st = createMetadataForSimpleProperty("Address", "address");
@@ -334,6 +395,7 @@ public class TestJPACUDRequestHelper {
   @Test
   public void testConvertPropertiesOneComplexCollcetionProperty() throws ODataJPAProcessException,
       ODataJPAModelException {
+
     final List<Property> odataProperties = new ArrayList<>();
     final List<ComplexValue> odataComment = new ArrayList<>();
     final List<Property> addressProperties = new ArrayList<>();
@@ -367,6 +429,7 @@ public class TestJPACUDRequestHelper {
 
   @Test
   public void testConvertPropertiesOneComplexProperty() throws ODataJPAProcessException, ODataJPAModelException {
+
     List<Property> odataProperties = new ArrayList<>();
     JPAStructuredType st = mock(JPAStructuredType.class);
     Property propertyID = mock(Property.class);
@@ -419,6 +482,7 @@ public class TestJPACUDRequestHelper {
   @Test
   public void testConvertPropertiesOneEnumPropertyWithConverter() throws ODataJPAProcessException,
       ODataJPAModelException {
+
     List<Property> odataProperties = new ArrayList<>();
     JPAStructuredType st = mock(JPAStructuredType.class);
     Property propertyID = mock(Property.class);
@@ -554,6 +618,7 @@ public class TestJPACUDRequestHelper {
   @Test
   public void testConvertPropertiesTwoComplexCollcetionProperty() throws ODataJPAProcessException,
       ODataJPAModelException {
+
     final List<Property> odataProperties = new ArrayList<>();
     final List<ComplexValue> odataComment = new ArrayList<>();
     final JPAStructuredType st = createMetadataForSimpleProperty("Address", "address");

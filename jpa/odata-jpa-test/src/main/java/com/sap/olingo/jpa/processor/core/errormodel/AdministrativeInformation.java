@@ -4,7 +4,6 @@ import java.sql.Timestamp;
 import java.util.Date;
 
 import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
@@ -14,16 +13,16 @@ import javax.persistence.PreUpdate;
 @Embeddable
 public class AdministrativeInformation {
   @Embedded
-  @AttributeOverrides({
-      @AttributeOverride(name = "by", column = @Column(name = "\"CreatedBy\"")),
-      @AttributeOverride(name = "at", column = @Column(name = "\"CreatedAt\""))
-  })
+
+  @AttributeOverride(name = "by", column = @Column(name = "\"CreatedBy\""))
+  @AttributeOverride(name = "at", column = @Column(name = "\"CreatedAt\""))
+
   private ChangeInformation created;
   @Embedded
-  @AttributeOverrides({
-      @AttributeOverride(name = "by", column = @Column(name = "\"UpdatedBy\"")),
-      @AttributeOverride(name = "at", column = @Column(name = "\"UpdatedAt\""))
-  })
+
+  @AttributeOverride(name = "by", column = @Column(name = "\"UpdatedBy\""))
+  @AttributeOverride(name = "at", column = @Column(name = "\"UpdatedAt\""))
+
   private ChangeInformation updated;
 
   public ChangeInformation getCreated() {
