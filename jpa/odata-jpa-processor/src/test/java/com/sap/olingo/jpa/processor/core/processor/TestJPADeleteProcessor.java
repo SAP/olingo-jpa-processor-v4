@@ -3,8 +3,8 @@ package com.sap.olingo.jpa.processor.core.processor;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -13,7 +13,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -21,101 +20,28 @@ import java.util.Map;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
-import javax.sql.DataSource;
 
-import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
-import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
-import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.serializer.SerializerException;
-import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriParameter;
-import org.apache.olingo.server.api.uri.UriResource;
-import org.apache.olingo.server.api.uri.UriResourceEntitySet;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
-import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
-import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.processor.core.api.JPAAbstractCUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.api.JPACUDRequestHandler;
-import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupsProvider;
-import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
-import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
-import com.sap.olingo.jpa.processor.core.util.TestBase;
 
-public class TestJPADeleteProcessor {
-  private JPACUDRequestProcessor processor;
-  private OData odata;
-  private ServiceMetadata serviceMetadata;
-  private JPAODataCRUDContextAccess sessionContext;
-  private JPAODataRequestContextAccess requestContext;
-  private UriInfo uriInfo;
-  private UriResourceEntitySet uriEts;
-  private EdmEntitySet ets;
-  private List<UriParameter> keyPredicates;
-  private JPAServiceDebugger debugger;
-  private EntityManager em;
-  private EntityTransaction transaction;
-
-  private static final String PUNIT_NAME = "com.sap.olingo.jpa";
-  private static EntityManagerFactory emf;
-  private static JPAEdmProvider jpaEdm;
-  private static DataSource ds;
-
-  @BeforeAll
-  public static void setupClass() throws ODataException {
-    JPAEdmMetadataPostProcessor pP = mock(JPAEdmMetadataPostProcessor.class);
-    ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
-    emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, ds);
-    jpaEdm = new JPAEdmProvider(PUNIT_NAME, emf.getMetamodel(), pP, TestBase.enumPackages);
-
-  }
-
-  @BeforeEach
-  public void setUp() throws Exception {
-    odata = OData.newInstance();
-    sessionContext = mock(JPAODataCRUDContextAccess.class);
-    requestContext = mock(JPAODataRequestContextAccess.class);
-    serviceMetadata = mock(ServiceMetadata.class);
-    uriInfo = mock(UriInfo.class);
-    debugger = mock(JPAServiceDebugger.class);
-    keyPredicates = new ArrayList<>();
-    ets = mock(EdmEntitySet.class);
-    final List<UriResource> pathParts = new ArrayList<>();
-    uriEts = mock(UriResourceEntitySet.class);
-    em = mock(EntityManager.class);
-    transaction = mock(EntityTransaction.class);
-    pathParts.add(uriEts);
-
-    when(sessionContext.getEdmProvider()).thenReturn(jpaEdm);
-    when(requestContext.getDebugger()).thenReturn(debugger);
-    when(requestContext.getEntityManager()).thenReturn(emf.createEntityManager());
-    when(requestContext.getUriInfo()).thenReturn(uriInfo);
-    when(uriInfo.getUriResourceParts()).thenReturn(pathParts);
-    when(uriEts.getKeyPredicates()).thenReturn(keyPredicates);
-    when(uriEts.getEntitySet()).thenReturn(ets);
-    when(ets.getName()).thenReturn("Organizations");
-    processor = new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext,
-        new JPAConversionHelper());
-  }
+public class TestJPADeleteProcessor extends TestJPAModifyProcessor {
 
   @Test
   public void testSuccessReturnCode() throws ODataApplicationException {
@@ -136,14 +62,10 @@ public class TestJPADeleteProcessor {
         EntityManager.class));
 
     when(requestContext.getCUDRequestHandler()).thenReturn(handler);
+    final ODataApplicationException act = assertThrows(ODataApplicationException.class,
+        () -> processor.deleteEntity(request, response));
+    assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), act.getStatusCode());
 
-    try {
-      processor.deleteEntity(request, response);
-    } catch (ODataApplicationException e) {
-      assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), e.getStatusCode());
-      return;
-    }
-    fail();
   }
 
   @Test
@@ -156,13 +78,10 @@ public class TestJPADeleteProcessor {
 
     when(requestContext.getCUDRequestHandler()).thenReturn(handler);
 
-    try {
-      processor.deleteEntity(request, response);
-    } catch (ODataApplicationException e) {
-      assertEquals(HttpStatusCode.BAD_REQUEST.getStatusCode(), e.getStatusCode());
-      return;
-    }
-    fail();
+    final ODataApplicationException act = assertThrows(ODataApplicationException.class,
+        () -> processor.deleteEntity(request, response));
+
+    assertEquals(HttpStatusCode.BAD_REQUEST.getStatusCode(), act.getStatusCode());
   }
 
   @Test
@@ -310,8 +229,7 @@ public class TestJPADeleteProcessor {
 
     RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
-    when(em.getTransaction()).thenReturn(transaction);
-    when(transaction.isActive()).thenReturn(Boolean.TRUE);
+    when(factory.hasActiveTransaction()).thenReturn(Boolean.TRUE);
     when(requestContext.getEntityManager()).thenReturn(em);
 
     processor = new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext,
@@ -332,13 +250,8 @@ public class TestJPADeleteProcessor {
     doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
         HttpStatusCode.BAD_REQUEST)).when(handler).deleteEntity(any(JPARequestEntity.class), any(EntityManager.class));
 
-    try {
-      processor.deleteEntity(request, response);
-    } catch (ODataApplicationException e) {
-      verify(handler, never()).validateChanges(em);
-      return;
-    }
-    fail();
+    assertThrows(ODataJPAProcessorException.class, () -> processor.deleteEntity(request, response));
+    verify(handler, never()).validateChanges(em);
   }
 
   @Test
@@ -348,7 +261,7 @@ public class TestJPADeleteProcessor {
 
     RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
-    when(em.getTransaction()).thenReturn(transaction);
+    // when(em.getTransaction()).thenReturn(transaction);
     when(transaction.isActive()).thenReturn(Boolean.FALSE);
     when(requestContext.getEntityManager()).thenReturn(em);
 
@@ -361,14 +274,18 @@ public class TestJPADeleteProcessor {
     doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
         HttpStatusCode.BAD_REQUEST)).when(handler).validateChanges(em);
 
-    try {
-      processor.deleteEntity(request, response);
-    } catch (ODataApplicationException e) {
-      verify(transaction, never()).commit();
-      verify(transaction, times(1)).rollback();
-      return;
-    }
-    fail();
+    assertThrows(ODataApplicationException.class, () -> processor.deleteEntity(request, response));
+    verify(transaction, never()).commit();
+    verify(transaction, times(1)).rollback();
+  }
+
+  @Test
+  public void testBeginIsCalledOnNoTransaction() throws ODataApplicationException {
+    ODataResponse response = new ODataResponse();
+    ODataRequest request = mock(ODataRequest.class);
+    when(requestContext.getCUDRequestHandler()).thenReturn(new RequestHandleSpy());
+    processor.deleteEntity(request, response);
+    verify(factory, times(1)).createTransaction();
   }
 
   class RequestHandleSpy extends JPAAbstractCUDRequestHandler {

@@ -3,6 +3,7 @@ package com.sap.olingo.jpa.processor.core.processor;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -448,8 +449,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
 
     RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
-    when(em.getTransaction()).thenReturn(transaction);
-    when(transaction.isActive()).thenReturn(Boolean.TRUE);
+    when(factory.hasActiveTransaction()).thenReturn(Boolean.TRUE);
 
     processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
     assertEquals(0, spy.noValidateCalls);
@@ -481,22 +481,79 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
     ODataResponse response = new ODataResponse();
     ODataRequest request = prepareSimpleRequest();
 
-    when(em.getTransaction()).thenReturn(transaction);
-
     JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     when(requestContext.getCUDRequestHandler()).thenReturn(handler);
 
     doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
         HttpStatusCode.BAD_REQUEST)).when(handler).validateChanges(em);
 
-    try {
-      processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
-    } catch (ODataApplicationException e) {
-      verify(transaction, never()).commit();
-      verify(transaction, times(1)).rollback();
-      return;
-    }
-    fail();
+    assertThrows(ODataApplicationException.class,
+        () -> processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON));
+    verify(transaction, never()).commit();
+    verify(transaction, times(1)).rollback();
+  }
+
+  @Test
+  public void testDoesRollbackIfUpdateRaisesError() throws ODataException {
+    ODataResponse response = new ODataResponse();
+    ODataRequest request = prepareSimpleRequest();
+
+    JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
+    when(requestContext.getCUDRequestHandler()).thenReturn(handler);
+
+    doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
+        HttpStatusCode.BAD_REQUEST)).when(handler).updateEntity(any(), any(), any());
+
+    assertThrows(ODataApplicationException.class,
+        () -> processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON));
+    verify(transaction, never()).commit();
+    verify(transaction, times(1)).rollback();
+  }
+
+  @Test
+  public void testDoesRollbackIfUpdateRaisesAbitaryError() throws ODataException {
+    ODataResponse response = new ODataResponse();
+    ODataRequest request = prepareSimpleRequest();
+
+    JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
+    when(requestContext.getCUDRequestHandler()).thenReturn(handler);
+
+    doThrow(new RuntimeException("Test")).when(handler).updateEntity(any(), any(), any());
+
+    assertThrows(ODataException.class,
+        () -> processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON));
+    verify(transaction, never()).commit();
+    verify(transaction, times(1)).rollback();
+  }
+
+  @Test
+  public void testDoesRollbackOnEmptyResponce() throws ODataException {
+    ODataResponse response = new ODataResponse();
+    ODataRequest request = prepareSimpleRequest();
+
+    JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
+    when(requestContext.getCUDRequestHandler()).thenReturn(handler);
+    when(handler.updateEntity(any(), any(), any())).thenReturn(null);
+
+    assertThrows(ODataException.class,
+        () -> processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON));
+    verify(transaction, never()).commit();
+    verify(transaction, times(1)).rollback();
+  }
+
+  @Test
+  public void testDoesRollbackOnWrongResponce() throws ODataException {
+    ODataResponse response = new ODataResponse();
+    ODataRequest request = prepareSimpleRequest();
+    JPAUpdateResult result = new JPAUpdateResult(false, "");
+    JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
+    when(requestContext.getCUDRequestHandler()).thenReturn(handler);
+    when(handler.updateEntity(any(), any(), any())).thenReturn(result);
+
+    assertThrows(ODataException.class,
+        () -> processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON));
+    verify(transaction, never()).commit();
+    verify(transaction, times(1)).rollback();
   }
 
   @Test
@@ -532,6 +589,18 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
     processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
     assertNotNull(response);
 
+  }
+
+  @Test
+  public void testOwnTranactionCommited() throws ODataJPAModelException, ODataException {
+    ODataResponse response = new ODataResponse();
+    ODataRequest request = prepareSimpleRequest();
+
+    RequestHandleSpy spy = new RequestHandleSpy();
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
+
+    processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
+    verify(transaction, times(1)).commit();
   }
 
   class RequestHandleSpy extends JPAAbstractCUDRequestHandler {

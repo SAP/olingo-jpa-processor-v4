@@ -16,4 +16,6 @@ public interface JPAODataRequestContext {
 
   public void setDebugSupport(@Nullable final DebugSupport debugSupport);
 
+  public void setTransactionFactory(@Nullable final JPAODataTransactionFactory transactionFactory);
+
 }

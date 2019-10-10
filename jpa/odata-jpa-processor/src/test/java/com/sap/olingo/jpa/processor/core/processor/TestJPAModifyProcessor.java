@@ -48,6 +48,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.processor.core.api.JPAAbstractCUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataTransactionFactory;
+import com.sap.olingo.jpa.processor.core.api.JPAODataTransactionFactory.JPAODataTransaction;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
@@ -85,7 +87,7 @@ public abstract class TestJPAModifyProcessor {
   protected UriInfo uriInfo;
   protected UriResourceEntitySet uriEts;
   protected EntityManager em;
-  protected EntityTransaction transaction;
+  protected JPAODataTransaction transaction;
   protected JPASerializer serializer;
   protected EdmEntitySet ets;
   protected EdmEntitySetInfo etsInfo;
@@ -95,6 +97,7 @@ public abstract class TestJPAModifyProcessor {
   protected SerializerResult serializerResult;
   protected List<String> header = new ArrayList<>();
   protected JPAServiceDebugger debugger;
+  protected JPAODataTransactionFactory factory;
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -111,21 +114,23 @@ public abstract class TestJPAModifyProcessor {
     pathParts.add(uriEts);
     convHelper = mock(JPAConversionHelper.class);
     em = mock(EntityManager.class);
-    transaction = mock(EntityTransaction.class);
+    transaction = mock(JPAODataTransaction.class);
     serializerResult = mock(SerializerResult.class);
     debugger = mock(JPAServiceDebugger.class);
+    factory = mock(JPAODataTransactionFactory.class);
 
     when(sessionContext.getEdmProvider()).thenReturn(jpaEdm);
     when(requestContext.getDebugger()).thenReturn(debugger);
     when(requestContext.getEntityManager()).thenReturn(em);
     when(requestContext.getUriInfo()).thenReturn(uriInfo);
     when(requestContext.getSerializer()).thenReturn(serializer);
+    when(requestContext.getTransactionFactory()).thenReturn(factory);
     when(uriInfo.getUriResourceParts()).thenReturn(pathParts);
     when(uriEts.getKeyPredicates()).thenReturn(keyPredicates);
     when(uriEts.getEntitySet()).thenReturn(ets);
     when(uriEts.getKind()).thenReturn(UriResourceKind.entitySet);
     when(ets.getName()).thenReturn("Organizations");
-    when(em.getTransaction()).thenReturn(transaction);
+    when(factory.createTransaction()).thenReturn(transaction);
     when(etsInfo.getEdmEntitySet()).thenReturn(ets);
     processor = new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext, convHelper);
 

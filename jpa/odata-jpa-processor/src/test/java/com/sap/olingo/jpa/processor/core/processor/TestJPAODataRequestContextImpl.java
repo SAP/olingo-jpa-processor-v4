@@ -3,6 +3,7 @@ package com.sap.olingo.jpa.processor.core.processor;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import javax.persistence.EntityManager;
@@ -13,9 +14,11 @@ import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataDefaultTransactionFactory;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupsProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
+import com.sap.olingo.jpa.processor.core.api.JPAODataTransactionFactory;
 import com.sap.olingo.jpa.processor.core.exception.JPAIllicalAccessException;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializer;
 
@@ -80,6 +83,13 @@ public class TestJPAODataRequestContextImpl {
   }
 
   @Test
+  public void testReturnsSetJPASerializer() throws JPAIllicalAccessException {
+    final JPASerializer exp = mock(JPASerializer.class);
+    cut.setJPASerializer(exp);
+    assertEquals(exp, cut.getSerializer());
+  }
+
+  @Test
   public void testThrowsExceptionOnSetPageIfUriInfoExists() throws JPAIllicalAccessException {
     final UriInfo uriInfo = mock(UriInfo.class);
     final JPAODataPage page = new JPAODataPage(uriInfo, 0, 10, "12354");
@@ -103,13 +113,6 @@ public class TestJPAODataRequestContextImpl {
   @Test
   public void testThrowsExceptionOnUriInfoIsNull() throws JPAIllicalAccessException {
     assertThrows(NullPointerException.class, () -> cut.setUriInfo(null));
-  }
-
-  @Test
-  public void testReturnsSetJPASerializer() throws JPAIllicalAccessException {
-    final JPASerializer exp = mock(JPASerializer.class);
-    cut.setJPASerializer(exp);
-    assertEquals(exp, cut.getSerializer());
   }
 
   @Test
@@ -162,6 +165,20 @@ public class TestJPAODataRequestContextImpl {
     assertEquals(uriInfo, act.getUriInfo());
     assertEquals(null, act.getSerializer());
     assertCopied(act);
+  }
+
+  @Test
+  public void testReturnsDefaultTransactionFactory() throws JPAIllicalAccessException {
+    final EntityManager em = mock(EntityManager.class);
+    cut.setEntityManager(em);
+    assertTrue(cut.getTransactionFactory() instanceof JPAODataDefaultTransactionFactory);
+  }
+
+  @Test
+  public void testReturnsProvidedTransactionFactory() throws JPAIllicalAccessException {
+    final JPAODataTransactionFactory exp = mock(JPAODataTransactionFactory.class);
+    cut.setTransactionFactory(exp);
+    assertEquals(exp, cut.getTransactionFactory());
   }
 
   private void assertCopied(JPAODataRequestContextImpl act) {
