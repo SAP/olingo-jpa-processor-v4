@@ -26,4 +26,6 @@ public interface JPAODataRequestContextAccess {
 
   public JPAServiceDebugger getDebugger();
 
+  public JPAODataTransactionFactory getTransactionFactory();
+
 }
