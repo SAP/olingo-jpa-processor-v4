@@ -4,15 +4,27 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 
 import javax.persistence.EntityManager;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import javax.sql.DataSource;
 
 import org.apache.olingo.commons.api.ex.ODataException;
+import org.apache.olingo.server.api.OData;
+import org.apache.olingo.server.api.ODataHttpHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatcher;
 
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import com.sap.olingo.jpa.processor.core.util.HttpServletRequestDouble;
@@ -189,4 +201,54 @@ public class TestJPAODataGetHandler extends TestBase {
     assertEquals(200, response.getStatus());
   }
 
+  @Test
+  public void testMappingPathInSessionContextCreatesMapper() throws ODataException {
+    final OData odata = mock(OData.class);
+    final ODataHttpHandler handler = mock(ODataHttpHandler.class);
+    when(odata.createHandler(any())).thenReturn(handler);
+    final JPAODataCRUDContextAccess context = JPAODataServiceContext.with()
+        .setDataSource(ds)
+        .setPUnit(PUNIT_NAME)
+        .setRequestMappingPath("/test")
+        .build();
+    cut = new JPAODataGetHandler(context, odata);
+    cut.process(request, response);
+    verify(handler, times(1)).process(isA(HttpServletRequestWrapper.class), any());
+  }
+
+  @Test
+  public void testEmptyMappingPathInSessionContextNoMapper() throws ODataException {
+    final OData odata = mock(OData.class);
+    final ODataHttpHandler handler = mock(ODataHttpHandler.class);
+    when(odata.createHandler(any())).thenReturn(handler);
+    final JPAODataCRUDContextAccess context = JPAODataServiceContext.with()
+        .setDataSource(ds)
+        .setPUnit(PUNIT_NAME)
+        .build();
+    cut = new JPAODataGetHandler(context, odata);
+    cut.process(request, response);
+    verify(handler, times(1)).process(argThat(new HttpRequestMatcher()), any());
+  }
+
+  @Test
+  public void testEmptyMappingPathInSessionContextEmptyMapper() throws ODataException {
+    final OData odata = mock(OData.class);
+    final ODataHttpHandler handler = mock(ODataHttpHandler.class);
+    when(odata.createHandler(any())).thenReturn(handler);
+    final JPAODataCRUDContextAccess context = JPAODataServiceContext.with()
+        .setDataSource(ds)
+        .setPUnit(PUNIT_NAME)
+        .setRequestMappingPath("")
+        .build();
+    cut = new JPAODataGetHandler(context, odata);
+    cut.process(request, response);
+    verify(handler, times(1)).process(argThat(new HttpRequestMatcher()), any());
+  }
+
+  public static class HttpRequestMatcher implements ArgumentMatcher<HttpServletRequest> {
+    @Override
+    public boolean matches(final HttpServletRequest argument) {
+      return argument instanceof HttpServletRequest && !(argument instanceof HttpServletRequestWrapper);
+    }
+  }
 }

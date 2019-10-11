@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -26,6 +27,7 @@ public class HttpServletRequestDouble implements HttpServletRequest {
   private final StringBuffer url;
   private final StringBuffer input;
   private String debugFormat;
+  private final Map<String, Object> attributes;
 
   public HttpServletRequestDouble(final String uri) throws IOException {
     this(uri, null);
@@ -48,6 +50,7 @@ public class HttpServletRequestDouble implements HttpServletRequest {
       reqHeader.setBatchRequest();
     }
     this.reqHeader.setHeaders(headers);
+    this.attributes = new HashMap<>();
   }
 
   @Override
@@ -155,8 +158,7 @@ public class HttpServletRequestDouble implements HttpServletRequest {
 
   @Override
   public void setAttribute(final String name, final Object o) {
-    fail();
-
+    attributes.put(name, o);
   }
 
   @Override
