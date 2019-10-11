@@ -6,6 +6,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.metamodel.Metamodel;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
@@ -19,6 +20,7 @@ import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
 import com.sap.olingo.jpa.processor.core.processor.JPAODataRequestContextImpl;
 
 public class JPAODataGetHandler {
+  private static final String REQUEST_MAPPING_ATTRIBUTE = "requestMapping";
   public final Optional<EntityManagerFactory> emf;
   private final JPAODataServiceContext serviceContext;
   private final JPAODataRequestContextImpl requestContext;
@@ -62,13 +64,22 @@ public class JPAODataGetHandler {
   }
 
   public JPAODataGetHandler(final JPAODataCRUDContextAccess serviceContext) {
+    this(serviceContext, OData.newInstance());
+  }
+
+  /**
+   * Give the option to inject the odata helper e.g. for testing
+   * @param serviceContext
+   * @param odata
+   */
+  JPAODataGetHandler(final JPAODataCRUDContextAccess serviceContext, final OData odata) {
     this.namespace = null;
     this.ds = null;
     this.emf = serviceContext.getEntityManagerFactory();
     this.jpaMetamodel = null;
     this.serviceContext = (JPAODataServiceContext) serviceContext;
     this.requestContext = new JPAODataRequestContextImpl();
-    this.odata = OData.newInstance();
+    this.odata = odata;
   }
 
   public JPAODataGetContext getJPAODataContext() {
@@ -83,7 +94,8 @@ public class JPAODataGetHandler {
     if (emf.isPresent() && this.requestContext.getEntityManager() == null) {
       final EntityManager em = emf.get().createEntityManager();
       try {
-        process(request, response, em);
+        this.requestContext.setEntityManager(em);
+        processInternal(request, response);
       } finally {
         em.close();
       }
@@ -140,12 +152,13 @@ public class JPAODataGetHandler {
     serviceContext.getEdmProvider().setRequestLocales(request.getLocales());
     requestContext.setDebugFormat(request.getParameter(DebugSupport.ODATA_DEBUG_QUERY_PARAMETER));
     setCUDHandler();
+    final HttpServletRequest mappedRequest = prepareRequestMapping(request, serviceContext.getMappingPath());
     handler.register(requestContext.getDebugSupport());
     handler.register(new JPAODataRequestProcessor(serviceContext, requestContext));
     handler.register(new JPAODataBatchProcessor(requestContext));
     handler.register(serviceContext.getEdmProvider().getServiceDocument());
     handler.register(serviceContext.getErrorProcessor());
-    handler.process(request, response);
+    handler.process(mappedRequest, response);
   }
 
   private void setCUDHandler() {
@@ -153,4 +166,13 @@ public class JPAODataGetHandler {
       requestContext.setCUDRequestHandler(serviceContext.getCUDRequestHandler());
   }
 
+  private HttpServletRequest prepareRequestMapping(final HttpServletRequest req, final String requestPath) {
+    if (requestPath != null && !requestPath.isEmpty()) {
+      HttpServletRequestWrapper request = new HttpServletRequestWrapper(req);
+      request.setAttribute(REQUEST_MAPPING_ATTRIBUTE, requestPath);
+      return request;
+    } else {
+      return req;
+    }
+  }
 }

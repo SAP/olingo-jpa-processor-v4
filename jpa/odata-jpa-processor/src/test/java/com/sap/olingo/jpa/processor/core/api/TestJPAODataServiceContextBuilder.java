@@ -224,6 +224,19 @@ public class TestJPAODataServiceContextBuilder {
     assertEquals(nameBuilder, act.getEdmNameBuilder());
   }
 
+  @Test
+  public void checkReturnsMappingPath() throws ODataException {
+    final String exp = "test/v1";
+
+    cut = JPAODataServiceContext.with()
+        .setDataSource(ds)
+        .setPUnit(PUNIT_NAME)
+        .setRequestMappingPath(exp)
+        .build();
+
+    assertEquals(exp, cut.getMappingPath());
+  }
+
   private class TestEdmPostProcessor extends JPAEdmMetadataPostProcessor {
 
     @Override

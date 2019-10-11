@@ -51,6 +51,7 @@ public final class JPAODataServiceContext implements JPAODataCRUDContext, JPAODa
   private JPAODataPagingProvider pagingProvider;
   private Optional<EntityManagerFactory> emf;
   private final String namespace;
+  private String mappingPath;
 
   public static Builder with() {
     return new Builder();
@@ -89,6 +90,7 @@ public final class JPAODataServiceContext implements JPAODataCRUDContext, JPAODa
     jpaEdm = builder.jpaEdm;
     emf = builder.emf;
     namespace = builder.namespace;
+    mappingPath = builder.mappingPath;
   }
 
   @Override
@@ -149,6 +151,11 @@ public final class JPAODataServiceContext implements JPAODataCRUDContext, JPAODa
   @Override
   public List<EdmxReference> getReferences() {
     return references;
+  }
+
+  @Override
+  public String getMappingPath() {
+    return mappingPath;
   }
 
   /**
@@ -268,6 +275,7 @@ public final class JPAODataServiceContext implements JPAODataCRUDContext, JPAODa
     private DataSource ds;
     private JPAEdmProvider jpaEdm;
     private JPAEdmNameBuilder nameBuilder;
+    private String mappingPath;
 
     public JPAODataCRUDContextAccess build() throws ODataException {
       try {
@@ -391,6 +399,11 @@ public final class JPAODataServiceContext implements JPAODataCRUDContext, JPAODa
      */
     public Builder setTypePackage(final String... packageName) {
       this.packageName = packageName;
+      return this;
+    }
+
+    public Builder setRequestMappingPath(final String mappingPath) {
+      this.mappingPath = mappingPath;
       return this;
     }
 
