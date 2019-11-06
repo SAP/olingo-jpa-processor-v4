@@ -91,7 +91,6 @@ public class JPACollectionQueryResult implements JPACollectionResult, JPAConvert
   @Override
   public void convert(JPATupleChildConverter converter) throws ODataApplicationException {
     this.collectionResult = converter.getCollectionResult(this, requestedSelection);
-
   }
 
   @Override

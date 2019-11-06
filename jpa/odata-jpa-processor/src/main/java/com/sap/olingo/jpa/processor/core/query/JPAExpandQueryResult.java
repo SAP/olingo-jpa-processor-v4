@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.persistence.Tuple;
@@ -14,10 +16,15 @@ import javax.persistence.Tuple;
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
+import org.apache.olingo.server.api.uri.queryoption.SelectItem;
+import org.apache.olingo.server.api.uri.queryoption.SelectOption;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
@@ -74,7 +81,6 @@ public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertab
       throws ODataApplicationException {
 
     convert(new JPATupleChildConverter(converter));
-
     return odataResult;
   }
 
@@ -182,4 +188,54 @@ public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertab
     return odataResult.containsKey(key) ? odataResult.get(key) : new EntityCollection();
   }
 
+  @Override
+  public Optional<JPAKeyPair> getKeyBoundary(JPAODataRequestContextAccess requestContext)
+      throws ODataJPAQueryException {
+    try {
+      if ((requestContext.getUriInfo().getExpandOption() != null
+          || collectionPropertyRequested(requestContext)
+              && (requestContext.getUriInfo().getTopOption() != null
+                  || requestContext.getUriInfo().getSkipOption() != null))) {
+
+        final JPAKeyPair boundary = new JPAKeyPair(jpaEntityType.getKey());
+        for (final Tuple tuple : jpaResult.get(ROOT_RESULT_KEY)) {
+          Map<JPAAttribute, Comparable> key = createKey(tuple);
+          boundary.setValue(key);
+        }
+        return Optional.of(boundary);
+      }
+    } catch (ODataJPAModelException e) {
+      throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    }
+
+    return JPAConvertableResult.super.getKeyBoundary(requestContext);
+  }
+
+  private boolean collectionPropertyRequested(final JPAODataRequestContextAccess requestContext)
+      throws ODataJPAModelException {
+    if (!jpaEntityType.getCollectionAttributesPath().isEmpty()) {
+      final SelectOption selectOptions = requestContext.getUriInfo().getSelectOption();
+      if (SelectOptionUtil.selectAll(selectOptions)) {
+        return true;
+      } else {
+        for (final SelectItem item : selectOptions.getSelectItems()) {
+          final String pathItem = item.getResourcePath().getUriResourceParts().stream().map(path -> (path
+              .getSegmentValue())).collect(Collectors.joining(JPAPath.PATH_SEPERATOR));
+          if (this.jpaEntityType.getCollectionAttribute(pathItem) != null) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  @SuppressWarnings("rawtypes")
+  private Map<JPAAttribute, Comparable> createKey(final Tuple tuple) throws ODataJPAModelException {
+    final Map<JPAAttribute, Comparable> keyMap = new HashMap<>(jpaEntityType.getKey().size());
+    for (final JPAAttribute key : jpaEntityType.getKey()) {
+      keyMap.put(key, (Comparable) tuple.get(key.getExternalName()));
+    }
+    return keyMap;
+  }
 }

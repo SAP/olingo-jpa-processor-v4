@@ -1,9 +1,11 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -12,6 +14,7 @@ import java.util.Optional;
 
 import javax.persistence.IdClass;
 import javax.persistence.Table;
+import javax.persistence.metamodel.EmbeddableType;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.IdentifiableType;
 import javax.persistence.metamodel.Type;
@@ -28,6 +31,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityTypeAccess;
 
@@ -102,11 +106,12 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
 
     if (keyAttributes == null) {
       final List<JPAAttribute> intermediateKey = new ArrayList<>(); // Cycle break
-      for (final Entry<String, IntermediateProperty> property : this.declaredPropertiesList.entrySet()) {
-        final JPAAttribute attribute = property.getValue();
-        if (attribute.isKey()) {
+      final Field[] keyFields = this.getTypeClass().getDeclaredFields();
+      for (int i = keyFields.length - 1; i >= 0; i--) {
+        final JPAAttribute attribute = this.declaredPropertiesList.get(keyFields[i].getName());
+        if (attribute != null && attribute.isKey()) {
           if (attribute.isComplex()) {
-            intermediateKey.addAll(((IntermediateEmbeddedIdProperty) attribute).getStructuredType().getAttributes());
+            intermediateKey.addAll(buildEmbeddedIdKey(attribute));
           } else {
             intermediateKey.add(attribute);
           }
@@ -116,7 +121,7 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
       if (baseType != null) {
         intermediateKey.addAll(((IntermediateEntityType) baseType).getKey());
       }
-      keyAttributes = intermediateKey;
+      keyAttributes = Collections.unmodifiableList(intermediateKey);
     }
     return keyAttributes;
   }
@@ -138,7 +143,7 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
     if (baseType != null) {
       result.addAll(((IntermediateEntityType) baseType).getKeyPath());
     }
-    return result;
+    return Collections.unmodifiableList(result);
   }
 
   @Override
@@ -146,6 +151,7 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
     if (jpaManagedType instanceof IdentifiableType<?>) {
       Class<?> idClass = null;
       final Type<?> idType = ((IdentifiableType<?>) jpaManagedType).getIdType();
+
       if (idType == null)
         // Hibernate does not return an IdType in case of compound key that do not use
         // EmbeddableId. So fallback to hand made evaluation
@@ -184,6 +190,13 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
 
     return (t == null) ? jpaManagedType.getJavaType().getName().toUpperCase(Locale.ENGLISH)
         : t.name();
+  }
+
+  @Override
+  public boolean hasCompoundKey() {
+    final Type<?> idType = ((IdentifiableType<?>) jpaManagedType).getIdType();
+    return jpaManagedType.getJavaType().getAnnotation(IdClass.class) != null
+        || idType instanceof EmbeddableType;
   }
 
   @Override
@@ -324,6 +337,20 @@ final class IntermediateEntityType extends IntermediateStructuredType implements
   CsdlEntityType getEdmItem() throws ODataJPAModelException {
     lazyBuildEdmItem();
     return edmEntityType;
+  }
+
+  private List<JPAAttribute> buildEmbeddedIdKey(final JPAAttribute attribute) throws ODataJPAModelException {
+
+    final JPAStructuredType id = ((IntermediateEmbeddedIdProperty) attribute).getStructuredType();
+    final List<JPAAttribute> keyElements = new ArrayList<>(id.getTypeClass().getDeclaredFields().length);
+    final Field[] keyFields = id.getTypeClass().getDeclaredFields();
+    for (int i = keyFields.length - 1; i >= 0; i--) {
+      final JPAAttribute keyElement = id.getAttribute(keyFields[i].getName());
+      if (keyElement != null) {
+        keyElements.add(keyElement);
+      }
+    }
+    return keyElements;
   }
 
   private List<CsdlAnnotation> determineAnnotations() throws ODataJPAModelException {

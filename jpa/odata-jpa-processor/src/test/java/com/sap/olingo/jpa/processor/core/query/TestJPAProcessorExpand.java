@@ -672,4 +672,18 @@ public class TestJPAProcessorExpand extends TestBase {
     final ArrayNode actRoles = (ArrayNode) act.get("Roles");
     actRoles.forEach(an -> assertFalse(an.get("Details").isNull()));
   }
+
+  @Test
+  public void testExpandOnlyThoseFromTop() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$top=2&$skip=1&$expand=Roles($count=true;$top=1)");
+    helper.assertStatus(200);
+
+    final ArrayNode orgs = helper.getValues();
+    final ObjectNode org = (ObjectNode) orgs.get(1);
+    assertEquals(2, orgs.size());
+    assertNotNull(org.get("Roles"));
+    assertNotNull(org.get("Roles@odata.count"));
+    assertEquals(3, org.get("Roles@odata.count").asInt());
+  }
 }

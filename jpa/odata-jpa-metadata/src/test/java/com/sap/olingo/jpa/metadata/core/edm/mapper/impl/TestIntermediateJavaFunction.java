@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.ODataFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaEmConstructor;
@@ -118,9 +119,11 @@ public class TestIntermediateJavaFunction extends TestMappingRoot {
 
     assertEquals("com.sap.olingo.jpa.AccessRights", act.getEdmItem().getParameters().get(0).getTypeFQN()
         .getFullQualifiedNameAsString());
-
-    assertEquals("com.sap.olingo.jpa.AccessRights", act.getParameter("arg0").getTypeFQN()
-        .getFullQualifiedNameAsString());
+    JPAParameter param = act.getParameter("arg0");
+    if (param == null)
+      param = act.getParameter("rights");
+    assertNotNull(param);
+    assertEquals("com.sap.olingo.jpa.AccessRights", param.getTypeFQN().getFullQualifiedNameAsString());
   }
 
   @Test
@@ -249,7 +252,8 @@ public class TestIntermediateJavaFunction extends TestMappingRoot {
     for (Method m : Arrays.asList(clazz.getMethods())) {
       EdmFunction functionDescribtion = m.getAnnotation(EdmFunction.class);
       if (functionDescribtion != null && method.equals(m.getName())) {
-        return new IntermediateJavaFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME), functionDescribtion, m, helper.schema);
+        return new IntermediateJavaFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME), functionDescribtion, m,
+            helper.schema);
       }
     }
     return null;

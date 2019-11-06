@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
@@ -33,7 +32,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
-import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys;
 
 public final class JPAExpandItemInfoFactory {
 
@@ -60,7 +58,8 @@ public final class JPAExpandItemInfoFactory {
   }
 
   /**
-   * Navigate to collection property e.g. ../Organizations('1')/Comment
+   * Navigate to collection property e.g. ../Organizations('1')/Comment or
+   * ../CollectionDeeps?$select=FirstLevel/SecondLevel
    * @param sd
    * @param uriResourceInfo
    * @param optional
@@ -90,7 +89,7 @@ public final class JPAExpandItemInfoFactory {
         }
       } else {
 
-        if (select == null || select.getSelectItems().isEmpty() || select.getSelectItems().get(0).isStar()) {
+        if (SelectOptionUtil.selectAll(select)) {
           // No navigation, extract all collection attributes
           final JPAStructuredType st = (JPAStructuredType) pathInfo[ST_INDEX];
           final Set<JPAElement> collectionProperties = new HashSet<>();
@@ -161,25 +160,14 @@ public final class JPAExpandItemInfoFactory {
       final SelectOption select) throws ODataApplicationException, ODataJPAModelException {
 
     final Set<JPAPath> collectionAttributes = new HashSet<>();
-    if (select == null || select.getSelectItems().isEmpty() || select.getSelectItems().get(0).isStar()) {
-      for (final JPAPath selectItemPath : jpaEntity.getPathList()) {
-        if (pathContainsCollection(selectItemPath))
-          collectionAttributes.add(selectItemPath);
-      }
+    if (SelectOptionUtil.selectAll(select)) {
+      collectionAttributes.addAll(jpaEntity.getCollectionAttributesPath());
     } else {
       final String pathPrefix = "";
       for (SelectItem sItem : select.getSelectItems()) {
-        final String pathItem = sItem.getResourcePath().getUriResourceParts().stream().map(path -> (path
-            .getSegmentValue())).collect(Collectors.joining(JPAPath.PATH_SEPERATOR));
-        final JPAPath selectItemPath = jpaEntity.getPath(pathPrefix.isEmpty() ? pathItem : pathPrefix
-            + JPAPath.PATH_SEPERATOR + pathItem);
-        if (selectItemPath == null)
-          throw new ODataJPAQueryException(MessageKeys.QUERY_PREPARATION_INVALID_SELECTION_PATH,
-              HttpStatusCode.BAD_REQUEST);
-        if (((JPAAttribute) selectItemPath.getPath().get(0)).isComplex()
-            && !((JPAAttribute) selectItemPath.getPath().get(0)).isCollection()) {
-          for (final JPAPath selectSubItemPath : ((JPAAttribute) selectItemPath.getPath().get(0)).getStructuredType()
-              .getPathList()) {
+        final JPAPath selectItemPath = SelectOptionUtil.selectItemAsPath(jpaEntity, pathPrefix, sItem);
+        if (selectItemPath.getLeaf().isComplex() && !selectItemPath.getLeaf().isCollection()) {
+          for (final JPAPath selectSubItemPath : selectItemPath.getLeaf().getStructuredType().getPathList()) {
             if (pathContainsCollection(selectSubItemPath))
               collectionAttributes.add(getCollection(jpaEntity, selectSubItemPath, selectItemPath.getPath().get(0)
                   .getExternalName()));

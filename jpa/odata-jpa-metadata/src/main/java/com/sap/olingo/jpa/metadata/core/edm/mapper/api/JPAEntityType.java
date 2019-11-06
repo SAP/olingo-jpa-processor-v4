@@ -32,7 +32,8 @@ public interface JPAEntityType extends JPAStructuredType {
 
   /**
    * Returns a resolved list of all attributes that are marked as Id, so the attributes of an EmbeddedId are returned as
-   * separate entries
+   * separate entries. For compound keys has the opposite order of the attributes in the entity or embedded id
+   * respectively.
    * @return
    * @throws ODataJPAModelException
    */
@@ -46,10 +47,16 @@ public interface JPAEntityType extends JPAStructuredType {
   public List<JPAPath> getKeyPath() throws ODataJPAModelException;
 
   /**
-   * Returns the class of the Key. This could by either a primitive tape, the IdClass or the Embeddable of an EmbeddedId
+   * Returns the class of the Key. This could by either a primitive type, the IdClass or the Embeddable of an EmbeddedId
    * @return
    */
   public Class<?> getKeyType();
+
+  /**
+   * True in case the entity type has a compound key, so an EmbeddedId or multiple id properties
+   * @return
+   */
+  public boolean hasCompoundKey();
 
   /**
    * 

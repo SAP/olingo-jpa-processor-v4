@@ -10,6 +10,7 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.olingo.commons.api.data.ComplexValue;
 import org.apache.olingo.commons.api.data.Entity;
@@ -46,6 +47,7 @@ import com.sap.olingo.jpa.processor.core.query.JPAExpandItemInfoFactory;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandJoinQuery;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandQueryResult;
 import com.sap.olingo.jpa.processor.core.query.JPAJoinQuery;
+import com.sap.olingo.jpa.processor.core.query.JPAKeyPair;
 import com.sap.olingo.jpa.processor.core.query.JPANavigationProptertyInfo;
 import com.sap.olingo.jpa.processor.core.query.Util;
 
@@ -66,7 +68,8 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
   }
 
   @Override
-  public void retrieveData(final ODataRequest request, final ODataResponse response, final ContentType responseFormat)
+  public <K extends Comparable<K>> void retrieveData(final ODataRequest request, final ODataResponse response,
+      final ContentType responseFormat)
       throws ODataException {
 
     final int handle = debugger.startRuntimeMeasurement(this, "retrieveData");
@@ -81,7 +84,8 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
 
     final JPAConvertableResult result = query.execute();
     // Read Expand and Collection
-    result.putChildren(readExpandEntities(request.getAllHeaders(), query.getNavigationInfo(), uriInfo));
+    final Optional<JPAKeyPair> keyBoundary = result.getKeyBoundary(requestContext);
+    result.putChildren(readExpandEntities(request.getAllHeaders(), query.getNavigationInfo(), uriInfo, keyBoundary));
     // Convert tuple result into an OData Result
     final int converterHandle = debugger.startRuntimeMeasurement(this, "convertResult");
     EntityCollection entityCollection;
@@ -237,7 +241,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
    * For a detailed description of the URI syntax see:
    * <a href=
    * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part2-url-conventions/odata-v4.0-errata02-os-part2-url-conventions-complete.html#_Toc406398162"
-   * >OData Version 4.0 Part 2 - 5.1.2 System Query Option $expand</a>
+   * >OData Version 4.0 Part 2 - 5.1.2 System Query Option $expand</a> boundary
    * @param headers
    * @param naviStartEdmEntitySet
    * @param parentHops
@@ -247,7 +251,8 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
    * @throws ODataException
    */
   private Map<JPAAssociationPath, JPAExpandResult> readExpandEntities(final Map<String, List<String>> headers,
-      final List<JPANavigationProptertyInfo> parentHops, final UriInfoResource uriResourceInfo) throws ODataException {
+      final List<JPANavigationProptertyInfo> parentHops, final UriInfoResource uriResourceInfo,
+      final Optional<JPAKeyPair> keyBoundary) throws ODataException {
 
     final int handle = debugger.startRuntimeMeasurement(this, "readExpandEntities");
     final Map<JPAAssociationPath, JPAExpandResult> allExpResults =
@@ -257,18 +262,19 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     // The solution for restrictions like a given key or a given filter condition, as it can be propagated to a
     // sub-query.
     // For $top and $skip things are more difficult as the Subquery does not support LIMIT and OFFSET, this is
-    // done on the TypedQuery created out of the Criteria Query. In addition not all databases support LIMIT within a
+    // done on the TypedQuery created out of the CriteriaQuery. In addition not all databases support LIMIT within a
     // sub-query used within EXISTS.
+    // Solution: Forward the highest and lowest key from the root and create a "between" those.
 
     final List<JPAExpandItemInfo> itemInfoList = new JPAExpandItemInfoFactory()
         .buildExpandItemInfo(sd, uriResourceInfo, parentHops);
     for (final JPAExpandItemInfo item : itemInfoList) {
       final JPAExpandJoinQuery expandQuery = new JPAExpandJoinQuery(odata, sessionContext, item, headers,
-          requestContext);
+          requestContext, keyBoundary);
       final JPAExpandQueryResult expandResult = expandQuery.execute();
       if (expandResult.getNoResults() > 0)
         // Only go the next hop if the current one has a result
-        expandResult.putChildren(readExpandEntities(headers, item.getHops(), item.getUriInfo()));
+        expandResult.putChildren(readExpandEntities(headers, item.getHops(), item.getUriInfo(), keyBoundary));
       allExpResults.put(item.getExpandAssociation(), expandResult);
     }
 
@@ -277,7 +283,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
         .buildCollectionItemInfo(sd, uriResourceInfo, parentHops, requestContext.getGroupsProvider());
     for (final JPACollectionItemInfo item : collectionInfoList) {
       final JPACollectionJoinQuery collectionQuery = new JPACollectionJoinQuery(odata, sessionContext, em, item,
-          headers, new JPAODataRequestContextImpl(item.getUriInfo(), requestContext));
+          headers, new JPAODataRequestContextImpl(item.getUriInfo(), requestContext), keyBoundary);
       final JPAExpandResult expandResult = collectionQuery.execute();
       allExpResults.put(item.getExpandAssociation(), expandResult);
     }

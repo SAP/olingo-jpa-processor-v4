@@ -11,6 +11,7 @@ import org.apache.olingo.commons.api.ex.ODataException;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -165,6 +166,40 @@ public class TestJPAQueryCollection extends TestBase {
   }
 
   @Test
+  public void testSelectOnlyOneCollectionDeepComplex() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "CollectionDeeps('502')?$select=FirstLevel/SecondLevel/Comment");
+    helper.assertStatus(200);
+
+    final ObjectNode collection = helper.getValue();
+    final TextNode actId = (TextNode) collection.get("ID");
+    assertEquals("502", actId.asText());
+    ObjectNode complex = (ObjectNode) collection.get("FirstLevel");
+    assertFalse(complex.get("SecondLevel") instanceof NullNode);
+    ObjectNode second = (ObjectNode) complex.get("SecondLevel");
+    ArrayNode comment = (ArrayNode) second.get("Comment");
+    assertEquals(2, comment.size());
+  }
+
+  @Test
+  public void testSelectOnlyNoCollectionDeepComplex() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "CollectionDeeps('501')?$select=FirstLevel/SecondLevel/Number");
+    helper.assertStatus(200);
+
+    final ObjectNode collection = helper.getValue();
+    final TextNode actId = (TextNode) collection.get("ID");
+    assertEquals("501", actId.asText());
+    final ObjectNode complex = (ObjectNode) collection.get("FirstLevel");
+    assertFalse(complex.get("SecondLevel") instanceof NullNode);
+    final ObjectNode second = (ObjectNode) complex.get("SecondLevel");
+    final IntNode number = (IntNode) second.get("Number");
+    assertEquals(-1, number.asInt());
+  }
+
+  @Test
   public void testSelectCollectionWithoutRequiredGroup() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -202,4 +237,29 @@ public class TestJPAQueryCollection extends TestBase {
     assertEquals(2, act.size());
   }
 
+  @Test
+  public void testSelectCollectionWithTop() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$select=Comment&$top=2");
+    helper.assertStatus(200);
+
+    final ObjectNode collection = helper.getValue();
+    final ArrayNode act = ((ArrayNode) collection.get("value"));
+    assertEquals(2, act.size());
+    assertEquals(2, act.get(0).get("Comment").size());
+  }
+
+  @Test
+  public void testSelectCollectionWithTopAndOrderBy() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$select=Comment&$top=2&orderby=Name1");
+    helper.assertStatus(200);
+
+    final ObjectNode collection = helper.getValue();
+    final ArrayNode act = ((ArrayNode) collection.get("value"));
+    assertEquals(2, act.size());
+    assertEquals(2, act.get(0).get("Comment").size());
+  }
 }

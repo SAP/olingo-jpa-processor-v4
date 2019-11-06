@@ -1,11 +1,12 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Id;
 
-public class AdministrativeDivisionKey implements Serializable {
+public class AdministrativeDivisionKey implements Serializable, Comparable<AdministrativeDivisionKey> {
 
   private static final long serialVersionUID = 5482165952249228988L;
   @Id
@@ -60,6 +61,21 @@ public class AdministrativeDivisionKey implements Serializable {
     result = prime * result + ((codePublisher == null) ? 0 : codePublisher.hashCode());
     result = prime * result + ((divisionCode == null) ? 0 : divisionCode.hashCode());
     return result;
+  }
+
+  @Override
+  public int compareTo(final AdministrativeDivisionKey o) {
+    Objects.requireNonNull(o);
+    int result = codePublisher.compareTo(o.codePublisher);
+    if (result == 0) {
+      result = codeID.compareTo(o.codeID);
+      if (result == 0)
+        return divisionCode.compareTo(o.divisionCode);
+      else
+        return result;
+    } else {
+      return result;
+    }
   }
 
   @Override

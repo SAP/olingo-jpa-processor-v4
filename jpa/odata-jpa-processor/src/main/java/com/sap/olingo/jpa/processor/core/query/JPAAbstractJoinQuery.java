@@ -848,4 +848,80 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
     }
     return collection;
   }
+
+  protected <Y extends Comparable<? super Y>> javax.persistence.criteria.Expression<Boolean> createBoundary(
+      final List<JPANavigationProptertyInfo> info, final Optional<JPAKeyPair> keyBoundary)
+      throws ODataJPAQueryException {
+
+    if (keyBoundary.isPresent()) {
+      // Given key: Organizations('1')/Roles(...)
+      // First is the root
+      final JPANavigationProptertyInfo naviInfo = info.get(0);
+      try {
+        final JPAEntityType et = naviInfo.getEntityType();
+        final From<?, ?> f = naviInfo.getFromClause();
+
+        if (keyBoundary.get().hasUpperBoundary()) {
+          return createBoundaryWithUpper(et, f, keyBoundary.get());
+        } else {
+          return createBoundaryEquals(et, f, keyBoundary.get());
+        }
+      } catch (ODataJPAModelException e) {
+        throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+      }
+    }
+    return null;
+  }
+
+  @SuppressWarnings("unchecked")
+  private <Y extends Comparable<? super Y>> javax.persistence.criteria.Expression<Boolean> createBoundaryWithUpper(
+      final JPAEntityType et,
+      final From<?, ?> f, final JPAKeyPair jpaKeyPair)
+      throws ODataJPAModelException {
+
+    final List<JPAAttribute> keyElements = et.getKey();
+    javax.persistence.criteria.Expression<Boolean> lowerExpression = null;
+    javax.persistence.criteria.Expression<Boolean> upperExpression = null;
+    for (int primaryIndex = 0; primaryIndex < keyElements.size(); primaryIndex++) {
+      for (int secondaryIndex = primaryIndex; secondaryIndex < keyElements.size(); secondaryIndex++) {
+        final JPAAttribute keyElement = keyElements.get(secondaryIndex);
+        final Path<Y> keyPath = (Path<Y>) ExpressionUtil.convertToCriteriaPath(f,
+            et.getPath(keyElement.getExternalName()).getPath());
+        final Y lowerBoundary = jpaKeyPair.getMinElement(keyElement);
+        final Y upperBoundary = jpaKeyPair.getMaxElement(keyElement);
+        if (secondaryIndex == primaryIndex) {
+          if (primaryIndex == 0) {
+            lowerExpression = cb.greaterThanOrEqualTo(keyPath, lowerBoundary);
+            upperExpression = cb.lessThanOrEqualTo(keyPath, upperBoundary);
+          } else {
+            lowerExpression = cb.or(lowerExpression, cb.greaterThan(keyPath, lowerBoundary));
+            upperExpression = cb.or(upperExpression, cb.lessThan(keyPath, upperBoundary));
+          }
+        } else {
+          lowerExpression = cb.and(lowerExpression, cb.equal(keyPath, lowerBoundary));
+          upperExpression = cb.and(upperExpression, cb.equal(keyPath, upperBoundary));
+        }
+      }
+
+    }
+    return cb.and(lowerExpression, upperExpression);
+  }
+
+  @SuppressWarnings("unchecked")
+  private <Y extends Comparable<? super Y>> javax.persistence.criteria.Expression<Boolean> createBoundaryEquals(
+      final JPAEntityType et, final From<?, ?> f, final JPAKeyPair jpaKeyPair) throws ODataJPAModelException {
+
+    javax.persistence.criteria.Expression<Boolean> whereCondition = null;
+    for (final JPAAttribute keyElement : et.getKey()) {
+      final Path<Y> keyPath = (Path<Y>) ExpressionUtil.convertToCriteriaPath(f, et.getPath(keyElement.getExternalName())
+          .getPath());
+      final javax.persistence.criteria.Expression<Boolean> eqFragment = cb.equal(keyPath, jpaKeyPair.getMin().get(
+          keyElement));
+      if (whereCondition == null)
+        whereCondition = eqFragment;
+      else
+        whereCondition = cb.and(whereCondition, eqFragment);
+    }
+    return whereCondition;
+  }
 }
