@@ -10,7 +10,7 @@ public final class JPACollectionItemInfo extends JPAInlineItemInfo {
   JPACollectionItemInfo(final JPAServiceDocument sd, final JPAExpandItem uriInfo,
       final JPAAssociationPath expandAssociation, final List<JPANavigationProptertyInfo> hops) {
 
-    super(uriInfo, expandAssociation);
+    super(uriInfo, expandAssociation, hops);
 
     for (JPANavigationProptertyInfo predecessor : hops)
       this.hops.add(new JPANavigationProptertyInfo(predecessor));

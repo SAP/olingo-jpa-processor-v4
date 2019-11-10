@@ -123,8 +123,7 @@ public abstract class JPAAbstractQuery {
 
   protected javax.persistence.criteria.Expression<Boolean> createWhereByKey(final From<?, ?> root,
       final javax.persistence.criteria.Expression<Boolean> whereCondition, final List<UriParameter> keyPredicates,
-      JPAEntityType et)
-      throws ODataApplicationException {
+      JPAEntityType et) throws ODataApplicationException {
     // .../Organizations('3')
     // .../BusinessPartnerRoles(BusinessPartnerID='6',RoleCategory='C')
     javax.persistence.criteria.Expression<Boolean> compundCondition = whereCondition;

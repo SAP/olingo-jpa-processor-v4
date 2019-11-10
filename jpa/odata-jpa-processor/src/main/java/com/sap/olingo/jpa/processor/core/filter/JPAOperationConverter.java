@@ -91,8 +91,7 @@ public class JPAOperationConverter {
             jpaOperator);
       case GE:
         return comparisonExpression((l, r) -> (cb.greaterThanOrEqualTo(l, r)), (l, r) -> (cb.greaterThanOrEqualTo(l,
-            r)),
-            jpaOperator);
+            r)), jpaOperator);
       case GT:
         return comparisonExpression((l, r) -> (cb.greaterThan(l, r)), (l, r) -> (cb.greaterThan(l, r)), jpaOperator);
       case LT:

@@ -14,6 +14,7 @@ import javax.persistence.Persistence;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaBuilder.In;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Path;
@@ -21,6 +22,9 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
+import org.eclipse.persistence.internal.jpa.EJBQueryImpl;
+import org.eclipse.persistence.queries.DatabaseQuery;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -161,7 +165,7 @@ public class TestCriteriaBuilder {
   }
 
   @Test
-  public void TestExpandCount() {
+  public void testExpandCount() {
     CriteriaQuery<Tuple> count = cb.createTupleQuery();
     Root<?> roles = count.from(BusinessPartnerRole.class);
 
@@ -174,7 +178,7 @@ public class TestCriteriaBuilder {
   }
 
   @Test
-  public void TestAnd() {
+  public void testAnd() {
     CriteriaQuery<Tuple> count = cb.createTupleQuery();
     Root<?> adminDiv = count.from(AdministrativeDivision.class);
 
@@ -191,7 +195,7 @@ public class TestCriteriaBuilder {
 
   @Disabled
   @Test
-  public void TestSearchEmbeddedId() {
+  public void testSearchEmbeddedId() {
     CriteriaQuery<Tuple> cq = cb.createTupleQuery();
     Root<?> adminDiv = cq.from(AdministrativeDivisionDescription.class);
     cq.multiselect(adminDiv);
@@ -211,7 +215,7 @@ public class TestCriteriaBuilder {
 
   @Disabled
   @Test
-  public void TestSearchNoSubquery() {
+  public void testSearchNoSubquery() {
     CriteriaQuery<Tuple> cq = cb.createTupleQuery();
     Root<?> adminDiv = cq.from(AdministrativeDivisionDescription.class);
     cq.multiselect(adminDiv);
@@ -225,6 +229,56 @@ public class TestCriteriaBuilder {
     TypedQuery<Tuple> tq = em.createQuery(cq);
     List<Tuple> act = tq.getResultList();
     System.out.println(act.size());
+  }
+
+  @Test
+  public void testInClauseSimpleKey() {
+
+    final CriteriaQuery<Tuple> cq = cb.createTupleQuery();
+    final Root<?> bupa = cq.from(BusinessPartner.class);
+    cq.select(bupa.get("iD"));
+
+    cq.where(cb.in(bupa.get("iD")).value("3"));
+    // (bupa.get("iD").in(Arrays.asList("3")));
+
+    TypedQuery<Tuple> tq = em.createQuery(cq);
+    DatabaseQuery dq = ((EJBQueryImpl<Tuple>) tq).getDatabaseQuery();
+    System.out.println(dq.getSQLString());
+    List<Tuple> act = tq.getResultList();
+    System.out.println(dq.getSQLString());
+    Assertions.assertEquals(1, act.size());
+  }
+
+  @Test
+  public void testEntityTransaction() {
+    Assertions.assertFalse(em.getTransaction().isActive());
+    em.getTransaction().begin();
+    Assertions.assertTrue(em.getTransaction().isActive());
+  }
+
+  // @Disabled
+  @Test
+  public void testInClauseComplexKey() {
+
+    final CriteriaQuery<Tuple> cq = cb.createTupleQuery();
+    final Root<?> adminDiv = cq.from(AdministrativeDivisionDescription.class);
+    final AdministrativeDivisionDescriptionKey key = new AdministrativeDivisionDescriptionKey();
+    cq.multiselect(adminDiv);
+
+    key.setCodeID("3166-1");
+    key.setCodePublisher("ISO");
+    key.setDivisionCode("DEU");
+    key.setLanguage("de");
+    // Create IN step by step
+    In<Object> in = cb.in(adminDiv.get("key"));
+    in.value(key);
+    cq.where(in);
+    // Execute query
+    TypedQuery<Tuple> tq = em.createQuery(cq);
+    DatabaseQuery dq = ((EJBQueryImpl<Tuple>) tq).getDatabaseQuery();
+    final List<Tuple> act = tq.getResultList();
+    // Ensure EclipsLink problem still exists: ("WHERE ((NULL, NULL, NULL, NULL) IN "));
+    Assertions.assertEquals(0, act.size());
   }
 
   private Expression<Boolean> createParentAdmin(Root<AdministrativeDivision> subQuery,

@@ -203,4 +203,10 @@ public class JPAEntityTypeDouble implements JPAEntityType {
     return null;
   }
 
+  @Override
+  public boolean hasCompoundKey() {
+    fail();
+    return false;
+  }
+
 }

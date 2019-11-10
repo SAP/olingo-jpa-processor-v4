@@ -163,35 +163,60 @@ public class JPATupleChildConverter extends JPATupleResultConverter {
       final List<Property> properties) throws ODataJPAQueryException {
 
     List<Property> result;
-
     try {
       for (JPAPath path : jpaStructuredType.getCollectionAttributesPath()) {
         result = properties;
-        for (int i = 0; i < path.getPath().size() - 1; i++) {
-          for (final Property p : result) {
-            if (p.getName().equals(path.getPath().get(i).getExternalName())) {
-              result = ((ComplexValue) p.getValue()).getValue();
-              break;
-            }
-          }
+        for (final JPAElement pathElement : path.getPath()) {
+          result = findOrCreateComplexProperty(result, pathElement);
         }
         final JPACollectionAttribute collection = (JPACollectionAttribute) path.getLeaf();
         final JPAExpandResult child = jpaQueryResult.getChild(collection.asAssociation());
         if (child != null) {
-          final Collection<Object> collectionResult = ((JPACollectionResult) child).getPropertyCollection(
-              buildConcatenatedKey(row, collection.asAssociation().getLeftColumnsList()));
-
-          result.add(new Property(
-              null,
-              collection.getExternalName(),
-              collection.isComplex() ? ValueType.COLLECTION_COMPLEX : ValueType.COLLECTION_PRIMITIVE,
-              collectionResult != null ? collectionResult : Collections.emptyList()));
+          addCollcetion(row, result, collection, child);
         }
       }
     } catch (ODataJPAModelException e) {
       throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
           HttpStatusCode.INTERNAL_SERVER_ERROR, e);
     }
+  }
+
+  private void addCollcetion(final Tuple row, List<Property> result, final JPACollectionAttribute collection,
+      final JPAExpandResult child) throws ODataJPAModelException {
+    final Collection<Object> collectionResult = ((JPACollectionResult) child).getPropertyCollection(
+        buildConcatenatedKey(row, collection.asAssociation().getLeftColumnsList()));
+
+    result.add(new Property(
+        null,
+        collection.getExternalName(),
+        collection.isComplex() ? ValueType.COLLECTION_COMPLEX : ValueType.COLLECTION_PRIMITIVE,
+        collectionResult != null ? collectionResult : Collections.emptyList()));
+  }
+
+  private List<Property> findOrCreateComplexProperty(List<Property> result, final JPAElement pathElement)
+      throws ODataJPAModelException {
+    boolean found = false;
+    for (final Property p : result) {
+      if (p.getName().equals(pathElement.getExternalName())) {
+        result = ((ComplexValue) p.getValue()).getValue();
+        found = true;
+        break;
+      }
+    }
+    if (!found
+        && pathElement instanceof JPAAttribute
+        && ((JPAAttribute) pathElement).isComplex()
+        && !((JPAAttribute) pathElement).isCollection()) {
+      final JPAAttribute a = (JPAAttribute) pathElement;
+      final Property p = new Property(
+          a.getStructuredType().getExternalFQN().getFullQualifiedNameAsString(),
+          a.getExternalName(),
+          ValueType.COMPLEX,
+          new ComplexValue());
+      result.add(p);
+      result = ((ComplexValue) p.getValue()).getValue();
+    }
+    return result;
   }
 
   protected URI createId(final Entity entity) {
