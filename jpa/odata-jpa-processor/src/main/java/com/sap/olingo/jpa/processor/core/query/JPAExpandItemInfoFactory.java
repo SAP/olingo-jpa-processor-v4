@@ -39,8 +39,8 @@ public final class JPAExpandItemInfoFactory {
   private static final int ET_INDEX = 1;
   private static final int PROPERTY_INDEX = 2;
 
-  public List<JPAExpandItemInfo> buildExpandItemInfo(JPAServiceDocument sd, UriInfoResource uriResourceInfo,
-      List<JPANavigationProptertyInfo> grandParentHops) throws ODataApplicationException {
+  public List<JPAExpandItemInfo> buildExpandItemInfo(final JPAServiceDocument sd, final UriInfoResource uriResourceInfo,
+      final List<JPANavigationProptertyInfo> grandParentHops) throws ODataApplicationException {
 
     final List<JPAExpandItemInfo> itemList = new ArrayList<>();
     final List<UriResource> startResourceList = uriResourceInfo.getUriResourceParts();

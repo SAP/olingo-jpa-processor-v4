@@ -44,11 +44,11 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.Messag
 
 public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
   private final JPAAssociationPath assoziation;
-  private final Optional<JPAKeyPair> keyBoundary;
+  private final Optional<JPAKeyBoundary> keyBoundary;
 
   public JPACollectionJoinQuery(final OData odata, final JPAODataCRUDContextAccess context, final EntityManager em,
       final JPACollectionItemInfo item, final Map<String, List<String>> requestHeaders,
-      JPAODataRequestContextAccess requestContext, final Optional<JPAKeyPair> keyBoundary) throws ODataException {
+      JPAODataRequestContextAccess requestContext, final Optional<JPAKeyBoundary> keyBoundary) throws ODataException {
 
     super(odata, context, item.getEntityType(), requestContext,
         requestHeaders, new ArrayList<>(item.getHops().subList(0, item.getHops().size() - 1)));

@@ -58,12 +58,13 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
  */
 public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
   private final JPAAssociationPath assoziation;
-  private final Optional<JPAKeyPair> keyBoundary;
+  private final Optional<JPAKeyBoundary> keyBoundary;
   private TypedQuery<Tuple> tupleQuery;
 
   public JPAExpandJoinQuery(final OData odata, final JPAODataCRUDContextAccess sessionContext,
       final JPAInlineItemInfo item, final Map<String, List<String>> requestHeaders,
-      final JPAODataRequestContextAccess requestContext, final Optional<JPAKeyPair> keyBoundary) throws ODataException {
+      final JPAODataRequestContextAccess requestContext, final Optional<JPAKeyBoundary> keyBoundary)
+      throws ODataException {
 
     super(odata, sessionContext, item.getEntityType(), item.getUriInfo(), requestContext, requestHeaders,
         item.getHops());

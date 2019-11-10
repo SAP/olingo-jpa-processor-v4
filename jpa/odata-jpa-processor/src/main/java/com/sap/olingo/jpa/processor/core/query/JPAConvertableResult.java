@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.processor.core.query;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -36,11 +37,12 @@ public interface JPAConvertableResult {
    * Returns a key pair if the query had $top and/or $skip and the key of the entity implements {@link Comparable}.
    * @param <T>
    * @param requestContext
+   * @param hops
    * @return
    * @throws ODataJPAQueryException
    */
-  default Optional<JPAKeyPair> getKeyBoundary(JPAODataRequestContextAccess requestContext)
-      throws ODataJPAQueryException {
+  default Optional<JPAKeyBoundary> getKeyBoundary(JPAODataRequestContextAccess requestContext,
+      final List<JPANavigationProptertyInfo> hops) throws ODataJPAQueryException {
     return Optional.empty();
   }
 }

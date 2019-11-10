@@ -47,7 +47,7 @@ import com.sap.olingo.jpa.processor.core.query.JPAExpandItemInfoFactory;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandJoinQuery;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandQueryResult;
 import com.sap.olingo.jpa.processor.core.query.JPAJoinQuery;
-import com.sap.olingo.jpa.processor.core.query.JPAKeyPair;
+import com.sap.olingo.jpa.processor.core.query.JPAKeyBoundary;
 import com.sap.olingo.jpa.processor.core.query.JPANavigationProptertyInfo;
 import com.sap.olingo.jpa.processor.core.query.Util;
 
@@ -69,8 +69,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
 
   @Override
   public <K extends Comparable<K>> void retrieveData(final ODataRequest request, final ODataResponse response,
-      final ContentType responseFormat)
-      throws ODataException {
+      final ContentType responseFormat) throws ODataException {
 
     final int handle = debugger.startRuntimeMeasurement(this, "retrieveData");
     // Create a JPQL Query and execute it
@@ -84,7 +83,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
 
     final JPAConvertableResult result = query.execute();
     // Read Expand and Collection
-    final Optional<JPAKeyPair> keyBoundary = result.getKeyBoundary(requestContext);
+    final Optional<JPAKeyBoundary> keyBoundary = result.getKeyBoundary(requestContext, query.getNavigationInfo());
     result.putChildren(readExpandEntities(request.getAllHeaders(), query.getNavigationInfo(), uriInfo, keyBoundary));
     // Convert tuple result into an OData Result
     final int converterHandle = debugger.startRuntimeMeasurement(this, "convertResult");
@@ -252,7 +251,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
    */
   private Map<JPAAssociationPath, JPAExpandResult> readExpandEntities(final Map<String, List<String>> headers,
       final List<JPANavigationProptertyInfo> parentHops, final UriInfoResource uriResourceInfo,
-      final Optional<JPAKeyPair> keyBoundary) throws ODataException {
+      final Optional<JPAKeyBoundary> keyBoundary) throws ODataException {
 
     final int handle = debugger.startRuntimeMeasurement(this, "readExpandEntities");
     final Map<JPAAssociationPath, JPAExpandResult> allExpResults =

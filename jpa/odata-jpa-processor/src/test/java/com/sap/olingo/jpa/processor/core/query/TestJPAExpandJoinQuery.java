@@ -45,8 +45,8 @@ public class TestJPAExpandJoinQuery extends TestBase {
   private TestHelper helper;
   private JPAKeyPair orgPair;
   private JPAKeyPair adminPair;
-  private Optional<JPAKeyPair> orgBoundary;
-  private Optional<JPAKeyPair> adminBoundary;
+  private Optional<JPAKeyBoundary> orgBoundary;
+  private Optional<JPAKeyBoundary> adminBoundary;
   @SuppressWarnings("rawtypes")
   private Map<JPAAttribute, Comparable> simpleKey;
 
@@ -58,9 +58,9 @@ public class TestJPAExpandJoinQuery extends TestBase {
     sessionContext = mock(JPAODataCRUDContextAccess.class);
     requestContext = mock(JPAODataRequestContextAccess.class);
     orgPair = new JPAKeyPair(helper.getJPAEntityType("Organizations").getKey());
-    orgBoundary = Optional.of(orgPair);
+    orgBoundary = Optional.of(new JPAKeyBoundary(1, orgPair));
     adminPair = new JPAKeyPair(helper.getJPAEntityType("AdministrativeDivisions").getKey());
-    adminBoundary = Optional.of(adminPair);
+    adminBoundary = Optional.of(new JPAKeyBoundary(1, adminPair));
     JPAServiceDebugger debugger = mock(JPAServiceDebugger.class);
 
     when(sessionContext.getEdmProvider()).thenReturn(helper.edmProvider);

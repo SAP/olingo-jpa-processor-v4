@@ -264,6 +264,21 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
+  public void testExpandAfterNavigationToEntityWithTop() throws IOException, ODataException {
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions(DivisionCode='BE2',CodeID='NUTS1',CodePublisher='Eurostat')/Children?$filter=DivisionCode eq 'BE21'&$top=2&$expand=Children($orderby=DivisionCode)");
+    helper.assertStatus(200);
+
+    final ObjectNode div = helper.getValue();
+    final ArrayNode children = (ArrayNode) div.get("value").get(0).get("Children");
+    assertNotNull(children);
+    assertEquals(3, children.size());
+    assertEquals("BE211", children.get(0).get("DivisionCode").asText());
+    assertEquals("BE212", children.get(1).get("DivisionCode").asText());
+    assertEquals("BE213", children.get(2).get("DivisionCode").asText());
+  }
+
+  @Test
   public void testExpandWithOrderByDesc() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions(DivisionCode='BE2',CodeID='NUTS1',CodePublisher='Eurostat')?$expand=Children($orderby=DivisionCode desc)");
@@ -574,6 +589,30 @@ public class TestJPAProcessorExpand extends TestBase {
     final ObjectNode org = helper.getValue();
     assertNotNull(org.get("SupportEngineers"));
     final ArrayNode supportEngs = (ArrayNode) org.get("SupportEngineers");
+    for (int i = 0; i < supportEngs.size(); i++) {
+      final ObjectNode supportEng = (ObjectNode) supportEngs.get(i);
+      final ArrayNode supportOrgs = (ArrayNode) supportEng.get("SupportedOrganizations");
+      assertNotNull(supportOrgs);
+      if (supportEng.get("ID").asText().equals("98")) {
+        assertEquals(1, supportOrgs.size());
+      } else if (supportEng.get("ID").asText().equals("97")) {
+        assertEquals(2, supportOrgs.size());
+      } else
+        fail("Unexpected result");
+    }
+  }
+
+  @Test
+  public void testExpandViaJoinTable2LevelsWithTop() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$top=1&$select=Name1&$expand=SupportEngineers($select=FirstName,LastName;$expand=SupportedOrganizations)&orderby=ID");
+    helper.assertStatus(200);
+
+    final ArrayNode org = (ArrayNode) helper.getValue().get("value");
+    assertNotNull(org);
+    assertNotNull(org.get(0));
+    assertNotNull(org.get(0).get("SupportEngineers"));
+    final ArrayNode supportEngs = (ArrayNode) org.get(0).get("SupportEngineers");
     for (int i = 0; i < supportEngs.size(); i++) {
       final ObjectNode supportEng = (ObjectNode) supportEngs.get(i);
       final ArrayNode supportOrgs = (ArrayNode) supportEng.get("SupportedOrganizations");

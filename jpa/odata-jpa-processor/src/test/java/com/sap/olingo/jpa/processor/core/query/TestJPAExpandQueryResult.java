@@ -9,6 +9,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +21,7 @@ import javax.persistence.Tuple;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
+import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
 import org.apache.olingo.server.api.uri.queryoption.SkipOption;
 import org.apache.olingo.server.api.uri.queryoption.TopOption;
@@ -40,17 +42,22 @@ public class TestJPAExpandQueryResult extends TestBase {
   private TopOption top;
   private SkipOption skip;
   private ExpandOption expand;
-
   private JPAODataRequestContextAccess requestContext;
-
   private TestHelper helper;
   private HashMap<String, List<Tuple>> queryResult = new HashMap<>(1);
   private List<Tuple> tuples = new ArrayList<>();
   private JPAEntityType et;
+  private List<JPANavigationProptertyInfo> hops;
 
   @BeforeEach
   public void setup() throws ODataException {
     helper = new TestHelper(emf, PUNIT_NAME);
+    final UriResourceEntitySet uriEts = mock(UriResourceEntitySet.class);
+    final JPANavigationProptertyInfo hop0 = new JPANavigationProptertyInfo(helper.sd, uriEts, null, null);
+    final JPANavigationProptertyInfo hop1 = new JPANavigationProptertyInfo(helper.sd, uriEts, helper.getJPAEntityType(
+        "Organizations").getAssociationPath("Roles"), null);
+
+    hops = Arrays.asList(hop0, hop1);
     et = helper.getJPAEntityType("Organizations");
     uriInfo = mock(UriInfoResource.class);
     requestContext = mock(JPAODataRequestContextAccess.class);
@@ -66,7 +73,18 @@ public class TestJPAExpandQueryResult extends TestBase {
 
     cut = new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType("Organizations"),
         Collections.emptyList());
-    final Optional<JPAKeyPair> act = cut.getKeyBoundary(requestContext);
+    final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops);
+    assertFalse(act.isPresent());
+  }
+
+  @Test
+  public void checkGetKeyBoundaryEmptyBoundaryExpandWithoutTopSkip() throws ODataJPAModelException,
+      ODataJPAQueryException {
+
+    cut = new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType("AdministrativeDivisionDescriptions"),
+        Collections.emptyList());
+    when(uriInfo.getExpandOption()).thenReturn(expand);
+    final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops);
     assertFalse(act.isPresent());
   }
 
@@ -77,11 +95,11 @@ public class TestJPAExpandQueryResult extends TestBase {
     final TupleDouble tuple = new TupleDouble(key);
     tuples.add(tuple);
     key.put("ID", Integer.valueOf(10));
-    cut = new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType("Organizations"),
+    cut = new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType("AdministrativeDivisionDescriptions"),
         Collections.emptyList());
     when(uriInfo.getTopOption()).thenReturn(top);
     when(top.getValue()).thenReturn(2);
-    final Optional<JPAKeyPair> act = cut.getKeyBoundary(requestContext);
+    final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops);
     assertFalse(act.isPresent());
   }
 
@@ -91,7 +109,7 @@ public class TestJPAExpandQueryResult extends TestBase {
 
     cut = new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType("AdministrativeDivisionDescriptions"),
         Collections.emptyList());
-    final Optional<JPAKeyPair> act = cut.getKeyBoundary(requestContext);
+    final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops);
     assertFalse(act.isPresent());
   }
 
@@ -106,9 +124,9 @@ public class TestJPAExpandQueryResult extends TestBase {
     when(uriInfo.getTopOption()).thenReturn(top);
     when(uriInfo.getExpandOption()).thenReturn(expand);
     when(top.getValue()).thenReturn(2);
-    final Optional<JPAKeyPair> act = cut.getKeyBoundary(requestContext);
+    final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops);
     assertTrue(act.isPresent());
-    assertEquals(10, act.get().getMin().get(et.getKey().get(0)));
+    assertEquals(10, act.get().getKeyBoundary().getMin().get(et.getKey().get(0)));
   }
 
   @Test
@@ -119,9 +137,22 @@ public class TestJPAExpandQueryResult extends TestBase {
     when(uriInfo.getSkipOption()).thenReturn(skip);
     when(uriInfo.getExpandOption()).thenReturn(expand);
     when(skip.getValue()).thenReturn(2);
-    final Optional<JPAKeyPair> act = cut.getKeyBoundary(requestContext);
+    final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops);
     assertTrue(act.isPresent());
-    assertEquals(12, act.get().getMin().get(et.getKey().get(0)));
+    assertEquals(12, act.get().getKeyBoundary().getMin().get(et.getKey().get(0)));
+  }
+
+  @Test
+  public void checkGetKeyBoundaryContainsNoHops() throws ODataJPAModelException, ODataJPAQueryException {
+
+    addTuple(Integer.valueOf(12));
+    cut = new JPAExpandQueryResult(queryResult, null, et, Collections.emptyList());
+    when(uriInfo.getSkipOption()).thenReturn(skip);
+    when(uriInfo.getExpandOption()).thenReturn(expand);
+    when(skip.getValue()).thenReturn(2);
+    final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops);
+    assertTrue(act.isPresent());
+    assertEquals(2, act.get().getNoHops());
   }
 
   @Test
@@ -133,10 +164,10 @@ public class TestJPAExpandQueryResult extends TestBase {
     when(uriInfo.getSkipOption()).thenReturn(skip);
     when(uriInfo.getExpandOption()).thenReturn(expand);
     when(skip.getValue()).thenReturn(2);
-    final Optional<JPAKeyPair> act = cut.getKeyBoundary(requestContext);
+    final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops);
     assertTrue(act.isPresent());
-    assertEquals(12, act.get().getMin().get(et.getKey().get(0)));
-    assertEquals(15, act.get().getMax().get(et.getKey().get(0)));
+    assertEquals(12, act.get().getKeyBoundary().getMin().get(et.getKey().get(0)));
+    assertEquals(15, act.get().getKeyBoundary().getMax().get(et.getKey().get(0)));
   }
 
   @Test
@@ -153,10 +184,10 @@ public class TestJPAExpandQueryResult extends TestBase {
     when(uriInfo.getTopOption()).thenReturn(top);
     when(uriInfo.getExpandOption()).thenReturn(expand);
     when(top.getValue()).thenReturn(2);
-    final Optional<JPAKeyPair> act = cut.getKeyBoundary(requestContext);
+    final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops);
     assertTrue(act.isPresent());
-    assertNotNull(act.get().getMin());
-    assertNull(act.get().getMax());
+    assertNotNull(act.get().getKeyBoundary().getMin());
+    assertNull(act.get().getKeyBoundary().getMax());
   }
 
   @Test
@@ -168,10 +199,10 @@ public class TestJPAExpandQueryResult extends TestBase {
     when(uriInfo.getSkipOption()).thenReturn(skip);
     when(uriInfo.getExpandOption()).thenReturn(expand);
     when(skip.getValue()).thenReturn(2);
-    final Optional<JPAKeyPair> act = cut.getKeyBoundary(requestContext);
+    final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops);
     assertTrue(act.isPresent());
-    assertEquals(12, act.get().getMin().get(et.getKey().get(0)));
-    assertEquals(15, act.get().getMax().get(et.getKey().get(0)));
+    assertEquals(12, act.get().getKeyBoundary().getMin().get(et.getKey().get(0)));
+    assertEquals(15, act.get().getKeyBoundary().getMax().get(et.getKey().get(0)));
   }
 
   private void addTuple(final Integer value) {

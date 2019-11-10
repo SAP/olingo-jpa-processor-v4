@@ -189,26 +189,24 @@ public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertab
   }
 
   @Override
-  public Optional<JPAKeyPair> getKeyBoundary(JPAODataRequestContextAccess requestContext)
-      throws ODataJPAQueryException {
+  public Optional<JPAKeyBoundary> getKeyBoundary(final JPAODataRequestContextAccess requestContext,
+      final List<JPANavigationProptertyInfo> hops) throws ODataJPAQueryException {
     try {
       if ((requestContext.getUriInfo().getExpandOption() != null
-          || collectionPropertyRequested(requestContext)
-              && (requestContext.getUriInfo().getTopOption() != null
-                  || requestContext.getUriInfo().getSkipOption() != null))) {
-
+          || collectionPropertyRequested(requestContext))
+          && (requestContext.getUriInfo().getTopOption() != null
+              || requestContext.getUriInfo().getSkipOption() != null)) {
         final JPAKeyPair boundary = new JPAKeyPair(jpaEntityType.getKey());
         for (final Tuple tuple : jpaResult.get(ROOT_RESULT_KEY)) {
           Map<JPAAttribute, Comparable> key = createKey(tuple);
           boundary.setValue(key);
         }
-        return Optional.of(boundary);
+        return Optional.of(new JPAKeyBoundary(hops.size(), boundary));
       }
     } catch (ODataJPAModelException e) {
       throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
-
-    return JPAConvertableResult.super.getKeyBoundary(requestContext);
+    return JPAConvertableResult.super.getKeyBoundary(requestContext, hops);
   }
 
   private boolean collectionPropertyRequested(final JPAODataRequestContextAccess requestContext)

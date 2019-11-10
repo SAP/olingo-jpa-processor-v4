@@ -850,21 +850,21 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
   }
 
   protected <Y extends Comparable<? super Y>> javax.persistence.criteria.Expression<Boolean> createBoundary(
-      final List<JPANavigationProptertyInfo> info, final Optional<JPAKeyPair> keyBoundary)
+      final List<JPANavigationProptertyInfo> info, final Optional<JPAKeyBoundary> keyBoundary)
       throws ODataJPAQueryException {
 
     if (keyBoundary.isPresent()) {
       // Given key: Organizations('1')/Roles(...)
       // First is the root
-      final JPANavigationProptertyInfo naviInfo = info.get(0);
+      final JPANavigationProptertyInfo naviInfo = info.get(keyBoundary.get().getNoHops() - 1);
       try {
         final JPAEntityType et = naviInfo.getEntityType();
         final From<?, ?> f = naviInfo.getFromClause();
 
-        if (keyBoundary.get().hasUpperBoundary()) {
-          return createBoundaryWithUpper(et, f, keyBoundary.get());
+        if (keyBoundary.get().getKeyBoundary().hasUpperBoundary()) {
+          return createBoundaryWithUpper(et, f, keyBoundary.get().getKeyBoundary());
         } else {
-          return createBoundaryEquals(et, f, keyBoundary.get());
+          return createBoundaryEquals(et, f, keyBoundary.get().getKeyBoundary());
         }
       } catch (ODataJPAModelException e) {
         throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
