@@ -4,7 +4,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -34,9 +33,9 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAJavaFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPADBAdaptorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 
@@ -81,16 +80,16 @@ public final class JPAFunctionRequestProcessor extends JPAOperationRequestProces
     final EdmParameter edmParam = edmFunction.getParameter(parameter.getName());
     try {
       switch (edmParam.getType().getKind()) {
-      case PRIMITIVE:
-        return ((EdmPrimitiveType) edmParam.getType()).valueOfString(value, false, edmParam.getMaxLength(),
-            edmParam.getPrecision(), edmParam.getScale(), true, parameter.getType());
-      case ENUM:
-        final JPAEnumerationAttribute enumeration = sd.getEnumType(parameter.getTypeFQN()
-            .getFullQualifiedNameAsString());
-        return enumeration.enumOf(value);
-      default:
-        throw new ODataJPADBAdaptorException(ODataJPADBAdaptorException.MessageKeys.PARAMETER_CONVERSION_ERROR,
-            HttpStatusCode.NOT_IMPLEMENTED, uriValue, parameter.getName());
+        case PRIMITIVE:
+          return ((EdmPrimitiveType) edmParam.getType()).valueOfString(value, false, edmParam.getMaxLength(),
+              edmParam.getPrecision(), edmParam.getScale(), true, parameter.getType());
+        case ENUM:
+          final JPAEnumerationAttribute enumeration = sd.getEnumType(parameter.getTypeFQN()
+              .getFullQualifiedNameAsString());
+          return enumeration.enumOf(value);
+        default:
+          throw new ODataJPADBAdaptorException(ODataJPADBAdaptorException.MessageKeys.PARAMETER_CONVERSION_ERROR,
+              HttpStatusCode.NOT_IMPLEMENTED, uriValue, parameter.getName());
       }
 
     } catch (EdmPrimitiveTypeException | ODataJPAModelException e) {
@@ -114,8 +113,8 @@ public final class JPAFunctionRequestProcessor extends JPAOperationRequestProces
       final List<Object> parameter = new ArrayList<>();
       final Parameter[] methodParameter = jpaFunction.getMethod().getParameters();
 
-      for (Parameter declairedParameter : Arrays.asList(methodParameter)) {
-        for (UriParameter providedParameter : uriResourceFunction.getParameters()) {
+      for (final Parameter declairedParameter : methodParameter) {
+        for (final UriParameter providedParameter : uriResourceFunction.getParameters()) {
           JPAParameter jpaParameter = jpaFunction.getParameter(declairedParameter.getName());
           if (jpaParameter.getName().equals(providedParameter.getName())) {
             parameter.add(getValue(uriResourceFunction.getFunction(), jpaParameter, providedParameter.getText()));
@@ -129,7 +128,7 @@ public final class JPAFunctionRequestProcessor extends JPAOperationRequestProces
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     } catch (InvocationTargetException e) {
       Throwable cause = e.getCause();
-      if (cause != null && cause instanceof ODataApplicationException) {
+      if (cause instanceof ODataApplicationException) {
         throw (ODataApplicationException) cause;
       } else {
         throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);

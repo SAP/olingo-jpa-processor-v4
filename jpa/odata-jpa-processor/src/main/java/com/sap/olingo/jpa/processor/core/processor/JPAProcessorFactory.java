@@ -7,9 +7,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
+import org.apache.olingo.commons.api.http.HttpHeader;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
@@ -20,9 +22,9 @@ import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.queryoption.SystemQueryOption;
 import org.apache.olingo.server.api.uri.queryoption.SystemQueryOptionKind;
 
+import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.JPAIllicalAccessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
@@ -46,10 +48,11 @@ public final class JPAProcessorFactory {
   }
 
   public JPACUDRequestProcessor createCUDRequestProcessor(final UriInfo uriInfo, final ContentType responseFormat,
-      final JPAODataRequestContextAccess context) throws ODataException {
+      final JPAODataRequestContextAccess context, final Map<String, List<String>> header) throws ODataException {
 
     final JPAODataRequestContextAccess requestContext = new JPAODataRequestContextImpl(uriInfo, serializerFactory
-        .createCUDSerializer(responseFormat, uriInfo), context);
+        .createCUDSerializer(responseFormat, uriInfo, Optional.ofNullable(header.get(HttpHeader.ODATA_MAX_VERSION))),
+        context);
 
     return new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext,
         new JPAConversionHelper());
@@ -65,10 +68,11 @@ public final class JPAProcessorFactory {
   }
 
   public JPAActionRequestProcessor createActionProcessor(final UriInfo uriInfo, final ContentType responseFormat,
-      final JPAODataRequestContextAccess context) throws ODataException {
+      final Map<String, List<String>> header, final JPAODataRequestContextAccess context) throws ODataException {
 
     final JPAODataRequestContextAccess requestContext = new JPAODataRequestContextImpl(uriInfo,
-        responseFormat != null ? serializerFactory.createSerializer(responseFormat, uriInfo) : null, context);
+        responseFormat != null ? serializerFactory.createSerializer(responseFormat, uriInfo, Optional.ofNullable(header
+            .get(HttpHeader.ODATA_MAX_VERSION))) : null, context);
 
     return new JPAActionRequestProcessor(odata, sessionContext, requestContext);
 
@@ -83,7 +87,8 @@ public final class JPAProcessorFactory {
     JPAODataRequestContextAccess requestContext;
     try {
       requestContext = new JPAODataRequestContextImpl(page, serializerFactory
-          .createSerializer(responseFormat, page.getUriInfo()), context);
+          .createSerializer(responseFormat, page.getUriInfo(), Optional.ofNullable(header.get(
+              HttpHeader.ODATA_MAX_VERSION))), context);
     } catch (JPAIllicalAccessException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }

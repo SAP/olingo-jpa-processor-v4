@@ -4,7 +4,6 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +18,7 @@ import org.apache.olingo.commons.api.data.ValueType;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.format.ContentType;
+import org.apache.olingo.commons.api.http.HttpHeader;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataRequest;
@@ -117,7 +117,8 @@ public class JPAConversionHelper {
     final InputStream requestInputStream = request.getBody();
     final EdmEntitySetInfo targetEntityInfo = Util.determineModifyEntitySetAndKeys(uriResourceParts);
     try {
-      final ODataDeserializer deserializer = createDeserrializer(odata, requestFormat);
+      final ODataDeserializer deserializer = createDeserrializer(odata, requestFormat,
+          request.getHeaders(HttpHeader.ODATA_VERSION));
       final UriResource lastPart = uriResourceParts.get(uriResourceParts.size() - 1);
       if (lastPart instanceof UriResourceProperty) {
         // Convert requests on property level into request on entity level
@@ -399,9 +400,9 @@ public class JPAConversionHelper {
         + odata.createUriHelper().buildCanonicalURL(edmEntitySet, createdEntity);
   }
 
-  private ODataDeserializer createDeserrializer(final OData odata, final ContentType requestFormat)
-      throws DeserializerException {
-    return odata.createDeserializer(requestFormat, Arrays.asList("4.00"));
+  private ODataDeserializer createDeserrializer(final OData odata, final ContentType requestFormat,
+      final List<String> version) throws DeserializerException {
+    return odata.createDeserializer(requestFormat, version);
   }
 
   private <T> Object findEnumConstantsByOrdinal(T[] enumConstants, Object value) {

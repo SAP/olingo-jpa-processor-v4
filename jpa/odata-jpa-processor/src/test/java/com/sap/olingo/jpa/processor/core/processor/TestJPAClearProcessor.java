@@ -3,8 +3,8 @@ package com.sap.olingo.jpa.processor.core.processor;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -47,6 +47,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataGroupsProvider;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPATransactionException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
 import com.sap.olingo.jpa.processor.core.modify.JPAUpdateResult;
 
@@ -273,18 +274,18 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
 
     processor.clearFields(request, new ODataResponse());
 
-    verify(transaction, times(1)).begin();
+    verify(factory, times(1)).createTransaction();
   }
 
   @Test
   public void testBeginIsNotCalledOnTransaction() throws ODataApplicationException {
     // .../Organizations('35')/Name2
     prepareDeleteName2();
-    when(transaction.isActive()).thenReturn(true);
+    when(factory.hasActiveTransaction()).thenReturn(true);
 
     processor.clearFields(request, new ODataResponse());
 
-    verify(transaction, times(0)).begin();
+    verify(factory, times(0)).createTransaction();
   }
 
   @Test
@@ -301,7 +302,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
   public void testCommitIsNotCalledOnTransaction() throws ODataApplicationException {
     // .../Organizations('35')/Name2
     prepareDeleteName2();
-    when(transaction.isActive()).thenReturn(true);
+    when(factory.hasActiveTransaction()).thenReturn(true);
 
     processor.clearFields(request, new ODataResponse());
 
@@ -309,55 +310,47 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testErrorReturnCodeWithRollback() {
+  public void testErrorReturnCodeWithRollback() throws ODataJPATransactionException {
     // .../Organizations('35')/Name2
     ODataResponse response = new ODataResponse();
 
     RequestHandleSpy spy = prepareDeleteName2();
     spy.raiseException(1);
-    try {
-      processor.clearFields(request, response);
-    } catch (ODataJPAProcessException e) {
-      assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), e.getStatusCode());
-      verify(transaction, times(1)).rollback();
-      return;
-    }
-    fail();
+    ODataApplicationException act = assertThrows(ODataApplicationException.class,
+        () -> processor.clearFields(request, response));
+
+    assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), act.getStatusCode());
+    verify(transaction, times(1)).rollback();
   }
 
   @Test
-  public void testErrorReturnCodeWithOutRollback() {
+  public void testErrorReturnCodeWithOutRollback() throws ODataJPATransactionException {
     // .../Organizations('35')/Name2
     ODataResponse response = new ODataResponse();
 
     RequestHandleSpy spy = prepareDeleteName2();
     spy.raiseException(1);
-    when(transaction.isActive()).thenReturn(true);
-    try {
-      processor.clearFields(request, response);
-    } catch (ODataJPAProcessException e) {
-      assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), e.getStatusCode());
-      verify(transaction, times(0)).rollback();
-      return;
-    }
-    fail();
+    when(factory.hasActiveTransaction()).thenReturn(true);
+
+    ODataApplicationException act = assertThrows(ODataApplicationException.class, () -> processor.clearFields(request,
+        response));
+    assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), act.getStatusCode());
+    verify(transaction, times(0)).rollback();
   }
 
   @Test
-  public void testReraiseWithRollback() {
+  public void testReraiseWithRollback() throws ODataJPATransactionException {
     // .../Organizations('35')/Name2
     ODataResponse response = new ODataResponse();
 
     RequestHandleSpy spy = prepareDeleteName2();
     spy.raiseException(2);
-    try {
-      processor.clearFields(request, response);
-    } catch (ODataJPAProcessException e) {
-      assertEquals(HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), e.getStatusCode());
-      verify(transaction, times(1)).rollback();
-      return;
-    }
-    fail();
+
+    ODataJPAProcessException act = assertThrows(ODataJPAProcessException.class,
+        () -> processor.clearFields(request, response));
+
+    assertEquals(HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), act.getStatusCode());
+    verify(transaction, times(1)).rollback();
   }
 
   @Test
@@ -367,15 +360,12 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
 
     RequestHandleSpy spy = prepareDeleteName2();
     spy.raiseException(2);
-    when(transaction.isActive()).thenReturn(true);
-    try {
-      processor.clearFields(request, response);
-    } catch (ODataJPAProcessorException e) {
-      assertEquals(HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), e.getStatusCode());
-      verify(transaction, times(0)).rollback();
-      return;
-    }
-    fail();
+    when(factory.hasActiveTransaction()).thenReturn(true);
+    ODataJPAProcessorException act = assertThrows(ODataJPAProcessorException.class,
+        () -> processor.clearFields(request, response));
+
+    assertEquals(HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), act.getStatusCode());
+    verify(transaction, times(0)).rollback();
   }
 
   @Test
@@ -397,8 +387,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
 
     RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
-    when(em.getTransaction()).thenReturn(transaction);
-    when(transaction.isActive()).thenReturn(Boolean.TRUE);
+    when(factory.hasActiveTransaction()).thenReturn(Boolean.TRUE);
 
     processor.clearFields(request, response);
     assertEquals(0, spy.noValidateCalls);
@@ -417,13 +406,9 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
         HttpStatusCode.BAD_REQUEST)).when(handler).updateEntity(any(JPARequestEntity.class), any(EntityManager.class),
             any(HttpMethod.class));
 
-    try {
-      processor.clearFields(request, response);
-    } catch (ODataApplicationException e) {
-      verify(handler, never()).validateChanges(em);
-      return;
-    }
-    fail();
+    assertThrows(ODataApplicationException.class, () -> processor.clearFields(request, response));
+    verify(handler, never()).validateChanges(em);
+
   }
 
   @Test
@@ -431,22 +416,15 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     ODataResponse response = new ODataResponse();
     ODataRequest request = prepareSimpleRequest();
 
-    when(em.getTransaction()).thenReturn(transaction);
-
     JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     when(requestContext.getCUDRequestHandler()).thenReturn(handler);
 
     doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
         HttpStatusCode.BAD_REQUEST)).when(handler).validateChanges(em);
 
-    try {
-      processor.clearFields(request, response);
-    } catch (ODataApplicationException e) {
-      verify(transaction, never()).commit();
-      verify(transaction, times(1)).rollback();
-      return;
-    }
-    fail();
+    assertThrows(ODataApplicationException.class, () -> processor.clearFields(request, response));
+    verify(transaction, never()).commit();
+    verify(transaction, times(1)).rollback();
   }
 
   private RequestHandleSpy prepareDeleteName2() {

@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
 import java.util.Date;
+import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -39,14 +40,12 @@ public class ChangeInformation {
     return by;
   }
 
-  public void setBy(String by) {
-    if (by == null) {
-      throw new NullPointerException();
-    }
+  public void setBy(final String by) {
+    Objects.nonNull(by);
     this.by = by;
   }
 
-  public void setAt(Date at) {
+  public void setAt(final Date at) {
     this.at = at;
   }
 
@@ -54,7 +53,7 @@ public class ChangeInformation {
     return user;
   }
 
-  public void setUser(Person user) {
+  public void setUser(final Person user) {
     this.user = user;
     this.by = user.getID();
   }

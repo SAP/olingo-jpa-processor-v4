@@ -2,6 +2,7 @@ package com.sap.olingo.jpa.processor.core.query;
 
 import static java.util.stream.Collectors.joining;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -9,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.persistence.Tuple;
@@ -35,8 +37,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 /**
@@ -56,14 +58,18 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
  */
 public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
   private final JPAAssociationPath assoziation;
+  private final Optional<JPAKeyBoundary> keyBoundary;
+  private TypedQuery<Tuple> tupleQuery;
 
   public JPAExpandJoinQuery(final OData odata, final JPAODataCRUDContextAccess sessionContext,
       final JPAInlineItemInfo item, final Map<String, List<String>> requestHeaders,
-      final JPAODataRequestContextAccess requestContext) throws ODataException {
+      final JPAODataRequestContextAccess requestContext, final Optional<JPAKeyBoundary> keyBoundary)
+      throws ODataException {
 
     super(odata, sessionContext, item.getEntityType(), item.getUriInfo(), requestContext, requestHeaders,
         item.getHops());
     this.assoziation = item.getExpandAssociation();
+    this.keyBoundary = keyBoundary;
   }
 
   public JPAExpandJoinQuery(final OData odata, final JPAODataCRUDContextAccess context,
@@ -73,24 +79,18 @@ public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
 
     super(odata, context, entityType, requestContext, requestHeaders, Collections.emptyList());
     this.assoziation = assoziation;
+    this.keyBoundary = Optional.empty();
   }
-
-//  public JPAExpandJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
-//      final JPAExpandItemInfo item, final Map<String, List<String>> requestHeaders,
-//      final JPAODataRequestContextAccess requestContext) throws ODataException {
-//
-//    super(odata, sessionContext, item.getEntityType(), item.getUriInfo(), requestContext, requestHeaders,
-//        item.getHops());
-//    this.assoziation = item.getExpandAssociation();
-//
-//  }
 
   /**
    * Process a expand query, which may contains a $skip and/or a $top option.<p>
    * This is a tricky problem, as it can not be done easily with SQL. It could be that a database offers special
    * solutions. There is an worth reading blog regards this topic:
    * <a href="http://www.xaprb.com/blog/2006/12/07/how-to-select-the-firstleastmax-row-per-group-in-sql/">How to select
-   * the first/least/max row per group in SQL</a>
+   * the first/least/max row per group in SQL</a>. Often databases offer the option to use <code>ROW_NUMBER</code>
+   * together with <code>OVER ... ORDER BY</code> see e.g. <a
+   * href="http://www.sqltutorial.org/sql-window-functions/sql-row_number/">SQL ROW_NUMBER</a>.
+   * Unfortunately this is not supported by JPA.
    * @return query result
    * @throws ODataApplicationException
    */
@@ -101,7 +101,8 @@ public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
     long skip = 0;
     long top = Long.MAX_VALUE;
     try {
-      final TypedQuery<Tuple> tupleQuery = createTupleQuery();
+      tupleQuery = createTupleQuery();
+
       final int resultHandle = debugger.startRuntimeMeasurement(tupleQuery, "getResultList");
       final List<Tuple> intermediateResult = tupleQuery.getResultList();
       debugger.stopRuntimeMeasurement(resultHandle);
@@ -113,19 +114,40 @@ public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
           top = uriResource.getTopOption().getValue();
       }
       final Map<String, List<Tuple>> result = convertResult(intermediateResult, assoziation, skip, top);
-      try {
-        final Set<JPAPath> requestedSelection = new HashSet<>();
-        buildSelectionAddNavigationAndSelect(uriResource, requestedSelection, uriResource.getSelectOption());
-        debugger.stopRuntimeMeasurement(handle);
-        return new JPAExpandQueryResult(result, count(), jpaEntity, requestedSelection);
 
-      } catch (ODataJPAModelException e) {
-        throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR
-            .getStatusCode(), ODataJPAModelException.getLocales().nextElement(), e);
-      }
+      final Set<JPAPath> requestedSelection = new HashSet<>();
+      buildSelectionAddNavigationAndSelect(uriResource, requestedSelection, uriResource.getSelectOption());
+      debugger.stopRuntimeMeasurement(handle);
+      return new JPAExpandQueryResult(result, count(), jpaEntity, requestedSelection);
+
     } catch (JPANoSelectionException e) {
       return new JPAExpandQueryResult(Collections.emptyMap(), Collections.emptyMap(), this.jpaEntity, Collections
           .emptyList());
+    } catch (ODataJPAModelException e) {
+      throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR
+          .getStatusCode(), ODataJPAModelException.getLocales().nextElement(), e);
+    }
+  }
+
+  /**
+   * Returns the generated SQL string after the query has been executed, otherwise an empty string.<br>
+   * As of now this is only supported for EcliseLink
+   * @return
+   * @throws ODataJPAQueryException
+   */
+  String getSQLString() throws ODataJPAQueryException {
+    if (tupleQuery != null && tupleQuery.getClass().getCanonicalName().equals(
+        "org.eclipse.persistence.internal.jpa.EJBQueryImpl")) {
+
+      try {
+        final Object dbQuery = tupleQuery.getClass().getMethod("getDatabaseQuery").invoke(tupleQuery);
+        return (String) dbQuery.getClass().getMethod("getSQLString").invoke(dbQuery);
+      } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
+          | InvocationTargetException e) {
+        throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+      }
+    } else {
+      return "";
     }
   }
 
@@ -192,8 +214,9 @@ public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
       if (skiped >= skip && taken < top) {
         taken += 1;
         subResult.add(row);
-      } else
+      } else {
         skiped += 1;
+      }
     }
     return convertedResult;
   }
@@ -204,7 +227,9 @@ public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
     if (associationPath.getJoinTable() == null) {
       final List<JPAPath> joinColumns = associationPath.getRightColumnsList();
       return joinColumns.stream()
-          .map(c -> (row.get(c.getAlias())).toString())
+          .map(c -> (row.get(c
+              .getAlias()))
+                  .toString())
           .collect(joining(JPAPath.PATH_SEPERATOR));
     } else {
       final List<JPAPath> joinColumns = associationPath.getLeftColumnsList();
@@ -342,6 +367,7 @@ public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
     // Given keys: Organizations('1')/Roles(...)
     try {
       whereCondition = createKeyWhere(navigationInfo);
+      whereCondition = addWhereClause(whereCondition, createBoundary(navigationInfo, keyBoundary));
       whereCondition = addWhereClause(whereCondition, createExpandWhere());
       whereCondition = addWhereClause(whereCondition, createProtectionWhere(claimsProvider));
     } catch (ODataApplicationException e) {

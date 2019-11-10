@@ -43,9 +43,14 @@ public class IntegrationTestHelper {
   private static final String uriPrefix = "http://localhost:8080/Test/Olingo.svc/";
   private static final String PUNIT_NAME = "com.sap.olingo.jpa";
 
-  public IntegrationTestHelper(EntityManagerFactory localEmf, String urlPath) throws IOException,
+  public IntegrationTestHelper(final EntityManagerFactory localEmf, final String urlPath) throws IOException,
       ODataException {
     this(localEmf, null, urlPath, null, null, null);
+  }
+
+  public IntegrationTestHelper(final EntityManagerFactory localEmf, final String urlPath,
+      final Map<String, List<String>> headers) throws IOException, ODataException {
+    this(localEmf, null, urlPath, null, null, null, headers, null, null);
   }
 
   public IntegrationTestHelper(final EntityManagerFactory localEmf, final String urlPath,

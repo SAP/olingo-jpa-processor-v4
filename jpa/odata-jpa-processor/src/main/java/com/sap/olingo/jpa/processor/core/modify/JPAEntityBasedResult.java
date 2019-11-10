@@ -9,7 +9,6 @@ import javax.persistence.Tuple;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.core.converter.JPATuple;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 
 public abstract class JPAEntityBasedResult extends JPACreateResult {
@@ -33,16 +32,20 @@ public abstract class JPAEntityBasedResult extends JPACreateResult {
     return results;
   }
 
-  protected void convertPathToTuple(final JPATuple tuple, final Map<String, Object> jpaEntity, final JPAPath path,
+  @Override
+  protected String determineLocale(final Map<String, Object> descGetterMap, final JPAPath localeAttribute,
       final int index) throws ODataJPAProcessorException {
-
-    Object value = jpaEntity.get(path.getPath().get(index).getInternalName());
-    if (path.getPath().size() == index + 1 || value == null) {
-      addValueToTuple(tuple, path, index, value);
+    Object value = descGetterMap.get(localeAttribute.getPath().get(index).getInternalName());
+    if (localeAttribute.getPath().size() == index + 1 || value == null) {
+      return (String) value;
     } else {
       final Map<String, Object> embeddedGetterMap = helper.buildGetterMap(value);
-      convertPathToTuple(tuple, embeddedGetterMap, path, index + 1);
+      return determineLocale(embeddedGetterMap, localeAttribute, index + 1);
     }
   }
 
+  @Override
+  protected Map<String, Object> entryAsMap(final Object entry) throws ODataJPAProcessorException {
+    return helper.buildGetterMap(entry);
+  }
 }

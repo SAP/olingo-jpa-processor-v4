@@ -562,7 +562,7 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
     return null;
   }
 
-  private JPAPath getPath(final String externalName, final boolean respectIgnore) throws ODataJPAModelException {
+  final JPAPath getPath(final String externalName, final boolean respectIgnore) throws ODataJPAModelException {
     lazyBuildCompletePathMap();
     JPAPath targetPath = resolvedPathMap.get(externalName);
     if (targetPath == null)

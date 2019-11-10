@@ -13,7 +13,7 @@ public final class JPAExpandItemInfo extends JPAInlineItemInfo {
       final JPAAssociationPath expandAssociation, final List<JPANavigationProptertyInfo> hops)
       throws ODataApplicationException {
 
-    super(uriInfo, expandAssociation);
+    super(uriInfo, expandAssociation, hops);
 
     for (JPANavigationProptertyInfo predecessor : hops)
       this.hops.add(new JPANavigationProptertyInfo(predecessor));
