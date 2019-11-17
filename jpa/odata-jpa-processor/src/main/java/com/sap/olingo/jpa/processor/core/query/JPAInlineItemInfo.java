@@ -14,11 +14,14 @@ public abstract class JPAInlineItemInfo {
   protected final JPAExpandItem uriInfo;
   protected final JPAAssociationPath expandAssociation;
   protected final List<JPANavigationProptertyInfo> hops;
+  protected final List<JPANavigationProptertyInfo> parentHops;
 
-  public JPAInlineItemInfo(final JPAExpandItem uriInfo, final JPAAssociationPath expandAssociation) {
+  public JPAInlineItemInfo(final JPAExpandItem uriInfo,
+      final JPAAssociationPath expandAssociation, final List<JPANavigationProptertyInfo> parentHops) {
 
     this.uriInfo = uriInfo;
     this.expandAssociation = expandAssociation;
+    this.parentHops = parentHops;
     this.hops = new ArrayList<>();
   }
 

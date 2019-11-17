@@ -20,9 +20,11 @@ import com.sap.olingo.jpa.processor.core.api.JPAAbstractCUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.api.JPACUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDRequestContext;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataDefaultTransactionFactory;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataTransactionFactory;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.exception.JPAIllicalAccessException;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializer;
@@ -40,6 +42,7 @@ public final class JPAODataRequestContextImpl implements JPAODataCRUDRequestCont
   private JPAServiceDebugger debugger;
   private JPADebugSupportWrapper debugSupport;
   private String debugFormat;
+  private JPAODataTransactionFactory transactionFactory;
 
   public JPAODataRequestContextImpl() {
     // Provide all data via setter
@@ -95,6 +98,13 @@ public final class JPAODataRequestContextImpl implements JPAODataCRUDRequestCont
   }
 
   @Override
+  public JPAODataTransactionFactory getTransactionFactory() {
+    if (transactionFactory == null)
+      createDefaultTransactionFactory();
+    return this.transactionFactory;
+  }
+
+  @Override
   public UriInfoResource getUriInfo() {
     return this.uriInfo;
   }
@@ -106,11 +116,11 @@ public final class JPAODataRequestContextImpl implements JPAODataCRUDRequestCont
 
   @Override
   public void setCUDRequestHandler(@Nonnull final JPACUDRequestHandler jpaCUDRequestHandler) {
-    this.jpaCUDRequestHandler = jpaCUDRequestHandler;
+    this.jpaCUDRequestHandler = Objects.requireNonNull(jpaCUDRequestHandler);
   }
 
   @Override
-  public void setEntityManager(final EntityManager em) {
+  public void setEntityManager(@Nonnull final EntityManager em) {
     this.em = Objects.requireNonNull(em);
   }
 
@@ -136,6 +146,11 @@ public final class JPAODataRequestContextImpl implements JPAODataCRUDRequestCont
   @Override
   public void setJPASerializer(@Nonnull final JPASerializer serializer) {
     this.serializer = Objects.requireNonNull(serializer);
+  }
+
+  @Override
+  public void setTransactionFactory(@Nullable final JPAODataTransactionFactory transactionFactory) {
+    this.transactionFactory = transactionFactory;
   }
 
   @Override
@@ -178,6 +193,10 @@ public final class JPAODataRequestContextImpl implements JPAODataCRUDRequestCont
     this.em = context.getEntityManager();
     this.jpaCUDRequestHandler = context.getCUDRequestHandler();
     this.debugger = context.getDebugger();
+  }
+
+  private void createDefaultTransactionFactory() {
+    this.transactionFactory = new JPAODataDefaultTransactionFactory(em);
   }
 
   private class JPADefaultCUDRequestHandler extends JPAAbstractCUDRequestHandler {
@@ -253,4 +272,5 @@ public final class JPAODataRequestContextImpl implements JPAODataCRUDRequestCont
       initDebugger();
     return debugSupport;
   }
+
 }

@@ -29,6 +29,7 @@ public class BusinessPartnerProtected {
   protected String iD;
 
   @Version
+  @EdmIgnore
   @Column(name = "\"ETag\"", nullable = false)
   protected long eTag;
 

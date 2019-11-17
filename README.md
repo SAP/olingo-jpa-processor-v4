@@ -19,7 +19,7 @@ More details can be found in the [Tutorials](/jpa-tutorial/Tutorials/Introductio
 # Requirements
 The JPA Processor requires, others than Olingo, minimum Java version  [1.8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html). The current version comes with Olingo 4.6.0. If later versions of Olingo are available this may change.
 
-Even so no JPA implementation is preferred, as long as it supports [JSR-338 Java Persistence 2.1](https://jcp.org/en/jsr/detail?id=317), it has to be stated that all test have been performed with [Eclipselink 2.7.1](http://www.eclipse.org/eclipselink/). If you have any problem with e.g. [Hibernate](http://hibernate.org) create an [issue](https://github.com/SAP/olingo-jpa-processor-v4/issues), but there is no guaranty that it can be solved, as Hibernate implements some JPA interfaces "differently" than EclipseLink.
+Even so no JPA implementation is preferred, as long as it supports [JSR-338 Java Persistence 2.1](https://jcp.org/en/jsr/detail?id=317), it has to be stated that all test have been performed with [Eclipselink 2.7.1](http://www.eclipse.org/eclipselink/). If you have any problem e.g. with [Hibernate](http://hibernate.org) create an [issue](https://github.com/SAP/olingo-jpa-processor-v4/issues), but there is no guaranty that it can be solved, as Hibernate implements some JPA interfaces "differently" than EclipseLink.
 
 # Download and Installation
 The JPA Processor is a collection of [Maven](https://maven.apache.org) projects. To use it you need to
@@ -29,7 +29,7 @@ clone the repository, import the projects and declare a dependency to either the
 <dependency>
 	<groupId>com.sap.olingo</groupId>
 	<artifactId>odata-jpa-metadata</artifactId>
-	<version>0.3.5-SNAPSHOT</version>
+	<version>0.3.6-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -39,7 +39,7 @@ Or to the complete processor:
 <dependency>
 	<groupId>com.sap.olingo</groupId>
 	<artifactId>odata-jpa-processor</artifactId>
-	<version>0.3.5-SNAPSHOT</version>
+	<version>0.3.6-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -80,4 +80,5 @@ This file is licensed under the Apache Software License, v.2 except as noted oth
 |0.3.2|- Lift unit tests to JUnit 5<br> - Correction of http return codes on empty responses |No|
 |0.3.3|- Support of PUT requests on collection properties and simple primitive properties<br> - Update to Olingo 4.6.0 <br> - Solution for issue [#69](https://github.com/SAP/olingo-jpa-processor-v4/issues/69) <br> - Solution for issue [#71](https://github.com/SAP/olingo-jpa-processor-v4/issues/71)<br>- Update tutorial [4.4](jpa-tutorial/Tutorials/SpecialTopics/4-4-InstanceBasedAuthorizations.md)|No
 |0.3.4|- Support of $select as part of $expand<br> - Support of field groups<br> - Introduction of a request context, which includes deprecation of methods <br> - Etag now written into response e.g. @odata.etag when JSON was requested<br> - Solution for issue [#78](https://github.com/SAP/olingo-jpa-processor-v4/issues/78) <br> - Updated tutorials: [2.2](jpa-tutorial/Tutorials/RetrieveData/2-2-RetrievingData.md), [2.3](jpa-tutorial/Tutorials/RetrieveData/2-3-UsingFunctions.md), [3.1](jpa-tutorial/Tutorials/ChangeData/3-1-Preparation.md), [3.2](jpa-tutorial/Tutorials/ChangeData/3-2-CreatingEntities.md),  [4.4](jpa-tutorial/Tutorials/SpecialTopics/4-4-InstanceBasedAuthorizations.md)  |Yes
-|0.3.5|- Extension of session context, so an entity manager factory can be provided. This will allow creating Spring based services without `persistence.xml` file.<br> - Solution for issue [#85](https://github.com/SAP/olingo-jpa-processor-v4/issues/85)<br> - Usage of Olingo JSON deserializer for CUD requests<br> - Extension of session context, so an non Edm Name Builder can be provided| Yes
+|0.3.5|- Extension of session context, so an entity manager factory can be provided. This will allow creating Spring based services without `persistence.xml` file <br> - Solution for issue [#85](https://github.com/SAP/olingo-jpa-processor-v4/issues/85)<br> - Usage of Olingo JSON deserializer for CUD requests<br> - Extension of session context, so an non Edm Name Builder can be provided| Yes
+|0.3.6|- Enable more flexible transaction handling<br> - Part solution for issue [#83](https://github.com/SAP/olingo-jpa-processor-v4/issues/83)<br> - Increase support of Spring by performing request mapping in case a mapping path is provided via the service context

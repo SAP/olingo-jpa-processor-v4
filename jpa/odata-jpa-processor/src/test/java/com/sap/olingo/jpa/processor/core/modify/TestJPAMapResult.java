@@ -92,6 +92,29 @@ public class TestJPAMapResult extends TestJPACreateResult {
 
   @SuppressWarnings("unchecked")
   @Override
+  protected void createCutGetResultWithDescriptionProperty() throws ODataJPAModelException, ODataApplicationException {
+    et = helper.getJPAEntityType("Organizations");
+    jpaEntity = new HashMap<>(3);
+
+    final Map<String, Object> description = new HashMap<>(2);
+    final Map<String, Object> descriptionKey = new HashMap<>(4);
+    descriptionKey.put("codePublisher", "ISO");
+    descriptionKey.put("codeID", "3166");
+    descriptionKey.put("divisionCode", "DEU");
+    descriptionKey.put("language", "en");
+
+    description.put("key", descriptionKey);
+    description.put("name", "MyDivision");
+
+    ((Map<String, Object>) jpaEntity).put("iD", "Willi");
+    ((Map<String, Object>) jpaEntity).put("eTag", Long.valueOf("7"));
+    ((Map<String, Object>) jpaEntity).put("codePublisher", "Eurostat");
+    ((Map<String, Object>) jpaEntity).put("locationName", Arrays.asList(description));
+    cut = new JPAMapResult(et, (Map<String, Object>) jpaEntity, headers, converter);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
   protected void createCutGetResultWithWithOneLinked() throws ODataJPAModelException, ODataApplicationException {
     prepareAdminWithChildren();
 

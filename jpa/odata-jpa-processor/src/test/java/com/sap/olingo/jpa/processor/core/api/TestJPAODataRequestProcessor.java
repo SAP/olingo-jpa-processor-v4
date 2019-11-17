@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -70,7 +71,9 @@ public class TestJPAODataRequestProcessor {
   }
 
   static Stream<Executable> throwsSerializerExceptionMethodsProvider() throws SerializerException {
-    when(odata.createSerializer(ContentType.APPLICATION_JSON)).thenThrow(SerializerException.class);
+    // when(odata.createSerializer(ContentType.APPLICATION_JSON)).thenThrow(SerializerException.class);
+    when(odata.createSerializer(ContentType.APPLICATION_JSON, Collections.emptyList()))
+        .thenThrow(SerializerException.class);
     return Stream.of(() -> {
       cut.createEntity(request, response, uriInfo, ContentType.APPLICATION_JSON, ContentType.APPLICATION_JSON);
     }, () -> {

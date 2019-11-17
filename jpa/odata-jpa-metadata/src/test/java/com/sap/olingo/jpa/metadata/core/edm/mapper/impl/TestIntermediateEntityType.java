@@ -294,6 +294,25 @@ public class TestIntermediateEntityType extends TestMappingRoot {
   }
 
   @Test
+  public void checkEmbeddedIdResovedKeyCorrectOrder() throws ODataJPAModelException {
+    IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "AdministrativeDivisionDescription"), schema);
+    assertEquals("Language", et.getKey().get(0).getExternalName());
+    assertEquals("DivisionCode", et.getKey().get(1).getExternalName());
+    assertEquals("CodeID", et.getKey().get(2).getExternalName());
+    assertEquals("CodePublisher", et.getKey().get(3).getExternalName());
+  }
+
+  @Test
+  public void checkCompoundResovedKeyCorrectOrder() throws ODataJPAModelException {
+    IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "AdministrativeDivision"), schema);
+    assertEquals("DivisionCode", et.getKey().get(0).getExternalName());
+    assertEquals("CodeID", et.getKey().get(1).getExternalName());
+    assertEquals("CodePublisher", et.getKey().get(2).getExternalName());
+  }
+
+  @Test
   public void checkEmbeddedIdResovedPath() throws ODataJPAModelException {
     JPAStructuredType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
         "AdministrativeDivisionDescription"), schema);
@@ -507,6 +526,27 @@ public class TestIntermediateEntityType extends TestMappingRoot {
     assertComplexAnnotated(act, "Updator", "Updated");
     assertComplexDeep(act);
     assertEquals(4, act.size());
+  }
+
+  @Test
+  public void checkEmbeddedIdKeyIsCompound() throws ODataJPAModelException {
+    IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "AdministrativeDivisionDescription"), schema);
+    assertTrue(et.hasCompoundKey());
+  }
+
+  @Test
+  public void checkMultipleKeyIsCompound() throws ODataJPAModelException {
+    IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "AdministrativeDivision"), schema);
+    assertTrue(et.hasCompoundKey());
+  }
+
+  @Test
+  public void checkIdIsNotCompound() throws ODataJPAModelException {
+    IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
+        "BusinessPartner"), schema);
+    assertFalse(et.hasCompoundKey());
   }
 
   private void assertComplexDeep(List<JPAProtectionInfo> act) {

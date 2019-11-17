@@ -14,9 +14,11 @@ import org.apache.olingo.server.api.ODataApplicationException;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.query.JPAConvertableResult;
 
 final class JPAEntityNavigationLinkResult extends JPACreateResult implements JPAConvertableResult {
@@ -36,13 +38,26 @@ final class JPAEntityNavigationLinkResult extends JPACreateResult implements JPA
   }
 
   @Override
-  public List<Tuple> getResult(String key) {
-    return result;
+  public Map<String, EntityCollection> asEntityCollection(JPATupleChildConverter converter)
+      throws ODataApplicationException {
+    convert(new JPATupleChildConverter(converter));
+    return odataResult;
   }
 
   @Override
   public void convert(final JPATupleChildConverter converter) throws ODataApplicationException {
     odataResult = converter.getResult(this, Collections.emptySet());
+  }
+
+  @Override
+  public EntityCollection getEntityCollection(final String key) throws ODataApplicationException {
+    if (odataResult == null) asEntityCollection(converter);
+    return odataResult.containsKey(ROOT_RESULT_KEY) ? odataResult.get(ROOT_RESULT_KEY) : new EntityCollection();
+  }
+
+  @Override
+  public List<Tuple> getResult(String key) {
+    return result;
   }
 
   @Override
@@ -53,20 +68,20 @@ final class JPAEntityNavigationLinkResult extends JPACreateResult implements JPA
   }
 
   @Override
-  public Map<String, EntityCollection> asEntityCollection(JPATupleChildConverter converter)
-      throws ODataApplicationException {
-    convert(new JPATupleChildConverter(converter));
-    return odataResult;
-  }
-
-  @Override
   public void putChildren(Map<JPAAssociationPath, JPAExpandResult> childResults) throws ODataApplicationException {
     // Not needed for JPAEntityNavigationLinkResult
   }
 
   @Override
-  public EntityCollection getEntityCollection(String key) throws ODataApplicationException {
-    if (odataResult == null) asEntityCollection(converter);
-    return odataResult.containsKey(key) ? odataResult.get(key) : new EntityCollection();
+  protected String determineLocale(final Map<String, Object> descGetterMap, final JPAPath localeAttribute,
+      final int index) throws ODataJPAProcessorException {
+    // Not needed for JPAEntityNavigationLinkResult
+    return null;
   }
+
+  @Override
+  protected Map<String, Object> entryAsMap(final Object entry) throws ODataJPAProcessorException {
+    return helper.buildGetterMap(entry);
+  }
+
 }

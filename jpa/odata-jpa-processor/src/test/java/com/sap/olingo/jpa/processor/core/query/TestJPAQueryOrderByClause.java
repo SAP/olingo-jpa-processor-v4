@@ -162,6 +162,19 @@ public class TestJPAQueryOrderByClause extends TestBase {
   }
 
   @Test
+  public void testOrderByAndTopSkip() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions?$filter=CodeID eq 'NUTS' or CodeID eq '3166-1'&$orderby=CountryCode desc&$top=1&$skip=2");
+
+    helper.assertStatus(200);
+
+    ArrayNode orgs = helper.getValues();
+    assertEquals(1, orgs.size());
+    assertEquals("CHE", orgs.get(0).get("CountryCode").asText());
+  }
+
+  @Test
   public void testOrderByNavigationOneHop() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,

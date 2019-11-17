@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
-import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
+import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 
 public class TestJavaActionNoParameter {
   public static int constructorCalls = 0;
@@ -23,7 +23,7 @@ public class TestJavaActionNoParameter {
     constructorCalls = 0;
   }
 
-  @EdmAction(name = "", returnType = @ReturnType(isNullable = false, precision = 20, scale = 5))
+  @EdmAction(returnType = @ReturnType(isNullable = false, precision = 20, scale = 5))
   public BigDecimal unboundReturnPrimitivetNoParameter() {
     return new BigDecimal(7);
   }

@@ -64,4 +64,8 @@ public interface JPAODataCRUDContextAccess {
   public default ErrorProcessor getErrorProcessor() {
     return null;
   }
+
+  public default String getMappingPath() {
+    return "";
+  }
 }

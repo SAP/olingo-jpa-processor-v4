@@ -43,6 +43,7 @@ final class JPAEntityResult extends JPAEntityBasedResult {
 
   private void createChildren(final JPATupleChildConverter converter) throws ODataJPAModelException,
       ODataApplicationException {
+
     for (final JPAAssociationPath path : et.getAssociationPathList()) {
       final String pathPropertyName = path.getPath().get(0).getInternalName();
       final Object value = valuePairedResult.get(pathPropertyName);

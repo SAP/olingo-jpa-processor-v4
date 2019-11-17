@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.serializer;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.olingo.commons.api.data.Annotatable;
 import org.apache.olingo.commons.api.data.EntityCollection;
@@ -22,9 +23,11 @@ final class JPASerializeFunction implements JPAOperationSerializer {
   private final JPAOperationSerializer serializer;
 
   public JPASerializeFunction(final UriInfo uriInfo, final ContentType responseFormat,
-      final JPASerializerFactory jpaSerializerFactory) throws ODataJPASerializerException, SerializerException {
+      final JPASerializerFactory jpaSerializerFactory, Optional<List<String>> responseVersion)
+      throws ODataJPASerializerException, SerializerException {
 
-    this.serializer = (JPAOperationSerializer) createSerializer(jpaSerializerFactory, responseFormat, uriInfo);
+    this.serializer = (JPAOperationSerializer) createSerializer(jpaSerializerFactory, responseFormat, uriInfo,
+        responseVersion);
   }
 
   @Override
@@ -44,13 +47,14 @@ final class JPASerializeFunction implements JPAOperationSerializer {
   }
 
   private JPASerializer createSerializer(final JPASerializerFactory jpaSerializerFactory,
-      final ContentType responseFormat,
-      final UriInfo uriInfo) throws ODataJPASerializerException, SerializerException {
+      final ContentType responseFormat, final UriInfo uriInfo, final Optional<List<String>> responseVersion)
+      throws ODataJPASerializerException, SerializerException {
 
     final List<UriResource> resourceParts = uriInfo.getUriResourceParts();
     final UriResourcePartTyped operation = (UriResourcePartTyped) resourceParts.get(resourceParts.size() - 1);
     final EdmTypeKind edmTypeKind = determineReturnEdmTypeKind(operation);
-    return jpaSerializerFactory.createSerializer(responseFormat, uriInfo, edmTypeKind, operation.isCollection());
+    return jpaSerializerFactory.createSerializer(responseFormat, uriInfo, edmTypeKind, operation.isCollection(),
+        responseVersion);
   }
 
   private EdmTypeKind determineReturnEdmTypeKind(final UriResourcePartTyped operation) {

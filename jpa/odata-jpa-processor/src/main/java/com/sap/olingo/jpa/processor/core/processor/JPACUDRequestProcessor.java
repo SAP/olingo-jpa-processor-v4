@@ -1,5 +1,4 @@
 package com.sap.olingo.jpa.processor.core.processor;
-
 import static com.sap.olingo.jpa.processor.core.converter.JPAExpandResult.ROOT_RESULT_KEY;
 
 import java.util.ArrayList;
@@ -9,8 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.persistence.EntityManager;
 
@@ -50,6 +47,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.core.api.JPACUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataTransactionFactory.JPAODataTransaction;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAInvocationTargetException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
@@ -65,7 +63,6 @@ import com.sap.olingo.jpa.processor.core.query.Util;
 
 public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
 
-  private static final Logger log = Logger.getLogger(JPACUDRequestProcessor.class.getName());
   private static final String DEBUG_CREATE_ENTITY = "createEntity";
   private static final String DEBUG_UPDATE_ENTITY = "updateEntity";
   private final ServiceMetadata serviceMetadata;
@@ -88,15 +85,12 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
 
     final JPARequestEntity requestEntity = createRequestEntity(edmEntitySetInfo, uriInfo.getUriResourceParts(), request
         .getAllHeaders());
-    boolean foreignTransaction = true;
-    try {
-    	foreignTransaction = em.getTransaction().isActive();
-    } catch(IllegalStateException ex) {
-    	log.log(Level.WARNING, "Can not check isActive for transaction", ex);
-    }
+
+    JPAODataTransaction ownTransaction = null;
+    final boolean foreignTransaction = requestContext.getTransactionFactory().hasActiveTransaction();
 
     if (!foreignTransaction)
-      em.getTransaction().begin();
+      ownTransaction = requestContext.getTransactionFactory().createTransaction();
     try {
       final int updateHandle = debugger.startRuntimeMeasurement(handler, DEBUG_UPDATE_ENTITY);
       handler.updateEntity(requestEntity, em, determineHttpVerb(request, uriInfo.getUriResourceParts()));
@@ -105,17 +99,17 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       debugger.stopRuntimeMeasurement(updateHandle);
     } catch (ODataJPAProcessException e) {
       if (!foreignTransaction)
-        em.getTransaction().rollback();
+        ownTransaction.rollback();
       debugger.stopRuntimeMeasurement(handle);
       throw e;
     } catch (Exception e) {
       if (!foreignTransaction)
-        em.getTransaction().rollback();
+        ownTransaction.rollback();
       debugger.stopRuntimeMeasurement(handle);
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
     if (!foreignTransaction)
-      em.getTransaction().commit();
+      ownTransaction.commit();
     debugger.stopRuntimeMeasurement(handle);
     response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
   }
@@ -133,14 +127,10 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
 
     // Create entity
     Object result = null;
-    boolean foreignTransaction = true;
-    try {
-    	foreignTransaction = em.getTransaction().isActive();
-    } catch(IllegalStateException ex) {
-    	log.log(Level.WARNING, "Can not check isActive for transaction", ex);
-    }
+    JPAODataTransaction ownTransaction = null;
+    final boolean foreignTransaction = requestContext.getTransactionFactory().hasActiveTransaction();
     if (!foreignTransaction)
-      em.getTransaction().begin();
+      ownTransaction = requestContext.getTransactionFactory().createTransaction();
     try {
       final int createHandle = debugger.startRuntimeMeasurement(handler, DEBUG_CREATE_ENTITY);
       result = handler.createEntity(requestEntity, em);
@@ -149,12 +139,12 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       debugger.stopRuntimeMeasurement(createHandle);
     } catch (ODataJPAProcessException e) {
       if (!foreignTransaction)
-        em.getTransaction().rollback();
+        ownTransaction.rollback();
       debugger.stopRuntimeMeasurement(handle);
       throw e;
     } catch (Exception e) {
       if (!foreignTransaction)
-        em.getTransaction().rollback();
+        ownTransaction.rollback();
       debugger.stopRuntimeMeasurement(handle);
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
@@ -162,14 +152,14 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
     if (result != null && result.getClass() != requestEntity.getEntityType().getTypeClass()
         && !(result instanceof Map<?, ?>)) {
       if (!foreignTransaction)
-        em.getTransaction().rollback();
+        ownTransaction.rollback();
       debugger.stopRuntimeMeasurement(handle);
       throw new ODataJPAProcessorException(MessageKeys.WRONG_RETURN_TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR, result
           .getClass().toString(), requestEntity.getEntityType().getTypeClass().toString());
     }
 
     if (!foreignTransaction)
-      em.getTransaction().commit();
+      ownTransaction.commit();
 
     createCreateResponse(request, response, responseFormat, requestEntity, edmEntitySetInfo, result);
     debugger.stopRuntimeMeasurement(handle);
@@ -207,14 +197,10 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
     final JPARequestEntity requestEntity = createRequestEntity(et, jpaKeyPredicates, request.getAllHeaders());
 
     // 3. Perform Delete
-    boolean foreignTransaction = true;
-    try {
-    	foreignTransaction = em.getTransaction().isActive();
-    } catch(IllegalStateException ex) {
-    	log.log(Level.WARNING, "Can not check isActive for transaction", ex);
-    }
+    JPAODataTransaction ownTransaction = null;
+    final boolean foreignTransaction = requestContext.getTransactionFactory().hasActiveTransaction();
     if (!foreignTransaction)
-      em.getTransaction().begin();
+      ownTransaction = requestContext.getTransactionFactory().createTransaction();
     try {
       final int deleteHandle = debugger.startRuntimeMeasurement(handler, "deleteEntity");
       handler.deleteEntity(requestEntity, em);
@@ -223,17 +209,17 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       debugger.stopRuntimeMeasurement(deleteHandle);
     } catch (ODataJPAProcessException e) {
       if (!foreignTransaction)
-        em.getTransaction().rollback();
+        ownTransaction.rollback();
       debugger.stopRuntimeMeasurement(handle);
       throw e;
     } catch (Throwable e) { // NOSONAR
       if (!foreignTransaction)
-        em.getTransaction().rollback();
+        ownTransaction.rollback();
       debugger.stopRuntimeMeasurement(handle);
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
     if (!foreignTransaction)
-      em.getTransaction().commit();
+      ownTransaction.commit();
 
     // 4. configure the response object
     response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
@@ -260,14 +246,10 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
     // Update entity
     JPAUpdateResult updateResult = null;
 
-    boolean foreignTransaction = true;
-    try {
-    	foreignTransaction = em.getTransaction().isActive();
-    } catch(IllegalStateException ex) {
-    	log.log(Level.WARNING, "Can not check isActive for transaction", ex);
-    }
+    JPAODataTransaction ownTransaction = null;
+    final boolean foreignTransaction = requestContext.getTransactionFactory().hasActiveTransaction();
     if (!foreignTransaction)
-      em.getTransaction().begin();
+      ownTransaction = requestContext.getTransactionFactory().createTransaction();
     try {
       // http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752300
       // 11.4.3 Update an Entity
@@ -286,18 +268,18 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       debugger.stopRuntimeMeasurement(updateHandle);
     } catch (ODataJPAProcessException e) {
       if (!foreignTransaction)
-        em.getTransaction().rollback();
+        ownTransaction.rollback();
       debugger.stopRuntimeMeasurement(handle);
       throw e;
     } catch (Throwable e) {
       if (!foreignTransaction)
-        em.getTransaction().rollback();
+        ownTransaction.rollback();
       debugger.stopRuntimeMeasurement(handle);
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
     if (updateResult == null) {
       if (!foreignTransaction)
-        em.getTransaction().rollback();
+        ownTransaction.rollback();
       debugger.stopRuntimeMeasurement(handle);
       throw new ODataJPAProcessorException(MessageKeys.RETURN_NULL, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
@@ -306,14 +288,14 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       // This shall tolerate that e.g. EclipseLink return at least in case of InheritanceType.TABLE_PER_CLASS an
       // instance of a sub class even so the super class was requested.
       if (!foreignTransaction)
-        em.getTransaction().rollback();
+        ownTransaction.rollback();
       debugger.stopRuntimeMeasurement(handle);
       throw new ODataJPAProcessorException(MessageKeys.WRONG_RETURN_TYPE, HttpStatusCode.INTERNAL_SERVER_ERROR,
           updateResult.getModifyedEntity().getClass().toString(), requestEntity.getEntityType().getTypeClass()
               .toString());
     }
     if (!foreignTransaction)
-      em.getTransaction().commit();
+      ownTransaction.commit();
 
     if (updateResult.wasCreate()) {
       createCreateResponse(request, response, responseFormat, requestEntity.getEntityType(), edmEntitySetInfo

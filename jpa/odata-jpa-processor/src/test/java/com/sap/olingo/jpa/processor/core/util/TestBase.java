@@ -39,4 +39,10 @@ public class TestBase {
     languageHeaders.add("de-DE,de;q=0.8,en-US;q=0.6,en;q=0.4");
     headers.put("accept-language", languageHeaders);
   }
+
+  protected void addHeader(final String header, final String value) {
+    final List<String> newHeader = new ArrayList<>();
+    newHeader.add(value);
+    headers.put(header, newHeader);
+  }
 }

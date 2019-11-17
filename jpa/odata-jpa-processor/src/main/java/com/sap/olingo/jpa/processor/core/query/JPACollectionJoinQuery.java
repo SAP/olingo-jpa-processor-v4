@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -36,21 +37,23 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys;
 
 public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
   private final JPAAssociationPath assoziation;
+  private final Optional<JPAKeyBoundary> keyBoundary;
 
   public JPACollectionJoinQuery(final OData odata, final JPAODataCRUDContextAccess context, final EntityManager em,
       final JPACollectionItemInfo item, final Map<String, List<String>> requestHeaders,
-      JPAODataRequestContextAccess requestContext) throws ODataException {
+      JPAODataRequestContextAccess requestContext, final Optional<JPAKeyBoundary> keyBoundary) throws ODataException {
 
     super(odata, context, item.getEntityType(), requestContext,
         requestHeaders, new ArrayList<>(item.getHops().subList(0, item.getHops().size() - 1)));
     this.assoziation = item.getExpandAssociation();
+    this.keyBoundary = keyBoundary;
   }
 
   @Override
@@ -92,24 +95,16 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
     // - .../Persons('99')/InhousAddress?$select=Building --> Select attributes of complex collection given by select
     // clause
     try {
-      if (select == null || select.getSelectItems() == null
-          || select.getSelectItems().isEmpty() || select.getSelectItems().get(0).isStar())
+      if (SelectOptionUtil.selectAll(select))
         // If the collection is part of a navigation take all the attributes
         expandPath(jpaEntity, jpaPathList, pathPrefix.isEmpty() ? this.assoziation.getAlias() : pathPrefix
             + JPAPath.PATH_SEPERATOR + this.assoziation.getAlias(), true);
       else {
         for (SelectItem sItem : select.getSelectItems()) {
-          String pathItem = sItem.getResourcePath().getUriResourceParts().stream().map(path -> (path
-              .getSegmentValue())).collect(Collectors.joining(JPAPath.PATH_SEPERATOR));
-          pathItem = pathPrefix == null || pathPrefix.isEmpty() ? pathItem : pathPrefix + JPAPath.PATH_SEPERATOR
-              + pathItem;
-          final JPAPath selectItemPath = jpaEntity.getPath(pathItem);
-          if (selectItemPath == null)
-            throw new ODataJPAQueryException(MessageKeys.QUERY_PREPARATION_INVALID_SELECTION_PATH,
-                HttpStatusCode.BAD_REQUEST);
+          final JPAPath selectItemPath = selectItemAsPath(pathPrefix, sItem);
           if (pathContainsCollection(selectItemPath)) {
-            if (((JPAAttribute) selectItemPath.getPath().get(0)).isComplex()) {
-              final JPAAttribute attribute = ((JPAAttribute) selectItemPath.getPath().get(0));
+            if (selectItemPath.getLeaf().isComplex()) {
+              final JPAAttribute attribute = selectItemPath.getLeaf();
               expandPath(jpaEntity, jpaPathList, pathPrefix.isEmpty() ? attribute.getExternalName() : pathPrefix
                   + JPAPath.PATH_SEPERATOR + attribute.getExternalName(), true);
             } else {
@@ -120,13 +115,26 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
                 + JPAPath.PATH_SEPERATOR + this.assoziation.getAlias(), true);
           }
         }
-
       }
     } catch (ODataJPAModelException e) {
       throw new ODataJPAQueryException(MessageKeys.QUERY_PREPARATION_INVALID_SELECTION_PATH,
           HttpStatusCode.BAD_REQUEST);
     }
     return jpaPathList;
+  }
+
+  private JPAPath selectItemAsPath(final String pathPrefix, SelectItem sItem) throws ODataJPAModelException,
+      ODataJPAQueryException {
+
+    String pathItem = sItem.getResourcePath().getUriResourceParts().stream().map(path -> (path
+        .getSegmentValue())).collect(Collectors.joining(JPAPath.PATH_SEPERATOR));
+    pathItem = pathPrefix == null || pathPrefix.isEmpty() ? pathItem : pathPrefix + JPAPath.PATH_SEPERATOR
+        + pathItem;
+    final JPAPath selectItemPath = jpaEntity.getPath(pathItem);
+    if (selectItemPath == null)
+      throw new ODataJPAQueryException(MessageKeys.QUERY_PREPARATION_INVALID_SELECTION_PATH,
+          HttpStatusCode.BAD_REQUEST);
+    return selectItemPath;
   }
 
   @Override
@@ -210,8 +218,9 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
       if (skiped >= skip && taken < top) {
         taken += 1;
         subResult.add(row);
-      } else
+      } else {
         skiped += 1;
+      }
     }
     return convertedResult;
   }
@@ -285,6 +294,7 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
     // Given keys: Organizations('1')/Roles(...)
     try {
       whereCondition = createKeyWhere(navigationInfo);
+      whereCondition = addWhereClause(whereCondition, createBoundary(navigationInfo, keyBoundary));
     } catch (ODataApplicationException e) {
       debugger.stopRuntimeMeasurement(handle);
       throw e;

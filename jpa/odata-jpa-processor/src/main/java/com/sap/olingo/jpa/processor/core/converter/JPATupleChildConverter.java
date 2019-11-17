@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.annotation.Nonnull;
 import javax.persistence.Tuple;
 import javax.persistence.TupleElement;
 
@@ -102,6 +103,7 @@ public class JPATupleChildConverter extends JPATupleResultConverter {
     // Creates and add the key of an entity. In general OData allows a server to add additional properties that are not
     // part of $select. As Olingo adds the key properties (with null) anyhow this can be done here already
     createId(rowEntity, row, odataEntity);
+    createEtag(rowEntity, row, odataEntity);
     if (reqestedSelection.isEmpty())
       convertRowWithOutSelection(rowEntity, row, complexValueBuffer, odataEntity, properties);
     else
@@ -161,35 +163,60 @@ public class JPATupleChildConverter extends JPATupleResultConverter {
       final List<Property> properties) throws ODataJPAQueryException {
 
     List<Property> result;
-
     try {
       for (JPAPath path : jpaStructuredType.getCollectionAttributesPath()) {
         result = properties;
-        for (int i = 0; i < path.getPath().size() - 1; i++) {
-          for (final Property p : result) {
-            if (p.getName().equals(path.getPath().get(i).getExternalName())) {
-              result = ((ComplexValue) p.getValue()).getValue();
-              break;
-            }
-          }
+        for (final JPAElement pathElement : path.getPath()) {
+          result = findOrCreateComplexProperty(result, pathElement);
         }
         final JPACollectionAttribute collection = (JPACollectionAttribute) path.getLeaf();
         final JPAExpandResult child = jpaQueryResult.getChild(collection.asAssociation());
         if (child != null) {
-          final Collection<Object> collectionResult = ((JPACollectionResult) child).getPropertyCollection(
-              buildConcatenatedKey(row, collection.asAssociation().getLeftColumnsList()));
-
-          result.add(new Property(
-              null,
-              collection.getExternalName(),
-              collection.isComplex() ? ValueType.COLLECTION_COMPLEX : ValueType.COLLECTION_PRIMITIVE,
-              collectionResult != null ? collectionResult : Collections.emptyList()));
+          addCollcetion(row, result, collection, child);
         }
       }
     } catch (ODataJPAModelException e) {
       throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
           HttpStatusCode.INTERNAL_SERVER_ERROR, e);
     }
+  }
+
+  private void addCollcetion(final Tuple row, List<Property> result, final JPACollectionAttribute collection,
+      final JPAExpandResult child) throws ODataJPAModelException {
+    final Collection<Object> collectionResult = ((JPACollectionResult) child).getPropertyCollection(
+        buildConcatenatedKey(row, collection.asAssociation().getLeftColumnsList()));
+
+    result.add(new Property(
+        null,
+        collection.getExternalName(),
+        collection.isComplex() ? ValueType.COLLECTION_COMPLEX : ValueType.COLLECTION_PRIMITIVE,
+        collectionResult != null ? collectionResult : Collections.emptyList()));
+  }
+
+  private List<Property> findOrCreateComplexProperty(List<Property> result, final JPAElement pathElement)
+      throws ODataJPAModelException {
+    boolean found = false;
+    for (final Property p : result) {
+      if (p.getName().equals(pathElement.getExternalName())) {
+        result = ((ComplexValue) p.getValue()).getValue();
+        found = true;
+        break;
+      }
+    }
+    if (!found
+        && pathElement instanceof JPAAttribute
+        && ((JPAAttribute) pathElement).isComplex()
+        && !((JPAAttribute) pathElement).isCollection()) {
+      final JPAAttribute a = (JPAAttribute) pathElement;
+      final Property p = new Property(
+          a.getStructuredType().getExternalFQN().getFullQualifiedNameAsString(),
+          a.getExternalName(),
+          ValueType.COMPLEX,
+          new ComplexValue());
+      result.add(p);
+      result = ((ComplexValue) p.getValue()).getValue();
+    }
+    return result;
   }
 
   protected URI createId(final Entity entity) {
@@ -226,6 +253,24 @@ public class JPATupleChildConverter extends JPATupleResultConverter {
           HttpStatusCode.INTERNAL_SERVER_ERROR, e);
     }
     odataEntity.setId(createId(odataEntity));
+  }
+
+  private void createEtag(@Nonnull JPAEntityType rowEntity, Tuple row, Entity odataEntity)
+      throws ODataJPAQueryException {
+
+    try {
+      if (rowEntity.hasEtag()) {
+        final String etagAlias = rowEntity.getEtagPath().getAlias();
+        final Object etag = row.get(etagAlias);
+        if (etag != null) {
+          odataEntity.setETag(etag.toString());
+        }
+      }
+
+    } catch (ODataJPAModelException e) {
+      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
+          HttpStatusCode.INTERNAL_SERVER_ERROR, e);
+    }
   }
 
   protected EdmEntityType determineEdmType() {

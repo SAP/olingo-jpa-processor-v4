@@ -9,6 +9,6 @@ import org.apache.olingo.server.api.ODataResponse;
 
 public interface JPARequestProcessor {
 
-  public void retrieveData(ODataRequest request, ODataResponse response, ContentType responseFormat)
-      throws ODataApplicationException, ODataLibraryException, ODataException;
+  public <K extends Comparable<K>> void retrieveData(ODataRequest request, ODataResponse response,
+      ContentType responseFormat) throws ODataApplicationException, ODataLibraryException, ODataException;
 }

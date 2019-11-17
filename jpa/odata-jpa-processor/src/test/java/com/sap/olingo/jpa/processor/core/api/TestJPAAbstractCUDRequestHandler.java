@@ -18,19 +18,21 @@ public class TestJPAAbstractCUDRequestHandler {
   }
 
   @Test
-  public void testTrothNotImplementedOnDelete() {
+  public void testThrowsNotImplementedOnDelete() {
     final ODataJPAProcessorException act = assertThrows(ODataJPAProcessorException.class, () -> cut.deleteEntity(null,
         null));
     assertEquals(HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), act.getStatusCode());
   }
 
-  public void testTrothNotImplementedOnUpdate() {
+  @Test
+  public void testThrowsNotImplementedOnUpdate() {
     final ODataJPAProcessorException act = assertThrows(ODataJPAProcessorException.class, () -> cut.updateEntity(null,
         null, null));
     assertEquals(HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), act.getStatusCode());
   }
 
-  public void testTrothNotImplementedOnCreate() {
+  @Test
+  public void testThrowsNotImplementedOnCreate() {
     final ODataJPAProcessorException act = assertThrows(ODataJPAProcessorException.class, () -> cut.createEntity(null,
         null));
     assertEquals(HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), act.getStatusCode());

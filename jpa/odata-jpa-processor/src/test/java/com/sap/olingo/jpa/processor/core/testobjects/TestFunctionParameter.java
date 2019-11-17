@@ -18,7 +18,7 @@ public class TestFunctionParameter implements ODataFunction {
     TestFunctionParameter.em = em;
   }
 
-  @EdmFunction(name = "", returnType = @ReturnType)
+  @EdmFunction(returnType = @ReturnType)
   public Integer sum(@EdmParameter(name = "A") Integer a, @EdmParameter(name = "B") Integer b) {
     calls += 1;
     param1 = a;

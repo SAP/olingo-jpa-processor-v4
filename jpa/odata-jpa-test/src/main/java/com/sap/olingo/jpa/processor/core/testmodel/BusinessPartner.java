@@ -1,13 +1,13 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 
 import javax.persistence.AssociationOverride;
-import javax.persistence.AssociationOverrides;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -109,15 +109,14 @@ public abstract class BusinessPartner implements KeyAccess {
   protected CommunicationData communicationData;
 
   @Embedded
-  @AssociationOverrides({
-      @AssociationOverride(name = "countryName",
-          joinColumns = @JoinColumn(referencedColumnName = "\"Address.Country\"", name = "\"ISOCode\"")),
-      @AssociationOverride(name = "regionName",
-          joinColumns = {
-              @JoinColumn(referencedColumnName = "\"Address.RegionCodePublisher\"", name = "\"CodePublisher\""),
-              @JoinColumn(referencedColumnName = "\"Address.RegionCodeID\"", name = "\"CodeID\""),
-              @JoinColumn(referencedColumnName = "\"Address.Region\"", name = "\"DivisionCode\"") })
-  })
+  @AssociationOverride(name = "countryName",
+      joinColumns = @JoinColumn(referencedColumnName = "\"Address.Country\"", name = "\"ISOCode\""))
+  @AssociationOverride(name = "regionName",
+      joinColumns = {
+          @JoinColumn(referencedColumnName = "\"Address.RegionCodePublisher\"", name = "\"CodePublisher\""),
+          @JoinColumn(referencedColumnName = "\"Address.RegionCodeID\"", name = "\"CodeID\""),
+          @JoinColumn(referencedColumnName = "\"Address.Region\"", name = "\"DivisionCode\"") })
+
   private PostalAddressData address = new PostalAddressData();
 
   @Embedded
@@ -125,6 +124,10 @@ public abstract class BusinessPartner implements KeyAccess {
 
   @OneToMany(mappedBy = "businessPartner", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
   private Collection<BusinessPartnerRole> roles;
+
+  public BusinessPartner() {
+    super();
+  }
 
   @Override
   public boolean equals(Object obj) {
@@ -266,13 +269,16 @@ public abstract class BusinessPartner implements KeyAccess {
   @PrePersist
   public void onCreate() {
     administrativeInformation = new AdministrativeInformation();
-    long time = new Date().getTime();
-    ChangeInformation created = new ChangeInformation("99", new Timestamp(time));
+    ChangeInformation created = new ChangeInformation("99", Date.valueOf(LocalDate.now()));
     administrativeInformation.setCreated(created);
     administrativeInformation.setUpdated(created);
   }
 
   public Collection<AdministrativeDivisionDescription> getLocationName() {
     return locationName;
+  }
+
+  public void setLocationName(final Collection<AdministrativeDivisionDescription> locationName) {
+    this.locationName = locationName;
   }
 }

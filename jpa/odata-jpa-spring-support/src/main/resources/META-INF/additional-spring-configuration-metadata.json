@@ -1,0 +1,14 @@
+{
+	"properties": [
+		{
+			"name": "odata.jpa.punit_name",
+			"type": "java.lang.String",
+			"description": "Name of the JPA processing unit to be used"
+		},
+		{
+			"name": "odata.jpa.root_packages",
+			"type": "java.lang.String",
+			"description": "List of root packages JPA processor shall look for Operations and Enumerations"
+		}
+	]
+}
