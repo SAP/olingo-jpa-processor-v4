@@ -23,7 +23,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import com.sap.olingo.jpa.processor.core.query.Util;
 
 final class JPAMemberVisitor implements ExpressionVisitor<JPAPath> {
-  private final ArrayList<JPAPath> pathList = new ArrayList<JPAPath>();
+  private final ArrayList<JPAPath> pathList = new ArrayList<>();
   private final JPAEntityType jpaEntityType;
 
   public JPAMemberVisitor(final JPAEntityType jpaEntityType) {
@@ -41,6 +41,12 @@ final class JPAMemberVisitor implements ExpressionVisitor<JPAPath> {
     return null;
   }
 
+  @Override
+  public JPAPath visitBinaryOperator(BinaryOperatorKind operator, JPAPath left, List<JPAPath> right)
+      throws ExpressionVisitException, ODataApplicationException {
+    return null;
+  }
+  
   @Override
   public JPAPath visitUnaryOperator(final UnaryOperatorKind operator, final JPAPath operand)
       throws ExpressionVisitException, ODataApplicationException {

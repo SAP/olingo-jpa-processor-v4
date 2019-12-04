@@ -1,6 +1,6 @@
 package com.sap.olingo.jpa.processor.core.testobjects;
 
-import java.sql.Date;
+import java.util.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,12 +21,6 @@ import com.sap.olingo.jpa.processor.core.testmodel.InhouseAddress;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 
 public class TestFunctionReturnType implements ODataFunction {
-//  public static int constructorCalls = 0;
-//
-//  public TestFunctionReturnType() {
-//    super();
-//    constructorCalls++;
-//  }
 
   @EdmFunction(name = "PrimitiveValue", returnType = @ReturnType)
   public Integer primitiveValue(@EdmParameter(name = "A") short a) {
@@ -51,13 +45,14 @@ public class TestFunctionReturnType implements ODataFunction {
 
   @EdmFunction(name = "ListOfComplexType", returnType = @ReturnType(type = AdministrativeInformation.class))
   public List<AdministrativeInformation> listOfComplexType(@EdmParameter(name = "A") String user) {
+    Long milliPerDay = (long) (24 * 60 * 60 * 1000);
     AdministrativeInformation admin1 = new AdministrativeInformation();
-    admin1.setCreated(new ChangeInformation(user, Date.valueOf(LocalDate.now())));
+    admin1.setCreated(new ChangeInformation(user, new Date(LocalDate.now().toEpochDay() * milliPerDay)));
     AdministrativeInformation admin2 = new AdministrativeInformation();
-    admin2.setUpdated(new ChangeInformation(user, Date.valueOf(LocalDate.now())));
+    admin2.setUpdated(new ChangeInformation(user, new Date(LocalDate.now().toEpochDay() * milliPerDay)));
     return Arrays.asList(new AdministrativeInformation[] { admin1, admin2 });
   }
-
+  
   @EdmFunction(name = "EntityType", returnType = @ReturnType)
   public AdministrativeDivision entityType(@EdmParameter(name = "A") int a) {
 

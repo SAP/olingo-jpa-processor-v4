@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>com.sap.olingo</groupId>
 		<artifactId>odata-jpa-archetype</artifactId>
-		<version>0.3.6</version>
+		<version>0.3.7</version>
 	</parent>
 	<artifactId>odata-jpa-archetype-spring</artifactId>
 	<name>Archetype - odata-jpa-archetype-spring</name>
