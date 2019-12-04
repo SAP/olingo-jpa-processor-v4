@@ -3,6 +3,7 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -120,7 +121,7 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
   }
 
   protected <T> List<T> returnNullIfEmpty(final List<T> list) {
-    return list == null || list.isEmpty() ? null : list;
+	  return list == null ? Collections.emptyList() : list;
   }
 
   abstract CsdlAbstractEdmItem getEdmItem() throws ODataJPAModelException;

@@ -105,6 +105,13 @@ class JPAVisitor implements JPAExpressionVisitor {
   }
 
   @Override
+  public JPAOperator visitBinaryOperator(BinaryOperatorKind operator, JPAOperator left, List<JPAOperator> right)
+      throws ExpressionVisitException, ODataApplicationException {
+    throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
+        HttpStatusCode.NOT_IMPLEMENTED, operator.name());
+  }
+
+  @Override
   public JPAEnumerationOperator visitEnum(final EdmEnumType type, final List<String> enumValues)
       throws ExpressionVisitException,
       ODataApplicationException {
