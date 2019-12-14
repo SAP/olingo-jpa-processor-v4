@@ -113,6 +113,20 @@ public class TestJPAExpandQueryResult extends TestBase {
     assertFalse(act.isPresent());
   }
 
+  @Test  
+  public void checkGetKeyBoundaryEmptyBoundaryNoResult() throws ODataJPAModelException, ODataJPAQueryException {
+
+    queryResult.put("root", Collections.emptyList());
+
+    cut = new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType("Organizations"),
+        Collections.emptyList());
+    when(uriInfo.getTopOption()).thenReturn(top);
+    when(uriInfo.getExpandOption()).thenReturn(expand);
+    when(top.getValue()).thenReturn(2);
+    final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops);
+    assertFalse(act.isPresent());
+  }
+  
   @Test
   public void checkGetKeyBoundaryOneResultWithTop() throws ODataJPAModelException, ODataJPAQueryException {
 

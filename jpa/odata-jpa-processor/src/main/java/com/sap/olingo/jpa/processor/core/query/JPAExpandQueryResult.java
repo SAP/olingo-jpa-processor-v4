@@ -192,8 +192,9 @@ public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertab
   public Optional<JPAKeyBoundary> getKeyBoundary(final JPAODataRequestContextAccess requestContext,
       final List<JPANavigationProptertyInfo> hops) throws ODataJPAQueryException {
     try {
-      if ((requestContext.getUriInfo().getExpandOption() != null
-          || collectionPropertyRequested(requestContext))
+      if (!jpaResult.get(ROOT_RESULT_KEY).isEmpty()
+    	  &&  (requestContext.getUriInfo().getExpandOption() != null
+              || collectionPropertyRequested(requestContext))
           && (requestContext.getUriInfo().getTopOption() != null
               || requestContext.getUriInfo().getSkipOption() != null)) {
         final JPAKeyPair boundary = new JPAKeyPair(jpaEntityType.getKey());
