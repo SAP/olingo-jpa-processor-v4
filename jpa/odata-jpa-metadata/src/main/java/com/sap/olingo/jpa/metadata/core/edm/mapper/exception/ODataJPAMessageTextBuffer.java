@@ -6,7 +6,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class ODataJPAMessageTextBuffer implements ODataJPAMessageBufferRead {
-  private static final String PATH_SEPERATOR = ".";
+  private static final String PATH_SEPARATOR = ".";
 
   public static Locale DEFAULT_LOCALE = Locale.ENGLISH;
 
@@ -42,7 +42,7 @@ public class ODataJPAMessageTextBuffer implements ODataJPAMessageBufferRead {
    */
   @Override
   public String getText(final Object execption, final String id) {
-    return bundle.getString(execption.getClass().getSimpleName() + PATH_SEPERATOR + id);
+    return bundle.getString(execption.getClass().getSimpleName() + PATH_SEPARATOR + id);
   }
 
   @Override

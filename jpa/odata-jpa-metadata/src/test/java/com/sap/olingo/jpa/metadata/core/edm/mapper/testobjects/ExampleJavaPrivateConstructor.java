@@ -6,8 +6,8 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.ODataAction;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.ODataFunction;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.ODataAction;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.ODataFunction;
 
 public class ExampleJavaPrivateConstructor implements ODataFunction, ODataAction {
 

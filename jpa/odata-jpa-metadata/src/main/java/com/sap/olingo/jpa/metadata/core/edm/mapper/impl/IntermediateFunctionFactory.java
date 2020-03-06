@@ -13,7 +13,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.ODataFunction;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.ODataFunction;
 
 final class IntermediateFunctionFactory extends IntermediateOperationFactory {
 

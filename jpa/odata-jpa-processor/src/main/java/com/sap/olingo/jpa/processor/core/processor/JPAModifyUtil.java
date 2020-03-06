@@ -166,7 +166,7 @@ public final class JPAModifyUtil {
               throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
             } catch (InvocationTargetException e) {
               try {
-                throw new ODataJPAInvocationTargetException(e.getCause(), st.getExternalName() + JPAPath.PATH_SEPERATOR
+                throw new ODataJPAInvocationTargetException(e.getCause(), st.getExternalName() + JPAPath.PATH_SEPARATOR
                     + st.getAttribute(attributeName).getExternalName());
               } catch (ODataJPAModelException e1) {
                 throw new ODataJPAProcessorException(e1, HttpStatusCode.INTERNAL_SERVER_ERROR);
@@ -343,7 +343,7 @@ public final class JPAModifyUtil {
     try {
       pathPart = st.getAttribute(attributeName).getExternalName();
       if (this.st != null && this.st.equals(st)) {
-        String path = st.getExternalName() + JPAPath.PATH_SEPERATOR + pathPart + JPAPath.PATH_SEPERATOR
+        String path = st.getExternalName() + JPAPath.PATH_SEPARATOR + pathPart + JPAPath.PATH_SEPARATOR
             + ((ODataJPAInvocationTargetException) e).getPath();
         this.st = null;
         throw new ODataJPAInvocationTargetException(e.getCause(), path);
@@ -352,7 +352,7 @@ public final class JPAModifyUtil {
       throw new ODataJPAProcessorException(e1, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
     if (e instanceof ODataJPAInvocationTargetException)
-      throw new ODataJPAInvocationTargetException(e.getCause(), pathPart + JPAPath.PATH_SEPERATOR
+      throw new ODataJPAInvocationTargetException(e.getCause(), pathPart + JPAPath.PATH_SEPARATOR
           + ((ODataJPAInvocationTargetException) e).getPath());
     else
       throw new ODataJPAInvocationTargetException(e.getCause(), pathPart);

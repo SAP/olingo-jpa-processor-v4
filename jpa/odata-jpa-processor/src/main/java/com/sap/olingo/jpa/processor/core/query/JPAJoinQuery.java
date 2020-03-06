@@ -194,7 +194,7 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
 
               } else if (uriResource instanceof UriResourceProperty) {
                 pathString.append(((UriResourceProperty) uriResource).getProperty().getName());
-                pathString.append(JPAPath.PATH_SEPERATOR);
+                pathString.append(JPAPath.PATH_SEPARATOR);
               }
             } catch (ODataJPAModelException e) {
               throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,

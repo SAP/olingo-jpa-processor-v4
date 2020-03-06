@@ -30,11 +30,11 @@ class SelectOptionUtil {
 
     try {
       final String pathItem = sItem.getResourcePath().getUriResourceParts().stream().map(path -> (path
-          .getSegmentValue())).collect(Collectors.joining(JPAPath.PATH_SEPERATOR));
+          .getSegmentValue())).collect(Collectors.joining(JPAPath.PATH_SEPARATOR));
       JPAPath selectItemPath;
 
       selectItemPath = jpaEntity.getPath(pathPrefix.isEmpty() ? pathItem : pathPrefix
-          + JPAPath.PATH_SEPERATOR + pathItem);
+          + JPAPath.PATH_SEPARATOR + pathItem);
       if (selectItemPath == null)
         throw new ODataJPAQueryException(MessageKeys.QUERY_PREPARATION_INVALID_SELECTION_PATH,
             HttpStatusCode.BAD_REQUEST);

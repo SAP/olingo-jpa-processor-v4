@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.ODataAction;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.ODataAction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaActions;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaEmConstructor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaPrivateConstructor;

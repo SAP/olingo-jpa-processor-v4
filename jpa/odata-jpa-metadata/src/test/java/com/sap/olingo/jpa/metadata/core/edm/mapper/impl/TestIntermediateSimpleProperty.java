@@ -36,10 +36,10 @@ import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtectedBy;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtections;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityTypeAccess;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateEntityTypeAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateNavigationPropertyAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediatePropertyAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateReferenceList;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.util.MemberDouble;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
@@ -384,6 +384,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
     assertEquals(Integer.class, property.getType());
   }
 
+  @Disabled
   @Test
   public void checkThrowsAnExceptionTimestampWithoutPrecision() throws ODataJPAModelException {
     // If Precision missing EdmDateTimeOffset.internalValueToString throws an exception => pre-check

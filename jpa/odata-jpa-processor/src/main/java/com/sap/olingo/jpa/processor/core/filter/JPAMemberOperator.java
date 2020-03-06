@@ -71,7 +71,7 @@ public class JPAMemberOperator implements JPAOperator {
       selectItemPath = jpaEntityType.getPath(attributePath);
       if (selectItemPath == null && association != null) {
         selectItemPath = jpaEntityType.getPath(attributePath.isEmpty() ? association.getAlias() : association.getAlias()
-            + JPAPath.PATH_SEPERATOR + attributePath);
+            + JPAPath.PATH_SEPARATOR + attributePath);
       }
     } catch (ODataJPAModelException e) {
       throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);

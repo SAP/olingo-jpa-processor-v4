@@ -60,7 +60,7 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
               .descriptionAttribute());
           if (descriptionProperty == null)
             // The attribute %2$s has not been found at entity %1$s
-            throw new ODataJPAModelException(MessageKeys.INVALID_DESCIPTION_PROPERTY, targetEntity.getInternalName(),
+            throw new ODataJPAModelException(MessageKeys.INVALID_DESCRIPTION_PROPERTY, targetEntity.getInternalName(),
                 assozation.descriptionAttribute());
           languageAttribute = assozation.languageAttribute();
           localeAttribute = assozation.localeAttribute();
@@ -126,7 +126,7 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
   }
 
   private JPAPath convertAttributeToPath(final String attribute) throws ODataJPAModelException {
-    final String[] pathItems = attribute.split(JPAPath.PATH_SEPERATOR);
+    final String[] pathItems = attribute.split(JPAPath.PATH_SEPARATOR);
     if (pathItems.length > 1) {
       final List<JPAElement> targetPath = new ArrayList<>();
       IntermediateSimpleProperty nextHop = (IntermediateSimpleProperty) targetEntity.getAttribute(pathItems[0]);

@@ -17,11 +17,11 @@ import org.junit.jupiter.api.Test;
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityTypeAccess;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList.IntermediateReferenceAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateEntityTypeAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateNavigationPropertyAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediatePropertyAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateReferenceList;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateReferenceList.IntermediateReferenceAccess;
 
 public class TestIntermediateReferences extends TestMappingRoot {
   private IntermediateReferences cut;

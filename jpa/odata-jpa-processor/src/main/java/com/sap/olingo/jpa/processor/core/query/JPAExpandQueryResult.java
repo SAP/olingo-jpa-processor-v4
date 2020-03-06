@@ -219,7 +219,7 @@ public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertab
       } else {
         for (final SelectItem item : selectOptions.getSelectItems()) {
           final String pathItem = item.getResourcePath().getUriResourceParts().stream().map(path -> (path
-              .getSegmentValue())).collect(Collectors.joining(JPAPath.PATH_SEPERATOR));
+              .getSegmentValue())).collect(Collectors.joining(JPAPath.PATH_SEPARATOR));
           if (this.jpaEntityType.getCollectionAttribute(pathItem) != null) {
             return true;
           }

@@ -58,7 +58,7 @@ public final class Util {
       }
       if (resourceItem.getKind() == UriResourceKind.complexProperty) {
         naviPropertyName.append(((UriResourceComplexProperty) resourceItem).getProperty().getName());
-        naviPropertyName.append(JPAPath.PATH_SEPERATOR);
+        naviPropertyName.append(JPAPath.PATH_SEPARATOR);
       }
       if (resourceItem.getKind() == UriResourceKind.navigationProperty) {
         naviPropertyName.append(((UriResourceNavigation) resourceItem).getProperty().getName());
@@ -85,7 +85,7 @@ public final class Util {
       }
       if (resourceItem.getKind() == UriResourceKind.complexProperty) {
         naviPropertyName.append(((UriResourceComplexProperty) resourceItem).getProperty().getName());
-        naviPropertyName.append(JPAPath.PATH_SEPERATOR);
+        naviPropertyName.append(JPAPath.PATH_SEPARATOR);
       }
       if (resourceItem.getKind() == UriResourceKind.navigationProperty) {
         naviPropertyName.append(((UriResourceNavigation) resourceItem).getProperty().getName());
@@ -160,11 +160,11 @@ public final class Util {
           break;
         if (resourceItem instanceof UriResourceValue) {
           pathName.insert(0, VALUE_RESOURCE);
-          pathName.insert(0, JPAPath.PATH_SEPERATOR);
+          pathName.insert(0, JPAPath.PATH_SEPARATOR);
         } else if (resourceItem instanceof UriResourceProperty) {
           final UriResourceProperty property = (UriResourceProperty) resourceItem;
           pathName.insert(0, property.getProperty().getName());
-          pathName.insert(0, JPAPath.PATH_SEPERATOR);
+          pathName.insert(0, JPAPath.PATH_SEPARATOR);
         }
       }
       if (pathName.length() > 0)
@@ -306,7 +306,7 @@ public final class Util {
       throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
           HttpStatusCode.NOT_IMPLEMENTED, "");
     if (associationName.length() > 0)
-      associationName.append(JPAPath.PATH_SEPERATOR);
+      associationName.append(JPAPath.PATH_SEPARATOR);
     associationName.append(pathSegment);
   }
 
