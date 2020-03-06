@@ -264,7 +264,7 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
 
     name.append(parent.getExternalName());
     for (final JPAElement pathElement : associationPath.getPath()) {
-      name.append(JPAPath.PATH_SEPERATOR);
+      name.append(JPAPath.PATH_SEPARATOR);
       name.append(pathElement.getExternalName());
 
     }

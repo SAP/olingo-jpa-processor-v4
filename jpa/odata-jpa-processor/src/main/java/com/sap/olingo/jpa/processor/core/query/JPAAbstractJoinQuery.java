@@ -565,7 +565,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
 
   private void addPathElement(StringBuilder externalPath, JPAAttribute attribute) {
     externalPath.append(attribute.getExternalName());
-    externalPath.append(JPAPath.PATH_SEPERATOR);
+    externalPath.append(JPAPath.PATH_SEPARATOR);
 
   }
 
@@ -673,7 +673,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
 
     for (SelectItem sItem : select.getSelectItems()) {
       String pathItem = sItem.getResourcePath().getUriResourceParts().stream().map(path -> (path
-          .getSegmentValue())).collect(Collectors.joining(JPAPath.PATH_SEPERATOR));
+          .getSegmentValue())).collect(Collectors.joining(JPAPath.PATH_SEPARATOR));
       expandPath(jpaEntity, jpaPathList, pathPrefix.isEmpty() ? pathItem : pathPrefix + "/" + pathItem,
           targetIsCollection);
     }
@@ -844,7 +844,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
         }
         break;
       }
-      collectionPath.append(JPAPath.PATH_SEPERATOR);
+      collectionPath.append(JPAPath.PATH_SEPARATOR);
     }
     return collection;
   }

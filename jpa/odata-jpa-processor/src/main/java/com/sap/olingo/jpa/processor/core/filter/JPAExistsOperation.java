@@ -76,7 +76,7 @@ abstract class JPAExistsOperation implements JPAOperator {
         }
         if (navigation != null) {
           if (resourceParts.get(i) instanceof UriResourceComplexProperty) {
-            associationName.insert(0, JPAPath.PATH_SEPERATOR);
+            associationName.insert(0, JPAPath.PATH_SEPARATOR);
             associationName.insert(0, ((UriResourceComplexProperty) resourceParts.get(i)).getProperty().getName());
           }
           if (resourcePart instanceof UriResourceEntitySet)
@@ -93,7 +93,7 @@ abstract class JPAExistsOperation implements JPAOperator {
           associationName.insert(0, ((UriResourceProperty) navigation).getProperty().getName());
         } else if (navigation != null) {
           if (resourceParts.get(i) instanceof UriResourceComplexProperty) {
-            associationName.insert(0, JPAPath.PATH_SEPERATOR);
+            associationName.insert(0, JPAPath.PATH_SEPARATOR);
             associationName.insert(0, ((UriResourceComplexProperty) resourceParts.get(i)).getProperty().getName());
           }
           if (resourcePart instanceof UriResourceEntitySet)

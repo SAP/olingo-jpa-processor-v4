@@ -17,7 +17,7 @@ import org.apache.olingo.server.api.uri.queryoption.SystemQueryOptionKind;
 public class SelectOptionDouble implements SelectOption {
   protected static final String SELECT_ITEM_SEPERATOR = ",";
   protected static final String SELECT_ALL = "*";
-  protected static final String SELECT_PATH_SEPERATOR = "/";
+  protected static final String SELECT_PATH_SEPARATOR = "/";
   private final String text;
   private final List<SelectItem> selItems;
 
@@ -63,7 +63,7 @@ public class SelectOptionDouble implements SelectOption {
         when(item.isStar()).thenReturn(false);
         when(item.getResourcePath()).thenReturn(resource);
         selItems.add(item);
-        String[] elements = elementText.split(SELECT_PATH_SEPERATOR);
+        String[] elements = elementText.split(SELECT_PATH_SEPARATOR);
         for (String element : elements) {
           final UriResourceProperty property = mock(UriResourceProperty.class);
           when(property.getSegmentValue()).thenReturn(element);

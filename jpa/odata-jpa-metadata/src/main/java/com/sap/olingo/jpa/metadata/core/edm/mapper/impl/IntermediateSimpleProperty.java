@@ -68,7 +68,7 @@ class IntermediateSimpleProperty extends IntermediateProperty {
   }
 
   @Override
-  void checkConsistancy() throws ODataJPAModelException {
+  void checkConsistency() throws ODataJPAModelException {
     final Column jpaColumn = ((AnnotatedElement) jpaAttribute.getJavaMember()).getAnnotation(Column.class);
     if (jpaColumn != null && isPartOfGroup() && !jpaColumn.nullable())
       throw new ODataJPAModelException(NOT_SUPPORTED_MANDATORY_PART_OF_GROUP, jpaAttribute.getDeclaringType()
@@ -95,10 +95,14 @@ class IntermediateSimpleProperty extends IntermediateProperty {
   @Override
   void determineStreamInfo() throws ODataJPAModelException {
     streamInfo = ((AnnotatedElement) jpaAttribute.getJavaMember()).getAnnotation(EdmMediaStream.class);
-    if (streamInfo != null && (streamInfo.contentType() == null || streamInfo.contentType().isEmpty())
-        && (streamInfo.contentTypeAttribute() == null || streamInfo.contentTypeAttribute().isEmpty()))
-      throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.ANNOTATION_STREAM_INCOMPLETE,
-          internalName);
+    if (streamInfo != null) {
+      streamInfo.contentType();
+      if (streamInfo.contentType().isEmpty()) {
+        streamInfo.contentTypeAttribute();
+        if (streamInfo.contentTypeAttribute().isEmpty()) throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.ANNOTATION_STREAM_INCOMPLETE,
+                internalName);
+      }
+    }
   }
 
   @Override
@@ -111,7 +115,7 @@ class IntermediateSimpleProperty extends IntermediateProperty {
 
   @Override
   FullQualifiedName determineType() throws ODataJPAModelException {
-    return determineTypeByPersistanceType(jpaAttribute.getPersistentAttributeType());
+    return determineTypeByPersistenceType(jpaAttribute.getPersistentAttributeType());
   }
 
   String getContentType() {
@@ -123,7 +127,7 @@ class IntermediateSimpleProperty extends IntermediateProperty {
   }
 
   @Override
-  String getDeafultValue() throws ODataJPAModelException {
+  String getDefaultValue() throws ODataJPAModelException {
     String valueString = null;
     if (jpaAttribute.getJavaMember() instanceof Field
         && jpaAttribute.getPersistentAttributeType() == PersistentAttributeType.BASIC) {
@@ -131,7 +135,7 @@ class IntermediateSimpleProperty extends IntermediateProperty {
       // Field, only from an instance field.get(Object obj).toString(); //NOSONAR
       try {
         // Problem: In case of compound key, which is not referenced via @EmbeddedId Hibernate returns a field of the
-        // key class, whereas Eclipselink returns a field of the entity class; which can be checked via
+        // key class, whereas EclipseLink returns a field of the entity class; which can be checked via
         // field.getDeclaringClass()
         final Field field = (Field) jpaAttribute.getJavaMember();
         Constructor<?> constructor;

@@ -34,10 +34,10 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAProtectionInfo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityTypeAccess;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateEntityTypeAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateNavigationPropertyAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediatePropertyAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateReferenceList;
 import com.sap.olingo.jpa.processor.core.testmodel.ABCClassifiaction;
 import com.sap.olingo.jpa.processor.core.testmodel.TestDataConstants;
 
@@ -244,9 +244,9 @@ public class TestIntermediateEntityType extends TestMappingRoot {
 
     assertNotNull(et.getPath("Type"));
     assertNotNull(et.getPath("Name1"));
-    assertNotNull(et.getPath("Address" + JPAPath.PATH_SEPERATOR + "Region"));
-    assertNotNull(et.getPath("AdministrativeInformation" + JPAPath.PATH_SEPERATOR
-        + "Created" + JPAPath.PATH_SEPERATOR + "By"));
+    assertNotNull(et.getPath("Address" + JPAPath.PATH_SEPARATOR + "Region"));
+    assertNotNull(et.getPath("AdministrativeInformation" + JPAPath.PATH_SEPARATOR
+        + "Created" + JPAPath.PATH_SEPARATOR + "By"));
   }
 
   @Test

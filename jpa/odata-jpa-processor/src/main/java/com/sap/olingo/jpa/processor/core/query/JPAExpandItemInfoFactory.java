@@ -185,7 +185,7 @@ public final class JPAExpandItemInfoFactory {
 
     final StringBuilder pathAliase = new StringBuilder(prefix);
     for (JPAElement pathElement : p.getPath()) {
-      pathAliase.append(JPAPath.PATH_SEPERATOR);
+      pathAliase.append(JPAPath.PATH_SEPARATOR);
       pathAliase.append(pathElement.getExternalName());
       if (pathElement instanceof JPAAttribute && ((JPAAttribute) pathElement).isCollection()) {
 

@@ -18,7 +18,7 @@ import org.apache.olingo.commons.api.edmx.EdmxReferenceInclude;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.SchemaReader;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateReferenceList;
 
 final class IntermediateReferences implements IntermediateReferenceList {
   final List<IntermediateReference> references = new ArrayList<>();

@@ -60,7 +60,7 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
   protected String buildConcatenatedKey(final Tuple row, final List<JPAPath> leftColumns) {
     final StringBuilder buffer = new StringBuilder();
     for (final JPAPath item : leftColumns) {
-      buffer.append(JPAPath.PATH_SEPERATOR);
+      buffer.append(JPAPath.PATH_SEPARATOR);
       // TODO Tuple returns the converted value in case a @Convert(converter = annotation is given
       buffer.append(row.get(item.getAlias()));
     }
@@ -69,7 +69,7 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
   }
 
   protected String buildPath(final String prefix, final JPAAssociationAttribute association) {
-    return EMPTY_PREFIX.equals(prefix) ? association.getExternalName() : prefix + JPAPath.PATH_SEPERATOR + association
+    return EMPTY_PREFIX.equals(prefix) ? association.getExternalName() : prefix + JPAPath.PATH_SEPARATOR + association
         .getExternalName();
   }
 
@@ -114,7 +114,7 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
       for (final JPAAssociationAttribute a : jpaStructuredType.getDeclaredAssociations()) {
         path = jpaConversionTargetEntity.getAssociationPath(buildPath(prefix, a));
         final JPAExpandResult child = jpaQueryResult.getChild(path);
-        final String linkURI = rootURI + JPAPath.PATH_SEPERATOR + path.getAlias();
+        final String linkURI = rootURI + JPAPath.PATH_SEPARATOR + path.getAlias();
         if (child != null) {
           // TODO Check how to convert Organizations('3')/AdministrativeInformation?$expand=Created/User
           entityExpandLinks.add(getLink(path, row, child, linkURI));
@@ -145,7 +145,7 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
 
   protected final String determinePrefix(String alias) {
     final String prefix = alias;
-    final int index = prefix.lastIndexOf(JPAPath.PATH_SEPERATOR);
+    final int index = prefix.lastIndexOf(JPAPath.PATH_SEPARATOR);
     if (index < 0)
       return EMPTY_PREFIX;
     else
@@ -153,7 +153,7 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
   }
 
   String buildPath(final JPAAttribute attribute, final String prefix) {
-    return EMPTY_PREFIX.equals(prefix) ? attribute.getExternalName() : prefix + JPAPath.PATH_SEPERATOR + attribute
+    return EMPTY_PREFIX.equals(prefix) ? attribute.getExternalName() : prefix + JPAPath.PATH_SEPARATOR + attribute
         .getExternalName();
   }
 
@@ -170,7 +170,7 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
     }
 
     final List<Property> values = complexValueBuffer.get(bufferKey).getValue();
-    final int splitIndex = attribute.getExternalName().length() + JPAPath.PATH_SEPERATOR.length();
+    final int splitIndex = attribute.getExternalName().length() + JPAPath.PATH_SEPARATOR.length();
     final String attributeName = splitIndex < externalName.length() ? externalName.substring(splitIndex) : externalName;
     convertAttribute(value, attribute.getStructuredType().getPath(attributeName), complexValueBuffer, values,
         parentRow, buildPath(attribute, prefix), odataEntity);

@@ -11,7 +11,7 @@ import org.reflections.Reflections;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.ODataOperation;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.ODataOperation;
 
 public abstract class IntermediateOperationFactory {
 

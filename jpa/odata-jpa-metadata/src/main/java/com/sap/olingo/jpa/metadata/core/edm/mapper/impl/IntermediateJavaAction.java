@@ -118,9 +118,9 @@ class IntermediateJavaAction extends IntermediateOperation implements JPAAction 
       parameters.add(parameter);
     }
     if (jpaAction.isBound() && bindingPosition.getPos() != 1)
-      // Binding parameter not found within in interface of method %1$s of class %2$s. Binding parameter must be the
+      // Binding parameter not found within in the interface of method %1$s of class %2$s. Binding parameter must be the
       // first parameter.
-      throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.ACTION_PARAM_BINGING_NOT_FOUND,
+      throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.ACTION_PARAM_BINDING_NOT_FOUND,
           javaAction.getName(), javaAction.getDeclaringClass().getName());
     return parameters;
   }

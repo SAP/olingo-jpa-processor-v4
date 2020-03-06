@@ -98,7 +98,7 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
       if (SelectOptionUtil.selectAll(select))
         // If the collection is part of a navigation take all the attributes
         expandPath(jpaEntity, jpaPathList, pathPrefix.isEmpty() ? this.assoziation.getAlias() : pathPrefix
-            + JPAPath.PATH_SEPERATOR + this.assoziation.getAlias(), true);
+            + JPAPath.PATH_SEPARATOR + this.assoziation.getAlias(), true);
       else {
         for (SelectItem sItem : select.getSelectItems()) {
           final JPAPath selectItemPath = selectItemAsPath(pathPrefix, sItem);
@@ -106,13 +106,13 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
             if (selectItemPath.getLeaf().isComplex()) {
               final JPAAttribute attribute = selectItemPath.getLeaf();
               expandPath(jpaEntity, jpaPathList, pathPrefix.isEmpty() ? attribute.getExternalName() : pathPrefix
-                  + JPAPath.PATH_SEPERATOR + attribute.getExternalName(), true);
+                  + JPAPath.PATH_SEPARATOR + attribute.getExternalName(), true);
             } else {
               jpaPathList.add(selectItemPath);
             }
           } else if (selectItemPath.getLeaf().isComplex()) {
             expandPath(jpaEntity, jpaPathList, pathPrefix.isEmpty() ? this.assoziation.getAlias() : pathPrefix
-                + JPAPath.PATH_SEPERATOR + this.assoziation.getAlias(), true);
+                + JPAPath.PATH_SEPARATOR + this.assoziation.getAlias(), true);
           }
         }
       }
@@ -127,8 +127,8 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
       ODataJPAQueryException {
 
     String pathItem = sItem.getResourcePath().getUriResourceParts().stream().map(path -> (path
-        .getSegmentValue())).collect(Collectors.joining(JPAPath.PATH_SEPERATOR));
-    pathItem = pathPrefix == null || pathPrefix.isEmpty() ? pathItem : pathPrefix + JPAPath.PATH_SEPERATOR
+        .getSegmentValue())).collect(Collectors.joining(JPAPath.PATH_SEPARATOR));
+    pathItem = pathPrefix == null || pathPrefix.isEmpty() ? pathItem : pathPrefix + JPAPath.PATH_SEPARATOR
         + pathItem;
     final JPAPath selectItemPath = jpaEntity.getPath(pathItem);
     if (selectItemPath == null)
@@ -232,12 +232,12 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
       final List<JPAPath> joinColumns = associationPath.getRightColumnsList();
       return joinColumns.stream()
           .map(c -> (row.get(c.getAlias())).toString())
-          .collect(joining(JPAPath.PATH_SEPERATOR));
+          .collect(joining(JPAPath.PATH_SEPARATOR));
     } else {
       final List<JPAPath> joinColumns = associationPath.getLeftColumnsList();
       return joinColumns.stream()
           .map(c -> (row.get(assoziation.getAlias() + ALIAS_SEPERATOR + c.getAlias())).toString())
-          .collect(joining(JPAPath.PATH_SEPERATOR));
+          .collect(joining(JPAPath.PATH_SEPARATOR));
     }
   }
 
