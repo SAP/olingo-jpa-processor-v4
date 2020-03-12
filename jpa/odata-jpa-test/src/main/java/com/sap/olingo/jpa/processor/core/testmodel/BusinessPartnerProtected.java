@@ -81,7 +81,7 @@ public class BusinessPartnerProtected {
     return true;
   }
 
-  public String getiD() {
+  public String getID() {
     return iD;
   }
 
@@ -107,6 +107,10 @@ public class BusinessPartnerProtected {
 
   public String getUsername() {
     return username;
+  }
+
+  public void setID(String iD) {
+    this.iD = iD;
   }
 
 }

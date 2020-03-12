@@ -64,7 +64,8 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   public void checkProptertyCanBeCreated() throws ODataJPAModelException {
     EmbeddableType<?> et = helper.getEmbeddedableType("CommunicationData");
     Attribute<?, ?> jpaAttribute = helper.getAttribute(et, "landlinePhoneNumber");
-    new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME), jpaAttribute, helper.schema);
+    assertNotNull(new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME), jpaAttribute,
+        helper.schema));
   }
 
   @Test
@@ -310,10 +311,9 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
     PostProcessorSetName pPDouble = new PostProcessorSetName();
     IntermediateModelElement.setPostProcessor(pPDouble);
 
-    Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(Person.class), "birthDay");
+    Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class), "creationDateTime");
     IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
-        jpaAttribute,
-        helper.schema);
+        jpaAttribute, helper.schema);
 
     assertNotNull(property.getConverter());
   }

@@ -4,6 +4,7 @@
 package com.sap.olingo.jpa.processor.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -37,6 +38,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRoleKey;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRoleProtected;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRoleWithGroup;
+import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerWithGroups;
 import com.sap.olingo.jpa.processor.core.testmodel.ChangeInformation;
 import com.sap.olingo.jpa.processor.core.testmodel.CollcetionInnerComplex;
 import com.sap.olingo.jpa.processor.core.testmodel.CollcetionNestedComplex;
@@ -93,45 +95,46 @@ public class TestStandardMethodsOfTestModel {
 
   static Stream<Arguments> testModelEntities() {
     return Stream.of(
+        arguments(AdministrativeDivisionDescription.class),
+        arguments(AdministrativeDivisionDescriptionKey.class),
+        arguments(AdministrativeDivisionKey.class),
+        arguments(AdministrativeDivision.class),
+        arguments(AdministrativeInformation.class),
+        arguments(BusinessPartnerProtected.class),
+        arguments(BusinessPartnerWithGroups.class),
         arguments(BusinessPartnerRole.class),
         arguments(BusinessPartnerRoleWithGroup.class),
         arguments(BusinessPartnerRoleProtected.class),
         arguments(BusinessPartnerRoleKey.class),
-        arguments(InstanceRestrictionKey.class),
-        arguments(PostalAddressData.class),
-        arguments(CountryKey.class),
-        arguments(MembershipKey.class),
-        arguments(PostalAddressDataWithGroup.class),
-        arguments(JoinRelationKey.class),
-        arguments(BusinessPartnerProtected.class),
-        arguments(InhouseAddress.class),
-        arguments(InhouseAddressWithGroup.class),
-        arguments(PersonDeepProtected.class),
-        arguments(AdministrativeInformation.class),
-        arguments(Organization.class),
         arguments(ChangeInformation.class),
-        arguments(InhouseAddressWithProtection.class),
-        arguments(InhouseAddressWithThreeProtections.class),
         arguments(CommunicationData.class),
-        arguments(InhouseAddressTable.class),
-        arguments(OrganizationImage.class),
-        arguments(CollectionSecondLevelComplex.class),
-        arguments(User.class),
-        arguments(CountryRestriction.class),
-        arguments(CollcetionInnerComplex.class),
         arguments(Collection.class),
+        arguments(CollcetionInnerComplex.class),
         arguments(CollectionPartOfComplex.class),
-        arguments(PersonImage.class),
-        arguments(Person.class),
-        arguments(AdministrativeDivisionDescription.class),
         arguments(CollcetionNestedComplex.class),
         arguments(CollectionDeep.class),
         arguments(CollectionFirstLevelComplex.class),
-        arguments(PersonDeepProtectedHidden.class),
+        arguments(CollectionSecondLevelComplex.class),
         arguments(Comment.class),
-        arguments(AdministrativeDivisionDescriptionKey.class),
-        arguments(AdministrativeDivisionKey.class),
-        arguments(AdministrativeDivision.class));
+        arguments(CountryKey.class),
+        arguments(CountryRestriction.class),
+        arguments(InhouseAddress.class),
+        arguments(InhouseAddressTable.class),
+        arguments(InhouseAddressWithGroup.class),
+        arguments(InhouseAddressWithProtection.class),
+        arguments(InhouseAddressWithThreeProtections.class),
+        arguments(InstanceRestrictionKey.class),
+        arguments(JoinRelationKey.class),
+        arguments(MembershipKey.class),
+        arguments(Organization.class),
+        arguments(OrganizationImage.class),
+        arguments(Person.class),
+        arguments(PersonImage.class),
+        arguments(PersonDeepProtected.class),
+        arguments(PersonDeepProtectedHidden.class),
+        arguments(PostalAddressData.class),
+        arguments(PostalAddressDataWithGroup.class),
+        arguments(User.class));
   }
 
   static Stream<Arguments> testErrorEntities() {
@@ -184,7 +187,18 @@ public class TestStandardMethodsOfTestModel {
 
   @ParameterizedTest
   @MethodSource({ "testModelEntities", "testErrorEntities" })
-  public void testHasValueReturnsValue(final Class<?> clazz) throws NoSuchMethodException, SecurityException,
+  public void testToStringReturnsValue(final Class<?> clazz) throws NoSuchMethodException, SecurityException,
+      InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+
+    final Constructor<?> constructor = clazz.getConstructor();
+    assertNotNull(constructor);
+    final Object instanze = constructor.newInstance();
+    assertFalse(instanze.toString().isEmpty());
+  }
+
+  @ParameterizedTest
+  @MethodSource({ "testModelEntities", "testErrorEntities" })
+  public void testHashValueReturnsValue(final Class<?> clazz) throws NoSuchMethodException, SecurityException,
       InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
     final Method[] methods = clazz.getMethods();

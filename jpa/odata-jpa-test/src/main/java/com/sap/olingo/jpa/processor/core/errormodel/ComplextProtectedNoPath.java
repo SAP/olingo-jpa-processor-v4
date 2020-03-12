@@ -45,7 +45,7 @@ public class ComplextProtectedNoPath {
     return true;
   }
 
-  public String getiD() {
+  public String getID() {
     return iD;
   }
 
@@ -53,7 +53,7 @@ public class ComplextProtectedNoPath {
     return eTag;
   }
 
-  public void setiD(String iD) {
+  public void setID(String iD) {
     this.iD = iD;
   }
 

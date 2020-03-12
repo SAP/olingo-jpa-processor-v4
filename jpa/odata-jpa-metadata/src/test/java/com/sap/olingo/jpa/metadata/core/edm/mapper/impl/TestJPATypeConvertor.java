@@ -66,6 +66,9 @@ public class TestJPATypeConvertor {
         arguments(java.util.Date.class, buildTimeAttribute(TemporalType.DATE), EdmPrimitiveTypeKind.Date),
         arguments(java.util.Date.class, buildTimeAttribute(TemporalType.TIMESTAMP),
             EdmPrimitiveTypeKind.DateTimeOffset),
+        arguments(java.time.OffsetDateTime.class, buildTimeAttribute(null), EdmPrimitiveTypeKind.DateTimeOffset),
+        arguments(java.time.LocalDateTime.class, buildTimeAttribute(null), EdmPrimitiveTypeKind.DateTimeOffset),
+        arguments(java.time.ZonedDateTime.class, buildTimeAttribute(null), EdmPrimitiveTypeKind.DateTimeOffset),
         arguments(java.util.Date.class, buildTimeAttribute(null), EdmPrimitiveTypeKind.DateTimeOffset));
   }
 

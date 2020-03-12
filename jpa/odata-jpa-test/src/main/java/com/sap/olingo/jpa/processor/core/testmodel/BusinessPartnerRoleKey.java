@@ -16,6 +16,16 @@ public class BusinessPartnerRoleKey implements Serializable {
   @Id
   private String roleCategory;
 
+  public BusinessPartnerRoleKey() {
+    // Needed for JPA
+  }
+
+  public BusinessPartnerRoleKey(final String businessPartnerID, final String roleCategory) {
+    super();
+    this.businessPartnerID = businessPartnerID;
+    this.roleCategory = roleCategory;
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (this == obj) return true;

@@ -5,6 +5,9 @@ import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.UUID;
 
@@ -45,7 +48,7 @@ public final class JPATypeConvertor {
    * @see EdmPrimitiveTypeKind
    */
 
-  public static <T> EdmPrimitiveTypeKind convertToEdmSimpleType(final Class<T> jpaType,
+  public static <T> EdmPrimitiveTypeKind convertToEdmSimpleType(final Class<T> jpaType, // NOSONAR
       final Attribute<?, ?> currentAttribute) throws ODataJPAModelException {
 
     if (jpaType.equals(String.class) || jpaType.equals(Character.class) || jpaType.equals(char.class) || jpaType.equals(
@@ -84,6 +87,11 @@ public final class JPATypeConvertor {
       } else {
         return EdmPrimitiveTypeKind.DateTimeOffset;
       }
+    } else if (jpaType.equals(ZonedDateTime.class) || jpaType.equals(LocalDateTime.class)
+        || jpaType.equals(OffsetDateTime.class)) {
+      // Looks like Olingo does not support LocalDateTime or OffsetDateTime, which are supported by JPA 2.2. Olingo only
+      // takes ZonedDateTime.
+      return EdmPrimitiveTypeKind.DateTimeOffset;
     } else if (jpaType.equals(UUID.class)) {
       return EdmPrimitiveTypeKind.Guid;
     } else if (jpaType.equals(Blob.class) && isBlob(currentAttribute)) {
@@ -133,6 +141,8 @@ public final class JPATypeConvertor {
         type == java.sql.Time.class ||
         type == java.time.Duration.class ||
         type == java.time.LocalDate.class ||
+        type == java.time.OffsetDateTime.class ||
+        type == java.time.ZonedDateTime.class ||
         type == java.sql.Date.class ||
         type == Calendar.class ||
         type == Timestamp.class ||
@@ -141,7 +151,19 @@ public final class JPATypeConvertor {
   }
 
   /**
-   * For supported java types see {@link org.apache.olingo.commons.api.edm.EdmPrimitiveType}
+   * For supported java types see {@link org.apache.olingo.commons.api.edm.EdmPrimitiveType}. In addition, since 4.7.1,
+   * also some types from the java.time package are supported, see:
+   * <ul>
+   * <li>For EdmDate: LocalDate, see
+   * {@link org.apache.olingo.commons.core.edm.primitivetype.EdmDate#internalValueToString
+   * EdmDate.internalValueToString}</li>
+   * <li>For EdmTimeOfDay: LocalTime, see
+   * {@link org.apache.olingo.commons.core.edm.primitivetype.EdmTimeOfDay#internalValueToString
+   * EdmTimeOfDay.internalValueToString}</li>
+   * <li>For EdmDateTimeOffset: ZonedDateTime, see
+   * {@link org.apache.olingo.commons.core.edm.primitivetype.EdmDateTimeOffset#internalValueToString
+   * EdmDateTimeOffset.internalValueToString}</li>
+   * </ul>
    * @param type
    * @return
    */
@@ -159,6 +181,9 @@ public final class JPATypeConvertor {
         type == java.sql.Time.class ||
         type == java.sql.Timestamp.class ||
         type == java.util.Calendar.class ||
+        type == java.time.LocalTime.class ||
+        type == java.time.LocalDate.class ||
+        type == java.time.ZonedDateTime.class ||
         type == java.util.Date.class ||
         type == java.util.UUID.class ||
         type == Long.class ||
@@ -205,25 +230,25 @@ public final class JPATypeConvertor {
     } else if (jpaType.equals(org.apache.olingo.commons.api.edm.geo.GeospatialCollection.class)) {
       return EdmPrimitiveTypeKind.GeometryCollection;
     }
-    
+
     if (jpaType.equals(com.vividsolutions.jts.geom.Point.class)) {
-	  return EdmPrimitiveTypeKind.GeometryPoint;
-	} else if (jpaType.equals(com.vividsolutions.jts.geom.MultiPoint.class)) {
-	  return EdmPrimitiveTypeKind.GeometryMultiPoint;
-	} else if (jpaType.equals(com.vividsolutions.jts.geom.LineString.class)) {
-	  return EdmPrimitiveTypeKind.GeometryLineString;
-	} else if (jpaType.equals(com.vividsolutions.jts.geom.MultiLineString.class)) {
-	  return EdmPrimitiveTypeKind.GeometryMultiLineString;
-	} else if (jpaType.equals(com.vividsolutions.jts.geom.Polygon.class)) {
-	  return EdmPrimitiveTypeKind.GeometryPolygon;
-	} else if (jpaType.equals(com.vividsolutions.jts.geom.MultiPolygon.class)) {
-	  return EdmPrimitiveTypeKind.GeometryMultiPolygon;
-	} else if (jpaType.equals(com.vividsolutions.jts.geom.GeometryCollection.class)) {
-	  return EdmPrimitiveTypeKind.GeometryCollection;
-	} else if (jpaType.equals(com.vividsolutions.jts.geom.Geometry.class)) {
-	  return EdmPrimitiveTypeKind.Geometry;
-	}
-    
+      return EdmPrimitiveTypeKind.GeometryPoint;
+    } else if (jpaType.equals(com.vividsolutions.jts.geom.MultiPoint.class)) {
+      return EdmPrimitiveTypeKind.GeometryMultiPoint;
+    } else if (jpaType.equals(com.vividsolutions.jts.geom.LineString.class)) {
+      return EdmPrimitiveTypeKind.GeometryLineString;
+    } else if (jpaType.equals(com.vividsolutions.jts.geom.MultiLineString.class)) {
+      return EdmPrimitiveTypeKind.GeometryMultiLineString;
+    } else if (jpaType.equals(com.vividsolutions.jts.geom.Polygon.class)) {
+      return EdmPrimitiveTypeKind.GeometryPolygon;
+    } else if (jpaType.equals(com.vividsolutions.jts.geom.MultiPolygon.class)) {
+      return EdmPrimitiveTypeKind.GeometryMultiPolygon;
+    } else if (jpaType.equals(com.vividsolutions.jts.geom.GeometryCollection.class)) {
+      return EdmPrimitiveTypeKind.GeometryCollection;
+    } else if (jpaType.equals(com.vividsolutions.jts.geom.Geometry.class)) {
+      return EdmPrimitiveTypeKind.Geometry;
+    }
+
     // Type (%1$s) of attribute (%2$s) is not supported. Mapping not possible
     throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.TYPE_NOT_SUPPORTED,
         jpaType.getName(), currentAttribute.getName());
