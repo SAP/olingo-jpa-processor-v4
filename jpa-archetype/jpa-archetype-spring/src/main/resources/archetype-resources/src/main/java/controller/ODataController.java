@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.annotation.RequestScope;
 
 import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDHandler;
@@ -15,6 +16,7 @@ import com.sap.olingo.jpa.processor.core.api.example.JPAExampleCUDRequestHandler
 
 @RestController
 @RequestMapping("${punit}/v1/**")
+@RequestScope
 public class ODataController {
   
   @Autowired
