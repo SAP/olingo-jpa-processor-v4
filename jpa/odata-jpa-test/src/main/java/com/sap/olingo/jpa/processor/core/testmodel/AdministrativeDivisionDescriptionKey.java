@@ -12,18 +12,30 @@ public class AdministrativeDivisionDescriptionKey implements Serializable {
    */
   private static final long serialVersionUID = 4843041820527005995L;
 
-  // @Id
   @Column(name = "\"CodePublisher\"", length = 10, nullable = false)
   private String codePublisher;
-  // @Id
+
   @Column(name = "\"CodeID\"", length = 10, nullable = false)
   private String codeID;
-  // @Id
+
   @Column(name = "\"DivisionCode\"", length = 10, nullable = false)
   private String divisionCode;
-  // @Id
+
   @Column(name = "\"LanguageISO\"")
   private String language;
+
+  public AdministrativeDivisionDescriptionKey() {
+    // Needed for JPA
+  }
+
+  public AdministrativeDivisionDescriptionKey(final String codePublisher, final String codeID,
+      final String divisionCode, final String language) {
+    super();
+    this.codePublisher = codePublisher;
+    this.codeID = codeID;
+    this.divisionCode = divisionCode;
+    this.language = language;
+  }
 
   public String getLanguage() {
     return language;
@@ -53,10 +65,6 @@ public class AdministrativeDivisionDescriptionKey implements Serializable {
     this.divisionCode = divisonCode;
   }
 
-  public static long getSerialversionuid() {
-    return serialVersionUID;
-  }
-
   public void setLanguage(String language) {
     this.language = language;
   }
@@ -73,7 +81,7 @@ public class AdministrativeDivisionDescriptionKey implements Serializable {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(Object obj) { // NOSONAR
     if (this == obj) return true;
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;

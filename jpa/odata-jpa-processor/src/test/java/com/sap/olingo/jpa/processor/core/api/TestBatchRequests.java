@@ -1,13 +1,13 @@
 package com.sap.olingo.jpa.processor.core.api;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
 import java.util.List;
 
 import org.apache.olingo.commons.api.ex.ODataException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
@@ -54,7 +54,17 @@ public class TestBatchRequests extends TestBase {
     StringBuffer requestBody = createBodyTwoGet();
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, "$batch", requestBody);
-    JsonNode value = helper.getBatchResult(2);
+
+    JsonNode value = helper.getBatchResult(1);
+    System.out.println(value);
+    assertEquals(200, helper.getBatchResultStatus(1));
+    assertNotNull(value.get("ID"));
+    assertEquals("3", value.get("ID").asText());
+
+    value = helper.getBatchResult(2);
+    System.out.println(value);
+    assertEquals(200, helper.getBatchResultStatus(2));
+    assertNotNull(value.get("ID"));
     assertEquals("5", value.get("ID").asText());
   }
 

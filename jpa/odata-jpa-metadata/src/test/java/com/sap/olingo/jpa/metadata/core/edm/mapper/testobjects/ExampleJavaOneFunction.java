@@ -11,7 +11,7 @@ public class ExampleJavaOneFunction implements ODataFunction {
     super();
   }
 
-  @EdmFunction(name = "", returnType = @ReturnType)
+  @EdmFunction(returnType = @ReturnType)
   public Integer sum(
       @EdmParameter(name = "A") short a, @EdmParameter(name = "B") int b) {
     return a + b;

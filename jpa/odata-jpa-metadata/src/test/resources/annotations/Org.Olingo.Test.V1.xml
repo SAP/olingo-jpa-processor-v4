@@ -1,4 +1,7 @@
-<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0">
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx" Version="4.0"
+		   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		   xsi:schemaLocation="http://http://docs.oasis-open.org/odata/odata-csdl-xml/v4.01/cs01/schemas/edm.xsd">
   <edmx:Reference Uri="http://docs.oasis-open.org/odata/odata/v4.0/os/vocabularies/Org.OData.Core.V1.xml">
     <edmx:Include Alias="Core" Namespace="Org.OData.Core.V1" />
   </edmx:Reference>
@@ -53,6 +56,51 @@
           <Annotation Term="Core.Description" String="These navigation properties do not allow DeleteLink requests" />
         </Property>
       </ComplexType>
+      <ComplexType Name="TestType" Abstract="true" OpenType="true" BaseType="Core.Unknown">
+        <Annotation Term="Core.Description" String="This type is only for test purposes" />
+        <Property Name="Deletable" Type="Edm.Boolean" DefaultValue="true">
+          <Annotation Term="Core.Description" String="Entities can be deleted" />
+        </Property>    
+        <Property Name="NonDeletableNavigationProperties" Type="Collection(Edm.NavigationPropertyPath)">
+          <Annotation Term="Core.Description" String="These navigation properties do not allow DeleteLink requests" />
+        </Property>
+        <Property Name="TestDecimals" Type="Edm.Decimal" Precision="10" Scale="5" >
+          <Annotation Term="Core.Description" String="For test only" />
+        </Property>
+        <Property Name="TestString" Type="Edm.String" Unicode="false" MaxLength="256" >
+          <Annotation Term="Core.Description" String="For test only" />
+        </Property>
+        <Property Name="TestGeo" Type="Edm.GeometryPoint" SRID="3857" >
+          <Annotation Term="Core.Description" String="For test only" />
+        </Property>               
+      </ComplexType>
+      
+      <Function Name="TestTheRest1" IsBound="false" EntitySetPath="timeslices">
+        <Annotation Term="Core.Description" String="This function is only for test purposes" />
+        <Parameter Name="Dec" Type="Edm.Decimal" Precision="10" Scale="5"  />
+        <Parameter Name="Geo"  Type="Edm.GeometryPoint" SRID="3857" Nullable="true" />
+        <Parameter Name="Text"  Type="Collection(Edm.String)"  MaxLength="512"/>
+        <ReturnType Type="Collection(Edm.Decimal)" Precision="10" Scale="5" MaxLength="20" Nullable="true"  SRID="3857"/>
+      </Function> 
+      
+      <Action Name="UpsertTimeExample" IsBound="true" EntitySetPath="timeslices">
+        <Parameter Name="timeslices" Type="Collection(Edm.EntityType)" Nullable="false"/>
+        <Parameter Name="To" Type="Edm.PrimitiveType" Nullable="false"/>
+        <Parameter Name="Values" Type="Edm.EntityType" Nullable="true"/>
+        <ReturnType Type="Collection(Edm.EntityType)" Nullable="false"/>
+      </Action>      
+      <Action Name="TestTheRest2">
+      </Action>
+      
+      <TypeDefinition Name="TestTypeDecimal" UnderlyingType="Edm.Decimal"  Precision="10" Scale="5" >
+        <Annotation Term="Core.Description" String="This function is only for test purposes" />
+      </TypeDefinition>
+      <TypeDefinition Name="TestTypeGeo" UnderlyingType="Edm.GeographyPolygon" SRID="variable"  >
+        <Annotation Term="Core.Description" String="This function is only for test purposes" />
+      </TypeDefinition>  
+      <TypeDefinition Name="TestTypeString" UnderlyingType="Edm.String" MaxLength="256"  Unicode="false" >
+        <Annotation Term="Core.Description" String="This function is only for test purposes" />
+      </TypeDefinition>
     </Schema>	  
   </edmx:DataServices>
 </edmx:Edmx>

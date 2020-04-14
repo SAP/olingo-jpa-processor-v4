@@ -11,19 +11,18 @@ import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.serializer.SerializerException;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 public class JPAComplexResultConverter extends JPAStructuredResultConverter {
 
   public JPAComplexResultConverter(final JPAServiceDocument sd, final List<?> jpaQueryResult,
-      final EdmComplexType edmComplexType) throws ODataJPAModelException {
+      final EdmComplexType edmComplexType) {
 
     super(jpaQueryResult, sd.getComplexType(edmComplexType));
   }
 
   @Override
   public List<ComplexValue> getResult() throws ODataApplicationException, SerializerException, URISyntaxException {
-    List<ComplexValue> result = new ArrayList<ComplexValue>();
+    List<ComplexValue> result = new ArrayList<>();
 
     for (Object row : this.jpaQueryResult) {
       final ComplexValue value = new ComplexValue();

@@ -16,14 +16,8 @@ class IntermediatOperationResultParameter implements JPAOperationResultParameter
   private final Class<?> type;
   private final boolean isCollection;
 
-  public IntermediatOperationResultParameter(JPAOperation jpaOperation, final ReturnType jpaReturnType) {
-    this.jpaOperation = jpaOperation;
-    this.jpaReturnType = jpaReturnType;
-    this.type = jpaReturnType.type();
-    this.isCollection = jpaReturnType.isCollection();
-  }
-
-  public IntermediatOperationResultParameter(JPAOperation jpaOperation, ReturnType jpaReturnType, Class<?> returnType,
+  public IntermediatOperationResultParameter(final JPAOperation jpaOperation, final ReturnType jpaReturnType,
+      final Class<?> returnType,
       boolean isCollection) {
     this.jpaOperation = jpaOperation;
     this.jpaReturnType = jpaReturnType;
@@ -32,6 +26,14 @@ class IntermediatOperationResultParameter implements JPAOperationResultParameter
       this.type = jpaReturnType.type();
     else
       this.type = returnType;
+  }
+
+  public IntermediatOperationResultParameter(final JPAOperation jpaOperation, final ReturnType jpaReturnType,
+      final Class<?> returnType) {
+    this.jpaOperation = jpaOperation;
+    this.jpaReturnType = jpaReturnType;
+    this.isCollection = jpaReturnType.isCollection();
+    this.type = returnType;
   }
 
   @Override

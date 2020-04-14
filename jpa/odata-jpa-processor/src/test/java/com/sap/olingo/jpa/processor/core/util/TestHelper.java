@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.util;
 
 import java.lang.reflect.AnnotatedElement;
+import java.util.Optional;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.metamodel.Attribute;
@@ -28,14 +29,14 @@ public class TestHelper {
 
   public TestHelper(EntityManagerFactory emf, String namespace) throws ODataException {
     this.jpaMetamodel = emf.getMetamodel();
-    edmProvider = new JPAEdmProvider(namespace, emf, null, null);
+    edmProvider = new JPAEdmProvider(namespace, emf, null, TestBase.enumPackages);
     sd = edmProvider.getServiceDocument();
     sd.getEdmEntityContainer();
   }
 
-  public EntityType<?> getEntityType(String typeName) {
+  public EntityType<?> getEntityType(Class<?> clazz) {
     for (EntityType<?> entityType : jpaMetamodel.getEntities()) {
-      if (entityType.getJavaType().getSimpleName().equals(typeName)) {
+      if (entityType.getJavaType() == clazz) {
         return entityType;
       }
     }
@@ -57,7 +58,8 @@ public class TestHelper {
     return jpaEntity.getAssociation(attributeIntName);
   }
 
-  public JPAAttribute getJPAAttribute(String entitySetName, String attributeIntName) throws ODataJPAModelException {
+  public Optional<JPAAttribute> getJPAAttribute(String entitySetName, String attributeIntName)
+      throws ODataJPAModelException {
     JPAEntityType jpaEntity = sd.getEntity(entitySetName);
     return jpaEntity.getAttribute(attributeIntName);
   }

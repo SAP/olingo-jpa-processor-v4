@@ -11,6 +11,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlReturnType;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -34,7 +35,7 @@ abstract class IntermediateFunction extends IntermediateOperation implements JPA
   protected final IntermediateSchema schema;
 
   IntermediateFunction(final JPAEdmNameBuilder nameBuilder, final EdmFunction jpaFunction,
-      final IntermediateSchema schema, final String internalName) throws ODataJPAModelException {
+      final IntermediateSchema schema, final String internalName) {
 
     super(nameBuilder, internalName);
     this.jpaFunction = jpaFunction;
@@ -42,7 +43,7 @@ abstract class IntermediateFunction extends IntermediateOperation implements JPA
   }
 
   @Override
-  protected void lazyBuildEdmItem() throws ODataJPAModelException {
+  protected synchronized void lazyBuildEdmItem() throws ODataJPAModelException {
     if (edmFunction == null) {
       edmFunction = new CsdlFunction();
       edmFunction.setName(getExternalName());
@@ -51,6 +52,15 @@ abstract class IntermediateFunction extends IntermediateOperation implements JPA
       edmFunction.setBound(jpaFunction.isBound());
       // TODO edmFunction.setComposable(isComposable)
       edmFunction.setComposable(false);
+      /*
+       * Bound actions and functions that return an entity or a collection of entities MAY specify an entity set path if
+       * the entity set of the returned entities depends on the entity set of the binding parameter value.
+       * The entity set path consists of a series of segments joined together with forward slashes.
+       * The first segment of the entity set path MUST be the name of the binding parameter. The remaining segments of
+       * the entity set path MUST represent navigation segments or type casts.
+       * A navigation segment names the simple identifier of the navigation property to be traversed. A type-cast
+       * segment names the qualified name of the entity type that should be returned from the type cast.
+       */
       // TODO edmFunction.setEntitySetPath(entitySetPath) for bound functions
 
     }
@@ -58,7 +68,9 @@ abstract class IntermediateFunction extends IntermediateOperation implements JPA
 
   @Override
   CsdlFunction getEdmItem() throws ODataJPAModelException {
-    lazyBuildEdmItem();
+    if (edmFunction == null) {
+      lazyBuildEdmItem();
+    }
     return edmFunction;
   }
 
@@ -72,13 +84,16 @@ abstract class IntermediateFunction extends IntermediateOperation implements JPA
   }
 
   @Override
-  boolean isBound() throws ODataJPAModelException {
+  public boolean isBound() throws ODataJPAModelException {
     return getEdmItem().isBound();
   }
 
   protected abstract List<CsdlParameter> determineEdmInputParameter() throws ODataJPAModelException;
 
   protected abstract CsdlReturnType determineEdmResultType(final ReturnType returnType) throws ODataJPAModelException;
+
+  protected abstract FullQualifiedName determineParameterType(final Class<?> type,
+      final EdmParameter definedParameter) throws ODataJPAModelException;
 
   protected class IntermediatFunctionParameter implements JPAParameter {
     private final EdmParameter jpaParameter;
@@ -93,7 +108,7 @@ abstract class IntermediateFunction extends IntermediateOperation implements JPA
       this.type = jpaParameter.type();
     }
 
-    public IntermediatFunctionParameter(EdmParameter jpaParameter, String externalName,
+    IntermediatFunctionParameter(EdmParameter jpaParameter, String externalName,
         String internalName, Class<?> type) {
       this.jpaParameter = jpaParameter;
       this.internalName = internalName;
@@ -133,7 +148,7 @@ abstract class IntermediateFunction extends IntermediateOperation implements JPA
 
     @Override
     public FullQualifiedName getTypeFQN() throws ODataJPAModelException {
-      return JPATypeConvertor.convertToEdmSimpleType(jpaParameter.type()).getFullQualifiedName();
+      return determineParameterType(type, jpaParameter);
     }
 
     @Override

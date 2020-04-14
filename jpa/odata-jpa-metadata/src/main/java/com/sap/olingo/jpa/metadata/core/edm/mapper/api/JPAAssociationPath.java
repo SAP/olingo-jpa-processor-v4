@@ -6,21 +6,37 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 
 public interface JPAAssociationPath {
 
-  String PATH_SEPERATOR = "/";
-
   String getAlias();
+
+  /**
+   * Only available if a Join Table was used
+   * @return
+   * @throws ODataJPAModelException
+   */
+  List<JPAPath> getInverseLeftJoinColumnsList() throws ODataJPAModelException;
 
   List<JPAOnConditionItem> getJoinColumnsList() throws ODataJPAModelException;
 
+  JPAJoinTable getJoinTable();
+
   JPAAssociationAttribute getLeaf();
+
+  List<JPAPath> getLeftColumnsList() throws ODataJPAModelException;
+
+  JPAAssociationAttribute getPartner();
 
   List<JPAElement> getPath();
 
-  JPAStructuredType getTargetType();
+  List<JPAPath> getRightColumnsList() throws ODataJPAModelException;
 
   JPAStructuredType getSourceType();
 
-  boolean isCollection();
+  JPAStructuredType getTargetType();
 
-  JPAAssociationAttribute getPartner();
+  /**
+   * @return True if the target entity is linked via a join table
+   */
+  boolean hasJoinTable();
+
+  boolean isCollection();
 }

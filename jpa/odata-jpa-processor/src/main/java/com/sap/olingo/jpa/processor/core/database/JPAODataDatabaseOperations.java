@@ -21,9 +21,10 @@ public interface JPAODataDatabaseOperations {
 
   public Expression<Boolean> convert(final JPABooleanOperator jpaOperator) throws ODataApplicationException;
 
-  public Expression<Boolean> convert(final JPAComparisonOperator<?> jpaOperator) throws ODataApplicationException;
+  public <T extends Comparable<T>> Expression<Boolean> convert(final JPAComparisonOperator<T> jpaOperator)
+      throws ODataApplicationException;
 
-  public Object convert(final JPAMethodCall jpaFunction) throws ODataApplicationException;
+  public <T> Expression<T> convert(final JPAMethodCall jpaFunction) throws ODataApplicationException;
 
   public Expression<Boolean> convert(final JPAUnaryBooleanOperator jpaOperator) throws ODataApplicationException;
 

@@ -30,21 +30,23 @@ CREATE TABLE "BusinessPartner" (
 	"UpdatedBy" VARCHAR(32) NOT NULL ,
 	"UpdatedAt" TIMESTAMP,
     "Country" VARCHAR(4),
+    "ABCClass" int,
+    "AccessRights" int,
 	 PRIMARY KEY ("ID"));
      
-insert into "BusinessPartner" values ('1', 0, '2', '','',6000.5,null,'First Org.','',null,'Test Road', '23','', 'Test City','94321','ISO', '3166-2','US-CA', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA');
-insert into "BusinessPartner" values ('2', 0, '2', '','',null,null,'Second Org.','',null,'Test Road', '45','', 'Test City','76321','ISO', '3166-2','US-TX', 'USA', '', '','','', '97','2016-01-20 09:21:23', '', null, 'USA');
-insert into "BusinessPartner" values ('3', 0, '2', '','',null,null,'Third Org.','',null,'Test Road', '223','', 'Test City','94322','ISO', '3166-2','US-CA', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA');
-insert into "BusinessPartner" values ('4', 0, '2', '','',null,null,'Fourth Org.','',null,'Test Road', '56','', 'Test City','84321','ISO', '3166-2','US-UT', 'USA', '', '','','', '98','2016-01-20 09:21:23', '', null, 'USA');
-insert into "BusinessPartner" values ('5', 0, '2', '','',null,null,'Fifth Org.','',null,'Test Road', '35','', 'Test City','59321','ISO', '3166-2','US-MT', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA');
-insert into "BusinessPartner" values ('6', 0, '2', '','',null,null,'Sixth Org.','',null,'Test Road', '7856','', 'Test City','94324','ISO', '3166-2','US-CA', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA');
-insert into "BusinessPartner" values ('7', 0, '2', '','',null,null,'Seventh Org.','',null,'Test Road', '4','', 'Test City','29321','ISO', '3166-2','US-SC', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA');
-insert into "BusinessPartner" values ('8', 0, '2', '','',null,null,'Eighth Org.','',null,'Test Road', '453','', 'Test City','29221','ISO', '3166-2','US-SC', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA');
-insert into "BusinessPartner" values ('9', 0, '2', '','',null,null,'Ninth Org.','',null,'Test Road', '93','', 'Test City','55021','ISO', '3166-2','US-MN', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA');
-insert into "BusinessPartner" values ('10', 0, '2', '','',null,null,'Tenth Org.','',null,'Test Road', '12','', 'Test City','03921','ISO', '3166-2','US-ME', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU');
-insert into "BusinessPartner" values ('99', 0, '1', '','',null,null,'Max','Mustermann',null,'Test Starße', '12','', 'Teststadt','10115','ISO', '3166-2','DE-BE', 'DEU', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU'); 
-insert into "BusinessPartner" values ('98', 0, '1', '','',null,null,'John','Doe',null,'Test Road', '55','', 'Test City','76321','ISO', '3166-2','US-TX', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU'); 
-insert into "BusinessPartner" values ('97', 0, '1', '','',null,null,'Urs','Müller',null,'Test Straße', '23','', 'Test Dorf','4123','ISO', '3166-2','CH-BL', 'CHE', null,null,null,null, '99','2016-07-20 09:21:23', '', null, 'CHE'); 
+insert into "BusinessPartner" values ('1', 0, '2', '','',6000.5,null,'First Org.','',null,'Test Road', '23','', 'Test City','94321','ISO', '3166-2','US-CA', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA', 0, null);
+insert into "BusinessPartner" values ('2', 0, '2', '','',null,null,'Second Org.','',null,'Test Road', '45','', 'Test City','76321','ISO', '3166-2','US-TX', 'USA', '', '','','', '97','2016-01-20 09:21:23', '', null, 'USA', null, null);
+insert into "BusinessPartner" values ('3', 0, '2', '','',null,null,'Third Org.','',null,'Test Road', '223','', 'Test City','94322','ISO', '3166-2','US-CA', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA', null, null);
+insert into "BusinessPartner" values ('4', 0, '2', '','',null,null,'Fourth Org.','',null,'Test Road', '56','', 'Test City','84321','ISO', '3166-2','US-UT', 'USA', '', '','','', '98','2016-01-20 09:21:23', '', null, 'USA', 1, null);
+insert into "BusinessPartner" values ('5', 0, '2', '','',null,null,'Fifth Org.','',null,'Test Road', '35','', 'Test City','59321','ISO', '3166-2','US-MT', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA', null, null);
+insert into "BusinessPartner" values ('6', 0, '2', '','',null,null,'Sixth Org.','',null,'Test Road', '7856','', 'Test City','94324','ISO', '3166-2','US-CA', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA', null, null);
+insert into "BusinessPartner" values ('7', 0, '2', '','',null,null,'Seventh Org.','',null,'Test Road', '4','', 'Test City','29321','ISO', '3166-2','US-SC', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA', null, null);
+insert into "BusinessPartner" values ('8', 0, '2', '','',null,null,'Eighth Org.','',null,'Test Road', '453','', 'Test City','29221','ISO', '3166-2','US-SC', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA', 2, null);
+insert into "BusinessPartner" values ('9', 0, '2', '','',null,null,'Ninth Org.','',null,'Test Road', '93','', 'Test City','55021','ISO', '3166-2','US-MN', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA', null, null);
+insert into "BusinessPartner" values ('10', 0, '2', '','',null,null,'Tenth Org.','',null,'Test Road', '12','', 'Test City','03921','ISO', '3166-2','US-ME', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU', null, null);
+insert into "BusinessPartner" values ('99', 0, '1', '','',null,null,'Max','Mustermann',null,'Test Starße', '12','', 'Teststadt','10115','ISO', '3166-2','DE-BE', 'DEU', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU', null, 2); 
+insert into "BusinessPartner" values ('98', 0, '1', '','',null,null,'John','Doe',null,'Test Road', '55','', 'Test City','76321','ISO', '3166-2','US-TX', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU', null, null); 
+insert into "BusinessPartner" values ('97', 0, '1', '','',null,null,'Urs','Müller',null,'Test Straße', '23','', 'Test Dorf','4123','ISO', '3166-2','CH-BL', 'CHE', null,null,null,null, '99','2016-07-20 09:21:23', '', null, 'CHE', null, 9); 
 
 CREATE TABLE "PersonImage" (
 	"ID" VARCHAR(32) NOT NULL ,
@@ -70,18 +72,20 @@ insert into "OrganizationImage" values ('9',null,'image/svg+xml','99','2016-01-2
 CREATE TABLE "BusinessPartnerRole" ( 
 	"BusinessPartnerID" VARCHAR(32) NOT NULL ,
 	"BusinessPartnerRole" VARCHAR(10) NOT NULL, 
+	"Details"  VARCHAR(256),
      PRIMARY KEY ("BusinessPartnerID","BusinessPartnerRole"));
 
-insert into "BusinessPartnerRole" values ('1',  'A');
-insert into "BusinessPartnerRole" values ('3',  'A');
-insert into "BusinessPartnerRole" values ('3',  'B');
-insert into "BusinessPartnerRole" values ('3',  'C');
-insert into "BusinessPartnerRole" values ('2',  'A');
-insert into "BusinessPartnerRole" values ('2',  'C');
-insert into "BusinessPartnerRole" values ('7',  'C');
-insert into "BusinessPartnerRole" values ('98',  'X');
-insert into "BusinessPartnerRole" values ('99',  'X');
-insert into "BusinessPartnerRole" values ('99',  'Z');
+insert into "BusinessPartnerRole" values ('1',  'A', null);
+insert into "BusinessPartnerRole" values ('3',  'A', 'Test');
+insert into "BusinessPartnerRole" values ('3',  'B', 'YAT');
+insert into "BusinessPartnerRole" values ('3',  'C', 'Last Detail');
+insert into "BusinessPartnerRole" values ('2',  'A', null);
+insert into "BusinessPartnerRole" values ('2',  'C', null);
+insert into "BusinessPartnerRole" values ('7',  'C', null);
+insert into "BusinessPartnerRole" values ('98',  'X', null);
+insert into "BusinessPartnerRole" values ('99',  'X', null);
+insert into "BusinessPartnerRole" values ('99',  'Z', null);
+insert into "BusinessPartnerRole" values ('97',  'Y', null);
 
 CREATE TABLE "CountryDescription" ( 
 	"ISOCode" VARCHAR(4) NOT NULL ,
@@ -672,16 +676,256 @@ insert into "AdministrativeDivision" values( 'Eurostat', 'LAU2', '38014','BEL','
 insert into "AdministrativeDivision" values( 'Eurostat', 'LAU2', '38016','BEL','NUTS3','BE258',null,31004430,11434);	
 insert into "AdministrativeDivision" values( 'Eurostat', 'LAU2', '38025','BEL','NUTS3','BE258',null,96339703,11509);	
 
+--------------------------------------------	
+
 CREATE TABLE "Comment" (
+	"BusinessPartnerID" VARCHAR(32) NOT NULL ,
+	"Order" INTEGER NOT NULL,
+	"Text" VARCHAR(280),
+	 PRIMARY KEY ("BusinessPartnerID", "Order"));
+	 
+insert into "Comment" values( '1', 1, 'This is just a test');	
+insert into "Comment" values( '1', 3, 'This is another test');	
+insert into "Comment" values( '501', 3, 'This is another test');	
+insert into "Comment" values( '502', 3, 'This is another test');
+insert into "Comment" values( '502', 4, 'This is also test');	
+
+CREATE TABLE "InhouseAddress" (
+	"ID" VARCHAR(32) NOT NULL ,
+	"Task" VARCHAR(32) NOT NULL ,
+	"Building" VARCHAR(10),
+	"Floor"  SMALLINT,
+    "RoomNumber" INTEGER,
+   PRIMARY KEY ("ID", "Task"));	
+insert into "InhouseAddress" values( '97', 'DEV',  '2', 1, 32 );
+insert into "InhouseAddress" values( '99', 'DEV',  '1',-1 ,245 );
+insert into "InhouseAddress" values( '99', 'MAIN', '7', 2 ,32 );
+insert into "InhouseAddress" values( '501', 'MAIN', '7', 2 ,32 );
+insert into "InhouseAddress" values( '502', 'DEV',  '1',-1 ,245 );
+insert into "InhouseAddress" values( '502', 'MAIN',  '7',6 ,12 );
+
+CREATE TABLE "Collections" (
+	"ID" VARCHAR(32) NOT NULL ,
+	"Number" INTEGER,
+   PRIMARY KEY ("ID"));	
+insert into "Collections" values( '501',-1 );
+insert into "Collections" values( '502', 32 );   
+insert into "Collections" values( '503',6541 );
+insert into "Collections" values( '504', 3 );   
+
+CREATE TABLE "NestedComplex" (
+	"ID" VARCHAR(32) NOT NULL,
+	"Number" INTEGER NOT NULL,
+	"Figure1" INTEGER,
+	"Figure2" INTEGER,
+	"Figure3" INTEGER,
+   PRIMARY KEY ("ID", "Number"));		
+   
+insert into "NestedComplex" values('501',1, 1, 1, 1);   
+insert into "NestedComplex" values('501',3, 1, 1, 1);   
+insert into "NestedComplex" values('503',1, 4, 5, 6);   
+insert into "NestedComplex" values('504',1, 1, 3, 6);   
+   
+
+CREATE TABLE "CollectionsDeep" (
+	"ID" VARCHAR(32) NOT NULL ,
+	"LevelID" INTEGER,
+	"Number" INTEGER,
+   PRIMARY KEY ("ID"));	
+insert into "CollectionsDeep" values( '501',1,-1 );
+insert into "CollectionsDeep" values( '502',1, 3 ); 
+
+--------------------------------------------	
+
+CREATE TABLE "SupportRelationship" (
 	"ID" INTEGER NOT NULL ,
-	"Text" CLOB,
-	 PRIMARY KEY ("ID"));
+	"OrganizationID" VARCHAR(32) NOT NULL ,
+    "PersonID" VARCHAR(32) NOT NULL ,
+	PRIMARY KEY ("ID"));
 	 
-insert into "Comment" values( 1, 'This is just a test');	
+insert into "SupportRelationship" values (1,'1','97');
+insert into "SupportRelationship" values (2,'1','98');
+insert into "SupportRelationship" values (3,'2','97');
+
+
+CREATE TABLE "Team" (
+	"TeamKey" VARCHAR(32) NOT NULL ,
+	"Name" VARCHAR(100),
+	 PRIMARY KEY ("TeamKey"));	
 	 
-	 
+insert into "Team" values ('A', 'Team Java');
+insert into "Team" values ('B', 'Team Scala');
+insert into "Team" values ('C', 'Team Phyton');
+insert into "Team" values ('D', 'Team Go');	 
+
+
+CREATE TABLE "Membership" (	 
+	"ID" INTEGER NOT NULL ,
+	"PersonID" VARCHAR(32) NOT NULL ,
+    "TeamID" VARCHAR(32) NOT NULL ,
+	PRIMARY KEY ("ID"));
+
+insert into "Membership" values (1,'97','A');
+insert into "Membership" values (2,'97','D');
+insert into "Membership" values (5,'97','C');
+insert into "Membership" values (3,'99','A');	
+insert into "Membership" values (4,'99','B');
+
+--Just for Join Table test
+CREATE TABLE "JoinSource" (	 
+	"SourceKey" INTEGER NOT NULL ,
+	"Number" INTEGER,
+	PRIMARY KEY ("SourceKey"));
+	
+CREATE TABLE "JoinTarget" (	 
+	"TargetKey" INTEGER NOT NULL ,
+	PRIMARY KEY ("TargetKey"));
+	
+CREATE TABLE "JoinRelation" (	 
+	"SourceID" INTEGER NOT NULL ,
+	"TargetID" INTEGER NOT NULL ,
+	PRIMARY KEY ("SourceID", "TargetID"));	
+	
+insert into "JoinSource" values (1,-1);	
+insert into "JoinSource" values (2,-2);
+insert into "JoinTarget" values (20);
+insert into "JoinTarget" values (21);
+insert into "JoinRelation" values (1, 20);
+insert into "JoinRelation" values (1, 21);
+
+CREATE TABLE "JoinHiddenRelation" (	 
+	"SourceID" INTEGER NOT NULL ,
+	"TargetID" INTEGER NOT NULL ,
+	PRIMARY KEY ("SourceID", "TargetID"));	
+	
+insert into "JoinHiddenRelation" values (2, 20);
+insert into "JoinHiddenRelation" values (2, 21);
+
+------Authorizations------------------------	
+--top-secret;  --logo
+CREATE TABLE "User" (	 
+	"UserName"  VARCHAR(60) NOT NULL ,
+	"Password" VARCHAR(60),
+	"Enabled" BOOLEAN,
+	PRIMARY KEY ("UserName"));	
+insert into "User" values ('Willi', '$2a$10$ekL4q.jeDmuc2AhZF/ARUe2KTMczEBHZlML.bN985noWuJcdilbg6', true); 
+insert into "User" values ('Marvin', '$2a$10$dPD0o8lEbOy0vYtpWkE78.vVBKWElJjiezkFo1nr6hG3EBRx4Gpl.', true);
+
+CREATE TABLE "CountryRestriction" (	 
+	"UserName"  VARCHAR(60) NOT NULL ,
+	"SequenceNumber" INTEGER NOT NULL,
+	"From"  VARCHAR(4) NOT NULL ,
+	"To"  VARCHAR(4),
+	PRIMARY KEY ("UserName","SequenceNumber"));	
+insert into "CountryRestriction" values ('Willi', 1, 'DEU', 'DEU');
+insert into "CountryRestriction" values ('Marvin', 1, 'CHE', 'ZAF');
+
+CREATE TABLE "RoleRestriction" (	 
+	"UserName"  VARCHAR(60) NOT NULL ,
+	"SequenceNumber" INTEGER NOT NULL,
+	"From"  VARCHAR(10) NOT NULL ,
+	"To"  VARCHAR(10),
+	PRIMARY KEY ("UserName","SequenceNumber"));	
+insert into "RoleRestriction" values ('Marvin', 1, 'A', 'B');
+insert into "RoleRestriction" values ('Willi', 1, 'A', 'A');
+insert into "RoleRestriction" values ('Willi', 2, 'C', 'C');
+
+CREATE VIEW "BusinessPartnerProtected"
+        AS 
+	SELECT DISTINCT
+		b."ID", 
+		b."ETag",
+		b."Type",
+		b."NameLine1",
+		b."NameLine2",
+		b."Country",
+		r."UserName",
+		b."AccessRights",
+		b."BirthDay",
+		b."CreatedBy",
+		b."CreatedAt",   
+		b."UpdatedBy",
+		b."UpdatedAt",
+		a."Task" as "AddressType",
+		a."Task",
+		a."Building",
+		a."Floor",
+		a."RoomNumber"	
+	FROM "BusinessPartner" as b
+	INNER JOIN "CountryRestriction" as r
+		ON b."Country" >= r."From"
+		AND b."Country" <= r."To"
+	LEFT OUTER JOIN  "InhouseAddress"  as a
+		ON b."ID" = a."ID" 
+		AND a."Task" = 'DEV';
+
+
+CREATE VIEW "PersonProtected"		
+		AS 
+	SELECT 
+		b."ID", 
+		b."ETag",
+		b."Type",
+		b."NameLine1",
+		b."NameLine2",
+		b."CreatedBy",
+		b."CreatedAt",   
+		b."UpdatedBy",
+		b."UpdatedAt",
+		a."Task" as "AddressType",
+		a."Task",
+		a."Building",
+		a."Floor",
+		a."RoomNumber"	
+	FROM "BusinessPartner" as b
+	LEFT OUTER JOIN  "InhouseAddress"  as a
+		ON b."ID" = a."ID" 
+	WHERE b."Type" = '1'
+	AND   a."Task" = 'DEV';
+	
+CREATE VIEW "RoleProtected"		
+		AS 
+	SELECT 
+		role."BusinessPartnerID",
+		role."BusinessPartnerRole", 
+		r."UserName"
+	FROM "BusinessPartnerRole" as role
+	INNER JOIN "RoleRestriction" as r
+		ON role."BusinessPartnerRole" >= r."From"
+		AND role."BusinessPartnerRole" <= r."To";
+		
+		
+--------------------------------------------
 CREATE TABLE "DummyToBeIgnored" (
 	"ID" VARCHAR(32) NOT NULL ,
 	--"uuid" VARCHAR(32) FOR BIT DATA ,
 	 PRIMARY KEY ("ID"));
-	
+	 
+--UDF called SQL Language Routines at HSQLDB	 
+--CREATE FUNCTION  "Siblings" ("Publisher" VARCHAR(10), "ID" VARCHAR(10), "Division" VARCHAR(10))
+--	RETURNS TABLE(
+--		"CodePublisher" VARCHAR(10),
+--		"CodeID" VARCHAR(10),
+--		"DivisionCode" VARCHAR(10),
+--		"CountryISOCode" VARCHAR(4),
+--		"ParentCodeID" VARCHAR(10),
+--		"ParentDivisionCode" VARCHAR(10),
+--		"AlternativeCode" VARCHAR(10),
+--		"Area" int, 
+--		"Population" BIGINT)
+--	READS SQL DATA
+--	RETURN TABLE( SELECT * 
+--						FROM "AdministrativeDivision" as a 
+--						WHERE 
+--							EXISTS (SELECT "CodePublisher"
+--											FROM "AdministrativeDivision" as b
+--											WHERE b."CodeID" = "ID"
+--											AND   b."DivisionCode" = "Division" 
+--											AND   b."CodePublisher" = a."CodePublisher"
+--											AND   b."ParentCodeID" = a."ParentCodeID"
+--											AND   b."ParentDivisionCode" = a."ParentDivisionCode") 
+--					    AND NOT( a."CodePublisher" = "Publisher"
+--						AND  a."CodeID" = "ID"
+--						AND  a."DivisionCode" = "Division" )
+--				);
+	 

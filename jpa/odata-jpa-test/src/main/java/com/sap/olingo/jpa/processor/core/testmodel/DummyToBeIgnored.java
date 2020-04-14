@@ -12,9 +12,9 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 
 /**
  * Entity implementation class for Entity: DummyToBeIgnored
@@ -55,6 +55,26 @@ public class DummyToBeIgnored implements Serializable {
 
   public void setID(String ID) {
     this.ID = ID;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((ID == null) ? 0 : ID.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
+    DummyToBeIgnored other = (DummyToBeIgnored) obj;
+    if (ID == null) {
+      if (other.ID != null) return false;
+    } else if (!ID.equals(other.ID)) return false;
+    return true;
   }
 
 }

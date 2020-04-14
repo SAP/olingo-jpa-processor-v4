@@ -12,6 +12,7 @@ import org.apache.olingo.commons.api.edm.EdmKeyPropertyRef;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
+import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ServiceMetadata;
@@ -19,7 +20,6 @@ import org.apache.olingo.server.api.serializer.FixedFormatSerializer;
 import org.apache.olingo.server.api.serializer.PrimitiveValueSerializerOptions;
 import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.serializer.SerializerResult;
-import org.apache.olingo.server.api.uri.UriHelper;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
@@ -32,9 +32,9 @@ final class JPASerializeValue extends JPASerializePrimitiveAbstract {
   private final FixedFormatSerializer serializer;
 
   JPASerializeValue(final ServiceMetadata serviceMetadata, final FixedFormatSerializer serializer,
-      final UriHelper uriHelper, final UriInfo uriInfo) {
+      final UriInfo uriInfo) {
 
-    super(serviceMetadata, uriHelper, uriInfo);
+    super(serviceMetadata, uriInfo);
     this.serializer = serializer;
   }
 
@@ -70,17 +70,18 @@ final class JPASerializeValue extends JPASerializePrimitiveAbstract {
       final UriResourceProperty uriProperty = (UriResourceProperty) uriInfo.getUriResourceParts().get(uriInfo
           .getUriResourceParts().size() - 2);
 
-      final EdmPrimitiveType edmPropertyType = (EdmPrimitiveType) uriProperty.getProperty().getType();
+      final EdmPrimitiveType edmPropertyType = (EdmPrimitiveType) uriProperty.getType();
 
       final JPAPrimitivePropertyInfo info = determinePrimitiveProperty(result, uriInfo.getUriResourceParts());
       final PrimitiveValueSerializerOptions options = PrimitiveValueSerializerOptions.with().build();
-      serializerResult = serializer.primitiveValue(edmPropertyType, info.getProperty().getValue(), options);
+      if (!info.getProperty().isNull())
+        serializerResult = serializer.primitiveValue(edmPropertyType, info.getProperty().getValue(), options);
     }
     return new JPAValueSerializerResult(serializerResult);
   }
 
   @Override
-  public SerializerResult serialize(final Annotatable result, final EdmType entityType)
+  public SerializerResult serialize(final Annotatable result, final EdmType entityType, final ODataRequest request)
       throws SerializerException, ODataJPASerializerException {
 
     final PrimitiveValueSerializerOptions options = PrimitiveValueSerializerOptions.with().build();
@@ -92,12 +93,9 @@ final class JPASerializeValue extends JPASerializePrimitiveAbstract {
   private boolean isStream() {
     final UriResource successor = uriInfo.getUriResourceParts().get(uriInfo.getUriResourceParts().size() - 2);
 
-    if (successor instanceof UriResourceEntitySet
+    return (successor instanceof UriResourceEntitySet
         || successor instanceof UriResourceNavigation && ((UriResourceNavigation) successor)
-            .getType() instanceof EdmEntityType)
-      return true;
-    else
-      return false;
+            .getType() instanceof EdmEntityType);
   }
 
   private boolean isKey(final List<EdmKeyPropertyRef> keyist, final Property item) {
@@ -106,5 +104,10 @@ final class JPASerializeValue extends JPASerializePrimitiveAbstract {
         return true;
     }
     return false;
+  }
+
+  @Override
+  public ContentType getContentType() {
+    return ContentType.TEXT_PLAIN;
   }
 }

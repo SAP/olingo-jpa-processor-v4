@@ -1,0 +1,22 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.sap.olingo</groupId>
+    <artifactId>odata-jpa</artifactId>
+    <version>0.3.8-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>odata-jpa-spring-support</artifactId>
+  <properties>
+    <cf-logging-version>3.0.7</cf-logging-version>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>com.sap.hcp.cf.logging</groupId>
+      <artifactId>cf-java-logging-support-log4j2</artifactId>
+      <version>${cf-logging-version}</version>
+    </dependency>
+  </dependencies>
+</project>

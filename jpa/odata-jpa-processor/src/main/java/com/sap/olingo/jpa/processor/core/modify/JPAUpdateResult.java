@@ -1,8 +1,8 @@
 package com.sap.olingo.jpa.processor.core.modify;
 
 public final class JPAUpdateResult {
-  final private boolean wasCreate;
-  final private Object modifyedEntity;
+  private final boolean wasCreate;
+  private final Object modifyedEntity;
 
   public JPAUpdateResult(boolean wasCreate, Object modifyedEntity) {
     super();

@@ -32,4 +32,9 @@ final class JPAOnConditionItemImpl implements JPAOnConditionItem {
     return jpaRightAttribute;
   }
 
+  @Override
+  public String toString() {
+    return "JPAOnConditionItem [LeftAttribute=" + jpaLeftAttribute + ", RightAttribute=" + jpaRightAttribute + "]";
+  }
+
 }

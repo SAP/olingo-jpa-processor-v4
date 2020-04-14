@@ -1,9 +1,12 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -13,11 +16,12 @@ import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEnumeration;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntitySetAccess;
@@ -25,18 +29,23 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityT
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
+import com.sap.olingo.jpa.processor.core.testmodel.ABCClassifiaction;
 
 public class TestIntermediateEntitySet extends TestMappingRoot {
   private IntermediateSchema schema;
   private Set<EntityType<?>> etList;
-  private JPAEdmNameBuilder namebuilder;
+  private JPADefaultEdmNameBuilder namebuilder;
 
-  @Before
+  @BeforeEach
   public void setup() throws ODataJPAModelException {
     IntermediateModelElement.setPostProcessor(new DefaultEdmPostProcessor());
+    final Reflections r = mock(Reflections.class);
+    when(r.getTypesAnnotatedWith(EdmEnumeration.class)).thenReturn(new HashSet<>(Arrays.asList(new Class<?>[] {
+        ABCClassifiaction.class })));
+
     etList = emf.getMetamodel().getEntities();
-    namebuilder = new JPAEdmNameBuilder(PUNIT_NAME);
-    schema = new IntermediateSchema(namebuilder, emf.getMetamodel(), mock(Reflections.class));
+    namebuilder = new JPADefaultEdmNameBuilder(PUNIT_NAME);
+    schema = new IntermediateSchema(namebuilder, emf.getMetamodel(), r);
   }
 
   @Test
@@ -52,7 +61,7 @@ public class TestIntermediateEntitySet extends TestMappingRoot {
 
   @Test
   public void checkODataEntityTypeDiffers() throws ODataJPAModelException {
-    IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+    IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
         "BestOrganization"), schema);
     IntermediateEntitySet set = new IntermediateEntitySet(namebuilder, et);
 
@@ -62,7 +71,7 @@ public class TestIntermediateEntitySet extends TestMappingRoot {
 
   @Test
   public void checkODataEntityTypeSame() throws ODataJPAModelException {
-    IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
+    IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
         "Organization"), schema);
     IntermediateEntitySet set = new IntermediateEntitySet(namebuilder, et);
 
@@ -72,11 +81,11 @@ public class TestIntermediateEntitySet extends TestMappingRoot {
 
   @Test
   public void checkEdmItemContainsODataEntityType() throws ODataJPAModelException {
-    IntermediateEntityType et = new IntermediateEntityType(new JPAEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "BestOrganization"), schema);
-    IntermediateEntitySet set = new IntermediateEntitySet(namebuilder, et);
-    CsdlEntitySet act = set.getEdmItem();
-    assertEquals(namebuilder.buildFQN("BusinessPartner").getFullQualifiedNameAsString(), act.getType());
+    final IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        getEntityType("BestOrganization"), schema);
+    final IntermediateEntitySet set = new IntermediateEntitySet(namebuilder, et);
+    final CsdlEntitySet act = set.getEdmItem();
+    assertEquals(et.buildFQN("BusinessPartner").getFullQualifiedNameAsString(), act.getType());
   }
 
   @Test
@@ -86,7 +95,7 @@ public class TestIntermediateEntitySet extends TestMappingRoot {
     IntermediateEntitySet set = new IntermediateEntitySet(namebuilder, et);
     set.getEdmItem(); // Trigger build of EdmEntitySet
 
-    assertEquals("Wrong name", "BusinessPartnerList", set.getExternalName());
+    assertEquals("BusinessPartnerList", set.getExternalName(), "Wrong name");
   }
 
   private class PostProcessor extends JPAEdmMetadataPostProcessor {
@@ -118,7 +127,7 @@ public class TestIntermediateEntitySet extends TestMappingRoot {
       CsdlAnnotation annotation = new CsdlAnnotation();
       annotation.setExpression(mimeType);
       annotation.setTerm("Capabilities.TopSupported");
-      List<CsdlAnnotation> annotations = new ArrayList<CsdlAnnotation>();
+      List<CsdlAnnotation> annotations = new ArrayList<>();
       annotations.add(annotation);
       entitySet.addAnnotations(annotations);
 

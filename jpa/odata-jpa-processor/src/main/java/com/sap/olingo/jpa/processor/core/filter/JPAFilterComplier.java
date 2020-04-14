@@ -15,7 +15,8 @@ public interface JPAFilterComplier {
 
   /**
    * Returns a list of all filter elements of type Member. This could be used e.g. to determine if a join is required
+   * @throws ODataApplicationException
    */
-  List<JPAPath> getMember();
+  List<JPAPath> getMember() throws ODataApplicationException;
 
 }

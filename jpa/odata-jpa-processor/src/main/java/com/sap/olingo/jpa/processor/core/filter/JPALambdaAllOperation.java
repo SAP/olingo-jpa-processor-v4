@@ -27,6 +27,11 @@ final class JPALambdaAllOperation extends JPALambdaOperation {
     return cb.and(cb.exists(getExistsQuery()), cb.not(cb.exists(getNotExistsQuery())));
   }
 
+  @Override
+  public String getName() {
+    return "ALL";
+  }
+
   private class NotExpression implements Unary {
     private final org.apache.olingo.server.api.uri.queryoption.expression.Expression expression;
 

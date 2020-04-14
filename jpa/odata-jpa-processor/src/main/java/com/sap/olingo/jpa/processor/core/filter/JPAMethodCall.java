@@ -5,13 +5,24 @@ import org.apache.olingo.server.api.uri.queryoption.expression.MethodKind;
 
 public interface JPAMethodCall extends JPAOperator {
 
-  @Override
-  public Object get() throws ODataApplicationException;
-
   public MethodKind getFunction();
 
   public JPAOperator getParameter(int index);
 
+  /**
+   * Number of parameter
+   * @return
+   */
   public int noParameters();
+
+  /**
+   * Returns extended by a prefix and a suffix<p>
+   * Main use for method as parameter of of other methods. E.g.: contains(tolower('BE1'))
+   * @param prefix
+   * @param postix
+   * @return
+   * @throws ODataApplicationException
+   */
+  public Object get(final String prefix, final String suffix) throws ODataApplicationException;
 
 }

@@ -9,8 +9,9 @@ public interface IntermediateNavigationPropertyAccess extends IntermediateModelI
   public void setOnDelete(CsdlOnDelete onDelete);
 
   /**
-   * Enables to add annotations to a property, e.g. because the type of annotation is not enabled via
-   * {@link com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAnnotation EdmAnnotation} or should be during runtime
+   * Enables to add annotations to a navigation property, e.g. because the type of annotation is not enabled via
+   * {@link com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAnnotation EdmAnnotation} or should be changed during
+   * runtime
    * @param annotations
    */
   public void addAnnotations(final List<CsdlAnnotation> annotations);

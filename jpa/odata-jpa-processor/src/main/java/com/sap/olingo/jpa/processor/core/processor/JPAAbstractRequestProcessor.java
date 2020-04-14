@@ -10,28 +10,28 @@ import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.serializer.SerializerResult;
-import org.apache.olingo.server.api.uri.UriInfo;
+import org.apache.olingo.server.api.uri.UriInfoResource;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
+import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializer;
 
 abstract class JPAAbstractRequestProcessor {
 
-  // TODO eliminate transaction handling
   protected final EntityManager em;
   protected final JPAServiceDocument sd;
-  protected final JPAODataSessionContextAccess sessionContext;
+  protected final JPAODataCRUDContextAccess sessionContext;
   protected final CriteriaBuilder cb;
-  protected final UriInfo uriInfo;
+  protected final UriInfoResource uriInfo;
   protected final JPASerializer serializer;
   protected final OData odata;
   protected final JPAServiceDebugger debugger;
   protected int successStatusCode = HttpStatusCode.OK.getStatusCode();
+  protected final JPAODataRequestContextAccess requestContext;
 
-  public JPAAbstractRequestProcessor(final OData odata, final JPAODataSessionContextAccess context,
+  public JPAAbstractRequestProcessor(final OData odata, final JPAODataCRUDContextAccess context,
       final JPAODataRequestContextAccess requestContext) throws ODataException {
 
     this.em = requestContext.getEntityManager();
@@ -41,7 +41,8 @@ abstract class JPAAbstractRequestProcessor {
     this.uriInfo = requestContext.getUriInfo();
     this.serializer = requestContext.getSerializer();
     this.odata = odata;
-    this.debugger = context.getDebugger();
+    this.debugger = requestContext.getDebugger();
+    this.requestContext = requestContext;
   }
 
   protected final void createSuccessResponce(final ODataResponse response, final ContentType responseFormat,

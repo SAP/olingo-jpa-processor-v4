@@ -1,8 +1,11 @@
 package com.sap.olingo.jpa.processor.core.modify;
 
+import static com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys.ATTRIBUTE_NOT_FOUND;
+
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,30 +14,37 @@ import javax.persistence.AttributeConverter;
 
 import org.apache.olingo.commons.api.data.ComplexValue;
 import org.apache.olingo.commons.api.data.Entity;
+import org.apache.olingo.commons.api.data.Parameter;
 import org.apache.olingo.commons.api.data.Property;
 import org.apache.olingo.commons.api.data.ValueType;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
+import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.format.ContentType;
+import org.apache.olingo.commons.api.http.HttpHeader;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.deserializer.DeserializerException;
-import org.apache.olingo.server.api.deserializer.DeserializerResult;
 import org.apache.olingo.server.api.deserializer.ODataDeserializer;
 import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.uri.UriParameter;
+import org.apache.olingo.server.api.uri.UriResource;
+import org.apache.olingo.server.api.uri.UriResourceProperty;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEnumerationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys;
-import com.sap.olingo.jpa.processor.core.processor.deserializer.JsonDeserializer;
+import com.sap.olingo.jpa.processor.core.query.EdmEntitySetInfo;
 import com.sap.olingo.jpa.processor.core.query.ExpressionUtil;
+import com.sap.olingo.jpa.processor.core.query.Util;
 
 /**
  * Helper method for modifying requests.<p>
@@ -47,9 +57,21 @@ public class JPAConversionHelper {
 
   private final Map<Object, Map<String, Object>> getterBuffer;
 
+  public static Object convertParameter(final Parameter param, final JPAServiceDocument sd)
+      throws ODataJPAModelException {
+    switch (param.getValueType()) {
+      case ENUM:
+        final JPAEnumerationAttribute enumType = sd.getEnumType(param.getType());
+        return enumType.enumOf((Number) param.getValue());
+
+      default:
+        return param.getValue();
+    }
+  }
+
   public JPAConversionHelper() {
     super();
-    this.getterBuffer = new HashMap<Object, Map<String, Object>>();
+    this.getterBuffer = new HashMap<>();
   }
 
   /**
@@ -61,37 +83,25 @@ public class JPAConversionHelper {
    * @return
    * @throws ODataJPAProcessorException
    */
-  public Map<String, Object> buildGetterMap(Object instance) throws ODataJPAProcessorException {
+  public Map<String, Object> buildGetterMap(final Object instance) throws ODataJPAProcessorException {
 
     if (instance != null) {
-      Map<String, Object> getterMap = getterBuffer.get(instance);
-      if (getterMap == null) {
-        getterMap = new HashMap<String, Object>();
-        Method[] methods = instance.getClass().getMethods();
-        for (Method meth : methods) {
-          String methodName = meth.getName();
-          if (methodName.substring(0, 3).equals("get") && methodName.length() > 3) {
-            String attributeName = methodName.substring(3, 4).toLowerCase() + methodName.substring(4);
-            try {
-              Object value = meth.invoke(instance);
-              getterMap.put(attributeName, value);
-            } catch (IllegalAccessException e) {
-              throw new ODataJPAProcessorException(MessageKeys.ATTRIBUTE_RETRIVAL_FAILED,
-                  HttpStatusCode.INTERNAL_SERVER_ERROR, e, attributeName);
-            } catch (IllegalArgumentException e) {
-              throw new ODataJPAProcessorException(MessageKeys.ATTRIBUTE_RETRIVAL_FAILED,
-                  HttpStatusCode.INTERNAL_SERVER_ERROR, e, attributeName);
-            } catch (InvocationTargetException e) {
-              throw new ODataJPAProcessorException(MessageKeys.ATTRIBUTE_RETRIVAL_FAILED,
-                  HttpStatusCode.INTERNAL_SERVER_ERROR, e, attributeName);
-            }
-          }
+      final ODataJPAProcessorException[] exception = { null };
+      final Map<String, Object> getterMap = getterBuffer.computeIfAbsent(instance, k -> {
+        try {
+          return this.determineGetter(instance);
+        } catch (ODataJPAProcessorException e) {
+          exception[0] = e;
+          return new HashMap<>(1);
         }
-        getterBuffer.put(instance, getterMap);
-      }
-      return getterMap;
-    } else
+      });
+      if (exception[0] == null)
+        return getterMap;
+      else
+        throw exception[0];
+    } else {
       throw new ODataJPAProcessorException(MessageKeys.PARAMETER_NULL, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    }
   }
 
   /**
@@ -99,114 +109,54 @@ public class JPAConversionHelper {
    * @param odata
    * @param request
    * @param requestFormat
-   * @param edmEntitySet
+   * @param uriResourceParts
    * @return
-   * @throws DeserializerException
+   * @throws ODataJPAProcessorException
    */
   public Entity convertInputStream(final OData odata, final ODataRequest request, final ContentType requestFormat,
-      EdmEntitySet edmEntitySet) throws ODataJPAProcessorException {
+      final List<UriResource> uriResourceParts) throws ODataJPAProcessorException {
 
-    InputStream requestInputStream = request.getBody();
-    DeserializerResult result;
+    final InputStream requestInputStream = request.getBody();
+    final EdmEntitySetInfo targetEntityInfo = Util.determineModifyEntitySetAndKeys(uriResourceParts);
     try {
-      ODataDeserializer deserializer;
-      if (requestFormat.isCompatible(ContentType.APPLICATION_JSON))
-        deserializer = new JsonDeserializer(requestFormat);
-      else
-        deserializer = odata.createDeserializer(requestFormat);
-
-      result = deserializer.entity(requestInputStream, edmEntitySet.getEntityType());
+      final ODataDeserializer deserializer = createDeserrializer(odata, requestFormat,
+          request.getHeaders(HttpHeader.ODATA_VERSION));
+      final UriResource lastPart = uriResourceParts.get(uriResourceParts.size() - 1);
+      if (lastPart instanceof UriResourceProperty) {
+        // Convert requests on property level into request on entity level
+        final Entity requestEntity = new Entity();
+        final String startProperty = targetEntityInfo.getNavigationPath().split(JPAPath.PATH_SEPERATOR)[0];
+        int i = uriResourceParts.size() - 1;
+        for (; i > 0; i--) {
+          if (uriResourceParts.get(i) instanceof UriResourceProperty
+              && ((UriResourceProperty) uriResourceParts.get(i)).getProperty().getName().equals(startProperty)) {
+            break;
+          }
+        }
+        List<Property> properties = requestEntity.getProperties();
+        for (int j = i; j < uriResourceParts.size() - 1; j++) {
+          // NO $value supported yet
+          if (!(uriResourceParts.get(i) instanceof UriResourceProperty)) {
+            break;
+          }
+          final EdmProperty edmProperty = ((UriResourceProperty) uriResourceParts.get(i)).getProperty();
+          final Property intermediateProperty = new Property();
+          intermediateProperty.setType(edmProperty.getType().getFullQualifiedName().getFullQualifiedNameAsString());
+          intermediateProperty.setName(edmProperty.getName());
+          intermediateProperty.setValue(ValueType.COMPLEX, new ComplexValue());
+          properties.add(intermediateProperty);
+          properties = ((ComplexValue) intermediateProperty.getValue()).getValue();
+        }
+        properties.add(deserializer.property(requestInputStream, ((UriResourceProperty) lastPart).getProperty())
+            .getProperty());
+        return requestEntity;
+      } else {
+        return deserializer.entity(requestInputStream, targetEntityInfo.getTargetEdmEntitySet().getEntityType())
+            .getEntity();
+      }
     } catch (DeserializerException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
     }
-    Entity requestEntity = result.getEntity();
-    return requestEntity;
-  }
-
-  /**
-   * Creates nested map of attributes and there (new) values. Primitive values are instances of e.g. Integer. Embedded
-   * Types are returned as maps.
-   * @param <T>
-   * @param <S>
-   * 
-   * @param odata
-   * @param st
-   * @param odataProperties
-   * @return
-   * @throws ODataJPAProcessException
-   */
-  public <T extends Object, S extends Object> Map<String, Object> convertProperties(final OData odata,
-      final JPAStructuredType st, final List<Property> odataProperties) throws ODataJPAProcessException {
-
-    final Map<String, Object> jpaAttributes = new HashMap<String, Object>();
-    String internalName = null;
-    Object jpaAttribute = null;
-    for (Property odataProperty : odataProperties) {
-      switch (odataProperty.getValueType()) {
-      case COMPLEX:
-        try {
-          JPAPath path = st.getPath(odataProperty.getName());
-          internalName = path.getPath().get(0).getInternalName();
-          JPAStructuredType a = st.getAttribute(internalName).getStructuredType();
-          jpaAttribute = convertProperties(odata, a, ((ComplexValue) odataProperty.getValue()).getValue());
-        } catch (ODataJPAModelException e) {
-          throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-        }
-        break;
-      case PRIMITIVE:
-        try {
-          final JPAAttribute attribute = st.getPath(odataProperty.getName()).getLeaf();
-          internalName = attribute.getInternalName();
-          jpaAttribute = processAttributeConverter(odataProperty.getValue(), attribute);
-        } catch (ODataJPAModelException e) {
-          throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-        }
-        break;
-      default:
-        throw new ODataJPAProcessorException(MessageKeys.NOT_SUPPORTED_PROP_TYPE, HttpStatusCode.NOT_IMPLEMENTED,
-            odataProperty.getValueType().name());
-      }
-      jpaAttributes.put(internalName, jpaAttribute);
-    }
-    return jpaAttributes;
-  }
-
-  @SuppressWarnings("unchecked")
-  public <S, T> Object processAttributeConverter(Object value, final JPAAttribute attribute) {
-    Object jpaAttribute;
-    if (attribute.getConverter() != null) {
-      AttributeConverter<T, S> converter = (AttributeConverter<T, S>) attribute.getConverter();
-      jpaAttribute = converter.convertToEntityAttribute((S) value);
-    } else {
-      jpaAttribute = value;
-    }
-    return jpaAttribute;
-  }
-
-  /**
-   * 
-   * @param keyPredicates
-   * @return
-   * @throws ODataJPAFilterException
-   * @throws ODataJPAProcessorException
-   */
-  public Map<String, Object> convertUriKeys(final OData odata, final JPAStructuredType st,
-      final List<UriParameter> keyPredicates) throws ODataJPAFilterException, ODataJPAProcessorException {
-
-    Map<String, Object> result = new HashMap<String, Object>(keyPredicates.size());
-    String internalName;
-    for (UriParameter key : keyPredicates) {
-      try {
-        final JPAAttribute attribute = st.getPath(key.getName()).getLeaf();
-        internalName = attribute.getInternalName();
-        Object jpaAttribute = ExpressionUtil.convertValueOnAttribute(odata, attribute, key.getText()
-            .toString(), true);
-        result.put(internalName, jpaAttribute);
-      } catch (ODataJPAModelException e) {
-        throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-      }
-    }
-    return result;
   }
 
   /**
@@ -222,8 +172,8 @@ public class JPAConversionHelper {
    */
 
   @SuppressWarnings("unchecked")
-  public String convertKeyToLocal(final OData odata, final ODataRequest request, EdmEntitySet edmEntitySet,
-      JPAEntityType et, Object newPOJO) throws SerializerException, ODataJPAProcessorException {
+  public String convertKeyToLocal(final OData odata, final ODataRequest request, final EdmEntitySet edmEntitySet,
+      final JPAEntityType et, final Object newPOJO) throws SerializerException, ODataJPAProcessorException {
 
     if (newPOJO instanceof Map<?, ?>)
       return convertKeyToLocalMap(odata, request, edmEntitySet, et, (Map<String, Object>) newPOJO);
@@ -231,41 +181,146 @@ public class JPAConversionHelper {
       return convertKeyToLocalEntity(odata, request, edmEntitySet, et, newPOJO);
   }
 
-  private String convertKeyToLocalEntity(final OData odata, final ODataRequest request, EdmEntitySet edmEntitySet,
-      JPAEntityType et, Object newPOJO) throws SerializerException, ODataJPAProcessorException {
+  /**
+   * Creates nested map of attributes and there (new) values. Primitive values are instances of e.g. Integer. Embedded
+   * Types are returned as maps.
+   * 
+   * @param odata
+   * @param st
+   * @param odataProperties
+   * @return
+   * @throws ODataJPAProcessException
+   */
+  @SuppressWarnings("unchecked")
+  public Map<String, Object> convertProperties(final OData odata, final JPAStructuredType st,
+      final List<Property> odataProperties) throws ODataJPAProcessException {
 
-    final Entity createdEntity = new Entity();
+    final Map<String, Object> jpaAttributes = new HashMap<>();
+    String internalName = null;
+    Object jpaAttribute = null;
+    JPAPath path;
+    for (Property odataProperty : odataProperties) {
+      try {
+        path = st.getPath(odataProperty.getName());
+      } catch (ODataJPAModelException e) {
+        throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+      }
+      switch (odataProperty.getValueType()) {
+        case COMPLEX:
+          try {
+            final String name = path.getPath().get(0).getInternalName();
+            final JPAStructuredType a = st.getAttribute(name)
+                .orElseThrow(() -> new ODataJPAProcessorException(ATTRIBUTE_NOT_FOUND,
+                    HttpStatusCode.INTERNAL_SERVER_ERROR, name))
+                .getStructuredType();
+            internalName = name;
+            jpaAttribute = convertProperties(odata, a, ((ComplexValue) odataProperty.getValue()).getValue());
+          } catch (ODataJPAModelException e) {
+            throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+          }
+          break;
+        case PRIMITIVE:
+        case ENUM:
+          final JPAAttribute attribute = path.getLeaf();
+          internalName = attribute.getInternalName();
+          jpaAttribute = processAttributeConverter(odataProperty.getValue(), attribute);
+          break;
+        case COLLECTION_PRIMITIVE:
+        case COLLECTION_ENUM:
+          final JPAAttribute attribute2 = path.getLeaf();
+          internalName = attribute2.getInternalName();
+          jpaAttribute = new ArrayList<>();
+          for (Object property : (List<?>) odataProperty.getValue())
+            ((List<Object>) jpaAttribute).add(processAttributeConverter(property, attribute2));
 
-    try {
-      final List<JPAPath> keyPath = et.getKeyPath();
-      final List<Property> properties = createdEntity.getProperties();
-
-      collectKeyProperties(newPOJO, keyPath, properties);
-    } catch (ODataJPAModelException e) {
-      throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
+          break;
+        case COLLECTION_COMPLEX:
+          final String name = path.getPath().get(0).getInternalName();
+          jpaAttribute = new ArrayList<>();
+          try {
+            final JPAStructuredType a = st.getAttribute(name)
+                .orElseThrow(() -> new ODataJPAProcessorException(ATTRIBUTE_NOT_FOUND,
+                    HttpStatusCode.INTERNAL_SERVER_ERROR, name))
+                .getStructuredType();
+            internalName = name;
+            for (ComplexValue property : (List<ComplexValue>) odataProperty.getValue())
+              ((List<Object>) jpaAttribute).add(convertProperties(odata, a, property.getValue()));
+          } catch (ODataJPAModelException e) {
+            throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+          }
+          break;
+        default:
+          throw new ODataJPAProcessorException(MessageKeys.NOT_SUPPORTED_PROP_TYPE, HttpStatusCode.NOT_IMPLEMENTED,
+              odataProperty.getValueType().name());
+      }
+      jpaAttributes.put(internalName, jpaAttribute);
     }
-
-    final String location = request.getRawBaseUri() + '/'
-        + odata.createUriHelper().buildCanonicalURL(edmEntitySet, createdEntity);
-    return location;
+    return jpaAttributes;
   }
 
-  private String convertKeyToLocalMap(final OData odata, final ODataRequest request, EdmEntitySet edmEntitySet,
-      JPAEntityType et, Map<String, Object> newPOJO) throws SerializerException, ODataJPAProcessorException {
+  /**
+   * 
+   * @param keyPredicates
+   * @return
+   * @throws ODataJPAFilterException
+   * @throws ODataJPAProcessorException
+   */
+  public Map<String, Object> convertUriKeys(final OData odata, final JPAStructuredType st,
+      final List<UriParameter> keyPredicates) throws ODataJPAFilterException, ODataJPAProcessorException {
 
-    final Entity createdEntity = new Entity();
-
-    try {
-      final List<Property> properties = createdEntity.getProperties();
-      final List<JPAPath> keyPath = et.getKeyPath();
-      collectKeyProperties(newPOJO, keyPath, properties);
-    } catch (ODataJPAModelException e) {
-      throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
+    Map<String, Object> result = new HashMap<>(keyPredicates.size());
+    String internalName;
+    for (UriParameter key : keyPredicates) {
+      try {
+        final JPAAttribute attribute = st.getPath(key.getName()).getLeaf();
+        internalName = attribute.getInternalName();
+        Object jpaAttribute = ExpressionUtil.convertValueOnAttribute(odata, attribute, key.getText(), true);
+        result.put(internalName, jpaAttribute);
+      } catch (ODataJPAModelException e) {
+        throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+      }
     }
+    return result;
+  }
 
-    final String location = request.getRawBaseUri() + '/'
-        + odata.createUriHelper().buildCanonicalURL(edmEntitySet, createdEntity);
-    return location;
+  /**
+   * Like {@link #buildGetterMap}, but without buffer
+   * @param instance
+   * @return
+   * @throws ODataJPAProcessorException
+   */
+  public Map<String, Object> determineGetter(final Object instance) throws ODataJPAProcessorException {
+    Map<String, Object> getterMap;
+    getterMap = new HashMap<>();
+    Method[] methods = instance.getClass().getMethods();
+    for (Method meth : methods) {
+      String methodName = meth.getName();
+      if (methodName.substring(0, 3).equals("get") && methodName.length() > 3) {
+        String attributeName = methodName.substring(3, 4).toLowerCase() + methodName.substring(4);
+        try {
+          Object value = meth.invoke(instance);
+          getterMap.put(attributeName, value);
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+          throw new ODataJPAProcessorException(MessageKeys.ATTRIBUTE_RETRIVAL_FAILED,
+              HttpStatusCode.INTERNAL_SERVER_ERROR, e, attributeName);
+        }
+      }
+    }
+    return getterMap;
+  }
+
+  @SuppressWarnings("unchecked")
+  public <S, T> Object processAttributeConverter(Object value, final JPAAttribute attribute) {
+    Object jpaAttribute;
+    if (attribute.getConverter() != null) {
+      AttributeConverter<T, S> converter = attribute.getConverter();
+      jpaAttribute = converter.convertToEntityAttribute((S) value);
+    } else if (attribute.isEnum()) {
+      jpaAttribute = findEnumConstantsByOrdinal(attribute.getType().getEnumConstants(), value);
+    } else {
+      jpaAttribute = value;
+    }
+    return jpaAttribute;
   }
 
   private void collectKeyProperties(Map<String, Object> newPOJO, final List<JPAPath> keyPath,
@@ -319,4 +374,53 @@ public class JPAConversionHelper {
       }
     }
   }
+
+  private String convertKeyToLocalEntity(final OData odata, final ODataRequest request, EdmEntitySet edmEntitySet,
+      JPAEntityType et, Object newPOJO) throws SerializerException, ODataJPAProcessorException {
+
+    final Entity createdEntity = new Entity();
+
+    try {
+      final List<JPAPath> keyPath = et.getKeyPath();
+      final List<Property> properties = createdEntity.getProperties();
+
+      collectKeyProperties(newPOJO, keyPath, properties);
+    } catch (ODataJPAModelException e) {
+      throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
+    }
+
+    return request.getRawBaseUri() + '/'
+        + odata.createUriHelper().buildCanonicalURL(edmEntitySet, createdEntity);
+  }
+
+  private String convertKeyToLocalMap(final OData odata, final ODataRequest request, EdmEntitySet edmEntitySet,
+      JPAEntityType et, Map<String, Object> newPOJO) throws SerializerException, ODataJPAProcessorException {
+
+    final Entity createdEntity = new Entity();
+
+    try {
+      final List<Property> properties = createdEntity.getProperties();
+      final List<JPAPath> keyPath = et.getKeyPath();
+      collectKeyProperties(newPOJO, keyPath, properties);
+    } catch (ODataJPAModelException e) {
+      throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
+    }
+
+    return request.getRawBaseUri() + '/'
+        + odata.createUriHelper().buildCanonicalURL(edmEntitySet, createdEntity);
+  }
+
+  private ODataDeserializer createDeserrializer(final OData odata, final ContentType requestFormat,
+      final List<String> version) throws DeserializerException {
+    return odata.createDeserializer(requestFormat, version);
+  }
+
+  private <T> Object findEnumConstantsByOrdinal(T[] enumConstants, Object value) {
+    for (int i = 0; i < enumConstants.length; i++) {
+      if (((Enum<?>) enumConstants[i]).ordinal() == (Integer) value)
+        return enumConstants[i];
+    }
+    return null;
+  }
+
 }

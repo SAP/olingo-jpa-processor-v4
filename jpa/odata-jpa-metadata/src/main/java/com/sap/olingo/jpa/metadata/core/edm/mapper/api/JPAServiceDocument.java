@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.olingo.commons.api.edm.EdmAction;
 import org.apache.olingo.commons.api.edm.EdmComplexType;
+import org.apache.olingo.commons.api.edm.EdmEnumType;
 import org.apache.olingo.commons.api.edm.EdmFunction;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
@@ -29,22 +30,29 @@ public interface JPAServiceDocument extends CustomETagSupport {
    * @return
    * @throws ODataJPAModelException
    */
-  JPAEntityType getEntity(EdmType edmType) throws ODataJPAModelException;
+  JPAEntityType getEntity(final EdmType edmType) throws ODataJPAModelException;
 
-  JPAEntityType getEntity(FullQualifiedName typeName);
+  JPAEntityType getEntity(final FullQualifiedName typeName);
 
-  JPAEntityType getEntity(String edmEntitySetName) throws ODataJPAModelException;
+  JPAEntityType getEntity(final String edmEntitySetName) throws ODataJPAModelException;
 
-  JPAFunction getFunction(EdmFunction function);
+  JPAEntityType getEntity(Class<?> entityClass) throws ODataJPAModelException;
 
-  JPAAction getAction(EdmAction action);
+  JPAFunction getFunction(final EdmFunction function);
 
-  JPAEntitySet getEntitySet(JPAEntityType entityType) throws ODataJPAModelException;
+  JPAAction getAction(final EdmAction action);
+
+  JPAEntitySet getEntitySet(final JPAEntityType entityType) throws ODataJPAModelException;
 
   List<EdmxReference> getReferences();
 
-  CsdlTerm getTerm(FullQualifiedName termName);
+  CsdlTerm getTerm(final FullQualifiedName termName);
 
-  JPAStructuredType getComplexType(EdmComplexType edmComplexType);
+  JPAStructuredType getComplexType(final EdmComplexType edmComplexType);
 
+  JPAEnumerationAttribute getEnumType(final EdmEnumType type);
+
+  JPAEnumerationAttribute getEnumType(final String fqnAsString);
+
+  JPAEdmNameBuilder getNameBuilder();
 }

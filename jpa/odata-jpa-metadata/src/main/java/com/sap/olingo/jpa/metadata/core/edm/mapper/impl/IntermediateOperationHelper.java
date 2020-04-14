@@ -3,12 +3,19 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.sql.Blob;
+import java.sql.Clob;
 import java.util.Arrays;
 import java.util.Collection;
 
 import javax.persistence.EntityManager;
 
+import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
+import org.apache.olingo.commons.api.edm.FullQualifiedName;
+
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
 
 public class IntermediateOperationHelper {
 
@@ -16,7 +23,7 @@ public class IntermediateOperationHelper {
 // Must not create instances
   }
 
-  static Constructor<?> determineConstructor(Method javaFunction) throws ODataJPAModelException {
+  static Constructor<?> determineConstructor(final Method javaFunction) throws ODataJPAModelException {
     Constructor<?> result = null;
     Constructor<?>[] constructors = javaFunction.getDeclaringClass().getConstructors();
     for (Constructor<?> constructor : Arrays.asList(constructors)) {
@@ -40,5 +47,29 @@ public class IntermediateOperationHelper {
         return true;
     }
     return false;
+  }
+
+  static FullQualifiedName determineReturnType(final ReturnType definedReturnType, final Class<?> declairedReturnType,
+      final IntermediateSchema schema, final String operationName) throws ODataJPAModelException {
+
+    IntermediateStructuredType structuredType = schema.getStructuredType(declairedReturnType);
+    if (structuredType != null)
+      return structuredType.getExternalFQN();
+    else {
+      final IntermediateEnumerationType enumType = schema.getEnumerationType(declairedReturnType);
+      if (enumType != null) {
+        return enumType.getExternalFQN();
+      } else if (declairedReturnType.equals(Blob.class) || declairedReturnType.equals(Clob.class)) {
+        // The return type '%1$s' used at method '%3$s' is not supported
+        throw new ODataJPAModelException(MessageKeys.FUNC_RETURN_NOT_SUPPORTED, declairedReturnType.getName(),
+            operationName);
+      } else {
+        final EdmPrimitiveTypeKind edmType = JPATypeConvertor.convertToEdmSimpleType(declairedReturnType);
+        if (edmType == null)
+          throw new ODataJPAModelException(MessageKeys.FUNC_RETURN_TYPE_INVALID, definedReturnType.type().getName(),
+              declairedReturnType.getName(), operationName);
+        return edmType.getFullQualifiedName();
+      }
+    }
   }
 }

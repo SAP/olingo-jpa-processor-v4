@@ -5,19 +5,29 @@ import java.util.Map;
 
 import javax.persistence.Tuple;
 
+import org.apache.olingo.server.api.ODataApplicationException;
+
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 
-public interface JPAExpandResult {
+public interface JPAExpandResult { // NOSONAR
 
-  List<Tuple> getResult(final String key);
+  String ROOT_RESULT_KEY = "root";
+
+  JPAExpandResult getChild(final JPAAssociationPath associationPath);
 
   Map<JPAAssociationPath, JPAExpandResult> getChildren();
 
-  boolean hasCount();
-
-  Integer getCount();
+  Long getCount(final String string);
 
   JPAEntityType getEntityType();
+
+  List<Tuple> getResult(final String key);
+
+  Map<String, List<Tuple>> getResults();
+
+  boolean hasCount();
+
+  void convert(final JPATupleChildConverter converter) throws ODataApplicationException;
 
 }

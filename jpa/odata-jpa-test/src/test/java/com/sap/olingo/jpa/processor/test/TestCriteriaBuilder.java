@@ -1,5 +1,8 @@
 package com.sap.olingo.jpa.processor.test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +14,7 @@ import javax.persistence.Persistence;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaBuilder.In;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Path;
@@ -18,10 +22,13 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.eclipse.persistence.internal.jpa.EJBQueryImpl;
+import org.eclipse.persistence.queries.DatabaseQuery;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescription;
@@ -30,6 +37,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
+import com.sap.olingo.jpa.processor.core.testmodel.Person;
 
 public class TestCriteriaBuilder {
   protected static final String PUNIT_NAME = "com.sap.olingo.jpa";
@@ -38,18 +46,20 @@ public class TestCriteriaBuilder {
   private EntityManager em;
   private CriteriaBuilder cb;
 
-  @BeforeClass
+  @BeforeAll
   public static void setupClass() {
-    Map<String, Object> properties = new HashMap<String, Object>();
+    Map<String, Object> properties = new HashMap<>();
     properties.put(ENTITY_MANAGER_DATA_SOURCE, DataSourceHelper.createDataSource(
-        DataSourceHelper.DB_DERBY));
+        DataSourceHelper.DB_HSQLDB));
     emf = Persistence.createEntityManagerFactory(PUNIT_NAME, properties);
   }
 
-  @Before
+  @BeforeEach
   public void setup() {
     em = emf.createEntityManager();
+    assertNotNull(em);
     cb = em.getCriteriaBuilder();
+    assertNotNull(cb);
   }
 
   @SuppressWarnings("unchecked")
@@ -69,7 +79,7 @@ public class TestCriteriaBuilder {
     tq.getResultList();
   }
 
-  @Ignore // To time consuming
+  @Disabled // To time consuming
   @Test
   public void testSubSelect() {
     // https://stackoverflow.com/questions/29719321/combining-conditional-expressions-with-and-and-or-predicates-using-the-jpa-c
@@ -116,7 +126,7 @@ public class TestCriteriaBuilder {
 //    Predicate predicate = exp.in(myList);
 //    criteria.where(predicate);
 
-    List<String> ids = new ArrayList<String>();
+    List<String> ids = new ArrayList<>();
     ids.add("1");
     ids.add("2");
     bupaQ.where(bupaRoot.get("iD").in(ids));
@@ -133,7 +143,29 @@ public class TestCriteriaBuilder {
   }
 
   @Test
-  public void TestExpandCount() {
+  public void testFilterOnPrimitiveCollectionAttribute() {
+    CriteriaQuery<Tuple> orgQ = cb.createTupleQuery();
+    Root<Organization> orgRoot = orgQ.from(Organization.class);
+    orgQ.select(orgRoot.get("iD"));
+    orgQ.where(cb.like(orgRoot.get("comment"), "%just%"));
+    TypedQuery<Tuple> tq = em.createQuery(orgQ);
+    List<Tuple> act = tq.getResultList();
+    assertEquals(1, act.size());
+  }
+
+  @Test
+  public void testFilterOnEmbeddedCollectionAttribute() {
+    CriteriaQuery<Tuple> pQ = cb.createTupleQuery();
+    Root<Person> pRoot = pQ.from(Person.class);
+    pQ.select(pRoot.get("iD"));
+    pQ.where(cb.equal(pRoot.get("inhouseAddress").get("taskID"), "MAIN"));
+    TypedQuery<Tuple> tq = em.createQuery(pQ);
+    List<Tuple> act = tq.getResultList();
+    assertEquals(1, act.size());
+  }
+
+  @Test
+  public void testExpandCount() {
     CriteriaQuery<Tuple> count = cb.createTupleQuery();
     Root<?> roles = count.from(BusinessPartnerRole.class);
 
@@ -141,12 +173,12 @@ public class TestCriteriaBuilder {
     count.groupBy(roles.get("businessPartnerID"));
     count.orderBy(cb.desc(cb.count(roles)));
     TypedQuery<Tuple> tq = em.createQuery(count);
-    List<Tuple> act = tq.getResultList();
+    tq.getResultList();
     tq.getFirstResult();
   }
 
   @Test
-  public void TestAnd() {
+  public void testAnd() {
     CriteriaQuery<Tuple> count = cb.createTupleQuery();
     Root<?> adminDiv = count.from(AdministrativeDivision.class);
 
@@ -157,13 +189,13 @@ public class TestCriteriaBuilder {
     restrictions[2] = cb.equal(adminDiv.get("codePublisher"), "Eurostat");
     count.where(cb.and(restrictions));
     TypedQuery<Tuple> tq = em.createQuery(count);
-    List<Tuple> act = tq.getResultList();
+    tq.getResultList();
     tq.getFirstResult();
   }
 
-  @Ignore
+  @Disabled
   @Test
-  public void TestSearchEmbeddedId() {
+  public void testSearchEmbeddedId() {
     CriteriaQuery<Tuple> cq = cb.createTupleQuery();
     Root<?> adminDiv = cq.from(AdministrativeDivisionDescription.class);
     cq.multiselect(adminDiv);
@@ -175,15 +207,15 @@ public class TestCriteriaBuilder {
     sq.select(exp);
 
     cq.where(cb.and(cb.equal(adminDiv.get("key").get("codeID"), "NUTS2"),
-        cb.in(adminDiv).value(sq)));
+        cb.in(sq).value(sq)));
     TypedQuery<Tuple> tq = em.createQuery(cq);
     List<Tuple> act = tq.getResultList();
     System.out.println(act.size());
   }
 
-  @Ignore
+  @Disabled
   @Test
-  public void TestSearchNoSubquery() {
+  public void testSearchNoSubquery() {
     CriteriaQuery<Tuple> cq = cb.createTupleQuery();
     Root<?> adminDiv = cq.from(AdministrativeDivisionDescription.class);
     cq.multiselect(adminDiv);
@@ -197,6 +229,56 @@ public class TestCriteriaBuilder {
     TypedQuery<Tuple> tq = em.createQuery(cq);
     List<Tuple> act = tq.getResultList();
     System.out.println(act.size());
+  }
+
+  @Test
+  public void testInClauseSimpleKey() {
+
+    final CriteriaQuery<Tuple> cq = cb.createTupleQuery();
+    final Root<?> bupa = cq.from(BusinessPartner.class);
+    cq.select(bupa.get("iD"));
+
+    cq.where(cb.in(bupa.get("iD")).value("3"));
+    // (bupa.get("iD").in(Arrays.asList("3")));
+
+    TypedQuery<Tuple> tq = em.createQuery(cq);
+    DatabaseQuery dq = ((EJBQueryImpl<Tuple>) tq).getDatabaseQuery();
+    System.out.println(dq.getSQLString());
+    List<Tuple> act = tq.getResultList();
+    System.out.println(dq.getSQLString());
+    Assertions.assertEquals(1, act.size());
+  }
+
+  @Test
+  public void testEntityTransaction() {
+    Assertions.assertFalse(em.getTransaction().isActive());
+    em.getTransaction().begin();
+    Assertions.assertTrue(em.getTransaction().isActive());
+  }
+
+  // @Disabled
+  @Test
+  public void testInClauseComplexKey() {
+
+    final CriteriaQuery<Tuple> cq = cb.createTupleQuery();
+    final Root<?> adminDiv = cq.from(AdministrativeDivisionDescription.class);
+    final AdministrativeDivisionDescriptionKey key = new AdministrativeDivisionDescriptionKey();
+    cq.multiselect(adminDiv);
+
+    key.setCodeID("3166-1");
+    key.setCodePublisher("ISO");
+    key.setDivisionCode("DEU");
+    key.setLanguage("de");
+    // Create IN step by step
+    In<Object> in = cb.in(adminDiv.get("key"));
+    in.value(key);
+    cq.where(in);
+    // Execute query
+    TypedQuery<Tuple> tq = em.createQuery(cq);
+    DatabaseQuery dq = ((EJBQueryImpl<Tuple>) tq).getDatabaseQuery();
+    final List<Tuple> act = tq.getResultList();
+    // Ensure EclipsLink problem still exists: ("WHERE ((NULL, NULL, NULL, NULL) IN "));
+    Assertions.assertEquals(0, act.size());
   }
 
   private Expression<Boolean> createParentAdmin(Root<AdministrativeDivision> subQuery,

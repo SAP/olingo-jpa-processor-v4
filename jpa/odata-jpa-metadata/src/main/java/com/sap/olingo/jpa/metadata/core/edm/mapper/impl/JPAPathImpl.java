@@ -1,6 +1,8 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
-import java.util.ArrayList;
+import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.NOT_SUPPORTED_MIXED_PART_OF_GROUP;
+
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -10,27 +12,32 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 final class JPAPathImpl implements JPAPath {
-  final private String alias;
-  final private List<JPAElement> pathElements;
-  final private String dbFieldName;
-  final private boolean ignore;
+  private static final List<String> EMPTY_FILED_GROUPS = Collections.emptyList();
+  private final String alias;
+  private final List<JPAElement> pathElements;
+  private final String dbFieldName;
+  private final boolean ignore;
+  private final List<String> fieldGroups;
 
-  JPAPathImpl(final String alias, final String dbFieldName, final IntermediateModelElement element) {
-    final List<JPAElement> pathElementsBuffer = new ArrayList<JPAElement>();
+  JPAPathImpl(final String alias, final String dbFieldName, final IntermediateProperty element)
+      throws ODataJPAModelException {
 
-    this.alias = alias;
-    pathElementsBuffer.add(element);
-    this.pathElements = Collections.unmodifiableList(pathElementsBuffer);
-    this.dbFieldName = dbFieldName;
-    this.ignore = element.ignore();
+    this(alias, dbFieldName, Arrays.asList(element));
   }
 
-  JPAPathImpl(final String selection, final String dbFieldName, final List<JPAElement> attribute)
+  JPAPathImpl(final String alias, final String dbFieldName, final List<JPAElement> attribute)
       throws ODataJPAModelException {
-    this.alias = selection;
+
+    this.alias = alias;
     this.pathElements = Collections.unmodifiableList(attribute);
     this.dbFieldName = dbFieldName;
-    this.ignore = ((IntermediateModelElement) pathElements.get(1)).ignore();
+    this.ignore = ((IntermediateModelElement) pathElements.get(pathElements.size() - 1)).ignore();
+    this.fieldGroups = determineFieldGroups();
+  }
+
+  @Override
+  public int compareTo(final JPAPath o) {
+    return this.alias.compareTo(o.getAlias());
   }
 
   @Override
@@ -108,7 +115,55 @@ final class JPAPathImpl implements JPAPath {
   }
 
   @Override
-  public int compareTo(final JPAPath o) {
-    return this.alias.compareTo(o.getAlias());
+  public boolean isPartOfGroups(List<String> groups) {
+
+    return fieldGroups == EMPTY_FILED_GROUPS || fieldGroupMatches(groups);
   }
+
+  @Override
+  public String toString() {
+    return "JPAPathImpl [alias=" + alias + ", pathElements=" + pathElements + ", dbFieldName=" + dbFieldName
+        + ", ignore=" + ignore + ", fieldGroups=" + fieldGroups + "]";
+  }
+
+  /**
+   * @return
+   * @throws ODataJPAModelException
+   */
+  private List<String> determineFieldGroups() throws ODataJPAModelException {
+    List<String> groups = null;
+    for (JPAElement pathElement : pathElements) {
+      if (pathElement instanceof IntermediateProperty && ((IntermediateProperty) pathElement).isPartOfGroup()) {
+        if (groups == null)
+          groups = ((IntermediateProperty) pathElement).getGroups();
+        else {
+          List<String> newGroups = ((IntermediateProperty) pathElement).getGroups();
+          if (groups.size() != newGroups.size() || !groups.stream().allMatch(newGroups::contains))
+            throw new ODataJPAModelException(NOT_SUPPORTED_MIXED_PART_OF_GROUP, alias);
+        }
+      }
+    }
+    return groups == null ? EMPTY_FILED_GROUPS : groups;
+  }
+
+  /**
+   * @param groups
+   * @return
+   */
+  private boolean fieldGroupMatches(final List<String> groups) {
+    for (final String group : groups) {
+      if (fieldGroups.contains(group))
+        return true;
+    }
+    return false;
+  }
+
+  @Override
+  public boolean isTransient() {
+    return pathElements.stream()
+        .filter(e -> e instanceof JPAAttribute)
+        .map(e -> (JPAAttribute) e)
+        .anyMatch(JPAAttribute::isTransient);
+  }
+
 }

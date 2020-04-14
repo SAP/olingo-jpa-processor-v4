@@ -1,95 +1,125 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Member;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.EmbeddableType;
 import javax.persistence.metamodel.EntityType;
+import javax.persistence.metamodel.ManagedType;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlOnDelete;
 import org.apache.olingo.commons.api.edm.provider.CsdlOnDeleteAction;
 import org.apache.olingo.commons.api.edm.provider.CsdlReferentialConstraint;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.reflections.Reflections;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEnumeration;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtectedBy;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityTypeAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
+import com.sap.olingo.jpa.processor.core.testmodel.ABCClassifiaction;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
+import com.sap.olingo.jpa.processor.core.testmodel.DummyToBeIgnored;
+import com.sap.olingo.jpa.processor.core.testmodel.JoinSource;
+import com.sap.olingo.jpa.processor.core.testmodel.Organization;
+import com.sap.olingo.jpa.processor.core.testmodel.Person;
 
 public class TestIntermediateNavigationProperty extends TestMappingRoot {
   private IntermediateSchema schema;
   private TestHelper helper;
   private JPAEdmMetadataPostProcessor processor;
 
-  @Before
+  @BeforeEach
   public void setup() throws ODataJPAModelException {
-    schema = new IntermediateSchema(new JPAEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), mock(Reflections.class));
+    final Reflections r = mock(Reflections.class);
+    when(r.getTypesAnnotatedWith(EdmEnumeration.class)).thenReturn(new HashSet<>(Arrays.asList(new Class<?>[] {
+        ABCClassifiaction.class })));
+
+    schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), r);
     helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
     processor = mock(JPAEdmMetadataPostProcessor.class);
   }
 
   @Test
   public void checkNaviProptertyCanBeCreated() throws ODataJPAModelException {
-    EntityType<?> et = helper.getEntityType("BusinessPartner");
-    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(et, "roles");
-    new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME), schema.getStructuredType(jpaAttribute),
-        jpaAttribute, schema);
+    final EntityType<?> et = helper.getEntityType(BusinessPartner.class);
+    final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(et, "roles");
+    final JPAAssociationAttribute act = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        schema.getStructuredType(jpaAttribute), jpaAttribute, schema);
+    assertNotNull(act);
   }
 
   @Test
   public void checkGetName() throws ODataJPAModelException {
-    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("BusinessPartner"), "roles");
-    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(BusinessPartner.class), "roles");
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
         schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
 
-    assertEquals("Wrong name", "Roles", property.getEdmItem().getName());
+    assertEquals("Roles", property.getEdmItem().getName(), "Wrong name");
   }
 
   @Test
-  public void checkGetType() throws ODataJPAModelException {
-    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("BusinessPartner"), "roles");
-    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+  public void checkGetEdmType() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(BusinessPartner.class), "roles");
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
         schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
 
-    assertEquals("Wrong name", PUNIT_NAME + ".BusinessPartnerRole", property.getEdmItem().getType());
+    assertEquals(PUNIT_NAME + ".BusinessPartnerRole", property.getEdmItem().getType(), "Wrong name");
   }
 
   @Test
   public void checkGetIgnoreFalse() throws ODataJPAModelException {
-    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("BusinessPartner"), "roles");
-    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(BusinessPartner.class), "roles");
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
         schema.getStructuredType(jpaAttribute), jpaAttribute, schema);
     assertFalse(property.ignore());
   }
 
   @Test
   public void checkGetIgnoreTrue() throws ODataJPAModelException {
-    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("DummyToBeIgnored"),
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(DummyToBeIgnored.class),
         "businessPartner");
-    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
         schema.getStructuredType(jpaAttribute), jpaAttribute, schema);
     assertTrue(property.ignore());
   }
 
   @Test
   public void checkGetProptertyFacetsNullableTrue() throws ODataJPAModelException {
-    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("BusinessPartner"), "roles");
-    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(BusinessPartner.class), "roles");
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
         schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
 
     assertTrue(property.getEdmItem().isNullable());
@@ -97,8 +127,9 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
 
   @Test
   public void checkGetPropertyOnDelete() throws ODataJPAModelException {
-    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("BusinessPartner"), "roles");
-    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(BusinessPartner.class), "roles");
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
         schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
 
     assertEquals(CsdlOnDeleteAction.Cascade, property.getEdmItem().getOnDelete().getAction());
@@ -106,9 +137,10 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
 
   @Test
   public void checkGetProptertyFacetsNullableFalse() throws ODataJPAModelException {
-    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("BusinessPartnerRole"),
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(BusinessPartnerRole.class),
         "businessPartner");
-    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
         schema.getEntityType(BusinessPartnerRole.class), jpaAttribute, schema);
 
     assertFalse(property.getEdmItem().isNullable());
@@ -116,8 +148,9 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
 
   @Test
   public void checkGetProptertyFacetsCollectionTrue() throws ODataJPAModelException {
-    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("BusinessPartner"), "roles");
-    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(BusinessPartner.class), "roles");
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
         schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
 
     assertTrue(property.getEdmItem().isNullable());
@@ -125,70 +158,86 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
 
   @Test
   public void checkGetProptertyFacetsColletionFalse() throws ODataJPAModelException {
-    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("BusinessPartnerRole"),
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(BusinessPartnerRole.class),
         "businessPartner");
-    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
-        schema.getEntityType(BusinessPartnerRole.class), jpaAttribute, schema);
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), schema.getEntityType(BusinessPartnerRole.class), jpaAttribute, schema);
+
+    assertFalse(property.getEdmItem().isCollection());
+  }
+
+  @Test
+  public void checkGetProptertyFacetsColletionFalseOnToOne() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(Person.class),
+        "image");
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), schema.getEntityType(Person.class), jpaAttribute, schema);
 
     assertFalse(property.getEdmItem().isCollection());
   }
 
   @Test
   public void checkGetJoinColumnsSize1BP() throws ODataJPAModelException {
-    EntityType<?> et = helper.getEntityType("BusinessPartner");
+    EntityType<?> et = helper.getEntityType(BusinessPartner.class);
 
     Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(et, "roles");
-    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
         schema.getEntityType(et.getJavaType()), jpaAttribute, schema);
     assertEquals(1, property.getJoinColumns().size());
   }
 
   @Test
   public void checkGetPartnerAdmin_Parent() throws ODataJPAModelException {
-    EntityType<?> et = helper.getEntityType("AdministrativeDivision");
+    EntityType<?> et = helper.getEntityType(AdministrativeDivision.class);
 
     Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(et, "parent");
-    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
         schema.getEntityType(et.getJavaType()), jpaAttribute, schema);
     assertEquals("Children", property.getEdmItem().getPartner());
   }
 
   @Test
   public void checkGetPartnerAdmin_Children() throws ODataJPAModelException {
-    EntityType<?> et = helper.getEntityType("AdministrativeDivision");
+    EntityType<?> et = helper.getEntityType(AdministrativeDivision.class);
 
     Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(et, "children");
-    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
         schema.getEntityType(et.getJavaType()), jpaAttribute, schema);
     assertEquals("Parent", property.getEdmItem().getPartner());
   }
 
   @Test
   public void checkGetPartnerBP_Roles() throws ODataJPAModelException {
-    EntityType<?> et = helper.getEntityType("BusinessPartner");
+    EntityType<?> et = helper.getEntityType(BusinessPartner.class);
 
     Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(et, "roles");
-    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
         schema.getEntityType(et.getJavaType()), jpaAttribute, schema);
     assertEquals("BusinessPartner", property.getEdmItem().getPartner());
   }
 
   @Test
   public void checkGetPartnerRole_BP() throws ODataJPAModelException {
-    EntityType<?> et = helper.getEntityType("BusinessPartnerRole");
+    EntityType<?> et = helper.getEntityType(BusinessPartnerRole.class);
 
     Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(et, "businessPartner");
-    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
         schema.getEntityType(et.getJavaType()), jpaAttribute, schema);
     assertEquals("Roles", property.getEdmItem().getPartner());
   }
 
   @Test
   public void checkGetJoinColumnFilledCompletely() throws ODataJPAModelException {
-    EntityType<?> et = helper.getEntityType("BusinessPartner");
+    EntityType<?> et = helper.getEntityType(BusinessPartner.class);
 
     Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(et, "roles");
-    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
         schema.getEntityType(et.getJavaType()), jpaAttribute, schema);
 
     IntermediateJoinColumn act = property.getJoinColumns().get(0);
@@ -198,10 +247,11 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
 
   @Test
   public void checkGetJoinColumnFilledCompletelyInvert() throws ODataJPAModelException {
-    EntityType<?> et = helper.getEntityType("BusinessPartnerRole");
+    EntityType<?> et = helper.getEntityType(BusinessPartnerRole.class);
 
     Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(et, "businessPartner");
-    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
         schema.getEntityType(et.getJavaType()), jpaAttribute, schema);
 
     IntermediateJoinColumn act = property.getJoinColumns().get(0);
@@ -211,10 +261,11 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
 
   @Test
   public void checkGetJoinColumnsSize1Roles() throws ODataJPAModelException {
-    EntityType<?> et = helper.getEntityType("BusinessPartnerRole");
+    EntityType<?> et = helper.getEntityType(BusinessPartnerRole.class);
 
     Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(et, "businessPartner");
-    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
         schema.getEntityType(et.getJavaType()), jpaAttribute, schema);
     assertEquals(1, property.getJoinColumns().size());
   }
@@ -223,7 +274,8 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
   public void checkGetJoinColumnsSize2() throws ODataJPAModelException {
     EmbeddableType<?> et = helper.getEmbeddedableType("PostalAddressData");
     Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(et, "administrativeDivision");
-    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
         schema.getComplexType(et.getJavaType()), jpaAttribute, schema);
     List<IntermediateJoinColumn> columns = property.getJoinColumns();
     assertEquals(3, columns.size());
@@ -231,16 +283,18 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
 
   @Test
   public void checkGetReferentialConstraintSize() throws ODataJPAModelException {
-    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("BusinessPartner"), "roles");
-    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(BusinessPartner.class), "roles");
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
         schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
     assertEquals(1, property.getProperty().getReferentialConstraints().size());
   }
 
   @Test
   public void checkGetReferentialConstraintBuPaRole() throws ODataJPAModelException {
-    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("BusinessPartner"), "roles");
-    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(BusinessPartner.class), "roles");
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
         schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
     List<CsdlReferentialConstraint> constraints = property.getProperty().getReferentialConstraints();
 
@@ -252,9 +306,10 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
 
   @Test
   public void checkGetReferentialConstraintRoleBuPa() throws ODataJPAModelException {
-    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("BusinessPartnerRole"),
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(BusinessPartnerRole.class),
         "businessPartner");
-    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
         schema.getEntityType(BusinessPartnerRole.class), jpaAttribute, schema);
     List<CsdlReferentialConstraint> constraints = property.getProperty().getReferentialConstraints();
 
@@ -266,9 +321,10 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
 
   @Test
   public void checkGetReferentialConstraintViaEmbeddedId() throws ODataJPAModelException {
-    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("AdministrativeDivision"),
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(AdministrativeDivision.class),
         "allDescriptions");
-    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
         schema.getEntityType(AdministrativeDivision.class), jpaAttribute, schema);
     List<CsdlReferentialConstraint> constraints = property.getProperty().getReferentialConstraints();
 
@@ -283,8 +339,9 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
     IntermediateModelElement.setPostProcessor(processor);
 
     Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(
-        "BusinessPartner"), "roles");
-    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+        BusinessPartner.class), "roles");
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
         schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
 
     property.getEdmItem();
@@ -296,11 +353,12 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
     PostProcessorSetName pPDouble = new PostProcessorSetName();
     IntermediateModelElement.setPostProcessor(pPDouble);
 
-    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("BusinessPartner"), "roles");
-    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(BusinessPartner.class), "roles");
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
         schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
 
-    assertEquals("Wrong name", "RoleAssignment", property.getEdmItem().getName());
+    assertEquals("RoleAssignment", property.getEdmItem().getName(), "Wrong name");
   }
 
   @Test
@@ -308,11 +366,11 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
     PostProcessorSetName pPDouble = new PostProcessorSetName();
     IntermediateModelElement.setPostProcessor(pPDouble);
 
-    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("BusinessPartner"), "roles");
-    JPAAssociationAttribute property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(BusinessPartner.class), "roles");
+    JPAAssociationAttribute property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         schema.getStructuredType(jpaAttribute), jpaAttribute, schema);
 
-    assertEquals("Wrong name", "RoleAssignment", property.getExternalName());
+    assertEquals("RoleAssignment", property.getExternalName(), "Wrong name");
   }
 
   @Test
@@ -320,12 +378,235 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
     PostProcessorOneDelete pPDouble = new PostProcessorOneDelete();
     IntermediateModelElement.setPostProcessor(pPDouble);
 
-    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType("AdministrativeDivision"),
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(AdministrativeDivision.class),
         "children");
-    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(PUNIT_NAME),
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
         schema.getEntityType(AdministrativeDivision.class), jpaAttribute, schema);
 
     assertEquals(CsdlOnDeleteAction.None, property.getProperty().getOnDelete().getAction());
+  }
+
+  @Test
+  public void checkGetJoinTable() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(Person.class),
+        "supportedOrganizations");
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
+        schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
+
+    assertNotNull(property.getJoinTable());
+  }
+
+  @Test
+  public void checkGetJoinTableName() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(Person.class),
+        "supportedOrganizations");
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
+        schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
+
+    assertEquals("\"OLINGO\".\"SupportRelationship\"", property.getJoinTable().getTableName());
+  }
+
+  @Test
+  public void checkGetNullIfNoJoinTableGiven() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(AdministrativeDivision.class),
+        "parent");
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
+
+    assertNull(property.getJoinTable());
+  }
+
+  @Test
+  public void checkGetJoinTableJoinColumns() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(Person.class),
+        "supportedOrganizations");
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
+        schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
+
+    assertFalse(property.getJoinColumns().isEmpty());
+  }
+
+  @Test
+  public void checkGetJoinTableEntityType() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(Person.class),
+        "supportedOrganizations");
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
+        schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
+
+    assertNotNull(property.getJoinTable().getEntityType());
+  }
+
+  @Test
+  public void checkGetJoinTableJoinColumnsNotMapped() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(JoinSource.class),
+        "oneToMany");
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), schema.getEntityType(JoinSource.class), jpaAttribute, schema);
+
+    assertFalse(property.getJoinColumns().isEmpty());
+    assertNotNull(property.getJoinTable());
+    IntermediateJoinTable act = (IntermediateJoinTable) property.getJoinTable();
+    for (JPAOnConditionItem item : act.getJoinColumns()) {
+      assertNotNull(item.getLeftPath());
+      assertNotNull(item.getRightPath());
+    }
+  }
+
+  @Test
+  public void checkGetJoinTableJoinColumnsMapped() throws ODataJPAModelException {
+    Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(Organization.class),
+        "supportEngineers");
+    IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
+
+    assertFalse(property.getJoinColumns().isEmpty());
+  }
+
+  @Test
+  public void checkGetJoinTableJoinColumnsMissingInvers() throws ODataJPAModelException {
+    final EmbeddableType<?> jpaEmbeddedable = helper.getEmbeddedableType("JoinComplex");
+    // helper.getEmbeddedableType(typeName)
+    final IntermediateComplexType property = new IntermediateComplexType(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), jpaEmbeddedable, schema);
+    final JPAAssociationAttribute assoziation = property.getAssociation("oneToManyComplex");
+    final JPAAssociationPath path = assoziation.getPath();
+    assertNotNull(path.getJoinTable());
+    // assertNotNull(path.getInverseLeftJoinColumnsList());
+    assertEquals(1, path.getJoinTable().getInversJoinColumns().size());
+    assertNotNull(path.getJoinTable().getInversJoinColumns().get(0).getLeftPath());
+    assertNotNull(path.getJoinTable().getInversJoinColumns().get(0).getRightPath());
+  }
+
+  @Test
+  public void checkGetConverterReturnsNull() throws ODataJPAModelException {
+    final IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), schema.getEntityType(JoinSource.class), createDummyAttribute(), schema);
+    assertNull(property.getConverter());
+  }
+
+  @Test
+  public void checkGetEdmTypeReturnsNull() throws ODataJPAModelException {
+    final IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), schema.getEntityType(JoinSource.class), createDummyAttribute(), schema);
+    assertNull(property.getEdmType());
+  }
+
+  @Test
+  public void checkHasProtectionReturnsFalse() throws ODataJPAModelException {
+    final IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), schema.getEntityType(JoinSource.class), createDummyAttribute(), schema);
+    assertFalse(property.hasProtection());
+  }
+
+  @Test
+  public void checkIsAssocationReturnsTrue() throws ODataJPAModelException {
+    final IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), schema.getEntityType(JoinSource.class), createDummyAttribute(), schema);
+    assertTrue(property.isAssociation());
+  }
+
+  @Test
+  public void checkIsComplexReturnsFalse() throws ODataJPAModelException {
+    final IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), schema.getEntityType(JoinSource.class), createDummyAttribute(), schema);
+    assertFalse(property.isComplex());
+  }
+
+  @Test
+  public void checkIsEnumReturnsFalse() throws ODataJPAModelException {
+    final IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), schema.getEntityType(JoinSource.class), createDummyAttribute(), schema);
+    assertFalse(property.isEnum());
+  }
+
+  @Test
+  public void checkIsKeyReturnsFalse() throws ODataJPAModelException {
+    final IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), schema.getEntityType(JoinSource.class), createDummyAttribute(), schema);
+    assertFalse(property.isKey());
+  }
+
+  @Test
+  public void checkIsSearchableReturnsFalse() throws ODataJPAModelException {
+    final IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), schema.getEntityType(JoinSource.class), createDummyAttribute(), schema);
+    assertFalse(property.isSearchable());
+  }
+
+  @Test
+  public void checkGetProtectionPathReturnsEmptyList() throws ODataJPAModelException {
+    final IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), schema.getEntityType(JoinSource.class), createDummyAttribute(), schema);
+    assertTrue(property.getProtectionPath("Bla").isEmpty());
+  }
+
+  @Test
+  public void checkGetProtectionClaimNamesReturnsEmptySet() throws ODataJPAModelException {
+    final IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), schema.getEntityType(JoinSource.class), createDummyAttribute(), schema);
+    assertTrue(property.getProtectionClaimNames().isEmpty());
+  }
+
+  @Test
+  public void checkGetType() throws ODataJPAModelException {
+    final IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), schema.getEntityType(JoinSource.class), createDummyAttribute(), schema);
+    assertEquals(BusinessPartner.class, property.getType());
+  }
+
+  @Test
+  public void checkIsTransientIsFalse() throws ODataJPAModelException {
+    final IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), schema.getEntityType(JoinSource.class), createDummyAttribute(), schema);
+    assertFalse(property.isTransient());
+  }
+
+  @Test
+  public void checkIsEtagIsFalse() throws ODataJPAModelException {
+    final IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), schema.getEntityType(JoinSource.class), createDummyAttribute(), schema);
+    assertFalse(property.isEtag());
+  }
+
+//  @Test
+//  public void checkSetAnnotations() throws ODataJPAModelException {
+//    final IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(
+//        PUNIT_NAME), schema.getEntityType(JoinSource.class), createDummyAttribute(), schema);
+//    property.getAnnotations(edmAnnotations, member, internalName, property);
+//  }
+
+  private Attribute<?, ?> createDummyAttribute() {
+    final Attribute<?, ?> jpaAttribute = mock(Attribute.class);
+    final ManagedType<?> mgrType = mock(ManagedType.class);
+    final Member member = mock(Member.class, withSettings().extraInterfaces(AnnotatedElement.class));
+    when(jpaAttribute.getName()).thenReturn("willi");
+    when(jpaAttribute.isCollection()).thenReturn(false);
+    when(jpaAttribute.getJavaType()).thenAnswer(new Answer<Class<?>>() {
+      @Override
+      public Class<?> answer(InvocationOnMock invocation) throws Throwable {
+        return BusinessPartner.class;
+      }
+    });
+    when(jpaAttribute.getDeclaringType()).thenAnswer(new Answer<ManagedType<?>>() {
+      @Override
+      public ManagedType<?> answer(InvocationOnMock invocation) throws Throwable {
+        return mgrType;
+      }
+    });
+    when(mgrType.getJavaType()).thenAnswer(new Answer<Class<?>>() {
+      @Override
+      public Class<?> answer(InvocationOnMock invocation) throws Throwable {
+        return BusinessPartner.class;
+      }
+    });
+    when(jpaAttribute.getJavaMember()).thenReturn(member);
+    when(((AnnotatedElement) member).getAnnotation(EdmProtectedBy.class)).thenReturn(null);
+    return jpaAttribute;
   }
 
   private class PostProcessorSetName extends JPAEdmMetadataPostProcessor {

@@ -17,6 +17,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctionType;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAJavaFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOperationResultParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
@@ -28,12 +29,16 @@ class IntermediateJavaFunction extends IntermediateFunction implements JPAJavaFu
   private final Constructor<?> javaConstructor;
   private List<JPAParameter> parameterList;
 
-  IntermediateJavaFunction(JPAEdmNameBuilder nameBuilder, EdmFunction jpaFunction, Method javaFunction,
-      IntermediateSchema schema) throws ODataJPAModelException {
+  IntermediateJavaFunction(final JPAEdmNameBuilder nameBuilder, final EdmFunction jpaFunction,
+      final Method javaFunction, final IntermediateSchema schema) throws ODataJPAModelException {
+
     super(nameBuilder, jpaFunction, schema,
         IntNameBuilder.buildFunctionName(jpaFunction).isEmpty() ? javaFunction.getName() : IntNameBuilder
             .buildFunctionName(jpaFunction));
-    this.setExternalName(nameBuilder.buildOperationName(internalName));
+
+    this.setExternalName(jpaFunction.name().isEmpty()
+        ? nameBuilder.buildOperationName(internalName)
+        : jpaFunction.name());
     this.javaFunction = javaFunction;
     this.javaConstructor = IntermediateOperationHelper.determineConstructor(javaFunction);
   }
@@ -56,7 +61,7 @@ class IntermediateJavaFunction extends IntermediateFunction implements JPAJavaFu
   @Override
   public List<JPAParameter> getParameter() throws ODataJPAModelException {
     if (parameterList == null) {
-      parameterList = new ArrayList<JPAParameter>();
+      parameterList = new ArrayList<>();
       Class<?>[] types = javaFunction.getParameterTypes();
       Parameter[] declairedParameters = javaFunction.getParameters();
       for (int i = 0; i < declairedParameters.length; i++) {
@@ -71,7 +76,6 @@ class IntermediateJavaFunction extends IntermediateFunction implements JPAJavaFu
             .buildPropertyName(definedParameter.name()), declairedParameter.getName(), types[i]);
         parameterList.add(parameter);
       }
-
     }
     return parameterList;
   }
@@ -79,7 +83,7 @@ class IntermediateJavaFunction extends IntermediateFunction implements JPAJavaFu
   @Override
   public JPAParameter getParameter(String internalName) throws ODataJPAModelException {
     for (JPAParameter parameter : getParameter()) {
-      if (parameter.getInternalName() == internalName)
+      if (parameter.getInternalName().equals(internalName))
         return parameter;
     }
     return null;
@@ -98,19 +102,15 @@ class IntermediateJavaFunction extends IntermediateFunction implements JPAJavaFu
 
   @Override
   protected List<CsdlParameter> determineEdmInputParameter() throws ODataJPAModelException {
-    List<CsdlParameter> parameterList = new ArrayList<CsdlParameter>();
+    List<CsdlParameter> parameters = new ArrayList<>();
     for (Parameter declairedParameter : Arrays.asList(javaFunction.getParameters())) {
       CsdlParameter parameter = new CsdlParameter();
       EdmParameter definedParameter = declairedParameter.getAnnotation(EdmParameter.class);
       parameter.setName(nameBuilder.buildPropertyName(definedParameter.name()));
-      EdmPrimitiveTypeKind edmType = JPATypeConvertor.convertToEdmSimpleType(declairedParameter.getType());
-      if (edmType == null)
-        throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.FUNC_PARAM_ONLY_PRIMITIVE, javaFunction
-            .getDeclaringClass().getName(), javaFunction.getName(), definedParameter.name());
-      parameter.setType(edmType.getFullQualifiedName());
-      parameterList.add(parameter);
+      parameter.setType(determineParameterType(declairedParameter.getType(), definedParameter));
+      parameters.add(parameter);
     }
-    return parameterList;
+    return parameters;
   }
 
   // TODO handle multiple schemas
@@ -124,7 +124,8 @@ class IntermediateJavaFunction extends IntermediateFunction implements JPAJavaFu
         // Type parameter expected for %1$s
         throw new ODataJPAModelException(MessageKeys.FUNC_RETURN_TYPE_EXP, javaFunction.getName());
       edmResultType.setCollection(true);
-      edmResultType.setType(determineReturnType(definedReturnType, definedReturnType.type()));
+      edmResultType.setType(IntermediateOperationHelper.determineReturnType(definedReturnType, definedReturnType.type(),
+          schema, javaFunction.getName()));
     } else {
       if (definedReturnType.type() != Object.class
           && !definedReturnType.type().getCanonicalName().equals(declairedReturnType.getCanonicalName()))
@@ -133,7 +134,8 @@ class IntermediateJavaFunction extends IntermediateFunction implements JPAJavaFu
             declairedReturnType.getName(), javaFunction.getName());
 
       edmResultType.setCollection(false);
-      edmResultType.setType(determineReturnType(definedReturnType, declairedReturnType));
+      edmResultType.setType(IntermediateOperationHelper.determineReturnType(definedReturnType, declairedReturnType,
+          schema, javaFunction.getName()));
     }
 
     edmResultType.setNullable(definedReturnType.isNullable());
@@ -163,18 +165,19 @@ class IntermediateJavaFunction extends IntermediateFunction implements JPAJavaFu
     return true;
   }
 
-  private FullQualifiedName determineReturnType(final ReturnType definedReturnType, final Class<?> declairedReturnType)
-      throws ODataJPAModelException {
-
-    IntermediateStructuredType structuredType = schema.getStructuredType(declairedReturnType);
-    if (structuredType != null)
-      return structuredType.getExternalFQN();
-    else {
-      final EdmPrimitiveTypeKind edmType = JPATypeConvertor.convertToEdmSimpleType(declairedReturnType);
-      if (edmType == null)
-        throw new ODataJPAModelException(MessageKeys.FUNC_RETURN_TYPE_INVALID, definedReturnType.type().getName(),
-            declairedReturnType.getName(), javaFunction.getName());
+  @Override
+  protected FullQualifiedName determineParameterType(final Class<?> type,
+      final EdmParameter definedParameter) throws ODataJPAModelException {
+    final EdmPrimitiveTypeKind edmType = JPATypeConvertor.convertToEdmSimpleType(type);
+    if (edmType != null)
       return edmType.getFullQualifiedName();
+    else {
+      final IntermediateEnumerationType enumType = schema.getEnumerationType(type);
+      if (enumType != null) {
+        return enumType.getExternalFQN();
+      } else
+        throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.FUNC_PARAM_ONLY_PRIMITIVE, javaFunction
+            .getDeclaringClass().getName(), javaFunction.getName(), definedParameter.name());
     }
   }
 }

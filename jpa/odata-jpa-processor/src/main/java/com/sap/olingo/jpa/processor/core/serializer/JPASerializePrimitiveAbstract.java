@@ -6,18 +6,16 @@ import org.apache.olingo.commons.api.data.ComplexValue;
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.Property;
 import org.apache.olingo.server.api.ServiceMetadata;
-import org.apache.olingo.server.api.uri.UriHelper;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
 
-public abstract class JPASerializePrimitiveAbstract implements JPASerializer, JPAOperationSerializer {
-  protected final static char PATH_SEPERATOR = '/';
+public abstract class JPASerializePrimitiveAbstract implements JPAOperationSerializer {
+  protected static final char PATH_SEPERATOR = '/';
   protected final ServiceMetadata serviceMetadata;
   protected final UriInfo uriInfo;
 
-  public JPASerializePrimitiveAbstract(final ServiceMetadata serviceMetadata, final UriHelper uriHelper,
-      final UriInfo uriInfo) {
+  public JPASerializePrimitiveAbstract(final ServiceMetadata serviceMetadata, final UriInfo uriInfo) {
     super();
     this.serviceMetadata = serviceMetadata;
     this.uriInfo = uriInfo;
@@ -28,9 +26,9 @@ public abstract class JPASerializePrimitiveAbstract implements JPASerializer, JP
     Property property = null;
     Object value = null;
 
-    final StringBuffer path = new StringBuffer();
+    final StringBuilder path = new StringBuilder();
 
-    for (final Property item : result.getEntities().get(0).getProperties()) {
+    for (final Property item : result.getEntities().get(0).getProperties())
       if (partOfPath(item, uriResources)) {
         property = item;
         boolean found = false;
@@ -41,22 +39,19 @@ public abstract class JPASerializePrimitiveAbstract implements JPASerializer, JP
             property = ((ComplexValue) value).getValue().get(0);
 
             path.append(PATH_SEPERATOR);
-          } else {
+          } else
             found = true;
-          }
         }
         break;
       }
-    }
     return new JPAPrimitivePropertyInfo(path.toString(), property);
   }
 
   private boolean partOfPath(final Property item, final List<UriResource> uriResources) {
-    for (final UriResource resource : uriResources) {
+    for (final UriResource resource : uriResources)
       if (resource instanceof UriResourceProperty
           && ((UriResourceProperty) resource).getProperty().getName().equals(item.getName()))
         return true;
-    }
     return false;
   }
 

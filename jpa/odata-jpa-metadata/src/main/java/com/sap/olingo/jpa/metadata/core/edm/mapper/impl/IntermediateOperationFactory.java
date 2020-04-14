@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.reflections.Reflections;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.ODataOperation;
 
@@ -26,7 +27,7 @@ public abstract class IntermediateOperationFactory {
       final Class<? extends Annotation> annotation)
       throws ODataJPAModelException {
 
-    final Map<String, IntermediateOperation> funcList = new HashMap<String, IntermediateOperation>();
+    final Map<String, IntermediateOperation> funcList = new HashMap<>();
     if (reflections != null) {
       @SuppressWarnings("unchecked")
       final Set<Class<? extends ODataOperation>> operationClasses =

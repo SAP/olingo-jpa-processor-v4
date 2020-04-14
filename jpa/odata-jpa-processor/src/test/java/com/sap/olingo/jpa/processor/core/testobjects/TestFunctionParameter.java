@@ -9,16 +9,16 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.ODataFunction;
 
 public class TestFunctionParameter implements ODataFunction {
   public static int calls;
-  public static EntityManager em;
   public static int param1;
   public static int param2;
+  public EntityManager em;
 
   public TestFunctionParameter(EntityManager em) {
     super();
-    TestFunctionParameter.em = em;
+    this.em = em;
   }
 
-  @EdmFunction(name = "", returnType = @ReturnType)
+  @EdmFunction(returnType = @ReturnType)
   public Integer sum(@EdmParameter(name = "A") Integer a, @EdmParameter(name = "B") Integer b) {
     calls += 1;
     param1 = a;

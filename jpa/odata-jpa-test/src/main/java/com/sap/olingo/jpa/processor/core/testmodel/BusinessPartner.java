@@ -1,12 +1,13 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
+import java.sql.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 
 import javax.persistence.AssociationOverride;
-import javax.persistence.AssociationOverrides;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -27,9 +28,9 @@ import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpress
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAnnotation;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssoziation;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 
 @Inheritance
 @DiscriminatorColumn(name = "\"Type\"")
@@ -40,7 +41,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
         name = "CountRoles",
         functionName = "COUNT_ROLES",
         returnType = @EdmFunction.ReturnType(isCollection = true),
-        parameter = { @EdmParameter(name = "Amount", parameterName = "a", type = Integer.class),
+        parameter = { @EdmParameter(name = "Amount", parameterName = "a", type = String.class),
         }),
 
     @EdmFunction(
@@ -71,11 +72,12 @@ public abstract class BusinessPartner implements KeyAccess {
   @Column(name = "\"ETag\"", nullable = false)
   protected long eTag;
 
-  @Column(name = "\"Type\"", length = 1, nullable = false)
+  @Column(name = "\"Type\"", length = 1, insertable = false, updatable = false, nullable = false)
   protected String type;
 
   @Column(name = "\"CreatedAt\"", precision = 3, insertable = false, updatable = false)
-  private Timestamp creationDateTime;
+  @Convert(converter = DateTimeConverter.class)
+  private LocalDateTime creationDateTime;
 
   @EdmIgnore
   @Column(name = "\"CustomString1\"")
@@ -108,15 +110,14 @@ public abstract class BusinessPartner implements KeyAccess {
   protected CommunicationData communicationData;
 
   @Embedded
-  @AssociationOverrides({
-      @AssociationOverride(name = "countryName",
-          joinColumns = @JoinColumn(referencedColumnName = "\"Address.Country\"", name = "\"ISOCode\"")),
-      @AssociationOverride(name = "regionName",
-          joinColumns = {
-              @JoinColumn(referencedColumnName = "\"Address.RegionCodePublisher\"", name = "\"CodePublisher\""),
-              @JoinColumn(referencedColumnName = "\"Address.RegionCodeID\"", name = "\"CodeID\""),
-              @JoinColumn(referencedColumnName = "\"Address.Region\"", name = "\"DivisionCode\"") })
-  })
+  @AssociationOverride(name = "countryName",
+      joinColumns = @JoinColumn(referencedColumnName = "\"Address.Country\"", name = "\"ISOCode\""))
+  @AssociationOverride(name = "regionName",
+      joinColumns = {
+          @JoinColumn(referencedColumnName = "\"Address.RegionCodePublisher\"", name = "\"CodePublisher\""),
+          @JoinColumn(referencedColumnName = "\"Address.RegionCodeID\"", name = "\"CodeID\""),
+          @JoinColumn(referencedColumnName = "\"Address.Region\"", name = "\"DivisionCode\"") })
+
   private PostalAddressData address = new PostalAddressData();
 
   @Embedded
@@ -124,6 +125,10 @@ public abstract class BusinessPartner implements KeyAccess {
 
   @OneToMany(mappedBy = "businessPartner", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
   private Collection<BusinessPartnerRole> roles;
+
+  public BusinessPartner() {
+    super();
+  }
 
   @Override
   public boolean equals(Object obj) {
@@ -137,8 +142,9 @@ public abstract class BusinessPartner implements KeyAccess {
     if (iD == null) {
       if (other.iD != null)
         return false;
-    } else if (!iD.equals(other.iD))
+    } else if (!iD.equals(other.iD)) {
       return false;
+    }
     return true;
   }
 
@@ -158,7 +164,7 @@ public abstract class BusinessPartner implements KeyAccess {
     return country;
   }
 
-  public Timestamp getCreationDateTime() {
+  public LocalDateTime getCreationDateTime() {
     return creationDateTime;
   }
 
@@ -192,6 +198,8 @@ public abstract class BusinessPartner implements KeyAccess {
   }
 
   public Collection<BusinessPartnerRole> getRoles() {
+    if (roles == null)
+      roles = new ArrayList<>();
     return roles;
   }
 
@@ -207,68 +215,71 @@ public abstract class BusinessPartner implements KeyAccess {
     return result;
   }
 
-  public void setAddress(PostalAddressData address) {
+  public void setAddress(final PostalAddressData address) {
     this.address = address;
   }
 
-  public void setAdministrativeInformation(AdministrativeInformation administrativeInformation) {
+  public void setAdministrativeInformation(final AdministrativeInformation administrativeInformation) {
     this.administrativeInformation = administrativeInformation;
   }
 
-  public void setCommunicationData(CommunicationData communicationData) {
+  public void setCommunicationData(final CommunicationData communicationData) {
     this.communicationData = communicationData;
   }
 
-  public void setCountry(String country) {
+  public void setCountry(final String country) {
     this.country = country;
   }
 
-  public void setCreationDateTime(Timestamp creationDateTime) {
+  public void setCreationDateTime(final LocalDateTime creationDateTime) {
     this.creationDateTime = creationDateTime;
   }
 
-  public void setCustomNum1(BigDecimal customNum1) {
+  public void setCustomNum1(final BigDecimal customNum1) {
     this.customNum1 = customNum1;
   }
 
-  public void setCustomNum2(BigDecimal customNum2) {
+  public void setCustomNum2(final BigDecimal customNum2) {
     this.customNum2 = customNum2;
   }
 
-  public void setCustomString1(String customString1) {
+  public void setCustomString1(final String customString1) {
     this.customString1 = customString1;
   }
 
-  public void setCustomString2(String customString2) {
+  public void setCustomString2(final String customString2) {
     this.customString2 = customString2;
   }
 
-  public void setETag(long eTag) {
+  public void setETag(final long eTag) {
     this.eTag = eTag;
   }
 
-  public void setID(String iD) {
+  public void setID(final String iD) {
     this.iD = iD;
   }
 
-  public void setRoles(Collection<BusinessPartnerRole> roles) {
+  public void setRoles(final Collection<BusinessPartnerRole> roles) {
     this.roles = roles;
   }
 
-  public void setType(String type) {
+  public void setType(final String type) {
     this.type = type;
   }
 
   @PrePersist
   public void onCreate() {
     administrativeInformation = new AdministrativeInformation();
-    long time = new Date().getTime();
-    ChangeInformation created = new ChangeInformation("99", new Timestamp(time));
+    ChangeInformation created = new ChangeInformation("99", Date.valueOf(LocalDate.now()));
     administrativeInformation.setCreated(created);
     administrativeInformation.setUpdated(created);
   }
 
   public Collection<AdministrativeDivisionDescription> getLocationName() {
     return locationName;
+  }
+
+  public void setLocationName(final Collection<AdministrativeDivisionDescription> locationName) {
+    this.locationName = locationName;
   }
 }

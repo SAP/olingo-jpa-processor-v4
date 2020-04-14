@@ -6,12 +6,13 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Transient;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssoziation;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransient;
 
 @Embeddable
 public class PostalAddressData {
@@ -20,7 +21,7 @@ public class PostalAddressData {
   @Column(name = "\"Address.StreetNumber\"", nullable = true)
   private String houseNumber;
   @Column(name = "\"Address.PostOfficeBox\"", nullable = true)
-  private String POBox;
+  private String pOBox;
   @Column(name = "\"Address.PostalCode\"")
   private String postalCode;
   @Column(name = "\"Address.City\"")
@@ -35,6 +36,9 @@ public class PostalAddressData {
   private String regionCodeID = "3166-2";
   @Column(name = "\"Address.Region\"")
   private String region;
+  @Transient
+  @EdmTransient(calculator = StreetPropertyCalculator.class, requiredAttributes = { "streetName", "houseNumber" })
+  private String street;
 
   @EdmDescriptionAssoziation(languageAttribute = "language", descriptionAttribute = "name")
   @OneToMany(fetch = FetchType.LAZY)
@@ -43,26 +47,21 @@ public class PostalAddressData {
 
   @EdmDescriptionAssoziation(languageAttribute = "key/language", descriptionAttribute = "name")
   @OneToMany(fetch = FetchType.LAZY)
-  @JoinColumns({
-      @JoinColumn(name = "\"CodePublisher\"", referencedColumnName = "\"Address.RegionCodePublisher\"",
-          insertable = false, updatable = false),
-      @JoinColumn(name = "\"CodeID\"", referencedColumnName = "\"Address.RegionCodeID\"", insertable = false,
-          updatable = false),
-      @JoinColumn(name = "\"DivisionCode\"", referencedColumnName = "\"Address.Region\"", insertable = false,
-          updatable = false)
-  })
+  @JoinColumn(name = "\"CodePublisher\"", referencedColumnName = "\"Address.RegionCodePublisher\"",
+      insertable = false, updatable = false)
+  @JoinColumn(name = "\"CodeID\"", referencedColumnName = "\"Address.RegionCodeID\"", insertable = false,
+      updatable = false)
+  @JoinColumn(name = "\"DivisionCode\"", referencedColumnName = "\"Address.Region\"", insertable = false,
+      updatable = false)
   private Collection<AdministrativeDivisionDescription> regionName;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumns({
-      @JoinColumn(name = "\"Address.RegionCodePublisher\"", referencedColumnName = "\"CodePublisher\"",
-          nullable = false,
-          insertable = false, updatable = false),
-      @JoinColumn(name = "\"Address.RegionCodeID\"", referencedColumnName = "\"CodeID\"", nullable = false,
-          insertable = false, updatable = false),
-      @JoinColumn(name = "\"Address.Region\"", referencedColumnName = "\"DivisionCode\"", nullable = false,
-          insertable = false, updatable = false)
-  })
+  @JoinColumn(name = "\"Address.RegionCodePublisher\"", referencedColumnName = "\"CodePublisher\"",
+      nullable = false, insertable = false, updatable = false)
+  @JoinColumn(name = "\"Address.RegionCodeID\"", referencedColumnName = "\"CodeID\"", nullable = false,
+      insertable = false, updatable = false)
+  @JoinColumn(name = "\"Address.Region\"", referencedColumnName = "\"DivisionCode\"", nullable = false,
+      insertable = false, updatable = false)
   private AdministrativeDivision administrativeDivision;
 
   public String getStreetName() {
@@ -74,7 +73,7 @@ public class PostalAddressData {
   }
 
   public String getPOBox() {
-    return POBox;
+    return pOBox;
   }
 
   public String getCityName() {
@@ -98,7 +97,7 @@ public class PostalAddressData {
   }
 
   public void setPOBox(String pOBox) {
-    POBox = pOBox;
+    this.pOBox = pOBox;
   }
 
   public void setCityName(String cityName) {
@@ -123,5 +122,11 @@ public class PostalAddressData {
 
   public Collection<AdministrativeDivisionDescription> getRegionName() {
     return regionName;
+  }
+
+  @Override
+  public String toString() {
+    return "PostalAddressData [streetName=" + streetName + ", houseNumber=" + houseNumber + ", pOBox=" + pOBox
+        + ", postalCode=" + postalCode + ", cityName=" + cityName + ", country=" + country + ", region=" + region + "]";
   }
 }

@@ -1,7 +1,8 @@
 package com.sap.olingo.jpa.processor.core.util;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.olingo.commons.api.edm.EdmComplexType;
@@ -26,6 +27,7 @@ import org.apache.olingo.server.api.uri.queryoption.AliasQueryOption;
 import org.apache.olingo.server.api.uri.queryoption.ApplyOption;
 import org.apache.olingo.server.api.uri.queryoption.CountOption;
 import org.apache.olingo.server.api.uri.queryoption.CustomQueryOption;
+import org.apache.olingo.server.api.uri.queryoption.DeltaTokenOption;
 import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
 import org.apache.olingo.server.api.uri.queryoption.FilterOption;
 import org.apache.olingo.server.api.uri.queryoption.FormatOption;
@@ -44,9 +46,16 @@ public class UriInfoDouble implements UriInfo {
   private ExpandOption expandOpts;
   private List<UriResource> uriResources;
 
-  public UriInfoDouble(SelectOption selOpts) {
+  public UriInfoDouble(final SelectOption selOpts) {
     super();
     this.selOpts = selOpts;
+    this.uriResources = new ArrayList<>(0);
+  }
+
+  public UriInfoDouble(final UriInfoResource resourcePath) {
+    super();
+    this.selOpts = null;
+    this.uriResources = resourcePath.getUriResourceParts();
   }
 
   @Override
@@ -366,6 +375,11 @@ public class UriInfoDouble implements UriInfo {
 
   @Override
   public ApplyOption getApplyOption() {
+    return null;
+  }
+
+  @Override
+  public DeltaTokenOption getDeltaTokenOption() {
     return null;
   }
 

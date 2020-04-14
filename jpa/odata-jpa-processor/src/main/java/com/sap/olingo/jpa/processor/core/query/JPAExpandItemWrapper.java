@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.processor.core.query;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -8,6 +9,7 @@ import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.queryoption.ApplyOption;
 import org.apache.olingo.server.api.uri.queryoption.CountOption;
 import org.apache.olingo.server.api.uri.queryoption.CustomQueryOption;
+import org.apache.olingo.server.api.uri.queryoption.DeltaTokenOption;
 import org.apache.olingo.server.api.uri.queryoption.ExpandItem;
 import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
 import org.apache.olingo.server.api.uri.queryoption.FilterOption;
@@ -110,7 +112,7 @@ public class JPAExpandItemWrapper implements JPAExpandItem {
 
   @Override
   public List<UriResource> getUriResourceParts() {
-    return item.getResourcePath() != null ? item.getResourcePath().getUriResourceParts() : null;
+    return item.getResourcePath() != null ? item.getResourcePath().getUriResourceParts() : Collections.emptyList();
   }
 
   @Override
@@ -130,6 +132,11 @@ public class JPAExpandItemWrapper implements JPAExpandItem {
 
   @Override
   public ApplyOption getApplyOption() {
+    return null;
+  }
+
+  @Override
+  public DeltaTokenOption getDeltaTokenOption() {
     return null;
   }
 

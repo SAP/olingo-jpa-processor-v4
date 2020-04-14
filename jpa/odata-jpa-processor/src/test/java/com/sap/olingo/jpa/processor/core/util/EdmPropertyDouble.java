@@ -1,6 +1,6 @@
 package com.sap.olingo.jpa.processor.core.util;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 
@@ -105,6 +105,12 @@ public class EdmPropertyDouble implements EdmProperty {
 
   @Override
   public String getDefaultValue() {
+    fail();
+    return null;
+  }
+
+  @Override
+  public EdmType getTypeWithAnnotations() {
     fail();
     return null;
   }

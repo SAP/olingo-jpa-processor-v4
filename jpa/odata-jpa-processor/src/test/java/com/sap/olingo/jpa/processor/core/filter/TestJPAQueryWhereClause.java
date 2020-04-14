@@ -1,14 +1,21 @@
 package com.sap.olingo.jpa.processor.core.filter;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
 
 import org.apache.olingo.commons.api.ex.ODataException;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.NullNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.sap.olingo.jpa.processor.core.api.JPAClaimsPair;
+import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataGroupsProvider;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 
@@ -17,7 +24,8 @@ public class TestJPAQueryWhereClause extends TestBase {
   @Test
   public void testFilterOneEquals() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$filter=ID eq '3'");
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$filter=ID eq '3'");
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
@@ -50,6 +58,18 @@ public class TestJPAQueryWhereClause extends TestBase {
   }
 
   @Test
+  public void testFilterOneEnumEquals() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$filter=ABCClass eq com.sap.olingo.jpa.ABCClassifiaction'A'");
+    helper.assertStatus(200);
+
+    ArrayNode orgs = helper.getValues();
+    assertEquals(1, orgs.size());
+    assertEquals("1", orgs.get(0).get("ID").asText());
+  }
+
+  @Test
   public void testFilterOneEqualsTwoProperties() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -79,6 +99,30 @@ public class TestJPAQueryWhereClause extends TestBase {
 
     ArrayNode orgs = helper.getValues();
     assertEquals(9, orgs.size());
+  }
+
+  @Test
+  public void testFilterOneEnumNotEqual() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Persons?$filter=AccessRights ne com.sap.olingo.jpa.AccessRights'Write'");
+    helper.assertStatus(200);
+
+    ArrayNode persons = helper.getValues();
+    assertEquals(1, persons.size());
+    assertEquals("97", persons.get(0).get("ID").asText());
+  }
+
+  @Test
+  public void testFilterOneEnumEqualMultipleValues() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Persons?$filter=AccessRights eq com.sap.olingo.jpa.AccessRights'Read,Delete'");
+    helper.assertStatus(200);
+
+    ArrayNode persons = helper.getValues();
+    assertEquals(1, persons.size());
+    assertEquals("97", persons.get(0).get("ID").asText());
   }
 
   @Test
@@ -140,6 +184,19 @@ public class TestJPAQueryWhereClause extends TestBase {
 
     ArrayNode orgs = helper.getValues();
     assertEquals(4, orgs.size());
+  }
+
+  @Disabled // TODO Clarify if GT, LE .. not supported by OData or "only" by Olingo
+  @Test
+  public void testFilterOneEnumGreaterThan() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Persons?$filter=AccessRights gt com.sap.olingo.jpa.AccessRights'Read'");
+    helper.assertStatus(200);
+
+    ArrayNode persons = helper.getValues();
+    assertEquals(1, persons.size());
+    assertEquals("99", persons.get(0).get("ID").asText());
   }
 
   @Test
@@ -212,6 +269,69 @@ public class TestJPAQueryWhereClause extends TestBase {
   }
 
   @Test
+  public void testFilterAndWithFunction1() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions?$filter=CodePublisher eq 'Eurostat' and contains(tolower(DivisionCode),tolower('BE1'))&$orderby=DivisionCode asc");
+    helper.assertStatus(200);
+
+    ArrayNode orgs = helper.getValues();
+    assertEquals(3, orgs.size());
+    assertEquals("BE1", orgs.get(0).get("DivisionCode").asText());
+  }
+
+  @Test
+  public void testFilterAndWithFunction2() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions?$filter=CodePublisher eq 'Eurostat' and contains(DivisionCode,'BE1')&$orderby=DivisionCode asc");
+    helper.assertStatus(200);
+
+    ArrayNode orgs = helper.getValues();
+    assertEquals(3, orgs.size());
+    assertEquals("BE1", orgs.get(0).get("DivisionCode").asText());
+  }
+
+  @Test
+  public void testFilterAndWithComparisonContainingFunction() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions?$filter=CodePublisher eq 'Eurostat' and tolower(DivisionCode) eq tolower('BE1')");
+    helper.assertStatus(200);
+
+    ArrayNode orgs = helper.getValues();
+    assertEquals(1, orgs.size());
+    assertEquals("BE1", orgs.get(0).get("DivisionCode").asText());
+  }
+
+  @Test
+  public void testFilterhComparisonViaNavigationContainingFunction() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerRoles?$filter=tolower(Organization/Name1) eq 'third org.'");
+    helper.assertStatus(200);
+    ArrayNode act = helper.getValues();
+    assertEquals(3, act.size());
+  }
+
+  @Test
+  public void testFilterhComparisonTwoFunctionsContainingNavigationNotSupported() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerRoles?$filter=tolower(Organization/Name1) eq tolower(Organization/Name2)");
+    helper.assertStatus(501);
+  }
+
+  @Test
+  public void testFilterhComparisonViaNavigationContainingNestedFunctionNotSupported() throws IOException,
+      ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerRoles?$filter=contains(tolower(Organization/Name1), 'third org.')");
+    helper.assertStatus(501);
+  }
+
+  @Test
   public void testFilterAddGreater() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -275,9 +395,6 @@ public class TestJPAQueryWhereClause extends TestBase {
 
     ArrayNode orgs = helper.getValues();
     assertEquals(11, orgs.size());
-//    for (JsonNode n : orgs) {
-//      System.out.println(n.get("Name").asText());
-//    }
   }
 
   @Test
@@ -370,8 +487,8 @@ public class TestJPAQueryWhereClause extends TestBase {
     assertEquals(2, orgs.size());
   }
 
-  @Ignore // Usage of mult currently creates parser error: The types 'Edm.Double' and '[Int64, Int32, Int16, Byte,
-          // SByte]' are not compatible.
+  @Disabled // Usage of mult currently creates parser error: The types 'Edm.Double' and '[Int64, Int32, Int16, Byte,
+            // SByte]' are not compatible.
   @Test
   public void testFilterSubstringStartCalculated() throws IOException, ODataException {
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -407,7 +524,6 @@ public class TestJPAQueryWhereClause extends TestBase {
     assertEquals(1, orgs.size());
   }
 
-  @Ignore
   @Test
   public void testFilterToUpperInvers() throws IOException, ODataException {
 
@@ -417,7 +533,7 @@ public class TestJPAQueryWhereClause extends TestBase {
     helper.assertStatus(200);
 
     ArrayNode orgs = helper.getValues();
-    assertEquals(1, orgs.size());
+    assertEquals(19, orgs.size());
   }
 
   @Test
@@ -448,11 +564,51 @@ public class TestJPAQueryWhereClause extends TestBase {
   public void testFilterNavigationPropertyToManyValueAny() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Organizations?$filter=Roles/any(d:d/RoleCategory eq 'A')");
+        "Organizations?$select=ID&$filter=Roles/any(d:d/RoleCategory eq 'A')");
 
     helper.assertStatus(200);
     ArrayNode orgs = helper.getValues();
     assertEquals(3, orgs.size());
+  }
+
+  @Test
+  public void testFilterNavigationPropertyToManyValueAnyProtected() throws IOException, ODataException {
+    final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    claims.add("UserId", new JPAClaimsPair<>("Willi"));
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerProtecteds?$filter=Roles/any(d:d/RoleCategory eq 'X')", claims);
+
+    helper.assertStatus(200);
+    ArrayNode orgs = helper.getValues();
+    assertEquals(2, orgs.size());
+  }
+
+  @Test
+  public void testFilterNavigationPropertyToManyValueAnyProtectedThrowsErrorOnMissingClaim() throws IOException,
+      ODataException {
+    final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    claims.add("UserId", new JPAClaimsPair<>("Willi"));
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerProtecteds?$filter=RolesProtected/any(d:d/RoleCategory eq 'X')", claims);
+
+    helper.assertStatus(403);
+  }
+
+  @Test
+  public void testFilterNavigationPropertyToManyValueAnyProtectedDeep() throws IOException,
+      ODataException {
+    final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    claims.add("UserId", new JPAClaimsPair<>("Willi"));
+    claims.add("RoleCategory", new JPAClaimsPair<>("C"));
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerProtecteds?$filter=RolesProtected/any(d:d/RoleCategory eq 'X')", claims);
+
+    helper.assertStatus(200);
+    ArrayNode act = helper.getValues();
+    assertEquals(0, act.size());
   }
 
   @Test
@@ -463,6 +619,7 @@ public class TestJPAQueryWhereClause extends TestBase {
 
     helper.assertStatus(200);
     ArrayNode orgs = helper.getValues();
+    assertEquals(7, orgs.size());
   }
 
   @Test
@@ -480,7 +637,7 @@ public class TestJPAQueryWhereClause extends TestBase {
   public void testFilterNavigationPropertyToManyValueAnyNoRestriction() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Organizations?$filter=Roles/any()");
+        "Organizations?$select=ID&$filter=Roles/any()");
 
     helper.assertStatus(200);
     ArrayNode orgs = helper.getValues();
@@ -500,14 +657,56 @@ public class TestJPAQueryWhereClause extends TestBase {
 
   @Test
   public void testFilterCountNavigationProperty() throws IOException, ODataException {
-//https://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398301
-//Example 43: return all Categories with less than 10 products    
+    // https://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398301
+    // Example 43: return all Categories with less than 10 products
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations?$select=ID&$filter=Roles/$count eq 2");
 
     helper.assertStatus(200);
     ArrayNode orgs = helper.getValues();
     assertEquals(1, orgs.size());
+  }
+
+  @Test
+  public void testFilterCountNavigationPropertyProtectedAllResults() throws IOException, ODataException {
+    final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    claims.add("UserId", new JPAClaimsPair<>("*"));
+    claims.add("RoleCategory", new JPAClaimsPair<>("A"));
+    claims.add("RoleCategory", new JPAClaimsPair<>("C"));
+    IntegrationTestHelper helper;
+    helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerProtecteds?$select=ID&$filter=RolesProtected/$count ge 2", claims);
+
+    helper.assertStatus(200);
+    ArrayNode act = helper.getValues();
+    assertEquals(2, act.size());
+  }
+
+  @Test
+  public void testFilterCountNavigationPropertyProtected() throws IOException, ODataException {
+    // https://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398301
+    // Example 43: return all Categories with less than 10 products
+    final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    claims.add("UserId", new JPAClaimsPair<>("Marvin"));
+    claims.add("RoleCategory", new JPAClaimsPair<>("A", "B"));
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerProtecteds?$select=ID&$filter=RolesProtected/$count ge 2", claims); // and ID eq '3'
+
+    helper.assertStatus(200);
+    ArrayNode act = helper.getValues();
+    assertEquals(1, act.size());
+    assertEquals("3", act.get(0).get("ID").asText());
+  }
+
+  @Test
+  public void testFilterCountNavigationPropertyProtectedThrowsErrorOnMissingClaim() throws IOException, ODataException {
+
+    final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    claims.add("UserId", new JPAClaimsPair<>("Marvin"));
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerProtecteds?$select=ID&$filter=RolesProtected/$count ge 2", claims);
+
+    helper.assertStatus(403);
   }
 
   @Test
@@ -601,6 +800,36 @@ public class TestJPAQueryWhereClause extends TestBase {
   };
 
   @Test
+  public void testFilterNavigationPropertyContainsProtectedDeep() throws IOException, ODataException {
+
+    final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    claims.add("UserId", new JPAClaimsPair<>("*"));
+    claims.add("RoleCategory", new JPAClaimsPair<>("Z"));
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerRoleProtecteds?$filter=contains(BupaPartnerProtected/Name1, 'o')", claims);
+
+    helper.assertStatus(200);
+    ArrayNode orgs = helper.getValues();
+    assertEquals(0, orgs.size());
+  };
+
+  @Test
+  public void testFilterNavigationPropertyEqualsProtectedDeep() throws IOException, ODataException {
+
+    final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    claims.add("UserId", new JPAClaimsPair<>("Willi"));
+    claims.add("RoleCategory", new JPAClaimsPair<>("*"));
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerRoleProtecteds?$filter=BupaPartnerProtected/Type eq '1'", claims);
+
+    helper.assertStatus(200);
+    ArrayNode orgs = helper.getValues();
+    assertEquals(3, orgs.size());
+  };
+
+  @Test
   public void testFilterNavigationPropertyDescriptionToOneValueViaComplexTypeWSubselect2() throws IOException,
       ODataException {
 
@@ -613,6 +842,103 @@ public class TestJPAQueryWhereClause extends TestBase {
   };
 
   @Test
+  public void testFilterNavigationPropertyAndExandThatNavigationProperty() throws IOException,
+      ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions?$filter=Parent/DivisionCode eq 'BE2'&$expand=Parent");
+
+    helper.assertStatus(200);
+    ArrayNode admin = helper.getValues();
+    assertEquals(5, admin.size());
+    assertNotNull(admin.get(3).findValue("Parent"));
+    assertFalse(admin.get(3).findValue("Parent") instanceof NullNode);
+    assertEquals("BE2", admin.get(3).findValue("Parent").get("DivisionCode").asText());
+  };
+
+  @Test
+  public void testFilterNavigationPropertyViaJoinTableSubtype() throws IOException,
+      ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Persons?$select=ID&$filter=SupportedOrganizations/any()");
+
+    helper.assertStatus(200);
+    ArrayNode admin = helper.getValues();
+    assertEquals(2, admin.size());
+    assertEquals("98", admin.get(0).findValue("ID").asText());
+
+  };
+
+  @Disabled // EclipsLinkProblem see https://bugs.eclipse.org/bugs/show_bug.cgi?id=529565
+  @Test
+  public void testFilterNavigationPropertyViaJoinTableCountSubType() throws IOException, // NOSONAR
+      ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Persons?$select=ID&$filter=SupportedOrganizations/$count gt 1");
+
+    helper.assertStatus(200);
+    ArrayNode admin = helper.getValues();
+    assertEquals(2, admin.size());
+    assertEquals("98", admin.get(0).findValue("ID").asText());
+
+  };
+
+  @Test
+  public void testFilterMappedNavigationPropertyViaJoinTableSubtype() throws IOException,
+      ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$select=Name1&$filter=SupportEngineers/any(d:d/LastName eq 'Doe')");
+
+    helper.assertStatus(200);
+    ArrayNode admin = helper.getValues();
+    assertEquals(1, admin.size());
+    assertEquals("First Org.", admin.get(0).findValue("Name1").asText());
+
+  };
+
+  @Test
+  public void testFilterNavigationPropertyViaJoinTableCount() throws IOException,
+      ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Persons?$filter=Teams/$count eq 0&$select=ID");
+
+    helper.assertStatus(200);
+    ArrayNode admin = helper.getValues();
+    assertEquals(1, admin.size());
+    assertEquals("98", admin.get(0).findValue("ID").asText());
+
+  };
+
+  @Test
+  public void testFilterMappedNavigationPropertyViaJoinTableFilter() throws IOException,
+      ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Teams?$select=Name&$filter=Member/any(d:d/LastName eq 'Mustermann')");
+
+    helper.assertStatus(200);
+    ArrayNode admin = helper.getValues();
+    assertEquals(2, admin.size());
+  };
+
+  @Test
+  public void testFilterWithAllExpand() throws ODataException, IOException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$filter=Name1 eq 'Third Org.'&$expand=Roles");
+
+    helper.assertStatus(200);
+    ArrayNode org = helper.getValues();
+    assertNotNull(org);
+    assertEquals(1, org.size());
+    assertEquals(3, org.get(0).get("Roles").size());
+  }
+
+  @Test
   public void testFilterSubstringStartEndIndexToLower() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -622,5 +948,237 @@ public class TestJPAQueryWhereClause extends TestBase {
 
     ArrayNode orgs = helper.getValues();
     assertEquals(2, orgs.size());
+  }
+
+  @Test
+  public void testFilterOneHas() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Persons?$filter=AccessRights has com.sap.olingo.jpa.AccessRights'Read'");
+
+    helper.assertStatus(200);
+
+    ArrayNode orgs = helper.getValues();
+    assertEquals(1, orgs.size());
+  }
+
+  @Test
+  public void testFilterNavigationTarget() throws IOException, ODataException {
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions(DivisionCode='BE2',CodeID='NUTS1',CodePublisher='Eurostat')/Children?$filter=DivisionCode eq 'BE21'");
+    helper.assertStatus(200);
+
+    final ObjectNode div = helper.getValue();
+    final ObjectNode result = (ObjectNode) div.get("value").get(0);
+    assertNotNull(result);
+    assertEquals("BE21", result.get("DivisionCode").asText());
+  }
+
+  @Test
+  public void testFilterCollectionSinplePropertyThrowsError() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$select=ID&$filter=contains(Comment, 'just')");
+
+    helper.assertStatus(400); // Olingo rejects a bunch of functions.
+  }
+
+  @Test
+  public void testFilterCollectionPropertyAny() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$select=ID&$filter=Comment/any(s:contains(s, 'just'))");
+
+    helper.assertStatus(200);
+    ArrayNode org = helper.getValues();
+    assertNotNull(org);
+    assertEquals(1, org.size());
+  }
+
+  @Test
+  public void testFilterCollectionPropertySimpleCount() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Persons?$filter=InhouseAddress/$count eq 2");
+
+    helper.assertStatus(200);
+    ArrayNode deep = helper.getValues();
+    assertNotNull(deep);
+    assertEquals(1, deep.size());
+  }
+
+  @Test
+  public void testFilterCollectionPropertyDeepSimpleCount() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "CollectionDeeps?$filter=FirstLevel/SecondLevel/Comment/$count eq 2&$select=ID");
+
+    helper.assertStatus(200);
+    ArrayNode deep = helper.getValues();
+    assertNotNull(deep);
+    assertEquals(1, deep.size());
+  }
+
+  @Test
+  public void testFilterCollectionPropertyDeepComplexCount() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "CollectionDeeps?$filter=FirstLevel/SecondLevel/Address/$count eq 2&$select=ID");
+
+    helper.assertStatus(200);
+    ArrayNode deep = helper.getValues();
+    assertNotNull(deep);
+    assertEquals(1, deep.size());
+  }
+
+  @Test
+  public void testFilterCollectionPropertyAsPartOfComplexAny() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "CollectionDeeps?$filter=FirstLevel/SecondLevel/Address/any(s:s/TaskID eq 'DEV')");
+
+    helper.assertStatus(200);
+    ArrayNode org = helper.getValues();
+    assertNotNull(org);
+    assertEquals(1, org.size());
+  }
+
+  @Test
+  public void testFilterCollectionPropertyAsPartOfComplexWithSelect() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "CollectionDeeps?$select=FirstLevel/TransientCollection&$filter=FirstLevel/SecondLevel/Address/any(s:s/TaskID eq 'DEV')");
+    helper.assertStatus(200);
+    ArrayNode org = helper.getValues();
+    assertNotNull(org);
+    assertEquals(1, org.size());
+  }
+
+  @Test
+  public void testFilterCollectionOnPropertyWithNavigation() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Persons('99')/InhouseAddress?$filter=TaskID eq 'DEV'");
+
+    helper.assertStatus(200);
+    final ArrayNode addr = helper.getValues();
+    assertNotNull(addr);
+    assertEquals(1, addr.size());
+  }
+
+  @Test
+  public void testFilterCollectionPropertyWithOutNavigationThrowsError() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Persons?$select=ID&$filter=InhouseAddress/TaskID eq 'DEV'");
+
+    helper.assertStatus(400); // The URI is malformed
+  }
+
+  @Test
+  public void testFilterOnGroupedSimplePropertyWithoutGroupsReturnsForbidden() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerWithGroupss?$filter=Country eq 'DEU'");
+    helper.assertStatus(403);
+  }
+
+  @Test
+  public void testFilterOnGroupedSimplePropertyGroupsProvided() throws IOException, ODataException {
+    final JPAODataGroupsProvider groups = new JPAODataGroupsProvider();
+    groups.addGroup("Person");
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerWithGroupss?$filter=Country eq 'DEU'", groups);
+    helper.assertStatus(200);
+    final ArrayNode act = helper.getValues();
+    for (int i = 0; i < act.size(); i++) {
+      final ObjectNode bupa = (ObjectNode) act.get(i);
+      if (bupa.get("ID").asText().equals("99")) {
+        final ArrayNode inhouse = (ArrayNode) bupa.get("InhouseAddress");
+        assertFalse(inhouse.isNull());
+        assertEquals(2, inhouse.size());
+      }
+    }
+  }
+
+  @Test
+  public void testFilterNavigationPropertyRequiresGroupsReturnsForbidden() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerWithGroupss?$select=ID&$filter=Roles/any(d:d/Details eq 'A')");
+    helper.assertStatus(403);
+  }
+
+  @Test
+  public void testFilterNavigationPropertyRequiresGroupsProvided() throws IOException, ODataException {
+
+    final JPAODataGroupsProvider groups = new JPAODataGroupsProvider();
+    groups.addGroup("Company");
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerWithGroupss?$select=ID&$filter=Roles/any(d:d/Details eq 'A')", groups);
+    helper.assertStatus(200);
+  }
+
+  @Test
+  public void testFilterCollectionPropertyRequiresGroupsReturnsForbidden() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerWithGroupss?$select=ID&$filter=Comment/any(s:contains(s, 'just'))");
+    helper.assertStatus(403);
+  }
+
+  @Test
+  public void testFilterCollectionPropertyRequiresGroupsProvided() throws IOException, ODataException {
+
+    final JPAODataGroupsProvider groups = new JPAODataGroupsProvider();
+    groups.addGroup("Company");
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerWithGroupss?$select=ID&$filter=Comment/any(s:contains(s, 'just'))", groups);
+    helper.assertStatus(200);
+  }
+
+  @Test
+  public void testFilterCollectionProtectedPropertyRequiresGroupsReturnsForbidden() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerWithGroupss('99')/InhouseAddress?$filter=RoomNumber eq 1");
+    helper.assertStatus(403);
+  }
+
+  @Test
+  public void testFilterCollectionProtectedPropertyRequiresGroupsProvided() throws IOException, ODataException {
+
+    final JPAODataGroupsProvider groups = new JPAODataGroupsProvider();
+    groups.addGroup("Company");
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerWithGroupss('99')/InhouseAddress?$filter=RoomNumber eq 1", groups);
+    helper.assertStatus(200);
+  }
+
+  @Test
+  public void testFilterOnNull() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions?$filter=CodePublisher eq 'ISO' and ParentCodeID eq null");
+    helper.assertStatus(200);
+
+    ArrayNode orgs = helper.getValues();
+    assertEquals(4, orgs.size());
+  }
+
+  @Test
+  public void testFilterOnTransientSimpleProperty() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Persons?$filter=contains(FullName, 'willi')");
+    helper.assertStatus(501);
+  }
+
+  @Test
+  public void testFilterOnTransientCollectionProperty() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "CollectionDeeps?$filter=FirstLevel/TransientCollection/any(s:contains(s, 'just'))");
+    helper.assertStatus(501);
   }
 }

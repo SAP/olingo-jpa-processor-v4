@@ -12,4 +12,8 @@ public interface EdmEntitySetInfo {
   public List<UriParameter> getKeyPredicates();
 
   public String getName();
+
+  public String getNavigationPath();
+
+  public EdmEntitySet getTargetEdmEntitySet();
 }

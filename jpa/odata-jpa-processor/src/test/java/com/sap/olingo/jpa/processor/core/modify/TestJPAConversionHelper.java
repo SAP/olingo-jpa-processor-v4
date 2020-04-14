@@ -1,7 +1,7 @@
 package com.sap.olingo.jpa.processor.core.modify;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -23,7 +23,7 @@ import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
 import org.apache.olingo.server.api.uri.queryoption.SelectOption;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -59,7 +59,7 @@ public abstract class TestJPAConversionHelper {
   protected void prepareConvertCompoundKeyToLocation() throws ODataJPAModelException,
       SerializerException, ODataJPAProcessorException {
 
-    final List<JPAPath> keyPath = new ArrayList<JPAPath>();
+    final List<JPAPath> keyPath = new ArrayList<>();
 
     request = mock(ODataRequest.class);
     et = mock(JPAEntityType.class);
@@ -76,7 +76,7 @@ public abstract class TestJPAConversionHelper {
   }
 
   protected void prepareConvertSimpleKeyToLocation() throws ODataJPAModelException {
-    final List<JPAPath> keyPath = new ArrayList<JPAPath>();
+    final List<JPAPath> keyPath = new ArrayList<>();
 
     request = mock(ODataRequest.class);
     et = mock(JPAEntityType.class);
@@ -103,11 +103,11 @@ public abstract class TestJPAConversionHelper {
   }
 
   protected void prepareConvertEmbeddedIdToLocation() throws ODataJPAModelException {
-    List<JPAPath> keyPath = new ArrayList<JPAPath>();
-  
+    List<JPAPath> keyPath = new ArrayList<>();
+
     request = mock(ODataRequest.class);
     when(request.getRawBaseUri()).thenReturn("localhost.test");
-  
+
     edmEntitySet = mock(EdmEntitySet.class);
     et = mock(JPAEntityType.class);
     when(et.getKeyPath()).thenReturn(keyPath);
@@ -119,21 +119,21 @@ public abstract class TestJPAConversionHelper {
     when(keyAttribute.isComplex()).thenReturn(true);
     when(keyAttribute.isKey()).thenReturn(true);
     when(key.getLeaf()).thenReturn(keyAttribute);
-  
+
     JPAStructuredType st = mock(JPAStructuredType.class);
     when(keyAttribute.getStructuredType()).thenReturn(st);
-    keyPath = new ArrayList<JPAPath>();
+    keyPath = new ArrayList<>();
     when(st.getPathList()).thenReturn(keyPath);
-  
+
     addKeyAttribute(keyPath, "CodeID", "codeID");
     addKeyAttribute(keyPath, "CodePublisher", "codePublisher");
     addKeyAttribute(keyPath, "DivisionCode", "divisionCode");
     addKeyAttribute(keyPath, "Language", "language");
-  
+
     odata = mock(OData.class);
     UriHelper uriHelper = new UriHelperSpy(UriHelperSpy.EMBEDDED_ID);
     when(odata.createUriHelper()).thenReturn(uriHelper);
-  
+
   }
 
   class UriHelperSpy implements UriHelper {
@@ -157,7 +157,7 @@ public abstract class TestJPAConversionHelper {
           else if (property.getName().equals("Language") && property.getValue().equals("fr"))
             found++;
         }
-        assertEquals("Not all key attributes found", 2, found);
+        assertEquals(2, found, "Not all key attributes found");
         return "AdministrativeDivisionDescriptions(DivisionCode='BE1',CodeID='NUTS1',CodePublisher='Eurostat',Language='fr')";
       } else if (mode.equals(COMPOUND_KEY)) {
         assertEquals(2, entity.getProperties().size());
@@ -168,7 +168,7 @@ public abstract class TestJPAConversionHelper {
           else if (property.getName().equals("RoleCategory") && property.getValue().equals("A"))
             found++;
         }
-        assertEquals("Not all key attributes found", 2, found);
+        assertEquals(2, found, "Not all key attributes found");
         return "BusinessPartnerRoles(BusinessPartnerID='35',RoleCategory='A')";
       } else if (mode.equals(SINGLE)) {
         assertEquals(1, entity.getProperties().size());

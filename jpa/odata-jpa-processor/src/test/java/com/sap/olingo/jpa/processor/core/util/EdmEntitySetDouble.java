@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.processor.core.util;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.util.List;
 
 import org.apache.olingo.commons.api.edm.EdmAnnotation;
@@ -11,7 +13,7 @@ import org.apache.olingo.commons.api.edm.EdmMapping;
 import org.apache.olingo.commons.api.edm.EdmNavigationPropertyBinding;
 import org.apache.olingo.commons.api.edm.EdmTerm;
 
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 
 public class EdmEntitySetDouble implements EdmEntitySet {
   private final String name;
@@ -72,7 +74,13 @@ public class EdmEntitySetDouble implements EdmEntitySet {
 
   @Override
   public EdmMapping getMapping() {
-    org.junit.Assert.fail();
+    fail();
+    return null;
+  }
+
+  @Override
+  public EdmEntityType getEntityTypeWithAnnotations() {
+    fail();
     return null;
   }
 }

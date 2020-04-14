@@ -10,6 +10,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlNavigationPropertyBinding;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -62,14 +63,14 @@ final class IntermediateEntitySet extends IntermediateModelElement implements In
   }
 
   @Override
-  protected void lazyBuildEdmItem() throws ODataJPAModelException {
+  protected synchronized void lazyBuildEdmItem() throws ODataJPAModelException {
     if (edmEntitySet == null) {
       postProcessor.processEntitySet(this);
       edmEntitySet = new CsdlEntitySet();
 
       final CsdlEntityType edmEt = ((IntermediateEntityType) getODataEntityType()).getEdmItem();
       edmEntitySet.setName(getExternalName());
-      edmEntitySet.setType(nameBuilder.buildFQN(edmEt.getName()));
+      edmEntitySet.setType(buildFQN(edmEt.getName()));
 
       // Create navigation Property Binding
       // V4: An entity set or a singleton SHOULD contain an edm:NavigationPropertyBinding element for each navigation
@@ -81,7 +82,7 @@ final class IntermediateEntitySet extends IntermediateModelElement implements In
   }
 
   private List<CsdlNavigationPropertyBinding> determinePropertyBinding() throws ODataJPAModelException {
-    final List<CsdlNavigationPropertyBinding> navPropBindingList = new ArrayList<CsdlNavigationPropertyBinding>();
+    final List<CsdlNavigationPropertyBinding> navPropBindingList = new ArrayList<>();
     final List<JPAAssociationPath> naviPropertyList = entityType.getAssociationPathList();
     if (naviPropertyList != null && !naviPropertyList.isEmpty()) {
       // http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406398035
@@ -101,7 +102,9 @@ final class IntermediateEntitySet extends IntermediateModelElement implements In
 
   @Override
   CsdlEntitySet getEdmItem() throws ODataJPAModelException { // New test EdmItem with ODataEntityType
-    lazyBuildEdmItem();
+    if (edmEntitySet == null) {
+      lazyBuildEdmItem();
+    }
     return edmEntitySet;
   }
 

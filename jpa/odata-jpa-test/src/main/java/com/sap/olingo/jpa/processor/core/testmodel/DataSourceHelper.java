@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import javax.sql.DataSource;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.googlecode.flyway.core.Flyway;
@@ -30,45 +29,44 @@ public class DataSourceHelper {
   public static final int DB_REMOTE = 3;
   public static final int DB_DERBY = 4;
 
+  private DataSourceHelper() {
+    throw new IllegalStateException("JPAEntityManagerFactory class");
+  }
+
   public static DataSource createDataSource(int database) {
     DriverDataSource ds = null;
     switch (database) {
-    case DB_H2:
-      ds = new DriverDataSource(H2_DRIVER_CLASS_NAME, H2_URL, null, null, new String[0]);
-      break;
-
-    case DB_HSQLDB:
-      ds = new DriverDataSource(HSQLDB_DRIVER_CLASS_NAME, HSQLDB_URL, null, null, new String[0]);
-      break;
-    case DB_DERBY:
-      ds = new DriverDataSource(DERBY_DRIVER_CLASS_NAME, DERBY_URL, null, null, new String[0]);
-      break;
-
-    case DB_REMOTE:
-      String env = System.getenv().get("REMOTE_DB_LOGON");
-      ObjectMapper mapper = new ObjectMapper();
-      ObjectNode remoteInfo;
-      try {
-        remoteInfo = (ObjectNode) mapper.readTree(env);
-      } catch (JsonProcessingException e) {
+      case DB_H2:
+        ds = new DriverDataSource(H2_DRIVER_CLASS_NAME, H2_URL, null, null);
+        break;
+      case DB_HSQLDB:
+        ds = new DriverDataSource(HSQLDB_DRIVER_CLASS_NAME, HSQLDB_URL, null, null);
+        break;
+      case DB_DERBY:
+        ds = new DriverDataSource(DERBY_DRIVER_CLASS_NAME, DERBY_URL, null, null);
+        break;
+      case DB_REMOTE:
+        String env = System.getenv().get("REMOTE_DB_LOGON");
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode remoteInfo;
+        try {
+          remoteInfo = (ObjectNode) mapper.readTree(env);
+        } catch (IOException e) {
+          return null;
+        }
+        String url = REMOTE_URL;
+        url = url.replace("$Host$", remoteInfo.get("hostname").asText());
+        url = url.replace("$Port$", remoteInfo.get("port").asText());
+        url = url.replace("$DBNAME$", remoteInfo.get("dbname").asText());
+        String driver = remoteInfo.get("driver").asText();
+        ds = new DriverDataSource(driver, url, remoteInfo.get("username").asText(), remoteInfo.get(
+            "password").asText());
+        return ds;
+      default:
         return null;
-      } catch (IOException e) {
-        return null;
-      }
-      String url = REMOTE_URL;
-      url = url.replace("$Host$", remoteInfo.get("hostname").asText());
-      url = url.replace("$Port$", remoteInfo.get("port").asText());
-      url = url.replace("$DBNAME$", remoteInfo.get("dbname").asText());
-      String driver = remoteInfo.get("driver").asText();
-      ds = new DriverDataSource(driver, url, remoteInfo.get("username").asText(), remoteInfo.get(
-          "password").asText(), new String[0]);
-      return ds;
-    default:
-      return null;
     }
 
     Flyway flyway = new Flyway();
-    // flyway.
     flyway.setDataSource(ds);
     flyway.setInitOnMigrate(true);
     flyway.setSchemas(DB_SCHEMA);

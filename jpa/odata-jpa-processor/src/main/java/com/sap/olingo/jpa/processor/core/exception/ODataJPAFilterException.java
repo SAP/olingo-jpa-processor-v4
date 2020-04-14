@@ -10,12 +10,15 @@ public class ODataJPAFilterException extends ODataJPAProcessException {
    */
   private static final long serialVersionUID = -7188499882306858747L;
 
-  public static enum MessageKeys implements ODataJPAMessageKey {
+  public enum MessageKeys implements ODataJPAMessageKey {
     NOT_SUPPORTED_OPERATOR,
     NOT_SUPPORTED_FILTER,
     NOT_SUPPORTED_OPERATOR_TYPE,
     NOT_SUPPORTED_FUNCTION_COLLECTION,
-    NOT_SUPPORTED_FUNCTION_NOT_SCALAR;
+    NOT_SUPPORTED_FUNCTION_NOT_SCALAR,
+    NOT_SUPPORTED_TRANSIENT,
+    NOT_ALLOWED_MEMBER;
+
     @Override
     public String getKey() {
       return name();

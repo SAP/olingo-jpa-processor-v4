@@ -1,16 +1,16 @@
 package com.sap.olingo.jpa.processor.core.filter;
 
 import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.From;
 
 import org.apache.olingo.server.api.ODataApplicationException;
 
 class JPAAggregationOperationImp implements JPAAggregationOperation {
 
-  private final Root<?> root;
+  private final From<?, ?> root;
   private final JPAOperationConverter converter;
 
-  public JPAAggregationOperationImp(final Root<?> root, final JPAOperationConverter converter) {
+  public JPAAggregationOperationImp(final From<?, ?> root, final JPAOperationConverter converter) {
     this.root = root;
     this.converter = converter;
   }
@@ -31,7 +31,12 @@ class JPAAggregationOperationImp implements JPAAggregationOperation {
   }
 
   Expression<?> getPath() {
-    return root; // keyPathList;
+    return root;
+  }
+
+  @Override
+  public String getName() {
+    return JPAFilterAggregationType.COUNT.name();
   }
 
 }

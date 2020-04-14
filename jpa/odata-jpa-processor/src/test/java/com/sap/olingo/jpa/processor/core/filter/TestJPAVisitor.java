@@ -1,6 +1,6 @@
 package com.sap.olingo.jpa.processor.core.filter;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -17,8 +17,8 @@ import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceFunction;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitException;
 import org.apache.olingo.server.api.uri.queryoption.expression.Member;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
@@ -34,7 +34,7 @@ public class TestJPAVisitor {
   private JPAODataDatabaseOperations extension;
   private JPAOperationConverter converter;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     extension = mock(JPAODataDatabaseOperations.class);
     converter = new JPAOperationConverter(mock(CriteriaBuilder.class), extension);
@@ -43,12 +43,11 @@ public class TestJPAVisitor {
 
     when(compiler.getConverter()).thenReturn(converter);
     when(compiler.getParent()).thenReturn(query);
+    when(compiler.getDebugger()).thenReturn(mock(JPAServiceDebugger.class));
     when(query.getDebugger()).thenReturn(mock(JPAServiceDebugger.class));
 
     cut = new JPAVisitor(compiler);
   }
-
-//return new JPAFunctionOperator(jpaFunction, odataParams, this.jpaComplier.getParent().getRoot(), jpaComplier.getConverter().cb); 
 
   @Test
   public void createFunctionOperation() throws ExpressionVisitException, ODataApplicationException {
@@ -58,7 +57,7 @@ public class TestJPAVisitor {
     UriInfoResource info = mock(UriInfoResource.class);
     UriResourceFunction uriFunction = mock(UriResourceFunction.class);
 
-    List<UriResource> resources = new ArrayList<UriResource>();
+    List<UriResource> resources = new ArrayList<>();
     resources.add(uriFunction);
 
     when(member.getResourcePath()).thenReturn(info);
@@ -73,9 +72,7 @@ public class TestJPAVisitor {
     when(sd.getFunction(edmFunction)).thenReturn(jpaFunction);
     when(uriFunction.getParameters()).thenReturn(new ArrayList<UriParameter>());
 
-    if (!(cut.visitMember(member) instanceof JPAFunctionOperator)) {
-      fail();
-    }
+    assertTrue(cut.visitMember(member) instanceof JPAFunctionOperator);
   }
 
 }

@@ -1,13 +1,14 @@
 package com.sap.olingo.jpa.processor.core.query;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 
 import org.apache.olingo.commons.api.ex.ODataException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.sap.olingo.jpa.processor.core.api.JPAODataGroupsProvider;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 
@@ -98,6 +99,30 @@ public class TestJPAQueryOrderByClause extends TestBase {
   }
 
   @Test
+  public void testCollcetionOrderBy$CountAsc() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "CollectionDeeps?$orderby=FirstLevel/SecondLevel/Comment/$count asc");
+
+    helper.assertStatus(200);
+    ArrayNode deeps = helper.getValues();
+    assertEquals("501", deeps.get(0).get("ID").asText());
+    assertEquals("502", deeps.get(1).get("ID").asText());
+  }
+
+  @Test
+  public void testCollcetionOrderBy$CountDesc() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "CollectionDeeps?$orderby=FirstLevel/SecondLevel/Comment/$count desc");
+
+    helper.assertStatus(200);
+    ArrayNode deeps = helper.getValues();
+    assertEquals("502", deeps.get(0).get("ID").asText());
+    assertEquals("501", deeps.get(1).get("ID").asText());
+  }
+
+  @Test
   public void testOrderBy$CountAsc() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -134,5 +159,92 @@ public class TestJPAQueryOrderByClause extends TestBase {
     ArrayNode orgs = helper.getValues();
     assertEquals(4, orgs.size());
     assertEquals("USA", orgs.get(0).get("CountryCode").asText());
+  }
+
+  @Test
+  public void testOrderByAndTopSkip() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AdministrativeDivisions?$filter=CodeID eq 'NUTS' or CodeID eq '3166-1'&$orderby=CountryCode desc&$top=1&$skip=2");
+
+    helper.assertStatus(200);
+
+    ArrayNode orgs = helper.getValues();
+    assertEquals(1, orgs.size());
+    assertEquals("CHE", orgs.get(0).get("CountryCode").asText());
+  }
+
+  @Test
+  public void testOrderByNavigationOneHop() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations('3')/Roles?$orderby=RoleCategory desc");
+    helper.assertStatus(200);
+
+    ArrayNode orgs = helper.getValues();
+    assertEquals(3, orgs.size());
+    assertEquals("C", orgs.get(0).get("RoleCategory").asText());
+  }
+
+  @Test
+  public void testOrderByGroupedPropertyWithoutGroup() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerWithGroupss?$orderby=Country desc");
+    helper.assertStatus(403);
+  }
+
+  @Test
+  public void testOrderByPropertyWithGroupsOneGroup() throws IOException, ODataException {
+
+    final JPAODataGroupsProvider groups = new JPAODataGroupsProvider();
+    groups.addGroup("Person");
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerWithGroupss?$orderby=Country desc", groups);
+    helper.assertStatus(200);
+  }
+
+  @Test
+  public void testOrderByGroupedComplexPropertyWithoutGroup() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerWithGroupss?$orderby=Address/Country desc");
+    helper.assertStatus(403);
+  }
+
+  @Test
+  public void testOrderByGroupedComplexPropertyWithGroupsOneGroup() throws IOException, ODataException {
+
+    final JPAODataGroupsProvider groups = new JPAODataGroupsProvider();
+    groups.addGroup("Company");
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerWithGroupss?$orderby=Address/Country desc", groups);
+    helper.assertStatus(200);
+  }
+
+  @Test
+  public void testOrderByOnTransientPrimitveSimpleProperty() throws IOException, ODataException {
+
+    final JPAODataGroupsProvider groups = new JPAODataGroupsProvider();
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Persons?$orderby=FullName", groups);
+    helper.assertStatus(501);
+  }
+
+  @Test
+  public void testOrderByOnTransientSimpleComplexPartProperty() throws IOException, ODataException {
+
+    final JPAODataGroupsProvider groups = new JPAODataGroupsProvider();
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Persons?$select=ID&$orderby=Address/Street", groups);
+    helper.assertStatus(501);
+  }
+
+  @Test
+  public void testOrderByOnTransientCollectionProperty() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "CollectionDeeps?$orderby=FirstLevel/TransientCollection/$count asc");
+    helper.assertStatus(501);
   }
 }

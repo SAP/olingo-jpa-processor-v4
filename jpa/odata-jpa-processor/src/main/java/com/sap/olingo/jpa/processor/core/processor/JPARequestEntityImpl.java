@@ -1,10 +1,15 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 
 final class JPARequestEntityImpl implements JPARequestEntity {
   private static final JPAModifyUtil util = new JPAModifyUtil();
@@ -15,11 +20,14 @@ final class JPARequestEntityImpl implements JPARequestEntity {
   private final Map<JPAAssociationPath, List<JPARequestEntity>> jpaDeepEntities;
   private final Map<JPAAssociationPath, List<JPARequestLink>> jpaLinks;
   private final Map<String, List<String>> odataHeaders;
+  private Optional<Object> beforeImage;
+  private final JPAODataRequestContextAccess requestContext;
 
-  JPARequestEntityImpl(JPAEntityType et, Map<String, Object> jpaAttributes,
-      Map<JPAAssociationPath, List<JPARequestEntity>> jpaDeepEntities,
-      Map<JPAAssociationPath, List<JPARequestLink>> jpaLinks, Map<String, Object> keys,
-      Map<String, List<String>> headers) {
+  JPARequestEntityImpl(final JPAEntityType et, final Map<String, Object> jpaAttributes,
+      final Map<JPAAssociationPath, List<JPARequestEntity>> jpaDeepEntities,
+      final Map<JPAAssociationPath, List<JPARequestLink>> jpaLinks, final Map<String, Object> keys,
+      final Map<String, List<String>> headers, final JPAODataRequestContextAccess requestContext) {
+
     super();
     this.et = et;
     this.jpaAttributes = jpaAttributes;
@@ -27,6 +35,22 @@ final class JPARequestEntityImpl implements JPARequestEntity {
     this.jpaLinks = jpaLinks;
     this.jpaKeys = keys;
     this.odataHeaders = headers;
+    this.requestContext = requestContext;
+  }
+
+  @Override
+  public Map<String, List<String>> getAllHeader() {
+    return odataHeaders;
+  }
+
+  @Override
+  public Optional<Object> getBeforeImage() {
+    return beforeImage;
+  }
+
+  @Override
+  public Optional<JPAODataClaimProvider> getClaims() {
+    return requestContext.getClaimsProvider();
   }
 
   @Override
@@ -59,8 +83,13 @@ final class JPARequestEntityImpl implements JPARequestEntity {
     return jpaLinks;
   }
 
+  void setBeforeImage(final Optional<Object> beforeImage) {
+    this.beforeImage = beforeImage;
+  }
+
   @Override
-  public Map<String, List<String>> getAllHeader() {
-    return odataHeaders;
+  public List<String> getGroups() {
+    final Optional<JPAODataGroupProvider> provider = requestContext.getGroupsProvider();
+    return provider.isPresent() ? provider.get().getGroups() : Collections.emptyList();
   }
 }

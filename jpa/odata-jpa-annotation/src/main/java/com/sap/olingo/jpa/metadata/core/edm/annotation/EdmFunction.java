@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.metadata.core.edm.annotation;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -12,6 +13,7 @@ import java.lang.annotation.Target;
  * @author Oliver Grande
  *
  */
+@Repeatable(EdmFunctions.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
 public @interface EdmFunction {
@@ -51,10 +53,11 @@ public @interface EdmFunction {
   }
 
   /**
-   * Defines the name of the function in the service document
+   * Defines the name of the function in the service document. This is a required attribute for database based functions
+   * and can be omitted for java based functions.
    * @return
    */
-  String name();
+  String name() default "";
 
   EdmParameter[] parameter() default {};
 

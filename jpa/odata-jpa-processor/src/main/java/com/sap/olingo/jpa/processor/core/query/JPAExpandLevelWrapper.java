@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.query;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.olingo.commons.api.edm.EdmType;
@@ -11,6 +12,7 @@ import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.queryoption.ApplyOption;
 import org.apache.olingo.server.api.uri.queryoption.CountOption;
 import org.apache.olingo.server.api.uri.queryoption.CustomQueryOption;
+import org.apache.olingo.server.api.uri.queryoption.DeltaTokenOption;
 import org.apache.olingo.server.api.uri.queryoption.ExpandItem;
 import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
 import org.apache.olingo.server.api.uri.queryoption.FilterOption;
@@ -127,7 +129,7 @@ public final class JPAExpandLevelWrapper implements JPAExpandItem {
 
   @Override
   public List<UriResource> getUriResourceParts() {
-    return item.getResourcePath() != null ? item.getResourcePath().getUriResourceParts() : null;
+    return item.getResourcePath() != null ? item.getResourcePath().getUriResourceParts() : Collections.emptyList();
   }
 
   @Override
@@ -154,7 +156,7 @@ public final class JPAExpandLevelWrapper implements JPAExpandItem {
     private final ExpandOption parentOptions;
 
     private ExpandOptionWrapper(ExpandOption expandOption) {
-      this.items = new ArrayList<ExpandItem>();
+      this.items = new ArrayList<>();
       this.items.add(new ExpandItemWrapper(expandOption.getExpandItems().get(0)));
       this.parentOptions = expandOption;
       expandOption.getExpandItems().get(0).getLevelsOption();
@@ -264,6 +266,11 @@ public final class JPAExpandLevelWrapper implements JPAExpandItem {
     public EdmType getStartTypeFilter() {
       return parentItem.getStartTypeFilter();
     }
+
+    @Override
+    public ApplyOption getApplyOption() {
+      return null;
+    }
   }
 
   private class LevelsExpandOptionWrapper implements LevelsExpandOption {
@@ -289,5 +296,10 @@ public final class JPAExpandLevelWrapper implements JPAExpandItem {
       return level;
     }
 
+  }
+
+  @Override
+  public DeltaTokenOption getDeltaTokenOption() {
+    return null;
   }
 }

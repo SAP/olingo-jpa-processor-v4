@@ -1,8 +1,9 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.net.URISyntaxException;
 import java.util.List;
@@ -10,8 +11,8 @@ import java.util.List;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.commons.api.edmx.EdmxReference;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
@@ -25,7 +26,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferen
 public class TestIntermediateReferences extends TestMappingRoot {
   private IntermediateReferences cut;
 
-  @Before
+  @BeforeEach
   public void setup() throws ODataJPAModelException {
     cut = new IntermediateReferences();
   }
@@ -35,7 +36,7 @@ public class TestIntermediateReferences extends TestMappingRoot {
     String uri = "http://docs.oasisopen.org/odata/odata/v4.0/os/vocabularies/Org.OData.Core.V1.xml";
     cut.addReference(uri);
     List<EdmxReference> act = cut.getEdmReferences();
-    assertEquals(act.size(), 1);
+    assertEquals(1, act.size());
     assertEquals(act.get(0).getUri().toString(), uri);
   }
 
@@ -107,6 +108,24 @@ public class TestIntermediateReferences extends TestMappingRoot {
     ref.addInclude("Org.OData.Measures.V1", "Measures");
     FullQualifiedName fqn = new FullQualifiedName("Measures", "ISOCurrency");
     assertNotNull(cut.getTerm(fqn));
+  }
+
+  @Test
+  public void checkReturnNullOnUnknowTerm() throws ODataJPAModelException {
+    String uri = "http://docs.oasisopen.org/odata/odata/v4.0/os/vocabularies/Org.OData.Measures.V1.xml";
+    IntermediateReferenceAccess ref = cut.addReference(uri, "annotations/Org.OData.Measures.V1.xml");
+    ref.addInclude("Org.OData.Measures.V1", "Measures");
+    FullQualifiedName fqn = new FullQualifiedName("Measures", "Dummy");
+    assertNull(cut.getTerm(fqn));
+  }
+
+  @Test
+  public void checkReturnNullOnUnknowNamespace() throws ODataJPAModelException {
+    String uri = "http://docs.oasisopen.org/odata/odata/v4.0/os/vocabularies/Org.OData.Measures.V1.xml";
+    IntermediateReferenceAccess ref = cut.addReference(uri, "annotations/Org.OData.Measures.V1.xml");
+    ref.addInclude("Org.OData.Measures.V1", "Measures");
+    FullQualifiedName fqn = new FullQualifiedName("Dummy", "ISOCurrency");
+    assertNull(cut.getTerm(fqn));
   }
 
   class PostProcessor extends JPAEdmMetadataPostProcessor {

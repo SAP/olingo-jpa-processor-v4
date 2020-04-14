@@ -1,12 +1,12 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.annotation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -49,9 +49,9 @@ public class TestAnnotationPOJO {
     assertNotNull(act.getDataService());
 
     Schema[] actSchemas = act.getDataService().getSchemas();
-    assertEquals(actSchemas.length, 1);
+    assertEquals(1, actSchemas.length);
 
     List<Term> actTerms = actSchemas[0].getTerms();
-    assertEquals(actTerms.size(), 3);
+    assertEquals(3, actTerms.size());
   }
 }

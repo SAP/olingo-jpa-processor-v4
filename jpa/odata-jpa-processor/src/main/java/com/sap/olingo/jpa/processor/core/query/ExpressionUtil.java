@@ -20,6 +20,7 @@ import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.uri.UriParameter;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADescriptionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -34,13 +35,15 @@ public final class ExpressionUtil {
   public static final int CONTAINS_LANGU_COUNTRY = 2;
   public static final String SELECT_ITEM_SEPERATOR = ",";
 
+  private ExpressionUtil() {}
+
   public static Expression<Boolean> createEQExpression(final OData odata, CriteriaBuilder cb, From<?, ?> root,
       JPAEntityType jpaEntity, UriParameter keyPredicate) throws ODataJPAFilterException, ODataJPAModelException {
 
     JPAPath path = jpaEntity.getPath(keyPredicate.getName());
     JPAAttribute attribute = path.getLeaf();
 
-    return cb.equal(convertToCriteriaPath(root, path), convertValueOnAttribute(odata, attribute, keyPredicate
+    return cb.equal(convertToCriteriaPath(root, path.getPath()), convertValueOnAttribute(odata, attribute, keyPredicate
         .getText()));
 
   }
@@ -52,21 +55,24 @@ public final class ExpressionUtil {
    * @param jpaPath
    * @return
    */
-  public static Path<?> convertToCriteriaPath(final Map<String, From<?, ?>> joinTables, From<?, ?> root,
-      final JPAPath jpaPath) {
+  public static Path<?> convertToCriteriaPath(final Map<String, From<?, ?>> joinTables, final From<?, ?> root,
+      final List<JPAElement> jpaPath) {
     Path<?> p = root;
-    for (final JPAElement jpaPathElement : jpaPath.getPath())
+    for (final JPAElement jpaPathElement : jpaPath)
       if (jpaPathElement instanceof JPADescriptionAttribute) {
         final Join<?, ?> join = (Join<?, ?>) joinTables.get(jpaPathElement.getInternalName());
         p = join.get(((JPADescriptionAttribute) jpaPathElement).getDescriptionAttribute().getInternalName());
-      } else
+      } else if (jpaPathElement instanceof JPACollectionAttribute) {
+        p = joinTables.get(jpaPathElement.getExternalName());
+      } else {
         p = p.get(jpaPathElement.getInternalName());
+      }
     return p;
   }
 
-  public static Path<?> convertToCriteriaPath(From<?, ?> root, final JPAPath jpaPath) {
+  public static Path<?> convertToCriteriaPath(final From<?, ?> root, final List<JPAElement> jpaPath) {
     Path<?> p = root;
-    for (final JPAElement jpaPathElement : jpaPath.getPath())
+    for (final JPAElement jpaPathElement : jpaPath)
       p = p.get(jpaPathElement.getInternalName());
     return p;
   }
@@ -94,17 +100,15 @@ public final class ExpressionUtil {
       }
       // Converter
       if (attribute.getConverter() != null) {
-        AttributeConverter<?, T> dbConverter = (AttributeConverter<?, T>) attribute.getConverter();
+        AttributeConverter<?, T> dbConverter = attribute.getConverter();
         return dbConverter.convertToEntityAttribute(
             (T) edmType.valueOfString(targetValue, edmProperty.isNullable(), edmProperty.getMaxLength(),
                 edmProperty.getPrecision(), edmProperty.getScale(), true, attribute.getType()));
-      } else
+      } else {
         return edmType.valueOfString(targetValue, edmProperty.isNullable(), edmProperty.getMaxLength(),
             edmProperty.getPrecision(), edmProperty.getScale(), true, attribute.getType());
-
-    } catch (EdmPrimitiveTypeException e) {
-      throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-    } catch (ODataJPAModelException e) {
+      }
+    } catch (EdmPrimitiveTypeException | ODataJPAModelException e) {
       throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
   }
@@ -119,9 +123,7 @@ public final class ExpressionUtil {
       targetValue = edmType.fromUriLiteral(value);
       return edmType.valueOfString(targetValue, true, returnType.getMaxLength(), returnType.getPrecision(), returnType
           .getScale(), true, returnType.getType());
-    } catch (EdmPrimitiveTypeException e) {
-      throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-    } catch (ODataJPAModelException e) {
+    } catch (EdmPrimitiveTypeException | ODataJPAModelException e) {
       throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
   }

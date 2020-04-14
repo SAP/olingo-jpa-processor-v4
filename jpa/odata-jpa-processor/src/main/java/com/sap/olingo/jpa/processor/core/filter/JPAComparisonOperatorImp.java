@@ -6,7 +6,7 @@ import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.queryoption.expression.BinaryOperatorKind;
 
 //
-class JPAComparisonOperatorImp<T extends Comparable<T>> implements JPAComparisonOperator<T> {
+public class JPAComparisonOperatorImp<T extends Comparable<T>> implements JPAComparisonOperator<T> {
   private final JPAOperationConverter converter;
   private final BinaryOperatorKind operator;
   private final JPAOperator left;
@@ -37,6 +37,7 @@ class JPAComparisonOperatorImp<T extends Comparable<T>> implements JPAComparison
    * 
    * @see com.sap.olingo.jpa.processor.core.filter.JPAComparisonOperator#getOperator()
    */
+  @SuppressWarnings("unchecked")
   @Override
   public BinaryOperatorKind getOperator() {
     return operator;
@@ -101,5 +102,10 @@ class JPAComparisonOperatorImp<T extends Comparable<T>> implements JPAComparison
   @SuppressWarnings("unchecked")
   public Expression<T> getRightAsExpression() throws ODataApplicationException {
     return (Expression<T>) right.get();
+  }
+
+  @Override
+  public String getName() {
+    return operator.name();
   }
 }

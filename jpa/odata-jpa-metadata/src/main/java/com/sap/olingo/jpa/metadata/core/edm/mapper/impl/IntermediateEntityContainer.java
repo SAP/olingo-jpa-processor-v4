@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlAction;
 import org.apache.olingo.commons.api.edm.provider.CsdlActionImport;
@@ -14,6 +15,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunctionImport;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAction;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
@@ -29,17 +31,16 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityC
  */
 //TODO How to handle multiple schemas
 final class IntermediateEntityContainer extends IntermediateModelElement implements IntermediateEntityContainerAccess {
-  final private Map<String, IntermediateSchema> schemaList;
-  final private Map<String, IntermediateEntitySet> entitySetListInternalKey;
+  private final Map<String, IntermediateSchema> schemaList;
+  private final Map<String, IntermediateEntitySet> entitySetListInternalKey;
 
   private CsdlEntityContainer edmContainer;
 
-  IntermediateEntityContainer(final JPAEdmNameBuilder nameBuilder, final Map<String, IntermediateSchema> schemaList)
-      throws ODataJPAModelException {
+  IntermediateEntityContainer(final JPAEdmNameBuilder nameBuilder, final Map<String, IntermediateSchema> schemaList) {
     super(nameBuilder, nameBuilder.buildContainerName());
     this.schemaList = schemaList;
     this.setExternalName(nameBuilder.buildContainerName());
-    this.entitySetListInternalKey = new HashMap<String, IntermediateEntitySet>();
+    this.entitySetListInternalKey = new HashMap<>();
   }
 
   @Override
@@ -48,7 +49,7 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
   }
 
   @Override
-  protected void lazyBuildEdmItem() throws ODataJPAModelException {
+  protected synchronized void lazyBuildEdmItem() throws ODataJPAModelException {
     if (edmContainer == null) {
       postProcessor.processEntityContainer(this);
       edmContainer = new CsdlEntityContainer();
@@ -63,12 +64,16 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
 
   @Override
   CsdlEntityContainer getEdmItem() throws ODataJPAModelException {
-    lazyBuildEdmItem();
+    if (edmContainer == null) {
+      lazyBuildEdmItem();
+    }
     return edmContainer;
   }
 
   IntermediateEntitySet getEntitySet(final String edmEntitySetName) throws ODataJPAModelException {
-    lazyBuildEdmItem();
+    if (edmContainer == null) {
+      lazyBuildEdmItem();
+    }
     return (IntermediateEntitySet) findModelElementByEdmItem(edmEntitySetName,
         entitySetListInternalKey);
   }
@@ -80,11 +85,12 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
    * @throws ODataJPAModelException
    */
   JPAEntitySet getEntitySet(final JPAEntityType entityType) throws ODataJPAModelException {
-    lazyBuildEdmItem();
-    for (final String internalName : entitySetListInternalKey.keySet()) {
-      final IntermediateEntitySet modelElement = entitySetListInternalKey.get(internalName);
-      if (modelElement.getEntityType().getExternalFQN().equals(entityType.getExternalFQN())) {
-        return modelElement;
+    if (edmContainer == null) {
+      lazyBuildEdmItem();
+    }
+    for (final Entry<String, IntermediateEntitySet> entitySet : entitySetListInternalKey.entrySet()) {
+      if (entitySet.getValue().getEntityType().getExternalFQN().equals(entityType.getExternalFQN())) {
+        return entitySet.getValue();
       }
     }
     return null;
@@ -99,10 +105,8 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
    */
   @SuppressWarnings("unchecked")
   private List<CsdlEntitySet> buildEntitySets() throws ODataJPAModelException {
-    for (final String namespace : schemaList.keySet()) {
-      // Build Entity Sets
-      final IntermediateSchema schema = schemaList.get(namespace);
-      for (final IntermediateEntityType et : schema.getEntityTypes()) {
+    for (final Entry<String, IntermediateSchema> schema : schemaList.entrySet()) {
+      for (final IntermediateEntityType et : schema.getValue().getEntityTypes()) {
         if (!et.ignore() || et.asEntitySet()) {
           final IntermediateEntitySet es = new IntermediateEntitySet(nameBuilder, et);
           entitySetListInternalKey.put(es.internalName, es);
@@ -123,7 +127,7 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
   private CsdlFunctionImport buildFunctionImport(final CsdlFunction edmFu) {
     final CsdlFunctionImport edmFuImport = new CsdlFunctionImport();
     edmFuImport.setName(edmFu.getName());
-    edmFuImport.setFunction(nameBuilder.buildFQN(edmFu.getName()));
+    edmFuImport.setFunction(buildFQN(edmFu.getName()));
     edmFuImport.setIncludeInServiceDocument(true);
     // edmFuImport.setEntitySet(entitySet)
 
@@ -131,16 +135,16 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
   }
 
   private List<CsdlFunctionImport> buildFunctionImports() throws ODataJPAModelException {
-    final List<CsdlFunctionImport> edmFunctionImports = new ArrayList<CsdlFunctionImport>();
+    final List<CsdlFunctionImport> edmFunctionImports = new ArrayList<>();
 
-    for (final String namespace : schemaList.keySet()) {
+    for (final Entry<String, IntermediateSchema> namespace : schemaList.entrySet()) {
       // Build Entity Sets
-      final IntermediateSchema schema = schemaList.get(namespace);
+      final IntermediateSchema schema = namespace.getValue();
       final List<JPAFunction> functions = schema.getFunctions();
 
       if (functions != null) {
         for (final JPAFunction jpaFu : functions) {
-          if (((IntermediateFunction) jpaFu).isBound() == false && ((IntermediateFunction) jpaFu).hasImport())
+          if (!((IntermediateFunction) jpaFu).isBound() && ((IntermediateFunction) jpaFu).hasImport())
             edmFunctionImports.add(buildFunctionImport(((IntermediateFunction) jpaFu).getEdmItem()));
         }
       }
@@ -149,11 +153,11 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
   }
 
   private List<CsdlActionImport> buildActionImports() throws ODataJPAModelException {
-    final List<CsdlActionImport> edmActionImports = new ArrayList<CsdlActionImport>();
+    final List<CsdlActionImport> edmActionImports = new ArrayList<>();
 
-    for (final String namespace : schemaList.keySet()) {
+    for (final Entry<String, IntermediateSchema> namespace : schemaList.entrySet()) {
       // Build Entity Sets
-      final IntermediateSchema schema = schemaList.get(namespace);
+      final IntermediateSchema schema = namespace.getValue();
       final List<JPAAction> actions = schema.getActions();
 
       if (actions != null) {
@@ -178,7 +182,7 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
   private CsdlActionImport buildActionImport(CsdlAction edmAc) {
     final CsdlActionImport edmAcImport = new CsdlActionImport();
     edmAcImport.setName(edmAc.getName());
-    edmAcImport.setAction(nameBuilder.buildFQN(edmAc.getName()));
+    edmAcImport.setAction(buildFQN(edmAc.getName()));
     // edmAcImport.setEntitySet(entitySet)
     return edmAcImport;
   }

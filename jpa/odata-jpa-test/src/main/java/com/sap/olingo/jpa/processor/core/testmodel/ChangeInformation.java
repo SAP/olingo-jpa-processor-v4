@@ -1,9 +1,11 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
 import java.util.Date;
+import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
@@ -18,7 +20,7 @@ public class ChangeInformation {
   @Temporal(TemporalType.TIMESTAMP)
   private Date at;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "\"by\"", referencedColumnName = "\"ID\"", insertable = false, updatable = false)
   Person user;
 
@@ -38,12 +40,22 @@ public class ChangeInformation {
     return by;
   }
 
-  public void setBy(String by) {
+  public void setBy(final String by) {
+    Objects.nonNull(by);
     this.by = by;
   }
 
-  public void setAt(Date at) {
+  public void setAt(final Date at) {
     this.at = at;
+  }
+
+  public Person getUser() {
+    return user;
+  }
+
+  public void setUser(final Person user) {
+    this.user = user;
+    this.by = user.getID();
   }
 
 }

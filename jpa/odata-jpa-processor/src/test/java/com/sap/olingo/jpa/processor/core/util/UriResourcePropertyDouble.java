@@ -1,6 +1,6 @@
 package com.sap.olingo.jpa.processor.core.util;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.edm.EdmType;
@@ -23,7 +23,6 @@ public class UriResourcePropertyDouble implements UriResourceProperty {
 
   @Override
   public boolean isCollection() {
-    fail();
     return false;
   }
 

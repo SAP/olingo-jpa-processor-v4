@@ -1,6 +1,6 @@
 package com.sap.olingo.jpa.processor.core.filter;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.util.List;
@@ -13,14 +13,14 @@ import javax.persistence.Query;
 import javax.sql.DataSource;
 
 import org.apache.olingo.commons.api.ex.ODataException;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
@@ -31,20 +31,20 @@ public class TestJPACustomScalarFunctions {
   protected static EntityManagerFactory emf;
   protected TestHelper helper;
   protected Map<String, List<String>> headers;
-  protected static JPAEdmNameBuilder nameBuilder;
+  protected static JPADefaultEdmNameBuilder nameBuilder;
   protected static DataSource ds;
 
-  @BeforeClass
+  @BeforeAll
   public static void setupClass() throws ODataJPAModelException {
     ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
     emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, ds);
-    nameBuilder = new JPAEdmNameBuilder(PUNIT_NAME);
+    nameBuilder = new JPADefaultEdmNameBuilder(PUNIT_NAME);
     CreateDenfityFunction();
   }
 
-  @AfterClass
+  @AfterAll
   public static void tearDownClass() throws ODataJPAModelException {
-    DropDenfityFunction();
+    DropDensityFunction();
   }
 
   @Test
@@ -111,6 +111,18 @@ public class TestJPACustomScalarFunctions {
     assertEquals(7, orgs.size());
   }
 
+//  @Test
+//  public void testOrderByFunction() throws IOException, ODataException {
+//
+//    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+//        "AdministrativeDivisions?$orderby=com.sap.olingo.jpa.PopulationDensity(Area=$it/Area,Population=$it/Population) desc&$top=1");
+//    helper.assertStatus(200);
+//    ArrayNode orgs = helper.getValues();
+//    assertEquals(1, orgs.size());
+//    JsonNode act = orgs.get(0);
+//    assertEquals("35013", act.get("DivisionCode"));
+//  }
+
   private static void CreateDenfityFunction() {
     EntityManager em = emf.createEntityManager();
     EntityTransaction t = em.getTransaction();
@@ -136,7 +148,7 @@ public class TestJPACustomScalarFunctions {
     t.commit();
   }
 
-  private static void DropDenfityFunction() {
+  private static void DropDensityFunction() {
     EntityManager em = emf.createEntityManager();
     EntityTransaction t = em.getTransaction();
 

@@ -1,13 +1,6 @@
 package com.sap.olingo.jpa.processor.core.filter;
 
-import javax.persistence.criteria.Expression;
+public interface JPAExpressionOperator extends JPAExpression {
 
-import org.apache.olingo.server.api.ODataApplicationException;
-
-public interface JPAExpressionOperator extends JPAOperator {
-  @Override
-  public Expression<Boolean> get() throws ODataApplicationException;
-
-  public Enum<?> getOperator();
-
+  public <E extends Enum<E>> Enum<E> getOperator();
 }

@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.processor.core.filter;
 
+import static com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FILTER;
+
 import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -14,15 +16,15 @@ import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitor
 import org.apache.olingo.server.api.uri.queryoption.expression.Literal;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOperationResultParameter;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPATypeConvertor;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 
 /**
- * Handle OData Functions that are implemented e.g. as user defined functions data base functions. This will be mapped
+ * Handle OData Functions that are implemented e.g. as user defined data base functions. This will be mapped
  * to JPA criteria builder function().
  * 
  * @author Oliver Grande
@@ -68,16 +70,18 @@ final class JPAFunctionOperator implements JPAOperator {
       // a. $it/Area b. Area c. 10000
       final UriParameter p = findUriParameter(parameters.get(i));
 
-      if (p.getText() != null) {
+      if (p != null && p.getText() != null) {
         final JPALiteralOperator operator = new JPALiteralOperator(visitor.getOdata(), new ParameterLiteral(p
             .getText()));
         jpaParameter[i] = cb.literal(operator.get(parameters.get(i)));
-      } else {
+      } else if (p != null && p.getExpression() != null) {
         try {
           jpaParameter[i] = (Expression<?>) p.getExpression().accept(visitor).get();
         } catch (ExpressionVisitException e) {
           throw new ODataJPAFilterException(e, HttpStatusCode.NOT_IMPLEMENTED);
         }
+      } else {
+        throw new ODataJPAFilterException(NOT_SUPPORTED_FILTER, HttpStatusCode.NOT_IMPLEMENTED);
       }
     }
     return cb.function(jpaFunction.getDBName(), jpaFunction.getResultParameter().getType(), jpaParameter);
@@ -94,6 +98,11 @@ final class JPAFunctionOperator implements JPAOperator {
 
   public JPAOperationResultParameter getReturnType() {
     return jpaFunction.getResultParameter();
+  }
+
+  @Override
+  public String getName() {
+    return jpaFunction.getDBName();
   }
 
   private class ParameterLiteral implements Literal {

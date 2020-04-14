@@ -31,7 +31,7 @@ public class TestJavaActions implements ODataAction {
     constructorCalls++;
   }
 
-  @EdmAction(name = "")
+  @EdmAction()
   public Integer unboundWithImport(
       @EdmParameter(name = "A") short a, @EdmParameter(name = "B") int b) {
     return a + b;
@@ -44,53 +44,52 @@ public class TestJavaActions implements ODataAction {
     // Do nothing
   }
 
-  @EdmAction(name = "", returnType = @ReturnType(isNullable = false, precision = 20, scale = 5))
+  @EdmAction(returnType = @ReturnType(isNullable = false, precision = 20, scale = 5))
   public BigDecimal unboundReturnFacetNoParameter() {
     return new BigDecimal(7);
   }
 
-  @EdmAction(name = "", returnType = @ReturnType(isNullable = false, precision = 20, scale = 5))
+  @EdmAction(returnType = @ReturnType(isNullable = false, precision = 20, scale = 5))
   public BigDecimal unboundReturnFacet(
       @EdmParameter(name = "A") short a, @EdmParameter(name = "B") int b) {
     return new BigDecimal(a).add(new BigDecimal(b));
   }
 
-  @EdmAction(name = "", isBound = true, entitySetPath = "Person/Roles")
+  @EdmAction(isBound = true, entitySetPath = "Person/Roles")
   public BusinessPartnerRole boundWithEntitySetPath(
       @EdmParameter(name = "Person") Person person) {
     return null;
   }
 
-  @EdmAction(name = "")
+  @EdmAction()
   public ChangeInformation returnEmbeddable() {
     return new ChangeInformation();
   }
 
-  @EdmAction(name = "")
+  @EdmAction()
   public Person returnEntity() {
     return new Person();
   }
 
-  @EdmAction(name = "", returnType = @ReturnType(type = String.class))
+  @EdmAction(returnType = @ReturnType(type = String.class))
   public List<String> returnCollection() {
-    return new ArrayList<String>();
+    return new ArrayList<>();
   }
 
-  @EdmAction(name = "", returnType = @ReturnType(type = ChangeInformation.class))
+  @EdmAction(returnType = @ReturnType(type = ChangeInformation.class))
   public List<ChangeInformation> returnEmbeddableCollection() {
     return Arrays.asList(new ChangeInformation[] { new ChangeInformation() });
   }
 
-  @EdmAction(name = "",
-      returnType = @ReturnType(maxLength = 60,
-          srid = @EdmGeospatial(dimension = Dimension.GEOGRAPHY, srid = "4326")))
+  @EdmAction(returnType = @ReturnType(maxLength = 60,
+      srid = @EdmGeospatial(dimension = Dimension.GEOGRAPHY, srid = "4326")))
   public String calculateLocation(
       @EdmParameter(name = "String", maxLength = 100,
           srid = @EdmGeospatial(dimension = Dimension.GEOGRAPHY, srid = "4326")) String a) {
     return "";
   }
 
-  @EdmAction(name = "")
+  @EdmAction()
   public void unboundWithOutParameter() {
     // Do nothing
   }

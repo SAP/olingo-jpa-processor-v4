@@ -1,8 +1,12 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.annotation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -11,43 +15,70 @@ import java.net.URISyntaxException;
 import java.util.Map;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 public class TestTermReader {
   private TermReader cut;
 
-  @Before
+  @BeforeEach
   public void setup() {
     cut = new TermReader();
   }
 
   @Test
-  public void TestReadFromResource() throws JsonParseException, JsonMappingException, IOException {
+  public void testConvertEDMXReturnsNullIfEDMXNull() throws ODataJPAModelException, IOException {
+    assertNull(cut.convertEDMX(null));
+  }
+
+  @Test
+  public void testConvertEDMXReturnsNullIfDataServiceNull() throws ODataJPAModelException, IOException {
+    final Edmx edmx = mock(Edmx.class);
+    when(edmx.getDataService()).thenReturn(null);
+    assertNull(cut.convertEDMX(edmx));
+  }
+
+  @Test
+  public void testGetTermsByUriThrowsExceptionOnNull() throws IOException {
+    final URI nullUri = null;
+    assertThrows(NullPointerException.class, () -> cut.getTerms(nullUri));
+  }
+
+  @Test
+  public void testGetTermsByPathThrowsExceptionOnNull() throws IOException {
+    final String nullString = null;
+    assertThrows(NullPointerException.class, () -> cut.getTerms(nullString));
+  }
+
+  @Test
+  public void testReadFromResource() throws JsonParseException, JsonMappingException, IOException,
+      ODataJPAModelException {
     Edmx actEdmx = cut.readFromResource("annotations/Org.OData.Measures.V1.xml");
     assertNotNull(actEdmx);
     assertNotNull(actEdmx.getDataService());
 
     Schema[] actSchemas = actEdmx.getDataService().getSchemas();
-    assertEquals(actSchemas.length, 1);
+    assertEquals(1, actSchemas.length);
     assertEquals("Org.OData.Measures.V1", actSchemas[0].getNamespace());
   }
 
   @Test
-  public void TestGetTermsOneSchemaFromPath() throws JsonParseException, JsonMappingException, IOException {
+  public void testGetTermsOneSchemaFromPath() throws JsonParseException, JsonMappingException, IOException,
+      ODataJPAModelException {
     Map<String, Map<String, CsdlTerm>> act;
     act = cut.getTerms("annotations/Org.OData.Core.V1.xml");
     assertNotNull(act.get("Org.OData.Core.V1"));
     Map<String, CsdlTerm> terms = act.get("Org.OData.Core.V1");
-    assertEquals(15, terms.size());
+    assertEquals(28, terms.size());
   }
 
   @Test
-  public void TestGetAppliesTo() throws JsonParseException, JsonMappingException, IOException {
+  public void testGetAppliesTo() throws JsonParseException, JsonMappingException, IOException, ODataJPAModelException {
     Map<String, Map<String, CsdlTerm>> act;
     act = cut.getTerms("annotations/Org.OData.Core.V1.xml");
     assertNotNull(act.get("Org.OData.Core.V1"));
@@ -59,7 +90,8 @@ public class TestTermReader {
   }
 
   @Test
-  public void TestGetTermsTwoSchemaFromPath() throws JsonParseException, JsonMappingException, IOException {
+  public void testGetTermsTwoSchemaFromPath() throws JsonParseException, JsonMappingException, IOException,
+      ODataJPAModelException {
     Map<String, Map<String, CsdlTerm>> act;
     act = cut.getTerms("annotations/Org.Olingo.Test.V1.xml");
     assertNotNull(act.get("Org.OData.Measures.V1"));
@@ -67,9 +99,9 @@ public class TestTermReader {
   }
 
   // TODO This test may not run because of proxy setting problems!! -> find alternative for Integration tests
-  @Ignore
+  @Disabled
   @Test
-  public void TestReadFromURI() throws URISyntaxException, JsonParseException, JsonMappingException,
+  public void testReadFromURI() throws URISyntaxException, JsonParseException, JsonMappingException,
       MalformedURLException, IOException {
     URI uri = new URI("http://docs.oasis-open.org/odata/odata/v4.0/os/vocabularies/Org.OData.Core.V1.xml");
     Edmx actEdmx = cut.readFromURI(uri);
@@ -77,19 +109,18 @@ public class TestTermReader {
     assertNotNull(actEdmx.getDataService());
 
     Schema[] actSchemas = actEdmx.getDataService().getSchemas();
-    assertEquals(actSchemas.length, 1);
-    assertEquals(actSchemas[0].getNamespace(), "Org.OData.Core.V1");
+    assertEquals(1, actSchemas.length);
+    assertEquals("Org.OData.Core.V1", actSchemas[0].getNamespace());
   }
 
   // TODO This test may not run because of proxy setting problems!! -> find alternative for Integration tests
-  @Ignore
+  @Disabled
   @Test
-  public void TestGetTermsOneSchemaFromURI() throws URISyntaxException, JsonParseException, JsonMappingException,
+  public void testGetTermsOneSchemaFromURI() throws URISyntaxException, JsonParseException, JsonMappingException,
       MalformedURLException, IOException {
     URI uri = new URI("http://docs.oasis-open.org/odata/odata/v4.0/os/vocabularies/Org.OData.Core.V1.xml");
     Map<String, Map<String, CsdlTerm>> act;
     act = cut.getTerms(uri);
     assertNotNull(act.get("Org.OData.Core.V1"));
   }
-
 }

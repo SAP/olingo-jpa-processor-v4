@@ -1,6 +1,6 @@
 package com.sap.olingo.jpa.processor.core.util;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 
@@ -15,7 +15,7 @@ import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
 
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 
 public class EdmEntityTypeDouble implements EdmEntityType {
 
@@ -77,12 +77,12 @@ public class EdmEntityTypeDouble implements EdmEntityType {
 
   @Override
   public FullQualifiedName getFullQualifiedName() {
-    return nameBuilder.buildFQN(name);
+    return new FullQualifiedName(nameBuilder.getNamespace(), name);
   }
 
   @Override
   public String getNamespace() {
-    return nameBuilder.buildNamespace();
+    return nameBuilder.getNamespace();
   }
 
   @Override

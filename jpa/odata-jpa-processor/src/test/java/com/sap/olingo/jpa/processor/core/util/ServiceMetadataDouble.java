@@ -1,6 +1,6 @@
 package com.sap.olingo.jpa.processor.core.util;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +23,7 @@ import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.etag.ServiceMetadataETagSupport;
 
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 
 public class ServiceMetadataDouble implements ServiceMetadata {
   private final Edm edm;
@@ -69,12 +69,12 @@ public class ServiceMetadataDouble implements ServiceMetadata {
 
     public EdmDouble() {
       super();
-      typeMap = new HashMap<FullQualifiedName, EdmEntityType>();
+      typeMap = new HashMap<>();
     }
 
     public EdmDouble(String name) {
       super();
-      typeMap = new HashMap<FullQualifiedName, EdmEntityType>();
+      typeMap = new HashMap<>();
       EdmEntityType edmType = new EdmEntityTypeDouble(nameBuilder, name);
       typeMap.put(edmType.getFullQualifiedName(), edmType);
     }
@@ -179,7 +179,19 @@ public class ServiceMetadataDouble implements ServiceMetadata {
     @Override
     public List<EdmFunction> getBoundFunctionsWithBindingType(FullQualifiedName bindingParameterTypeName,
         Boolean isBindingParameterCollection) {
-      // TODO Check what this is used for
+      fail();
+      return null;
+    }
+
+    @Override
+    public EdmComplexType getComplexTypeWithAnnotations(FullQualifiedName arg0) {
+      fail();
+      return null;
+    }
+
+    @Override
+    public EdmEntityType getEntityTypeWithAnnotations(FullQualifiedName arg0) {
+      fail();
       return null;
     }
 

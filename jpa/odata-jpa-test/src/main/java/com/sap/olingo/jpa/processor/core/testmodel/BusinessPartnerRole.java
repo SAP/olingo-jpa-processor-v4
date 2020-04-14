@@ -15,6 +15,7 @@ import javax.persistence.Table;
 @Entity(name = "BusinessPartnerRole")
 @Table(schema = "\"OLINGO\"", name = "\"BusinessPartnerRole\"")
 public class BusinessPartnerRole {
+
   @Id
   @Column(name = "\"BusinessPartnerID\"")
   private String businessPartnerID;
@@ -29,6 +30,22 @@ public class BusinessPartnerRole {
   @ManyToOne(optional = false, fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
   @JoinColumn(name = "\"BusinessPartnerID\"", insertable = false, updatable = false)
   private Organization organization;
+
+  public BusinessPartnerRole() {
+    super();
+  }
+
+  public BusinessPartnerRole(final String businessPartnerID, final String roleCategory) {
+    super();
+    this.setBusinessPartnerID(businessPartnerID);
+    this.setRoleCategory(roleCategory);
+  }
+
+  public <T extends BusinessPartner> BusinessPartnerRole(final T businessPartner, final String roleCategory) {
+    super();
+    this.setBusinessPartner(businessPartner);
+    this.setRoleCategory(roleCategory);
+  }
 
   public String getBusinessPartnerID() {
     return businessPartnerID;
@@ -46,11 +63,12 @@ public class BusinessPartnerRole {
     this.businessPartnerID = businessPartnerID;
   }
 
-  public void setRoleCategory(String roleCategory) {
+  public void setRoleCategory(final String roleCategory) {
     this.roleCategory = roleCategory;
   }
 
-  public void setBusinessPartner(BusinessPartner businessPartner) {
+  public <T extends BusinessPartner> void setBusinessPartner(final T businessPartner) {
+    businessPartnerID = businessPartner.getID();
     this.businessPartner = businessPartner;
 
   }
@@ -59,8 +77,31 @@ public class BusinessPartnerRole {
     return organization;
   }
 
-  public void setOrganization(Organization organization) {
+  public void setOrganization(final Organization organization) {
     this.organization = organization;
   }
 
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((businessPartnerID == null) ? 0 : businessPartnerID.hashCode());
+    result = prime * result + ((roleCategory == null) ? 0 : roleCategory.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
+    BusinessPartnerRole other = (BusinessPartnerRole) obj;
+    if (businessPartnerID == null) {
+      if (other.businessPartnerID != null) return false;
+    } else if (!businessPartnerID.equals(other.businessPartnerID)) return false;
+    if (roleCategory == null) {
+      if (other.roleCategory != null) return false;
+    } else if (!roleCategory.equals(other.roleCategory)) return false;
+    return true;
+  }
 }

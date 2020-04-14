@@ -1,30 +1,29 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAEdmNameBuilder;
 
 public class TestJPAEdmNameBuilder {
-  private JPAEdmNameBuilder cut;
+  private JPADefaultEdmNameBuilder cut;
 
-  @Before
+  @BeforeEach
   public void setup() throws ODataJPAModelException {
 
   }
 
   @Test
   public void CheckBuildContainerNameSimple() {
-    cut = new JPAEdmNameBuilder("cdw");
+    cut = new JPADefaultEdmNameBuilder("cdw");
     assertEquals("CdwContainer", cut.buildContainerName());
   }
 
   @Test
   public void CheckBuildContainerNameComplex() {
-    cut = new JPAEdmNameBuilder("org.apache.olingo.jpa");
+    cut = new JPADefaultEdmNameBuilder("org.apache.olingo.jpa");
     assertEquals("OrgApacheOlingoJpaContainer", cut.buildContainerName());
   }
 }

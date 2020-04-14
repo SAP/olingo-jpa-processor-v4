@@ -1,15 +1,20 @@
 package com.sap.olingo.jpa.processor.core.query;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 
 import org.apache.olingo.commons.api.ex.ODataException;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.sap.olingo.jpa.processor.core.api.JPAODataGroupsProvider;
 import com.sap.olingo.jpa.processor.core.testmodel.ImageLoader;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
@@ -27,14 +32,14 @@ public class TestJPAQuerySelectByPath extends TestBase {
   }
 
   @Test
-  public void testNavigationToOwnNotExistingPrimitiveProperty() throws IOException, ODataException {
+  public void testNavigationToOwnEmptyPrimitiveProperty() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Persons('99')/BirthDay");
-    helper.assertStatus(404);
+    helper.assertStatus(204);
   }
 
   @Test
-  public void testNavigationToOwnPrimitivePropertyEntityDoesNotExist() throws IOException, ODataException {
+  public void testNavigationToOwnPrimitivePropertyEntityDoesNotExistEntity() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Persons('9999')/BirthDay");
     helper.assertStatus(404);
@@ -63,8 +68,8 @@ public class TestJPAQuerySelectByPath extends TestBase {
   @Test
   public void testNavigationToNotExistingComplexProperty() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "OPersons('97')/CommunicationData");
-    helper.assertStatus(404);
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Persons('97')/CommunicationData");
+    helper.assertStatus(204);
   }
 
   @Test
@@ -75,8 +80,7 @@ public class TestJPAQuerySelectByPath extends TestBase {
     helper.assertStatus(200);
 
     ObjectNode org = helper.getValue();
-    JsonNode created = org.get("Created");
-    assertEquals("98", created.get("By").asText());
+    assertEquals("98", org.get("By").asText());
   }
 
   @Test
@@ -116,15 +120,103 @@ public class TestJPAQuerySelectByPath extends TestBase {
   @Test
   public void testNavigationToComplexPrimitiveProperty() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('4')/Address/Region");
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('1')/Address/Region");
     helper.assertStatus(200);
 
     ObjectNode org = helper.getValue();
-    assertEquals("US-UT", org.get("value").asText());
-    assertEquals("$metadata#Organizations/Address/Region", org.get("@odata.context").asText());
+    assertEquals("US-CA", org.get("value").asText());
+    assertTrue(org.get("@odata.context").asText().endsWith("$metadata#Organizations/Address/Region"));
   }
 
-  @Ignore // TODO check image load
+  @Test
+  public void testNavigationToCollcetion() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('1')/Comment");
+    helper.assertStatus(200);
+  }
+
+  @Test
+  public void testNavigationToCollectionWithoutEntries() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('4')/Comment");
+    helper.assertStatus(200);
+
+    ObjectNode org = helper.getValue();
+    ArrayNode act = (ArrayNode) org.get("value");
+    assertNotNull(act);
+    assertEquals(0, act.size());
+  }
+
+  @Test
+  public void testNavigationToSimplePrimitiveGroupedPropertyNoGroups() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "BusinessPartnerWithGroupss('1')/Country");
+    helper.assertStatus(204);
+  }
+
+  @Test
+  public void testNavigationToSimpleComplexGroupedPropertyNoGroups() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerWithGroupss('1')/CommunicationData");
+    helper.assertStatus(204);
+  }
+
+  @Test
+  public void testNavigationToCollectionComplexGroupedPropertyNoGroups() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerWithGroupss('99')/InhouseAddress");
+    helper.assertStatus(200);
+    final ArrayNode act = (ArrayNode) helper.getValue().get("value");
+    assertEquals(2, act.size());
+    final ObjectNode addr = (ObjectNode) act.get(0);
+    assertFalse(addr.get("TaskID").isNull());
+    assertTrue(addr.get("RoomNumber").isNull());
+  }
+
+  @Test
+  public void testNavigationToCollcetionGroupedPropertyNoGroups() throws IOException, ODataException {
+
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "BusinessPartnerWithGroupss('1')/Comment");
+    helper.assertStatus(200);
+    // Ensure empty result works correct
+    helper = new IntegrationTestHelper(emf, "BusinessPartnerWithGroupss('1')/Comment");
+    helper.assertStatus(200);
+  }
+
+  @Test
+  public void testNoNavigationButGroupsWithoutGroup() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "BusinessPartnerWithGroupss('99')");
+    helper.assertStatus(200);
+
+    final ObjectNode act = helper.getValue();
+    assertPresentNotNull(act, "ETag");
+    assertPresentButNull(act, "CreationDateTime");
+    assertPresentButNull(act, "Country");
+    assertPresentButAllNull(act, "CommunicationData");
+    assertPresentNotEmpty(act, "InhouseAddress", "RoomNumber");
+    assertPresentButNull(act, "Comment");
+  }
+
+  @Test
+  public void testNoNavigationButGroupsWithOneGroup() throws IOException, ODataException {
+
+    final JPAODataGroupsProvider groups = new JPAODataGroupsProvider();
+    groups.addGroup("Person");
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "BusinessPartnerWithGroupss('99')", groups);
+    helper.assertStatus(200);
+
+    ObjectNode act = helper.getValue();
+    assertPresentNotNull(act, "ETag");
+    assertPresentButNull(act, "CreationDateTime");
+    assertPresentNotNull(act, "Country");
+    assertPresentNotNull(act, "CommunicationData");
+    assertPresentNotEmpty(act, "InhouseAddress", "RoomNumber");
+    assertPresentButNull(act, "Comment");
+  }
+
   @Test
   public void testNavigationToStreamValue() throws IOException, ODataException {
     new ImageLoader().loadPerson(emf.createEntityManager(), "OlingoOrangeTM.png", "99");
@@ -136,7 +228,6 @@ public class TestJPAQuerySelectByPath extends TestBase {
     assertEquals(93316, act.length, 0);
   }
 
-  @Ignore // TODO check image load
   @Test
   public void testNavigationToStreamValueVia() throws IOException, ODataException {
     new ImageLoader().loadPerson(emf.createEntityManager(), "OlingoOrangeTM.png", "99");
@@ -148,10 +239,8 @@ public class TestJPAQuerySelectByPath extends TestBase {
     assertEquals(93316, act.length, 0);
   }
 
-  @Ignore // TODO check image load
   @Test
   public void testNavigationToComplexAttributeValue() throws IOException, ODataException {
-    new ImageLoader().loadPerson(emf.createEntityManager(), "OlingoOrangeTM.png", "99");
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations('4')/AdministrativeInformation/Created/By/$value");
@@ -161,10 +250,8 @@ public class TestJPAQuerySelectByPath extends TestBase {
     assertEquals("98", act);
   }
 
-  @Ignore // TODO check image load
   @Test
   public void testNavigationToPrimitiveAttributeValue() throws IOException, ODataException {
-    new ImageLoader().loadPerson(emf.createEntityManager(), "OlingoOrangeTM.png", "99");
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations('4')/ID/$value");
@@ -172,5 +259,45 @@ public class TestJPAQuerySelectByPath extends TestBase {
 
     String act = helper.getRawResult();
     assertEquals("4", act);
+  }
+
+  private void assertPresentButNull(final ObjectNode act, final String property) {
+    assertTrue(act.has(property));
+    final JsonNode target = act.get(property);
+    if (target instanceof ArrayNode)
+      assertEquals(0, ((ArrayNode) target).size());
+    else
+      assertTrue(target.isNull());
+  }
+
+  private void assertPresentButAllNull(final ObjectNode act, final String property) {
+    assertTrue(act.has(property));
+    final JsonNode target = act.get(property);
+    if (target instanceof ObjectNode) {
+      ((ObjectNode) target).forEach(n -> assertTrue(n.isNull()));
+    } else {
+      assertTrue(target.isNull());
+    }
+  }
+
+  private void assertPresentNotNull(final ObjectNode act, final String property) {
+    assertTrue(act.has(property));
+    final JsonNode target = act.get(property);
+    if (target instanceof ArrayNode)
+      assertFalse(((ArrayNode) target).size() == 0);
+    else
+      assertFalse(act.get(property).isNull());
+  }
+
+  private void assertPresentNotEmpty(final ObjectNode act, final String property, final String nullProperty) {
+    assertTrue(act.has(property));
+    final JsonNode target = act.get(property);
+    if (target instanceof ArrayNode) {
+      assertTrue(((ArrayNode) target).size() > 0);
+      ((ArrayNode) target).forEach(n -> assertFalse(n.isNull()));
+      assertTrue(target.get(0).get(nullProperty).isNull());
+    } else {
+      fail();
+    }
   }
 }

@@ -1,89 +1,118 @@
 package com.sap.olingo.jpa.processor.core.filter;
 
+import static com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException.MessageKeys.NOT_ALLOWED_MEMBER;
+
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
+import javax.persistence.criteria.From;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Root;
 
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.queryoption.expression.Member;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADescriptionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
-import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
-import com.sap.olingo.jpa.processor.core.query.Util;
 
 public class JPAMemberOperator implements JPAOperator {
   private final Member member;
-  private final JPAEntityType jpaEntityType;
-  private final Root<?> root;
+  private final From<?, ?> root;
+  private final JPAAssociationPath association;
+  private final JPAPath attributePath;
 
-  JPAMemberOperator(final JPAEntityType jpaEntityType, final JPAAbstractQuery parent,
-      final Member member) {
+  JPAMemberOperator(final From<?, ?> parent, final Member member, final JPAAssociationPath association,
+      final List<String> list, final JPAPath attributePath) throws ODataApplicationException {
+
     super();
     this.member = member;
-    this.jpaEntityType = jpaEntityType;
-    this.root = parent.getRoot();
+    this.root = parent;
+    this.association = association;
+    this.attributePath = attributePath;
+    checkGroup(list);
   }
 
-  public JPAAttribute determineAttribute() throws ODataApplicationException {
-    return determineAttributePath().getLeaf();
+  public JPAAttribute determineAttribute() {
+    return attributePath == null ? null : attributePath.getLeaf();
   }
 
   @Override
   public Path<?> get() throws ODataApplicationException {
-    final JPAPath selectItemPath = determineAttributePath();
-    return determineCriteriaPath(selectItemPath);
+    return attributePath == null ? null : determineCriteriaPath(attributePath);
   }
 
-  public Member getMember() {// UriInfoResource getMember() {
-    return member; // .getResourcePath();
+  public Member getMember() {
+    return member;
   }
 
-  private JPAPath determineAttributePath() throws ODataApplicationException {
-    final String path = Util.determineProptertyNavigationPath(member.getResourcePath().getUriResourceParts());
-    JPAPath selectItemPath = null;
-    try {
-      selectItemPath = jpaEntityType.getPath(path);
-    } catch (ODataJPAModelException e) {
-      throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-    }
-    return selectItemPath;
+  @Override
+  public String getName() {
+    return member.toString();
   }
 
-  private Path<?> determineCriteriaPath(final JPAPath selectItemPath) {
+  private Path<?> determineCriteriaPath(final JPAPath selectItemPath) throws ODataJPAFilterException {
     Path<?> p = root;
     for (final JPAElement jpaPathElement : selectItemPath.getPath()) {
       if (jpaPathElement instanceof JPADescriptionAttribute) {
-        final Set<?> allJoins = root.getJoins();
-        final Iterator<?> iterator = allJoins.iterator();
-        while (iterator.hasNext()) {
-          Join<?, ?> join = (Join<?, ?>) iterator.next();
-          if (join.getAlias() != null && join.getAlias().equals(selectItemPath.getAlias())) {
-            final Set<?> subJoins = join.getJoins();
-            for (final Object sub : subJoins) {
-              // e.g. "Organizations?$filter=Address/RegionName eq 'Kalifornien'
-              // see createFromClause in JPAExecutableQuery
-              if (((Join<?, ?>) sub).getAlias() != null &&
-                  ((Join<?, ?>) sub).getAlias().equals(jpaPathElement.getExternalName())) {
-                join = (Join<?, ?>) sub;
-              }
-            }
-            p = join.get(((JPADescriptionAttribute) jpaPathElement).getDescriptionAttribute().getInternalName());
-            break;
-          }
+        p = determineDescriptionCriteraPath(selectItemPath, p, jpaPathElement);
+      } else if (jpaPathElement instanceof JPACollectionAttribute) {
+        if (!((JPACollectionAttribute) jpaPathElement).isComplex()) try {
+          p = p.get(((JPACollectionAttribute) jpaPathElement).getTargetAttribute().getInternalName());
+        } catch (ODataJPAModelException e) {
+          throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
         }
-      } else
+      } else {
         p = p.get(jpaPathElement.getInternalName());
+      }
     }
     return p;
+  }
+
+  private Path<?> determineDescriptionCriteraPath(final JPAPath selectItemPath, Path<?> p,
+      final JPAElement jpaPathElement) {
+
+    final Set<?> allJoins = root.getJoins();
+    final Iterator<?> iterator = allJoins.iterator();
+    while (iterator.hasNext()) {
+      Join<?, ?> join = (Join<?, ?>) iterator.next();
+      if (join.getAlias() != null && join.getAlias().equals(selectItemPath.getAlias())) {
+        final Set<?> subJoins = join.getJoins();
+        for (final Object sub : subJoins) {
+          // e.g. "Organizations?$filter=Address/RegionName eq 'Kalifornien'
+          // see createFromClause in JPAExecutableQuery
+          if (((Join<?, ?>) sub).getAlias() != null &&
+              ((Join<?, ?>) sub).getAlias().equals(jpaPathElement.getExternalName())) {
+            join = (Join<?, ?>) sub;
+          }
+        }
+        p = join.get(((JPADescriptionAttribute) jpaPathElement).getDescriptionAttribute().getInternalName());
+        break;
+      }
+    }
+    return p;
+  }
+
+  private void checkGroup(final List<String> groups) throws ODataJPAFilterException {
+    JPAPath orgPath = attributePath;
+    if (association != null && association.getPath() != null && attributePath != null) {
+      final JPAAttribute st = ((JPAAttribute) this.association.getPath().get(0));
+      if (st.isComplex()) {
+        try {
+          orgPath = st.getStructuredType().getPath(attributePath.getLeaf().getExternalName());
+        } catch (ODataJPAModelException e) {
+          // Ignore exception and use path
+        }
+      }
+    }
+    if (orgPath != null && !orgPath.isPartOfGroups(groups))
+      throw new ODataJPAFilterException(NOT_ALLOWED_MEMBER, HttpStatusCode.FORBIDDEN, orgPath.getAlias());
   }
 }

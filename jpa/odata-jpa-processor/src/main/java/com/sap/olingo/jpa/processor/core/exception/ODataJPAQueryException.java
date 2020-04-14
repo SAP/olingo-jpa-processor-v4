@@ -8,26 +8,36 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAMessageKey;
  * Copied from org.apache.olingo.odata2.jpa.processor.api.exception.ODataJPAModelException
  * See also org.apache.olingo.odata2.jpa.processor.core.exception.ODataJPAMessageServiceDefault
  */
-public class ODataJPAQueryException extends ODataJPAProcessException {
+public class ODataJPAQueryException extends ODataJPAProcessException { // NOSONAR
   /**
    * 
    */
   private static final long serialVersionUID = -7188499882306858747L;
 
-  public static enum MessageKeys implements ODataJPAMessageKey {
+  public enum MessageKeys implements ODataJPAMessageKey {
     QUERY_RESULT_CONV_ERROR,
     QUERY_RESULT_ENTITY_SET_ERROR,
+    QUERY_RESULT_ENTITY_TYPE_ERROR,
     QUERY_RESULT_NAVI_PROPERTY_ERROR,
     QUERY_RESULT_KEY_PROPERTY_ERROR,
     QUERY_RESULT_NAVI_PROPERTY_UNKNOWN,
     QUERY_RESULT_ACCESS_NOT_FOUND,
     QUERY_RESULT_EXPAND_ERROR,
+    QUERY_RESULT_CONV_MISSING_GETTER,
     QUERY_PREPARATION_FILTER_ERROR,
     QUERY_PREPARATION_ENTITY_UNKNOWN,
     QUERY_PREPARATION_INVALID_VALUE,
+    QUERY_PREPARATION_INVALID_SELECTION_PATH,
+    QUERY_PREPARATION_INVALID_KEY_PAIR,
     QUERY_PREPARATION_ERROR,
     QUERY_PREPARATION_JOIN_NOT_DEFINED,
-    NOT_SUPPORTED_RESOURCE_TYPE;
+    QUERY_PREPARATION_NOT_IMPLEMENTED,
+    QUERY_PREPARATION_NOT_ALLOWED_MEMBER,
+    QUERY_PREPARATION_OERDER_BY_TRANSIENT,
+    NOT_SUPPORTED_RESOURCE_TYPE,
+    MISSING_CLAIMS_PROVIDER,
+    MISSING_CLAIM,
+    WILDCARD_UPPER_NOT_SUPPORTED;
 
     @Override
     public String getKey() {

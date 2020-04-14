@@ -1,7 +1,7 @@
 package com.sap.olingo.jpa.processor.core.query;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -35,13 +35,13 @@ import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceFunction;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.processor.JPAFunctionRequestProcessor;
 import com.sap.olingo.jpa.processor.core.serializer.JPAOperationSerializer;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
@@ -52,7 +52,7 @@ public class TestJPAFunctionJava {
 
   private JPAFunctionRequestProcessor cut;
   private OData odata;
-  private JPAODataSessionContextAccess context;
+  private JPAODataCRUDContextAccess context;
   private JPAODataRequestContextAccess requestContext;
   private UriInfo uriInfo;
   private List<UriResource> uriResources;
@@ -63,10 +63,10 @@ public class TestJPAFunctionJava {
   private JPAOperationSerializer serializer;
   private SerializerResult serializerResult;
 
-  @Before
+  @BeforeEach
   public void setup() throws ODataException {
     odata = mock(OData.class);
-    context = mock(JPAODataSessionContextAccess.class);
+    context = mock(JPAODataCRUDContextAccess.class);
     requestContext = mock(JPAODataRequestContextAccess.class);
     EntityManager em = mock(EntityManager.class);
     uriInfo = mock(UriInfo.class);
@@ -74,17 +74,18 @@ public class TestJPAFunctionJava {
     serializerResult = mock(SerializerResult.class);
 
     DataSource ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
-    Map<String, Object> properties = new HashMap<String, Object>();
+    Map<String, Object> properties = new HashMap<>();
     properties.put("javax.persistence.nonJtaDataSource", ds);
     final EntityManagerFactory emf = Persistence.createEntityManagerFactory(PUNIT_NAME, properties);
-    uriResources = new ArrayList<UriResource>();
+    uriResources = new ArrayList<>();
     when(uriInfo.getUriResourceParts()).thenReturn(uriResources);
     when(context.getEdmProvider()).thenReturn(new JPAEdmProvider(PUNIT_NAME, emf, null, new String[] {
-        "com.sap.olingo.jpa.processor.core" }));
+        "com.sap.olingo.jpa.processor.core", "com.sap.olingo.jpa.processor.core.testmodel" }));
     when(requestContext.getUriInfo()).thenReturn(uriInfo);
     when(requestContext.getEntityManager()).thenReturn(em);
     when(requestContext.getSerializer()).thenReturn(serializer);
-    when(serializer.serialize(any(Annotatable.class), any(EdmType.class))).thenReturn(serializerResult);
+    when(serializer.serialize(any(Annotatable.class), any(EdmType.class), any(ODataRequest.class)))
+      .thenReturn(serializerResult);
 
     request = mock(ODataRequest.class);
     response = mock(ODataResponse.class);
@@ -96,7 +97,7 @@ public class TestJPAFunctionJava {
     cut = new JPAFunctionRequestProcessor(odata, context, requestContext);
   }
 
-  @After
+  @AfterEach
   public void teardown() {
     TestFunctionParameter.calls = 0;
     TestFunctionParameter.param1 = 0;
@@ -160,10 +161,3 @@ public class TestJPAFunctionJava {
     return Arrays.asList(new UriParameter[] { param1, param2 });
   }
 }
-
-//this.serializer = requestContext.getSerializer();
-
-//final EdmParameter edmParam = edmFunction.getParameter(parameter.getName());
-//try {
-//  return ((EdmPrimitiveType) edmParam.getType()).valueOfString(value, false, edmParam.getMaxLength(),
-//      edmParam.getPrecision(), edmParam.getScale(), true, parameter.getType());

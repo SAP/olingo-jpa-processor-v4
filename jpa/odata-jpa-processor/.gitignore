@@ -6,3 +6,8 @@ target/
 /test/
 /.settings/
 /*.log
+
+# JDT-specific (Eclipse Java Development Tools)
+.classpath
+/model/
+/.sts4-cache/

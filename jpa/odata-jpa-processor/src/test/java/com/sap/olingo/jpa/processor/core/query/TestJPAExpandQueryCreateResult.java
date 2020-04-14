@@ -1,7 +1,7 @@
 package com.sap.olingo.jpa.processor.core.query;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,42 +13,49 @@ import javax.persistence.Tuple;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.ODataApplicationException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataContextAccessDouble;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
+import com.sap.olingo.jpa.processor.core.processor.JPAODataRequestContextImpl;
 import com.sap.olingo.jpa.processor.core.util.EdmEntityTypeDouble;
 import com.sap.olingo.jpa.processor.core.util.ExpandItemDouble;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 import com.sap.olingo.jpa.processor.core.util.TupleDouble;
+import com.sap.olingo.jpa.processor.core.util.UriInfoDouble;
 
 public class TestJPAExpandQueryCreateResult extends TestBase {
-  private JPAExpandQuery cut;
+  private JPAExpandJoinQuery cut;
+  private JPAODataCRUDContextAccess context;
+  private JPAODataRequestContextImpl requestContext;
 
-  @Before
-  public void setup() throws ODataException {
+  @BeforeEach
+  public void setup() throws ODataException, ODataJPAIllegalAccessException {
     helper = new TestHelper(emf, PUNIT_NAME);
     createHeaders();
     EdmEntityType targetEntity = new EdmEntityTypeDouble(nameBuilder, "BusinessPartnerRole");
-    JPAODataSessionContextAccess context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null,
-        null), ds);
-    cut = new JPAExpandQuery(
-        null, context, emf.createEntityManager(), new ExpandItemDouble(targetEntity).getResourcePath(),
-        helper.getJPAAssociationPath("Organizations", "Roles"), helper.sd.getEntity(targetEntity),
-        new HashMap<String, List<String>>());
-    // new EdmEntitySetDouble(nameBuilder, "Organisations"), null, new HashMap<String, List<String>>());
+    context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null,
+        TestBase.enumPackages), ds, null);
+
+    requestContext = new JPAODataRequestContextImpl();
+    requestContext.setEntityManager(emf.createEntityManager());
+    requestContext.setUriInfo(new UriInfoDouble(new ExpandItemDouble(targetEntity).getResourcePath()));
+
+    cut = new JPAExpandJoinQuery(null, context, helper.getJPAAssociationPath("Organizations", "Roles"),
+        helper.sd.getEntity(targetEntity), new HashMap<String, List<String>>(), requestContext);
   }
 
   @Test
   public void checkConvertOneResult() throws ODataJPAModelException, ODataApplicationException {
     JPAAssociationPath exp = helper.getJPAAssociationPath("Organizations", "Roles");
-    List<Tuple> result = new ArrayList<Tuple>();
-    HashMap<String, Object> oneResult = new HashMap<String, Object>();
+    List<Tuple> result = new ArrayList<>();
+    HashMap<String, Object> oneResult = new HashMap<>();
     oneResult.put("BusinessPartnerID", "1");
     oneResult.put("RoleCategory", "A");
     Tuple t = new TupleDouble(oneResult);
@@ -64,16 +71,16 @@ public class TestJPAExpandQueryCreateResult extends TestBase {
   @Test
   public void checkConvertTwoResultOneParent() throws ODataJPAModelException, ODataApplicationException {
     JPAAssociationPath exp = helper.getJPAAssociationPath("Organizations", "Roles");
-    List<Tuple> result = new ArrayList<Tuple>();
+    List<Tuple> result = new ArrayList<>();
     HashMap<String, Object> oneResult;
     Tuple t;
 
-    oneResult = new HashMap<String, Object>();
+    oneResult = new HashMap<>();
     oneResult.put("BusinessPartnerID", "2");
     oneResult.put("RoleCategory", "A");
     t = new TupleDouble(oneResult);
     result.add(t);
-    oneResult = new HashMap<String, Object>();
+    oneResult = new HashMap<>();
     oneResult.put("BusinessPartnerID", "2");
     oneResult.put("RoleCategory", "C");
     t = new TupleDouble(oneResult);
@@ -90,16 +97,16 @@ public class TestJPAExpandQueryCreateResult extends TestBase {
   @Test
   public void checkConvertTwoResultOneParentTop1() throws ODataJPAModelException, ODataApplicationException {
     JPAAssociationPath exp = helper.getJPAAssociationPath("Organizations", "Roles");
-    List<Tuple> result = new ArrayList<Tuple>();
+    List<Tuple> result = new ArrayList<>();
     HashMap<String, Object> oneResult;
     Tuple t;
 
-    oneResult = new HashMap<String, Object>();
+    oneResult = new HashMap<>();
     oneResult.put("BusinessPartnerID", "2");
     oneResult.put("RoleCategory", "A");
     t = new TupleDouble(oneResult);
     result.add(t);
-    oneResult = new HashMap<String, Object>();
+    oneResult = new HashMap<>();
     oneResult.put("BusinessPartnerID", "2");
     oneResult.put("RoleCategory", "C");
     t = new TupleDouble(oneResult);
@@ -116,16 +123,16 @@ public class TestJPAExpandQueryCreateResult extends TestBase {
   @Test
   public void checkConvertTwoResultOneParentSkip1() throws ODataJPAModelException, ODataApplicationException {
     JPAAssociationPath exp = helper.getJPAAssociationPath("Organizations", "Roles");
-    List<Tuple> result = new ArrayList<Tuple>();
+    List<Tuple> result = new ArrayList<>();
     HashMap<String, Object> oneResult;
     Tuple t;
 
-    oneResult = new HashMap<String, Object>();
+    oneResult = new HashMap<>();
     oneResult.put("BusinessPartnerID", "2");
     oneResult.put("RoleCategory", "A");
     t = new TupleDouble(oneResult);
     result.add(t);
-    oneResult = new HashMap<String, Object>();
+    oneResult = new HashMap<>();
     oneResult.put("BusinessPartnerID", "2");
     oneResult.put("RoleCategory", "C");
     t = new TupleDouble(oneResult);
@@ -142,16 +149,16 @@ public class TestJPAExpandQueryCreateResult extends TestBase {
   @Test
   public void checkConvertTwoResultTwoParent() throws ODataJPAModelException, ODataApplicationException {
     JPAAssociationPath exp = helper.getJPAAssociationPath("Organizations", "Roles");
-    List<Tuple> result = new ArrayList<Tuple>();
+    List<Tuple> result = new ArrayList<>();
     HashMap<String, Object> oneResult;
     Tuple t;
 
-    oneResult = new HashMap<String, Object>();
+    oneResult = new HashMap<>();
     oneResult.put("BusinessPartnerID", "1");
     oneResult.put("RoleCategory", "A");
     t = new TupleDouble(oneResult);
     result.add(t);
-    oneResult = new HashMap<String, Object>();
+    oneResult = new HashMap<>();
     oneResult.put("BusinessPartnerID", "2");
     oneResult.put("RoleCategory", "C");
     t = new TupleDouble(oneResult);
@@ -169,8 +176,8 @@ public class TestJPAExpandQueryCreateResult extends TestBase {
   @Test
   public void checkConvertOneResultCompundKey() throws ODataJPAModelException, ODataApplicationException {
     JPAAssociationPath exp = helper.getJPAAssociationPath("AdministrativeDivisions", "Parent");
-    List<Tuple> result = new ArrayList<Tuple>();
-    HashMap<String, Object> oneResult = new HashMap<String, Object>();
+    List<Tuple> result = new ArrayList<>();
+    HashMap<String, Object> oneResult = new HashMap<>();
     oneResult.put("CodePublisher", "NUTS");
     oneResult.put("DivisionCode", "BE25");
     oneResult.put("CodeID", "2");
@@ -189,11 +196,11 @@ public class TestJPAExpandQueryCreateResult extends TestBase {
   @Test
   public void checkConvertTwoResultsCompundKey() throws ODataJPAModelException, ODataApplicationException {
     JPAAssociationPath exp = helper.getJPAAssociationPath("AdministrativeDivisions", "Parent");
-    List<Tuple> result = new ArrayList<Tuple>();
+    List<Tuple> result = new ArrayList<>();
     HashMap<String, Object> oneResult;
     Tuple t;
 
-    oneResult = new HashMap<String, Object>();
+    oneResult = new HashMap<>();
     oneResult.put("CodePublisher", "NUTS");
     oneResult.put("DivisionCode", "BE25");
     oneResult.put("CodeID", "2");
@@ -202,7 +209,7 @@ public class TestJPAExpandQueryCreateResult extends TestBase {
     t = new TupleDouble(oneResult);
     result.add(t);
 
-    oneResult = new HashMap<String, Object>();
+    oneResult = new HashMap<>();
     oneResult.put("CodePublisher", "NUTS");
     oneResult.put("DivisionCode", "BE10");
     oneResult.put("CodeID", "2");
@@ -222,4 +229,25 @@ public class TestJPAExpandQueryCreateResult extends TestBase {
     assertEquals("BE1", act.get("NUTS/2/BE10").get(0).get("ParentDivisionCode"));
   }
 
+  @Test
+  public void checkConvertOneResultJoinTable() throws ODataException {
+    JPAAssociationPath exp = helper.getJPAAssociationPath("Organizations", "SupportEngineers");
+
+    EdmEntityType targetEntity = new EdmEntityTypeDouble(nameBuilder, "Person");
+    cut = new JPAExpandJoinQuery(null, context, helper.getJPAAssociationPath("Organizations", "SupportEngineers"),
+        helper.sd.getEntity(targetEntity), new HashMap<String, List<String>>(), requestContext);
+
+    List<Tuple> result = new ArrayList<>();
+    HashMap<String, Object> oneResult = new HashMap<>();
+    oneResult.put("SupportEngineers" + JPAExpandJoinQuery.ALIAS_SEPERATOR + "ID", "2");
+    oneResult.put("ID", "97");
+    Tuple t = new TupleDouble(oneResult);
+    result.add(t);
+
+    Map<String, List<Tuple>> act = cut.convertResult(result, exp, 0, Long.MAX_VALUE);
+
+    assertNotNull(act.get("2"));
+    assertEquals(1, act.get("2").size());
+    assertEquals("97", act.get("2").get(0).get("ID"));
+  }
 }

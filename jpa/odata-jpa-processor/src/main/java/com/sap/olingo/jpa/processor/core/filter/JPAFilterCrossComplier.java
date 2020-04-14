@@ -1,34 +1,43 @@
 package com.sap.olingo.jpa.processor.core.filter;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.From;
 
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
-import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitException;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitor;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
+import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
 
 /**
  * Cross compiles Olingo generated AST of an OData filter into JPA criteria builder where condition.
  * 
  * Details can be found:
- * <a href=
+ * <ul>
+ * <li><a href=
  * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398301"
  * >OData Version 4.0 Part 1 - 11.2.5.1 System Query Option $filter </a>
- * <a href=
+ * <li><a href=
  * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part2-url-conventions/odata-v4.0-errata02-os-part2-url-conventions-complete.html#_Toc406398094"
  * >OData Version 4.0 Part 2 - 5.1.1 System Query Option $filter</a>
- * <a href=
+ * <li><a href=
  * "https://tools.oasis-open.org/version-control/browse/wsvn/odata/trunk/spec/ABNF/odata-abnf-construction-rules.txt">
  * odata-abnf-construction-rules</a>
+ * </ul>
  * @author Oliver Grande
  *
  */
@@ -43,23 +52,33 @@ public final class JPAFilterCrossComplier extends JPAAbstractFilter {
   final JPAServiceDocument sd;
   final List<UriResource> uriResourceParts;
   final JPAAbstractQuery parent;
+  final Optional<JPAODataClaimProvider> claimsProvider;
+  final List<String> groups;
+  private From<?, ?> root;
 
-  public JPAFilterCrossComplier(final OData odata, final JPAServiceDocument sd, final EntityManager em,
+  public JPAFilterCrossComplier(final OData odata, final JPAServiceDocument sd,
       final JPAEntityType jpaEntityType, final JPAOperationConverter converter,
-      final UriInfoResource uriResource, final JPAAbstractQuery parent) {
+      final JPAAbstractQuery parent, From<?, ?> from, final JPAAssociationPath assization,
+      final JPAODataRequestContextAccess requestContext) {
 
-    super(jpaEntityType, uriResource);
+    this(odata, sd, jpaEntityType, converter, parent, assization, requestContext);
+    this.root = from;
+  }
 
-    if (uriResource != null) {
-      this.uriResourceParts = uriResource.getUriResourceParts();
-    } else {
-      this.uriResourceParts = null;
-    }
+  public JPAFilterCrossComplier(final OData odata, final JPAServiceDocument sd,
+      final JPAEntityType jpaEntityType, final JPAOperationConverter converter, final JPAAbstractQuery parent,
+      final JPAAssociationPath assization, final JPAODataRequestContextAccess requestContext) {
+
+    super(jpaEntityType, requestContext.getUriInfo(), assization);
+    final Optional<JPAODataGroupProvider> groupsProvider = requestContext.getGroupsProvider();
+    this.uriResourceParts = requestContext.getUriInfo().getUriResourceParts();
     this.converter = converter;
-    this.em = em;
+    this.em = requestContext.getEntityManager();
     this.odata = odata;
     this.sd = sd;
     this.parent = parent;
+    this.claimsProvider = requestContext.getClaimsProvider();
+    this.groups = groupsProvider.isPresent() ? groupsProvider.get().getGroups() : Collections.emptyList();
   }
 
   /*
@@ -84,13 +103,18 @@ public final class JPAFilterCrossComplier extends JPAAbstractFilter {
   }
 
   @Override
+  public Optional<JPAODataClaimProvider> getClaimsProvider() {
+    return claimsProvider;
+  }
+
+  @Override
   public JPAOperationConverter getConverter() {
     return converter;
   }
 
   @Override
-  public JPAEntityType getJpaEntityType() {
-    return jpaEntityType;
+  public JPAServiceDebugger getDebugger() {
+    return parent.getDebugger();
   }
 
   @Override
@@ -99,8 +123,25 @@ public final class JPAFilterCrossComplier extends JPAAbstractFilter {
   }
 
   @Override
+  public JPAEntityType getJpaEntityType() {
+    return jpaEntityType;
+  }
+
+  @Override
   public OData getOdata() {
     return odata;
+  }
+
+  @Override
+  public JPAAbstractQuery getParent() {
+    return parent;
+  }
+
+  @Override
+  public From<?, ?> getRoot() {
+    if (root == null)
+      return parent.getRoot();
+    return root;
   }
 
   @Override
@@ -114,8 +155,8 @@ public final class JPAFilterCrossComplier extends JPAAbstractFilter {
   }
 
   @Override
-  public JPAAbstractQuery getParent() {
-    return parent;
+  public List<String> getGroups() {
+    return groups;
   }
 
 }

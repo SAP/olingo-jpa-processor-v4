@@ -1,34 +1,54 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
+import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.COMPLEX_PROPERTY_WRONG_PROTECTION_PATH;
+import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.PROPERTY_REQUIRED_UNKNOWN;
+
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Field;
+import java.lang.reflect.Member;
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Set;
 
+import javax.annotation.Nonnull;
 import javax.persistence.AssociationOverride;
 import javax.persistence.AssociationOverrides;
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
+import javax.persistence.Column;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
 import javax.persistence.OneToMany;
+import javax.persistence.Version;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.Attribute.PersistentAttributeType;
 import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.PluralAttribute;
 import javax.persistence.metamodel.SingularAttribute;
+import javax.persistence.metamodel.Type;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlStructuralType;
+import org.apache.olingo.server.api.uri.UriResourceProperty;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssoziation;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransient;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAProtectionInfo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
@@ -37,20 +57,22 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
   protected final Map<String, IntermediateProperty> declaredPropertiesList;
   protected final Map<String, IntermediateNavigationProperty> declaredNaviPropertiesList;
   protected final Map<String, JPAPathImpl> resolvedPathMap;
-  protected final Map<String, JPAPathImpl> intermediatePathMap;
+  protected final Map<String, JPAPath> intermediatePathMap;
   protected final Map<String, JPAAssociationPathImpl> resolvedAssociationPathMap;
   protected final ManagedType<?> jpaManagedType;
   protected final IntermediateSchema schema;
+  protected List<JPAProtectionInfo> protectedAttributes;
+  protected CsdlStructuralType edmStructuralType;
 
   IntermediateStructuredType(final JPAEdmNameBuilder nameBuilder, final ManagedType<?> jpaManagedType,
-      final IntermediateSchema schema) throws ODataJPAModelException {
+      final IntermediateSchema schema) {
 
     super(nameBuilder, IntNameBuilder.buildStructuredTypeName(jpaManagedType.getJavaType()));
-    this.declaredPropertiesList = new HashMap<String, IntermediateProperty>();
-    this.resolvedPathMap = new HashMap<String, JPAPathImpl>();
-    this.intermediatePathMap = new HashMap<String, JPAPathImpl>();
-    this.declaredNaviPropertiesList = new HashMap<String, IntermediateNavigationProperty>();
-    this.resolvedAssociationPathMap = new HashMap<String, JPAAssociationPathImpl>();
+    this.declaredPropertiesList = new HashMap<>();
+    this.resolvedPathMap = new HashMap<>();
+    this.intermediatePathMap = new HashMap<>();
+    this.declaredNaviPropertiesList = new HashMap<>();
+    this.resolvedAssociationPathMap = new HashMap<>();
     this.jpaManagedType = jpaManagedType;
     this.schema = schema;
     determineIgnore();
@@ -75,31 +97,47 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
   @Override
   public List<JPAAssociationPath> getAssociationPathList() throws ODataJPAModelException {
     lazyBuildCompleteAssociationPathMap();
-    final List<JPAAssociationPath> associationList = new ArrayList<JPAAssociationPath>();
+    final List<JPAAssociationPath> associationList = new ArrayList<>();
 
-    for (final String externalName : resolvedAssociationPathMap.keySet()) {
-      associationList.add(resolvedAssociationPathMap.get(externalName));
+    for (final Entry<String, JPAAssociationPathImpl> associationPat : resolvedAssociationPathMap.entrySet()) {
+      associationList.add(associationPat.getValue());
     }
     return associationList;
   }
 
   @Override
-  public JPAAttribute getAttribute(final String internalName) throws ODataJPAModelException {
-    lazyBuildEdmItem();
-    JPAAttribute result = declaredPropertiesList.get(internalName);
-    if (result == null && getBaseType() != null)
+  public Optional<JPAAttribute> getAttribute(final String internalName) throws ODataJPAModelException {
+    if (edmStructuralType == null)
+      lazyBuildEdmItem();
+    Optional<JPAAttribute> result = Optional.ofNullable(declaredPropertiesList.get(internalName));
+    if (!result.isPresent() && getBaseType() != null)
       result = getBaseType().getAttribute(internalName);
-    else if (result != null && ((IntermediateModelElement) result).ignore())
-      return null;
+    else if (result.isPresent() && ((IntermediateModelElement) result.get()).ignore())
+      return Optional.empty();
     return result;
   }
 
   @Override
+  public Optional<JPAAttribute> getAttribute(final UriResourceProperty uriResourceItem) throws ODataJPAModelException {
+    if (edmStructuralType == null)
+      lazyBuildEdmItem();
+    final String externalName = uriResourceItem.getProperty().getName();
+    for (final Entry<String, IntermediateProperty> property : declaredPropertiesList.entrySet()) {
+      if (property.getValue().getExternalName().equals(externalName))
+        return Optional.of(property.getValue());
+    }
+    if (getBaseType() != null)
+      return getBaseType().getAttribute(uriResourceItem);
+    return Optional.empty();
+  }
+
+  @Override
   public List<JPAAttribute> getAttributes() throws ODataJPAModelException {
-    lazyBuildEdmItem();
-    final List<JPAAttribute> result = new ArrayList<JPAAttribute>();
-    for (final String propertyKey : declaredPropertiesList.keySet()) {
-      final IntermediateProperty attribute = declaredPropertiesList.get(propertyKey);
+    if (edmStructuralType == null)
+      lazyBuildEdmItem();
+    final List<JPAAttribute> result = new ArrayList<>();
+    for (final Entry<String, IntermediateProperty> property : declaredPropertiesList.entrySet()) {
+      final IntermediateProperty attribute = property.getValue();
       if (!attribute.ignore())
         result.add(attribute);
     }
@@ -109,51 +147,92 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
   }
 
   @Override
-  public JPAAssociationPath getDeclaredAssociation(final JPAAssociationPath associationPath)
-      throws ODataJPAModelException {
-    lazyBuildCompleteAssociationPathMap();
-
-    if (resolvedAssociationPathMap.containsKey(associationPath.getAlias()))
-      return resolvedAssociationPathMap.get(associationPath.getAlias());
-    final IntermediateStructuredType baseType = getBaseType();
-    if (baseType != null)
-      return baseType.getDeclaredAssociation(associationPath);
-    return null;
+  public List<JPAPath> getCollectionAttributesPath() throws ODataJPAModelException {
+    lazyBuildCompletePathMap();
+    final List<JPAPath> pathList = new ArrayList<>();
+    for (final Entry<String, JPAPathImpl> path : resolvedPathMap.entrySet()) {
+      if (!path.getValue().ignore() && path.getValue().getLeaf() instanceof JPACollectionAttribute)
+        pathList.add(path.getValue());
+    }
+    for (final Entry<String, JPAPath> path : intermediatePathMap.entrySet()) {
+      if (!path.getValue().ignore() && path.getValue().getLeaf() instanceof JPACollectionAttribute)
+        pathList.add(path.getValue());
+    }
+    return pathList;
   }
 
   @Override
-  public JPAAssociationPath getDeclaredAssociation(final String externalName) throws ODataJPAModelException {
+  public List<JPAAssociationAttribute> getDeclaredAssociations() throws ODataJPAModelException {
     lazyBuildCompleteAssociationPathMap();
-    for (final String internalName : declaredNaviPropertiesList.keySet()) {
-      if (externalName.equals(declaredNaviPropertiesList.get(internalName).getExternalName()))
-        return resolvedAssociationPathMap.get(externalName);
+
+    List<JPAAssociationAttribute> result = new ArrayList<>();
+    for (final Entry<String, IntermediateNavigationProperty> naviProperty : declaredNaviPropertiesList.entrySet())
+      result.add(naviProperty.getValue());
+    final IntermediateStructuredType baseType = getBaseType();
+    if (baseType != null)
+      result.addAll(baseType.getDeclaredAssociations());
+    return result;
+  }
+
+  @Override
+  public List<JPAAttribute> getDeclaredAttributes() throws ODataJPAModelException {
+    if (edmStructuralType == null)
+      lazyBuildEdmItem();
+    List<JPAAttribute> result = new ArrayList<>();
+    for (final Entry<String, IntermediateProperty> property : declaredPropertiesList.entrySet()) {
+      result.add(property.getValue());
     }
     final IntermediateStructuredType baseType = getBaseType();
     if (baseType != null)
-      return baseType.getDeclaredAssociation(externalName);
-    return null;
+      result.addAll(baseType.getDeclaredAttributes());
+    return result;
+  }
+
+  @Override
+  public Optional<JPAAttribute> getDeclaredAttribute(@Nonnull final String internalName) throws ODataJPAModelException {
+    if (edmStructuralType == null)
+      lazyBuildEdmItem();
+    Optional<JPAAttribute> result = Optional.ofNullable(declaredPropertiesList.get(internalName));
+    if (!result.isPresent() && getBaseType() != null)
+      result = getBaseType().getAttribute(internalName);
+    return result;
+  }
+
+  @Override
+  public List<JPACollectionAttribute> getDeclaredCollectionAttributes() throws ODataJPAModelException {
+    if (edmStructuralType == null)
+      lazyBuildEdmItem();
+    List<JPACollectionAttribute> result = new ArrayList<>();
+    for (final Entry<String, IntermediateProperty> property : declaredPropertiesList.entrySet()) {
+      if (property.getValue().isCollection())
+        result.add((JPACollectionAttribute) property.getValue());
+    }
+    final IntermediateStructuredType baseType = getBaseType();
+    if (baseType != null)
+      result.addAll(baseType.getDeclaredCollectionAttributes());
+    return result;
   }
 
   @Override
   public JPAPath getPath(final String externalName) throws ODataJPAModelException {
-    lazyBuildCompletePathMap();
-    JPAPath targetPath = resolvedPathMap.get(externalName);
-    if (targetPath == null)
-      targetPath = intermediatePathMap.get(externalName);
-    if (targetPath == null || targetPath.ignore())
-      return null;
-    return targetPath;
+    return getPath(externalName, true);
   }
 
   @Override
   public List<JPAPath> getPathList() throws ODataJPAModelException {
     lazyBuildCompletePathMap();
-    final List<JPAPath> pathList = new ArrayList<JPAPath>();
-    for (final String externalName : resolvedPathMap.keySet()) {
-      if (!resolvedPathMap.get(externalName).ignore())
-        pathList.add(resolvedPathMap.get(externalName));
+    final List<JPAPath> pathList = new ArrayList<>();
+    for (final Entry<String, JPAPathImpl> path : resolvedPathMap.entrySet()) {
+      if (!path.getValue().ignore())
+        pathList.add(path.getValue());
     }
     return pathList;
+  }
+
+  @Override
+  public List<JPAProtectionInfo> getProtections() throws ODataJPAModelException {
+    lazyBuildCompleteProtectionList();
+    return protectedAttributes;
   }
 
   @Override
@@ -172,32 +251,31 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
       final PersistentAttributeType attributeType = jpaAttribute.getPersistentAttributeType();
 
       switch (attributeType) {
-      case BASIC:
-      case EMBEDDED:
-        break;
-      case ONE_TO_MANY:
-      case ONE_TO_ONE:
-      case MANY_TO_MANY:
-      case MANY_TO_ONE:
-        if (jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
-          final EdmDescriptionAssoziation jpaDescription = ((AnnotatedElement) jpaAttribute.getJavaMember())
-              .getAnnotation(
-                  EdmDescriptionAssoziation.class);
-          if (jpaDescription != null) {
-            final IntermediateDescriptionProperty descProperty = new IntermediateDescriptionProperty(nameBuilder,
-                jpaAttribute, schema);
-            declaredPropertiesList.put(descProperty.internalName, descProperty);
-            break;
+        case BASIC:
+        case EMBEDDED:
+        case ELEMENT_COLLECTION:
+          break;
+        case ONE_TO_MANY:
+        case ONE_TO_ONE:
+        case MANY_TO_MANY:
+        case MANY_TO_ONE:
+          if (jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
+            final EdmDescriptionAssoziation jpaDescription = ((AnnotatedElement) jpaAttribute.getJavaMember())
+                .getAnnotation(EdmDescriptionAssoziation.class);
+            if (jpaDescription != null) {
+              final IntermediateDescriptionProperty descProperty = new IntermediateDescriptionProperty(nameBuilder,
+                  jpaAttribute, this, schema);
+              declaredPropertiesList.put(descProperty.internalName, descProperty);
+              break;
+            }
           }
-        }
-        final IntermediateNavigationProperty navProp = new IntermediateNavigationProperty(nameBuilder, this,
-            jpaAttribute,
-            schema);
-        declaredNaviPropertiesList.put(navProp.internalName, navProp);
-        break;
-      default:
-        throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.NOT_SUPPORTED_ATTRIBUTE_TYPE,
-            attributeType.name());
+          final IntermediateNavigationProperty navProp = new IntermediateNavigationProperty(nameBuilder, this,
+              jpaAttribute, schema);
+          declaredNaviPropertiesList.put(navProp.internalName, navProp);
+          break;
+        default:
+          throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.NOT_SUPPORTED_ATTRIBUTE_TYPE,
+              attributeType.name());
       }
     }
   }
@@ -208,26 +286,73 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
       final PersistentAttributeType attributeType = jpaAttribute.getPersistentAttributeType();
 
       switch (attributeType) {
-      case BASIC:
-      case EMBEDDED:
-        if (jpaAttribute instanceof SingularAttribute<?, ?>
-            && ((SingularAttribute<?, ?>) jpaAttribute).isId()
-            && attributeType == PersistentAttributeType.EMBEDDED) {
-          final IntermediateProperty property = new IntermediateEmbeddedIdProperty(nameBuilder, jpaAttribute, schema);
+        case BASIC:
+        case EMBEDDED:
+          if (jpaAttribute instanceof SingularAttribute<?, ?>
+              && ((SingularAttribute<?, ?>) jpaAttribute).isId()
+              && attributeType == PersistentAttributeType.EMBEDDED) {
+            final IntermediateSimpleProperty property = new IntermediateEmbeddedIdProperty(nameBuilder, jpaAttribute,
+                schema);
+            declaredPropertiesList.put(property.internalName, property);
+          } else {
+            final IntermediateSimpleProperty property = new IntermediateSimpleProperty(nameBuilder, jpaAttribute,
+                schema);
+            declaredPropertiesList.put(property.internalName, property);
+          }
+          break;
+        case ELEMENT_COLLECTION:
+          final IntermediateCollectionProperty property = new IntermediateCollectionProperty(nameBuilder,
+              (PluralAttribute<?, ?, ?>) jpaAttribute, schema, this);
           declaredPropertiesList.put(property.internalName, property);
+          break;
+        case ONE_TO_MANY:
+        case ONE_TO_ONE:
+        case MANY_TO_MANY:
+        case MANY_TO_ONE:
+          break;
+        default:
+          // Attribute Type '%1$s' as of now not supported
+          throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.NOT_SUPPORTED_ATTRIBUTE_TYPE,
+              attributeType.name());
+      }
+    }
+  }
+
+  /**
+   * The managed type (e.g. via jpaManagedType.getDeclaredAttributes()) does not provide transient field. Therefore they
+   * have to be simulated
+   * @throws ODataJPAModelException
+   */
+  protected void addTransientProperties() throws ODataJPAModelException {
+    final Field[] fields = jpaManagedType.getJavaType().getDeclaredFields();
+    for (final Field jpaAttribute : fields) {
+      final EdmTransient t = jpaAttribute.getAnnotation(EdmTransient.class);
+      if (t != null) {
+        IntermediateProperty property = null;
+        if (Collection.class.isAssignableFrom(jpaAttribute.getType())) {
+          property = new IntermediateCollectionProperty(nameBuilder,
+              new TransientPluralAttribute<>(jpaManagedType, jpaAttribute, schema), schema, this);
         } else {
-          final IntermediateProperty property = new IntermediateProperty(nameBuilder, jpaAttribute, schema);
-          declaredPropertiesList.put(property.internalName, property);
+          property = new IntermediateSimpleProperty(nameBuilder,
+              new TransientSingularAttribute<>(jpaManagedType, jpaAttribute), schema);
+
         }
-        break;
-      case ONE_TO_MANY:
-      case ONE_TO_ONE:
-      case MANY_TO_MANY:
-      case MANY_TO_ONE:
-        break;
-      default:
-        throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.NOT_SUPPORTED_ATTRIBUTE_TYPE,
-            attributeType.name());
+        declaredPropertiesList.put(property.internalName, property);
+      }
+    }
+  }
+
+  /**
+   * @throws ODataJPAModelException
+   * 
+   */
+  protected void checkPropertyConsistancy() throws ODataJPAModelException {
+
+    for (final Entry<String, IntermediateProperty> property : declaredPropertiesList.entrySet()) {
+      if (property.getValue().isTransient()) {
+        for (final String internalPath : property.getValue().getRequiredProperties()) {
+          validateInternalPath(property.getKey(), internalPath);
+        }
       }
     }
   }
@@ -236,23 +361,24 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
 
     final IntermediateStructuredType baseEntity = getBaseType();
     if (baseEntity != null && !baseEntity.isAbstract() && isAbstract())
+      // Abstract entity type '%1$s' must not inherit from a non-abstract entity type '%2$s'
       throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.INHERITANCE_NOT_ALLOWED,
           this.internalName, baseEntity.internalName);
-    return baseEntity != null ? nameBuilder.buildFQN(baseEntity.getExternalName()) : null;
+    return baseEntity != null ? buildFQN(baseEntity.getExternalName()) : null;
+  }
+
+  protected boolean determineHasStream() throws ODataJPAModelException {
+    return getStreamProperty() != null;
   }
 
   protected void determineIgnore() {
-    final EdmIgnore jpaIgnore = ((AnnotatedElement) this.jpaManagedType.getJavaType()).getAnnotation(EdmIgnore.class);
+    final EdmIgnore jpaIgnore = this.jpaManagedType.getJavaType().getAnnotation(EdmIgnore.class);
     if (jpaIgnore != null) {
       this.setIgnore(true);
     }
   }
 
-  protected boolean determineHasStream() throws ODataJPAModelException {
-    return getStreamProperty() == null ? false : true;
-  }
-
-  protected IntermediateStructuredType getBaseType() throws ODataJPAModelException {
+  protected IntermediateStructuredType getBaseType() {
     final Class<?> baseType = jpaManagedType.getJavaType().getSuperclass();
     if (baseType != null) {
       final IntermediateStructuredType baseEntity = schema.getEntityType(baseType);
@@ -262,17 +388,19 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
     return null;
   }
 
-  protected IntermediateProperty getStreamProperty() throws ODataJPAModelException {
+  protected IntermediateSimpleProperty getStreamProperty() throws ODataJPAModelException {
     int count = 0;
-    IntermediateProperty result = null;
-    for (final String internalName : declaredPropertiesList.keySet()) {
-      if (declaredPropertiesList.get(internalName).isStream()) {
+    IntermediateSimpleProperty result = null;
+    for (final Entry<String, IntermediateProperty> property : declaredPropertiesList.entrySet()) {
+      // Edm.Stream, or a type definition whose underlying type is Edm.Stream, cannot be used in collections or for
+      // non-binding parameters to functions or actions.
+      if (property.getValue().isStream()) {
         count += 1;
-        result = declaredPropertiesList.get(internalName);
+        result = (IntermediateSimpleProperty) property.getValue();
       }
     }
     if (this.getBaseType() != null) {
-      final IntermediateProperty superResult = getBaseType().getStreamProperty();
+      final IntermediateSimpleProperty superResult = getBaseType().getStreamProperty();
       if (superResult != null) {
         count += 1;
         result = superResult;
@@ -286,10 +414,11 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
   }
 
   List<JPAAttribute> getAssociations() throws ODataJPAModelException {
-    lazyBuildEdmItem();
-    final List<JPAAttribute> jpaAttributes = new ArrayList<JPAAttribute>();
-    for (final String internalName : declaredNaviPropertiesList.keySet()) {
-      final IntermediateNavigationProperty property = declaredNaviPropertiesList.get(internalName);
+    if (edmStructuralType == null)
+      lazyBuildEdmItem();
+    final List<JPAAttribute> jpaAttributes = new ArrayList<>();
+    for (final Entry<String, IntermediateNavigationProperty> naviProperty : declaredNaviPropertiesList.entrySet()) {
+      final IntermediateNavigationProperty property = naviProperty.getValue();
       if (!property.ignore())
         jpaAttributes.add(property);
     }
@@ -309,15 +438,14 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
   @Override
   abstract CsdlStructuralType getEdmItem() throws ODataJPAModelException;
 
-  Map<String, JPAPathImpl> getIntermediatePathMap() throws ODataJPAModelException {
+  Map<String, JPAPath> getIntermediatePathMap() throws ODataJPAModelException {
     lazyBuildCompletePathMap();
     return intermediatePathMap;
   }
 
-  List<IntermediateJoinColumn> getJoinColumns(final IntermediateStructuredType sourceType,
-      final String relationshipName) {
+  List<IntermediateJoinColumn> getJoinColumns(final String relationshipName) {
 
-    final List<IntermediateJoinColumn> result = new ArrayList<IntermediateJoinColumn>();
+    final List<IntermediateJoinColumn> result = new ArrayList<>();
     final Attribute<?, ?> jpaAttribute = jpaManagedType.getAttribute(relationshipName);
 
     if (jpaAttribute != null) {
@@ -346,10 +474,10 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
    */
   JPAPath getPathByDBField(final String dbFieldName) throws ODataJPAModelException {
     lazyBuildCompletePathMap();
-    for (final String internalName : resolvedPathMap.keySet()) {
-      final JPAPath property = resolvedPathMap.get(internalName);
-      if (property.getDBFieldName().equals(dbFieldName))
-        return property;
+
+    for (final Entry<String, JPAPathImpl> path : resolvedPathMap.entrySet()) {
+      if (path.getValue().getDBFieldName().equals(dbFieldName))
+        return path.getValue();
     }
     return null;
   }
@@ -361,7 +489,8 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
    * @throws ODataJPAModelException
    */
   IntermediateProperty getProperty(final String internalName) throws ODataJPAModelException {
-    lazyBuildEdmItem();
+    if (edmStructuralType == null)
+      lazyBuildEdmItem();
     IntermediateProperty result = declaredPropertiesList.get(internalName);
     if (result == null && getBaseType() != null)
       result = getBaseType().getProperty(internalName);
@@ -377,15 +506,17 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
    */
   IntermediateModelElement getPropertyByDBField(final String dbFieldName) throws ODataJPAModelException {
     buildPropertyList();
-    for (final String internalName : declaredPropertiesList.keySet()) {
-      final IntermediateProperty property = declaredPropertiesList.get(internalName);
+    for (final Entry<String, IntermediateProperty> declaredProperty : declaredPropertiesList.entrySet()) {
+      final IntermediateProperty property = declaredProperty.getValue();
       if (property.isComplex()) {
-        IntermediateProperty embeddedProperty = (IntermediateProperty) ((IntermediateStructuredType) property
-            .getStructuredType()).getPropertyByDBField(dbFieldName);
+        IntermediateProperty embeddedProperty =
+            (IntermediateProperty) ((IntermediateStructuredType) property
+                .getStructuredType()).getPropertyByDBField(dbFieldName);
         if (embeddedProperty != null && embeddedProperty.getDBFieldName().equals(dbFieldName))
           return embeddedProperty;
-      } else if (property.getDBFieldName().equals(dbFieldName))
+      } else if (property.getDBFieldName().equals(dbFieldName)) {
         return property;
+      }
     }
     if (getBaseType() != null)
       return getBaseType().getPropertyByDBField(dbFieldName);
@@ -395,6 +526,10 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
   Map<String, JPAPathImpl> getResolvedPathMap() throws ODataJPAModelException {
     lazyBuildCompletePathMap();
     return resolvedPathMap;
+  }
+
+  private String buildPath(final String pathRoot, final String pathElement) {
+    return pathRoot + JPAPath.PATH_SEPERATOR + pathElement;
   }
 
   private String determineDBFieldName(final IntermediateModelElement property, final JPAPath jpaPath) {
@@ -409,9 +544,8 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
         }
       } else {
         final AttributeOverride overwrite = a.getAnnotation(AttributeOverride.class);
-        if (overwrite != null) {
-          if (overwrite.name().equals(jpaPath.getLeaf().getInternalName()))
-            return overwrite.column().name();
+        if (overwrite != null && overwrite.name().equals(jpaPath.getLeaf().getInternalName())) {
+          return overwrite.column().name();
         }
       }
     }
@@ -420,7 +554,7 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
 
   private List<IntermediateJoinColumn> determineJoinColumns(final IntermediateModelElement property,
       final JPAAssociationPath association) {
-    final List<IntermediateJoinColumn> result = new ArrayList<IntermediateJoinColumn>();
+    final List<IntermediateJoinColumn> result = new ArrayList<>();
 
     final Attribute<?, ?> jpaAttribute = jpaManagedType.getAttribute(property.getInternalName());
     if (jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
@@ -436,31 +570,25 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
           }
         } else {
           final AssociationOverride overwrite = a.getAnnotation(AssociationOverride.class);
-          if (overwrite != null) {
-            if (overwrite.name().equals(association.getLeaf().getInternalName())) {
-              for (final JoinColumn column : overwrite.joinColumns())
-                result.add(new IntermediateJoinColumn(column));
-            }
+          if (overwrite != null && overwrite.name().equals(association.getLeaf().getInternalName())) {
+            for (final JoinColumn column : overwrite.joinColumns())
+              result.add(new IntermediateJoinColumn(column));
           }
         }
       }
     }
     return result;
+
   }
 
   private Attribute<?, ?> findCorrespondingAssociation(final IntermediateStructuredType sourceType,
       final String sourceRelationshipName) {
-    Class<?> targetClass = null;
 
     for (final Attribute<?, ?> jpaAttribute : jpaManagedType.getAttributes()) {
       if (jpaAttribute.getPersistentAttributeType() != null
           && jpaAttribute.getJavaMember() instanceof AnnotatedElement
           && !sourceRelationshipName.equals(IntNameBuilder.buildAssociationName(jpaAttribute))) {
-        if (jpaAttribute.isCollection()) {
-          targetClass = ((PluralAttribute<?, ?, ?>) jpaAttribute).getElementType().getJavaType();
-        } else {
-          targetClass = jpaAttribute.getJavaType();
-        }
+        final Class<?> targetClass = determineTargetClass(jpaAttribute);
         if (targetClass.equals(sourceType.getTypeClass())) {
           final OneToMany cardinalityOtM = ((AnnotatedElement) jpaAttribute.getJavaMember()).getAnnotation(
               OneToMany.class);
@@ -474,6 +602,27 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
     return null;
   }
 
+  private Class<?> determineTargetClass(final Attribute<?, ?> jpaAttribute) {
+    Class<?> targetClass;
+    if (jpaAttribute.isCollection()) {
+      targetClass = ((PluralAttribute<?, ?, ?>) jpaAttribute).getElementType().getJavaType();
+    } else {
+      targetClass = jpaAttribute.getJavaType();
+    }
+    return targetClass;
+  }
+
+  @Override
+  public final JPAPath getPath(final String externalName, final boolean respectIgnore) throws ODataJPAModelException {
+    lazyBuildCompletePathMap();
+    JPAPath targetPath = resolvedPathMap.get(externalName);
+    if (targetPath == null)
+      targetPath = intermediatePathMap.get(externalName);
+    if (targetPath == null || targetPath.ignore() && respectIgnore)
+      return null;
+    return targetPath;
+  }
+
   private void lazyBuildCompleteAssociationPathMap() throws ODataJPAModelException {
     JPAAssociationPathImpl associationPath;
     lazyBuildCompletePathMap();
@@ -484,16 +633,16 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
         resolvedAssociationPathMap.put(associationPath.getAlias(), associationPath);
       }
 
-      for (final String key : this.intermediatePathMap.keySet()) {
-        final JPAPath attributePath = this.intermediatePathMap.get(key);
+      for (final Entry<String, JPAPath> entity : this.intermediatePathMap.entrySet()) {
+        final JPAPath attributePath = entity.getValue();
         if (attributePath.getPath().size() == 1) {
           // Only direct attributes
           final IntermediateProperty property = (IntermediateProperty) attributePath.getLeaf();
           final IntermediateStructuredType is = (IntermediateStructuredType) property.getStructuredType();
 
           for (final JPAAssociationPath association : is.getAssociationPathList()) {
-            associationPath = new JPAAssociationPathImpl(nameBuilder, association,
-                this, determineJoinColumns(property, association), property);
+            associationPath = new JPAAssociationPathImpl(association, this, determineJoinColumns(property, association),
+                property);
             resolvedAssociationPathMap.put(associationPath.getAlias(), associationPath);
           }
         }
@@ -503,38 +652,46 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
 
   private void lazyBuildCompletePathMap() throws ODataJPAModelException {
     ArrayList<JPAElement> pathList;
-
-    lazyBuildEdmItem();
+    if (edmStructuralType == null)
+      lazyBuildEdmItem();
     if (resolvedPathMap.size() == 0) {
-      for (final String internalName : declaredPropertiesList.keySet()) {
-        final IntermediateProperty property = declaredPropertiesList.get(internalName);
-        // if (!property.ignore()) {
+      for (final Entry<String, IntermediateProperty> propertyEntity : declaredPropertiesList.entrySet()) {
+        final IntermediateProperty property = propertyEntity.getValue();
         if (property.isComplex()) {
           intermediatePathMap.put(property.getExternalName(),
               new JPAPathImpl(property.getExternalName(), null, property));
-          final Map<String, JPAPathImpl> intermediatePath = ((IntermediateStructuredType) property
+          final Map<String, JPAPath> intermediatePath = ((IntermediateStructuredType) property
               .getStructuredType()).getIntermediatePathMap();
-          for (final String externalName : intermediatePath.keySet()) {
-            pathList = new ArrayList<JPAElement>(intermediatePath.get(externalName).getPath());
+          for (final Entry<String, JPAPath> path : intermediatePath.entrySet()) {
+            pathList = new ArrayList<>();
+            if (path.getValue().getLeaf() instanceof IntermediateCollectionProperty) {
+              if (path.getValue().getPath().size() > 1)
+                pathList.addAll(path.getValue().getPath().subList(0, path.getValue().getPath().size() - 1));
+              pathList.add(new IntermediateCollectionProperty((IntermediateCollectionProperty) path.getValue()
+                  .getLeaf(), this, property));
+            } else {
+              pathList.addAll(path.getValue().getPath());
+            }
             pathList.add(0, property);
-            intermediatePathMap.put(nameBuilder.buildPath(property.getExternalName(), externalName),
-                new JPAPathImpl(nameBuilder.buildPath(property.getExternalName(),
-                    externalName), null, pathList));
+            final JPAPath newPath = new JPAPathImpl(buildPath(property.getExternalName(), path.getKey()), null,
+                pathList);
+            intermediatePathMap.put(newPath.getAlias(), newPath);
           }
 
           final Map<String, JPAPathImpl> resolvedPath = ((IntermediateStructuredType) property
               .getStructuredType()).getResolvedPathMap();
 
-          for (final String externalName : resolvedPath.keySet()) {
-            pathList = new ArrayList<JPAElement>(resolvedPath.get(externalName).getPath());
+          for (final Entry<String, JPAPathImpl> path : resolvedPath.entrySet()) {
+            pathList = new ArrayList<>(path.getValue().getPath());
             pathList.add(0, property);
             JPAPathImpl newPath;
             if (property.isKey()) {
-              newPath = new JPAPathImpl(externalName, determineDBFieldName(property, resolvedPath.get(externalName)),
+              newPath = new JPAPathImpl(path.getKey(), determineDBFieldName(property, resolvedPath.get(path.getKey())),
                   pathList);
             } else {
-              newPath = new JPAPathImpl(nameBuilder.buildPath(property.getExternalName(), externalName),
-                  determineDBFieldName(property, resolvedPath.get(externalName)), pathList);
+
+              newPath = new JPAPathImpl(buildPath(property.getExternalName(), path.getKey()),
+                  determineDBFieldName(property, path.getValue()), rebuildPathList(pathList));
             }
             resolvedPathMap.put(newPath.getAlias(), newPath);
 
@@ -544,13 +701,315 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
               .getDBFieldName(), property));
         }
       }
+      final IntermediateStructuredType baseType = getBaseType();
+      if (baseType != null) {
+        resolvedPathMap.putAll(baseType.getResolvedPathMap());
+        intermediatePathMap.putAll(baseType.getIntermediatePathMap());
+      }
     }
-    final IntermediateStructuredType baseType = getBaseType();
-    if (baseType != null) {
-      resolvedPathMap.putAll(baseType.getResolvedPathMap());
-      intermediatePathMap.putAll(baseType.getIntermediatePathMap());
-    }
-    // }
+  }
 
+  private void lazyBuildCompleteProtectionList() throws ODataJPAModelException {
+    if (protectedAttributes == null) {
+      if (edmStructuralType == null)
+        lazyBuildEdmItem();
+      this.protectedAttributes = new ArrayList<>();
+      for (JPAAttribute attribute : getDeclaredAttributes()) {
+        if (attribute.hasProtection()) {
+          if (attribute.isComplex()) {
+            for (final String claimName : attribute.getProtectionClaimNames()) {
+              for (final String pathName : attribute.getProtectionPath(claimName)) {
+                final JPAPath path = this.getPath(pathName, false);
+                if (path == null) // Annotation EdmProtctedBy found at '%2$s' of '%1$s', but the given 'path' '%3$s'...
+                  throw new ODataJPAModelException(COMPLEX_PROPERTY_WRONG_PROTECTION_PATH, attribute.getInternalName(),
+                      this.getTypeClass().getSimpleName(), pathName);
+                protectedAttributes.add(new ProtectionInfo(path, claimName, attribute));
+              }
+            }
+          } else {
+            for (final String claimName : attribute.getProtectionClaimNames()) {
+              protectedAttributes.add(new ProtectionInfo(this.getPath(attribute.getExternalName(), false), claimName,
+                  attribute));
+            }
+          }
+        } else if (attribute.isComplex()) { // Protection at attribute overrides protection within complex
+          for (final JPAProtectionInfo info : attribute.getStructuredType().getProtections()) {
+            // Copy and extend path
+            final String pathName = attribute.getExternalName() + JPAPath.PATH_SEPERATOR + info.getPath().getAlias();
+            final JPAPath path = this.getPath(pathName, false);
+            protectedAttributes.add(new ProtectionInfo(path, info));
+          }
+        }
+      }
+    }
+  }
+
+  private List<JPAElement> rebuildPathList(final List<JPAElement> pathList) throws ODataJPAModelException {
+
+    final StringBuilder path = new StringBuilder();
+    for (int i = 0; i < pathList.size() - 1; i++) {
+      path.append(pathList.get(i).getExternalName());
+      path.append(JPAPath.PATH_SEPERATOR);
+    }
+    path.deleteCharAt(path.length() - 1);
+    final JPAPath parentPath = intermediatePathMap.get(path.toString());
+    if (parentPath == null)
+      return pathList;
+    else {
+      final List<JPAElement> pathElements = new ArrayList<>(parentPath.getPath());
+      JPAElement leaf = pathList.get(pathList.size() - 1);
+      if (leaf instanceof IntermediateCollectionProperty
+          && pathList.size() > 1
+          && ((IntermediateCollectionProperty) leaf).getSourceType() != this)
+        leaf = new IntermediateCollectionProperty((IntermediateCollectionProperty) leaf, this,
+            (IntermediateProperty) pathList.get(0)); // pathList.size() - 2
+      pathElements.add(leaf);
+      return pathElements;
+    }
+  }
+
+  private void validateInternalPath(final String propertyName, final String internalPath)
+      throws ODataJPAModelException {
+
+    IntermediateStructuredType hop = this;
+    for (final String pathPart : internalPath.split(JPAPath.PATH_SEPERATOR)) {
+      final JPAAttribute required = hop.getAttribute(pathPart).orElseThrow(
+          // The transient attribute '%1$s' of class '%2$s' requires '%3$s', which is not known
+          () -> new ODataJPAModelException(PROPERTY_REQUIRED_UNKNOWN, propertyName, getInternalName(), internalName));
+      if (required.isComplex())
+        hop = (IntermediateStructuredType) required.getStructuredType();
+    }
+  }
+
+  protected abstract static class TransientAttribute<X, Y> implements Attribute<X, Y> {
+    protected final ManagedType<X> parent;
+    protected final Field attribute;
+
+    TransientAttribute(final ManagedType<X> parent, Field attribute) {
+      super();
+      this.parent = parent;
+      this.attribute = attribute;
+    }
+
+    @Override
+    public ManagedType<X> getDeclaringType() {
+      return parent;
+    }
+
+    @Override
+    public Member getJavaMember() {
+      return attribute;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Class<Y> getJavaType() {
+      return (Class<Y>) attribute.getType();
+    }
+
+    @Override
+    public String getName() {
+      return attribute.getName();
+    }
+
+    @Override
+    public boolean isAssociation() {
+      return false;
+    }
+  }
+
+  protected static class TransientPluralAttribute<X, Y, Z> extends TransientAttribute<X, Y>
+      implements PluralAttribute<X, Y, Z> {
+
+    private final TransientRowType<?> type;
+
+    /**
+     * @param parent
+     * @param attribute
+     */
+    TransientPluralAttribute(final ManagedType<X> parent, final Field attribute, final IntermediateSchema schema) {
+      super(parent, attribute);
+      this.type = new TransientRowType<>(attribute, schema);
+    }
+
+    @Override
+    public BindableType getBindableType() {
+      return null;
+    }
+
+    @Override
+    public Class<Z> getBindableJavaType() {
+      return null;
+    }
+
+    @Override
+    public CollectionType getCollectionType() {
+      if (Map.class.isAssignableFrom(attribute.getType()))
+        return CollectionType.MAP;
+      if (Set.class.isAssignableFrom(attribute.getType()))
+        return CollectionType.SET;
+      if (List.class.isAssignableFrom(attribute.getType()))
+        return CollectionType.LIST;
+      return CollectionType.COLLECTION;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Type<Z> getElementType() {
+      return (Type<Z>) type;
+    }
+
+    @Override
+    public PersistentAttributeType getPersistentAttributeType() {
+      return PersistentAttributeType.ELEMENT_COLLECTION;
+    }
+
+    @Override
+    public boolean isCollection() {
+      return true;
+    }
+  }
+
+  protected static class TransientRowType<Z> implements Type<Z> {
+
+    private final Class<?> rowType;
+    private final PersistenceType persistenceType;
+
+    /**
+     * @param attribute
+     */
+    public TransientRowType(final Field attribute, final IntermediateSchema schema) {
+      if (attribute.getGenericType() instanceof ParameterizedType) {
+        final java.lang.reflect.Type[] attributes = ((ParameterizedType) attribute.getGenericType())
+            .getActualTypeArguments();
+        this.rowType = (Class<?>) attributes[attributes.length - 1];
+      } else {
+        this.rowType = attribute.getType();
+      }
+      this.persistenceType = determinePersistanceType(schema);
+
+    }
+
+    @Override
+    public PersistenceType getPersistenceType() {
+      return persistenceType;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Class<Z> getJavaType() {
+      return (Class<Z>) rowType;
+    }
+
+    /**
+     * @param schema
+     * @return
+     */
+    private PersistenceType determinePersistanceType(IntermediateSchema schema) {
+      return schema.getStructuredType(rowType) == null ? PersistenceType.BASIC : PersistenceType.EMBEDDABLE;
+    }
+
+  }
+
+  protected static class TransientSingularAttribute<X, Y> extends TransientAttribute<X, Y>
+      implements SingularAttribute<X, Y> {
+
+    TransientSingularAttribute(final ManagedType<X> parent, Field attribute) {
+      super(parent, attribute);
+    }
+
+    @Override
+    public PersistentAttributeType getPersistentAttributeType() {
+      return PersistentAttributeType.BASIC;
+    }
+
+    @Override
+    public boolean isCollection() {
+      return false;
+    }
+
+    @Override
+    public BindableType getBindableType() {
+      return null;
+    }
+
+    @Override
+    public Class<Y> getBindableJavaType() {
+      return null;
+    }
+
+    @Override
+    public boolean isId() {
+      final Id id = this.attribute.getAnnotation(Id.class);
+      return id != null;
+    }
+
+    @Override
+    public boolean isVersion() {
+      final Version version = this.attribute.getAnnotation(Version.class);
+      return version != null;
+    }
+
+    @Override
+    public boolean isOptional() {
+      final Column column = this.attribute.getAnnotation(Column.class);
+      return column == null || column.nullable();
+    }
+
+    @Override
+    public Type<Y> getType() {
+      return null;
+    }
+  }
+
+  private static class ProtectionInfo implements JPAProtectionInfo {
+    private final JPAPath pathToAttribute;
+    private final String claimName;
+    private final boolean wildcardSupported;
+
+    /**
+     * Copy with a new path. This can be used for nested structured types
+     * @param path
+     * @param info
+     */
+    public ProtectionInfo(JPAPath path, JPAProtectionInfo info) {
+      this.pathToAttribute = path;
+      this.claimName = info.getClaimName();
+      this.wildcardSupported = info.supportsWildcards();
+    }
+
+    public ProtectionInfo(final JPAPath path, final String claimName, final JPAAttribute attribute) {
+      this.pathToAttribute = path;
+      this.claimName = claimName;
+      this.wildcardSupported = ((IntermediateProperty) attribute).protectionWithWildcard(claimName, path.getLeaf()
+          .getType());
+
+    }
+
+    @Override
+    public JPAAttribute getAttribute() {
+      return pathToAttribute.getLeaf();
+    }
+
+    @Override
+    public String getClaimName() {
+      return claimName;
+    }
+
+    @Override
+    public JPAPath getPath() {
+      return pathToAttribute;
+    }
+
+    @Override
+    public boolean supportsWildcards() {
+      return wildcardSupported;
+    }
+
+    @Override
+    public String toString() {
+      return "ProtectionInfo [pathToAttribute=" + pathToAttribute.getAlias() + ", claimName=" + claimName
+          + ", wildcardSupported=" + wildcardSupported + "]";
+    }
   }
 }
