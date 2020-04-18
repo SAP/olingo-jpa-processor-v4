@@ -5,7 +5,7 @@
 
 	<groupId>com.sap.olingo</groupId>
 	<artifactId>odata-jpa</artifactId>
-	<version>0.3.7-SNAPSHOT</version>
+	<version>0.3.8-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>odata-jpa</name>
@@ -47,9 +47,9 @@
 				</property>
 			</activation>
 			<properties>
-				<vulas.version>3.1.6</vulas.version>
+				<vulas.version>3.1.9</vulas.version>
 				<vulas.shared.backend.serviceUrl>http://localhost:8033/backend/</vulas.shared.backend.serviceUrl>
-				<vulas.core.space.token>F906090E21D33716FF9C2DA675562539</vulas.core.space.token>
+				<vulas.core.space.token>8DCFB02D5B94AD17C76ED1A5F48DEAED</vulas.core.space.token>
 				<vulas.core.appContext.group>${project.groupId}</vulas.core.appContext.group>
 				<vulas.core.appContext.artifact>${project.artifactId}</vulas.core.appContext.artifact>
 				<vulas.core.appContext.version>${project.version}</vulas.core.appContext.version>
@@ -102,11 +102,11 @@
 	</profiles>
 
 	<modules>
-		<module>odata-jpa-metadata</module>
-		<module>odata-jpa-test</module>
 		<module>odata-jpa-annotation</module>
+		<module>odata-jpa-metadata</module>
 		<module>odata-jpa-processor</module>
 		<module>odata-jpa-coverage</module>
+		<module>odata-jpa-test</module>
 		<module>odata-jpa-spring-support</module>
 	</modules>
 	<build>

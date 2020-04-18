@@ -10,7 +10,7 @@ import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
 
-public abstract class JPASerializePrimitiveAbstract implements JPASerializer, JPAOperationSerializer {
+public abstract class JPASerializePrimitiveAbstract implements JPAOperationSerializer {
   protected static final char PATH_SEPERATOR = '/';
   protected final ServiceMetadata serviceMetadata;
   protected final UriInfo uriInfo;
@@ -28,7 +28,7 @@ public abstract class JPASerializePrimitiveAbstract implements JPASerializer, JP
 
     final StringBuilder path = new StringBuilder();
 
-    for (final Property item : result.getEntities().get(0).getProperties()) {
+    for (final Property item : result.getEntities().get(0).getProperties())
       if (partOfPath(item, uriResources)) {
         property = item;
         boolean found = false;
@@ -39,22 +39,19 @@ public abstract class JPASerializePrimitiveAbstract implements JPASerializer, JP
             property = ((ComplexValue) value).getValue().get(0);
 
             path.append(PATH_SEPERATOR);
-          } else {
+          } else
             found = true;
-          }
         }
         break;
       }
-    }
     return new JPAPrimitivePropertyInfo(path.toString(), property);
   }
 
   private boolean partOfPath(final Property item, final List<UriResource> uriResources) {
-    for (final UriResource resource : uriResources) {
+    for (final UriResource resource : uriResources)
       if (resource instanceof UriResourceProperty
           && ((UriResourceProperty) resource).getProperty().getName().equals(item.getName()))
         return true;
-    }
     return false;
   }
 

@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.processor.core.serializer;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,6 +10,7 @@ import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.format.ContentType;
+import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.serializer.EntitySerializerOptions;
@@ -30,6 +32,7 @@ import org.apache.olingo.server.api.uri.queryoption.SkipOption;
 import org.apache.olingo.server.api.uri.queryoption.SystemQueryOptionKind;
 import org.apache.olingo.server.api.uri.queryoption.TopOption;
 
+import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPASerializerException;
 import com.sap.olingo.jpa.processor.core.query.Util;
 
@@ -37,37 +40,14 @@ final class JPASerializeCreate implements JPASerializer {
   private final ServiceMetadata serviceMetadata;
   private final UriInfo uriInfo;
   private final ODataSerializer serializer;
+  private final JPAODataCRUDContextAccess serviceContext;
 
   public JPASerializeCreate(final ServiceMetadata serviceMetadata, final ODataSerializer serializer,
-      final UriInfo uriInfo) {
+      final UriInfo uriInfo, final JPAODataCRUDContextAccess serviceContext) {
     this.uriInfo = uriInfo;
     this.serializer = serializer;
     this.serviceMetadata = serviceMetadata;
-  }
-
-  @Override
-  public SerializerResult serialize(ODataRequest request, EntityCollection result) throws SerializerException,
-      ODataJPASerializerException {
-
-    final ExpandOption expandOption = new ExpandOptionWrapper(new ExpandItemWrapper());
-
-    final EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(uriInfo.getUriResourceParts());
-
-    final EdmEntityType entityType = targetEdmEntitySet.getEntityType();
-
-    final ContextURL contextUrl = ContextURL.with()
-        .entitySet(targetEdmEntitySet)
-        .build();
-
-    final EntitySerializerOptions options = EntitySerializerOptions.with()
-        .contextURL(contextUrl)
-        .expand(expandOption)
-        .build();
-
-    return serializer.entity(serviceMetadata, entityType, result
-        .getEntities()
-        .get(0),
-        options);
+    this.serviceContext = serviceContext;
   }
 
   @Override
@@ -75,12 +55,123 @@ final class JPASerializeCreate implements JPASerializer {
     return null;
   }
 
+  @Override
+  public SerializerResult serialize(final ODataRequest request, final EntityCollection result)
+      throws SerializerException, ODataJPASerializerException {
+
+    final ExpandOption expandOption = new ExpandOptionWrapper(new ExpandItemWrapper());
+    final EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(uriInfo.getUriResourceParts());
+    final EdmEntityType entityType = targetEdmEntitySet.getEntityType();
+    try {
+      final ContextURL contextUrl = ContextURL.with()
+          .serviceRoot(buildServiceRoot(request, serviceContext))
+          .entitySet(targetEdmEntitySet)
+          .build();
+
+      final EntitySerializerOptions options = EntitySerializerOptions.with()
+          .contextURL(contextUrl)
+          .expand(expandOption)
+          .build();
+
+      return serializer.entity(serviceMetadata, entityType, result
+          .getEntities()
+          .get(0),
+          options);
+    } catch (final URISyntaxException e) {
+      throw new ODataJPASerializerException(e, HttpStatusCode.BAD_REQUEST);
+    }
+  }
+
+  private class ExpandItemWrapper implements ExpandItem {
+
+    @Override
+    public ApplyOption getApplyOption() {
+      return null;
+    }
+
+    @Override
+    public CountOption getCountOption() {
+      return null;
+    }
+
+    @Override
+    public ExpandOption getExpandOption() {
+      return null;
+    }
+
+    @Override
+    public FilterOption getFilterOption() {
+      return null;
+    }
+
+    @Override
+    public LevelsExpandOption getLevelsOption() {
+      return null;
+    }
+
+    @Override
+    public OrderByOption getOrderByOption() {
+      return null;
+    }
+
+    @Override
+    public UriInfoResource getResourcePath() {
+      return null;
+    }
+
+    @Override
+    public SearchOption getSearchOption() {
+      return null;
+    }
+
+    @Override
+    public SelectOption getSelectOption() {
+      return null;
+    }
+
+    @Override
+    public SkipOption getSkipOption() {
+      return null;
+    }
+
+    @Override
+    public EdmType getStartTypeFilter() {
+      return null;
+    }
+
+    @Override
+    public TopOption getTopOption() {
+      return null;
+    }
+
+    @Override
+    public boolean hasCountPath() {
+      return false;
+    }
+
+    @Override
+    public boolean isRef() {
+      return false;
+    }
+
+    @Override
+    public boolean isStar() {
+      return true;
+    }
+
+  }
+
   private class ExpandOptionWrapper implements ExpandOption {
 
-    private List<ExpandItem> items = new ArrayList<>(1);
+    private final List<ExpandItem> items = new ArrayList<>(1);
 
-    public ExpandOptionWrapper(ExpandItemWrapper expandItemWrapper) {
+    public ExpandOptionWrapper(final ExpandItemWrapper expandItemWrapper) {
       items.add(expandItemWrapper);
+    }
+
+    @Override
+    public List<ExpandItem> getExpandItems() {
+      return items;
     }
 
     @Override
@@ -97,90 +188,5 @@ final class JPASerializeCreate implements JPASerializer {
     public String getText() {
       return null;
     }
-
-    @Override
-    public List<ExpandItem> getExpandItems() {
-      return items;
-    }
-
-  }
-
-  private class ExpandItemWrapper implements ExpandItem {
-
-    @Override
-    public LevelsExpandOption getLevelsOption() {
-      return null;
-    }
-
-    @Override
-    public FilterOption getFilterOption() {
-      return null;
-    }
-
-    @Override
-    public SearchOption getSearchOption() {
-      return null;
-    }
-
-    @Override
-    public OrderByOption getOrderByOption() {
-      return null;
-    }
-
-    @Override
-    public SkipOption getSkipOption() {
-      return null;
-    }
-
-    @Override
-    public TopOption getTopOption() {
-      return null;
-    }
-
-    @Override
-    public CountOption getCountOption() {
-      return null;
-    }
-
-    @Override
-    public SelectOption getSelectOption() {
-      return null;
-    }
-
-    @Override
-    public ExpandOption getExpandOption() {
-      return null;
-    }
-
-    @Override
-    public ApplyOption getApplyOption() {
-      return null;
-    }
-
-    @Override
-    public UriInfoResource getResourcePath() {
-      return null;
-    }
-
-    @Override
-    public boolean isStar() {
-      return true;
-    }
-
-    @Override
-    public boolean isRef() {
-      return false;
-    }
-
-    @Override
-    public boolean hasCountPath() {
-      return false;
-    }
-
-    @Override
-    public EdmType getStartTypeFilter() {
-      return null;
-    }
-
   }
 }
