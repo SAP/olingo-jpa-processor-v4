@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.sap.olingo.jpa.processor.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
