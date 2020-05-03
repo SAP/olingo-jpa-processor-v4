@@ -210,15 +210,14 @@ public final class JPAODataRequestContextImpl implements JPAODataCRUDRequestCont
   private void initDebugger() {
     // see org.apache.olingo.server.core.debug.ServerCoreDebugger
     boolean isDebugMode = false;
-    debugger = new JPALogger(); // JPAEmptyDebugger();
+    debugger = new JPAEmptyDebugger();
     if (debugSupport != null) {
       // Should we read the parameter from the servlet here and ignore multiple parameters?
       if (debugFormat != null) {
         debugSupport.init(OData.newInstance());
         isDebugMode = debugSupport.isUserAuthorized();
       }
-      if (isDebugMode)
-        debugger = new JPACoreDebugger();
+      debugger = new JPACoreDebugger(isDebugMode);
       debugSupport.setDebugger(debugger);
     }
   }
@@ -315,7 +314,8 @@ public final class JPAODataRequestContextImpl implements JPAODataCRUDRequestCont
     try {
       if (transientProperty.isTransient()) {
         if (!transientCalculatorCache.containsKey(transientProperty)) {
-          final Constructor<? extends EdmTransientPropertyCalculator<?>> c = transientProperty.getCalculatorConstructor();
+          final Constructor<? extends EdmTransientPropertyCalculator<?>> c = transientProperty
+              .getCalculatorConstructor();
           final Parameter[] parameters = c.getParameters();
           final Object[] paramValues = new Object[parameters.length];
           for (int i = 0; i < parameters.length; i++) {

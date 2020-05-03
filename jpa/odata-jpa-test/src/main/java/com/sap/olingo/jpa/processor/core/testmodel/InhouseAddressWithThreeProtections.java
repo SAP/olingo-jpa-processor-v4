@@ -10,12 +10,15 @@ public class InhouseAddressWithThreeProtections {
 
   @Column(name = "\"Task\"", length = 32, nullable = false) // Workaround olingo problem
   private String taskID;
+
   @Column(name = "\"Building\"", length = 10)
   @EdmProtectedBy(name = "BuildingNumber", wildcardSupported = false)
   private String building;
+
   @Column(name = "\"Floor\"")
   @EdmProtectedBy(name = "Floor", wildcardSupported = false)
   private Short floor;
+
   @Column(name = "\"RoomNumber\"")
   @EdmProtectedBy(name = "RoomNumber")
   private Integer roomNumber;
@@ -33,7 +36,7 @@ public class InhouseAddressWithThreeProtections {
     return building;
   }
 
-  public void setBuilding(String building) {
+  public void setBuilding(final String building) {
     this.building = building;
   }
 
@@ -41,7 +44,7 @@ public class InhouseAddressWithThreeProtections {
     return floor;
   }
 
-  public void setFloor(Short floor) {
+  public void setFloor(final Short floor) {
     this.floor = floor;
   }
 
@@ -49,7 +52,7 @@ public class InhouseAddressWithThreeProtections {
     return roomNumber;
   }
 
-  public void setRoomNumber(Integer roomNumber) {
+  public void setRoomNumber(final Integer roomNumber) {
     this.roomNumber = roomNumber;
   }
 
@@ -57,7 +60,7 @@ public class InhouseAddressWithThreeProtections {
     return taskID;
   }
 
-  public void setTaskID(String taskID) {
+  public void setTaskID(final String taskID) {
     this.taskID = taskID;
   }
 

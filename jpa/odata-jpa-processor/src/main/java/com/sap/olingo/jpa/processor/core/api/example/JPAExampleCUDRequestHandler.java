@@ -2,13 +2,20 @@ package com.sap.olingo.jpa.processor.core.api.example;
 
 import static com.sap.olingo.jpa.processor.core.api.example.JPAExampleModifyException.MessageKeys.ENTITY_ALREADY_EXISTS;
 import static com.sap.olingo.jpa.processor.core.api.example.JPAExampleModifyException.MessageKeys.ENTITY_NOT_FOUND;
+import static com.sap.olingo.jpa.processor.core.api.example.JPAExampleModifyException.MessageKeys.MODIFY_NOT_ALLOWED;
+import static com.sap.olingo.jpa.processor.core.api.example.JPAExampleModifyException.MessageKeys.WILDCARD_RANGE_NOT_SUPPORTED;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.regex.Pattern;
 
 import javax.persistence.EntityManager;
 
@@ -16,10 +23,15 @@ import org.apache.olingo.commons.api.http.HttpMethod;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAProtectionInfo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAAbstractCUDRequestHandler;
+import com.sap.olingo.jpa.processor.core.api.JPAClaimsPair;
+import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAInvocationTargetException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
@@ -39,9 +51,12 @@ import com.sap.olingo.jpa.processor.core.processor.JPARequestLink;
  */
 public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
   private final Map<Object, JPARequestEntity> entityBuffer;
+  private final LocalDateTime now;
 
   public JPAExampleCUDRequestHandler() {
     entityBuffer = new HashMap<>();
+    // Doing so all the changes of one request get the same updatedAt
+    now = LocalDateTime.now(ZoneId.of("UTC"));
   }
 
   @Override
@@ -62,12 +77,14 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
       instance = findEntity(requestEntity, em);
     }
     processRelatedEntities(requestEntity.getRelatedEntities(), instance, requestEntity.getModifyUtil(), em);
+    setAuditInformation(instance, requestEntity.getClaims(), true);
     em.persist(instance);
     return instance;
   }
 
   @Override
-  public void deleteEntity(JPARequestEntity requestEntity, EntityManager em) throws ODataJPAProcessException {
+  public void deleteEntity(final JPARequestEntity requestEntity, final EntityManager em)
+      throws ODataJPAProcessException {
 
     final Object instance = em.find(requestEntity.getEntityType().getTypeClass(),
         requestEntity.getModifyUtil().createPrimaryKey(requestEntity.getEntityType(), requestEntity.getKeys(),
@@ -89,16 +106,89 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
       requestEntity.getModifyUtil().setAttributesDeep(requestEntity.getData(), instance, requestEntity.getEntityType());
 
       updateLinks(requestEntity, em, instance);
+      setAuditInformation(instance, requestEntity.getClaims(), false);
       return new JPAUpdateResult(false, instance);
     }
     return super.updateEntity(requestEntity, em, method);
   }
 
   @Override
-  public void validateChanges(EntityManager em) throws ODataJPAProcessException {
-    for (Entry<Object, JPARequestEntity> entity : entityBuffer.entrySet()) {
+  public void validateChanges(final EntityManager em) throws ODataJPAProcessException {
+
+    for (final Entry<Object, JPARequestEntity> entity : entityBuffer.entrySet()) {
       processBindingLinks(entity.getValue().getRelationLinks(), entity.getKey(), entity.getValue().getModifyUtil(), em);
     }
+  }
+
+  private void checkAuthorisationsOneClaim(final JPAProtectionInfo protectionInfo, final Object value,
+      final List<JPAClaimsPair<?>> pairs) throws JPAExampleModifyException {
+    boolean match = false;
+    for (final JPAClaimsPair<?> pair : pairs) {
+      if (protectionInfo.supportsWildcards())
+        match = checkAuthorisationsOnePairWithWildcard(value, match, pair);
+      else
+        match = checkAuthorisationsOnePair(value, match, pair);
+    }
+    if (!match)
+      throw new JPAExampleModifyException(MODIFY_NOT_ALLOWED, HttpStatusCode.FORBIDDEN);
+  }
+
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  private boolean checkAuthorisationsOnePair(final Object value, boolean match, final JPAClaimsPair<?> pair)
+      throws JPAExampleModifyException {
+    if (!pair.hasUpperBoundary && value.equals(pair.min)) {
+      match = true;
+    } else if (pair.hasUpperBoundary) {
+      if (!(value instanceof Comparable<?>))
+        throw new JPAExampleModifyException(MODIFY_NOT_ALLOWED, HttpStatusCode.FORBIDDEN);
+      if (((Comparable) value).compareTo(pair.min) >= 0
+          && ((Comparable) value).compareTo(pair.max) <= 0)
+        match = true;
+    }
+    return match;
+  }
+
+  private boolean checkAuthorisationsOnePairWithWildcard(final Object value, boolean match, final JPAClaimsPair<?> pair)
+      throws JPAExampleModifyException {
+    if (pair.hasUpperBoundary) {
+      final String minPrefix = determineAuthorisationPrefix(pair.min);
+      final String maxPrefix = determineAuthorisationPrefix(pair.max);
+      final String minComparator = ((String) value).substring(0, minPrefix.length());
+      final String maxComparator = ((String) value).substring(0, maxPrefix.length());
+      if (minComparator.compareTo(minPrefix) >= 0
+          && maxComparator.compareTo(maxPrefix) <= 0)
+        match = true;
+    } else {
+      // '+' and '_' --> .
+      // '*' and '%' --> .+
+      final String minPattern = ((String) pair.minAs()).replaceAll("\\.", "\\.").replaceAll("[+,_]", ".")
+          .replaceAll("[*,%]", ".+");
+      if (Pattern.matches(minPattern, (String) value))
+        match = true;
+    }
+    return match;
+  }
+
+  private void checkAuthorities(final Object instance, final JPAStructuredType entityType,
+      final Optional<JPAODataClaimProvider> claims, final JPAModifyUtil modifyUtil) throws JPAExampleModifyException {
+    try {
+      final List<JPAProtectionInfo> protections = entityType.getProtections();
+      if (!protections.isEmpty()) {
+        final JPAODataClaimProvider claimsProvider = claims.orElseThrow(
+            () -> new JPAExampleModifyException(MODIFY_NOT_ALLOWED, HttpStatusCode.FORBIDDEN));
+        for (final JPAProtectionInfo protectionInfo : protections) {
+          final Object value = determineValue(instance, modifyUtil, protectionInfo);
+          final List<JPAClaimsPair<?>> pairs = claimsProvider.get(protectionInfo.getClaimName());
+          if (pairs.isEmpty())
+            throw new JPAExampleModifyException(MODIFY_NOT_ALLOWED, HttpStatusCode.FORBIDDEN);
+          checkAuthorisationsOneClaim(protectionInfo, value, pairs);
+        }
+      }
+    } catch (final ODataJPAModelException | NoSuchMethodException | SecurityException | IllegalAccessException
+        | IllegalArgumentException | InvocationTargetException e) {
+      throw new JPAExampleModifyException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    }
+
   }
 
   private Object createInstance(final Constructor<?> cons, final Object parent) throws ODataJPAProcessorException {
@@ -117,11 +207,33 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
 
     final Object instance = createInstance(getConstructor(requestEntity.getEntityType(), parent), parent);
     requestEntity.getModifyUtil().setAttributesDeep(requestEntity.getData(), instance, requestEntity.getEntityType());
+    checkAuthorities(instance, requestEntity.getEntityType(), requestEntity.getClaims(), requestEntity.getModifyUtil());
     entityBuffer.put(instance, requestEntity);
     return instance;
   }
 
-  private Object findEntity(final JPARequestEntity requestEntity, EntityManager em) throws ODataJPAProcessorException,
+  private String determineAuthorisationPrefix(final Object restriction) throws JPAExampleModifyException {
+    final String[] minPrefix = ((String) restriction).split("[*,%,+,_]");
+    if (minPrefix.length > 1)
+      throw new JPAExampleModifyException(WILDCARD_RANGE_NOT_SUPPORTED, HttpStatusCode.NOT_IMPLEMENTED);
+    return minPrefix[0];
+  }
+
+  private Object determineValue(final Object instance, final JPAModifyUtil modifyUtil,
+      final JPAProtectionInfo protectionInfo) throws NoSuchMethodException, IllegalAccessException,
+      InvocationTargetException {
+    Object value = instance;
+    for (final JPAElement element : protectionInfo.getPath().getPath()) {
+      final JPAAttribute attribute = (JPAAttribute) element;
+      final String getterName = "get" + modifyUtil.buildMethodNameSuffix(attribute);
+      final Method getter = value.getClass().getMethod(getterName);
+      value = getter.invoke(value);
+    }
+    return value;
+  }
+
+  private Object findEntity(final JPARequestEntity requestEntity, final EntityManager em)
+      throws ODataJPAProcessorException,
       ODataJPAInvocationTargetException {
 
     final Object key = requestEntity.getModifyUtil().createPrimaryKey(requestEntity.getEntityType(), requestEntity
@@ -151,7 +263,7 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
       final JPAAssociationPath pathInfo = entity.getKey();
       for (final JPARequestLink requestLink : entity.getValue()) {
         final Object targetKey = util.createPrimaryKey((JPAEntityType) pathInfo.getTargetType(), requestLink
-            .getRelatedKeys(), (JPAEntityType) pathInfo.getSourceType());
+            .getRelatedKeys(), pathInfo.getSourceType());
         final Object target = em.find(pathInfo.getTargetType().getTypeClass(), targetKey);
         util.linkEntities(instance, target, pathInfo);
       }
@@ -171,7 +283,7 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
         if (pathInfo.getPartner() != null) {
           try {
             util.linkEntities(newInstance, parentInstance, pathInfo.getPartner().getPath());
-          } catch (ODataJPAModelException e) {
+          } catch (final ODataJPAModelException e) {
             throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
           }
         }
@@ -180,11 +292,25 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
     }
   }
 
+  private void setAuditInformation(final Object instance, final Optional<JPAODataClaimProvider> claims,
+      final boolean created) {
+
+    if (instance instanceof JPAExampleAuditable) {
+      final JPAExampleAuditable auditable = (JPAExampleAuditable) instance;
+      if (created) {
+        auditable.setCreatedAt(now);
+        claims.ifPresent(c -> auditable.setCreatedBy(c.user().orElse("")));
+      }
+      auditable.setUpdatedAt(now);
+      claims.ifPresent(c -> auditable.setUpdatedBy(c.user().orElse("")));
+    }
+  }
+
   private void updateLinks(final JPARequestEntity requestEntity, final EntityManager em, final Object instance)
       throws ODataJPAProcessorException, ODataJPAInvocationTargetException {
     if (requestEntity.getRelationLinks() != null) {
-      for (Entry<JPAAssociationPath, List<JPARequestLink>> links : requestEntity.getRelationLinks().entrySet()) {
-        for (JPARequestLink link : links.getValue()) {
+      for (final Entry<JPAAssociationPath, List<JPARequestLink>> links : requestEntity.getRelationLinks().entrySet()) {
+        for (final JPARequestLink link : links.getValue()) {
           final Object related = em.find(link.getEntityType().getTypeClass(), requestEntity.getModifyUtil()
               .createPrimaryKey(link.getEntityType(), link.getRelatedKeys(), link.getEntityType()));
           requestEntity.getModifyUtil().linkEntities(instance, related, links.getKey());

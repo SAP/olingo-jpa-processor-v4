@@ -14,7 +14,7 @@ public interface JPAServiceDebugger {
 
   public default void debug(final Object instance, final String pattern, final Object... arguments) {}
 
-  public default void info(final Object instance, final String pattern, final Object... arguments) {}
+  public default void trace(final Object instance, final String pattern, final Object... arguments) {}
 
   public default void debug(final Object instance, final String log) {}
 }

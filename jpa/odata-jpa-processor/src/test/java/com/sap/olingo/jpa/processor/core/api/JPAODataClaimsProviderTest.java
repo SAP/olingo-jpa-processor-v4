@@ -1,7 +1,9 @@
 package com.sap.olingo.jpa.processor.core.api;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
@@ -20,7 +22,7 @@ public class JPAODataClaimsProviderTest {
   @Test
   public void checkAddSinglePairReturnsOne() {
     cut.add("Test", new JPAClaimsPair<>("Hugo"));
-    List<JPAClaimsPair<?>> claims = cut.get("Test");
+    final List<JPAClaimsPair<?>> claims = cut.get("Test");
     assertNotNull(claims);
     assertEquals(1, claims.size());
   }
@@ -30,14 +32,14 @@ public class JPAODataClaimsProviderTest {
     cut.add("Test", new JPAClaimsPair<>("Hugo"));
     cut.add("Test", new JPAClaimsPair<>("Willi"));
     cut.add("Test", new JPAClaimsPair<>("Walter"));
-    List<JPAClaimsPair<?>> claims = cut.get("Test");
+    final List<JPAClaimsPair<?>> claims = cut.get("Test");
     assertNotNull(claims);
     assertEquals(3, claims.size());
   }
 
   @Test
   public void checkNotProvidedAttributeReturnsEmptyList() {
-    List<JPAClaimsPair<?>> claims = cut.get("Test");
+    final List<JPAClaimsPair<?>> claims = cut.get("Test");
     assertNotNull(claims);
     assertEquals(0, claims.size());
   }
@@ -55,4 +57,20 @@ public class JPAODataClaimsProviderTest {
     assertNotNull(claims);
     assertEquals(1, claims.size());
   }
+
+  @Test
+  public void checkCreateWithUser() {
+    assertNotNull(new JPAODataClaimsProvider("Willi"));
+  }
+
+  @Test
+  public void checkUserReturnedWhenInConstructor() {
+    assertTrue(new JPAODataClaimsProvider("Willi").user().isPresent());
+  }
+
+  @Test
+  public void checkUserNotPresentWhenNotInConstructor() {
+    assertFalse(cut.user().isPresent());
+  }
+
 }

@@ -15,7 +15,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtectedBy;
 @Table(schema = "\"OLINGO\"", name = "\"PersonProtected\"")
 public class PersonDeepProtected {// #NOSONAR use equal method from BusinessPartner
 //  CREATE VIEW
-//  AS 
+//  AS
 //SELECT b."ID",b."ETag",b."NameLine1",b."NameLine2",b."CreatedBy",b."CreatedAt",b."UpdatedBy",b."UpdatedAt"
 
   @Id
@@ -43,6 +43,38 @@ public class PersonDeepProtected {// #NOSONAR use equal method from BusinessPart
   @EdmProtectedBy(name = "Updator", path = "updated/by")
   private AdministrativeInformation protectedAdminInfo = new AdministrativeInformation();
 
+  public String getID() {
+    return iD;
+  }
+
+  public void setID(final String iD) {
+    this.iD = iD;
+  }
+
+  public String getLastName() {
+    return lastName;
+  }
+
+  public void setLastName(final String lastName) {
+    this.lastName = lastName;
+  }
+
+  public AddressDeepProtected getInhouseAddress() {
+    return inhouseAddress;
+  }
+
+  public void setInhouseAddress(final AddressDeepProtected inhouseAddress) {
+    this.inhouseAddress = inhouseAddress;
+  }
+
+  public AdministrativeInformation getProtectedAdminInfo() {
+    return protectedAdminInfo;
+  }
+
+  public void setProtectedAdminInfo(final AdministrativeInformation protectedAdminInfo) {
+    this.protectedAdminInfo = protectedAdminInfo;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -52,11 +84,11 @@ public class PersonDeepProtected {// #NOSONAR use equal method from BusinessPart
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) return true;
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
-    PersonDeepProtected other = (PersonDeepProtected) obj;
+    final PersonDeepProtected other = (PersonDeepProtected) obj;
     if (iD == null) {
       if (other.iD != null) return false;
     } else if (!iD.equals(other.iD)) return false;

@@ -125,10 +125,10 @@ public final class JPAModifyUtil {
    * @param pathInfo
    * @throws ODataJPAProcessorException
    */
-  public void setForeignKey(Object parentInstance, Object newInstance, JPAAssociationPath pathInfo)
+  public void setForeignKey(final Object parentInstance, final Object newInstance, final JPAAssociationPath pathInfo)
       throws ODataJPAProcessorException {
     try {
-      for (JPAOnConditionItem joinCloumn : pathInfo.getJoinColumnsList()) {
+      for (final JPAOnConditionItem joinCloumn : pathInfo.getJoinColumnsList()) {
         setAttribute(newInstance, joinCloumn.getRightPath().getLeaf(), getAttribute(parentInstance, joinCloumn
             .getLeftPath().getLeaf()));
       }
@@ -152,28 +152,28 @@ public final class JPAModifyUtil {
    */
   public void setAttributes(final Map<String, Object> jpaAttributes, final Object instanze, final JPAStructuredType st)
       throws ODataJPAProcessorException, ODataJPAInvocationTargetException {
-    Method[] methods = instanze.getClass().getMethods();
-    for (Method meth : methods) {
+    final Method[] methods = instanze.getClass().getMethods();
+    for (final Method meth : methods) {
       if (meth.getName().substring(0, 3).equals("set")) {
-        String attributeName = meth.getName().substring(3, 4).toLowerCase() + meth.getName().substring(4);
+        final String attributeName = meth.getName().substring(3, 4).toLowerCase() + meth.getName().substring(4);
         if (jpaAttributes.containsKey(attributeName)) {
-          Object value = jpaAttributes.get(attributeName);
+          final Object value = jpaAttributes.get(attributeName);
           if (!(value instanceof Map<?, ?>) && !(value instanceof JPARequestEntity)) {
             try {
-              Class<?>[] parameters = meth.getParameterTypes();
+              final Class<?>[] parameters = meth.getParameterTypes();
               if (parameters.length == 1 && (value == null || value.getClass() == parameters[0])) {
                 meth.invoke(instanze, value);
               }
             } catch (IllegalAccessException | IllegalArgumentException e) {
               throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-            } catch (InvocationTargetException e) {
+            } catch (final InvocationTargetException e) {
               try {
                 throw new ODataJPAInvocationTargetException(e.getCause(),
                     st.getExternalName() + JPAPath.PATH_SEPERATOR + st.getAttribute(attributeName)
                         .orElseThrow(() -> new ODataJPAProcessorException(
                             ATTRIBUTE_NOT_FOUND, HttpStatusCode.INTERNAL_SERVER_ERROR, attributeName))
                         .getExternalName());
-              } catch (ODataJPAModelException e1) {
+              } catch (final ODataJPAModelException e1) {
                 throw new ODataJPAProcessorException(e1, HttpStatusCode.INTERNAL_SERVER_ERROR);
               }
             }
@@ -206,7 +206,7 @@ public final class JPAModifyUtil {
         final String attributeName = meth.getName().substring(3, 4).toLowerCase() + meth.getName().substring(4);
         if (jpaAttributes.containsKey(attributeName)) {
           final Object value = jpaAttributes.get(attributeName);
-          Class<?>[] parameters = meth.getParameterTypes();
+          final Class<?>[] parameters = meth.getParameterTypes();
           if (!(value instanceof JPARequestEntity) && parameters.length == 1) {
             try {
               final JPAAttribute attribute = st.getAttribute(attributeName).orElseThrow(
@@ -235,7 +235,7 @@ public final class JPAModifyUtil {
 
   @SuppressWarnings("unchecked")
   private void setEmbeddedAttributeDeep(final Object instanze, final JPAStructuredType st, final Method meth,
-      final Object value, Class<?>[] parameters, final JPAAttribute attribute)
+      final Object value, final Class<?>[] parameters, final JPAAttribute attribute)
       throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException,
       ODataJPAModelException, ODataJPAProcessorException, ODataJPAInvocationTargetException {
 
@@ -256,7 +256,7 @@ public final class JPAModifyUtil {
 
   @SuppressWarnings("unchecked")
   private void setEmbeddedCollectionAttributeDeep(final Object instanze, final JPAStructuredType st, final Method meth,
-      final Object value, Class<?>[] parameters, final JPAAttribute attribute)
+      final Object value, final Class<?>[] parameters, final JPAAttribute attribute)
       throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException,
       ODataJPAModelException, ODataJPAProcessorException, ODataJPAInvocationTargetException {
 
@@ -294,7 +294,7 @@ public final class JPAModifyUtil {
    * @throws IllegalAccessException
    * @throws InvocationTargetException
    */
-  private Object createInstance(Class<?> type) throws NoSuchMethodException,
+  private Object createInstance(final Class<?> type) throws NoSuchMethodException,
       InstantiationException, IllegalAccessException, InvocationTargetException {
 
     final Class<?>[] parameter = new Class<?>[0];
@@ -317,7 +317,7 @@ public final class JPAModifyUtil {
       throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, ODataJPAProcessorException {
 
     Object source = sourceInstance;
-    for (JPAElement pathItem : pathInfo.getPath()) {
+    for (final JPAElement pathItem : pathInfo.getPath()) {
       if (pathItem != pathInfo.getLeaf()) {
         final String methodSuffix = buildMethodNameSuffix(pathItem);
         final Method getter = source.getClass().getMethod("get" + methodSuffix);
@@ -338,12 +338,13 @@ public final class JPAModifyUtil {
     return source;
   }
 
-  private String buildMethodNameSuffix(final JPAElement pathItem) {
+  public String buildMethodNameSuffix(final JPAElement pathItem) {
     final String relationName = pathItem.getInternalName();
     return relationName.substring(0, 1).toUpperCase() + relationName.substring(1);
   }
 
-  private void handleInvocationTargetException(JPAStructuredType st, final String attributeName, Exception e)
+  private void handleInvocationTargetException(final JPAStructuredType st, final String attributeName,
+      final Exception e)
       throws ODataJPAInvocationTargetException, ODataJPAProcessorException {
 
     String pathPart = null;
@@ -351,12 +352,12 @@ public final class JPAModifyUtil {
       pathPart = st.getAttribute(attributeName).orElseThrow(() -> new ODataJPAProcessorException(ATTRIBUTE_NOT_FOUND,
           HttpStatusCode.INTERNAL_SERVER_ERROR, attributeName)).getExternalName();
       if (this.st != null && this.st.equals(st)) {
-        String path = st.getExternalName() + JPAPath.PATH_SEPERATOR + pathPart + JPAPath.PATH_SEPERATOR
+        final String path = st.getExternalName() + JPAPath.PATH_SEPERATOR + pathPart + JPAPath.PATH_SEPERATOR
             + ((ODataJPAInvocationTargetException) e).getPath();
         this.st = null;
         throw new ODataJPAInvocationTargetException(e.getCause(), path);
       }
-    } catch (ODataJPAModelException e1) {
+    } catch (final ODataJPAModelException e1) {
       throw new ODataJPAProcessorException(e1, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
     if (e instanceof ODataJPAInvocationTargetException)
@@ -382,7 +383,7 @@ public final class JPAModifyUtil {
       while (clazz != null && setter == null) {
         try {
           setter = sourceInstance.getClass().getMethod("set" + methodSuffix, clazz);
-        } catch (NoSuchMethodException e) {
+        } catch (final NoSuchMethodException e) {
           clazz = clazz.getSuperclass();
         }
       }

@@ -10,15 +10,13 @@ import org.apache.olingo.server.api.debug.RuntimeMeasurement;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.sap.olingo.jpa.processor.core.processor.JPACoreDebugger;
-
 public class JPACoreDebuggerTest {
 
   private JPACoreDebugger cut;
 
   @BeforeEach
   public void steup() {
-    cut = new JPACoreDebugger();
+    cut = new JPACoreDebugger(true);
   }
 
   @Test

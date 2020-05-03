@@ -12,7 +12,9 @@ public class JPAExampleModifyException extends ODataJPAProcessException { // NOS
 
   public enum MessageKeys implements ODataJPAMessageKey {
     ENTITY_NOT_FOUND,
-    ENTITY_ALREADY_EXISTS;
+    ENTITY_ALREADY_EXISTS,
+    MODIFY_NOT_ALLOWED,
+    WILDCARD_RANGE_NOT_SUPPORTED;
 
     @Override
     public String getKey() {
@@ -23,6 +25,10 @@ public class JPAExampleModifyException extends ODataJPAProcessException { // NOS
 
   public JPAExampleModifyException(final MessageKeys messageKey, final HttpStatusCode statusCode) {
     super(messageKey.getKey(), statusCode);
+  }
+
+  public JPAExampleModifyException(final Exception e, final HttpStatusCode statusCode) {
+    super(e, statusCode);
   }
 
   @Override
