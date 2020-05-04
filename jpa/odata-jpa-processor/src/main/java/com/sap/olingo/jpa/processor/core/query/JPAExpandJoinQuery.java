@@ -209,7 +209,7 @@ public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
         joinKey = actuallKey;
         skiped = taken = 0;
       }
-      if (skiped >= skip && taken < top) {
+      if (subResult != null && skiped >= skip && taken < top) {
         taken += 1;
         subResult.add(row);
       } else {

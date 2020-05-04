@@ -382,7 +382,7 @@ class CriteriaBuilderImpl implements CriteriaBuilder {
    * @return equality predicate
    */
   @Override
-  public Predicate equal(@Nonnull final Expression<?> x, @Nonnull final Expression<?> y) {
+  public Predicate equal(@Nonnull final Expression<?> x, @Nonnull final Expression<?> y) {//NOSONAR
     return binaryExpression(x, y, PredicateImpl.BinaryExpressionPredicate.Operation.EQ);
   }
 
@@ -393,7 +393,7 @@ class CriteriaBuilderImpl implements CriteriaBuilder {
    * @return equality predicate
    */
   @Override
-  public Predicate equal(@Nonnull final Expression<?> x, final Object y) {
+  public Predicate equal(@Nonnull final Expression<?> x, final Object y) { //NOSONAR
     return binaryExpression(x, y, PredicateImpl.BinaryExpressionPredicate.Operation.EQ);
   }
 

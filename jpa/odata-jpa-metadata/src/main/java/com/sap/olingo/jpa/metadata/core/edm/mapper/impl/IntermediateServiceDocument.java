@@ -39,8 +39,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 /**
  * http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/schemas/edmx.xsd
  * A Service Document can contain multiple schemas, but only
- * one Entity Container. This container is assigned to one of the
- * schemas.
+ * one Entity Container. This container is assigned to one of the schemas.<p>
  * http://services.odata.org/V4/Northwind/Northwind.svc/$metadata
  */
 class IntermediateServiceDocument implements JPAServiceDocument {
@@ -260,7 +259,6 @@ class IntermediateServiceDocument implements JPAServiceDocument {
     try {
       return getEntity(entitySetOrSingleton.getEntityType().getFullQualifiedName()).hasEtag();
     } catch (ODataJPAModelException e) {
-      // TODO Logging
       return false;
     }
   }
@@ -301,8 +299,8 @@ class IntermediateServiceDocument implements JPAServiceDocument {
     try {
       if (schemaListInternalKey.isEmpty())
         buildIntermediateSchemas();
-      for (final Entry<String, IntermediateSchema> schema : schemaListInternalKey.entrySet()) {
-        schemas.add(schema.getValue().getEdmItem());
+      for (final IntermediateSchema schema : schemaListInternalKey.values()) {
+        schemas.add(schema.getEdmItem());
       }
     } catch (Exception e) {
       schemaListInternalKey.clear();
@@ -312,12 +310,10 @@ class IntermediateServiceDocument implements JPAServiceDocument {
   }
 
   private void setContainer() {
-
-    for (final Entry<String, IntermediateSchema> schema : schemaListInternalKey.entrySet()) {
-      schema.getValue().setContainer(container);
+    for (final IntermediateSchema schema : schemaListInternalKey.values()) {
+      schema.setContainer(container);
       break;
     }
-
   }
 
   @Override
