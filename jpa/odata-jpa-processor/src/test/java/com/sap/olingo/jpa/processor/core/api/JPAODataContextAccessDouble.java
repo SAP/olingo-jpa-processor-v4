@@ -3,6 +3,7 @@ package com.sap.olingo.jpa.processor.core.api;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -58,8 +59,8 @@ public class JPAODataContextAccessDouble implements JPAODataCRUDContextAccess {
   }
 
   @Override
-  public String[] getPackageName() {
-    return packageNames;
+  public List<String> getPackageName() {
+    return Arrays.asList(packageNames);
   }
 
   @Override

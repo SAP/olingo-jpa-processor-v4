@@ -2,6 +2,7 @@ package com.sap.olingo.jpa.processor.core.api;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -106,8 +107,8 @@ public final class JPAODataServiceContext implements JPAODataCRUDContextAccess {
   }
 
   @Override
-  public String[] getPackageName() {
-    return packageName;
+  public List<String> getPackageName() {
+    return Arrays.asList(packageName);
   }
 
   @Override

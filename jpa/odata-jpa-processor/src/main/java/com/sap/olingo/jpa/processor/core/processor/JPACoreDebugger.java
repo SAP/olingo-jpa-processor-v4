@@ -75,8 +75,8 @@ class JPACoreDebugger implements JPAServiceDebugger {
   @Override
   public void trace(final Object instance, final String pattern, final Object... arguments) {
     final Log logger = LogFactory.getLog(instance.getClass().getCanonicalName());
-    if (logger.isInfoEnabled()) {
-      logger.info(composeLog(pattern, arguments));
+    if (logger.isTraceEnabled()) {
+      logger.trace(composeLog(pattern, arguments));
     }
   }
 

@@ -3,6 +3,7 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.annotation;
 import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
@@ -27,8 +28,8 @@ public class TermReader extends AbstractVocabularyReader {
   @Override
   protected Map<String, Map<String, CsdlTerm>> convertEDMX(Edmx edmx) {
     if (edmx != null && edmx.getDataService() != null) {
-      Schema[] schemas = edmx.getDataService().getSchemas();
-      Map<String, Map<String, CsdlTerm>> edmSchemas = new HashMap<>(schemas.length);
+      List<Schema> schemas = edmx.getDataService().getSchemas();
+      Map<String, Map<String, CsdlTerm>> edmSchemas = new HashMap<>(schemas.size());
 
       for (Schema schema : schemas) {
         String namespace = schema.getNamespace();

@@ -1,6 +1,8 @@
 package com.sap.olingo.jpa.processor.core.exception;
 
+import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Locale;
 
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -103,8 +105,8 @@ public abstract class ODataJPAProcessException extends ODataApplicationException
     }
   }
 
-  public String[] getParameter() {
-    return parameter;
+  public List<String> getParameter() {
+    return Arrays.asList(parameter);
   }
 
   public String getId() {

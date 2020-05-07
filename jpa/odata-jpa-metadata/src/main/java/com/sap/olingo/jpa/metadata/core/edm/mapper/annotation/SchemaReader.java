@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
@@ -30,8 +31,8 @@ public class SchemaReader extends AbstractVocabularyReader {
 
     if (edmx != null && edmx.getDataService() != null) {
 
-      Schema[] schemas = edmx.getDataService().getSchemas();
-      Map<String, CsdlSchema> edmSchemas = new HashMap<>(schemas.length);
+      List<Schema> schemas = edmx.getDataService().getSchemas();
+      Map<String, CsdlSchema> edmSchemas = new HashMap<>(schemas.size());
       for (Schema schema : schemas) {
         String namespace = schema.getNamespace();
         edmSchemas.put(namespace, schema.asCsdlSchema());

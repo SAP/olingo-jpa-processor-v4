@@ -26,15 +26,15 @@ public class PersonImage {
     return ID;
   }
 
-  void setID(String iD) {
+  void setID(final String iD) {
     ID = iD;
   }
 
-  byte[] getImage() {
+  byte[] getImage() { // NOSONAR
     return image;
   }
 
-  void setImage(byte[] image) {
+  void setImage(final byte[] image) {
     this.image = image;
   }
 
@@ -42,7 +42,7 @@ public class PersonImage {
     return administrativeInformation;
   }
 
-  void setAdministrativeInformation(AdministrativeInformation administrativeInformation) {
+  void setAdministrativeInformation(final AdministrativeInformation administrativeInformation) {
     this.administrativeInformation = administrativeInformation;
   }
 }

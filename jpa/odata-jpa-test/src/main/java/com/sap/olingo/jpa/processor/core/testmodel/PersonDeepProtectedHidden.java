@@ -1,6 +1,9 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -34,7 +37,7 @@ public class PersonDeepProtectedHidden extends BusinessPartnerProtected {// #NOS
       @EdmProtectedBy(name = "Creator", path = "created/by"),
       @EdmProtectedBy(name = "Updator", path = "updated/by")
   })
-  private AdministrativeInformation protectedAdminInfo = new AdministrativeInformation();
+  private final AdministrativeInformation protectedAdminInfo = new AdministrativeInformation();
 
   public PersonDeepProtectedHidden() {
     type = "1";
@@ -44,12 +47,15 @@ public class PersonDeepProtectedHidden extends BusinessPartnerProtected {// #NOS
     return birthDay;
   }
 
-  public void setBirthDay(LocalDate birthDay) {
+  public void setBirthDay(final LocalDate birthDay) {
     this.birthDay = birthDay;
   }
 
-  public AccessRights[] getAccessRights() {
-    return accessRights;
+  public Short getAccessRights() {
+    return new AccessRightsConverter().convertToDatabaseColumn(accessRights);
   }
 
+  public List<AccessRights> getAccessRightsAsList() {
+    return accessRights == null ? Collections.emptyList() : Arrays.asList(accessRights);
+  }
 }

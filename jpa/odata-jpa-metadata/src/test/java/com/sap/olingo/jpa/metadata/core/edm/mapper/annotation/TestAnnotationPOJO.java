@@ -48,10 +48,10 @@ public class TestAnnotationPOJO {
     Edmx act = xmlMapper.readValue(terms, Edmx.class);
     assertNotNull(act.getDataService());
 
-    Schema[] actSchemas = act.getDataService().getSchemas();
-    assertEquals(1, actSchemas.length);
+    List<Schema> actSchemas = act.getDataService().getSchemas();
+    assertEquals(1, actSchemas.size());
 
-    List<Term> actTerms = actSchemas[0].getTerms();
+    List<Term> actTerms = actSchemas.get(0).getTerms();
     assertEquals(3, actTerms.size());
   }
 }

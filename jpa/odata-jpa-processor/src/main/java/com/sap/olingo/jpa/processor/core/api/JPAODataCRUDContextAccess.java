@@ -31,7 +31,7 @@ public interface JPAODataCRUDContextAccess {
    * Returns a list of packages that may contain Enumerations of Java implemented OData operations
    * @return
    */
-  public String[] getPackageName();
+  public List<String> getPackageName();
 
   /**
    * If server side paging shall be supported <code>getPagingProvider</code> returns an implementation of a paging

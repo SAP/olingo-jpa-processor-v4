@@ -48,7 +48,7 @@ public class TestJPAODataServiceContextBuilder {
 
   @BeforeAll
   public static void classSetup() {
-    ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_DERBY);
+    ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
   }
 
   @Test
@@ -74,7 +74,7 @@ public class TestJPAODataServiceContextBuilder {
         .build();
 
     assertNotNull(cut.getPackageName());
-    assertEquals(0, cut.getPackageName().length);
+    assertEquals(0, cut.getPackageName().size());
   }
 
   @Test
@@ -86,7 +86,7 @@ public class TestJPAODataServiceContextBuilder {
         .build();
 
     assertNotNull(cut.getPackageName());
-    assertEquals(2, cut.getPackageName().length);
+    assertEquals(2, cut.getPackageName().size());
   }
 
   @Test

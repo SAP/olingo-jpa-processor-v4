@@ -35,7 +35,7 @@ public class OrganizationImage {
     ID = iD;
   }
 
-  public byte[] getImage() {
+  public byte[] getImage() {// NOSONAR
     return image;
   }
 
@@ -68,11 +68,11 @@ public class OrganizationImage {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) return true;
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
-    OrganizationImage other = (OrganizationImage) obj;
+    final OrganizationImage other = (OrganizationImage) obj;
     if (ID == null) {
       if (other.ID != null) return false;
     } else if (!ID.equals(other.ID)) return false;

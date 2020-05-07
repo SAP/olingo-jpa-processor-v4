@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
@@ -62,9 +63,9 @@ public class TestTermReader {
     assertNotNull(actEdmx);
     assertNotNull(actEdmx.getDataService());
 
-    Schema[] actSchemas = actEdmx.getDataService().getSchemas();
-    assertEquals(1, actSchemas.length);
-    assertEquals("Org.OData.Measures.V1", actSchemas[0].getNamespace());
+    List<Schema> actSchemas = actEdmx.getDataService().getSchemas();
+    assertEquals(1, actSchemas.size());
+    assertEquals("Org.OData.Measures.V1", actSchemas.get(0).getNamespace());
   }
 
   @Test
@@ -108,9 +109,9 @@ public class TestTermReader {
     assertNotNull(actEdmx);
     assertNotNull(actEdmx.getDataService());
 
-    Schema[] actSchemas = actEdmx.getDataService().getSchemas();
-    assertEquals(1, actSchemas.length);
-    assertEquals("Org.OData.Core.V1", actSchemas[0].getNamespace());
+    List<Schema> actSchemas = actEdmx.getDataService().getSchemas();
+    assertEquals(1, actSchemas.size());
+    assertEquals("Org.OData.Core.V1", actSchemas.get(0).getNamespace());
   }
 
   // TODO This test may not run because of proxy setting problems!! -> find alternative for Integration tests

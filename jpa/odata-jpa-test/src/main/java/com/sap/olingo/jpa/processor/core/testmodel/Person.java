@@ -2,6 +2,8 @@ package com.sap.olingo.jpa.processor.core.testmodel;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -107,20 +109,24 @@ public class Person extends BusinessPartner {// #NOSONAR use equal method from B
     return birthDay;
   }
 
-  public void setFirstName(String firstName) {
+  public void setFirstName(final String firstName) {
     this.firstName = firstName;
   }
 
-  public void setLastName(String lastName) {
+  public void setLastName(final String lastName) {
     this.lastName = lastName;
   }
 
-  public void setBirthDay(LocalDate birthDay) {
+  public void setBirthDay(final LocalDate birthDay) {
     this.birthDay = birthDay;
   }
 
-  public AccessRights[] getAccessRights() {
-    return accessRights;
+  public Short getAccessRights() {
+    return new AccessRightsConverter().convertToDatabaseColumn(accessRights);
+  }
+
+  public List<AccessRights> getAccessRightsAsList() {
+    return accessRights == null ? Collections.emptyList() : Arrays.asList(accessRights);
   }
 
   public List<InhouseAddress> getInhouseAddress() {
