@@ -24,7 +24,7 @@ __Master__:
 
 __Sonar__:
 
-[![Sonar build Status](https://prod-build10200.wdf.sap.corp:443/job/odata-jpa/job/odata-jpa-odata-v4-jpa-processor-master-CI-sonar-sonar/12/badge/icon?style=plastic)](https://prod-build10200.wdf.sap.corp:443/job/odata-jpa/job/odata-jpa-odata-v4-jpa-processor-master-CI-sonar-sonar/12/)
+[![Sonar build Status](https://prod-build10200.wdf.sap.corp:443/job/odata-jpa/job/odata-jpa-odata-v4-jpa-processor-master-CI-sonar-sonar/12/badge/icon?style=plastic)](https://prod-build10200.wdf.sap.corp:443/job/odata-jpa/job/odata-jpa-odata-v4-jpa-processor-master-CI-sonar-sonar/)
 
 [![Lines of Code](https://sonarci.wdf.sap.corp:8443/sonar/api/badges/measure?key=com.sap.olingo%3Aodata-jpa&metric=ncloc)](https://sonarci.wdf.sap.corp:8443/sonar/dashboard?id=com.sap.olingo%3Aodata-jpa)
 [![Security Rating](https://sonarci.wdf.sap.corp:8443/sonar/api/badges/measure?key=com.sap.olingo%3Aodata-jpa&metric=security_rating)](https://sonarci.wdf.sap.corp:8443/sonar/dashboard?id=com.sap.olingo%3Aodata-jpa)
