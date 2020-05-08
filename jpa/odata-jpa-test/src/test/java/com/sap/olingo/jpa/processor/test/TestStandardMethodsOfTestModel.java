@@ -1,8 +1,9 @@
 /**
- * 
+ *
  */
 package com.sap.olingo.jpa.processor.test;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -179,7 +180,13 @@ public class TestStandardMethodsOfTestModel {
         final Object exp = getExpected(paramType);
         if (exp != null) {
           setter.invoke(instanze, exp);
-          assertEquals(exp, getter.invoke(instanze));
+          if (exp.getClass().isArray())
+            if ("byte[]".equals(exp.getClass().getTypeName()))
+              assertArrayEquals((byte[]) exp, (byte[]) getter.invoke(instanze));
+            else
+              assertArrayEquals((Object[]) exp, (Object[]) getter.invoke(instanze));
+          else
+            assertEquals(exp, getter.invoke(instanze));
         }
       }
     }

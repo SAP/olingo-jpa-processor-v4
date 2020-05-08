@@ -30,8 +30,8 @@ public class PersonImage {
     ID = iD;
   }
 
-  byte[] getImage() { // NOSONAR
-    return image;
+  byte[] getImage() {
+    return image.clone();
   }
 
   void setImage(final byte[] image) {
