@@ -163,27 +163,27 @@ public class EntityManagerWrapper implements EntityManager {
   }
 
   @Override
-  public Query createQuery(@SuppressWarnings("rawtypes") CriteriaUpdate updateQuery) {
+  public Query createQuery(@SuppressWarnings("rawtypes") final CriteriaUpdate updateQuery) {
     return em.createQuery(updateQuery);
   }
 
   @Override
-  public Query createQuery(@SuppressWarnings("rawtypes") CriteriaDelete deleteQuery) {
+  public Query createQuery(@SuppressWarnings("rawtypes") final CriteriaDelete deleteQuery) {
     return em.createQuery(deleteQuery);
   }
 
   @Override
-  public <T> TypedQuery<T> createQuery(String qlString, Class<T> resultClass) {
+  public <T> TypedQuery<T> createQuery(final String qlString, final Class<T> resultClass) {
     throw new NotImplementedException();
   }
 
   @Override
-  public Query createNamedQuery(String name) {
+  public Query createNamedQuery(final String name) {
     throw new NotImplementedException();
   }
 
   @Override
-  public <T> TypedQuery<T> createNamedQuery(String name, Class<T> resultClass) {
+  public <T> TypedQuery<T> createNamedQuery(final String name, final Class<T> resultClass) {
     throw new NotImplementedException();
   }
 
@@ -193,12 +193,12 @@ public class EntityManagerWrapper implements EntityManager {
   }
 
   @Override
-  public Query createNativeQuery(String sqlString, @SuppressWarnings("rawtypes") Class resultClass) {
+  public Query createNativeQuery(final String sqlString, @SuppressWarnings("rawtypes") final Class resultClass) {
     return em.createNativeQuery(sqlString, resultClass);
   }
 
   @Override
-  public Query createNativeQuery(String sqlString, String resultSetMapping) {
+  public Query createNativeQuery(final String sqlString, final String resultSetMapping) {
     throw new NotImplementedException();
   }
 
@@ -227,7 +227,6 @@ public class EntityManagerWrapper implements EntityManager {
   @Override
   public void joinTransaction() {
     em.joinTransaction();
-
   }
 
   @Override
