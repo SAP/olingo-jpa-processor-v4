@@ -34,7 +34,7 @@ public class JPAODataParallelBatchProcessorIntegrationTest {
 
   @Test
   public void testOneGetRequestGetResponce() throws IOException, ODataException {
-    final StringBuffer requestBody = createBodyOneGet();
+    final StringBuilder requestBody = createBodyOneGet();
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "$batch", requestBody);
     final List<String> act = helper.getRawBatchResult();
@@ -43,7 +43,7 @@ public class JPAODataParallelBatchProcessorIntegrationTest {
 
   @Test
   public void testOneGetRequestCheckStatus() throws IOException, ODataException {
-    final StringBuffer requestBody = createBodyOneGet();
+    final StringBuilder requestBody = createBodyOneGet();
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "$batch", requestBody);
     assertEquals(200, helper.getBatchResultStatus(1));
@@ -51,7 +51,7 @@ public class JPAODataParallelBatchProcessorIntegrationTest {
 
   @Test
   public void testOneGetRequestCheckValue() throws IOException, ODataException {
-    final StringBuffer requestBody = createBodyOneGet();
+    final StringBuilder requestBody = createBodyOneGet();
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "$batch", requestBody);
     assertEquals(200, helper.getBatchResultStatus(1));
@@ -61,15 +61,15 @@ public class JPAODataParallelBatchProcessorIntegrationTest {
 
   @Test
   public void testTwoGetRequestSecondFailCheckStatus() throws IOException, ODataException {
-    StringBuffer requestBody = createBodyTwoGetOneFail();
+    final StringBuilder requestBody = createBodyTwoGetOneFail();
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "$batch", requestBody);
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "$batch", requestBody);
     assertEquals(404, helper.getBatchResultStatus(2));
   }
 
   @Test
   public void testTwoGetRequestCheckValue() throws IOException, ODataException {
-    final StringBuffer requestBody = createBodyTwoGet();
+    final StringBuilder requestBody = createBodyTwoGet();
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "$batch", requestBody);
 
@@ -86,8 +86,8 @@ public class JPAODataParallelBatchProcessorIntegrationTest {
     assertEquals("5", value.get("ID").asText());
   }
 
-  private StringBuffer createBodyTwoGetOneFail() {
-    StringBuffer requestBody = new StringBuffer("--abc123\r\n");
+  private StringBuilder createBodyTwoGetOneFail() {
+    final StringBuilder requestBody = new StringBuilder("--abc123\r\n");
     requestBody.append("Content-Type: application/http\r\n");
     requestBody.append("Content-Transfer-Encoding: binary\r\n");
     requestBody.append("\r\n");
@@ -107,8 +107,8 @@ public class JPAODataParallelBatchProcessorIntegrationTest {
     return requestBody;
   }
 
-  private StringBuffer createBodyTwoGet() {
-    StringBuffer requestBody = new StringBuffer("--abc123\r\n");
+  private StringBuilder createBodyTwoGet() {
+    final StringBuilder requestBody = new StringBuilder("--abc123\r\n");
     requestBody.append("Content-Type: application/http\r\n");
     requestBody.append("Content-Transfer-Encoding: binary\r\n");
     requestBody.append("\r\n");
@@ -128,8 +128,8 @@ public class JPAODataParallelBatchProcessorIntegrationTest {
     return requestBody;
   }
 
-  private StringBuffer createBodyOneGet() {
-    StringBuffer requestBody = new StringBuffer("--abc123\r\n");
+  private StringBuilder createBodyOneGet() {
+    final StringBuilder requestBody = new StringBuilder("--abc123\r\n");
     requestBody.append("Content-Type: application/http\r\n");
     requestBody.append("Content-Transfer-Encoding: binary\r\n");
     requestBody.append("\r\n");

@@ -9,12 +9,20 @@ import javax.servlet.ServletInputStream;
 public class ServletInputStreamDouble extends ServletInputStream {
   private final InputStream stream;
 
-  public ServletInputStreamDouble(ServletInputStream stream) {
+  public ServletInputStreamDouble(final ServletInputStream stream) {
     super();
     this.stream = stream;
   }
 
-  public ServletInputStreamDouble(StringBuffer stream) {
+  public ServletInputStreamDouble(final StringBuilder stream) {
+    super();
+    if (stream != null)
+      this.stream = new ByteArrayInputStream(stream.toString().getBytes());
+    else
+      this.stream = null;
+  }
+
+  public ServletInputStreamDouble(final StringBuffer stream) {
     super();
     if (stream != null)
       this.stream = new ByteArrayInputStream(stream.toString().getBytes());

@@ -10,7 +10,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 public class HttpRequestHeaderDouble {
-  private HashMap<String, List<String>> headers;
+  private final HashMap<String, List<String>> headers;
 
   public HttpRequestHeaderDouble() {
     super();
@@ -42,7 +42,7 @@ public class HttpRequestHeaderDouble {
 
   }
 
-  public Enumeration<String> get(String headerName) {
+  public Enumeration<String> get(final String headerName) {
     return new headerItem(headers.get(headerName));
   }
 
@@ -51,23 +51,23 @@ public class HttpRequestHeaderDouble {
   }
 
   public void setBatchRequest() {
-    List<String> headerValue = new ArrayList<>();
+    final List<String> headerValue = new ArrayList<>();
     headerValue.add("multipart/mixed;boundary=abc123");
     headers.put("content-type", headerValue);
   }
 
-  public void setHeaders(Map<String, List<String>> additionalHeaders) {
-    if (additionalHeaders != null)
-      for (Entry<String, List<String>> header : additionalHeaders.entrySet())
-      headers.put(header.getKey(), header.getValue());
-
+  public void setHeaders(final Map<String, List<String>> additionalHeaders) {
+    if (additionalHeaders != null) {
+      for (final Entry<String, List<String>> header : additionalHeaders.entrySet())
+        headers.put(header.getKey(), header.getValue());
+    }
   }
 
   class HeaderEnumerator implements Enumeration<String> {
 
     private final Iterator<String> keys;
 
-    HeaderEnumerator(Set<String> keySet) {
+    HeaderEnumerator(final Set<String> keySet) {
       keys = keySet.iterator();
     }
 
@@ -85,7 +85,7 @@ public class HttpRequestHeaderDouble {
   class headerItem implements Enumeration<String> {
     private final Iterator<String> keys;
 
-    public headerItem(List<String> header) {
+    public headerItem(final List<String> header) {
       keys = header.iterator();
     }
 

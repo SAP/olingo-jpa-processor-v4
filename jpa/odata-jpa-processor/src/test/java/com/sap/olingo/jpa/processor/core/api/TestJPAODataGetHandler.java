@@ -14,29 +14,30 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataHttpHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 
-import com.sap.olingo.jpa.processor.core.util.HttpServletRequestDouble;
-import com.sap.olingo.jpa.processor.core.util.HttpServletResponseDouble;
+import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 
 public class TestJPAODataGetHandler extends TestBase {
   private JPAODataGetHandler cut;
-  private HttpServletRequestDouble request;
-  private HttpServletResponseDouble response;
+  private HttpServletRequest request;
+  private HttpServletResponse response;
   private static final String PUNIT_NAME = "com.sap.olingo.jpa";
 
   @BeforeEach
   public void setup() throws IOException {
-    request = new HttpServletRequestDouble("http://localhost:8080/Test/Olingo.svc/Organizations", new StringBuffer(),
-        headers);
-    response = new HttpServletResponseDouble();
+    request = IntegrationTestHelper.getRequestMock("http://localhost:8080/Test/Olingo.svc/Organizations",
+        new StringBuilder(), headers);
+    response = IntegrationTestHelper.getResponseMock();
   }
 
   @Test
@@ -75,7 +76,7 @@ public class TestJPAODataGetHandler extends TestBase {
         .setTypePackage(enumPackages)
         .build();
     new JPAODataGetHandler(context).process(request, response);
-    assertEquals(200, response.getStatus());
+    assertEquals(200, getStatus());
   }
 
   @Test
@@ -89,7 +90,7 @@ public class TestJPAODataGetHandler extends TestBase {
     cut = new JPAODataGetHandler(context);
     cut.getJPAODataRequestContext().setEntityManager(emf.createEntityManager());
     cut.process(request, response);
-    assertEquals(200, response.getStatus());
+    assertEquals(200, getStatus());
   }
 
   @Test
@@ -102,7 +103,7 @@ public class TestJPAODataGetHandler extends TestBase {
     cut = new JPAODataGetHandler(context);
     cut.getJPAODataRequestContext().setEntityManager(emf.createEntityManager());
     cut.process(request, response);
-    assertEquals(200, response.getStatus());
+    assertEquals(200, getStatus());
   }
 
   @Test
@@ -154,5 +155,11 @@ public class TestJPAODataGetHandler extends TestBase {
     public boolean matches(final HttpServletRequest argument) {
       return argument instanceof HttpServletRequest && !(argument instanceof HttpServletRequestWrapper);
     }
+  }
+
+  public int getStatus() {
+    final ArgumentCaptor<Integer> acStatus = ArgumentCaptor.forClass(Integer.class);
+    verify(response).setStatus(acStatus.capture());
+    return acStatus.getValue();
   }
 }

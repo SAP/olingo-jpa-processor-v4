@@ -4,26 +4,45 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.stream.Stream;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Selection;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.provider.Arguments;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.cb.api.ProcessorSelection;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 
 public class CritertaQueryImplTest extends BuilderBaseTest {
   private CriteriaQueryImpl<Object> cut;
   private CriteriaBuilder cb;
+
+  static Stream<Arguments> notImplementedMethod() throws NoSuchMethodException, SecurityException {
+    @SuppressWarnings("rawtypes")
+    final Class<CriteriaQueryImpl> c = CriteriaQueryImpl.class;
+    final String dummy = "Test";
+    return Stream.of(
+        arguments(c.getMethod("ignore"), dummy, Boolean.FALSE),
+        arguments(c.getMethod("isPartOfGroups", List.class), new ArrayList<>(), Boolean.FALSE),
+        arguments(c.getMethod("isTransient"), dummy, Boolean.FALSE),
+        arguments(c.getMethod("createNamedQuery", String.class, Class.class), dummy, c));
+  }
 
   @BeforeEach
   public void setup() throws ODataJPAModelException {
@@ -111,7 +130,7 @@ public class CritertaQueryImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testReplaceGroupBydempty() {
+  public void testReplaceGroupByEmpty() {
     final Expression<?>[] nullArray = null;
     final StringBuilder stmt = new StringBuilder();
     final Root<?> act = cut.from(Organization.class);
@@ -137,5 +156,15 @@ public class CritertaQueryImplTest extends BuilderBaseTest {
             + "GROUP BY E0.\"NameLine2\" "
             + "HAVING (COUNT(E0.\"ID\") > ?1)",
         cut.asSQL(stmt).toString());
+  }
+
+  @Test
+  public void testDifaultImplementationOnPathWrapper() {
+    final Root<?> act = cut.from(Organization.class);
+    cut.multiselect(act.get("aBCClass"), act.get("name2"));
+    final Selection<Object> sel = cut.getSelection();
+    final List<Entry<String, JPAPath>> resolvedSelections = ((ProcessorSelection<?>) sel).getResolvedSelection();
+    final JPAPath wrapper = resolvedSelections.get(0).getValue();
+
   }
 }
