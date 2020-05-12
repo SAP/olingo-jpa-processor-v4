@@ -14,7 +14,7 @@ import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
 public class TestAnnotationPOJO {
-  private String terms =
+  private final String terms =
       "<edmx:Edmx xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\" Version=\"4.0\">"
           + "<edmx:Reference Uri=\"http://docs.oasis-open.org/odata/odata/v4.0/os/vocabularies/Org.OData.Core.V1.xml\">"
           + "<edmx:Include Alias=\"Core\" Namespace=\"Org.OData.Core.V1\" />"
@@ -41,17 +41,17 @@ public class TestAnnotationPOJO {
 
   @Test
   public void TestSimpleXMLConverted() throws JsonParseException, JsonMappingException, IOException {
-    JacksonXmlModule module = new JacksonXmlModule();
+    final JacksonXmlModule module = new JacksonXmlModule();
     module.setDefaultUseWrapper(false);
-    XmlMapper xmlMapper = new XmlMapper(module);
+    final XmlMapper xmlMapper = new XmlMapper(module);
 
-    Edmx act = xmlMapper.readValue(terms, Edmx.class);
+    final Vocabulary act = xmlMapper.readValue(terms, Vocabulary.class);
     assertNotNull(act.getDataService());
 
-    List<Schema> actSchemas = act.getDataService().getSchemas();
+    final List<Schema> actSchemas = act.getDataService().getSchemas();
     assertEquals(1, actSchemas.size());
 
-    List<Term> actTerms = actSchemas.get(0).getTerms();
+    final List<Term> actTerms = actSchemas.get(0).getTerms();
     assertEquals(3, actTerms.size());
   }
 }
