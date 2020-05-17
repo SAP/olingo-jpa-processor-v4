@@ -10,6 +10,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import org.apache.olingo.commons.api.edm.EdmAction;
@@ -27,6 +28,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAProtectionInfo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
@@ -63,8 +65,8 @@ public class TestIntermediateServiceDocument extends TestMappingRoot {
 
   @Test
   public void checkServiceDocumentCanBeCreated() throws ODataJPAModelException {
-    new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null,
-        new String[] { "com.sap.olingo.jpa.processor.core.testmodel" });
+    assertNotNull(new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null,
+        new String[] { "com.sap.olingo.jpa.processor.core.testmodel" }));
   }
 
   @Test
@@ -80,21 +82,21 @@ public class TestIntermediateServiceDocument extends TestMappingRoot {
   @Test
   public void checkServiceDocumentGetContainerFromSchema() throws ODataJPAModelException {
 
-    List<CsdlSchema> schemas = cut.getEdmSchemas();
-    CsdlSchema schema = schemas.get(0);
+    final List<CsdlSchema> schemas = cut.getEdmSchemas();
+    final CsdlSchema schema = schemas.get(0);
     assertNotNull(schema.getEntityContainer(), "Entity Container not found");
   }
 
   @Test
   public void checkServiceDocumentGetEntitySetsFromContainer() throws ODataJPAModelException {
-    CsdlEntityContainer container = cut.getEdmEntityContainer();
+    final CsdlEntityContainer container = cut.getEdmEntityContainer();
     assertNotNull(container.getEntitySets(), "Entity Container not found");
   }
 
   @Test
   public void checkHasEtagReturnsTrueOnVersion() throws ODataJPAModelException {
-    EdmBindingTarget target = mock(EdmBindingTarget.class);
-    EdmEntityType et = mock(EdmEntityType.class);
+    final EdmBindingTarget target = mock(EdmBindingTarget.class);
+    final EdmEntityType et = mock(EdmEntityType.class);
     when(target.getEntityType()).thenReturn(et);
     when(et.getFullQualifiedName()).thenReturn(new FullQualifiedName(PUNIT_NAME, "BusinessPartner"));
 
@@ -103,12 +105,12 @@ public class TestIntermediateServiceDocument extends TestMappingRoot {
 
   @Test
   public void checkHasEtagReturnsFalseWithoutVersion() throws ODataJPAModelException {
-    EdmBindingTarget target = mock(EdmBindingTarget.class);
-    EdmEntityType et = mock(EdmEntityType.class);
+    final EdmBindingTarget target = mock(EdmBindingTarget.class);
+    final EdmEntityType et = mock(EdmEntityType.class);
     when(target.getEntityType()).thenReturn(et);
     when(et.getFullQualifiedName()).thenReturn(new FullQualifiedName(PUNIT_NAME, "Country"));
 
-    JPAServiceDocument svc = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null, null);
+    final JPAServiceDocument svc = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null, null);
     assertFalse(svc.hasETag(target));
   }
 
@@ -306,6 +308,13 @@ public class TestIntermediateServiceDocument extends TestMappingRoot {
     when(function.getNamespace()).thenReturn("test");
     when(function.getName()).thenReturn("O_sum");
     assertNotNull(cut.getFunction(function));
+  }
+
+  @Test
+  public void checkGetClaimsRetunsAllClaims() throws ODataJPAModelException {
+    final Map<String, JPAProtectionInfo> act = cut.getClaims();
+    assertNotNull(act);
+    assertTrue(act.containsKey("BuildingNumber"));
   }
 
   private IntermediateServiceDocument createCutWithCustomNameBuilder() throws ODataJPAModelException {

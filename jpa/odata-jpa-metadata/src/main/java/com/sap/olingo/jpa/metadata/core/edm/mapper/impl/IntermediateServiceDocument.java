@@ -32,6 +32,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEnumerationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAProtectionInfo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -50,6 +51,7 @@ class IntermediateServiceDocument implements JPAServiceDocument {
   private final IntermediateReferences references;
   private final JPAEdmMetadataPostProcessor pP;
   private final Reflections reflections;
+  private Map<String, JPAProtectionInfo> claims;
 
   IntermediateServiceDocument(final String namespace, final Metamodel jpaMetamodel,
       final JPAEdmMetadataPostProcessor postProcessor, final String[] packageName) throws ODataJPAModelException {
@@ -83,19 +85,19 @@ class IntermediateServiceDocument implements JPAServiceDocument {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getAllSchemas()
    */
   @Override
   public List<CsdlSchema> getAllSchemas() throws ODataJPAModelException {
-    List<CsdlSchema> allSchemas = getEdmSchemas();
+    final List<CsdlSchema> allSchemas = getEdmSchemas();
     allSchemas.addAll(references.getSchemas());
     return allSchemas;
   }
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getEdmEntityContainer()
    */
   @Override
@@ -105,7 +107,7 @@ class IntermediateServiceDocument implements JPAServiceDocument {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getEdmSchemas()
    */
   @Override
@@ -115,7 +117,7 @@ class IntermediateServiceDocument implements JPAServiceDocument {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see
    * com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getEntity(org.apache.olingo.commons.api.edm.
    * EdmType)
@@ -130,12 +132,12 @@ class IntermediateServiceDocument implements JPAServiceDocument {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see
    * com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getEntity(java.lang.Class)
    */
   @Override
-  public JPAEntityType getEntity(Class<?> entityClass) throws ODataJPAModelException {
+  public JPAEntityType getEntity(final Class<?> entityClass) throws ODataJPAModelException {
     for (final Entry<String, IntermediateSchema> schema : schemaListInternalKey.entrySet()) {
       final JPAEntityType et = (JPAEntityType) schema.getValue().getEntityType(entityClass);
       if (et != null)
@@ -146,13 +148,13 @@ class IntermediateServiceDocument implements JPAServiceDocument {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see
    * com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument#getComplexType(org.apache.olingo.commons.api.edm
    * .EdmComplexType)
    */
   @Override
-  public JPAStructuredType getComplexType(EdmComplexType edmType) {
+  public JPAStructuredType getComplexType(final EdmComplexType edmType) {
     final IntermediateSchema schema = schemaListInternalKey.get(edmType.getNamespace());
     if (schema != null)
       return schema.getComplexType(edmType.getName());
@@ -161,7 +163,7 @@ class IntermediateServiceDocument implements JPAServiceDocument {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see
    * com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getEntity(org.apache.olingo.commons.api.edm.
    * FullQualifiedName)
@@ -176,7 +178,7 @@ class IntermediateServiceDocument implements JPAServiceDocument {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getEntity(java.lang.String)
    */
   @Override
@@ -187,7 +189,7 @@ class IntermediateServiceDocument implements JPAServiceDocument {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see
    * com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getEntitySet(com.sap.olingo.jpa.metadata.core.
    * edm.mapper.api.JPAEntityType)
@@ -199,7 +201,7 @@ class IntermediateServiceDocument implements JPAServiceDocument {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see
    * com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getFunction(org.apache.olingo.commons.api.edm.
    * EdmFunction)
@@ -214,7 +216,7 @@ class IntermediateServiceDocument implements JPAServiceDocument {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see
    * com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getAction(org.apache.olingo.commons.api.edm.
    * EdmFunction)
@@ -229,7 +231,7 @@ class IntermediateServiceDocument implements JPAServiceDocument {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getReferences()
    */
   @Override
@@ -239,7 +241,7 @@ class IntermediateServiceDocument implements JPAServiceDocument {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getTerm(org.apache.olingo.commons.api.edm.
    * FullQualifiedName)
    */
@@ -250,7 +252,7 @@ class IntermediateServiceDocument implements JPAServiceDocument {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see
    * org.apache.olingo.server.api.etag.CustomETagSupport#hasETag(org.apache.olingo.commons.api.edm.EdmBindingTarget)
    */
@@ -258,7 +260,7 @@ class IntermediateServiceDocument implements JPAServiceDocument {
   public boolean hasETag(final EdmBindingTarget entitySetOrSingleton) {
     try {
       return getEntity(entitySetOrSingleton.getEntityType().getFullQualifiedName()).hasEtag();
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException e) {
       return false;
     }
   }
@@ -282,9 +284,9 @@ class IntermediateServiceDocument implements JPAServiceDocument {
     schemaListInternalKey.put(schema.internalName, schema);
   }
 
-  private Reflections createReflections(String... packageName) {
+  private Reflections createReflections(final String... packageName) {
     if (packageName != null && packageName.length > 0) {
-      ConfigurationBuilder configBuilder = new ConfigurationBuilder();
+      final ConfigurationBuilder configBuilder = new ConfigurationBuilder();
       configBuilder.setScanners(new SubTypesScanner(false), new TypeAnnotationsScanner());
       configBuilder.forPackages(packageName);
       configBuilder.filterInputsBy(new FilterBuilder().includePackage(packageName));
@@ -302,7 +304,7 @@ class IntermediateServiceDocument implements JPAServiceDocument {
       for (final IntermediateSchema schema : schemaListInternalKey.values()) {
         schemas.add(schema.getEdmItem());
       }
-    } catch (Exception e) {
+    } catch (final Exception e) {
       schemaListInternalKey.clear();
       throw e;
     }
@@ -317,7 +319,7 @@ class IntermediateServiceDocument implements JPAServiceDocument {
   }
 
   @Override
-  public JPAEnumerationAttribute getEnumType(EdmEnumType type) {
+  public JPAEnumerationAttribute getEnumType(final EdmEnumType type) {
     final IntermediateSchema schema = schemaListInternalKey.get(type.getFullQualifiedName().getNamespace());
     if (schema != null)
       return schema.getEnumerationType(type);
@@ -325,11 +327,26 @@ class IntermediateServiceDocument implements JPAServiceDocument {
   }
 
   @Override
-  public JPAEnumerationAttribute getEnumType(String fqnAsString) {
+  public JPAEnumerationAttribute getEnumType(final String fqnAsString) {
     final FullQualifiedName fqn = new FullQualifiedName(fqnAsString);
     final IntermediateSchema schema = schemaListInternalKey.get(fqn.getNamespace());
     if (schema != null)
       return schema.getEnumerationType(fqn.getName());
     return null;
+  }
+
+  @Override
+  public Map<String, JPAProtectionInfo> getClaims() throws ODataJPAModelException {
+    if (claims == null) {
+      claims = new HashMap<>();
+      for (final IntermediateSchema schema : schemaListInternalKey.values()) {
+        for (final IntermediateEntityType et : schema.getEntityTypes()) {
+          for (final JPAProtectionInfo protection : et.getProtections()) {
+            claims.put(protection.getClaimName(), protection);
+          }
+        }
+      }
+    }
+    return claims;
   }
 }
