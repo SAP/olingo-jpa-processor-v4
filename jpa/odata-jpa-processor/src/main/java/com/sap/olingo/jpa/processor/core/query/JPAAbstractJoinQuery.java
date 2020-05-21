@@ -1,7 +1,9 @@
 package com.sap.olingo.jpa.processor.core.query;
 
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys.ATTRIBUTE_NOT_FOUND;
+import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_ENTITY_UNKNOWN;
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_FILTER_ERROR;
+import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_INVALID_SELECTION_PATH;
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_NOT_ALLOWED_MEMBER;
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_OERDER_BY_TRANSIENT;
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.QUERY_RESULT_ENTITY_TYPE_ERROR;
@@ -77,7 +79,6 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
-import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterComplier;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterCrossComplier;
 import com.sap.olingo.jpa.processor.core.filter.JPAOperationConverter;
@@ -168,7 +169,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
     try {
       return jpaEntity.getPathList();
     } catch (final ODataJPAModelException e) {
-      throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
+      throw new ODataJPAQueryException(e, BAD_REQUEST);
     }
   }
 
@@ -223,7 +224,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
       buildSelectionAddETag(jpaEntity, jpaPathList.getODataSelections());
       return jpaPathList;
     } catch (final ODataJPAModelException e) {
-      throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR
+      throw new ODataApplicationException(e.getLocalizedMessage(), INTERNAL_SERVER_ERROR
           .getStatusCode(), ODataJPAException.getLocales().nextElement(), e);
     }
   }
@@ -246,7 +247,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
           return createBoundaryEquals(et, f, keyBoundary.get().getKeyBoundary());
         }
       } catch (final ODataJPAModelException e) {
-        throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+        throw new ODataJPAQueryException(e, INTERNAL_SERVER_ERROR);
       }
     }
     return null;
@@ -297,7 +298,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
           final List<UriParameter> keyPredicates = naviInfo.getKeyPredicates();
           whereCondition = createWhereByKey(f, whereCondition, keyPredicates, et);
         } catch (final ODataJPAModelException e) {
-          throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+          throw new ODataJPAQueryException(e, INTERNAL_SERVER_ERROR);
         }
       }
     }
@@ -400,7 +401,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
         final From<?, ?> from = navi.getFromClause();
         restriction = addWhereClause(restriction, createProtectionWhereForEntityType(claimsProvider, et, from));
       } catch (final ODataJPAModelException e) {
-        throw new ODataJPAQueryException(QUERY_RESULT_ENTITY_TYPE_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR);
+        throw new ODataJPAQueryException(QUERY_RESULT_ENTITY_TYPE_ERROR, INTERNAL_SERVER_ERROR);
       }
     }
     return restriction;
@@ -488,9 +489,11 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
         naviStartType = sd.getEntity(((UriResourceEntitySet) naviStart).getType());
       else
         naviStartType = sd.getEntity(((UriResourceNavigation) naviStart).getProperty().getType());
+      if (naviStartType == null)
+        throw new ODataJPAQueryException(QUERY_PREPARATION_ENTITY_UNKNOWN, BAD_REQUEST, naviStart.getSegmentValue());
       return naviStartType.getAssociationPath(associationName.toString());
     } catch (final ODataJPAModelException e) {
-      throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
+      throw new ODataJPAQueryException(e, BAD_REQUEST);
     }
   }
 
@@ -511,8 +514,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
 
     final JPAPath selectItemPath = jpaEntity.getPath(selectItem);
     if (selectItemPath == null)
-      throw new ODataJPAQueryException(MessageKeys.QUERY_PREPARATION_INVALID_SELECTION_PATH,
-          HttpStatusCode.BAD_REQUEST);
+      throw new ODataJPAQueryException(QUERY_PREPARATION_INVALID_SELECTION_PATH, BAD_REQUEST);
     if (selectItemPath.getLeaf().isComplex()) {
       // Complex Type
       final List<JPAPath> c = jpaEntity.searchChildPath(selectItemPath);
@@ -892,8 +894,12 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
         castType = ((UriResourceNavigation) naviInfo.getUriResiource()).getTypeFilterOnEntry();
       else
         castType = ((UriResourceEntitySet) naviInfo.getUriResiource()).getTypeFilterOnEntry();
-      if (castType != null)
-        target = (From<?, ?>) target.as(sd.getEntity(castType.getFullQualifiedName()).getTypeClass());
+      if (castType != null) {
+        final JPAEntityType et = sd.getEntity(castType.getFullQualifiedName());
+        if (et == null)
+          throw new ODataJPAQueryException(QUERY_PREPARATION_ENTITY_UNKNOWN, BAD_REQUEST, castType.getName());
+        target = (From<?, ?>) target.as(et.getTypeClass());
+      }
       naviInfo.setFromClause(target);
       if (naviInfo.getUriInfo() != null && naviInfo.getUriInfo().getFilterOption() != null) {
         try {
@@ -903,8 +909,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
           naviInfo.setFilterCompiler(new JPAFilterCrossComplier(odata, sd, naviInfo.getEntityType(), converter, this,
               naviInfo.getFromClause(), null, subContext));
         } catch (final ODataJPAModelException e) {
-          throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_FILTER_ERROR,
-              HttpStatusCode.BAD_REQUEST, e);
+          throw new ODataJPAQueryException(QUERY_PREPARATION_FILTER_ERROR, BAD_REQUEST, e);
         }
       }
       target = createJoinFromPath(naviInfo.getAssociationPath().getAlias(), naviInfo.getAssociationPath().getPath(),
@@ -944,7 +949,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
       this.root = query.from(sourceEt.getTypeClass());
       joinTables.put(sourceEt.getExternalFQN().getFullQualifiedNameAsString(), root);
     } catch (final ODataJPAModelException e) {
-      throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+      throw new ODataJPAQueryException(e, INTERNAL_SERVER_ERROR);
     }
   }
 

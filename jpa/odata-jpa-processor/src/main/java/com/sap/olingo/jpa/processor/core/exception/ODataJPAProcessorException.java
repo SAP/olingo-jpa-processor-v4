@@ -40,6 +40,7 @@ public class ODataJPAProcessorException extends ODataJPAProcessException {
     SETTER_NOT_FOUND,
     GETTER_NOT_FOUND,
     BEFORE_IMAGE_MERGED,
+    ENTITY_TYPE_UNKNOWN,
     FUNCTION_UNKNOWN,
     ENUMERATION_UNKNOWN;
 

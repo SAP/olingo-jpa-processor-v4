@@ -1,7 +1,10 @@
 package com.sap.olingo.jpa.processor.core.modify;
 
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys.ATTRIBUTE_NOT_FOUND;
+import static com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys.ENUMERATION_UNKNOWN;
+import static com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys.PARAMETER_NULL;
 import static org.apache.olingo.commons.api.data.ValueType.ENUM;
+import static org.apache.olingo.commons.api.http.HttpStatusCode.BAD_REQUEST;
 
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -59,9 +62,11 @@ public class JPAConversionHelper {
   private final Map<Object, Map<String, Object>> getterBuffer;
 
   public static Object convertParameter(final Parameter param, final JPAServiceDocument sd)
-      throws ODataJPAModelException {
+      throws ODataJPAModelException, ODataJPAProcessorException {
     if (param.getValueType() == ENUM) {
       final JPAEnumerationAttribute enumType = sd.getEnumType(param.getType());
+      if (enumType == null)
+        throw new ODataJPAProcessorException(ENUMERATION_UNKNOWN, BAD_REQUEST, param.getName());
       return enumType.enumOf((Number) param.getValue());
     } else {
       return param.getValue();
@@ -99,7 +104,7 @@ public class JPAConversionHelper {
       else
         throw exception[0];
     } else {
-      throw new ODataJPAProcessorException(MessageKeys.PARAMETER_NULL, HttpStatusCode.INTERNAL_SERVER_ERROR);
+      throw new ODataJPAProcessorException(PARAMETER_NULL, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
   }
 
