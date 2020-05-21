@@ -1,5 +1,12 @@
 package com.sap.olingo.jpa.processor.core.query;
 
+import static com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath.PATH_SEPERATOR;
+import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE;
+import static com.sap.olingo.jpa.processor.core.exception.ODataJPAUtilException.MessageKeys.UNKNOWN_ENTITY_TYPE;
+import static com.sap.olingo.jpa.processor.core.exception.ODataJPAUtilException.MessageKeys.UNKNOWN_NAVI_PROPERTY;
+import static org.apache.olingo.commons.api.http.HttpStatusCode.BAD_REQUEST;
+import static org.apache.olingo.commons.api.http.HttpStatusCode.NOT_IMPLEMENTED;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,7 +16,6 @@ import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmType;
-import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriParameter;
@@ -28,7 +34,6 @@ import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
@@ -58,7 +63,7 @@ public final class Util {
       }
       if (resourceItem.getKind() == UriResourceKind.complexProperty) {
         naviPropertyName.append(((UriResourceComplexProperty) resourceItem).getProperty().getName());
-        naviPropertyName.append(JPAPath.PATH_SEPERATOR);
+        naviPropertyName.append(PATH_SEPERATOR);
       }
       if (resourceItem.getKind() == UriResourceKind.navigationProperty) {
         naviPropertyName.append(((UriResourceNavigation) resourceItem).getProperty().getName());
@@ -85,7 +90,7 @@ public final class Util {
       }
       if (resourceItem.getKind() == UriResourceKind.complexProperty) {
         naviPropertyName.append(((UriResourceComplexProperty) resourceItem).getProperty().getName());
-        naviPropertyName.append(JPAPath.PATH_SEPERATOR);
+        naviPropertyName.append(PATH_SEPERATOR);
       }
       if (resourceItem.getKind() == UriResourceKind.navigationProperty) {
         naviPropertyName.append(((UriResourceNavigation) resourceItem).getProperty().getName());
@@ -160,11 +165,11 @@ public final class Util {
           break;
         if (resourceItem instanceof UriResourceValue) {
           pathName.insert(0, VALUE_RESOURCE);
-          pathName.insert(0, JPAPath.PATH_SEPERATOR);
+          pathName.insert(0, PATH_SEPERATOR);
         } else if (resourceItem instanceof UriResourceProperty) {
           final UriResourceProperty property = (UriResourceProperty) resourceItem;
           pathName.insert(0, property.getProperty().getName());
-          pathName.insert(0, JPAPath.PATH_SEPERATOR);
+          pathName.insert(0, PATH_SEPERATOR);
         }
       }
       if (pathName.length() > 0)
@@ -179,14 +184,15 @@ public final class Util {
 
   public static JPAAssociationPath determineAssoziation(final JPAServiceDocument sd, final EdmType naviStart,
       final StringBuilder associationName) throws ODataApplicationException {
-    JPAEntityType naviStartType;
 
+    final JPAEntityType naviStartType;
     try {
       naviStartType = sd.getEntity(naviStart);
+      if (naviStartType == null)
+        throw new ODataJPAUtilException(UNKNOWN_ENTITY_TYPE, BAD_REQUEST);
       return naviStartType.getAssociationPath(associationName.toString());
-    } catch (ODataJPAModelException e) {
-      throw new ODataJPAUtilException(ODataJPAUtilException.MessageKeys.UNKNOWN_NAVI_PROPERTY,
-          HttpStatusCode.BAD_REQUEST);
+    } catch (final ODataJPAModelException e) {
+      throw new ODataJPAUtilException(UNKNOWN_NAVI_PROPERTY, BAD_REQUEST);
     }
   }
 
@@ -207,7 +213,7 @@ public final class Util {
         if (startResourceItem instanceof UriResourceEntitySet || startResourceItem instanceof UriResourceNavigation) {
           break;
         }
-        associationNamePrefix.insert(0, JPAPath.PATH_SEPERATOR);
+        associationNamePrefix.insert(0, PATH_SEPERATOR);
         associationNamePrefix.insert(0, ((UriResourceProperty) startResourceItem).getProperty().getName());
       }
       // Example1 : ?$expand=Created/User (Property/NavigationProperty)
@@ -222,13 +228,14 @@ public final class Util {
           final EdmEntitySet edmEntitySet = determineTargetEntitySet(startResourceList);
           try {
             final JPAEntityType jpaEntityType = sd.getEntity(edmEntitySet.getName());
+            if (jpaEntityType == null)
+              throw new ODataJPAUtilException(UNKNOWN_ENTITY_TYPE, BAD_REQUEST);
             final List<JPAAssociationPath> associationPaths = jpaEntityType.getAssociationPathList();
             for (final JPAAssociationPath path : associationPaths) {
               pathList.put(new JPAExpandItemWrapper(item, (JPAEntityType) path.getTargetType()), path);
             }
-          } catch (ODataJPAModelException e) {
-            throw new ODataJPAUtilException(ODataJPAUtilException.MessageKeys.UNKNOWN_ENTITY_TYPE,
-                HttpStatusCode.BAD_REQUEST);
+          } catch (final ODataJPAModelException e) {
+            throw new ODataJPAUtilException(UNKNOWN_ENTITY_TYPE, BAD_REQUEST);
           }
         } else {
           final List<UriResource> targetResourceList = item.getResourcePath().getUriResourceParts();
@@ -239,7 +246,7 @@ public final class Util {
             targetResourceItem = targetResourceList.get(i);
             if (targetResourceItem.getKind() != UriResourceKind.navigationProperty) {
               associationName.append(((UriResourceProperty) targetResourceItem).getProperty().getName());
-              associationName.append(JPAPath.PATH_SEPERATOR);
+              associationName.append(PATH_SEPERATOR);
             } else {
               associationName.append(((UriResourceNavigation) targetResourceItem).getProperty().getName());
               break;
@@ -273,7 +280,7 @@ public final class Util {
 
     StringBuilder associationName = null;
     UriResourcePartTyped source = null;
-    for (UriResource resourcePart : resourceParts) {
+    for (final UriResource resourcePart : resourceParts) {
       if (resourcePart instanceof UriResourceNavigation || resourcePart instanceof UriResourceEntitySet) {
         if (source != null) {
           if (resourcePart instanceof UriResourceProperty)
@@ -302,10 +309,9 @@ public final class Util {
   private static void extendNavigationPath(final StringBuilder associationName, final String pathSegment)
       throws ODataJPAQueryException {
     if (associationName == null)
-      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
-          HttpStatusCode.NOT_IMPLEMENTED, "");
+      throw new ODataJPAQueryException(NOT_SUPPORTED_RESOURCE_TYPE, NOT_IMPLEMENTED, "");
     if (associationName.length() > 0)
-      associationName.append(JPAPath.PATH_SEPERATOR);
+      associationName.append(PATH_SEPERATOR);
     associationName.append(pathSegment);
   }
 
@@ -343,9 +349,8 @@ public final class Util {
           path = collcetion.asAssociation();
       }
       return path;
-    } catch (ODataJPAModelException e) {
-      throw new ODataJPAUtilException(ODataJPAUtilException.MessageKeys.UNKNOWN_NAVI_PROPERTY,
-          HttpStatusCode.BAD_REQUEST);
+    } catch (final ODataJPAModelException e) {
+      throw new ODataJPAUtilException(UNKNOWN_NAVI_PROPERTY, BAD_REQUEST);
     }
   }
 
@@ -357,8 +362,6 @@ public final class Util {
     else if (uriResourceItem instanceof UriResourceNavigation)
       return ((UriResourceNavigation) uriResourceItem).getKeyPredicates();
     else
-      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
-          HttpStatusCode.BAD_REQUEST,
-          uriResourceItem.getKind().name());
+      throw new ODataJPAQueryException(NOT_SUPPORTED_RESOURCE_TYPE, BAD_REQUEST, uriResourceItem.getKind().name());
   }
 }

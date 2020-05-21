@@ -79,7 +79,7 @@ class JPAVisitor implements JPAExpressionVisitor {
   @Override
   public JPAOperator visitBinaryOperator(final BinaryOperatorKind operator, final JPAOperator left,
       final JPAOperator right) throws ExpressionVisitException, ODataApplicationException {
-    int handle = debugger.startRuntimeMeasurement(this, "visitBinaryOperator"); // NOSONAR
+    final int handle = debugger.startRuntimeMeasurement(this, "visitBinaryOperator"); // NOSONAR
 
     if (operator == BinaryOperatorKind.AND || operator == BinaryOperatorKind.OR) {
       // Connecting operations have to be handled first, as JPANavigationOperation do not need special treatment
@@ -99,7 +99,7 @@ class JPAVisitor implements JPAExpressionVisitor {
         || operator == BinaryOperatorKind.LE
         || operator == BinaryOperatorKind.HAS) {
       debugger.stopRuntimeMeasurement(handle);
-      return new JPAComparisonOperatorImp(this.jpaComplier.getConverter(), operator, left, right);
+      return new JPAComparisonOperatorImp<>(this.jpaComplier.getConverter(), operator, left, right);
     }
     if (operator == BinaryOperatorKind.ADD
         || operator == BinaryOperatorKind.SUB
@@ -115,7 +115,8 @@ class JPAVisitor implements JPAExpressionVisitor {
   }
 
   @Override
-  public JPAOperator visitBinaryOperator(BinaryOperatorKind operator, JPAOperator left, List<JPAOperator> right)
+  public JPAOperator visitBinaryOperator(final BinaryOperatorKind operator, final JPAOperator left,
+      final List<JPAOperator> right)
       throws ExpressionVisitException, ODataApplicationException {
     throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
         HttpStatusCode.NOT_IMPLEMENTED, operator.name());
@@ -128,10 +129,12 @@ class JPAVisitor implements JPAExpressionVisitor {
     final int handle = debugger.startRuntimeMeasurement(this, "visitEnum");
     final JPAEnumerationAttribute jpaEnumerationAttribute = this.jpaComplier.getSd().getEnumType(type);
     try {
+      if (jpaEnumerationAttribute == null)
+        throw new IllegalArgumentException(type.getFullQualifiedName().getFullQualifiedNameAsString() + " unknown");
       if (!jpaEnumerationAttribute.isFlags() && enumValues.size() > 1)
         throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FILTER,
             HttpStatusCode.NOT_IMPLEMENTED, "Collection of Enumerations if not flags");
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException | IllegalArgumentException e) {
       throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
     debugger.stopRuntimeMeasurement(handle);
@@ -304,7 +307,7 @@ class JPAVisitor implements JPAExpressionVisitor {
             ? jpaAssociationPath.getAlias()
             : jpaAssociationPath.getAlias() + JPAPath.PATH_SEPERATOR + attributePathName);
       }
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException e) {
       throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
     return selectItemPath;

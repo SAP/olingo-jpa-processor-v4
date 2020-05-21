@@ -1,5 +1,8 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
+import static com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys.ENUMERATION_UNKNOWN;
+import static com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys.FUNCTION_UNKNOWN;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Parameter;
@@ -63,6 +66,9 @@ public final class JPAFunctionRequestProcessor extends JPAOperationRequestProces
     final UriResourceFunction uriResourceFunction =
         (UriResourceFunction) uriInfo.getUriResourceParts().get(uriInfo.getUriResourceParts().size() - 1);
     final JPAFunction jpaFunction = sd.getFunction(uriResourceFunction.getFunction());
+    if (jpaFunction == null)
+      throw new ODataJPAProcessorException(FUNCTION_UNKNOWN, HttpStatusCode.BAD_REQUEST, uriResourceFunction
+          .getFunction().getName());
     if (jpaFunction.getFunctionType() == EdmFunctionType.JavaClass) {
       result = processJavaFunction(uriResourceFunction, (JPAJavaFunction) jpaFunction, em);
 
@@ -86,6 +92,8 @@ public final class JPAFunctionRequestProcessor extends JPAOperationRequestProces
         case ENUM:
           final JPAEnumerationAttribute enumeration = sd.getEnumType(parameter.getTypeFQN()
               .getFullQualifiedNameAsString());
+          if (enumeration == null)
+            throw new ODataJPAProcessorException(ENUMERATION_UNKNOWN, HttpStatusCode.BAD_REQUEST, parameter.getName());
           return enumeration.enumOf(value);
         default:
           throw new ODataJPADBAdaptorException(ODataJPADBAdaptorException.MessageKeys.PARAMETER_CONVERSION_ERROR,
@@ -115,7 +123,7 @@ public final class JPAFunctionRequestProcessor extends JPAOperationRequestProces
 
       for (final Parameter declairedParameter : methodParameter) {
         for (final UriParameter providedParameter : uriResourceFunction.getParameters()) {
-          JPAParameter jpaParameter = jpaFunction.getParameter(declairedParameter.getName());
+          final JPAParameter jpaParameter = jpaFunction.getParameter(declairedParameter.getName());
           if (jpaParameter.getName().equals(providedParameter.getName())) {
             parameter.add(getValue(uriResourceFunction.getFunction(), jpaParameter, providedParameter.getText()));
             break;
@@ -126,8 +134,8 @@ public final class JPAFunctionRequestProcessor extends JPAOperationRequestProces
       return jpaFunction.getMethod().invoke(instance, parameter.toArray());
     } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | ODataJPAModelException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-    } catch (InvocationTargetException e) {
-      Throwable cause = e.getCause();
+    } catch (final InvocationTargetException e) {
+      final Throwable cause = e.getCause();
       if (cause instanceof ODataApplicationException) {
         throw (ODataApplicationException) cause;
       } else {

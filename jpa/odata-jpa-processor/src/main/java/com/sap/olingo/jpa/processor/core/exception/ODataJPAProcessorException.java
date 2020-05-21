@@ -39,7 +39,9 @@ public class ODataJPAProcessorException extends ODataJPAProcessException {
     ODATA_MAXPAGESIZE_NOT_A_NUMBER,
     SETTER_NOT_FOUND,
     GETTER_NOT_FOUND,
-    BEFORE_IMAGE_MERGED;
+    BEFORE_IMAGE_MERGED,
+    FUNCTION_UNKNOWN,
+    ENUMERATION_UNKNOWN;
 
     @Override
     public String getKey() {
