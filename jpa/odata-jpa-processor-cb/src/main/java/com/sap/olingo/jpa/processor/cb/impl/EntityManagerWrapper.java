@@ -22,7 +22,7 @@ import javax.persistence.metamodel.Metamodel;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
 
-public class EntityManagerWrapper implements EntityManager {
+public class EntityManagerWrapper implements EntityManager { // NOSONAR
   private Optional<CriteriaBuilder> cb;
   private final EntityManager em;
   private final JPAServiceDocument sd;

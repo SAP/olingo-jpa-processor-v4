@@ -8,6 +8,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -40,6 +41,11 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.Me
 public final class JPAModifyUtil {
 
   private JPAStructuredType st = null;
+
+  public String buildMethodNameSuffix(final JPAElement pathItem) {
+    final String relationName = pathItem.getInternalName();
+    return relationName.substring(0, 1).toUpperCase() + relationName.substring(1);
+  }
 
   /**
    * Create a filled instance of a JPA entity key.
@@ -118,27 +124,6 @@ public final class JPAModifyUtil {
   }
 
   /**
-   * Boxed
-   * missing getter
-   * @param parentInstance
-   * @param newInstance
-   * @param pathInfo
-   * @throws ODataJPAProcessorException
-   */
-  public void setForeignKey(final Object parentInstance, final Object newInstance, final JPAAssociationPath pathInfo)
-      throws ODataJPAProcessorException {
-    try {
-      for (final JPAOnConditionItem joinCloumn : pathInfo.getJoinColumnsList()) {
-        setAttribute(newInstance, joinCloumn.getRightPath().getLeaf(), getAttribute(parentInstance, joinCloumn
-            .getLeftPath().getLeaf()));
-      }
-    } catch (ODataJPAModelException | NoSuchMethodException | IllegalAccessException | IllegalArgumentException
-        | InvocationTargetException e) {
-      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-    }
-  }
-
-  /**
    * Fills instance without filling its embedded components.
    * 
    * @param jpaAttributes Map of attributes and values that shall be changed
@@ -155,7 +140,8 @@ public final class JPAModifyUtil {
     final Method[] methods = instanze.getClass().getMethods();
     for (final Method meth : methods) {
       if (meth.getName().substring(0, 3).equals("set")) {
-        final String attributeName = meth.getName().substring(3, 4).toLowerCase() + meth.getName().substring(4);
+        final String attributeName = meth.getName().substring(3, 4).toLowerCase(Locale.ENGLISH) + meth.getName()
+            .substring(4);
         if (jpaAttributes.containsKey(attributeName)) {
           final Object value = jpaAttributes.get(attributeName);
           if (!(value instanceof Map<?, ?>) && !(value instanceof JPARequestEntity)) {
@@ -208,80 +194,31 @@ public final class JPAModifyUtil {
           final Object value = jpaAttributes.get(attributeName);
           final Class<?>[] parameters = meth.getParameterTypes();
           if (!(value instanceof JPARequestEntity) && parameters.length == 1) {
-            try {
-              final JPAAttribute attribute = st.getAttribute(attributeName).orElseThrow(
-                  () -> new ODataJPAProcessorException(ATTRIBUTE_NOT_FOUND,
-                      HttpStatusCode.INTERNAL_SERVER_ERROR, attributeName));
-              if (!attribute.isComplex() || value == null) {
-                if (value == null || parameters[0].isAssignableFrom(value.getClass())) {
-                  meth.invoke(instanze, value);
-                }
-              } else if (attribute.isCollection()) {
-                setEmbeddedCollectionAttributeDeep(instanze, st, meth, value, parameters, attribute);
-              } else {
-                setEmbeddedAttributeDeep(instanze, st, meth, value, parameters, attribute);
-              }
-            } catch (IllegalAccessException | IllegalArgumentException | ODataJPAModelException
-                | NoSuchMethodException | SecurityException | InstantiationException e) {
-              throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-            } catch (InvocationTargetException | ODataJPAInvocationTargetException e) {
-              handleInvocationTargetException(st, attributeName, e);
-            }
+            setAttributeDeep(instanze, st, meth, attributeName, value, parameters);
           }
         }
       }
     }
   }
 
-  @SuppressWarnings("unchecked")
-  private void setEmbeddedAttributeDeep(final Object instanze, final JPAStructuredType st, final Method meth,
-      final Object value, final Class<?>[] parameters, final JPAAttribute attribute)
-      throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException,
-      ODataJPAModelException, ODataJPAProcessorException, ODataJPAInvocationTargetException {
-
-    Object embedded = readCurrentState(instanze, attribute);
-    if (embedded == null) {
-      embedded = createInstance(parameters[0]);
-      meth.invoke(instanze, embedded);
-    }
-    if (embedded != null) {
-      if (this.st == null)
-        this.st = st;
-      setAttributesDeep((Map<String, Object>) value, embedded, attribute.getStructuredType());
-      if (this.st.equals(st)) {
-        this.st = null;
+  /**
+   * Boxed
+   * missing getter
+   * @param parentInstance
+   * @param newInstance
+   * @param pathInfo
+   * @throws ODataJPAProcessorException
+   */
+  public void setForeignKey(final Object parentInstance, final Object newInstance, final JPAAssociationPath pathInfo)
+      throws ODataJPAProcessorException {
+    try {
+      for (final JPAOnConditionItem joinCloumn : pathInfo.getJoinColumnsList()) {
+        setAttribute(newInstance, joinCloumn.getRightPath().getLeaf(), getAttribute(parentInstance, joinCloumn
+            .getLeftPath().getLeaf()));
       }
-    }
-  }
-
-  @SuppressWarnings("unchecked")
-  private void setEmbeddedCollectionAttributeDeep(final Object instanze, final JPAStructuredType st, final Method meth,
-      final Object value, final Class<?>[] parameters, final JPAAttribute attribute)
-      throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException,
-      ODataJPAModelException, ODataJPAProcessorException, ODataJPAInvocationTargetException {
-
-    Collection<Object> embedded = (Collection<Object>) readCurrentState(instanze, attribute);
-    if (embedded == null) {
-      // List; Set; Queue
-      if (parameters[0].isAssignableFrom(List.class)) {
-        embedded = (Collection<Object>) createInstance(ArrayList.class);
-      } else {
-        embedded = (Collection<Object>) createInstance(parameters[0]);
-      }
-      meth.invoke(instanze, embedded);
-    }
-    if (embedded != null) {
-      if (this.st == null)
-        this.st = st;
-      embedded.clear();
-      for (final Map<String, Object> collectionElement : (Collection<Map<String, Object>>) value) {
-        final Object line = createInstance(attribute.getStructuredType().getTypeClass());
-        setAttributesDeep(collectionElement, line, attribute.getStructuredType());
-        embedded.add(line);
-      }
-      if (this.st.equals(st)) {
-        this.st = null;
-      }
+    } catch (ODataJPAModelException | NoSuchMethodException | IllegalAccessException | IllegalArgumentException
+        | InvocationTargetException e) {
+      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -338,9 +275,24 @@ public final class JPAModifyUtil {
     return source;
   }
 
-  public String buildMethodNameSuffix(final JPAElement pathItem) {
-    final String relationName = pathItem.getInternalName();
-    return relationName.substring(0, 1).toUpperCase() + relationName.substring(1);
+  /**
+   * Tries to read the current state of an attribute. If no getter exists an exception is thrown.
+   * @param instance
+   * @param attribute
+   * @return
+   * @throws NoSuchMethodException
+   * @throws ODataJPAProcessorException
+   * @throws IllegalAccessException
+   * @throws InvocationTargetException
+   */
+  private Object getAttribute(final Object instance, final JPAElement attribute) throws NoSuchMethodException,
+      ODataJPAProcessorException, IllegalAccessException, InvocationTargetException {
+
+    final Method getter = instance.getClass().getMethod("get" + buildMethodNameSuffix(attribute));
+    if (getter == null)
+      throw new ODataJPAProcessorException(MessageKeys.GETTER_NOT_FOUND, HttpStatusCode.INTERNAL_SERVER_ERROR,
+          buildMethodNameSuffix(attribute), instance.getClass().getName());
+    return getter.invoke(instance);
   }
 
   private void handleInvocationTargetException(final JPAStructuredType st, final String attributeName,
@@ -365,6 +317,110 @@ public final class JPAModifyUtil {
           + ((ODataJPAInvocationTargetException) e).getPath());
     else
       throw new ODataJPAInvocationTargetException(e.getCause(), pathPart);
+  }
+
+  /**
+   * Tries to read the current state of an attribute. If no getter exists null is returned.
+   * @param instance
+   * @param attribute
+   * @return
+   * @throws NoSuchMethodException
+   * @throws IllegalAccessException
+   * @throws InvocationTargetException
+   */
+  private Object readCurrentState(final Object instance, final JPAElement attribute) throws NoSuchMethodException,
+      IllegalAccessException, InvocationTargetException {
+
+    final Method getter = instance.getClass().getMethod("get" + buildMethodNameSuffix(attribute));
+    if (getter == null)
+      return null;
+    return getter.invoke(instance);
+  }
+
+  private void setAttribute(final Object instance, final JPAElement attribute, final Object value)
+      throws NoSuchMethodException, ODataJPAProcessorException, IllegalAccessException, InvocationTargetException {
+
+    final Method setter = instance.getClass().getMethod("set" + buildMethodNameSuffix(attribute), value.getClass());
+    if (setter == null)
+      throw new ODataJPAProcessorException(MessageKeys.SETTER_NOT_FOUND, HttpStatusCode.INTERNAL_SERVER_ERROR,
+          buildMethodNameSuffix(attribute), instance.getClass().getName(), value.getClass().getName());
+    setter.invoke(instance, value);
+  }
+
+  private void setAttributeDeep(final Object instanze, final JPAStructuredType st, final Method meth,
+      final String attributeName, final Object value, final Class<?>[] parameters) throws ODataJPAProcessorException,
+      ODataJPAInvocationTargetException {
+    try {
+      final JPAAttribute attribute = st.getAttribute(attributeName).orElseThrow(
+          () -> new ODataJPAProcessorException(ATTRIBUTE_NOT_FOUND,
+              HttpStatusCode.INTERNAL_SERVER_ERROR, attributeName));
+      if (!attribute.isComplex() || value == null) {
+        if (value == null || parameters[0].isAssignableFrom(value.getClass())) {
+          meth.invoke(instanze, value);
+        }
+      } else if (attribute.isCollection()) {
+        setEmbeddedCollectionAttributeDeep(instanze, st, meth, value, parameters, attribute);
+      } else {
+        setEmbeddedAttributeDeep(instanze, st, meth, value, parameters, attribute);
+      }
+    } catch (IllegalAccessException | IllegalArgumentException | ODataJPAModelException
+        | NoSuchMethodException | SecurityException | InstantiationException e) {
+      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    } catch (InvocationTargetException | ODataJPAInvocationTargetException e) {
+      handleInvocationTargetException(st, attributeName, e);
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private void setEmbeddedAttributeDeep(final Object instanze, final JPAStructuredType st, final Method meth,
+      final Object value, final Class<?>[] parameters, final JPAAttribute attribute)
+      throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException,
+      ODataJPAModelException, ODataJPAProcessorException, ODataJPAInvocationTargetException {
+
+    Object embedded = readCurrentState(instanze, attribute);
+    if (embedded == null) {
+      embedded = createInstance(parameters[0]);
+      meth.invoke(instanze, embedded);
+    }
+    if (embedded != null) {
+      if (this.st == null)
+        this.st = st;
+      setAttributesDeep((Map<String, Object>) value, embedded, attribute.getStructuredType());
+      if (this.st.equals(st)) {
+        this.st = null;
+      }
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private void setEmbeddedCollectionAttributeDeep(final Object instanze, final JPAStructuredType st, final Method meth,
+      final Object value, final Class<?>[] parameters, final JPAAttribute attribute)
+      throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException,
+      ODataJPAModelException, ODataJPAProcessorException, ODataJPAInvocationTargetException {
+
+    Collection<Object> embedded = (Collection<Object>) readCurrentState(instanze, attribute);
+    if (embedded == null) {
+      // List; Set; Queue
+      if (parameters[0].isAssignableFrom(List.class)) {
+        embedded = (Collection<Object>) createInstance(ArrayList.class);
+      } else {
+        embedded = (Collection<Object>) createInstance(parameters[0]);
+      }
+      meth.invoke(instanze, embedded);
+    }
+    if (embedded != null) {
+      if (this.st == null)
+        this.st = st;
+      embedded.clear();
+      for (final Map<String, Object> collectionElement : (Collection<Map<String, Object>>) value) {
+        final Object line = createInstance(attribute.getStructuredType().getTypeClass());
+        setAttributesDeep(collectionElement, line, attribute.getStructuredType());
+        embedded.add(line);
+      }
+      if (this.st.equals(st)) {
+        this.st = null;
+      }
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -392,53 +448,5 @@ public final class JPAModifyUtil {
             + methodSuffix, sourceInstance.getClass().getName(), targetInstance.getClass().getName());
       setter.invoke(sourceInstance, targetInstance);
     }
-  }
-
-  private void setAttribute(final Object instance, final JPAElement attribute, final Object value)
-      throws NoSuchMethodException, ODataJPAProcessorException, IllegalAccessException, InvocationTargetException {
-
-    final Method setter = instance.getClass().getMethod("set" + buildMethodNameSuffix(attribute), value.getClass());
-    if (setter == null)
-      throw new ODataJPAProcessorException(MessageKeys.SETTER_NOT_FOUND, HttpStatusCode.INTERNAL_SERVER_ERROR,
-          buildMethodNameSuffix(attribute), instance.getClass().getName(), value.getClass().getName());
-    setter.invoke(instance, value);
-  }
-
-  /**
-   * Tries to read the current state of an attribute. If no getter exists an exception is thrown.
-   * @param instance
-   * @param attribute
-   * @return
-   * @throws NoSuchMethodException
-   * @throws ODataJPAProcessorException
-   * @throws IllegalAccessException
-   * @throws InvocationTargetException
-   */
-  private Object getAttribute(final Object instance, final JPAElement attribute) throws NoSuchMethodException,
-      ODataJPAProcessorException, IllegalAccessException, InvocationTargetException {
-
-    final Method getter = instance.getClass().getMethod("get" + buildMethodNameSuffix(attribute));
-    if (getter == null)
-      throw new ODataJPAProcessorException(MessageKeys.GETTER_NOT_FOUND, HttpStatusCode.INTERNAL_SERVER_ERROR,
-          buildMethodNameSuffix(attribute), instance.getClass().getName());
-    return getter.invoke(instance);
-  }
-
-  /**
-   * Tries to read the current state of an attribute. If no getter exists null is returned.
-   * @param instance
-   * @param attribute
-   * @return
-   * @throws NoSuchMethodException
-   * @throws IllegalAccessException
-   * @throws InvocationTargetException
-   */
-  private Object readCurrentState(final Object instance, final JPAElement attribute) throws NoSuchMethodException,
-      IllegalAccessException, InvocationTargetException {
-
-    final Method getter = instance.getClass().getMethod("get" + buildMethodNameSuffix(attribute));
-    if (getter == null)
-      return null;
-    return getter.invoke(instance);
   }
 }

@@ -47,7 +47,7 @@ import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
 import com.sap.olingo.jpa.processor.cb.impl.ExpressionImpl.ParameterExpression;
 import com.sap.olingo.jpa.processor.cb.impl.PredicateImpl.BinaryExpressionPredicate.Operation;
 
-class CriteriaBuilderImpl implements CriteriaBuilder {
+class CriteriaBuilderImpl implements CriteriaBuilder { // NOSONAR
 
   private final JPAServiceDocument sd;
   private final ParameterBuffer parameter;
@@ -382,7 +382,7 @@ class CriteriaBuilderImpl implements CriteriaBuilder {
    * @return equality predicate
    */
   @Override
-  public Predicate equal(@Nonnull final Expression<?> x, @Nonnull final Expression<?> y) {//NOSONAR
+  public Predicate equal(@Nonnull final Expression<?> x, @Nonnull final Expression<?> y) {// NOSONAR
     return binaryExpression(x, y, PredicateImpl.BinaryExpressionPredicate.Operation.EQ);
   }
 
@@ -393,7 +393,7 @@ class CriteriaBuilderImpl implements CriteriaBuilder {
    * @return equality predicate
    */
   @Override
-  public Predicate equal(@Nonnull final Expression<?> x, final Object y) { //NOSONAR
+  public Predicate equal(@Nonnull final Expression<?> x, final Object y) { // NOSONAR
     return binaryExpression(x, y, PredicateImpl.BinaryExpressionPredicate.Operation.EQ);
   }
 
@@ -419,8 +419,9 @@ class CriteriaBuilderImpl implements CriteriaBuilder {
   @Override
   public <T> Expression<T> function(@Nonnull final String name, @Nonnull final Class<T> type,
       final Expression<?>... args) {
-    List<Expression<Object>> parameters = args == null ? Collections.emptyList() : Arrays.asList(args).stream().map(
-        p -> ((Expression<Object>) p)).collect(Collectors.toList());
+    final List<Expression<Object>> parameters = args == null ? Collections.emptyList() : Arrays.asList(args).stream()
+        .map(
+            p -> ((Expression<Object>) p)).collect(Collectors.toList());
     return new ExpressionImpl.FunctionExpression<>(name, type, parameters);
   }
 
@@ -540,7 +541,7 @@ class CriteriaBuilderImpl implements CriteriaBuilder {
    * @return in predicate
    */
   @Override
-  public <T> In<T> in(Expression<? extends T> expression) {
+  public <T> In<T> in(final Expression<? extends T> expression) {
     throw new NotImplementedException();
   }
 
@@ -658,7 +659,7 @@ class CriteriaBuilderImpl implements CriteriaBuilder {
    * @return predicate
    */
   @Override
-  public Predicate isTrue(Expression<Boolean> x) {
+  public Predicate isTrue(final Expression<Boolean> x) {
     throw new NotImplementedException();
   }
 
@@ -829,7 +830,7 @@ class CriteriaBuilderImpl implements CriteriaBuilder {
   }
 
   @Override
-  public Predicate like(Expression<String> x, String pattern, Expression<Character> escapeChar) {
+  public Predicate like(final Expression<String> x, final String pattern, final Expression<Character> escapeChar) {
     return like(x, literal(pattern, x), escapeChar);
   }
 
@@ -1018,7 +1019,7 @@ class CriteriaBuilderImpl implements CriteriaBuilder {
   }
 
   @Override
-  public Predicate not(@Nonnull Expression<Boolean> restriction) {
+  public Predicate not(@Nonnull final Expression<Boolean> restriction) {
     return new PredicateImpl.NotPredicate((SqlConvertable) restriction);
   }
 
@@ -1282,7 +1283,7 @@ class CriteriaBuilderImpl implements CriteriaBuilder {
    * @return simple case expression
    */
   @Override
-  public <C, R> SimpleCase<C, R> selectCase(Expression<? extends C> expression) {
+  public <C, R> SimpleCase<C, R> selectCase(final Expression<? extends C> expression) {
     throw new NotImplementedException();
   }
 
@@ -1318,7 +1319,7 @@ class CriteriaBuilderImpl implements CriteriaBuilder {
   }
 
   @Override
-  public Expression<Double> sqrt(Expression<? extends Number> x) {
+  public Expression<Double> sqrt(final Expression<? extends Number> x) {
     // "SQRT"
     return null;
   }
@@ -1378,7 +1379,7 @@ class CriteriaBuilderImpl implements CriteriaBuilder {
    * @return expression corresponding to substring extraction
    */
   @Override
-  public Expression<String> substring(Expression<String> x, int from, int len) {
+  public Expression<String> substring(final Expression<String> x, final int from, final int len) {
     return new ExpressionImpl.SubstringExpression(x, literal(from), literal(len));
   }
 

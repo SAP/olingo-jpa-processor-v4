@@ -142,6 +142,7 @@ public class IntegrationTestHelper {
     when(response.getQueryString()).thenReturn((uriParts.length == 2) ? uriParts[1] : null);
     when(response.getRequestURL()).thenReturn(new StringBuffer(uriParts[0]));
     when(response.getHeaderNames()).thenReturn(reqHeader.getEnumerator());
+    when(response.getCharacterEncoding()).thenReturn("UTF8");
     final Enumeration<String> headerEnumerator = reqHeader.getEnumerator();
     while (headerEnumerator.hasMoreElements()) {
       final String header = headerEnumerator.nextElement();

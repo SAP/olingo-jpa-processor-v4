@@ -38,18 +38,18 @@ public final class JPAODataServiceContext implements JPAODataCRUDContextAccess {
    * 
    */
   private List<EdmxReference> references = new ArrayList<>();
-  private JPAODataDatabaseOperations operationConverter;
+  private final JPAODataDatabaseOperations operationConverter;
   private JPAEdmProvider jpaEdm;
-  private JPAODataDatabaseProcessor databaseProcessor;
-  private JPAEdmMetadataPostProcessor postProcessor;
-  private String[] packageName;
-  private ErrorProcessor errorProcessor;
-  private JPAODataPagingProvider pagingProvider;
-  private Optional<EntityManagerFactory> emf;
+  private final JPAODataDatabaseProcessor databaseProcessor;
+  private final JPAEdmMetadataPostProcessor postProcessor;
+  private final String[] packageName;
+  private final ErrorProcessor errorProcessor;
+  private final JPAODataPagingProvider pagingProvider;
+  private final Optional<EntityManagerFactory> emf;
   private final String namespace;
-  private String mappingPath;
-  private JPAODataBatchProcessorFactory<JPAODataBatchProcessor> batchProcessorFactory;
-  private boolean useAbsoluteContextURL;
+  private final String mappingPath;
+  private final JPAODataBatchProcessorFactory<JPAODataBatchProcessor> batchProcessorFactory;
+  private final boolean useAbsoluteContextURL;
 
   public static Builder with() {
     return new Builder();
@@ -310,7 +310,7 @@ public final class JPAODataServiceContext implements JPAODataCRUDContextAccess {
     }
 
     public <T extends JPAODataBatchProcessor> Builder setBatchProcessorFactory(
-        JPAODataBatchProcessorFactory<T> batchProcessorFactory) {
+        final JPAODataBatchProcessorFactory<T> batchProcessorFactory) {
       this.batchProcessorFactory = batchProcessorFactory;
       return this;
     }
@@ -322,13 +322,13 @@ public final class JPAODataServiceContext implements JPAODataCRUDContextAccess {
      * @param useAbsoluteContextURL
      * @return
      */
-    public Builder setUseAbsoluteContextURL(boolean useAbsoluteContextURL) {
+    public Builder setUseAbsoluteContextURL(final boolean useAbsoluteContextURL) {
       this.useAbsoluteContextURL = useAbsoluteContextURL;
       return this;
     }
   }
 
-  class JPADebugSupportWrapper implements DebugSupport {
+  static class JPADebugSupportWrapper implements DebugSupport {
 
     private final DebugSupport debugSupport;
     private JPAServiceDebugger debugger;
@@ -380,7 +380,7 @@ public final class JPAODataServiceContext implements JPAODataCRUDContextAccess {
       // is just appended (addAll), so insert sorted:
       final List<RuntimeMeasurement> olingoInfo = debugInfo.getRuntimeInformation();
       int startIndex = 0;
-      for (RuntimeMeasurement m : debugger.getRuntimeInformation()) {
+      for (final RuntimeMeasurement m : debugger.getRuntimeInformation()) {
         for (; startIndex < olingoInfo.size(); startIndex++) {
           if (olingoInfo.get(startIndex).getTimeStarted() > m.getTimeStarted()) {
             break;

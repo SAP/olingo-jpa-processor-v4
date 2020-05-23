@@ -3,6 +3,7 @@ package com.sap.olingo.jpa.processor.core.util;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 import javax.servlet.ServletInputStream;
 
@@ -17,15 +18,7 @@ public class ServletInputStreamDouble extends ServletInputStream {
   public ServletInputStreamDouble(final StringBuilder stream) {
     super();
     if (stream != null)
-      this.stream = new ByteArrayInputStream(stream.toString().getBytes());
-    else
-      this.stream = null;
-  }
-
-  public ServletInputStreamDouble(final StringBuffer stream) {
-    super();
-    if (stream != null)
-      this.stream = new ByteArrayInputStream(stream.toString().getBytes());
+      this.stream = new ByteArrayInputStream(stream.toString().getBytes(StandardCharsets.UTF_8));
     else
       this.stream = null;
   }
