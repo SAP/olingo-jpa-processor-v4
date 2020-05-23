@@ -192,7 +192,7 @@ public final class Util {
         throw new ODataJPAUtilException(UNKNOWN_ENTITY_TYPE, BAD_REQUEST);
       return naviStartType.getAssociationPath(associationName.toString());
     } catch (final ODataJPAModelException e) {
-      throw new ODataJPAUtilException(UNKNOWN_NAVI_PROPERTY, BAD_REQUEST);
+      throw new ODataJPAUtilException(UNKNOWN_NAVI_PROPERTY, BAD_REQUEST, e);
     }
   }
 
@@ -235,7 +235,7 @@ public final class Util {
               pathList.put(new JPAExpandItemWrapper(item, (JPAEntityType) path.getTargetType()), path);
             }
           } catch (final ODataJPAModelException e) {
-            throw new ODataJPAUtilException(UNKNOWN_ENTITY_TYPE, BAD_REQUEST);
+            throw new ODataJPAUtilException(UNKNOWN_ENTITY_TYPE, BAD_REQUEST, e);
           }
         } else {
           final List<UriResource> targetResourceList = item.getResourcePath().getUriResourceParts();
@@ -350,7 +350,7 @@ public final class Util {
       }
       return path;
     } catch (final ODataJPAModelException e) {
-      throw new ODataJPAUtilException(UNKNOWN_NAVI_PROPERTY, BAD_REQUEST);
+      throw new ODataJPAUtilException(UNKNOWN_NAVI_PROPERTY, BAD_REQUEST, e);
     }
   }
 

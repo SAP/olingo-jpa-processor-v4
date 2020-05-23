@@ -48,7 +48,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
  * @author Oliver Grande
  *
  */
-public final class JPAFunctionRequestProcessor extends JPAOperationRequestProcessor implements JPARequestProcessor {
+public final class JPAFunctionRequestProcessor extends JPAOperationRequestProcessor implements JPARequestProcessor { // NOSONAR
 
   private final JPAODataDatabaseProcessor dbProcessor;
 
@@ -62,13 +62,13 @@ public final class JPAFunctionRequestProcessor extends JPAOperationRequestProces
   public void retrieveData(final ODataRequest request, final ODataResponse response, final ContentType responseFormat)
       throws ODataApplicationException, ODataLibraryException {
 
-    Object result = null;
     final UriResourceFunction uriResourceFunction =
         (UriResourceFunction) uriInfo.getUriResourceParts().get(uriInfo.getUriResourceParts().size() - 1);
     final JPAFunction jpaFunction = sd.getFunction(uriResourceFunction.getFunction());
     if (jpaFunction == null)
       throw new ODataJPAProcessorException(FUNCTION_UNKNOWN, HttpStatusCode.BAD_REQUEST, uriResourceFunction
           .getFunction().getName());
+    Object result = null;
     if (jpaFunction.getFunctionType() == EdmFunctionType.JavaClass) {
       result = processJavaFunction(uriResourceFunction, (JPAJavaFunction) jpaFunction, em);
 
@@ -103,33 +103,16 @@ public final class JPAFunctionRequestProcessor extends JPAOperationRequestProces
     } catch (EdmPrimitiveTypeException | ODataJPAModelException e) {
       // Unable to convert value %1$s of parameter %2$s
       throw new ODataJPADBAdaptorException(ODataJPADBAdaptorException.MessageKeys.PARAMETER_CONVERSION_ERROR,
-          HttpStatusCode.NOT_IMPLEMENTED, uriValue, parameter.getName());
+          HttpStatusCode.NOT_IMPLEMENTED, e, uriValue, parameter.getName());
     }
   }
 
   private Object processJavaFunction(final UriResourceFunction uriResourceFunction, final JPAJavaFunction jpaFunction,
       final EntityManager em) throws ODataApplicationException {
 
-    final Constructor<?> c = jpaFunction.getConstructor();
-
     try {
-      Object instance;
-      if (c.getParameterCount() == 1)
-        instance = c.newInstance(em);
-      else
-        instance = c.newInstance();
-      final List<Object> parameter = new ArrayList<>();
-      final Parameter[] methodParameter = jpaFunction.getMethod().getParameters();
-
-      for (final Parameter declairedParameter : methodParameter) {
-        for (final UriParameter providedParameter : uriResourceFunction.getParameters()) {
-          final JPAParameter jpaParameter = jpaFunction.getParameter(declairedParameter.getName());
-          if (jpaParameter.getName().equals(providedParameter.getName())) {
-            parameter.add(getValue(uriResourceFunction.getFunction(), jpaParameter, providedParameter.getText()));
-            break;
-          }
-        }
-      }
+      final Object instance = createInstance(em, jpaFunction);
+      final List<Object> parameter = fillParameter(uriResourceFunction, jpaFunction);
 
       return jpaFunction.getMethod().invoke(instance, parameter.toArray());
     } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | ODataJPAModelException e) {
@@ -142,6 +125,33 @@ public final class JPAFunctionRequestProcessor extends JPAOperationRequestProces
         throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
       }
     }
+  }
+
+  private Object createInstance(final EntityManager em, final JPAJavaFunction jpaFunction)
+      throws InstantiationException, IllegalAccessException, InvocationTargetException {
+
+    final Constructor<?> c = jpaFunction.getConstructor();
+    if (c.getParameterCount() == 1)
+      return c.newInstance(em);
+    else
+      return c.newInstance();
+  }
+
+  private List<Object> fillParameter(final UriResourceFunction uriResourceFunction, final JPAJavaFunction jpaFunction)
+      throws ODataJPAModelException, ODataApplicationException {
+
+    final Parameter[] methodParameter = jpaFunction.getMethod().getParameters();
+    final List<Object> parameter = new ArrayList<>();
+    for (final Parameter declairedParameter : methodParameter) {
+      for (final UriParameter providedParameter : uriResourceFunction.getParameters()) {
+        final JPAParameter jpaParameter = jpaFunction.getParameter(declairedParameter.getName());
+        if (jpaParameter.getName().equals(providedParameter.getName())) {
+          parameter.add(getValue(uriResourceFunction.getFunction(), jpaParameter, providedParameter.getText()));
+          break;
+        }
+      }
+    }
+    return parameter;
   }
 
   private Object processJavaUDF(final List<UriResource> uriResourceParts, final JPADataBaseFunction jpaFunction)

@@ -40,7 +40,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessExceptio
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializer;
 
-public final class JPAODataRequestContextImpl implements JPAODataCRUDRequestContext, JPAODataRequestContextAccess,
+public final class JPAODataRequestContextImpl implements JPAODataCRUDRequestContext, JPAODataRequestContextAccess, // NOSONAR
     JPARequestContext {
 
   private Optional<JPAODataClaimProvider> claims = Optional.empty();
@@ -55,7 +55,7 @@ public final class JPAODataRequestContextImpl implements JPAODataCRUDRequestCont
   private String debugFormat;
   private JPAODataTransactionFactory transactionFactory;
   private final Map<JPAAttribute, EdmTransientPropertyCalculator<?>> transientCalculatorCache;
-  private Map<String, List<String>> header;
+  private final Map<String, List<String>> header;
 
   public JPAODataRequestContextImpl() {
     // Provide all data via setter
@@ -104,6 +104,23 @@ public final class JPAODataRequestContextImpl implements JPAODataCRUDRequestCont
   }
 
   @Override
+  public Optional<EdmTransientPropertyCalculator<?>> getCalculator(@Nonnull final JPAAttribute transientProperty)
+      throws ODataJPAProcessorException {
+    try {
+      if (transientProperty.isTransient()) {
+        if (!transientCalculatorCache.containsKey(transientProperty)) {
+          createCalculator(transientProperty);
+        }
+        return Optional.of(transientCalculatorCache.get(transientProperty));
+      }
+    } catch (ODataJPAModelException | InstantiationException | IllegalAccessException | IllegalArgumentException
+        | InvocationTargetException e) {
+      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    }
+    return Optional.empty();
+  }
+
+  @Override
   public Optional<JPAODataClaimProvider> getClaimsProvider() {
     return claims;
   }
@@ -114,6 +131,19 @@ public final class JPAODataRequestContextImpl implements JPAODataCRUDRequestCont
   }
 
   @Override
+  public JPAServiceDebugger getDebugger() {
+    if (debugger == null)
+      initDebugger();
+    return debugger;
+  }
+
+  public JPADebugSupportWrapper getDebugSupport() {
+    if (debugger == null)
+      initDebugger();
+    return debugSupport;
+  }
+
+  @Override
   public EntityManager getEntityManager() {
     return this.em;
   }
@@ -121,6 +151,11 @@ public final class JPAODataRequestContextImpl implements JPAODataCRUDRequestCont
   @Override
   public Optional<JPAODataGroupProvider> getGroupsProvider() {
     return groups;
+  }
+
+  @Override
+  public Map<String, List<String>> getHeader() {
+    return header;
   }
 
   @Override
@@ -155,6 +190,16 @@ public final class JPAODataRequestContextImpl implements JPAODataCRUDRequestCont
     this.jpaCUDRequestHandler = Objects.requireNonNull(jpaCUDRequestHandler);
   }
 
+  public void setDebugFormat(final String debugFormat) {
+    this.debugFormat = debugFormat;
+  }
+
+  @Override
+  public void setDebugSupport(final DebugSupport debugSupport) {
+    this.debugSupport = new JPADebugSupportWrapper(debugSupport);
+
+  }
+
   @Override
   public void setEntityManager(@Nonnull final EntityManager em) {
     this.em = Objects.requireNonNull(em);
@@ -174,12 +219,6 @@ public final class JPAODataRequestContextImpl implements JPAODataCRUDRequestCont
   }
 
   @Override
-  public void setDebugSupport(final DebugSupport debugSupport) {
-    this.debugSupport = new JPADebugSupportWrapper(debugSupport);
-
-  }
-
-  @Override
   public void setJPASerializer(@Nonnull final JPASerializer serializer) {
     this.serializer = Objects.requireNonNull(serializer);
   }
@@ -196,15 +235,33 @@ public final class JPAODataRequestContextImpl implements JPAODataCRUDRequestCont
     this.uriInfo = Objects.requireNonNull(uriInfo);
   }
 
-  @Override
-  public JPAServiceDebugger getDebugger() {
-    if (debugger == null)
-      initDebugger();
-    return debugger;
+  private void copyContextValues(final JPAODataRequestContextAccess context) {
+    this.claims = context.getClaimsProvider();
+    this.groups = context.getGroupsProvider();
+    this.em = context.getEntityManager();
+    this.jpaCUDRequestHandler = context.getCUDRequestHandler();
+    this.debugger = context.getDebugger();
   }
 
-  public void setDebugFormat(String debugFormat) {
-    this.debugFormat = debugFormat;
+  private void createCalculator(final JPAAttribute transientProperty) throws ODataJPAModelException,
+      InstantiationException, IllegalAccessException, InvocationTargetException {
+    final Constructor<? extends EdmTransientPropertyCalculator<?>> c = transientProperty
+        .getCalculatorConstructor();
+    final Parameter[] parameters = c.getParameters();
+    final Object[] paramValues = new Object[parameters.length];
+    for (int i = 0; i < parameters.length; i++) {
+      final Parameter parameter = parameters[i];
+      if (parameter.getType().isAssignableFrom(EntityManager.class))
+        paramValues[i] = em;
+      if (parameter.getType().isAssignableFrom(Map.class))
+        paramValues[i] = header;
+    }
+    final EdmTransientPropertyCalculator<?> calculator = c.newInstance(paramValues);
+    transientCalculatorCache.put(transientProperty, calculator);
+  }
+
+  private void createDefaultTransactionFactory() {
+    this.transactionFactory = new JPAODataDefaultTransactionFactory(em);
   }
 
   private void initDebugger() {
@@ -222,23 +279,7 @@ public final class JPAODataRequestContextImpl implements JPAODataCRUDRequestCont
     }
   }
 
-  private void copyContextValues(final JPAODataRequestContextAccess context) {
-    this.claims = context.getClaimsProvider();
-    this.groups = context.getGroupsProvider();
-    this.em = context.getEntityManager();
-    this.jpaCUDRequestHandler = context.getCUDRequestHandler();
-    this.debugger = context.getDebugger();
-  }
-
-  private void createDefaultTransactionFactory() {
-    this.transactionFactory = new JPAODataDefaultTransactionFactory(em);
-  }
-
-  private class JPADefaultCUDRequestHandler extends JPAAbstractCUDRequestHandler {
-
-  }
-
-  private class JPADebugSupportWrapper implements DebugSupport {
+  private static class JPADebugSupportWrapper implements DebugSupport { // NOSONAR
 
     private final DebugSupport debugSupport;
     private JPAServiceDebugger debugger;
@@ -290,7 +331,7 @@ public final class JPAODataRequestContextImpl implements JPAODataCRUDRequestCont
       // is just appended (addAll), so insert sorted:
       final List<RuntimeMeasurement> olingoInfo = debugInfo.getRuntimeInformation();
       int startIndex = 0;
-      for (RuntimeMeasurement m : debugger.getRuntimeInformation()) {
+      for (final RuntimeMeasurement m : debugger.getRuntimeInformation()) {
         for (; startIndex < olingoInfo.size(); startIndex++) {
           if (olingoInfo.get(startIndex).getTimeStarted() > m.getTimeStarted()) {
             break;
@@ -302,44 +343,8 @@ public final class JPAODataRequestContextImpl implements JPAODataCRUDRequestCont
     }
   }
 
-  public JPADebugSupportWrapper getDebugSupport() {
-    if (debugger == null)
-      initDebugger();
-    return debugSupport;
-  }
+  private static class JPADefaultCUDRequestHandler extends JPAAbstractCUDRequestHandler {
 
-  @Override
-  public Optional<EdmTransientPropertyCalculator<?>> getCalculator(@Nonnull final JPAAttribute transientProperty)
-      throws ODataJPAProcessorException {
-    try {
-      if (transientProperty.isTransient()) {
-        if (!transientCalculatorCache.containsKey(transientProperty)) {
-          final Constructor<? extends EdmTransientPropertyCalculator<?>> c = transientProperty
-              .getCalculatorConstructor();
-          final Parameter[] parameters = c.getParameters();
-          final Object[] paramValues = new Object[parameters.length];
-          for (int i = 0; i < parameters.length; i++) {
-            final Parameter parameter = parameters[i];
-            if (parameter.getType().isAssignableFrom(EntityManager.class))
-              paramValues[i] = em;
-            if (parameter.getType().isAssignableFrom(Map.class))
-              paramValues[i] = header;
-          }
-          final EdmTransientPropertyCalculator<?> calculator = c.newInstance(paramValues);
-          transientCalculatorCache.put(transientProperty, calculator);
-        }
-        return Optional.of(transientCalculatorCache.get(transientProperty));
-      }
-    } catch (ODataJPAModelException | InstantiationException | IllegalAccessException | IllegalArgumentException
-        | InvocationTargetException e) {
-      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-    }
-    return Optional.empty();
-  }
-
-  @Override
-  public Map<String, List<String>> getHeader() {
-    return header;
   }
 
 }
