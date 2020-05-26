@@ -129,7 +129,7 @@ public class JPAConversionHelper {
       if (lastPart instanceof UriResourceProperty) {
         // Convert requests on property level into request on entity level
         final Entity requestEntity = new Entity();
-        final String startProperty = targetEntityInfo.getNavigationPath().split(JPAPath.PATH_SEPERATOR)[0];
+        final String startProperty = targetEntityInfo.getNavigationPath().split(JPAPath.PATH_SEPARATOR)[0];
         int i = uriResourceParts.size() - 1;
         for (; i > 0; i--) {
           if (uriResourceParts.get(i) instanceof UriResourceProperty

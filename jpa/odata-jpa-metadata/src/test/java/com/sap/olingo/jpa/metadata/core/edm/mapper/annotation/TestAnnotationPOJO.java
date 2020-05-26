@@ -45,7 +45,7 @@ public class TestAnnotationPOJO {
     module.setDefaultUseWrapper(false);
     final XmlMapper xmlMapper = new XmlMapper(module);
 
-    final Vocabulary act = xmlMapper.readValue(terms, Vocabulary.class);
+    final CsdlDocument act = xmlMapper.readValue(terms, CsdlDocument.class);
     assertNotNull(act.getDataService());
 
     final List<Schema> actSchemas = act.getDataService().getSchemas();

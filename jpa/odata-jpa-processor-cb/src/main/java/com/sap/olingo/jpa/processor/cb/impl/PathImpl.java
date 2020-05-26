@@ -164,7 +164,7 @@ class PathImpl<X> extends ExpressionImpl<X> implements Path<X> {
         if (st.getKey().contains(a)) {
           return new PathImpl<>(st.getPath(a.getExternalName()), Optional.of(this), st, tableAlias);
         }
-        final StringBuilder pathDescription = new StringBuilder(path.get().getAlias()).append(JPAPath.PATH_SEPERATOR)
+        final StringBuilder pathDescription = new StringBuilder(path.get().getAlias()).append(JPAPath.PATH_SEPARATOR)
             .append(a.getExternalName());
         return new PathImpl<>(st.getPath(pathDescription.toString(), false), Optional.of(this), st, tableAlias);
       } else {

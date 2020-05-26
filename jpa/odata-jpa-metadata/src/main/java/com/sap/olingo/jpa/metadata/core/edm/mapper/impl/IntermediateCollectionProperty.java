@@ -1,7 +1,6 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
-
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.NOT_SUPPORTED_NO_IMPLICIT_COLUMNS;
-import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.NOT_SUPPORTED_NO_IMPLICIT_COLUMNS_COMPEX;
+import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.NOT_SUPPORTED_NO_IMPLICIT_COLUMNS_COMPLEX;
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.NOT_SUPPORTED_PROTECTED_COLLECTION;
 import static javax.persistence.metamodel.Type.PersistenceType.EMBEDDABLE;
 
@@ -45,7 +44,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 class IntermediateCollectionProperty extends IntermediateProperty implements JPACollectionAttribute,
     JPAAssociationAttribute {
   private final IntermediateStructuredType sourceType;
-  private JPAJoinTable joinTable; // lazy builded
+  private IntermediateCollectionTable joinTable; // lazy builded
   private JPAAssociationPathImpl associationPath; // lazy builded
   private final JPAPath path;
 
@@ -65,11 +64,11 @@ class IntermediateCollectionProperty extends IntermediateProperty implements JPA
     newPath.add(pathRoot);
     if (original.path != null) {
       newPath.addAll(original.path.getPath());
-      this.path = new JPAPathImpl(pathRoot.getExternalName() + JPAPath.PATH_SEPERATOR + original.path.getAlias(), "",
+      this.path = new JPAPathImpl(pathRoot.getExternalName() + JPAPath.PATH_SEPARATOR + original.path.getAlias(), "",
           newPath);
     } else {
       newPath.add(this);
-      this.path = new JPAPathImpl(pathRoot.getExternalName() + JPAPath.PATH_SEPERATOR + original.getExternalName(), "",
+      this.path = new JPAPathImpl(pathRoot.getExternalName() + JPAPath.PATH_SEPARATOR + original.getExternalName(), "",
           newPath);
     }
   }
@@ -86,7 +85,7 @@ class IntermediateCollectionProperty extends IntermediateProperty implements JPA
   @Override
   public JPAAssociationPath asAssociation() throws ODataJPAModelException {
     if (this.associationPath == null) {
-      final IntermediateCollectionTable joinTable = (IntermediateCollectionTable) getJoinTable();
+      getJoinTable();
       this.associationPath = new JPAAssociationPathImpl(this, sourceType,
           path == null ? sourceType.getPath(getExternalName()) : path,
           joinTable == null ? null : joinTable.getLeftJoinColumns());
@@ -164,8 +163,9 @@ class IntermediateCollectionProperty extends IntermediateProperty implements JPA
     edmProperty.setCollection(true);
   }
 
+
   @Override
-  void checkConsistancy() throws ODataJPAModelException {
+  void checkConsistency() throws ODataJPAModelException {
     // Collection Properties do not support EdmProtectedBy
     if (hasProtection() ||
         (isComplex() && !getStructuredType().getProtections().isEmpty())) {
@@ -199,16 +199,16 @@ class IntermediateCollectionProperty extends IntermediateProperty implements JPA
 
   @Override
   FullQualifiedName determineType() throws ODataJPAModelException {
-    return determineTypeByPersistanceType(getRowType().getPersistenceType());
+    return determineTypeByPersistenceType(getRowType().getPersistenceType());
   }
 
   @Override
-  String getDeafultValue() throws ODataJPAModelException {
+  String getDefaultValue() throws ODataJPAModelException {
     // No defaults for collection properties
     return null;
   }
 
-  JPAJoinTable getJoinTable() throws ODataJPAModelException {
+  IntermediateCollectionTable getJoinTable() throws ODataJPAModelException {
     if (joinTable == null) {
       final javax.persistence.CollectionTable jpaJoinTable = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
           .getAnnotation(javax.persistence.CollectionTable.class);
@@ -325,7 +325,7 @@ class IntermediateCollectionProperty extends IntermediateProperty implements JPA
           if (jpaJoinTable.joinColumns().length > 1)
             throw new ODataJPAModelException(NOT_SUPPORTED_NO_IMPLICIT_COLUMNS, getInternalName());
           else if (!(contextType instanceof IntermediateEntityType))
-            throw new ODataJPAModelException(NOT_SUPPORTED_NO_IMPLICIT_COLUMNS_COMPEX, contextType.getInternalName());
+            throw new ODataJPAModelException(NOT_SUPPORTED_NO_IMPLICIT_COLUMNS_COMPLEX, contextType.getInternalName());
           else {
             result.add(new IntermediateJoinColumn(
                 ((IntermediateProperty) ((IntermediateEntityType) contextType).getKey().get(0))

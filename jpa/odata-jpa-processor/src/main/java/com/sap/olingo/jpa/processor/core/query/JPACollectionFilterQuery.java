@@ -76,10 +76,10 @@ public final class JPACollectionFilterQuery extends JPANavigationQuery {
             || uriResourceParts.get(i) instanceof UriResourceLambdaAll
             || uriResourceParts.get(i) instanceof UriResourceCount)) {
       pathName.append(uriResourceParts.get(i).toString());
-      pathName.append(JPAPath.PATH_SEPERATOR);
+      pathName.append(JPAPath.PATH_SEPARATOR);
       i++;
     }
-    pathName.deleteCharAt(pathName.lastIndexOf(JPAPath.PATH_SEPERATOR));
+    pathName.deleteCharAt(pathName.lastIndexOf(JPAPath.PATH_SEPARATOR));
     try {
       return jpaEntity.getCollectionAttribute(pathName.toString()).asAssociation();
     } catch (ODataJPAModelException e) {

@@ -32,15 +32,15 @@ public class TestAnnotationSchema {
   private static final String CAPABILITIES_ANNOTATIONS = "annotations/Org.OData.Capabilities.V1.xml";
   private static final String TEST_ANNOTATIONS = "annotations/Org.Olingo.Test.V1.xml";
   private static final String CORE_ANNOTATIONS = "annotations/Org.OData.Core.V1.xml";
-  private Vocabulary cutCore;
-  private Vocabulary cutTest;
-  private Vocabulary cutCapabilities;
-  private Vocabulary cutAggregation;
+  private CsdlDocument cutCore;
+  private CsdlDocument cutTest;
+  private CsdlDocument cutCapabilities;
+  private CsdlDocument cutAggregation;
   private Charset charset;
 
   @BeforeEach
   public void setup() throws ODataJPAModelException, IOException {
-    final VocabularyReader reader = new VocabularyReader();
+    final CsdlDocumentReader reader = new CsdlDocumentReader();
     charset = Charset.defaultCharset();
     cutCore = reader.readFromResource(CORE_ANNOTATIONS, charset);
     cutTest = reader.readFromResource(TEST_ANNOTATIONS, charset);

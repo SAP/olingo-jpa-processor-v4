@@ -99,7 +99,7 @@ public final class JPAExpandItemInfoFactory {
           for (final JPAPath path : st.getPathList()) {
             final StringBuilder pathName = new StringBuilder(pathInfo[PATH_INDEX].toString());
             for (final JPAElement pathElement : path.getPath()) {
-              pathName.append(pathElement.getExternalName()).append(JPAPath.PATH_SEPERATOR);
+              pathName.append(pathElement.getExternalName()).append(JPAPath.PATH_SEPARATOR);
               if (pathElement instanceof JPAAttribute && ((JPAAttribute) pathElement).isCollection()) {
                 if (path.isPartOfGroups(groups.isPresent() ? groups.get().getGroups() : new ArrayList<>(0))
                     && !((JPAAttribute) pathElement).isTransient()) {
@@ -153,7 +153,7 @@ public final class JPAExpandItemInfoFactory {
               && !((UriResourceProperty) uriElement).isCollection()) {
             result[ST_INDEX] = sd.getComplexType(((UriResourceComplexProperty) uriElement).getComplexType());
             path.append(((UriResourceComplexProperty) uriElement).getProperty().getName())
-                .append(JPAPath.PATH_SEPERATOR);
+                .append(JPAPath.PATH_SEPARATOR);
           } else if (uriElement instanceof UriResourceProperty
               && result[ST_INDEX] != null) {
             result[PROPERTY_INDEX] = ((JPAStructuredType) result[ST_INDEX]).getPath(((UriResourceProperty) uriElement)
@@ -197,7 +197,7 @@ public final class JPAExpandItemInfoFactory {
 
     final StringBuilder pathAliase = new StringBuilder(prefix);
     for (JPAElement pathElement : p.getPath()) {
-      pathAliase.append(JPAPath.PATH_SEPERATOR);
+      pathAliase.append(JPAPath.PATH_SEPARATOR);
       pathAliase.append(pathElement.getExternalName());
       if (pathElement instanceof JPAAttribute
           && ((JPAAttribute) pathElement).isCollection()

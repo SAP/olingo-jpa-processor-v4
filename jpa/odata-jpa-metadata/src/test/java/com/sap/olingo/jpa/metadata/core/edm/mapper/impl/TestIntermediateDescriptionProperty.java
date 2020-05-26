@@ -35,10 +35,10 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityTypeAccess;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateEntityTypeAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateNavigationPropertyAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediatePropertyAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateReferenceList;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.Country;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
@@ -304,7 +304,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
     final IntermediateDescriptionProperty cut = new IntermediateDescriptionProperty(nameBuilder, createAttributeMock(
         true, false, 0), et, helper.schema);
     final ODataJPAModelException act = assertThrows(ODataJPAModelException.class, () -> cut.lazyBuildEdmItem());
-    assertEquals(ODataJPAModelException.MessageKeys.INVALID_DESCIPTION_PROPERTY.getKey(), act.getId());
+    assertEquals(ODataJPAModelException.MessageKeys.INVALID_DESCRIPTION_PROPERTY.getKey(), act.getId());
   }
 
   @Test

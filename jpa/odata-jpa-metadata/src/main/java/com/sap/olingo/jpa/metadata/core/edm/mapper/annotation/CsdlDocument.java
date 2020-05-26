@@ -15,7 +15,7 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JacksonXmlRootElement(localName = "Edmx", namespace = "edmx")
-public class Vocabulary {
+public class CsdlDocument {
 
   @JacksonXmlProperty(localName = "Reference")
   private EdmxReference[] reference;
@@ -33,23 +33,18 @@ public class Vocabulary {
 
   public Map<String, CsdlSchema> getSchemas() {
 
-    if (service != null) {
-      return service.getSchemas().stream()
-          .collect(Collectors.toMap(Schema::getNamespace, Schema::asCsdlSchema));
-    }
+    if (service != null) return service.getSchemas().stream()
+        .collect(Collectors.toMap(Schema::getNamespace, Schema::asCsdlSchema));
     return Collections.emptyMap();
   }
 
   public Map<String, Map<String, CsdlTerm>> getTerms() {
 
-    if (service != null) {
-      return service.getSchemas().stream()
-          .collect(Collectors.toMap(
-              Schema::getNamespace,
-              schema -> schema.getTerms().stream()
-                  .collect(Collectors.toMap(CsdlTerm::getName, t -> t))));
-
-    }
-    return null;
+    if (service != null) return service.getSchemas().stream()
+        .collect(Collectors.toMap(
+            Schema::getNamespace,
+            schema -> schema.getTerms().stream()
+                .collect(Collectors.toMap(CsdlTerm::getName, t -> t))));
+    return Collections.emptyMap();
   }
 }

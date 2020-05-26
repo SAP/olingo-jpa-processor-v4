@@ -301,7 +301,7 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
       if (selectItemPath == null && jpaAssociationPath != null) {
         selectItemPath = jpaEntityType.getPath(attributePathName.isEmpty()
             ? jpaAssociationPath.getAlias()
-            : (jpaAssociationPath.getAlias() + JPAPath.PATH_SEPERATOR + attributePathName));
+            : (jpaAssociationPath.getAlias() + JPAPath.PATH_SEPARATOR + attributePathName));
       }
     } catch (final ODataJPAModelException e) {
       throw new ODataJPAFilterException(e, INTERNAL_SERVER_ERROR);

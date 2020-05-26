@@ -529,7 +529,7 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
   }
 
   private String buildPath(final String pathRoot, final String pathElement) {
-    return pathRoot + JPAPath.PATH_SEPERATOR + pathElement;
+    return pathRoot + JPAPath.PATH_SEPARATOR + pathElement;
   }
 
   private String determineDBFieldName(final IntermediateModelElement property, final JPAPath jpaPath) {
@@ -735,7 +735,7 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
         } else if (attribute.isComplex()) { // Protection at attribute overrides protection within complex
           for (final JPAProtectionInfo info : attribute.getStructuredType().getProtections()) {
             // Copy and extend path
-            final String pathName = attribute.getExternalName() + JPAPath.PATH_SEPERATOR + info.getPath().getAlias();
+            final String pathName = attribute.getExternalName() + JPAPath.PATH_SEPARATOR + info.getPath().getAlias();
             final JPAPath path = this.getPath(pathName, false);
             protectedAttributes.add(new ProtectionInfo(path, info));
           }
@@ -749,7 +749,7 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
     final StringBuilder path = new StringBuilder();
     for (int i = 0; i < pathList.size() - 1; i++) {
       path.append(pathList.get(i).getExternalName());
-      path.append(JPAPath.PATH_SEPERATOR);
+      path.append(JPAPath.PATH_SEPARATOR);
     }
     path.deleteCharAt(path.length() - 1);
     final JPAPath parentPath = intermediatePathMap.get(path.toString());
@@ -772,7 +772,7 @@ abstract class IntermediateStructuredType extends IntermediateModelElement imple
       throws ODataJPAModelException {
 
     IntermediateStructuredType hop = this;
-    for (final String pathPart : internalPath.split(JPAPath.PATH_SEPERATOR)) {
+    for (final String pathPart : internalPath.split(JPAPath.PATH_SEPARATOR)) {
       final JPAAttribute required = hop.getAttribute(pathPart).orElseThrow(
           // The transient attribute '%1$s' of class '%2$s' requires '%3$s', which is not known
           () -> new ODataJPAModelException(PROPERTY_REQUIRED_UNKNOWN, propertyName, getInternalName(), internalName));

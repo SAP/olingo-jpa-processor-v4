@@ -441,7 +441,7 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
         final JoinType jointype = jt == null ? JoinType.INNER : jt;
         Optional<JPAAssociationPath> associationPath;
         if (path.isPresent())
-          associationPath = Optional.ofNullable(st.getAssociationPath(path.get().getAlias() + JPAPath.PATH_SEPERATOR
+          associationPath = Optional.ofNullable(st.getAssociationPath(path.get().getAlias() + JPAPath.PATH_SEPARATOR
               + joinAttribute.getExternalName()));
         else
           associationPath = Optional.ofNullable(source.getAssociationPath(joinAttribute
@@ -463,7 +463,7 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
 
   private JPAPath determinePath(JPAAttribute joinAttribute) throws ODataJPAModelException {
     if (path.isPresent())
-      return st.getPath(path.get().getAlias() + JPAPath.PATH_SEPERATOR + joinAttribute.getExternalName());
+      return st.getPath(path.get().getAlias() + JPAPath.PATH_SEPARATOR + joinAttribute.getExternalName());
     return st.getPath(joinAttribute.getExternalName());
   }
 

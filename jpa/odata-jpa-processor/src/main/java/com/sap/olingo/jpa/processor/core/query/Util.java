@@ -1,6 +1,6 @@
 package com.sap.olingo.jpa.processor.core.query;
 
-import static com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath.PATH_SEPERATOR;
+import static com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath.PATH_SEPARATOR;
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE;
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAUtilException.MessageKeys.UNKNOWN_ENTITY_TYPE;
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAUtilException.MessageKeys.UNKNOWN_NAVI_PROPERTY;
@@ -63,7 +63,7 @@ public final class Util {
       }
       if (resourceItem.getKind() == UriResourceKind.complexProperty) {
         naviPropertyName.append(((UriResourceComplexProperty) resourceItem).getProperty().getName());
-        naviPropertyName.append(PATH_SEPERATOR);
+        naviPropertyName.append(PATH_SEPARATOR);
       }
       if (resourceItem.getKind() == UriResourceKind.navigationProperty) {
         naviPropertyName.append(((UriResourceNavigation) resourceItem).getProperty().getName());
@@ -90,7 +90,7 @@ public final class Util {
       }
       if (resourceItem.getKind() == UriResourceKind.complexProperty) {
         naviPropertyName.append(((UriResourceComplexProperty) resourceItem).getProperty().getName());
-        naviPropertyName.append(PATH_SEPERATOR);
+        naviPropertyName.append(PATH_SEPARATOR);
       }
       if (resourceItem.getKind() == UriResourceKind.navigationProperty) {
         naviPropertyName.append(((UriResourceNavigation) resourceItem).getProperty().getName());
@@ -165,11 +165,11 @@ public final class Util {
           break;
         if (resourceItem instanceof UriResourceValue) {
           pathName.insert(0, VALUE_RESOURCE);
-          pathName.insert(0, PATH_SEPERATOR);
+          pathName.insert(0, PATH_SEPARATOR);
         } else if (resourceItem instanceof UriResourceProperty) {
           final UriResourceProperty property = (UriResourceProperty) resourceItem;
           pathName.insert(0, property.getProperty().getName());
-          pathName.insert(0, PATH_SEPERATOR);
+          pathName.insert(0, PATH_SEPARATOR);
         }
       }
       if (pathName.length() > 0)
@@ -213,7 +213,7 @@ public final class Util {
         if (startResourceItem instanceof UriResourceEntitySet || startResourceItem instanceof UriResourceNavigation) {
           break;
         }
-        associationNamePrefix.insert(0, PATH_SEPERATOR);
+        associationNamePrefix.insert(0, PATH_SEPARATOR);
         associationNamePrefix.insert(0, ((UriResourceProperty) startResourceItem).getProperty().getName());
       }
       // Example1 : ?$expand=Created/User (Property/NavigationProperty)
@@ -246,7 +246,7 @@ public final class Util {
             targetResourceItem = targetResourceList.get(i);
             if (targetResourceItem.getKind() != UriResourceKind.navigationProperty) {
               associationName.append(((UriResourceProperty) targetResourceItem).getProperty().getName());
-              associationName.append(PATH_SEPERATOR);
+              associationName.append(PATH_SEPARATOR);
             } else {
               associationName.append(((UriResourceNavigation) targetResourceItem).getProperty().getName());
               break;
@@ -311,7 +311,7 @@ public final class Util {
     if (associationName == null)
       throw new ODataJPAQueryException(NOT_SUPPORTED_RESOURCE_TYPE, NOT_IMPLEMENTED, "");
     if (associationName.length() > 0)
-      associationName.append(PATH_SEPERATOR);
+      associationName.append(PATH_SEPARATOR);
     associationName.append(pathSegment);
   }
 

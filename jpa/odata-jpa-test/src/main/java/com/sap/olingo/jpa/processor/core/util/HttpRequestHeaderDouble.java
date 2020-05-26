@@ -43,7 +43,7 @@ public class HttpRequestHeaderDouble {
   }
 
   public Enumeration<String> get(final String headerName) {
-    return new headerItem(headers.get(headerName));
+    return new HeaderItem(headers.get(headerName));
   }
 
   public Enumeration<String> getEnumerator() {
@@ -63,7 +63,7 @@ public class HttpRequestHeaderDouble {
     }
   }
 
-  class HeaderEnumerator implements Enumeration<String> {
+  static class HeaderEnumerator implements Enumeration<String> { // NOSONAR
 
     private final Iterator<String> keys;
 
@@ -82,10 +82,10 @@ public class HttpRequestHeaderDouble {
     }
   }
 
-  class headerItem implements Enumeration<String> {
+  static class HeaderItem implements Enumeration<String> {// NOSONAR
     private final Iterator<String> keys;
 
-    public headerItem(final List<String> header) {
+    public HeaderItem(final List<String> header) {
       keys = header.iterator();
     }
 

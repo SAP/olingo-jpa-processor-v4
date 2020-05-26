@@ -9,7 +9,7 @@ import java.util.List;
  */
 public interface JPAPath extends Comparable<JPAPath> {
 
-  final String PATH_SEPERATOR = "/";
+  final String PATH_SEPARATOR = "/";
 
   /**
    * External unique identifier for a path. Two path are seen as equal if they have the same alias

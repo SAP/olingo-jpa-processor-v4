@@ -2,7 +2,7 @@ package com.sap.olingo.jpa.processor.core.query;
 
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
 
-public interface JPAExtention {
+public interface JPAExtension {
   /**
    * Process a expand query, which contains a $skip and/or a $top option.<p>
    * This a tricky problem, as it can not be done easily with SQL. It could be that a database offers special solutions.

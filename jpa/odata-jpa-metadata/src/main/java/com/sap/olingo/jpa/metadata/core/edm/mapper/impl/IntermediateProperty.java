@@ -50,7 +50,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediatePropertyAccess;
 
 /**
  * Properties can be classified by two different aspects:
@@ -93,7 +93,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
   }
 
   @Override
-  public void addAnnotations(List<CsdlAnnotation> annotations) {
+  public void addAnnotations(final List<CsdlAnnotation> annotations) {
     edmAnnotations.addAll(annotations);
   }
 
@@ -197,7 +197,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
       determineIsVersion();
       determineProtection();
       determineFieldGroups();
-      checkConsistancy();
+      checkConsistency();
     }
     postProcessor.processProperty(this, jpaAttribute.getDeclaringType().getJavaType().getCanonicalName());
     // Process annotations after post processing, as external name it could
@@ -205,7 +205,8 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
     getAnnotations(edmAnnotations, this.jpaAttribute.getJavaMember(), internalName, AppliesTo.PROPERTY);
   }
 
-  protected FullQualifiedName determineTypeByPersistanceType(Enum<?> persistanceType) throws ODataJPAModelException {
+  protected FullQualifiedName determineTypeByPersistenceType(final Enum<?> persistanceType)
+      throws ODataJPAModelException {
     if (persistanceType == PersistentAttributeType.BASIC || persistanceType == PersistenceType.BASIC) {
       final IntermediateModelElement odataType = getODataPrimitiveType();
       if (odataType == null)
@@ -247,11 +248,11 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
    * Check consistency of provided attribute e.g. check id attribute was annotated with unsupported annotations
    * @throws ODataJPAModelException
    */
-  abstract void checkConsistancy() throws ODataJPAModelException;
+  abstract void checkConsistency() throws ODataJPAModelException;
 
   CsdlMapping createMapper() {
     if (!isLob() && !(getConverter() == null && isEnum())) {
-      CsdlMapping mapping = new CsdlMapping();
+      final CsdlMapping mapping = new CsdlMapping();
       mapping.setInternalName(this.getExternalName());
       mapping.setMappedJavaClass(dbType);
       return mapping;
@@ -292,7 +293,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
 
   abstract FullQualifiedName determineType() throws ODataJPAModelException;
 
-  abstract String getDeafultValue() throws ODataJPAModelException;
+  abstract String getDefaultValue() throws ODataJPAModelException;
 
   /**
    * @return
@@ -359,7 +360,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
       if (jpaColumn != null) {
         edmProperty.setNullable(jpaColumn.nullable());
         edmProperty.setSrid(getSRID());
-        edmProperty.setDefaultValue(getDeafultValue());
+        edmProperty.setDefaultValue(getDefaultValue());
         // TODO Attribute Unicode
         if (edmProperty.getTypeAsFQNObject().equals(EdmPrimitiveTypeKind.String.getFullQualifiedName())
             || edmProperty.getTypeAsFQNObject().equals(EdmPrimitiveTypeKind.Binary.getFullQualifiedName())) {
@@ -399,11 +400,11 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
    */
   private String convertPath(final String internalPath) {
 
-    String[] pathSegments = internalPath.split(JPAPath.PATH_SEPERATOR);
-    StringBuilder externalPath = new StringBuilder();
+    final String[] pathSegments = internalPath.split(JPAPath.PATH_SEPARATOR);
+    final StringBuilder externalPath = new StringBuilder();
     for (final String segement : pathSegments) {
       externalPath.append(nameBuilder.buildPropertyName(segement));
-      externalPath.append(JPAPath.PATH_SEPERATOR);
+      externalPath.append(JPAPath.PATH_SEPARATOR);
     }
     externalPath.deleteCharAt(externalPath.length() - 1);
 
@@ -417,7 +418,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
    */
   @SuppressWarnings("unchecked")
   private Constructor<? extends EdmTransientPropertyCalculator<?>> determineCalculatorConstructor(
-      Class<? extends EdmTransientPropertyCalculator<?>> calculator) throws ODataJPAModelException {
+      final Class<? extends EdmTransientPropertyCalculator<?>> calculator) throws ODataJPAModelException {
 
     if (calculator.getConstructors().length > 1)
       throw new ODataJPAModelException(TRANSIENT_CALCULATOR_TOO_MANY_CONSTRUCTORS,
@@ -477,15 +478,15 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
         .getAnnotation(Convert.class);
     if (jpaConverter != null) {
       try {
-        Type[] convType = jpaConverter.converter().getGenericInterfaces();
-        Type[] types = ((ParameterizedType) convType[0]).getActualTypeArguments();
+        final Type[] convType = jpaConverter.converter().getGenericInterfaces();
+        final Type[] types = ((ParameterizedType) convType[0]).getActualTypeArguments();
         entityType = (Class<?>) types[0];
         dbType = (Class<?>) types[1];
         if (!JPATypeConvertor.isSupportedByOlingo(entityType))
           valueConverter = (AttributeConverter<?, ?>) jpaConverter.converter().newInstance();
       } catch (InstantiationException | IllegalAccessException e) {
         throw new ODataJPAModelException(
-            ODataJPAModelException.MessageKeys.TYPE_MAPPER_COULD_NOT_INSANTIATE, e);
+            ODataJPAModelException.MessageKeys.TYPE_MAPPER_COULD_NOT_INSTANTIATED, e);
       }
     }
   }
@@ -499,12 +500,12 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
     else
       externalNames = new ArrayList<>(2);
     if (jpaAttribute.getPersistentAttributeType() == Attribute.PersistentAttributeType.EMBEDDED) {
-      String internalProtectedPath = jpaProtectedBy.path();
+      final String internalProtectedPath = jpaProtectedBy.path();
       if (internalProtectedPath.length() == 0) {
         throw new ODataJPAModelException(COMPLEX_PROPERTY_MISSING_PROTECTION_PATH, this.managedType.getJavaType()
             .getCanonicalName(), this.internalName);
       }
-      externalNames.add(getExternalName() + JPAPath.PATH_SEPERATOR + convertPath(jpaProtectedBy.path()));
+      externalNames.add(getExternalName() + JPAPath.PATH_SEPARATOR + convertPath(jpaProtectedBy.path()));
     } else {
       externalNames.add(getExternalName());
     }

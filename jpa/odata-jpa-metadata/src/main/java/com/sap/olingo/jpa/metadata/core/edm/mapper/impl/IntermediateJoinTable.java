@@ -169,7 +169,7 @@ class IntermediateJoinTable implements JPAJoinTable {
                 intermediateProperty.getInternalName());
           else if (!(intermediateProperty.getSourceType() instanceof IntermediateEntityType))
             throw new ODataJPAModelException(
-                ODataJPAModelException.MessageKeys.NOT_SUPPORTED_NO_IMPLICIT_COLUMNS_COMPEX,
+                ODataJPAModelException.MessageKeys.NOT_SUPPORTED_NO_IMPLICIT_COLUMNS_COMPLEX,
                 intermediateProperty.getInternalName());
           else {
             joinColumns.add(new IntermediateJoinColumn(

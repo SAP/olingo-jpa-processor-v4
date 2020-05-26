@@ -21,14 +21,14 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
-public class TestVocabularyReader {
+public class TestCsdlDocumentReader {
   private static final String CORE_ANNOTATIONS = "annotations/Org.OData.Core.V1.xml";
-  private VocabularyReader cut;
+  private CsdlDocumentReader cut;
   private Charset charset;
 
   @BeforeEach
   public void setup() {
-    cut = new VocabularyReader();
+    cut = new CsdlDocumentReader();
     charset = Charset.defaultCharset();
   }
 
@@ -51,25 +51,41 @@ public class TestVocabularyReader {
   @Test
   public void testReadFromResourceReturnsVocabulary() throws IOException, ODataJPAModelException {
 
-    final Vocabulary act = cut.readFromResource(CORE_ANNOTATIONS, charset);
+    final CsdlDocument act = cut.readFromResource(CORE_ANNOTATIONS, charset);
     assertNotNull(act);
     assertFalse(act.getSchemas().isEmpty());
     assertNotNull(act.getSchemas().get("Org.OData.Core.V1"));
   }
 
   @Test
-  public void testtReadFromResourceThrowsExceptionOnUnknownPath() throws IOException {
+  public void testReadFromResourceThrowsExceptionOnUnknownPath() throws IOException {
     assertThrows(ODataJPAModelException.class, () -> {
       cut.readFromResource("annotations/Org.OData.Core.V2.xml", charset);
     });
   }
 
   @Test
-  public void testtReadFromResourceThrowsExceptionOnEmptyXML() throws IOException, ODataJPAModelException {
+  public void testReadFromResourceThrowsExceptionOnEmptyXML() throws IOException, ODataJPAModelException {
 
     assertThrows(IOException.class, () -> {
       cut.readFromResource("annotations/empty.xml", charset);
     });
+  }
+
+  @Test
+  public void testReadDocumentContainsReferences() throws IOException, ODataJPAModelException {
+//  <edmx:Reference Uri="http://docs.oasis-open.org/odata/odata-vocabularies/v4.0/vocabularies/Org.OData.Validation.V1.xml">
+//    <edmx:Include Alias="Validation" Namespace="Org.OData.Validation.V1" />
+//  </edmx:Reference>
+    final CsdlDocument act = cut.readFromResource(CORE_ANNOTATIONS, charset);
+    assertNotNull(act.getReference());
+    assertEquals(1, act.getReference().size());
+    final EdmxReference ref = act.getReference().get(0);
+    assertNotNull(ref.getIncludes());
+    assertEquals(1, ref.getIncludes().size());
+    final EdmxReferenceInclude include = ref.getIncludes().get(0);
+    assertEquals("Validation", include.getAlias());
+    assertEquals("Org.OData.Validation.V1", include.getNamespace());
   }
 
   // TODO This test may not run because of proxy setting problems!! -> find alternative for Integration tests
@@ -78,7 +94,7 @@ public class TestVocabularyReader {
   public void testReadFromURI() throws URISyntaxException, JsonParseException, JsonMappingException,
       MalformedURLException, IOException {
     final URI uri = new URI("http://docs.oasis-open.org/odata/odata/v4.0/os/vocabularies/Org.OData.Core.V1.xml");
-    final Vocabulary actVocabulary = cut.readFromURI(uri);
+    final CsdlDocument actVocabulary = cut.readFromURI(uri);
     assertNotNull(actVocabulary);
     assertNotNull(actVocabulary.getDataService());
 

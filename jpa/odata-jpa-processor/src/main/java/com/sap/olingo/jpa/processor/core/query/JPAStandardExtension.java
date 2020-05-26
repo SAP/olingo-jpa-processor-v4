@@ -2,7 +2,7 @@ package com.sap.olingo.jpa.processor.core.query;
 
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
 
-public class JPAStandardExtention implements JPAExtention {
+public class JPAStandardExtension implements JPAExtension {
 
   @Override
   public JPAExpandResult executeExpandTopSkipQuery() {

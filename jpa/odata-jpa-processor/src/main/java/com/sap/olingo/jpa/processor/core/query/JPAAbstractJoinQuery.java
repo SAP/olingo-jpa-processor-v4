@@ -597,7 +597,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
 
   private void addPathElement(final StringBuilder externalPath, final JPAAttribute attribute) {
     externalPath.append(attribute.getExternalName());
-    externalPath.append(JPAPath.PATH_SEPERATOR);
+    externalPath.append(JPAPath.PATH_SEPARATOR);
 
   }
 
@@ -652,7 +652,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
     JPAStructuredType st = et;
     for (int i = 0; i < transientAttributePath.getPath().size() - 1; i++) {
       final JPAElement element = transientAttributePath.getPath().get(i);
-      pathName.append(element.getExternalName()).append(JPAPath.PATH_SEPERATOR);
+      pathName.append(element.getExternalName()).append(JPAPath.PATH_SEPARATOR);
       if (element instanceof JPAAttribute) {
         st = ((JPAAttribute) element).getStructuredType();
       }
@@ -749,7 +749,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
       final String pathItem = sItem.getResourcePath().getUriResourceParts()
           .stream()
           .map(path -> (path.getSegmentValue()))
-          .collect(Collectors.joining(JPAPath.PATH_SEPERATOR));
+          .collect(Collectors.joining(JPAPath.PATH_SEPARATOR));
       expandPath(jpaEntity, jpaPathList, pathPrefix.isEmpty() ? pathItem : pathPrefix + "/" + pathItem,
           targetIsCollection);
     }
@@ -981,7 +981,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
         }
         break;
       }
-      collectionPath.append(JPAPath.PATH_SEPERATOR);
+      collectionPath.append(JPAPath.PATH_SEPARATOR);
     }
     return collection;
   }

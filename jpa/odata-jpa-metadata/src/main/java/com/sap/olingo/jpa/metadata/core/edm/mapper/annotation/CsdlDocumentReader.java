@@ -1,4 +1,4 @@
-package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
+package com.sap.olingo.jpa.metadata.core.edm.mapper.annotation;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -15,25 +15,24 @@ import javax.annotation.Nonnull;
 
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.Vocabulary;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
 
 /**
- *
+ * 
  * @author Oliver Grande
  * @since 15.12.2019
  * @version 0.3.8
  *
  */
-public class VocabularyReader {
+public class CsdlDocumentReader {
   final JacksonXmlModule module;
   final XmlMapper xmlMapper;
 
   /**
-  *
-  */
-  public VocabularyReader() {
+   *
+   */
+  public CsdlDocumentReader() {
     super();
     module = new JacksonXmlModule();
     module.setDefaultUseWrapper(false);
@@ -68,13 +67,13 @@ public class VocabularyReader {
    * @throws ODataJPAModelException
    * @throws NullPointerException
    */
-  public Vocabulary readFromResource(@Nonnull final String path, @Nonnull final Charset charset)
+  public CsdlDocument readFromResource(@Nonnull final String path, @Nonnull final Charset charset)
       throws IOException, ODataJPAModelException {
 
     if (Objects.requireNonNull(path).isEmpty())
       return null;
     return xmlMapper.readValue(loadXML(path, Objects.requireNonNull(charset)),
-        Vocabulary.class);
+        CsdlDocument.class);
   }
 
   /**
@@ -84,8 +83,8 @@ public class VocabularyReader {
    * @throws IOException
    * @throws NullPointerException
    */
-  public Vocabulary readFromURI(@Nonnull final URI uri) throws IOException {
+  public CsdlDocument readFromURI(@Nonnull final URI uri) throws IOException {
 
-    return xmlMapper.readValue(Objects.requireNonNull(uri).toURL(), Vocabulary.class);
+    return xmlMapper.readValue(Objects.requireNonNull(uri).toURL(), CsdlDocument.class);
   }
 }

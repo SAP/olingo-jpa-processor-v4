@@ -1,4 +1,4 @@
-package com.sap.olingo.jpa.metadata.core.edm.mapper.extention;
+package com.sap.olingo.jpa.metadata.core.edm.mapper.extension;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.sap.olingo.jpa.metadata.core.edm.mapper.extention;
+package com.sap.olingo.jpa.metadata.core.edm.mapper.extension;
 
 /**
  * Tag Interface to indicate that a java class represents an OData <a href =
@@ -7,6 +7,6 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.extention;
  * @author Oliver Grande
  *
  */
-public interface ODataFunction extends ODataOperation {
+public interface ODataAction extends ODataOperation {
 
 }

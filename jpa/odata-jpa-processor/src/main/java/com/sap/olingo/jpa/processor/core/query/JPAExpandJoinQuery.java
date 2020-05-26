@@ -228,12 +228,12 @@ public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
           .map(c -> (row.get(c
               .getAlias()))
                   .toString())
-          .collect(joining(JPAPath.PATH_SEPERATOR));
+          .collect(joining(JPAPath.PATH_SEPARATOR));
     } else {
       final List<JPAPath> joinColumns = associationPath.getLeftColumnsList();
       return joinColumns.stream()
           .map(c -> (row.get(assoziation.getAlias() + ALIAS_SEPERATOR + c.getAlias())).toString())
-          .collect(joining(JPAPath.PATH_SEPERATOR));
+          .collect(joining(JPAPath.PATH_SEPARATOR));
     }
   }
 
