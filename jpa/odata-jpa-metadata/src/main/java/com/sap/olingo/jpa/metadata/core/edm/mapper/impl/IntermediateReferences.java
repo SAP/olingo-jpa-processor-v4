@@ -1,75 +1,85 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
+import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.ANNOTATION_PARSE_ERROR;
+import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.ANNOTATION_PATH_NOT_FOUND;
+import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.MISSING_TERM_NAMESPACE;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.annotation.Nonnull;
+
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
 import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.commons.api.edmx.EdmxReferenceInclude;
+import org.apache.olingo.commons.api.edmx.EdmxReferenceIncludeAnnotation;
 
-import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.SchemaReader;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.CsdlDocument;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.CsdlDocumentReader;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
 
 final class IntermediateReferences implements IntermediateReferenceList {
   final List<IntermediateReference> references = new ArrayList<>();
-  List<EdmxReference> edmxReferences = new ArrayList<>();
+  private List<EdmxReference> edmxReferences = new ArrayList<>();
   final Map<String, Map<String, CsdlTerm>> terms = new HashMap<>();
   final Map<String, CsdlSchema> schemas = new HashMap<>();
   final Map<String, String> aliasDirectory = new HashMap<>();
 
   @Override
   public IntermediateReferenceAccess addReference(final String uri) throws ODataJPAModelException {
-    return addReference(uri, null);
+    try {
+      final URI sourceURI = new URI(uri);
+      final CsdlDocument vocabulary = new CsdlDocumentReader().readFromURI(sourceURI);
+      return createReference(sourceURI, "", vocabulary);
+    } catch (final URISyntaxException e) {
+      throw new ODataJPAModelException(e);
+    } catch (final IOException e) {
+      throw new ODataJPAModelException(ANNOTATION_PARSE_ERROR, e, uri, e.getMessage());
+    }
   }
 
   @Override
-  public IntermediateReferenceAccess addReference(final String uri, final String path) throws ODataJPAModelException {
-    URI sourceURI;
+  public IntermediateReferenceAccess addReference(@Nonnull final String uri, @Nonnull final String path,
+      @Nonnull final Charset charset) throws ODataJPAModelException {
+
     try {
-      sourceURI = new URI(uri);
-    } catch (URISyntaxException e) {
+      final URI sourceURI = new URI(uri);
+      final CsdlDocument vocabulary = new CsdlDocumentReader().readFromResource(path, charset);
+
+      if (vocabulary == null)
+        // Path '%1$s' to read the file containing vocabulary '%2$s' is wrong
+        throw new ODataJPAModelException(ANNOTATION_PATH_NOT_FOUND, path, uri);
+      return createReference(sourceURI, path, vocabulary);
+    } catch (final URISyntaxException e) {
       throw new ODataJPAModelException(e);
-    }
-    IntermediateReference reference = new IntermediateReference(sourceURI, path);
-    if (path != null && !path.isEmpty()) {
-      try {
-        Map<? extends String, ? extends CsdlSchema> newSchemas = new SchemaReader().getSchemas(path);
-        schemas.putAll(newSchemas);
-        extractTerms();
-      } catch (IOException e) {
-        // Parsing of %1$s failed with message %2$s
-        throw new ODataJPAModelException(MessageKeys.ANNOTATION_PARSE_ERROR, e, path, e.getMessage());
-      }
-    }
-    references.add(reference);
-    return reference;
-  }
-
-  private void extractTerms() {
-    for (Entry<String, CsdlSchema> schema : schemas.entrySet()) {
-      Map<String, CsdlTerm> schemaTerms = new HashMap<>();
-      for (CsdlTerm term : schema.getValue().getTerms()) {
-        schemaTerms.put(term.getName(), term);
-      }
-      terms.put(schema.getKey(), schemaTerms);
+    } catch (final IOException e) {
+      // Parsing of %1$s failed with message %2$s
+      throw new ODataJPAModelException(ANNOTATION_PARSE_ERROR, e, path, e.getMessage());
     }
   }
 
-  public CsdlTerm getTerm(FullQualifiedName termName) {
+  @Override
+  public IntermediateReferenceAccess addReference(@Nonnull final String uri, @Nonnull final String path)
+      throws ODataJPAModelException {
+
+    return addReference(uri, path, Charset.defaultCharset());
+  }
+
+  public CsdlTerm getTerm(final FullQualifiedName termName) {
     Map<String, CsdlTerm> schema = terms.get(termName.getNamespace());
     if (schema == null) {
-      for (IntermediateReference r : references) {
-        String namespace = r.convertAlias(termName.getNamespace());
+      for (final IntermediateReference r : references) {
+        final String namespace = r.convertAlias(termName.getNamespace());
         if (namespace != null) {
           schema = terms.get(namespace);
         }
@@ -82,8 +92,8 @@ final class IntermediateReferences implements IntermediateReferenceList {
 
   public List<CsdlSchema> getSchemas() {
 
-    List<CsdlSchema> result = new ArrayList<>();
-    for (Entry<String, CsdlSchema> schema : schemas.entrySet()) {
+    final List<CsdlSchema> result = new ArrayList<>();
+    for (final Entry<String, CsdlSchema> schema : schemas.entrySet()) {
       result.add(schema.getValue());
     }
     return result;
@@ -92,11 +102,19 @@ final class IntermediateReferences implements IntermediateReferenceList {
   List<EdmxReference> getEdmReferences() {
     if (references.size() != edmxReferences.size()) {
       edmxReferences = new ArrayList<>(references.size());
-      for (IntermediateReference r : references) {
+      for (final IntermediateReference r : references) {
         edmxReferences.add(r.getEdmReference());
       }
     }
     return edmxReferences;
+  }
+
+  private IntermediateReference createReference(final URI sourceURI, final String path, final CsdlDocument vocabulary) {
+    final IntermediateReference reference = new IntermediateReference(sourceURI, path);
+    schemas.putAll(vocabulary.getSchemas());
+    terms.putAll(vocabulary.getTerms());
+    references.add(reference);
+    return reference;
   }
 
   private class IntermediateReference implements IntermediateReferenceList.IntermediateReferenceAccess {
@@ -104,6 +122,7 @@ final class IntermediateReferences implements IntermediateReferenceList {
     private final String path;
     final EdmxReference edmxReference;
     private final List<IntermediateReferenceInclude> includes = new ArrayList<>();
+    private final List<IntermediateReferenceAnnotationInclude> annotation = new ArrayList<>();
 
     public IntermediateReference(final URI uri, final String path) {
       super();
@@ -112,21 +131,36 @@ final class IntermediateReferences implements IntermediateReferenceList {
       edmxReference = new EdmxReference(uri);
     }
 
-    String convertAlias(String alias) {
+    String convertAlias(final String alias) {
       return aliasDirectory.get(alias);
     }
 
     @Override
-    public void addInclude(String namespace) {
+    public void addInclude(final String namespace) {
       addInclude(namespace, null);
     }
 
     @Override
     public void addInclude(final String namespace, final String alias) {
-      IntermediateReferenceInclude include = new IntermediateReferenceInclude(namespace, alias);
+      final IntermediateReferenceInclude include = new IntermediateReferenceInclude(namespace, alias);
       this.includes.add(include);
       edmxReference.addInclude(include.getEdmInclude());
-      aliasDirectory.put(alias, namespace);
+      if (alias != null)
+        aliasDirectory.put(alias, namespace);
+    }
+
+    @Override
+    public void addIncludeAnnotation(final String termNamespace) throws ODataJPAModelException {
+      addIncludeAnnotation(termNamespace, null, null);
+    }
+
+    @Override
+    public void addIncludeAnnotation(final String termNamespace, final String qualifier, final String targetNamespace)
+        throws ODataJPAModelException {
+      final IntermediateReferenceAnnotationInclude include = new IntermediateReferenceAnnotationInclude(termNamespace,
+          qualifier, targetNamespace);
+      this.annotation.add(include);
+      edmxReference.addIncludeAnnotation(include.getEdmIncludeAnnotation());
     }
 
     @Override
@@ -154,6 +188,28 @@ final class IntermediateReferences implements IntermediateReferenceList {
 
       EdmxReferenceInclude getEdmInclude() {
         return new EdmxReferenceInclude(namespace, alias);
+      }
+    }
+
+    private class IntermediateReferenceAnnotationInclude {
+
+      private final String termNamespace;
+      private final String qualifier;
+      private final String targetNamespace;
+
+      public IntermediateReferenceAnnotationInclude(final String termNamespace, final String qualifier,
+          final String targetNamespace) throws ODataJPAModelException {
+
+        super();
+        if (termNamespace == null || termNamespace.isEmpty())
+          throw new ODataJPAModelException(MISSING_TERM_NAMESPACE);
+        this.termNamespace = termNamespace;
+        this.qualifier = qualifier;
+        this.targetNamespace = targetNamespace;
+      }
+
+      EdmxReferenceIncludeAnnotation getEdmIncludeAnnotation() {
+        return new EdmxReferenceIncludeAnnotation(termNamespace, qualifier, targetNamespace);
       }
     }
   }

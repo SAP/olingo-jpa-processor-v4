@@ -6,7 +6,7 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.exception;
  */
 public class ODataJPAModelException extends ODataJPAException {
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = -7188499882306858747L;
 
@@ -60,8 +60,10 @@ public class ODataJPAModelException extends ODataJPAException {
     REFERENCED_PROPERTY_NOT_FOUND,
     INHERITANCE_NOT_ALLOWED,
     TO_MANY_STREAMS,
+    MISSING_TERM_NAMESPACE,
     ANNOTATION_STREAM_INCOMPLETE,
     ANNOTATION_PARSE_ERROR,
+    ANNOTATION_PATH_NOT_FOUND,
     ODATA_ANNOTATION_TWO_EXPRESSIONS,
     NAVI_PROPERTY_NOT_FOUND,
     ON_LEFT_ATTRIBUTE_NULL,
