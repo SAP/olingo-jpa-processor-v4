@@ -64,6 +64,7 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.StringConverter</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.SupportRelationship</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Team</class>
+		<class>com.sap.olingo.jpa.metadata.converter.TimeInstantLongConverter</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.TransientRefComplex</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 		<properties>

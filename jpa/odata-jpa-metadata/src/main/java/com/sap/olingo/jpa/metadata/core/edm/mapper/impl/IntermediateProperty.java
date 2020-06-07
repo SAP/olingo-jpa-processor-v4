@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.COMPLEX_PROPERTY_MISSING_PROTECTION_PATH;
+import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.PROPERTY_PRECISION_NOT_IN_RANGE;
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.TRANSIENT_CALCULATOR_TOO_MANY_CONSTRUCTORS;
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.TRANSIENT_KEY_NOT_SUPPORTED;
 
@@ -115,7 +116,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
 
   @Override
   public EdmPrimitiveTypeKind getEdmType() throws ODataJPAModelException {
-    return JPATypeConvertor.convertToEdmSimpleType(entityType);
+    return JPATypeConverter.convertToEdmSimpleType(entityType);
   }
 
   @Override
@@ -313,7 +314,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
     } else {
       javaType = entityType;
     }
-    return JPATypeConvertor.convertToEdmSimpleType(javaType, jpaAttribute)
+    return JPATypeConverter.convertToEdmSimpleType(javaType, jpaAttribute)
         .getFullQualifiedName();
   }
 
@@ -369,28 +370,58 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
           if (isLob())
             edmProperty.setMaxLength(null);
         } else if (edmProperty.getType()
-            .equals(EdmPrimitiveTypeKind.Decimal.getFullQualifiedName().toString())
-            || edmProperty.getType()
-                .equals(EdmPrimitiveTypeKind.DateTimeOffset.getFullQualifiedName().toString())
-            || edmProperty.getType()
-                .equals(EdmPrimitiveTypeKind.TimeOfDay.getFullQualifiedName().toString())) {
-          // For a decimal property the value of this attribute specifies the maximum number of digits allowed in the
-          // properties value; it MUST be a positive integer. If no value is specified, the decimal property has
-          // unspecified precision. For a temporal property the value of this attribute specifies the number of decimal
-          // places allowed in the seconds portion of the property's value; it MUST be a non-negative integer between
-          // zero and twelve. If no value is specified, the temporal property has a precision of zero.
-          if (jpaColumn.precision() > 0)
-            edmProperty.setPrecision(jpaColumn.precision());
-          else if (edmProperty.getType().equals(EdmPrimitiveTypeKind.DateTimeOffset.getFullQualifiedName().toString())
-              && jpaColumn.precision() == 0)
-            throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.PROPERTY_MISSING_PRECISION,
-                jpaAttribute.getName());
-          if (edmProperty.getType().equals(EdmPrimitiveTypeKind.Decimal.getFullQualifiedName().toString())
-              && jpaColumn.scale() > 0)
-            edmProperty.setScale(jpaColumn.scale());
+            .equals(EdmPrimitiveTypeKind.Decimal.getFullQualifiedName().toString())) {
+          setPrecisionScale(jpaColumn);
+        } else {
+          setPrecisionScaleTemporal(jpaColumn);
         }
       }
     }
+  }
+
+  /**
+   * For a temporal property the value of this attribute specifies the number of decimal
+   * places allowed in the seconds portion of the property's value; it MUST be a non-negative integer between
+   * zero and twelve. If no value is specified, the temporal property has a precision of zero.<br>
+   * See: <a href="https://docs.oasis-open.org/odata/odata-csdl-xml/v4.01/odata-csdl-xml-v4.01.html#_Toc38530360">7.2.3
+   * Precision</a>
+   * @param jpaColumn
+   * @throws ODataJPAModelException
+   */
+  private void setPrecisionScaleTemporal(final Column jpaColumn) throws ODataJPAModelException {
+    if (edmProperty.getType()
+        .equals(EdmPrimitiveTypeKind.DateTimeOffset.getFullQualifiedName().toString())
+        || edmProperty.getType()
+            .equals(EdmPrimitiveTypeKind.TimeOfDay.getFullQualifiedName().toString())
+        || edmProperty.getType()
+            .equals(EdmPrimitiveTypeKind.Duration.getFullQualifiedName().toString())) {
+      if (jpaColumn.precision() < 0 || jpaColumn.precision() > 12) {
+        // The type of property '%1$s' requires a precision between 0 and 12, but was '%2$s'.
+        throw new ODataJPAModelException(PROPERTY_PRECISION_NOT_IN_RANGE, jpaAttribute.getName(), Integer.toString(
+            jpaColumn.precision()));
+      } else {
+        edmProperty.setPrecision(jpaColumn.precision());
+      }
+    }
+  }
+
+  /**
+   * Sets Precision and Scale for a Decimal:<br>
+   * For a decimal property the value of this attribute specifies the maximum number of digits allowed in the
+   * properties value; it MUST be a positive integer. If no value is specified, the decimal property has
+   * unspecified precision. <br>
+   * See: <a href="https://docs.oasis-open.org/odata/odata-csdl-xml/v4.01/odata-csdl-xml-v4.01.html#_Toc38530360">7.2.3
+   * Precision</a>
+   * @param jpaColumn
+   * @throws ODataJPAModelException
+   */
+  private void setPrecisionScale(final Column jpaColumn) throws ODataJPAModelException {
+    if (jpaColumn.precision() > 0)
+      edmProperty.setPrecision(jpaColumn.precision());
+    if (edmProperty.getType().equals(EdmPrimitiveTypeKind.Decimal.getFullQualifiedName().toString())
+        && jpaColumn.scale() > 0)
+      edmProperty.setScale(jpaColumn.scale());
+
   }
 
   /**
@@ -482,7 +513,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
         final Type[] types = ((ParameterizedType) convType[0]).getActualTypeArguments();
         entityType = (Class<?>) types[0];
         dbType = (Class<?>) types[1];
-        if (!JPATypeConvertor.isSupportedByOlingo(entityType))
+        if (!JPATypeConverter.isSupportedByOlingo(entityType))
           valueConverter = (AttributeConverter<?, ?>) jpaConverter.converter().newInstance();
       } catch (InstantiationException | IllegalAccessException e) {
         throw new ODataJPAModelException(

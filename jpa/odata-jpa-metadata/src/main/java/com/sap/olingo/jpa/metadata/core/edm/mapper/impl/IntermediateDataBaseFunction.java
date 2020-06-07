@@ -134,7 +134,7 @@ class IntermediateDataBaseFunction extends IntermediateFunction implements JPADa
   protected FullQualifiedName determineParameterType(final Class<?> type, final EdmParameter definedParameter)
       throws ODataJPAModelException {
 
-    final EdmPrimitiveTypeKind edmType = JPATypeConvertor.convertToEdmSimpleType(definedParameter.type());
+    final EdmPrimitiveTypeKind edmType = JPATypeConverter.convertToEdmSimpleType(definedParameter.type());
     if (edmType != null)
       return edmType.getFullQualifiedName();
     else {
@@ -163,7 +163,7 @@ class IntermediateDataBaseFunction extends IntermediateFunction implements JPADa
         if (enumType != null) {
           return enumType.getExternalFQN();
         } else {
-          EdmPrimitiveTypeKind pt = JPATypeConvertor.convertToEdmSimpleType(returnType.type());
+          EdmPrimitiveTypeKind pt = JPATypeConverter.convertToEdmSimpleType(returnType.type());
           if (pt != null)
             return pt.getFullQualifiedName();
           else

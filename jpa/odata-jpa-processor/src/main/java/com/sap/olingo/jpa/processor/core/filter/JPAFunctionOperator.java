@@ -19,7 +19,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOperationResultParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPATypeConvertor;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPATypeConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 
@@ -52,7 +52,7 @@ final class JPAFunctionOperator implements JPAOperator {
           HttpStatusCode.NOT_IMPLEMENTED);
     }
 
-    if (!JPATypeConvertor.isScalarType(
+    if (!JPATypeConverter.isScalarType(
         jpaFunction.getResultParameter().getType())) {
       throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FUNCTION_NOT_SCALAR,
           HttpStatusCode.NOT_IMPLEMENTED);

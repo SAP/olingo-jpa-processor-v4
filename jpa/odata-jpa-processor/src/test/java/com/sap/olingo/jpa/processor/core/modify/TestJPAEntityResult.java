@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.processor.core.modify;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -64,7 +65,7 @@ public class TestJPAEntityResult extends TestJPACreateResult {
 
   @Override
   protected void createCutGetResultWithOneLevelEmbedded() throws ODataJPAModelException, ODataApplicationException {
-    AdministrativeDivisionDescriptionKey key = new AdministrativeDivisionDescriptionKey();
+    final AdministrativeDivisionDescriptionKey key = new AdministrativeDivisionDescriptionKey();
     key.setCodeID("A");
     key.setLanguage("en");
     jpaEntity = new AdministrativeDivisionDescription();
@@ -104,8 +105,8 @@ public class TestJPAEntityResult extends TestJPACreateResult {
   protected void createCutGetResultWithWithOneLinked() throws ODataJPAModelException, ODataApplicationException {
     et = helper.getJPAEntityType("AdministrativeDivisions");
     jpaEntity = new AdministrativeDivision();
-    AdministrativeDivision child = new AdministrativeDivision();
-    List<AdministrativeDivision> children = new ArrayList<>();
+    final AdministrativeDivision child = new AdministrativeDivision();
+    final List<AdministrativeDivision> children = new ArrayList<>();
     children.add(child);
     ((AdministrativeDivision) jpaEntity).setChildren(children);
 
@@ -124,8 +125,8 @@ public class TestJPAEntityResult extends TestJPACreateResult {
   protected void createCutGetResultWithWithTwoLinked() throws ODataJPAModelException, ODataApplicationException {
     createCutGetResultWithWithOneLinked();
 
-    AdministrativeDivision child = new AdministrativeDivision();
-    List<AdministrativeDivision> children = ((AdministrativeDivision) jpaEntity).getChildren();
+    final AdministrativeDivision child = new AdministrativeDivision();
+    final List<AdministrativeDivision> children = ((AdministrativeDivision) jpaEntity).getChildren();
     children.add(child);
 
     child.setCodeID("NUTS2");
@@ -208,7 +209,7 @@ public class TestJPAEntityResult extends TestJPACreateResult {
     CollcetionNestedComplex nestedItem = new CollcetionNestedComplex();
     CollcetionInnerComplex inner = new CollcetionInnerComplex();
     inner.setFigure1(1L);
-    inner.setFigure3(3L);
+    inner.setFigure3(BigInteger.valueOf(3L));
     nestedItem.setInner(inner);
     nestedItem.setNumber(100L);
     nested.add(nestedItem);
@@ -216,7 +217,7 @@ public class TestJPAEntityResult extends TestJPACreateResult {
     nestedItem = new CollcetionNestedComplex();
     inner = new CollcetionInnerComplex();
     inner.setFigure1(11L);
-    inner.setFigure3(13L);
+    inner.setFigure3(BigInteger.valueOf(13L));
     nestedItem.setInner(inner);
     nestedItem.setNumber(200L);
     nested.add(nestedItem);

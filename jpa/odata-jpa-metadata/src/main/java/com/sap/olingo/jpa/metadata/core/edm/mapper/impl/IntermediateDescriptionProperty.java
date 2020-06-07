@@ -118,7 +118,7 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
             throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.DESCRIPTION_FIELD_WRONG_TYPE,
                 targetEntity.getInternalName(), this.internalName);
 
-          edmProperty.setType(JPATypeConvertor.convertToEdmSimpleType(descriptionProperty.getType())
+          edmProperty.setType(JPATypeConverter.convertToEdmSimpleType(descriptionProperty.getType())
               .getFullQualifiedName());
           edmProperty.setMaxLength(descriptionProperty.getEdmItem().getMaxLength());
 

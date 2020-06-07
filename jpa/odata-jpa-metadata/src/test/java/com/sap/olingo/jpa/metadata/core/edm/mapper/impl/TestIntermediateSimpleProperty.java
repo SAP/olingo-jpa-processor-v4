@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
+import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.PROPERTY_PRECISION_NOT_IN_RANGE;
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.TRANSIENT_CALCULATOR_TOO_MANY_CONSTRUCTORS;
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.TRANSIENT_CALCULATOR_WRONG_PARAMETER;
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.TRANSIENT_KEY_NOT_SUPPORTED;
@@ -18,8 +19,10 @@ import static org.mockito.Mockito.withSettings;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -30,6 +33,7 @@ import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.SingularAttribute;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
+import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -235,8 +239,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   public void checkGetProptertyScaleDecimal() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class), "customNum1");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
-        jpaAttribute,
-        helper.schema);
+        jpaAttribute, helper.schema);
     assertEquals(new Integer(5), property.getEdmItem().getScale());
   }
 
@@ -544,7 +547,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkThrowsAnExceptionTimestampWithoutPrecision() throws ODataJPAModelException {
+  public void checkTimestampWithoutPrecisionReturns0() throws ODataJPAModelException {
     // If Precision missing EdmDateTimeOffset.internalValueToString throws an exception => pre-check
     final Attribute<?, ?> jpaAttribute = mock(Attribute.class);
     final ManagedType<?> jpaManagedType = mock(ManagedType.class);
@@ -576,12 +579,9 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
     when(column.name()).thenReturn("Test");
 
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(nameBuilder,
-        jpaAttribute,
-        helper.schema);
+        jpaAttribute, helper.schema);
 
-    assertThrows(ODataJPAModelException.class, () -> {
-      property.getEdmItem();
-    });
+    assertEquals(0, property.getEdmItem().getPrecision());
   }
 
   @Test
@@ -749,6 +749,93 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   @Test
   public void checkGetSRID() {
     // Test for spatial data missing
+  }
+
+  @Test
+  public void checkGetProptertyThrowsExceptionOnDateTimePrecisionGt12() throws ODataJPAModelException {
+    final Column jpaColumn = createDummyColumn();
+    final Attribute<?, ?> jpaAttribute = createDummyAttribute(jpaColumn);
+
+    when(jpaColumn.precision()).thenReturn(13);
+    when(jpaAttribute.getJavaType()).thenAnswer(new Answer<Class<?>>() {
+      @Override
+      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
+        return OffsetDateTime.class;
+      }
+    });
+    final IntermediateSimpleProperty property = new IntermediateSimpleProperty(nameBuilder,
+        jpaAttribute, helper.schema);
+    final ODataJPAModelException act = assertThrows(ODataJPAModelException.class, () -> property.lazyBuildEdmItem());
+    assertEquals(PROPERTY_PRECISION_NOT_IN_RANGE.getKey(), act.getId());
+    assertTrue(act.getMessage().contains("13"));
+  }
+
+  @Test
+  public void checkGetProptertyThrowsExceptionOnDateTimePrecisionLt0() throws ODataJPAModelException {
+    final Column jpaColumn = createDummyColumn();
+    final Attribute<?, ?> jpaAttribute = createDummyAttribute(jpaColumn);
+
+    when(jpaColumn.precision()).thenReturn(-1);
+    when(jpaAttribute.getJavaType()).thenAnswer(new Answer<Class<?>>() {
+      @Override
+      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
+        return OffsetDateTime.class;
+      }
+    });
+    final IntermediateSimpleProperty property = new IntermediateSimpleProperty(nameBuilder,
+        jpaAttribute, helper.schema);
+    final ODataJPAModelException act = assertThrows(ODataJPAModelException.class, () -> property.lazyBuildEdmItem());
+    assertEquals(PROPERTY_PRECISION_NOT_IN_RANGE.getKey(), act.getId());
+    assertTrue(act.getMessage().contains("-1"));
+  }
+
+  @Test
+  public void checkGetProptertyPrecisionNullOnDecimalPrecision0() throws ODataJPAModelException {
+    final Column jpaColumn = createDummyColumn();
+    final Attribute<?, ?> jpaAttribute = createDummyAttribute(jpaColumn);
+
+    when(jpaColumn.precision()).thenReturn(-1);
+    when(jpaAttribute.getJavaType()).thenAnswer(new Answer<Class<?>>() {
+      @Override
+      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
+        return BigDecimal.class;
+      }
+    });
+    final IntermediateSimpleProperty property = new IntermediateSimpleProperty(nameBuilder,
+        jpaAttribute, helper.schema);
+    final CsdlProperty act = property.getEdmItem();
+    assertNull(act.getPrecision());
+
+  }
+
+  private Attribute<?, ?> createDummyAttribute(final Column jpaColumn) {
+    final Attribute<?, ?> jpaAttribute = mock(Attribute.class);
+    final ManagedType<?> managedType = mock(ManagedType.class);
+    final Member javaMember = mock(Member.class, withSettings().extraInterfaces(AnnotatedElement.class));
+    when(managedType.getJavaType()).thenAnswer(new Answer<Class<?>>() {
+      @Override
+      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
+        return Person.class;
+      }
+    });
+    when(jpaAttribute.getName()).thenReturn("dummy");
+    when(jpaAttribute.getDeclaringType()).thenAnswer(new Answer<ManagedType<?>>() {
+      @Override
+      public ManagedType<?> answer(final InvocationOnMock invocation) throws Throwable {
+        return managedType;
+      }
+    });
+    when(jpaAttribute.getJavaMember()).thenReturn(javaMember);
+    when(((AnnotatedElement) jpaAttribute.getJavaMember()).getAnnotation(Column.class)).thenReturn(jpaColumn);
+    when(jpaAttribute.getPersistentAttributeType()).thenReturn(PersistentAttributeType.BASIC);
+    return jpaAttribute;
+  }
+
+  private Column createDummyColumn() {
+    final Column jpaColumn = mock(Column.class);
+    when(jpaColumn.name()).thenReturn("DUMMY");
+    when(jpaColumn.nullable()).thenReturn(true);
+    return jpaColumn;
   }
 
   private class PostProcessorSetName extends JPAEdmMetadataPostProcessor {

@@ -172,7 +172,7 @@ class IntermediateEnumerationType extends IntermediateModelElement implements JP
       return EdmPrimitiveTypeKind.Int32.getFullQualifiedName();
 
     final T value = valueOf(javaEnum.getEnumConstants()[0].toString());
-    final EdmPrimitiveTypeKind type = JPATypeConvertor.convertToEdmSimpleType(value.getClass());
+    final EdmPrimitiveTypeKind type = JPATypeConverter.convertToEdmSimpleType(value.getClass());
     if (isValidType(type))
       return type.getFullQualifiedName();
     // Enumeration '%1$s' has the unsupported type '%2$s'.

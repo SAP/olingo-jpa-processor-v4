@@ -30,7 +30,7 @@ public class TestEqualHashCodeMethodsTestModel extends TestEqualHashCodeMethods 
 
   @BeforeAll
   public static void setupClass() {
-    Map<String, Object> properties = new HashMap<>();
+    final Map<String, Object> properties = new HashMap<>();
     properties.put(ENTITY_MANAGER_DATA_SOURCE, DataSourceHelper.createDataSource(
         DataSourceHelper.DB_HSQLDB));
     final EntityManagerFactory emf = Persistence.createEntityManagerFactory(PUNIT_NAME, properties);
@@ -74,6 +74,21 @@ public class TestEqualHashCodeMethodsTestModel extends TestEqualHashCodeMethods 
     assertFalse(cut.equals(new MembershipKey("11", "A")));
     assertFalse(new MembershipKey(null, "A").equals(cut));
     assertFalse(new MembershipKey("12", null).equals(cut));
+  }
+
+  @Test
+  public void testAdministrativeDivisionKeyEqual() {
+    final AdministrativeDivisionKey cut = new AdministrativeDivisionKey("A", "B", "C");
+    assertFalse(cut.equals(null));
+    assertTrue(cut.equals(cut));
+    assertTrue(cut.equals(new AdministrativeDivisionKey("A", "B", "C")));
+    assertFalse(cut.equals(new AdministrativeDivisionKey()));
+    assertFalse(new AdministrativeDivisionKey("B", "B", "C").equals(cut));
+    assertFalse(new AdministrativeDivisionKey("A", "C", "C").equals(cut));
+    assertFalse(new AdministrativeDivisionKey("A", "B", "D").equals(cut));
+    assertFalse(new AdministrativeDivisionKey(null, "B", "C").equals(cut));
+    assertFalse(new AdministrativeDivisionKey("A", null, "C").equals(cut));
+    assertFalse(new AdministrativeDivisionKey("A", "B", null).equals(cut));
   }
 
   @Test

@@ -24,7 +24,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
  * A Property is described on the one hand by its Name and Type and on the other
  * hand by its Property Facets. The type is a qualified name of either a
  * primitive type, a complex type or a enumeration type. Primitive types are
- * mapped by {@link JPATypeConvertor}.
+ * mapped by {@link JPATypeConverter}.
  * 
  * <p>
  * For details about Property metadata see: <a href=

@@ -168,7 +168,7 @@ class IntermediateJavaFunction extends IntermediateFunction implements JPAJavaFu
   @Override
   protected FullQualifiedName determineParameterType(final Class<?> type,
       final EdmParameter definedParameter) throws ODataJPAModelException {
-    final EdmPrimitiveTypeKind edmType = JPATypeConvertor.convertToEdmSimpleType(type);
+    final EdmPrimitiveTypeKind edmType = JPATypeConverter.convertToEdmSimpleType(type);
     if (edmType != null)
       return edmType.getFullQualifiedName();
     else {

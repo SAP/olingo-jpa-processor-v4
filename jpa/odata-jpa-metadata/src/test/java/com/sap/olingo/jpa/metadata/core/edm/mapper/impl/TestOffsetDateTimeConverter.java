@@ -15,6 +15,8 @@ import java.time.ZonedDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.sap.olingo.jpa.metadata.converter.OffsetDateTimeConverter;
+
 /**
  * @author Oliver Grande
  * Created: 09.03.2020

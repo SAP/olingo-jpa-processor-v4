@@ -718,7 +718,7 @@ CREATE TABLE "NestedComplex" (
 	"Number" INTEGER NOT NULL,
 	"Figure1" INTEGER,
 	"Figure2" INTEGER,
-	"Figure3" INTEGER,
+	"Figure3" BIGINT,
    PRIMARY KEY ("ID", "Number"));		
    
 insert into "NestedComplex" values('501',1, 1, 1, 1);   

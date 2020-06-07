@@ -64,7 +64,7 @@ public class IntermediateOperationHelper {
         throw new ODataJPAModelException(MessageKeys.FUNC_RETURN_NOT_SUPPORTED, declairedReturnType.getName(),
             operationName);
       } else {
-        final EdmPrimitiveTypeKind edmType = JPATypeConvertor.convertToEdmSimpleType(declairedReturnType);
+        final EdmPrimitiveTypeKind edmType = JPATypeConverter.convertToEdmSimpleType(declairedReturnType);
         if (edmType == null)
           throw new ODataJPAModelException(MessageKeys.FUNC_RETURN_TYPE_INVALID, definedReturnType.type().getName(),
               declairedReturnType.getName(), operationName);

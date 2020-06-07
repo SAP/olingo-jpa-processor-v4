@@ -57,7 +57,7 @@ public abstract class JPAAbstractDatabaseProcessor implements JPAODataDatabasePr
         fillParameterFromEntity(jpaFunction, es, functionQuery);
       else
         fillParameterFromFunction(jpaFunction, uriResourceFunction, functionQuery);
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
   }
@@ -67,14 +67,14 @@ public abstract class JPAAbstractDatabaseProcessor implements JPAODataDatabasePr
 
     final StringBuilder parameterList = new StringBuilder();
 
-    String queryString = queryPattern.replace(FUNC_NAME_PLACEHOLDER, jpaFunction.getDBName());
+    final String queryString = queryPattern.replace(FUNC_NAME_PLACEHOLDER, jpaFunction.getDBName());
     try {
       for (int i = 1; i <= jpaFunction.getParameter().size(); i++) {
         parameterList.append(',');
         parameterList.append('?');
         parameterList.append(i);
       }
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
     parameterList.deleteCharAt(0);
@@ -104,7 +104,7 @@ public abstract class JPAAbstractDatabaseProcessor implements JPAODataDatabasePr
         functionQuery.setParameter(count, value);
         count += 1;
       }
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
   }
@@ -133,7 +133,7 @@ public abstract class JPAAbstractDatabaseProcessor implements JPAODataDatabasePr
         functionQuery.setParameter(count, value);
         count += 1;
       }
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
   }
@@ -141,11 +141,11 @@ public abstract class JPAAbstractDatabaseProcessor implements JPAODataDatabasePr
   private Object getValue(final EdmElement edmElement, final JPAParameter parameter, final String uriValue)
       throws ODataApplicationException {
 
-    final String value = uriValue.replaceAll("'", "");
+    final String value = uriValue.replace("'", "");
     try {
       return ((EdmPrimitiveType) edmElement.getType()).valueOfString(value, false, parameter.getMaxLength(),
           parameter.getPrecision(), parameter.getScale(), true, parameter.getType());
-    } catch (EdmPrimitiveTypeException e) {
+    } catch (final EdmPrimitiveTypeException e) {
       // Unable to convert value %1$s of parameter %2$s
       throw new ODataJPADBAdaptorException(ODataJPADBAdaptorException.MessageKeys.PARAMETER_CONVERSION_ERROR,
           HttpStatusCode.INTERNAL_SERVER_ERROR, uriValue, parameter.getName());

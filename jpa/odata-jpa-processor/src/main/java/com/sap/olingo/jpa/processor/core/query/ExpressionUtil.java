@@ -27,7 +27,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParamaterFacet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPATypeConvertor;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPATypeConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 
 public final class ExpressionUtil {
@@ -88,7 +88,7 @@ public final class ExpressionUtil {
 
     try {
       final CsdlProperty edmProperty = (CsdlProperty) attribute.getProperty();
-      final EdmPrimitiveTypeKind edmTypeKind = JPATypeConvertor.convertToEdmSimpleType(attribute);
+      final EdmPrimitiveTypeKind edmTypeKind = JPATypeConverter.convertToEdmSimpleType(attribute);
 
       // TODO literal does not convert decimals without scale properly
       String targetValue = null;

@@ -54,7 +54,7 @@ class IntermediateOperationParameter extends IntermediateModelElement implements
 
   @Override
   public FullQualifiedName getTypeFQN() throws ODataJPAModelException {
-    return JPATypeConvertor.convertToEdmSimpleType(jpaParameter.type()).getFullQualifiedName();
+    return JPATypeConverter.convertToEdmSimpleType(jpaParameter.type()).getFullQualifiedName();
   }
 
   @Override

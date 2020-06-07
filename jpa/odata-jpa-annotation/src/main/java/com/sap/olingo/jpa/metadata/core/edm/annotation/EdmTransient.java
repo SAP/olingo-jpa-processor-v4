@@ -9,8 +9,11 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import javax.persistence.Transient;
+
 /**
- * The annotation marks properties that are transient, but shall be part of the Edm.
+ * The annotation marks attributes that are transient, but shall be part of the Edm.<br>
+ * Please note that the attribute needs the corresponding JPA annotation {@link Transient} as well.
  * @author Oliver Grande
  * Created: 25.11.2019
  */
