@@ -30,8 +30,8 @@ import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
  * bound type or collection, and is a "primitive" expression.
  *
  * @param <X> the type referenced by the path
- * 
- * @author D023143
+ *
+ * @author Oliver Grande
  * @since 0.3.8
  */
 class PathImpl<X> extends ExpressionImpl<X> implements Path<X> {
@@ -82,7 +82,7 @@ class PathImpl<X> extends ExpressionImpl<X> implements Path<X> {
    * @return expression corresponding to the referenced attribute
    */
   @Override
-  public <K, V, M extends Map<K, V>> Expression<M> get(MapAttribute<X, K, V> map) {
+  public <K, V, M extends Map<K, V>> Expression<M> get(final MapAttribute<X, K, V> map) {
     // TODO Auto-generated method stub
     return null;
   }
@@ -94,7 +94,7 @@ class PathImpl<X> extends ExpressionImpl<X> implements Path<X> {
    * @return expression corresponding to the referenced attribute
    */
   @Override
-  public <E, C extends Collection<E>> Expression<C> get(PluralAttribute<X, C, E> collection) {
+  public <E, C extends Collection<E>> Expression<C> get(final PluralAttribute<X, C, E> collection) {
     // TODO Auto-generated method stub
     return null;
   }
@@ -106,14 +106,14 @@ class PathImpl<X> extends ExpressionImpl<X> implements Path<X> {
    * @return path corresponding to the referenced attribute
    */
   @Override
-  public <Y> Path<Y> get(SingularAttribute<? super X, Y> attribute) {
+  public <Y> Path<Y> get(final SingularAttribute<? super X, Y> attribute) {
     // TODO Auto-generated method stub
     return null;
   }
 
   /**
    * Create a path corresponding to the referenced attribute.
-   * 
+   *
    * <p> Note: Applications using the string-based API may need to
    * specify the type resulting from the <code>get</code> operation in order
    * to avoid the use of <code>Path</code> variables.
@@ -128,7 +128,7 @@ class PathImpl<X> extends ExpressionImpl<X> implements Path<X> {
    * p.&#060;Set&#060;String&#062;&#062;get("nicknames")));
    *
    * rather than:
-   * 
+   *
    * CriteriaQuery&#060;Person&#062; q = cb.createQuery(Person.class);
    * Root&#060;Person&#062; p = q.from(Person.class);
    * Path&#060;Set&#060;String&#062;&#062; nicknames = p.get("nicknames");
@@ -170,7 +170,7 @@ class PathImpl<X> extends ExpressionImpl<X> implements Path<X> {
       } else {
         return new PathImpl<>(st.getPath(a.getExternalName(), false), Optional.of(this), st, tableAlias);
       }
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException e) {
       throw new IllegalArgumentException("'" + attributeName + "' not found");
     }
   }

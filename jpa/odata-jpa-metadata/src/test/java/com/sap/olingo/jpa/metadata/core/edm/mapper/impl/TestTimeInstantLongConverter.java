@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
@@ -14,8 +14,8 @@ import org.junit.jupiter.api.Test;
 import com.sap.olingo.jpa.metadata.converter.TimeInstantLongConverter;
 
 /**
- * 
- * @author D023143
+ *
+ * @author Oliver Grande
  * @since 1.0.0-RC
  */
 public class TestTimeInstantLongConverter {

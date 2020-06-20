@@ -159,12 +159,12 @@ public class CritertaQueryImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testDifaultImplementationOnPathWrapper() {
+  public void testDefaultImplementationOnPathWrapper() {
     final Root<?> act = cut.from(Organization.class);
     cut.multiselect(act.get("aBCClass"), act.get("name2"));
     final Selection<Object> sel = cut.getSelection();
     final List<Entry<String, JPAPath>> resolvedSelections = ((ProcessorSelection<?>) sel).getResolvedSelection();
-    final JPAPath wrapper = resolvedSelections.get(0).getValue();
+    assertNotNull(resolvedSelections.get(0).getValue());
 
   }
 }

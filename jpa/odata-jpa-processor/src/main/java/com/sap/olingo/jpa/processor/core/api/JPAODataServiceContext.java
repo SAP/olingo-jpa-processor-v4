@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.processor.core.api;
 
+import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,6 +14,8 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceException;
 import javax.sql.DataSource;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -27,6 +30,7 @@ import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
 import com.sap.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
@@ -35,8 +39,9 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 
 public final class JPAODataServiceContext implements JPAODataCRUDContextAccess {
   /**
-   * 
+   *
    */
+  private static final Log LOG = LogFactory.getLog(JPAODataServiceContext.class);
   private List<EdmxReference> references = new ArrayList<>();
   private final JPAODataDatabaseOperations operationConverter;
   private JPAEdmProvider jpaEdm;
@@ -45,7 +50,7 @@ public final class JPAODataServiceContext implements JPAODataCRUDContextAccess {
   private final String[] packageName;
   private final ErrorProcessor errorProcessor;
   private final JPAODataPagingProvider pagingProvider;
-  private final Optional<EntityManagerFactory> emf;
+  private final Optional<? extends EntityManagerFactory> emf;
   private final String namespace;
   private final String mappingPath;
   private final JPAODataBatchProcessorFactory<JPAODataBatchProcessor> batchProcessorFactory;
@@ -92,7 +97,7 @@ public final class JPAODataServiceContext implements JPAODataCRUDContextAccess {
   }
 
   @Override
-  public Optional<EntityManagerFactory> getEntityManagerFactory() {
+  public Optional<? extends EntityManagerFactory>  getEntityManagerFactory() {
     return emf;
   }
 
@@ -146,7 +151,7 @@ public final class JPAODataServiceContext implements JPAODataCRUDContextAccess {
     private String[] packageName;
     private ErrorProcessor errorProcessor;
     private JPAODataPagingProvider pagingProvider;
-    private Optional<EntityManagerFactory> emf = Optional.empty();
+    private Optional<? extends EntityManagerFactory> emf = Optional.empty();
     private DataSource ds;
     private JPAEdmProvider jpaEdm;
     private JPAEdmNameBuilder nameBuilder;
@@ -162,7 +167,8 @@ public final class JPAODataServiceContext implements JPAODataCRUDContextAccess {
           packageName = new String[0];
         if (!emf.isPresent() && ds != null && namespace != null)
           emf = Optional.ofNullable(JPAEntityManagerFactory.getEntityManagerFactory(namespace, ds));
-        if (emf.isPresent())
+        createEmfWrapper();
+        if (emf.isPresent() && jpaEdm == null)
           jpaEdm = new JPAEdmProvider(emf.get().getMetamodel(), postProcessor, packageName, nameBuilder);
         if (databaseProcessor == null) {
           databaseProcessor = new JPAODataDatabaseProcessorFactory().create(ds);
@@ -217,7 +223,7 @@ public final class JPAODataServiceContext implements JPAODataCRUDContextAccess {
     }
 
     /**
-     * 
+     *
      * @param postProcessor
      * @return
      */
@@ -227,7 +233,7 @@ public final class JPAODataServiceContext implements JPAODataCRUDContextAccess {
     }
 
     /**
-     * 
+     *
      * @param jpaOperationConverter
      * @return
      */
@@ -259,7 +265,7 @@ public final class JPAODataServiceContext implements JPAODataCRUDContextAccess {
     }
 
     /**
-     * 
+     *
      * @param references
      * @return
      */
@@ -326,6 +332,27 @@ public final class JPAODataServiceContext implements JPAODataCRUDContextAccess {
       this.useAbsoluteContextURL = useAbsoluteContextURL;
       return this;
     }
+
+    @SuppressWarnings("unchecked")
+    private void createEmfWrapper() {
+      if (emf.isPresent()) {
+        try {
+          final Class<? extends EntityManagerFactory> wrapperClass = (Class<? extends EntityManagerFactory>) Class.forName(
+              "com.sap.olingo.jpa.processor.cb.api.EntityManagerFactoryWrapper");
+          if (jpaEdm == null)
+            jpaEdm = new JPAEdmProvider(emf.get().getMetamodel(), postProcessor, packageName, nameBuilder);
+          emf = Optional.of(wrapperClass.getConstructor(EntityManagerFactory.class,
+              JPAServiceDocument.class).newInstance(emf.get(), jpaEdm.getServiceDocument()));
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+            | NoSuchMethodException | SecurityException e) {
+          LOG.debug("Exception thrown while trying to create instance of emf wrapper", e);
+        } catch (final ClassNotFoundException e) {
+          // No Criteria extension: everything is fine
+        } catch (final ODataException e) {
+          LOG.debug("Exception thrown while trying to create EdmProvider", e);
+        }
+      }
+    }
   }
 
   static class JPADebugSupportWrapper implements DebugSupport {
@@ -340,7 +367,7 @@ public final class JPAODataServiceContext implements JPAODataCRUDContextAccess {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.apache.olingo.server.api.debug.DebugSupport#createDebugResponse(java.lang.String,
      * org.apache.olingo.server.api.debug.DebugInformation)
      */
@@ -352,7 +379,7 @@ public final class JPAODataServiceContext implements JPAODataCRUDContextAccess {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.apache.olingo.server.api.debug.DebugSupport#init(org.apache.olingo.server.api.OData)
      */
     @Override
@@ -362,7 +389,7 @@ public final class JPAODataServiceContext implements JPAODataCRUDContextAccess {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.apache.olingo.server.api.debug.DebugSupport#isUserAuthorized()
      */
     @Override

@@ -42,7 +42,7 @@ public interface JPAODataCRUDContextAccess {
    */
   public JPAODataPagingProvider getPagingProvider();
 
-  public default Optional<EntityManagerFactory> getEntityManagerFactory() {
+  public default Optional<? extends EntityManagerFactory> getEntityManagerFactory() {
     return Optional.empty();
   }
 

@@ -92,7 +92,7 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
       countQuery.select(cb.countDistinct(target));
       debugger.stopRuntimeMeasurement(handle);
       return em.createQuery(countQuery).getSingleResult();
-    } catch (JPANoSelectionException e) {
+    } catch (final JPANoSelectionException e) {
       return 0L;
     }
   }
@@ -115,7 +115,7 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
       if (whereClause != null)
         cq.where(whereClause);
 
-      cq.orderBy(createOrderByList(joinTables, uriResource.getOrderByOption()));
+      cq.orderBy(createOrderByList(joinTables, uriResource));
 
       if (!orderByNaviAttributes.isEmpty())
         cq.groupBy(createGroupBy(joinTables, selectionPath.joinedPersistant()));
@@ -130,9 +130,9 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
       debugger.stopRuntimeMeasurement(resultHandle);
       result.put(ROOT_RESULT_KEY, intermediateResult);
       return returnResult(selectionPath.joinedRequested(), result);
-    } catch (JPANoSelectionException e) {
+    } catch (final JPANoSelectionException e) {
       return returnEmptyResult(selectionPath.joinedRequested());
-    }finally {
+    } finally {
       debugger.stopRuntimeMeasurement(handle);
     }
   }
@@ -202,7 +202,7 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
                 pathString.append(((UriResourceProperty) uriResource).getProperty().getName());
                 pathString.append(JPAPath.PATH_SEPARATOR);
               }
-            } catch (ODataJPAModelException e) {
+            } catch (final ODataJPAModelException e) {
               throw new ODataJPAQueryException(QUERY_RESULT_CONV_ERROR, INTERNAL_SERVER_ERROR, e);
             }
           }

@@ -340,7 +340,7 @@ class IntermediateServiceDocument implements JPAServiceDocument {
     if (claims == null) {
       claims = new HashMap<>();
       for (final IntermediateSchema schema : schemaListInternalKey.values()) {
-        for (final IntermediateEntityType et : schema.getEntityTypes()) {
+        for (final IntermediateEntityType<?> et : schema.getEntityTypes()) {
           for (final JPAProtectionInfo protection : et.getProtections()) {
             claims.put(protection.getClaimName(), protection);
           }

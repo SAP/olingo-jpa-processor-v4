@@ -31,7 +31,7 @@ import com.sap.olingo.jpa.processor.cb.api.SqlConvertable;
  *
  * A subquery has an expression as its selection item.
  *
- * @author D023143
+ * @author Oliver Grande
  *
  * @param <T> the type of the selection item.
  */

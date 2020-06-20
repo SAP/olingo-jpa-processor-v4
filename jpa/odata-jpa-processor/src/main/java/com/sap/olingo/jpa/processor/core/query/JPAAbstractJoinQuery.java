@@ -314,7 +314,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
    * @throws ODataJPAModelException
    * 
    */
-  protected List<Order> createOrderByList(final Map<String, From<?, ?>> joinTables, final OrderByOption orderByOption)
+  protected List<Order> createOrderByList(final Map<String, From<?, ?>> joinTables, final UriInfoResource uriResource)
       throws ODataApplicationException {
     // .../Organizations?$orderby=Address/Country --> one item, two resourcePaths
     // [...ComplexProperty,...PrimitiveProperty]
@@ -334,7 +334,9 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
 
     final int handle = debugger.startRuntimeMeasurement(this, "createOrderByList");
     final List<Order> orders = new ArrayList<>();
-    if (orderByOption != null) {
+
+    if (uriResource != null && uriResource.getOrderByOption() != null) {
+      final OrderByOption orderByOption = uriResource.getOrderByOption();
       try {
         for (final OrderByItem orderByItem : orderByOption.getOrders()) {
           final Expression expression = orderByItem.getExpression();
@@ -386,6 +388,22 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
     } else {
       // Ensure results get ordered by primary key. By this it is ensured that the results will match the sub-select
       // results for $expand with $skip and $top
+      if (uriResource != null &&
+          (uriResource.getTopOption() != null || uriResource.getSkipOption() != null)) {
+        final JPAEntityType type = jpaEntity;
+        try {
+          for (final JPAPath keyPath : type.getKeyPath()) {
+            final Path<?> p = target;
+            for (final JPAElement pathElement : keyPath.getPath()) {
+              p.get(pathElement.getInternalName());
+            }
+            orders.add(cb.asc(p));
+          }
+        } catch (final ODataJPAModelException e) {
+          debugger.stopRuntimeMeasurement(handle);
+          throw new ODataJPAQueryException(e, BAD_REQUEST);
+        }
+      }
     }
     debugger.stopRuntimeMeasurement(handle);
     return orders;

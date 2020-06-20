@@ -66,11 +66,13 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediatePropert
 abstract class IntermediateProperty extends IntermediateModelElement implements IntermediatePropertyAccess,
     JPAAttribute {
 
+  private static final int UPPER_LIMIT_PRECISION_TEMP = 12;
+  private static final int LOWER_LIMIT_PRECISION_TEMP = 0;
   private static final String DB_FIELD_NAME_PATTERN = "\"&1\"";
   protected final Attribute<?, ?> jpaAttribute;
   protected final IntermediateSchema schema;
   protected CsdlProperty edmProperty;
-  protected IntermediateStructuredType type;
+  protected IntermediateStructuredType<?> type;
   protected AttributeConverter<?, ?> valueConverter;
   protected String dbFieldName;
   protected Class<?> dbType;
@@ -395,7 +397,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
             .equals(EdmPrimitiveTypeKind.TimeOfDay.getFullQualifiedName().toString())
         || edmProperty.getType()
             .equals(EdmPrimitiveTypeKind.Duration.getFullQualifiedName().toString())) {
-      if (jpaColumn.precision() < 0 || jpaColumn.precision() > 12) {
+      if (jpaColumn.precision() < LOWER_LIMIT_PRECISION_TEMP || jpaColumn.precision() > UPPER_LIMIT_PRECISION_TEMP) {
         // The type of property '%1$s' requires a precision between 0 and 12, but was '%2$s'.
         throw new ODataJPAModelException(PROPERTY_PRECISION_NOT_IN_RANGE, jpaAttribute.getName(), Integer.toString(
             jpaColumn.precision()));
@@ -485,7 +487,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
   }
 
   /**
-   * 
+   *
    */
   private void determineFieldGroups() {
     final EdmVisibleFor jpaFieldGroups = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
@@ -551,7 +553,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
 
   /**
    * @throws ODataJPAModelException
-   * 
+   *
    */
   void determineTransient() throws ODataJPAModelException {
     final EdmTransient jpaTransient = ((AnnotatedElement) this.jpaAttribute.getJavaMember())

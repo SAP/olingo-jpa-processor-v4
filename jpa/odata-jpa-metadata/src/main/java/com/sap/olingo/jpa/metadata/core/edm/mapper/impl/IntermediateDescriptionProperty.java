@@ -34,14 +34,14 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
     JPAAssociationAttribute {
   private IntermediateSimpleProperty descriptionProperty;
   private String localeAttribute;
-  private final IntermediateStructuredType sourceType;
+  private final IntermediateStructuredType<?> sourceType;
   private JPAStructuredType targetEntity;
   private HashMap<JPAPath, String> fixedValues;
   private JPAPath localFieldPath;
   private Optional<JPAAssociationPath> assoziationPath;
 
   IntermediateDescriptionProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,
-      final IntermediateStructuredType parent, final IntermediateSchema schema) throws ODataJPAModelException {
+      final IntermediateStructuredType<?> parent, final IntermediateSchema schema) throws ODataJPAModelException {
     super(nameBuilder, jpaAttribute, schema);
     this.sourceType = parent;
     this.assoziationPath = Optional.empty();
@@ -82,7 +82,7 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
 
   @Override
   protected synchronized void lazyBuildEdmItem() throws ODataJPAModelException {
-    Member jpaMember = jpaAttribute.getJavaMember();
+    final Member jpaMember = jpaAttribute.getJavaMember();
     String languageAttribute;
 
     if (this.edmProperty == null) {
@@ -203,7 +203,7 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
       for (final IntermediateJoinColumn column : this.joinColumns) {
         result.add(new JPAOnConditionItemImpl(
             sourceType.getPathByDBField(column.getReferencedColumnName()),
-            ((IntermediateStructuredType) targetEntity).getPathByDBField(column.getName())));
+            ((IntermediateStructuredType<?>) targetEntity).getPathByDBField(column.getName())));
       }
       return result;
     }
@@ -298,17 +298,21 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
       final String name = intermediateColumn.getName();
 
       if (isSourceOne && (emptyString(refColumnName)))
-        intermediateColumn.setReferencedColumnName(((IntermediateSimpleProperty) ((IntermediateEntityType) sourceType)
-            .getKey().get(0)).getDBFieldName());
+        intermediateColumn.setReferencedColumnName(
+            ((IntermediateSimpleProperty) ((IntermediateEntityType<?>) sourceType)
+                .getKey().get(0)).getDBFieldName());
       else if (isSourceOne && (emptyString(name)))
-        intermediateColumn.setReferencedColumnName(((IntermediateSimpleProperty) ((IntermediateEntityType) targetEntity)
-            .getKey().get(0)).getDBFieldName());
+        intermediateColumn.setReferencedColumnName(
+            ((IntermediateSimpleProperty) ((IntermediateEntityType<?>) targetEntity)
+                .getKey().get(0)).getDBFieldName());
       else if (!isSourceOne && (emptyString(refColumnName)))
-        intermediateColumn.setReferencedColumnName(((IntermediateSimpleProperty) ((IntermediateEntityType) targetEntity)
-            .getKey().get(0)).getDBFieldName());
+        intermediateColumn.setReferencedColumnName(
+            ((IntermediateSimpleProperty) ((IntermediateEntityType<?>) targetEntity)
+                .getKey().get(0)).getDBFieldName());
       else if (!isSourceOne && (emptyString(name)))
-        intermediateColumn.setReferencedColumnName(((IntermediateSimpleProperty) ((IntermediateEntityType) sourceType)
-            .getKey().get(0)).getDBFieldName());
+        intermediateColumn.setReferencedColumnName(
+            ((IntermediateSimpleProperty) ((IntermediateEntityType<?>) sourceType)
+                .getKey().get(0)).getDBFieldName());
     }
 
     @Override

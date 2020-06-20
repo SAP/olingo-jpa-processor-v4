@@ -18,7 +18,7 @@ import com.sap.olingo.jpa.processor.core.processor.JPAODataRequestContextImpl;
 
 public class JPAODataGetHandler {
   private static final String REQUEST_MAPPING_ATTRIBUTE = "requestMapping";
-  public final Optional<EntityManagerFactory> emf;
+  public final Optional<? extends EntityManagerFactory> emf;
   private final JPAODataServiceContext serviceContext;
   private final JPAODataRequestContextImpl requestContext;
   final OData odata;

@@ -58,14 +58,14 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
   private final Attribute<?, ?> jpaAttribute;
   private CsdlNavigationProperty edmNaviProperty;
   private CsdlOnDelete edmOnDelete;
-  private final IntermediateStructuredType sourceType;
-  private IntermediateStructuredType targetType;
+  private final IntermediateStructuredType<?> sourceType;
+  private IntermediateStructuredType<?> targetType;
   private JPAAssociationAttribute partner;
   private IntermediateJoinTable joinTable;
   private final IntermediateSchema schema;
   private final List<IntermediateJoinColumn> joinColumns = new ArrayList<>();
 
-  IntermediateNavigationProperty(final JPAEdmNameBuilder nameBuilder, final IntermediateStructuredType parent,
+  IntermediateNavigationProperty(final JPAEdmNameBuilder nameBuilder, final IntermediateStructuredType<?> parent,
       final Attribute<?, ?> jpaAttribute, final IntermediateSchema schema) throws ODataJPAModelException {
     super(nameBuilder, IntNameBuilder.buildAssociationName(jpaAttribute));
     this.jpaAttribute = jpaAttribute;
@@ -76,7 +76,7 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
   }
 
   @Override
-  public void addAnnotations(List<CsdlAnnotation> annotations) {
+  public void addAnnotations(final List<CsdlAnnotation> annotations) {
     edmAnnotations.addAll(annotations);
   }
 
@@ -115,7 +115,7 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
   }
 
   @Override
-  public List<String> getProtectionPath(String claimName) throws ODataJPAModelException {
+  public List<String> getProtectionPath(final String claimName) throws ODataJPAModelException {
     return new ArrayList<>(0);
   }
 
@@ -264,7 +264,7 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
     return joinColumns;
   }
 
-  IntermediateStructuredType getSourceType() {
+  IntermediateStructuredType<?> getSourceType() {
     return sourceType;
   }
 
@@ -346,7 +346,7 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
         if (implicitColumns > 1)
           throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.NOT_SUPPORTED_NO_IMPLICIT_COLUMNS,
               getInternalName());
-        intermediateColumn.setReferencedColumnName(((IntermediateProperty) ((IntermediateEntityType) sourceType)
+        intermediateColumn.setReferencedColumnName(((IntermediateProperty) ((IntermediateEntityType<?>) sourceType)
             .getKey().get(0)).getDBFieldName());
       }
     }
@@ -439,7 +439,7 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
     }
   }
 
-  private void determinePartner(String mappedBy) throws ODataJPAModelException {
+  private void determinePartner(final String mappedBy) throws ODataJPAModelException {
     if (sourceType instanceof IntermediateEntityType) {
       // Partner Attribute must not be defined at Complex Types.
       // JPA bi-directional associations are defined at both sides, e.g.
@@ -465,16 +465,16 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
     final String name = intermediateColumn.getName();
 
     if (isSourceOne && (refColumnName == null || refColumnName.isEmpty()))
-      intermediateColumn.setReferencedColumnName(((IntermediateSimpleProperty) ((IntermediateEntityType) sourceType)
+      intermediateColumn.setReferencedColumnName(((IntermediateSimpleProperty) ((IntermediateEntityType<?>) sourceType)
           .getKey().get(0)).getDBFieldName());
     else if (isSourceOne && (name == null || name.isEmpty()))
-      intermediateColumn.setReferencedColumnName(((IntermediateSimpleProperty) ((IntermediateEntityType) targetType)
+      intermediateColumn.setReferencedColumnName(((IntermediateSimpleProperty) ((IntermediateEntityType<?>) targetType)
           .getKey().get(0)).getDBFieldName());
     else if (!isSourceOne && (refColumnName == null || refColumnName.isEmpty()))
-      intermediateColumn.setReferencedColumnName(((IntermediateSimpleProperty) ((IntermediateEntityType) targetType)
+      intermediateColumn.setReferencedColumnName(((IntermediateSimpleProperty) ((IntermediateEntityType<?>) targetType)
           .getKey().get(0)).getDBFieldName());
     else if (!isSourceOne && (name == null || name.isEmpty()))
-      intermediateColumn.setReferencedColumnName(((IntermediateSimpleProperty) ((IntermediateEntityType) sourceType)
+      intermediateColumn.setReferencedColumnName(((IntermediateSimpleProperty) ((IntermediateEntityType<?>) sourceType)
           .getKey().get(0)).getDBFieldName());
   }
 

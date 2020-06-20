@@ -42,6 +42,7 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DeepProtectedExample</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DummyEmbeddedToIgnore</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DummyToBeIgnored</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.Group</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.InhouseAddress</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.InhouseAddressTable</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.InhouseAddressWithProtection</class>
@@ -62,6 +63,7 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.PostalAddressData</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.PostalAddressDataWithGroup</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.StringConverter</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.SalesTeam</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.SupportRelationship</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Team</class>
 		<class>com.sap.olingo.jpa.metadata.converter.TimeInstantLongConverter</class>

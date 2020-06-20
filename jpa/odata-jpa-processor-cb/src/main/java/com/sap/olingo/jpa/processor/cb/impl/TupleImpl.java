@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.persistence.AttributeConverter;
 import javax.persistence.Tuple;
 import javax.persistence.TupleElement;
 
@@ -19,11 +20,13 @@ class TupleImpl implements Tuple {
   private final Map<String, Integer> selectionIndex;
   private Optional<List<TupleElement<?>>> tupleElements;
 
-  TupleImpl(Object value, List<Entry<String, JPAAttribute>> selection, Map<String, Integer> selectionIndex) {
+  TupleImpl(final Object value, final List<Entry<String, JPAAttribute>> selection,
+      final Map<String, Integer> selectionIndex) {
     this(new Object[] { value }, selection, selectionIndex);
   }
 
-  TupleImpl(Object[] values, List<Entry<String, JPAAttribute>> selPath, Map<String, Integer> selectionIndex) {
+  TupleImpl(final Object[] values, final List<Entry<String, JPAAttribute>> selPath,
+      final Map<String, Integer> selectionIndex) {
     super();
     this.values = values;
     this.selection = selPath;
@@ -33,7 +36,8 @@ class TupleImpl implements Tuple {
 
   /**
    * Get the value of the element at the specified
-   * position in the result tuple. The first position is 0.
+   * position in the result tuple. The first position is 0.<p>
+   * <b>Please note:</b> As of now <b>no</b> conversions are made.
    * @param i position in result tuple
    * @return value of the tuple element
    * @throws IllegalArgumentException if i exceeds
@@ -48,7 +52,8 @@ class TupleImpl implements Tuple {
 
   /**
    * Get the value of the element at the specified
-   * position in the result tuple. The first position is 0.
+   * position in the result tuple. The first position is 0.<p>
+   * <b>Please note:</b> As of now <b>no</b> conversions are made.
    * @param i position in result tuple
    * @param type type of the tuple element
    * @return value of the tuple element
@@ -80,9 +85,14 @@ class TupleImpl implements Tuple {
           && values[selectionIndex.get(alias)] != null) {
         return selection.get(selectionIndex.get(alias)).getValue().getType()
             .getEnumConstants()[(int) values[selectionIndex.get(alias)]];
+      } else {
+        final AttributeConverter<Object, Object> converter = selection.get(selectionIndex.get(alias)).getValue()
+            .getConverter();
+        if (converter != null)
+          return converter.convertToEntityAttribute(values[selectionIndex.get(alias)]);
       }
       return values[selectionIndex.get(alias)];
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new IllegalArgumentException("Unknown alias: " + alias);
     }
   }
@@ -149,7 +159,7 @@ class TupleImpl implements Tuple {
   private class TupleElementImpl<X> implements TupleElement<X> {
     private final int index;
 
-    private TupleElementImpl(int index) {
+    private TupleElementImpl(final int index) {
       super();
       this.index = index;
     }

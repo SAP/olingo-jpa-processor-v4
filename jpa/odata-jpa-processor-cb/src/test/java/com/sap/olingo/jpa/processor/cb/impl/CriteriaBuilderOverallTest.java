@@ -66,10 +66,10 @@ public abstract class CriteriaBuilderOverallTest {
   public void testWhereWithMultipleAnd() {
     // SELECT E0."CodeID" FROM "OLINGO"."AdministrativeDivision" E0 WHERE (((E0."DivisionCode" = ?) AND (E0."CodeID" =
     // ?)) AND (E0."CodePublisher" = ?))
-    Root<?> adminDiv = q.from(AdministrativeDivision.class);
+    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
 
     q.multiselect(adminDiv.get("codeID"));
-    Predicate[] restrictions = new Predicate[3];
+    final Predicate[] restrictions = new Predicate[3];
     restrictions[0] = cb.equal(adminDiv.get("codeID"), "NUTS2");
     restrictions[1] = cb.equal(adminDiv.get("divisionCode"), "BE34");
     restrictions[2] = cb.equal(adminDiv.get("codePublisher"), "Eurostat");
@@ -225,11 +225,11 @@ public abstract class CriteriaBuilderOverallTest {
     final Root<?> person = q.from(Person.class);
     final Expression<Timestamp> locate = person.get("administrativeInformation").get("created").get("at");
 
-    q.multiselect(person.get("iD"));
+    q.multiselect(person.get("iD"), person.get("creationDateTime"));
     q.where(cb.lessThan(locate, cb.currentTimestamp()));
     ((SqlConvertable) q).asSQL(stmt);
     assertEquals(
-        "SELECT E0.\"ID\" FROM \"OLINGO\".\"BusinessPartner\" E0 WHERE ((E0.\"CreatedAt\" < CURRENT_TIMESTAMP) AND (E0.\"Type\" = ?1))",
+        "SELECT E0.\"ID\", E0.\"CreatedAt\" FROM \"OLINGO\".\"BusinessPartner\" E0 WHERE ((E0.\"CreatedAt\" < CURRENT_TIMESTAMP) AND (E0.\"Type\" = ?1))",
         stmt.toString().trim());
     final TypedQuery<Tuple> tq = em.createQuery(q);
     final List<Tuple> act = tq.getResultList();

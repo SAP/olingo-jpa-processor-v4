@@ -106,7 +106,7 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
           convertAttribute(row.get(element.getAlias()), path, complexValueBuffer, properties, row, EMPTY_PREFIX,
               odataEntity);
         }
-      } catch (ODataJPAModelException e) {
+      } catch (final ODataJPAModelException e) {
         throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
             HttpStatusCode.INTERNAL_SERVER_ERROR, e);
       }
@@ -122,17 +122,17 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
         if (odataEntity == null || odataEntity.getProperty(p.getAlias()) == null)
           convertAttribute(value, p, complexValueBuffer, properties, row, EMPTY_PREFIX, odataEntity);
 
-      } catch (IllegalArgumentException e) {
+      } catch (final IllegalArgumentException e) {
         // Skipped property; add it to result
         final JPATuple skipped = new JPATuple();
         skipped.addElement(p.getAlias(), p.getLeaf().getType(), null);
         try {
           convertAttribute(null, p, complexValueBuffer, properties, skipped, EMPTY_PREFIX, odataEntity);
-        } catch (ODataJPAModelException e1) {
+        } catch (final ODataJPAModelException e1) {
           throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
               HttpStatusCode.INTERNAL_SERVER_ERROR, e);
         }
-      } catch (ODataJPAModelException e) {
+      } catch (final ODataJPAModelException e) {
         throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
             HttpStatusCode.INTERNAL_SERVER_ERROR, e);
       }
@@ -172,7 +172,7 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
           entityExpandLinks.add(getLink(path, linkURI));
         }
       }
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_NAVI_PROPERTY_ERROR,
           HttpStatusCode.INTERNAL_SERVER_ERROR, path != null ? path.getAlias() : EMPTY_PREFIX);
     }
@@ -196,7 +196,7 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
       return et;
   }
 
-  protected final String determinePrefix(String alias) {
+  protected final String determinePrefix(final String alias) {
     final String prefix = alias;
     final int index = prefix.lastIndexOf(JPAPath.PATH_SEPARATOR);
     if (index < 0)
@@ -242,12 +242,13 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
       if (calculator.isPresent()) {
         try {
           odataValue = calculator.get().calculateProperty(parentRow);
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
+          requestContext.getDebugger().debug(this, e.getMessage());
           throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
         }
       }
     } else if (attribute != null && attribute.getConverter() != null) {
-      AttributeConverter<T, S> converter = attribute.getConverter();
+      final AttributeConverter<T, S> converter = attribute.getConverter();
       odataValue = converter.convertToDatabaseColumn((T) value);
     } else if (attribute != null && value != null && attribute.isEnum()) {
       odataValue = ((Enum<?>) value).ordinal();
@@ -276,9 +277,9 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
   Integer determineCount(final JPAAssociationPath assoziation, final Tuple parentRow, final JPAExpandResult child)
       throws ODataJPAQueryException {
     try {
-      Long count = child.getCount(buildConcatenatedKey(parentRow, assoziation.getLeftColumnsList()));
-      return count != null ? Integer.valueOf(count.intValue()) : null;
-    } catch (ODataJPAModelException e) {
+      final Long count = child.getCount(buildConcatenatedKey(parentRow, assoziation.getLeftColumnsList()));
+      return count != null ? count.intValue() : null;
+    } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
           HttpStatusCode.INTERNAL_SERVER_ERROR, e);
     }
@@ -314,7 +315,7 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
           link.setHref(linkURI);
         }
       }
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
           HttpStatusCode.INTERNAL_SERVER_ERROR, e);
     }

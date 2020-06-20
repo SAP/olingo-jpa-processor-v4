@@ -11,20 +11,20 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 
 public interface ProcessorSelection<X> extends Selection<X>, SqlConvertable {
   /**
-   * 
+   *
    * @return a list of pairs of alias and path
    */
   List<Entry<String, JPAPath>> getResolvedSelection();
 
   /**
    * Immutable pair
-   * @author D023143
+   * @author Oliver Grande
    *
    */
   public static class SelectionItem implements Map.Entry<String, JPAPath> {
 
     private final String key;
-    private JPAPath value;
+    private final JPAPath value;
 
     public SelectionItem(final String key, final JPAPath value) {
       super();
@@ -43,7 +43,7 @@ public interface ProcessorSelection<X> extends Selection<X>, SqlConvertable {
     }
 
     @Override
-    public JPAPath setValue(JPAPath value) {
+    public JPAPath setValue(final JPAPath value) {
       throw new IllegalAccessError();
     }
   }
@@ -51,7 +51,7 @@ public interface ProcessorSelection<X> extends Selection<X>, SqlConvertable {
   public static class SelectionAttribute implements Map.Entry<String, JPAAttribute> {
 
     private final String key;
-    private JPAAttribute value;
+    private final JPAAttribute value;
 
     public SelectionAttribute(final String key, final JPAAttribute value) {
       super();
@@ -70,7 +70,7 @@ public interface ProcessorSelection<X> extends Selection<X>, SqlConvertable {
     }
 
     @Override
-    public JPAAttribute setValue(JPAAttribute value) {
+    public JPAAttribute setValue(final JPAAttribute value) {
       throw new IllegalAccessError();
     }
   }

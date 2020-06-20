@@ -7,8 +7,8 @@ import javax.persistence.Converter;
 
 /**
  * Default converter to convert from {@link Long} to {@link java.time.Instant}.
- * 
- * @author D023143
+ *
+ * @author Oliver Grande
  * @since 1.0.0-RC
  */
 @Converter(autoApply = false)

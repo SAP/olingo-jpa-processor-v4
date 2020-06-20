@@ -139,7 +139,7 @@ class IntermediateJavaAction extends IntermediateOperation implements JPAAction 
     if (enumType != null) {
       return enumType.getExternalFQN();
     } else {
-      final IntermediateStructuredType structuredType = schema.getEntityType(jpaParameter.getType());
+      final IntermediateStructuredType<?> structuredType = schema.getEntityType(jpaParameter.getType());
       if (structuredType != null) {
         if (bindingPosition.getPos() == 0)
           bindingPosition.setPos(i + 1);

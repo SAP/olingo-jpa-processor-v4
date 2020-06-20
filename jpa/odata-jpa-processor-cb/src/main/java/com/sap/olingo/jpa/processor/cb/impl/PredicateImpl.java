@@ -19,20 +19,20 @@ import com.sap.olingo.jpa.processor.cb.api.SqlNullCheck;
 import com.sap.olingo.jpa.processor.cb.api.SqlSubQuery;
 
 /**
- * 
- * @author D023143
+ *
+ * @author Oliver Grande
  *
  */
 abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicate, SqlConvertable {
 
   protected final List<SqlConvertable> expressions;
 
-  protected PredicateImpl(SqlConvertable... expressions) {
+  protected PredicateImpl(final SqlConvertable... expressions) {
     super();
     this.expressions = Collections.unmodifiableList(Arrays.asList(expressions));
   }
 
-  static Predicate and(Predicate[] restrictions) {
+  static Predicate and(final Predicate[] restrictions) {
     if (restrictions == null || arrayIsEmpty(restrictions, 2))
       throw new IllegalArgumentException("Parameter 'restrictions' has to have at least 2 elements");
     Predicate p = restrictions[0];
@@ -42,7 +42,7 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
     return p;
   }
 
-  static Predicate or(Predicate[] restrictions) {
+  static Predicate or(final Predicate[] restrictions) {
     if (restrictions == null || arrayIsEmpty(restrictions, 2))
       throw new IllegalArgumentException("Parameter 'restrictions' has to have at least 2 elements");
     Predicate p = restrictions[0];
@@ -137,7 +137,7 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
     }
 
     @Override
-    public StringBuilder asSQL(StringBuilder statment) {
+    public StringBuilder asSQL(final StringBuilder statment) {
       statment
           .append(OPENING_BRACKET)
           .append(SqlKeyWords.NOT)
@@ -179,6 +179,7 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
   static class BinaryExpressionPredicate extends PredicateImpl {
     public enum Operation {
       EQ("="), NE("<>"), GT(">"), GE(">="), LT("<"), LE("<=");
+
       private String keyWord;
 
       private Operation(final String keyWord) {
@@ -191,7 +192,7 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
       }
     }
 
-    private Operation expression;
+    private final Operation expression;
 
     BinaryExpressionPredicate(final Operation operation, final Expression<?> left, final Expression<?> right) {
       super((SqlConvertable) left, (SqlConvertable) right);
@@ -222,8 +223,8 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
       this(column, pattern, Optional.empty());
     }
 
-    public LikePredicate(Expression<String> column, ParameterExpression<String, ?> pattern,
-        Optional<ParameterExpression<Character, ?>> escapeChar) {
+    public LikePredicate(final Expression<String> column, final ParameterExpression<String, ?> pattern,
+        final Optional<ParameterExpression<Character, ?>> escapeChar) {
       super((SqlConvertable) column);
       this.pattern = pattern;
       this.escape = escapeChar;
@@ -290,44 +291,44 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
     }
 
     @Override
-    public StringBuilder asSQL(StringBuilder statment) {
+    public StringBuilder asSQL(final StringBuilder statment) {
       return expressions.get(0).asSQL(statment.append(OPENING_BRACKET))
           .append(" ").append(check).append(CLOSING_BRACKET);
     }
   }
 
   @Override
-  public Predicate in(Object... values) {
+  public Predicate in(final Object... values) {
     // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public Predicate in(Expression<?>... values) {
+  public Predicate in(final Expression<?>... values) {
     // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public Predicate in(Collection<?> values) {
+  public Predicate in(final Collection<?> values) {
     // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public Predicate in(Expression<Collection<?>> values) {
+  public Predicate in(final Expression<Collection<?>> values) {
     // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public <X> Expression<X> as(Class<X> type) {
+  public <X> Expression<X> as(final Class<X> type) {
     // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public Selection<Boolean> alias(String name) {
+  public Selection<Boolean> alias(final String name) {
     // TODO Auto-generated method stub
     return null;
   }
@@ -373,7 +374,7 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
     return asExpression(expressions);
   }
 
-  private List<Expression<Boolean>> asExpression(List<SqlConvertable> sql) {
+  private List<Expression<Boolean>> asExpression(final List<SqlConvertable> sql) {
     return Collections.emptyList();
   }
 

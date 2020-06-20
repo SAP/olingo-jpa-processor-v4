@@ -119,19 +119,19 @@ class CriteriaQueryImpl<T> implements CriteriaQuery<T>, SqlConvertable {
   }
 
   @Override
-  public CriteriaQuery<T> distinct(boolean distinct) {
+  public CriteriaQuery<T> distinct(final boolean distinct) {
     this.distinct = distinct;
     return this;
   }
 
   @Override
-  public <X> Root<X> from(Class<X> entityClass) {
+  public <X> Root<X> from(final Class<X> entityClass) {
     try {
       final JPAEntityType et = sd.getEntity(entityClass);
       final Root<X> root = new RootImpl<>(et, aliasBuilder, cb);
       roots.add((FromImpl<?, ?>) root);
       return root;
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException e) {
       throw new InternalServerError(e);
     }
   }
@@ -170,7 +170,6 @@ class CriteriaQueryImpl<T> implements CriteriaQuery<T>, SqlConvertable {
 
   @Override
   public Set<ParameterExpression<?>> getParameters() {
-    // TODO Auto-generated method stub
     return Collections.emptySet();
   }
 
@@ -213,7 +212,7 @@ class CriteriaQueryImpl<T> implements CriteriaQuery<T>, SqlConvertable {
    * @return the modified query
    */
   @Override
-  public CriteriaQuery<T> groupBy(Expression<?>... grouping) {
+  public CriteriaQuery<T> groupBy(final Expression<?>... grouping) {
     return groupBy(grouping != null ? Arrays.asList(grouping) : null);
   }
 
@@ -229,7 +228,7 @@ class CriteriaQueryImpl<T> implements CriteriaQuery<T>, SqlConvertable {
    * @return the modified query
    */
   @Override
-  public CriteriaQuery<T> groupBy(List<Expression<?>> grouping) {
+  public CriteriaQuery<T> groupBy(final List<Expression<?>> grouping) {
     groupBy = Optional.ofNullable(grouping);
     return this;
   }
@@ -243,7 +242,7 @@ class CriteriaQueryImpl<T> implements CriteriaQuery<T>, SqlConvertable {
    * @return the modified query
    */
   @Override
-  public CriteriaQuery<T> having(Expression<Boolean> restriction) {
+  public CriteriaQuery<T> having(final Expression<Boolean> restriction) {
     return having(new Predicate[] { (Predicate) restriction }); // NOSONAR
   }
 
@@ -260,7 +259,7 @@ class CriteriaQueryImpl<T> implements CriteriaQuery<T>, SqlConvertable {
    * @return the modified query
    */
   @Override
-  public CriteriaQuery<T> having(Predicate... restrictions) {
+  public CriteriaQuery<T> having(final Predicate... restrictions) {
     final Predicate p = restrictions.length > 1
         ? cb.and(restrictions)
         : restrictions.length == 1 // NOSONAR
@@ -335,7 +334,7 @@ class CriteriaQueryImpl<T> implements CriteriaQuery<T>, SqlConvertable {
    * the same assigned alias
    */
   @Override
-  public CriteriaQuery<T> multiselect(List<Selection<?>> selectionList) {
+  public CriteriaQuery<T> multiselect(final List<Selection<?>> selectionList) {
     selection = new CompoundSelectionImpl<>(selectionList, resultType);
     return this;
   }
@@ -415,7 +414,7 @@ class CriteriaQueryImpl<T> implements CriteriaQuery<T>, SqlConvertable {
    * @return the modified query
    */
   @Override
-  public CriteriaQuery<T> where(Predicate... restrictions) {
+  public CriteriaQuery<T> where(final Predicate... restrictions) {
     throw new NotImplementedException();
   }
 
@@ -602,7 +601,7 @@ class CriteriaQueryImpl<T> implements CriteriaQuery<T>, SqlConvertable {
     }
 
     @Override
-    public int compareTo(JPAPath o) {
+    public int compareTo(final JPAPath o) {
       return 0;
     }
 
@@ -632,7 +631,7 @@ class CriteriaQueryImpl<T> implements CriteriaQuery<T>, SqlConvertable {
     }
 
     @Override
-    public boolean isPartOfGroups(List<String> groups) {
+    public boolean isPartOfGroups(final List<String> groups) {
       return false;
     }
 
@@ -690,7 +689,7 @@ class CriteriaQueryImpl<T> implements CriteriaQuery<T>, SqlConvertable {
     }
 
     @Override
-    public List<String> getProtectionPath(String claimName) throws ODataJPAModelException {
+    public List<String> getProtectionPath(final String claimName) throws ODataJPAModelException {
       return Collections.emptyList();
     }
 

@@ -8,12 +8,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.persistence.AttributeConverter;
 import javax.persistence.Tuple;
 import javax.persistence.TupleElement;
 
@@ -24,13 +27,15 @@ import org.mockito.stubbing.Answer;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.processor.cb.api.ProcessorSelection;
+import com.sap.olingo.jpa.processor.core.testmodel.DateTimeConverter;
 
 public class TupleImplTest {
   private static final String SECOND_VALUE = "Second";
   private static final String THIRD_VALUE = "Third";
   private static final String FIRST_VALUE = "First";
+  private static final String TIME_VALUE = "Timestamp";
   private Tuple cut;
-  private Object[] values = { "Hello", "World", 3 };
+  private final Object[] values = { "Hello", "World", 3, Timestamp.valueOf("2019-01-25 14:00:25") };
   private Map<String, Integer> selectionIndex;
   private List<Entry<String, JPAAttribute>> selPath;
 
@@ -42,10 +47,12 @@ public class TupleImplTest {
     selectionIndex.put(FIRST_VALUE, 0);
     selectionIndex.put(SECOND_VALUE, 1);
     selectionIndex.put(THIRD_VALUE, 2);
+    selectionIndex.put(TIME_VALUE, 3);
 
     selPath.add(new ProcessorSelection.SelectionAttribute(FIRST_VALUE, mockAttribute(FIRST_VALUE, String.class)));
     selPath.add(new ProcessorSelection.SelectionAttribute(SECOND_VALUE, mockAttribute(SECOND_VALUE, String.class)));
     selPath.add(new ProcessorSelection.SelectionAttribute(THIRD_VALUE, mockAttribute(THIRD_VALUE, Integer.class)));
+    selPath.add(new ProcessorSelection.SelectionAttribute(TIME_VALUE, mockAttributeWithConverter(TIME_VALUE)));
     cut = new TupleImpl(values, selPath, selectionIndex);
   }
 
@@ -53,11 +60,22 @@ public class TupleImplTest {
     final JPAAttribute a = mock(JPAAttribute.class);
     when(a.getType()).thenAnswer(new Answer<Class<?>>() {
       @Override
-      public Class<?> answer(InvocationOnMock invocation) throws Throwable {
+      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
         return clazz;
       }
     });
     return a;
+  }
+
+  private JPAAttribute mockAttributeWithConverter(final String alias) {
+    final JPAAttribute attribute = mockAttribute(alias, Timestamp.class);
+    when(attribute.getConverter()).thenAnswer(new Answer<AttributeConverter<LocalDateTime, Timestamp>>() {
+      @Override
+      public AttributeConverter<LocalDateTime, Timestamp> answer(final InvocationOnMock invocation) throws Throwable {
+        return new DateTimeConverter();
+      }
+    });
+    return attribute;
   }
 
   @Test
@@ -124,7 +142,7 @@ public class TupleImplTest {
   public void testGetTupleElements() {
     final List<TupleElement<?>> act = cut.getElements();
     boolean secondFound = false;
-    assertEquals(3, act.size());
+    assertEquals(4, act.size());
     for (final TupleElement<?> t : act) {
       if (SECOND_VALUE.equals(t.getAlias())) {
         assertEquals(String.class, t.getJavaType());
@@ -133,5 +151,11 @@ public class TupleImplTest {
       }
     }
     assertTrue(secondFound);
+  }
+
+  @Test
+  public void testTupleReturnsConvertedValue() {
+    cut = new TupleImpl(values, selPath, selectionIndex);
+    assertTrue(cut.get(TIME_VALUE) instanceof LocalDateTime);
   }
 }

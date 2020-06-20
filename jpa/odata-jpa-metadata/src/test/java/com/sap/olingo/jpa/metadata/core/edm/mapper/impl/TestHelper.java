@@ -63,10 +63,11 @@ public class TestHelper {
     return null;
   }
 
-  public EmbeddableType<?> getComplexType(final String typeName) {
+  @SuppressWarnings("unchecked")
+  public <T> EmbeddableType<T> getComplexType(final String typeName) {
     for (final EmbeddableType<?> embeddableType : jpaMetamodel.getEmbeddables()) {
       if (embeddableType.getJavaType().getSimpleName().equals(typeName)) {
-        return embeddableType;
+        return (EmbeddableType<T>) embeddableType;
       }
     }
     return null;
@@ -89,25 +90,23 @@ public class TestHelper {
     return null;
   }
 
-  public EmbeddableType<?> getEmbeddedableType(final Class<?> clazz) {
-    for (final EmbeddableType<?> embeddableType : jpaMetamodel.getEmbeddables()) {
-      if (embeddableType.getJavaType().getSimpleName().equals(clazz.getSimpleName())) {
-        return embeddableType;
-      }
+  public <T> EmbeddableType<T> getEmbeddedableType(final Class<T> clazz) {
+    try {
+      return jpaMetamodel.embeddable(clazz);
+    } catch (final IllegalArgumentException e) {
+      return null;
     }
-    return null;
   }
 
-  public EntityType<?> getEntityType(final Class<?> clazz) {
-    for (final EntityType<?> entityType : jpaMetamodel.getEntities()) {
-      if (entityType.getJavaType().getSimpleName().equals(clazz.getSimpleName())) {
-        return entityType;
-      }
+  public <T> EntityType<T> getEntityType(final Class<T> clazz) {
+    try {
+      return jpaMetamodel.entity(clazz);
+    } catch (final IllegalArgumentException e) {
+      return null;
     }
-    return null;
   }
 
-  public EdmFunction getStoredProcedure(EntityType<?> jpaEntityType, String string) {
+  public EdmFunction getStoredProcedure(final EntityType<?> jpaEntityType, final String string) {
     if (jpaEntityType.getJavaType() instanceof AnnotatedElement) {
       final EdmFunctions jpaStoredProcedureList = ((AnnotatedElement) jpaEntityType.getJavaType())
           .getAnnotation(EdmFunctions.class);

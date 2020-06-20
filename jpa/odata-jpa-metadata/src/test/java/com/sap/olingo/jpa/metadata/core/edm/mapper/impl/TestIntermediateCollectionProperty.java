@@ -30,6 +30,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.testmodel.CollectionFirstLevelComplex;
+import com.sap.olingo.jpa.processor.core.testmodel.CollectionSecondLevelComplex;
 import com.sap.olingo.jpa.processor.core.testmodel.ComplexWithTransientComplexCollction;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
@@ -150,14 +151,14 @@ public class TestIntermediateCollectionProperty extends TestMappingRoot {
   @Test
   public void checkGetDeepComplexPropertyReturnsExternalName() throws ODataJPAModelException {
 
-    final IntermediateStructuredType st = new IntermediateComplexType(nameBuilder, helper
-        .getComplexType("CollectionSecondLevelComplex"), helper.schema);
+    final IntermediateStructuredType<CollectionSecondLevelComplex> st = new IntermediateComplexType<>(nameBuilder,
+        helper.getComplexType("CollectionSecondLevelComplex"), helper.schema);
     for (final JPACollectionAttribute collection : st.getDeclaredCollectionAttributes())
       if (collection.getInternalName().equals("comment")) assertEquals("Comment", collection.asAssociation()
           .getAlias());
 
-    final IntermediateStructuredType stst = new IntermediateComplexType(nameBuilder, helper
-        .getComplexType("CollectionFirstLevelComplex"), helper.schema);
+    final IntermediateStructuredType<CollectionFirstLevelComplex> stst = new IntermediateComplexType<>(nameBuilder,
+        helper.getComplexType("CollectionFirstLevelComplex"), helper.schema);
     for (final JPAPath collection : stst.getCollectionAttributesPath())
       if (collection.getLeaf().getInternalName().equals("comment")) assertEquals("SecondLevel/Comment", collection
           .getAlias());

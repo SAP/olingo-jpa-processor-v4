@@ -20,8 +20,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 final class JPAAssociationPathImpl implements JPAAssociationPath {
   private final String alias;
   private final List<JPAElement> pathElements;
-  private final IntermediateStructuredType sourceType;
-  private final IntermediateStructuredType targetType;
+  private final IntermediateStructuredType<?> sourceType;
+  private final IntermediateStructuredType<?> targetType;
   private final List<IntermediateJoinColumn> joinColumns;
   private final PersistentAttributeType cardinality;
   private final boolean isCollection;
@@ -29,14 +29,14 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
   private final JPAJoinTable joinTable;
 
   JPAAssociationPathImpl(final IntermediateNavigationProperty association,
-      final IntermediateStructuredType source) throws ODataJPAModelException {
+      final IntermediateStructuredType<?> source) throws ODataJPAModelException {
 
     final List<JPAElement> pathElementsBuffer = new ArrayList<>();
     pathElementsBuffer.add(association);
 
     alias = association.getExternalName();
     this.sourceType = source;
-    this.targetType = (IntermediateStructuredType) association.getTargetEntity();
+    this.targetType = (IntermediateStructuredType<?>) association.getTargetEntity();
     this.joinColumns = association.getJoinColumns();
     this.pathElements = Collections.unmodifiableList(pathElementsBuffer);
     this.cardinality = association.getJoinCardinality();
@@ -45,7 +45,7 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
     this.joinTable = association.getJoinTable();
   }
 
-  JPAAssociationPathImpl(final JPAAssociationPath associationPath, final IntermediateStructuredType source,
+  JPAAssociationPathImpl(final JPAAssociationPath associationPath, final IntermediateStructuredType<?> source,
       final List<IntermediateJoinColumn> joinColumns, final JPAAttribute attribute) {
 
     final List<JPAElement> pathElementsBuffer = new ArrayList<>();
@@ -54,7 +54,7 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
 
     alias = buildNaviPropertyBindingName(associationPath, attribute);
     this.sourceType = source;
-    this.targetType = (IntermediateStructuredType) associationPath.getTargetType();
+    this.targetType = (IntermediateStructuredType<?>) associationPath.getTargetType();
     if (joinColumns.isEmpty())
       this.joinColumns = ((JPAAssociationPathImpl) associationPath).getJoinColumns();
     else
@@ -75,7 +75,7 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
    * @throws ODataJPAModelException
    */
   public JPAAssociationPathImpl(final IntermediateCollectionProperty collectionProperty,
-      final IntermediateStructuredType source, final JPAPath path, final List<IntermediateJoinColumn> joinColumns)
+      final IntermediateStructuredType<?> source, final JPAPath path, final List<IntermediateJoinColumn> joinColumns)
       throws ODataJPAModelException {
 
     alias = path.getAlias();
@@ -91,7 +91,7 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath#getAlias()
    */
   @Override
@@ -111,7 +111,7 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath#getJoinColumnsList()
    */
   @Override
@@ -139,7 +139,7 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath#getLeaf()
    */
   @Override
@@ -171,7 +171,7 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath#getPath()
    */
   @Override
@@ -197,7 +197,7 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath#getSourceType()
    */
   @Override
@@ -207,7 +207,7 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath#getTargetType()
    */
   @Override
@@ -217,7 +217,7 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath#isCollection()
    */
   @Override
@@ -273,7 +273,7 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath#hasJoinTable()
    */
   @Override

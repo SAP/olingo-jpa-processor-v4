@@ -20,14 +20,16 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 public class IntermediateOperationHelper {
 
   private IntermediateOperationHelper() {
-// Must not create instances
+    // Must not create instances
   }
 
-  static Constructor<?> determineConstructor(final Method javaFunction) throws ODataJPAModelException {
-    Constructor<?> result = null;
-    Constructor<?>[] constructors = javaFunction.getDeclaringClass().getConstructors();
-    for (Constructor<?> constructor : Arrays.asList(constructors)) {
-      Parameter[] parameters = constructor.getParameters();
+  @SuppressWarnings("unchecked")
+  static <T> Constructor<T> determineConstructor(final Method javaFunction) throws ODataJPAModelException {
+    Constructor<T> result = null;
+    final Constructor<T>[] constructors = (Constructor<T>[]) ((Class<T>) javaFunction.getDeclaringClass())
+        .getConstructors();
+    for (final Constructor<T> constructor : Arrays.asList(constructors)) {
+      final Parameter[] parameters = constructor.getParameters();
       if (parameters.length == 0)
         result = constructor;
       else if (parameters.length == 1 && parameters[0].getType() == EntityManager.class) {
@@ -41,8 +43,8 @@ public class IntermediateOperationHelper {
     return result;
   }
 
-  static boolean isCollection(Class<?> declairedReturnType) {
-    for (Class<?> inter : Arrays.asList(declairedReturnType.getInterfaces())) {
+  static boolean isCollection(final Class<?> declairedReturnType) {
+    for (final Class<?> inter : Arrays.asList(declairedReturnType.getInterfaces())) {
       if (inter == Collection.class)
         return true;
     }
@@ -52,7 +54,7 @@ public class IntermediateOperationHelper {
   static FullQualifiedName determineReturnType(final ReturnType definedReturnType, final Class<?> declairedReturnType,
       final IntermediateSchema schema, final String operationName) throws ODataJPAModelException {
 
-    IntermediateStructuredType structuredType = schema.getStructuredType(declairedReturnType);
+    final IntermediateStructuredType<?> structuredType = schema.getStructuredType(declairedReturnType);
     if (structuredType != null)
       return structuredType.getExternalFQN();
     else {

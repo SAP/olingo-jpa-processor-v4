@@ -1,5 +1,10 @@
 package com.sap.olingo.jpa.processor.core.database;
 
+import static com.sap.olingo.jpa.processor.core.exception.ODataJPADBAdaptorException.MessageKeys.PARAMETER_CONVERSION_ERROR;
+import static com.sap.olingo.jpa.processor.core.exception.ODataJPADBAdaptorException.MessageKeys.PARAMETER_MISSING;
+import static org.apache.olingo.commons.api.http.HttpStatusCode.BAD_REQUEST;
+import static org.apache.olingo.commons.api.http.HttpStatusCode.INTERNAL_SERVER_ERROR;
+
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -9,7 +14,6 @@ import org.apache.olingo.commons.api.edm.EdmElement;
 import org.apache.olingo.commons.api.edm.EdmFunction;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeException;
-import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResource;
@@ -58,7 +62,7 @@ public abstract class JPAAbstractDatabaseProcessor implements JPAODataDatabasePr
       else
         fillParameterFromFunction(jpaFunction, uriResourceFunction, functionQuery);
     } catch (final ODataJPAModelException e) {
-      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+      throw new ODataJPAProcessorException(e, INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -75,7 +79,7 @@ public abstract class JPAAbstractDatabaseProcessor implements JPAODataDatabasePr
         parameterList.append(i);
       }
     } catch (final ODataJPAModelException e) {
-      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+      throw new ODataJPAProcessorException(e, INTERNAL_SERVER_ERROR);
     }
     parameterList.deleteCharAt(0);
     return queryString.replace(PARAMETER_PLACEHOLDER, parameterList.toString());
@@ -88,8 +92,7 @@ public abstract class JPAAbstractDatabaseProcessor implements JPAODataDatabasePr
       if (uriParameter.getName().equals(parameter.getName()))
         return uriParameter;
     }
-    throw new ODataJPADBAdaptorException(ODataJPADBAdaptorException.MessageKeys.PARAMETER_MISSING,
-        HttpStatusCode.BAD_REQUEST, parameter.getName());
+    throw new ODataJPADBAdaptorException(PARAMETER_MISSING, BAD_REQUEST, parameter.getName());
   }
 
   protected void fillParameterFromEntity(final JPADataBaseFunction jpaFunction, final UriResourceEntitySet es,
@@ -105,7 +108,7 @@ public abstract class JPAAbstractDatabaseProcessor implements JPAODataDatabasePr
         count += 1;
       }
     } catch (final ODataJPAModelException e) {
-      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+      throw new ODataJPAProcessorException(e, INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -134,7 +137,7 @@ public abstract class JPAAbstractDatabaseProcessor implements JPAODataDatabasePr
         count += 1;
       }
     } catch (final ODataJPAModelException e) {
-      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+      throw new ODataJPAProcessorException(e, INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -147,8 +150,8 @@ public abstract class JPAAbstractDatabaseProcessor implements JPAODataDatabasePr
           parameter.getPrecision(), parameter.getScale(), true, parameter.getType());
     } catch (final EdmPrimitiveTypeException e) {
       // Unable to convert value %1$s of parameter %2$s
-      throw new ODataJPADBAdaptorException(ODataJPADBAdaptorException.MessageKeys.PARAMETER_CONVERSION_ERROR,
-          HttpStatusCode.INTERNAL_SERVER_ERROR, uriValue, parameter.getName());
+      throw new ODataJPADBAdaptorException(PARAMETER_CONVERSION_ERROR, INTERNAL_SERVER_ERROR, e, uriValue, parameter
+          .getName());
     }
   }
 }

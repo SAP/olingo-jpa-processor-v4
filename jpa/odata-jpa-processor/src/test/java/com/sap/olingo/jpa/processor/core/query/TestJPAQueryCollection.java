@@ -28,9 +28,9 @@ public class TestJPAQueryCollection extends TestBase {
     helper.assertStatus(200);
 
     final ArrayNode orgs = helper.getValues();
-    ObjectNode org = (ObjectNode) orgs.get(0);
+    final ObjectNode org = (ObjectNode) orgs.get(0);
     assertNotNull(org.get("ID"));
-    ArrayNode comment = (ArrayNode) org.get("Comment");
+    final ArrayNode comment = (ArrayNode) org.get("Comment");
     assertEquals(2, comment.size());
   }
 
@@ -44,8 +44,8 @@ public class TestJPAQueryCollection extends TestBase {
 
     final ArrayNode buildings = helper.getValues();
     assertEquals(2, buildings.size());
-    ObjectNode building = (ObjectNode) buildings.get(0);
-    TextNode number = (TextNode) building.get("Building");
+    final ObjectNode building = (ObjectNode) buildings.get(0);
+    final TextNode number = (TextNode) building.get("Building");
     assertNotNull(number);
   }
 
@@ -57,7 +57,7 @@ public class TestJPAQueryCollection extends TestBase {
     helper.assertStatus(200);
 
     final ObjectNode person = helper.getValue();
-    ArrayNode comment = (ArrayNode) person.get("InhouseAddress");
+    final ArrayNode comment = (ArrayNode) person.get("InhouseAddress");
     assertEquals(2, comment.size());
   }
 
@@ -69,7 +69,7 @@ public class TestJPAQueryCollection extends TestBase {
     helper.assertStatus(200);
 
     final ObjectNode person = helper.getValue();
-    ArrayNode comment = (ArrayNode) person.get("Comment");
+    final ArrayNode comment = (ArrayNode) person.get("Comment");
     assertEquals(2, comment.size());
   }
 
@@ -81,9 +81,9 @@ public class TestJPAQueryCollection extends TestBase {
     helper.assertStatus(200);
 
     final ObjectNode collection = helper.getValue();
-    ArrayNode nested = (ArrayNode) collection.get("Nested");
+    final ArrayNode nested = (ArrayNode) collection.get("Nested");
     assertEquals(1, nested.size());
-    ObjectNode n = (ObjectNode) nested.get(0);
+    final ObjectNode n = (ObjectNode) nested.get(0);
     assertEquals(1L, n.get("Number").asLong());
     assertFalse(n.get("Inner") instanceof NullNode);
     assertEquals(6L, n.get("Inner").get("Figure3").asLong());
@@ -119,7 +119,7 @@ public class TestJPAQueryCollection extends TestBase {
     helper.assertStatus(200);
 
     final ObjectNode collection = helper.getValue();
-    ObjectNode complex = (ObjectNode) collection.get("Complex");
+    final ObjectNode complex = (ObjectNode) collection.get("Complex");
     assertEquals(-1L, complex.get("Number").asLong());
     assertFalse(complex.get("Address") instanceof NullNode);
     assertEquals(1, complex.get("Address").size());
@@ -136,7 +136,7 @@ public class TestJPAQueryCollection extends TestBase {
     helper.assertStatus(200);
 
     final ObjectNode collection = helper.getValue();
-    ObjectNode complex = (ObjectNode) collection.get("Complex");
+    final ObjectNode complex = (ObjectNode) collection.get("Complex");
     assertEquals(32L, complex.get("Number").asLong());
     assertFalse(complex.get("Address") instanceof NullNode);
     assertEquals(2, complex.get("Address").size());
@@ -157,11 +157,11 @@ public class TestJPAQueryCollection extends TestBase {
     helper.assertStatus(200);
 
     final ObjectNode collection = helper.getValue();
-    ObjectNode complex = (ObjectNode) collection.get("FirstLevel");
+    final ObjectNode complex = (ObjectNode) collection.get("FirstLevel");
     assertEquals(1, complex.get("LevelID").asInt());
     assertFalse(complex.get("SecondLevel") instanceof NullNode);
-    ObjectNode second = (ObjectNode) complex.get("SecondLevel");
-    ArrayNode address = (ArrayNode) second.get("Address");
+    final ObjectNode second = (ObjectNode) complex.get("SecondLevel");
+    final ArrayNode address = (ArrayNode) second.get("Address");
     assertEquals(32, address.get(0).get("RoomNumber").asInt());
   }
 
@@ -175,10 +175,10 @@ public class TestJPAQueryCollection extends TestBase {
     final ObjectNode collection = helper.getValue();
     final TextNode actId = (TextNode) collection.get("ID");
     assertEquals("502", actId.asText());
-    ObjectNode complex = (ObjectNode) collection.get("FirstLevel");
+    final ObjectNode complex = (ObjectNode) collection.get("FirstLevel");
     assertFalse(complex.get("SecondLevel") instanceof NullNode);
-    ObjectNode second = (ObjectNode) complex.get("SecondLevel");
-    ArrayNode comment = (ArrayNode) second.get("Comment");
+    final ObjectNode second = (ObjectNode) complex.get("SecondLevel");
+    final ArrayNode comment = (ArrayNode) second.get("Comment");
     assertEquals(2, comment.size());
   }
 
@@ -248,6 +248,7 @@ public class TestJPAQueryCollection extends TestBase {
     final ArrayNode act = ((ArrayNode) collection.get("value"));
     assertEquals(2, act.size());
     assertEquals(2, act.get(0).get("Comment").size());
+    assertEquals("1", act.get(0).get("ID").asText());
   }
 
   @Test
@@ -290,7 +291,7 @@ public class TestJPAQueryCollection extends TestBase {
     helper.assertStatus(200);
     // CollectionDeep.class
     final ObjectNode result = helper.getValue();
-    ArrayNode collection = (ArrayNode) result.get("value");
+    final ArrayNode collection = (ArrayNode) result.get("value");
     assertEquals(2, collection.size());
   }
 
@@ -302,7 +303,7 @@ public class TestJPAQueryCollection extends TestBase {
     helper.assertStatus(200);
     // CollectionDeep.class
     final ObjectNode result = helper.getValue();
-    ArrayNode collection = (ArrayNode) result.get("value");
+    final ArrayNode collection = (ArrayNode) result.get("value");
     assertEquals(2, collection.size());
   }
 
@@ -313,7 +314,7 @@ public class TestJPAQueryCollection extends TestBase {
         "CollectionDeeps('501')/FirstLevel/SecondLevel");
     helper.assertStatus(200);
     final ObjectNode collection = helper.getValue();
-    ArrayNode complex = (ArrayNode) collection.get("Address");
+    final ArrayNode complex = (ArrayNode) collection.get("Address");
     assertEquals(1, complex.size());
   }
 
@@ -324,7 +325,7 @@ public class TestJPAQueryCollection extends TestBase {
         "CollectionWithTransients('501')/Nested"); // $select=Log");
     helper.assertStatus(200);
     final ObjectNode result = helper.getValue();
-    ArrayNode collection = (ArrayNode) result.get("value");
+    final ArrayNode collection = (ArrayNode) result.get("value");
     assertEquals(2, collection.size());
     assertFalse(collection.get(0).get("Number") instanceof NullNode);
     assertFalse(collection.get(0).get("Log") instanceof NullNode);
@@ -337,7 +338,7 @@ public class TestJPAQueryCollection extends TestBase {
         "CollectionWithTransients('501')/Nested$select=Log");
     helper.assertStatus(200);
     final ObjectNode result = helper.getValue();
-    ArrayNode collection = (ArrayNode) result.get("value");
+    final ArrayNode collection = (ArrayNode) result.get("value");
     assertEquals(2, collection.size());
     assertFalse(collection.get(0).get("Log") instanceof NullNode);
 
@@ -350,7 +351,7 @@ public class TestJPAQueryCollection extends TestBase {
         "CollectionDeeps('501')/FirstLevel/SecondLevel/Address");
     helper.assertStatus(200);
     final ObjectNode collection = helper.getValue();
-    ArrayNode complex = (ArrayNode) collection.get("value");
+    final ArrayNode complex = (ArrayNode) collection.get("value");
     assertEquals(1, complex.size());
   }
 }
