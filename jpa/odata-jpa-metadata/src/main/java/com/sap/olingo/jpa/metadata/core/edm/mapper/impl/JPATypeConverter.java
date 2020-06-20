@@ -11,6 +11,8 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.util.Calendar;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.persistence.Lob;
@@ -30,9 +32,65 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
  *
  */
 public final class JPATypeConverter {
+  private static Set<Class<?>> olingoSupportedTypes = typesSupportedByOlingo();
+  private static Set<Class<?>> scalarTypes = typesScalar();
 
   private JPATypeConverter() {}
 
+  private static Set<Class<?>> typesSupportedByOlingo() {
+    final Set<Class<?>> types = new HashSet<>(32);
+    types.add(Boolean.class);
+    types.add(Byte.class);
+    types.add(Byte[].class);
+    types.add(byte[].class);
+    types.add(Double.class);
+    types.add(Float.class);
+    types.add(Integer.class);
+    types.add(java.math.BigDecimal.class);
+    types.add(java.math.BigInteger.class);
+    types.add(java.sql.Time.class);
+    types.add(java.sql.Timestamp.class);
+    types.add(java.util.Calendar.class);
+    types.add(java.time.LocalTime.class);
+    types.add(java.time.LocalDate.class);
+    types.add(java.time.ZonedDateTime.class);
+    types.add(java.time.Instant.class);
+    types.add(java.util.Date.class);
+    types.add(java.util.UUID.class);
+    types.add(Long.class);
+    types.add(Short.class);
+    types.add(String.class);
+    return types;
+  }
+
+  private static Set<Class<?>> typesScalar() {
+    final Set<Class<?>> types = new HashSet<>(32);
+    types.add(String.class);
+    types.add(Character.class);
+    types.add(Long.class);
+    types.add(Short.class);
+    types.add(Integer.class);
+    types.add(Double.class);
+    types.add(Float.class);
+    types.add(BigDecimal.class);
+    types.add(BigInteger.class);
+    types.add(Byte.class);
+    types.add(Boolean.class);
+    types.add(java.sql.Time.class);
+    types.add(java.time.LocalTime.class);
+    types.add(java.time.Duration.class);
+    types.add(java.time.LocalDate.class);
+    types.add(java.time.OffsetDateTime.class);
+    types.add(java.time.ZonedDateTime.class);
+    types.add(java.time.Instant.class);
+    types.add(java.sql.Date.class);
+    types.add(Calendar.class);
+    types.add(Timestamp.class);
+    types.add(java.util.Date.class);
+    types.add(UUID.class);
+    return types;
+  }
+  
   public static EdmPrimitiveTypeKind convertToEdmSimpleType(final Class<?> type) throws ODataJPAModelException {
     return convertToEdmSimpleType(type, null);
   }
@@ -126,29 +184,7 @@ public final class JPATypeConverter {
   }
 
   public static boolean isScalarType(final Class<?> type) {
-    return (type == String.class ||
-        type == Character.class ||
-        type == Long.class ||
-        type == Short.class ||
-        type == Integer.class ||
-        type == Double.class ||
-        type == Float.class ||
-        type == BigDecimal.class ||
-        type == BigInteger.class ||
-        type == Byte.class ||
-        type == Boolean.class ||
-        type == java.sql.Time.class ||
-        type == java.time.LocalTime.class ||
-        type == java.time.Duration.class ||
-        type == java.time.LocalDate.class ||
-        type == java.time.OffsetDateTime.class ||
-        type == java.time.ZonedDateTime.class ||
-        type == java.time.Instant.class ||
-        type == java.sql.Date.class ||
-        type == Calendar.class ||
-        type == Timestamp.class ||
-        type == java.util.Date.class ||
-        type == UUID.class);
+    return scalarTypes.contains(type);
   }
 
   /**
@@ -170,31 +206,13 @@ public final class JPATypeConverter {
    */
   public static boolean isSupportedByOlingo(final Class<?> type) {
 
-    return (type == Boolean.class ||
-        type == Byte.class ||
-        type == Byte[].class ||
-        type == byte[].class ||
-        type == Double.class ||
-        type == Float.class ||
-        type == Integer.class ||
-        type == java.math.BigDecimal.class ||
-        type == java.math.BigInteger.class ||
-        type == java.sql.Time.class ||
-        type == java.sql.Timestamp.class ||
-        type == java.util.Calendar.class ||
-        type == java.time.LocalTime.class ||
-        type == java.time.LocalDate.class ||
-        type == java.time.ZonedDateTime.class ||
-        type == java.time.Instant.class ||
-        type == java.util.Date.class ||
-        type == java.util.UUID.class ||
-        type == Long.class ||
-        type == Short.class ||
-        type == String.class);
+    return olingoSupportedTypes.contains(type);
   }
 
   private static EdmPrimitiveTypeKind convertGeography(final Class<?> jpaType, final Attribute<?, ?> currentAttribute)
       throws ODataJPAModelException {
+    
+    
     if (jpaType.equals(org.apache.olingo.commons.api.edm.geo.Point.class))
       return EdmPrimitiveTypeKind.GeographyPoint;
     else if (jpaType.equals(org.apache.olingo.commons.api.edm.geo.MultiPoint.class))

@@ -14,7 +14,6 @@ import javax.persistence.TupleElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 
 class TupleImpl implements Tuple {
-
   private final Object[] values;
   private final List<Entry<String, JPAAttribute>> selection;
   private final Map<String, Integer> selectionIndex;
@@ -93,7 +92,7 @@ class TupleImpl implements Tuple {
       }
       return values[selectionIndex.get(alias)];
     } catch (final Exception e) {
-      throw new IllegalArgumentException("Unknown alias: " + alias);
+      throw new IllegalArgumentException("Unknown alias: " + alias, e);
     }
   }
 

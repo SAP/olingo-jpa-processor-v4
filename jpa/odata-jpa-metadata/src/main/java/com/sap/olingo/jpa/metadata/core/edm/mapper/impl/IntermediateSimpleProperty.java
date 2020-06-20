@@ -14,6 +14,8 @@ import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.Attribute.PersistentAttributeType;
 import javax.persistence.metamodel.SingularAttribute;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmMediaStream;
@@ -36,6 +38,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
  *
  */
 class IntermediateSimpleProperty extends IntermediateProperty {
+  private static final Log logger = LogFactory.getLog(IntermediateSimpleProperty.class);
   private EdmMediaStream streamInfo;
 
   IntermediateSimpleProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,
@@ -153,6 +156,7 @@ class IntermediateSimpleProperty extends IntermediateProperty {
         // Class could not be instantiated e.g. abstract class like
         // Business Partner=> default could not be determined
         // and will be ignored
+        logger.debug("Default could not be determined:" + jpaAttribute.getJavaMember().getName() + "abstarct");
       }
     }
     return valueString;

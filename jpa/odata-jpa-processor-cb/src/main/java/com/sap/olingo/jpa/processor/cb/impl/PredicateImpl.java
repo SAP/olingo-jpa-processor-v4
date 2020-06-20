@@ -25,6 +25,7 @@ import com.sap.olingo.jpa.processor.cb.api.SqlSubQuery;
  */
 abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicate, SqlConvertable {
 
+  private static final int REQUIRED_NO_OPERATOR = 2;
   protected final List<SqlConvertable> expressions;
 
   protected PredicateImpl(final SqlConvertable... expressions) {
@@ -33,7 +34,7 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
   }
 
   static Predicate and(final Predicate[] restrictions) {
-    if (restrictions == null || arrayIsEmpty(restrictions, 2))
+    if (restrictions == null || arrayIsEmpty(restrictions, REQUIRED_NO_OPERATOR))
       throw new IllegalArgumentException("Parameter 'restrictions' has to have at least 2 elements");
     Predicate p = restrictions[0];
     for (int i = 1; i < restrictions.length; i++) {
@@ -371,10 +372,10 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
 
   @Override
   public List<Expression<Boolean>> getExpressions() {
-    return asExpression(expressions);
+    return asExpression();
   }
 
-  private List<Expression<Boolean>> asExpression(final List<SqlConvertable> sql) {
+  private List<Expression<Boolean>> asExpression() {
     return Collections.emptyList();
   }
 

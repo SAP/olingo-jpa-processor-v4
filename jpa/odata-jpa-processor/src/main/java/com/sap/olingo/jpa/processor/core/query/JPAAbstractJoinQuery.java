@@ -334,79 +334,82 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
 
     final int handle = debugger.startRuntimeMeasurement(this, "createOrderByList");
     final List<Order> orders = new ArrayList<>();
-
-    if (uriResource != null && uriResource.getOrderByOption() != null) {
-      final OrderByOption orderByOption = uriResource.getOrderByOption();
-      try {
-        for (final OrderByItem orderByItem : orderByOption.getOrders()) {
-          final Expression expression = orderByItem.getExpression();
-          if (expression instanceof Member) {
-            final UriInfoResource resourcePath = ((Member) expression).getResourcePath();
-            JPAStructuredType type = jpaEntity;
-            Path<?> p = target;
-            final StringBuilder externalPath = new StringBuilder();
-            for (final UriResource uriResourceItem : resourcePath.getUriResourceParts()) {
-              if (uriResourceItem instanceof UriResourcePrimitiveProperty
-                  && !((UriResourceProperty) uriResourceItem).isCollection()) {
-                final JPAAttribute attribue = type.getAttribute((UriResourceProperty) uriResourceItem).orElseThrow(
-                    () -> new ODataJPAProcessorException(ATTRIBUTE_NOT_FOUND, INTERNAL_SERVER_ERROR,
-                        uriResourceItem.getSegmentValue()));
-                if (attribue.isTransient())
-                  throw new ODataJPAQueryException(QUERY_PREPARATION_OERDER_BY_TRANSIENT, NOT_IMPLEMENTED,
-                      attribue.getExternalName());
-                p = p.get(attribue.getInternalName());
-                final JPAPath path = type.getPath(((UriResourceProperty) uriResourceItem).getProperty().getName());
-                if (!path.isPartOfGroups(groups))
-                  throw new ODataJPAQueryException(QUERY_PREPARATION_NOT_ALLOWED_MEMBER, FORBIDDEN, path.getAlias());
-                addOrderByExpression(orders, orderByItem, p);
-              } else if (uriResourceItem instanceof UriResourceComplexProperty
-                  && !((UriResourceProperty) uriResourceItem).isCollection()) {
-                final JPAAttribute attribute = type.getAttribute((UriResourceProperty) uriResourceItem).orElseThrow(
-                    () -> new ODataJPAProcessorException(ATTRIBUTE_NOT_FOUND, INTERNAL_SERVER_ERROR,
-                        uriResourceItem.getSegmentValue()));
-                addPathElement(externalPath, attribute);
-                p = p.get(attribute.getInternalName());
-                type = attribute.getStructuredType();
-              } else if (uriResourceItem instanceof UriResourceNavigation
-                  || (uriResourceItem instanceof UriResourceProperty
-                      && ((UriResourceProperty) uriResourceItem).isCollection())) {
-
-                if (uriResourceItem instanceof UriResourceNavigation)
-                  externalPath.append(((UriResourceNavigation) uriResourceItem).getProperty().getName());
-                else
-                  externalPath.append(((UriResourceProperty) uriResourceItem).getProperty().getName());
-                final From<?, ?> join = joinTables.get(externalPath.toString());
-                addOrderByExpression(orders, orderByItem, cb.count(join));
-              }
-            }
-          }
-        }
-      } catch (final ODataJPAModelException e) {
-        debugger.stopRuntimeMeasurement(handle);
-        throw new ODataJPAQueryException(e, BAD_REQUEST);
-      }
-    } else {
-      // Ensure results get ordered by primary key. By this it is ensured that the results will match the sub-select
-      // results for $expand with $skip and $top
-      if (uriResource != null &&
+    try {
+      if (uriResource != null && uriResource.getOrderByOption() != null) {
+        createOrderByFromUriResource(joinTables, orders, uriResource.getOrderByOption());
+      } else if (uriResource != null &&
           (uriResource.getTopOption() != null || uriResource.getSkipOption() != null)) {
-        final JPAEntityType type = jpaEntity;
-        try {
-          for (final JPAPath keyPath : type.getKeyPath()) {
-            final Path<?> p = target;
-            for (final JPAElement pathElement : keyPath.getPath()) {
-              p.get(pathElement.getInternalName());
-            }
-            orders.add(cb.asc(p));
+        // Ensure results get ordered by primary key. By this it is ensured that the results will match the sub-select
+        // results for $expand with $skip and $top
+        createOrderByPrimaryKey(orders);
+      }
+    } catch (final ODataJPAModelException e) {
+      throw new ODataJPAQueryException(e, BAD_REQUEST);
+    } finally {
+      debugger.stopRuntimeMeasurement(handle);
+    }
+    return orders;
+  }
+
+  private void createOrderByFromUriResource(final Map<String, From<?, ?>> joinTables, final List<Order> orders,
+      final OrderByOption orderByOption) throws ODataJPAProcessorException, ODataJPAModelException,
+      ODataJPAQueryException {
+    for (final OrderByItem orderByItem : orderByOption.getOrders()) {
+      final Expression expression = orderByItem.getExpression();
+      if (expression instanceof Member) {
+        final UriInfoResource resourcePath = ((Member) expression).getResourcePath();
+        JPAStructuredType type = jpaEntity;
+        Path<?> p = target;
+        final StringBuilder externalPath = new StringBuilder();
+        for (final UriResource uriResourceItem : resourcePath.getUriResourceParts()) {
+          if (uriResourceItem instanceof UriResourcePrimitiveProperty
+              && !((UriResourceProperty) uriResourceItem).isCollection()) {
+            final JPAAttribute attribue = type.getAttribute((UriResourceProperty) uriResourceItem).orElseThrow(
+                () -> new ODataJPAProcessorException(ATTRIBUTE_NOT_FOUND, INTERNAL_SERVER_ERROR,
+                    uriResourceItem.getSegmentValue()));
+            if (attribue.isTransient())
+              throw new ODataJPAQueryException(QUERY_PREPARATION_OERDER_BY_TRANSIENT, NOT_IMPLEMENTED,
+                  attribue.getExternalName());
+            p = p.get(attribue.getInternalName());
+            final JPAPath path = type.getPath(((UriResourceProperty) uriResourceItem).getProperty().getName());
+            if (!path.isPartOfGroups(groups))
+              throw new ODataJPAQueryException(QUERY_PREPARATION_NOT_ALLOWED_MEMBER, FORBIDDEN, path.getAlias());
+            addOrderByExpression(orders, orderByItem, p);
+          } else if (uriResourceItem instanceof UriResourceComplexProperty
+              && !((UriResourceProperty) uriResourceItem).isCollection()) {
+            final JPAAttribute attribute = type.getAttribute((UriResourceProperty) uriResourceItem).orElseThrow(
+                () -> new ODataJPAProcessorException(ATTRIBUTE_NOT_FOUND, INTERNAL_SERVER_ERROR,
+                    uriResourceItem.getSegmentValue()));
+            addPathElement(externalPath, attribute);
+            p = p.get(attribute.getInternalName());
+            type = attribute.getStructuredType();
+          } else if (uriResourceItem instanceof UriResourceNavigation
+              || (uriResourceItem instanceof UriResourceProperty
+                  && ((UriResourceProperty) uriResourceItem).isCollection())) {
+
+            if (uriResourceItem instanceof UriResourceNavigation)
+              externalPath.append(((UriResourceNavigation) uriResourceItem).getProperty().getName());
+            else
+              externalPath.append(((UriResourceProperty) uriResourceItem).getProperty().getName());
+            final From<?, ?> join = joinTables.get(externalPath.toString());
+            addOrderByExpression(orders, orderByItem, cb.count(join));
           }
-        } catch (final ODataJPAModelException e) {
-          debugger.stopRuntimeMeasurement(handle);
-          throw new ODataJPAQueryException(e, BAD_REQUEST);
         }
       }
     }
-    debugger.stopRuntimeMeasurement(handle);
-    return orders;
+  }
+
+  private void createOrderByPrimaryKey(final List<Order> orders) throws ODataJPAModelException {
+    final JPAEntityType type = jpaEntity;
+
+    for (final JPAPath keyPath : type.getKeyPath()) {
+      final Path<?> p = target;
+      for (final JPAElement pathElement : keyPath.getPath()) {
+        p.get(pathElement.getInternalName());
+      }
+      orders.add(cb.asc(p));
+    }
+
   }
 
   protected javax.persistence.criteria.Expression<Boolean> createProtectionWhere(
@@ -419,7 +422,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
         final From<?, ?> from = navi.getFromClause();
         restriction = addWhereClause(restriction, createProtectionWhereForEntityType(claimsProvider, et, from));
       } catch (final ODataJPAModelException e) {
-        throw new ODataJPAQueryException(QUERY_RESULT_ENTITY_TYPE_ERROR, INTERNAL_SERVER_ERROR);
+        throw new ODataJPAQueryException(QUERY_RESULT_ENTITY_TYPE_ERROR, INTERNAL_SERVER_ERROR, e);
       }
     }
     return restriction;
