@@ -44,7 +44,7 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
   }
 
   static Predicate or(final Predicate[] restrictions) {
-    if (restrictions == null || arrayIsEmpty(restrictions, 2))
+    if (restrictions == null || arrayIsEmpty(restrictions, REQUIRED_NO_OPERATOR))
       throw new IllegalArgumentException("Parameter 'restrictions' has to have at least 2 elements");
     Predicate p = restrictions[0];
     for (int i = 1; i < restrictions.length; i++) {

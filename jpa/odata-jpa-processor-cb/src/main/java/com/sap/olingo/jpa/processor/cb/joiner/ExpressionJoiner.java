@@ -24,7 +24,7 @@ final class ExpressionJoiner {
     if (isFirst) {
       this.expression = newExpression;
       isFirst = false;
-    } else if (operator.equals(BooleanOperator.AND)) {
+    } else if (operator == BooleanOperator.AND) {
       this.expression = cb.and(expression, newExpression);
     } else {
       this.expression = cb.or(expression, newExpression);

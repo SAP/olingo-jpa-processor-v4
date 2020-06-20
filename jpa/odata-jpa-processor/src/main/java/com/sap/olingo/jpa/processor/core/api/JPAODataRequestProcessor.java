@@ -114,7 +114,7 @@ public final class JPAODataRequestProcessor
       throw e;
     } catch (ODataException e) {
       throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
-          HttpStatusCode.NOT_IMPLEMENTED);
+          HttpStatusCode.NOT_IMPLEMENTED, e);
     }
   }
 
@@ -156,7 +156,7 @@ public final class JPAODataRequestProcessor
       throw e;
     } catch (ODataException e) {
       throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
-          HttpStatusCode.NOT_IMPLEMENTED);
+          HttpStatusCode.NOT_IMPLEMENTED, e);
     }
   }
 
@@ -391,7 +391,7 @@ public final class JPAODataRequestProcessor
       throw e;
     } catch (ODataException e) {
       throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
-          HttpStatusCode.NOT_IMPLEMENTED);
+          HttpStatusCode.NOT_IMPLEMENTED, e);
     }
   }
 
@@ -416,7 +416,7 @@ public final class JPAODataRequestProcessor
       throw e;
     } catch (ODataException e) {
       throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
-          HttpStatusCode.NOT_IMPLEMENTED);
+          HttpStatusCode.NOT_IMPLEMENTED, e);
     }
   }
 

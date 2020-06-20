@@ -8,6 +8,8 @@ import java.util.Map.Entry;
 
 import javax.persistence.metamodel.Metamodel;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.edm.EdmAction;
 import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.edm.EdmComplexType;
@@ -44,6 +46,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
  * http://services.odata.org/V4/Northwind/Northwind.svc/$metadata
  */
 class IntermediateServiceDocument implements JPAServiceDocument {
+  
+  private static final Log LOGGER = LogFactory.getLog(IntermediateServiceDocument.class);
   private final Metamodel jpaMetamodel;
   private final JPAEdmNameBuilder nameBuilder;
   private final IntermediateEntityContainer container;
@@ -261,6 +265,7 @@ class IntermediateServiceDocument implements JPAServiceDocument {
     try {
       return getEntity(entitySetOrSingleton.getEntityType().getFullQualifiedName()).hasEtag();
     } catch (final ODataJPAModelException e) {
+      LOGGER.debug("Error during binding teraget determination: " + e.getMessage());
       return false;
     }
   }
@@ -296,7 +301,7 @@ class IntermediateServiceDocument implements JPAServiceDocument {
     }
   }
 
-  private List<CsdlSchema> extractEdmSchemas() throws ODataJPAModelException {
+  private List<CsdlSchema> extractEdmSchemas()throws ODataJPAModelException {
     final List<CsdlSchema> schemas = new ArrayList<>();
     try {
       if (schemaListInternalKey.isEmpty())
@@ -304,9 +309,11 @@ class IntermediateServiceDocument implements JPAServiceDocument {
       for (final IntermediateSchema schema : schemaListInternalKey.values()) {
         schemas.add(schema.getEdmItem());
       }
-    } catch (final Exception e) {
+    } catch (final ODataJPAModelException e) {
       schemaListInternalKey.clear();
       throw e;
+    }finally {
+      
     }
     return schemas;
   }

@@ -41,7 +41,7 @@ public final class JPAODataServiceContext implements JPAODataCRUDContextAccess {
   /**
    *
    */
-  private static final Log LOG = LogFactory.getLog(JPAODataServiceContext.class);
+  private static final Log LOGGER = LogFactory.getLog(JPAODataServiceContext.class);
   private List<EdmxReference> references = new ArrayList<>();
   private final JPAODataDatabaseOperations operationConverter;
   private JPAEdmProvider jpaEdm;
@@ -343,13 +343,15 @@ public final class JPAODataServiceContext implements JPAODataCRUDContextAccess {
             jpaEdm = new JPAEdmProvider(emf.get().getMetamodel(), postProcessor, packageName, nameBuilder);
           emf = Optional.of(wrapperClass.getConstructor(EntityManagerFactory.class,
               JPAServiceDocument.class).newInstance(emf.get(), jpaEdm.getServiceDocument()));
+          LOGGER.trace("Criteria Builder Extenstion found");
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
             | NoSuchMethodException | SecurityException e) {
-          LOG.debug("Exception thrown while trying to create instance of emf wrapper", e);
+          LOGGER.debug("Exception thrown while trying to create instance of emf wrapper", e);
         } catch (final ClassNotFoundException e) {
-          // No Criteria extension: everything is fine
+          // No Criteria Extension: everything is fine
+          LOGGER.trace("No Criteria Builder Extenstion found: use provided Entity Manager Factory");
         } catch (final ODataException e) {
-          LOG.debug("Exception thrown while trying to create EdmProvider", e);
+          LOGGER.debug("Exception thrown while trying to create EdmProvider", e);
         }
       }
     }

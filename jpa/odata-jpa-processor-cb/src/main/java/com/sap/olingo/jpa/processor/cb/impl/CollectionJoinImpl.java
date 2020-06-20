@@ -61,7 +61,8 @@ class CollectionJoinImpl<Z, X> extends AbstractJoinImp<Z, X> {
     } catch (ODataJPAModelException e) {
       throw new IllegalStateException("Target DB table of collection attribute &1 of &2"
           .replace("&1", attribute.getInternalName())
-          .replace("&2", st.getInternalName()));
+          .replace("&2", st.getInternalName())
+          ,e);
     }
   }
 
@@ -80,7 +81,7 @@ class CollectionJoinImpl<Z, X> extends AbstractJoinImp<Z, X> {
         }
       }
     } catch (ODataJPAModelException e) {
-      throw new IllegalStateException();
+      throw new IllegalStateException(e);
     }
     return pathList;
   }
@@ -98,7 +99,7 @@ class CollectionJoinImpl<Z, X> extends AbstractJoinImp<Z, X> {
             .toList()));
       }
     } catch (ODataJPAModelException e) {
-      throw new IllegalStateException();
+      throw new IllegalStateException(e);
     }
     return pathList;
   }

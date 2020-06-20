@@ -99,7 +99,7 @@ public class JPAExamplePagingProvider implements JPAODataPagingProvider {
     index.add((String) page.getSkiptoken());
   }
 
-  private class CacheEntry {
+  private static class CacheEntry {
     private final Long maxTop;
     private final JPAODataPage page;
 

@@ -38,7 +38,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
  *
  */
 class IntermediateSimpleProperty extends IntermediateProperty {
-  private static final Log logger = LogFactory.getLog(IntermediateSimpleProperty.class);
+
+  private static final Log LOGGER = LogFactory.getLog(IntermediateSimpleProperty.class);
   private EdmMediaStream streamInfo;
 
   IntermediateSimpleProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,
@@ -156,7 +157,7 @@ class IntermediateSimpleProperty extends IntermediateProperty {
         // Class could not be instantiated e.g. abstract class like
         // Business Partner=> default could not be determined
         // and will be ignored
-        logger.debug("Default could not be determined:" + jpaAttribute.getJavaMember().getName() + "abstarct");
+        LOGGER.debug("Default could not be determined:" + jpaAttribute.getJavaMember().getName() + "abstarct");
       }
     }
     return valueString;

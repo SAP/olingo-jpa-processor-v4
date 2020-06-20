@@ -13,6 +13,8 @@ import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.persistence.Tuple;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.data.ComplexValue;
 import org.apache.olingo.commons.api.data.Entity;
 import org.apache.olingo.commons.api.data.EntityCollection;
@@ -50,7 +52,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
  *
  */
 public class JPATupleChildConverter extends JPATupleResultConverter {
-
+  private static final Log LOGGER = LogFactory.getLog(JPATupleChildConverter.class);
   public JPATupleChildConverter(final JPAServiceDocument sd, final UriHelper uriHelper,
       final ServiceMetadata serviceMetadata, final JPAODataRequestContextAccess requestContext) {
 
@@ -216,6 +218,7 @@ public class JPATupleChildConverter extends JPATupleResultConverter {
     } catch (final URISyntaxException e) {
       throw new ODataRuntimeException("Unable to create id for entity: " + edmType.getName(), e);
     } catch (final IllegalArgumentException e) {
+      LOGGER.debug(e.getMessage() + ": No URI created");
       return null;
     } catch (final SerializerException e) {
       throw new ODataRuntimeException(e);
@@ -273,7 +276,7 @@ public class JPATupleChildConverter extends JPATupleResultConverter {
       return es != null ? es.getExternalName() : "";
     } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_ENTITY_SET_ERROR,
-          HttpStatusCode.INTERNAL_SERVER_ERROR, jpaQueryResult.getEntityType().getExternalFQN()
+          HttpStatusCode.INTERNAL_SERVER_ERROR, e, jpaQueryResult.getEntityType().getExternalFQN()
               .getFullQualifiedNameAsString());
     }
   }

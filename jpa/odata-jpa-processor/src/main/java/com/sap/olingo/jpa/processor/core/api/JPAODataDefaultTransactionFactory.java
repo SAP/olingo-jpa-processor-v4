@@ -9,10 +9,14 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.RollbackException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.sap.olingo.jpa.processor.core.exception.ODataJPATransactionException;;
 
 public class JPAODataDefaultTransactionFactory implements JPAODataTransactionFactory {
-
+  
+  private static final Log LOGGER = LogFactory.getLog(JPAODataDefaultTransactionFactory.class);
   private final EntityManager em;
   private JPAODataTransaction currentTransaction;
 
@@ -29,7 +33,7 @@ public class JPAODataDefaultTransactionFactory implements JPAODataTransactionFac
       currentTransaction = new JPAODataEntityTransaction(em.getTransaction());
       return currentTransaction;
     } catch (Exception e) {
-      throw new ODataJPATransactionException(CANNOT_CREATE_NEW_TRANSACTION);
+      throw new ODataJPATransactionException(CANNOT_CREATE_NEW_TRANSACTION, e);
     }
   }
 
@@ -43,11 +47,12 @@ public class JPAODataDefaultTransactionFactory implements JPAODataTransactionFac
         return true;
       return currentTransaction.isActive();
     } catch (RuntimeException | ODataJPATransactionException e) {
+      LOGGER.debug("Exception during hasActiveTransaction: " + e.getMessage());
       return true;
     }
   }
 
-  private class JPAODataEntityTransaction implements JPAODataTransaction {
+  private static class JPAODataEntityTransaction implements JPAODataTransaction {
 
     private final EntityTransaction et;
 

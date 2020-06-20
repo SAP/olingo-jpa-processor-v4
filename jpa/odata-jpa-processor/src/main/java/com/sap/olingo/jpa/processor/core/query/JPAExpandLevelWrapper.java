@@ -273,7 +273,7 @@ public final class JPAExpandLevelWrapper implements JPAExpandItem {
     }
   }
 
-  private class LevelsExpandOptionWrapper implements LevelsExpandOption {
+  private static class LevelsExpandOptionWrapper implements LevelsExpandOption {
     private final boolean isMax;
     private final int level;
 

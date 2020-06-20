@@ -171,7 +171,7 @@ class PathImpl<X> extends ExpressionImpl<X> implements Path<X> {
         return new PathImpl<>(st.getPath(a.getExternalName(), false), Optional.of(this), st, tableAlias);
       }
     } catch (final ODataJPAModelException e) {
-      throw new IllegalArgumentException("'" + attributeName + "' not found");
+      throw new IllegalArgumentException("'" + attributeName + "' not found", e);
     }
   }
 

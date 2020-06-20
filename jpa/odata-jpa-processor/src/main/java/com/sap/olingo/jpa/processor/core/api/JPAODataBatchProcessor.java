@@ -131,7 +131,7 @@ public class JPAODataBatchProcessor implements BatchProcessor {
           // Exceptions thrown by the processors get caught and result in
           // a proper OData response.
           final int statusCode = response.getStatusCode();
-          if (statusCode < 400) {
+          if (statusCode < HttpStatusCode.BAD_REQUEST.getStatusCode()) {
             // The request has been executed successfully. Return the
             // response as a part of the change set
             responses.add(response);

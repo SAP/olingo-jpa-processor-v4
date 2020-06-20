@@ -55,7 +55,7 @@ import com.sap.olingo.jpa.processor.cb.joiner.StringBuilderCollector;
  */
 @SuppressWarnings("hiding")
 class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
-
+  
   private final Set<Join<X, ?>> joins;
   private final Set<Fetch<X, ?>> fetches;
   private final AliasBuilder aliasBuilder;
@@ -418,7 +418,7 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
         try {
           return source.getAssociation(attributeName);
         } catch (ODataJPAModelException e) {
-          throw new IllegalArgumentException(buildExceptionText(attributeName));
+          throw new IllegalArgumentException(buildExceptionText(attributeName), e);
         }
       });
 

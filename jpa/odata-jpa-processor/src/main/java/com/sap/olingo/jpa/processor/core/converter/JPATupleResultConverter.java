@@ -45,7 +45,7 @@ import com.sap.olingo.jpa.processor.core.query.JPAConvertableResult;
  *
  */
 abstract class JPATupleResultConverter implements JPAResultConverter {
-
+  
   protected static final String EMPTY_PREFIX = "";
   protected JPAEntityType jpaConversionTargetEntity;
   protected JPAExpandResult jpaQueryResult;
@@ -130,7 +130,7 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
           convertAttribute(null, p, complexValueBuffer, properties, skipped, EMPTY_PREFIX, odataEntity);
         } catch (final ODataJPAModelException e1) {
           throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
-              HttpStatusCode.INTERNAL_SERVER_ERROR, e);
+              HttpStatusCode.INTERNAL_SERVER_ERROR, e1);
         }
       } catch (final ODataJPAModelException e) {
         throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
@@ -174,7 +174,7 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
       }
     } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_NAVI_PROPERTY_ERROR,
-          HttpStatusCode.INTERNAL_SERVER_ERROR, path != null ? path.getAlias() : EMPTY_PREFIX);
+          HttpStatusCode.INTERNAL_SERVER_ERROR,e, path != null ? path.getAlias() : EMPTY_PREFIX);
     }
     return entityExpandLinks;
   }

@@ -10,6 +10,8 @@ import javax.persistence.criteria.From;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Path;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.queryoption.expression.Member;
@@ -24,6 +26,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 
 public class JPAMemberOperator implements JPAOperator {
+  
+  private static final Log LOGGER = LogFactory.getLog(JPAMemberOperator.class);
   private final Member member;
   private final From<?, ?> root;
   private final JPAAssociationPath association;
@@ -109,6 +113,7 @@ public class JPAMemberOperator implements JPAOperator {
           orgPath = st.getStructuredType().getPath(attributePath.getLeaf().getExternalName());
         } catch (ODataJPAModelException e) {
           // Ignore exception and use path
+          LOGGER.debug("Exception occured -> use path: " + e.getMessage());
         }
       }
     }
