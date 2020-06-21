@@ -9,7 +9,7 @@ public class ODataJPABatchException extends ODataJPAProcessException { // NOSONA
    * 
    */
   private static final long serialVersionUID = 8492368933922574285L;
-  private static final String BUNDEL_NAME = "processor-exceptions-i18n";
+  private static final String BUNDLE_NAME = "processor-exceptions-i18n";
 
   public enum MessageKeys implements ODataJPAMessageKey {
     UNSUPPORTED_BATCH_PARTS;
@@ -30,7 +30,7 @@ public class ODataJPABatchException extends ODataJPAProcessException { // NOSONA
 
   @Override
   protected String getBundleName() {
-    return BUNDEL_NAME;
+    return BUNDLE_NAME;
   }
 
 }

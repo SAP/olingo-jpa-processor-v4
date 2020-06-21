@@ -21,7 +21,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPABatchException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPABatchRuntimeException;
 
 /**
- * Process parts of a batch request in parallel. This is possible GET requests until the first request with side effects
+ * Process parts of a batch request in parallel. This is possible for GET requests until the first request with side effects
  * comes. In case a request with side effect is followed by a set of request without side effect, they are processed in
  * parallel again.
  * @author Oliver Grande
@@ -57,7 +57,7 @@ public class JPAODataParallelBatchProcessor extends JPAODataBatchProcessor {
     Boolean isGetGroup = null;
     List<BatchRequestPart> groupElements = new ArrayList<>();
     for (final BatchRequestPart part : requestParts) {
-      checkPartConsistancy(part);
+      checkPartConsistency(part);
       if (isGetGroup == null) {
         isGetGroup = !part.isChangeSet() && isGetRequest(part);
       } else if (Boolean.TRUE.equals(isGetGroup) && (!isGetRequest(part) || part.isChangeSet())) {
@@ -91,7 +91,7 @@ public class JPAODataParallelBatchProcessor extends JPAODataBatchProcessor {
     return part.getRequests().get(0).getMethod() == HttpMethod.GET;
   }
 
-  private void checkPartConsistancy(final BatchRequestPart part) throws ODataJPABatchException {
+  private void checkPartConsistency(final BatchRequestPart part) throws ODataJPABatchException {
     if (part.getRequests().size() > 1 && !part.isChangeSet())
       throw new ODataJPABatchException(UNSUPPORTED_BATCH_PARTS, HttpStatusCode.INTERNAL_SERVER_ERROR);
   }

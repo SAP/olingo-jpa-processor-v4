@@ -32,8 +32,8 @@ public class JPAODataParallelBatchProcessorIntegrationTest {
     emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, ds);
   }
 
-  @Test
-  public void testOneGetRequestGetResponce() throws IOException, ODataException {
+  @Test //Response 
+  public void testOneGetRequestGetResponse() throws IOException, ODataException {
     final StringBuilder requestBody = createBodyOneGet();
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "$batch", requestBody);
