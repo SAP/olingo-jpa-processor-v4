@@ -41,11 +41,11 @@ class PathJoin<Z, X> extends AbstractJoinImp<Z, X> {
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
   @Override
-  public StringBuilder asSQL(final StringBuilder statment) {
+  public StringBuilder asSQL(final StringBuilder statement) {
     if (!getJoins().isEmpty()) {
-      getJoins().stream().collect(new StringBuilderCollector.ExpressionCollector(statment, " "));
+      getJoins().stream().collect(new StringBuilderCollector.ExpressionCollector(statement, " "));
     }
-    return statment;
+    return statement;
   }
 
   @Override

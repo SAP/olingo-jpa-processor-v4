@@ -3,23 +3,23 @@ package com.sap.olingo.jpa.processor.cb.impl;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Order;
 
-import com.sap.olingo.jpa.processor.cb.api.SqlConvertable;
+import com.sap.olingo.jpa.processor.cb.api.SqlConvertible;
 import com.sap.olingo.jpa.processor.cb.api.SqlKeyWords;
 
-class OrderImpl implements Order, SqlConvertable {
+class OrderImpl implements Order, SqlConvertible {
 
   private final boolean isAscending;
-  private SqlConvertable expression;
+  private SqlConvertible expression;
 
-  OrderImpl(boolean isAscending, final SqlConvertable expression) {
+  OrderImpl(boolean isAscending, final SqlConvertible expression) {
     super();
     this.isAscending = isAscending;
     this.expression = expression;
   }
 
   @Override
-  public StringBuilder asSQL(final StringBuilder statment) {
-    return expression.asSQL(statment).append(" ").append(isAscending ? SqlKeyWords.ASC : SqlKeyWords.DESC);
+  public StringBuilder asSQL(final StringBuilder statement) {
+    return expression.asSQL(statement).append(" ").append(isAscending ? SqlKeyWords.ASC : SqlKeyWords.DESC);
   }
 
   @Override

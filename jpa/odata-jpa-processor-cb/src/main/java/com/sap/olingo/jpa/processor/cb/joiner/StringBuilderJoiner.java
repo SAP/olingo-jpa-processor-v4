@@ -4,21 +4,21 @@ import java.util.Objects;
 
 import javax.annotation.Nonnull;
 
-import com.sap.olingo.jpa.processor.cb.api.SqlConvertable;
+import com.sap.olingo.jpa.processor.cb.api.SqlConvertible;
 
 final class StringBuilderJoiner<T> {
-  private final StringBuilder statment;
+  private final StringBuilder statement;
   private final String delimiter;
   private final int initLength;
 
-  StringBuilderJoiner(@Nonnull final StringBuilder statment, @Nonnull final String delimiter) {
-    this.statment = Objects.requireNonNull(statment);
+  StringBuilderJoiner(@Nonnull final StringBuilder statement, @Nonnull final String delimiter) {
+    this.statement = Objects.requireNonNull(statement);
     this.delimiter = Objects.requireNonNull(delimiter);
-    this.initLength = statment.length();
+    this.initLength = statement.length();
   }
 
   public StringBuilderJoiner<T> add(final T newElement) {
-    ((SqlConvertable) newElement).asSQL(prepareStatment());
+    ((SqlConvertible) newElement).asSQL(prepareStatement());
     return this;
   }
 
@@ -27,13 +27,13 @@ final class StringBuilderJoiner<T> {
   }
 
   public StringBuilder finish() {
-    return statment;
+    return statement;
   }
 
-  private StringBuilder prepareStatment() {
-    if (statment.length() != initLength) {
-      statment.append(delimiter);
+  private StringBuilder prepareStatement() {
+    if (statement.length() != initLength) {
+      statement.append(delimiter);
     }
-    return statment;
+    return statement;
   }
 }

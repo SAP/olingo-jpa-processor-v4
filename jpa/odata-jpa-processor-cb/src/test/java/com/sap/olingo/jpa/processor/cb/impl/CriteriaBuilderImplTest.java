@@ -38,7 +38,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import com.sap.olingo.jpa.processor.cb.api.SqlConvertable;
+import com.sap.olingo.jpa.processor.cb.api.SqlConvertible;
 import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
 import com.sap.olingo.jpa.processor.core.testmodel.AccessRights;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
@@ -272,7 +272,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final Object[] params = { adminDiv.get("codeID"), adminDiv.get("parentCodeID") };
     final Predicate act = (Predicate) m.invoke(cut, params);
     assertNotNull(act);
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
     assertEquals(0, cut.getParameter().getParameter().size());
   }
 
@@ -287,7 +287,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final Predicate act = (Predicate) m.invoke(cut, params);
 
     assertNotNull(act);
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
     assertEquals(1, cut.getParameter().getParameter().size());
     assertEquals("NUTS2", cut.getParameter().getParameter().get(1).getValue());
   }
@@ -301,7 +301,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final Object[] params = { adminDiv.get("area"), adminDiv.get("population") };
     final Expression<?> act = (Expression<?>) m.invoke(cut, params);
     assertNotNull(act);
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
     assertEquals(0, cut.getParameter().getParameter().size());
   }
 
@@ -315,7 +315,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final Expression<?> act = (Expression<?>) m.invoke(cut, params);
 
     assertNotNull(act);
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
     assertEquals(1, cut.getParameter().getParameter().size());
     assertEquals(1000, cut.getParameter().getParameter().get(1).getValue());
   }
@@ -331,7 +331,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final Expression<?> act = (Expression<?>) m.invoke(cut, params);
 
     assertNotNull(act);
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
     assertEquals(1, cut.getParameter().getParameter().size());
     assertEquals(1000, cut.getParameter().getParameter().get(1).getValue());
   }
@@ -343,7 +343,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final Root<?> adminDiv = q.from(AdministrativeDivisionDescription.class);
     final Object[] params = { adminDiv.get("name") };
     final Expression<?> act = (Expression<?>) m.invoke(cut, params);
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 
   @ParameterizedTest
@@ -355,7 +355,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     sub.from(AdministrativeDivision.class);
     final Object[] params = { sub };
     final Expression<?> act = (Expression<?>) m.invoke(cut, params);
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 
   @Test
@@ -397,7 +397,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final Predicate act = cut.ge(adminDiv.get("area"), adminDiv.get("population"));
 
     assertNotNull(act);
-    assertEquals("(E0.\"Area\" >= E0.\"Population\")", ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals("(E0.\"Area\" >= E0.\"Population\")", ((SqlConvertible) act).asSQL(stmt).toString());
     assertEquals(0, cut.getParameter().getParameter().size());
   }
 
@@ -415,7 +415,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     restrictions[1] = cut.equal(adminDiv.get("divisionCode"), "BE34");
     restrictions[2] = cut.equal(adminDiv.get("codePublisher"), "Eurostat");
     final Predicate act = cut.and(restrictions);
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 
   @Test
@@ -439,7 +439,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final Predicate one = cut.equal(adminDiv.get("codeID"), "NUTS2");
     final Predicate two = cut.equal(adminDiv.get("codeID"), "NUTS3");
     final Predicate act = cut.or(one, two);
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 
   @Test
@@ -465,7 +465,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     restrictions[1] = cut.equal(adminDiv.get("divisionCode"), "BE34");
     restrictions[2] = cut.equal(adminDiv.get("codePublisher"), "Eurostat");
     final Predicate act = cut.or(restrictions);
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 
   @Test
@@ -474,14 +474,14 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Predicate one = cut.equal(adminDiv.get("codeID"), "NUTS2");
     final Predicate act = cut.not(one);
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 
   @Test
   public void testLiteralExpressionReturnsParameter() {
     final String exp = "?1";
     final Expression<LocalDate> act = cut.literal(LocalDate.now());
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
     assertNotNull(cut.getParameter());
     assertEquals(1, cut.getParameter().getParameter().size());
   }
@@ -496,7 +496,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final String exp = "(E0.\"CodeID\" LIKE ?1)";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Predicate act = cut.like(adminDiv.get("codeID"), "6-1");
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 
   @Test
@@ -504,7 +504,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final String exp = "(NOT (E0.\"CodeID\" LIKE ?1))";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Predicate act = cut.notLike(adminDiv.get("codeID"), "6-1");
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 
   @Test
@@ -512,7 +512,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final String exp = "(E0.\"CodeID\" LIKE ?1 ESCAPE ?2)";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Predicate act = cut.like(adminDiv.get("codeID"), "%6-1", '/');
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 
   @Test
@@ -520,7 +520,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final String exp = "(NOT (E0.\"CodeID\" LIKE ?1 ESCAPE ?2))";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Predicate act = cut.notLike(adminDiv.get("codeID"), "%6-1", '/');
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 
   @Test
@@ -529,7 +529,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final Expression<String> literal = cut.literal("%6-1");
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Predicate act = cut.like(adminDiv.get("codeID"), literal);
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 
   @Test
@@ -538,7 +538,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final Expression<String> literal = cut.literal("%6-1");
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Predicate act = cut.notLike(adminDiv.get("codeID"), literal);
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 
   @Test
@@ -548,7 +548,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final Expression<String> p = cut.literal("6-1");
     final Expression<Character> e = cut.literal('/');
     final Predicate act = cut.like(adminDiv.get("codeID"), p, e);
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 
   @Test
@@ -558,7 +558,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final Expression<String> p = cut.literal("6-1");
     final Expression<Character> e = cut.literal('/');
     final Predicate act = cut.notLike(adminDiv.get("codeID"), p, e);
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 
   @Test
@@ -567,7 +567,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Expression<Character> e = cut.literal('/');
     final Predicate act = cut.like(adminDiv.get("codeID"), "%6-1", e);
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 
   @Test
@@ -576,7 +576,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Expression<Character> e = cut.literal('/');
     final Predicate act = cut.notLike(adminDiv.get("codeID"), "%6-1", e);
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 
   @Test
@@ -585,7 +585,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Expression<String> p = cut.literal("6-1");
     final Predicate act = cut.like(adminDiv.get("codeID"), p, '/');
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 
   @Test
@@ -594,7 +594,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Expression<String> p = cut.literal("6-1");
     final Predicate act = cut.notLike(adminDiv.get("codeID"), p, '/');
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 
   @Test
@@ -602,7 +602,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final String exp = "E0.\"CodeID\" DESC";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Order act = cut.desc(adminDiv.get("codeID"));
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 
   @Test
@@ -610,7 +610,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final String exp = "E0.\"CodeID\" ASC";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Order act = cut.asc(adminDiv.get("codeID"));
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 
   @Test
@@ -619,7 +619,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Expression<?> count = cut.count(adminDiv.get("codeID"));
     final Order act = cut.asc(count);
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 
   @Test
@@ -627,7 +627,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final String exp = "(E0.\"ParentCodeID\" IS NULL)";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Expression<?> act = cut.isNull(adminDiv.get("parentCodeID"));
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 
   @Test
@@ -635,7 +635,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final String exp = "(E0.\"ParentCodeID\" IS NOT NULL)";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Expression<?> act = cut.isNotNull(adminDiv.get("parentCodeID"));
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 
   @Test
@@ -643,7 +643,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final String exp = "LOCATE(?1, E0.\"DivisionCode\")";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Expression<Integer> act = cut.locate(adminDiv.get("divisionCode"), "3");
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 
   @Test
@@ -652,7 +652,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final Expression<String> literal = cut.literal("3");
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Expression<Integer> act = cut.locate(adminDiv.get("divisionCode"), literal);
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 
   @Test
@@ -661,7 +661,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final Expression<String> literal = cut.literal("3");
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Expression<Integer> act = cut.locate(adminDiv.get("divisionCode"), literal, cut.literal(2));
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 
   @Test
@@ -669,7 +669,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final String exp = "LOCATE(?1, E0.\"DivisionCode\", ?2)";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Expression<Integer> act = cut.locate(adminDiv.get("divisionCode"), "3", 2);
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 
   @Test
@@ -677,7 +677,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final String exp = "SUBSTRING(E0.\"Name\", ?1, ?2)";
     final Root<?> adminDiv = q.from(AdministrativeDivisionDescription.class);
     final Expression<String> act = cut.substring(adminDiv.get("name"), 1, 5);
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 
   @Test
@@ -685,7 +685,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final String exp = "SUBSTRING(E0.\"Name\", ?1)";
     final Root<?> adminDiv = q.from(AdministrativeDivisionDescription.class);
     final Expression<String> act = cut.substring(adminDiv.get("name"), 1);
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 
   @Test
@@ -695,7 +695,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final Expression<Integer> len = cut.literal(5);
     final Root<?> adminDiv = q.from(AdministrativeDivisionDescription.class);
     final Expression<String> act = cut.substring(adminDiv.get("name"), from, len);
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 
   @Test
@@ -704,7 +704,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final Expression<Integer> literal = cut.literal(1);
     final Root<?> adminDiv = q.from(AdministrativeDivisionDescription.class);
     final Expression<String> act = cut.substring(adminDiv.get("name"), literal);
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 
   @Test
@@ -712,7 +712,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final String exp = "COALESCE(E0.\"Area\", E0.\"ParentCodeID\")";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Expression<String> act = cut.coalesce(adminDiv.get("area"), adminDiv.get("parentCodeID"));
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 
   @Test
@@ -720,7 +720,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final String exp = "COALESCE(E0.\"Area\", ?1)";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Expression<Integer> act = cut.coalesce(adminDiv.get("area"), 10);
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 
   @Test
@@ -728,7 +728,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final String exp = "COUNT(DISTINCT(E0.\"CodeID\"))";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Expression<Long> act = cut.countDistinct(adminDiv.get("codeID"));
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 
   @Test
@@ -739,7 +739,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
 
     final Expression<Double> act = cut.function("\"OLINGO\".\"PopulationDensity\"", Double.class,
         adminDiv.get("area"), adminDiv.get("population"));
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 
   @Test
@@ -749,7 +749,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final Root<?> person = q.from(Person.class);
     final AccessRights[] rights = { AccessRights.Read, AccessRights.Delete };
     final Expression<Boolean> act = cut.equal(person.get("accessRights"), rights);
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
     assertEquals((short) 9, cut.getParameter().getParameter().get(1).getValue());
   }
 
@@ -761,7 +761,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final Root<?> person = q.from(Person.class);
     final AccessRights[] rights = { AccessRights.Read, AccessRights.Delete };
     final Expression<Boolean> act = cut.equal(person.get("accessRights"), cut.literal(rights));
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
     assertEquals((short) 9, cut.getParameter().getParameter().get(1).getValue());
   }
 
@@ -770,7 +770,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final String exp = "(E0.\"BusinessPartnerRole\" BETWEEN ?1 AND ?2)";
     final Root<?> roles = q.from(BusinessPartnerRole.class);
     final Expression<Boolean> act = cut.between(roles.get("roleCategory"), "A", "B");
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 
   @Test
@@ -780,6 +780,6 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final Expression<String> low = cut.literal("A");
     final Expression<String> high = cut.literal("B");
     final Expression<Boolean> act = cut.between(roles.get("roleCategory"), low, high);
-    assertEquals(exp, ((SqlConvertable) act).asSQL(stmt).toString());
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 }

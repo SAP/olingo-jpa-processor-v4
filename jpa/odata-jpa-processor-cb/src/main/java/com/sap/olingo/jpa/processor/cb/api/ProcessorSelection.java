@@ -9,7 +9,7 @@ import javax.persistence.criteria.Selection;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 
-public interface ProcessorSelection<X> extends Selection<X>, SqlConvertable {
+public interface ProcessorSelection<X> extends Selection<X>, SqlConvertible {
   /**
    *
    * @return a list of pairs of alias and path

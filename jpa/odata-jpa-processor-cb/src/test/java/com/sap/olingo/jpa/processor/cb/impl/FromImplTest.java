@@ -33,7 +33,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.cb.api.SqlConvertable;
+import com.sap.olingo.jpa.processor.cb.api.SqlConvertible;
 import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 
@@ -87,7 +87,7 @@ public class FromImplTest extends BuilderBaseTest {
   @Test
   public void testAsSqlReturnsDBTableNameWithoutAlias() {
     final StringBuilder act = new StringBuilder();
-    ((SqlConvertable) cut).asSQL(act);
+    ((SqlConvertible) cut).asSQL(act);
     assertEquals("\"OLINGO\".\"BusinessPartner\" E0", act.toString());
   }
 
@@ -95,7 +95,7 @@ public class FromImplTest extends BuilderBaseTest {
   public void testAsSqlReturnsDBTableNameWithAlias() {
     final StringBuilder act = new StringBuilder();
     cut.alias("t0");
-    ((SqlConvertable) cut).asSQL(act);
+    ((SqlConvertible) cut).asSQL(act);
     assertEquals("\"OLINGO\".\"BusinessPartner\" E0", act.toString());
   }
 
@@ -129,24 +129,24 @@ public class FromImplTest extends BuilderBaseTest {
   public void testCreateJoinByNavigationAttributeName() {
     final String exp =
         "\"OLINGO\".\"BusinessPartner\" E0 INNER JOIN \"OLINGO\".\"BusinessPartnerRole\" E1 ON (E0.\"ID\" = E1.\"BusinessPartnerID\")";
-    final StringBuilder statment = new StringBuilder();
+    final StringBuilder statement = new StringBuilder();
     final Join<?, ?> act = cut.join("roles");
     assertNotNull(act);
     assertEquals(1, cut.getJoins().size());
     assertTrue(cut.getJoins().contains(act));
-    ((SqlConvertable) cut).asSQL(statment);
-    assertEquals(exp, statment.toString());
+    ((SqlConvertible) cut).asSQL(statement);
+    assertEquals(exp, statement.toString());
   }
 
   @Test
   public void testCreateJoinByComplexAttributeName() {
     final String exp = "\"OLINGO\".\"BusinessPartner\" E0";
-    final StringBuilder statment = new StringBuilder();
+    final StringBuilder statement = new StringBuilder();
     final Join<?, ?> act = cut.join("address");
     assertNotNull(act);
     assertEquals(1, cut.getJoins().size());
-    ((SqlConvertable) cut).asSQL(statment);
-    assertEquals(exp, statment.toString());
+    ((SqlConvertible) cut).asSQL(statement);
+    assertEquals(exp, statement.toString());
   }
 
   @Test
@@ -155,12 +155,12 @@ public class FromImplTest extends BuilderBaseTest {
         "\"OLINGO\".\"BusinessPartner\" E0 "
             + "LEFT OUTER JOIN \"OLINGO\".\"AdministrativeDivisionDescription\" E1 "
             + "ON (E0.\"Country\" = E1.\"DivisionCode\")";
-    final StringBuilder statment = new StringBuilder();
+    final StringBuilder statement = new StringBuilder();
     final Join<?, ?> act = cut.join("locationName");
     assertNotNull(act);
     assertEquals(1, cut.getJoins().size());
-    ((SqlConvertable) cut).asSQL(statment);
-    assertEquals(exp, statment.toString());
+    ((SqlConvertible) cut).asSQL(statement);
+    assertEquals(exp, statement.toString());
   }
 
   @Test
@@ -169,12 +169,12 @@ public class FromImplTest extends BuilderBaseTest {
         "\"OLINGO\".\"BusinessPartner\" E0 "
             + "LEFT OUTER JOIN \"OLINGO\".\"CountryDescription\" E2 "
             + "ON (E0.\"Address.Country\" = E2.\"ISOCode\")";
-    final StringBuilder statment = new StringBuilder();
+    final StringBuilder statement = new StringBuilder();
     final Join<?, ?> act = cut.join("address").join("countryName");
     assertNotNull(act);
     assertEquals(1, cut.getJoins().size());
-    ((SqlConvertable) cut).asSQL(statment);
-    assertEquals(exp, statment.toString());
+    ((SqlConvertible) cut).asSQL(statement);
+    assertEquals(exp, statement.toString());
   }
 
   // "Organizations?$select=Name1&$filter=SupportEngineers/any(d:d/LastName eq 'Doe')");
@@ -186,11 +186,11 @@ public class FromImplTest extends BuilderBaseTest {
             + "INNER JOIN \"OLINGO\".\"BusinessPartner\" E2 "
             + "ON (E1.\"PersonID\" = E2.\"ID\")) "
             + "ON (E0.\"ID\" = E1.\"OrganizationID\")";
-    final StringBuilder statment = new StringBuilder();
+    final StringBuilder statement = new StringBuilder();
     final Join<?, ?> act = cut.join("supportEngineers");
     assertNotNull(act);
     assertEquals(1, cut.getJoins().size());
-    ((SqlConvertable) cut).asSQL(statment);
-    assertEquals(exp, statment.toString());
+    ((SqlConvertible) cut).asSQL(statement);
+    assertEquals(exp, statement.toString());
   }
 }

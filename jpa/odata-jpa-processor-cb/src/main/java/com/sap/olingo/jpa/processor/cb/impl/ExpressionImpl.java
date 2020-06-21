@@ -21,7 +21,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.cb.api.SqlAggregation;
 import com.sap.olingo.jpa.processor.cb.api.SqlArithmetic;
-import com.sap.olingo.jpa.processor.cb.api.SqlConvertable;
+import com.sap.olingo.jpa.processor.cb.api.SqlConvertible;
 import com.sap.olingo.jpa.processor.cb.api.SqlKeyWords;
 import com.sap.olingo.jpa.processor.cb.api.SqlStringFunctions;
 import com.sap.olingo.jpa.processor.cb.api.SqlSubQuery;
@@ -29,7 +29,7 @@ import com.sap.olingo.jpa.processor.cb.api.SqlTimeFunctions;
 import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
 import com.sap.olingo.jpa.processor.cb.joiner.StringBuilderCollector;
 
-abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertable {
+abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
 
   public static final String OPENING_BRACKET = "(";
   public static final String CLOSING_BRACKET = ")";
@@ -128,63 +128,63 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertable {
   static class AggregationExpression<N extends Number> extends ExpressionImpl<N> {
 
     private final SqlAggregation function;
-    private final SqlConvertable expression;
+    private final SqlConvertible expression;
 
     AggregationExpression(@Nonnull final SqlAggregation function, @Nonnull final Expression<?> x) {
       this.function = function;
-      this.expression = (SqlConvertable) x;
+      this.expression = (SqlConvertible) x;
     }
 
     @Override
-    public StringBuilder asSQL(final StringBuilder statment) {
-      statment.append(function)
+    public StringBuilder asSQL(final StringBuilder statement) {
+      statement.append(function)
           .append(OPENING_BRACKET);
-      return expression(statment)
+      return expression(statement)
           .append(CLOSING_BRACKET);
     }
 
-    private StringBuilder expression(final StringBuilder statment) {
+    private StringBuilder expression(final StringBuilder statement) {
       if (expression instanceof FromImpl<?, ?>) {
         final FromImpl<?, ?> from = (FromImpl<?, ?>) expression;
         final String tableAlias = from.tableAlias.orElseThrow(IllegalStateException::new);
         try {
           final List<JPAAttribute> keys = from.st.getKey();
-          statment
+          statement
               .append(tableAlias)
               .append(DOT)
               .append(from.st.getPath(keys.get(0).getExternalName()).getDBFieldName());
         } catch (ODataJPAModelException e) {
           throw new IllegalArgumentException(e);
         }
-        return statment;
+        return statement;
       } else {
-        return expression.asSQL(statment);
+        return expression.asSQL(statement);
       }
     }
 
-    SqlConvertable getExpression() {
+    SqlConvertible getExpression() {
       return expression;
     }
   }
 
   static class ArithmeticExpression<N extends Number> extends ExpressionImpl<N> {
 
-    private final SqlConvertable left;
-    private final SqlConvertable right;
+    private final SqlConvertible left;
+    private final SqlConvertible right;
     private final SqlArithmetic operation;
 
     ArithmeticExpression(@Nonnull final Expression<? extends N> x, @Nonnull final Expression<? extends N> y,
         @Nonnull final SqlArithmetic operation) {
 
-      this.left = (SqlConvertable) Objects.requireNonNull(x);
-      this.right = (SqlConvertable) Objects.requireNonNull(y);
+      this.left = (SqlConvertible) Objects.requireNonNull(x);
+      this.right = (SqlConvertible) Objects.requireNonNull(y);
       this.operation = Objects.requireNonNull(operation);
     }
 
     @Override
-    public StringBuilder asSQL(final StringBuilder statment) {
-      left.asSQL(statment.append(OPENING_BRACKET)).append(" ").append(operation).append(" ");
-      return right.asSQL(statment).append(CLOSING_BRACKET);
+    public StringBuilder asSQL(final StringBuilder statement) {
+      left.asSQL(statement.append(OPENING_BRACKET)).append(" ").append(operation).append(" ");
+      return right.asSQL(statement).append(CLOSING_BRACKET);
     }
 
   }
@@ -198,12 +198,12 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertable {
     }
 
     @Override
-    public StringBuilder asSQL(final StringBuilder statment) {
+    public StringBuilder asSQL(final StringBuilder statement) {
 
-      statment.append(SqlKeyWords.COALESCE)
+      statement.append(SqlKeyWords.COALESCE)
           .append(OPENING_BRACKET);
-      values.stream().collect(new StringBuilderCollector.ExpressionCollector<T>(statment, ", "));
-      return statment.append(CLOSING_BRACKET);
+      values.stream().collect(new StringBuilderCollector.ExpressionCollector<T>(statement, ", "));
+      return statement.append(CLOSING_BRACKET);
     }
 
     @SuppressWarnings("unchecked")
@@ -220,53 +220,53 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertable {
   }
 
   static class ConcatExpression extends ExpressionImpl<String> {
-    private final SqlConvertable first;
-    private final SqlConvertable second;
+    private final SqlConvertible first;
+    private final SqlConvertible second;
 
     ConcatExpression(@Nonnull final Expression<String> first, @Nonnull final Expression<String> second) {
-      this.first = (SqlConvertable) Objects.requireNonNull(first);
-      this.second = (SqlConvertable) Objects.requireNonNull(second);
+      this.first = (SqlConvertible) Objects.requireNonNull(first);
+      this.second = (SqlConvertible) Objects.requireNonNull(second);
     }
 
     @Override
-    public StringBuilder asSQL(final StringBuilder statment) {
-      statment.append(SqlStringFunctions.CONCAT)
+    public StringBuilder asSQL(final StringBuilder statement) {
+      statement.append(SqlStringFunctions.CONCAT)
           .append(OPENING_BRACKET);
-      first.asSQL(statment)
+      first.asSQL(statement)
           .append(", ");
-      second.asSQL(statment);
-      return statment.append(CLOSING_BRACKET);
+      second.asSQL(statement);
+      return statement.append(CLOSING_BRACKET);
     }
   }
 
   static class DistinctExpression<T> extends ExpressionImpl<T> {
-    private final SqlConvertable left;
+    private final SqlConvertible left;
 
     DistinctExpression(@Nonnull final Expression<?> x) {
-      this.left = (SqlConvertable) Objects.requireNonNull(x);
+      this.left = (SqlConvertible) Objects.requireNonNull(x);
     }
 
     @Override
-    public StringBuilder asSQL(StringBuilder statment) {
+    public StringBuilder asSQL(StringBuilder statement) {
 
       if (left instanceof FromImpl<?, ?>) {
         try {
           final FromImpl<?, ?> from = ((FromImpl<?, ?>) left);
-          statment.append(SqlKeyWords.DISTINCT)
+          statement.append(SqlKeyWords.DISTINCT)
               .append(OPENING_BRACKET);
           from.st.getKey().stream()
               .map(a -> from.get(a.getInternalName()))
-              .collect(new StringBuilderCollector.ExpressionCollector<>(statment, ", "));
+              .collect(new StringBuilderCollector.ExpressionCollector<>(statement, ", "));
 //              .append(((FromImpl<?, ?>) left).tableAlias.get())
 //              .append(DOT)
 //              .append("*")
-          return statment.append(CLOSING_BRACKET);
+          return statement.append(CLOSING_BRACKET);
         } catch (ODataJPAModelException e) {
           throw new IllegalStateException(e);
         }
 
       }
-      return left.asSQL(statment.append(SqlKeyWords.DISTINCT).append(OPENING_BRACKET)).append(CLOSING_BRACKET);
+      return left.asSQL(statement.append(SqlKeyWords.DISTINCT).append(OPENING_BRACKET)).append(CLOSING_BRACKET);
     }
 
   }
@@ -284,10 +284,10 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertable {
     }
 
     @Override
-    public StringBuilder asSQL(final StringBuilder statment) {
-      statment.append(functionName).append(OPENING_BRACKET);
-      args.stream().collect(new StringBuilderCollector.ExpressionCollector<>(statment, ", "));
-      return statment.append(CLOSING_BRACKET);
+    public StringBuilder asSQL(final StringBuilder statement) {
+      statement.append(functionName).append(OPENING_BRACKET);
+      args.stream().collect(new StringBuilderCollector.ExpressionCollector<>(statement, ", "));
+      return statement.append(CLOSING_BRACKET);
     }
 
     @Override
@@ -298,27 +298,27 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertable {
   }
 
   static class LocateExpression extends ExpressionImpl<Integer> {
-    private final SqlConvertable expression;
-    private final SqlConvertable pattern;
-    private final Optional<SqlConvertable> from;
+    private final SqlConvertible expression;
+    private final SqlConvertible pattern;
+    private final Optional<SqlConvertible> from;
 
     LocateExpression(@Nonnull final Expression<String> x, @Nonnull final Expression<String> pattern,
         final Expression<Integer> from) {
-      this.expression = (SqlConvertable) Objects.requireNonNull(x);
-      this.pattern = (SqlConvertable) Objects.requireNonNull(pattern);
-      this.from = Optional.ofNullable((SqlConvertable) from);
+      this.expression = (SqlConvertible) Objects.requireNonNull(x);
+      this.pattern = (SqlConvertible) Objects.requireNonNull(pattern);
+      this.from = Optional.ofNullable((SqlConvertible) from);
     }
 
     @Override
-    public StringBuilder asSQL(final StringBuilder statment) {
+    public StringBuilder asSQL(final StringBuilder statement) {
       // LOCATE(<pattern>, <string>, <from>)
-      statment.append(SqlStringFunctions.LOCATE)
+      statement.append(SqlStringFunctions.LOCATE)
           .append(OPENING_BRACKET);
-      pattern.asSQL(statment)
+      pattern.asSQL(statement)
           .append(", ");
-      expression.asSQL(statment);
-      from.ifPresent(l -> l.asSQL(statment.append(", ")));
-      return statment.append(CLOSING_BRACKET);
+      expression.asSQL(statement);
+      from.ifPresent(l -> l.asSQL(statement.append(", ")));
+      return statement.append(CLOSING_BRACKET);
     }
   }
 
@@ -355,8 +355,8 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertable {
     }
 
     @Override
-    public StringBuilder asSQL(final StringBuilder statment) {
-      return statment.append("?").append(index.toString());
+    public StringBuilder asSQL(final StringBuilder statement) {
+      return statement.append("?").append(index.toString());
     }
 
     @Override
@@ -383,45 +383,45 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertable {
 
   static final class SubQuery<X> extends ExpressionImpl<X> {
 
-    private final SqlConvertable query;
+    private final SqlConvertible query;
     private final SqlSubQuery operator;
 
     SubQuery(@Nonnull final Subquery<?> subquery, @Nonnull final SqlSubQuery operator) {
-      this.query = (SqlConvertable) Objects.requireNonNull(subquery);
+      this.query = (SqlConvertible) Objects.requireNonNull(subquery);
       this.operator = operator;
     }
 
     @Override
-    public StringBuilder asSQL(final StringBuilder statment) {
-      statment.append(operator)
+    public StringBuilder asSQL(final StringBuilder statement) {
+      statement.append(operator)
           .append(" ")
           .append(OPENING_BRACKET);
-      return query.asSQL(statment).append(CLOSING_BRACKET);
+      return query.asSQL(statement).append(CLOSING_BRACKET);
     }
 
   }
 
   static class SubstringExpression extends ExpressionImpl<String> {
-    private final SqlConvertable expression;
-    private final SqlConvertable from;
-    private final Optional<SqlConvertable> len;
+    private final SqlConvertible expression;
+    private final SqlConvertible from;
+    private final Optional<SqlConvertible> len;
 
     SubstringExpression(@Nonnull final Expression<String> x, @Nonnull final Expression<Integer> from,
         final Expression<Integer> len) {
-      this.expression = (SqlConvertable) Objects.requireNonNull(x);
-      this.from = (SqlConvertable) Objects.requireNonNull(from);
-      this.len = Optional.ofNullable((SqlConvertable) len);
+      this.expression = (SqlConvertible) Objects.requireNonNull(x);
+      this.from = (SqlConvertible) Objects.requireNonNull(from);
+      this.len = Optional.ofNullable((SqlConvertible) len);
     }
 
     @Override
-    public StringBuilder asSQL(final StringBuilder statment) {
-      statment.append(SqlStringFunctions.SUBSTRING)
+    public StringBuilder asSQL(final StringBuilder statement) {
+      statement.append(SqlStringFunctions.SUBSTRING)
           .append(OPENING_BRACKET);
-      expression.asSQL(statment)
+      expression.asSQL(statement)
           .append(", ");
-      from.asSQL(statment);
-      len.ifPresent(l -> l.asSQL(statment.append(", ")));
-      return statment.append(CLOSING_BRACKET);
+      from.asSQL(statement);
+      len.ifPresent(l -> l.asSQL(statement.append(", ")));
+      return statement.append(CLOSING_BRACKET);
     }
   }
 
@@ -434,25 +434,25 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertable {
     }
 
     @Override
-    public StringBuilder asSQL(final StringBuilder statment) {
-      return statment.append(function);
+    public StringBuilder asSQL(final StringBuilder statement) {
+      return statement.append(function);
     }
 
   }
 
   static class UnaryFunctionalExpression<T> extends ExpressionImpl<T> {
-    private final SqlConvertable left;
+    private final SqlConvertible left;
     private final SqlStringFunctions function;
 
     UnaryFunctionalExpression(@Nonnull final Expression<?> x, @Nonnull final SqlStringFunctions function) {
-      this.left = (SqlConvertable) Objects.requireNonNull(x);
+      this.left = (SqlConvertible) Objects.requireNonNull(x);
       this.function = Objects.requireNonNull(function);
     }
 
     @Override
-    public StringBuilder asSQL(final StringBuilder statment) {
-      statment.append(function).append(OPENING_BRACKET);
-      return left.asSQL(statment).append(CLOSING_BRACKET);
+    public StringBuilder asSQL(final StringBuilder statement) {
+      statement.append(function).append(OPENING_BRACKET);
+      return left.asSQL(statement).append(CLOSING_BRACKET);
     }
 
   }

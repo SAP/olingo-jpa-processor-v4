@@ -38,7 +38,7 @@ import javax.persistence.criteria.Subquery;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.cb.api.SqlAggregation;
 import com.sap.olingo.jpa.processor.cb.api.SqlArithmetic;
-import com.sap.olingo.jpa.processor.cb.api.SqlConvertable;
+import com.sap.olingo.jpa.processor.cb.api.SqlConvertible;
 import com.sap.olingo.jpa.processor.cb.api.SqlNullCheck;
 import com.sap.olingo.jpa.processor.cb.api.SqlStringFunctions;
 import com.sap.olingo.jpa.processor.cb.api.SqlSubQuery;
@@ -118,7 +118,7 @@ class CriteriaBuilderImpl implements CriteriaBuilder { // NOSONAR
    */
   @Override
   public Order asc(@Nonnull final Expression<?> x) {
-    return new OrderImpl(true, Objects.requireNonNull((SqlConvertable) x));
+    return new OrderImpl(true, Objects.requireNonNull((SqlConvertible) x));
   }
 
   /**
@@ -325,7 +325,7 @@ class CriteriaBuilderImpl implements CriteriaBuilder { // NOSONAR
    */
   @Override
   public Order desc(@Nonnull final Expression<?> x) {
-    return new OrderImpl(false, Objects.requireNonNull((SqlConvertable) x));
+    return new OrderImpl(false, Objects.requireNonNull((SqlConvertible) x));
   }
 
   /**
@@ -1020,7 +1020,7 @@ class CriteriaBuilderImpl implements CriteriaBuilder { // NOSONAR
 
   @Override
   public Predicate not(@Nonnull final Expression<Boolean> restriction) {
-    return new PredicateImpl.NotPredicate((SqlConvertable) restriction);
+    return new PredicateImpl.NotPredicate((SqlConvertible) restriction);
   }
 
   /**

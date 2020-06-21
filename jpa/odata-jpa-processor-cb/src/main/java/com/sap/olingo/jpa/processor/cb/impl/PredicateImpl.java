@@ -13,7 +13,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Selection;
 import javax.persistence.criteria.Subquery;
 
-import com.sap.olingo.jpa.processor.cb.api.SqlConvertable;
+import com.sap.olingo.jpa.processor.cb.api.SqlConvertible;
 import com.sap.olingo.jpa.processor.cb.api.SqlKeyWords;
 import com.sap.olingo.jpa.processor.cb.api.SqlNullCheck;
 import com.sap.olingo.jpa.processor.cb.api.SqlSubQuery;
@@ -23,12 +23,12 @@ import com.sap.olingo.jpa.processor.cb.api.SqlSubQuery;
  * @author Oliver Grande
  *
  */
-abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicate, SqlConvertable {
+abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicate, SqlConvertible {
 
   private static final int REQUIRED_NO_OPERATOR = 2;
-  protected final List<SqlConvertable> expressions;
+  protected final List<SqlConvertible> expressions;
 
-  protected PredicateImpl(final SqlConvertable... expressions) {
+  protected PredicateImpl(final SqlConvertible... expressions) {
     super();
     this.expressions = Collections.unmodifiableList(Arrays.asList(expressions));
   }
@@ -61,10 +61,10 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
     return restrictions.length < requiredNoElements;
   }
 
-  abstract static class BolleanPredicate extends PredicateImpl {
+  abstract static class BooleanPredicate extends PredicateImpl {
 
-    BolleanPredicate(final Expression<Boolean> x, final Expression<Boolean> y) {
-      super((SqlConvertable) x, (SqlConvertable) y);
+    BooleanPredicate(final Expression<Boolean> x, final Expression<Boolean> y) {
+      super((SqlConvertible) x, (SqlConvertible) y);
     }
 
     @Override
@@ -73,19 +73,19 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
     }
 
     @Override
-    public StringBuilder asSQL(final StringBuilder statment) {
-      statment.append(OPENING_BRACKET);
-      expressions.get(0).asSQL(statment)
+    public StringBuilder asSQL(final StringBuilder statement) {
+      statement.append(OPENING_BRACKET);
+      expressions.get(0).asSQL(statement)
           .append(" ")
           .append(getOperator())
           .append(" ");
-      expressions.get(1).asSQL(statment);
-      statment.append(CLOSING_BRACKET);
-      return statment;
+      expressions.get(1).asSQL(statement);
+      statement.append(CLOSING_BRACKET);
+      return statement;
     }
   }
 
-  static class AndPredicate extends BolleanPredicate {
+  static class AndPredicate extends BooleanPredicate {
 
     AndPredicate(final Expression<Boolean> x, final Expression<Boolean> y) {
       super(x, y);
@@ -102,7 +102,7 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
     }
   }
 
-  static class OrPredicate extends BolleanPredicate {
+  static class OrPredicate extends BooleanPredicate {
 
     OrPredicate(final Expression<Boolean> x, final Expression<Boolean> y) {
       super(x, y);
@@ -121,9 +121,9 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
 
   static class NotPredicate extends PredicateImpl {
 
-    private final SqlConvertable positive;
+    private final SqlConvertible positive;
 
-    NotPredicate(final SqlConvertable predicate) {
+    NotPredicate(final SqlConvertible predicate) {
       this.positive = predicate;
     }
 
@@ -138,12 +138,12 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
     }
 
     @Override
-    public StringBuilder asSQL(final StringBuilder statment) {
-      statment
+    public StringBuilder asSQL(final StringBuilder statement) {
+      statement
           .append(OPENING_BRACKET)
           .append(SqlKeyWords.NOT)
           .append(" ");
-      return positive.asSQL(statment)
+      return positive.asSQL(statement)
           .append(CLOSING_BRACKET);
     }
   }
@@ -153,7 +153,7 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
     private final ExpressionImpl<?> attribute;
 
     BetweenExpressionPredicate(final ExpressionImpl<?> attribute, final Expression<?> left, final Expression<?> right) {
-      super((SqlConvertable) left, (SqlConvertable) right);
+      super((SqlConvertible) left, (SqlConvertible) right);
       this.attribute = attribute;
     }
 
@@ -163,17 +163,17 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
     }
 
     @Override
-    public StringBuilder asSQL(final StringBuilder statment) {
-      statment.append(OPENING_BRACKET);
-      this.attribute.asSQL(statment)
+    public StringBuilder asSQL(final StringBuilder statement) {
+      statement.append(OPENING_BRACKET);
+      this.attribute.asSQL(statement)
           .append(" ")
           .append(SqlKeyWords.BETWEEN)
           .append(" ");
-      this.expressions.get(0).asSQL(statment)
+      this.expressions.get(0).asSQL(statement)
           .append(" ")
           .append(SqlKeyWords.AND)
           .append(" ");
-      return this.expressions.get(1).asSQL(statment).append(CLOSING_BRACKET);
+      return this.expressions.get(1).asSQL(statement).append(CLOSING_BRACKET);
     }
   }
 
@@ -196,7 +196,7 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
     private final Operation expression;
 
     BinaryExpressionPredicate(final Operation operation, final Expression<?> left, final Expression<?> right) {
-      super((SqlConvertable) left, (SqlConvertable) right);
+      super((SqlConvertible) left, (SqlConvertible) right);
       this.expression = operation;
     }
 
@@ -206,13 +206,13 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
     }
 
     @Override
-    public StringBuilder asSQL(final StringBuilder statment) {
-      statment.append(OPENING_BRACKET);
-      this.expressions.get(0).asSQL(statment)
+    public StringBuilder asSQL(final StringBuilder statement) {
+      statement.append(OPENING_BRACKET);
+      this.expressions.get(0).asSQL(statement)
           .append(" ")
           .append(expression)
           .append(" ");
-      return this.expressions.get(1).asSQL(statment).append(CLOSING_BRACKET);
+      return this.expressions.get(1).asSQL(statement).append(CLOSING_BRACKET);
     }
   }
 
@@ -226,7 +226,7 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
 
     public LikePredicate(final Expression<String> column, final ParameterExpression<String, ?> pattern,
         final Optional<ParameterExpression<Character, ?>> escapeChar) {
-      super((SqlConvertable) column);
+      super((SqlConvertible) column);
       this.pattern = pattern;
       this.escape = escapeChar;
     }
@@ -237,28 +237,28 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
     }
 
     @Override
-    public StringBuilder asSQL(final StringBuilder statment) {
-      statment.append(OPENING_BRACKET);
-      this.expressions.get(0).asSQL(statment)
+    public StringBuilder asSQL(final StringBuilder statement) {
+      statement.append(OPENING_BRACKET);
+      this.expressions.get(0).asSQL(statement)
           .append(" ")
           .append(SqlKeyWords.LIKE)
           .append(" ");
-      this.pattern.asSQL(statment);
-      this.escape.ifPresent(e -> statment
+      this.pattern.asSQL(statement);
+      this.escape.ifPresent(e -> statement
           .append(" ")
           .append(SqlKeyWords.ESCAPE)
           .append(" "));
-      this.escape.ifPresent(e -> e.asSQL(statment));
-      return statment.append(CLOSING_BRACKET);
+      this.escape.ifPresent(e -> e.asSQL(statement));
+      return statement.append(CLOSING_BRACKET);
     }
   }
 
   static class SubQuery extends PredicateImpl {
-    private final SqlConvertable query;
+    private final SqlConvertible query;
     private final SqlSubQuery operator;
 
     public SubQuery(@Nonnull final Subquery<?> subquery, @Nonnull final SqlSubQuery operator) {
-      this.query = (SqlConvertable) Objects.requireNonNull(subquery);
+      this.query = (SqlConvertible) Objects.requireNonNull(subquery);
       this.operator = operator;
     }
 
@@ -268,11 +268,11 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
     }
 
     @Override
-    public StringBuilder asSQL(@Nonnull final StringBuilder statment) {
-      statment.append(operator)
+    public StringBuilder asSQL(@Nonnull final StringBuilder statement) {
+      statement.append(operator)
           .append(" ")
           .append(OPENING_BRACKET);
-      return query.asSQL(statment).append(CLOSING_BRACKET);
+      return query.asSQL(statement).append(CLOSING_BRACKET);
     }
 
   }
@@ -282,7 +282,7 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
     private final SqlNullCheck check;
 
     NullPredicate(@Nonnull final Expression<?> expression, @Nonnull final SqlNullCheck check) {
-      super((SqlConvertable) Objects.requireNonNull(expression));
+      super((SqlConvertible) Objects.requireNonNull(expression));
       this.check = Objects.requireNonNull(check);
     }
 
@@ -292,8 +292,8 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
     }
 
     @Override
-    public StringBuilder asSQL(final StringBuilder statment) {
-      return expressions.get(0).asSQL(statment.append(OPENING_BRACKET))
+    public StringBuilder asSQL(final StringBuilder statement) {
+      return expressions.get(0).asSQL(statement.append(OPENING_BRACKET))
           .append(" ").append(check).append(CLOSING_BRACKET);
     }
   }

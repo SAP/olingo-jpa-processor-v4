@@ -428,17 +428,17 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
       @SuppressWarnings("rawtypes")
       Join join;
       if (joinAttribute instanceof JPADescriptionAttribute) {
-        final JoinType jointype = jt == null ? JoinType.LEFT : jt;
+        final JoinType joinType = jt == null ? JoinType.LEFT : jt;
         final Optional<JPAAssociationPath> path = Optional.ofNullable(((JPADescriptionAttribute) joinAttribute)
             .asAssociationAttribute().getPath());
         join = new SimpleJoin<>(path.orElseThrow(() -> new IllegalArgumentException(buildExceptionText(attributeName))),
-            jointype, determineParent(), aliasBuilder, cb);
+            joinType, determineParent(), aliasBuilder, cb);
       } else if (joinAttribute instanceof JPACollectionAttribute) {
         join = new CollectionJoinImpl<>(joinPath, determineParent(), aliasBuilder, cb);
       } else if (joinAttribute.isComplex()) {
         join = new PathJoin<>((FromImpl<X, Y>) determineParent(), joinPath, aliasBuilder, cb);
       } else {
-        final JoinType jointype = jt == null ? JoinType.INNER : jt;
+        final JoinType joinType = jt == null ? JoinType.INNER : jt;
         Optional<JPAAssociationPath> associationPath;
         if (path.isPresent())
           associationPath = Optional.ofNullable(st.getAssociationPath(path.get().getAlias() + JPAPath.PATH_SEPARATOR
@@ -449,10 +449,10 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
         if (associationPath.orElseThrow(() -> new IllegalArgumentException(buildExceptionText(attributeName)))
             .hasJoinTable())
           join = new JoinTableJoin<>(associationPath.orElseThrow(() -> new IllegalArgumentException(buildExceptionText(
-              attributeName))), jointype, determineParent(), aliasBuilder, cb);
+              attributeName))), joinType, determineParent(), aliasBuilder, cb);
         else
           join = new SimpleJoin<>(associationPath.orElseThrow(() -> new IllegalArgumentException(buildExceptionText(
-              attributeName))), jointype, determineParent(), aliasBuilder, cb);
+              attributeName))), joinType, determineParent(), aliasBuilder, cb);
       }
       joins.add(join);
       return join;
@@ -536,11 +536,11 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
   @Override
-  public StringBuilder asSQL(final StringBuilder statment) {
-    statment.append(st.getTableName());
-    tableAlias.ifPresent(p -> statment.append(" ").append(p));
-    joins.stream().collect(new StringBuilderCollector.ExpressionCollector(statment, " "));
-    return statment;
+  public StringBuilder asSQL(final StringBuilder statement) {
+    statement.append(st.getTableName());
+    tableAlias.ifPresent(p -> statement.append(" ").append(p));
+    joins.stream().collect(new StringBuilderCollector.ExpressionCollector(statement, " "));
+    return statement;
   }
 
   Expression<Boolean> createInheritanceWhere() {

@@ -14,7 +14,7 @@ import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
 class SimpleJoin<Z, X> extends AbstractJoinImp<Z, X> {
 
   private final JoinType joinType;
-  final JPAAssociationPath assoziation;
+  final JPAAssociationPath association;
 
   SimpleJoin(@Nonnull final JPAAssociationPath path, @Nonnull final JoinType jt,
       @Nonnull final From<?, Z> parent, @Nonnull final AliasBuilder aliasBuilder, @Nonnull CriteriaBuilder cb)
@@ -22,8 +22,8 @@ class SimpleJoin<Z, X> extends AbstractJoinImp<Z, X> {
 
     super((JPAEntityType) path.getTargetType(), parent, aliasBuilder, cb);
     this.joinType = jt;
-    this.assoziation = path;
-    createOn(assoziation.getJoinColumnsList(), (JPAEntityType) assoziation.getTargetType());
+    this.association = path;
+    createOn(association.getJoinColumnsList(), (JPAEntityType) association.getTargetType());
   }
 
   /**

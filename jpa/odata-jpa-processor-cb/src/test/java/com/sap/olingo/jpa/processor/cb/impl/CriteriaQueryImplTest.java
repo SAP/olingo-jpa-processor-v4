@@ -29,7 +29,7 @@ import com.sap.olingo.jpa.processor.cb.api.ProcessorSelection;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 
-public class CritertaQueryImplTest extends BuilderBaseTest {
+public class CriteriaQueryImplTest extends BuilderBaseTest {
   private CriteriaQueryImpl<Object> cut;
   private CriteriaBuilder cb;
 

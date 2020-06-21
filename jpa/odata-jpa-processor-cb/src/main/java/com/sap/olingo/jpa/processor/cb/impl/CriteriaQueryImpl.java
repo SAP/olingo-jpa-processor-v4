@@ -40,14 +40,14 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.cb.api.ProcessorSelection;
-import com.sap.olingo.jpa.processor.cb.api.SqlConvertable;
+import com.sap.olingo.jpa.processor.cb.api.SqlConvertible;
 import com.sap.olingo.jpa.processor.cb.api.SqlKeyWords;
 import com.sap.olingo.jpa.processor.cb.exeptions.InternalServerError;
 import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
 import com.sap.olingo.jpa.processor.cb.joiner.ExpressionCollector;
 import com.sap.olingo.jpa.processor.cb.joiner.StringBuilderCollector;
 
-class CriteriaQueryImpl<T> implements CriteriaQuery<T>, SqlConvertable {
+class CriteriaQueryImpl<T> implements CriteriaQuery<T>, SqlConvertible {
   private final Class<T> resultType;
   private final Set<FromImpl<?, ?>> roots = new HashSet<>();
   private final JPAServiceDocument sd;
@@ -79,7 +79,7 @@ class CriteriaQueryImpl<T> implements CriteriaQuery<T>, SqlConvertable {
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
   @Override
-  public StringBuilder asSQL(final StringBuilder statment) {
+  public StringBuilder asSQL(final StringBuilder statement) {
     final List<Expression<Boolean>> filterExpressions = new ArrayList<>();
     where.ifPresent(filterExpressions::add);
     roots.stream().forEach(r -> addInheritanceWhere(r, filterExpressions));
@@ -87,35 +87,35 @@ class CriteriaQueryImpl<T> implements CriteriaQuery<T>, SqlConvertable {
     where = Optional.ofNullable(filterExpressions.stream().filter(Objects::nonNull).collect(new ExpressionCollector<>(
         cb, BooleanOperator.AND)));
 
-    statment.append(SqlKeyWords.SELECT)
+    statement.append(SqlKeyWords.SELECT)
         .append(" ")
         .append(addDistinct());
-    selection.asSQL(statment);
-    statment.append(" ")
+    selection.asSQL(statement);
+    statement.append(" ")
         .append(SqlKeyWords.FROM)
         .append(" ");
-    roots.stream().collect(new StringBuilderCollector.ExpressionCollector(statment, ", "));
+    roots.stream().collect(new StringBuilderCollector.ExpressionCollector(statement, ", "));
     where.ifPresent(e -> {
-      statment.append(" ")
+      statement.append(" ")
           .append(SqlKeyWords.WHERE)
           .append(" ");
-      ((SqlConvertable) e).asSQL(statment);
+      ((SqlConvertible) e).asSQL(statement);
     });
     groupBy.ifPresent(g -> {
-      statment.append(" ").append(SqlKeyWords.GROUPBY).append(" ");
-      g.stream().collect(new StringBuilderCollector.ExpressionCollector(statment, ", "));
+      statement.append(" ").append(SqlKeyWords.GROUPBY).append(" ");
+      g.stream().collect(new StringBuilderCollector.ExpressionCollector(statement, ", "));
     });
     orderList.ifPresent(l -> {
-      statment.append(" ").append(SqlKeyWords.ORDERBY).append(" ");
-      l.stream().collect(new StringBuilderCollector.OrderCollector(statment, ", "));
+      statement.append(" ").append(SqlKeyWords.ORDERBY).append(" ");
+      l.stream().collect(new StringBuilderCollector.OrderCollector(statement, ", "));
     });
     having.ifPresent(e -> {
-      statment.append(" ")
+      statement.append(" ")
           .append(SqlKeyWords.HAVING)
           .append(" ");
-      ((SqlConvertable) e).asSQL(statment);
+      ((SqlConvertible) e).asSQL(statement);
     });
-    return statment;
+    return statement;
   }
 
   @Override
@@ -442,7 +442,7 @@ class CriteriaQueryImpl<T> implements CriteriaQuery<T>, SqlConvertable {
     }
 
     @Override
-    public StringBuilder asSQL(@Nonnull final StringBuilder statment) {
+    public StringBuilder asSQL(@Nonnull final StringBuilder statement) {
       final List<Expression<?>> selItems = new ArrayList<>();
       for (final Selection<?> sel : selections) {
         if (sel instanceof PathImpl<?>) {
@@ -453,8 +453,8 @@ class CriteriaQueryImpl<T> implements CriteriaQuery<T>, SqlConvertable {
       }
       selItems.stream()
           .map(s -> (ExpressionImpl<?>) s)
-          .collect(new StringBuilderCollector.ExpressionCollector<>(statment, ", "));
-      return statment;
+          .collect(new StringBuilderCollector.ExpressionCollector<>(statement, ", "));
+      return statement;
     }
 
     /**
@@ -535,9 +535,9 @@ class CriteriaQueryImpl<T> implements CriteriaQuery<T>, SqlConvertable {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
-    public StringBuilder asSQL(final StringBuilder statment) {
-      selections.stream().collect(new StringBuilderCollector.ExpressionCollector(statment, ", "));
-      return statment;
+    public StringBuilder asSQL(final StringBuilder statement) {
+      selections.stream().collect(new StringBuilderCollector.ExpressionCollector(statement, ", "));
+      return statement;
     }
 
     /**

@@ -16,8 +16,8 @@ public abstract class StringBuilderCollector<T> implements Collector<T, StringBu
 
   final Supplier<StringBuilderJoiner<T>> supplier;
 
-  public StringBuilderCollector(@Nonnull final StringBuilder statment, @Nonnull final String delimiter) {
-    this.supplier = () -> new StringBuilderJoiner<>(statment, delimiter);
+  public StringBuilderCollector(@Nonnull final StringBuilder statement, @Nonnull final String delimiter) {
+    this.supplier = () -> new StringBuilderJoiner<>(statement, delimiter);
   }
 
   @Override
@@ -47,14 +47,14 @@ public abstract class StringBuilderCollector<T> implements Collector<T, StringBu
 
   public static class OrderCollector extends StringBuilderCollector<Order> {
 
-    public OrderCollector(@Nonnull final StringBuilder statment, @Nonnull final String delimiter) {
-      super(statment, delimiter);
+    public OrderCollector(@Nonnull final StringBuilder statement, @Nonnull final String delimiter) {
+      super(statement, delimiter);
     }
   }
 
   public static class ExpressionCollector<T> extends StringBuilderCollector<Expression<T>> {
-    public ExpressionCollector(@Nonnull final StringBuilder statment, @Nonnull final String delimiter) {
-      super(statment, delimiter);
+    public ExpressionCollector(@Nonnull final StringBuilder statement, @Nonnull final String delimiter) {
+      super(statement, delimiter);
     }
   }
 }

@@ -16,7 +16,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.cb.api.SqlConvertable;
+import com.sap.olingo.jpa.processor.cb.api.SqlConvertible;
 import com.sap.olingo.jpa.processor.cb.api.SqlJoinType;
 import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
 
@@ -45,19 +45,19 @@ class CollectionJoinImpl<Z, X> extends AbstractJoinImp<Z, X> {
   }
 
   @Override
-  public StringBuilder asSQL(final StringBuilder statment) {
+  public StringBuilder asSQL(final StringBuilder statement) {
 
     try {
-      statment.append(" ")
+      statement.append(" ")
           .append(SqlJoinType.byJoinType(getJoinType()))
           .append(" ")
           .append(attribute.asAssociation()
               .getJoinTable()
               .getTableName());
 
-      tableAlias.ifPresent(p -> statment.append(" ").append(p));
-      statment.append(" ON ");
-      return ((SqlConvertable) on).asSQL(statment);
+      tableAlias.ifPresent(p -> statement.append(" ").append(p));
+      statement.append(" ON ");
+      return ((SqlConvertible) on).asSQL(statement);
     } catch (ODataJPAModelException e) {
       throw new IllegalStateException("Target DB table of collection attribute &1 of &2"
           .replace("&1", attribute.getInternalName())

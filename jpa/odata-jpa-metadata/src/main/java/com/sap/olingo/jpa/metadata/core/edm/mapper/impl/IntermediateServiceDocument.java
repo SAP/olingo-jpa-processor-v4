@@ -312,8 +312,6 @@ class IntermediateServiceDocument implements JPAServiceDocument {
     } catch (final ODataJPAModelException e) {
       schemaListInternalKey.clear();
       throw e;
-    }finally {
-      
     }
     return schemas;
   }
@@ -321,7 +319,9 @@ class IntermediateServiceDocument implements JPAServiceDocument {
   private void setContainer() {
     for (final IntermediateSchema schema : schemaListInternalKey.values()) {
       schema.setContainer(container);
-      break;
+      // OData allows to combine multiple schemas in one metadata document. The container has to be added to one of those. 
+      // We pick the first that we can get:
+      break; //NOSONAR
     }
   }
 

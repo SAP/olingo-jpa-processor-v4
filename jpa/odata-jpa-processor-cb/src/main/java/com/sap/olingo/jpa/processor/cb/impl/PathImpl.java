@@ -62,17 +62,17 @@ class PathImpl<X> extends ExpressionImpl<X> implements Path<X> {
     this.path = Objects.requireNonNull(path);
     this.parent = Objects.requireNonNull(parent);
     this.st = type;
-    this.tableAlias = Optional.ofNullable(tableAlias.orElseGet(this::tableAliaseFromParent));
+    this.tableAlias = Optional.ofNullable(tableAlias.orElseGet(this::tableAliasFromParent));
   }
 
   @Override
-  public StringBuilder asSQL(final StringBuilder statment) {
+  public StringBuilder asSQL(final StringBuilder statement) {
     tableAlias.ifPresent(p -> {
-      statment.append(p);
-      statment.append(DOT);
+      statement.append(p);
+      statement.append(DOT);
     });
-    path.ifPresent(p -> statment.append(p.getDBFieldName()));
-    return statment;
+    path.ifPresent(p -> statement.append(p.getDBFieldName()));
+    return statement;
   }
 
   /**
@@ -213,8 +213,8 @@ class PathImpl<X> extends ExpressionImpl<X> implements Path<X> {
   List<JPAPath> getPathList() {
     return Arrays.asList(path.orElseThrow(IllegalSelectorException::new));
   }
-
-  private String tableAliaseFromParent() {
+ 
+  private String tableAliasFromParent() {
     if (parent.isPresent())
       return parent.get().tableAlias.orElse(null);
     return null;

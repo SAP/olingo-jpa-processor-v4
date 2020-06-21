@@ -21,7 +21,7 @@ import com.sap.olingo.jpa.metadata.api.JPAJoinColumn;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
-import com.sap.olingo.jpa.processor.cb.api.SqlConvertable;
+import com.sap.olingo.jpa.processor.cb.api.SqlConvertible;
 import com.sap.olingo.jpa.processor.cb.api.SqlJoinType;
 import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
 import com.sap.olingo.jpa.processor.cb.impl.PredicateImpl.BinaryExpressionPredicate;
@@ -46,21 +46,21 @@ abstract class AbstractJoinImp<Z, X> extends FromImpl<Z, X> implements Join<Z, X
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
   @Override
-  public StringBuilder asSQL(final StringBuilder statment) {
+  public StringBuilder asSQL(final StringBuilder statement) {
 
-    statment.append(" ")
+    statement.append(" ")
         .append(SqlJoinType.byJoinType(getJoinType()))
         .append(" ");
     if (!getJoins().isEmpty())
-      statment.append(OPENING_BRACKET);
-    statment.append(st.getTableName());
-    tableAlias.ifPresent(p -> statment.append(" ").append(p));
-    getJoins().stream().collect(new StringBuilderCollector.ExpressionCollector(statment, " "));
+      statement.append(OPENING_BRACKET);
+    statement.append(st.getTableName());
+    tableAlias.ifPresent(p -> statement.append(" ").append(p));
+    getJoins().stream().collect(new StringBuilderCollector.ExpressionCollector(statement, " "));
     if (!getJoins().isEmpty())
-      statment.append(CLOSING_BRACKET);
-    statment.append(" ON ");
-    ((SqlConvertable) on).asSQL(statment);
-    return statment;
+      statement.append(CLOSING_BRACKET);
+    statement.append(" ON ");
+    ((SqlConvertible) on).asSQL(statement);
+    return statement;
   }
 
   /**
@@ -159,13 +159,13 @@ abstract class AbstractJoinImp<Z, X> extends FromImpl<Z, X> implements Join<Z, X
     }
 
     @Override
-    public StringBuilder asSQL(StringBuilder statment) {
+    public StringBuilder asSQL(StringBuilder statement) {
       table.ifPresent(p -> {
-        statment.append(p);
-        statment.append(DOT);
+        statement.append(p);
+        statement.append(DOT);
       });
-      statment.append(dbFieldName);
-      return statment;
+      statement.append(dbFieldName);
+      return statement;
     }
 
     @Override

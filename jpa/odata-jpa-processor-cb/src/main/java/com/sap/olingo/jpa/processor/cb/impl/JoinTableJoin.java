@@ -9,13 +9,13 @@ import javax.persistence.metamodel.Attribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.cb.api.SqlConvertable;
+import com.sap.olingo.jpa.processor.cb.api.SqlConvertible;
 import com.sap.olingo.jpa.processor.cb.api.SqlJoinType;
 import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
 import com.sap.olingo.jpa.processor.cb.joiner.StringBuilderCollector;
 
 class JoinTableJoin<Z, X> extends AbstractJoinImp<Z, X> {
-  private final JPAAssociationPath assoziation;
+  private final JPAAssociationPath association;
   private boolean inner = false;
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -25,9 +25,9 @@ class JoinTableJoin<Z, X> extends AbstractJoinImp<Z, X> {
 
     super((JPAEntityType) path.getTargetType(), (From<?, Z>) new InnerJoin(parent, aliasBuilder, cb, path, jt),
         aliasBuilder, cb);
-    this.assoziation = path;
+    this.association = path;
     related.getJoins().add(this);
-    createOn(assoziation.getJoinTable().getRawInversJoinInformation());
+    createOn(association.getJoinTable().getRawInversJoinInformation());
   }
 
   @Override
@@ -65,31 +65,31 @@ class JoinTableJoin<Z, X> extends AbstractJoinImp<Z, X> {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public StringBuilder asSQL(final StringBuilder statment) {
+    public StringBuilder asSQL(final StringBuilder statement) {
 
-      statment.append(" ")
+      statement.append(" ")
           .append(SqlJoinType.byJoinType(getJoinType()))
           .append(" ");
       if (!getJoins().isEmpty())
-        statment.append(OPENING_BRACKET);
-      statment.append(association.getJoinTable().getTableName());
-      tableAlias.ifPresent(p -> statment.append(" ").append(p));
-      getJoins().stream().collect(new StringBuilderCollector.ExpressionCollector(statment, " "));
+        statement.append(OPENING_BRACKET);
+      statement.append(association.getJoinTable().getTableName());
+      tableAlias.ifPresent(p -> statement.append(" ").append(p));
+      getJoins().stream().collect(new StringBuilderCollector.ExpressionCollector(statement, " "));
       if (!getJoins().isEmpty())
-        statment.append(CLOSING_BRACKET);
-      statment.append(" ON ");
-      ((SqlConvertable) on).asSQL(statment);
-      return statment;
+        statement.append(CLOSING_BRACKET);
+      statement.append(" ON ");
+      ((SqlConvertible) on).asSQL(statement);
+      return statement;
     }
   }
 
   @Override
-  public StringBuilder asSQL(StringBuilder statment) {
+  public StringBuilder asSQL(StringBuilder statement) {
     if (inner) {
-      return super.asSQL(statment);
+      return super.asSQL(statement);
     } else {
       inner = true;
-      return ((SqlConvertable) related).asSQL(statment);
+      return ((SqlConvertible) related).asSQL(statement);
     }
   }
 }

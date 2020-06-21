@@ -107,7 +107,7 @@ public class EntityManagerFactoryWrapperTest {
   }
 
   @Test
-  public void testCbWrapeerCreated() {
+  public void testCbWrapperCreated() {
     assertTrue(cut.getCriteriaBuilder() instanceof CriteriaBuilder);
   }
 }

@@ -23,7 +23,7 @@ import javax.persistence.criteria.Subquery;
 import javax.persistence.metamodel.EntityType;
 
 import com.sap.olingo.jpa.processor.cb.api.ProcessorSubquery;
-import com.sap.olingo.jpa.processor.cb.api.SqlConvertable;
+import com.sap.olingo.jpa.processor.cb.api.SqlConvertible;
 
 /**
  * The <code>Subquery</code> interface defines functionality that is
@@ -35,7 +35,7 @@ import com.sap.olingo.jpa.processor.cb.api.SqlConvertable;
  *
  * @param <T> the type of the selection item.
  */
-class SubqueryImpl<T> implements ProcessorSubquery<T>, SqlConvertable {
+class SubqueryImpl<T> implements ProcessorSubquery<T>, SqlConvertible {
   private final Class<T> type;
   private final CriteriaQuery<?> parent;
   private final CriteriaQuery<T> inner;
@@ -290,7 +290,7 @@ class SubqueryImpl<T> implements ProcessorSubquery<T>, SqlConvertable {
 
   @Override
   public StringBuilder asSQL(@Nonnull final StringBuilder statment) {
-    return ((SqlConvertable) inner).asSQL(statment);
+    return ((SqlConvertible) inner).asSQL(statment);
   }
 
 }
