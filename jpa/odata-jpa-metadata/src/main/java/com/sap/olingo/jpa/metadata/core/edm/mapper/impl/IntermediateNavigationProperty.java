@@ -55,14 +55,14 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
   private final Attribute<?, ?> jpaAttribute;
   private CsdlNavigationProperty edmNaviProperty;
   private CsdlOnDelete edmOnDelete;
-  private final IntermediateStructuredType sourceType;
-  private IntermediateStructuredType targetType;
+  private final IntermediateStructuredType<?> sourceType;
+  private IntermediateStructuredType<?> targetType;
   private JPAAssociationAttribute partner;
   private IntermediateJoinTable joinTable;
   private final IntermediateSchema schema;
   private final List<IntermediateJoinColumn> joinColumns = new ArrayList<>();
 
-  IntermediateNavigationProperty(final JPAEdmNameBuilder nameBuilder, final IntermediateStructuredType parent,
+  IntermediateNavigationProperty(final JPAEdmNameBuilder nameBuilder, final IntermediateStructuredType<?> parent,
       final Attribute<?, ?> jpaAttribute, final IntermediateSchema schema) throws ODataJPAModelException {
     super(nameBuilder, IntNameBuilder.buildAssociationName(jpaAttribute));
     this.jpaAttribute = jpaAttribute;
@@ -73,7 +73,7 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
   }
 
   @Override
-  public void addAnnotations(List<CsdlAnnotation> annotations) {
+  public void addAnnotations(final List<CsdlAnnotation> annotations) {
     edmAnnotations.addAll(annotations);
   }
 
@@ -112,7 +112,7 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
   }
 
   @Override
-  public List<String> getProtectionPath(String claimName) throws ODataJPAModelException {
+  public List<String> getProtectionPath(final String claimName) throws ODataJPAModelException {
     return new ArrayList<>(0);
   }
 
@@ -191,31 +191,31 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
       if (jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
         final AnnotatedElement annotatedElement = (AnnotatedElement) jpaAttribute.getJavaMember();
         switch (jpaAttribute.getPersistentAttributeType()) {
-          case ONE_TO_MANY:
-            final OneToMany cardinalityOtM = annotatedElement.getAnnotation(OneToMany.class);
-            mappedBy = cardinalityOtM.mappedBy();
-            isSourceOne = true;
-            edmNaviProperty.setOnDelete(edmOnDelete != null ? edmOnDelete : setJPAOnDelete(cardinalityOtM.cascade()));
-            break;
-          case ONE_TO_ONE:
-            final OneToOne cardinalityOtO = annotatedElement.getAnnotation(OneToOne.class);
-            edmNaviProperty.setNullable(cardinalityOtO.optional());
-            mappedBy = cardinalityOtO.mappedBy();
-            isSourceOne = true;
-            edmNaviProperty.setOnDelete(edmOnDelete != null ? edmOnDelete : setJPAOnDelete(cardinalityOtO.cascade()));
-            break;
-          case MANY_TO_ONE:
-            final ManyToOne cardinalityMtO = annotatedElement.getAnnotation(ManyToOne.class);
-            edmNaviProperty.setNullable(cardinalityMtO.optional());
-            edmNaviProperty.setOnDelete(edmOnDelete != null ? edmOnDelete : setJPAOnDelete(cardinalityMtO.cascade()));
-            break;
-          case MANY_TO_MANY:
-            final ManyToMany cardinalityMtM = annotatedElement.getAnnotation(ManyToMany.class);
-            mappedBy = cardinalityMtM.mappedBy();
-            edmNaviProperty.setOnDelete(edmOnDelete != null ? edmOnDelete : setJPAOnDelete(cardinalityMtM.cascade()));
-            break;
-          default:
-            break;
+        case ONE_TO_MANY:
+          final OneToMany cardinalityOtM = annotatedElement.getAnnotation(OneToMany.class);
+          mappedBy = cardinalityOtM.mappedBy();
+          isSourceOne = true;
+          edmNaviProperty.setOnDelete(edmOnDelete != null ? edmOnDelete : setJPAOnDelete(cardinalityOtM.cascade()));
+          break;
+        case ONE_TO_ONE:
+          final OneToOne cardinalityOtO = annotatedElement.getAnnotation(OneToOne.class);
+          edmNaviProperty.setNullable(cardinalityOtO.optional());
+          mappedBy = cardinalityOtO.mappedBy();
+          isSourceOne = true;
+          edmNaviProperty.setOnDelete(edmOnDelete != null ? edmOnDelete : setJPAOnDelete(cardinalityOtO.cascade()));
+          break;
+        case MANY_TO_ONE:
+          final ManyToOne cardinalityMtO = annotatedElement.getAnnotation(ManyToOne.class);
+          edmNaviProperty.setNullable(cardinalityMtO.optional());
+          edmNaviProperty.setOnDelete(edmOnDelete != null ? edmOnDelete : setJPAOnDelete(cardinalityMtO.cascade()));
+          break;
+        case MANY_TO_MANY:
+          final ManyToMany cardinalityMtM = annotatedElement.getAnnotation(ManyToMany.class);
+          mappedBy = cardinalityMtM.mappedBy();
+          edmNaviProperty.setOnDelete(edmOnDelete != null ? edmOnDelete : setJPAOnDelete(cardinalityMtM.cascade()));
+          break;
+        default:
+          break;
         }
 
 //      Determine referential constraint
@@ -234,7 +234,7 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
     return edmNaviProperty;
   }
 
-  PersistentAttributeType getJoinCardinality() throws ODataJPAModelException {
+  PersistentAttributeType getJoinCardinality() {
     return jpaAttribute.getPersistentAttributeType();
   }
 
@@ -243,7 +243,7 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
     return joinColumns;
   }
 
-  IntermediateStructuredType getSourceType() {
+  IntermediateStructuredType<?> getSourceType() {
     return sourceType;
   }
 
@@ -251,12 +251,12 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
     if (jpaAttribute.getPersistentAttributeType() == PersistentAttributeType.ONE_TO_ONE) {
       final AnnotatedElement annotatedElement = (AnnotatedElement) jpaAttribute.getJavaMember();
       final OneToOne cardinalityOtO = annotatedElement.getAnnotation(OneToOne.class);
-      return cardinalityOtO.mappedBy() != null && !cardinalityOtO.mappedBy().isEmpty() ? true : false;
+      return cardinalityOtO.mappedBy() != null && !cardinalityOtO.mappedBy().isEmpty();
     }
     if (jpaAttribute.getPersistentAttributeType() == PersistentAttributeType.ONE_TO_MANY) {
       final AnnotatedElement annotatedElement = (AnnotatedElement) jpaAttribute.getJavaMember();
       final OneToMany cardinalityOtM = annotatedElement.getAnnotation(OneToMany.class);
-      return cardinalityOtM.mappedBy() != null && !cardinalityOtM.mappedBy().isEmpty() ? true : false;
+      return cardinalityOtM.mappedBy() != null && !cardinalityOtM.mappedBy().isEmpty();
     }
     return false;
   }
@@ -273,9 +273,10 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
           .buildInverseJoinColumns());
       //
       joinTable = joinTable == null ? null : joinTable.asMapped(this);
-    } else
+    } else {
       joinColumns.addAll(joinTable == null ? buildJoinColumnsFromAnnotations(isSourceOne, annotatedElement) : joinTable
           .buildJoinColumns());
+    }
   }
 
   private List<IntermediateJoinColumn> buildJoinColumnsFromAnnotations(final boolean isSourceOne,
@@ -324,7 +325,7 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
         if (implicitColumns > 1)
           throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.NOT_SUPPORTED_NO_IMPLICIT_COLUMNS,
               getInternalName());
-        intermediateColumn.setReferencedColumnName(((IntermediateProperty) ((IntermediateEntityType) sourceType)
+        intermediateColumn.setReferencedColumnName(((IntermediateProperty) ((IntermediateEntityType<?>) sourceType)
             .getKey().get(0)).getDBFieldName());
       }
     }
@@ -416,7 +417,7 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
     }
   }
 
-  private void determinePartner(String mappedBy) throws ODataJPAModelException {
+  private void determinePartner(final String mappedBy) throws ODataJPAModelException {
     if (sourceType instanceof IntermediateEntityType) {
       // Partner Attribute must not be defined at Complex Types.
       // JPA bi-directional associations are defined at both sides, e.g.
@@ -442,16 +443,16 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
     final String name = intermediateColumn.getName();
 
     if (isSourceOne && (refColumnName == null || refColumnName.isEmpty()))
-      intermediateColumn.setReferencedColumnName(((IntermediateSimpleProperty) ((IntermediateEntityType) sourceType)
+      intermediateColumn.setReferencedColumnName(((IntermediateSimpleProperty) ((IntermediateEntityType<?>) sourceType)
           .getKey().get(0)).getDBFieldName());
     else if (isSourceOne && (name == null || name.isEmpty()))
-      intermediateColumn.setReferencedColumnName(((IntermediateSimpleProperty) ((IntermediateEntityType) targetType)
+      intermediateColumn.setReferencedColumnName(((IntermediateSimpleProperty) ((IntermediateEntityType<?>) targetType)
           .getKey().get(0)).getDBFieldName());
     else if (!isSourceOne && (refColumnName == null || refColumnName.isEmpty()))
-      intermediateColumn.setReferencedColumnName(((IntermediateSimpleProperty) ((IntermediateEntityType) targetType)
+      intermediateColumn.setReferencedColumnName(((IntermediateSimpleProperty) ((IntermediateEntityType<?>) targetType)
           .getKey().get(0)).getDBFieldName());
     else if (!isSourceOne && (name == null || name.isEmpty()))
-      intermediateColumn.setReferencedColumnName(((IntermediateSimpleProperty) ((IntermediateEntityType) sourceType)
+      intermediateColumn.setReferencedColumnName(((IntermediateSimpleProperty) ((IntermediateEntityType<?>) sourceType)
           .getKey().get(0)).getDBFieldName());
   }
 

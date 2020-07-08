@@ -27,11 +27,11 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
  * @author Oliver Grande
  *
  */
-final class IntermediateComplexType extends IntermediateStructuredType {
+final class IntermediateComplexType<T> extends IntermediateStructuredType<T> {
   private CsdlComplexType edmComplexType;
 
-  IntermediateComplexType(final JPAEdmNameBuilder nameBuilder, final EmbeddableType<?> jpaEmbeddable,
-      final IntermediateSchema schema) throws ODataJPAModelException {
+  IntermediateComplexType(final JPAEdmNameBuilder nameBuilder, final EmbeddableType<T> jpaEmbeddable,
+      final IntermediateSchema schema) {
 
     super(nameBuilder, jpaEmbeddable, schema);
     this.setExternalName(nameBuilder.buildComplexTypeName(jpaEmbeddable));

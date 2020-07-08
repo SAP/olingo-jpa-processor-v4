@@ -26,7 +26,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropert
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList.IntermediateReferenceAccess;
 
-public class TestIntermediateReferences extends TestMappingRoot {
+class TestIntermediateReferences extends TestMappingRoot {
 
   private static final String TEST_V1_URL =
       "http://org.example/odata/odata/v4.0/os/vocabularies/Org.Olingo.Test.V1.xml";
@@ -37,14 +37,14 @@ public class TestIntermediateReferences extends TestMappingRoot {
   private IntermediateReferences cut;
 
   @BeforeEach
-  public void setup() throws ODataJPAModelException {
+  void setup() throws ODataJPAModelException {
     cut = new IntermediateReferences();
   }
 
   // TODO This test may not run because of proxy setting problems!! -> find alternative for Integration tests
   @Disabled
   @Test
-  public void checkAddOnlyURI() throws ODataJPAModelException, URISyntaxException {
+  void checkAddOnlyURI() throws ODataJPAModelException, URISyntaxException {
     final String uri = CORE_V1_URL;
     cut.addReference(uri);
     final List<EdmxReference> act = cut.getEdmReferences();
@@ -53,13 +53,13 @@ public class TestIntermediateReferences extends TestMappingRoot {
   }
 
   @Test
-  public void checkThrowsExceptionOnEmptyPath() throws ODataJPAModelException, URISyntaxException {
+  void checkThrowsExceptionOnEmptyPath() throws ODataJPAModelException, URISyntaxException {
 
     assertThrows(ODataJPAModelException.class, () -> cut.addReference(CORE_V1_URL, ""));
   }
 
   @Test
-  public void checkAddURIandPath() throws ODataJPAModelException, URISyntaxException {
+  void checkAddURIandPath() throws ODataJPAModelException, URISyntaxException {
     final String uri = MEASURES_V1_URL;
     final String path = "annotations/Org.OData.Measures.V1.xml";
     cut.addReference(uri, path);
@@ -72,7 +72,7 @@ public class TestIntermediateReferences extends TestMappingRoot {
   }
 
   @Test
-  public void checkConvertedToCsdlContainsInclude() throws ODataJPAModelException {
+  void checkConvertedToCsdlContainsInclude() throws ODataJPAModelException {
     JPAServiceDocument serviceDocument;
     serviceDocument = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), new PostProcessor(), null);
     assertEquals(1, serviceDocument.getReferences().size());
@@ -82,7 +82,7 @@ public class TestIntermediateReferences extends TestMappingRoot {
   }
 
   @Test
-  public void checkConvertedToCsdlContainsIncludeAnnotation() throws ODataJPAModelException {
+  void checkConvertedToCsdlContainsIncludeAnnotation() throws ODataJPAModelException {
     JPAServiceDocument serviceDocument;
     serviceDocument = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), new PostProcessor(), null);
     assertEquals(1, serviceDocument.getReferences().size());
@@ -92,7 +92,7 @@ public class TestIntermediateReferences extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetOneSchema() throws ODataJPAModelException {
+  void checkGetOneSchema() throws ODataJPAModelException {
     final String uri = MEASURES_V1_URL;
     final IntermediateReferenceAccess ref = cut.addReference(uri, "annotations/Org.OData.Measures.V1.xml");
     ref.addInclude("Org.OData.Measures.V1", "");
@@ -101,7 +101,7 @@ public class TestIntermediateReferences extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetTwoSchemas() throws ODataJPAModelException {
+  void checkGetTwoSchemas() throws ODataJPAModelException {
     final String uri = TEST_V1_URL;
     final IntermediateReferenceAccess ref = cut.addReference(uri, "annotations/Org.Olingo.Test.V1.xml");
     ref.addInclude("Org.Olingo.Test.V1.xml", "");
@@ -110,7 +110,7 @@ public class TestIntermediateReferences extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetComplexType() throws ODataJPAModelException {
+  void checkGetComplexType() throws ODataJPAModelException {
     final String uri = TEST_V1_URL;
     final IntermediateReferenceAccess ref = cut.addReference(uri, "annotations/Org.Olingo.Test.V1.xml");
     ref.addInclude("Org.Olingo.Test.V1.xml", "");
@@ -124,7 +124,7 @@ public class TestIntermediateReferences extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetTermByNamespace() throws ODataJPAModelException {
+  void checkGetTermByNamespace() throws ODataJPAModelException {
     final String uri = MEASURES_V1_URL;
     final IntermediateReferenceAccess ref = cut.addReference(uri, "annotations/Org.OData.Measures.V1.xml");
     ref.addInclude("Org.OData.Measures.V1", "");
@@ -133,7 +133,7 @@ public class TestIntermediateReferences extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetTermByAlias() throws ODataJPAModelException {
+  void checkGetTermByAlias() throws ODataJPAModelException {
     final String uri = MEASURES_V1_URL;
     final IntermediateReferenceAccess ref = cut.addReference(uri, "annotations/Org.OData.Measures.V1.xml");
     ref.addInclude("Org.OData.Measures.V1", "Measures");
@@ -142,7 +142,7 @@ public class TestIntermediateReferences extends TestMappingRoot {
   }
 
   @Test
-  public void checkReturnNullOnUnknowTerm() throws ODataJPAModelException {
+  void checkReturnNullOnUnknowTerm() throws ODataJPAModelException {
     final String uri = MEASURES_V1_URL;
     final IntermediateReferenceAccess ref = cut.addReference(uri, "annotations/Org.OData.Measures.V1.xml");
     ref.addInclude("Org.OData.Measures.V1", "Measures");
@@ -151,7 +151,7 @@ public class TestIntermediateReferences extends TestMappingRoot {
   }
 
   @Test
-  public void checkReturnNullOnUnknowNamespace() throws ODataJPAModelException {
+  void checkReturnNullOnUnknowNamespace() throws ODataJPAModelException {
     final String uri = MEASURES_V1_URL;
     final IntermediateReferenceAccess ref = cut.addReference(uri, "annotations/Org.OData.Measures.V1.xml");
     ref.addInclude("Org.OData.Measures.V1", "Measures");
@@ -160,7 +160,7 @@ public class TestIntermediateReferences extends TestMappingRoot {
   }
 
   @Test
-  public void checkAddIncludeWithoutNameSpace() throws ODataJPAModelException {
+  void checkAddIncludeWithoutNameSpace() throws ODataJPAModelException {
     final String uri = MEASURES_V1_URL;
     final IntermediateReferenceAccess ref = cut.addReference(uri, "annotations/Org.OData.Measures.V1.xml");
     ref.addInclude("Org.OData.Measures.V1");
@@ -168,14 +168,14 @@ public class TestIntermediateReferences extends TestMappingRoot {
   }
 
   @Test
-  public void checkThrowsExcpetionOnNullTermNamespace() throws ODataJPAModelException {
+  void checkThrowsExcpetionOnNullTermNamespace() throws ODataJPAModelException {
     final String uri = MEASURES_V1_URL;
     final IntermediateReferenceAccess ref = cut.addReference(uri, "annotations/Org.OData.Measures.V1.xml");
     assertThrows(ODataJPAModelException.class, () -> ref.addIncludeAnnotation(null));
   }
 
   @Test
-  public void checkThrowsExcpetionOnEmptyTermNamespace() throws ODataJPAModelException {
+  void checkThrowsExcpetionOnEmptyTermNamespace() throws ODataJPAModelException {
     final String uri = MEASURES_V1_URL;
     final IntermediateReferenceAccess ref = cut.addReference(uri, "annotations/Org.OData.Measures.V1.xml");
     assertThrows(ODataJPAModelException.class, () -> ref.addIncludeAnnotation(""));

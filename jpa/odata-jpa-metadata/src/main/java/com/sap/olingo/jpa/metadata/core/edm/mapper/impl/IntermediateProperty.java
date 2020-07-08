@@ -60,7 +60,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
   protected final Attribute<?, ?> jpaAttribute;
   protected final IntermediateSchema schema;
   protected CsdlProperty edmProperty;
-  protected IntermediateStructuredType type;
+  protected IntermediateStructuredType<?> type;
   protected AttributeConverter<?, ?> valueConverter;
   protected String dbFieldName;
   protected Class<?> dbType;
@@ -82,7 +82,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
   }
 
   @Override
-  public void addAnnotations(List<CsdlAnnotation> annotations) {
+  public void addAnnotations(final List<CsdlAnnotation> annotations) {
     edmAnnotations.addAll(annotations);
   }
 
@@ -171,7 +171,8 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
     getAnnotations(edmAnnotations, this.jpaAttribute.getJavaMember(), internalName, AppliesTo.PROPERTY);
   }
 
-  protected FullQualifiedName determineTypeByPersistanceType(Enum<?> persistanceType) throws ODataJPAModelException {
+  protected FullQualifiedName determineTypeByPersistanceType(final Enum<?> persistanceType)
+      throws ODataJPAModelException {
     if (persistanceType == PersistentAttributeType.BASIC || persistanceType == PersistenceType.BASIC) {
       final IntermediateModelElement odataType = getODataPrimitiveType();
       if (odataType == null)
@@ -215,7 +216,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
 
   CsdlMapping createMapper() {
     if (!isLob() && !(getConverter() == null && isEnum())) {
-      CsdlMapping mapping = new CsdlMapping();
+      final CsdlMapping mapping = new CsdlMapping();
       mapping.setInternalName(this.getExternalName());
       mapping.setMappedJavaClass(dbType);
       return mapping;
@@ -363,8 +364,8 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
    */
   private String convertPath(final String internalPath) {
 
-    String[] pathSegments = internalPath.split(JPAPath.PATH_SEPERATOR);
-    StringBuilder externalPath = new StringBuilder();
+    final String[] pathSegments = internalPath.split(JPAPath.PATH_SEPERATOR);
+    final StringBuilder externalPath = new StringBuilder();
     for (final String segement : pathSegments) {
       externalPath.append(nameBuilder.buildPropertyName(segement));
       externalPath.append(JPAPath.PATH_SEPERATOR);
@@ -391,7 +392,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
   }
 
   /**
-   * 
+   *
    */
   private void determineFieldGroups() {
     final EdmVisibleFor jpaFieldGroups = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
@@ -415,15 +416,15 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
         .getAnnotation(Convert.class);
     if (jpaConverter != null) {
       try {
-        Type[] convType = jpaConverter.converter().getGenericInterfaces();
-        Type[] types = ((ParameterizedType) convType[0]).getActualTypeArguments();
+        final Type[] convType = jpaConverter.converter().getGenericInterfaces();
+        final Type[] types = ((ParameterizedType) convType[0]).getActualTypeArguments();
         entityType = (Class<?>) types[0];
         dbType = (Class<?>) types[1];
         if (!JPATypeConvertor.isSupportedByOlingo(entityType))
           valueConverter = (AttributeConverter<?, ?>) jpaConverter.converter().newInstance();
       } catch (InstantiationException | IllegalAccessException e) {
         throw new ODataJPAModelException(
-            ODataJPAModelException.MessageKeys.TYPE_MAPPER_COULD_NOT_INSANTIATE, e);
+            ODataJPAModelException.MessageKeys.TYPE_MAPPER_COULD_NOT_INSTANTIATED, e);
       }
     }
   }
@@ -437,7 +438,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
     else
       externalNames = new ArrayList<>(2);
     if (jpaAttribute.getPersistentAttributeType() == Attribute.PersistentAttributeType.EMBEDDED) {
-      String internalProtectedPath = jpaProtectedBy.path();
+      final String internalProtectedPath = jpaProtectedBy.path();
       if (internalProtectedPath.length() == 0) {
         throw new ODataJPAModelException(COMPLEX_PROPERTY_MISSING_PROTECTION_PATH, this.managedType.getJavaType()
             .getCanonicalName(), this.internalName);
