@@ -131,7 +131,7 @@ class IntermediateCollectionProperty extends IntermediateProperty implements JPA
 
   @Override
   public boolean isComplex() {
-    return getRowType().getPersistenceType() == EMBEDDABLE ? true : false;
+    return getRowType().getPersistenceType() == EMBEDDABLE;
   }
 
   @Override
@@ -301,11 +301,11 @@ class IntermediateCollectionProperty extends IntermediateProperty implements JPA
       final List<IntermediateJoinColumn> result = new ArrayList<>();
       for (final JoinColumn column : jpaJoinTable.joinColumns()) {
         if (column.referencedColumnName() == null || column.referencedColumnName().isEmpty())
-          if (jpaJoinTable.joinColumns().length > 1)
+          if (jpaJoinTable.joinColumns().length > 1) {
             throw new ODataJPAModelException(NOT_SUPPORTED_NO_IMPLICIT_COLUMNS, getInternalName());
-          else if (!(contextType instanceof IntermediateEntityType))
+          } else if (!(contextType instanceof IntermediateEntityType)) {
             throw new ODataJPAModelException(NOT_SUPPORTED_NO_IMPLICIT_COLUMNS_COMPLEX, contextType.getInternalName());
-          else {
+          } else {
             result.add(new IntermediateJoinColumn(
                 ((IntermediateProperty) ((IntermediateEntityType<?>) contextType).getKey().get(0))
                     .getDBFieldName(), column.name()));

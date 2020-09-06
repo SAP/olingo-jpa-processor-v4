@@ -26,6 +26,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
 import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlPropertyRef;
+import org.apache.olingo.server.api.uri.UriResourceProperty;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAsEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
@@ -41,8 +42,9 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityT
  * <a href=
  * "https://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406397974"
  * >OData Version 4.0 Part 3 - 8 Entity Type</a>
- * @author Oliver Grande
  *
+ * @param <T> Java type the entity type base on.
+ * @author Oliver Grande
  */
 final class IntermediateEntityType<T> extends IntermediateStructuredType<T> implements JPAEntityType,
     IntermediateEntityTypeAccess {
@@ -77,6 +79,15 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
     if (path != null && path.getLeaf() instanceof JPACollectionAttribute)
       return (JPACollectionAttribute) path.getLeaf();
     return null;
+  }
+
+  @Override
+  public JPAAttribute getAttribute(final UriResourceProperty uriResourceItem) throws ODataJPAModelException {
+    lazyBuildEdmItem();
+    final JPAAttribute a = super.getAttribute(uriResourceItem);
+    if (a != null)
+      return a;
+    return getKey(uriResourceItem);
   }
 
   @Override
@@ -135,6 +146,14 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
         }
       }
     }
+  }
+
+  private JPAAttribute getKey(final UriResourceProperty uriResourceItem) throws ODataJPAModelException {
+    for (final JPAAttribute attribute : getKey()) {
+      if (attribute.getExternalName().equals(uriResourceItem.getProperty().getName()))
+        return attribute;
+    }
+    return null;
   }
 
   @Override

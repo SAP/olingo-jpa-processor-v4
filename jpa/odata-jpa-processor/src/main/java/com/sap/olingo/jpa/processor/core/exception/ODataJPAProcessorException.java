@@ -10,7 +10,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAMessageKey;
  */
 public class ODataJPAProcessorException extends ODataJPAProcessException {
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = -7188499882306858747L;
 
@@ -35,6 +35,7 @@ public class ODataJPAProcessorException extends ODataJPAProcessException {
     RETURN_NULL,
     RETURN_MISSING_ENTITY,
     ATTRIBUTE_RETRIVAL_FAILED,
+    ATTRIBUTE_NOT_FOUND,
     ODATA_MAXPAGESIZE_NOT_A_NUMBER,
     SETTER_NOT_FOUND,
     GETTER_NOT_FOUND,

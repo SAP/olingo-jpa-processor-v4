@@ -38,6 +38,8 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPANotImplementedException;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.query.JPACollectionItemInfo;
 import com.sap.olingo.jpa.processor.core.query.JPACollectionJoinQuery;
@@ -74,9 +76,10 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     final int handle = debugger.startRuntimeMeasurement(this, "retrieveData");
     // Create a JPQL Query and execute it
     JPAJoinQuery query = null;
+    checkRequestSupported();
     try {
       query = new JPAJoinQuery(odata, sessionContext, request.getAllHeaders(), requestContext);
-    } catch (ODataException e) {
+    } catch (final ODataException e) {
       debugger.stopRuntimeMeasurement(handle);
       throw new ODataJPAProcessorException(QUERY_PREPARATION_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR, e);
     }
@@ -92,7 +95,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
       entityCollection = result.asEntityCollection(new JPATupleChildConverter(sd, odata.createUriHelper(),
           serviceMetadata)).get(ROOT_RESULT_KEY);
       debugger.stopRuntimeMeasurement(converterHandle);
-    } catch (ODataApplicationException e) {
+    } catch (final ODataApplicationException e) {
       debugger.stopRuntimeMeasurement(converterHandle);
       debugger.stopRuntimeMeasurement(handle);
       throw new ODataJPAProcessorException(QUERY_RESULT_CONV_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR, e);
@@ -144,6 +147,11 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     debugger.stopRuntimeMeasurement(handle);
   }
 
+  private void checkRequestSupported() throws ODataJPAProcessException {
+    if (uriInfo.getApplyOption() != null)
+      throw new ODataJPANotImplementedException("$apply");
+  }
+
   private URI buildNextLink(final JPAODataPage page) throws ODataJPAProcessorException {
     if (page != null && page.getSkiptoken() != null) {
       try {
@@ -153,7 +161,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
         else
           return new URI(Util.determineTargetEntitySet(uriInfo.getUriResourceParts()).getName() + "?"
               + SystemQueryOptionKind.SKIPTOKEN.toString() + "=" + page.getSkiptoken().toString());
-      } catch (URISyntaxException e) {
+      } catch (final URISyntaxException e) {
         throw new ODataJPAProcessorException(ODATA_MAXPAGESIZE_NOT_A_NUMBER, HttpStatusCode.INTERNAL_SERVER_ERROR, e);
       }
     }
@@ -167,7 +175,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     name = Util.determineStartNavigationPath(uriInfo.getUriResourceParts()).getProperty().getName();
     final Property property = entities.get(0).getProperty(name);
     if (property != null) {
-      for (Property p : ((ComplexValue) property.getValue()).getValue()) {
+      for (final Property p : ((ComplexValue) property.getValue()).getValue()) {
         if (p.getValue() != null) {
           return false;
         }
@@ -176,7 +184,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     return true;
   }
 
-  private boolean doesNoeExists(List<Entity> entities) throws ODataApplicationException {
+  private boolean doesNoeExists(final List<Entity> entities) throws ODataApplicationException {
     // handle ../Organizations('xx')
     return (entities.isEmpty()
         && (lastItem.getKind() == UriResourceKind.primitiveProperty
@@ -185,7 +193,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
                 && !Util.determineKeyPredicates(lastItem).isEmpty()));
   }
 
-  private boolean hasNoContent(List<Entity> entities) {
+  private boolean hasNoContent(final List<Entity> entities) {
 
     if (lastItem.getKind() == UriResourceKind.primitiveProperty
         || lastItem.getKind() == UriResourceKind.navigationProperty
@@ -236,7 +244,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
    * <a href=
    * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398298"
    * >OData Version 4.0 Part 1 - 11.2.4.2 System Query Option $expand</a><p>
-   * 
+   *
    * For a detailed description of the URI syntax see:
    * <a href=
    * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part2-url-conventions/odata-v4.0-errata02-os-part2-url-conventions-complete.html#_Toc406398162"
