@@ -1,4 +1,4 @@
-package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
+package com.sap.olingo.jpa.metadata.reuse;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -11,6 +11,8 @@ import java.time.ZonedDateTime;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import com.sap.olingo.jpa.metadata.reuse.OffsetDateTimeConverter;
 
 /**
  * @author Oliver Grande

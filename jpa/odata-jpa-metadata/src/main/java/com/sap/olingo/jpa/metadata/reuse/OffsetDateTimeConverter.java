@@ -1,4 +1,4 @@
-package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
+package com.sap.olingo.jpa.metadata.reuse;
 
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
