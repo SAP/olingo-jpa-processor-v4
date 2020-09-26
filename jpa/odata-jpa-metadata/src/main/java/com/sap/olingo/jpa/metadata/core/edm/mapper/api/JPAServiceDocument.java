@@ -25,7 +25,7 @@ public interface JPAServiceDocument extends CustomETagSupport {
   List<CsdlSchema> getAllSchemas() throws ODataJPAModelException;
 
   /**
-   * 
+   *
    * @param edmType
    * @return
    * @throws ODataJPAModelException
@@ -35,6 +35,8 @@ public interface JPAServiceDocument extends CustomETagSupport {
   JPAEntityType getEntity(final FullQualifiedName typeName);
 
   JPAEntityType getEntity(final String edmEntitySetName) throws ODataJPAModelException;
+
+  JPAEntityType getEntity(Class<?> entityClass) throws ODataJPAModelException;
 
   JPAFunction getFunction(final EdmFunction function);
 

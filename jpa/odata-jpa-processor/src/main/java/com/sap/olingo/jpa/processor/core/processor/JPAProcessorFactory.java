@@ -42,7 +42,7 @@ public final class JPAProcessorFactory {
       final JPAODataCRUDContextAccess context) {
     super();
     this.sessionContext = context;
-    this.serializerFactory = new JPASerializerFactory(odata, serviceMetadata);
+    this.serializerFactory = new JPASerializerFactory(odata, serviceMetadata, context);
     this.odata = odata;
     this.serviceMetadata = serviceMetadata;
   }
@@ -94,21 +94,21 @@ public final class JPAProcessorFactory {
     }
 
     switch (lastItem.getKind()) {
-      case count:
-        return new JPACountRequestProcessor(odata, sessionContext, requestContext);
-      case function:
-        checkFunctionPathSupported(resourceParts);
-        return new JPAFunctionRequestProcessor(odata, sessionContext, requestContext);
-      case complexProperty:
-      case primitiveProperty:
-      case navigationProperty:
-      case entitySet:
-      case value:
-        checkNavigationPathSupported(resourceParts);
-        return new JPANavigationRequestProcessor(odata, serviceMetadata, sessionContext, requestContext);
-      default:
-        throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
-            HttpStatusCode.NOT_IMPLEMENTED, lastItem.getKind().toString());
+    case count:
+      return new JPACountRequestProcessor(odata, sessionContext, requestContext);
+    case function:
+      checkFunctionPathSupported(resourceParts);
+      return new JPAFunctionRequestProcessor(odata, sessionContext, requestContext);
+    case complexProperty:
+    case primitiveProperty:
+    case navigationProperty:
+    case entitySet:
+    case value:
+      checkNavigationPathSupported(resourceParts);
+      return new JPANavigationRequestProcessor(odata, serviceMetadata, sessionContext, requestContext);
+    default:
+      throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
+          HttpStatusCode.NOT_IMPLEMENTED, lastItem.getKind().toString());
     }
   }
 

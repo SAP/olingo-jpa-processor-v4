@@ -17,16 +17,16 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntitySetAccess;
 
 /**
- * 
+ *
  * @author Oliver Grande
  *
  */
 final class IntermediateEntitySet extends IntermediateModelElement implements IntermediateEntitySetAccess,
     JPAEntitySet {
-  private final IntermediateEntityType entityType;
+  private final IntermediateEntityType<?> entityType;
   private CsdlEntitySet edmEntitySet;
 
-  IntermediateEntitySet(final JPAEdmNameBuilder nameBuilder, final IntermediateEntityType et)
+  IntermediateEntitySet(final JPAEdmNameBuilder nameBuilder, final IntermediateEntityType<?> et)
       throws ODataJPAModelException {
     super(nameBuilder, IntNameBuilder.buildEntitySetName(nameBuilder, et));
     entityType = et;
@@ -58,7 +58,7 @@ final class IntermediateEntitySet extends IntermediateModelElement implements In
   }
 
   @Override
-  public void addAnnotations(List<CsdlAnnotation> annotations) {
+  public void addAnnotations(final List<CsdlAnnotation> annotations) {
     this.edmAnnotations.addAll(annotations);
   }
 
@@ -68,7 +68,7 @@ final class IntermediateEntitySet extends IntermediateModelElement implements In
       postProcessor.processEntitySet(this);
       edmEntitySet = new CsdlEntitySet();
 
-      final CsdlEntityType edmEt = ((IntermediateEntityType) getODataEntityType()).getEdmItem();
+      final CsdlEntityType edmEt = ((IntermediateEntityType<?>) getODataEntityType()).getEdmItem();
       edmEntitySet.setName(getExternalName());
       edmEntitySet.setType(buildFQN(edmEt.getName()));
 

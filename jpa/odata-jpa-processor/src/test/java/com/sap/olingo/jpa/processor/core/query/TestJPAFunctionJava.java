@@ -84,7 +84,8 @@ public class TestJPAFunctionJava {
     when(requestContext.getUriInfo()).thenReturn(uriInfo);
     when(requestContext.getEntityManager()).thenReturn(em);
     when(requestContext.getSerializer()).thenReturn(serializer);
-    when(serializer.serialize(any(Annotatable.class), any(EdmType.class))).thenReturn(serializerResult);
+    when(serializer.serialize(any(Annotatable.class), any(EdmType.class), any(ODataRequest.class)))
+        .thenReturn(serializerResult);
 
     request = mock(ODataRequest.class);
     response = mock(ODataResponse.class);

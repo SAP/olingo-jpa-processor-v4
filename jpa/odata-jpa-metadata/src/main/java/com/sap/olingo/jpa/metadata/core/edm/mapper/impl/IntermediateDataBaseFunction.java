@@ -51,8 +51,8 @@ class IntermediateDataBaseFunction extends IntermediateFunction implements JPADa
   }
 
   @Override
-  public JPAParameter getParameter(String internalName) {
-    for (JPAParameter parameter : getParameter()) {
+  public JPAParameter getParameter(final String internalName) {
+    for (final JPAParameter parameter : getParameter()) {
       if (parameter.getInternalName().equals(internalName))
         return parameter;
     }
@@ -76,9 +76,9 @@ class IntermediateDataBaseFunction extends IntermediateFunction implements JPADa
     int noParameterToSkip = 0;
     final List<CsdlParameter> edmInputParameterList = new ArrayList<>();
     if (jpaFunction.isBound()) {
-      noParameterToSkip = ((IntermediateEntityType) schema.getEntityType(this.jpaDefiningPOJO)).getKey().size();
+      noParameterToSkip = ((IntermediateEntityType<?>) schema.getEntityType(this.jpaDefiningPOJO)).getKey().size();
       final CsdlParameter edmInputParameter = new CsdlParameter();
-      final IntermediateStructuredType et = schema.getEntityType(jpaDefiningPOJO);
+      final IntermediateStructuredType<?> et = schema.getEntityType(jpaDefiningPOJO);
       edmInputParameter.setName("Key");
       edmInputParameter.setType(buildFQN(et.getEdmItem().getName()));
       edmInputParameter.setNullable(false);
@@ -150,11 +150,11 @@ class IntermediateDataBaseFunction extends IntermediateFunction implements JPADa
   private FullQualifiedName determineReturnType(final ReturnType returnType) throws ODataJPAModelException {
 
     if (returnType.type() == Object.class) {
-      final IntermediateStructuredType et = schema.getEntityType(jpaDefiningPOJO);
+      final IntermediateStructuredType<?> et = schema.getEntityType(jpaDefiningPOJO);
       this.setIgnore(et.ignore()); // If the result type shall be ignored, ignore also a function that returns it
       return buildFQN(et.getEdmItem().getName());
     } else {
-      final IntermediateStructuredType st = schema.getStructuredType(returnType.type());
+      final IntermediateStructuredType<?> st = schema.getStructuredType(returnType.type());
       if (st != null) {
         this.setIgnore(st.ignore()); // If the result type shall be ignored, ignore also a function that returns it
         return buildFQN(st.getEdmItem().getName());
@@ -163,7 +163,7 @@ class IntermediateDataBaseFunction extends IntermediateFunction implements JPADa
         if (enumType != null) {
           return enumType.getExternalFQN();
         } else {
-          EdmPrimitiveTypeKind pt = JPATypeConvertor.convertToEdmSimpleType(returnType.type());
+          final EdmPrimitiveTypeKind pt = JPATypeConvertor.convertToEdmSimpleType(returnType.type());
           if (pt != null)
             return pt.getFullQualifiedName();
           else

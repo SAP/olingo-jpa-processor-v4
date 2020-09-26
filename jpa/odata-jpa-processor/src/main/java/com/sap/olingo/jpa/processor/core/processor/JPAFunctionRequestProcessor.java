@@ -66,12 +66,12 @@ public final class JPAFunctionRequestProcessor extends JPAOperationRequestProces
     if (jpaFunction.getFunctionType() == EdmFunctionType.JavaClass) {
       result = processJavaFunction(uriResourceFunction, (JPAJavaFunction) jpaFunction, em);
 
-    } else if (jpaFunction.getFunctionType() == EdmFunctionType.UserDefinedFunction)
+    } else if (jpaFunction.getFunctionType() == EdmFunctionType.UserDefinedFunction) {
       result = processJavaUDF(uriInfo.getUriResourceParts(), (JPADataBaseFunction) jpaFunction);
-
+    }
     final EdmType returnType = uriResourceFunction.getFunction().getReturnType().getType();
     final Annotatable annotatable = convertResult(result, returnType, jpaFunction);
-    serializeResult(returnType, response, responseFormat, annotatable);
+    serializeResult(returnType, response, responseFormat, annotatable, request);
   }
 
   private Object getValue(final EdmFunction edmFunction, final JPAParameter parameter, final String uriValue)
@@ -80,16 +80,16 @@ public final class JPAFunctionRequestProcessor extends JPAOperationRequestProces
     final EdmParameter edmParam = edmFunction.getParameter(parameter.getName());
     try {
       switch (edmParam.getType().getKind()) {
-        case PRIMITIVE:
-          return ((EdmPrimitiveType) edmParam.getType()).valueOfString(value, false, edmParam.getMaxLength(),
-              edmParam.getPrecision(), edmParam.getScale(), true, parameter.getType());
-        case ENUM:
-          final JPAEnumerationAttribute enumeration = sd.getEnumType(parameter.getTypeFQN()
-              .getFullQualifiedNameAsString());
-          return enumeration.enumOf(value);
-        default:
-          throw new ODataJPADBAdaptorException(ODataJPADBAdaptorException.MessageKeys.PARAMETER_CONVERSION_ERROR,
-              HttpStatusCode.NOT_IMPLEMENTED, uriValue, parameter.getName());
+      case PRIMITIVE:
+        return ((EdmPrimitiveType) edmParam.getType()).valueOfString(value, false, edmParam.getMaxLength(),
+            edmParam.getPrecision(), edmParam.getScale(), true, parameter.getType());
+      case ENUM:
+        final JPAEnumerationAttribute enumeration = sd.getEnumType(parameter.getTypeFQN()
+            .getFullQualifiedNameAsString());
+        return enumeration.enumOf(value);
+      default:
+        throw new ODataJPADBAdaptorException(ODataJPADBAdaptorException.MessageKeys.PARAMETER_CONVERSION_ERROR,
+            HttpStatusCode.NOT_IMPLEMENTED, uriValue, parameter.getName());
       }
 
     } catch (EdmPrimitiveTypeException | ODataJPAModelException e) {

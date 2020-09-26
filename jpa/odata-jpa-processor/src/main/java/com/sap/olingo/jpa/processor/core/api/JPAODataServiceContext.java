@@ -52,6 +52,7 @@ public final class JPAODataServiceContext implements JPAODataCRUDContext, JPAODa
   private Optional<EntityManagerFactory> emf;
   private final String namespace;
   private String mappingPath;
+  private boolean useAbsoluteContextURL;
 
   public static Builder with() {
     return new Builder();
@@ -91,6 +92,7 @@ public final class JPAODataServiceContext implements JPAODataCRUDContext, JPAODa
     emf = builder.emf;
     namespace = builder.namespace;
     mappingPath = builder.mappingPath;
+    useAbsoluteContextURL = builder.useAbsoluteContextURL;
   }
 
   @Override
@@ -156,6 +158,11 @@ public final class JPAODataServiceContext implements JPAODataCRUDContext, JPAODa
   @Override
   public String getMappingPath() {
     return mappingPath;
+  }
+
+  @Override
+  public boolean useAbsoluteContextURL() {
+    return useAbsoluteContextURL;
   }
 
   /**
@@ -276,6 +283,7 @@ public final class JPAODataServiceContext implements JPAODataCRUDContext, JPAODa
     private JPAEdmProvider jpaEdm;
     private JPAEdmNameBuilder nameBuilder;
     private String mappingPath;
+    private boolean useAbsoluteContextURL = false;
 
     public JPAODataCRUDContextAccess build() throws ODataException {
       try {
@@ -427,6 +435,18 @@ public final class JPAODataServiceContext implements JPAODataCRUDContext, JPAODa
      */
     public Builder setEdmNameBuilder(final JPAEdmNameBuilder nameBuilder) {
       this.nameBuilder = nameBuilder;
+      return this;
+    }
+
+    /**
+     * Some clients, like Excel, require context url's with an absolute path. The default generation of relative paths
+     * can be overruled.<br>
+     * @see <a href="https://issues.apache.org/jira/browse/OLINGO-787">Issue OLINGO-787</a>
+     * @param useAbsoluteContextURL
+     * @return
+     */
+    public Builder setUseAbsoluteContextURL(boolean useAbsoluteContextURL) {
+      this.useAbsoluteContextURL = useAbsoluteContextURL;
       return this;
     }
   }

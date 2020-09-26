@@ -25,6 +25,8 @@ import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.testmodel.CollectionFirstLevelComplex;
+import com.sap.olingo.jpa.processor.core.testmodel.CollectionSecondLevelComplex;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 
@@ -51,30 +53,30 @@ public class TestIntermediateCollectionProperty extends TestMappingRoot {
   public void checkSimpleCollectionPropertyType() throws ODataJPAModelException {
     when(jpaAttribute.getName()).thenReturn("Text");
     @SuppressWarnings("rawtypes")
-    javax.persistence.metamodel.Type type = mock(javax.persistence.metamodel.Type.class);
+    final javax.persistence.metamodel.Type type = mock(javax.persistence.metamodel.Type.class);
     when(type.getPersistenceType()).thenReturn(PersistenceType.BASIC);
     when(type.getJavaType()).thenAnswer(new Answer<Class<?>>() {
       @Override
-      public Class<?> answer(InvocationOnMock invocation) throws Throwable {
+      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
         return String.class;
       }
     });
     when(jpaAttribute.getElementType()).thenReturn(type);
     when(jpaAttribute.getDeclaringType()).thenAnswer(new Answer<ManagedType<?>>() {
       @Override
-      public ManagedType<?> answer(InvocationOnMock invocation) throws Throwable {
+      public ManagedType<?> answer(final InvocationOnMock invocation) throws Throwable {
         return managedType;
       }
     });
     when(managedType.getJavaType()).thenAnswer(new Answer<Class<?>>() {
       @Override
-      public Class<?> answer(InvocationOnMock invocation) throws Throwable {
+      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
         return Person.class;
       }
     });
     when(jpaAttribute.getJavaType()).thenAnswer(new Answer<Class<?>>() {
       @Override
-      public Class<?> answer(InvocationOnMock invocation) throws Throwable {
+      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
         return List.class;
       }
     });
@@ -87,9 +89,10 @@ public class TestIntermediateCollectionProperty extends TestMappingRoot {
   @Test
   public void checkGetProptertyComplexType() throws ODataJPAModelException {
 
-    PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
+    final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         Person.class), "inhouseAddress");
-    IntermediateCollectionProperty property = new IntermediateCollectionProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+    final IntermediateCollectionProperty property = new IntermediateCollectionProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
         jpaAttribute, helper.schema, helper.schema.getEntityType(Person.class));
     assertEquals(PUNIT_NAME + ".InhouseAddress", property.getEdmItem().getType());
   }
@@ -97,9 +100,10 @@ public class TestIntermediateCollectionProperty extends TestMappingRoot {
   @Test
   public void checkGetProptertyIgnoreFalse() throws ODataJPAModelException {
 
-    PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
+    final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         Person.class), "inhouseAddress");
-    IntermediateCollectionProperty property = new IntermediateCollectionProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+    final IntermediateCollectionProperty property = new IntermediateCollectionProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
         jpaAttribute, helper.schema, helper.schema.getEntityType(Person.class));
     assertFalse(property.ignore());
   }
@@ -107,9 +111,10 @@ public class TestIntermediateCollectionProperty extends TestMappingRoot {
   @Test
   public void checkGetProptertyDBFieldName() throws ODataJPAModelException {
 
-    PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
+    final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         Organization.class), "comment");
-    IntermediateCollectionProperty property = new IntermediateCollectionProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+    final IntermediateCollectionProperty property = new IntermediateCollectionProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
         jpaAttribute, helper.schema, helper.schema.getEntityType(Organization.class));
     assertEquals("\"Text\"", property.getDBFieldName());
   }
@@ -118,9 +123,10 @@ public class TestIntermediateCollectionProperty extends TestMappingRoot {
   public void checkPostProcessorCalled() throws ODataJPAModelException {
 
     IntermediateSimpleProperty.setPostProcessor(processor);
-    PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
+    final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         Organization.class), "comment");
-    IntermediateCollectionProperty property = new IntermediateCollectionProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+    final IntermediateCollectionProperty property = new IntermediateCollectionProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
         jpaAttribute, helper.schema, helper.schema.getEntityType(Organization.class));
     property.getEdmItem();
     verify(processor, atLeastOnce()).processProperty(property, ORG_CANONICAL_NAME);
@@ -129,12 +135,13 @@ public class TestIntermediateCollectionProperty extends TestMappingRoot {
   @Test
   public void checkGetPropertyReturnsAnnotation() throws ODataJPAModelException {
 
-    PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
+    final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         Person.class), "inhouseAddress");
-    IntermediateCollectionProperty property = new IntermediateCollectionProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+    final IntermediateCollectionProperty property = new IntermediateCollectionProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
         jpaAttribute, helper.schema, helper.schema.getEntityType(Person.class));
 
-    List<CsdlAnnotation> annotations = property.getEdmItem().getAnnotations();
+    final List<CsdlAnnotation> annotations = property.getEdmItem().getAnnotations();
     assertEquals(1, property.getEdmItem().getAnnotations().size());
     assertTrue(annotations.get(0).getExpression().isConstant());
   }
@@ -142,31 +149,28 @@ public class TestIntermediateCollectionProperty extends TestMappingRoot {
   @Test
   public void checkGetDeepComplexPropertyReturnsExternalName() throws ODataJPAModelException {
 
-    final IntermediateStructuredType st = new IntermediateComplexType(new JPADefaultEdmNameBuilder(PUNIT_NAME), helper
-        .getComplexType("CollectionSecondLevelComplex"), helper.schema);
-    for (final JPACollectionAttribute collection : st.getDeclaredCollectionAttributes()) {
-      if (collection.getInternalName().equals("comment")) {
-        assertEquals("Comment", collection.asAssociation().getAlias());
-      }
-    }
+    final IntermediateStructuredType<CollectionSecondLevelComplex> st = new IntermediateComplexType<>(nameBuilder,
+        helper.getComplexType("CollectionSecondLevelComplex"), helper.schema);
+    for (final JPACollectionAttribute collection : st.getDeclaredCollectionAttributes())
+      if (collection.getInternalName().equals("comment")) assertEquals("Comment", collection.asAssociation()
+          .getAlias());
 
-    final IntermediateStructuredType stst = new IntermediateComplexType(new JPADefaultEdmNameBuilder(PUNIT_NAME), helper
-        .getComplexType("CollectionFirstLevelComplex"), helper.schema);
-    for (final JPAPath collection : stst.getCollectionAttributesPath()) {
-      if (collection.getLeaf().getInternalName().equals("comment")) {
-        assertEquals("SecondLevel/Comment", collection.getAlias());
-      }
-    }
+    final IntermediateStructuredType<CollectionFirstLevelComplex> stst = new IntermediateComplexType<>(nameBuilder,
+        helper.getComplexType("CollectionFirstLevelComplex"), helper.schema);
+    for (final JPAPath collection : stst.getCollectionAttributesPath())
+      if (collection.getLeaf().getInternalName().equals("comment")) assertEquals("SecondLevel/Comment", collection
+          .getAlias());
   }
 
   @Test
   public void checkAnnotations() throws ODataJPAModelException {
-    PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
+    final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         Person.class), "inhouseAddress");
-    IntermediateCollectionProperty cut = new IntermediateCollectionProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+    final IntermediateCollectionProperty cut = new IntermediateCollectionProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
         jpaAttribute, helper.schema, helper.schema.getEntityType(Person.class));
 
-    List<CsdlAnnotation> annotations = cut.getEdmItem().getAnnotations();
+    final List<CsdlAnnotation> annotations = cut.getEdmItem().getAnnotations();
     assertEquals(1, annotations.size());
     assertEquals("Core.Description", annotations.get(0).getTerm());
     assertEquals(ConstantExpressionType.String, annotations.get(0).getExpression().asConstant().getType());

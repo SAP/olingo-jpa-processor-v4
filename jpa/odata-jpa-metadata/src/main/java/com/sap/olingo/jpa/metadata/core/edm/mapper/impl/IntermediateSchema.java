@@ -40,8 +40,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
  */
 final class IntermediateSchema extends IntermediateModelElement {
   private final Metamodel jpaMetamodel;
-  private final Map<String, IntermediateComplexType> complexTypeListInternalKey;
-  private final Map<String, IntermediateEntityType> entityTypeListInternalKey;
+  private final Map<String, IntermediateComplexType<?>> complexTypeListInternalKey;
+  private final Map<String, IntermediateEntityType<?>> entityTypeListInternalKey;
   private final Map<String, IntermediateFunction> functionListInternalKey;
   private final Map<String, IntermediateJavaAction> actionListInternalKey;
   private final Map<String, IntermediateEnumerationType> enumTypeListInternalKey;
@@ -120,12 +120,12 @@ final class IntermediateSchema extends IntermediateModelElement {
     return actions;
   }
 
-  IntermediateStructuredType getComplexType(final Class<?> targetClass) {
+  IntermediateStructuredType<?> getComplexType(final Class<?> targetClass) {
     return complexTypeListInternalKey.get(IntNameBuilder.buildStructuredTypeName(targetClass));
   }
 
   JPAStructuredType getComplexType(final String externalName) {
-    for (final Map.Entry<String, IntermediateComplexType> complexType : complexTypeListInternalKey.entrySet()) {
+    for (final Map.Entry<String, IntermediateComplexType<?>> complexType : complexTypeListInternalKey.entrySet()) {
       if (complexType.getValue().getExternalName().equals(externalName))
         return complexType.getValue();
     }
@@ -139,13 +139,13 @@ final class IntermediateSchema extends IntermediateModelElement {
     return edmSchema;
   }
 
-  IntermediateStructuredType getEntityType(final Class<?> targetClass) {
+  IntermediateStructuredType<?> getEntityType(final Class<?> targetClass) {
     return entityTypeListInternalKey.get(IntNameBuilder.buildStructuredTypeName(targetClass));
   }
 
   JPAEntityType getEntityType(final String externalName) {
 
-    for (final Entry<String, IntermediateEntityType> et : entityTypeListInternalKey.entrySet()) {
+    for (final Entry<String, IntermediateEntityType<?>> et : entityTypeListInternalKey.entrySet()) {
       if (et.getValue().getExternalName().equals(externalName))
         return et.getValue();
     }
@@ -153,16 +153,16 @@ final class IntermediateSchema extends IntermediateModelElement {
   }
 
   JPAEntityType getEntityType(final String dbCatalog, final String dbSchema, final String dbTableName) {
-    for (final Entry<String, IntermediateEntityType> et : entityTypeListInternalKey.entrySet()) {
+    for (final Entry<String, IntermediateEntityType<?>> et : entityTypeListInternalKey.entrySet()) {
       if (et.getValue().dbEquals(dbCatalog, dbSchema, dbTableName))
         return et.getValue();
     }
     return null;
   }
 
-  List<IntermediateEntityType> getEntityTypes() {
-    final List<IntermediateEntityType> entityTypes = new ArrayList<>();
-    for (final Entry<String, IntermediateEntityType> et : entityTypeListInternalKey.entrySet()) {
+  List<IntermediateEntityType<?>> getEntityTypes() {
+    final List<IntermediateEntityType<?>> entityTypes = new ArrayList<>();
+    for (final Entry<String, IntermediateEntityType<?>> et : entityTypeListInternalKey.entrySet()) {
       entityTypes.add(et.getValue());
     }
     return entityTypes;
@@ -186,25 +186,27 @@ final class IntermediateSchema extends IntermediateModelElement {
     return functions;
   }
 
-  IntermediateStructuredType getStructuredType(final PluralAttribute<?, ?, ?> jpaAttribute) {
-    IntermediateStructuredType type = complexTypeListInternalKey.get(IntNameBuilder.buildStructuredTypeName(jpaAttribute
-        .getElementType().getJavaType()));
+  IntermediateStructuredType<?> getStructuredType(final PluralAttribute<?, ?, ?> jpaAttribute) {
+    IntermediateStructuredType<?> type = complexTypeListInternalKey.get(IntNameBuilder.buildStructuredTypeName(
+        jpaAttribute
+            .getElementType().getJavaType()));
     if (type == null)
       type = entityTypeListInternalKey.get(IntNameBuilder.buildStructuredTypeName(jpaAttribute.getElementType()
           .getJavaType()));
     return type;
   }
 
-  IntermediateStructuredType getStructuredType(final Attribute<?, ?> jpaAttribute) {
-    IntermediateStructuredType type = complexTypeListInternalKey.get(IntNameBuilder.buildStructuredTypeName(jpaAttribute
-        .getJavaType()));
+  IntermediateStructuredType<?> getStructuredType(final Attribute<?, ?> jpaAttribute) {
+    IntermediateStructuredType<?> type = complexTypeListInternalKey.get(IntNameBuilder.buildStructuredTypeName(
+        jpaAttribute
+            .getJavaType()));
     if (type == null)
       type = entityTypeListInternalKey.get(IntNameBuilder.buildStructuredTypeName(jpaAttribute.getJavaType()));
     return type;
   }
 
-  IntermediateStructuredType getStructuredType(final Class<?> targetClass) {
-    IntermediateStructuredType type = entityTypeListInternalKey
+  IntermediateStructuredType<?> getStructuredType(final Class<?> targetClass) {
+    IntermediateStructuredType<?> type = entityTypeListInternalKey
         .get(IntNameBuilder.buildStructuredTypeName(targetClass));
     if (type == null)
       type = complexTypeListInternalKey.get(IntNameBuilder.buildStructuredTypeName(targetClass));
@@ -222,21 +224,21 @@ final class IntermediateSchema extends IntermediateModelElement {
     return actionList;
   }
 
-  private Map<String, IntermediateComplexType> buildComplexTypeList() throws ODataJPAModelException {
-    final HashMap<String, IntermediateComplexType> ctList = new HashMap<>();
+  private Map<String, IntermediateComplexType<?>> buildComplexTypeList() {
+    final HashMap<String, IntermediateComplexType<?>> ctList = new HashMap<>();
 
     for (final EmbeddableType<?> embeddable : this.jpaMetamodel.getEmbeddables()) {
-      final IntermediateComplexType ct = new IntermediateComplexType(nameBuilder, embeddable, this);
+      final IntermediateComplexType<?> ct = new IntermediateComplexType<>(nameBuilder, embeddable, this);
       ctList.put(ct.internalName, ct);
     }
     return ctList;
   }
 
-  private Map<String, IntermediateEntityType> buildEntityTypeList() {
-    final HashMap<String, IntermediateEntityType> etList = new HashMap<>();
+  private Map<String, IntermediateEntityType<?>> buildEntityTypeList() {
+    final HashMap<String, IntermediateEntityType<?>> etList = new HashMap<>();
 
     for (final EntityType<?> entity : this.jpaMetamodel.getEntities()) {
-      final IntermediateEntityType et = new IntermediateEntityType(nameBuilder, entity, this);
+      final IntermediateEntityType<?> et = new IntermediateEntityType<>(nameBuilder, entity, this);
       etList.put(et.internalName, et);
     }
     return etList;
@@ -245,7 +247,7 @@ final class IntermediateSchema extends IntermediateModelElement {
   private <T extends Enum<?>> Map<String, IntermediateEnumerationType> buildEnumerationTypeList() {
     final HashMap<String, IntermediateEnumerationType> enumList = new HashMap<>();
     if (reflections != null) {
-      for (Class<?> enumeration : reflections.getTypesAnnotatedWith(EdmEnumeration.class)) {
+      for (final Class<?> enumeration : reflections.getTypesAnnotatedWith(EdmEnumeration.class)) {
         if (enumeration.isEnum()) {
           @SuppressWarnings("unchecked")
           final IntermediateEnumerationType e = new IntermediateEnumerationType(nameBuilder, (Class<T>) enumeration);

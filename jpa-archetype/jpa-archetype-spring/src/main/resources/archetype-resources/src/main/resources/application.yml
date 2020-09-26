@@ -5,10 +5,9 @@ logging:
 odata:
   jpa:
     punit_name: ${punit}
-    request_mapping: requestMapping
     root_packages: ${package}
 server:
-  port: 9010
+  port: ${port}
 spring:
   datasource:
     driver-class-name: org.hsqldb.jdbc.JDBCDriver

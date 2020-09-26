@@ -66,8 +66,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.serializer.JPAOperationSerializer;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
@@ -131,7 +131,8 @@ public class TestJPAActionProcessor {
     when(edmProvider.getServiceDocument()).thenReturn(sd);
     when(requestContext.getUriInfo()).thenReturn(uriInfo);
     when(requestContext.getSerializer()).thenReturn(serializer);
-    when(serializer.serialize(any(Annotatable.class), any(EdmType.class))).thenReturn(serializerResult);
+    when(serializer.serialize(any(Annotatable.class), any(EdmType.class), any(ODataRequest.class)))
+        .thenReturn(serializerResult);
     when(serializer.getContentType()).thenReturn(ContentType.APPLICATION_JSON);
 
     when(uriInfo.getUriResourceParts()).thenReturn(uriResources);
@@ -216,7 +217,7 @@ public class TestJPAActionProcessor {
 
     cut.performAction(request, response, requestFormat);
     verify(response, times(1)).setStatusCode(200);
-    verify(serializer, times(1)).serialize(any(Annotatable.class), eq(type));
+    verify(serializer, times(1)).serialize(any(Annotatable.class), eq(type), any(ODataRequest.class));
   }
 
   @SuppressWarnings("unchecked")
@@ -249,7 +250,7 @@ public class TestJPAActionProcessor {
 
     cut.performAction(request, response, requestFormat);
     verify(response, times(1)).setStatusCode(200);
-    verify(serializer, times(1)).serialize(any(Annotatable.class), eq(type));
+    verify(serializer, times(1)).serialize(any(Annotatable.class), eq(type), any(ODataRequest.class));
   }
 
   @Test

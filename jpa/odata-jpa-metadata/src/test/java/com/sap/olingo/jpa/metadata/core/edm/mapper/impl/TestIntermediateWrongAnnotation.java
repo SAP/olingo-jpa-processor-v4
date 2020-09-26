@@ -48,7 +48,7 @@ public class TestIntermediateWrongAnnotation {
   public void checkErrorOnProtectedCollectionAttribute() {
     final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         CollectionAttributeProtected.class), "inhouseAddress");
-    final IntermediateStructuredType entityType = helper.schema.getEntityType(CollectionAttributeProtected.class);
+    final IntermediateStructuredType<?> entityType = helper.schema.getEntityType(CollectionAttributeProtected.class);
 
     final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
         () -> new IntermediateCollectionProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
@@ -63,7 +63,7 @@ public class TestIntermediateWrongAnnotation {
   public void checkErrorOnProtectedCollectionAttributeDeep() {
     final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         PersonDeepCollectionProtected.class), "inhouseAddress");
-    final IntermediateStructuredType entityType = helper.schema.getEntityType(PersonDeepCollectionProtected.class);
+    final IntermediateStructuredType<?> entityType = helper.schema.getEntityType(PersonDeepCollectionProtected.class);
 
     final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
         () -> new IntermediateCollectionProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
@@ -102,9 +102,9 @@ public class TestIntermediateWrongAnnotation {
   @Test
   public void checkErrorOnProtectedComplexAttributeWrongPath() throws ODataJPAModelException {
     // ComplextProtectedWrongPath
-    final EntityType<?> jpaEt = helper.getEntityType(ComplextProtectedWrongPath.class);
-    final IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), jpaEt,
-        helper.schema);
+    final EntityType<ComplextProtectedWrongPath> jpaEt = helper.getEntityType(ComplextProtectedWrongPath.class);
+    final IntermediateEntityType<ComplextProtectedWrongPath> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME), jpaEt, helper.schema);
     et.getEdmItem();
 
     final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
@@ -119,7 +119,7 @@ public class TestIntermediateWrongAnnotation {
   public void checkErrorOnNavigationPropertyPartOfGroup() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(
         NavigationPropertyPartOfGroup.class), "teams");
-    final IntermediateStructuredType entityType = helper.schema.getEntityType(NavigationPropertyPartOfGroup.class);
+    final IntermediateStructuredType<?> entityType = helper.schema.getEntityType(NavigationPropertyPartOfGroup.class);
 
     final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
         () -> new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME), entityType, jpaAttribute,

@@ -68,4 +68,8 @@ public interface JPAODataCRUDContextAccess {
   public default String getMappingPath() {
     return "";
   }
+
+  public default boolean useAbsoluteContextURL() {
+    return false;
+  }
 }

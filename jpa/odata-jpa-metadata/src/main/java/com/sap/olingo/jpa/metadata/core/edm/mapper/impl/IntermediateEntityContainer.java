@@ -44,7 +44,7 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
   }
 
   @Override
-  public void addAnnotations(List<CsdlAnnotation> annotations) {
+  public void addAnnotations(final List<CsdlAnnotation> annotations) {
     this.edmAnnotations.addAll(annotations);
   }
 
@@ -100,7 +100,7 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
   @SuppressWarnings("unchecked")
   private List<CsdlEntitySet> buildEntitySets() throws ODataJPAModelException {
     for (final Entry<String, IntermediateSchema> schema : schemaList.entrySet()) {
-      for (final IntermediateEntityType et : schema.getValue().getEntityTypes()) {
+      for (final IntermediateEntityType<?> et : schema.getValue().getEntityTypes()) {
         if (!et.ignore() || et.asEntitySet()) {
           final IntermediateEntitySet es = new IntermediateEntitySet(nameBuilder, et);
           entitySetListInternalKey.put(es.internalName, es);
@@ -173,7 +173,7 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
    * @param edmAc
    * @return
    */
-  private CsdlActionImport buildActionImport(CsdlAction edmAc) {
+  private CsdlActionImport buildActionImport(final CsdlAction edmAc) {
     final CsdlActionImport edmAcImport = new CsdlActionImport();
     edmAcImport.setName(edmAc.getName());
     edmAcImport.setAction(buildFQN(edmAc.getName()));

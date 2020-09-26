@@ -17,17 +17,20 @@ import java.util.Set;
 
 import javax.persistence.metamodel.EntityType;
 
+import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlCollection;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlExpression;
+import org.apache.olingo.server.api.uri.UriResourceProperty;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEnumeration;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
@@ -39,6 +42,20 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigat
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
 import com.sap.olingo.jpa.processor.core.testmodel.ABCClassifiaction;
+import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
+import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescription;
+import com.sap.olingo.jpa.processor.core.testmodel.BestOrganization;
+import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
+import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerProtected;
+import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
+import com.sap.olingo.jpa.processor.core.testmodel.Collection;
+import com.sap.olingo.jpa.processor.core.testmodel.CollectionDeep;
+import com.sap.olingo.jpa.processor.core.testmodel.DeepProtectedExample;
+import com.sap.olingo.jpa.processor.core.testmodel.DummyToBeIgnored;
+import com.sap.olingo.jpa.processor.core.testmodel.Organization;
+import com.sap.olingo.jpa.processor.core.testmodel.Person;
+import com.sap.olingo.jpa.processor.core.testmodel.PersonDeepProtectedHidden;
+import com.sap.olingo.jpa.processor.core.testmodel.PersonImage;
 import com.sap.olingo.jpa.processor.core.testmodel.TestDataConstants;
 
 public class TestIntermediateEntityType extends TestMappingRoot {
@@ -59,22 +76,23 @@ public class TestIntermediateEntityType extends TestMappingRoot {
   @Test
   public void checkEntityTypeCanBeCreated() throws ODataJPAModelException {
 
-    new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType("BusinessPartner"), schema);
+    assertNotNull(new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(BusinessPartner.class), schema));
   }
 
   @Test
   public void checkEntityTypeIgnoreSet() throws ODataJPAModelException {
 
-    IntermediateStructuredType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "DummyToBeIgnored"), schema);
+    final IntermediateStructuredType<DummyToBeIgnored> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(DummyToBeIgnored.class), schema);
     et.getEdmItem();
     assertTrue(et.ignore());
   }
 
   @Test
   public void checkGetAllProperties() throws ODataJPAModelException {
-    IntermediateStructuredType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "BusinessPartner"), schema);
+    final IntermediateStructuredType<BusinessPartner> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(BusinessPartner.class), schema);
     assertEquals(TestDataConstants.NO_DEC_ATTRIBUTES_BUISNESS_PARTNER, et.getEdmItem()
         .getProperties()
         .size(), "Wrong number of entities");
@@ -82,97 +100,97 @@ public class TestIntermediateEntityType extends TestMappingRoot {
 
   @Test
   public void checkGetPropertyByNameNotNull() throws ODataJPAModelException {
-    IntermediateStructuredType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "BusinessPartner"), schema);
+    final IntermediateStructuredType<BusinessPartner> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(BusinessPartner.class), schema);
     assertNotNull(et.getEdmItem().getProperty("Type"));
   }
 
   @Test
   public void checkGetPropertyByNameCorrectEntity() throws ODataJPAModelException {
-    IntermediateStructuredType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "BusinessPartner"), schema);
+    final IntermediateStructuredType<BusinessPartner> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(BusinessPartner.class), schema);
     assertEquals("Type", et.getEdmItem().getProperty("Type").getName());
   }
 
   @Test
   public void checkGetPropertyByNameCorrectEntityID() throws ODataJPAModelException {
-    IntermediateStructuredType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "BusinessPartner"), schema);
+    final IntermediateStructuredType<BusinessPartner> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(BusinessPartner.class), schema);
     assertEquals("ID", et.getEdmItem().getProperty("ID").getName());
   }
 
   @Test
   public void checkGetPathByNameCorrectEntityID() throws ODataJPAModelException {
-    IntermediateStructuredType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "BusinessPartner"), schema);
+    final IntermediateStructuredType<BusinessPartner> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(BusinessPartner.class), schema);
     assertEquals("ID", et.getPath("ID").getLeaf().getExternalName());
   }
 
   @Test
   public void checkGetPathByNameIgnore() throws ODataJPAModelException {
-    IntermediateStructuredType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "BusinessPartner"), schema);
+    final IntermediateStructuredType<BusinessPartner> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(BusinessPartner.class), schema);
     assertNull(et.getPath("CustomString2"));
   }
 
   @Test
   public void checkGetPathByNameIgnoreCompexType() throws ODataJPAModelException {
-    IntermediateStructuredType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "BusinessPartner"), schema);
+    final IntermediateStructuredType<BusinessPartner> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(BusinessPartner.class), schema);
     assertNull(et.getPath("Address/RegionCodePublisher"));
   }
 
   @Test
   public void checkGetInheritedAttributeByNameCorrectEntityID() throws ODataJPAModelException {
-    IntermediateStructuredType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "Person"), schema);
+    final IntermediateStructuredType<Person> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        getEntityType(Person.class), schema);
     assertEquals("ID", et.getPath("ID").getLeaf().getExternalName());
   }
 
   @Test
   public void checkGetAllNaviProperties() throws ODataJPAModelException {
-    IntermediateStructuredType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "BusinessPartner"), schema);
+    final IntermediateStructuredType<BusinessPartner> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(BusinessPartner.class), schema);
     assertEquals(1, et.getEdmItem().getNavigationProperties().size(), "Wrong number of entities");
   }
 
   @Test
   public void checkGetNaviPropertyByNameNotNull() throws ODataJPAModelException {
-    IntermediateStructuredType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "BusinessPartner"), schema);
+    final IntermediateStructuredType<BusinessPartner> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(BusinessPartner.class), schema);
     assertNotNull(et.getEdmItem().getNavigationProperty("Roles"));
   }
 
   @Test
   public void checkGetNaviPropertyByNameCorrectEntity() throws ODataJPAModelException {
-    IntermediateStructuredType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "BusinessPartner"), schema);
+    final IntermediateStructuredType<BusinessPartner> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(BusinessPartner.class), schema);
     assertEquals("Roles", et.getEdmItem().getNavigationProperty("Roles").getName());
   }
 
   @Test
   public void checkGetAssoziationOfComplexTypeByNameCorrectEntity() throws ODataJPAModelException {
-    IntermediateStructuredType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "BusinessPartner"), schema);
+    final IntermediateStructuredType<BusinessPartner> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(BusinessPartner.class), schema);
     assertEquals("Address/AdministrativeDivision", et.getAssociationPath("Address/AdministrativeDivision").getAlias());
   }
 
   @Test
   public void checkGetAssoziationOfComplexTypeByNameJoinColumns() throws ODataJPAModelException {
     int actCount = 0;
-    IntermediateStructuredType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "BusinessPartner"), schema);
-    for (JPAOnConditionItem item : et.getAssociationPath("Address/AdministrativeDivision").getJoinColumnsList()) {
+    final IntermediateStructuredType<BusinessPartner> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(BusinessPartner.class), schema);
+    for (final JPAOnConditionItem item : et.getAssociationPath("Address/AdministrativeDivision").getJoinColumnsList()) {
       if (item.getLeftPath().getAlias().equals("Address/Region")) {
-        assertTrue(item.getRightPath().getAlias().equals("DivisionCode"));
+        assertEquals("DivisionCode", item.getRightPath().getAlias());
         actCount++;
       }
       if (item.getLeftPath().getAlias().equals("Address/RegionCodeID")) {
-        assertTrue(item.getRightPath().getAlias().equals("CodeID"));
+        assertEquals("CodeID", item.getRightPath().getAlias());
         actCount++;
       }
       if (item.getLeftPath().getAlias().equals("Address/RegionCodePublisher")) {
-        assertTrue(item.getRightPath().getAlias().equals("CodePublisher"));
+        assertEquals("CodePublisher", item.getRightPath().getAlias());
         actCount++;
       }
     }
@@ -181,55 +199,57 @@ public class TestIntermediateEntityType extends TestMappingRoot {
 
   @Test
   public void checkGetPropertiesSkipIgnored() throws ODataJPAModelException {
-    PostProcessorSetIgnore pPDouble = new PostProcessorSetIgnore();
+    final PostProcessorSetIgnore pPDouble = new PostProcessorSetIgnore();
     IntermediateModelElement.setPostProcessor(pPDouble);
 
-    IntermediateStructuredType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "BusinessPartner"), schema);
+    final IntermediateStructuredType<BusinessPartner> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(BusinessPartner.class), schema);
     assertEquals(TestDataConstants.NO_DEC_ATTRIBUTES_BUISNESS_PARTNER - 1, et.getEdmItem()
         .getProperties().size(), "Wrong number of entities");
   }
 
   @Test
   public void checkGetIsAbstract() throws ODataJPAModelException {
-    IntermediateStructuredType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "BusinessPartner"), schema);
+    final IntermediateStructuredType<BusinessPartner> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(BusinessPartner.class), schema);
     assertTrue(et.getEdmItem().isAbstract());
   }
 
   @Test
   public void checkGetIsNotAbstract() throws ODataJPAModelException {
-    IntermediateStructuredType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "Organization"), schema);
+    final IntermediateStructuredType<Organization> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(Organization.class), schema);
     assertFalse(et.getEdmItem().isAbstract());
   }
 
   @Test
   public void checkGetHasBaseType() throws ODataJPAModelException {
-    IntermediateStructuredType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "Organization"), schema);
+    final IntermediateStructuredType<Organization> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(Organization.class), schema);
     assertEquals(PUNIT_NAME + ".BusinessPartner", et.getEdmItem().getBaseType());
   }
 
   @Test
   public void checkGetKeyProperties() throws ODataJPAModelException {
-    IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "BusinessPartnerRole"), schema);
+    final IntermediateEntityType<BusinessPartnerRole> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(BusinessPartnerRole.class), schema);
     assertEquals(2, et.getEdmItem().getKey().size(), "Wrong number of key propeties");
   }
 
   @Test
   public void checkGetAllAttributes() throws ODataJPAModelException {
-    IntermediateStructuredType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "BusinessPartnerRole"), schema);
+    final IntermediateStructuredType<BusinessPartnerRole> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(BusinessPartnerRole.class), schema);
     assertEquals(2, et.getPathList().size(), "Wrong number of entities");
   }
 
   @Test
   public void checkGetAllAttributesWithBaseType() throws ODataJPAModelException {
-    IntermediateStructuredType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "Organization"), schema);
-    int exp = TestDataConstants.NO_ATTRIBUTES_BUISNESS_PARTNER
+    final IntermediateStructuredType<Organization> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
+        getEntityType(
+            Organization.class), schema);
+    final int exp = TestDataConstants.NO_ATTRIBUTES_BUISNESS_PARTNER
         + TestDataConstants.NO_ATTRIBUTES_POSTAL_ADDRESS
         + TestDataConstants.NO_ATTRIBUTES_COMMUNICATION_DATA
         + 2 * TestDataConstants.NO_ATTRIBUTES_CHANGE_INFO
@@ -239,8 +259,8 @@ public class TestIntermediateEntityType extends TestMappingRoot {
 
   @Test
   public void checkGetAllAttributesWithBaseTypeFields() throws ODataJPAModelException {
-    IntermediateStructuredType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "Organization"), schema);
+    final IntermediateStructuredType<Organization> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(Organization.class), schema);
 
     assertNotNull(et.getPath("Type"));
     assertNotNull(et.getPath("Name1"));
@@ -251,15 +271,16 @@ public class TestIntermediateEntityType extends TestMappingRoot {
 
   @Test
   public void checkGetAllAttributeIDWithBaseType() throws ODataJPAModelException {
-    IntermediateStructuredType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "Organization"), schema);
+    final IntermediateStructuredType<Organization> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(Organization.class), schema);
     assertEquals("ID", et.getPath("ID").getAlias());
   }
 
   @Test
   public void checkGetKeyAttributeFromEmbeddedId() throws ODataJPAModelException {
-    IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "AdministrativeDivisionDescription"), schema);
+    final IntermediateEntityType<AdministrativeDivisionDescription> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        getEntityType(AdministrativeDivisionDescription.class), schema);
 
     assertNotNull(et.getAttribute("codePublisher"));
     assertEquals("CodePublisher", et.getAttribute("codePublisher").getExternalName());
@@ -267,36 +288,56 @@ public class TestIntermediateEntityType extends TestMappingRoot {
 
   @Test
   public void checkGetKeyWithBaseType() throws ODataJPAModelException {
-    IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "Organization"), schema);
+    final IntermediateEntityType<Organization> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(Organization.class), schema);
     assertEquals(1, et.getKey().size());
   }
 
   @Test
+  public void checkGetKeyAttributeFromEmbeddedIdFromUriResource() throws ODataJPAModelException {
+    final IntermediateEntityType<AdministrativeDivisionDescription> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(AdministrativeDivisionDescription.class), schema);
+
+    final UriResourceProperty uriResourceItem = mock(UriResourceProperty.class);
+    final EdmProperty edmProperty = mock(EdmProperty.class);
+    when(uriResourceItem.getProperty()).thenReturn(edmProperty);
+    when(edmProperty.getName()).thenReturn("CodePublisher");
+
+    final JPAAttribute act = et.getAttribute(uriResourceItem);
+
+    assertNotNull(act);
+    assertEquals("CodePublisher", act.getExternalName());
+  }
+
+  @Test
   public void checkEmbeddedIdResovedProperties() throws ODataJPAModelException {
-    IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "AdministrativeDivisionDescription"), schema);
+    final IntermediateEntityType<AdministrativeDivisionDescription> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        getEntityType(AdministrativeDivisionDescription.class), schema);
     assertEquals(5, et.getEdmItem().getProperties().size());
   }
 
   @Test
   public void checkEmbeddedIdResovedKey() throws ODataJPAModelException {
-    IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "AdministrativeDivisionDescription"), schema);
+    final IntermediateEntityType<AdministrativeDivisionDescription> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        getEntityType(AdministrativeDivisionDescription.class), schema);
     assertEquals(4, et.getEdmItem().getKey().size());
   }
 
   @Test
   public void checkEmbeddedIdResovedKeyInternal() throws ODataJPAModelException {
-    IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "AdministrativeDivisionDescription"), schema);
+    final IntermediateEntityType<AdministrativeDivisionDescription> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        getEntityType(AdministrativeDivisionDescription.class), schema);
     assertEquals(4, et.getKey().size());
   }
 
   @Test
   public void checkEmbeddedIdResovedKeyCorrectOrder() throws ODataJPAModelException {
-    IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "AdministrativeDivisionDescription"), schema);
+    final IntermediateEntityType<AdministrativeDivisionDescription> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        getEntityType(AdministrativeDivisionDescription.class), schema);
     assertEquals("Language", et.getKey().get(0).getExternalName());
     assertEquals("DivisionCode", et.getKey().get(1).getExternalName());
     assertEquals("CodeID", et.getKey().get(2).getExternalName());
@@ -305,8 +346,10 @@ public class TestIntermediateEntityType extends TestMappingRoot {
 
   @Test
   public void checkCompoundResovedKeyCorrectOrder() throws ODataJPAModelException {
-    IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "AdministrativeDivision"), schema);
+    final IntermediateEntityType<AdministrativeDivision> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
+        getEntityType(
+            AdministrativeDivision.class), schema);
     assertEquals("DivisionCode", et.getKey().get(0).getExternalName());
     assertEquals("CodeID", et.getKey().get(1).getExternalName());
     assertEquals("CodePublisher", et.getKey().get(2).getExternalName());
@@ -314,102 +357,103 @@ public class TestIntermediateEntityType extends TestMappingRoot {
 
   @Test
   public void checkEmbeddedIdResovedPath() throws ODataJPAModelException {
-    JPAStructuredType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "AdministrativeDivisionDescription"), schema);
+    final JPAStructuredType et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
+        AdministrativeDivisionDescription.class), schema);
     assertEquals(5, et.getPathList().size());
   }
 
   @Test
   public void checkEmbeddedIdResovedPathCodeId() throws ODataJPAModelException {
-    JPAStructuredType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "AdministrativeDivisionDescription"), schema);
+    final JPAStructuredType et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
+        AdministrativeDivisionDescription.class), schema);
     assertEquals(2, et.getPath("CodeID").getPath().size());
   }
 
   @Test
   public void checkHasStreamNoProperties() throws ODataJPAModelException {
-    IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "PersonImage"), schema);
+    final IntermediateEntityType<PersonImage> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(PersonImage.class), schema);
     assertEquals(2, et.getEdmItem().getProperties().size());
   }
 
   @Test
   public void checkHasStreamTrue() throws ODataJPAModelException {
-    IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "PersonImage"), schema);
+    final IntermediateEntityType<PersonImage> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(PersonImage.class), schema);
     assertTrue(et.getEdmItem().hasStream());
   }
 
   @Test
   public void checkHasStreamFalse() throws ODataJPAModelException {
-    IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "BusinessPartner"), schema);
+    final IntermediateEntityType<BusinessPartner> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(BusinessPartner.class), schema);
     assertFalse(et.getEdmItem().hasStream());
   }
 
   @Test
   public void checkHasETagTrue() throws ODataJPAModelException {
-    IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "BusinessPartner"), schema);
+    final IntermediateEntityType<BusinessPartner> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(BusinessPartner.class), schema);
     assertTrue(et.hasEtag());
   }
 
   @Test
   public void checkHasETagTrueIfInherited() throws ODataJPAModelException {
-    IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "Organization"), schema);
+    final IntermediateEntityType<Organization> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(Organization.class), schema);
     assertTrue(et.hasEtag());
   }
 
   @Test
   public void checkHasETagFalse() throws ODataJPAModelException {
-    IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "AdministrativeDivision"), schema);
+    final IntermediateEntityType<AdministrativeDivision> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(AdministrativeDivision.class), schema);
     assertFalse(et.hasEtag());
   }
 
   @Test
   public void checkIgnoreIfAsEntitySet() throws ODataJPAModelException {
-    IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "BestOrganization"), schema);
+    final IntermediateEntityType<BestOrganization> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(BestOrganization.class), schema);
     assertTrue(et.ignore());
   }
 
   @Test
   public void checkAnnotationSet() throws ODataJPAModelException {
     IntermediateModelElement.setPostProcessor(new PostProcessorSetIgnore());
-    IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "PersonImage"), schema);
-    List<CsdlAnnotation> act = et.getEdmItem().getAnnotations();
+    final IntermediateEntityType<PersonImage> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(PersonImage.class), schema);
+    final List<CsdlAnnotation> act = et.getEdmItem().getAnnotations();
     assertEquals(1, act.size());
     assertEquals("Core.AcceptableMediaTypes", act.get(0).getTerm());
   }
 
   @Test
   public void checkGetProptertyByDBFieldName() throws ODataJPAModelException {
-    IntermediateStructuredType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "BusinessPartner"), schema);
+    final IntermediateStructuredType<BusinessPartner> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(BusinessPartner.class), schema);
     assertEquals("Type", et.getPropertyByDBField("\"Type\"").getExternalName());
   }
 
   @Test
   public void checkGetProptertyByDBFieldNameFromSuperType() throws ODataJPAModelException {
-    IntermediateStructuredType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "Organization"), schema);
+    final IntermediateStructuredType<Organization> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(Organization.class), schema);
     assertEquals("Type", et.getPropertyByDBField("\"Type\"").getExternalName());
   }
 
   @Test
   public void checkGetProptertyByDBFieldNameFromEmbedded() throws ODataJPAModelException {
-    IntermediateStructuredType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "AdministrativeDivisionDescription"), schema);
+    final IntermediateStructuredType<AdministrativeDivisionDescription> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        getEntityType(AdministrativeDivisionDescription.class), schema);
     assertEquals("CodeID", et.getPropertyByDBField("\"CodeID\"").getExternalName());
   }
 
   @Test
   public void checkAllPathContainsComplexCollcetion() throws ODataJPAModelException {
-    IntermediateStructuredType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "Collection"), schema);
+    final IntermediateStructuredType<Collection> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(Collection.class), schema);
     final List<JPAPath> act = et.getPathList();
 
     assertEquals(11, act.size());
@@ -420,7 +464,7 @@ public class TestIntermediateEntityType extends TestMappingRoot {
     assertTrue(actIntermediate.asAssociation().getSourceType() instanceof JPAEntityType);
     assertEquals(2, actIntermediate.asAssociation().getPath().size());
 
-    for (JPAPath p : act) {
+    for (final JPAPath p : act) {
       if (p.getPath().size() > 1
           && p.getPath().get(0).getExternalName().equals("Complex")
           && p.getPath().get(1).getExternalName().equals("Address")) {
@@ -435,8 +479,8 @@ public class TestIntermediateEntityType extends TestMappingRoot {
 
   @Test
   public void checkAllPathContainsPrimitiveCollcetion() throws ODataJPAModelException {
-    IntermediateStructuredType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "Collection"), schema);
+    final IntermediateStructuredType<Collection> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(Collection.class), schema);
     final List<JPAPath> act = et.getPathList();
 
     assertEquals(11, act.size());
@@ -447,7 +491,7 @@ public class TestIntermediateEntityType extends TestMappingRoot {
     assertTrue(actIntermediate.asAssociation().getSourceType() instanceof JPAEntityType);
     assertEquals("Complex/Comment", actIntermediate.asAssociation().getAlias());
 
-    for (JPAPath p : act) {
+    for (final JPAPath p : act) {
       if (p.getPath().size() > 1
           && p.getPath().get(0).getExternalName().equals("Complex")
           && p.getPath().get(1).getExternalName().equals("Comment")) {
@@ -462,8 +506,8 @@ public class TestIntermediateEntityType extends TestMappingRoot {
 
   @Test
   public void checkAllPathContainsDeepComplexWithPrimitiveCollcetion() throws ODataJPAModelException {
-    IntermediateStructuredType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "CollectionDeep"), schema);
+    final IntermediateStructuredType<CollectionDeep> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(CollectionDeep.class), schema);
     final List<JPAPath> act = et.getPathList();
 
     assertEquals(8, act.size());
@@ -478,8 +522,8 @@ public class TestIntermediateEntityType extends TestMappingRoot {
 
   @Test
   public void checkAllPathContainsDeepComplexWithComplexCollcetion() throws ODataJPAModelException {
-    IntermediateStructuredType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "CollectionDeep"), schema);
+    final IntermediateStructuredType<CollectionDeep> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(CollectionDeep.class), schema);
 
     assertNotNull(et.getPath("FirstLevel/SecondLevel/Address"));
     assertTrue(et.getPath("FirstLevel/SecondLevel/Address").getLeaf().isCollection());
@@ -488,17 +532,17 @@ public class TestIntermediateEntityType extends TestMappingRoot {
     assertTrue(actIntermediate.asAssociation().getSourceType() instanceof JPAEntityType);
     assertEquals(3, actIntermediate.asAssociation().getPath().size());
     assertEquals("FirstLevel/SecondLevel/Address", actIntermediate.asAssociation().getAlias());
-    for (JPAPath path : et.getPathList()) {
-      String[] pathElements = path.getAlias().split("/");
+    for (final JPAPath path : et.getPathList()) {
+      final String[] pathElements = path.getAlias().split("/");
       assertEquals(pathElements.length, path.getPath().size());
     }
   }
 
   @Test
   public void checkOneSimpleProtectedProperty() throws ODataJPAModelException {
-    IntermediateStructuredType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "BusinessPartnerProtected"), schema);
-    List<JPAProtectionInfo> act = et.getProtections();
+    final IntermediateStructuredType<BusinessPartnerProtected> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(BusinessPartnerProtected.class), schema);
+    final List<JPAProtectionInfo> act = et.getProtections();
     assertNotNull(act);
     assertEquals(1, act.size());
     assertEquals("Username", act.get(0).getAttribute().getExternalName());
@@ -507,19 +551,21 @@ public class TestIntermediateEntityType extends TestMappingRoot {
 
   @Test
   public void checkOneComplexProtectedProperty() throws ODataJPAModelException {
-    IntermediateStructuredType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "DeepProtectedExample"), schema);
-    List<JPAProtectionInfo> act = et.getProtections();
+    final IntermediateStructuredType<DeepProtectedExample> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        getEntityType(DeepProtectedExample.class), schema);
+    final List<JPAProtectionInfo> act = et.getProtections();
     assertNotNull(act);
     assertEquals(3, act.size());
   }
 
   @Test
   public void checkComplexAndInheritedProtectedProperty() throws ODataJPAModelException {
-    IntermediateStructuredType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "PersonDeepProtectedHidden"), schema);
+    final IntermediateStructuredType<PersonDeepProtectedHidden> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        getEntityType(PersonDeepProtectedHidden.class), schema);
 
-    List<JPAProtectionInfo> act = et.getProtections();
+    final List<JPAProtectionInfo> act = et.getProtections();
     assertNotNull(act);
     assertInherited(act);
     assertComplexAnnotated(act, "Creator", "Created");
@@ -530,26 +576,27 @@ public class TestIntermediateEntityType extends TestMappingRoot {
 
   @Test
   public void checkEmbeddedIdKeyIsCompound() throws ODataJPAModelException {
-    IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "AdministrativeDivisionDescription"), schema);
+    final IntermediateEntityType<AdministrativeDivisionDescription> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        getEntityType(AdministrativeDivisionDescription.class), schema);
     assertTrue(et.hasCompoundKey());
   }
 
   @Test
   public void checkMultipleKeyIsCompound() throws ODataJPAModelException {
-    IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "AdministrativeDivision"), schema);
+    final IntermediateEntityType<AdministrativeDivision> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(AdministrativeDivision.class), schema);
     assertTrue(et.hasCompoundKey());
   }
 
   @Test
   public void checkIdIsNotCompound() throws ODataJPAModelException {
-    IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "BusinessPartner"), schema);
+    final IntermediateEntityType<BusinessPartner> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(BusinessPartner.class), schema);
     assertFalse(et.hasCompoundKey());
   }
 
-  private void assertComplexDeep(List<JPAProtectionInfo> act) {
+  private void assertComplexDeep(final List<JPAProtectionInfo> act) {
     for (final JPAProtectionInfo info : act) {
       if (info.getClaimName().equals("BuildingNumber")) {
         assertEquals("Building", info.getAttribute().getExternalName());
@@ -562,7 +609,7 @@ public class TestIntermediateEntityType extends TestMappingRoot {
 
   }
 
-  private void assertComplexAnnotated(List<JPAProtectionInfo> act, final String expClaimName,
+  private void assertComplexAnnotated(final List<JPAProtectionInfo> act, final String expClaimName,
       final String pathElement) {
     for (final JPAProtectionInfo info : act) {
       if (info.getClaimName().equals(expClaimName)) {
@@ -575,7 +622,7 @@ public class TestIntermediateEntityType extends TestMappingRoot {
     fail("Complex attribute not found for: " + expClaimName);
   }
 
-  private void assertInherited(List<JPAProtectionInfo> act) {
+  private void assertInherited(final List<JPAProtectionInfo> act) {
     for (final JPAProtectionInfo info : act) {
       if (info.getAttribute().getExternalName().equals("Username")) {
         assertEquals("UserId", info.getClaimName());
@@ -590,7 +637,7 @@ public class TestIntermediateEntityType extends TestMappingRoot {
   private class PostProcessorSetIgnore extends JPAEdmMetadataPostProcessor {
 
     @Override
-    public void processProperty(IntermediatePropertyAccess property, String jpaManagedTypeClassName) {
+    public void processProperty(final IntermediatePropertyAccess property, final String jpaManagedTypeClassName) {
       if (jpaManagedTypeClassName.equals(
           "com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner")) {
         if (property.getInternalName().equals("communicationData")) {
@@ -600,34 +647,36 @@ public class TestIntermediateEntityType extends TestMappingRoot {
     }
 
     @Override
-    public void processNavigationProperty(IntermediateNavigationPropertyAccess property,
-        String jpaManagedTypeClassName) {}
+    public void processNavigationProperty(final IntermediateNavigationPropertyAccess property,
+        final String jpaManagedTypeClassName) {}
 
     @Override
-    public void processEntityType(IntermediateEntityTypeAccess entity) {
+    public void processEntityType(final IntermediateEntityTypeAccess entity) {
+
       if (entity.getExternalName().equals("PersonImage")) {
-        List<CsdlExpression> items = new ArrayList<>();
-        CsdlCollection exp = new CsdlCollection();
+        final List<CsdlExpression> items = new ArrayList<>();
+        final CsdlCollection exp = new CsdlCollection();
         exp.setItems(items);
-        CsdlConstantExpression mimeType = new CsdlConstantExpression(ConstantExpressionType.String, "ogg");
+        final CsdlConstantExpression mimeType = new CsdlConstantExpression(ConstantExpressionType.String, "ogg");
         items.add(mimeType);
-        CsdlAnnotation annotation = new CsdlAnnotation();
+        final CsdlAnnotation annotation = new CsdlAnnotation();
         annotation.setExpression(exp);
         annotation.setTerm("Core.AcceptableMediaTypes");
-        List<CsdlAnnotation> annotations = new ArrayList<>();
+        final List<CsdlAnnotation> annotations = new ArrayList<>();
         annotations.add(annotation);
         entity.addAnnotations(annotations);
       }
     }
 
     @Override
-    public void provideReferences(IntermediateReferenceList references) throws ODataJPAModelException {}
+    public void provideReferences(final IntermediateReferenceList references) throws ODataJPAModelException {}
   }
 
-  private EntityType<?> getEntityType(String typeName) {
-    for (EntityType<?> entityType : etList) {
-      if (entityType.getJavaType().getSimpleName().equals(typeName)) {
-        return entityType;
+  @SuppressWarnings("unchecked")
+  private <T> EntityType<T> getEntityType(final Class<T> type) {
+    for (final EntityType<?> entityType : etList) {
+      if (entityType.getJavaType().equals(type)) {
+        return (EntityType<T>) entityType;
       }
     }
     return null;

@@ -1,6 +1,9 @@
 language: java
 # for an overview see https://docs.travis-ci.com/user/reference/overview/
-sudo: false
+
+os:
+ - linux
+ 
 dist: trusty
 
 cache:
@@ -28,3 +31,7 @@ branches:
     only:
         - master
         - develop
+notifications:
+  email:
+    on_success: change
+    on_failure: always        

@@ -24,8 +24,8 @@ import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
 
@@ -75,10 +75,11 @@ public class JPAActionRequestProcessor extends JPAOperationRequestProcessor {
         returnType = resource.getAction().getReturnType().getType();
         final Object result = jpaAction.getMethod().invoke(instance, parameter.toArray());
         r = convertResult(result, returnType, jpaAction);
-      } else
+      } else {
         jpaAction.getMethod().invoke(instance, parameter.toArray());
+      }
       if (serializer != null)
-        serializeResult(returnType, response, serializer.getContentType(), r);
+        serializeResult(returnType, response, serializer.getContentType(), r, request);
       else
         response.setStatusCode(successStatusCode);
 
