@@ -32,70 +32,70 @@ public class TestJPAPath extends TestMappingRoot {
   @BeforeEach
   public void setup() throws ODataJPAModelException {
     helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
-    organization = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), helper.getEntityType(
+    organization = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(PUNIT_NAME), helper.getEntityType(
         Organization.class), helper.schema);
-    bupaWithGroup = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), helper.getEntityType(
+    bupaWithGroup = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(PUNIT_NAME), helper.getEntityType(
         BusinessPartnerWithGroups.class), helper.schema);
   }
 
   @Test
   public void checkOnePathElementAlias() throws ODataApplicationException, ODataJPAModelException {
-    JPAPath cut = organization.getPath("Name1");
+    final JPAPath cut = organization.getPath("Name1");
     assertEquals("Name1", cut.getAlias());
   }
 
   @Test
   public void checkOnePathElementPathSize() throws ODataApplicationException, ODataJPAModelException {
-    JPAPath cut = organization.getPath("Name1");
+    final JPAPath cut = organization.getPath("Name1");
     assertEquals(1, cut.getPath().size());
   }
 
   @Test
   public void checkOnePathElementElement() throws ODataApplicationException, ODataJPAModelException {
-    JPAPath cut = organization.getPath("Name1");
+    final JPAPath cut = organization.getPath("Name1");
     assertEquals("name1", cut.getPath().get(0).getInternalName());
   }
 
   @Test
   public void checkOnePathElementFromSuperTypeAlias() throws ODataApplicationException, ODataJPAModelException {
-    JPAPath cut = organization.getPath("Type");
+    final JPAPath cut = organization.getPath("Type");
     assertEquals("Type", cut.getAlias());
   }
 
   @Test
   public void checkTwoPathElementAlias() throws ODataApplicationException, ODataJPAModelException {
-    JPAPath cut = organization.getPath("Address/Country");
+    final JPAPath cut = organization.getPath("Address/Country");
     assertEquals("Address/Country", cut.getAlias());
   }
 
   @Test
   public void checkTwoPathElementPathSize() throws ODataApplicationException, ODataJPAModelException {
-    JPAPath cut = organization.getPath("Address/Country");
+    final JPAPath cut = organization.getPath("Address/Country");
     assertEquals(2, cut.getPath().size());
   }
 
   @Test
   public void checkTwoPathElementPathElements() throws ODataApplicationException, ODataJPAModelException {
-    JPAPath cut = organization.getPath("Address/Country");
+    final JPAPath cut = organization.getPath("Address/Country");
     assertEquals("address", cut.getPath().get(0).getInternalName());
     assertEquals("country", cut.getPath().get(1).getInternalName());
   }
 
   @Test
   public void checkThreePathElementAlias() throws ODataApplicationException, ODataJPAModelException {
-    JPAPath cut = organization.getPath("AdministrativeInformation/Created/By");
+    final JPAPath cut = organization.getPath("AdministrativeInformation/Created/By");
     assertEquals("AdministrativeInformation/Created/By", cut.getAlias());
   }
 
   @Test
   public void checkThreePathElementPathSize() throws ODataApplicationException, ODataJPAModelException {
-    JPAPath cut = organization.getPath("AdministrativeInformation/Created/By");
+    final JPAPath cut = organization.getPath("AdministrativeInformation/Created/By");
     assertEquals(3, cut.getPath().size());
   }
 
   @Test
   public void checkThreePathElementPathElements() throws ODataApplicationException, ODataJPAModelException {
-    JPAPath cut = organization.getPath("AdministrativeInformation/Created/By");
+    final JPAPath cut = organization.getPath("AdministrativeInformation/Created/By");
     assertEquals("administrativeInformation", cut.getPath().get(0).getInternalName());
     assertEquals("created", cut.getPath().get(1).getInternalName());
     assertEquals("by", cut.getPath().get(2).getInternalName());

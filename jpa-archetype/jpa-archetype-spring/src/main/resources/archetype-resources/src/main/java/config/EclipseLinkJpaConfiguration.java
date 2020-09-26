@@ -1,5 +1,12 @@
 package ${package}.config;
 
+import static org.eclipse.persistence.config.PersistenceUnitProperties.CACHE_SHARED_DEFAULT;
+import static org.eclipse.persistence.config.PersistenceUnitProperties.CONNECTION_POOL_MAX;
+import static org.eclipse.persistence.config.PersistenceUnitProperties.DDL_GENERATION;
+import static org.eclipse.persistence.config.PersistenceUnitProperties.LOGGING_LEVEL;
+import static org.eclipse.persistence.config.PersistenceUnitProperties.TRANSACTION_TYPE;
+import static org.eclipse.persistence.config.PersistenceUnitProperties.WEAVING;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,12 +48,18 @@ public class EclipseLinkJpaConfiguration extends JpaBaseConfiguration {
   @Override
   protected Map<String, Object> getVendorProperties() {
     // https://stackoverflow.com/questions/10769051/eclipselinkjpavendoradapter-instead-of-hibernatejpavendoradapter-issue
-    HashMap<String, Object> map = new HashMap<>();
-    map.put(PersistenceUnitProperties.WEAVING, "false");
-    map.put(PersistenceUnitProperties.DDL_GENERATION, "none");
-    map.put(PersistenceUnitProperties.LOGGING_LEVEL, SessionLog.FINE_LABEL);
-    map.put(PersistenceUnitProperties.TRANSACTION_TYPE, "RESOURCE_LOCAL");
-    return map;
+    HashMap<String, Object> jpaProperties = new HashMap<>();
+    jpaProperties.put(WEAVING, "false");
+    // No table generation by JPA 
+    jpaProperties.put(DDL_GENERATION, "none");
+    jpaProperties.put(LOGGING_LEVEL, SessionLog.FINE_LABEL);
+    jpaProperties.put(TRANSACTION_TYPE, "RESOURCE_LOCAL");
+    // do not cache entities locally, as this causes problems if multiple application instances are used
+    jpaProperties.put(CACHE_SHARED_DEFAULT, "false");
+    // You can also tweak your application performance by configuring your database connection pool.
+    // https://www.eclipse.org/eclipselink/documentation/2.7/jpa/extensions/persistenceproperties_ref.htm#connectionpool
+    jpaProperties.put(CONNECTION_POOL_MAX, 50);
+    return jpaProperties;
   }
   
   @Bean
@@ -56,7 +69,6 @@ public class EclipseLinkJpaConfiguration extends JpaBaseConfiguration {
     return builder
         .dataSource(ds)
         .packages(EntityTemplate.class)
-        .persistenceUnit(punit)
         .properties(getVendorProperties())
         .jta(false)
         .build();

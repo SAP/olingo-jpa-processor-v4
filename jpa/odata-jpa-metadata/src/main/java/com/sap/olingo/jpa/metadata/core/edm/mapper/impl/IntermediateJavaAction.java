@@ -32,8 +32,8 @@ class IntermediateJavaAction extends IntermediateOperation implements JPAAction 
   private final Constructor<?> javaConstructor;
   private List<JPAParameter> parameterList;
 
-  IntermediateJavaAction(JPAEdmNameBuilder nameBuilder, EdmAction jpaAction, Method javaAction,
-      IntermediateSchema schema) throws ODataJPAModelException {
+  IntermediateJavaAction(final JPAEdmNameBuilder nameBuilder, final EdmAction jpaAction, final Method javaAction,
+      final IntermediateSchema schema) throws ODataJPAModelException {
 
     super(nameBuilder, IntNameBuilder.buildActionName(jpaAction).isEmpty() ? javaAction.getName() : IntNameBuilder
         .buildActionName(jpaAction));
@@ -58,17 +58,17 @@ class IntermediateJavaAction extends IntermediateOperation implements JPAAction 
   public List<JPAParameter> getParameter() throws ODataJPAModelException {
     if (parameterList == null) {
       parameterList = new ArrayList<>();
-      Class<?>[] types = javaAction.getParameterTypes();
-      Parameter[] declairedParameters = javaAction.getParameters();
+      final Class<?>[] types = javaAction.getParameterTypes();
+      final Parameter[] declairedParameters = javaAction.getParameters();
       for (int i = 0; i < declairedParameters.length; i++) {
-        Parameter declairedParameter = declairedParameters[i];
-        EdmParameter definedParameter = declairedParameter.getAnnotation(EdmParameter.class);
+        final Parameter declairedParameter = declairedParameters[i];
+        final EdmParameter definedParameter = declairedParameter.getAnnotation(EdmParameter.class);
         if (definedParameter == null)
           // Function parameter %1$s of method %2$s at class %3$s without required annotation
           throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.ACTION_PARAM_ANNOTATION_MISSING,
               declairedParameter.getName(), javaAction.getName(), javaAction
                   .getDeclaringClass().getName());
-        JPAParameter parameter = new IntermediateOperationParameter(
+        final JPAParameter parameter = new IntermediateOperationParameter(
             nameBuilder,
             definedParameter,
             nameBuilder.buildPropertyName(definedParameter.name()),
@@ -82,8 +82,8 @@ class IntermediateJavaAction extends IntermediateOperation implements JPAAction 
   }
 
   @Override
-  public JPAParameter getParameter(Parameter declairedParameter) throws ODataJPAModelException {
-    for (JPAParameter param : getParameter()) {
+  public JPAParameter getParameter(final Parameter declairedParameter) throws ODataJPAModelException {
+    for (final JPAParameter param : getParameter()) {
       if (param.getInternalName().equals(declairedParameter.getName()))
         return param;
     }
@@ -120,7 +120,7 @@ class IntermediateJavaAction extends IntermediateOperation implements JPAAction 
     if (jpaAction.isBound() && bindingPosition.getPos() != 1)
       // Binding parameter not found within in interface of method %1$s of class %2$s. Binding parameter must be the
       // first parameter.
-      throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.ACTION_PARAM_BINGING_NOT_FOUND,
+      throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.ACTION_PARAM_BINDING_NOT_FOUND,
           javaAction.getName(), javaAction.getDeclaringClass().getName());
     return parameters;
   }
@@ -135,7 +135,7 @@ class IntermediateJavaAction extends IntermediateOperation implements JPAAction 
     if (enumType != null) {
       return enumType.getExternalFQN();
     } else {
-      final IntermediateStructuredType structuredType = schema.getEntityType(jpaParameter.getType());
+      final IntermediateStructuredType<?> structuredType = schema.getEntityType(jpaParameter.getType());
       if (structuredType != null) {
         if (bindingPosition.getPos() == 0)
           bindingPosition.setPos(i + 1);
@@ -209,7 +209,7 @@ class IntermediateJavaAction extends IntermediateOperation implements JPAAction 
     return edmResultType;
   }
 
-  private Integer nullIfNotSet(Integer number) {
+  private Integer nullIfNotSet(final Integer number) {
     if (number != null && number > -1)
       return number;
     return null;
@@ -235,7 +235,7 @@ class IntermediateJavaAction extends IntermediateOperation implements JPAAction 
       return pos;
     }
 
-    void setPos(Integer pos) {
+    void setPos(final Integer pos) {
       this.pos = pos;
     }
 

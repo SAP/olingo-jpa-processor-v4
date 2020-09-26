@@ -7,7 +7,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAMessageKey;
 /*
  * This exception is thrown when an exception occurs in a jpa pojo method
  */
-public class ODataJPAInvocationTargetException extends ODataJPAProcessException {
+public class ODataJPAInvocationTargetException extends ODataJPAProcessException { // NOSONAR
 
   private static final long serialVersionUID = 2410838419178517426L;
   private static final String BUNDEL_NAME = "processor-exceptions-i18n";
@@ -15,18 +15,19 @@ public class ODataJPAInvocationTargetException extends ODataJPAProcessException 
 
   enum MessageKeys implements ODataJPAMessageKey {
     WRONG_VALUE;
+
     @Override
     public String getKey() {
       return name();
     }
   }
 
-  public ODataJPAInvocationTargetException(Throwable e, final String path) {
+  public ODataJPAInvocationTargetException(final Throwable e, final String path) {
     super(e, HttpStatusCode.BAD_REQUEST);
     this.path = path;
   }
 
-  public ODataJPAInvocationTargetException(Throwable e) {
+  public ODataJPAInvocationTargetException(final Throwable e) {
     super(e, HttpStatusCode.BAD_REQUEST);
     this.path = null;
   }

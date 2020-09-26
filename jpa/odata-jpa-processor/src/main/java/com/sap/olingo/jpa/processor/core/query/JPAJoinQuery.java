@@ -34,8 +34,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery {
@@ -89,7 +89,7 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
       countQuery.select(cb.countDistinct(target));
       debugger.stopRuntimeMeasurement(handle);
       return em.createQuery(countQuery).getSingleResult();
-    } catch (JPANoSelectionException e) {
+    } catch (final JPANoSelectionException e) {
       return 0L;
     }
   }
@@ -111,7 +111,7 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
       if (whereClause != null)
         cq.where(whereClause);
 
-      cq.orderBy(createOrderByList(joinTables, uriResource.getOrderByOption()));
+      cq.orderBy(new JPAOrderByBuilder(jpaEntity, target, cb, groups).createOrderByList(joinTables, uriResource));
 
       if (!orderByNaviAttributes.isEmpty())
         cq.groupBy(createGroupBy(joinTables, selectionPath));
@@ -128,7 +128,7 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
 
       debugger.stopRuntimeMeasurement(handle);
       return returnResult(selectionPath, result);
-    } catch (JPANoSelectionException e) {
+    } catch (final JPANoSelectionException e) {
       debugger.stopRuntimeMeasurement(handle);
       return returnEmptyResult(selectionPath);
     }
@@ -196,7 +196,7 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
                 pathString.append(((UriResourceProperty) uriResource).getProperty().getName());
                 pathString.append(JPAPath.PATH_SEPERATOR);
               }
-            } catch (ODataJPAModelException e) {
+            } catch (final ODataJPAModelException e) {
               throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
                   HttpStatusCode.INTERNAL_SERVER_ERROR, e);
             }

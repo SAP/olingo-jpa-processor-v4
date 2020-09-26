@@ -34,6 +34,14 @@ public class CollectionAttributeProtected {
   @EdmProtectedBy(name = "WrongAnnotation")
   private List<InhouseAddress> inhouseAddress = new ArrayList<>();
 
+  public String getID() {
+    return iD;
+  }
+
+  public void setID(String iD) {
+    this.iD = iD;
+  }
+
   public List<InhouseAddress> getInhouseAddress() {
     return inhouseAddress;
   }

@@ -758,6 +758,16 @@ insert into "Team" values ('B', 'Team Scala');
 insert into "Team" values ('C', 'Team Phyton');
 insert into "Team" values ('D', 'Team Go');	 
 
+CREATE TABLE "SalesTeam" (
+	"TeamKey" VARCHAR(32) NOT NULL ,
+	"Name" VARCHAR(100),
+	"SalesArea" VARCHAR(100),
+	"GroupLead"  VARCHAR(32),
+	 PRIMARY KEY ("TeamKey"));	
+
+insert into "SalesTeam" values ('S0', 'S0', 'APJ', '97');	
+insert into "SalesTeam" values ('S1', 'S1', 'APJ North', '98');	 
+insert into "SalesTeam" values ('S2', 'S2', 'APJ East', '98');
 
 CREATE TABLE "Membership" (	 
 	"ID" INTEGER NOT NULL ,

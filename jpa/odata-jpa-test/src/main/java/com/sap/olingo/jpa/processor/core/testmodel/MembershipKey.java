@@ -23,6 +23,12 @@ public class MembershipKey implements Serializable {
     // Needed to be used as IdClass
   }
 
+  public MembershipKey(final String personID, final String teamID) {
+    super();
+    this.personID = personID;
+    this.teamID = teamID;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -46,5 +52,4 @@ public class MembershipKey implements Serializable {
     } else if (!teamID.equals(other.teamID)) return false;
     return true;
   }
-
 }

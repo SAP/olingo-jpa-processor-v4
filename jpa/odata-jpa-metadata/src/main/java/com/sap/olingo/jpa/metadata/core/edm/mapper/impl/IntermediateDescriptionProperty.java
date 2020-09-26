@@ -36,7 +36,7 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
 
   @Override
   protected void lazyBuildEdmItem() throws ODataJPAModelException {
-    Member jpaMember = jpaAttribute.getJavaMember();
+    final Member jpaMember = jpaAttribute.getJavaMember();
     String languageAttribute;
 
     if (this.edmProperty == null) {
@@ -60,7 +60,7 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
               .descriptionAttribute());
           if (descriptionProperty == null)
             // The attribute %2$s has not been found at entity %1$s
-            throw new ODataJPAModelException(MessageKeys.INVALID_DESCIPTION_PROPERTY, targetEntity.getInternalName(),
+            throw new ODataJPAModelException(MessageKeys.INVALID_DESCRIPTION_PROPERTY, targetEntity.getInternalName(),
                 assozation.descriptionAttribute());
           languageAttribute = assozation.languageAttribute();
           localeAttribute = assozation.localeAttribute();

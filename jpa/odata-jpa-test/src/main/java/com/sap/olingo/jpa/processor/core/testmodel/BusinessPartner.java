@@ -2,8 +2,8 @@ package com.sap.olingo.jpa.processor.core.testmodel;
 
 import java.math.BigDecimal;
 import java.sql.Date;
-import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -76,7 +76,8 @@ public abstract class BusinessPartner implements KeyAccess {
   protected String type;
 
   @Column(name = "\"CreatedAt\"", precision = 3, insertable = false, updatable = false)
-  private Timestamp creationDateTime;
+  @Convert(converter = DateTimeConverter.class)
+  private LocalDateTime creationDateTime;
 
   @EdmIgnore
   @Column(name = "\"CustomString1\"")
@@ -163,7 +164,7 @@ public abstract class BusinessPartner implements KeyAccess {
     return country;
   }
 
-  public Timestamp getCreationDateTime() {
+  public LocalDateTime getCreationDateTime() {
     return creationDateTime;
   }
 
@@ -230,7 +231,7 @@ public abstract class BusinessPartner implements KeyAccess {
     this.country = country;
   }
 
-  public void setCreationDateTime(final Timestamp creationDateTime) {
+  public void setCreationDateTime(final LocalDateTime creationDateTime) {
     this.creationDateTime = creationDateTime;
   }
 

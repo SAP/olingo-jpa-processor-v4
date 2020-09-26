@@ -19,6 +19,22 @@ public class JoinRelationKey implements Serializable {
   @Column(name = "\"TargetID\"")
   private Integer targetID;
 
+  public Integer getSourceID() {
+    return sourceID;
+  }
+
+  public void setSourceID(Integer sourceID) {
+    this.sourceID = sourceID;
+  }
+
+  public Integer getTargetID() {
+    return targetID;
+  }
+
+  public void setTargetID(Integer targetID) {
+    this.targetID = targetID;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;

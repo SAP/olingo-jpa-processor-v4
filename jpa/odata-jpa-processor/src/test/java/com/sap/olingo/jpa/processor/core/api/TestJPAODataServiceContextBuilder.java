@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.api;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -235,6 +236,41 @@ public class TestJPAODataServiceContextBuilder {
         .build();
 
     assertEquals(exp, cut.getMappingPath());
+  }
+
+  @Test
+  public void checkReturnsFalseAsDefaultForUseAbsoluteContextURL() throws ODataException {
+
+    cut = JPAODataServiceContext.with()
+        .setDataSource(ds)
+        .setPUnit(PUNIT_NAME)
+        .build();
+
+    assertFalse(cut.useAbsoluteContextURL());
+  }
+
+  @Test
+  public void checkReturnsTrueForUseAbsoluteContextURLIfSet() throws ODataException {
+
+    cut = JPAODataServiceContext.with()
+        .setDataSource(ds)
+        .setPUnit(PUNIT_NAME)
+        .setUseAbsoluteContextURL(true)
+        .build();
+
+    assertTrue(cut.useAbsoluteContextURL());
+  }
+
+  @Test
+  public void checkReturnsFalseForUseAbsoluteContextURLIfSet() throws ODataException {
+
+    cut = JPAODataServiceContext.with()
+        .setDataSource(ds)
+        .setPUnit(PUNIT_NAME)
+        .setUseAbsoluteContextURL(false)
+        .build();
+
+    assertFalse(cut.useAbsoluteContextURL());
   }
 
   private class TestEdmPostProcessor extends JPAEdmMetadataPostProcessor {

@@ -44,9 +44,9 @@ import com.sap.olingo.jpa.processor.core.api.JPAClaimsPair;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPagingProvider;
-import com.sap.olingo.jpa.processor.core.util.CountQueryMatcher;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
+import com.sap.olingo.jpa.processor.core.util.matcher.CountQueryMatcher;
 
 public class TestJPAServerDrivenPaging extends TestBase {
   @Test

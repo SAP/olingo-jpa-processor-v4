@@ -51,37 +51,39 @@ public class TestIntermediateEntitySet extends TestMappingRoot {
   @Test
   public void checkAnnotationSet() throws ODataJPAModelException {
     IntermediateModelElement.setPostProcessor(new PostProcessor());
-    IntermediateEntityType et = new IntermediateEntityType(namebuilder, getEntityType(
+    final IntermediateEntityType<?> et = new IntermediateEntityType<>(namebuilder, getEntityType(
         "AdministrativeDivisionDescription"), schema);
-    IntermediateEntitySet set = new IntermediateEntitySet(namebuilder, et);
-    List<CsdlAnnotation> act = set.getEdmItem().getAnnotations();
+    final IntermediateEntitySet set = new IntermediateEntitySet(namebuilder, et);
+    final List<CsdlAnnotation> act = set.getEdmItem().getAnnotations();
     assertEquals(1, act.size());
     assertEquals("Capabilities.TopSupported", act.get(0).getTerm());
   }
 
   @Test
   public void checkODataEntityTypeDiffers() throws ODataJPAModelException {
-    IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "BestOrganization"), schema);
-    IntermediateEntitySet set = new IntermediateEntitySet(namebuilder, et);
+    final IntermediateEntityType<?> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        getEntityType(
+            "BestOrganization"), schema);
+    final IntermediateEntitySet set = new IntermediateEntitySet(namebuilder, et);
 
-    JPAEntityType odataEt = set.getODataEntityType();
+    final JPAEntityType odataEt = set.getODataEntityType();
     assertEquals("BusinessPartner", odataEt.getExternalName());
   }
 
   @Test
   public void checkODataEntityTypeSame() throws ODataJPAModelException {
-    IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
-        "Organization"), schema);
-    IntermediateEntitySet set = new IntermediateEntitySet(namebuilder, et);
+    final IntermediateEntityType<?> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        getEntityType(
+            "Organization"), schema);
+    final IntermediateEntitySet set = new IntermediateEntitySet(namebuilder, et);
 
-    JPAEntityType odataEt = set.getODataEntityType();
+    final JPAEntityType odataEt = set.getODataEntityType();
     assertEquals("Organization", odataEt.getExternalName());
   }
 
   @Test
   public void checkEdmItemContainsODataEntityType() throws ODataJPAModelException {
-    final IntermediateEntityType et = new IntermediateEntityType(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+    final IntermediateEntityType<?> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         getEntityType("BestOrganization"), schema);
     final IntermediateEntitySet set = new IntermediateEntitySet(namebuilder, et);
     final CsdlEntitySet act = set.getEdmItem();
@@ -91,8 +93,9 @@ public class TestIntermediateEntitySet extends TestMappingRoot {
   @Test
   public void checkPostProcessorExternalNameChanged() throws ODataJPAModelException {
     IntermediateModelElement.setPostProcessor(new PostProcessor());
-    IntermediateEntityType et = new IntermediateEntityType(namebuilder, getEntityType("BusinessPartner"), schema);
-    IntermediateEntitySet set = new IntermediateEntitySet(namebuilder, et);
+    final IntermediateEntityType<?> et = new IntermediateEntityType<>(namebuilder, getEntityType("BusinessPartner"),
+        schema);
+    final IntermediateEntitySet set = new IntermediateEntitySet(namebuilder, et);
     set.getEdmItem(); // Trigger build of EdmEntitySet
 
     assertEquals("BusinessPartnerList", set.getExternalName(), "Wrong name");
@@ -101,7 +104,7 @@ public class TestIntermediateEntitySet extends TestMappingRoot {
   private class PostProcessor extends JPAEdmMetadataPostProcessor {
 
     @Override
-    public void processProperty(final IntermediatePropertyAccess property, String jpaManagedTypeClassName) {
+    public void processProperty(final IntermediatePropertyAccess property, final String jpaManagedTypeClassName) {
       if (jpaManagedTypeClassName.equals(
           "com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner")) {
         if (property.getInternalName().equals("communicationData")) {
@@ -112,7 +115,7 @@ public class TestIntermediateEntitySet extends TestMappingRoot {
 
     @Override
     public void processNavigationProperty(final IntermediateNavigationPropertyAccess property,
-        String jpaManagedTypeClassName) {}
+        final String jpaManagedTypeClassName) {}
 
     @Override
     public void processEntityType(final IntermediateEntityTypeAccess entity) {}
@@ -123,11 +126,11 @@ public class TestIntermediateEntitySet extends TestMappingRoot {
     @Override
     public void processEntitySet(final IntermediateEntitySetAccess entitySet) {
 
-      CsdlConstantExpression mimeType = new CsdlConstantExpression(ConstantExpressionType.Bool, "false");
-      CsdlAnnotation annotation = new CsdlAnnotation();
+      final CsdlConstantExpression mimeType = new CsdlConstantExpression(ConstantExpressionType.Bool, "false");
+      final CsdlAnnotation annotation = new CsdlAnnotation();
       annotation.setExpression(mimeType);
       annotation.setTerm("Capabilities.TopSupported");
-      List<CsdlAnnotation> annotations = new ArrayList<>();
+      final List<CsdlAnnotation> annotations = new ArrayList<>();
       annotations.add(annotation);
       entitySet.addAnnotations(annotations);
 
@@ -138,7 +141,7 @@ public class TestIntermediateEntitySet extends TestMappingRoot {
   }
 
   private EntityType<?> getEntityType(final String typeName) {
-    for (EntityType<?> entityType : etList) {
+    for (final EntityType<?> entityType : etList) {
       if (entityType.getJavaType().getSimpleName().equals(typeName)) {
         return entityType;
       }

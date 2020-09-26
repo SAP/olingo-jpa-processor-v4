@@ -45,12 +45,19 @@ public class ComplextProtectedWrongPath {
     return true;
   }
 
-  public String getiD() {
+  public String getID() {
     return iD;
   }
 
-  public long geteTag() {
+  public void setID(String iD) {
+    this.iD = iD;
+  }
+
+  public long getETag() {
     return eTag;
   }
 
+  public void setETag(long eTag) {
+    this.eTag = eTag;
+  }
 }

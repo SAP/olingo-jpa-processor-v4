@@ -56,7 +56,7 @@
           <Annotation Term="Core.Description" String="These navigation properties do not allow DeleteLink requests" />
         </Property>
       </ComplexType>
-      <ComplexType Name="TestType" Abstract="true" OpenType="true" BaseType="Core.Unknow">
+      <ComplexType Name="TestType" Abstract="true" OpenType="true" BaseType="Core.Unknown">
         <Annotation Term="Core.Description" String="This type is only for test purposes" />
         <Property Name="Deletable" Type="Edm.Boolean" DefaultValue="true">
           <Annotation Term="Core.Description" String="Entities can be deleted" />

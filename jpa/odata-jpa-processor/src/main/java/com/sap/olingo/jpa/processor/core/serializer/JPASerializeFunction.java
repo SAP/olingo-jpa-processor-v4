@@ -37,9 +37,9 @@ final class JPASerializeFunction implements JPAOperationSerializer {
   }
 
   @Override
-  public SerializerResult serialize(final Annotatable annotatable, final EdmType entityType)
+  public SerializerResult serialize(final Annotatable annotatable, final EdmType entityType, final ODataRequest request)
       throws SerializerException, ODataJPASerializerException {
-    return serializer.serialize(annotatable, entityType);
+    return serializer.serialize(annotatable, entityType, request);
   }
 
   JPASerializer getSerializer() {

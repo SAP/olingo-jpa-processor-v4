@@ -16,7 +16,7 @@
 	</parent>
 
 	<properties>
-		<jpa-processor>0.3.7-SNAPSHOT</jpa-processor>
+		<jpa-processor>0.3.8-SNAPSHOT</jpa-processor>
 		<java.version>1.8</java.version>
 	</properties>
 

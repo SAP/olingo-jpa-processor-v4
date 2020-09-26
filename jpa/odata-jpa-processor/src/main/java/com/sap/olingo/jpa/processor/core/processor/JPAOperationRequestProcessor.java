@@ -18,6 +18,7 @@ import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
+import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.serializer.SerializerResult;
@@ -46,28 +47,28 @@ abstract class JPAOperationRequestProcessor extends JPAAbstractRequestProcessor 
       final JPAOperation jpaOperation) throws ODataApplicationException {
 
     switch (returnType.getKind()) {
-      case PRIMITIVE:
-        if (jpaOperation.getResultParameter().isCollection()) {
-          final List<Object> response = new ArrayList<>();
-          response.addAll((Collection<?>) result);
-          return new Property(null, RESULT, ValueType.COLLECTION_PRIMITIVE, response);
-        } else if (result == null) {
-          return null;
-        }
-        return new Property(null, RESULT, ValueType.PRIMITIVE, result);
-      case ENTITY:
-        return createEntityCollection((EdmEntityType) returnType, result, odata.createUriHelper(), jpaOperation);
-      case COMPLEX:
-        if (jpaOperation.getResultParameter().isCollection()) {
-          return new Property(null, RESULT, ValueType.COLLECTION_COMPLEX, createComplexCollection(
-              (EdmComplexType) returnType, result));
-        } else if (result == null) {
-          return null;
-        }
-        return new Property(null, RESULT, ValueType.COMPLEX, createComplexValue((EdmComplexType) returnType,
-            result));
-      default:
-        break;
+    case PRIMITIVE:
+      if (jpaOperation.getResultParameter().isCollection()) {
+        final List<Object> response = new ArrayList<>();
+        response.addAll((Collection<?>) result);
+        return new Property(null, RESULT, ValueType.COLLECTION_PRIMITIVE, response);
+      } else if (result == null) {
+        return null;
+      }
+      return new Property(null, RESULT, ValueType.PRIMITIVE, result);
+    case ENTITY:
+      return createEntityCollection((EdmEntityType) returnType, result, odata.createUriHelper(), jpaOperation);
+    case COMPLEX:
+      if (jpaOperation.getResultParameter().isCollection()) {
+        return new Property(null, RESULT, ValueType.COLLECTION_COMPLEX, createComplexCollection(
+            (EdmComplexType) returnType, result));
+      } else if (result == null) {
+        return null;
+      }
+      return new Property(null, RESULT, ValueType.COMPLEX, createComplexValue((EdmComplexType) returnType,
+          result));
+    default:
+      break;
     }
     return null;
   }
@@ -120,14 +121,18 @@ abstract class JPAOperationRequestProcessor extends JPAAbstractRequestProcessor 
   }
 
   protected void serializeResult(final EdmType returnType, final ODataResponse response,
-      final ContentType responseFormat, final Annotatable result)
+      final ContentType responseFormat, final Annotatable result, final ODataRequest request)
       throws ODataJPASerializerException, SerializerException {
 
-    if (result != null || result instanceof EntityCollection && !((EntityCollection) result).getEntities().isEmpty()) {
-      final SerializerResult serializerResult = ((JPAOperationSerializer) serializer).serialize(result, returnType);
+    if (result != null
+        && !(result instanceof EntityCollection && ((EntityCollection) result).getEntities().isEmpty())) {
+
+      final SerializerResult serializerResult = ((JPAOperationSerializer) serializer).serialize(result, returnType,
+          request);
       createSuccessResponce(response, responseFormat, serializerResult);
-    } else
+    } else {
       response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
+    }
   }
 
 }

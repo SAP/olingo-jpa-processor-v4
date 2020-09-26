@@ -32,6 +32,14 @@ public class NavigationAttributeProtected {
   @EdmProtectedBy(name = "WrongAnnotation")
   private List<Team> teams;
 
+  public String getID() {
+    return iD;
+  }
+
+  public void setID(final String iD) {
+    this.iD = iD;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -41,7 +49,7 @@ public class NavigationAttributeProtected {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) return true;
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;

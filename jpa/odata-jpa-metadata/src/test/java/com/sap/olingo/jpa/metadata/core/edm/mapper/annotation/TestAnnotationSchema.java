@@ -4,11 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
-import java.net.URI;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 
@@ -28,74 +27,60 @@ import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
-public class TestSchemaReader {
-  private SchemaReader cut;
+public class TestAnnotationSchema {
+  private static final String AGGREGATION_ANNOTATIONS = "annotations/Org.OData.Aggregation.V1.xml";
+  private static final String CAPABILITIES_ANNOTATIONS = "annotations/Org.OData.Capabilities.V1.xml";
+  private static final String TEST_ANNOTATIONS = "annotations/Org.Olingo.Test.V1.xml";
+  private static final String CORE_ANNOTATIONS = "annotations/Org.OData.Core.V1.xml";
+  private CsdlDocument cutCore;
+  private CsdlDocument cutTest;
+  private CsdlDocument cutCapabilities;
+  private CsdlDocument cutAggregation;
+  private Charset charset;
 
   @BeforeEach
-  public void setup() {
-    cut = new SchemaReader();
+  public void setup() throws ODataJPAModelException, IOException {
+    final CsdlDocumentReader reader = new CsdlDocumentReader();
+    charset = Charset.defaultCharset();
+    cutCore = reader.readFromResource(CORE_ANNOTATIONS, charset);
+    cutTest = reader.readFromResource(TEST_ANNOTATIONS, charset);
+    cutCapabilities = reader.readFromResource(CAPABILITIES_ANNOTATIONS, charset);
+    cutAggregation = reader.readFromResource(AGGREGATION_ANNOTATIONS, charset);
   }
 
   @Test
-  public void testReadXMLWithNullPath() throws ODataJPAModelException, IOException {
-    final String nullString = null;
-    assertNull(cut.getSchemas(nullString));
-  }
+  public void testGetAliasFromPath() throws IOException, ODataJPAModelException {
 
-  @Test
-  public void testReadXMLWithEmptyPath() throws ODataJPAModelException, IOException {
-    final String emptyString = new String();
-    assertNull(cut.getSchemas(emptyString));
-  }
-
-  @Test
-  public void testReadXMLWithNullURI() throws ODataJPAModelException, IOException {
-    final URI nullURI = null;
-    assertNull(cut.getSchemas(nullURI));
-  }
-
-  @Test
-  public void TestGetNamespaceFromPath() throws IOException, ODataJPAModelException {
-    Map<String, ? extends CsdlSchema> act;
-    act = cut.getSchemas("annotations/Org.OData.Core.V1.xml");
+    final Map<String, ? extends CsdlSchema> act = cutCore.getSchemas();
     assertNotNull(act.get("Org.OData.Core.V1"));
-    CsdlSchema schema = act.get("Org.OData.Core.V1");
-    assertEquals("Org.OData.Core.V1", schema.getNamespace());
-  }
-
-  @Test
-  public void TestGetAliasFromPath() throws IOException, ODataJPAModelException {
-    Map<String, ? extends CsdlSchema> act;
-    act = cut.getSchemas("annotations/Org.OData.Core.V1.xml");
-    assertNotNull(act.get("Org.OData.Core.V1"));
-    CsdlSchema schema = act.get("Org.OData.Core.V1");
+    final CsdlSchema schema = act.get("Org.OData.Core.V1");
     assertEquals("Core", schema.getAlias());
   }
 
   @Test
-  public void TestGetTermsFromPath() throws IOException, ODataJPAModelException {
-    Map<String, ? extends CsdlSchema> act;
-    act = cut.getSchemas("annotations/Org.OData.Core.V1.xml");
+  public void testGetTermsFromPath() throws IOException, ODataJPAModelException {
+
+    final Map<String, ? extends CsdlSchema> act = cutCore.getSchemas();
     assertNotNull(act.get("Org.OData.Core.V1"));
-    CsdlSchema schema = act.get("Org.OData.Core.V1");
-    assertEquals(15, schema.getTerms().size());
+    final CsdlSchema schema = act.get("Org.OData.Core.V1");
+    assertEquals(28, schema.getTerms().size());
   }
 
   @Test
-  public void TestGetTypeDefinitionFromPath() throws IOException, ODataJPAModelException {
-    Map<String, ? extends CsdlSchema> act;
-    act = cut.getSchemas("annotations/Org.OData.Core.V1.xml");
+  public void testGetTypeDefinitionFromPath() throws IOException, ODataJPAModelException {
+
+    final Map<String, ? extends CsdlSchema> act = cutCore.getSchemas();
     assertNotNull(act.get("Org.OData.Core.V1"));
-    CsdlSchema schema = act.get("Org.OData.Core.V1");
-    assertEquals(1, schema.getTypeDefinitions().size());
+    final CsdlSchema schema = act.get("Org.OData.Core.V1");
+    assertEquals(4, schema.getTypeDefinitions().size());
     assertNotNull(schema.getTypeDefinition("Tag"));
     assertEquals("Edm.Boolean", schema.getTypeDefinition("Tag").getUnderlyingType());
   }
 
   @Test
-  public void TestGetTypeDefinitions() throws IOException, ODataJPAModelException {
-    final CsdlSchema act = cut.getSchemas("annotations/Org.Olingo.Test.V1.xml")
-        .get("Org.OData.Capabilities.V1");
+  public void testGetTypeDefinitions() throws IOException, ODataJPAModelException {
+
+    final CsdlSchema act = cutTest.getSchemas().get("Org.OData.Capabilities.V1");
     assertEquals(3, act.getTypeDefinitions().size());
 
     assertNotNull(act.getTypeDefinition("TestTypeDecimal"));
@@ -121,36 +106,21 @@ public class TestSchemaReader {
   }
 
   @Test
-  public void TestGetEnumSchemaFromPath() throws IOException, ODataJPAModelException {
-    Map<String, ? extends CsdlSchema> act;
-    act = cut.getSchemas("annotations/Org.OData.Core.V1.xml");
+  public void testGetEnumSchemaFromPath() throws IOException, ODataJPAModelException {
+
+    final Map<String, ? extends CsdlSchema> act = cutCore.getSchemas();
     assertNotNull(act.get("Org.OData.Core.V1"));
-    CsdlSchema schema = act.get("Org.OData.Core.V1");
+    final CsdlSchema schema = act.get("Org.OData.Core.V1");
     assertEquals(1, schema.getEnumTypes().size());
     assertNotNull(schema.getEnumType("Permission"));
-    assertEquals(3, schema.getEnumType("Permission").getMembers().size());
+    assertEquals(5, schema.getEnumType("Permission").getMembers().size());
     assertEquals("3", schema.getEnumType("Permission").getMember("ReadWrite").getValue());
   }
 
   @Test
-  public void TestThrowsExceptionOnUnknownPath() throws IOException, ODataJPAModelException {
-    assertThrows(ODataJPAModelException.class, () -> {
-      cut.getSchemas("annotations/Org.OData.Core.V2.xml");
-    });
-  }
+  public void testGetSimpleComplexTypes() throws IOException, ODataJPAModelException {
 
-  @Test
-  public void TestThrowsExceptionOnEmptyXML() throws IOException, ODataJPAModelException {
-
-    assertThrows(IOException.class, () -> {
-      cut.getSchemas("annotations/empty.xml");
-    });
-  }
-
-  @Test
-  public void TestGetSimpleComplexTypes() throws IOException, ODataJPAModelException {
-    final Map<String, ? extends CsdlSchema> act;
-    act = cut.getSchemas("annotations/Org.Olingo.Test.V1.xml");
+    final Map<String, ? extends CsdlSchema> act = cutTest.getSchemas();
     assertEquals(2, act.size());
     assertTrue(act.containsKey("Org.OData.Capabilities.V1"));
     final CsdlSchema actSchema = act.get("Org.OData.Capabilities.V1");
@@ -167,22 +137,22 @@ public class TestSchemaReader {
   }
 
   @Test
-  public void TestGetDeepComplexTypes() throws IOException, ODataJPAModelException {
-    final CsdlComplexType actCt = cut.getSchemas("annotations/Org.Olingo.Test.V1.xml")
+  public void testGetDeepComplexTypes() throws IOException, ODataJPAModelException {
+    final CsdlComplexType actCt = cutTest.getSchemas()
         .get("Org.OData.Capabilities.V1").getComplexType("TestType");
     assertNotNull(actCt);
     assertEquals(5, actCt.getProperties().size());
     assertTrue(actCt.isAbstract());
     assertTrue(actCt.isOpenType());
     assertNotNull(actCt.getBaseType());
-    assertEquals("Core.Unknow", actCt.getBaseType());
-    assertEquals("Core.Unknow", actCt.getBaseTypeFQN().getFullQualifiedNameAsString());
+    assertEquals("Core.Unknown", actCt.getBaseType());
+    assertEquals("Core.Unknown", actCt.getBaseTypeFQN().getFullQualifiedNameAsString());
     assertEquals(0, actCt.getAnnotations().size()); // Annotations are ignored
   }
 
   @Test
-  public void TestGetSimpleProperty() throws IOException, ODataJPAModelException {
-    final CsdlComplexType actCt = cut.getSchemas("annotations/Org.Olingo.Test.V1.xml")
+  public void testGetSimpleProperty() throws IOException, ODataJPAModelException {
+    final CsdlComplexType actCt = cutTest.getSchemas()
         .get("Org.OData.Capabilities.V1").getComplexType("TestType");
     final CsdlProperty actProperty = actCt.getProperty("Deletable");
     assertNotNull(actProperty);
@@ -197,8 +167,8 @@ public class TestSchemaReader {
   }
 
   @Test
-  public void TestGetDecimalProperty() throws IOException, ODataJPAModelException {
-    final CsdlComplexType actCt = cut.getSchemas("annotations/Org.Olingo.Test.V1.xml")
+  public void testGetDecimalProperty() throws IOException, ODataJPAModelException {
+    final CsdlComplexType actCt = cutTest.getSchemas()
         .get("Org.OData.Capabilities.V1").getComplexType("TestType");
     final CsdlProperty actProperty = actCt.getProperty("TestDecimals");
     assertNotNull(actProperty);
@@ -213,8 +183,8 @@ public class TestSchemaReader {
   }
 
   @Test
-  public void TestGetStringProperty() throws IOException, ODataJPAModelException {
-    final CsdlComplexType actCt = cut.getSchemas("annotations/Org.Olingo.Test.V1.xml")
+  public void testGetStringProperty() throws IOException, ODataJPAModelException {
+    final CsdlComplexType actCt = cutTest.getSchemas()
         .get("Org.OData.Capabilities.V1").getComplexType("TestType");
     final CsdlProperty actProperty = actCt.getProperty("TestString");
     assertNotNull(actProperty);
@@ -229,8 +199,8 @@ public class TestSchemaReader {
   }
 
   @Test
-  public void TestGetGeoProperty() throws IOException, ODataJPAModelException {
-    final CsdlComplexType actCt = cut.getSchemas("annotations/Org.Olingo.Test.V1.xml")
+  public void testGetGeoProperty() throws IOException, ODataJPAModelException {
+    final CsdlComplexType actCt = cutTest.getSchemas()
         .get("Org.OData.Capabilities.V1").getComplexType("TestType");
     final CsdlProperty actProperty = actCt.getProperty("TestGeo");
     assertNotNull(actProperty);
@@ -246,8 +216,8 @@ public class TestSchemaReader {
   }
 
   @Test
-  public void TestGetCollectionProperty() throws IOException, ODataJPAModelException {
-    final CsdlComplexType actCt = cut.getSchemas("annotations/Org.Olingo.Test.V1.xml")
+  public void testGetCollectionProperty() throws IOException, ODataJPAModelException {
+    final CsdlComplexType actCt = cutTest.getSchemas()
         .get("Org.OData.Capabilities.V1").getComplexType("TestType");
     final CsdlProperty actProperty = actCt.getProperty("NonDeletableNavigationProperties");
     assertNotNull(actProperty);
@@ -257,15 +227,15 @@ public class TestSchemaReader {
   }
 
   @Test
-  public void TestGetEnum() throws IOException, ODataJPAModelException {
-    final CsdlSchema act = cut.getSchemas("annotations/Org.OData.Capabilities.V1.xml")
+  public void testGetEnum() throws IOException, ODataJPAModelException {
+    final CsdlSchema act = cutCapabilities.getSchemas()
         .get("Org.OData.Capabilities.V1");
     assertEquals(4, act.getEnumTypes().size());
   }
 
   @Test
-  public void TestGetEnumNotAsFlags() throws IOException, ODataJPAModelException {
-    final CsdlEnumType actEnum = cut.getSchemas("annotations/Org.OData.Aggregation.V1.xml")
+  public void testGetEnumNotAsFlags() throws IOException, ODataJPAModelException {
+    final CsdlEnumType actEnum = cutAggregation.getSchemas()
         .get("Org.OData.Aggregation.V1").getEnumType("RollupType");
     assertNotNull(actEnum);
     assertEquals(3, actEnum.getMembers().size());
@@ -275,8 +245,8 @@ public class TestSchemaReader {
   }
 
   @Test
-  public void TestGetEnumAsFlags() throws IOException, ODataJPAModelException {
-    final CsdlEnumType actEnum = cut.getSchemas("annotations/Org.OData.Capabilities.V1.xml")
+  public void testGetEnumAsFlags() throws IOException, ODataJPAModelException {
+    final CsdlEnumType actEnum = cutCapabilities.getSchemas()
         .get("Org.OData.Capabilities.V1").getEnumType("IsolationLevel");
     assertNotNull(actEnum);
     assertEquals(1, actEnum.getMembers().size());
@@ -289,15 +259,15 @@ public class TestSchemaReader {
   }
 
   @Test
-  public void TestGetFunctions() throws IOException, ODataJPAModelException {
-    final CsdlSchema act = cut.getSchemas("annotations/Org.OData.Aggregation.V1.xml")
+  public void testGetFunctions() throws IOException, ODataJPAModelException {
+    final CsdlSchema act = cutAggregation.getSchemas()
         .get("Org.OData.Aggregation.V1");
     assertEquals(5, act.getFunctions().size());
   }
 
   @Test
-  public void TestGetFunctionAttributes() throws IOException, ODataJPAModelException {
-    final List<CsdlFunction> act = cut.getSchemas("annotations/Org.OData.Aggregation.V1.xml")
+  public void testGetFunctionAttributes() throws IOException, ODataJPAModelException {
+    final List<CsdlFunction> act = cutAggregation.getSchemas()
         .get("Org.OData.Aggregation.V1").getFunctions("isleaf");
     assertEquals(1, act.size());
     final CsdlFunction actFunc = act.get(0);
@@ -309,8 +279,8 @@ public class TestSchemaReader {
   }
 
   @Test
-  public void TestGetFunctionParameter() throws IOException, ODataJPAModelException {
-    final List<CsdlFunction> act = cut.getSchemas("annotations/Org.OData.Aggregation.V1.xml")
+  public void testGetFunctionParameter() throws IOException, ODataJPAModelException {
+    final List<CsdlFunction> act = cutAggregation.getSchemas()
         .get("Org.OData.Aggregation.V1").getFunctions("isancestor");
 
     final CsdlFunction actFunc = act.get(0);
@@ -326,8 +296,8 @@ public class TestSchemaReader {
   }
 
   @Test
-  public void TestGetFunctionParameterFacet() throws IOException, ODataJPAModelException {
-    final List<CsdlFunction> act = cut.getSchemas("annotations/Org.Olingo.Test.V1.xml")
+  public void testGetFunctionParameterFacet() throws IOException, ODataJPAModelException {
+    final List<CsdlFunction> act = cutTest.getSchemas()
         .get("Org.OData.Capabilities.V1").getFunctions("TestTheRest1");
 
     final CsdlFunction actFunc = act.get(0);
@@ -349,8 +319,8 @@ public class TestSchemaReader {
   }
 
   @Test
-  public void TestGetFunctionReturnType() throws IOException, ODataJPAModelException {
-    final List<CsdlFunction> act = cut.getSchemas("annotations/Org.OData.Aggregation.V1.xml")
+  public void testGetFunctionReturnType() throws IOException, ODataJPAModelException {
+    final List<CsdlFunction> act = cutAggregation.getSchemas()
         .get("Org.OData.Aggregation.V1").getFunctions("isancestor");
 
     final CsdlFunction actFunc = act.get(0);
@@ -366,8 +336,8 @@ public class TestSchemaReader {
   }
 
   @Test
-  public void TestGetFunctionReturnTypeFacet() throws IOException, ODataJPAModelException {
-    final List<CsdlFunction> act = cut.getSchemas("annotations/Org.Olingo.Test.V1.xml")
+  public void testGetFunctionReturnTypeFacet() throws IOException, ODataJPAModelException {
+    final List<CsdlFunction> act = cutTest.getSchemas()
         .get("Org.OData.Capabilities.V1").getFunctions("TestTheRest1");
 
     final CsdlFunction actFunc = act.get(0);
@@ -384,15 +354,15 @@ public class TestSchemaReader {
   }
 
   @Test
-  public void TestGetActionss() throws IOException, ODataJPAModelException {
-    final List<CsdlAction> act = cut.getSchemas("annotations/Org.Olingo.Test.V1.xml")
+  public void testGetActionss() throws IOException, ODataJPAModelException {
+    final List<CsdlAction> act = cutTest.getSchemas()
         .get("Org.OData.Capabilities.V1").getActions();
     assertEquals(2, act.size());
   }
 
   @Test
-  public void TestGetActionParameter() throws IOException, ODataJPAModelException {
-    final List<CsdlAction> act = cut.getSchemas("annotations/Org.Olingo.Test.V1.xml")
+  public void testGetActionParameter() throws IOException, ODataJPAModelException {
+    final List<CsdlAction> act = cutTest.getSchemas()
         .get("Org.OData.Capabilities.V1").getActions("UpsertTimeExample");
 
     final CsdlAction actAction = act.get(0);
@@ -407,8 +377,8 @@ public class TestSchemaReader {
   }
 
   @Test
-  public void TestGetActionReturnType() throws IOException, ODataJPAModelException {
-    final List<CsdlAction> act = cut.getSchemas("annotations/Org.Olingo.Test.V1.xml")
+  public void testGetActionReturnType() throws IOException, ODataJPAModelException {
+    final List<CsdlAction> act = cutTest.getSchemas()
         .get("Org.OData.Capabilities.V1").getActions("UpsertTimeExample");
 
     final CsdlAction actAction = act.get(0);

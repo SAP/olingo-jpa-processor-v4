@@ -1,6 +1,9 @@
 language: java
 # for an overview see https://docs.travis-ci.com/user/reference/overview/
-sudo: false
+
+os:
+ - linux
+ 
 dist: trusty
 
 cache:
@@ -17,8 +20,8 @@ jobs:
         - name: "JDK: openjdk11"
           jdk: openjdk11
           script: cd ./jpa && mvn -q verify
-        - name: "JDK: openjdk12"
-          jdk: openjdk12
+        - name: "JDK: openjdk14"
+          jdk: openjdk14
           script: cd ./jpa && mvn -q verify          
         - name: "JDK: oraclejdk8"
           jdk: oraclejdk8
@@ -28,3 +31,7 @@ branches:
     only:
         - master
         - develop
+notifications:
+  email:
+    on_success: change
+    on_failure: always        

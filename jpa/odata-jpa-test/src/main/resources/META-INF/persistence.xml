@@ -35,14 +35,17 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Country</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.CountryKey</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DateConverter</class>
+        <class>com.sap.olingo.jpa.processor.core.testmodel.DateTimeConverter</class>		
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DeepProtectedExample</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DummyEmbeddedToIgnore</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DummyToBeIgnored</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.Group</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.InhouseAddress</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.InhouseAddressTable</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.InhouseAddressWithProtection</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.InhouseAddressWithThreeProtections</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.InhouseAddressWithGroup</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.InstanceRestrictionKey</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.JoinComplex</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.JoinRelation</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.JoinSource</class>
@@ -57,8 +60,10 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.PostalAddressData</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.PostalAddressDataWithGroup</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.StringConverter</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.SalesTeam</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.SupportRelationship</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Team</class>
+	    <exclude-unlisted-classes>true</exclude-unlisted-classes>
 		<properties>
 			<property name="javax.persistence.validation.mode" value="NONE" />
 			<property name="eclipselink.logging.level.sql" value="WARNING"  />

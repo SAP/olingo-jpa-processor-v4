@@ -1,4 +1,4 @@
-package com.sap.olingo.jpa.processor.core.util;
+package com.sap.olingo.jpa.processor.core.util.matcher;
 
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.mockito.ArgumentMatcher;

@@ -158,6 +158,7 @@ public class JPAODataGetHandler {
     handler.register(new JPAODataBatchProcessor(requestContext));
     handler.register(serviceContext.getEdmProvider().getServiceDocument());
     handler.register(serviceContext.getErrorProcessor());
+    handler.register(new JPAODataServiceDocumentProcessor(serviceContext));
     handler.process(mappedRequest, response);
   }
 

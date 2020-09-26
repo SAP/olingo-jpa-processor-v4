@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.COMPLEX_PROPERTY_MISSING_PROTECTION_PATH;
+import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.PROPERTY_PRECISION_NOT_IN_RANGE;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.ParameterizedType;
@@ -56,11 +57,13 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropert
 abstract class IntermediateProperty extends IntermediateModelElement implements IntermediatePropertyAccess,
     JPAAttribute {
 
+  private static final int UPPER_LIMIT_PRECISION_TEMP = 12;
+  private static final int LOWER_LIMIT_PRECISION_TEMP = 0;
   private static final String DB_FIELD_NAME_PATTERN = "\"&1\"";
   protected final Attribute<?, ?> jpaAttribute;
   protected final IntermediateSchema schema;
   protected CsdlProperty edmProperty;
-  protected IntermediateStructuredType type;
+  protected IntermediateStructuredType<?> type;
   protected AttributeConverter<?, ?> valueConverter;
   protected String dbFieldName;
   protected Class<?> dbType;
@@ -82,7 +85,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
   }
 
   @Override
-  public void addAnnotations(List<CsdlAnnotation> annotations) {
+  public void addAnnotations(final List<CsdlAnnotation> annotations) {
     edmAnnotations.addAll(annotations);
   }
 
@@ -171,7 +174,8 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
     getAnnotations(edmAnnotations, this.jpaAttribute.getJavaMember(), internalName, AppliesTo.PROPERTY);
   }
 
-  protected FullQualifiedName determineTypeByPersistanceType(Enum<?> persistanceType) throws ODataJPAModelException {
+  protected FullQualifiedName determineTypeByPersistanceType(final Enum<?> persistanceType)
+      throws ODataJPAModelException {
     if (persistanceType == PersistentAttributeType.BASIC || persistanceType == PersistenceType.BASIC) {
       final IntermediateModelElement odataType = getODataPrimitiveType();
       if (odataType == null)
@@ -215,7 +219,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
 
   CsdlMapping createMapper() {
     if (!isLob() && !(getConverter() == null && isEnum())) {
-      CsdlMapping mapping = new CsdlMapping();
+      final CsdlMapping mapping = new CsdlMapping();
       mapping.setInternalName(this.getExternalName());
       mapping.setMappedJavaClass(dbType);
       return mapping;
@@ -332,28 +336,58 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
           if (isLob())
             edmProperty.setMaxLength(null);
         } else if (edmProperty.getType()
-            .equals(EdmPrimitiveTypeKind.Decimal.getFullQualifiedName().toString())
-            || edmProperty.getType()
-                .equals(EdmPrimitiveTypeKind.DateTimeOffset.getFullQualifiedName().toString())
-            || edmProperty.getType()
-                .equals(EdmPrimitiveTypeKind.TimeOfDay.getFullQualifiedName().toString())) {
-          // For a decimal property the value of this attribute specifies the maximum number of digits allowed in the
-          // properties value; it MUST be a positive integer. If no value is specified, the decimal property has
-          // unspecified precision. For a temporal property the value of this attribute specifies the number of decimal
-          // places allowed in the seconds portion of the property's value; it MUST be a non-negative integer between
-          // zero and twelve. If no value is specified, the temporal property has a precision of zero.
-          if (jpaColumn.precision() > 0)
-            edmProperty.setPrecision(jpaColumn.precision());
-          else if (edmProperty.getType().equals(EdmPrimitiveTypeKind.DateTimeOffset.getFullQualifiedName().toString())
-              && jpaColumn.precision() == 0)
-            throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.PROPERTY_MISSING_PRECISION,
-                jpaAttribute.getName());
-          if (edmProperty.getType().equals(EdmPrimitiveTypeKind.Decimal.getFullQualifiedName().toString())
-              && jpaColumn.scale() > 0)
-            edmProperty.setScale(jpaColumn.scale());
+            .equals(EdmPrimitiveTypeKind.Decimal.getFullQualifiedName().toString())) {
+          setPrecisionScale(jpaColumn);
+        } else {
+          setPrecisionScaleTemporal(jpaColumn);
         }
       }
     }
+  }
+
+  /**
+   * For a temporal property the value of this attribute specifies the number of decimal
+   * places allowed in the seconds portion of the property's value; it MUST be a non-negative integer between
+   * zero and twelve. If no value is specified, the temporal property has a precision of zero.<br>
+   * See: <a href="https://docs.oasis-open.org/odata/odata-csdl-xml/v4.01/odata-csdl-xml-v4.01.html#_Toc38530360">7.2.3
+   * Precision</a>
+   * @param jpaColumn
+   * @throws ODataJPAModelException
+   */
+  private void setPrecisionScaleTemporal(final Column jpaColumn) throws ODataJPAModelException {
+    if (edmProperty.getType()
+        .equals(EdmPrimitiveTypeKind.DateTimeOffset.getFullQualifiedName().toString())
+        || edmProperty.getType()
+            .equals(EdmPrimitiveTypeKind.TimeOfDay.getFullQualifiedName().toString())
+        || edmProperty.getType()
+            .equals(EdmPrimitiveTypeKind.Duration.getFullQualifiedName().toString())) {
+      if (jpaColumn.precision() < LOWER_LIMIT_PRECISION_TEMP || jpaColumn.precision() > UPPER_LIMIT_PRECISION_TEMP) {
+        // The type of property '%1$s' requires a precision between 0 and 12, but was '%2$s'.
+        throw new ODataJPAModelException(PROPERTY_PRECISION_NOT_IN_RANGE, jpaAttribute.getName(), Integer.toString(
+            jpaColumn.precision()));
+      } else {
+        edmProperty.setPrecision(jpaColumn.precision());
+      }
+    }
+  }
+
+  /**
+   * Sets Precision and Scale for a Decimal:<br>
+   * For a decimal property the value of this attribute specifies the maximum number of digits allowed in the
+   * properties value; it MUST be a positive integer. If no value is specified, the decimal property has
+   * unspecified precision. <br>
+   * See: <a href="https://docs.oasis-open.org/odata/odata-csdl-xml/v4.01/odata-csdl-xml-v4.01.html#_Toc38530360">7.2.3
+   * Precision</a>
+   * @param jpaColumn
+   * @throws ODataJPAModelException
+   */
+  private void setPrecisionScale(final Column jpaColumn) throws ODataJPAModelException {
+    if (jpaColumn.precision() > 0)
+      edmProperty.setPrecision(jpaColumn.precision());
+    if (edmProperty.getType().equals(EdmPrimitiveTypeKind.Decimal.getFullQualifiedName().toString())
+        && jpaColumn.scale() > 0)
+      edmProperty.setScale(jpaColumn.scale());
+
   }
 
   /**
@@ -363,8 +397,8 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
    */
   private String convertPath(final String internalPath) {
 
-    String[] pathSegments = internalPath.split(JPAPath.PATH_SEPERATOR);
-    StringBuilder externalPath = new StringBuilder();
+    final String[] pathSegments = internalPath.split(JPAPath.PATH_SEPERATOR);
+    final StringBuilder externalPath = new StringBuilder();
     for (final String segement : pathSegments) {
       externalPath.append(nameBuilder.buildPropertyName(segement));
       externalPath.append(JPAPath.PATH_SEPERATOR);
@@ -391,7 +425,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
   }
 
   /**
-   * 
+   *
    */
   private void determineFieldGroups() {
     final EdmVisibleFor jpaFieldGroups = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
@@ -415,15 +449,15 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
         .getAnnotation(Convert.class);
     if (jpaConverter != null) {
       try {
-        Type[] convType = jpaConverter.converter().getGenericInterfaces();
-        Type[] types = ((ParameterizedType) convType[0]).getActualTypeArguments();
+        final Type[] convType = jpaConverter.converter().getGenericInterfaces();
+        final Type[] types = ((ParameterizedType) convType[0]).getActualTypeArguments();
         entityType = (Class<?>) types[0];
         dbType = (Class<?>) types[1];
         if (!JPATypeConvertor.isSupportedByOlingo(entityType))
           valueConverter = (AttributeConverter<?, ?>) jpaConverter.converter().newInstance();
       } catch (InstantiationException | IllegalAccessException e) {
         throw new ODataJPAModelException(
-            ODataJPAModelException.MessageKeys.TYPE_MAPPER_COULD_NOT_INSANTIATE, e);
+            ODataJPAModelException.MessageKeys.TYPE_MAPPER_COULD_NOT_INSTANTIATED, e);
       }
     }
   }
@@ -437,7 +471,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
     else
       externalNames = new ArrayList<>(2);
     if (jpaAttribute.getPersistentAttributeType() == Attribute.PersistentAttributeType.EMBEDDED) {
-      String internalProtectedPath = jpaProtectedBy.path();
+      final String internalProtectedPath = jpaProtectedBy.path();
       if (internalProtectedPath.length() == 0) {
         throw new ODataJPAModelException(COMPLEX_PROPERTY_MISSING_PROTECTION_PATH, this.managedType.getJavaType()
             .getCanonicalName(), this.internalName);
