@@ -1,4 +1,4 @@
-package com.sap.olingo.jpa.processor.core.api;
+package com.sap.olingo.jpa.processor.core.processor;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;

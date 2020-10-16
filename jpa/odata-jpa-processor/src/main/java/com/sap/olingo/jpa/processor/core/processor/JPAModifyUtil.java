@@ -127,7 +127,7 @@ public final class JPAModifyUtil {
    * Fills instance without filling its embedded components.
    * 
    * @param jpaAttributes Map of attributes and values that shall be changed
-   * @param instanze JPA POJO instance to take the changes
+   * @param instance JPA POJO instance to take the changes
    * @param st Entity Type
    * @throws ODataJPAProcessorException Thrown when ever a problem with invoking a getter or setter occurs except
    * InvocationTargetException occurs.
@@ -135,9 +135,9 @@ public final class JPAModifyUtil {
    * ODataJPAInvocationTargetException contains the original cause and the OData path to the property which should be
    * changed. The path starts with the entity type. The path parts a separated by {@code JPAPath.PATH_SEPERATOR}.
    */
-  public void setAttributes(final Map<String, Object> jpaAttributes, final Object instanze, final JPAStructuredType st)
+  public void setAttributes(final Map<String, Object> jpaAttributes, final Object instance, final JPAStructuredType st)
       throws ODataJPAProcessorException, ODataJPAInvocationTargetException {
-    final Method[] methods = instanze.getClass().getMethods();
+    final Method[] methods = instance.getClass().getMethods();
     for (final Method meth : methods) {
       if (meth.getName().substring(0, 3).equals("set")) {
         final String attributeName = meth.getName().substring(3, 4).toLowerCase(Locale.ENGLISH) + meth.getName()
@@ -148,7 +148,7 @@ public final class JPAModifyUtil {
             try {
               final Class<?>[] parameters = meth.getParameterTypes();
               if (parameters.length == 1 && (value == null || value.getClass() == parameters[0])) {
-                meth.invoke(instanze, value);
+                meth.invoke(instance, value);
               }
             } catch (IllegalAccessException | IllegalArgumentException e) {
               throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
@@ -175,7 +175,7 @@ public final class JPAModifyUtil {
    * provided a new one is created and set.
    * 
    * @param jpaAttributes Map of attributes and values that shall be changed
-   * @param instanze JPA POJO instance to take the changes
+   * @param instance JPA POJO instance to take the changes
    * @param st Entity Type
    * @throws ODataJPAProcessorException Thrown when ever a problem with invoking a getter or setter occurs except
    * InvocationTargetException occurs.
@@ -183,10 +183,10 @@ public final class JPAModifyUtil {
    * ODataJPAInvocationTargetException contains the original cause and the OData path to the property which should be
    * changed. The path starts with the entity type. The path parts a separated by {@code JPAPath.PATH_SEPERATOR}.
    */
-  public void setAttributesDeep(final Map<String, Object> jpaAttributes, final Object instanze,
+  public void setAttributesDeep(final Map<String, Object> jpaAttributes, final Object instance,
       final JPAStructuredType st) throws ODataJPAProcessorException, ODataJPAInvocationTargetException {
 
-    final Method[] methods = instanze.getClass().getMethods();
+    final Method[] methods = instance.getClass().getMethods();
     for (final Method meth : methods) {
       if (meth.getName().substring(0, 3).equals("set")) {
         final String attributeName = meth.getName().substring(3, 4).toLowerCase() + meth.getName().substring(4);
@@ -194,7 +194,7 @@ public final class JPAModifyUtil {
           final Object value = jpaAttributes.get(attributeName);
           final Class<?>[] parameters = meth.getParameterTypes();
           if (!(value instanceof JPARequestEntity) && parameters.length == 1) {
-            setAttributeDeep(instanze, st, meth, attributeName, value, parameters);
+            setAttributeDeep(instance, st, meth, attributeName, value, parameters);
           }
         }
       }
@@ -212,8 +212,8 @@ public final class JPAModifyUtil {
   public void setForeignKey(final Object parentInstance, final Object newInstance, final JPAAssociationPath pathInfo)
       throws ODataJPAProcessorException {
     try {
-      for (final JPAOnConditionItem joinCloumn : pathInfo.getJoinColumnsList()) {
-        setAttribute(newInstance, joinCloumn.getRightPath().getLeaf(), getAttribute(parentInstance, joinCloumn
+      for (final JPAOnConditionItem joinColumn : pathInfo.getJoinColumnsList()) {
+        setAttribute(newInstance, joinColumn.getRightPath().getLeaf(), getAttribute(parentInstance, joinColumn
             .getLeftPath().getLeaf()));
       }
     } catch (ODataJPAModelException | NoSuchMethodException | IllegalAccessException | IllegalArgumentException
@@ -347,7 +347,7 @@ public final class JPAModifyUtil {
     setter.invoke(instance, value);
   }
 
-  private void setAttributeDeep(final Object instanze, final JPAStructuredType st, final Method meth,
+  private void setAttributeDeep(final Object instance, final JPAStructuredType st, final Method meth,
       final String attributeName, final Object value, final Class<?>[] parameters) throws ODataJPAProcessorException,
       ODataJPAInvocationTargetException {
     try {
@@ -356,12 +356,12 @@ public final class JPAModifyUtil {
               HttpStatusCode.INTERNAL_SERVER_ERROR, attributeName));
       if (!attribute.isComplex() || value == null) {
         if (value == null || parameters[0].isAssignableFrom(value.getClass())) {
-          meth.invoke(instanze, value);
+          meth.invoke(instance, value);
         }
       } else if (attribute.isCollection()) {
-        setEmbeddedCollectionAttributeDeep(instanze, st, meth, value, parameters, attribute);
+        setEmbeddedCollectionAttributeDeep(instance, st, meth, value, parameters, attribute);
       } else {
-        setEmbeddedAttributeDeep(instanze, st, meth, value, parameters, attribute);
+        setEmbeddedAttributeDeep(instance, st, meth, value, parameters, attribute);
       }
     } catch (IllegalAccessException | IllegalArgumentException | ODataJPAModelException
         | NoSuchMethodException | SecurityException | InstantiationException e) {
@@ -372,15 +372,15 @@ public final class JPAModifyUtil {
   }
 
   @SuppressWarnings("unchecked")
-  private void setEmbeddedAttributeDeep(final Object instanze, final JPAStructuredType st, final Method meth,
+  private void setEmbeddedAttributeDeep(final Object instance, final JPAStructuredType st, final Method meth,
       final Object value, final Class<?>[] parameters, final JPAAttribute attribute)
       throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException,
       ODataJPAModelException, ODataJPAProcessorException, ODataJPAInvocationTargetException {
 
-    Object embedded = readCurrentState(instanze, attribute);
+    Object embedded = readCurrentState(instance, attribute);
     if (embedded == null) {
       embedded = createInstance(parameters[0]);
-      meth.invoke(instanze, embedded);
+      meth.invoke(instance, embedded);
     }
     if (embedded != null) {
       if (this.st == null)
@@ -393,12 +393,12 @@ public final class JPAModifyUtil {
   }
 
   @SuppressWarnings("unchecked")
-  private void setEmbeddedCollectionAttributeDeep(final Object instanze, final JPAStructuredType st, final Method meth,
+  private void setEmbeddedCollectionAttributeDeep(final Object instance, final JPAStructuredType st, final Method meth,
       final Object value, final Class<?>[] parameters, final JPAAttribute attribute)
       throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException,
       ODataJPAModelException, ODataJPAProcessorException, ODataJPAInvocationTargetException {
 
-    Collection<Object> embedded = (Collection<Object>) readCurrentState(instanze, attribute);
+    Collection<Object> embedded = (Collection<Object>) readCurrentState(instance, attribute);
     if (embedded == null) {
       // List; Set; Queue
       if (parameters[0].isAssignableFrom(List.class)) {
@@ -406,7 +406,7 @@ public final class JPAModifyUtil {
       } else {
         embedded = (Collection<Object>) createInstance(parameters[0]);
       }
-      meth.invoke(instanze, embedded);
+      meth.invoke(instance, embedded);
     }
     if (embedded != null) {
       if (this.st == null)

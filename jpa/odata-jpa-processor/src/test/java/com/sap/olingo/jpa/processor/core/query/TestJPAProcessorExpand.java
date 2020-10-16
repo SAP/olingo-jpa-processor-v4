@@ -65,8 +65,8 @@ public class TestJPAProcessorExpand extends TestBase {
         "AdministrativeDivisions(DivisionCode='BE25',CodeID='NUTS2',CodePublisher='Eurostat')?$expand=Parent");
     helper.assertStatus(200);
 
-    final ObjectNode divsion = helper.getValue();
-    final ObjectNode parent = (ObjectNode) divsion.get("Parent");
+    final ObjectNode division = helper.getValue();
+    final ObjectNode parent = (ObjectNode) division.get("Parent");
     assertEquals("BE2", parent.get("DivisionCode").asText());
 
   }
@@ -78,8 +78,8 @@ public class TestJPAProcessorExpand extends TestBase {
         "AdministrativeDivisions(DivisionCode='BE25',CodeID='NUTS2',CodePublisher='Eurostat')?$expand=Children($orderby=DivisionCode asc)");
     helper.assertStatus(200);
 
-    final ObjectNode divsion = helper.getValue();
-    final ArrayNode parent = (ArrayNode) divsion.get("Children");
+    final ObjectNode division = helper.getValue();
+    final ArrayNode parent = (ArrayNode) division.get("Children");
     assertEquals(8, parent.size());
     assertEquals("BE251", parent.get(0).get("DivisionCode").asText());
 
@@ -189,10 +189,10 @@ public class TestJPAProcessorExpand extends TestBase {
     assertNotNull(grandParent);
     assertNotNull(grandParent.get("CodeID"));
     assertEquals("NUTS2", grandParent.get("CodeID").asText());
-    final ObjectNode greateGrandParent = (ObjectNode) grandParent.get("Parent");
-    assertNotNull(greateGrandParent);
-    assertNotNull(greateGrandParent.get("CodeID"));
-    assertEquals("NUTS1", greateGrandParent.get("CodeID").asText());
+    final ObjectNode greatGrandParent = (ObjectNode) grandParent.get("Parent");
+    assertNotNull(greatGrandParent);
+    assertNotNull(greatGrandParent.get("CodeID"));
+    assertEquals("NUTS1", greatGrandParent.get("CodeID").asText());
   }
 
   @Test

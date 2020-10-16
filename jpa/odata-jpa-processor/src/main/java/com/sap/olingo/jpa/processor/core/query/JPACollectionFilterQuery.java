@@ -42,7 +42,7 @@ public final class JPACollectionFilterQuery extends JPANavigationQuery {
       final JPAAbstractQuery parent, final List<UriResource> uriResourceParts, final VisitableExpression expression,
       final From<?, ?> from, final List<String> groups) throws ODataApplicationException {
 
-    this(odata, sd, em, parent, determineAssoziation(parent.jpaEntity, uriResourceParts), expression, from, groups);
+    this(odata, sd, em, parent, determineAssociation(parent.jpaEntity, uriResourceParts), expression, from, groups);
   }
 
   public JPACollectionFilterQuery(final OData odata, final JPAServiceDocument sd, final EntityManager em,
@@ -67,7 +67,7 @@ public final class JPACollectionFilterQuery extends JPANavigationQuery {
       return parent.jpaEntity;
   }
 
-  private static JPAAssociationPath determineAssoziation(final JPAEntityType jpaEntity,
+  private static JPAAssociationPath determineAssociation(final JPAEntityType jpaEntity,
       final List<UriResource> uriResourceParts) throws ODataJPAQueryException {
     final StringBuilder pathName = new StringBuilder();
     int i = 0;
@@ -95,7 +95,7 @@ public final class JPACollectionFilterQuery extends JPANavigationQuery {
       if (this.aggregationType != null) {
 
         try {
-          final List<JPAOnConditionItem> right = association.getJoinTable().getInversJoinColumns();
+          final List<JPAOnConditionItem> right = association.getJoinTable().getInverseJoinColumns();
           createSelectClause(subQuery, queryJoinTable, right);
           Expression<Boolean> whereCondition = createWhereByAssociation(from, queryJoinTable, jpaEntity);
           subQuery.where(applyAdditionalFilter(whereCondition));

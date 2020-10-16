@@ -7,7 +7,7 @@ import javax.persistence.Embedded;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 
 @Embeddable
-public class CollcetionNestedComplex {
+public class CollectionNestedComplex {
 
   @EdmIgnore
   @Column(name = "\"ID\"")
@@ -17,7 +17,7 @@ public class CollcetionNestedComplex {
   private Long number;
 
   @Embedded
-  private CollcetionInnerComplex inner;
+  private CollectionInnerComplex inner;
 
   public Long getNumber() {
     return number;
@@ -27,11 +27,11 @@ public class CollcetionNestedComplex {
     this.number = number;
   }
 
-  public CollcetionInnerComplex getInner() {
+  public CollectionInnerComplex getInner() {
     return inner;
   }
 
-  public void setInner(final CollcetionInnerComplex inner) {
+  public void setInner(final CollectionInnerComplex inner) {
     this.inner = inner;
   }
 }

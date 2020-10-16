@@ -17,17 +17,17 @@ import org.apache.olingo.server.api.serializer.PrimitiveSerializerOptions;
 import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.serializer.SerializerResult;
 
-import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPASerializerException;
 
 final class JPASerializePrimitiveCollection implements JPAOperationSerializer {
   private final ServiceMetadata serviceMetadata;
   private final ODataSerializer serializer;
   private final ContentType responseFormat;
-  private final JPAODataCRUDContextAccess serviceContext;
+  private final JPAODataSessionContextAccess serviceContext;
 
   JPASerializePrimitiveCollection(final ServiceMetadata serviceMetadata, final ODataSerializer serializer,
-      final ContentType responseFormat, final JPAODataCRUDContextAccess context) {
+      final ContentType responseFormat, final JPAODataSessionContextAccess context) {
 
     this.serializer = serializer;
     this.serviceMetadata = serviceMetadata;

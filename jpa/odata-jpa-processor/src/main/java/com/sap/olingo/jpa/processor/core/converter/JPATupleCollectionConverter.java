@@ -40,27 +40,27 @@ public class JPATupleCollectionConverter extends JPATupleResultConverter {
 
   @Override
   public Map<String, List<Object>> getResult(final JPAExpandResult dbResult,
-      final Collection<JPAPath> reqestedSelection) throws ODataApplicationException {
+      final Collection<JPAPath> requestedSelection) throws ODataApplicationException {
 
     jpaQueryResult = dbResult;
     final JPACollectionResult jpaResult = (JPACollectionResult) dbResult;
-    final JPAAssociationAttribute attribute = jpaResult.getAssoziation().getLeaf();
+    final JPAAssociationAttribute attribute = jpaResult.getAssociation().getLeaf();
     final boolean isTransient = attribute.isTransient();
 
     final Map<String, List<Tuple>> childResult = jpaResult.getResults();
     final Map<String, List<Object>> result = new HashMap<>(childResult.size());
 
     try {
-      final JPAStructuredType st = determineCollectionRoot(jpaResult.getEntityType(), jpaResult.getAssoziation()
+      final JPAStructuredType st = determineCollectionRoot(jpaResult.getEntityType(), jpaResult.getAssociation()
           .getPath());
-      final String prefix = determinePrefix(jpaResult.getAssoziation().getAlias());
+      final String prefix = determinePrefix(jpaResult.getAssociation().getAlias());
 
       for (Entry<String, List<Tuple>> tuple : childResult.entrySet()) {
         if (isTransient) {
           result.put(tuple.getKey(), convertTransientCollection(attribute, tuple));
         } else {
           result.put(tuple.getKey(),
-              convertPersistantCollection(jpaResult, attribute, st, prefix, tuple, reqestedSelection));
+              convertPersistentCollection(jpaResult, attribute, st, prefix, tuple, requestedSelection));
         }
       }
     } catch (ODataJPAModelException e) {
@@ -72,9 +72,9 @@ public class JPATupleCollectionConverter extends JPATupleResultConverter {
     return result;
   }
 
-  private List<Object> convertPersistantCollection(final JPACollectionResult jpaResult,
+  private List<Object> convertPersistentCollection(final JPACollectionResult jpaResult,
       final JPAAssociationAttribute attribute, final JPAStructuredType st, final String prefix,
-      Entry<String, List<Tuple>> tuple, final Collection<JPAPath> reqestedSelection) throws ODataJPAModelException,
+      Entry<String, List<Tuple>> tuple, final Collection<JPAPath> requestedSelection) throws ODataJPAModelException,
       ODataApplicationException {
 
     final List<Object> collection = new ArrayList<>();
@@ -84,14 +84,14 @@ public class JPATupleCollectionConverter extends JPATupleResultConverter {
       if (attribute.isComplex()) {
         final ComplexValue value = new ComplexValue();
         final Map<String, ComplexValue> complexValueBuffer = new HashMap<>();
-        if (reqestedSelection.isEmpty()) {
+        if (requestedSelection.isEmpty()) {
           convertWithOutSelection(st, prefix, row, value, complexValueBuffer);
         } else {
-          convertRowWithSelection(row, reqestedSelection, complexValueBuffer, null, value.getValue());
+          convertRowWithSelection(row, requestedSelection, complexValueBuffer, null, value.getValue());
         }
-        collection.add(complexValueBuffer.get(jpaResult.getAssoziation().getAlias()));
+        collection.add(complexValueBuffer.get(jpaResult.getAssociation().getAlias()));
       } else {
-        collection.add(convertPrimitiveCollectionAttribute(row.get(jpaResult.getAssoziation().getAlias()),
+        collection.add(convertPrimitiveCollectionAttribute(row.get(jpaResult.getAssociation().getAlias()),
             (JPACollectionAttribute) attribute));
       }
 

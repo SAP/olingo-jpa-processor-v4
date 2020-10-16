@@ -31,7 +31,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterElementComplier;
@@ -83,7 +83,7 @@ public abstract class JPANavigationQuery extends JPAAbstractQuery {
   }
 
   @Override
-  JPAODataCRUDContextAccess getContext() {
+  JPAODataSessionContextAccess getContext() {
     return parentQuery.getContext();
   }
 
@@ -125,13 +125,13 @@ public abstract class JPANavigationQuery extends JPAAbstractQuery {
 
     Expression<Boolean> whereCondition = null;
     for (final JPAOnConditionItem onItem : conditionItems) {
-      Path<?> paretPath = parentFrom;
+      Path<?> parentPath = parentFrom;
       Path<?> subPath = subRoot;
       for (final JPAElement jpaPathElement : onItem.getRightPath().getPath())
-        paretPath = paretPath.get(jpaPathElement.getInternalName());
+        parentPath = parentPath.get(jpaPathElement.getInternalName());
       for (final JPAElement jpaPathElement : onItem.getLeftPath().getPath())
         subPath = subPath.get(jpaPathElement.getInternalName());
-      final Expression<Boolean> equalCondition = cb.equal(paretPath, subPath);
+      final Expression<Boolean> equalCondition = cb.equal(parentPath, subPath);
       if (whereCondition == null)
         whereCondition = equalCondition;
       else
@@ -168,7 +168,7 @@ public abstract class JPANavigationQuery extends JPAAbstractQuery {
      */
     try {
       final List<JPAOnConditionItem> left = association.getJoinTable().getJoinColumns(); // Team -->
-      final List<JPAOnConditionItem> right = association.getJoinTable().getInversJoinColumns(); // Person -->
+      final List<JPAOnConditionItem> right = association.getJoinTable().getInverseJoinColumns(); // Person -->
       createSelectClause(subQuery, queryRoot, right);
       Expression<Boolean> whereCondition = createWhereByAssociation(from, queryJoinTable, left);
       whereCondition = cb.and(whereCondition, createWhereByAssociation(queryJoinTable, queryRoot, right));
@@ -192,13 +192,13 @@ public abstract class JPANavigationQuery extends JPAAbstractQuery {
     Expression<Boolean> whereCondition = null;
 
     for (final JPAPath onItem : jpaEntity.getKeyPath()) {
-      Path<?> paretPath = parentFrom;
+      Path<?> parentPath = parentFrom;
       Path<?> subPath = subRoot;
       for (final JPAElement jpaPathElement : onItem.getPath()) {
-        paretPath = paretPath.get(jpaPathElement.getInternalName());
+        parentPath = parentPath.get(jpaPathElement.getInternalName());
         subPath = subPath.get(jpaPathElement.getInternalName());
       }
-      final Expression<Boolean> equalCondition = cb.equal(paretPath, subPath);
+      final Expression<Boolean> equalCondition = cb.equal(parentPath, subPath);
       whereCondition = addWhereClause(whereCondition, equalCondition);
     }
     return whereCondition;
@@ -252,7 +252,7 @@ public abstract class JPANavigationQuery extends JPAAbstractQuery {
      */
     try {
       List<JPAOnConditionItem> left = association.getJoinTable().getJoinColumns(); // Person -->
-      List<JPAOnConditionItem> right = association.getJoinTable().getInversJoinColumns(); // Team -->
+      List<JPAOnConditionItem> right = association.getJoinTable().getInverseJoinColumns(); // Team -->
       createSelectClauseAggregation(subQuery, queryJoinTable, left);
       Expression<Boolean> whereCondition = createWhereByAssociation(from, queryJoinTable, parentQuery.jpaEntity);
       subQuery.where(applyAdditionalFilter(whereCondition));

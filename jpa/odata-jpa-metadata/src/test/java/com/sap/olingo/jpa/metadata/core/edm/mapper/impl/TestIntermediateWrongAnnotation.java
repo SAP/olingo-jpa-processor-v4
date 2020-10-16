@@ -23,8 +23,8 @@ import org.junit.jupiter.api.Test;
 import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.errormodel.CollectionAttributeProtected;
-import com.sap.olingo.jpa.processor.core.errormodel.ComplextProtectedNoPath;
-import com.sap.olingo.jpa.processor.core.errormodel.ComplextProtectedWrongPath;
+import com.sap.olingo.jpa.processor.core.errormodel.ComplexProtectedNoPath;
+import com.sap.olingo.jpa.processor.core.errormodel.ComplexProtectedWrongPath;
 import com.sap.olingo.jpa.processor.core.errormodel.EmbeddedKeyPartOfGroup;
 import com.sap.olingo.jpa.processor.core.errormodel.KeyPartOfGroup;
 import com.sap.olingo.jpa.processor.core.errormodel.MandatoryPartOfGroup;
@@ -92,7 +92,7 @@ public class TestIntermediateWrongAnnotation {
   @Test
   public void checkErrorOnProtectedComplexAttributeMissingPath() {
     final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(
-        ComplextProtectedNoPath.class),
+        ComplexProtectedNoPath.class),
         "administrativeInformation");
 
     final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
@@ -104,9 +104,9 @@ public class TestIntermediateWrongAnnotation {
 
   @Test
   public void checkErrorOnProtectedComplexAttributeWrongPath() throws ODataJPAModelException {
-    // ComplextProtectedWrongPath
-    final EntityType<ComplextProtectedWrongPath> jpaEt = helper.getEntityType(ComplextProtectedWrongPath.class);
-    final IntermediateEntityType<ComplextProtectedWrongPath> et = new IntermediateEntityType<>(
+    // ComplexProtectedWrongPath
+    final EntityType<ComplexProtectedWrongPath> jpaEt = helper.getEntityType(ComplexProtectedWrongPath.class);
+    final IntermediateEntityType<ComplexProtectedWrongPath> et = new IntermediateEntityType<>(
         new JPADefaultEdmNameBuilder(PUNIT_NAME), jpaEt, helper.schema);
     et.getEdmItem();
 

@@ -19,7 +19,7 @@ import org.apache.olingo.server.api.serializer.SerializerResult;
 import org.apache.olingo.server.api.uri.UriHelper;
 import org.apache.olingo.server.api.uri.UriInfo;
 
-import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPASerializerException;
 import com.sap.olingo.jpa.processor.core.query.Util;
 
@@ -29,11 +29,11 @@ final class JPASerializeEntityCollection implements JPAOperationSerializer {
   private final UriHelper uriHelper;
   private final ODataSerializer serializer;
   private ContentType responseFormat;
-  private final JPAODataCRUDContextAccess serviceContext;
+  private final JPAODataSessionContextAccess serviceContext;
 
   JPASerializeEntityCollection(final ServiceMetadata serviceMetadata, final ODataSerializer serializer,
       final UriHelper uriHelper, final UriInfo uriInfo, final ContentType responseFormat,
-      final JPAODataCRUDContextAccess serviceContext) {
+      final JPAODataSessionContextAccess serviceContext) {
     this.uriInfo = uriInfo;
     this.serializer = serializer;
     this.serviceMetadata = serviceMetadata;

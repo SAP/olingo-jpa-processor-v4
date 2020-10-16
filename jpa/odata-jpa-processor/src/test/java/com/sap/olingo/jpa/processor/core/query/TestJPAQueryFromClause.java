@@ -4,11 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.persistence.criteria.From;
@@ -37,11 +40,12 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataContextAccessDouble;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupsProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContext;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
-import com.sap.olingo.jpa.processor.core.processor.JPAODataRequestContextImpl;
+import com.sap.olingo.jpa.processor.core.processor.JPAODataInternalRequestContext;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
@@ -49,7 +53,7 @@ import com.sap.olingo.jpa.processor.core.util.TestHelper;
 public class TestJPAQueryFromClause extends TestBase {
   private JPAAbstractJoinQuery cut;
   private JPAEntityType jpaEntityType;
-  private JPAODataCRUDContextAccess sessionContext;
+  private JPAODataSessionContextAccess sessionContext;
 
   @BeforeEach
   public void setup() throws ODataException, ODataJPAIllegalAccessException {
@@ -73,9 +77,9 @@ public class TestJPAQueryFromClause extends TestBase {
     sessionContext = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null, TestBase.enumPackages),
         ds, null);
     createHeaders();
-
-    final JPAODataRequestContextImpl requestContext = new JPAODataRequestContextImpl();
-    requestContext.setEntityManager(emf.createEntityManager());
+    final JPAODataRequestContext externalContext = mock(JPAODataRequestContext.class);
+    when(externalContext.getEntityManager()).thenReturn(emf.createEntityManager());
+    final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext(externalContext);
     requestContext.setUriInfo(uriInfo);
     cut = new JPAJoinQuery(null, sessionContext, headers, requestContext);
   }
@@ -83,7 +87,8 @@ public class TestJPAQueryFromClause extends TestBase {
   @Test
   public void checkFromListContainsRoot() throws ODataApplicationException, JPANoSelectionException {
 
-    Map<String, From<?, ?>> act = cut.createFromClause(Collections.emptyList(), Collections.emptyList(), cut.cq, null);
+    final Map<String, From<?, ?>> act = cut.createFromClause(Collections.emptyList(), Collections.emptyList(), cut.cq,
+        null);
     assertNotNull(act.get(jpaEntityType.getExternalFQN().getFullQualifiedNameAsString()));
   }
 
@@ -93,7 +98,7 @@ public class TestJPAQueryFromClause extends TestBase {
     final List<JPAAssociationPath> orderBy = new ArrayList<>();
     final JPAAssociationPath exp = buildRoleAssociationPath(orderBy);
 
-    Map<String, From<?, ?>> act = cut.createFromClause(orderBy, new ArrayList<JPAPath>(), cut.cq, null);
+    final Map<String, From<?, ?>> act = cut.createFromClause(orderBy, new ArrayList<JPAPath>(), cut.cq, null);
     assertNotNull(act.get(exp.getAlias()));
   }
 
@@ -103,15 +108,15 @@ public class TestJPAQueryFromClause extends TestBase {
     final List<JPAAssociationPath> orderBy = new ArrayList<>();
     buildRoleAssociationPath(orderBy);
 
-    Map<String, From<?, ?>> act = cut.createFromClause(orderBy, new ArrayList<>(), cut.cq, null);
+    final Map<String, From<?, ?>> act = cut.createFromClause(orderBy, new ArrayList<>(), cut.cq, null);
 
     @SuppressWarnings("unchecked")
-    Root<Organization> root = (Root<Organization>) act.get(jpaEntityType.getExternalFQN()
+    final Root<Organization> root = (Root<Organization>) act.get(jpaEntityType.getExternalFQN()
         .getFullQualifiedNameAsString());
-    Set<Join<Organization, ?>> joins = root.getJoins();
+    final Set<Join<Organization, ?>> joins = root.getJoins();
     assertEquals(1, joins.size());
 
-    for (Join<Organization, ?> join : joins) {
+    for (final Join<Organization, ?> join : joins) {
       assertEquals(JoinType.LEFT, join.getJoinType());
     }
   }
@@ -122,15 +127,15 @@ public class TestJPAQueryFromClause extends TestBase {
     final List<JPAAssociationPath> orderBy = new ArrayList<>();
     buildRoleAssociationPath(orderBy);
 
-    Map<String, From<?, ?>> act = cut.createFromClause(orderBy, new ArrayList<>(), cut.cq, null);
+    final Map<String, From<?, ?>> act = cut.createFromClause(orderBy, new ArrayList<>(), cut.cq, null);
 
     @SuppressWarnings("unchecked")
-    Root<Organization> root = (Root<Organization>) act.get(jpaEntityType.getExternalFQN()
+    final Root<Organization> root = (Root<Organization>) act.get(jpaEntityType.getExternalFQN()
         .getFullQualifiedNameAsString());
-    Set<Join<Organization, ?>> joins = root.getJoins();
+    final Set<Join<Organization, ?>> joins = root.getJoins();
     assertEquals(1, joins.size());
 
-    for (Join<Organization, ?> join : joins) {
+    for (final Join<Organization, ?> join : joins) {
       assertNull(join.getOn());
     }
   }
@@ -138,15 +143,15 @@ public class TestJPAQueryFromClause extends TestBase {
   @Test
   public void checkFromListDescriptionAssozationAllFields() throws ODataApplicationException, ODataJPAModelException,
       JPANoSelectionException {
-    List<JPAAssociationPath> orderBy = new ArrayList<>();
-    List<JPAPath> descriptionPathList = new ArrayList<>();
-    JPAEntityType entity = helper.getJPAEntityType("Organizations");
+    final List<JPAAssociationPath> orderBy = new ArrayList<>();
+    final List<JPAPath> descriptionPathList = new ArrayList<>();
+    final JPAEntityType entity = helper.getJPAEntityType("Organizations");
     descriptionPathList.add(entity.getPath("Address/CountryName"));
 
-    JPAAttribute attri = helper.getJPAAttribute("Organizations", "address").get();
-    JPAAttribute exp = attri.getStructuredType().getAttribute("countryName").get();
+    final JPAAttribute attri = helper.getJPAAttribute("Organizations", "address").get();
+    final JPAAttribute exp = attri.getStructuredType().getAttribute("countryName").get();
 
-    Map<String, From<?, ?>> act = cut.createFromClause(orderBy, descriptionPathList, cut.cq, null);
+    final Map<String, From<?, ?>> act = cut.createFromClause(orderBy, descriptionPathList, cut.cq, null);
     assertEquals(2, act.size());
     assertNotNull(act.get(exp.getInternalName()));
   }
@@ -154,15 +159,15 @@ public class TestJPAQueryFromClause extends TestBase {
   @Test
   public void checkFromListDescriptionAssozationAllFields2() throws ODataApplicationException, ODataJPAModelException,
       JPANoSelectionException {
-    List<JPAAssociationPath> orderBy = new ArrayList<>();
-    List<JPAPath> descriptionPathList = new ArrayList<>();
-    JPAEntityType entity = helper.getJPAEntityType("Organizations");
+    final List<JPAAssociationPath> orderBy = new ArrayList<>();
+    final List<JPAPath> descriptionPathList = new ArrayList<>();
+    final JPAEntityType entity = helper.getJPAEntityType("Organizations");
     descriptionPathList.add(entity.getPath("Address/RegionName"));
 
-    JPAAttribute attri = helper.getJPAAttribute("Organizations", "address").get();
-    JPAAttribute exp = attri.getStructuredType().getAttribute("regionName").get();
+    final JPAAttribute attri = helper.getJPAAttribute("Organizations", "address").get();
+    final JPAAttribute exp = attri.getStructuredType().getAttribute("regionName").get();
 
-    Map<String, From<?, ?>> act = cut.createFromClause(orderBy, descriptionPathList, cut.cq, null);
+    final Map<String, From<?, ?>> act = cut.createFromClause(orderBy, descriptionPathList, cut.cq, null);
     assertEquals(2, act.size());
     assertNotNull(act.get(exp.getInternalName()));
   }
@@ -171,10 +176,10 @@ public class TestJPAQueryFromClause extends TestBase {
   public void checkThrowsIfEliminatedByGroups() throws ODataJPAIllegalAccessException, ODataException,
       JPANoSelectionException {
 
-    final JPAODataRequestContextImpl requestContext = buildRequestContextToTestGroups();
+    final JPAODataInternalRequestContext requestContext = buildRequestContextToTestGroups(null);
 
     final List<JPAPath> collectionPathList = new ArrayList<>();
-    JPAEntityType entity = helper.getJPAEntityType("BusinessPartnerWithGroupss");
+    final JPAEntityType entity = helper.getJPAEntityType("BusinessPartnerWithGroupss");
     collectionPathList.add(entity.getPath("ID"));
     collectionPathList.add(entity.getPath("Comment"));
 
@@ -189,29 +194,29 @@ public class TestJPAQueryFromClause extends TestBase {
   public void checkDoesNotThrowsIfGroupProvided() throws ODataJPAIllegalAccessException, ODataException,
       JPANoSelectionException {
     final JPAODataGroupsProvider groups = new JPAODataGroupsProvider();
-    final JPAODataRequestContextImpl requestContext = buildRequestContextToTestGroups();
-    requestContext.setGroupsProvider(groups);
+    final JPAODataInternalRequestContext requestContext = buildRequestContextToTestGroups(groups);
     groups.addGroup("Company");
     final List<JPAPath> collectionPathList = new ArrayList<>();
-    JPAEntityType entity = helper.getJPAEntityType("BusinessPartnerWithGroupss");
+    final JPAEntityType entity = helper.getJPAEntityType("BusinessPartnerWithGroupss");
     collectionPathList.add(entity.getPath("ID"));
     collectionPathList.add(entity.getPath("Comment"));
 
     cut = new JPAJoinQuery(null, sessionContext, headers, requestContext);
 
-    Map<String, From<?, ?>> act = cut.createFromClause(Collections.emptyList(), collectionPathList, cut.cq,
+    final Map<String, From<?, ?>> act = cut.createFromClause(Collections.emptyList(), collectionPathList, cut.cq,
         cut.lastInfo);
     assertEquals(2, act.size());
 
   }
 
-  private JPAODataRequestContextImpl buildRequestContextToTestGroups() throws ODataJPAIllegalAccessException {
+  private JPAODataInternalRequestContext buildRequestContextToTestGroups(final JPAODataGroupsProvider groups)
+      throws ODataJPAIllegalAccessException {
     final UriInfo uriInfo = Mockito.mock(UriInfo.class);
     final EdmEntitySet odataEs = Mockito.mock(EdmEntitySet.class);
     final EdmType odataType = Mockito.mock(EdmEntityType.class);
     final List<UriResource> resources = new ArrayList<>();
     final UriResourceEntitySet esResource = Mockito.mock(UriResourceEntitySet.class);
-    final UriResourcePrimitiveProperty ppResoucre = Mockito.mock(UriResourcePrimitiveProperty.class);
+    final UriResourcePrimitiveProperty ppResource = Mockito.mock(UriResourcePrimitiveProperty.class);
     final EdmProperty ppProperty = Mockito.mock(EdmProperty.class);
     Mockito.when(uriInfo.getUriResourceParts()).thenReturn(resources);
     Mockito.when(esResource.getKeyPredicates()).thenReturn(new ArrayList<>(0));
@@ -221,21 +226,23 @@ public class TestJPAQueryFromClause extends TestBase {
     Mockito.when(odataEs.getName()).thenReturn("BusinessPartnerWithGroupss");
     Mockito.when(odataType.getNamespace()).thenReturn(PUNIT_NAME);
     Mockito.when(odataType.getName()).thenReturn("BusinessPartnerWithGroups");
-    Mockito.when(ppResoucre.isCollection()).thenReturn(true);
-    Mockito.when(ppResoucre.getProperty()).thenReturn(ppProperty);
+    Mockito.when(ppResource.isCollection()).thenReturn(true);
+    Mockito.when(ppResource.getProperty()).thenReturn(ppProperty);
     Mockito.when(ppProperty.getName()).thenReturn("Comment");
     resources.add(esResource);
-    resources.add(ppResoucre);
+    resources.add(ppResource);
 
-    final JPAODataRequestContextImpl requestContext = new JPAODataRequestContextImpl();
-    requestContext.setEntityManager(emf.createEntityManager());
+    final JPAODataRequestContext externalContext = mock(JPAODataRequestContext.class);
+    when(externalContext.getEntityManager()).thenReturn(emf.createEntityManager());
+    when(externalContext.getGroupsProvider()).thenReturn(Optional.ofNullable(groups));
+    final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext(externalContext);
     requestContext.setUriInfo(uriInfo);
     return requestContext;
   }
 
   private JPAAssociationPath buildRoleAssociationPath(final List<JPAAssociationPath> orderBy)
       throws ODataJPAModelException {
-    JPAAssociationPath exp = helper.getJPAAssociationPath("Organizations", "Roles");
+    final JPAAssociationPath exp = helper.getJPAAssociationPath("Organizations", "Roles");
     orderBy.add(exp);
     return exp;
   }

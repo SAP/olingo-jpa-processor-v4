@@ -256,7 +256,7 @@ public class TestJPATypeConvertor {
 
   @ParameterizedTest
   @MethodSource("mappingJavaGeometryToOData")
-  public void checkConvertJavaGemetryToOData(final Class<?> javaType, final Attribute<?, ?> jpaAttribute,
+  public void checkConvertJavaGeometryToOData(final Class<?> javaType, final Attribute<?, ?> jpaAttribute,
       final EdmPrimitiveTypeKind ODataType) throws ODataJPAModelException {
 
     assertEquals(ODataType, JPATypeConverter.convertToEdmSimpleType(javaType, jpaAttribute));
@@ -296,9 +296,9 @@ public class TestJPATypeConvertor {
   @ParameterizedTest
   @MethodSource("scalarJavaTypes")
   public void checkIsScalarJavaType(final Class<?> javaType, final Attribute<?, ?> jpaAttribute,
-      final boolean isSalar) {
+      final boolean isScalar) {
 
-    assertEquals(isSalar, JPATypeConverter.isScalarType(javaType));
+    assertEquals(isScalar, JPATypeConverter.isScalarType(javaType));
   }
 
   @ParameterizedTest
@@ -311,7 +311,7 @@ public class TestJPATypeConvertor {
 
   @ParameterizedTest
   @MethodSource("supportedByOlingo")
-  public void checkIsSupportedByOling(final Class<?> javaType, final boolean isSupported) {
+  public void checkIsSupportedByOlingo(final Class<?> javaType, final boolean isSupported) {
 
     assertEquals(isSupported, JPATypeConverter.isSupportedByOlingo(javaType));
   }

@@ -10,16 +10,14 @@ server:
   port: 9010
 spring:
   datasource:
-    driver-class-name: org.hsqldb.jdbc.JDBCDriver
-    password: ''
-    url: jdbc:hsqldb:mem:${schema};DB_CLOSE_DELAY=-1
+    url: jdbc:h2:mem:testdb
+    driverClassName: org.h2.Driver
     username: sa
-  flyway:
     password: ''
+  flyway:
+    enabled: true
     schemas:
-    - ${schema}
-    url: jdbc:hsqldb:mem:${schema};DB_CLOSE_DELAY=-1
-    user: sa
+    - test
   servlet:
     multipart:
       enabled: false

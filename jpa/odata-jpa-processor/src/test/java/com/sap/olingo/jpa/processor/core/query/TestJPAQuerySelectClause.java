@@ -1,6 +1,6 @@
 package com.sap.olingo.jpa.processor.core.query;
 
-import static com.sap.olingo.jpa.processor.core.testmodel.TestDataConstants.NO_ATTRIBUTES_BUISNESS_PARTNER_T;
+import static com.sap.olingo.jpa.processor.core.testmodel.TestDataConstants.NO_ATTRIBUTES_BUSINESS_PARTNER_T;
 import static com.sap.olingo.jpa.processor.core.testmodel.TestDataConstants.NO_ATTRIBUTES_POSTAL_ADDRESS;
 import static com.sap.olingo.jpa.processor.core.testmodel.TestDataConstants.NO_ATTRIBUTES_POSTAL_ADDRESS_T;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -50,8 +50,8 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
     fillJoinTable(root);
 
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("*"))).joinedPersistant(), root, Collections.emptyList());
-    assertEquals(jpaEntityType.getPathList().size() - NO_ATTRIBUTES_BUISNESS_PARTNER_T, selectClause.size());
+        new UriInfoDouble(new SelectOptionDouble("*"))).joinedPersistent(), root, Collections.emptyList());
+    assertEquals(jpaEntityType.getPathList().size() - NO_ATTRIBUTES_BUSINESS_PARTNER_T, selectClause.size());
   }
 
   @Test
@@ -59,9 +59,9 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
     fillJoinTable(root);
     final SelectOption selOpts = null;
     final List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(selOpts)).joinedPersistant(), root, Collections.emptyList());
+        new UriInfoDouble(selOpts)).joinedPersistent(), root, Collections.emptyList());
 
-    assertEquals(jpaEntityType.getPathList().size() - NO_ATTRIBUTES_BUISNESS_PARTNER_T, selectClause.size());
+    assertEquals(jpaEntityType.getPathList().size() - NO_ATTRIBUTES_BUSINESS_PARTNER_T, selectClause.size());
   }
 
   @Test
@@ -84,7 +84,7 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
     startResources.add(new UriResourcePropertyDouble(new EdmPropertyDouble("Address")));
 
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(uriInfo)
-        .joinedPersistant(), root, Collections.emptyList());
+        .joinedPersistent(), root, Collections.emptyList());
 
     assertContains(selectClause, "Address/RegionCodeID");
   }
@@ -92,7 +92,7 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
   @Test
   public void checkSelectOnePropertyCreatedAt() throws ODataApplicationException, ODataJPAModelException {
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("CreationDateTime"))).joinedPersistant(), root, Collections
+        new UriInfoDouble(new SelectOptionDouble("CreationDateTime"))).joinedPersistent(), root, Collections
             .emptyList());
     assertEquals(3, selectClause.size());
     assertContains(selectClause, "CreationDateTime");
@@ -103,7 +103,7 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
   @Test
   public void checkSelectOnePropertyID() throws ODataApplicationException, ODataJPAModelException {
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("ID"))).joinedPersistant(), root, Collections.emptyList());
+        new UriInfoDouble(new SelectOptionDouble("ID"))).joinedPersistent(), root, Collections.emptyList());
     assertEquals(2, selectClause.size());
     assertContains(selectClause, "ID");
     assertContains(selectClause, "ETag");
@@ -120,7 +120,7 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
     joinTables.put(jpaEntityType.getInternalName(), root);
 
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble((new SelectOptionDouble("CodePublisher")))).joinedPersistant(), root, Collections
+        new UriInfoDouble((new SelectOptionDouble("CodePublisher")))).joinedPersistent(), root, Collections
             .emptyList());
     assertEquals(4, selectClause.size());
     assertContains(selectClause, "CodePublisher");
@@ -132,7 +132,7 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
   @Test
   public void checkSelectPropertyTypeCreatedAt() throws ODataApplicationException, ODataJPAModelException {
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("Type,CreationDateTime"))).joinedPersistant(), root, Collections
+        new UriInfoDouble(new SelectOptionDouble("Type,CreationDateTime"))).joinedPersistent(), root, Collections
             .emptyList());
 
     assertEquals(4, selectClause.size());
@@ -152,7 +152,7 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
     cut = new JPAJoinQuery(null, context, headers, requestContext);
 
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("Type,Name2"))).joinedPersistant(), root, Collections.emptyList());
+        new UriInfoDouble(new SelectOptionDouble("Type,Name2"))).joinedPersistent(), root, Collections.emptyList());
     assertContains(selectClause, "Name2");
     assertContains(selectClause, "Type");
     assertContains(selectClause, "ID");
@@ -170,7 +170,7 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
     cut = new JPAJoinQuery(null, context, headers, requestContext);
 
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("Address"))).joinedPersistant(), root, Collections.emptyList());
+        new UriInfoDouble(new SelectOptionDouble("Address"))).joinedPersistent(), root, Collections.emptyList());
     assertEquals(NO_ATTRIBUTES_POSTAL_ADDRESS + 2 - NO_ATTRIBUTES_POSTAL_ADDRESS_T, selectClause.size());
   }
 
@@ -182,7 +182,7 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
     joinTables.put(jpaEntityType.getInternalName(), root);
 
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("AdministrativeInformation/Created"))).joinedPersistant(), root,
+        new UriInfoDouble(new SelectOptionDouble("AdministrativeInformation/Created"))).joinedPersistent(), root,
         Collections.emptyList());
     assertEquals(4, selectClause.size());
     assertContains(selectClause, "AdministrativeInformation/Created/By");
@@ -199,7 +199,7 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
     joinTables.put(jpaEntityType.getInternalName(), root);
 
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("AdministrativeInformation"))).joinedPersistant(), root, Collections
+        new UriInfoDouble(new SelectOptionDouble("AdministrativeInformation"))).joinedPersistent(), root, Collections
             .emptyList());
     assertEquals(6, selectClause.size());
     assertContains(selectClause, "AdministrativeInformation/Created/By");
@@ -219,7 +219,7 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
 
     // SELECT c.address.geocode FROM Company c WHERE c.name = 'Random House'
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("Address/Country"))).joinedPersistant(), root, Collections
+        new UriInfoDouble(new SelectOptionDouble("Address/Country"))).joinedPersistent(), root, Collections
             .emptyList());
     assertContains(selectClause, "Address/Country");
     assertContains(selectClause, "ID");
@@ -239,7 +239,7 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
     cut = new JPAJoinQuery(null, context, headers, requestContext);
 
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("Comment"))).joinedPersistant(), root, Collections.emptyList());
+        new UriInfoDouble(new SelectOptionDouble("Comment"))).joinedPersistent(), root, Collections.emptyList());
     assertEquals(1, selectClause.size());
     assertEquals("ID", selectClause.get(0).getAlias());
   }
@@ -252,7 +252,7 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
     fillJoinTable(root);
 
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("Address/CountryName"))).joinedPersistant(), root, Collections
+        new UriInfoDouble(new SelectOptionDouble("Address/CountryName"))).joinedPersistent(), root, Collections
             .emptyList());
     assertContains(selectClause, "Address/CountryName");
     assertContains(selectClause, "ID");
@@ -261,14 +261,14 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
   }
 
   @Test
-  public void checkSelectTextJoinCompextType() throws ODataException {
+  public void checkSelectTextJoinComplexType() throws ODataException {
     jpaEntityType = helper.getJPAEntityType("Organizations");
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
     joinTables.put(jpaEntityType.getInternalName(), root);
     fillJoinTable(root);
 
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("Address"))).joinedPersistant(), root, Collections.emptyList());
+        new UriInfoDouble(new SelectOptionDouble("Address"))).joinedPersistent(), root, Collections.emptyList());
     assertEquals(NO_ATTRIBUTES_POSTAL_ADDRESS + 2 - NO_ATTRIBUTES_POSTAL_ADDRESS_T, selectClause
         .size());
     assertContains(selectClause, "Address/CountryName");
@@ -291,7 +291,7 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
     uriResources.add(new UriResourceValueDouble());
 
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(uriInfo)
-        .joinedPersistant(), root, Collections.emptyList());
+        .joinedPersistent(), root, Collections.emptyList());
     assertNotNull(selectClause);
     assertContains(selectClause, "Image");
     assertContains(selectClause, "ID");
@@ -312,7 +312,7 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
     uriResources.add(new UriResourceValueDouble());
 
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(uriInfo)
-        .joinedPersistant(), root, Collections.emptyList());
+        .joinedPersistent(), root, Collections.emptyList());
     assertNotNull(selectClause);
     assertContains(selectClause, "Image");
     assertContains(selectClause, "MimeType");
@@ -338,7 +338,7 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
     uriResources.add(new UriResourceValueDouble());
 
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(uriInfo)
-        .joinedPersistant(), root, Collections.emptyList());
+        .joinedPersistent(), root, Collections.emptyList());
     assertNotNull(selectClause);
     assertContains(selectClause, "AdministrativeInformation/Created/By");
     assertContains(selectClause, "ID");
@@ -349,8 +349,8 @@ public class TestJPAQuerySelectClause extends TestQueryBase {
 
     fillJoinTable(root);
     List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("*"))).joinedPersistant(), root, Collections.emptyList());
-    assertEquals(jpaEntityType.getPathList().size() - NO_ATTRIBUTES_BUISNESS_PARTNER_T, selectClause.size());
+        new UriInfoDouble(new SelectOptionDouble("*"))).joinedPersistent(), root, Collections.emptyList());
+    assertEquals(jpaEntityType.getPathList().size() - NO_ATTRIBUTES_BUSINESS_PARTNER_T, selectClause.size());
   }
 
   private void assertContains(List<Selection<?>> selectClause, String alias) {

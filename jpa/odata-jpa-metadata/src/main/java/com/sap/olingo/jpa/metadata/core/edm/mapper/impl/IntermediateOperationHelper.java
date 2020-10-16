@@ -43,33 +43,33 @@ public class IntermediateOperationHelper {
     return result;
   }
 
-  static boolean isCollection(final Class<?> declairedReturnType) {
-    for (final Class<?> inter : Arrays.asList(declairedReturnType.getInterfaces())) {
+  static boolean isCollection(final Class<?> declaredReturnType) {
+    for (final Class<?> inter : Arrays.asList(declaredReturnType.getInterfaces())) {
       if (inter == Collection.class)
         return true;
     }
     return false;
   }
 
-  static FullQualifiedName determineReturnType(final ReturnType definedReturnType, final Class<?> declairedReturnType,
+  static FullQualifiedName determineReturnType(final ReturnType definedReturnType, final Class<?> declaredReturnType,
       final IntermediateSchema schema, final String operationName) throws ODataJPAModelException {
 
-    final IntermediateStructuredType<?> structuredType = schema.getStructuredType(declairedReturnType);
+    final IntermediateStructuredType<?> structuredType = schema.getStructuredType(declaredReturnType);
     if (structuredType != null)
       return structuredType.getExternalFQN();
     else {
-      final IntermediateEnumerationType enumType = schema.getEnumerationType(declairedReturnType);
+      final IntermediateEnumerationType enumType = schema.getEnumerationType(declaredReturnType);
       if (enumType != null) {
         return enumType.getExternalFQN();
-      } else if (declairedReturnType.equals(Blob.class) || declairedReturnType.equals(Clob.class)) {
+      } else if (declaredReturnType.equals(Blob.class) || declaredReturnType.equals(Clob.class)) {
         // The return type '%1$s' used at method '%3$s' is not supported
-        throw new ODataJPAModelException(MessageKeys.FUNC_RETURN_NOT_SUPPORTED, declairedReturnType.getName(),
+        throw new ODataJPAModelException(MessageKeys.FUNC_RETURN_NOT_SUPPORTED, declaredReturnType.getName(),
             operationName);
       } else {
-        final EdmPrimitiveTypeKind edmType = JPATypeConverter.convertToEdmSimpleType(declairedReturnType);
+        final EdmPrimitiveTypeKind edmType = JPATypeConverter.convertToEdmSimpleType(declaredReturnType);
         if (edmType == null)
           throw new ODataJPAModelException(MessageKeys.FUNC_RETURN_TYPE_INVALID, definedReturnType.type().getName(),
-              declairedReturnType.getName(), operationName);
+              declaredReturnType.getName(), operationName);
         return edmType.getFullQualifiedName();
       }
     }

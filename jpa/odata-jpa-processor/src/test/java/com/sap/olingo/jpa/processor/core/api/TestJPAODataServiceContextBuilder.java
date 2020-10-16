@@ -43,7 +43,7 @@ public class TestJPAODataServiceContextBuilder {
   private static final String PUNIT_NAME = "com.sap.olingo.jpa";
   private static final String[] enumPackages = { "com.sap.olingo.jpa.processor.core.testmodel" };
 
-  private JPAODataCRUDContextAccess cut;
+  private JPAODataSessionContextAccess cut;
   private static DataSource ds;
 
   @BeforeAll
@@ -157,7 +157,7 @@ public class TestJPAODataServiceContextBuilder {
   }
 
   @Test
-  public void checkJPAEdmContainsPostprocessor() throws ODataException {
+  public void checkJPAEdmContainsPostProcessor() throws ODataException {
 
     final JPAEdmMetadataPostProcessor processor = new TestEdmPostProcessor();
     cut = JPAODataServiceContext.with()
@@ -326,7 +326,7 @@ public class TestJPAODataServiceContextBuilder {
   private class TestBatchProcessorFactory implements JPAODataBatchProcessorFactory<JPAODataBatchProcessor> {
 
     @Override
-    public JPAODataBatchProcessor getBatchProcessor(@Nonnull final JPAODataCRUDContextAccess serviceContext,
+    public JPAODataBatchProcessor getBatchProcessor(@Nonnull final JPAODataSessionContextAccess serviceContext,
         @Nonnull final JPAODataRequestContextAccess requestContext) {
       return null;
     }

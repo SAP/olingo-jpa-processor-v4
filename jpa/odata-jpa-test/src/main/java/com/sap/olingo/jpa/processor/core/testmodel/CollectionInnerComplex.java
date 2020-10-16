@@ -10,7 +10,7 @@ import javax.persistence.Embeddable;
 import com.sap.olingo.jpa.metadata.converter.TimeInstantLongConverter;
 
 @Embeddable
-public class CollcetionInnerComplex {
+public class CollectionInnerComplex {
 
   @Column(name = "\"Figure1\"")
   private Long figure1;

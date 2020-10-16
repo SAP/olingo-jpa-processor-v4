@@ -1,4 +1,4 @@
-package com.sap.olingo.jpa.processor.core.api;
+package com.sap.olingo.jpa.processor.core.processor;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -13,13 +13,14 @@ import org.apache.olingo.server.api.deserializer.batch.BatchRequestPart;
 import org.apache.olingo.server.api.deserializer.batch.ODataResponsePart;
 import org.apache.olingo.server.core.batchhandler.BatchFacadeImpl;
 
+import com.sap.olingo.jpa.processor.core.api.JPAODataRequestProcessor;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPABatchRuntimeException;
 
 class JPAODataBatchParallelRequestGroup implements JPAODataBatchRequestGroup {
   private final List<BatchRequestPart> requestParts;
-  private final JPAODataBatchProcessor processor;
+  private final JPAODataParallelBatchProcessor processor;
 
-  JPAODataBatchParallelRequestGroup(final JPAODataBatchProcessor processor,
+  JPAODataBatchParallelRequestGroup(final JPAODataParallelBatchProcessor processor,
       final List<BatchRequestPart> requestParts) {
     super();
     this.requestParts = requestParts;
@@ -30,7 +31,7 @@ class JPAODataBatchParallelRequestGroup implements JPAODataBatchRequestGroup {
   public List<ODataResponsePart> execute() {
     try {
 
-      processor.requestContext.getDebugger().debug(this, "Number of groups elements : %d", requestParts.size());
+      processor.getRequestContext().getDebugger().debug(this, "Number of groups elements : %d", requestParts.size());
 
       final List<CompletableFuture<ODataResponsePart>> requests = requestParts.stream()
           .map(part -> startBatchPart(buildFacade(), part))
@@ -48,8 +49,8 @@ class JPAODataBatchParallelRequestGroup implements JPAODataBatchRequestGroup {
   }
 
   private BatchFacade buildFacade() {
-    final ODataHandler odataHandler = processor.odata.createRawHandler(processor.serviceMetadata);
-    odataHandler.register(new JPAODataRequestProcessor(processor.serviceContext, processor.requestContext));
+    final ODataHandler odataHandler = processor.getOdata().createRawHandler(processor.getServiceMetadata());
+    odataHandler.register(new JPAODataRequestProcessor(processor.getServiceContext(), processor.getRequestContext()));
     return new BatchFacadeImpl(odataHandler, processor, true);
   }
 

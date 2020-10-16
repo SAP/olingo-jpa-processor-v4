@@ -8,7 +8,7 @@ import static org.apache.olingo.commons.api.http.HttpStatusCode.NOT_IMPLEMENTED;
 public class ODataJPANotImplementedException extends ODataJPAProcessException { // NOSONAR
 
   private static final long serialVersionUID = 2410838419178517426L;
-  private static final String BUNDEL_NAME = "processor-exceptions-i18n";
+  private static final String BUNDLE_NAME = "processor-exceptions-i18n";
 
   public ODataJPANotImplementedException(final String... params) {
     super(NOT_IMPLEMENTED.name(), NOT_IMPLEMENTED, params);
@@ -16,7 +16,7 @@ public class ODataJPANotImplementedException extends ODataJPAProcessException { 
 
   @Override
   protected String getBundleName() {
-    return BUNDEL_NAME;
+    return BUNDLE_NAME;
   }
 
 }

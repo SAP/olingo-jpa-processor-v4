@@ -86,7 +86,7 @@ public class ControllerTest {
   public void testCreateInstance() {
     given()
         .contentType("application/json")
-        .body("{ \"Id\" : \"1\" }")
+        .body("{ \"Data\" : \"Hello World\" }")
         .when()
         .post("/${punit}/v1/${entity-table}s")
         .then()
@@ -94,7 +94,7 @@ public class ControllerTest {
     given()
         .accept(ContentType.JSON)
         .when()
-        .get("/${punit}/v1/${entity-table}s('1')")
+        .get("/${punit}/v1/${entity-table}s(1)")
         .then()
         .statusCode(HttpStatusCode.OK.getStatusCode());
   }
@@ -119,7 +119,7 @@ public class ControllerTest {
     given()
         .accept(ContentType.JSON)
         .when()
-        .get("/${punit}/v1/${entity-table}s('2')")
+        .get("/${punit}/v1/${entity-table}s(1)")
         .then()
         .statusCode(HttpStatusCode.OK.getStatusCode());
 
@@ -133,19 +133,19 @@ public class ControllerTest {
     given()
         .contentType(ContentType.JSON)
         .accept(ContentType.JSON)
-        .body("{ \"Id\" : \"3\", \"ValueObjects\" : [{\"Id\" : \"1\"}, {\"Id\" : \"2\"}] }")
+        .body("{ \"Data\" : \"Hello World\", \"ValueObjects\" : [{\"Id\" : \"1\"}, {\"Id\" : \"2\"}] }")
         .when()
         .post("/${punit}/v1/${entity-table}s")
         .then()
         .statusCode(HttpStatusCode.CREATED.getStatusCode())
         .body("ValueObjects.Id", hasItems("1", "2"))
-        .body("Id", equalTo("3"))
+        .body("Id", equalTo(1))
         .extract()
         .asString();
     given()
         .accept(ContentType.JSON)
         .when()
-        .get("/${punit}/v1/${value-object-table}s(EntityId='3',Id='2')")
+        .get("/${punit}/v1/${value-object-table}s(EntityId=1,Id='2')")
         .then()
         .statusCode(HttpStatusCode.OK.getStatusCode());
 

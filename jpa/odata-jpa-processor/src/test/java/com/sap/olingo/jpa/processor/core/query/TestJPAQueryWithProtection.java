@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -43,17 +44,18 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAProtectionInfo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAClaimsPair;
-import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContext;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
-import com.sap.olingo.jpa.processor.core.processor.JPAODataRequestContextImpl;
+import com.sap.olingo.jpa.processor.core.processor.JPAODataInternalRequestContext;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.JPAEntityTypeDouble;
 import com.sap.olingo.jpa.processor.core.util.TestQueryBase;
 
 public class TestJPAQueryWithProtection extends TestQueryBase {
-  private JPAODataCRUDContextAccess contextSpy;
+  private JPAODataSessionContextAccess contextSpy;
   private JPAServiceDocument sdSpy;
   private EdmType odataType;
   private List<JPAAttribute> attributes;
@@ -67,7 +69,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
   public void setup() throws ODataException, ODataJPAIllegalAccessException {
     super.setup();
     contextSpy = Mockito.spy(context);
-    JPAEdmProvider providerSpy = Mockito.spy(context.getEdmProvider());
+    final JPAEdmProvider providerSpy = Mockito.spy(context.getEdmProvider());
     sdSpy = Mockito.spy(context.getEdmProvider().getServiceDocument());
     when(contextSpy.getEdmProvider()).thenReturn(providerSpy);
     when(providerSpy.getServiceDocument()).thenReturn(sdSpy);
@@ -76,7 +78,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
 
   @Test
   public void testRestrictOnePropertyOneValue() throws IOException, ODataException {
-    JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add("UserId", new JPAClaimsPair<>("Willi"));
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "BusinessPartnerProtecteds?$select=ID,Name1,Country", claims);
@@ -89,7 +91,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
   @ParameterizedTest
   @ValueSource(strings = { "Wil*", "Wi%i", "Wil+i", "Will_" })
   public void testRestrictOnePropertyOneValueWithWildcard(final String minValue) throws IOException, ODataException {
-    JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add("UserId", new JPAClaimsPair<>(minValue));
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "BusinessPartnerProtecteds?$select=ID,Name1,Country", claims);
@@ -101,7 +103,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
 
   @Test
   public void testRestrictOnePropertyTwoValues() throws IOException, ODataException {
-    JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add("UserId", new JPAClaimsPair<>("Willi"));
     claims.add("UserId", new JPAClaimsPair<>("Marvin"));
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -119,7 +121,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
   public void testRestrictOnePropertyCount(final int statusCodeValue, final String claimEntries,
       final int noResults) throws IOException, ODataException {
 
-    JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     final String[] claimEntriesList = claimEntries.split(";");
     for (final String claimEntry : claimEntriesList) {
       claims.add("UserId", new JPAClaimsPair<>(claimEntry));
@@ -135,7 +137,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
   @Test
   public void testRestrictNavigationResult() throws IOException, ODataException {
 
-    JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add("UserId", new JPAClaimsPair<>("Marvin"));
     claims.add("RoleCategory", new JPAClaimsPair<>("A", "B"));
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -149,7 +151,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
   @Test
   public void testRestrictExpandResult() throws IOException, ODataException {
 
-    JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add("UserId", new JPAClaimsPair<>("Marvin"));
     claims.add("RoleCategory", new JPAClaimsPair<>("A", "B"));
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -165,7 +167,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
   @Test
   public void testThrowsUnauthorizedOnMissingClaimforRestrictExpandResult() throws IOException, ODataException {
 
-    JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add("UserId", new JPAClaimsPair<>("Marvin"));
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "BusinessPartnerProtecteds?$filter=ID eq '3'&$expand=RolesProtected", claims);
@@ -179,7 +181,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
   public void testRestrictOnePropertyInlineCount(final int statusCodeValue, final String claimEntries,
       final int noResults) throws IOException, ODataException {
 
-    JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     final String[] claimEntriesList = claimEntries.split(";");
     for (final String claimEntry : claimEntriesList) {
       claims.add("UserId", new JPAClaimsPair<>(claimEntry));
@@ -194,7 +196,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
 
   @Test
   public void testRestrictOnePropertyNoProvider() throws IOException, ODataException {
-    JPAODataClaimsProvider claims = null;
+    final JPAODataClaimsProvider claims = null;
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "BusinessPartnerProtecteds?$select=ID,Name1,Country", claims);
@@ -203,7 +205,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
 
   @Test
   public void testRestrictOnePropertyNoValue() throws IOException, ODataException {
-    JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "BusinessPartnerProtecteds?$select=ID,Name1,Country", claims);
     helper.assertStatus(403);
@@ -211,7 +213,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
 
   @Test
   public void testRestrictOnePropertyBetweenValues() throws IOException, ODataException {
-    JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add("UserId", new JPAClaimsPair<>("Marvin", "Willi"));
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "BusinessPartnerProtecteds?$select=ID,Name1,Country", claims);
@@ -230,7 +232,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
   public void testRestrictOnePropertyDeep(final int statusCodeValue, final String building, final String firstName)
       throws IOException, ODataException {
 
-    JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add("Creator", new JPAClaimsPair<>("*"));
     claims.add("Updator", new JPAClaimsPair<>("*"));
     claims.add("BuildingNumber", new JPAClaimsPair<>(building));
@@ -248,7 +250,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
 
   @Test
   public void testRestrictOnePropertyOneValueWithNavigationToRoles() throws IOException, ODataException {
-    JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add("UserId", new JPAClaimsPair<>("Willi"));
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "BusinessPartnerProtecteds('99')/Roles", claims);
@@ -267,7 +269,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add("UserId", new JPAClaimsPair<>("Marvin"));
 
-    JPAAttribute aSpy = Mockito.spy(etSpy.getAttribute("administrativeInformation").get());
+    final JPAAttribute aSpy = Mockito.spy(etSpy.getAttribute("administrativeInformation").get());
     doReturn(true).when(aSpy).hasProtection();
     doReturn(claimNames).when(aSpy).getProtectionClaimNames();
     doReturn(pathList).when(aSpy).getProtectionPath("UserId");
@@ -288,7 +290,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add("UserId", new JPAClaimsPair<>(minValue));
 
-    JPAAttribute aSpy = Mockito.spy(etSpy.getAttribute("administrativeInformation").get());
+    final JPAAttribute aSpy = Mockito.spy(etSpy.getAttribute("administrativeInformation").get());
     doReturn(true).when(aSpy).hasProtection();
     doReturn(claimNames).when(aSpy).getProtectionClaimNames();
     doReturn(pathList).when(aSpy).getProtectionPath("UserId");
@@ -308,7 +310,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add(claimName, new JPAClaimsPair<>("Marvin", "Willi"));
 
-    JPAAttribute aSpy = Mockito.spy(etSpy.getAttribute("administrativeInformation").get());
+    final JPAAttribute aSpy = Mockito.spy(etSpy.getAttribute("administrativeInformation").get());
     doReturn(true).when(aSpy).hasProtection();
     doReturn(claimNames).when(aSpy).getProtectionClaimNames();
     doReturn(pathList).when(aSpy).getProtectionPath("UserId");
@@ -329,7 +331,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add(claimName, new JPAClaimsPair<>("Marv*", "Willi"));
 
-    JPAAttribute aSpy = Mockito.spy(etSpy.getAttribute("administrativeInformation").get());
+    final JPAAttribute aSpy = Mockito.spy(etSpy.getAttribute("administrativeInformation").get());
     doReturn(true).when(aSpy).hasProtection();
     doReturn(claimNames).when(aSpy).getProtectionClaimNames();
     doReturn(pathList).when(aSpy).getProtectionPath("UserId");
@@ -351,7 +353,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
     claims.add(claimName, new JPAClaimsPair<>("Marvin"));
     claims.add(claimName, new JPAClaimsPair<>("Willi"));
 
-    JPAAttribute aSpy = Mockito.spy(etSpy.getAttribute("administrativeInformation").get());
+    final JPAAttribute aSpy = Mockito.spy(etSpy.getAttribute("administrativeInformation").get());
     doReturn(true).when(aSpy).hasProtection();
     doReturn(claimNames).when(aSpy).getProtectionClaimNames();
     doReturn(pathList).when(aSpy).getProtectionPath(claimName);
@@ -359,7 +361,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
 
     final Expression<Boolean> act = ((JPAJoinQuery) cut).createProtectionWhere(Optional.of(claims));
     assertEquals(BooleanOperator.OR, ((CompoundExpressionImpl) act).getOperator());
-    for (Expression<?> part : ((CompoundExpressionImpl) act).getChildExpressions())
+    for (final Expression<?> part : ((CompoundExpressionImpl) act).getChildExpressions())
       assertEqual(part);
   }
 
@@ -373,7 +375,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add(claimName, new JPAClaimsPair<>(Date.valueOf("2010-01-01")));
 
-    JPAAttribute aSpy = Mockito.spy(etSpy.getAttribute("administrativeInformation").get());
+    final JPAAttribute aSpy = Mockito.spy(etSpy.getAttribute("administrativeInformation").get());
     doReturn(true).when(aSpy).hasProtection();
     doReturn(claimNames).when(aSpy).getProtectionClaimNames();
     doReturn(pathList).when(aSpy).getProtectionPath(claimName);
@@ -393,7 +395,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add(claimName, new JPAClaimsPair<>(Date.valueOf("2010-01-01"), Date.valueOf("9999-12-30")));
 
-    JPAAttribute aSpy = Mockito.spy(etSpy.getAttribute("administrativeInformation").get());
+    final JPAAttribute aSpy = Mockito.spy(etSpy.getAttribute("administrativeInformation").get());
     doReturn(true).when(aSpy).hasProtection();
     doReturn(claimNames).when(aSpy).getProtectionClaimNames();
     doReturn(pathList).when(aSpy).getProtectionPath(claimName);
@@ -414,7 +416,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add(claimName, new JPAClaimsPair<>("Marvin"));
 
-    JPAAttribute aSpy = Mockito.spy(etSpy.getAttribute("administrativeInformation").get());
+    final JPAAttribute aSpy = Mockito.spy(etSpy.getAttribute("administrativeInformation").get());
     doReturn(true).when(aSpy).hasProtection();
     doReturn(claimNames).when(aSpy).getProtectionClaimNames();
     doReturn(pathList).when(aSpy).getProtectionPath(claimName);
@@ -422,7 +424,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
 
     final Expression<Boolean> act = ((JPAJoinQuery) cut).createProtectionWhere(Optional.of(claims));
     assertEquals(BooleanOperator.AND, ((CompoundExpressionImpl) act).getOperator());
-    for (Expression<?> part : ((CompoundExpressionImpl) act).getChildExpressions())
+    for (final Expression<?> part : ((CompoundExpressionImpl) act).getChildExpressions())
       assertEqual(part);
   }
 
@@ -437,7 +439,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add("UserId", new JPAClaimsPair<>("Marvin"));
 
-    JPAAttribute aSpy = Mockito.spy(etSpy.getAttribute("administrativeInformation").get());
+    final JPAAttribute aSpy = Mockito.spy(etSpy.getAttribute("administrativeInformation").get());
     doReturn(true).when(aSpy).hasProtection();
     doReturn(claimNames).when(aSpy).getProtectionClaimNames();
     doReturn(pathList).when(aSpy).getProtectionPath(claimName);
@@ -445,23 +447,23 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
 
     final Expression<Boolean> act = ((JPAJoinQuery) cut).createProtectionWhere(Optional.of(claims));
     assertEquals(BooleanOperator.AND, ((Predicate) act).getOperator());
-    for (Expression<?> part : ((Predicate) act).getExpressions())
+    for (final Expression<?> part : ((Predicate) act).getExpressions())
       assertEqual(part);
   }
 
-  private void assertBetween(Expression<Boolean> act) {
+  private void assertBetween(final Expression<Boolean> act) {
     assertExpression(act, "between", 3);
   }
 
-  private void assertEqual(Expression<?> act) {
+  private void assertEqual(final Expression<?> act) {
     assertExpression(act, "equal", 2);
   }
 
-  private void assertLike(Expression<?> act) {
+  private void assertLike(final Expression<?> act) {
     assertExpression(act, "like", 2);
   }
 
-  private void assertExpression(Expression<?> act, String operator, int size) {
+  private void assertExpression(final Expression<?> act, final String operator, final int size) {
     assertNotNull(act);
     final List<Expression<?>> actChildren = ((CompoundExpressionImpl) act).getChildExpressions();
     assertEquals(size, actChildren.size());
@@ -483,19 +485,19 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
     final String path = pathName;
     pathList.add(path);
     final JPAPath jpaPath = Mockito.mock(JPAPath.class);
-    final JPAElement adminAttri = Mockito.mock(JPAElement.class);
-    final JPAElement complexAttri = Mockito.mock(JPAElement.class);
-    final JPAAttribute simpleAttri = Mockito.mock(JPAAttribute.class);
-    final List<JPAElement> pathElements = Arrays.asList(new JPAElement[] { adminAttri, complexAttri, simpleAttri });
+    final JPAElement adminAttribute = Mockito.mock(JPAElement.class);
+    final JPAElement complexAttribute = Mockito.mock(JPAElement.class);
+    final JPAAttribute simpleAttribute = Mockito.mock(JPAAttribute.class);
+    final List<JPAElement> pathElements = Arrays.asList(adminAttribute, complexAttribute, simpleAttribute);
     doReturn(pathElements).when(jpaPath).getPath();
-    doReturn("administrativeInformation").when(adminAttri).getInternalName();
-    doReturn(intermediateElement).when(complexAttri).getInternalName();
-    doReturn("by").when(simpleAttri).getInternalName();
-    doReturn(String.class).when(simpleAttri).getType();
-    doReturn(simpleAttri).when(jpaPath).getLeaf();
+    doReturn("administrativeInformation").when(adminAttribute).getInternalName();
+    doReturn(intermediateElement).when(complexAttribute).getInternalName();
+    doReturn("by").when(simpleAttribute).getInternalName();
+    doReturn(String.class).when(simpleAttribute).getType();
+    doReturn(simpleAttribute).when(jpaPath).getLeaf();
     doReturn(jpaPath).when(etSpy).getPath(path);
 
-    doReturn(simpleAttri).when(protection).getAttribute();
+    doReturn(simpleAttribute).when(protection).getAttribute();
     doReturn(jpaPath).when(protection).getPath();
     doReturn(claimName).when(protection).getClaimName();
     doReturn(wildcardSupported).when(protection).supportsWildcards();
@@ -517,19 +519,19 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
     final String path = "AdministrativeInformation/Created/At";
     pathList.add(path);
     final JPAPath jpaPath = Mockito.mock(JPAPath.class);
-    final JPAElement adminAttri = Mockito.mock(JPAElement.class);
-    final JPAElement complexAttri = Mockito.mock(JPAElement.class);
-    final JPAAttribute simpleAttri = Mockito.mock(JPAAttribute.class);
-    final List<JPAElement> pathElements = Arrays.asList(new JPAElement[] { adminAttri, complexAttri, simpleAttri });
+    final JPAElement adminAttribute = Mockito.mock(JPAElement.class);
+    final JPAElement complexAttribute = Mockito.mock(JPAElement.class);
+    final JPAAttribute simpleAttribute = Mockito.mock(JPAAttribute.class);
+    final List<JPAElement> pathElements = Arrays.asList(adminAttribute, complexAttribute, simpleAttribute);
     doReturn(pathElements).when(jpaPath).getPath();
-    doReturn("administrativeInformation").when(adminAttri).getInternalName();
-    doReturn("created").when(complexAttri).getInternalName();
-    doReturn("at").when(simpleAttri).getInternalName();
-    doReturn(Date.class).when(simpleAttri).getType();
-    doReturn(simpleAttri).when(jpaPath).getLeaf();
+    doReturn("administrativeInformation").when(adminAttribute).getInternalName();
+    doReturn("created").when(complexAttribute).getInternalName();
+    doReturn("at").when(simpleAttribute).getInternalName();
+    doReturn(Date.class).when(simpleAttribute).getType();
+    doReturn(simpleAttribute).when(jpaPath).getLeaf();
     doReturn(jpaPath).when(etSpy).getPath(path);
 
-    doReturn(simpleAttri).when(protection).getAttribute();
+    doReturn(simpleAttribute).when(protection).getAttribute();
     doReturn(jpaPath).when(protection).getPath();
     doReturn(claimName).when(protection).getClaimName();
 
@@ -548,11 +550,12 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
     doReturn(protections).when(etSpy).getProtections();
     doReturn(etSpy).when(sdSpy).getEntity("BusinessPartnerProtecteds");
     doReturn(etSpy).when(sdSpy).getEntity(odataType);
-    final JPAODataRequestContextImpl requestContext = new JPAODataRequestContextImpl();
-    requestContext.setEntityManager(emf.createEntityManager());
+    final JPAODataRequestContext externalContext = mock(JPAODataRequestContext.class);
+    when(externalContext.getEntityManager()).thenReturn(emf.createEntityManager());
+    final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext(externalContext);
     try {
       requestContext.setUriInfo(uriInfo);
-    } catch (ODataJPAIllegalAccessException e) {
+    } catch (final ODataJPAIllegalAccessException e) {
       fail();
     }
     cut = new JPAJoinQuery(null, contextSpy, headers, requestContext);

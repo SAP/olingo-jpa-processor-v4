@@ -46,7 +46,7 @@ import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.processor.core.api.JPAAbstractCUDRequestHandler;
-import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataTransactionFactory;
 import com.sap.olingo.jpa.processor.core.api.JPAODataTransactionFactory.JPAODataTransaction;
@@ -83,7 +83,7 @@ public abstract class TestJPAModifyProcessor {
   protected JPACUDRequestProcessor processor;
   protected OData odata;
   protected ServiceMetadata serviceMetadata;
-  protected JPAODataCRUDContextAccess sessionContext;
+  protected JPAODataSessionContextAccess sessionContext;
   protected JPAODataRequestContextAccess requestContext;
   protected UriInfo uriInfo;
   protected UriResourceEntitySet uriEts;
@@ -103,7 +103,7 @@ public abstract class TestJPAModifyProcessor {
   @BeforeEach
   public void setup() throws Exception {
     odata = OData.newInstance();
-    sessionContext = mock(JPAODataCRUDContextAccess.class);
+    sessionContext = mock(JPAODataSessionContextAccess.class);
     requestContext = mock(JPAODataRequestContextAccess.class);
     serviceMetadata = mock(ServiceMetadata.class);
     uriInfo = mock(UriInfo.class);
@@ -256,7 +256,7 @@ public abstract class TestJPAModifyProcessor {
     return request;
   }
 
-  protected ODataRequest preparPersonRequest(JPAAbstractCUDRequestHandler spy)
+  protected ODataRequest preparePersonRequest(JPAAbstractCUDRequestHandler spy)
       throws ODataJPAProcessorException, SerializerException, ODataException {
 
     final ODataRequest request = prepareSimpleRequest("return=representation");

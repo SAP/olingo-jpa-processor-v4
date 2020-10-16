@@ -138,7 +138,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
     final UriResourceProperty uriProperty = mock(UriResourceProperty.class);
     pathParts.add(uriProperty);
     when(uriProperty.getProperty()).thenReturn(odataProperty);
-    when(odataProperty.getName()).thenReturn("StreenName");
+    when(odataProperty.getName()).thenReturn("StreetName");
 
     when(request.getMethod()).thenReturn(HttpMethod.PUT);
 
@@ -527,7 +527,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testDoesRollbackOnEmptyResponce() throws ODataException {
+  public void testDoesRollbackOnEmptyResponse() throws ODataException {
     ODataResponse response = new ODataResponse();
     ODataRequest request = prepareSimpleRequest();
 
@@ -542,7 +542,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testDoesRollbackOnWrongResponce() throws ODataException {
+  public void testDoesRollbackOnWrongResponse() throws ODataException {
     ODataResponse response = new ODataResponse();
     ODataRequest request = prepareSimpleRequest();
     JPAUpdateResult result = new JPAUpdateResult(false, "");
@@ -592,7 +592,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testOwnTranactionCommited() throws ODataJPAModelException, ODataException {
+  public void testOwnTransactionCommitted() throws ODataJPAModelException, ODataException {
     ODataResponse response = new ODataResponse();
     ODataRequest request = prepareSimpleRequest();
 

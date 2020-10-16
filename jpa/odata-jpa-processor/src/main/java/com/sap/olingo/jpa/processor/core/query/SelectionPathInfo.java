@@ -20,7 +20,7 @@ class SelectionPathInfo<T> {
   private final Set<T> odataSelections;
   private final Set<T> requitedSelections;
   private final Set<T> transientSelections;
-  private Set<T> joinedPersistant;
+  private Set<T> joinedPersistent;
   private Set<T> joinedRequested;
 
   SelectionPathInfo(@Nullable final Set<T> odataSelections, @Nullable final Set<T> requitedSelections,
@@ -63,12 +63,12 @@ class SelectionPathInfo<T> {
     return joined;
   }
 
-  Set<T> joinedPersistant() {
-    if (joinedPersistant == null) {
-      joinedPersistant = new HashSet<>(odataSelections);
-      joinedPersistant.addAll(requitedSelections);
+  Set<T> joinedPersistent() {
+    if (joinedPersistent == null) {
+      joinedPersistent = new HashSet<>(odataSelections);
+      joinedPersistent.addAll(requitedSelections);
     }
-    return joinedPersistant;
+    return joinedPersistent;
   }
 
   Set<T> joinedRequested() {

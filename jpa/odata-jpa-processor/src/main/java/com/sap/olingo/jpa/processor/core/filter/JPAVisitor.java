@@ -168,7 +168,7 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
 
     final int handle = debugger.startRuntimeMeasurement(this, "visitMember");
     final JPAPath attributePath = determineAttributePath(this.jpaComplier.getJpaEntityType(), member,
-        jpaComplier.getAssoziation());
+        jpaComplier.getAssociation());
     checkTransient(attributePath);
     if (getLambdaType(member.getResourcePath()) == UriResourceKind.lambdaAny) {
       debugger.stopRuntimeMeasurement(handle);
@@ -189,7 +189,7 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
     }
     debugger.stopRuntimeMeasurement(handle);
     return new JPAMemberOperator(this.jpaComplier.getRoot(), member, jpaComplier
-        .getAssoziation(), this.jpaComplier.getGroups(), attributePath);
+        .getAssociation(), this.jpaComplier.getGroups(), attributePath);
   }
 
   @Override
@@ -266,7 +266,7 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
       final JPAOperator right) throws ODataJPAFilterException {
     if (left instanceof JPANavigationOperation && right instanceof JPANavigationOperation)
       throw new ODataJPAFilterException(NOT_SUPPORTED_FILTER, NOT_IMPLEMENTED,
-          "Binary operations comparing two navigations");
+          "Binary operations comparing two navigation");
 
     if (left instanceof JPANavigationOperation) {
       return new JPANavigationOperation(operator, (JPANavigationOperation) left, (JPALiteralOperator) right,
@@ -293,7 +293,7 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
 
     if (jpaEntityType == null)
       return null;
-    final String attributePathName = Util.determineProptertyNavigationPath(member.getResourcePath()
+    final String attributePathName = Util.determinePropertyNavigationPath(member.getResourcePath()
         .getUriResourceParts());
     JPAPath selectItemPath = null;
     try {
@@ -312,12 +312,12 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
   private void checkTransient(@Nullable final JPAPath attributePath) throws ODataApplicationException {
 
     if (attributePath != null) {
-      final Optional<JPAAttribute> transienProperty = attributePath.getPath()
+      final Optional<JPAAttribute> transientProperty = attributePath.getPath()
           .stream()
           .map(e -> (JPAAttribute) e)
           .filter(JPAAttribute::isTransient)
           .findFirst();
-      if (transienProperty.isPresent())
+      if (transientProperty.isPresent())
         throw new ODataJPAFilterException(NOT_SUPPORTED_TRANSIENT, NOT_IMPLEMENTED, attributePath.toString());
     }
   }

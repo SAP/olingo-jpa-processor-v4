@@ -28,7 +28,7 @@ import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.UriResourceNavigation;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
 
-import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPASerializerException;
 import com.sap.olingo.jpa.processor.core.query.Util;
 
@@ -38,11 +38,11 @@ public final class JPASerializeComplex implements JPAOperationSerializer {
   private final UriHelper uriHelper;
   private final ODataSerializer serializer;
   private final ContentType responseFormat;
-  private final JPAODataCRUDContextAccess serviceContext;
+  private final JPAODataSessionContextAccess serviceContext;
 
   JPASerializeComplex(final ServiceMetadata serviceMetadata, final ODataSerializer serializer,
       final UriHelper uriHelper, final UriInfo uriInfo, final ContentType responseFormat,
-      final JPAODataCRUDContextAccess serviceContext) {
+      final JPAODataSessionContextAccess serviceContext) {
 
     this.uriInfo = uriInfo;
     this.serializer = serializer;
@@ -86,7 +86,7 @@ public final class JPASerializeComplex implements JPAOperationSerializer {
       final ContextURL contextUrl = ContextURL.with()
           .serviceRoot(buildServiceRoot(request, serviceContext))
           .entitySet(targetEdmEntitySet)
-          .navOrPropertyPath(Util.determineProptertyNavigationPath(uriInfo.getUriResourceParts()))
+          .navOrPropertyPath(Util.determinePropertyNavigationPath(uriInfo.getUriResourceParts()))
           .selectList(selectList)
           .build();
 

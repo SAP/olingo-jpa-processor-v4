@@ -43,7 +43,7 @@ import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializer;
@@ -70,7 +70,7 @@ public class TestCreateRequestEntity {
   private JPACUDRequestProcessor cut;
   private Entity oDataEntity;
   private ServiceMetadata serviceMetadata;
-  private JPAODataCRUDContextAccess sessionContext;
+  private JPAODataSessionContextAccess sessionContext;
   private JPAODataRequestContextAccess requestContext;
   private UriInfo uriInfo;
   private UriResourceEntitySet uriEts;
@@ -86,7 +86,7 @@ public class TestCreateRequestEntity {
   @BeforeEach
   public void setUp() throws Exception {
     odata = OData.newInstance();
-    sessionContext = mock(JPAODataCRUDContextAccess.class);
+    sessionContext = mock(JPAODataSessionContextAccess.class);
     requestContext = mock(JPAODataRequestContextAccess.class);
     serviceMetadata = mock(ServiceMetadata.class);
     uriInfo = mock(UriInfo.class);
@@ -179,7 +179,7 @@ public class TestCreateRequestEntity {
 
     JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
 
-    Object actValue = findEntitryList(act.getRelatedEntities(), ("children"));
+    Object actValue = findEntryList(act.getRelatedEntities(), ("children"));
     assertNotNull(actValue, "Is null");
     assertTrue(actValue instanceof List, "Wrong type");
   }
@@ -195,7 +195,7 @@ public class TestCreateRequestEntity {
 
     JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
 
-    Object actValue = findEntitryList(act.getRelatedEntities(), ("children"));
+    Object actValue = findEntryList(act.getRelatedEntities(), ("children"));
     assertEquals(1, ((List<?>) actValue).size(), "Wrong size");
   }
 
@@ -210,7 +210,7 @@ public class TestCreateRequestEntity {
 
     JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
 
-    Object actValue = findEntitryList(act.getRelatedEntities(), ("children"));
+    Object actValue = findEntryList(act.getRelatedEntities(), ("children"));
     assertNotNull(((List<?>) actValue).get(0));
     assertNotNull(((JPARequestEntity) ((List<?>) actValue).get(0)).getEntityType(), "Entity type not found");
     assertEquals("AdministrativeDivision", ((JPARequestEntity) ((List<?>) actValue).get(0))
@@ -228,7 +228,7 @@ public class TestCreateRequestEntity {
 
     JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
 
-    Object actValue = findEntitryList(act.getRelatedEntities(), ("children"));
+    Object actValue = findEntryList(act.getRelatedEntities(), ("children"));
     assertNotNull(((List<?>) actValue).get(0));
     assertNotNull(((JPARequestEntity) ((List<?>) actValue).get(0)).getEntityType(), "Entity type not found");
     Map<String, Object> actData = ((JPARequestEntity) ((List<?>) actValue).get(0)).getData();
@@ -248,7 +248,7 @@ public class TestCreateRequestEntity {
 
     JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
 
-    Object actValue = findEntitryList(act.getRelatedEntities(), ("children"));
+    Object actValue = findEntryList(act.getRelatedEntities(), ("children"));
     assertEquals(2, ((List<?>) actValue).size(), "Wrong size");
   }
 
@@ -295,7 +295,7 @@ public class TestCreateRequestEntity {
 
     JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
 
-    Object actValue = findEntitryList(act.getRelatedEntities(), ("parent"));
+    Object actValue = findEntryList(act.getRelatedEntities(), ("parent"));
     assertNotNull(actValue);
     assertTrue(actValue instanceof List<?>);
   }
@@ -336,7 +336,7 @@ public class TestCreateRequestEntity {
 
     assertNotNull(act);
     assertNotNull(act.getData());
-    assertNotNull(findEntitryList(act.getRelatedEntities(), ("roles")));
+    assertNotNull(findEntryList(act.getRelatedEntities(), ("roles")));
   }
 
   @Test
@@ -360,7 +360,7 @@ public class TestCreateRequestEntity {
     createPrimitiveProperty(createdProperties, Timestamp.valueOf("2016-01-20 09:21:23.0"), "At");
 
     final JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
-    final Object actValue = findEntitryList(act.getRelatedEntities(), ("administrativeInformation"));
+    final Object actValue = findEntryList(act.getRelatedEntities(), ("administrativeInformation"));
 
     assertNotNull(actValue);
     assertNotNull(((List<?>) actValue).get(0));
@@ -492,18 +492,18 @@ public class TestCreateRequestEntity {
     return properties;
   }
 
-  private Object findEntitryList(Map<JPAAssociationPath, List<JPARequestEntity>> relatedEntities,
-      String assoziationName) {
+  private Object findEntryList(Map<JPAAssociationPath, List<JPARequestEntity>> relatedEntities,
+      String associationName) {
     for (Entry<JPAAssociationPath, List<JPARequestEntity>> entity : relatedEntities.entrySet()) {
-      if (entity.getKey().getPath().get(0).getInternalName().equals(assoziationName))
+      if (entity.getKey().getPath().get(0).getInternalName().equals(associationName))
         return entity.getValue();
     }
     return null;
   }
 
-  private Object findLinkList(Map<JPAAssociationPath, List<JPARequestLink>> relationLink, String assoziationName) {
+  private Object findLinkList(Map<JPAAssociationPath, List<JPARequestLink>> relationLink, String associationName) {
     for (Entry<JPAAssociationPath, List<JPARequestLink>> entity : relationLink.entrySet()) {
-      if (entity.getKey().getPath().get(0).getInternalName().equals(assoziationName))
+      if (entity.getKey().getPath().get(0).getInternalName().equals(associationName))
         return entity.getValue();
     }
     return null;

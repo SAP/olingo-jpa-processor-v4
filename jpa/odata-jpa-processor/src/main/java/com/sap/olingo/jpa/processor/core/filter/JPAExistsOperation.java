@@ -22,7 +22,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
-import com.sap.olingo.jpa.processor.core.query.JPANavigationProptertyInfo;
+import com.sap.olingo.jpa.processor.core.query.JPANavigationPropertyInfo;
 import com.sap.olingo.jpa.processor.core.query.Util;
 
 abstract class JPAExistsOperation implements JPAOperator {
@@ -57,9 +57,9 @@ abstract class JPAExistsOperation implements JPAOperator {
 
   abstract Subquery<?> getExistsQuery() throws ODataApplicationException;
 
-  protected List<JPANavigationProptertyInfo> determineAssoziations(final JPAServiceDocument sd,
+  protected List<JPANavigationPropertyInfo> determineAssociations(final JPAServiceDocument sd,
       final List<UriResource> resourceParts) throws ODataApplicationException {
-    final List<JPANavigationProptertyInfo> pathList = new ArrayList<>();
+    final List<JPANavigationPropertyInfo> pathList = new ArrayList<>();
 
     StringBuilder associationName = null;
     UriResourcePartTyped navigation = null;
@@ -68,7 +68,7 @@ abstract class JPAExistsOperation implements JPAOperator {
         final UriResource resourcePart = resourceParts.get(i);
         if (resourcePart instanceof UriResourceNavigation) {
           if (navigation != null)
-            pathList.add(new JPANavigationProptertyInfo(sd, navigation, Util.determineAssoziationPath(sd,
+            pathList.add(new JPANavigationPropertyInfo(sd, navigation, Util.determineAssociationPath(sd,
                 ((UriResourcePartTyped) resourceParts.get(i)), associationName), null));
           navigation = (UriResourceNavigation) resourceParts.get(i);
           associationName = new StringBuilder();
@@ -80,7 +80,7 @@ abstract class JPAExistsOperation implements JPAOperator {
             associationName.insert(0, ((UriResourceComplexProperty) resourceParts.get(i)).getProperty().getName());
           }
           if (resourcePart instanceof UriResourceEntitySet)
-            pathList.add(new JPANavigationProptertyInfo(sd, navigation, Util.determineAssoziationPath(sd,
+            pathList.add(new JPANavigationPropertyInfo(sd, navigation, Util.determineAssociationPath(sd,
                 ((UriResourcePartTyped) resourceParts.get(i)), associationName), null));
         }
       }
@@ -97,7 +97,7 @@ abstract class JPAExistsOperation implements JPAOperator {
             associationName.insert(0, ((UriResourceComplexProperty) resourceParts.get(i)).getProperty().getName());
           }
           if (resourcePart instanceof UriResourceEntitySet)
-            pathList.add(new JPANavigationProptertyInfo(sd, navigation, Util.determineAssoziationPath(sd,
+            pathList.add(new JPANavigationPropertyInfo(sd, navigation, Util.determineAssociationPath(sd,
                 ((UriResourcePartTyped) resourceParts.get(i)), associationName), null));
         }
       }

@@ -268,10 +268,10 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
   abstract void determineIsVersion();
 
   void determineProtection() throws ODataJPAModelException {
-    final EdmProtections jpaProtectinons = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
+    final EdmProtections jpaProtections = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
         .getAnnotation(EdmProtections.class);
-    if (jpaProtectinons != null) {
-      for (final EdmProtectedBy jpaProtectedBy : jpaProtectinons.value()) {
+    if (jpaProtections != null) {
+      for (final EdmProtectedBy jpaProtectedBy : jpaProtections.value()) {
         determineOneProtection(jpaProtectedBy);
       }
     } else {
@@ -417,7 +417,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
    * @param jpaColumn
    * @throws ODataJPAModelException
    */
-  private void setPrecisionScale(final Column jpaColumn) throws ODataJPAModelException {
+  private void setPrecisionScale(final Column jpaColumn){
     if (jpaColumn.precision() > 0)
       edmProperty.setPrecision(jpaColumn.precision());
     if (edmProperty.getType().equals(EdmPrimitiveTypeKind.Decimal.getFullQualifiedName().toString())
@@ -435,8 +435,8 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
 
     final String[] pathSegments = internalPath.split(JPAPath.PATH_SEPARATOR);
     final StringBuilder externalPath = new StringBuilder();
-    for (final String segement : pathSegments) {
-      externalPath.append(nameBuilder.buildPropertyName(segement));
+    for (final String segment : pathSegments) {
+      externalPath.append(nameBuilder.buildPropertyName(segment));
       externalPath.append(JPAPath.PATH_SEPARATOR);
     }
     externalPath.deleteCharAt(externalPath.length() - 1);
@@ -471,11 +471,11 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
   }
 
   private void determineDBFieldName() {
-    final Column jpaColunnDetails = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
+    final Column jpaColumnDetails = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
         .getAnnotation(Column.class);
-    if (jpaColunnDetails != null) {
+    if (jpaColumnDetails != null) {
       // TODO allow default name
-      dbFieldName = jpaColunnDetails.name();
+      dbFieldName = jpaColumnDetails.name();
       if (dbFieldName.isEmpty()) {
         final StringBuilder s = new StringBuilder(DB_FIELD_NAME_PATTERN);
         s.replace(1, 3, internalName);

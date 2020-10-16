@@ -1,7 +1,8 @@
-package com.sap.olingo.jpa.processor.core.api;
+package com.sap.olingo.jpa.processor.core.processor;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
@@ -18,12 +19,16 @@ import org.apache.olingo.server.api.deserializer.batch.BatchRequestPart;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Answers;
 
+import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
+
 public abstract class JPAODataBatchAbstractRequestGroupTest {
 
-  protected JPAODataBatchProcessor processor;
+  protected JPAODataParallelBatchProcessor processor;
   protected ODataHandler odataHandler;
   private JPAODataRequestContextAccess requestContext;
-  private JPAODataCRUDContextAccess serviceContext;
+  private JPAODataSessionContextAccess serviceContext;
   private OData odata;
   private ServiceMetadata serviceMetadata;
   protected List<BatchRequestPart> groupElements;
@@ -35,10 +40,10 @@ public abstract class JPAODataBatchAbstractRequestGroupTest {
     debugger = mock(JPAServiceDebugger.class);
     odata = mock(OData.class);
     serviceMetadata = mock(ServiceMetadata.class);
-    serviceContext = mock(JPAODataCRUDContextAccess.class);
+    serviceContext = mock(JPAODataSessionContextAccess.class);
     requestContext = mock(JPAODataRequestContextAccess.class, withSettings().defaultAnswer(Answers.RETURNS_DEEP_STUBS));
     odataHandler = mock(ODataHandler.class);
-    processor = mock(JPAODataBatchProcessor.class, withSettings().useConstructor(serviceContext, requestContext));
+    processor = spy(new JPAODataParallelBatchProcessor(serviceContext, requestContext));
     groupElements = new ArrayList<>();
 
     processor.init(odata, serviceMetadata);
@@ -46,6 +51,7 @@ public abstract class JPAODataBatchAbstractRequestGroupTest {
     when(odata.createRawHandler(serviceMetadata)).thenReturn(odataHandler);
     when(requestContext.getDebugger()).thenReturn(debugger);
     when(debugger.startRuntimeMeasurement(any(), any())).thenReturn(1);
+    
   }
 
   protected ODataRequest buildPart() {

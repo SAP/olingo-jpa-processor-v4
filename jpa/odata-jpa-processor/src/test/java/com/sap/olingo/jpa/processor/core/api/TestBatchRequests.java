@@ -16,7 +16,7 @@ import com.sap.olingo.jpa.processor.core.util.TestBase;
 public class TestBatchRequests extends TestBase {
 
   @Test
-  public void testOneGetRequestGetResponce() throws IOException, ODataException {
+  public void testOneGetRequestGetResponse() throws IOException, ODataException {
     StringBuffer requestBody = createBodyOneGet();
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, "$batch", requestBody);

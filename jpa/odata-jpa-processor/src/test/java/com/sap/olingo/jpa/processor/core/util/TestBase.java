@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
+import org.apache.olingo.commons.api.ex.ODataException;
 import org.junit.jupiter.api.BeforeAll;
 
 import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
@@ -35,7 +36,7 @@ public class TestBase {
 
   protected void createHeaders() {
     headers = new HashMap<>();
-    List<String> languageHeaders = new ArrayList<>();
+    final List<String> languageHeaders = new ArrayList<>();
     languageHeaders.add("de-DE,de;q=0.8,en-US;q=0.6,en;q=0.4");
     headers.put("accept-language", languageHeaders);
   }
@@ -44,5 +45,11 @@ public class TestBase {
     final List<String> newHeader = new ArrayList<>();
     newHeader.add(value);
     headers.put(header, newHeader);
+  }
+
+  protected TestHelper getHelper() throws ODataException {
+    if (helper == null)
+      helper = new TestHelper(emf, PUNIT_NAME);
+    return helper;
   }
 }

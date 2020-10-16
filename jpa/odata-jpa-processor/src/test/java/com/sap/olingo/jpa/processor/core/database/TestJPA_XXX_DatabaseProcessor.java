@@ -98,7 +98,7 @@ public abstract class TestJPA_XXX_DatabaseProcessor {
   }
 
   @Test
-  public void testAbortsOnNotImplementedChaning() throws ODataJPAModelException {
+  public void testAbortsOnNotImplementedChaining() throws ODataJPAModelException {
 
     createFunctionWithOneParameter();
     final UriResourceCount uriResourceCount = mock(UriResourceCount.class);
@@ -301,7 +301,7 @@ public abstract class TestJPA_XXX_DatabaseProcessor {
     when(secondParameter.getMaxLength()).thenReturn(10);
     when(secondParameter.getType()).thenAnswer(new Answer<Class<?>>() {
       @Override
-      public Class<?> answer(InvocationOnMock invocation) throws Throwable {
+      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
         return String.class;
       }
     });
@@ -322,7 +322,7 @@ public abstract class TestJPA_XXX_DatabaseProcessor {
     when(secondParameter.getMaxLength()).thenReturn(10);
     when(secondParameter.getType()).thenAnswer(new Answer<Class<?>>() {
       @Override
-      public Class<?> answer(InvocationOnMock invocation) throws Throwable {
+      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
         return String.class;
       }
     });
@@ -335,7 +335,7 @@ public abstract class TestJPA_XXX_DatabaseProcessor {
     when(jpaFunction.isBound()).thenReturn(Boolean.TRUE);
     when(returnParameter.getType()).thenAnswer(new Answer<Class<?>>() {
       @Override
-      public Class<?> answer(InvocationOnMock invocation) throws Throwable {
+      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
         return BusinessPartner.class;
       }
     });
@@ -354,19 +354,18 @@ public abstract class TestJPA_XXX_DatabaseProcessor {
     when(firstParameter.getMaxLength()).thenReturn(10);
     when(firstParameter.getType()).thenAnswer(new Answer<Class<?>>() {
       @Override
-      public Class<?> answer(InvocationOnMock invocation) throws Throwable {
+      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
         return String.class;
       }
     });
 
-    when(functionQuery.getResultList()).thenReturn(Arrays.asList(new BusinessPartner[] { new Organization(),
-        new Organization() }));
+    when(functionQuery.getResultList()).thenReturn(Arrays.asList(new Organization(), new Organization()));
   }
 
   protected void createFunctionWithOneParameter() throws ODataJPAModelException {
     when(returnParameter.getType()).thenAnswer(new Answer<Class<?>>() {
       @Override
-      public Class<?> answer(InvocationOnMock invocation) throws Throwable {
+      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
         return BusinessPartner.class;
       }
     });
@@ -384,13 +383,12 @@ public abstract class TestJPA_XXX_DatabaseProcessor {
     when(firstParameter.getMaxLength()).thenReturn(10);
     when(firstParameter.getType()).thenAnswer(new Answer<Class<?>>() {
       @Override
-      public Class<?> answer(InvocationOnMock invocation) throws Throwable {
+      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
         return String.class;
       }
     });
 
-    when(functionQuery.getResultList()).thenReturn(Arrays.asList(new BusinessPartner[] { new Organization(),
-        new Organization() }));
+    when(functionQuery.getResultList()).thenReturn(Arrays.asList(new Organization(), new Organization()));
   }
 
 }

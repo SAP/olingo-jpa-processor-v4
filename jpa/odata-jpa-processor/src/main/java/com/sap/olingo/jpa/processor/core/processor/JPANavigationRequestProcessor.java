@@ -33,7 +33,7 @@ import org.apache.olingo.server.api.uri.queryoption.CountOption;
 import org.apache.olingo.server.api.uri.queryoption.SystemQueryOptionKind;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
-import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
@@ -43,14 +43,14 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.query.JPACollectionItemInfo;
 import com.sap.olingo.jpa.processor.core.query.JPACollectionJoinQuery;
-import com.sap.olingo.jpa.processor.core.query.JPAConvertableResult;
+import com.sap.olingo.jpa.processor.core.query.JPAConvertibleResult;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandItemInfo;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandItemInfoFactory;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandJoinQuery;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandQueryResult;
 import com.sap.olingo.jpa.processor.core.query.JPAJoinQuery;
 import com.sap.olingo.jpa.processor.core.query.JPAKeyBoundary;
-import com.sap.olingo.jpa.processor.core.query.JPANavigationProptertyInfo;
+import com.sap.olingo.jpa.processor.core.query.JPANavigationPropertyInfo;
 import com.sap.olingo.jpa.processor.core.query.Util;
 
 public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestProcessor {
@@ -59,7 +59,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
   private final JPAODataPage page;
 
   public JPANavigationRequestProcessor(final OData odata, final ServiceMetadata serviceMetadata,
-      final JPAODataCRUDContextAccess context, final JPAODataRequestContextAccess requestContext)
+      final JPAODataSessionContextAccess context, final JPAODataRequestContextAccess requestContext)
       throws ODataException {
 
     super(odata, context, requestContext);
@@ -84,7 +84,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
       throw new ODataJPAProcessorException(QUERY_PREPARATION_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR, e);
     }
 
-    final JPAConvertableResult result = query.execute();
+    final JPAConvertibleResult result = query.execute();
     // Read Expand and Collection
     final Optional<JPAKeyBoundary> keyBoundary = result.getKeyBoundary(requestContext, query.getNavigationInfo());
     result.putChildren(readExpandEntities(request.getAllHeaders(), query.getNavigationInfo(), uriInfo, keyBoundary));
@@ -138,7 +138,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
       final int serializerHandle = debugger.startRuntimeMeasurement(serializer, "serialize");
       final SerializerResult serializerResult = serializer.serialize(request, entityCollection);
       debugger.stopRuntimeMeasurement(serializerHandle);
-      createSuccessResponce(response, responseFormat, serializerResult);
+      createSuccessResponse(response, responseFormat, serializerResult);
     } else {
       // A request returns 204 No Content if the requested resource has the null value, or if the service applies a
       // return=minimal preference. In this case, the response body MUST be empty.
@@ -258,7 +258,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
    * @throws ODataException
    */
   private Map<JPAAssociationPath, JPAExpandResult> readExpandEntities(final Map<String, List<String>> headers,
-      final List<JPANavigationProptertyInfo> parentHops, final UriInfoResource uriResourceInfo,
+      final List<JPANavigationPropertyInfo> parentHops, final UriInfoResource uriResourceInfo,
       final Optional<JPAKeyBoundary> keyBoundary) throws ODataException {
 
     final int handle = debugger.startRuntimeMeasurement(this, "readExpandEntities");
@@ -290,7 +290,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
         .buildCollectionItemInfo(sd, uriResourceInfo, parentHops, requestContext.getGroupsProvider());
     for (final JPACollectionItemInfo item : collectionInfoList) {
       final JPACollectionJoinQuery collectionQuery = new JPACollectionJoinQuery(odata, sessionContext, item,
-          headers, new JPAODataRequestContextImpl(item.getUriInfo(), requestContext, headers), keyBoundary);
+          headers, new JPAODataInternalRequestContext(item.getUriInfo(), requestContext, headers), keyBoundary);
       final JPAExpandResult expandResult = collectionQuery.execute();
       allExpResults.put(item.getExpandAssociation(), expandResult);
     }

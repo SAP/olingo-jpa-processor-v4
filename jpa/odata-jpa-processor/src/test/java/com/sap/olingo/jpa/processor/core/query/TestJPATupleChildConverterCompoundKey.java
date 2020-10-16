@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
-import com.sap.olingo.jpa.processor.core.processor.JPAODataRequestContextImpl;
+import com.sap.olingo.jpa.processor.core.processor.JPAODataInternalRequestContext;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescriptionKey;
 import com.sap.olingo.jpa.processor.core.util.ServiceMetadataDouble;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
@@ -43,7 +43,7 @@ public class TestJPATupleChildConverterCompoundKey extends TestBase {
     jpaQueryResult = new ArrayList<>();
     uriHelper = new UriHelperDouble();
     keyPredicates = new HashMap<>();
-    requestContext = new JPAODataRequestContextImpl();
+    requestContext = new JPAODataInternalRequestContext();
   }
 
   @Test

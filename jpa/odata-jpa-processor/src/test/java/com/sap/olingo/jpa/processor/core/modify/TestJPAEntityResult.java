@@ -17,8 +17,8 @@ import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescrip
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescriptionKey;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
-import com.sap.olingo.jpa.processor.core.testmodel.CollcetionInnerComplex;
-import com.sap.olingo.jpa.processor.core.testmodel.CollcetionNestedComplex;
+import com.sap.olingo.jpa.processor.core.testmodel.CollectionInnerComplex;
+import com.sap.olingo.jpa.processor.core.testmodel.CollectionNestedComplex;
 import com.sap.olingo.jpa.processor.core.testmodel.Collection;
 import com.sap.olingo.jpa.processor.core.testmodel.CollectionDeep;
 import com.sap.olingo.jpa.processor.core.testmodel.CollectionFirstLevelComplex;
@@ -203,19 +203,19 @@ public class TestJPAEntityResult extends TestJPACreateResult {
     et = helper.getJPAEntityType("Collections");
 
     final Collection collection = new Collection();
-    final List<CollcetionNestedComplex> nested = new ArrayList<>();
+    final List<CollectionNestedComplex> nested = new ArrayList<>();
     collection.setNested(nested);
 
-    CollcetionNestedComplex nestedItem = new CollcetionNestedComplex();
-    CollcetionInnerComplex inner = new CollcetionInnerComplex();
+    CollectionNestedComplex nestedItem = new CollectionNestedComplex();
+    CollectionInnerComplex inner = new CollectionInnerComplex();
     inner.setFigure1(1L);
     inner.setFigure3(BigInteger.valueOf(3L));
     nestedItem.setInner(inner);
     nestedItem.setNumber(100L);
     nested.add(nestedItem);
 
-    nestedItem = new CollcetionNestedComplex();
-    inner = new CollcetionInnerComplex();
+    nestedItem = new CollectionNestedComplex();
+    inner = new CollectionInnerComplex();
     inner.setFigure1(11L);
     inner.setFigure3(BigInteger.valueOf(13L));
     nestedItem.setInner(inner);

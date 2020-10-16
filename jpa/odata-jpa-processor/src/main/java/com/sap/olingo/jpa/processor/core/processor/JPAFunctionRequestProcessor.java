@@ -36,7 +36,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAJavaFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPADBAdaptorException;
@@ -52,7 +52,7 @@ public final class JPAFunctionRequestProcessor extends JPAOperationRequestProces
 
   private final JPAODataDatabaseProcessor dbProcessor;
 
-  public JPAFunctionRequestProcessor(final OData odata, final JPAODataCRUDContextAccess context,
+  public JPAFunctionRequestProcessor(final OData odata, final JPAODataSessionContextAccess context,
       final JPAODataRequestContextAccess requestContext) throws ODataException {
     super(odata, context, requestContext);
     this.dbProcessor = context.getDatabaseProcessor();
@@ -142,9 +142,9 @@ public final class JPAFunctionRequestProcessor extends JPAOperationRequestProces
 
     final Parameter[] methodParameter = jpaFunction.getMethod().getParameters();
     final List<Object> parameter = new ArrayList<>();
-    for (final Parameter declairedParameter : methodParameter) {
+    for (final Parameter declaredParameter : methodParameter) {
       for (final UriParameter providedParameter : uriResourceFunction.getParameters()) {
-        final JPAParameter jpaParameter = jpaFunction.getParameter(declairedParameter.getName());
+        final JPAParameter jpaParameter = jpaFunction.getParameter(declaredParameter.getName());
         if (jpaParameter.getName().equals(providedParameter.getName())) {
           parameter.add(getValue(uriResourceFunction.getFunction(), jpaParameter, providedParameter.getText()));
           break;

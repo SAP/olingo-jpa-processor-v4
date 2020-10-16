@@ -16,6 +16,7 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -41,13 +42,14 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ValueNode;
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataBatchProcessor;
-import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataContextAccessDouble;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPagingProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContext;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestProcessor;
-import com.sap.olingo.jpa.processor.core.processor.JPAODataRequestContextImpl;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.processor.JPAODataInternalRequestContext;
 
 public class IntegrationTestHelper {
   public final HttpServletRequest req;
@@ -131,7 +133,6 @@ public class IntegrationTestHelper {
     super();
     final OData odata = OData.newInstance();
     String[] packages = TestBase.enumPackages;
-    final JPAODataRequestContextImpl requestContext = new JPAODataRequestContextImpl();
     acStatus = ArgumentCaptor.forClass(Integer.class);
     this.req = getRequestMock(uriPrefix + urlPath,
         requestBody == null ? null : new StringBuilder(requestBody.toString()), headers);
@@ -141,21 +142,24 @@ public class IntegrationTestHelper {
     final JPAEdmProvider edmProvider = new JPAEdmProvider(PUNIT_NAME, localEmf, null, packages);
     final EntityManager em = localEmf.createEntityManager();
 
-    final JPAODataCRUDContextAccess sessionContext = new JPAODataContextAccessDouble(edmProvider, ds, provider,
+    final JPAODataSessionContextAccess sessionContext = new JPAODataContextAccessDouble(edmProvider, ds, provider,
         functionPackage);
 
     final ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(sessionContext.getEdmProvider(),
         new ArrayList<EdmxReference>()));
-    requestContext.setClaimsProvider(claims);
-    requestContext.setGroupsProvider(groups);
-    requestContext.setEntityManager(em);
+    final JPAODataRequestContext externalContext = mock(JPAODataRequestContext.class);
+    when(externalContext.getEntityManager()).thenReturn(em);
+    when(externalContext.getClaimsProvider()).thenReturn(Optional.ofNullable(claims));
+    when(externalContext.getGroupsProvider()).thenReturn(Optional.ofNullable(groups));
+    final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext(externalContext);
+
     handler.register(new JPAODataRequestProcessor(sessionContext, requestContext));
     handler.register(new JPAODataBatchProcessor(sessionContext, requestContext));
     handler.process(req, resp);
 
   }
 
-  public HttpServletResponse getResponce() {
+  public HttpServletResponse getResponse() {
     return resp;
   }
 

@@ -14,17 +14,31 @@ import org.apache.olingo.server.api.ODataHttpHandler;
 import org.apache.olingo.server.api.debug.DebugSupport;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
-import com.sap.olingo.jpa.processor.core.processor.JPAODataRequestContextImpl;
+import com.sap.olingo.jpa.processor.core.processor.JPAODataInternalRequestContext;
 
-public class JPAODataGetHandler {
+public class JPAODataRequestHandler {
   private static final String REQUEST_MAPPING_ATTRIBUTE = "requestMapping";
   public final Optional<? extends EntityManagerFactory> emf;
   private final JPAODataServiceContext serviceContext;
-  private final JPAODataRequestContextImpl requestContext;
+  private final JPAODataInternalRequestContext requestContext;
   final OData odata;
 
-  public JPAODataGetHandler(final JPAODataCRUDContextAccess serviceContext) {
+  /**
+   * Create a handler without special request context. Default implementations are used if present.
+   * @param serviceContext
+   */
+  public JPAODataRequestHandler(final JPAODataSessionContextAccess serviceContext) {
     this(serviceContext, OData.newInstance());
+  }
+
+  /**
+   * 
+   * @param serviceContext
+   * @param requestContext
+   */
+  public JPAODataRequestHandler(final JPAODataSessionContextAccess serviceContext,
+      final JPAODataRequestContext requestContext) {
+    this(serviceContext, requestContext, OData.newInstance());
   }
 
   /**
@@ -32,15 +46,16 @@ public class JPAODataGetHandler {
    * @param serviceContext
    * @param odata
    */
-  JPAODataGetHandler(final JPAODataCRUDContextAccess serviceContext, final OData odata) {
-    this.emf = serviceContext.getEntityManagerFactory();
-    this.serviceContext = (JPAODataServiceContext) serviceContext;
-    this.requestContext = new JPAODataRequestContextImpl();
-    this.odata = odata;
+  JPAODataRequestHandler(final JPAODataSessionContextAccess serviceContext, final OData odata) {
+    this(serviceContext, null, odata);
   }
 
-  public JPAODataRequestContext getJPAODataRequestContext() {
-    return requestContext;
+  JPAODataRequestHandler(final JPAODataSessionContextAccess serviceContext, final JPAODataRequestContext requestContext,
+      final OData odata) {
+    this.emf = serviceContext.getEntityManagerFactory();
+    this.serviceContext = (JPAODataServiceContext) serviceContext;
+    this.requestContext = new JPAODataInternalRequestContext(requestContext);
+    this.odata = odata;
   }
 
   public void process(final HttpServletRequest request, final HttpServletResponse response) throws ODataException {

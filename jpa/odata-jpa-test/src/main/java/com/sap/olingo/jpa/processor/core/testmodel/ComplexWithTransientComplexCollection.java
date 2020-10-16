@@ -19,7 +19,7 @@ import com.sap.olingo.jpa.processor.core.errormodel.DummyPropertyCalculator;
  *
  */
 @Embeddable
-public class ComplexWithTransientComplexCollction {
+public class ComplexWithTransientComplexCollection {
 
   @Column(name = "\"LevelID\"")
   private Integer levelID;

@@ -69,7 +69,7 @@ class IntermediateJoinTable implements JPAJoinTable {
   }
 
   @Override
-  public List<JPAOnConditionItem> getInversJoinColumns() throws ODataJPAModelException {
+  public List<JPAOnConditionItem> getInverseJoinColumns() throws ODataJPAModelException {
     assert jpaEntityType != null;
     buildInverseJoinColumns();
     final IntermediateStructuredType<?> targetType = (IntermediateStructuredType<?>) intermediateProperty
@@ -98,7 +98,7 @@ class IntermediateJoinTable implements JPAJoinTable {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T extends JPAJoinColumn> List<T> getRawInversJoinInformation() throws ODataJPAModelException {
+  public <T extends JPAJoinColumn> List<T> getRawInverseJoinInformation() throws ODataJPAModelException {
     buildInverseJoinColumns();
     // For criteria builder the columns get switched
     final List<T> invertedColumns = new ArrayList<>(inverseJoinColumns.size());

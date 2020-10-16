@@ -8,7 +8,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializer;
 
-interface JPARequestContext {
+interface ODATARequestContext {
 
   /**
    * 

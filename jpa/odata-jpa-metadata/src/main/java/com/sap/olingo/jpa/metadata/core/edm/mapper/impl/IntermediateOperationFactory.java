@@ -20,7 +20,7 @@ public abstract class IntermediateOperationFactory {
   }
 
   abstract IntermediateOperation createOperation(final JPAEdmNameBuilder nameBuilder, final IntermediateSchema schema,
-      final Method m, final Object functionDescribtion) throws ODataJPAModelException;
+      final Method m, final Object functionDescription) throws ODataJPAModelException;
 
   Map<? extends String, ? extends IntermediateOperation> createOperationMap(final JPAEdmNameBuilder nameBuilder,
       final Reflections reflections, final IntermediateSchema schema, final Class<? extends ODataOperation> clazz,
@@ -35,10 +35,10 @@ public abstract class IntermediateOperationFactory {
 
       for (final Class<? extends ODataOperation> operationClass : operationClasses) {
         for (Method m : Arrays.asList(operationClass.getMethods())) {
-          Object operationDescribtion = m.getAnnotation(annotation);
-          if (operationDescribtion != null) {
-            final IntermediateOperation func = createOperation(nameBuilder, schema, m, operationDescribtion);
-            funcList.put(func.getInternalName(), createOperation(nameBuilder, schema, m, operationDescribtion));
+          Object operationDescription = m.getAnnotation(annotation);
+          if (operationDescription != null) {
+            final IntermediateOperation func = createOperation(nameBuilder, schema, m, operationDescription);
+            funcList.put(func.getInternalName(), createOperation(nameBuilder, schema, m, operationDescription));
           }
         }
       }

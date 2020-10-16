@@ -27,7 +27,7 @@ class JoinTableJoin<Z, X> extends AbstractJoinImp<Z, X> {
         aliasBuilder, cb);
     this.association = path;
     related.getJoins().add(this);
-    createOn(association.getJoinTable().getRawInversJoinInformation());
+    createOn(association.getJoinTable().getRawInverseJoinInformation());
   }
 
   @Override

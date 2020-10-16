@@ -31,10 +31,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataBatchProcessor;
-import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestProcessor;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor;
-import com.sap.olingo.jpa.processor.core.processor.JPAODataRequestContextImpl;
+import com.sap.olingo.jpa.processor.core.processor.JPAODataInternalRequestContext;
 import com.sap.olingo.jpa.processor.core.util.HttpRequestHeaderDouble;
 import com.sap.olingo.jpa.processor.core.util.ServletInputStreamDouble;
 
@@ -44,7 +44,7 @@ public class IntegrationTestHelper {
   private static final String uriPrefix = "http://localhost:8080/Test/Olingo.svc/";
   private static final String PUNIT_NAME = "com.sap.olingo.jpa";
   private static final String[] enumPackages = { "com.sap.olingo.jpa.processor.core.testmodel" };
-  private final JPAODataCRUDContextAccess sessionContext;
+  private final JPAODataSessionContextAccess sessionContext;
 
   public IntegrationTestHelper(final EntityManagerFactory emf, final String urlPath, final StringBuilder requestBody)
       throws IOException, ODataException {
@@ -52,10 +52,10 @@ public class IntegrationTestHelper {
     final OData odata = OData.newInstance();
     final EntityManager em = emf.createEntityManager();
     final Map<String, List<String>> headers = Collections.emptyMap();
-    final JPAODataRequestContextImpl requestContext = new JPAODataRequestContextImpl();
+    final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext();
     this.req = getRequestMock(uriPrefix + urlPath, requestBody, headers);
     this.resp = getResponseMock();
-    this.sessionContext = mock(JPAODataCRUDContextAccess.class);
+    this.sessionContext = mock(JPAODataSessionContextAccess.class);
 
     final JPAEdmProvider edmProvider = new JPAEdmProvider(PUNIT_NAME, emf, null, enumPackages);
     when(sessionContext.getEdmProvider()).thenReturn(edmProvider);

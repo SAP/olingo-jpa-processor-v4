@@ -99,7 +99,7 @@ public class TestJPAQueryOrderByClause extends TestBase {
   }
 
   @Test
-  public void testCollcetionOrderBy$CountAsc() throws IOException, ODataException {
+  public void testCollectionOrderBy$CountAsc() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "CollectionDeeps?$orderby=FirstLevel/SecondLevel/Comment/$count asc");
@@ -111,7 +111,7 @@ public class TestJPAQueryOrderByClause extends TestBase {
   }
 
   @Test
-  public void testCollcetionOrderBy$CountDesc() throws IOException, ODataException {
+  public void testCollectionOrderBy$CountDesc() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "CollectionDeeps?$orderby=FirstLevel/SecondLevel/Comment/$count desc");

@@ -14,7 +14,7 @@ public class ODataJPADBAdaptorException extends ODataJPAProcessException {
    */
   private static final long serialVersionUID = -7188499882306858747L;
 
-  public static enum MessageKeys implements ODataJPAMessageKey {
+  public enum MessageKeys implements ODataJPAMessageKey {
     PARAMETER_MISSING,
     NOT_SUPPORTED_SEARCH,
     PARAMETER_CONVERSION_ERROR,
@@ -27,7 +27,7 @@ public class ODataJPADBAdaptorException extends ODataJPAProcessException {
 
   }
 
-  private static final String BUNDEL_NAME = "processor-exceptions-i18n";
+  private static final String BUNDLE_NAME = "processor-exceptions-i18n";
 
   public ODataJPADBAdaptorException(final Throwable e, final HttpStatusCode statusCode) {
     super(e, statusCode);
@@ -53,7 +53,7 @@ public class ODataJPADBAdaptorException extends ODataJPAProcessException {
 
   @Override
   protected String getBundleName() {
-    return BUNDEL_NAME;
+    return BUNDLE_NAME;
   }
 
 }

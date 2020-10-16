@@ -106,7 +106,7 @@ public final class JPANavigationFilterQuery extends JPANavigationQuery {
 
   private void createDescriptionJoin() throws ODataApplicationException {
     final HashMap<String, From<?, ?>> joinTables = new HashMap<>();
-    generateDesciptionJoin(joinTables, determineAllDescriptionPath(), getRoot());
+    generateDescriptionJoin(joinTables, determineAllDescriptionPath(), getRoot());
   }
 
   private <T> void createSubQueryAggregation(final Subquery<?> childQuery, final Subquery<T> query)

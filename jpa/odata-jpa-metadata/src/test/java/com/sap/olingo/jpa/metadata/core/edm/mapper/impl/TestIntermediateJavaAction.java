@@ -35,28 +35,28 @@ public class TestIntermediateJavaAction extends TestMappingRoot {
 
   @Test
   public void checkInternalNameEqualMethodName() throws ODataJPAModelException {
-    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "unboundWithImport");
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "unboundWithImport");
 
     assertEquals("unboundWithImport", act.getInternalName());
   }
 
   @Test
   public void checkInternalNameGiven() throws ODataJPAModelException {
-    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "unboundWithImport");
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "unboundWithImport");
 
     assertEquals("unboundWithImport", act.getInternalName());
   }
 
   @Test
   public void checkExternalNameEqualMethodName() throws ODataJPAModelException {
-    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "unboundWithImport");
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "unboundWithImport");
 
     assertEquals("UnboundWithImport", act.getExternalName());
   }
 
   @Test
   public void checkReturnsFalseForIsBound() throws ODataJPAModelException {
-    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "unboundWithImport");
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "unboundWithImport");
 
     assertNotNull(act.getEdmItem());
     assertFalse(act.getEdmItem().isBound());
@@ -64,7 +64,7 @@ public class TestIntermediateJavaAction extends TestMappingRoot {
 
   @Test
   public void checkReturnsTrueForIsBound() throws ODataJPAModelException {
-    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "boundNoImport");
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "boundNoImport");
 
     assertNotNull(act.getEdmItem());
     assertTrue(act.getEdmItem().isBound());
@@ -74,7 +74,7 @@ public class TestIntermediateJavaAction extends TestMappingRoot {
 
   @Test
   public void checkReturnsEntitySetPathForBound() throws ODataJPAModelException {
-    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "boundWithEntitySetPath");
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "boundWithEntitySetPath");
 
     assertNotNull(act.getEdmItem());
     assertTrue(act.getEdmItem().isBound());
@@ -83,7 +83,7 @@ public class TestIntermediateJavaAction extends TestMappingRoot {
 
   @Test
   public void checkReturnsGivenEntitySetTypeIfBound() throws ODataJPAModelException {
-    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "boundNoImport");
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "boundNoImport");
 
     assertNotNull(act.getEdmItem());
     assertTrue(act.getEdmItem().isBound());
@@ -95,7 +95,7 @@ public class TestIntermediateJavaAction extends TestMappingRoot {
 
   @Test
   public void checkReturnsExternalName() throws ODataJPAModelException {
-    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "boundNoImport");
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "boundNoImport");
 
     assertNotNull(act.getEdmItem());
     assertEquals("BoundNoImport", act.getEdmItem().getName());
@@ -103,21 +103,21 @@ public class TestIntermediateJavaAction extends TestMappingRoot {
 
   @Test
   public void checkReturnsTrueForHasActionImportIfUnbound() throws ODataJPAModelException {
-    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "unboundWithImport");
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "unboundWithImport");
 
     assertTrue(act.hasImport());
   }
 
   @Test
   public void checkReturnsFalseForHasActionImportIfNotSet() throws ODataJPAModelException {
-    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "boundNoImport");
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "boundNoImport");
 
     assertFalse(act.hasImport());
   }
 
   @Test
   public void checkReturnsReturnTypeConvertedPrimitiveReturnType() throws ODataJPAModelException {
-    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "unboundWithImport");
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "unboundWithImport");
 
     assertNotNull(act.getEdmItem());
     assertNotNull(act.getEdmItem().getReturnType());
@@ -126,7 +126,7 @@ public class TestIntermediateJavaAction extends TestMappingRoot {
 
   @Test
   public void checkReturnsReturnTypeNullForVoid() throws ODataJPAModelException {
-    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "boundNoImport");
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "boundNoImport");
 
     assertNotNull(act.getEdmItem());
     assertNull(act.getEdmItem().getReturnType());
@@ -134,28 +134,28 @@ public class TestIntermediateJavaAction extends TestMappingRoot {
 
   @Test
   public void checkReturnsReturnTypeEmbeddableType() throws ODataJPAModelException {
-    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "returnEmbeddable");
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "returnEmbeddable");
 
     assertEquals("com.sap.olingo.jpa.ChangeInformation", act.getEdmItem().getReturnType().getType());
   }
 
   @Test
   public void checkReturnsEntityTypeAsReturnType() throws ODataJPAModelException {
-    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "returnEntity");
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "returnEntity");
 
     assertEquals("com.sap.olingo.jpa.Person", act.getEdmItem().getReturnType().getType());
   }
 
   @Test
   public void checkReturnsEnumerationTypeAsReturnType() throws ODataJPAModelException {
-    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "returnEnumeration");
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "returnEnumeration");
 
-    assertEquals("com.sap.olingo.jpa.ABCClassifiaction", act.getEdmItem().getReturnType().getType());
+    assertEquals("com.sap.olingo.jpa.ABCClassification", act.getEdmItem().getReturnType().getType());
   }
 
   @Test
   public void checkReturnsReturnTypeCollectionOfPrimitive() throws ODataJPAModelException {
-    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "returnCollection");
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "returnCollection");
 
     assertEquals("Edm.String", act.getEdmItem().getReturnType().getType());
     assertTrue(act.getEdmItem().getReturnType().isCollection());
@@ -163,7 +163,7 @@ public class TestIntermediateJavaAction extends TestMappingRoot {
 
   @Test
   public void checkReturnsReturnTypeCollectionOfEmbeddable() throws ODataJPAModelException {
-    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "returnEmbeddableCollection");
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "returnEmbeddableCollection");
 
     assertEquals("com.sap.olingo.jpa.ChangeInformation", act.getEdmItem().getReturnType().getType());
     assertTrue(act.getEdmItem().getReturnType().isCollection());
@@ -171,15 +171,15 @@ public class TestIntermediateJavaAction extends TestMappingRoot {
 
   @Test
   public void checkReturnsReturnTypeFacetForNumbers() throws ODataJPAModelException {
-    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "unboundReturnFacet");
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "unboundReturnFacet");
     assertFalse(act.getEdmItem().getReturnType().isNullable());
-    assertEquals(Integer.valueOf(20), act.getEdmItem().getReturnType().getPrecision());
-    assertEquals(Integer.valueOf(5), act.getEdmItem().getReturnType().getScale());
+    assertEquals(20, act.getEdmItem().getReturnType().getPrecision());
+    assertEquals(5, act.getEdmItem().getReturnType().getScale());
   }
 
   @Test
   public void checkReturnsReturnTypeFacetForNonNumbers() throws ODataJPAModelException {
-    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "unboundWithImport");
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "unboundWithImport");
 
     assertNull(act.getEdmItem().getReturnType().getPrecision());
     assertNull(act.getEdmItem().getReturnType().getScale());
@@ -188,16 +188,16 @@ public class TestIntermediateJavaAction extends TestMappingRoot {
 
   @Test
   public void checkReturnsReturnTypeFacetForStringsAndGeo() throws ODataJPAModelException {
-    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "calculateLocation");
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "calculateLocation");
 
-    assertEquals(Integer.valueOf(60), act.getEdmItem().getReturnType().getMaxLength());
+    assertEquals(60, act.getEdmItem().getReturnType().getMaxLength());
     assertEquals(Dimension.GEOGRAPHY, act.getEdmItem().getReturnType().getSrid().getDimension());
     assertEquals("4326", act.getEdmItem().getReturnType().getSrid().toString());
   }
 
   @Test
   public void checkReturnsParameterConvertPrimitiveTypes() throws ODataJPAModelException {
-    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "unboundWithImport");
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "unboundWithImport");
 
     assertNotNull(act.getEdmItem());
     assertNotNull(act.getEdmItem().getParameters());
@@ -210,20 +210,20 @@ public class TestIntermediateJavaAction extends TestMappingRoot {
 
   @Test
   public void checkReturnsParameterFacetForNumbers() throws ODataJPAModelException {
-    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "boundNoImport");
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "boundNoImport");
 
     assertNotNull(act.getParameter());
-    assertEquals(Integer.valueOf(34), act.getParameter().get(1).getPrecision());
-    assertEquals(Integer.valueOf(10), act.getParameter().get(1).getScale());
+    assertEquals(34, act.getParameter().get(1).getPrecision());
+    assertEquals(10, act.getParameter().get(1).getScale());
 
     assertNotNull(act.getEdmItem().getParameters());
-    assertEquals(Integer.valueOf(34), act.getEdmItem().getParameters().get(1).getPrecision());
-    assertEquals(Integer.valueOf(10), act.getEdmItem().getParameters().get(1).getScale());
+    assertEquals(34, act.getEdmItem().getParameters().get(1).getPrecision());
+    assertEquals(10, act.getEdmItem().getParameters().get(1).getScale());
   }
 
   @Test
   public void checkReturnsParameterFacetForNonNumbers() throws ODataJPAModelException {
-    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "unboundWithImport");
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "unboundWithImport");
 
     assertNotNull(act.getEdmItem().getParameters());
     assertNull(act.getEdmItem().getParameters().get(1).getPrecision());
@@ -233,22 +233,22 @@ public class TestIntermediateJavaAction extends TestMappingRoot {
 
   @Test
   public void checkReturnsParameterFacetForStringsAndGeo() throws ODataJPAModelException {
-    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "calculateLocation");
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "calculateLocation");
 
     assertNotNull(act.getParameter());
-    assertEquals(Integer.valueOf(100), act.getParameter().get(0).getMaxLength());
+    assertEquals(100, act.getParameter().get(0).getMaxLength());
     assertEquals(Dimension.GEOGRAPHY, act.getParameter().get(0).getSrid().getDimension());
     assertEquals("4326", act.getParameter().get(0).getSrid().toString());
 
     assertNotNull(act.getEdmItem().getParameters());
-    assertEquals(Integer.valueOf(100), act.getEdmItem().getParameters().get(0).getMaxLength());
+    assertEquals(100, act.getEdmItem().getParameters().get(0).getMaxLength());
     assertEquals(Dimension.GEOGRAPHY, act.getEdmItem().getParameters().get(0).getSrid().getDimension());
     assertEquals("4326", act.getEdmItem().getParameters().get(0).getSrid().toString());
   }
 
   @Test
   public void checkReturnsEnumerationTypeAsParameter() throws ODataJPAModelException {
-    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "returnEnumeration");
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "returnEnumeration");
 
     assertEquals("com.sap.olingo.jpa.AccessRights", act.getEdmItem().getParameters().get(0).getTypeFQN()
         .getFullQualifiedNameAsString());
@@ -256,18 +256,18 @@ public class TestIntermediateJavaAction extends TestMappingRoot {
 
   @Test
   public void checkProvidesAllParameter() throws ODataJPAModelException {
-    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "unboundWithImport");
-    List<JPAParameter> actParams = act.getParameter();
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "unboundWithImport");
+    final List<JPAParameter> actParams = act.getParameter();
     assertEquals(2, actParams.size());
   }
 
   @Test
-  public void checkProvidesParameterByDeclaired() throws ODataJPAModelException, NoSuchMethodException,
+  public void checkProvidesParameterByDeclared() throws ODataJPAModelException, NoSuchMethodException,
       SecurityException {
 
-    Method m = ExampleJavaActions.class.getMethod("unboundWithImport", short.class, int.class);
-    Parameter[] params = m.getParameters();
-    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "unboundWithImport");
+    final Method m = ExampleJavaActions.class.getMethod("unboundWithImport", short.class, int.class);
+    final Parameter[] params = m.getParameters();
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "unboundWithImport");
     assertNotNull(act.getParameter(params[0]));
     assertEquals("A", act.getParameter(params[0]).getName());
     assertNotNull(act.getParameter(params[1]));
@@ -276,14 +276,14 @@ public class TestIntermediateJavaAction extends TestMappingRoot {
 
   @Test
   public void checkExceptConstructorWithoutParameter() throws ODataJPAModelException {
-    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "unboundWithImport");
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "unboundWithImport");
     act.getEdmItem();
     assertNotNull(act.getConstructor());
   }
 
   @Test
   public void checkExceptConstructorWithEntityManagerParameter() throws ODataJPAModelException {
-    IntermediateJavaAction act = createAction(ExampleJavaEmConstructor.class, "mul");
+    final IntermediateJavaAction act = createAction(ExampleJavaEmConstructor.class, "mul");
 
     assertNotNull(act.getConstructor());
     assertEquals(1, act.getConstructor().getParameterTypes().length);
@@ -291,7 +291,7 @@ public class TestIntermediateJavaAction extends TestMappingRoot {
 
   @Test
   public void checkThrowsExcpetionForNonPrimitiveParameter() throws ODataJPAModelException {
-    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "errorNonPrimitiveParameter");
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "errorNonPrimitiveParameter");
     assertThrows(ODataJPAModelException.class, () -> {
       act.getEdmItem();
     });
@@ -299,7 +299,7 @@ public class TestIntermediateJavaAction extends TestMappingRoot {
 
   @Test
   public void checkThrowsExceptionIfCollectionAndReturnTypeEmpty() throws ODataJPAModelException {
-    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "returnCollectionWithoutReturnType");
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "returnCollectionWithoutReturnType");
     assertThrows(ODataJPAModelException.class, () -> {
       act.getEdmItem();
     });
@@ -321,7 +321,7 @@ public class TestIntermediateJavaAction extends TestMappingRoot {
 
   @Test
   public void checkThrowsExcpetionOnIsBoundWithoutEntityTypeParameter() throws ODataJPAModelException {
-    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "boundWithOutBindingParameter");
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "boundWithOutBindingParameter");
     assertThrows(ODataJPAModelException.class, () -> {
       act.getEdmItem();
     });
@@ -329,7 +329,7 @@ public class TestIntermediateJavaAction extends TestMappingRoot {
 
   @Test
   public void checkThrowsExcpetionOnIsBoundWithoutParameter() throws ODataJPAModelException {
-    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "boundWithOutParameter");
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "boundWithOutParameter");
     assertThrows(ODataJPAModelException.class, () -> {
       act.getEdmItem();
     });
@@ -337,7 +337,7 @@ public class TestIntermediateJavaAction extends TestMappingRoot {
 
   @Test
   public void checkThrowsExcpetionOnIsBoundBindingParameterNotFirst() throws ODataJPAModelException {
-    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "boundBindingParameterSecondParameter");
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "boundBindingParameterSecondParameter");
     assertThrows(ODataJPAModelException.class, () -> {
       act.getEdmItem();
     });
@@ -345,7 +345,7 @@ public class TestIntermediateJavaAction extends TestMappingRoot {
 
   @Test
   public void checkThrowsExcpetionOnEntitySetGivenUnbound() throws ODataJPAModelException {
-    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "errorUnboundWithEntitySetPath");
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "errorUnboundWithEntitySetPath");
     assertThrows(ODataJPAModelException.class, () -> {
       act.getEdmItem();
     });
@@ -353,18 +353,19 @@ public class TestIntermediateJavaAction extends TestMappingRoot {
 
   @Test
   public void checkThrowsExcpetionOnEntitySetGivenNoEntityReturnType() throws ODataJPAModelException {
-    IntermediateJavaAction act = createAction(ExampleJavaActions.class, "errorPrimitiveTypeWithEntitySetPath");
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "errorPrimitiveTypeWithEntitySetPath");
     assertThrows(ODataJPAModelException.class, () -> {
       act.getEdmItem();
     });
   }
 
-  private IntermediateJavaAction createAction(Class<? extends ODataAction> clazz, String method)
+  private IntermediateJavaAction createAction(final Class<? extends ODataAction> clazz, final String method)
       throws ODataJPAModelException {
-    for (Method m : Arrays.asList(clazz.getMethods())) {
-      EdmAction actionDescribtion = m.getAnnotation(EdmAction.class);
-      if (actionDescribtion != null && method.equals(m.getName())) {
-        return new IntermediateJavaAction(new JPADefaultEdmNameBuilder(PUNIT_NAME), actionDescribtion, m, helper.schema);
+    for (final Method m : Arrays.asList(clazz.getMethods())) {
+      final EdmAction actionDescription = m.getAnnotation(EdmAction.class);
+      if (actionDescription != null && method.equals(m.getName())) {
+        return new IntermediateJavaAction(new JPADefaultEdmNameBuilder(PUNIT_NAME), actionDescription, m,
+            helper.schema);
       }
     }
     return null;

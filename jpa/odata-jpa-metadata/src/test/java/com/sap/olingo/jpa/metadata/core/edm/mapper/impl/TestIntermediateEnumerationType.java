@@ -27,7 +27,7 @@ public class TestIntermediateEnumerationType extends TestMappingRoot {
   }
 
   @Test
-  public void checkCsdlEnumTypeAccessable() throws ODataJPAModelException {
+  public void checkCsdlEnumTypeAccessible() throws ODataJPAModelException {
     cut = new IntermediateEnumerationType(new JPADefaultEdmNameBuilder(PUNIT_NAME), DayOfWeek.class);
     assertNotNull(cut.getEdmItem());
   }

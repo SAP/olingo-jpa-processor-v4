@@ -25,7 +25,7 @@ public class ODataJPAUtilException extends ODataJPAProcessException {
 
   }
 
-  private static final String BUNDEL_NAME = "processor-exceptions-i18n";
+  private static final String BUNDLE_NAME = "processor-exceptions-i18n";
 
   public ODataJPAUtilException(final Throwable e, final HttpStatusCode statusCode) {
     super(e, statusCode);
@@ -51,7 +51,7 @@ public class ODataJPAUtilException extends ODataJPAProcessException {
 
   @Override
   protected String getBundleName() {
-    return BUNDEL_NAME;
+    return BUNDLE_NAME;
   }
 
 }

@@ -27,8 +27,8 @@ import org.mockito.ArgumentMatcher;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 
-public class TestJPAODataGetHandler extends TestBase {
-  private JPAODataGetHandler cut;
+public class JPAODataRequestHandlerTest extends TestBase {
+  private JPAODataRequestHandler cut;
   private HttpServletRequest request;
   private HttpServletResponse response;
   private static final String PUNIT_NAME = "com.sap.olingo.jpa";
@@ -41,54 +41,46 @@ public class TestJPAODataGetHandler extends TestBase {
   }
 
   @Test
-  public void testGetHandlerProvidingContext() throws ODataException {
-    final JPAODataCRUDContextAccess context = JPAODataServiceContext.with()
+  public void testGetHandlerProvidingSessionContext() throws ODataException {
+    final JPAODataSessionContextAccess sessionContext = JPAODataServiceContext.with()
         .setDataSource(ds)
         .setPUnit(PUNIT_NAME)
         .build();
-    cut = new JPAODataGetHandler(context);
+    cut = new JPAODataRequestHandler(sessionContext);
     assertNotNull(cut);
-  }
-
-  @Test
-  public void testGetRequestContextProvidingSessionContext() throws ODataException {
-    final JPAODataCRUDContextAccess context = JPAODataServiceContext.with()
-        .setDataSource(ds).setPUnit(PUNIT_NAME).build();
-    cut = new JPAODataGetHandler(context);
-    assertNotNull(cut.getJPAODataRequestContext());
   }
 
   @Test
   public void testPropertiesInstanceProvidingSessionContext() throws ODataException {
 
-    final JPAODataCRUDContextAccess context = JPAODataServiceContext.with()
+    final JPAODataSessionContextAccess context = JPAODataServiceContext.with()
         .setDataSource(ds).setPUnit(PUNIT_NAME).build();
-    cut = new JPAODataGetHandler(context);
+    cut = new JPAODataRequestHandler(context);
     assertNotNull(cut.odata);
   }
 
   @Test
   public void testProcessOnlyProvidingSessionContext() throws ODataException {
 
-    final JPAODataCRUDContextAccess context = JPAODataServiceContext.with()
+    final JPAODataSessionContextAccess context = JPAODataServiceContext.with()
         .setDataSource(ds)
         .setPUnit(PUNIT_NAME)
         .setTypePackage(enumPackages)
         .build();
-    new JPAODataGetHandler(context).process(request, response);
+    new JPAODataRequestHandler(context).process(request, response);
     assertEquals(200, getStatus());
   }
 
   @Test
   public void testProcessWithEntityManagerProvidingSessionContext() throws ODataException {
 
-    final JPAODataCRUDContextAccess context = JPAODataServiceContext.with()
+    final JPAODataSessionContextAccess sessionContext = JPAODataServiceContext.with()
         .setDataSource(ds)
         .setPUnit(PUNIT_NAME)
         .setTypePackage(enumPackages)
         .build();
-    cut = new JPAODataGetHandler(context);
-    cut.getJPAODataRequestContext().setEntityManager(emf.createEntityManager());
+    cut = new JPAODataRequestHandler(sessionContext);
+    // cut.getJPAODataRequestContext().setEntityManager(emf.createEntityManager());
     cut.process(request, response);
     assertEquals(200, getStatus());
   }
@@ -96,12 +88,14 @@ public class TestJPAODataGetHandler extends TestBase {
   @Test
   public void testProcessOnlyProvidingSessionContextWithEm() throws ODataException {
 
-    final JPAODataCRUDContextAccess context = JPAODataServiceContext.with()
+    final JPAODataSessionContextAccess sessionContext = JPAODataServiceContext.with()
         .setPUnit(PUNIT_NAME)
         .setTypePackage(enumPackages)
         .build();
-    cut = new JPAODataGetHandler(context);
-    cut.getJPAODataRequestContext().setEntityManager(emf.createEntityManager());
+    final JPAODataRequestContext requestContext = JPAODataRequestContext.with()
+        .setEntityManager(emf.createEntityManager())
+        .build();
+    cut = new JPAODataRequestHandler(sessionContext, requestContext);
     cut.process(request, response);
     assertEquals(200, getStatus());
   }
@@ -111,12 +105,12 @@ public class TestJPAODataGetHandler extends TestBase {
     final OData odata = mock(OData.class);
     final ODataHttpHandler handler = mock(ODataHttpHandler.class);
     when(odata.createHandler(any())).thenReturn(handler);
-    final JPAODataCRUDContextAccess context = JPAODataServiceContext.with()
+    final JPAODataSessionContextAccess context = JPAODataServiceContext.with()
         .setDataSource(ds)
         .setPUnit(PUNIT_NAME)
         .setRequestMappingPath("/test")
         .build();
-    cut = new JPAODataGetHandler(context, odata);
+    cut = new JPAODataRequestHandler(context, odata);
     cut.process(request, response);
     verify(handler, times(1)).process(isA(HttpServletRequestWrapper.class), any());
   }
@@ -126,11 +120,11 @@ public class TestJPAODataGetHandler extends TestBase {
     final OData odata = mock(OData.class);
     final ODataHttpHandler handler = mock(ODataHttpHandler.class);
     when(odata.createHandler(any())).thenReturn(handler);
-    final JPAODataCRUDContextAccess context = JPAODataServiceContext.with()
+    final JPAODataSessionContextAccess context = JPAODataServiceContext.with()
         .setDataSource(ds)
         .setPUnit(PUNIT_NAME)
         .build();
-    cut = new JPAODataGetHandler(context, odata);
+    cut = new JPAODataRequestHandler(context, odata);
     cut.process(request, response);
     verify(handler, times(1)).process(argThat(new HttpRequestMatcher()), any());
   }
@@ -140,12 +134,12 @@ public class TestJPAODataGetHandler extends TestBase {
     final OData odata = mock(OData.class);
     final ODataHttpHandler handler = mock(ODataHttpHandler.class);
     when(odata.createHandler(any())).thenReturn(handler);
-    final JPAODataCRUDContextAccess context = JPAODataServiceContext.with()
+    final JPAODataSessionContextAccess context = JPAODataServiceContext.with()
         .setDataSource(ds)
         .setPUnit(PUNIT_NAME)
         .setRequestMappingPath("")
         .build();
-    cut = new JPAODataGetHandler(context, odata);
+    cut = new JPAODataRequestHandler(context, odata);
     cut.process(request, response);
     verify(handler, times(1)).process(argThat(new HttpRequestMatcher()), any());
   }

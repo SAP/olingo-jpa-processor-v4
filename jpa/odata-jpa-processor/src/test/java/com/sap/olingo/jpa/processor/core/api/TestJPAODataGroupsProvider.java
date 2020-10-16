@@ -31,7 +31,7 @@ public class TestJPAODataGroupsProvider {
   }
 
   @Test
-  public void getReturnsTwoSeperateProvidedGroup() {
+  public void getReturnsTwoSeparateProvidedGroup() {
     cut.addGroup("Willi");
     cut.addGroup("Hugo");
     assertEquals(2, cut.getGroups().size());

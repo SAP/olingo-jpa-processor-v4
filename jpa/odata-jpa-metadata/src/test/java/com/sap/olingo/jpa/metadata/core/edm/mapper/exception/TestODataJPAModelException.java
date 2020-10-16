@@ -17,7 +17,7 @@ public class TestODataJPAModelException {
   @Test
   public void checkTextInDefaultLocale() {
     try {
-      RaiseExeption();
+      RaiseException();
     } catch (ODataJPAException e) {
       assertEquals("An English message", e.getMessage());
       return;
@@ -32,7 +32,7 @@ public class TestODataJPAModelException {
       localesList.add(Locale.GERMAN);
       Enumeration<Locale> locales = new LocaleEnumeration(localesList);
       TestException.setLocales(locales);
-      RaiseExeption();
+      RaiseException();
     } catch (ODataJPAException e) {
       assertEquals("Ein deutscher Text", e.getMessage());
       return;
@@ -43,7 +43,7 @@ public class TestODataJPAModelException {
   @Test
   public void checkTextInDefaultLocaleWithParameter() {
     try {
-      RaiseExeptionParam();
+      RaiseExceptionParam();
     } catch (ODataJPAException e) {
       assertEquals("Willi looks for Hugo", e.getMessage());
       return;
@@ -54,7 +54,7 @@ public class TestODataJPAModelException {
   @Test
   public void checkTextOnlyCause() {
     try {
-      RaiseExeptionCause();
+      RaiseExceptionCause();
     } catch (ODataJPAException e) {
       assertEquals("Test text from cause", e.getMessage());
       return;
@@ -65,7 +65,7 @@ public class TestODataJPAModelException {
   @Test
   public void checkTextIdAndCause() {
     try {
-      RaiseExeptionIDCause();
+      RaiseExceptionIDCause();
     } catch (ODataJPAException e) {
       assertEquals("An English message", e.getMessage());
       return;
@@ -76,7 +76,7 @@ public class TestODataJPAModelException {
   @Test
   public void checkTextIdAndCauseAndParameter() {
     try {
-      RaiseExeptionIDCause("Willi", "Hugo");
+      RaiseExceptionIDCause("Willi", "Hugo");
     } catch (ODataJPAException e) {
       assertEquals("Willi looks for Hugo", e.getMessage());
       return;
@@ -87,7 +87,7 @@ public class TestODataJPAModelException {
   @Test
   public void checkTextNullId() {
     try {
-      RaiseEmptyIDExeption();
+      RaiseEmptyIDException();
     } catch (ODataJPAException e) {
       assertEquals("No message text found", e.getMessage());
       return;
@@ -95,7 +95,7 @@ public class TestODataJPAModelException {
     fail();
   }
 
-  private void RaiseExeptionIDCause(String... params) throws TestException {
+  private void RaiseExceptionIDCause(String... params) throws TestException {
     try {
       raiseNullPointer();
     } catch (NullPointerException e) {
@@ -106,7 +106,7 @@ public class TestODataJPAModelException {
     }
   }
 
-  private void RaiseExeptionCause() throws ODataJPAException {
+  private void RaiseExceptionCause() throws ODataJPAException {
     try {
       raiseNullPointer();
     } catch (NullPointerException e) {
@@ -118,15 +118,15 @@ public class TestODataJPAModelException {
     throw new NullPointerException("Test text from cause");
   }
 
-  private void RaiseExeptionParam() throws ODataJPAException {
+  private void RaiseExceptionParam() throws ODataJPAException {
     throw new TestException("SECOND_MESSAGE", "Willi", "Hugo");
   }
 
-  private void RaiseExeption() throws ODataJPAException {
+  private void RaiseException() throws ODataJPAException {
     throw new TestException("FIRST_MESSAGE");
   }
 
-  private void RaiseEmptyIDExeption() throws ODataJPAException {
+  private void RaiseEmptyIDException() throws ODataJPAException {
     throw new TestException("");
   }
 

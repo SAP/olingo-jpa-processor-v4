@@ -95,20 +95,20 @@ abstract class IntermediateFunction extends IntermediateOperation implements JPA
   protected abstract FullQualifiedName determineParameterType(final Class<?> type,
       final EdmParameter definedParameter) throws ODataJPAModelException;
 
-  protected class IntermediatFunctionParameter implements JPAParameter {
+  protected class IntermediateFunctionParameter implements JPAParameter {
     private final EdmParameter jpaParameter;
     private final String internalName;
     private final String externalName;
     private final Class<?> type;
 
-    IntermediatFunctionParameter(final EdmParameter jpaParameter) {
+    IntermediateFunctionParameter(final EdmParameter jpaParameter) {
       this.jpaParameter = jpaParameter;
       this.internalName = jpaParameter.parameterName();
       this.externalName = jpaParameter.name();
       this.type = jpaParameter.type();
     }
 
-    IntermediatFunctionParameter(EdmParameter jpaParameter, String externalName,
+    IntermediateFunctionParameter(EdmParameter jpaParameter, String externalName,
         String internalName, Class<?> type) {
       this.jpaParameter = jpaParameter;
       this.internalName = internalName;

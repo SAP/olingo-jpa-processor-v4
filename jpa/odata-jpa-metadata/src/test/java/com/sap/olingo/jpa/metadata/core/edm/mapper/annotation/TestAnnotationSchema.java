@@ -285,11 +285,11 @@ public class TestAnnotationSchema {
 
     final CsdlFunction actFunc = act.get(0);
     assertEquals(4, actFunc.getParameters().size());
-    final CsdlParameter actMendatory = actFunc.getParameter("Entity");
-    assertNotNull(actMendatory);
-    assertEquals("Entity", actMendatory.getName());
-    assertEquals("Edm.EntityType", actMendatory.getType());
-    assertFalse(actMendatory.isNullable());
+    final CsdlParameter actMandatory = actFunc.getParameter("Entity");
+    assertNotNull(actMandatory);
+    assertEquals("Entity", actMandatory.getName());
+    assertEquals("Edm.EntityType", actMandatory.getType());
+    assertFalse(actMandatory.isNullable());
 
     final CsdlParameter actNullable = actFunc.getParameter("MaxDistance");
     assertTrue(actNullable.isNullable());

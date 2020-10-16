@@ -12,8 +12,12 @@ Accept: application/json
 Content-Type: application/json
 
 {
-   "Id" : "2"
+    "Data": "Hello World",
+    "ValueObjects": [
+        { "Id": "1" }
+    ]      
 }
+
 
 --xyz--
 
@@ -31,7 +35,11 @@ Accept: application/json
 Content-Type: application/json
 
 {
-   "Id" : "2"
+   "Data": "Batch Test"
+    "ValueObjects": [
+        { "Id": "1" },
+        { "Id": "1" }
+    ]    
 }
 
 --xyz2--

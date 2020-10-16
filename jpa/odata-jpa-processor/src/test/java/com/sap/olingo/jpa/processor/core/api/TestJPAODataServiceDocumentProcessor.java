@@ -23,7 +23,7 @@ import com.sap.olingo.jpa.processor.core.util.matcher.InputStreamMatcher;
 
 public class TestJPAODataServiceDocumentProcessor {
   private JPAODataServiceDocumentProcessor cut;
-  private JPAODataCRUDContextAccess sessionContext;
+  private JPAODataSessionContextAccess sessionContext;
   private ServiceMetadata metadata;
   private ODataRequest request;
   private ODataResponse response;
@@ -33,7 +33,7 @@ public class TestJPAODataServiceDocumentProcessor {
 
   @BeforeEach
   public void setup() {
-    sessionContext = mock(JPAODataCRUDContextAccess.class);
+    sessionContext = mock(JPAODataSessionContextAccess.class);
     edm = mock(Edm.class);
     container = mock(EdmEntityContainer.class);
     metadata = mock(ServiceMetadata.class);

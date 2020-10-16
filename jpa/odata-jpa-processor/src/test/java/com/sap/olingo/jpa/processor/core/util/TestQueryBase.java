@@ -1,5 +1,8 @@
 package com.sap.olingo.jpa.processor.core.util;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,9 +27,10 @@ import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
 import com.sap.olingo.jpa.processor.core.api.JPAODataContextAccessDouble;
-import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContext;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
-import com.sap.olingo.jpa.processor.core.processor.JPAODataRequestContextImpl;
+import com.sap.olingo.jpa.processor.core.processor.JPAODataInternalRequestContext;
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractJoinQuery;
 import com.sap.olingo.jpa.processor.core.query.JPAJoinQuery;
 
@@ -36,9 +40,9 @@ public class TestQueryBase extends TestBase {
   protected JPAEntityType jpaEntityType;
   protected HashMap<String, From<?, ?>> joinTables;
   protected Root<?> root;
-  protected JPAODataCRUDContextAccess context;
+  protected JPAODataSessionContextAccess context;
   protected UriInfo uriInfo;
-  protected JPAODataRequestContextImpl requestContext;
+  protected JPAODataInternalRequestContext requestContext;
 
   public TestQueryBase() {
     super();
@@ -47,16 +51,15 @@ public class TestQueryBase extends TestBase {
   @BeforeEach
   public void setup() throws ODataException, ODataJPAIllegalAccessException {
     buildUriInfo("BusinessPartners", "BusinessPartner");
-
     helper = new TestHelper(emf, PUNIT_NAME);
     nameBuilder = new JPADefaultEdmNameBuilder(PUNIT_NAME);
     jpaEntityType = helper.getJPAEntityType("BusinessPartners");
     createHeaders();
     context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null, TestBase.enumPackages), ds,
         null);
-
-    requestContext = new JPAODataRequestContextImpl();
-    requestContext.setEntityManager(emf.createEntityManager());
+    final JPAODataRequestContext externalContext = mock(JPAODataRequestContext.class);
+    when(externalContext.getEntityManager()).thenReturn(emf.createEntityManager());
+    requestContext = new JPAODataInternalRequestContext(externalContext);
     requestContext.setUriInfo(uriInfo);
     cut = new JPAJoinQuery(null, context, headers, requestContext);
 
@@ -83,15 +86,17 @@ public class TestQueryBase extends TestBase {
     return odataType;
   }
 
-  protected EdmType buildRequestContext(final String esName, final String etName) throws ODataJPAIllegalAccessException {
+  protected EdmType buildRequestContext(final String esName, final String etName)
+      throws ODataJPAIllegalAccessException {
     final EdmType odataType = buildUriInfo(esName, etName);
-    requestContext = new JPAODataRequestContextImpl();
-    requestContext.setEntityManager(emf.createEntityManager());
+    final JPAODataRequestContext externalContext = mock(JPAODataRequestContext.class);
+    when(externalContext.getEntityManager()).thenReturn(emf.createEntityManager());
+    requestContext = new JPAODataInternalRequestContext(externalContext);
     requestContext.setUriInfo(uriInfo);
     return odataType;
   }
 
-  protected void fillJoinTable(Root<?> joinRoot) {
+  protected void fillJoinTable(final Root<?> joinRoot) {
     Join<?, ?> join = joinRoot.join("locationName", JoinType.LEFT);
     joinTables.put("locationName", join);
     join = joinRoot.join("address", JoinType.LEFT);

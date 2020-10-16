@@ -80,7 +80,7 @@ public class TestFunctionReturnType implements ODataFunction {
     return p;
   }
 
-  @EdmFunction(name = "ListOfEntityTypeWithCollction", returnType = @ReturnType(type = Person.class))
+  @EdmFunction(name = "ListOfEntityTypeWithCollection", returnType = @ReturnType(type = Person.class))
   public List<Person> listOfEntityTypeWithCollection(@EdmParameter(name = "A") Integer a) {
     Person person = new Person();
     person.setID("1");
@@ -89,7 +89,7 @@ public class TestFunctionReturnType implements ODataFunction {
     return Arrays.asList(person);
   }
 
-  @EdmFunction(name = "EntityTypeWithDeepCollction", returnType = @ReturnType(type = CollectionDeep.class))
+  @EdmFunction(name = "EntityTypeWithDeepCollection", returnType = @ReturnType(type = CollectionDeep.class))
   public CollectionDeep entityTypeWithDeepCollection(@EdmParameter(name = "A") Integer a) {
     final CollectionDeep deepCollection = new CollectionDeep();
     final CollectionFirstLevelComplex firstLevel = new CollectionFirstLevelComplex();

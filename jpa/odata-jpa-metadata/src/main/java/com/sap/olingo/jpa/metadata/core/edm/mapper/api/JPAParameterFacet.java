@@ -5,7 +5,7 @@ import org.apache.olingo.commons.api.edm.geo.SRID;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
-public interface JPAParamaterFacet {
+public interface JPAParameterFacet {
 
   Integer getMaxLength();
 

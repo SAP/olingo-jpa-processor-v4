@@ -65,7 +65,7 @@ final class JPAEntityCollectionResult extends JPAEntityBasedResult implements JP
   }
 
   @Override
-  public JPAAssociationPath getAssoziation() {
+  public JPAAssociationPath getAssociation() {
     return path;
   }
 }

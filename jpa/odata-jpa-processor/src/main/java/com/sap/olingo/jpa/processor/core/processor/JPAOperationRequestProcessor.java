@@ -26,7 +26,7 @@ import org.apache.olingo.server.api.uri.UriHelper;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOperation;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.converter.JPAComplexResultConverter;
 import com.sap.olingo.jpa.processor.core.converter.JPAEntityResultConverter;
@@ -38,7 +38,7 @@ abstract class JPAOperationRequestProcessor extends JPAAbstractRequestProcessor 
 
   private static final String RESULT = "Result";
 
-  public JPAOperationRequestProcessor(OData odata, JPAODataCRUDContextAccess context,
+  public JPAOperationRequestProcessor(OData odata, JPAODataSessionContextAccess context,
       JPAODataRequestContextAccess requestContext) throws ODataException {
     super(odata, context, requestContext);
   }
@@ -129,7 +129,7 @@ abstract class JPAOperationRequestProcessor extends JPAAbstractRequestProcessor 
 
       final SerializerResult serializerResult = ((JPAOperationSerializer) serializer).serialize(result, returnType,
           request);
-      createSuccessResponce(response, responseFormat, serializerResult);
+      createSuccessResponse(response, responseFormat, serializerResult);
     } else {
       response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
     }

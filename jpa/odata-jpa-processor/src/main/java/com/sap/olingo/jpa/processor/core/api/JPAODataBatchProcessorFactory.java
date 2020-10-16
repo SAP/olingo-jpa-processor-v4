@@ -4,6 +4,6 @@ import javax.annotation.Nonnull;
 
 public interface JPAODataBatchProcessorFactory<T extends JPAODataBatchProcessor> {
 
-  T getBatchProcessor(@Nonnull final JPAODataCRUDContextAccess serviceContext,
+  T getBatchProcessor(@Nonnull final JPAODataSessionContextAccess serviceContext,
       @Nonnull final JPAODataRequestContextAccess requestContext);
 }

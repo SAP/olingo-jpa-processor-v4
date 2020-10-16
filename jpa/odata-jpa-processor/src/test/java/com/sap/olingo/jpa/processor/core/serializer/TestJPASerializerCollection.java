@@ -32,7 +32,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatcher;
 
-import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPASerializerException;
 
 public abstract class TestJPASerializerCollection {
@@ -44,7 +44,7 @@ public abstract class TestJPASerializerCollection {
   protected UriHelper uriHelper;
   protected ODataRequest request;
   protected EntityCollection result;
-  protected JPAODataCRUDContextAccess context;
+  protected JPAODataSessionContextAccess context;
   protected Annotatable annotatable;
   protected EdmEntityType edmEt;
   protected EdmEntitySet edmEs;
@@ -55,7 +55,7 @@ public abstract class TestJPASerializerCollection {
 
   @BeforeEach
   public void setup() throws SerializerException {
-    context = mock(JPAODataCRUDContextAccess.class);
+    context = mock(JPAODataSessionContextAccess.class);
     serviceMetadata = mock(ServiceMetadata.class);
     uriInfo = mock(UriInfo.class);
     serializer = mock(ODataSerializer.class);
@@ -68,10 +68,10 @@ public abstract class TestJPASerializerCollection {
     final UriResourceEntitySet uriEs = mock(UriResourceEntitySet.class);
     final List<UriParameter> keys = Collections.emptyList();
 
-    final List<UriResource> resouceParts = new ArrayList<>();
-    resouceParts.add(uriEs);
+    final List<UriResource> resourceParts = new ArrayList<>();
+    resourceParts.add(uriEs);
 
-    when(uriInfo.getUriResourceParts()).thenReturn(resouceParts);
+    when(uriInfo.getUriResourceParts()).thenReturn(resourceParts);
     when(uriEs.getKind()).thenReturn(UriResourceKind.entitySet);
     when(uriEs.getEntitySet()).thenReturn(edmEs);
     when(uriEs.getKeyPredicates()).thenReturn(keys);
@@ -81,7 +81,7 @@ public abstract class TestJPASerializerCollection {
     when(edmEt.getName()).thenReturn("Person");
     when(edmEt.getFullQualifiedName()).thenReturn(new FullQualifiedName("test.Person"));
 
-    initTest(resouceParts);
+    initTest(resourceParts);
   }
 
   @Test
@@ -129,7 +129,7 @@ public abstract class TestJPASerializerCollection {
 
   protected abstract EdmType getType();
 
-  protected abstract void initTest(final List<UriResource> resouceParts);
+  protected abstract void initTest(final List<UriResource> resourceParts);
 
   protected abstract <T> void verifySerializerCall(final ODataSerializer serializer, final String pattern)
       throws SerializerException;

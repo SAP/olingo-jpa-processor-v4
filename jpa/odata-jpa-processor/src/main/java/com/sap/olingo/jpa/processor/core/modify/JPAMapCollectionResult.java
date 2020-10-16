@@ -62,7 +62,7 @@ class JPAMapCollectionResult extends JPAMapBaseResult implements JPACollectionRe
   }
 
   @Override
-  public JPAAssociationPath getAssoziation() {
+  public JPAAssociationPath getAssociation() {
     return path;
   }
 

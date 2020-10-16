@@ -36,7 +36,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
  * @author Oliver Grande
  *
  */
-public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertableResult {
+public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertibleResult {
   private static final Map<String, List<Tuple>> EMPTY_RESULT;
   private final Map<JPAAssociationPath, JPAExpandResult> childrenResult;
   private final Map<String, List<Tuple>> jpaResult;
@@ -190,7 +190,7 @@ public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertab
 
   @Override
   public Optional<JPAKeyBoundary> getKeyBoundary(final JPAODataRequestContextAccess requestContext,
-      final List<JPANavigationProptertyInfo> hops) throws ODataJPAQueryException {
+      final List<JPANavigationPropertyInfo> hops) throws ODataJPAQueryException {
     try {
       if (!jpaResult.get(ROOT_RESULT_KEY).isEmpty()
           && (requestContext.getUriInfo().getExpandOption() != null
@@ -208,7 +208,7 @@ public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertab
     } catch (ODataJPAModelException e) {
       throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
-    return JPAConvertableResult.super.getKeyBoundary(requestContext, hops);
+    return JPAConvertibleResult.super.getKeyBoundary(requestContext, hops);
   }
 
   private boolean collectionPropertyRequested(final JPAODataRequestContextAccess requestContext)

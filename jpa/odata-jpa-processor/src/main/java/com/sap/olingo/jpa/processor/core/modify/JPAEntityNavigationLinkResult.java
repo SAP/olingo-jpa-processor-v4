@@ -19,9 +19,9 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
-import com.sap.olingo.jpa.processor.core.query.JPAConvertableResult;
+import com.sap.olingo.jpa.processor.core.query.JPAConvertibleResult;
 
-final class JPAEntityNavigationLinkResult extends JPACreateResult implements JPAConvertableResult {
+final class JPAEntityNavigationLinkResult extends JPACreateResult implements JPAConvertibleResult {
   private final List<Tuple> result;
   private Map<String, EntityCollection> odataResult;
   private final JPATupleChildConverter converter;

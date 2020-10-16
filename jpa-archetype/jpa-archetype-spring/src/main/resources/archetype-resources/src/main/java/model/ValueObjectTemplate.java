@@ -19,8 +19,11 @@ public class ValueObjectTemplate {
 
   @Id
   @Column(name = "\"Entity\"", length = 32)
-  private String entityId;
+  private Long entityId;
 
+  @Column(name = "\"Data\"", length = 255)
+  private String data;
+  
   @ManyToOne(optional = false, fetch = FetchType.LAZY)
   @JoinColumn(name = "\"Entity\"", insertable = false, updatable = false)
   private EntityTemplate entity;
@@ -33,14 +36,22 @@ public class ValueObjectTemplate {
     this.id = id;
   }
 
-  public String getEntityId() {
+  public Long getEntityId() {
     return entityId;
   }
 
-  public void setEntityId(final String entityId) {
+  public void setEntityId(final Long entityId) {
     this.entityId = entityId;
   }
 
+  public String getData() {
+    return data;
+  }
+
+  public void setData(final String data) {
+    this.data = data;
+  }
+  
   public EntityTemplate getEntity() {
     return entity;
   }

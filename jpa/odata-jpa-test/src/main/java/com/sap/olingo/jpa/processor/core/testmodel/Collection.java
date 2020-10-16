@@ -28,7 +28,7 @@ public class Collection {
   @ElementCollection(fetch = FetchType.LAZY)
   @CollectionTable(schema = "\"OLINGO\"", name = "\"NestedComplex\"",
       joinColumns = @JoinColumn(name = "\"ID\""))
-  private List<CollcetionNestedComplex> nested; // Must not be assigned to an ArrayList
+  private List<CollectionNestedComplex> nested; // Must not be assigned to an ArrayList
 
   public String getID() {
     return iD;
@@ -46,11 +46,11 @@ public class Collection {
     this.complex = complex;
   }
 
-  public List<CollcetionNestedComplex> getNested() {
+  public List<CollectionNestedComplex> getNested() {
     return nested;
   }
 
-  public void setNested(List<CollcetionNestedComplex> nested) {
+  public void setNested(List<CollectionNestedComplex> nested) {
     this.nested = nested;
   }
 

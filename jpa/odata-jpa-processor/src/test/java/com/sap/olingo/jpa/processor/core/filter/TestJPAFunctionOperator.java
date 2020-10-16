@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.filter;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -42,7 +43,7 @@ public class TestJPAFunctionOperator {
     jpaFunction = mock(JPADataBaseFunction.class);
     jpaResultParam = mock(JPAOperationResultParameter.class);
     when(jpaFunction.getResultParameter()).thenReturn(jpaResultParam);
-    List<UriResource> resources = new ArrayList<>();
+    final List<UriResource> resources = new ArrayList<>();
     resources.add(uriFunction);
 
     uriParams = new ArrayList<>();
@@ -57,11 +58,11 @@ public class TestJPAFunctionOperator {
     final Expression<?>[] jpaParameter = new Expression<?>[0];
 
     when(jpaFunction.getDBName()).thenReturn("Test");
-    doReturn(new Integer(5).getClass()).when(jpaResultParam).getType();
+    doReturn(Integer.valueOf(5).getClass()).when(jpaResultParam).getType();
     when(cb.function(jpaFunction.getDBName(), jpaResultParam.getType(), jpaParameter)).thenReturn(mock(
         Expression.class));
     when(jpaFunction.getResultParameter()).thenReturn(jpaResultParam);
-    Expression<?> act = cut.get();
+    final Expression<?> act = cut.get();
     assertNotNull(act);
   }
 
@@ -73,7 +74,7 @@ public class TestJPAFunctionOperator {
 
     try {
       cut.get();
-    } catch (ODataApplicationException e) {
+    } catch (final ODataApplicationException e) {
       return;
     }
     fail("Function provided not checked");
@@ -86,11 +87,7 @@ public class TestJPAFunctionOperator {
     when(jpaResultParam.isCollection()).thenReturn(false);
     doReturn(AdministrativeDivision.class).when(jpaResultParam).getType();
 
-    try {
-      cut.get();
-    } catch (ODataApplicationException e) {
-      return;
-    }
-    fail("Function provided not checked");
+    assertThrows(ODataApplicationException.class, () -> cut.get());
+
   }
 }

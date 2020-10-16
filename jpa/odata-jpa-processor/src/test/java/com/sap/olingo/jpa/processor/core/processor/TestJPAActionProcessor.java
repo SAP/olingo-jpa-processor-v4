@@ -1,6 +1,5 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -68,7 +67,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.serializer.JPAOperationSerializer;
@@ -93,7 +92,7 @@ public class TestJPAActionProcessor {
   @Mock
   private JPAOperationSerializer serializer;
   @Mock
-  private JPAODataCRUDContextAccess sessionContext;
+  private JPAODataSessionContextAccess sessionContext;
   @Mock
   private JPAODataRequestContextAccess requestContext;
   @Mock
@@ -121,11 +120,11 @@ public class TestJPAActionProcessor {
     uriResources.add(resource);
     actionParameter = new HashMap<>();
 
-    EntityManager em = mock(EntityManager.class);
-    CriteriaBuilder cb = mock(CriteriaBuilder.class);
-    JPAEdmProvider edmProvider = mock(JPAEdmProvider.class);
-    DeserializerResult dResult = mock(DeserializerResult.class);
-    SerializerResult serializerResult = mock(SerializerResult.class);
+    final EntityManager em = mock(EntityManager.class);
+    final CriteriaBuilder cb = mock(CriteriaBuilder.class);
+    final JPAEdmProvider edmProvider = mock(JPAEdmProvider.class);
+    final DeserializerResult dResult = mock(DeserializerResult.class);
+    final SerializerResult serializerResult = mock(SerializerResult.class);
 
     when(requestContext.getEntityManager()).thenReturn(em);
     when(em.getCriteriaBuilder()).thenReturn(cb);
@@ -152,12 +151,12 @@ public class TestJPAActionProcessor {
   }
 
   @Test
-  public void testCallsConstructorWithoutParemeter() throws InstantiationException,
+  public void testCallsConstructorWithoutParameter() throws InstantiationException,
       IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException,
       SecurityException, ODataApplicationException {
     TestJavaActionNoParameter.resetCalls();
 
-    setConstructorAndMethod("unboundReturnPrimitivetNoParameter");
+    setConstructorAndMethod("unboundReturnPrimitiveNoParameter");
 
     cut.performAction(request, response, requestFormat);
 
@@ -166,14 +165,14 @@ public class TestJPAActionProcessor {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testCallsConstructorWithParemeter() throws ODataJPAProcessException, InstantiationException,
+  public void testCallsConstructorWithParameter() throws ODataJPAProcessException, InstantiationException,
       IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException,
       SecurityException, ODataApplicationException {
     TestJavaActions.constructorCalls = 0;
 
     @SuppressWarnings("rawtypes")
-    Constructor c = TestJavaActions.class.getConstructors()[0];
-    Method m = TestJavaActions.class.getMethod("unboundWithOutParameter");
+    final Constructor c = TestJavaActions.class.getConstructors()[0];
+    final Method m = TestJavaActions.class.getMethod("unboundWithOutParameter");
     when(action.getConstructor()).thenReturn(c);
     when(action.getMethod()).thenReturn(m);
     when(action.getReturnType()).thenReturn(null);
@@ -188,8 +187,8 @@ public class TestJPAActionProcessor {
       SecurityException, ODataApplicationException {
 
     @SuppressWarnings("rawtypes")
-    Constructor c = TestJavaActions.class.getConstructors()[0];
-    Method m = TestJavaActions.class.getMethod("unboundWithOutParameter");
+    final Constructor c = TestJavaActions.class.getConstructors()[0];
+    final Method m = TestJavaActions.class.getMethod("unboundWithOutParameter");
     when(action.getConstructor()).thenReturn(c);
     when(action.getMethod()).thenReturn(m);
     when(action.getReturnType()).thenReturn(null);
@@ -204,15 +203,15 @@ public class TestJPAActionProcessor {
       SecurityException, SerializerException, ODataApplicationException {
 
     @SuppressWarnings("rawtypes")
-    Constructor c = TestJavaActions.class.getConstructors()[0];
-    Method m = TestJavaActions.class.getMethod("unboundReturnFacetNoParameter");
+    final Constructor c = TestJavaActions.class.getConstructors()[0];
+    final Method m = TestJavaActions.class.getMethod("unboundReturnFacetNoParameter");
     when(action.getConstructor()).thenReturn(c);
     when(action.getMethod()).thenReturn(m);
     final JPAOperationResultParameter rParam = mock(JPAOperationResultParameter.class);
     when(action.getResultParameter()).thenReturn(rParam);
 
-    EdmReturnType rt = mock(EdmReturnType.class);
-    EdmType type = mock(EdmType.class);
+    final EdmReturnType rt = mock(EdmReturnType.class);
+    final EdmType type = mock(EdmType.class);
     when(edmAction.getReturnType()).thenReturn(rt);
     when(rt.getType()).thenReturn(type);
     when(type.getKind()).thenReturn(EdmTypeKind.PRIMITIVE);
@@ -228,24 +227,24 @@ public class TestJPAActionProcessor {
       SecurityException, SerializerException, ODataApplicationException {
 
     @SuppressWarnings("rawtypes")
-    Constructor c = TestJavaActions.class.getConstructors()[0];
-    Method m = TestJavaActions.class.getMethod("returnEmbeddable");
+    final Constructor c = TestJavaActions.class.getConstructors()[0];
+    final Method m = TestJavaActions.class.getMethod("returnEmbeddable");
     when(action.getConstructor()).thenReturn(c);
     when(action.getMethod()).thenReturn(m);
     final JPAOperationResultParameter rParam = mock(JPAOperationResultParameter.class);
     when(action.getResultParameter()).thenReturn(rParam);
 
-    EdmReturnType rt = mock(EdmReturnType.class);
-    EdmComplexType type = mock(EdmComplexType.class);
+    final EdmReturnType rt = mock(EdmReturnType.class);
+    final EdmComplexType type = mock(EdmComplexType.class);
     when(edmAction.getReturnType()).thenReturn(rt);
     when(rt.getType()).thenReturn(type);
     when(type.getKind()).thenReturn(EdmTypeKind.COMPLEX);
 
-    JPAStructuredType st = mock(JPAStructuredType.class);
+    final JPAStructuredType st = mock(JPAStructuredType.class);
     when(sd.getComplexType((EdmComplexType) any())).thenReturn(st);
     when(st.getTypeClass()).thenAnswer(new Answer<Class<?>>() {
       @Override
-      public Class<?> answer(InvocationOnMock invocation) throws Throwable {
+      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
         return CommunicationData.class;
       }
     });
@@ -260,7 +259,7 @@ public class TestJPAActionProcessor {
       SecurityException, ODataJPAModelException, NumberFormatException, ODataApplicationException {
     TestJavaActionNoParameter.resetCalls();
 
-    Method m = setConstructorAndMethod("unboundVoidOneParameter", Short.class);
+    final Method m = setConstructorAndMethod("unboundVoidOneParameter", Short.class);
 
     addParameter(m, new Short("10"), "A", 0);
 
@@ -276,7 +275,7 @@ public class TestJPAActionProcessor {
 
     TestJavaActionNoParameter.resetCalls();
 
-    Method m = setConstructorAndMethod("unboundVoidOneEnumerationParameter", FileAccess.class);
+    final Method m = setConstructorAndMethod("unboundVoidOneEnumerationParameter", FileAccess.class);
 
     addParameter(m, FileAccess.Create, "AccessRights", 0);
 
@@ -290,7 +289,7 @@ public class TestJPAActionProcessor {
       SecurityException, ODataJPAModelException, NumberFormatException, ODataApplicationException {
     TestJavaActionNoParameter.resetCalls();
 
-    Method m = setConstructorAndMethod("unboundVoidTwoParameter", Short.class, Integer.class);
+    final Method m = setConstructorAndMethod("unboundVoidTwoParameter", Short.class, Integer.class);
 
     addParameter(m, new Short("10"), "A", 0);
     addParameter(m, new Integer("200000"), "B", 1);
@@ -306,7 +305,7 @@ public class TestJPAActionProcessor {
       ODataApplicationException {
     TestJavaActionNoParameter.resetCalls();
 
-    Method m = setConstructorAndMethod("unboundVoidOneParameter", Short.class);
+    final Method m = setConstructorAndMethod("unboundVoidOneParameter", Short.class);
 
     addParameter(m, null, "A", 0);
 
@@ -321,7 +320,7 @@ public class TestJPAActionProcessor {
       EdmPrimitiveTypeException, ODataApplicationException {
     TestJavaActionNoParameter.resetCalls();
 
-    Method m = setConstructorAndMethod("boundOnlyBinding", AdministrativeDivision.class);
+    final Method m = setConstructorAndMethod("boundOnlyBinding", AdministrativeDivision.class);
     when(edmAction.isBound()).thenReturn(Boolean.TRUE);
     uriResources.add(0, bindingEntity);
 
@@ -339,7 +338,8 @@ public class TestJPAActionProcessor {
       EdmPrimitiveTypeException, ODataApplicationException {
     TestJavaActionNoParameter.resetCalls();
 
-    Method m = setConstructorAndMethod("boundBindingPlus", AdministrativeDivision.class, Short.class, Integer.class);
+    final Method m = setConstructorAndMethod("boundBindingPlus", AdministrativeDivision.class, Short.class,
+        Integer.class);
     when(edmAction.isBound()).thenReturn(Boolean.TRUE);
     uriResources.add(0, bindingEntity);
 
@@ -367,13 +367,14 @@ public class TestJPAActionProcessor {
       EdmPrimitiveTypeException, ODataApplicationException {
     TestJavaActionNoParameter.resetCalls();
 
-    Method m = setConstructorAndMethod("boundBindingPlus", AdministrativeDivision.class, Short.class, Integer.class);
+    final Method m = setConstructorAndMethod("boundBindingPlus", AdministrativeDivision.class, Short.class,
+        Integer.class);
     when(edmAction.isBound()).thenReturn(Boolean.TRUE);
     uriResources.add(0, bindingEntity);
 
     setBindingParameter(m);
 
-    JPAParameter jpaParam = mock(JPAParameter.class);
+    final JPAParameter jpaParam = mock(JPAParameter.class);
     when(action.getParameter(m.getParameters()[1])).thenReturn(jpaParam);
     when(jpaParam.getName()).thenReturn("A");
 
@@ -387,11 +388,11 @@ public class TestJPAActionProcessor {
     assertEquals(new Integer(20), TestJavaActionNoParameter.param2);
   }
 
-  private void setBindingParameter(Method m) throws ODataJPAModelException, EdmPrimitiveTypeException {
+  private void setBindingParameter(final Method m) throws ODataJPAModelException, EdmPrimitiveTypeException {
     final JPAParameter bindingParam = addParameter(m, null, "Root", 0);
     when(bindingParam.getType()).thenAnswer(new Answer<Class<?>>() {
       @Override
-      public Class<?> answer(InvocationOnMock invocation) throws Throwable {
+      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
         return AdministrativeDivision.class;
       }
     });
@@ -414,7 +415,7 @@ public class TestJPAActionProcessor {
     when(code.getInternalName()).thenReturn("codeID");
     when(code.getType()).thenAnswer(new Answer<Class<?>>() {
       @Override
-      public Class<?> answer(InvocationOnMock invocation) throws Throwable {
+      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
         return String.class;
       }
     });
@@ -425,32 +426,33 @@ public class TestJPAActionProcessor {
     when(edmString.valueOfString("LAU2", false, 0, 0, 0, true, code.getType())).thenAnswer(
         new Answer<String>() {
           @Override
-          public String answer(InvocationOnMock invocation) throws Throwable {
+          public String answer(final InvocationOnMock invocation) throws Throwable {
             return "LAU2";
           }
         });
   }
 
-  private JPAParameter addParameter(final Method m, final Object value, final String name, int index)
+  private JPAParameter addParameter(final Method m, final Object value, final String name, final int index)
       throws ODataJPAModelException {
 
-    Parameter param = mock(Parameter.class);
+    final Parameter param = mock(Parameter.class);
     when(param.getValue()).thenReturn(value);
     when(param.getName()).thenReturn(name);
     when(param.getValueType()).thenReturn(ValueType.PRIMITIVE);
     actionParameter.put(name, param);
 
-    JPAParameter jpaParam = mock(JPAParameter.class);
+    final JPAParameter jpaParam = mock(JPAParameter.class);
     when(action.getParameter(m.getParameters()[index])).thenReturn(jpaParam);
     when(jpaParam.getName()).thenReturn(name);
     return jpaParam;
   }
 
   @SuppressWarnings("unchecked")
-  private Method setConstructorAndMethod(String methodName, Class<?>... parameterTypes) throws NoSuchMethodException {
+  private Method setConstructorAndMethod(final String methodName, final Class<?>... parameterTypes)
+      throws NoSuchMethodException {
     @SuppressWarnings("rawtypes")
-    Constructor c = TestJavaActionNoParameter.class.getConstructors()[0];
-    Method m = TestJavaActionNoParameter.class.getMethod(methodName, parameterTypes);
+    final Constructor c = TestJavaActionNoParameter.class.getConstructors()[0];
+    final Method m = TestJavaActionNoParameter.class.getMethod(methodName, parameterTypes);
     when(action.getConstructor()).thenReturn(c);
     when(action.getMethod()).thenReturn(m);
     when(action.getReturnType()).thenReturn(null);

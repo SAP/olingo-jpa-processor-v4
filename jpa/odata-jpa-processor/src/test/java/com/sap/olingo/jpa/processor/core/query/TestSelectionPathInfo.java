@@ -73,7 +73,7 @@ public class TestSelectionPathInfo {
 
     cut = new SelectionPathInfo<>(first, second, third);
     assertNotNull(cut);
-    assertEquals(exp, cut.joinedPersistant());
+    assertEquals(exp, cut.joinedPersistent());
   }
 
   @Test

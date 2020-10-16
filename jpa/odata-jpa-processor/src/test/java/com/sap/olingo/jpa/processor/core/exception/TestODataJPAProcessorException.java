@@ -23,9 +23,9 @@ public class TestODataJPAProcessorException {
   }
 
   @Test
-  public void checkSimpleRaiseExeption() {
+  public void checkSimpleRaiseException() {
     try {
-      RaiseExeption();
+      RaiseException();
     } catch (ODataApplicationException e) {
       assertEquals("No result was fond by Serializer", e.getMessage());
       assertEquals(400, e.getStatusCode());
@@ -35,9 +35,9 @@ public class TestODataJPAProcessorException {
   }
 
   @Test
-  public void checkSimpleViaMessageKeyRaiseExeption() {
+  public void checkSimpleViaMessageKeyRaiseException() {
     try {
-      RaiseExeptionParam();
+      RaiseExceptionParam();
     } catch (ODataApplicationException e) {
       assertEquals("Unable to convert value 'Willi' of parameter 'Hugo'", e.getMessage());
       assertEquals(500, e.getStatusCode());
@@ -46,12 +46,12 @@ public class TestODataJPAProcessorException {
     fail();
   }
 
-  private void RaiseExeptionParam() throws ODataJPAProcessException {
+  private void RaiseExceptionParam() throws ODataJPAProcessException {
     throw new ODataJPADBAdaptorException(ODataJPADBAdaptorException.MessageKeys.PARAMETER_CONVERSION_ERROR,
         HttpStatusCode.INTERNAL_SERVER_ERROR, "Willi", "Hugo");
   }
 
-  private void RaiseExeption() throws ODataJPAProcessException {
+  private void RaiseException() throws ODataJPAProcessException {
     throw new ODataJPASerializerException(ODataJPASerializerException.MessageKeys.RESULT_NOT_FOUND,
         HttpStatusCode.BAD_REQUEST);
   }

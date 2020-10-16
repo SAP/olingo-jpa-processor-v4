@@ -69,7 +69,7 @@ public class TestIntermediateModelElement {
 
     @Override
     protected void lazyBuildEdmItem() throws ODataJPAModelException {
-      // TODO Auto-generated method stub
+      // DO nothing
 
     }
 

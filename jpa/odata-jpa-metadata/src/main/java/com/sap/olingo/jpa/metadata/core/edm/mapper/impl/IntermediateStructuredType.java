@@ -42,7 +42,7 @@ import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlStructuralType;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
 
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssoziation;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssociation;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransient;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
@@ -296,8 +296,8 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
         case MANY_TO_MANY:
         case MANY_TO_ONE:
           if (jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
-            final EdmDescriptionAssoziation jpaDescription = ((AnnotatedElement) jpaAttribute.getJavaMember())
-                .getAnnotation(EdmDescriptionAssoziation.class);
+            final EdmDescriptionAssociation jpaDescription = ((AnnotatedElement) jpaAttribute.getJavaMember())
+                .getAnnotation(EdmDescriptionAssociation.class);
             if (jpaDescription != null) {
               final IntermediateDescriptionProperty descProperty = new IntermediateDescriptionProperty(nameBuilder,
                   jpaAttribute, this, schema);
@@ -363,7 +363,7 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
    * @throws ODataJPAModelException
    *
    */
-  protected void checkPropertyConsistancy() throws ODataJPAModelException {
+  protected void checkPropertyConsistency() throws ODataJPAModelException {
 
     for (final Entry<String, IntermediateProperty> property : declaredPropertiesList.entrySet()) {
       if (property.getValue().isTransient()) {
@@ -452,7 +452,7 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
     return jpaAttributes;
   }
 
-  JPAAssociationAttribute getCorrespondingAssiciation(final IntermediateStructuredType<?> sourceType,
+  JPAAssociationAttribute getCorrespondingAssociation(final IntermediateStructuredType<?> sourceType,
       final String sourceRelationshipName) throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = findCorrespondingAssociation(sourceType, sourceRelationshipName);
     return jpaAttribute == null ? null : new IntermediateNavigationProperty(nameBuilder, sourceType, jpaAttribute,
@@ -758,7 +758,7 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
             for (final String claimName : attribute.getProtectionClaimNames()) {
               for (final String pathName : attribute.getProtectionPath(claimName)) {
                 final JPAPath path = this.getPath(pathName, false);
-                if (path == null) // Annotation EdmProtctedBy found at '%2$s' of '%1$s', but the given 'path' '%3$s'...
+                if (path == null) // Annotation EdmProtectedBy found at '%2$s' of '%1$s', but the given 'path' '%3$s'...
                   throw new ODataJPAModelException(COMPLEX_PROPERTY_WRONG_PROTECTION_PATH, attribute.getInternalName(),
                       this.getTypeClass().getSimpleName(), pathName);
                 protectedAttributes.add(new ProtectionInfo(path, claimName, attribute));

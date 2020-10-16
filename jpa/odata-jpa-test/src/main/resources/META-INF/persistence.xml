@@ -33,7 +33,7 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.CollectionSecondLevelComplex</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Comment</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.CommunicationData</class>
-		<class>com.sap.olingo.jpa.processor.core.testmodel.ComplexWithTransientComplexCollction</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.ComplexWithTransientComplexCollection</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.CollcetionNestedComplexWithTransient</class>
         <class>com.sap.olingo.jpa.processor.core.testmodel.Country</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.CountryKey</class>
@@ -98,8 +98,8 @@
 		<class>com.sap.olingo.jpa.processor.core.errormodel.EmbeddedKeyPartOfGroup</class>
 		<class>com.sap.olingo.jpa.processor.core.errormodel.MandatoryPartOfGroup</class>
 		<class>com.sap.olingo.jpa.processor.core.errormodel.KeyPartOfGroup</class>
-		<class>com.sap.olingo.jpa.processor.core.errormodel.ComplextProtectedNoPath</class>
-		<class>com.sap.olingo.jpa.processor.core.errormodel.ComplextProtectedWrongPath</class>
+		<class>com.sap.olingo.jpa.processor.core.errormodel.ComplexProtectedNoPath</class>
+		<class>com.sap.olingo.jpa.processor.core.errormodel.ComplexProtectedWrongPath</class>
 		<class>com.sap.olingo.jpa.processor.core.errormodel.PersonDeepCollectionProtected</class> 
 		<class>com.sap.olingo.jpa.processor.core.testmodel.AddressDeepProtected</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.InhouseAddressWithProtection</class>

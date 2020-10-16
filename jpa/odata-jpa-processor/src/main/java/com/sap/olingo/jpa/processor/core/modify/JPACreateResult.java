@@ -83,8 +83,8 @@ abstract class JPACreateResult implements JPAExpandResult {
           final String providedLocale = determineLocale(descGetterMap, jpaAttribute);
           if (locale.getLanguage().equals(providedLocale)
               || locale.toString().equals(providedLocale)) {
-            final Object desciption = descGetterMap.get(jpaAttribute.getDescriptionAttribute().getInternalName());
-            tuple.addElement(path.getAlias(), path.getLeaf().getType(), desciption);
+            final Object description = descGetterMap.get(jpaAttribute.getDescriptionAttribute().getInternalName());
+            tuple.addElement(path.getAlias(), path.getLeaf().getType(), description);
             break;
           }
         }

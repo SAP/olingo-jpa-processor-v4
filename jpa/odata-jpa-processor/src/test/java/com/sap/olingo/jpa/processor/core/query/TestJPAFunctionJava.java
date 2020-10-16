@@ -40,7 +40,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
-import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.processor.JPAFunctionRequestProcessor;
 import com.sap.olingo.jpa.processor.core.serializer.JPAOperationSerializer;
@@ -52,7 +52,7 @@ public class TestJPAFunctionJava {
 
   private JPAFunctionRequestProcessor cut;
   private OData odata;
-  private JPAODataCRUDContextAccess context;
+  private JPAODataSessionContextAccess context;
   private JPAODataRequestContextAccess requestContext;
   private UriInfo uriInfo;
   private List<UriResource> uriResources;
@@ -66,7 +66,7 @@ public class TestJPAFunctionJava {
   @BeforeEach
   public void setup() throws ODataException {
     odata = mock(OData.class);
-    context = mock(JPAODataCRUDContextAccess.class);
+    context = mock(JPAODataSessionContextAccess.class);
     requestContext = mock(JPAODataRequestContextAccess.class);
     EntityManager em = mock(EntityManager.class);
     uriInfo = mock(UriInfo.class);

@@ -61,8 +61,8 @@ public class AdministrativeDivisionDescriptionKey implements Serializable {
     return divisionCode;
   }
 
-  public void setDivisionCode(String divisonCode) {
-    this.divisionCode = divisonCode;
+  public void setDivisionCode(String divisionCode) {
+    this.divisionCode = divisionCode;
   }
 
   public void setLanguage(String language) {

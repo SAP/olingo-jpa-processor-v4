@@ -21,10 +21,9 @@ or
 ```SQL
 SELECT "CodePublisher", "CodeID", "DivisionCode", "CountryISOCode", "Area", "Population"
 	FROM ( SELECT "CodePublisher", "CodeID", "DivisionCode", "CountryISOCode", "Area", "Population",
-				  ROW_NUMBER () 
-					OVER (
-							PARTITION BY "CodePublisher", "CodeID"
-							ORDER BY "CodePublisher", "CodeID" ) AS row_no
+				   ROW_NUMBER () 
+					OVER ( PARTITION BY "CodePublisher", "CodeID"
+							 ORDER BY "CodePublisher", "CodeID" ) AS row_no
 				  FROM "OLINGO"."AdministrativeDivision" ) AS i
 	WHERE i.row_no BETWEEN 0 AND 2;
 ```

@@ -36,7 +36,7 @@ import org.apache.olingo.server.api.uri.queryoption.expression.VisitableExpressi
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
 import com.sap.olingo.jpa.processor.core.query.JPACollectionFilterQuery;
 import com.sap.olingo.jpa.processor.core.query.JPANavigationFilterQuery;
-import com.sap.olingo.jpa.processor.core.query.JPANavigationProptertyInfo;
+import com.sap.olingo.jpa.processor.core.query.JPANavigationPropertyInfo;
 import com.sap.olingo.jpa.processor.core.query.JPANavigationQuery;
 
 /**
@@ -118,25 +118,25 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
     allUriResourceParts.addAll(jpaMember.getMember().getResourcePath().getUriResourceParts());
 
     // 1. Determine all relevant associations
-    final List<JPANavigationProptertyInfo> naviPathList = determineAssoziations(sd, allUriResourceParts);
+    final List<JPANavigationPropertyInfo> naviPathList = determineAssociations(sd, allUriResourceParts);
     JPAAbstractQuery parent = root;
     final List<JPANavigationQuery> queryList = new ArrayList<>();
 
     // 2. Create the queries and roots
     for (int i = naviPathList.size() - 1; i >= 0; i--) {
-      final JPANavigationProptertyInfo naviInfo = naviPathList.get(i);
+      final JPANavigationPropertyInfo naviInfo = naviPathList.get(i);
       if (i == 0) {
         final VisitableExpression expression = createExpression();
-        if (naviInfo.getUriResiource() instanceof UriResourceProperty) {
+        if (naviInfo.getUriResource() instanceof UriResourceProperty) {
           queryList.add(new JPACollectionFilterQuery(odata, sd, em, parent, naviInfo.getAssociationPath(), expression,
               determineFrom(i, naviPathList.size(), parent), groups));
         } else {
-          queryList.add(new JPANavigationFilterQuery(odata, sd, naviInfo.getUriResiource(), parent, em, naviInfo
+          queryList.add(new JPANavigationFilterQuery(odata, sd, naviInfo.getUriResource(), parent, em, naviInfo
               .getAssociationPath(), expression, determineFrom(i, naviPathList.size(), parent), claimsProvider,
               groups));
         }
       } else {
-        queryList.add(new JPANavigationFilterQuery(odata, sd, naviInfo.getUriResiource(), parent, em, naviInfo
+        queryList.add(new JPANavigationFilterQuery(odata, sd, naviInfo.getUriResource(), parent, em, naviInfo
             .getAssociationPath(), determineFrom(i, naviPathList.size(), parent), claimsProvider));
       }
       parent = queryList.get(queryList.size() - 1);

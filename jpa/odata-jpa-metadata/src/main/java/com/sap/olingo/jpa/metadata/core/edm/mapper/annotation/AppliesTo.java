@@ -63,7 +63,7 @@ public enum AppliesTo {
   ANNOTATION("Annotation"),
   APPLY("Apply"),
   CAST("Cast"),
-  COMPLEXT_TYPE("ComplexType"),
+  COMPLEX_TYPE("ComplexType"),
   ENTITY_CONTAINER("EntityContainer"),
   ENTITY_SET("EntitySet"),
   ENTITY_TYPE("EntityType"),
@@ -73,7 +73,7 @@ public enum AppliesTo {
   IF("If"),
   IF_OF("IsOf"),
   LABELED_ELEMENT("LabeledElement"),
-  MEMEBER("Member"),
+  MEMBER("Member"),
   NAVIGATION_PROPERTY("NavigationProperty"),
   NULL("Null"),
   ON_DELETE("OnDelete"),
@@ -85,7 +85,7 @@ public enum AppliesTo {
   REFERENTIAL_CONSTRAINT("ReferentialConstraint"),
   RETURN_TYPE("ReturnType"),
   SCHEMA("Schema"),
-  SINGELTON("Singleton"),
+  SINGLETON("Singleton"),
   TERM("Term"),
   TYPE_DEFINITION("TypeDefinition"),
   URL_REF("UrlRef");
@@ -99,14 +99,4 @@ public enum AppliesTo {
   public String value() {
     return value;
   }
-//
-//  public static AppliesTo fromValue(String v) {
-//    for (AppliesTo c : AppliesTo.values()) {
-//      if (c.value.equals(v)) {
-//        return c;
-//      }
-//    }
-//    throw new IllegalArgumentException(v);
-//  }
-
 }

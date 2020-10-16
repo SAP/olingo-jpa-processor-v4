@@ -201,7 +201,7 @@ public class TestIntermediateServiceDocument extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetActionReturnNullOnUnkownAction() throws ODataJPAModelException {
+  public void checkGetActionReturnNullOnUnknownAction() throws ODataJPAModelException {
     final EdmAction action = mock(EdmAction.class);
     when(action.getNamespace()).thenReturn("com.sap.olingo.jpa");
     when(action.getName()).thenReturn("Unknown");
@@ -210,7 +210,7 @@ public class TestIntermediateServiceDocument extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetActionReturnNullOnUnkownSchema() throws ODataJPAModelException {
+  public void checkGetActionReturnNullOnUnknownSchema() throws ODataJPAModelException {
     final EdmAction action = mock(EdmAction.class);
     when(action.getNamespace()).thenReturn("Unknown");
     when(action.getName()).thenReturn("BoundNoImport");
@@ -311,7 +311,7 @@ public class TestIntermediateServiceDocument extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetClaimsRetunsAllClaims() throws ODataJPAModelException {
+  public void checkGetClaimsReturnsAllClaims() throws ODataJPAModelException {
     final Map<String, JPAProtectionInfo> act = cut.getClaims();
     assertNotNull(act);
     assertTrue(act.containsKey("BuildingNumber"));

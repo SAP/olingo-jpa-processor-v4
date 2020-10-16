@@ -27,7 +27,7 @@ public class TestJPAQuerySelectWithGroupClause extends TestGroupBase {
     fillJoinTable(root);
 
     final List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("*"))).joinedPersistant(), root, Collections.emptyList());
+        new UriInfoDouble(new SelectOptionDouble("*"))).joinedPersistent(), root, Collections.emptyList());
 
     assertContains(selectClause, "ID");
     assertContainsNot(selectClause, "Country");
@@ -42,7 +42,7 @@ public class TestJPAQuerySelectWithGroupClause extends TestGroupBase {
     final List<String> groups = new ArrayList<>();
     groups.add("Person");
     final List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("*"))).joinedPersistant(), root, groups);
+        new UriInfoDouble(new SelectOptionDouble("*"))).joinedPersistent(), root, groups);
 
     assertContains(selectClause, "ID");
     assertContains(selectClause, "Country");
@@ -58,7 +58,7 @@ public class TestJPAQuerySelectWithGroupClause extends TestGroupBase {
     groups.add("Person");
     groups.add("Company");
     final List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("*"))).joinedPersistant(), root, groups);
+        new UriInfoDouble(new SelectOptionDouble("*"))).joinedPersistent(), root, groups);
 
     assertContains(selectClause, "ID");
     assertContains(selectClause, "Country");
@@ -75,7 +75,7 @@ public class TestJPAQuerySelectWithGroupClause extends TestGroupBase {
     groups.add("Company");
 
     final List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("Type,CreationDateTime"))).joinedPersistant(), root, groups);
+        new UriInfoDouble(new SelectOptionDouble("Type,CreationDateTime"))).joinedPersistent(), root, groups);
 
     assertContains(selectClause, "ID");
     assertContainsNot(selectClause, "Country");
@@ -91,7 +91,7 @@ public class TestJPAQuerySelectWithGroupClause extends TestGroupBase {
     groups.add("Test");
 
     final List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("Type,CreationDateTime"))).joinedPersistant(), root, groups);
+        new UriInfoDouble(new SelectOptionDouble("Type,CreationDateTime"))).joinedPersistent(), root, groups);
 
     assertContains(selectClause, "ID");
     assertContainsNot(selectClause, "Country");
@@ -107,7 +107,7 @@ public class TestJPAQuerySelectWithGroupClause extends TestGroupBase {
     groups.addGroup("Test");
 
     final List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
-        new UriInfoDouble(new SelectOptionDouble("Type,CreationDateTime"))).joinedPersistant(), root, Collections
+        new UriInfoDouble(new SelectOptionDouble("Type,CreationDateTime"))).joinedPersistent(), root, Collections
             .emptyList());
 
     assertContains(selectClause, "ID");

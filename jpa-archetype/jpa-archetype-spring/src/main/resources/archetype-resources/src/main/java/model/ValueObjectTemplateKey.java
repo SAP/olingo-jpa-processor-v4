@@ -12,13 +12,13 @@ public class ValueObjectTemplateKey implements Serializable {
   private String id;
 
   @Id
-  private String entityId;
+  private Long entityId;
 
-  String getEmploymentId() {
+  Long getEmploymentId() {
     return entityId;
   }
 
-  void setEmploymentId(String employmentId) {
+  void setEmploymentId(final Long employmentId) {
     this.entityId = employmentId;
   }
 
@@ -26,7 +26,7 @@ public class ValueObjectTemplateKey implements Serializable {
     return id;
   }
 
-  void setId(String id) {
+  void setId(final String id) {
     this.id = id;
   }
 

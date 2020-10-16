@@ -64,15 +64,15 @@ public class JPATupleChildConverter extends JPATupleResultConverter {
   }
 
   public Map<String, List<Object>> getCollectionResult(final JPACollectionResult jpaResult,
-      final Collection<JPAPath> reqestedSelection) throws ODataApplicationException {
+      final Collection<JPAPath> requestedSelection) throws ODataApplicationException {
 
     return new JPATupleCollectionConverter(sd, uriHelper, serviceMetadata, requestContext)
-        .getResult(jpaResult, reqestedSelection);
+        .getResult(jpaResult, requestedSelection);
   }
 
   @Override
   public Map<String, EntityCollection> getResult(@Nonnull final JPAExpandResult jpaResult,
-      @Nonnull final Collection<JPAPath> reqestedSelection) throws ODataApplicationException {
+      @Nonnull final Collection<JPAPath> requestedSelection) throws ODataApplicationException {
 
     jpaQueryResult = jpaResult;
     this.setName = determineSetName(jpaQueryResult);
@@ -88,7 +88,7 @@ public class JPATupleChildConverter extends JPATupleResultConverter {
 
       for (int i = 0; i < rows.size(); i++) {
         final Tuple row = rows.set(i, null);
-        final Entity odataEntity = convertRow(jpaConversionTargetEntity, row, reqestedSelection);
+        final Entity odataEntity = convertRow(jpaConversionTargetEntity, row, requestedSelection);
         odataEntity.setMediaContentType(determineContentType(jpaConversionTargetEntity, row));
         entities.add(odataEntity);
       }
@@ -99,7 +99,7 @@ public class JPATupleChildConverter extends JPATupleResultConverter {
   }
 
   protected Entity convertRow(final JPAEntityType rowEntity, final Tuple row,
-      final Collection<JPAPath> reqestedSelection) throws ODataApplicationException {
+      final Collection<JPAPath> requestedSelection) throws ODataApplicationException {
 
     final Map<String, ComplexValue> complexValueBuffer = new HashMap<>();
     final Entity odataEntity = new Entity();
@@ -110,10 +110,10 @@ public class JPATupleChildConverter extends JPATupleResultConverter {
     // part of $select. As Olingo adds the key properties (with null) anyhow this can be done here already
     createId(rowEntity, row, odataEntity);
     createEtag(rowEntity, row, odataEntity);
-    if (reqestedSelection.isEmpty())
+    if (requestedSelection.isEmpty())
       convertRowWithOutSelection(rowEntity, row, complexValueBuffer, odataEntity, properties);
     else
-      convertRowWithSelection(row, reqestedSelection, complexValueBuffer, odataEntity, properties);
+      convertRowWithSelection(row, requestedSelection, complexValueBuffer, odataEntity, properties);
     createCollectionProperties(rowEntity, row, properties);
     odataEntity.getNavigationLinks().addAll(createExpand(rowEntity, row, EMPTY_PREFIX, odataEntity.getId().toString()));
 

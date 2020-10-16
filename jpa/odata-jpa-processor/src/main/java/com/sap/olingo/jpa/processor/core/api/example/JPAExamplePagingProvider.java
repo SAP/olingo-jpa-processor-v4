@@ -38,7 +38,7 @@ public class JPAExamplePagingProvider implements JPAODataPagingProvider {
 
   @Override
   public JPAODataPage getNextPage(final String skiptoken) {
-    final CacheEntry privousePage = pageCache.get(skiptoken.replaceAll("'", ""));
+    final CacheEntry privousePage = pageCache.get(skiptoken.replace("'", ""));
     if (privousePage != null) {
       // Calculate next page
       final Integer skip = privousePage.getPage().getSkip() + privousePage.getPage().getTop();
@@ -51,7 +51,7 @@ public class JPAExamplePagingProvider implements JPAODataPagingProvider {
       final JPAODataPage page = new JPAODataPage(privousePage.getPage().getUriInfo(),
           skip, top, nextToken);
       if (nextToken != null)
-        addToChach(page, privousePage.getMaxTop());
+        addToCache(page, privousePage.getMaxTop());
       return page;
     }
     // skiptoken not found => let JPA Processor handle this
@@ -59,7 +59,7 @@ public class JPAExamplePagingProvider implements JPAODataPagingProvider {
   }
 
   @Override
-  public JPAODataPage getFirstPage(final UriInfo uriInfo, final Integer preferedPageSize,
+  public JPAODataPage getFirstPage(final UriInfo uriInfo, final Integer preferredPageSize,
       final JPACountQuery countQuery, final EntityManager em) throws ODataApplicationException {
 
     final UriResource root = uriInfo.getUriResourceParts().get(0);
@@ -73,8 +73,8 @@ public class JPAExamplePagingProvider implements JPAODataPagingProvider {
         final Integer topValue = uriInfo.getTopOption() != null ? uriInfo.getTopOption().getValue() : null;
         // Determine end of list
         final Long count = topValue != null ? (topValue + skipValue) : countQuery.countResults();
-        // Determine page size
-        final Integer size = preferedPageSize != null && preferedPageSize < maxSize ? preferedPageSize : maxSize;
+        // Determine page size 
+        final Integer size = preferredPageSize != null && preferredPageSize < maxSize ? preferredPageSize : maxSize;
         // Create a unique skiptoken if needed
         String skiptoken = null;
         if (size < count)
@@ -84,14 +84,14 @@ public class JPAExamplePagingProvider implements JPAODataPagingProvider {
             : size, skiptoken);
         // Cache page to be able to fulfill next link based request
         if (skiptoken != null)
-          addToChach(page, count);
+          addToCache(page, count);
         return page;
       }
     }
     return null;
   }
 
-  private void addToChach(final JPAODataPage page, final Long count) {
+  private void addToCache(final JPAODataPage page, final Long count) {
     if (pageCache.size() == cacheSize)
       pageCache.remove(index.poll());
 

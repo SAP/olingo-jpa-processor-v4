@@ -129,7 +129,7 @@ public class TestJPAQuerySelectByPath extends TestBase {
   }
 
   @Test
-  public void testNavigationToCollcetion() throws IOException, ODataException {
+  public void testNavigationToCollection() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('1')/Comment");
     helper.assertStatus(200);

@@ -56,8 +56,8 @@ final class IntermediateFunctionFactory extends IntermediateOperationFactory {
 
   @Override
   IntermediateOperation createOperation(final JPAEdmNameBuilder nameBuilder, final IntermediateSchema schema,
-      final Method m, final Object functionDescribtion) throws ODataJPAModelException {
-    return new IntermediateJavaFunction(nameBuilder, (EdmFunction) functionDescribtion, m, schema);
+      final Method m, final Object functionDescription) throws ODataJPAModelException {
+    return new IntermediateJavaFunction(nameBuilder, (EdmFunction) functionDescription, m, schema);
   }
 
   private void putFunction(final JPAEdmNameBuilder nameBuilder, final EntityType<?> jpaEntityType,

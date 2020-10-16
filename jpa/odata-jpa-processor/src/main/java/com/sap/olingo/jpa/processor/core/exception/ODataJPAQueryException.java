@@ -33,7 +33,7 @@ public class ODataJPAQueryException extends ODataJPAProcessException { // NOSONA
     QUERY_PREPARATION_JOIN_NOT_DEFINED,
     QUERY_PREPARATION_NOT_IMPLEMENTED,
     QUERY_PREPARATION_NOT_ALLOWED_MEMBER,
-    QUERY_PREPARATION_OERDER_BY_TRANSIENT,
+    QUERY_PREPARATION_ORDER_BY_TRANSIENT,
     NOT_SUPPORTED_RESOURCE_TYPE,
     MISSING_CLAIMS_PROVIDER,
     MISSING_CLAIM,
@@ -46,7 +46,7 @@ public class ODataJPAQueryException extends ODataJPAProcessException { // NOSONA
 
   }
 
-  private static final String BUNDEL_NAME = "processor-exceptions-i18n";
+  private static final String BUNDLE_NAME = "processor-exceptions-i18n";
 
   public ODataJPAQueryException(final Throwable e, final HttpStatusCode statusCode) {
     super(e, statusCode);
@@ -72,7 +72,7 @@ public class ODataJPAQueryException extends ODataJPAProcessException { // NOSONA
 
   @Override
   protected String getBundleName() {
-    return BUNDEL_NAME;
+    return BUNDLE_NAME;
   }
 
 }

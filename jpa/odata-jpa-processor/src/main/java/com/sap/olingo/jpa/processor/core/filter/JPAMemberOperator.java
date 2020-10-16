@@ -26,7 +26,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 
 public class JPAMemberOperator implements JPAOperator {
-  
+
   private static final Log LOGGER = LogFactory.getLog(JPAMemberOperator.class);
   private final Member member;
   private final From<?, ?> root;
@@ -66,11 +66,11 @@ public class JPAMemberOperator implements JPAOperator {
     Path<?> p = root;
     for (final JPAElement jpaPathElement : selectItemPath.getPath()) {
       if (jpaPathElement instanceof JPADescriptionAttribute) {
-        p = determineDescriptionCriteraPath(selectItemPath, p, jpaPathElement);
+        p = determineDescriptionCriteriaPath(selectItemPath, p, jpaPathElement);
       } else if (jpaPathElement instanceof JPACollectionAttribute) {
         if (!((JPACollectionAttribute) jpaPathElement).isComplex()) try {
           p = p.get(((JPACollectionAttribute) jpaPathElement).getTargetAttribute().getInternalName());
-        } catch (ODataJPAModelException e) {
+        } catch (final ODataJPAModelException e) {
           throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
         }
       } else {
@@ -80,7 +80,7 @@ public class JPAMemberOperator implements JPAOperator {
     return p;
   }
 
-  private Path<?> determineDescriptionCriteraPath(final JPAPath selectItemPath, Path<?> p,
+  private Path<?> determineDescriptionCriteriaPath(final JPAPath selectItemPath, Path<?> p,
       final JPAElement jpaPathElement) {
 
     final Set<?> allJoins = root.getJoins();
@@ -111,9 +111,9 @@ public class JPAMemberOperator implements JPAOperator {
       if (st.isComplex()) {
         try {
           orgPath = st.getStructuredType().getPath(attributePath.getLeaf().getExternalName());
-        } catch (ODataJPAModelException e) {
+        } catch (final ODataJPAModelException e) {
           // Ignore exception and use path
-          LOGGER.debug("Exception occured -> use path: " + e.getMessage());
+          LOGGER.debug("Exception occurred -> use path: " + e.getMessage());
         }
       }
     }

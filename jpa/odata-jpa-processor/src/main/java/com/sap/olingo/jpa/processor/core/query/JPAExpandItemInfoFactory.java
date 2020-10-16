@@ -41,15 +41,15 @@ public final class JPAExpandItemInfoFactory {
   private static final int PATH_INDEX = 3;
 
   public List<JPAExpandItemInfo> buildExpandItemInfo(final JPAServiceDocument sd, final UriInfoResource uriResourceInfo,
-      final List<JPANavigationProptertyInfo> grandParentHops) throws ODataApplicationException {
+      final List<JPANavigationPropertyInfo> grandParentHops) throws ODataApplicationException {
 
     final List<JPAExpandItemInfo> itemList = new ArrayList<>();
     final List<UriResource> startResourceList = uriResourceInfo.getUriResourceParts();
     final ExpandOption expandOption = uriResourceInfo.getExpandOption();
 
     if (startResourceList != null && expandOption != null) {
-      final List<JPANavigationProptertyInfo> parentHops = grandParentHops;
-      final Map<JPAExpandItem, JPAAssociationPath> expandPath = Util.determineAssoziations(sd, startResourceList,
+      final List<JPANavigationPropertyInfo> parentHops = grandParentHops;
+      final Map<JPAExpandItem, JPAAssociationPath> expandPath = Util.determineAssociations(sd, startResourceList,
           expandOption);
       for (final Entry<JPAExpandItem, JPAAssociationPath> item : expandPath.entrySet()) {
         itemList.add(new JPAExpandItemInfo(sd, item.getKey(), item.getValue(), parentHops));
@@ -71,8 +71,8 @@ public final class JPAExpandItemInfoFactory {
    * @throws ODataApplicationException
    */
   public List<JPACollectionItemInfo> buildCollectionItemInfo(final JPAServiceDocument sd,
-      final UriInfoResource uriResourceInfo, final List<JPANavigationProptertyInfo> grandParentHops,
-      Optional<JPAODataGroupProvider> groups) throws ODataApplicationException {
+      final UriInfoResource uriResourceInfo, final List<JPANavigationPropertyInfo> grandParentHops,
+      final Optional<JPAODataGroupProvider> groups) throws ODataApplicationException {
 
     final List<JPACollectionItemInfo> itemList = new ArrayList<>();
     final List<UriResource> startResourceList = uriResourceInfo.getUriResourceParts();
@@ -111,7 +111,7 @@ public final class JPAExpandItemInfoFactory {
               }
             }
           }
-          for (JPAElement pathElement : collectionProperties) {
+          for (final JPAElement pathElement : collectionProperties) {
             final JPACollectionExpandWrapper item = new JPACollectionExpandWrapper((JPAEntityType) pathInfo[ET_INDEX],
                 uriResourceInfo);
             itemList.add(new JPACollectionItemInfo(sd, item, ((JPACollectionAttribute) pathElement)
@@ -121,7 +121,7 @@ public final class JPAExpandItemInfoFactory {
           final JPAStructuredType st = (JPAStructuredType) pathInfo[ST_INDEX];
           final Set<JPAPath> selectOptions = getCollectionAttributesFromSelection(st, uriResourceInfo
               .getSelectOption());
-          for (JPAPath path : selectOptions) {
+          for (final JPAPath path : selectOptions) {
             final JPACollectionExpandWrapper item = new JPACollectionExpandWrapper((JPAEntityType) pathInfo[ET_INDEX],
                 uriResourceInfo);
             itemList.add(new JPACollectionItemInfo(sd, item, ((JPACollectionAttribute) path.getLeaf())
@@ -129,7 +129,7 @@ public final class JPAExpandItemInfoFactory {
           }
         }
       }
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
     return itemList;
@@ -139,16 +139,16 @@ public final class JPAExpandItemInfoFactory {
       final List<UriResource> startResourceList, final JPAEntityType et) throws ODataJPAQueryException {
 
     StringBuilder path = new StringBuilder();
-    Object[] result = new Object[4];
+    final Object[] result = new Object[4];
     if (startResourceList.isEmpty() && et != null) {
       result[ST_INDEX] = result[ET_INDEX] = et;
     } else {
-      for (UriResource uriElement : startResourceList) {
+      for (final UriResource uriElement : startResourceList) {
         try {
           if (uriElement instanceof UriResourceEntitySet || uriElement instanceof UriResourceNavigation) {
             result[ST_INDEX] = result[ET_INDEX] = sd.getEntity(((UriResourcePartTyped) uriElement)
                 .getType());
-            path = new StringBuilder(); //Reset path on switch between entities
+            path = new StringBuilder(); // Reset path on switch between entities
           } else if (uriElement instanceof UriResourceComplexProperty
               && !((UriResourceProperty) uriElement).isCollection()) {
             result[ST_INDEX] = sd.getComplexType(((UriResourceComplexProperty) uriElement).getComplexType());
@@ -159,7 +159,7 @@ public final class JPAExpandItemInfoFactory {
             result[PROPERTY_INDEX] = ((JPAStructuredType) result[ST_INDEX]).getPath(((UriResourceProperty) uriElement)
                 .getProperty().getName());
           }
-        } catch (ODataJPAModelException e) {
+        } catch (final ODataJPAModelException e) {
           throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
         }
       }
@@ -176,7 +176,7 @@ public final class JPAExpandItemInfoFactory {
       collectionAttributes.addAll(jpaEntity.getCollectionAttributesPath());
     } else {
       final String pathPrefix = "";
-      for (SelectItem sItem : select.getSelectItems()) {
+      for (final SelectItem sItem : select.getSelectItems()) {
         final JPAPath selectItemPath = SelectOptionUtil.selectItemAsPath(jpaEntity, pathPrefix, sItem);
         if (selectItemPath.getLeaf().isComplex() && !selectItemPath.getLeaf().isCollection()) {
           for (final JPAPath selectSubItemPath : selectItemPath.getLeaf().getStructuredType().getPathList()) {
@@ -195,21 +195,21 @@ public final class JPAExpandItemInfoFactory {
   private JPAPath getCollection(final JPAStructuredType jpaEntity, final JPAPath p, final String prefix)
       throws ODataJPAModelException {
 
-    final StringBuilder pathAliase = new StringBuilder(prefix);
-    for (JPAElement pathElement : p.getPath()) {
-      pathAliase.append(JPAPath.PATH_SEPARATOR);
-      pathAliase.append(pathElement.getExternalName());
+    final StringBuilder pathAlias = new StringBuilder(prefix);
+    for (final JPAElement pathElement : p.getPath()) {
+      pathAlias.append(JPAPath.PATH_SEPARATOR);
+      pathAlias.append(pathElement.getExternalName());
       if (pathElement instanceof JPAAttribute
           && ((JPAAttribute) pathElement).isCollection()
           && !((JPAAttribute) pathElement).isTransient()) {
-        return jpaEntity.getPath(pathAliase.toString());
+        return jpaEntity.getPath(pathAlias.toString());
       }
     }
     return null;
   }
 
   private boolean pathContainsCollection(final JPAPath p) throws ODataJPAModelException {
-    for (JPAElement pathElement : p.getPath()) {
+    for (final JPAElement pathElement : p.getPath()) {
       if (pathElement instanceof JPAAttribute
           && ((JPAAttribute) pathElement).isCollection()
           && !((JPAAttribute) pathElement).isTransient()) {

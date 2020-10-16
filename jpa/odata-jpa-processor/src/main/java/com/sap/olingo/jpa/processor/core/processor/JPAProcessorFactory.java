@@ -22,7 +22,7 @@ import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.queryoption.SystemQueryOption;
 import org.apache.olingo.server.api.uri.queryoption.SystemQueryOptionKind;
 
-import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
@@ -33,13 +33,13 @@ import com.sap.olingo.jpa.processor.core.query.JPAJoinQuery;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializerFactory;
 
 public final class JPAProcessorFactory {
-  private final JPAODataCRUDContextAccess sessionContext;
+  private final JPAODataSessionContextAccess sessionContext;
   private final JPASerializerFactory serializerFactory;
   private final OData odata;
   private final ServiceMetadata serviceMetadata;
 
   public JPAProcessorFactory(final OData odata, final ServiceMetadata serviceMetadata,
-      final JPAODataCRUDContextAccess context) {
+      final JPAODataSessionContextAccess context) {
     super();
     this.sessionContext = context;
     this.serializerFactory = new JPASerializerFactory(odata, serviceMetadata, context);
@@ -50,7 +50,7 @@ public final class JPAProcessorFactory {
   public JPACUDRequestProcessor createCUDRequestProcessor(final UriInfo uriInfo, final ContentType responseFormat,
       final JPAODataRequestContextAccess context, final Map<String, List<String>> header) throws ODataException {
 
-    final JPAODataRequestContextAccess requestContext = new JPAODataRequestContextImpl(uriInfo, serializerFactory
+    final JPAODataRequestContextAccess requestContext = new JPAODataInternalRequestContext(uriInfo, serializerFactory
         .createCUDSerializer(responseFormat, uriInfo, Optional.ofNullable(header.get(HttpHeader.ODATA_MAX_VERSION))),
         context, header);
 
@@ -61,7 +61,7 @@ public final class JPAProcessorFactory {
   public JPACUDRequestProcessor createCUDRequestProcessor(final UriInfo uriInfo,
       final JPAODataRequestContextAccess context, final Map<String, List<String>> header) throws ODataException {
 
-    final JPAODataRequestContextAccess requestContext = new JPAODataRequestContextImpl(uriInfo, context, header);
+    final JPAODataRequestContextAccess requestContext = new JPAODataInternalRequestContext(uriInfo, context, header);
 
     return new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext,
         new JPAConversionHelper());
@@ -70,7 +70,7 @@ public final class JPAProcessorFactory {
   public JPAActionRequestProcessor createActionProcessor(final UriInfo uriInfo, final ContentType responseFormat,
       final Map<String, List<String>> header, final JPAODataRequestContextAccess context) throws ODataException {
 
-    final JPAODataRequestContextAccess requestContext = new JPAODataRequestContextImpl(uriInfo,
+    final JPAODataRequestContextAccess requestContext = new JPAODataInternalRequestContext(uriInfo,
         responseFormat != null ? serializerFactory.createSerializer(responseFormat, uriInfo, Optional.ofNullable(header
             .get(HttpHeader.ODATA_MAX_VERSION))) : null, context, header);
 
@@ -86,7 +86,7 @@ public final class JPAProcessorFactory {
     final JPAODataPage page = getPage(header, uriInfo, context);
     JPAODataRequestContextAccess requestContext;
     try {
-      requestContext = new JPAODataRequestContextImpl(page, serializerFactory
+      requestContext = new JPAODataInternalRequestContext(page, serializerFactory
           .createSerializer(responseFormat, page.getUriInfo(), Optional.ofNullable(header.get(
               HttpHeader.ODATA_MAX_VERSION))), context, header);
     } catch (ODataJPAIllegalAccessException e) {
@@ -143,9 +143,9 @@ public final class JPAProcessorFactory {
           throw new ODataJPAProcessorException(QUERY_SERVER_DRIVEN_PAGING_GONE, HttpStatusCode.GONE, skiptoken);
       } else {
         final JPACountQuery countQuery = new JPAJoinQuery(odata, sessionContext, headers,
-            new JPAODataRequestContextImpl(uriInfo, requestContext, headers));
-        final Integer preferedPagesize = getPreferedPagesize(headers);
-        final JPAODataPage firstPage = sessionContext.getPagingProvider().getFirstPage(uriInfo, preferedPagesize,
+            new JPAODataInternalRequestContext(uriInfo, requestContext, headers));
+        final Integer preferredPagesize = getPreferredPagesize(headers);
+        final JPAODataPage firstPage = sessionContext.getPagingProvider().getFirstPage(uriInfo, preferredPagesize,
             countQuery, requestContext.getEntityManager());
         page = firstPage != null ? firstPage : page;
       }
@@ -153,11 +153,11 @@ public final class JPAProcessorFactory {
     return page;
   }
 
-  private Integer getPreferedPagesize(final Map<String, List<String>> headers) throws ODataJPAProcessorException {
+  private Integer getPreferredPagesize(final Map<String, List<String>> headers) throws ODataJPAProcessorException {
 
-    final List<String> preferedHeaders = getHeader("Prefer", headers);
-    if (preferedHeaders != null) {
-      for (String header : preferedHeaders) {
+    final List<String> preferredHeaders = getHeader("Prefer", headers);
+    if (preferredHeaders != null) {
+      for (String header : preferredHeaders) {
         if (header.startsWith("odata.maxpagesize")) {
           try {
             return Integer.valueOf((header.split("=")[1]));

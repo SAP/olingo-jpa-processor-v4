@@ -151,7 +151,7 @@ public class TestJPAFunctionSerializer {
 
   @Test
   public void testFunctionReturnsEntityTypeWithCollection() throws IOException, ODataException {
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds, "ListOfEntityTypeWithCollction(A=1250)",
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds, "ListOfEntityTypeWithCollection(A=1250)",
         "com.sap.olingo.jpa.processor.core.testobjects");
     helper.assertStatus(200);
     ObjectNode r = helper.getValue();
@@ -163,7 +163,7 @@ public class TestJPAFunctionSerializer {
 
   @Test
   public void testFunctionReturnsEntityTypeWithDeepCollection() throws IOException, ODataException {
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds, "EntityTypeWithDeepCollction(A=1250)",
+    IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds, "EntityTypeWithDeepCollection(A=1250)",
         "com.sap.olingo.jpa.processor.core.testobjects");
     helper.assertStatus(200);
     ObjectNode r = helper.getValue();

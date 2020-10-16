@@ -37,7 +37,7 @@ import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseProcessorFactory;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 
-public final class JPAODataServiceContext implements JPAODataCRUDContextAccess {
+public final class JPAODataServiceContext implements JPAODataSessionContextAccess {
   /**
    *
    */
@@ -97,7 +97,7 @@ public final class JPAODataServiceContext implements JPAODataCRUDContextAccess {
   }
 
   @Override
-  public Optional<? extends EntityManagerFactory>  getEntityManagerFactory() {
+  public Optional<? extends EntityManagerFactory> getEntityManagerFactory() {
     return emf;
   }
 
@@ -159,10 +159,16 @@ public final class JPAODataServiceContext implements JPAODataCRUDContextAccess {
     private JPAODataBatchProcessorFactory<?> batchProcessorFactory;
     private boolean useAbsoluteContextURL = false;
 
-    public JPAODataCRUDContextAccess build() throws ODataException {
+    private Builder() {
+      super();
+    }
+
+    public JPAODataSessionContextAccess build() throws ODataException {
       try {
-        if (nameBuilder == null)
+        if (nameBuilder == null) {
+          LOGGER.trace("No name-builder provided, use JPADefaultEdmNameBuilder");
           nameBuilder = new JPADefaultEdmNameBuilder(namespace);
+        }
         if (packageName == null)
           packageName = new String[0];
         if (!emf.isPresent() && ds != null && namespace != null)
@@ -171,10 +177,13 @@ public final class JPAODataServiceContext implements JPAODataCRUDContextAccess {
         if (emf.isPresent() && jpaEdm == null)
           jpaEdm = new JPAEdmProvider(emf.get().getMetamodel(), postProcessor, packageName, nameBuilder);
         if (databaseProcessor == null) {
+          LOGGER.trace("No database-processor provided, use JPAODataDatabaseProcessorFactory to create one");
           databaseProcessor = new JPAODataDatabaseProcessorFactory().create(ds);
         }
-        if (batchProcessorFactory == null)
+        if (batchProcessorFactory == null) {
+          LOGGER.trace("No batch-processor-factory provided, use default factory to create one");
           batchProcessorFactory = new JPADefaultBatchProcessorFactory();
+        }
       } catch (SQLException | PersistenceException e) {
         throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
       }
@@ -337,19 +346,19 @@ public final class JPAODataServiceContext implements JPAODataCRUDContextAccess {
     private void createEmfWrapper() {
       if (emf.isPresent()) {
         try {
-          final Class<? extends EntityManagerFactory> wrapperClass = (Class<? extends EntityManagerFactory>) Class.forName(
-              "com.sap.olingo.jpa.processor.cb.api.EntityManagerFactoryWrapper");
+          final Class<? extends EntityManagerFactory> wrapperClass = (Class<? extends EntityManagerFactory>) Class
+              .forName("com.sap.olingo.jpa.processor.cb.api.EntityManagerFactoryWrapper");
           if (jpaEdm == null)
             jpaEdm = new JPAEdmProvider(emf.get().getMetamodel(), postProcessor, packageName, nameBuilder);
           emf = Optional.of(wrapperClass.getConstructor(EntityManagerFactory.class,
               JPAServiceDocument.class).newInstance(emf.get(), jpaEdm.getServiceDocument()));
-          LOGGER.trace("Criteria Builder Extenstion found");
+          LOGGER.trace("Criteria Builder Extension found. It will be used");
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
             | NoSuchMethodException | SecurityException e) {
           LOGGER.debug("Exception thrown while trying to create instance of emf wrapper", e);
         } catch (final ClassNotFoundException e) {
           // No Criteria Extension: everything is fine
-          LOGGER.trace("No Criteria Builder Extenstion found: use provided Entity Manager Factory");
+          LOGGER.trace("No Criteria Builder Extension found: use provided Entity Manager Factory");
         } catch (final ODataException e) {
           LOGGER.debug("Exception thrown while trying to create EdmProvider", e);
         }

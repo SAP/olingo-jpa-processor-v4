@@ -265,7 +265,7 @@ class IntermediateServiceDocument implements JPAServiceDocument {
     try {
       return getEntity(entitySetOrSingleton.getEntityType().getFullQualifiedName()).hasEtag();
     } catch (final ODataJPAModelException e) {
-      LOGGER.debug("Error during binding teraget determination: " + e.getMessage());
+      LOGGER.debug("Error during binding target determination: " + e.getMessage());
       return false;
     }
   }

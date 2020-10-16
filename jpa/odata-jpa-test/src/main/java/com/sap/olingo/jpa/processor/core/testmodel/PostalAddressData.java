@@ -10,7 +10,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssoziation;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssociation;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransient;
 
@@ -40,12 +40,12 @@ public class PostalAddressData {
   @EdmTransient(calculator = StreetPropertyCalculator.class, requiredAttributes = { "streetName", "houseNumber" })
   private String street;
 
-  @EdmDescriptionAssoziation(languageAttribute = "language", descriptionAttribute = "name")
+  @EdmDescriptionAssociation(languageAttribute = "language", descriptionAttribute = "name")
   @OneToMany(fetch = FetchType.LAZY)
   @JoinColumn(name = "\"ISOCode\"", referencedColumnName = "\"Address.Country\"", insertable = false, updatable = false)
   private Collection<Country> countryName;
 
-  @EdmDescriptionAssoziation(languageAttribute = "key/language", descriptionAttribute = "name")
+  @EdmDescriptionAssociation(languageAttribute = "key/language", descriptionAttribute = "name")
   @OneToMany(fetch = FetchType.LAZY)
   @JoinColumn(name = "\"CodePublisher\"", referencedColumnName = "\"Address.RegionCodePublisher\"",
       insertable = false, updatable = false)

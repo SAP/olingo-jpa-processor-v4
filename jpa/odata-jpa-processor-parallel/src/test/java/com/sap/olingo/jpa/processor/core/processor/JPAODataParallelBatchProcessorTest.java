@@ -1,4 +1,4 @@
-package com.sap.olingo.jpa.processor.core.api;
+package com.sap.olingo.jpa.processor.core.processor;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -25,10 +25,13 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import com.sap.olingo.jpa.processor.core.api.JPACUDRequestHandler;
+import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataTransactionFactory;
 import com.sap.olingo.jpa.processor.core.api.JPAODataTransactionFactory.JPAODataTransaction;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPABatchException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPATransactionException;
-import com.sap.olingo.jpa.processor.core.processor.JPAEmptyDebugger;
 
 public class JPAODataParallelBatchProcessorTest {
   private JPAODataParallelBatchProcessor cut;
@@ -50,7 +53,7 @@ public class JPAODataParallelBatchProcessorTest {
   @Mock
   private RollbackException e;
   @Mock
-  private JPAODataCRUDContextAccess context;
+  private JPAODataSessionContextAccess context;
   @Mock
   private JPACUDRequestHandler cudHandler;
   @Mock
@@ -58,7 +61,7 @@ public class JPAODataParallelBatchProcessorTest {
   @Mock
   private JPAODataTransactionFactory factory;
   @Mock
-  private JPAODataCRUDContextAccess sessionContext;
+  private JPAODataSessionContextAccess sessionContext;
 
   @BeforeEach
   public void setup() throws ODataJPATransactionException {

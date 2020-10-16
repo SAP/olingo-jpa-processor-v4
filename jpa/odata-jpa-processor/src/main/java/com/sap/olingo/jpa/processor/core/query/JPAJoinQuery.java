@@ -1,7 +1,7 @@
 package com.sap.olingo.jpa.processor.core.query;
 
 import static com.sap.olingo.jpa.processor.core.converter.JPAExpandResult.ROOT_RESULT_KEY;
-import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_OERDER_BY_TRANSIENT;
+import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_ORDER_BY_TRANSIENT;
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR;
 import static org.apache.olingo.commons.api.http.HttpStatusCode.INTERNAL_SERVER_ERROR;
 import static org.apache.olingo.commons.api.http.HttpStatusCode.NOT_IMPLEMENTED;
@@ -37,27 +37,27 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery {
 
-  private static List<JPANavigationProptertyInfo> determineNavigationInfo(
-      final JPAODataCRUDContextAccess sessionContext, final UriInfoResource uriResource) throws ODataException {
+  private static List<JPANavigationPropertyInfo> determineNavigationInfo(
+      final JPAODataSessionContextAccess sessionContext, final UriInfoResource uriResource) throws ODataException {
 
     return Util.determineNavigationPath(sessionContext.getEdmProvider().getServiceDocument(), uriResource
         .getUriResourceParts(), uriResource);
   }
 
-  private static JPAEntityType determineTargetEntityType(final JPAODataCRUDContextAccess sessionContext,
+  private static JPAEntityType determineTargetEntityType(final JPAODataSessionContextAccess sessionContext,
       final JPAODataRequestContextAccess requestContext) throws ODataException {
 
     return sessionContext.getEdmProvider().getServiceDocument().getEntity(Util.determineTargetEntitySet(requestContext
         .getUriInfo().getUriResourceParts()).getName());
   }
 
-  public JPAJoinQuery(final OData odata, final JPAODataCRUDContextAccess sessionContext,
+  public JPAJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
       final Map<String, List<String>> requestHeaders, final JPAODataRequestContextAccess requestContext)
       throws ODataException {
 
@@ -98,7 +98,7 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
   }
 
   @Override
-  public JPAConvertableResult execute() throws ODataApplicationException {
+  public JPAConvertibleResult execute() throws ODataApplicationException {
     // Pre-process URI parameter, so they can be used at different places
     final int handle = debugger.startRuntimeMeasurement(this, "execute");
 
@@ -106,19 +106,19 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
     final SelectionPathInfo<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
     try {
       final Map<String, From<?, ?>> joinTables = createFromClause(orderByNaviAttributes,
-          selectionPath.joinedPersistant(), cq, lastInfo);
+          selectionPath.joinedPersistent(), cq, lastInfo);
 
-      cq.multiselect(createSelectClause(joinTables, selectionPath.joinedPersistant(), target, groups))
+      cq.multiselect(createSelectClause(joinTables, selectionPath.joinedPersistent(), target, groups))
           .distinct(determineDistinct());
 
       final javax.persistence.criteria.Expression<Boolean> whereClause = createWhere();
       if (whereClause != null)
         cq.where(whereClause);
 
-      cq.orderBy(createOrderByList(joinTables, uriResource));
+      cq.orderBy(new JPAOrderByBuilder(jpaEntity, target, cb, groups).createOrderByList(joinTables, uriResource));
 
       if (!orderByNaviAttributes.isEmpty())
-        cq.groupBy(createGroupBy(joinTables, selectionPath.joinedPersistant()));
+        cq.groupBy(createGroupBy(joinTables, selectionPath.joinedPersistent()));
 
       final TypedQuery<Tuple> tq = em.createQuery(cq);
       addTopSkip(tq);
@@ -137,7 +137,7 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
     }
   }
 
-  public List<JPANavigationProptertyInfo> getNavigationInfo() {
+  public List<JPANavigationPropertyInfo> getNavigationInfo() {
     return navigationInfo;
   }
 
@@ -194,7 +194,7 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
                 pathString.append(((UriResourceProperty) uriResource).getProperty().getName());
                 final JPAPath jpaPath = jpaEntity.getPath(pathString.toString());
                 if (jpaPath.isTransient())
-                  throw new ODataJPAQueryException(QUERY_PREPARATION_OERDER_BY_TRANSIENT, NOT_IMPLEMENTED, jpaPath
+                  throw new ODataJPAQueryException(QUERY_PREPARATION_ORDER_BY_TRANSIENT, NOT_IMPLEMENTED, jpaPath
                       .getLeaf().toString());
                 naviAttributes.add(((JPACollectionAttribute) jpaPath.getLeaf()).asAssociation());
 
@@ -212,14 +212,14 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
     return naviAttributes;
   }
 
-  private JPAConvertableResult returnEmptyResult(final Collection<JPAPath> selectionPath) {
+  private JPAConvertibleResult returnEmptyResult(final Collection<JPAPath> selectionPath) {
     if (lastInfo.getAssociationPath() != null
         && (lastInfo.getAssociationPath().getLeaf() instanceof JPACollectionAttribute))
       return new JPACollectionQueryResult(jpaEntity, lastInfo.getAssociationPath(), selectionPath);
     return new JPAExpandQueryResult(jpaEntity, selectionPath);
   }
 
-  private JPAConvertableResult returnResult(final Collection<JPAPath> selectionPath,
+  private JPAConvertibleResult returnResult(final Collection<JPAPath> selectionPath,
       final HashMap<String, List<Tuple>> result) {
     if (lastInfo.getAssociationPath() != null
         && (lastInfo.getAssociationPath().getLeaf() instanceof JPACollectionAttribute))

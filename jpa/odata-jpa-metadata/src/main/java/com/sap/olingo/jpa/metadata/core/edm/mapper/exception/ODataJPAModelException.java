@@ -82,7 +82,7 @@ public class ODataJPAModelException extends ODataJPAException {
 
   }
 
-  private static final String BUNDEL_NAME = "metadata-exceptions-i18n";
+  private static final String BUNDLE_NAME = "metadata-exceptions-i18n";
 
   public ODataJPAModelException(final Throwable e) {
     super(e);
@@ -106,7 +106,7 @@ public class ODataJPAModelException extends ODataJPAException {
 
   @Override
   protected String getBundleName() {
-    return BUNDEL_NAME;
+    return BUNDLE_NAME;
   }
 
   public String getId() {

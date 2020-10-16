@@ -62,7 +62,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAAbstractCUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.api.JPACUDRequestHandler;
-import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
@@ -326,7 +326,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
   @Test
   public void testPersonResponseContent() throws ODataJPAProcessorException, SerializerException,
       ODataException, IOException {
-    final JPAODataCRUDContextAccess context = mock(JPAODataCRUDContextAccess.class);
+    final JPAODataSessionContextAccess context = mock(JPAODataSessionContextAccess.class);
     final EdmType propertyType = mock(EdmPrimitiveType.class);
     final EdmProperty propertyFN = createProperty("FullName", EdmString.getInstance());
     final EdmProperty propertyID = createProperty("ID", EdmString.getInstance());
@@ -351,7 +351,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     person.setFirstName("Willi");
     person.setLastName("Wunder");
     ODataResponse response = new ODataResponse();
-    ODataRequest request = preparPersonRequest(new RequestHandleSpy(person));
+    ODataRequest request = preparePersonRequest(new RequestHandleSpy(person));
 
     processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
     byte[] act = new byte[1000];
@@ -488,7 +488,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testOwnTranactionCommited() throws ODataJPAModelException, ODataException {
+  public void testOwnTransactionCommitted() throws ODataJPAModelException, ODataException {
     ODataResponse response = new ODataResponse();
     ODataRequest request = prepareSimpleRequest();
 

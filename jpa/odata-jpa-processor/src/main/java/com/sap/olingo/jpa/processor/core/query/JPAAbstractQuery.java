@@ -41,7 +41,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAProtectionInfo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAClaimsPair;
-import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
@@ -50,7 +50,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 public abstract class JPAAbstractQuery {
 
-  protected static final String SELECT_ITEM_SEPERATOR = ",";
+  protected static final String SELECT_ITEM_SEPARATOR = ",";
   protected static final String SELECT_ALL = "*";
   protected final EntityManager em;
   protected final CriteriaBuilder cb;
@@ -126,7 +126,7 @@ public abstract class JPAAbstractQuery {
       JPAEntityType et) throws ODataApplicationException {
     // .../Organizations('3')
     // .../BusinessPartnerRoles(BusinessPartnerID='6',RoleCategory='C')
-    javax.persistence.criteria.Expression<Boolean> compundCondition = whereCondition;
+    javax.persistence.criteria.Expression<Boolean> compoundCondition = whereCondition;
 
     if (keyPredicates != null) {
       for (final UriParameter keyPredicate : keyPredicates) {
@@ -136,13 +136,13 @@ public abstract class JPAAbstractQuery {
         } catch (ODataJPAModelException e) {
           throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
         }
-        if (compundCondition == null)
-          compundCondition = equalCondition;
+        if (compoundCondition == null)
+          compoundCondition = equalCondition;
         else
-          compundCondition = cb.and(compundCondition, equalCondition);
+          compoundCondition = cb.and(compoundCondition, equalCondition);
       }
     }
-    return compundCondition;
+    return compoundCondition;
   }
 
   public abstract From<?, ?> getRoot();
@@ -155,18 +155,18 @@ public abstract class JPAAbstractQuery {
 
   protected abstract Locale getLocale();
 
-  protected void generateDesciptionJoin(final HashMap<String, From<?, ?>> joinTables, final Set<JPAPath> pathSet,
+  protected void generateDescriptionJoin(final HashMap<String, From<?, ?>> joinTables, final Set<JPAPath> pathSet,
       final From<?, ?> target) {
 
     for (final JPAPath descriptionFieldPath : pathSet) {
-      final JPADescriptionAttribute desciptionField = ((JPADescriptionAttribute) descriptionFieldPath.getLeaf());
+      final JPADescriptionAttribute descriptionField = ((JPADescriptionAttribute) descriptionFieldPath.getLeaf());
       Join<?, ?> join = createJoinFromPath(descriptionFieldPath.getAlias(), descriptionFieldPath.getPath(), target,
           JoinType.LEFT);
-      if (desciptionField.isLocationJoin())
-        join.on(createOnCondition(join, desciptionField, getLocale().toString()));
+      if (descriptionField.isLocationJoin())
+        join.on(createOnCondition(join, descriptionField, getLocale().toString()));
       else
-        join.on(createOnCondition(join, desciptionField, getLocale().getLanguage()));
-      joinTables.put(desciptionField.getInternalName(), join);
+        join.on(createOnCondition(join, descriptionField, getLocale().getLanguage()));
+      joinTables.put(descriptionField.getInternalName(), join);
     }
   }
 
@@ -191,20 +191,20 @@ public abstract class JPAAbstractQuery {
     return join;
   }
 
-  private Expression<Boolean> createOnCondition(Join<?, ?> join, JPADescriptionAttribute desciptionField,
+  private Expression<Boolean> createOnCondition(Join<?, ?> join, JPADescriptionAttribute descriptionField,
       String localValue) {
     final Predicate existingOn = join.getOn();
-    Expression<Boolean> result = cb.equal(determienLocalePath(join, desciptionField.getLocaleFieldName()), localValue);
+    Expression<Boolean> result = cb.equal(determineLocalePath(join, descriptionField.getLocaleFieldName()), localValue);
     if (existingOn != null)
       result = cb.and(existingOn, result);
-    for (JPAPath value : desciptionField.getFixedValueAssignment().keySet()) {
+    for (JPAPath value : descriptionField.getFixedValueAssignment().keySet()) {
       result = cb.and(result,
-          cb.equal(determienLocalePath(join, value), desciptionField.getFixedValueAssignment().get(value)));
+          cb.equal(determineLocalePath(join, value), descriptionField.getFixedValueAssignment().get(value)));
     }
     return result;
   }
 
-  private javax.persistence.criteria.Expression<?> determienLocalePath(final Join<?, ?> join,
+  private javax.persistence.criteria.Expression<?> determineLocalePath(final Join<?, ?> join,
       final JPAPath jpaPath) {
     Path<?> p = join;
     for (final JPAElement pathElement : jpaPath.getPath()) {
@@ -213,30 +213,30 @@ public abstract class JPAAbstractQuery {
     return p;
   }
 
-  abstract JPAODataCRUDContextAccess getContext();
+  abstract JPAODataSessionContextAccess getContext();
 
   protected javax.persistence.criteria.Expression<Boolean> addWhereClause(
       javax.persistence.criteria.Expression<Boolean> whereCondition,
-      final javax.persistence.criteria.Expression<Boolean> additioanlExpression) {
+      final javax.persistence.criteria.Expression<Boolean> additionalExpression) {
 
-    if (additioanlExpression != null) {
+    if (additionalExpression != null) {
       if (whereCondition == null)
-        whereCondition = additioanlExpression;
+        whereCondition = additionalExpression;
       else
-        whereCondition = cb.and(whereCondition, additioanlExpression);
+        whereCondition = cb.and(whereCondition, additionalExpression);
     }
     return whereCondition;
   }
 
   protected javax.persistence.criteria.Expression<Boolean> orWhereClause(
       javax.persistence.criteria.Expression<Boolean> whereCondition,
-      final javax.persistence.criteria.Expression<Boolean> additioanlExpression) {
+      final javax.persistence.criteria.Expression<Boolean> additionalExpression) {
 
-    if (additioanlExpression != null) {
+    if (additionalExpression != null) {
       if (whereCondition == null)
-        whereCondition = additioanlExpression;
+        whereCondition = additionalExpression;
       else
-        whereCondition = cb.or(whereCondition, additioanlExpression);
+        whereCondition = cb.or(whereCondition, additionalExpression);
     }
     return whereCondition;
   }
@@ -251,22 +251,22 @@ public abstract class JPAAbstractQuery {
       final List<JPAClaimsPair<?>> values, final Path<?> p, final boolean wildcardsSupported)
       throws ODataJPAQueryException {
 
-    javax.persistence.criteria.Expression<Boolean> attriRestriction = null;
+    javax.persistence.criteria.Expression<Boolean> attributeRestriction = null;
     for (final JPAClaimsPair<?> value : values) { // for each given claim value
       if (value.hasUpperBoundary) {
         if (wildcardsSupported && ((String) value.min).matches(".*[\\*|\\%|\\+|\\_].*"))
           throw new ODataJPAQueryException(WILDCARD_UPPER_NOT_SUPPORTED, HttpStatusCode.INTERNAL_SERVER_ERROR);
         else
-          attriRestriction = orWhereClause(attriRestriction, createBetween(value, p));
+          attributeRestriction = orWhereClause(attributeRestriction, createBetween(value, p));
       } else {
         if (wildcardsSupported && ((String) value.min).matches(".*[\\*|\\%|\\+|\\_].*"))
-          attriRestriction = orWhereClause(attriRestriction, cb.like((Path<String>) p,
+          attributeRestriction = orWhereClause(attributeRestriction, cb.like((Path<String>) p,
               ((String) value.min).replace('*', '%').replace('+', '_')));
         else
-          attriRestriction = orWhereClause(attriRestriction, cb.equal(p, value.min));
+          attributeRestriction = orWhereClause(attributeRestriction, cb.equal(p, value.min));
       }
     }
-    return attriRestriction;
+    return attributeRestriction;
   }
 
   protected javax.persistence.criteria.Expression<Boolean> createProtectionWhereForEntityType(

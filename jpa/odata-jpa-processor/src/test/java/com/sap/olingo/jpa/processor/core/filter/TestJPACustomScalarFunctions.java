@@ -39,7 +39,7 @@ public class TestJPACustomScalarFunctions {
     ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
     emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, ds);
     nameBuilder = new JPADefaultEdmNameBuilder(PUNIT_NAME);
-    CreateDenfityFunction();
+    CreateDensityFunction();
   }
 
   @AfterAll
@@ -90,7 +90,7 @@ public class TestJPACustomScalarFunctions {
   }
 
   @Test
-  public void testFilterOnFunctionComuteValue() throws IOException, ODataException {
+  public void testFilterOnFunctionComputedValue() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions?$filter=com.sap.olingo.jpa.PopulationDensity(Area=Area div 1000000,Population=Population) gt 1000");
@@ -123,7 +123,7 @@ public class TestJPACustomScalarFunctions {
 //    assertEquals("35013", act.get("DivisionCode"));
 //  }
 
-  private static void CreateDenfityFunction() {
+  private static void CreateDensityFunction() {
     EntityManager em = emf.createEntityManager();
     EntityTransaction t = em.getTransaction();
 

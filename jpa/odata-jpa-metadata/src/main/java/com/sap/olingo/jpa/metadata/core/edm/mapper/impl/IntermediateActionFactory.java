@@ -11,11 +11,11 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.ODataAction;
 
 class IntermediateActionFactory extends IntermediateOperationFactory {
-
+//Description 
   @Override
   IntermediateOperation createOperation(JPAEdmNameBuilder nameBuilder, IntermediateSchema schema, Method m,
-      Object functionDescribtion) throws ODataJPAModelException {
-    return new IntermediateJavaAction(nameBuilder, (EdmAction) functionDescribtion, m, schema);
+      Object functionDescription) throws ODataJPAModelException {
+    return new IntermediateJavaAction(nameBuilder, (EdmAction) functionDescription, m, schema);
   }
 
   @SuppressWarnings("unchecked")

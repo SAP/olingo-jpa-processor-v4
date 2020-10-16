@@ -78,7 +78,7 @@ final class JPAMemberVisitor implements ExpressionVisitor<JPAPath> {
 
     if (uriResourceKind == UriResourceKind.primitiveProperty || uriResourceKind == UriResourceKind.complexProperty) {
       if (!Util.hasNavigation(member.getResourcePath().getUriResourceParts())) {
-        final String path = Util.determineProptertyNavigationPath(member.getResourcePath().getUriResourceParts());
+        final String path = Util.determinePropertyNavigationPath(member.getResourcePath().getUriResourceParts());
         JPAPath selectItemPath = null;
         try {
           selectItemPath = jpaEntityType.getPath(path);

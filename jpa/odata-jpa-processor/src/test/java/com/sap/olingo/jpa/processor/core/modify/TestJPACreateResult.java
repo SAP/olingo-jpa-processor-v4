@@ -25,7 +25,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.converter.JPACollectionResult;
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
-import com.sap.olingo.jpa.processor.core.processor.JPAODataRequestContextImpl;
+import com.sap.olingo.jpa.processor.core.processor.JPAODataInternalRequestContext;
 import com.sap.olingo.jpa.processor.core.util.ServiceMetadataDouble;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 
@@ -39,7 +39,7 @@ public abstract class TestJPACreateResult extends TestBase {
 
   public TestJPACreateResult() {
     super();
-    requestContext = new JPAODataRequestContextImpl();
+    requestContext = new JPAODataInternalRequestContext();
   }
 
   @Test

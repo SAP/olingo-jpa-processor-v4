@@ -266,7 +266,7 @@ class IntermediateCollectionProperty extends IntermediateProperty implements JPA
     }
 
     @Override
-    public List<JPAOnConditionItem> getInversJoinColumns() throws ODataJPAModelException {
+    public List<JPAOnConditionItem> getInverseJoinColumns() throws ODataJPAModelException {
       final List<JPAOnConditionItem> result = new ArrayList<>();
 
       for (final IntermediateJoinColumn column : joinColumns) {
@@ -291,14 +291,14 @@ class IntermediateCollectionProperty extends IntermediateProperty implements JPA
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends JPAJoinColumn> List<T> getRawInversJoinInformation() throws ODataJPAModelException {
-      final List<T> inversColumns = new ArrayList<>(joinColumns.size());
+    public <T extends JPAJoinColumn> List<T> getRawInverseJoinInformation() throws ODataJPAModelException {
+      final List<T> inverseColumns = new ArrayList<>(joinColumns.size());
       for (final IntermediateJoinColumn column : joinColumns) {
-        final IntermediateJoinColumn inversColumn = new IntermediateJoinColumn(column.getReferencedColumnName(), column
+        final IntermediateJoinColumn inverseColumn = new IntermediateJoinColumn(column.getReferencedColumnName(), column
             .getName());
-        inversColumns.add((T) inversColumn);
+        inverseColumns.add((T) inverseColumn);
       }
-      return inversColumns;
+      return inverseColumns;
     }
 
     @SuppressWarnings("unchecked")

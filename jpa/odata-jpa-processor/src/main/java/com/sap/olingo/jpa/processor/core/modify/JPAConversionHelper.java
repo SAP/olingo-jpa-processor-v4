@@ -123,7 +123,7 @@ public class JPAConversionHelper {
     final InputStream requestInputStream = request.getBody();
     final EdmEntitySetInfo targetEntityInfo = Util.determineModifyEntitySetAndKeys(uriResourceParts);
     try {
-      final ODataDeserializer deserializer = createDeserrializer(odata, requestFormat,
+      final ODataDeserializer deserializer = createDeserializer(odata, requestFormat,
           request.getHeaders(HttpHeader.ODATA_VERSION));
       final UriResource lastPart = uriResourceParts.get(uriResourceParts.size() - 1);
       if (lastPart instanceof UriResourceProperty) {
@@ -305,7 +305,7 @@ public class JPAConversionHelper {
           final Object value = meth.invoke(instance);
           getterMap.put(attributeName, value);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-          throw new ODataJPAProcessorException(MessageKeys.ATTRIBUTE_RETRIVAL_FAILED,
+          throw new ODataJPAProcessorException(MessageKeys.ATTRIBUTE_RETRIEVAL_FAILED,
               HttpStatusCode.INTERNAL_SERVER_ERROR, e, attributeName);
         }
       }
@@ -415,7 +415,7 @@ public class JPAConversionHelper {
         + odata.createUriHelper().buildCanonicalURL(edmEntitySet, createdEntity);
   }
 
-  private ODataDeserializer createDeserrializer(final OData odata, final ContentType requestFormat,
+  private ODataDeserializer createDeserializer(final OData odata, final ContentType requestFormat,
       final List<String> version) throws DeserializerException {
     return odata.createDeserializer(requestFormat, version);
   }

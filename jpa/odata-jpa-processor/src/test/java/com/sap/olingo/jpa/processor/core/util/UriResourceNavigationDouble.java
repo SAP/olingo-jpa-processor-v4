@@ -15,8 +15,8 @@ public class UriResourceNavigationDouble implements UriResourceNavigation {
   private final EdmType type;
   private final EdmNavigationProperty property;
 
-  public UriResourceNavigationDouble(EdmEntityType naviTargetEntity) {
-    this(naviTargetEntity, null);
+  public UriResourceNavigationDouble(EdmEntityType navigationTargetEntity) {
+    this(navigationTargetEntity, null);
   }
 
   public UriResourceNavigationDouble(EdmType type, EdmNavigationProperty property) {

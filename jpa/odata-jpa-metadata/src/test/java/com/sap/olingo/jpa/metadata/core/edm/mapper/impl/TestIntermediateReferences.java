@@ -142,7 +142,7 @@ public class TestIntermediateReferences extends TestMappingRoot {
   }
 
   @Test
-  public void checkReturnNullOnUnknowTerm() throws ODataJPAModelException {
+  public void checkReturnNullOnUnknownTerm() throws ODataJPAModelException {
     final String uri = MEASURES_V1_URL;
     final IntermediateReferenceAccess ref = cut.addReference(uri, "annotations/Org.OData.Measures.V1.xml");
     ref.addInclude("Org.OData.Measures.V1", "Measures");
@@ -151,7 +151,7 @@ public class TestIntermediateReferences extends TestMappingRoot {
   }
 
   @Test
-  public void checkReturnNullOnUnknowNamespace() throws ODataJPAModelException {
+  public void checkReturnNullOnUnknownNamespace() throws ODataJPAModelException {
     final String uri = MEASURES_V1_URL;
     final IntermediateReferenceAccess ref = cut.addReference(uri, "annotations/Org.OData.Measures.V1.xml");
     ref.addInclude("Org.OData.Measures.V1", "Measures");
@@ -168,7 +168,8 @@ public class TestIntermediateReferences extends TestMappingRoot {
   }
 
   @Test
-  public void checkThrowsExcpetionOnNullTermNamespace() throws ODataJPAModelException {
+  public void checkThrowsExceptionOnNullTermNamespace() throws ODataJPAModelException {
+
     final String uri = MEASURES_V1_URL;
     final IntermediateReferenceAccess ref = cut.addReference(uri, "annotations/Org.OData.Measures.V1.xml");
     assertThrows(ODataJPAModelException.class, () -> ref.addIncludeAnnotation(null));

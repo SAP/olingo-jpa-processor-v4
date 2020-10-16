@@ -14,7 +14,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializer;
 
-public interface JPAODataRequestContextAccess {
+public interface JPAODataRequestContextAccess extends JPAODataRequestParameterAccess {
 
   public EntityManager getEntityManager();
 

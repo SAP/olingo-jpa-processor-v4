@@ -21,9 +21,9 @@ public class JPAODataServiceDocumentProcessor implements ServiceDocumentProcesso
 
   private OData odata;
   private ServiceMetadata serviceMetadata;
-  private final JPAODataCRUDContextAccess serviceContext;
+  private final JPAODataSessionContextAccess serviceContext;
 
-  public JPAODataServiceDocumentProcessor(final JPAODataCRUDContextAccess serviceContext) {
+  public JPAODataServiceDocumentProcessor(final JPAODataSessionContextAccess serviceContext) {
     super();
     this.serviceContext = serviceContext;
   }

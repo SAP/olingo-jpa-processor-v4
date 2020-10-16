@@ -45,7 +45,7 @@ class IntermediateDataBaseFunction extends IntermediateFunction implements JPADa
   public List<JPAParameter> getParameter() {
     final List<JPAParameter> parameterList = new ArrayList<>();
     for (final EdmParameter jpaParameter : jpaFunction.parameter()) {
-      parameterList.add(new IntermediatFunctionParameter(jpaParameter));
+      parameterList.add(new IntermediateFunctionParameter(jpaParameter));
     }
     return parameterList;
   }
@@ -61,7 +61,7 @@ class IntermediateDataBaseFunction extends IntermediateFunction implements JPADa
 
   @Override
   public JPAOperationResultParameter getResultParameter() {
-    return new IntermediatOperationResultParameter(this, jpaFunction.returnType(),
+    return new IntermediateOperationResultParameter(this, jpaFunction.returnType(),
         jpaFunction.returnType().type().equals(Object.class) ? schema.getEntityType(jpaDefiningPOJO).getTypeClass()
             : jpaFunction.returnType().type());
   }

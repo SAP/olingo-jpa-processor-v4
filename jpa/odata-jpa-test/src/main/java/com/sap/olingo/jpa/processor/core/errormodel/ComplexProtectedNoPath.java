@@ -11,7 +11,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtectedBy;
 
 @Entity
 @Table(schema = "\"OLINGO\"", name = "\"BusinessPartner\"")
-public class ComplextProtectedNoPath {
+public class ComplexProtectedNoPath {
 
   @Id
   @Column(name = "\"ID\"")
@@ -38,7 +38,7 @@ public class ComplextProtectedNoPath {
     if (this == obj) return true;
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
-    ComplextProtectedNoPath other = (ComplextProtectedNoPath) obj;
+    ComplexProtectedNoPath other = (ComplexProtectedNoPath) obj;
     if (iD == null) {
       if (other.iD != null) return false;
     } else if (!iD.equals(other.iD)) return false;

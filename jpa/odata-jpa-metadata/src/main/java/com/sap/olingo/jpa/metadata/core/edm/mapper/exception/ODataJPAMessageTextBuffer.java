@@ -28,7 +28,7 @@ public class ODataJPAMessageTextBuffer implements ODataJPAMessageBufferRead {
     this.bundle = getResourceBundle(locale);
   }
 
-  public ODataJPAMessageTextBuffer(String bundleName, Locale locale) {
+  public ODataJPAMessageTextBuffer(final String bundleName, final Locale locale) {
     this.bundleName = bundleName;
     this.locale = locale;
     this.bundle = getResourceBundle(locale);
@@ -41,13 +41,13 @@ public class ODataJPAMessageTextBuffer implements ODataJPAMessageBufferRead {
    * java.lang.String)
    */
   @Override
-  public String getText(final Object execption, final String id) {
-    return bundle.getString(execption.getClass().getSimpleName() + PATH_SEPARATOR + id);
+  public String getText(final Object execution, final String id) {
+    return bundle.getString(execution.getClass().getSimpleName() + PATH_SEPARATOR + id);
   }
 
   @Override
-  public String getText(final Object execption, final String ID, final String... parameters) {
-    final String message = getText(execption, ID);
+  public String getText(final Object execution, final String ID, final String... parameters) {
+    final String message = getText(execution, ID);
     final StringBuilder builder = new StringBuilder();
     final Formatter f = new Formatter(builder, locale);
 
@@ -79,7 +79,7 @@ public class ODataJPAMessageTextBuffer implements ODataJPAMessageBufferRead {
     return locale;
   }
 
-  private ResourceBundle getResourceBundle(Locale resourceLocale) {
+  private ResourceBundle getResourceBundle(final Locale resourceLocale) {
     return ResourceBundle.getBundle(bundleName, resourceLocale);
   }
 }

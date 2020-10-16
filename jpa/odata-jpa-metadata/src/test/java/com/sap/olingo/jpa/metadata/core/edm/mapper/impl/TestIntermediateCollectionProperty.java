@@ -31,7 +31,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.testmodel.CollectionFirstLevelComplex;
 import com.sap.olingo.jpa.processor.core.testmodel.CollectionSecondLevelComplex;
-import com.sap.olingo.jpa.processor.core.testmodel.ComplexWithTransientComplexCollction;
+import com.sap.olingo.jpa.processor.core.testmodel.ComplexWithTransientComplexCollection;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 
@@ -94,7 +94,7 @@ public class TestIntermediateCollectionProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetProptertyComplexType() throws ODataJPAModelException {
+  public void checkGetPropertyComplexType() throws ODataJPAModelException {
 
     final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         Person.class), "inhouseAddress");
@@ -104,7 +104,7 @@ public class TestIntermediateCollectionProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetProptertyIgnoreFalse() throws ODataJPAModelException {
+  public void checkGetPropertyIgnoreFalse() throws ODataJPAModelException {
 
     final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         Person.class), "inhouseAddress");
@@ -114,7 +114,7 @@ public class TestIntermediateCollectionProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetProptertyDBFieldName() throws ODataJPAModelException {
+  public void checkGetPropertyDBFieldName() throws ODataJPAModelException {
 
     final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         Organization.class), "comment");
@@ -185,7 +185,7 @@ public class TestIntermediateCollectionProperty extends TestMappingRoot {
       SecurityException {
 
     final PluralAttribute<?, ?, ?> jpaAttribute = new IntermediateStructuredType.TransientPluralAttribute<>(
-        helper.getEmbeddedableType(CollectionFirstLevelComplex.class),
+        helper.getEmbeddableType(CollectionFirstLevelComplex.class),
         CollectionFirstLevelComplex.class.getDeclaredField("transientCollection"),
         schema);
 
@@ -201,7 +201,7 @@ public class TestIntermediateCollectionProperty extends TestMappingRoot {
 
     final PluralAttribute<?, ?, ?> jpaAttribute = createTransientPluralAttribute();
     final IntermediateCollectionProperty cut = new IntermediateCollectionProperty(nameBuilder,
-        jpaAttribute, helper.schema, helper.schema.getStructuredType(ComplexWithTransientComplexCollction.class));
+        jpaAttribute, helper.schema, helper.schema.getStructuredType(ComplexWithTransientComplexCollection.class));
     assertTrue(cut.isTransient());
     assertEquals("com.sap.olingo.jpa.InhouseAddress", cut.getEdmItem().getType());
   }
@@ -248,8 +248,8 @@ public class TestIntermediateCollectionProperty extends TestMappingRoot {
 
   private PluralAttribute<?, ?, ?> createTransientPluralAttribute() throws NoSuchFieldException {
     final PluralAttribute<?, ?, ?> jpaAttribute = new IntermediateStructuredType.TransientPluralAttribute<>(
-        helper.getEmbeddedableType(ComplexWithTransientComplexCollction.class),
-        ComplexWithTransientComplexCollction.class.getDeclaredField("transientCollection"),
+        helper.getEmbeddableType(ComplexWithTransientComplexCollection.class),
+        ComplexWithTransientComplexCollection.class.getDeclaredField("transientCollection"),
         schema);
     return jpaAttribute;
   }

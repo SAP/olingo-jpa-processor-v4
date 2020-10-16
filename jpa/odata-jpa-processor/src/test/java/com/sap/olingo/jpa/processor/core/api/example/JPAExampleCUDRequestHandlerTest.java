@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.processor.core.api.example;
 
+import static java.util.Collections.emptySet;
+import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -11,26 +13,35 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Member;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
+import javax.persistence.GeneratedValue;
+import javax.persistence.metamodel.EntityType;
+import javax.persistence.metamodel.Metamodel;
+import javax.persistence.metamodel.SingularAttribute;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpMethod;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.internal.creation.MockSettingsImpl;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -61,6 +72,7 @@ import com.sap.olingo.jpa.processor.core.util.TestHelper;
 public class JPAExampleCUDRequestHandlerTest extends TestBase {
   private JPAExampleCUDRequestHandler cut;
   private EntityManager em;
+  private Metamodel metamodel;
   private JPARequestEntity requestEntity;
   private Map<String, Object> data;
   private Map<String, Object> keys;
@@ -70,11 +82,14 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
     helper = new TestHelper(emf, PUNIT_NAME);
     em = mock(EntityManager.class);
     requestEntity = mock(JPARequestEntity.class);
+    metamodel = mock(Metamodel.class);
     data = new HashMap<>();
     keys = new HashMap<>();
     doReturn(new JPAModifyUtil()).when(requestEntity).getModifyUtil();
     doReturn(data).when(requestEntity).getData();
     doReturn(keys).when(requestEntity).getKeys();
+    doReturn(metamodel).when(em).getMetamodel();
+    doReturn(emptySet()).when(metamodel).getEntities();
     cut = new JPAExampleCUDRequestHandler();
   }
 
@@ -107,7 +122,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkCreateEntityWithComplexCollcetion() throws ODataJPAProcessException, ODataJPAModelException {
+  public void checkCreateEntityWithComplexCollection() throws ODataJPAProcessException, ODataJPAModelException {
 
     doReturn(helper.getJPAEntityType("Persons")).when(requestEntity).getEntityType();
 
@@ -215,11 +230,101 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
+  public void checkCreateEntityAutoId() throws ODataJPAProcessException, ODataJPAModelException {
+    final EntityType<?> jpaEt = mock(EntityType.class);
+    final Set<EntityType<?>> jpaEts = new HashSet<>();
+    final SingularAttribute<?, ?> at = mock(SingularAttribute.class);
+    final Member atAsMember = mock(Member.class, new MockSettingsImpl<>().extraInterfaces(AnnotatedElement.class));
+    final GeneratedValue generatedValue = mock(GeneratedValue.class);
+    jpaEts.add(jpaEt);
+    doReturn(jpaEts).when(metamodel).getEntities();
+    doReturn("AdministrativeDivision").when(jpaEt).getName();
+    doReturn(at).when(jpaEt).getId(any());
+    doReturn(atAsMember).when(at).getJavaMember();
+    doReturn(generatedValue).when((AnnotatedElement) atAsMember).getAnnotation(GeneratedValue.class);
+
+    final Object act = createAdminDiv();
+
+    assertNotNull(act);
+    assertEquals("NUTS2", ((AdministrativeDivision) act).getCodeID());
+    verify(em, times(2)).persist(act);
+    verify(em, never()).find(any(), any());
+  }
+
+  @Test
+  public void checkCreateEntityWithoutAutoId() throws ODataJPAProcessException, ODataJPAModelException {
+    final EntityType<?> jpaEt = mock(EntityType.class);
+    final Set<EntityType<?>> jpaEts = new HashSet<>();
+    final SingularAttribute<?, ?> at = mock(SingularAttribute.class);
+    final Member atAsMember = mock(Member.class, new MockSettingsImpl<>().extraInterfaces(AnnotatedElement.class));
+    jpaEts.add(jpaEt);
+    doReturn(jpaEts).when(metamodel).getEntities();
+    doReturn("AdministrativeDivision").when(jpaEt).getName();
+    doReturn(at).when(jpaEt).getId(any());
+    doReturn(atAsMember).when(at).getJavaMember();
+    doReturn(null).when((AnnotatedElement) atAsMember).getAnnotation(GeneratedValue.class);
+
+    final Object act = createAdminDiv();
+
+    assertNotNull(act);
+    assertEquals("NUTS2", ((AdministrativeDivision) act).getCodeID());
+    verify(em).persist(act);
+    verify(em).find(any(), any());
+  }
+
+  @Test
+  public void checkCreateEntityAutoIdIdNotFound() throws ODataJPAProcessException, ODataJPAModelException {
+    final EntityType<?> jpaEt = mock(EntityType.class);
+    final Set<EntityType<?>> jpaEts = new HashSet<>();
+    jpaEts.add(jpaEt);
+    doReturn(jpaEts).when(metamodel).getEntities();
+    doReturn("AdministrativeDivision").when(jpaEt).getName();
+    doReturn(null).when(jpaEt).getId(any());
+
+    final Object act = createAdminDiv();
+
+    assertNotNull(act);
+    assertEquals("NUTS2", ((AdministrativeDivision) act).getCodeID());
+    verify(em).persist(act);
+    verify(em).find(any(), any());
+  }
+
+  @Test
+  public void checkCreateEntityAutoIdNoKey() throws ODataJPAProcessException, ODataJPAModelException {
+    final EntityType<?> jpaEt = mock(EntityType.class);
+    final Set<EntityType<?>> jpaEts = new HashSet<>();
+    jpaEts.add(jpaEt);
+    doReturn(jpaEts).when(metamodel).getEntities();
+    doReturn("AdministrativeDivision").when(jpaEt).getName();
+    doReturn(null).when(jpaEt).getId(any());
+
+    final Object act = createAdminDiv();
+
+    assertNotNull(act);
+    assertEquals("NUTS2", ((AdministrativeDivision) act).getCodeID());
+    verify(em).persist(act);
+    verify(em).find(any(), any());
+  }
+
+  @Test
+  public void checkCreateEntityAutoIdNoJpaEntityType() throws ODataJPAProcessException, ODataJPAModelException {
+    final Set<EntityType<?>> jpaEts = new HashSet<>();
+    doReturn(jpaEts).when(metamodel).getEntities();
+
+    final Object act = createAdminDiv();
+
+    assertNotNull(act);
+    assertEquals("NUTS2", ((AdministrativeDivision) act).getCodeID());
+    verify(em).persist(act);
+    verify(em).find(any(), any());
+  }
+
+  @Test
   public void checkUpdateEntityNotFound() throws ODataJPAProcessException, ODataJPAModelException {
     final String id = "1";
-    final Organization beforImage = new Organization(id);
+    final Organization beforeImage = new Organization(id);
     final JPAEntityType et = helper.getJPAEntityType("Organizations");
-    beforImage.setName1("Example Ltd");
+    beforeImage.setName1("Example Ltd");
 
     doReturn(et).when(requestEntity).getEntityType();
     doReturn(null).when(em).find(eq(et.getTypeClass()), any());
@@ -237,11 +342,11 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   @Test
   public void checkDeleteSimplePrimitiveProperty() throws ODataJPAProcessException, ODataJPAModelException {
     final String id = "1";
-    final Organization beforImage = new Organization(id);
-    beforImage.setName1("Example Ltd");
+    final Organization beforeImage = new Organization(id);
+    beforeImage.setName1("Example Ltd");
 
     doReturn(helper.getJPAEntityType("Organizations")).when(requestEntity).getEntityType();
-    doReturn(beforImage).when(em).find(Organization.class, id);
+    doReturn(beforeImage).when(em).find(Organization.class, id);
 
     data.put("name1", null);
     keys.put("iD", id);
@@ -249,17 +354,17 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
     final JPAUpdateResult act = cut.updateEntity(requestEntity, em, HttpMethod.DELETE);
 
     assertFalse(act.wasCreate());
-    assertNull(((Organization) act.getModifyedEntity()).getName1());
+    assertNull(((Organization) act.getModifiedEntity()).getName1());
   }
 
   @Test
-  public void checkDeletePrimitiveCollctionProperty() throws ODataJPAProcessException, ODataJPAModelException {
+  public void checkDeletePrimitiveCollectionProperty() throws ODataJPAProcessException, ODataJPAModelException {
     final String id = "1";
-    final Organization beforImage = new Organization(id);
-    beforImage.getComment().add("YAC");
+    final Organization beforeImage = new Organization(id);
+    beforeImage.getComment().add("YAC");
 
     doReturn(helper.getJPAEntityType("Organizations")).when(requestEntity).getEntityType();
-    doReturn(beforImage).when(em).find(Organization.class, id);
+    doReturn(beforeImage).when(em).find(Organization.class, id);
 
     data.put("comment", null);
     keys.put("iD", id);
@@ -267,17 +372,17 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
     final JPAUpdateResult act = cut.updateEntity(requestEntity, em, HttpMethod.DELETE);
 
     assertFalse(act.wasCreate());
-    assertNull(((Organization) act.getModifyedEntity()).getComment());
+    assertNull(((Organization) act.getModifiedEntity()).getComment());
   }
 
   @Test
   public void checkDeleteSimpleComplexProperty() throws ODataJPAProcessException, ODataJPAModelException {
     final String id = "1";
-    final Organization beforImage = new Organization(id);
-    beforImage.setAddress(new PostalAddressData());
+    final Organization beforeImage = new Organization(id);
+    beforeImage.setAddress(new PostalAddressData());
 
     doReturn(helper.getJPAEntityType("Organizations")).when(requestEntity).getEntityType();
-    doReturn(beforImage).when(em).find(Organization.class, id);
+    doReturn(beforeImage).when(em).find(Organization.class, id);
 
     data.put("address", null);
     keys.put("iD", id);
@@ -285,19 +390,19 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
     final JPAUpdateResult act = cut.updateEntity(requestEntity, em, HttpMethod.DELETE);
 
     assertFalse(act.wasCreate());
-    assertNull(((Organization) act.getModifyedEntity()).getAddress());
+    assertNull(((Organization) act.getModifiedEntity()).getAddress());
   }
 
   @Test
-  public void checkDeleteComplexCollctionProperty() throws ODataJPAProcessException, ODataJPAModelException {
+  public void checkDeleteComplexCollectionProperty() throws ODataJPAProcessException, ODataJPAModelException {
 
     final String id = "2";
-    final Person beforImage = new Person();
-    beforImage.setID(id);
-    beforImage.getInhouseAddress().add(new InhouseAddress("DEV", "D-2"));
+    final Person beforeImage = new Person();
+    beforeImage.setID(id);
+    beforeImage.getInhouseAddress().add(new InhouseAddress("DEV", "D-2"));
 
     doReturn(helper.getJPAEntityType("Persons")).when(requestEntity).getEntityType();
-    doReturn(beforImage).when(em).find(Person.class, id);
+    doReturn(beforeImage).when(em).find(Person.class, id);
 
     data.put("inhouseAddress", null);
     keys.put("iD", id);
@@ -305,22 +410,22 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
     final JPAUpdateResult act = cut.updateEntity(requestEntity, em, HttpMethod.DELETE);
 
     assertFalse(act.wasCreate());
-    assertNull(((Person) act.getModifyedEntity()).getInhouseAddress());
+    assertNull(((Person) act.getModifiedEntity()).getInhouseAddress());
   }
 
   @Test
   public void checkDeleteSimplePrimitivePropertyDeep() throws ODataJPAProcessException, ODataJPAModelException {
     final String id = "1";
-    final Organization beforImage = new Organization(id);
+    final Organization beforeImage = new Organization(id);
     final PostalAddressData addr = new PostalAddressData();
     final Map<String, Object> addrData = new HashMap<>();
     addr.setPOBox("23145-1235");
     addr.setCityName("Hamburg");
-    beforImage.setAddress(addr);
-    beforImage.setName1("Example Ltd");
+    beforeImage.setAddress(addr);
+    beforeImage.setName1("Example Ltd");
 
     doReturn(helper.getJPAEntityType("Organizations")).when(requestEntity).getEntityType();
-    doReturn(beforImage).when(em).find(Organization.class, id);
+    doReturn(beforeImage).when(em).find(Organization.class, id);
 
     data.put("address", addrData);
     addrData.put("pOBox", null);
@@ -329,32 +434,32 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
     final JPAUpdateResult act = cut.updateEntity(requestEntity, em, HttpMethod.DELETE);
 
     assertFalse(act.wasCreate());
-    assertNull(((Organization) act.getModifyedEntity()).getAddress().getPOBox());
-    assertEquals("Hamburg", ((Organization) act.getModifyedEntity()).getAddress().getCityName());
+    assertNull(((Organization) act.getModifiedEntity()).getAddress().getPOBox());
+    assertEquals("Hamburg", ((Organization) act.getModifiedEntity()).getAddress().getCityName());
   }
 
   @Test
   public void checkDeleteEntity() throws ODataJPAProcessException, ODataJPAModelException {
     final String id = "1";
-    final Organization beforImage = new Organization(id);
+    final Organization beforeImage = new Organization(id);
 
-    doReturn(beforImage).when(em).find(Organization.class, id);
+    doReturn(beforeImage).when(em).find(Organization.class, id);
     doReturn(helper.getJPAEntityType("Organizations")).when(requestEntity).getEntityType();
     keys.put("iD", id);
     cut.deleteEntity(requestEntity, em);
-    verify(em).remove(beforImage);
+    verify(em).remove(beforeImage);
   }
 
   @Test
   public void checkDeleteNoErrorIfEntityDoesNotExists() throws ODataJPAProcessException, ODataJPAModelException {
     final String id = "1";
-    final Organization beforImage = new Organization(id);
+    final Organization beforeImage = new Organization(id);
 
     doReturn(null).when(em).find(Organization.class, id);
     doReturn(helper.getJPAEntityType("Organizations")).when(requestEntity).getEntityType();
     keys.put("iD", id);
     cut.deleteEntity(requestEntity, em);
-    verify(em, times(0)).remove(beforImage);
+    verify(em, times(0)).remove(beforeImage);
   }
 
   @Test
@@ -362,24 +467,24 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
     final JPAUpdateResult act = updateSimplePrimitiveValue();
 
     assertFalse(act.wasCreate());
-    assertEquals("Example SE", ((Organization) act.getModifyedEntity()).getName1());
+    assertEquals("Example SE", ((Organization) act.getModifiedEntity()).getName1());
   }
 
   @Test
   public void checkPatchOneSimpleComplexValue() throws ODataJPAModelException, ODataJPAProcessException {
 
     final String id = "1";
-    final Organization beforImage = new Organization(id);
+    final Organization beforeImage = new Organization(id);
     final PostalAddressData beforeAddr = new PostalAddressData();
     final Map<String, Object> changedAddr = new HashMap<>();
 
-    beforImage.setAddress(beforeAddr);
+    beforeImage.setAddress(beforeAddr);
     beforeAddr.setHouseNumber("45A");
     beforeAddr.setCityName("Test");
     beforeAddr.setPostalCode("12345");
 
     doReturn(helper.getJPAEntityType("Organizations")).when(requestEntity).getEntityType();
-    doReturn(beforImage).when(em).find(Organization.class, id);
+    doReturn(beforeImage).when(em).find(Organization.class, id);
 
     changedAddr.put("houseNumber", "45");
     changedAddr.put("streetName", "Example Street");
@@ -390,8 +495,8 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
     final JPAUpdateResult act = cut.updateEntity(requestEntity, em, HttpMethod.DELETE);
 
     assertFalse(act.wasCreate());
-    assertNotNull(((Organization) act.getModifyedEntity()).getAddress());
-    final PostalAddressData afterImage = ((Organization) act.getModifyedEntity()).getAddress();
+    assertNotNull(((Organization) act.getModifiedEntity()).getAddress());
+    final PostalAddressData afterImage = ((Organization) act.getModifiedEntity()).getAddress();
 
     assertEquals("45", afterImage.getHouseNumber());
     assertEquals("Test", afterImage.getCityName());
@@ -400,16 +505,16 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkPatchEmptyComplexCollctionProperty() throws ODataJPAProcessException, ODataJPAModelException {
+  public void checkPatchEmptyComplexCollectionProperty() throws ODataJPAProcessException, ODataJPAModelException {
 
     final String id = "2";
-    final Person beforImage = new Person();
+    final Person beforeImage = new Person();
     final List<Map<String, Object>> newInhouseAddresses = new ArrayList<>(2);
-    beforImage.setID(id);
-    beforImage.getInhouseAddress().add(new InhouseAddress("DEV", "D-2"));
+    beforeImage.setID(id);
+    beforeImage.getInhouseAddress().add(new InhouseAddress("DEV", "D-2"));
 
     doReturn(helper.getJPAEntityType("Persons")).when(requestEntity).getEntityType();
-    doReturn(beforImage).when(em).find(Person.class, id);
+    doReturn(beforeImage).when(em).find(Person.class, id);
 
     data.put("inhouseAddress", newInhouseAddresses);
     keys.put("iD", id);
@@ -417,21 +522,21 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
     final JPAUpdateResult act = cut.updateEntity(requestEntity, em, HttpMethod.DELETE);
 
     assertFalse(act.wasCreate());
-    assertNotNull(((Person) act.getModifyedEntity()).getInhouseAddress());
-    assertTrue(((Person) act.getModifyedEntity()).getInhouseAddress().isEmpty());
+    assertNotNull(((Person) act.getModifiedEntity()).getInhouseAddress());
+    assertTrue(((Person) act.getModifiedEntity()).getInhouseAddress().isEmpty());
   }
 
   @Test
-  public void checkPatchComplexCollctionProperty() throws ODataJPAProcessException, ODataJPAModelException {
+  public void checkPatchComplexCollectionProperty() throws ODataJPAProcessException, ODataJPAModelException {
 
     final String id = "2";
-    final Person beforImage = new Person();
+    final Person beforeImage = new Person();
     final List<Map<String, Object>> newInhouseAddresses = new ArrayList<>(2);
-    beforImage.setID(id);
-    beforImage.getInhouseAddress().add(new InhouseAddress("DEV", "D-2"));
+    beforeImage.setID(id);
+    beforeImage.getInhouseAddress().add(new InhouseAddress("DEV", "D-2"));
 
     doReturn(helper.getJPAEntityType("Persons")).when(requestEntity).getEntityType();
-    doReturn(beforImage).when(em).find(Person.class, id);
+    doReturn(beforeImage).when(em).find(Person.class, id);
 
     final Map<String, Object> addr1 = new HashMap<>();
     addr1.put("taskID", "MAIN");
@@ -448,8 +553,8 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
     final JPAUpdateResult act = cut.updateEntity(requestEntity, em, HttpMethod.PATCH);
 
     assertFalse(act.wasCreate());
-    assertNotNull(((Person) act.getModifyedEntity()).getInhouseAddress());
-    final List<InhouseAddress> actInhouseAddrs = ((Person) act.getModifyedEntity()).getInhouseAddress();
+    assertNotNull(((Person) act.getModifiedEntity()).getInhouseAddress());
+    final List<InhouseAddress> actInhouseAddrs = ((Person) act.getModifiedEntity()).getInhouseAddress();
     assertEquals(2, actInhouseAddrs.size());
     assertTrue(actInhouseAddrs.get(0).getBuilding() == null || actInhouseAddrs.get(0).getBuilding().isEmpty());
     assertTrue(actInhouseAddrs.get(1).getBuilding() == null || actInhouseAddrs.get(1).getBuilding().isEmpty());
@@ -458,12 +563,12 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   @Test
   public void checkPatchOnePrimitiveCollectionValue() throws ODataJPAModelException, ODataJPAProcessException {
     final String id = "1";
-    final Organization beforImage = new Organization(id);
+    final Organization beforeImage = new Organization(id);
     final List<String> newComments = Arrays.asList("This is a test", "YAT");
-    beforImage.getComment().add("YAC");
+    beforeImage.getComment().add("YAC");
 
     doReturn(helper.getJPAEntityType("Organizations")).when(requestEntity).getEntityType();
-    doReturn(beforImage).when(em).find(Organization.class, id);
+    doReturn(beforeImage).when(em).find(Organization.class, id);
 
     data.put("comment", newComments);
     keys.put("iD", id);
@@ -471,8 +576,8 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
     final JPAUpdateResult act = cut.updateEntity(requestEntity, em, HttpMethod.DELETE);
 
     assertFalse(act.wasCreate());
-    assertNotNull(((Organization) act.getModifyedEntity()).getComment());
-    final List<String> actComments = ((Organization) act.getModifyedEntity()).getComment();
+    assertNotNull(((Organization) act.getModifiedEntity()).getComment());
+    final List<String> actComments = ((Organization) act.getModifiedEntity()).getComment();
     assertEquals(2, actComments.size());
     assertTrue(actComments.contains("YAT"));
     assertTrue(actComments.contains("This is a test"));
@@ -514,7 +619,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
     final JPAUpdateResult act = cut.updateEntity(requestEntity, em, HttpMethod.DELETE);
 
     assertNotNull(act);
-    assertEquals(parent, act.getModifyedEntity());
+    assertEquals(parent, act.getModifiedEntity());
     assertEquals(1, parent.getChildren().size());
     assertEquals("DE51", parent.getChildren().get(0).getDivisionCode());
   }
@@ -531,7 +636,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
 
   @Test
   public void checkAuditFieldsSetOnUpdate() throws ODataJPAModelException, ODataJPAProcessException {
-    final OrganizationWithAudit act = (OrganizationWithAudit) updateOrganization().getModifyedEntity();
+    final OrganizationWithAudit act = (OrganizationWithAudit) updateOrganization().getModifiedEntity();
     cut.validateChanges(em);
     assertNotNull(act.getUpdatedBy());
     assertNotNull(act.getUpdatedAt());
@@ -540,7 +645,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkAutorisationsCreateRejectsNotClaimsNotAllowed() throws ODataJPAModelException,
+  public void checkAuthorizationsCreateRejectsNotClaimsNotAllowed() throws ODataJPAModelException,
       ODataJPAProcessException {
     final JPAExampleModifyException act = assertThrows(JPAExampleModifyException.class,
         () -> createPersonProtected(null));
@@ -548,7 +653,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkAutorisationsCreateRejectsAttributeNotPresent() throws ODataJPAModelException,
+  public void checkAuthorizationsCreateRejectsAttributeNotPresent() throws ODataJPAModelException,
       ODataJPAProcessException {
     final JPAODataClaimProvider claims = mock(JPAODataClaimProvider.class);
     final JPAExampleModifyException act = assertThrows(JPAExampleModifyException.class, () -> createPersonProtected(
@@ -557,50 +662,50 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkAutorisationsCreateRejectsAttributeNotMatch() throws ODataJPAModelException,
+  public void checkAuthorizationsCreateRejectsAttributeNotMatch() throws ODataJPAModelException,
       ODataJPAProcessException {
     final JPAClaimsPair<String> claim = new JPAClaimsPair<>("DOT01");
     final JPAODataClaimProvider claims = mock(JPAODataClaimProvider.class);
-    when(claims.get("BuildingNumber")).thenReturn(Collections.singletonList(claim));
+    when(claims.get("BuildingNumber")).thenReturn(singletonList(claim));
     final JPAExampleModifyException act = assertThrows(JPAExampleModifyException.class,
         () -> createPersonProtected(claims));
     assertEquals(HttpStatusCode.FORBIDDEN.getStatusCode(), act.getStatusCode());
   }
 
   @Test
-  public void checkAutorisationsCreateRejectedOnyOneProvided() throws ODataJPAModelException,
+  public void checkAuthorizationsCreateRejectedOnyOneProvided() throws ODataJPAModelException,
       ODataJPAProcessException {
     final JPAClaimsPair<String> claim = new JPAClaimsPair<>("MID*");
     final JPAODataClaimProvider claims = mock(JPAODataClaimProvider.class);
-    when(claims.get("BuildingNumber")).thenReturn(Collections.singletonList(claim));
+    when(claims.get("BuildingNumber")).thenReturn(singletonList(claim));
     final JPAExampleModifyException act = assertThrows(JPAExampleModifyException.class,
         () -> createPersonProtected(claims));
     assertEquals(HttpStatusCode.FORBIDDEN.getStatusCode(), act.getStatusCode());
   }
 
   @Test
-  public void checkAutorisationsCreateAllowedWithWildCardMulti() throws ODataJPAModelException, // NOSONAR
+  public void checkAuthorizationsCreateAllowedWithWildCardMulti() throws ODataJPAModelException, // NOSONAR
       ODataJPAProcessException {
     final JPAClaimsPair<String> claim = new JPAClaimsPair<>("MID*");
     createPersonProtected(createPersonProtectedClaims(claim));
   }
 
   @Test
-  public void checkAutorisationsCreateAllowedWithWildCardSingle() throws ODataJPAModelException, // NOSONAR
+  public void checkAuthorizationsCreateAllowedWithWildCardSingle() throws ODataJPAModelException, // NOSONAR
       ODataJPAProcessException {
     final JPAClaimsPair<String> claim = new JPAClaimsPair<>("MID_5");
     createPersonProtected(createPersonProtectedClaims(claim));
   }
 
   @Test
-  public void checkAutorisationsCreateAllowedWithWildCardMix() throws ODataJPAModelException, // NOSONAR
+  public void checkAuthorizationsCreateAllowedWithWildCardMix() throws ODataJPAModelException, // NOSONAR
       ODataJPAProcessException {
     final JPAClaimsPair<String> claim = new JPAClaimsPair<>("M_D*");
     createPersonProtected(createPersonProtectedClaims(claim));
   }
 
   @Test
-  public void checkAutorisationsCreateRejectsWildCardNotMatch() throws ODataJPAModelException,
+  public void checkAuthorizationsCreateRejectsWildCardNotMatch() throws ODataJPAModelException,
       ODataJPAProcessException {
     final JPAClaimsPair<String> claim = new JPAClaimsPair<>("D_D*");
 //    final JPAExampleModifyException act = assertThrows(JPAExampleModifyException.class,
@@ -609,21 +714,21 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkAutorisationsCreateAllowedInRangeAllowsWildcard() throws ODataJPAModelException, // NOSONAR
+  public void checkAuthorizationsCreateAllowedInRangeAllowsWildcard() throws ODataJPAModelException, // NOSONAR
       ODataJPAProcessException {
     final JPAClaimsPair<String> claim = new JPAClaimsPair<>("MID00", "MID99");
     createPersonProtected(createPersonProtectedClaims(claim));
   }
 
   @Test
-  public void checkAutorisationsCreateAllowedInRangeWildcard() throws ODataJPAModelException, // NOSONAR
+  public void checkAuthorizationsCreateAllowedInRangeWildcard() throws ODataJPAModelException, // NOSONAR
       ODataJPAProcessException {
     final JPAClaimsPair<String> claim = new JPAClaimsPair<>("MID0+", "MID9*");
     createPersonProtected(createPersonProtectedClaims(claim));
   }
 
   @Test
-  public void checkAutorisationsCreateRejectRangeWilrdcardMin() throws ODataJPAModelException,
+  public void checkAuthorizationsCreateRejectRangeWilrdcardMin() throws ODataJPAModelException,
       ODataJPAProcessException {
     final JPAClaimsPair<String> claim = new JPAClaimsPair<>("MI+0*", "MID99");
     final JPAExampleModifyException act = assertThrows(JPAExampleModifyException.class,
@@ -632,7 +737,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkAutorisationsCreateRejectRangeWilrdcarMax() throws ODataJPAModelException,
+  public void checkAuthorizationsCreateRejectRangeWilrdcarMax() throws ODataJPAModelException,
       ODataJPAProcessException {
     final JPAClaimsPair<String> claim = new JPAClaimsPair<>("MID00", "MI*99");
     final JPAExampleModifyException act = assertThrows(JPAExampleModifyException.class,
@@ -641,7 +746,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkAutorisationsCreateAllowedTwoClaims() throws ODataJPAModelException, // NOSONAR
+  public void checkAuthorizationsCreateAllowedTwoClaims() throws ODataJPAModelException, // NOSONAR
       ODataJPAProcessException {
     final JPAClaimsPair<String> claim1 = new JPAClaimsPair<>("MID25");
     final JPAClaimsPair<String> claim2 = new JPAClaimsPair<>("MID00");
@@ -652,7 +757,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkAutorisationsCreateAllowedInRange() throws ODataJPAModelException, // NOSONAR
+  public void checkAuthorizationsCreateAllowedInRange() throws ODataJPAModelException, // NOSONAR
       ODataJPAProcessException {
 
     buildOrganizationMockForAuthorizationTest();
@@ -661,8 +766,9 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
 
   }
 
+//Authorization
   @Test
-  public void checkAutorisationsCreateRejectRangeToLow() throws ODataJPAModelException,
+  public void checkAuthorizationsCreateRejectRangeToLow() throws ODataJPAModelException,
       ODataJPAProcessException {
 
     buildOrganizationMockForAuthorizationTest();
@@ -673,7 +779,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkAutorisationsCreateRejectRangeToHigh() throws ODataJPAModelException,
+  public void checkAuthorizationsCreateRejectRangeToHigh() throws ODataJPAModelException,
       ODataJPAProcessException {
 
     buildOrganizationMockForAuthorizationTest();
@@ -695,10 +801,10 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
     when(requestEntity.getEntityType()).thenReturn(et);
     when(requestEntity.getClaims()).thenReturn(claims);
 
-    when(claims.get().get("ID")).thenReturn(Collections.singletonList(idClaim));
+    when(claims.get().get("ID")).thenReturn(singletonList(idClaim));
     when(claims.get().user()).thenReturn(Optional.of("Willi"));
 
-    when(path.getPath()).thenReturn(Collections.singletonList(idAttribute));
+    when(path.getPath()).thenReturn(singletonList(idAttribute));
 
     when(et.getTypeClass()).thenAnswer(new Answer<Class<?>>() {
       @Override
@@ -706,8 +812,8 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
         return OrganizationWithAudit.class;
       }
     });
-    when(et.getKey()).thenReturn(Collections.singletonList(idAttribute));
-    when(et.getProtections()).thenReturn(Collections.singletonList(protectionInfo));
+    when(et.getKey()).thenReturn(singletonList(idAttribute));
+    when(et.getProtections()).thenReturn(singletonList(protectionInfo));
     when(et.getAttribute("id")).thenReturn(Optional.of(idAttribute));
     when(protectionInfo.supportsWildcards()).thenReturn(false);
     when(protectionInfo.getAttribute()).thenReturn(idAttribute);
@@ -719,9 +825,9 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   private JPAODataClaimProvider createPersonProtectedClaims(final JPAClaimsPair<String> claim) {
     final JPAODataClaimProvider claims = mock(JPAODataClaimProvider.class);
     final JPAClaimsPair<String> userClaim = new JPAClaimsPair<>("Willi");
-    when(claims.get("BuildingNumber")).thenReturn(Collections.singletonList(claim));
-    when(claims.get("Creator")).thenReturn(Collections.singletonList(userClaim));
-    when(claims.get("Updator")).thenReturn(Collections.singletonList(userClaim));
+    when(claims.get("BuildingNumber")).thenReturn(singletonList(claim));
+    when(claims.get("Creator")).thenReturn(singletonList(userClaim));
+    when(claims.get("Updator")).thenReturn(singletonList(userClaim));
     return claims;
   }
 
@@ -772,7 +878,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
         return OrganizationWithAudit.class;
       }
     });
-    when(et.getKey()).thenReturn(Collections.singletonList(attribute));
+    when(et.getKey()).thenReturn(singletonList(attribute));
     when(attribute.getInternalName()).thenReturn("id");
     data.put("name1", "Example SE");
     data.put("iD", 100);
@@ -806,7 +912,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
         return OrganizationWithAudit.class;
       }
     });
-    when(et.getKey()).thenReturn(Collections.singletonList(idAttribute));
+    when(et.getKey()).thenReturn(singletonList(idAttribute));
     when(et.getAttribute("id")).thenReturn(Optional.of(idAttribute));
     when(et.getAttribute("name")).thenReturn(Optional.of(nameAttribute));
     when(em.find(OrganizationWithAudit.class, 100)).thenReturn(beforeImage);
@@ -820,12 +926,12 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
 
   private JPAUpdateResult updateSimplePrimitiveValue() throws ODataJPAModelException, ODataJPAProcessException {
     final String id = "1";
-    final Organization beforImage = new Organization(id);
+    final Organization beforeImage = new Organization(id);
     final JPAEntityType et = helper.getJPAEntityType("Organizations");
-    beforImage.setName1("Example Ltd");
+    beforeImage.setName1("Example Ltd");
 
     doReturn(et).when(requestEntity).getEntityType();
-    doReturn(beforImage).when(em).find(eq(et.getTypeClass()), any());
+    doReturn(beforeImage).when(em).find(eq(et.getTypeClass()), any());
 
     data.put("name1", "Example SE");
     keys.put("iD", id);

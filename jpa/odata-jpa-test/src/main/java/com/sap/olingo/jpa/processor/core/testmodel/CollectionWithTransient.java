@@ -32,7 +32,7 @@ public class CollectionWithTransient {
   @ElementCollection(fetch = FetchType.LAZY)
   @CollectionTable(schema = "\"OLINGO\"", name = "\"NestedComplex\"",
       joinColumns = @JoinColumn(name = "\"ID\""))
-  private List<CollcetionNestedComplexWithTransient> nested; // Must not be assigned to an ArrayList
+  private List<CollectionNestedComplexWithTransient> nested; // Must not be assigned to an ArrayList
   @Transient
   @EdmTransient(calculator = DummyPropertyCalculator.class)
   private List<String> transientComment;
@@ -53,11 +53,11 @@ public class CollectionWithTransient {
     this.complex = complex;
   }
 
-  public List<CollcetionNestedComplexWithTransient> getNested() {
+  public List<CollectionNestedComplexWithTransient> getNested() {
     return nested;
   }
 
-  public void setNested(List<CollcetionNestedComplexWithTransient> nested) {
+  public void setNested(List<CollectionNestedComplexWithTransient> nested) {
     this.nested = nested;
   }
 

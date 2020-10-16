@@ -7,8 +7,11 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 @Entity(name = "${entity-table}")
@@ -16,17 +19,30 @@ import javax.persistence.Table;
 public class EntityTemplate {
   @Id
   @Column(name = "\"ID\"", length = 32)
-  private String id;
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "TemplateId")
+  @SequenceGenerator(name = "TemplateId", sequenceName = "\"${schema}\".\"TemplateId\"", allocationSize = 1)
+  private Long id;
+
+  @Column(name = "\"Data\"", length = 255)
+  private String data;
 
   @OneToMany(mappedBy = "entity", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   private Collection<ValueObjectTemplate> valueObjects = new ArrayList<>();
 
-  public String getId() {
+  public Long getId() {
     return id;
   }
 
-  public void setId(String id) {
+  public void setId(final Long id) {
     this.id = id;
+  }
+
+  public String getData() {
+    return data;
+  }
+
+  public void setData(final String data) {
+    this.data = data;
   }
 
   public Collection<ValueObjectTemplate> getValueObjects() {

@@ -13,11 +13,11 @@ public abstract class JPAInlineItemInfo {
 
   protected final JPAExpandItem uriInfo;
   protected final JPAAssociationPath expandAssociation;
-  protected final List<JPANavigationProptertyInfo> hops;
-  protected final List<JPANavigationProptertyInfo> parentHops;
+  protected final List<JPANavigationPropertyInfo> hops;
+  protected final List<JPANavigationPropertyInfo> parentHops;
 
   public JPAInlineItemInfo(final JPAExpandItem uriInfo,
-      final JPAAssociationPath expandAssociation, final List<JPANavigationProptertyInfo> parentHops) {
+      final JPAAssociationPath expandAssociation, final List<JPANavigationPropertyInfo> parentHops) {
 
     this.uriInfo = uriInfo;
     this.expandAssociation = expandAssociation;
@@ -33,7 +33,7 @@ public abstract class JPAInlineItemInfo {
     return expandAssociation;
   }
 
-  public List<JPANavigationProptertyInfo> getHops() {
+  public List<JPANavigationPropertyInfo> getHops() {
     return Collections.unmodifiableList(hops);
   }
 

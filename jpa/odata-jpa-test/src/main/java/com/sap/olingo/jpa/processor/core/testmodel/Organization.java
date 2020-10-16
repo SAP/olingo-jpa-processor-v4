@@ -52,7 +52,7 @@ public class Organization extends BusinessPartner { // NOSONAR
 
   @Enumerated
   @Column(name = "\"ABCClass\"")
-  private ABCClassifiaction aBCClass;
+  private ABCClassification aBCClass;
 
   @ManyToMany(mappedBy = "supportedOrganizations")
   private List<Person> supportEngineers;
@@ -73,11 +73,11 @@ public class Organization extends BusinessPartner { // NOSONAR
     this.name2 = name2;
   }
 
-  public ABCClassifiaction getABCClass() {
+  public ABCClassification getABCClass() {
     return aBCClass;
   }
 
-  public void setABCClass(ABCClassifiaction aBCClass) {
+  public void setABCClass(ABCClassification aBCClass) {
     this.aBCClass = aBCClass;
   }
 

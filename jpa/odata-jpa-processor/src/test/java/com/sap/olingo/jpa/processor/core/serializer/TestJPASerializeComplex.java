@@ -39,7 +39,7 @@ public class TestJPASerializeComplex extends TestJPAOperationSerializer {
   }
 
   @Override
-  protected void initTest(final List<UriResource> resouceParts) {
+  protected void initTest(final List<UriResource> resourceParts) {
     annotatable = mock(Property.class);
     edmCT = mock(EdmComplexType.class);
     final UriResourceComplexProperty uriCT = mock(UriResourceComplexProperty.class);
@@ -49,7 +49,7 @@ public class TestJPASerializeComplex extends TestJPAOperationSerializer {
     when(uriCT.getKind()).thenReturn(UriResourceKind.complexProperty);
     when(edmProperty.getName()).thenReturn("InhouseAddress");
     when(edmProperty.isCollection()).thenReturn(false);
-    resouceParts.add(uriCT);
+    resourceParts.add(uriCT);
 
     final Entity resultEntity = mock(Entity.class);
     final List<Entity> resultEntities = new ArrayList<>();

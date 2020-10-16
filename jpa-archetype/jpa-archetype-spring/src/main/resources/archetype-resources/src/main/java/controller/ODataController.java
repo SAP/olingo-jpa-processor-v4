@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.annotation.RequestScope;
 
-import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDHandler;
-import com.sap.olingo.jpa.processor.core.api.example.JPAExampleCUDRequestHandler;
+import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContext;
+import com.sap.olingo.jpa.processor.core.api.JPAODataRequestHandler;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 
 @RestController
 @RequestMapping("${punit}/v1/**")
@@ -20,14 +20,14 @@ import com.sap.olingo.jpa.processor.core.api.example.JPAExampleCUDRequestHandler
 public class ODataController {
   
   @Autowired
-  private JPAODataCRUDContextAccess serviceContext;
+  private JPAODataSessionContextAccess serviceContext;
+  @Autowired
+  private JPAODataRequestContext requestContext;
   
   @RequestMapping(value = "**", method = { RequestMethod.GET, RequestMethod.PATCH, // NOSONAR
       RequestMethod.POST, RequestMethod.DELETE })
   public void crud(final HttpServletRequest req, final HttpServletResponse resp) throws ODataException {
 
-    final JPAODataCRUDHandler handler = new JPAODataCRUDHandler(serviceContext);
-    handler.getJPAODataRequestContext().setCUDRequestHandler(new JPAExampleCUDRequestHandler());
-    handler.process(req, resp);
+    new JPAODataRequestHandler(serviceContext, requestContext).process(req, resp);
   }
 }

@@ -5,6 +5,7 @@ import static com.sap.olingo.jpa.processor.core.api.example.JPAExampleModifyExce
 import static com.sap.olingo.jpa.processor.core.api.example.JPAExampleModifyException.MessageKeys.MODIFY_NOT_ALLOWED;
 import static com.sap.olingo.jpa.processor.core.api.example.JPAExampleModifyException.MessageKeys.WILDCARD_RANGE_NOT_SUPPORTED;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -18,6 +19,9 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 import javax.persistence.EntityManager;
+import javax.persistence.GeneratedValue;
+import javax.persistence.metamodel.EntityType;
+import javax.persistence.metamodel.SingularAttribute;
 
 import org.apache.olingo.commons.api.http.HttpMethod;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -63,15 +67,19 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
   public Object createEntity(final JPARequestEntity requestEntity, final EntityManager em)
       throws ODataJPAProcessException {
 
+    // POST an Entity
     Object instance = null;
-
+    instance = createOneEntity(requestEntity, em, null);
     if (requestEntity.getKeys().isEmpty()) {
-      // POST an Entity
-      instance = createOneEntity(requestEntity, em, null);
-      final Object old = em.find(requestEntity.getEntityType().getTypeClass(),
-          requestEntity.getModifyUtil().createPrimaryKey(requestEntity.getEntityType(), instance));
-      if (old != null)
-        throw new JPAExampleModifyException(ENTITY_ALREADY_EXISTS, HttpStatusCode.BAD_REQUEST);
+      if (!hasGeneratedKey(requestEntity, em)) {
+        final Object old = em.find(requestEntity.getEntityType().getTypeClass(),
+            requestEntity.getModifyUtil().createPrimaryKey(requestEntity.getEntityType(), instance));
+        if (old != null)
+          throw new JPAExampleModifyException(ENTITY_ALREADY_EXISTS, HttpStatusCode.BAD_REQUEST);
+      } else {
+        // Pre-fill granted ID, so it can be used for deep inserts
+        em.persist(instance);
+      }
     } else {
       // POST on Link only // https://issues.oasis-open.org/browse/ODATA-1294
       instance = findEntity(requestEntity, em);
@@ -100,9 +108,7 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
     if (method == HttpMethod.PATCH || method == HttpMethod.DELETE) {
       final Object instance = em.find(requestEntity.getEntityType().getTypeClass(), requestEntity.getModifyUtil()
           .createPrimaryKey(requestEntity.getEntityType(), requestEntity.getKeys(), requestEntity.getEntityType()));
-      if (instance == null) {
-        throw new JPAExampleModifyException(ENTITY_NOT_FOUND, HttpStatusCode.NOT_FOUND);
-      }
+      if (instance == null) throw new JPAExampleModifyException(ENTITY_NOT_FOUND, HttpStatusCode.NOT_FOUND);
       requestEntity.getModifyUtil().setAttributesDeep(requestEntity.getData(), instance, requestEntity.getEntityType());
 
       updateLinks(requestEntity, em, instance);
@@ -115,30 +121,28 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
   @Override
   public void validateChanges(final EntityManager em) throws ODataJPAProcessException {
 
-    for (final Entry<Object, JPARequestEntity> entity : entityBuffer.entrySet()) {
+    for (final Entry<Object, JPARequestEntity> entity : entityBuffer.entrySet())
       processBindingLinks(entity.getValue().getRelationLinks(), entity.getKey(), entity.getValue().getModifyUtil(), em);
-    }
   }
 
-  private void checkAuthorisationsOneClaim(final JPAProtectionInfo protectionInfo, final Object value,
+  private void checkAuthorizationsOneClaim(final JPAProtectionInfo protectionInfo, final Object value,
       final List<JPAClaimsPair<?>> pairs) throws JPAExampleModifyException {
     boolean match = false;
-    for (final JPAClaimsPair<?> pair : pairs) {
+    for (final JPAClaimsPair<?> pair : pairs)
       if (protectionInfo.supportsWildcards())
-        match = checkAuthorisationsOnePairWithWildcard(value, match, pair);
+        match = checkAuthorizationsOnePairWithWildcard(value, match, pair);
       else
-        match = checkAuthorisationsOnePair(value, match, pair);
-    }
+        match = checkAuthorizationsOnePair(value, match, pair);
     if (!match)
       throw new JPAExampleModifyException(MODIFY_NOT_ALLOWED, HttpStatusCode.FORBIDDEN);
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  private boolean checkAuthorisationsOnePair(final Object value, boolean match, final JPAClaimsPair<?> pair)
+  private boolean checkAuthorizationsOnePair(final Object value, boolean match, final JPAClaimsPair<?> pair)
       throws JPAExampleModifyException {
-    if (!pair.hasUpperBoundary && value.equals(pair.min)) {
+    if (!pair.hasUpperBoundary && value.equals(pair.min))
       match = true;
-    } else if (pair.hasUpperBoundary) {
+    else if (pair.hasUpperBoundary) {
       if (!(value instanceof Comparable<?>))
         throw new JPAExampleModifyException(MODIFY_NOT_ALLOWED, HttpStatusCode.FORBIDDEN);
       if (((Comparable) value).compareTo(pair.min) >= 0
@@ -148,11 +152,11 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
     return match;
   }
 
-  private boolean checkAuthorisationsOnePairWithWildcard(final Object value, boolean match, final JPAClaimsPair<?> pair)
+  private boolean checkAuthorizationsOnePairWithWildcard(final Object value, boolean match, final JPAClaimsPair<?> pair)
       throws JPAExampleModifyException {
     if (pair.hasUpperBoundary) {
-      final String minPrefix = determineAuthorisationPrefix(pair.min);
-      final String maxPrefix = determineAuthorisationPrefix(pair.max);
+      final String minPrefix = determineAuthorizationPrefix(pair.min);
+      final String maxPrefix = determineAuthorizationPrefix(pair.max);
       final String minComparator = ((String) value).substring(0, minPrefix.length());
       final String maxComparator = ((String) value).substring(0, maxPrefix.length());
       if (minComparator.compareTo(minPrefix) >= 0
@@ -181,7 +185,7 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
           final List<JPAClaimsPair<?>> pairs = claimsProvider.get(protectionInfo.getClaimName());
           if (pairs.isEmpty())
             throw new JPAExampleModifyException(MODIFY_NOT_ALLOWED, HttpStatusCode.FORBIDDEN);
-          checkAuthorisationsOneClaim(protectionInfo, value, pairs);
+          checkAuthorizationsOneClaim(protectionInfo, value, pairs);
         }
       }
     } catch (final ODataJPAModelException | NoSuchMethodException | SecurityException | IllegalAccessException
@@ -212,7 +216,7 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
     return instance;
   }
 
-  private String determineAuthorisationPrefix(final Object restriction) throws JPAExampleModifyException {
+  private String determineAuthorizationPrefix(final Object restriction) throws JPAExampleModifyException {
     final String[] minPrefix = ((String) restriction).split("[*,%,+,_]");
     if (minPrefix.length > 1)
       throw new JPAExampleModifyException(WILDCARD_RANGE_NOT_SUPPORTED, HttpStatusCode.NOT_IMPLEMENTED);
@@ -244,11 +248,9 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
   private Constructor<?> getConstructor(final JPAStructuredType st, final Object parentInstance)
       throws ODataJPAProcessorException {
     // If a parent exists, try to use a constructor that accepts the parent
-    if (parentInstance != null) {
-      try {
-        return st.getTypeClass().getConstructor(parentInstance.getClass());
-      } catch (NoSuchMethodException | SecurityException e) {} // NOSONAR
-    }
+    if (parentInstance != null) try {
+      return st.getTypeClass().getConstructor(parentInstance.getClass());
+    } catch (NoSuchMethodException | SecurityException e) {} // NOSONAR
     try {
       return st.getTypeClass().getConstructor();
     } catch (NoSuchMethodException | SecurityException e) {
@@ -280,12 +282,10 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
 
         final Object newInstance = createOneEntity(requestEntity, em, parentInstance);
         util.linkEntities(parentInstance, newInstance, pathInfo);
-        if (pathInfo.getPartner() != null) {
-          try {
-            util.linkEntities(newInstance, parentInstance, pathInfo.getPartner().getPath());
-          } catch (final ODataJPAModelException e) {
-            throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-          }
+        if (pathInfo.getPartner() != null) try {
+          util.linkEntities(newInstance, parentInstance, pathInfo.getPartner().getPath());
+        } catch (final ODataJPAModelException e) {
+          throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
         }
         processRelatedEntities(requestEntity.getRelatedEntities(), newInstance, util, em);
       }
@@ -308,7 +308,7 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
 
   private void updateLinks(final JPARequestEntity requestEntity, final EntityManager em, final Object instance)
       throws ODataJPAProcessorException, ODataJPAInvocationTargetException {
-    if (requestEntity.getRelationLinks() != null) {
+    if (requestEntity.getRelationLinks() != null)
       for (final Entry<JPAAssociationPath, List<JPARequestLink>> links : requestEntity.getRelationLinks().entrySet()) {
         for (final JPARequestLink link : links.getValue()) {
           final Object related = em.find(link.getEntityType().getTypeClass(), requestEntity.getModifyUtil()
@@ -316,6 +316,31 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
           requestEntity.getModifyUtil().linkEntities(instance, related, links.getKey());
         }
       }
+  }
+
+  private boolean hasGeneratedKey(final JPARequestEntity requestEntity, final EntityManager em) {
+
+    final JPAEntityType et = requestEntity.getEntityType();
+    return em.getMetamodel()
+        .getEntities()
+        .stream()
+        .filter(e -> e.getName().equals(et.getExternalName()))
+        .findFirst()
+        .map(jpaEt -> hasGeneratedKeyInt(et, jpaEt))
+        .orElse(false);
+  }
+
+  private boolean hasGeneratedKeyInt(final JPAEntityType et, final EntityType<?> jpaEt) {
+    try {
+      for (final JPAAttribute key : et.getKey()) {
+        final SingularAttribute<?, ?> at = jpaEt.getId(key.getType());
+        if (at != null &&
+            ((AnnotatedElement) at.getJavaMember()).getAnnotation(GeneratedValue.class) != null)
+          return true;
+      }
+      return false;
+    } catch (final ODataJPAModelException e) {
+      return false;
     }
   }
 }

@@ -113,7 +113,7 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
    *
    * @param entityContainer this EntitySet is contained in
    * @param entitySetName name of entity set
-   * @return for the given container and entityset name
+   * @return for the given container and entity set name
    * @throws ODataException
    */
   @Override
@@ -163,7 +163,7 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
   }
 
   /**
-   * This method should return a list of all {@link CsdlFunction} for the FullQualifiedname or <b>null</b> if nothing is
+   * This method should return a list of all {@link CsdlFunction} for the FullQualifiedName or <b>null</b> if nothing is
    * found
    *
    * @param functionName full qualified name of function
@@ -182,7 +182,7 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
   }
 
   /**
-   * This method should return a list of all {@link CsdlAction} for the FullQualifiedname
+   * This method should return a list of all {@link CsdlAction} for the FullQualifiedName
    * or <b>null</b> if nothing is found
    *
    * @param actionName full qualified name of action

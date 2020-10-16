@@ -27,6 +27,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
 import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlPropertyRef;
+import org.apache.olingo.server.api.uri.UriResourceProperty;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAsEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
@@ -75,6 +76,17 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
     if (a.isPresent())
       return a;
     return getKey(internalName);
+  }
+
+  @Override
+  public Optional<JPAAttribute> getAttribute(final UriResourceProperty uriResourceItem) throws ODataJPAModelException {
+    if (edmStructuralType == null) {
+      lazyBuildEdmItem();
+    }
+    final Optional<JPAAttribute> a = super.getAttribute(uriResourceItem);
+    if (a.isPresent())
+      return a;
+    return getKey(uriResourceItem);
   }
 
   @Override
@@ -135,6 +147,14 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
       keyAttributes = Collections.unmodifiableList(intermediateKey);
     }
     return keyAttributes;
+  }
+
+  private Optional<JPAAttribute> getKey(final UriResourceProperty uriResourceItem) throws ODataJPAModelException {
+    for (final JPAAttribute attribute : getKey()) {
+      if (attribute.getExternalName().equals(uriResourceItem.getProperty().getName()))
+        return Optional.of(attribute);
+    }
+    return Optional.empty();
   }
 
   private void addKeyAttribute(final List<JPAAttribute> intermediateKey, final Field[] keyFields)
@@ -306,7 +326,7 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
       ((CsdlEntityType) edmStructuralType).setHasStream(determineHasStream());
       edmStructuralType.setAnnotations(determineAnnotations());
       determineHasEtag();
-      checkPropertyConsistancy();
+      checkPropertyConsistency(); //
       // TODO determine OpenType
     }
   }

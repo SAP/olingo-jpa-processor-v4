@@ -22,9 +22,9 @@ public interface JPAJoinTable {
    * @return
    * @throws ODataJPAModelException
    */
-  public List<JPAOnConditionItem> getInversJoinColumns() throws ODataJPAModelException;
+  public List<JPAOnConditionItem> getInverseJoinColumns() throws ODataJPAModelException;
 
   public <T extends JPAJoinColumn> List<T> getRawJoinInformation();
 
-  public <T extends JPAJoinColumn> List<T> getRawInversJoinInformation() throws ODataJPAModelException;
+  public <T extends JPAJoinColumn> List<T> getRawInverseJoinInformation() throws ODataJPAModelException;
 }

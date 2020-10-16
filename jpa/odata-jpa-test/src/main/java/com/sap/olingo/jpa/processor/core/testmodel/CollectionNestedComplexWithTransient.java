@@ -8,7 +8,7 @@ import javax.persistence.Transient;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransient;
 
 @Embeddable
-public class CollcetionNestedComplexWithTransient {
+public class CollectionNestedComplexWithTransient {
 
   @Column(name = "\"Number\"")
   private Long number;
@@ -18,7 +18,7 @@ public class CollcetionNestedComplexWithTransient {
   private Double log;
 
   @Embedded
-  private CollcetionInnerComplex inner;
+  private CollectionInnerComplex inner;
 
   public Long getNumber() {
     return number;
@@ -28,11 +28,11 @@ public class CollcetionNestedComplexWithTransient {
     this.number = number;
   }
 
-  public CollcetionInnerComplex getInner() {
+  public CollectionInnerComplex getInner() {
     return inner;
   }
 
-  public void setInner(CollcetionInnerComplex inner) {
+  public void setInner(CollectionInnerComplex inner) {
     this.inner = inner;
   }
 }

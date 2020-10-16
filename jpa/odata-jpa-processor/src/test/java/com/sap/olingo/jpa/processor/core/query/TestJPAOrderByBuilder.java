@@ -1,0 +1,375 @@
+package com.sap.olingo.jpa.processor.core.query;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.From;
+import javax.persistence.criteria.Order;
+
+import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
+import org.apache.olingo.commons.api.edm.EdmProperty;
+import org.apache.olingo.commons.api.ex.ODataException;
+import org.apache.olingo.commons.api.http.HttpStatusCode;
+import org.apache.olingo.server.api.ODataApplicationException;
+import org.apache.olingo.server.api.uri.UriInfo;
+import org.apache.olingo.server.api.uri.UriInfoResource;
+import org.apache.olingo.server.api.uri.UriResource;
+import org.apache.olingo.server.api.uri.UriResourceComplexProperty;
+import org.apache.olingo.server.api.uri.UriResourceCount;
+import org.apache.olingo.server.api.uri.UriResourceFunction;
+import org.apache.olingo.server.api.uri.UriResourceKind;
+import org.apache.olingo.server.api.uri.UriResourceNavigation;
+import org.apache.olingo.server.api.uri.UriResourcePrimitiveProperty;
+import org.apache.olingo.server.api.uri.UriResourceProperty;
+import org.apache.olingo.server.api.uri.queryoption.OrderByItem;
+import org.apache.olingo.server.api.uri.queryoption.OrderByOption;
+import org.apache.olingo.server.api.uri.queryoption.SkipOption;
+import org.apache.olingo.server.api.uri.queryoption.TopOption;
+import org.apache.olingo.server.api.uri.queryoption.expression.Member;
+import org.eclipse.persistence.internal.jpa.querydef.FunctionExpressionImpl;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPANotImplementedException;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
+import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescription;
+import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
+import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerWithGroups;
+import com.sap.olingo.jpa.processor.core.testmodel.CollectionDeep;
+import com.sap.olingo.jpa.processor.core.testmodel.Organization;
+import com.sap.olingo.jpa.processor.core.testmodel.Person;
+import com.sap.olingo.jpa.processor.core.util.TestBase;
+
+public class TestJPAOrderByBuilder extends TestBase {
+  private JPAOrderByBuilder cut;
+  private Map<String, From<?, ?>> joinTables;
+  private UriInfoResource uriResource;
+  private TopOption top;
+  private SkipOption skip;
+  private OrderByOption orderBy;
+  private From<?, ?> adminTarget;
+  private From<?, ?> orgTarget;
+  private CriteriaBuilder cb;
+  private JPAEntityType jpaAdminEntity;
+  private JPAEntityType jpaOrgEntity;
+  private List<String> groups;
+
+  @BeforeEach
+  public void setup() throws ODataJPAModelException, ODataException {
+    cb = emf.getCriteriaBuilder();
+    jpaAdminEntity = getHelper().getJPAEntityType(AdministrativeDivisionDescription.class);
+    adminTarget = cb.createQuery().from(getHelper().getEntityType(AdministrativeDivisionDescription.class));
+    jpaOrgEntity = getHelper().getJPAEntityType(Organization.class);
+    orgTarget = cb.createQuery().from(getHelper().getEntityType(Organization.class));
+    groups = new ArrayList<>();
+
+    cut = new JPAOrderByBuilder(jpaAdminEntity, adminTarget, cb, groups);
+    top = mock(TopOption.class);
+    skip = mock(SkipOption.class);
+    orderBy = mock(OrderByOption.class);
+    uriResource = mock(UriInfoResource.class);
+    joinTables = new HashMap<>();
+  }
+
+  @Test
+  public void testNoTopSkipOrderByReturnsEmptyList() throws IOException, ODataException {
+    final List<Order> act = cut.createOrderByList(joinTables, uriResource);
+    assertEquals(0, act.size());
+  }
+
+  @Test
+  public void testTopReturnsByPrimaryKey() throws IOException, ODataException {
+    when(uriResource.getTopOption()).thenReturn(top);
+    when(top.getValue()).thenReturn(5);
+
+    final List<Order> act = cut.createOrderByList(joinTables, uriResource);
+
+    assertEquals(1, act.size());
+    assertEquals(AdministrativeDivisionDescription.class, act.get(0).getExpression().getJavaType());
+  }
+
+  @Test
+  public void testSkipReturnsByPrimaryKey() throws IOException, ODataException {
+    when(uriResource.getSkipOption()).thenReturn(skip);
+    when(skip.getValue()).thenReturn(5);
+
+    final List<Order> act = cut.createOrderByList(joinTables, uriResource);
+
+    assertEquals(1, act.size());
+    assertEquals(AdministrativeDivisionDescription.class, act.get(0).getExpression().getJavaType());
+  }
+
+  @Test
+  public void testTopSkipReturnsByPrimaryKey() throws IOException, ODataException {
+    when(uriResource.getTopOption()).thenReturn(top);
+    when(top.getValue()).thenReturn(5);
+    when(uriResource.getSkipOption()).thenReturn(skip);
+    when(skip.getValue()).thenReturn(5);
+
+    final List<Order> act = cut.createOrderByList(joinTables, uriResource);
+
+    assertEquals(1, act.size());
+    assertEquals(AdministrativeDivisionDescription.class, act.get(0).getExpression().getJavaType());
+  }
+
+  @Test
+  public void testThrowsExceptionOnFailingMetadata() throws ODataException {
+    cb = emf.getCriteriaBuilder();
+    jpaAdminEntity = mock(JPAEntityType.class);
+    adminTarget = cb.createQuery().from(getHelper().getEntityType(AdministrativeDivisionDescription.class));
+    when(jpaAdminEntity.getKeyPath()).thenThrow(new ODataJPAModelException(
+        ODataJPAModelException.MessageKeys.PATH_ELEMENT_NOT_FOUND));
+    when(uriResource.getTopOption()).thenReturn(top);
+    when(top.getValue()).thenReturn(5);
+
+    cut = new JPAOrderByBuilder(jpaAdminEntity, adminTarget, cb, groups);
+
+    assertThrows(ODataApplicationException.class, () -> cut.createOrderByList(joinTables, uriResource));
+  }
+
+  @Test
+  public void testOrderByEmptyReturnsEmptyList() throws ODataApplicationException {
+    when(uriResource.getOrderByOption()).thenReturn(orderBy);
+    when(orderBy.getOrders()).thenReturn(Collections.emptyList());
+    final List<Order> act = cut.createOrderByList(joinTables, uriResource);
+    assertEquals(0, act.size());
+  }
+
+  @Test
+  public void testOrderByOneProperty() throws ODataApplicationException, ODataJPAModelException {
+    createOrderByItem("Name");
+    when(uriResource.getOrderByOption()).thenReturn(orderBy);
+    final List<Order> act = cut.createOrderByList(joinTables, uriResource);
+    assertEquals(1, act.size());
+    assertFalse(act.get(0).isAscending());
+  }
+
+  @Test
+  public void testOrderByOneComplexProperty() throws ODataApplicationException, ODataJPAModelException {
+    cut = new JPAOrderByBuilder(jpaOrgEntity, orgTarget, cb, groups);
+    createComplexOrderByItem();
+    when(uriResource.getOrderByOption()).thenReturn(orderBy);
+    final List<Order> act = cut.createOrderByList(joinTables, uriResource);
+    assertEquals(1, act.size());
+    assertFalse(act.get(0).isAscending());
+  }
+
+  @Test
+  public void testThrowsNotImplementedOnOrderByFunction() {
+    final List<UriResource> pathParts = createOrderByClause(null);
+    final UriResourceFunction part = mock(UriResourceFunction.class);
+    pathParts.add(part);
+    when(part.getKind()).thenReturn(UriResourceKind.function);
+
+    assertThrows(ODataJPANotImplementedException.class,
+        () -> cut.createOrderByList(joinTables, uriResource));
+  }
+
+  @Test
+  public void testOrderByNavigationCountDefault() throws ODataException {
+    cut = new JPAOrderByBuilder(jpaOrgEntity, orgTarget, cb, groups);
+    final List<UriResource> pathParts = createOrderByClause(null);
+    final UriResourceNavigation navigationPart = mock(UriResourceNavigation.class);
+    final UriResourceCount countPart = mock(UriResourceCount.class);
+    final EdmNavigationProperty navigationProperty = mock(EdmNavigationProperty.class);
+    pathParts.add(navigationPart);
+    pathParts.add(countPart);
+
+    when(navigationPart.getProperty()).thenReturn(navigationProperty);
+    when(navigationProperty.getName()).thenReturn("Roles");
+    joinTables.put("Roles", cb.createQuery().from(getHelper().getEntityType(BusinessPartnerRole.class)));
+
+    final List<Order> act = cut.createOrderByList(joinTables, uriResource);
+
+    assertEquals(1, act.size());
+    assertTrue(act.get(0).isAscending());
+    assertEquals("COUNT", ((FunctionExpressionImpl<?>) act.get(0).getExpression()).getOperation());
+  }
+
+  @Test
+  public void testOrderByNavigationCountDescending() throws ODataException {
+    cut = new JPAOrderByBuilder(jpaOrgEntity, orgTarget, cb, groups);
+    final List<UriResource> pathParts = createOrderByClause(Boolean.TRUE);
+    final UriResourceNavigation navigationPart = mock(UriResourceNavigation.class);
+    final UriResourceCount countPart = mock(UriResourceCount.class);
+    final EdmNavigationProperty navigationProperty = mock(EdmNavigationProperty.class);
+    pathParts.add(navigationPart);
+    pathParts.add(countPart);
+
+    when(navigationPart.getProperty()).thenReturn(navigationProperty);
+    when(navigationProperty.getName()).thenReturn("Roles");
+    joinTables.put("Roles", cb.createQuery().from(getHelper().getEntityType(BusinessPartnerRole.class)));
+
+    final List<Order> act = cut.createOrderByList(joinTables, uriResource);
+
+    assertEquals(1, act.size());
+    assertFalse(act.get(0).isAscending());
+    assertEquals("COUNT", ((FunctionExpressionImpl<?>) act.get(0).getExpression()).getOperation());
+  }
+
+  @Test
+  public void testOrderByCollectionOrderByCountAsc() throws IOException, ODataException {
+    final JPAEntityType jpaEntity = getHelper().getJPAEntityType(CollectionDeep.class);
+    final From<?, ?> target = cb.createQuery().from(getHelper().getEntityType(CollectionDeep.class));
+    cut = new JPAOrderByBuilder(jpaEntity, target, cb, groups);
+
+    final List<UriResource> pathParts = createOrderByClause(Boolean.FALSE);
+    final UriResourceProperty firstLevelPart = mock(UriResourceComplexProperty.class);
+    final UriResourceProperty secondLevelPart = mock(UriResourceComplexProperty.class);
+    final UriResourceProperty commentPart = mock(UriResourceProperty.class);
+    final UriResourceCount countPart = mock(UriResourceCount.class);
+    when(commentPart.isCollection()).thenReturn(Boolean.TRUE);
+    pathParts.add(firstLevelPart);
+    pathParts.add(secondLevelPart);
+    pathParts.add(commentPart);
+    pathParts.add(countPart);
+
+    createComplexEdmProperty(firstLevelPart, "FirstLevel");
+    createComplexEdmProperty(secondLevelPart, "SecondLevel");
+    createPrimitiveEdmProperty(commentPart, "Comment");
+    joinTables.put("FirstLevel/SecondLevel/Comment",
+        cb.createQuery().from(getHelper().getEntityType(BusinessPartnerRole.class)));
+
+    final List<Order> act = cut.createOrderByList(joinTables, uriResource);
+
+    assertEquals(1, act.size());
+    assertTrue(act.get(0).isAscending());
+    assertEquals("COUNT", ((FunctionExpressionImpl<?>) act.get(0).getExpression()).getOperation());
+  }
+
+  @Test
+  public void testThrowsBadRequestExcpetionOnUnkownProperty() throws ODataApplicationException, ODataJPAModelException {
+    createOrderByItem("Name");
+    when(uriResource.getOrderByOption()).thenReturn(orderBy);
+    cut = new JPAOrderByBuilder(jpaOrgEntity, orgTarget, cb, groups);
+    assertThrows(ODataJPAProcessorException.class,
+        () -> cut.createOrderByList(joinTables, uriResource));
+  }
+
+  @Test
+  public void testThrowsBadRequestExcpetionOnUnkownComplex() throws ODataApplicationException, ODataJPAModelException {
+    createComplexOrderByItem();
+    when(uriResource.getOrderByOption()).thenReturn(orderBy);
+    cut = new JPAOrderByBuilder(jpaAdminEntity, adminTarget, cb, groups);
+    assertThrows(ODataJPAProcessorException.class,
+        () -> cut.createOrderByList(joinTables, uriResource));
+  }
+
+  @Test
+  public void testThrowExceptionOrderByGroupedPropertyWithoutGroup() throws IOException, ODataException {
+    final JPAEntityType jpaEntity = getHelper().getJPAEntityType(BusinessPartnerWithGroups.class);
+    final From<?, ?> target = cb.createQuery().from(getHelper().getEntityType(BusinessPartnerWithGroups.class));
+    cut = new JPAOrderByBuilder(jpaEntity, target, cb, groups);
+    createOrderByItem("Country");
+
+    cut = new JPAOrderByBuilder(jpaEntity, target, cb, groups);
+    final ODataJPAQueryException act = assertThrows(ODataJPAQueryException.class,
+        () -> cut.createOrderByList(joinTables, uriResource));
+    assertEquals(HttpStatusCode.FORBIDDEN.getStatusCode(), act.getStatusCode());
+  }
+
+  @Test
+  public void testOrderByPropertyWithGroupsOneGroup() throws IOException, ODataException {
+    final JPAEntityType jpaEntity = getHelper().getJPAEntityType(BusinessPartnerWithGroups.class);
+    final From<?, ?> target = cb.createQuery().from(getHelper().getEntityType(BusinessPartnerWithGroups.class));
+    groups.add("Person");
+    cut = new JPAOrderByBuilder(jpaEntity, target, cb, groups);
+    createOrderByItem("Country");
+
+    final List<Order> act = cut.createOrderByList(joinTables, uriResource);
+
+    assertEquals(1, act.size());
+    assertFalse(act.get(0).isAscending());
+  }
+
+  @Test
+  public void testOrderByPropertyAndTop() throws IOException, ODataException {
+    createOrderByItem("DivisionCode");
+    when(top.getValue()).thenReturn(5);
+    when(uriResource.getOrderByOption()).thenReturn(orderBy);
+    when(uriResource.getTopOption()).thenReturn(top);
+
+    final List<Order> act = cut.createOrderByList(joinTables, uriResource);
+
+    assertEquals(2, act.size());
+    assertEquals(String.class, act.get(0).getExpression().getJavaType());
+    assertEquals(AdministrativeDivisionDescription.class, act.get(1).getExpression().getJavaType());
+  }
+
+  @Test
+  public void testThrowExceptionOrderByTransientPrimitveSimpleProperty() throws IOException, ODataException {
+    final JPAEntityType jpaEntity = getHelper().getJPAEntityType(Person.class);
+    final From<?, ?> target = cb.createQuery().from(getHelper().getEntityType(Person.class));
+    cut = new JPAOrderByBuilder(jpaEntity, target, cb, groups);
+    createOrderByItem("FullName");
+
+    final ODataJPAQueryException act = assertThrows(ODataJPAQueryException.class,
+        () -> cut.createOrderByList(joinTables, uriResource));
+    assertEquals(HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), act.getStatusCode());
+  }
+
+  private List<UriResource> createOrderByClause(final Boolean isDescending) {
+    final OrderByItem item = mock(OrderByItem.class);
+    final Member expresion = mock(Member.class);
+    final UriInfo uriInfo = mock(UriInfo.class);
+    final List<UriResource> pathParts = new ArrayList<>();
+    when(item.getExpression()).thenReturn(expresion);
+    if (isDescending != null)
+      when(item.isDescending()).thenReturn(isDescending);
+    when(expresion.getResourcePath()).thenReturn(uriInfo);
+    when(uriInfo.getUriResourceParts()).thenReturn(pathParts);
+    when(uriResource.getOrderByOption()).thenReturn(orderBy);
+    when(orderBy.getOrders()).thenReturn(Collections.singletonList(item));
+    return pathParts;
+  }
+
+  private void createOrderByItem(final String externalName) throws ODataJPAModelException {
+
+    final List<UriResource> pathParts = createOrderByClause(Boolean.TRUE);
+    final UriResourceProperty part = mock(UriResourcePrimitiveProperty.class);
+
+    pathParts.add(part);
+
+    createPrimitiveEdmProperty(part, externalName);
+  }
+
+  private void createComplexOrderByItem() throws ODataJPAModelException {
+
+    final List<UriResource> pathParts = createOrderByClause(Boolean.TRUE);
+    final UriResourceProperty complexPart = mock(UriResourceComplexProperty.class);
+    final UriResourceProperty primitivePart = mock(UriResourcePrimitiveProperty.class);
+
+    pathParts.add(complexPart);
+    pathParts.add(primitivePart);
+
+    createComplexEdmProperty(complexPart, "Address");
+    createPrimitiveEdmProperty(primitivePart, "Region");
+  }
+
+  private void createPrimitiveEdmProperty(final UriResourceProperty primitivePart, final String name) {
+    final EdmProperty edmPrimitiveProperty = mock(EdmProperty.class);
+    when(primitivePart.getProperty()).thenReturn(edmPrimitiveProperty);
+    when(edmPrimitiveProperty.getName()).thenReturn(name);
+  }
+
+  private void createComplexEdmProperty(final UriResourceProperty complexPart, final String name) {
+    final EdmProperty edmComplexProperty = mock(EdmProperty.class);
+    when(complexPart.getProperty()).thenReturn(edmComplexProperty);
+    when(edmComplexProperty.getName()).thenReturn(name);
+  }
+}

@@ -15,8 +15,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
 import javax.persistence.metamodel.Attribute;
 
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssoziation;
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssoziation.valueAssignment;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssociation;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssociation.valueAssignment;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
@@ -38,13 +38,13 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
   private JPAStructuredType targetEntity;
   private HashMap<JPAPath, String> fixedValues;
   private JPAPath localFieldPath;
-  private Optional<JPAAssociationPath> assoziationPath;
+  private Optional<JPAAssociationPath> associationPath;
 
   IntermediateDescriptionProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,
       final IntermediateStructuredType<?> parent, final IntermediateSchema schema) throws ODataJPAModelException {
     super(nameBuilder, jpaAttribute, schema);
     this.sourceType = parent;
-    this.assoziationPath = Optional.empty();
+    this.associationPath = Optional.empty();
   }
 
   @Override
@@ -88,9 +88,9 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
     if (this.edmProperty == null) {
       super.lazyBuildEdmItem();
       if (jpaMember instanceof AnnotatedElement) {
-        final EdmDescriptionAssoziation assozation = ((AnnotatedElement) jpaMember).getAnnotation(
-            EdmDescriptionAssoziation.class);
-        if (assozation != null) {
+        final EdmDescriptionAssociation association = ((AnnotatedElement) jpaMember).getAnnotation(
+            EdmDescriptionAssociation.class);
+        if (association != null) {
           // determine generic type of a collection in case of an OneToMany association
           if (jpaMember instanceof Field) {
             final Field jpaField = (Field) jpaMember;
@@ -102,13 +102,13 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
           } else {
             targetEntity = schema.getEntityType(jpaAttribute.getJavaType());
           }
-          descriptionProperty = (IntermediateSimpleProperty) targetEntity.getAttribute(assozation
+          descriptionProperty = (IntermediateSimpleProperty) targetEntity.getAttribute(association
               .descriptionAttribute()).orElseThrow(() ->
           // The attribute %2$s has not been found at entity %1$s
           new ODataJPAModelException(MessageKeys.INVALID_DESCRIPTION_PROPERTY, targetEntity.getInternalName(),
-              assozation.descriptionAttribute()));
-          languageAttribute = assozation.languageAttribute();
-          localeAttribute = assozation.localeAttribute();
+              association.descriptionAttribute()));
+          languageAttribute = association.languageAttribute();
+          localeAttribute = association.localeAttribute();
 
           if (emptyString(languageAttribute) && emptyString(localeAttribute) ||
               !languageAttribute.isEmpty() && !localeAttribute.isEmpty())
@@ -122,7 +122,7 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
               .getFullQualifiedName());
           edmProperty.setMaxLength(descriptionProperty.getEdmItem().getMaxLength());
 
-          fixedValues = convertFixedValues(assozation.valueAssignments());
+          fixedValues = convertFixedValues(association.valueAssignments());
           localFieldPath = convertAttributeToPath(!languageAttribute.isEmpty() ? languageAttribute : localeAttribute);
         } else {
           throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.DESCRIPTION_ANNOTATION_MISSING,
@@ -158,7 +158,7 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
   private HashMap<JPAPath, String> convertFixedValues(final valueAssignment[] valueAssignments)
       throws ODataJPAModelException {
     final HashMap<JPAPath, String> result = new HashMap<>();
-    for (final EdmDescriptionAssoziation.valueAssignment value : valueAssignments) {
+    for (final EdmDescriptionAssociation.valueAssignment value : valueAssignments) {
       result.put(convertAttributeToPath(value.attribute()), value.value());
     }
     return result;
@@ -181,13 +181,13 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
 
   @Override
   public JPAAssociationPath getPath() throws ODataJPAModelException {
-    return assoziationPath.orElseGet(() -> {
-      assoziationPath = Optional.of(new AssoziationPath());
-      return assoziationPath.get();
+    return associationPath.orElseGet(() -> {
+      associationPath = Optional.of(new AssociationPath());
+      return associationPath.get();
     });
   }
 
-  private class AssoziationPath implements JPAAssociationPath {
+  private class AssociationPath implements JPAAssociationPath {
     private List<IntermediateJoinColumn> joinColumns = null;
 
     @Override
