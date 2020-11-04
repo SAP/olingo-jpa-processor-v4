@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.From;
+import javax.persistence.criteria.Path;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -50,5 +51,21 @@ public class PathImplTest extends BuilderBaseTest {
     final StringBuilder act = new StringBuilder();
     cut.asSQL(act);
     assertEquals("E0.\"Address.StreetName\"", act.toString());
+  }
+
+  @Test
+  public void testReturnsComplexEmebbedId() throws ODataJPAModelException {
+    et = sd.getEntity("AdministrativeDivisionDescriptions");
+    root = new FromImpl<>(et, ab, mock(CriteriaBuilder.class));
+    final Path<Object> act = root.get("key").get("language");
+    assertNotNull(act);
+  }
+
+  @Test
+  public void testReturnsResolvedEmebbedId() throws ODataJPAModelException {
+    et = sd.getEntity("AdministrativeDivisions");
+    root = new FromImpl<>(et, ab, mock(CriteriaBuilder.class));
+    final Path<Object> act = root.get("codePublisher");
+    assertNotNull(act);
   }
 }

@@ -11,6 +11,7 @@ import java.util.stream.Collector;
 import javax.annotation.Nonnull;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Selection;
 
 public abstract class StringBuilderCollector<T> implements Collector<T, StringBuilderJoiner<T>, StringBuilder> {
 
@@ -52,8 +53,14 @@ public abstract class StringBuilderCollector<T> implements Collector<T, StringBu
     }
   }
 
-  public static class ExpressionCollector<T> extends StringBuilderCollector<Expression<T>> {
+  public static class ExpressionCollector extends StringBuilderCollector<Expression<?>> {
     public ExpressionCollector(@Nonnull final StringBuilder statement, @Nonnull final String delimiter) {
+      super(statement, delimiter);
+    }
+  }
+
+  public static class SelectionCollector extends StringBuilderCollector<Selection<?>> {
+    public SelectionCollector(@Nonnull final StringBuilder statement, @Nonnull final String delimiter) {
       super(statement, delimiter);
     }
   }

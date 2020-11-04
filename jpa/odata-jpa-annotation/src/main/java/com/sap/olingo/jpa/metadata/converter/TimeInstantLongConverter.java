@@ -12,15 +12,15 @@ import javax.persistence.Converter;
  * @since 1.0.0-RC
  */
 @Converter(autoApply = false)
-public class TimeInstantLongConverter implements AttributeConverter<Instant, Long> {
+public class TimeInstantLongConverter implements AttributeConverter<Instant, Number> {
 
   @Override
-  public Long convertToDatabaseColumn(final Instant instant) {
+  public Number convertToDatabaseColumn(final Instant instant) {
     return instant == null ? null : instant.toEpochMilli();
   }
 
   @Override
-  public Instant convertToEntityAttribute(final Long epochMillis) {
-    return epochMillis == null ? null : Instant.ofEpochMilli(epochMillis);
+  public Instant convertToEntityAttribute(final Number epochMillis) {
+    return epochMillis == null ? null : Instant.ofEpochMilli(epochMillis.longValue());
   }
 }

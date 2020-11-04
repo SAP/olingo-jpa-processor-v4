@@ -128,21 +128,6 @@ public class TestJPAOrderByBuilder extends TestBase {
   }
 
   @Test
-  public void testThrowsExceptionOnFailingMetadata() throws ODataException {
-    cb = emf.getCriteriaBuilder();
-    jpaAdminEntity = mock(JPAEntityType.class);
-    adminTarget = cb.createQuery().from(getHelper().getEntityType(AdministrativeDivisionDescription.class));
-    when(jpaAdminEntity.getKeyPath()).thenThrow(new ODataJPAModelException(
-        ODataJPAModelException.MessageKeys.PATH_ELEMENT_NOT_FOUND));
-    when(uriResource.getTopOption()).thenReturn(top);
-    when(top.getValue()).thenReturn(5);
-
-    cut = new JPAOrderByBuilder(jpaAdminEntity, adminTarget, cb, groups);
-
-    assertThrows(ODataApplicationException.class, () -> cut.createOrderByList(joinTables, uriResource));
-  }
-
-  @Test
   public void testOrderByEmptyReturnsEmptyList() throws ODataApplicationException {
     when(uriResource.getOrderByOption()).thenReturn(orderBy);
     when(orderBy.getOrders()).thenReturn(Collections.emptyList());

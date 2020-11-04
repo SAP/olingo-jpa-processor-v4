@@ -22,6 +22,7 @@ import java.lang.reflect.Member;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -56,6 +57,7 @@ import com.sap.olingo.jpa.processor.core.errormodel.TeamWithTransientKey;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerProtected;
+import com.sap.olingo.jpa.processor.core.testmodel.CollectionInnerComplex;
 import com.sap.olingo.jpa.processor.core.testmodel.Comment;
 import com.sap.olingo.jpa.processor.core.testmodel.CommunicationData;
 import com.sap.olingo.jpa.processor.core.testmodel.DummyToBeIgnored;
@@ -88,8 +90,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   public void checkGetPropertyName() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class), "type");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
-        jpaAttribute,
-        helper.schema);
+        jpaAttribute, helper.schema);
     assertEquals("Type", property.getEdmItem().getName(), "Wrong name");
   }
 
@@ -97,8 +98,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   public void checkGetPropertyDBFieldName() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class), "type");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
-        jpaAttribute,
-        helper.schema);
+        jpaAttribute, helper.schema);
     assertEquals("\"Type\"", property.getDBFieldName(), "Wrong name");
   }
 
@@ -116,8 +116,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class),
         "communicationData");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
-        jpaAttribute,
-        helper.schema);
+        jpaAttribute, helper.schema);
     assertEquals(PUNIT_NAME + ".CommunicationData", property.getEdmItem().getType(), "Wrong type");
   }
 
@@ -125,8 +124,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   public void checkGetPropertyEnumTypeWithoutConverter() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(Organization.class), "aBCClass");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
-        jpaAttribute,
-        helper.schema);
+        jpaAttribute, helper.schema);
     assertEquals("com.sap.olingo.jpa.ABCClassification", property.getEdmItem().getType(), "Wrong type");
   }
 
@@ -325,7 +323,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkConverterGetConverterReturned() throws ODataJPAModelException {
+  public void checkGetConverterReturnedCOnvertionRequiered() throws ODataJPAModelException {
     final PostProcessorSetName pPDouble = new PostProcessorSetName();
     IntermediateModelElement.setPostProcessor(pPDouble);
 
@@ -338,7 +336,19 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkConverterGetConverterNotReturned() throws ODataJPAModelException {
+  public void checkGetConverterNullNoConverterDefined() throws ODataJPAModelException {
+    final PostProcessorSetName pPDouble = new PostProcessorSetName();
+    IntermediateModelElement.setPostProcessor(pPDouble);
+
+    final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(Person.class), "customString2");
+    final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        jpaAttribute, helper.schema);
+
+    assertNull(property.getRawConverter());
+  }
+
+  @Test
+  public void checkGetConverterNullDBTypeEqJavaType() throws ODataJPAModelException {
     final PostProcessorSetName pPDouble = new PostProcessorSetName();
     IntermediateModelElement.setPostProcessor(pPDouble);
 
@@ -350,7 +360,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkConverterGetConverterNotReturnedDiffernt() throws ODataJPAModelException {
+  public void checkGetConverterNullConvertionNotRequired() throws ODataJPAModelException {
     final PostProcessorSetName pPDouble = new PostProcessorSetName();
     IntermediateModelElement.setPostProcessor(pPDouble);
 
@@ -359,6 +369,43 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
         jpaAttribute, helper.schema);
 
     assertNull(property.getConverter());
+  }
+
+  @Test
+  public void checkGetRawConverterReturnedConvertionRequiered() throws ODataJPAModelException {
+    final PostProcessorSetName pPDouble = new PostProcessorSetName();
+    IntermediateModelElement.setPostProcessor(pPDouble);
+
+    final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class),
+        "creationDateTime");
+    final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        jpaAttribute, helper.schema);
+
+    assertNotNull(property.getRawConverter());
+  }
+
+  @Test
+  public void checkGetRawConverterNullNoConverterDefined() throws ODataJPAModelException {
+    final PostProcessorSetName pPDouble = new PostProcessorSetName();
+    IntermediateModelElement.setPostProcessor(pPDouble);
+
+    final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(Person.class), "customString2");
+    final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        jpaAttribute, helper.schema);
+
+    assertNull(property.getRawConverter());
+  }
+
+  @Test
+  public void checkGetRawConverterReturnsConvertionNotRequired() throws ODataJPAModelException {
+    final PostProcessorSetName pPDouble = new PostProcessorSetName();
+    IntermediateModelElement.setPostProcessor(pPDouble);
+
+    final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(DummyToBeIgnored.class), "uuid");
+    final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        jpaAttribute, helper.schema);
+
+    assertNotNull(property.getRawConverter());
   }
 
   @Test
@@ -541,6 +588,26 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
         jpaAttribute, helper.schema);
 
     assertEquals(Integer.class, property.getType());
+  }
+
+  @Test
+  public void checkGetTypeConvertionRequired() throws ODataJPAModelException {
+    final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class),
+        "creationDateTime");
+    final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        jpaAttribute, helper.schema);
+
+    assertEquals(Timestamp.class, property.getType());
+  }
+
+  @Test
+  public void checkGetTypeConvertionNotRequired() throws ODataJPAModelException {
+    final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEmbeddableType(CollectionInnerComplex.class),
+        "figure2");
+    final IntermediateSimpleProperty property = new IntermediateSimpleProperty(nameBuilder,
+        jpaAttribute, helper.schema);
+
+    assertEquals(Instant.class, property.getType());
   }
 
   @Test

@@ -20,7 +20,7 @@ class JoinTableJoin<Z, X> extends AbstractJoinImp<Z, X> {
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
   JoinTableJoin(@Nonnull final JPAAssociationPath path, @Nonnull final JoinType jt,
-      @Nonnull final From<?, Z> parent, @Nonnull final AliasBuilder aliasBuilder, @Nonnull CriteriaBuilder cb)
+      @Nonnull final From<?, Z> parent, @Nonnull final AliasBuilder aliasBuilder, @Nonnull final CriteriaBuilder cb)
       throws ODataJPAModelException {
 
     super((JPAEntityType) path.getTargetType(), (From<?, Z>) new InnerJoin(parent, aliasBuilder, cb, path, jt),
@@ -44,8 +44,8 @@ class JoinTableJoin<Z, X> extends AbstractJoinImp<Z, X> {
     private final JoinType joinType;
     private final JPAAssociationPath association;
 
-    public InnerJoin(final From<?, Z> parent, @Nonnull final AliasBuilder ab, @Nonnull CriteriaBuilder cb,
-        @Nonnull JPAAssociationPath path, JoinType jt) {
+    public InnerJoin(final From<?, Z> parent, @Nonnull final AliasBuilder ab, @Nonnull final CriteriaBuilder cb,
+        @Nonnull final JPAAssociationPath path, final JoinType jt) {
 
       super(path.getJoinTable().getEntityType(), parent, ab, cb);
       this.joinType = jt;
@@ -63,7 +63,6 @@ class JoinTableJoin<Z, X> extends AbstractJoinImp<Z, X> {
       return joinType;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public StringBuilder asSQL(final StringBuilder statement) {
 
@@ -84,7 +83,7 @@ class JoinTableJoin<Z, X> extends AbstractJoinImp<Z, X> {
   }
 
   @Override
-  public StringBuilder asSQL(StringBuilder statement) {
+  public StringBuilder asSQL(final StringBuilder statement) {
     if (inner) {
       return super.asSQL(statement);
     } else {

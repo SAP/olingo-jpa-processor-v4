@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -13,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
@@ -35,15 +36,18 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.cb.api.SqlConvertible;
 import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
+import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
+import com.sap.olingo.jpa.processor.core.testmodel.Person;
 
 public class FromImplTest extends BuilderBaseTest {
   private From<Organization, Organization> cut;
   private AliasBuilder ab;
+  private CriteriaBuilderImpl cb;
 
   @SuppressWarnings("rawtypes")
   static Stream<Arguments> notImplemented() throws NoSuchMethodException, SecurityException {
-    Class<FromImpl> c = FromImpl.class;
+    final Class<FromImpl> c = FromImpl.class;
     return Stream.of(
         arguments(c.getMethod("fetch", String.class)),
         arguments(c.getMethod("fetch", String.class, JoinType.class)),
@@ -74,9 +78,11 @@ public class FromImplTest extends BuilderBaseTest {
 
   @BeforeEach
   public void setup() throws ODataJPAModelException {
-    final JPAEntityType et = sd.getEntity("Organizations");
+    final JPAEntityType et = sd.getEntity(Organization.class);
+    cb = mock(CriteriaBuilderImpl.class);
     ab = new AliasBuilder();
-    cut = new FromImpl<>(et, ab, mock(CriteriaBuilder.class));
+    when(cb.getServiceDocument()).thenReturn(sd);
+    cut = new FromImpl<>(et, ab, cb);
   }
 
   @Test
@@ -192,5 +198,41 @@ public class FromImplTest extends BuilderBaseTest {
     assertEquals(1, cut.getJoins().size());
     ((SqlConvertible) cut).asSQL(statement);
     assertEquals(exp, statement.toString());
+  }
+
+  @Test
+  public void testGetJavaType() {
+    assertEquals(Organization.class, cut.getJavaType());
+  }
+
+  @Test
+  public void testAsWithSuperType() {
+    assertNotNull(cut.as(BusinessPartner.class));
+  }
+
+  @Test
+  public void testAsWithSubType() throws ODataJPAModelException {
+    final JPAEntityType et = sd.getEntity(BusinessPartner.class);
+    cut = new FromImpl<>(et, ab, cb);
+
+    final Expression<Organization> act = cut.as(Organization.class);
+
+    assertNotNull(act);
+  }
+
+  @Test
+  public void testAsUnknownTypeThrowsException() {
+    assertThrows(IllegalArgumentException.class, () -> cut.as(this.getClass()));
+  }
+
+  @Test
+  public void testAsRethrowsModelöException() throws ODataJPAModelException {
+    when(sd.getEntity(Person.class)).thenThrow(ODataJPAModelException.class);
+    assertThrows(IllegalArgumentException.class, () -> cut.as(Person.class));
+  }
+
+  @Test
+  public void testJoinThrowsExceptionOnUnknowAttribute() {
+    assertThrows(IllegalArgumentException.class, () -> cut.join("dummy"));
   }
 }

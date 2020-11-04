@@ -33,18 +33,17 @@ abstract class AbstractJoinImp<Z, X> extends FromImpl<Z, X> implements Join<Z, X
   protected final From<?, Z> related;
 
   AbstractJoinImp(@Nonnull final JPAEntityType type, @Nonnull final From<?, Z> parent,
-      @Nonnull final AliasBuilder ab, @Nonnull CriteriaBuilder cb) {
+      @Nonnull final AliasBuilder ab, @Nonnull final CriteriaBuilder cb) {
     super(type, ab, cb);
     this.related = parent;
   }
 
   AbstractJoinImp(@Nonnull final JPAEntityType type, @Nonnull final From<?, Z> parent, final JPAPath path,
-      @Nonnull final AliasBuilder ab, @Nonnull CriteriaBuilder cb) {
+      @Nonnull final AliasBuilder ab, @Nonnull final CriteriaBuilder cb) {
     super(type, path, ab, cb);
     this.related = parent;
   }
 
-  @SuppressWarnings({ "unchecked", "rawtypes" })
   @Override
   public StringBuilder asSQL(final StringBuilder statement) {
 
@@ -148,7 +147,10 @@ abstract class AbstractJoinImp<Z, X> extends FromImpl<Z, X> implements Join<Z, X
         new RawPath<>(column.getReferencedColumnName(), tableAlias));
   }
 
-  class RawPath<X> extends ExpressionImpl<X> implements Path<X> {
+  /**
+   * @param <X> the type referenced by the path
+   */
+  class RawPath<T> extends ExpressionImpl<T> implements Path<T> {
 
     private final String dbFieldName;
     private final Optional<String> table;
@@ -159,7 +161,7 @@ abstract class AbstractJoinImp<Z, X> extends FromImpl<Z, X> implements Join<Z, X
     }
 
     @Override
-    public StringBuilder asSQL(StringBuilder statement) {
+    public StringBuilder asSQL(final StringBuilder statement) {
       table.ifPresent(p -> {
         statement.append(p);
         statement.append(DOT);
@@ -169,7 +171,7 @@ abstract class AbstractJoinImp<Z, X> extends FromImpl<Z, X> implements Join<Z, X
     }
 
     @Override
-    public Bindable<X> getModel() {
+    public Bindable<T> getModel() {
       throw new NotImplementedException();
     }
 
@@ -179,27 +181,27 @@ abstract class AbstractJoinImp<Z, X> extends FromImpl<Z, X> implements Join<Z, X
     }
 
     @Override
-    public <Y> Path<Y> get(SingularAttribute<? super X, Y> attribute) {
+    public <Y> Path<Y> get(final SingularAttribute<? super T, Y> attribute) {
       throw new NotImplementedException();
     }
 
     @Override
-    public <E, C extends Collection<E>> Expression<C> get(PluralAttribute<X, C, E> collection) {
+    public <E, C extends Collection<E>> Expression<C> get(final PluralAttribute<T, C, E> collection) {
       throw new NotImplementedException();
     }
 
     @Override
-    public <K, V, M extends Map<K, V>> Expression<M> get(MapAttribute<X, K, V> map) {
+    public <K, V, M extends Map<K, V>> Expression<M> get(final MapAttribute<T, K, V> map) {
       throw new NotImplementedException();
     }
 
     @Override
-    public Expression<Class<? extends X>> type() {
+    public Expression<Class<? extends T>> type() {
       throw new NotImplementedException();
     }
 
     @Override
-    public <Y> Path<Y> get(String attributeName) {
+    public <Y> Path<Y> get(final String attributeName) {
       throw new NotImplementedException();
     }
   }

@@ -13,8 +13,23 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransientPropertyCalcu
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 public interface JPAAttribute extends JPAElement {
-
+  /**
+   * Returns an instance of the converter defined at the attribute, in case an explicit conversion is required. That is,
+   * Olingo does not support the Java type. In that case the JPA Processor converts the attribute into the DB type
+   * before handing over the value to Olingo.
+   * @param <X> the type of the entity attribute
+   * @param <Y> the type of the database column
+   * @return
+   */
   public <X, Y extends Object> AttributeConverter<X, Y> getConverter();
+
+  /**
+   * Returns an instance of the converter defined at the attribute independent from the ability of Olingo.
+   * @param <X> the type of the entity attribute
+   * @param <Y> the type of the database column
+   * @return
+   */
+  public <X, Y extends Object> AttributeConverter<X, Y> getRawConverter();
 
   public EdmPrimitiveTypeKind getEdmType() throws ODataJPAModelException;
 
@@ -60,7 +75,7 @@ public interface JPAAttribute extends JPAElement {
   public boolean isTransient();
 
   /**
-   * 
+   *
    * @param <T>
    * @return
    * @throws ODataJPAModelException

@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.annotation.Nonnull;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.servlet.ServletOutputStream;
@@ -41,6 +43,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ValueNode;
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.core.api.JPAODataBatchProcessor;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataContextAccessDouble;
@@ -140,7 +143,8 @@ public class IntegrationTestHelper {
     if (functionPackage != null)
       packages = ArrayUtils.add(packages, functionPackage);
     final JPAEdmProvider edmProvider = new JPAEdmProvider(PUNIT_NAME, localEmf, null, packages);
-    final EntityManager em = localEmf.createEntityManager();
+
+    final EntityManager em = createEmfWrapper(localEmf, edmProvider).createEntityManager();
 
     final JPAODataSessionContextAccess sessionContext = new JPAODataContextAccessDouble(edmProvider, ds, provider,
         functionPackage);
@@ -321,6 +325,26 @@ public class IntegrationTestHelper {
     when(response.getOutputStream()).thenReturn(new OutPutStream());
     return response;
 
+  }
+
+  @SuppressWarnings("unchecked")
+  private EntityManagerFactory createEmfWrapper(@Nonnull final EntityManagerFactory emf,
+      @Nonnull final JPAEdmProvider jpaEdm) throws ODataException {
+
+    try {
+      final Class<? extends EntityManagerFactory> wrapperClass = (Class<? extends EntityManagerFactory>) Class
+          .forName("com.sap.olingo.jpa.processor.cb.api.EntityManagerFactoryWrapper");
+
+      try {
+        return wrapperClass.getConstructor(EntityManagerFactory.class,
+            JPAServiceDocument.class).newInstance(emf, jpaEdm.getServiceDocument());
+      } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+          | NoSuchMethodException | SecurityException e) {
+        throw new ODataException(e.getMessage());
+      }
+    } catch (final ClassNotFoundException e) {
+      return emf;
+    }
   }
 
   private static class OutPutStream extends ServletOutputStream {

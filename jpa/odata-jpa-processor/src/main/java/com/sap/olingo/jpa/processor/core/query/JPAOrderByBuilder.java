@@ -47,7 +47,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 /**
  * Constructor of Order By clause.
- * @author Oliver Grande 
+ * @author Oliver Grande
  * @since 1.0.0
  */
 final class JPAOrderByBuilder {
@@ -74,7 +74,7 @@ final class JPAOrderByBuilder {
    * See: <a href=
    * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398305"
    * >OData Version 4.0 Part 1 - 11.2.5.2 System Query Option $orderby</a> <p>
-   * 
+   *
    * Some OData example requests:<br>
    * .../Organizations?$orderby=Address/Country --> one item, two resourcePaths
    * [...ComplexProperty,...PrimitiveProperty]<br>
@@ -184,15 +184,8 @@ final class JPAOrderByBuilder {
     return path;
   }
 
-  private void addOrderByPrimaryKey(final List<Order> orders) throws ODataJPAModelException {
-
-    for (final JPAPath keyPath : jpaEntity.getKeyPath()) {
-      final Path<?> p = target;
-      for (final JPAElement pathElement : keyPath.getPath()) {
-        p.get(pathElement.getInternalName());
-      }
-      orders.add(cb.asc(p));
-    }
+  private void addOrderByPrimaryKey(final List<Order> orders) {
+    orders.add(cb.asc(target));
   }
 
   private void addPathByAttribute(final StringBuilder externalPath, final JPAAttribute attribute) {

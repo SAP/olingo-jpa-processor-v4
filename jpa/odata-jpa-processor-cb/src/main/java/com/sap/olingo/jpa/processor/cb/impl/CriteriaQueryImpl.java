@@ -1,19 +1,16 @@
 package com.sap.olingo.jpa.processor.cb.impl;
 
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
-import javax.persistence.AttributeConverter;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
@@ -27,17 +24,8 @@ import javax.persistence.criteria.Selection;
 import javax.persistence.criteria.Subquery;
 import javax.persistence.metamodel.EntityType;
 
-import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
-import org.apache.olingo.commons.api.edm.provider.CsdlAbstractEdmItem;
-
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransientPropertyCalculator;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.cb.api.ProcessorSelection;
 import com.sap.olingo.jpa.processor.cb.api.SqlConvertible;
@@ -77,7 +65,6 @@ class CriteriaQueryImpl<T> implements CriteriaQuery<T>, SqlConvertible {
     this(clazz, sd, new AliasBuilder(), cb);
   }
 
-  @SuppressWarnings({ "rawtypes", "unchecked" })
   @Override
   public StringBuilder asSQL(final StringBuilder statement) {
     final List<Expression<Boolean>> filterExpressions = new ArrayList<>();
@@ -243,7 +230,8 @@ class CriteriaQueryImpl<T> implements CriteriaQuery<T>, SqlConvertible {
    */
   @Override
   public CriteriaQuery<T> having(final Expression<Boolean> restriction) {
-    return having(new Predicate[] { (Predicate) restriction }); // NOSONAR
+    final Predicate[] p = { (Predicate) restriction };
+    return having(p); // NOSONAR
   }
 
   /**
@@ -434,324 +422,5 @@ class CriteriaQueryImpl<T> implements CriteriaQuery<T>, SqlConvertible {
     for (final Join<?, ?> join : from.getJoins()) {
       addInheritanceWhere((FromImpl<?, ?>) join, inheritanceWhere);
     }
-  }
-
-  private static class CompoundSelectionImpl<X> extends SelectionImpl<X> {
-    public CompoundSelectionImpl(final List<Selection<?>> selections, final Class<X> resultType) {
-      super(selections, resultType);
-    }
-
-    @Override
-    public StringBuilder asSQL(@Nonnull final StringBuilder statement) {
-      final List<Expression<?>> selItems = new ArrayList<>();
-      for (final Selection<?> sel : selections) {
-        if (sel instanceof PathImpl<?>) {
-          selItems.addAll(((PathImpl<?>) sel).resolvePathElements());
-        } else {
-          selItems.add((Expression<?>) sel);
-        }
-      }
-      selItems.stream()
-          .map(s -> (ExpressionImpl<?>) s)
-          .collect(new StringBuilderCollector.ExpressionCollector<>(statement, ", "));
-      return statement;
-    }
-
-    /**
-     * Return the selection items composing a compound selection.
-     * Modifications to the list do not affect the query.
-     * @return list of selection items
-     * @throws IllegalStateException if selection is not a
-     * compound selection
-     */
-    @Override
-    public List<Selection<?>> getCompoundSelectionItems() {
-      return selections;
-    }
-
-    /**
-     * Whether the selection item is a compound selection.
-     * @return boolean indicating whether the selection is a compound
-     * selection
-     */
-    @Override
-    public boolean isCompoundSelection() {
-      return true;
-    }
-
-    @Override
-    protected List<Map.Entry<String, JPAPath>> resolveSelectionLate() {
-      final AliasBuilder ab = new AliasBuilder("S");
-      final List<Map.Entry<String, JPAPath>> resolved = new ArrayList<>();
-      for (final Selection<?> sel : selections) {
-        if (sel instanceof PathImpl<?>) {
-          final List<JPAPath> selItems = ((PathImpl<?>) sel).getPathList();
-          if (selItems.size() == 1) {
-            resolved.add(new ProcessorSelection.SelectionItem(sel.getAlias().isEmpty()
-                ? ab.getNext() : sel.getAlias(), selItems.get(0)));
-          } else {
-            for (final JPAPath p : ((PathImpl<?>) sel).getPathList()) {
-              resolved.add(new ProcessorSelection.SelectionItem(sel.getAlias().isEmpty()
-                  ? ab.getNext() : sel.getAlias() + "." + p.getAlias(), p));
-            }
-          }
-        } else if (sel instanceof ExpressionImpl<?>) {
-          resolved.add(new ProcessorSelection.SelectionItem(sel.getAlias(), new JPAPathWrapper(sel)));
-        }
-      }
-      resolvedSelection = Optional.of(resolved);
-      return resolvedSelection.get();
-    }
-  }
-
-  private static class SelectionImpl<X> implements ProcessorSelection<X> {
-    private Optional<String> alias;
-    private final Class<X> resultType;
-    protected final List<Selection<?>> selections;
-    protected Optional<List<Map.Entry<String, JPAPath>>> resolvedSelection = Optional.empty();
-
-    public SelectionImpl(final List<Selection<?>> selections, final Class<X> resultType) {
-      this.resultType = resultType;
-      this.selections = selections;
-    }
-
-    public SelectionImpl(final Selection<?> selection, final Class<X> resultType) {
-      this(Arrays.asList(selection), resultType);
-    }
-
-    /**
-     * Assigns an alias to the selection item.
-     * Once assigned, an alias cannot be changed or reassigned.
-     * Returns the same selection item.
-     * @param name alias
-     * @return selection item
-     */
-    @Override
-    public Selection<X> alias(@Nonnull final String name) {
-      if (!alias.isPresent())
-        alias = Optional.of(name);
-      return this;
-    }
-
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    @Override
-    public StringBuilder asSQL(final StringBuilder statement) {
-      selections.stream().collect(new StringBuilderCollector.ExpressionCollector(statement, ", "));
-      return statement;
-    }
-
-    /**
-     * Return the alias assigned to the tuple element or null,
-     * if no alias has been assigned.
-     * @return alias
-     */
-
-    @Override
-    public String getAlias() {
-      return alias.orElse("");
-    }
-
-    /**
-     * Return the selection items composing a compound selection.
-     * Modifications to the list do not affect the query.
-     * @return list of selection items
-     * @throws IllegalStateException if selection is not a
-     * compound selection
-     */
-    @Override
-    public List<Selection<?>> getCompoundSelectionItems() {
-      throw new IllegalStateException("Call of getCompoundSelectionItems on single selection");
-    }
-
-    /**
-     * Return the Java type of the tuple element.
-     * @return the Java type of the tuple element
-     */
-    @Override
-    public Class<? extends X> getJavaType() {
-      return resultType;
-    }
-
-    @Override
-    public List<Map.Entry<String, JPAPath>> getResolvedSelection() {
-      return resolvedSelection.orElseGet(this::resolveSelectionLate);
-    }
-
-    /**
-     * Whether the selection item is a compound selection.
-     * @return boolean indicating whether the selection is a compound
-     * selection
-     */
-    @Override
-    public boolean isCompoundSelection() {
-      return false;
-    }
-
-    protected List<Map.Entry<String, JPAPath>> resolveSelectionLate() {
-      return Collections.emptyList();
-    }
-  }
-
-  private static class JPAPathWrapper implements JPAPath {
-
-    private final Selection<?> selection;
-
-    public JPAPathWrapper(final Selection<?> sel) {
-      this.selection = sel;
-    }
-
-    @Override
-    public int compareTo(final JPAPath o) {
-      return 0;
-    }
-
-    @Override
-    public String getAlias() {
-      return selection.getAlias();
-    }
-
-    @Override
-    public String getDBFieldName() {
-      return null;
-    }
-
-    @Override
-    public JPAAttribute getLeaf() {
-      return new JPAAttributeWrapper(selection);
-    }
-
-    @Override
-    public List<JPAElement> getPath() {
-      return Collections.singletonList(getLeaf());
-    }
-
-    @Override
-    public boolean ignore() {
-      return false;
-    }
-
-    @Override
-    public boolean isPartOfGroups(final List<String> groups) {
-      return false;
-    }
-
-    @Override
-    public boolean isTransient() {
-      return false;
-    }
-  }
-
-  private static class JPAAttributeWrapper implements JPAAttribute {
-    private final Selection<?> selection;
-
-    public JPAAttributeWrapper(final Selection<?> sel) {
-      this.selection = sel;
-    }
-
-    @Override
-    public FullQualifiedName getExternalFQN() {
-      return null;
-    }
-
-    @Override
-    public String getExternalName() {
-      return null;
-    }
-
-    @Override
-    public String getInternalName() {
-      return null;
-    }
-
-    @Override
-    public <X, Y> AttributeConverter<X, Y> getConverter() {
-      return null;
-    }
-
-    @Override
-    public EdmPrimitiveTypeKind getEdmType() throws ODataJPAModelException {
-      return null;
-    }
-
-    @Override
-    public CsdlAbstractEdmItem getProperty() throws ODataJPAModelException {
-      return null;
-    }
-
-    @Override
-    public JPAStructuredType getStructuredType() throws ODataJPAModelException {
-      return null;
-    }
-
-    @Override
-    public Set<String> getProtectionClaimNames() {
-      return Collections.emptySet();
-    }
-
-    @Override
-    public List<String> getProtectionPath(final String claimName) throws ODataJPAModelException {
-      return Collections.emptyList();
-    }
-
-    @Override
-    public Class<?> getType() {
-      return selection.getJavaType();
-    }
-
-    @Override
-    public boolean isAssociation() {
-      return false;
-    }
-
-    @Override
-    public boolean isCollection() {
-      return false;
-    }
-
-    @Override
-    public boolean isComplex() {
-      return false;
-    }
-
-    @Override
-    public boolean isEnum() {
-      return false;
-    }
-
-    @Override
-    public boolean isEtag() {
-      return false;
-    }
-
-    @Override
-    public boolean isKey() {
-      return false;
-    }
-
-    @Override
-    public boolean isSearchable() {
-      return false;
-    }
-
-    @Override
-    public boolean hasProtection() {
-      return false;
-    }
-
-    @Override
-    public boolean isTransient() {
-      return false;
-    }
-
-    @Override
-    public <T extends EdmTransientPropertyCalculator<?>> Constructor<T> getCalculatorConstructor() {
-      return null;
-    }
-
-    @Override
-    public List<String> getRequiredProperties() {
-      return Collections.emptyList();
-    }
-
   }
 }

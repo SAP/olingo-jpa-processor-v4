@@ -3,6 +3,7 @@ package com.sap.olingo.jpa.processor.cb.impl;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -69,7 +70,7 @@ public class TupleImplTest {
 
   private JPAAttribute mockAttributeWithConverter(final String alias) {
     final JPAAttribute attribute = mockAttribute(alias, Timestamp.class);
-    when(attribute.getConverter()).thenAnswer(new Answer<AttributeConverter<LocalDateTime, Timestamp>>() {
+    when(attribute.getRawConverter()).thenAnswer(new Answer<AttributeConverter<LocalDateTime, Timestamp>>() {
       @Override
       public AttributeConverter<LocalDateTime, Timestamp> answer(final InvocationOnMock invocation) throws Throwable {
         return new DateTimeConverter();
@@ -103,6 +104,12 @@ public class TupleImplTest {
   }
 
   @Test
+  public void testGetByAliasReturnsConverted() {
+    final Double act = cut.get(THIRD_VALUE, Double.class);
+    assertNotNull(act);
+  }
+
+  @Test
   public void testGetByAliseThrowsExceptionOnInvalidValue() {
     assertThrows(IllegalArgumentException.class, () -> cut.get("Willi"));
   }
@@ -119,11 +126,6 @@ public class TupleImplTest {
   }
 
   @Test
-  public void testGetByIndexWithCastThrowsExceptionOnInvalidCast() {
-    assertThrows(IllegalArgumentException.class, () -> cut.get(2, Double.class));
-  }
-
-  @Test
   public void testGetByAliasWithCastReturnsCorrectValue() {
     assertEquals(3, cut.get(THIRD_VALUE, Number.class));
   }
@@ -135,7 +137,7 @@ public class TupleImplTest {
 
   @Test
   public void testGetByAliasWithCastThrowsExceptionOnInvalidCast() {
-    assertThrows(IllegalArgumentException.class, () -> cut.get(THIRD_VALUE, Double.class));
+    assertThrows(IllegalArgumentException.class, () -> cut.get(FIRST_VALUE, Double.class));
   }
 
   @Test

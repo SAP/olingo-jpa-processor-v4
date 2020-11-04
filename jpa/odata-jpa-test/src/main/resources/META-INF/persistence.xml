@@ -68,6 +68,7 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Team</class>
 		<class>com.sap.olingo.jpa.metadata.converter.TimeInstantLongConverter</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.TransientRefComplex</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.DateTimeTest</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 		<properties>
 			<property name="javax.persistence.validation.mode" value="NONE" />

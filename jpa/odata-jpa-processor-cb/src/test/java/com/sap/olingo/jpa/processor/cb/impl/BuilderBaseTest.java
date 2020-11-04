@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.processor.cb.impl;
 
+import static org.mockito.Mockito.spy;
+
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
@@ -26,7 +28,7 @@ abstract class BuilderBaseTest {
     ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
     emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, ds);
     edmProvider = new JPAEdmProvider(PUNIT_NAME, emf, null, enumPackages);
-    sd = edmProvider.getServiceDocument();
+    sd = spy(edmProvider.getServiceDocument());
     sd.getEdmEntityContainer();
   }
 

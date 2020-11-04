@@ -36,10 +36,10 @@ import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
  */
 class PathImpl<X> extends ExpressionImpl<X> implements Path<X> {
 
-  protected final Optional<JPAPath> path;
-  protected final Optional<PathImpl<?>> parent;
-  protected final Optional<String> tableAlias;
-  protected JPAEntityType st;
+  final Optional<JPAPath> path;
+  final Optional<PathImpl<?>> parent;
+  final Optional<String> tableAlias;
+  JPAEntityType st;
 
   static List<Path<Object>> fromSelection(@Nonnull final Selection<?> sel) {
     final List<Path<Object>> pathList = new ArrayList<>();
@@ -161,7 +161,7 @@ class PathImpl<X> extends ExpressionImpl<X> implements Path<X> {
           .orElseThrow(() -> new IllegalArgumentException("'" + attributeName + "' not found at " + st
               .getInternalName()));
       if (this.path.isPresent()) {
-        if (st.getKey().contains(a)) {
+        if (isKeyPath(path.get())) {
           return new PathImpl<>(st.getPath(a.getExternalName()), Optional.of(this), st, tableAlias);
         }
         final StringBuilder pathDescription = new StringBuilder(path.get().getAlias()).append(JPAPath.PATH_SEPARATOR)
@@ -173,6 +173,12 @@ class PathImpl<X> extends ExpressionImpl<X> implements Path<X> {
     } catch (final ODataJPAModelException e) {
       throw new IllegalArgumentException("'" + attributeName + "' not found", e);
     }
+  }
+
+  private boolean isKeyPath(final JPAPath jpaPath) throws ODataJPAModelException {
+    return st.getKeyPath()
+        .stream()
+        .anyMatch(p -> p.getAlias().equals(jpaPath.getAlias()));
   }
 
   /**
@@ -213,7 +219,7 @@ class PathImpl<X> extends ExpressionImpl<X> implements Path<X> {
   List<JPAPath> getPathList() {
     return Arrays.asList(path.orElseThrow(IllegalSelectorException::new));
   }
- 
+
   private String tableAliasFromParent() {
     if (parent.isPresent())
       return parent.get().tableAlias.orElse(null);

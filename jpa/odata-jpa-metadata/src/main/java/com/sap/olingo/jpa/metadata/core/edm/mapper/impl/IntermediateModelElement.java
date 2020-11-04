@@ -59,7 +59,7 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateModelItemAccess#ignore()
    */
   @Override
@@ -69,7 +69,7 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see
    * com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateModelItemAccess#setExternalName(java.lang.String)
    */
@@ -80,7 +80,7 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateModelItemAccess#setIgnore(boolean)
    */
   @Override
@@ -130,7 +130,7 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
   /**
    * Convert annotations at an annotatable element into OData annotations
    * {@link com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAnnotation}
-   * 
+   *
    * @param edmAnnotations
    * @param member
    * @param internalName
@@ -144,7 +144,8 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
     }
   }
 
-  protected void getAnnotations(List<CsdlAnnotation> edmAnnotations, Class<?> clazz, String internalName)
+  protected void getAnnotations(final List<CsdlAnnotation> edmAnnotations, final Class<?> clazz,
+      final String internalName)
       throws ODataJPAModelException {
     if (clazz instanceof AnnotatedElement) {
       extractAnnotations(edmAnnotations, clazz, internalName);
@@ -165,7 +166,8 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
     return fqt.toString();
   }
 
-  private void extractAnnotations(List<CsdlAnnotation> edmAnnotations, AnnotatedElement element, String internalName)
+  private void extractAnnotations(final List<CsdlAnnotation> edmAnnotations, final AnnotatedElement element,
+      final String internalName)
       throws ODataJPAModelException {
     final EdmAnnotation jpaAnnotation = element.getAnnotation(EdmAnnotation.class);
 
@@ -190,10 +192,10 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
   /**
    * https://docs.oracle.com/javase/tutorial/java/data/autoboxing.html
    * @param javaType
-   * 
+   *
    * @return
    */
-  protected Class<?> boxPrimitive(Class<?> javaType) {// NOSONAR
+  protected Class<?> boxPrimitive(final Class<?> javaType) {// NOSONAR
 
     if (javaType == int.class || javaType == Integer.class)
       return Integer.class;
@@ -216,7 +218,7 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
   }
 
   /**
-   * 
+   *
    * @param name
    * @return
    */

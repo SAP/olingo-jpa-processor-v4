@@ -102,15 +102,6 @@ public interface JPAStructuredType extends JPAElement {
    */
   public List<JPACollectionAttribute> getDeclaredCollectionAttributes() throws ODataJPAModelException;
 
-  /**
-   * List of all associations that are declared at this type. That is:
-   * <ul>
-   * <li> All not ignored collection properties of this type.
-   * <li> All not ignored collection properties from super types.
-   * </ul>
-   * @return
-   * @throws ODataJPAModelException
-   */
   public JPAPath getPath(final String externalName) throws ODataJPAModelException;
 
   public JPAPath getPath(final String externalName, final boolean respectIgnore) throws ODataJPAModelException;

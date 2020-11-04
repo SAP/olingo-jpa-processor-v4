@@ -15,7 +15,7 @@ class PathJoin<Z, X> extends AbstractJoinImp<Z, X> {
   private final FromImpl<?, Z> parentFrom;
 
   PathJoin(@Nonnull final FromImpl<?, Z> parent, @Nonnull final JPAPath joinAttribute,
-      @Nonnull final AliasBuilder aliasBuilder, @Nonnull CriteriaBuilder cb) {
+      @Nonnull final AliasBuilder aliasBuilder, @Nonnull final CriteriaBuilder cb) {
 
     super(parent.st, parent, joinAttribute, aliasBuilder, cb);
     this.parentFrom = parent;
@@ -39,7 +39,6 @@ class PathJoin<Z, X> extends AbstractJoinImp<Z, X> {
     return JoinType.INNER;
   }
 
-  @SuppressWarnings({ "unchecked", "rawtypes" })
   @Override
   public StringBuilder asSQL(final StringBuilder statement) {
     if (!getJoins().isEmpty()) {

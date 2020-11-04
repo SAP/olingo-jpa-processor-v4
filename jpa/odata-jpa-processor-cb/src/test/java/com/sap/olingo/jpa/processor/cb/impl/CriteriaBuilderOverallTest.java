@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -26,6 +28,7 @@ import com.sap.olingo.jpa.processor.cb.api.SqlConvertible;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescription;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerProtected;
+import com.sap.olingo.jpa.processor.core.testmodel.DateTimeTest;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 import com.sap.olingo.jpa.processor.core.testmodel.Team;
@@ -95,7 +98,7 @@ public abstract class CriteriaBuilderOverallTest {
     assertEquals(4, act.size());
     assertNotNull(act.get(0));
   }
-  
+
   @Test
   public void testSimpleLikeQueryAllWithEscape() {
 
@@ -278,5 +281,18 @@ public abstract class CriteriaBuilderOverallTest {
     final TypedQuery<Long> tq = em.createQuery(qc);
     final Long act = tq.getSingleResult();
     assertEquals(3L, act);
+  }
+
+  @Test
+  public void testSelectDateTime() {
+    final Root<?> dateTime = q.from(DateTimeTest.class);
+    final Path<Object> id = dateTime.get("iD");
+    q.multiselect(dateTime);
+    q.where(cb.equal(id, "99"));
+    final TypedQuery<Tuple> tq = em.createQuery(q);
+    final List<Tuple> act = tq.getResultList();
+    assertEquals(1, act.size());
+    assertEquals(LocalDate.parse("1999-04-01"), act.get(0).get("S2"));
+    assertEquals(LocalDateTime.parse("2016-01-20T09:21:23"), act.get(0).get("S1"));
   }
 }

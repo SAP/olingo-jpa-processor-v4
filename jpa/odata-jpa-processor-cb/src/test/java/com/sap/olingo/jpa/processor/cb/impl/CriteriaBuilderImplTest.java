@@ -53,7 +53,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   private CriteriaQuery<Tuple> q;
 
   static Stream<Arguments> notImplemented() throws NoSuchMethodException, SecurityException {
-    Class<CriteriaBuilderImpl> c = CriteriaBuilderImpl.class;
+    final Class<CriteriaBuilderImpl> c = CriteriaBuilderImpl.class;
     return Stream.of(
         arguments(c.getMethod("isTrue", Expression.class)),
         arguments(c.getMethod("isFalse", Expression.class)),
@@ -114,7 +114,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   static Stream<Arguments> binaryImplemented() throws NoSuchMethodException, SecurityException {
-    Class<CriteriaBuilderImpl> c = CriteriaBuilderImpl.class;
+    final Class<CriteriaBuilderImpl> c = CriteriaBuilderImpl.class;
     return Stream.of(
         arguments(c.getMethod("equal", Expression.class, Expression.class),
             "(E0.\"CodeID\" = E0.\"ParentCodeID\")"),
@@ -131,7 +131,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   static Stream<Arguments> binaryValueImplemented() throws NoSuchMethodException, SecurityException {
-    Class<CriteriaBuilderImpl> c = CriteriaBuilderImpl.class;
+    final Class<CriteriaBuilderImpl> c = CriteriaBuilderImpl.class;
     return Stream.of(
         arguments(c.getMethod("equal", Expression.class, Object.class),
             "(E0.\"CodeID\" = ?1)"),
@@ -148,7 +148,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   static Stream<Arguments> binaryImplementedNumeric() throws NoSuchMethodException, SecurityException {
-    Class<CriteriaBuilderImpl> c = CriteriaBuilderImpl.class;
+    final Class<CriteriaBuilderImpl> c = CriteriaBuilderImpl.class;
     return Stream.of(
         arguments(c.getMethod("ge", Expression.class, Expression.class),
             "(E0.\"Area\" >= E0.\"Population\")"),
@@ -171,7 +171,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   static Stream<Arguments> binaryValueImplementedNumeric() throws NoSuchMethodException, SecurityException {
-    Class<CriteriaBuilderImpl> c = CriteriaBuilderImpl.class;
+    final Class<CriteriaBuilderImpl> c = CriteriaBuilderImpl.class;
     return Stream.of(
         arguments(c.getMethod("ge", Expression.class, Number.class),
             "(E0.\"Area\" >= ?1)"),
@@ -194,7 +194,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   static Stream<Arguments> binaryValueImplementedNumericInverse() throws NoSuchMethodException, SecurityException {
-    Class<CriteriaBuilderImpl> c = CriteriaBuilderImpl.class;
+    final Class<CriteriaBuilderImpl> c = CriteriaBuilderImpl.class;
     return Stream.of(
         arguments(c.getMethod("sum", Number.class, Expression.class),
             "(?1 + E0.\"Area\")"),
@@ -209,7 +209,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   static Stream<Arguments> unaryFunctionsImplemented() throws NoSuchMethodException, SecurityException {
-    Class<CriteriaBuilderImpl> c = CriteriaBuilderImpl.class;
+    final Class<CriteriaBuilderImpl> c = CriteriaBuilderImpl.class;
     return Stream.of(
         arguments(c.getMethod("lower", Expression.class), "LOWER(E0.\"Name\")"),
         arguments(c.getMethod("upper", Expression.class), "UPPER(E0.\"Name\")"),
@@ -218,7 +218,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   static Stream<Arguments> subQueryExpressionsImplemented() throws NoSuchMethodException, SecurityException {
-    Class<CriteriaBuilderImpl> c = CriteriaBuilderImpl.class;
+    final Class<CriteriaBuilderImpl> c = CriteriaBuilderImpl.class;
     return Stream.of(
         arguments(c.getMethod("any", Subquery.class),
             "ANY (SELECT ?1 FROM \"OLINGO\".\"AdministrativeDivision\" E0)"),
@@ -255,7 +255,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
       } else {
         m.invoke(cut);
       }
-    } catch (InvocationTargetException e) {
+    } catch (final InvocationTargetException e) {
       assertTrue(e.getCause() instanceof NotImplementedException);
       return;
     }
@@ -619,6 +619,14 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Expression<?> count = cut.count(adminDiv.get("codeID"));
     final Order act = cut.asc(count);
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+  }
+
+  @Test
+  public void testCreateOrderByEntity() {
+    final String exp = "E0.\"CodePublisher\" ASC, E0.\"CodeID\" ASC, E0.\"DivisionCode\" ASC";
+    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
+    final Order act = cut.asc(adminDiv);
     assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 

@@ -24,84 +24,84 @@ public class TestJPAQuerySelectByPath extends TestBase {
   @Test
   public void testNavigationToOwnPrimitiveProperty() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('3')/Name1");
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('3')/Name1");
     helper.assertStatus(200);
 
-    ObjectNode org = helper.getValue();
+    final ObjectNode org = helper.getValue();
     assertEquals("Third Org.", org.get("value").asText());
   }
 
   @Test
   public void testNavigationToOwnEmptyPrimitiveProperty() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Persons('99')/BirthDay");
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Persons('98')/BirthDay");
     helper.assertStatus(204);
   }
 
   @Test
   public void testNavigationToOwnPrimitivePropertyEntityDoesNotExistEntity() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Persons('9999')/BirthDay");
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Persons('9999')/BirthDay");
     helper.assertStatus(404);
   }
 
   @Test
   public void testNavigationToOwnPrimitiveDescriptionProperty() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('3')/LocationName");
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('3')/LocationName");
     helper.assertStatus(200);
 
-    ObjectNode org = helper.getValue();
+    final ObjectNode org = helper.getValue();
     assertEquals("Vereinigte Staaten von Amerika", org.get("value").asText());
   }
 
   @Test
   public void testNavigationToComplexProperty() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('4')/Address");
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('4')/Address");
     helper.assertStatus(200);
 
-    ObjectNode org = helper.getValue();
+    final ObjectNode org = helper.getValue();
     assertEquals("USA", org.get("Country").asText());
   }
 
   @Test
   public void testNavigationToNotExistingComplexProperty() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Persons('97')/CommunicationData");
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Persons('97')/CommunicationData");
     helper.assertStatus(204);
   }
 
   @Test
   public void testNavigationToNestedComplexProperty() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations('4')/AdministrativeInformation/Created");
     helper.assertStatus(200);
 
-    ObjectNode org = helper.getValue();
+    final ObjectNode org = helper.getValue();
     assertEquals("98", org.get("By").asText());
   }
 
   @Test
   public void testNavigationViaComplexAndNaviPropertyToPrimitive() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations('3')/AdministrativeInformation/Created/User/FirstName");
     helper.assertStatus(200);
 
-    ObjectNode org = helper.getValue();
+    final ObjectNode org = helper.getValue();
     assertEquals("Max", org.get("value").asText());
   }
 
   @Test
   public void testNavigationToComplexPropertySelect() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations('4')/Address?$select=Country,Region");
     helper.assertStatus(200);
 
-    ObjectNode org = helper.getValue();
+    final ObjectNode org = helper.getValue();
     assertEquals(3, org.size()); // Node "@odata.context" is also counted
     assertEquals("USA", org.get("Country").asText());
     assertEquals("US-UT", org.get("Region").asText());
@@ -110,20 +110,20 @@ public class TestJPAQuerySelectByPath extends TestBase {
   @Test
   public void testNavigationToComplexPropertyExpand() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('4')/Address");
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('4')/Address");
     helper.assertStatus(200);
 
-    ObjectNode org = helper.getValue();
+    final ObjectNode org = helper.getValue();
     assertEquals("USA", org.get("Country").asText());
   }
 
   @Test
   public void testNavigationToComplexPrimitiveProperty() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('1')/Address/Region");
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('1')/Address/Region");
     helper.assertStatus(200);
 
-    ObjectNode org = helper.getValue();
+    final ObjectNode org = helper.getValue();
     assertEquals("US-CA", org.get("value").asText());
     assertTrue(org.get("@odata.context").asText().endsWith("$metadata#Organizations/Address/Region"));
   }
@@ -138,11 +138,11 @@ public class TestJPAQuerySelectByPath extends TestBase {
   @Test
   public void testNavigationToCollectionWithoutEntries() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('4')/Comment");
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('4')/Comment");
     helper.assertStatus(200);
 
-    ObjectNode org = helper.getValue();
-    ArrayNode act = (ArrayNode) org.get("value");
+    final ObjectNode org = helper.getValue();
+    final ArrayNode act = (ArrayNode) org.get("value");
     assertNotNull(act);
     assertEquals(0, act.size());
   }
@@ -208,7 +208,7 @@ public class TestJPAQuerySelectByPath extends TestBase {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "BusinessPartnerWithGroupss('99')", groups);
     helper.assertStatus(200);
 
-    ObjectNode act = helper.getValue();
+    final ObjectNode act = helper.getValue();
     assertPresentNotNull(act, "ETag");
     assertPresentButNull(act, "CreationDateTime");
     assertPresentNotNull(act, "Country");
@@ -221,10 +221,10 @@ public class TestJPAQuerySelectByPath extends TestBase {
   public void testNavigationToStreamValue() throws IOException, ODataException {
     new ImageLoader().loadPerson(emf.createEntityManager(), "OlingoOrangeTM.png", "99");
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "PersonImages('99')/$value");
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "PersonImages('99')/$value");
     helper.assertStatus(200);
 
-    byte[] act = helper.getBinaryResult();
+    final byte[] act = helper.getBinaryResult();
     assertEquals(93316, act.length, 0);
   }
 
@@ -232,32 +232,32 @@ public class TestJPAQuerySelectByPath extends TestBase {
   public void testNavigationToStreamValueVia() throws IOException, ODataException {
     new ImageLoader().loadPerson(emf.createEntityManager(), "OlingoOrangeTM.png", "99");
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Persons('99')/Image/$value");
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Persons('99')/Image/$value");
     helper.assertStatus(200);
 
-    byte[] act = helper.getBinaryResult();
+    final byte[] act = helper.getBinaryResult();
     assertEquals(93316, act.length, 0);
   }
 
   @Test
   public void testNavigationToComplexAttributeValue() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations('4')/AdministrativeInformation/Created/By/$value");
     helper.assertStatus(200);
 
-    String act = helper.getRawResult();
+    final String act = helper.getRawResult();
     assertEquals("98", act);
   }
 
   @Test
   public void testNavigationToPrimitiveAttributeValue() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations('4')/ID/$value");
     helper.assertStatus(200);
 
-    String act = helper.getRawResult();
+    final String act = helper.getRawResult();
     assertEquals("4", act);
   }
 

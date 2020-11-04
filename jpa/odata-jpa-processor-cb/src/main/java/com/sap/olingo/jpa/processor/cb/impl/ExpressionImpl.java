@@ -62,7 +62,7 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
    * @return new expression of the given type
    */
   @Override
-  public <X> Expression<X> as(Class<X> type) {
+  public <X> Expression<X> as(final Class<X> type) {
     throw new NotImplementedException();
   }
 
@@ -84,25 +84,25 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
   }
 
   @Override
-  public Predicate in(Collection<?> values) {
+  public Predicate in(final Collection<?> values) {
     // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public Predicate in(Expression<?>... values) {
+  public Predicate in(final Expression<?>... values) {
     // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public Predicate in(Expression<Collection<?>> values) {
+  public Predicate in(final Expression<Collection<?>> values) {
     // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public Predicate in(Object... values) {
+  public Predicate in(final Object... values) {
     // TODO Auto-generated method stub
     return null;
   }
@@ -153,7 +153,7 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
               .append(tableAlias)
               .append(DOT)
               .append(from.st.getPath(keys.get(0).getExternalName()).getDBFieldName());
-        } catch (ODataJPAModelException e) {
+        } catch (final ODataJPAModelException e) {
           throw new IllegalArgumentException(e);
         }
         return statement;
@@ -202,7 +202,7 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
 
       statement.append(SqlKeyWords.COALESCE)
           .append(OPENING_BRACKET);
-      values.stream().collect(new StringBuilderCollector.ExpressionCollector<T>(statement, ", "));
+      values.stream().collect(new StringBuilderCollector.ExpressionCollector(statement, ", "));
       return statement.append(CLOSING_BRACKET);
     }
 
@@ -247,7 +247,7 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
     }
 
     @Override
-    public StringBuilder asSQL(StringBuilder statement) {
+    public StringBuilder asSQL(final StringBuilder statement) {
 
       if (left instanceof FromImpl<?, ?>) {
         try {
@@ -256,12 +256,12 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
               .append(OPENING_BRACKET);
           from.st.getKey().stream()
               .map(a -> from.get(a.getInternalName()))
-              .collect(new StringBuilderCollector.ExpressionCollector<>(statement, ", "));
+              .collect(new StringBuilderCollector.ExpressionCollector(statement, ", "));
 //              .append(((FromImpl<?, ?>) left).tableAlias.get())
 //              .append(DOT)
 //              .append("*")
           return statement.append(CLOSING_BRACKET);
-        } catch (ODataJPAModelException e) {
+        } catch (final ODataJPAModelException e) {
           throw new IllegalStateException(e);
         }
 
@@ -286,7 +286,7 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
     @Override
     public StringBuilder asSQL(final StringBuilder statement) {
       statement.append(functionName).append(OPENING_BRACKET);
-      args.stream().collect(new StringBuilderCollector.ExpressionCollector<>(statement, ", "));
+      args.stream().collect(new StringBuilderCollector.ExpressionCollector(statement, ", "));
       return statement.append(CLOSING_BRACKET);
     }
 

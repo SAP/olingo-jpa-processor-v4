@@ -41,7 +41,7 @@ public class TestTimeInstantLongConverter {
   @Test
   public void checkConvertToDatabaseColumnReturnConvertedOnNonNull() {
     final Instant time = Instant.parse(FIVE_DAYS_LATER);
-    final Long act = cut.convertToDatabaseColumn(time);
+    final Long act = (Long) cut.convertToDatabaseColumn(time);
     assertEquals(FIVE_DAYS, act);
   }
 

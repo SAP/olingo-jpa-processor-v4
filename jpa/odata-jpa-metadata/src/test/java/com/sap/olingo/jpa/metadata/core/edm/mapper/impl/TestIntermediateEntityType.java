@@ -187,7 +187,7 @@ public class TestIntermediateEntityType extends TestMappingRoot {
   public void checkGetAssoziationOfComplexTypeByNameJoinColumns() throws ODataJPAModelException {
     int actCount = 0;
     final IntermediateStructuredType<BusinessPartner> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
-        PUNIT_NAME),getEntityType(BusinessPartner.class), schema);
+        PUNIT_NAME), getEntityType(BusinessPartner.class), schema);
     for (final JPAOnConditionItem item : et.getAssociationPath("Address/AdministrativeDivision").getJoinColumnsList()) {
       if (item.getLeftPath().getAlias().equals("Address/Region")) {
         assertTrue(item.getRightPath().getAlias().equals("DivisionCode"));
@@ -340,10 +340,11 @@ public class TestIntermediateEntityType extends TestMappingRoot {
   public void checkEmbeddedIdResolvedKeyCorrectOrder() throws ODataJPAModelException {
     final IntermediateEntityType<AdministrativeDivisionDescription> et = new IntermediateEntityType<>(
         new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(AdministrativeDivisionDescription.class), schema);
-    assertEquals("Language", et.getKey().get(0).getExternalName());
-    assertEquals("DivisionCode", et.getKey().get(1).getExternalName());
-    assertEquals("CodeID", et.getKey().get(2).getExternalName());
-    assertEquals("CodePublisher", et.getKey().get(3).getExternalName());
+
+    assertEquals("CodePublisher", et.getEdmItem().getKey().get(0).getName());
+    assertEquals("CodeID", et.getEdmItem().getKey().get(1).getName());
+    assertEquals("DivisionCode", et.getEdmItem().getKey().get(2).getName());
+    assertEquals("Language", et.getEdmItem().getKey().get(3).getName());
   }
 
   @Test
@@ -351,9 +352,9 @@ public class TestIntermediateEntityType extends TestMappingRoot {
     final IntermediateEntityType<AdministrativeDivision> et = new IntermediateEntityType<>(
         new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(AdministrativeDivision.class), schema);
 
-    assertEquals("DivisionCode", et.getKey().get(0).getExternalName());
+    assertEquals("CodePublisher", et.getKey().get(0).getExternalName());
     assertEquals("CodeID", et.getKey().get(1).getExternalName());
-    assertEquals("CodePublisher", et.getKey().get(2).getExternalName());
+    assertEquals("DivisionCode", et.getKey().get(2).getExternalName());
   }
 
   @Test
@@ -368,6 +369,13 @@ public class TestIntermediateEntityType extends TestMappingRoot {
     final JPAStructuredType et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
         AdministrativeDivisionDescription.class), schema);
     assertEquals(2, et.getPath("CodeID").getPath().size());
+  }
+
+  @Test
+  public void checkEmbeddedIdResolvedKeyPath() throws ODataJPAModelException {
+    final JPAEntityType et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(
+        AdministrativeDivisionDescription.class), schema);
+    assertEquals(1, et.getKeyPath().size());
   }
 
   @Test
@@ -456,7 +464,7 @@ public class TestIntermediateEntityType extends TestMappingRoot {
         PUNIT_NAME), getEntityType(Collection.class), schema);
     final List<JPAPath> act = et.getPathList();
 
-    assertEquals(11, act.size());
+    assertEquals(12, act.size());
     assertNotNull(et.getPath("Complex/Address"));
     assertTrue(et.getPath("Complex/Address").getLeaf().isCollection());
     final IntermediateCollectionProperty actIntermediate = (IntermediateCollectionProperty) et.getPath(
@@ -483,7 +491,7 @@ public class TestIntermediateEntityType extends TestMappingRoot {
         PUNIT_NAME), getEntityType(Collection.class), schema);
     final List<JPAPath> act = et.getPathList();
 
-    assertEquals(11, act.size());
+    assertEquals(12, act.size());
     assertNotNull(et.getPath("Complex/Comment"));
     assertTrue(et.getPath("Complex/Comment").getLeaf().isCollection());
     final IntermediateCollectionProperty actIntermediate = (IntermediateCollectionProperty) et.getPath(

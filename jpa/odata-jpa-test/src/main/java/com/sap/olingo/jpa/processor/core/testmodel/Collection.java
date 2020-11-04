@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 import javax.persistence.CollectionTable;
@@ -30,11 +31,14 @@ public class Collection {
       joinColumns = @JoinColumn(name = "\"ID\""))
   private List<CollectionNestedComplex> nested; // Must not be assigned to an ArrayList
 
+  @Column(name = "\"Timestamp\"")
+  private OffsetDateTime dateTime;
+
   public String getID() {
     return iD;
   }
 
-  public void setID(String iD) {
+  public void setID(final String iD) {
     this.iD = iD;
   }
 
@@ -42,7 +46,7 @@ public class Collection {
     return complex;
   }
 
-  public void setComplex(CollectionPartOfComplex complex) {
+  public void setComplex(final CollectionPartOfComplex complex) {
     this.complex = complex;
   }
 
@@ -50,7 +54,7 @@ public class Collection {
     return nested;
   }
 
-  public void setNested(List<CollectionNestedComplex> nested) {
+  public void setNested(final List<CollectionNestedComplex> nested) {
     this.nested = nested;
   }
 
@@ -63,11 +67,11 @@ public class Collection {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) return true;
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
-    Collection other = (Collection) obj;
+    final Collection other = (Collection) obj;
     if (iD == null) {
       if (other.iD != null) return false;
     } else if (!iD.equals(other.iD)) return false;

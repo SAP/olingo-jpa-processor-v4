@@ -656,7 +656,9 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
       final JPAEntityType et, final From<?, ?> f, final JPAKeyPair jpaKeyPair) throws ODataJPAModelException {
 
     javax.persistence.criteria.Expression<Boolean> whereCondition = null;
-    for (final JPAAttribute keyElement : et.getKey()) {
+    final List<JPAAttribute> keyElements = new ArrayList<>(et.getKey());
+    Collections.reverse(keyElements);
+    for (final JPAAttribute keyElement : keyElements) {
       final Path<Y> keyPath = (Path<Y>) ExpressionUtil.convertToCriteriaPath(f, et.getPath(keyElement.getExternalName())
           .getPath());
       final javax.persistence.criteria.Expression<Boolean> eqFragment = cb.equal(keyPath, jpaKeyPair.getMin().get(
@@ -675,7 +677,8 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
       final From<?, ?> f, final JPAKeyPair jpaKeyPair)
       throws ODataJPAModelException {
 
-    final List<JPAAttribute> keyElements = et.getKey();
+    final List<JPAAttribute> keyElements = new ArrayList<>(et.getKey());
+    Collections.reverse(keyElements);
     javax.persistence.criteria.Expression<Boolean> lowerExpression = null;
     javax.persistence.criteria.Expression<Boolean> upperExpression = null;
     for (int primaryIndex = 0; primaryIndex < keyElements.size(); primaryIndex++) {

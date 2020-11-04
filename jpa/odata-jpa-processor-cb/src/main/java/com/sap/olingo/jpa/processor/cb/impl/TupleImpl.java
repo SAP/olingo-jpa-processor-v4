@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.processor.cb.impl;
 
+import static com.sap.olingo.jpa.processor.cb.impl.TypeConverter.convert;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -7,12 +9,16 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.persistence.AttributeConverter;
 import javax.persistence.Tuple;
 import javax.persistence.TupleElement;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 
+/**
+ *
+ * @author Oliver Grande
+ * @since 1.0.0
+ */
 class TupleImpl implements Tuple {
   private final Object[] values;
   private final List<Entry<String, JPAAttribute>> selection;
@@ -60,12 +66,10 @@ class TupleImpl implements Tuple {
    * length of result tuple or element cannot be
    * assigned to the specified type
    */
+  @SuppressWarnings("unchecked")
   @Override
   public <X> X get(final int i, final Class<X> type) {
-    final Object result = get(i);
-    if (!type.isAssignableFrom(result.getClass()))
-      throw new IllegalArgumentException("Type cast error");
-    return type.cast(result);
+    return (X) convert(get(i), type);
   }
 
   /**
@@ -85,13 +89,13 @@ class TupleImpl implements Tuple {
         return selection.get(selectionIndex.get(alias)).getValue().getType()
             .getEnumConstants()[(int) values[selectionIndex.get(alias)]];
       } else {
-        final AttributeConverter<Object, Object> converter = selection.get(selectionIndex.get(alias)).getValue()
-            .getConverter();
-        if (converter != null)
-          return converter.convertToEntityAttribute(values[selectionIndex.get(alias)]);
+        final JPAAttribute attribute = selection.get(selectionIndex.get(alias)).getValue();
+        if (attribute.getRawConverter() != null)
+          return attribute.getRawConverter().convertToEntityAttribute(values[selectionIndex.get(alias)]);
+        else
+          return convert(values[selectionIndex.get(alias)], attribute.getType());
       }
-      return values[selectionIndex.get(alias)];
-    } catch (final Exception e) {
+    } catch (final NullPointerException e) {
       throw new IllegalArgumentException("Unknown alias: " + alias, e);
     }
   }
@@ -107,12 +111,10 @@ class TupleImpl implements Tuple {
    * query result tuple or element cannot be
    * assigned to the specified type
    */
+  @SuppressWarnings("unchecked")
   @Override
   public <X> X get(final String alias, final Class<X> type) {
-    final Object result = get(alias);
-    if (!type.isAssignableFrom(result.getClass()))
-      throw new IllegalArgumentException("Type cast error");
-    return type.cast(result);
+    return (X) convert(get(alias), type);
   }
 
   /**
@@ -173,6 +175,5 @@ class TupleImpl implements Tuple {
     public Class<? extends X> getJavaType() {
       return (Class<? extends X>) selection.get(index).getValue().getType();
     }
-
   }
 }

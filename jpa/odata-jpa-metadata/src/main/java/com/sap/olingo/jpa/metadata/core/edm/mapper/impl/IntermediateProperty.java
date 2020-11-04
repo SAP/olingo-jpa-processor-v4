@@ -80,6 +80,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
   protected final ManagedType<?> managedType;
   protected boolean isVersion;
   protected boolean searchable;
+  protected boolean conversionRequired;
   private final Map<String, JPAProtectionInfo> externalProtectedPathNames;
   private List<String> fieldGroups;
   protected List<String> requiredAttributes;
@@ -110,9 +111,14 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
     return (Constructor<T>) transientCalculatorConstructor;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public <X, Y extends Object> AttributeConverter<X, Y> getConverter() {
+    return conversionRequired ? getRawConverter() : null;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <X, Y extends Object> AttributeConverter<X, Y> getRawConverter() {
     return (AttributeConverter<X, Y>) valueConverter;
   }
 
@@ -153,10 +159,10 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
 
   @Override
   public Class<?> getType() {
-    if (valueConverter != null)
-      return jpaAttribute.getJavaType().isPrimitive() ? boxPrimitive(dbType) : dbType;
+    if (conversionRequired)
+      return dbType.isPrimitive() ? boxPrimitive(dbType) : dbType;
     else
-      return jpaAttribute.getJavaType().isPrimitive() ? boxPrimitive(entityType) : entityType;
+      return entityType.isPrimitive() ? boxPrimitive(entityType) : entityType;
   }
 
   @Override
@@ -310,13 +316,8 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
   }
 
   FullQualifiedName getSimpleType() throws ODataJPAModelException {
-    Class<?> javaType = null;
-    if (valueConverter != null) {
-      javaType = dbType;
-    } else {
-      javaType = entityType;
-    }
-    return JPATypeConverter.convertToEdmSimpleType(javaType, jpaAttribute)
+
+    return JPATypeConverter.convertToEdmSimpleType(getType(), jpaAttribute)
         .getFullQualifiedName();
   }
 
@@ -364,21 +365,32 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
         edmProperty.setNullable(jpaColumn.nullable());
         edmProperty.setSrid(getSRID());
         edmProperty.setDefaultValue(getDefaultValue());
+        edmProperty.setMaxLength(determineMaxLength(jpaColumn));
+        determinePrecisionScale(jpaColumn);
         // TODO Attribute Unicode
-        if (edmProperty.getTypeAsFQNObject().equals(EdmPrimitiveTypeKind.String.getFullQualifiedName())
-            || edmProperty.getTypeAsFQNObject().equals(EdmPrimitiveTypeKind.Binary.getFullQualifiedName())) {
-          if (jpaColumn.length() > 0)
-            edmProperty.setMaxLength(jpaColumn.length());
-          if (isLob())
-            edmProperty.setMaxLength(null);
-        } else if (edmProperty.getType()
-            .equals(EdmPrimitiveTypeKind.Decimal.getFullQualifiedName().toString())) {
-          setPrecisionScale(jpaColumn);
-        } else {
-          setPrecisionScaleTemporal(jpaColumn);
-        }
       }
     }
+  }
+
+  private void determinePrecisionScale(final Column jpaColumn) throws ODataJPAModelException {
+    if (edmProperty.getType()
+        .equals(EdmPrimitiveTypeKind.Decimal.getFullQualifiedName().toString())) {
+      setPrecisionScale(jpaColumn);
+    } else {
+      setPrecisionScaleTemporal(jpaColumn);
+    }
+  }
+
+  private Integer determineMaxLength(final Column jpaColumn) {
+
+    if ((edmProperty.getTypeAsFQNObject().equals(EdmPrimitiveTypeKind.String.getFullQualifiedName())
+        || edmProperty.getTypeAsFQNObject().equals(EdmPrimitiveTypeKind.Binary.getFullQualifiedName()))
+        && !isLob()
+        && jpaColumn.length() > 0) {
+
+      return jpaColumn.length();
+    }
+    return null;
   }
 
   /**
@@ -417,7 +429,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
    * @param jpaColumn
    * @throws ODataJPAModelException
    */
-  private void setPrecisionScale(final Column jpaColumn){
+  private void setPrecisionScale(final Column jpaColumn) {
     if (jpaColumn.precision() > 0)
       edmProperty.setPrecision(jpaColumn.precision());
     if (edmProperty.getType().equals(EdmPrimitiveTypeKind.Decimal.getFullQualifiedName().toString())
@@ -515,8 +527,8 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
         final Type[] types = ((ParameterizedType) convType[0]).getActualTypeArguments();
         entityType = (Class<?>) types[0];
         dbType = (Class<?>) types[1];
-        if (!JPATypeConverter.isSupportedByOlingo(entityType))
-          valueConverter = (AttributeConverter<?, ?>) jpaConverter.converter().newInstance();
+        conversionRequired = !JPATypeConverter.isSupportedByOlingo(entityType);
+        valueConverter = (AttributeConverter<?, ?>) jpaConverter.converter().newInstance();
       } catch (InstantiationException | IllegalAccessException e) {
         throw new ODataJPAModelException(
             ODataJPAModelException.MessageKeys.TYPE_MAPPER_COULD_NOT_INSTANTIATED, e);
