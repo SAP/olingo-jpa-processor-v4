@@ -6,14 +6,15 @@ import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
+import javax.persistence.criteria.CompoundSelection;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Selection;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
-import com.sap.olingo.jpa.processor.cb.api.ProcessorSelection;
+import com.sap.olingo.jpa.processor.cb.ProcessorSelection;
 import com.sap.olingo.jpa.processor.cb.joiner.StringBuilderCollector;
 
-class CompoundSelectionImpl<X> extends SelectionImpl<X> {
+class CompoundSelectionImpl<X> extends SelectionImpl<X> implements CompoundSelection<X> {
   public CompoundSelectionImpl(final List<Selection<?>> selections, final Class<X> resultType) {
     super(selections, resultType);
   }
@@ -73,16 +74,26 @@ class CompoundSelectionImpl<X> extends SelectionImpl<X> {
     if (sel instanceof PathImpl<?>) {
       final List<JPAPath> selItems = ((PathImpl<?>) sel).getPathList();
       if (selItems.size() == 1) {
-        resolved.add(new ProcessorSelection.SelectionItem(sel.getAlias().isEmpty()
-            ? ab.getNext() : sel.getAlias(), selItems.get(0)));
+        addSingleSelectionItem(ab, resolved, sel, selItems);
       } else {
-        for (final JPAPath p : ((PathImpl<?>) sel).getPathList()) {
-          resolved.add(new ProcessorSelection.SelectionItem(sel.getAlias().isEmpty()
-              ? ab.getNext() : sel.getAlias() + "." + p.getAlias(), p));
-        }
+        addSelectionList(ab, resolved, sel);
       }
     } else {
       resolved.add(new ProcessorSelection.SelectionItem(sel.getAlias(), new JPAPathWrapper(sel)));
     }
+  }
+
+  private void addSelectionList(final AliasBuilder ab, final List<Map.Entry<String, JPAPath>> resolved,
+      final Selection<?> sel) {
+    for (final JPAPath p : ((PathImpl<?>) sel).getPathList()) {
+      resolved.add(new ProcessorSelection.SelectionItem(sel.getAlias().isEmpty()
+          ? ab.getNext() : (sel.getAlias() + "." + p.getAlias()), p));
+    }
+  }
+
+  private void addSingleSelectionItem(final AliasBuilder ab, final List<Map.Entry<String, JPAPath>> resolved,
+      final Selection<?> sel, final List<JPAPath> selItems) {
+    resolved.add(new ProcessorSelection.SelectionItem(sel.getAlias().isEmpty()
+        ? ab.getNext() : sel.getAlias(), selItems.get(0)));
   }
 }

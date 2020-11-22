@@ -19,9 +19,7 @@ import javax.annotation.Nonnull;
 import javax.persistence.Tuple;
 import javax.persistence.criteria.CollectionJoin;
 import javax.persistence.criteria.CompoundSelection;
-import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Join;
@@ -36,18 +34,14 @@ import javax.persistence.criteria.SetJoin;
 import javax.persistence.criteria.Subquery;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
-import com.sap.olingo.jpa.processor.cb.api.SqlAggregation;
-import com.sap.olingo.jpa.processor.cb.api.SqlArithmetic;
-import com.sap.olingo.jpa.processor.cb.api.SqlConvertible;
-import com.sap.olingo.jpa.processor.cb.api.SqlNullCheck;
-import com.sap.olingo.jpa.processor.cb.api.SqlStringFunctions;
-import com.sap.olingo.jpa.processor.cb.api.SqlSubQuery;
-import com.sap.olingo.jpa.processor.cb.api.SqlTimeFunctions;
+import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaBuilder;
+import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaQuery;
 import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
 import com.sap.olingo.jpa.processor.cb.impl.ExpressionImpl.ParameterExpression;
 import com.sap.olingo.jpa.processor.cb.impl.PredicateImpl.BinaryExpressionPredicate.Operation;
+import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
 
-class CriteriaBuilderImpl implements CriteriaBuilder { // NOSONAR
+class CriteriaBuilderImpl implements ProcessorCriteriaBuilder { // NOSONAR
 
   private final JPAServiceDocument sd;
   private final ParameterBuffer parameter;
@@ -289,17 +283,17 @@ class CriteriaBuilderImpl implements CriteriaBuilder { // NOSONAR
   }
 
   @Override
-  public CriteriaQuery<Object> createQuery() {
+  public ProcessorCriteriaQuery<Object> createQuery() {
     return new CriteriaQueryImpl<>(Object.class, sd, this);
   }
 
   @Override
-  public <T> CriteriaQuery<T> createQuery(final Class<T> resultClass) {
+  public <T> ProcessorCriteriaQuery<T> createQuery(final Class<T> resultClass) {
     return new CriteriaQueryImpl<>(resultClass, sd, this);
   }
 
   @Override
-  public CriteriaQuery<Tuple> createTupleQuery() {
+  public ProcessorCriteriaQuery<Tuple> createTupleQuery() {
     return new CriteriaQueryImpl<>(Tuple.class, sd, this);
   }
 
@@ -542,7 +536,19 @@ class CriteriaBuilderImpl implements CriteriaBuilder { // NOSONAR
    */
   @Override
   public <T> In<T> in(final Expression<? extends T> expression) {
+    // e.g.: return new Expressions.In<>(expression);
     throw new NotImplementedException();
+  }
+
+  /**
+   * Create predicate to test whether given expression
+   * is contained in a list of values.
+   * @param paths to be tested against list of values
+   * @return in predicate
+   */
+  @Override
+  public <T> In<T> in(final List<Path<? extends T>> paths, final Subquery<?> subquery) {
+    return new PredicateImpl.In<>(paths, subquery);
   }
 
   /**
@@ -1669,6 +1675,14 @@ class CriteriaBuilderImpl implements CriteriaBuilder { // NOSONAR
   @Override
   public <V, M extends Map<?, V>> Expression<Collection<V>> values(@Nonnull final M map) {
     throw new NotImplementedException();
+  }
+
+  /**
+   * Creates an expression for a row number function.
+   */
+  @Override
+  public WindowFunction<Long> rowNumber() {
+    return new ExpressionImpl.WindowFunctionExpression<>(SqlWindowFunctions.ROW_NUMBER);
   }
 
   public JPAServiceDocument getServiceDocument() {

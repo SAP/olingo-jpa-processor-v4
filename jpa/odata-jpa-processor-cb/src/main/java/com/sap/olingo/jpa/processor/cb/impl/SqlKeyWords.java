@@ -1,6 +1,6 @@
-package com.sap.olingo.jpa.processor.cb.api;
+package com.sap.olingo.jpa.processor.cb.impl;
 
-public enum SqlKeyWords {
+enum SqlKeyWords {
   ADD("ADD"),
   ALL("ALL"),
   AND("AND"),
@@ -21,6 +21,8 @@ public enum SqlKeyWords {
   MOD("MOD"),
   NOT("NOT"),
   ORDERBY("ORDER BY"),
+  OVER("OVER"),
+  PARTITION("PARTITION BY"),
   SELECT("SELECT"),
   SOME("SOME"),
   UNION("UNION"),

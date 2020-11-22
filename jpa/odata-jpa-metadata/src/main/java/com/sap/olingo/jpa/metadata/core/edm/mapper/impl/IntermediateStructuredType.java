@@ -68,6 +68,7 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
   protected final IntermediateSchema schema;
   protected List<JPAProtectionInfo> protectedAttributes;
   protected CsdlStructuralType edmStructuralType;
+  private Optional<List<IntermediateSimpleProperty>> streamProperty;
 
   IntermediateStructuredType(final JPAEdmNameBuilder nameBuilder, final ManagedType<T> jpaManagedType,
       final IntermediateSchema schema) {
@@ -81,6 +82,7 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
     this.jpaManagedType = jpaManagedType;
     this.schema = schema;
     this.mappedSuperclass = determineMappedSuperclass(jpaManagedType);
+    this.streamProperty = Optional.empty();
     determineIgnore();
   }
 
@@ -412,28 +414,36 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
     return null;
   }
 
-  protected IntermediateSimpleProperty getStreamProperty() throws ODataJPAModelException {
-    int count = 0;
-    IntermediateSimpleProperty result = null;
+  protected IntermediateSimpleProperty getStreamProperty() {
+
+    if (streamProperty
+        .orElseGet(this::determineStreamProperties)
+        .isEmpty())
+      return null;
+    return streamProperty.get().get(0);
+  }
+
+  private List<IntermediateSimpleProperty> determineStreamProperties() {
+    final List<IntermediateSimpleProperty> result = new ArrayList<>(1);
     for (final Entry<String, IntermediateProperty> property : declaredPropertiesList.entrySet()) {
       // Edm.Stream, or a type definition whose underlying type is Edm.Stream, cannot be used in collections or for
       // non-binding parameters to functions or actions.
       if (property.getValue().isStream()) {
-        count += 1;
-        result = (IntermediateSimpleProperty) property.getValue();
+        result.add((IntermediateSimpleProperty) property.getValue());
       }
     }
     if (this.getBaseType() != null) {
       final IntermediateSimpleProperty superResult = getBaseType().getStreamProperty();
       if (superResult != null) {
-        count += 1;
-        result = superResult;
+        result.add(superResult);
       }
     }
-    if (count > 1)
+    if (result.size() > 1)
       // Only one stream property per entity is allowed. For %1$s %2$s have been found
-      throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.TO_MANY_STREAMS, internalName, Integer
-          .toString(count));
+      throw new RuntimeException(
+          new ODataJPAModelException(ODataJPAModelException.MessageKeys.TO_MANY_STREAMS, internalName, Integer
+              .toString(result.size())));
+    streamProperty = Optional.of(result);
     return result;
   }
 

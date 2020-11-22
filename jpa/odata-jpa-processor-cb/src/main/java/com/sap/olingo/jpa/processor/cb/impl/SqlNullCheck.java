@@ -1,6 +1,6 @@
-package com.sap.olingo.jpa.processor.cb.api;
+package com.sap.olingo.jpa.processor.cb.impl;
 
-public enum SqlNullCheck {
+enum SqlNullCheck {
 
   NULL("IS NULL"),
   NOT_NULL("IS NOT NULL");

@@ -90,10 +90,11 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
       if (whereClause != null)
         countQuery.where(whereClause);
       countQuery.select(cb.countDistinct(target));
-      debugger.stopRuntimeMeasurement(handle);
       return em.createQuery(countQuery).getSingleResult();
     } catch (final JPANoSelectionException e) {
       return 0L;
+    } finally {
+      debugger.stopRuntimeMeasurement(handle);
     }
   }
 

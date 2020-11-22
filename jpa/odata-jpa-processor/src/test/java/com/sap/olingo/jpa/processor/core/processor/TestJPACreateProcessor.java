@@ -62,11 +62,11 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAAbstractCUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.api.JPACUDRequestHandler;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupsProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
@@ -79,14 +79,14 @@ import com.sap.olingo.jpa.processor.core.testmodel.FullNameCalculator;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 
-public class TestJPACreateProcessor extends TestJPAModifyProcessor {
+class TestJPACreateProcessor extends TestJPAModifyProcessor {
 
   @Test
-  public void testHookIsCalled() throws ODataJPAModelException, ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
+  void testHookIsCalled() throws ODataJPAModelException, ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
 
-    RequestHandleSpy spy = new RequestHandleSpy();
+    final RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
@@ -95,11 +95,11 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testEntityTypeProvided() throws ODataJPAProcessorException, SerializerException, ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
+  void testEntityTypeProvided() throws ODataJPAProcessorException, SerializerException, ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
 
-    RequestHandleSpy spy = new RequestHandleSpy();
+    final RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
@@ -109,14 +109,14 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testAttributesProvided() throws ODataJPAProcessorException, SerializerException, ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
-    Map<String, Object> attributes = new HashMap<>(1);
+  void testAttributesProvided() throws ODataJPAProcessorException, SerializerException, ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
+    final Map<String, Object> attributes = new HashMap<>(1);
 
     attributes.put("ID", "35");
 
-    RequestHandleSpy spy = new RequestHandleSpy();
+    final RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     when(convHelper.convertProperties(ArgumentMatchers.any(OData.class), ArgumentMatchers.any(JPAStructuredType.class),
@@ -131,7 +131,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testHeadersProvided() throws ODataJPAProcessorException, SerializerException, ODataException {
+  void testHeadersProvided() throws ODataJPAProcessorException, SerializerException, ODataException {
     final ODataResponse response = new ODataResponse();
     final ODataRequest request = prepareSimpleRequest();
     final Map<String, List<String>> headers = new HashMap<>();
@@ -139,7 +139,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     when(request.getAllHeaders()).thenReturn(headers);
     headers.put("If-Match", Arrays.asList("2"));
 
-    RequestHandleSpy spy = new RequestHandleSpy();
+    final RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
@@ -151,7 +151,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testClaimsProvided() throws ODataJPAProcessorException, SerializerException,
+  void testClaimsProvided() throws ODataJPAProcessorException, SerializerException,
       ODataException {
     final ODataResponse response = new ODataResponse();
     final ODataRequest request = prepareSimpleRequest();
@@ -170,7 +170,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testGroupsProvided() throws ODataJPAProcessorException, SerializerException,
+  void testGroupsProvided() throws ODataJPAProcessorException, SerializerException,
       ODataException {
     final ODataResponse response = new ODataResponse();
     final ODataRequest request = prepareSimpleRequest();
@@ -191,11 +191,11 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testThrowExpectedExceptionInCaseOfError() throws ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
+  void testThrowExpectedExceptionInCaseOfError() throws ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
 
-    JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
+    final JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     when(requestContext.getCUDRequestHandler()).thenReturn(handler);
 
     doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
@@ -203,7 +203,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
 
     try {
       processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
-    } catch (ODataApplicationException e) {
+    } catch (final ODataApplicationException e) {
       assertEquals(HttpStatusCode.BAD_REQUEST.getStatusCode(), e.getStatusCode());
       return;
     }
@@ -211,11 +211,11 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testThrowUnexpectedExceptionInCaseOfError() throws ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
+  void testThrowUnexpectedExceptionInCaseOfError() throws ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
 
-    JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
+    final JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     when(requestContext.getCUDRequestHandler()).thenReturn(handler);
 
     doThrow(NullPointerException.class).when(handler).createEntity(any(JPARequestEntity.class), any(
@@ -223,7 +223,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
 
     try {
       processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
-    } catch (ODataApplicationException e) {
+    } catch (final ODataApplicationException e) {
       assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), e.getStatusCode());
       return;
     }
@@ -231,12 +231,12 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testMinimalResponseLocationHeader() throws ODataJPAProcessorException, SerializerException,
+  void testMinimalResponseLocationHeader() throws ODataJPAProcessorException, SerializerException,
       ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
 
-    RequestHandleSpy spy = new RequestHandleSpy();
+    final RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
@@ -245,12 +245,12 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testMinimalResponseODataEntityIdHeader() throws ODataJPAProcessorException, SerializerException,
+  void testMinimalResponseODataEntityIdHeader() throws ODataJPAProcessorException, SerializerException,
       ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
 
-    RequestHandleSpy spy = new RequestHandleSpy();
+    final RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
@@ -259,11 +259,11 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testMinimalResponseStatusCode() throws ODataJPAProcessorException, SerializerException, ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
+  void testMinimalResponseStatusCode() throws ODataJPAProcessorException, SerializerException, ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
 
-    RequestHandleSpy spy = new RequestHandleSpy();
+    final RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
@@ -272,12 +272,12 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testMinimalResponsePreferApplied() throws ODataJPAProcessorException, SerializerException,
+  void testMinimalResponsePreferApplied() throws ODataJPAProcessorException, SerializerException,
       ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
 
-    RequestHandleSpy spy = new RequestHandleSpy();
+    final RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
@@ -286,11 +286,11 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testRepresentationResponseStatusCode() throws ODataJPAProcessorException, SerializerException,
+  void testRepresentationResponseStatusCode() throws ODataJPAProcessorException, SerializerException,
       ODataException {
 
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareRepresentationRequest(new RequestHandleSpy());
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareRepresentationRequest(new RequestHandleSpy());
 
     processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
 
@@ -298,11 +298,11 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testRepresentationResponseStatusCodeMapResult() throws ODataJPAProcessorException, SerializerException,
+  void testRepresentationResponseStatusCodeMapResult() throws ODataJPAProcessorException, SerializerException,
       ODataException {
 
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareRepresentationRequest(new RequestHandleMapResultSpy());
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareRepresentationRequest(new RequestHandleMapResultSpy());
 
     processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
 
@@ -310,21 +310,21 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testRepresentationResponseContent() throws ODataJPAProcessorException, SerializerException,
+  void testRepresentationResponseContent() throws ODataJPAProcessorException, SerializerException,
       ODataException, IOException {
 
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareRepresentationRequest(new RequestHandleSpy());
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareRepresentationRequest(new RequestHandleSpy());
 
     processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
-    byte[] act = new byte[100];
+    final byte[] act = new byte[100];
     response.getContent().read(act);
-    String s = new String(act).trim();
+    final String s = new String(act).trim();
     assertEquals("{\"ID\":\"35\"}", s);
   }
 
   @Test
-  public void testPersonResponseContent() throws ODataJPAProcessorException, SerializerException,
+  void testPersonResponseContent() throws ODataJPAProcessorException, SerializerException,
       ODataException, IOException {
     final JPAODataSessionContextAccess context = mock(JPAODataSessionContextAccess.class);
     final EdmType propertyType = mock(EdmPrimitiveType.class);
@@ -350,36 +350,36 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     person.setID("35");
     person.setFirstName("Willi");
     person.setLastName("Wunder");
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = preparePersonRequest(new RequestHandleSpy(person));
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = preparePersonRequest(new RequestHandleSpy(person));
 
     processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
-    byte[] act = new byte[1000];
+    final byte[] act = new byte[1000];
     response.getContent().read(act);
-    String s = new String(act).trim();
+    final String s = new String(act).trim();
     assertTrue(s.contains("\"FullName\":\"Wunder, Willi\""));
   }
 
   @Test
-  public void testRepresentationResponseContentMapResult() throws ODataJPAProcessorException, SerializerException,
+  void testRepresentationResponseContentMapResult() throws ODataJPAProcessorException, SerializerException,
       ODataException, IOException {
 
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareRepresentationRequest(new RequestHandleMapResultSpy());
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareRepresentationRequest(new RequestHandleMapResultSpy());
 
     processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
-    byte[] act = new byte[100];
+    final byte[] act = new byte[100];
     response.getContent().read(act);
-    String s = new String(act).trim();
+    final String s = new String(act).trim();
     assertEquals("{\"ID\":\"35\"}", s);
   }
 
   @Test
-  public void testRepresentationLocationHeader() throws ODataJPAProcessorException, SerializerException,
+  void testRepresentationLocationHeader() throws ODataJPAProcessorException, SerializerException,
       ODataException {
 
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareRepresentationRequest(new RequestHandleSpy());
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareRepresentationRequest(new RequestHandleSpy());
 
     processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
 
@@ -387,11 +387,11 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testRepresentationLocationHeaderMapResult() throws ODataJPAProcessorException, SerializerException,
+  void testRepresentationLocationHeaderMapResult() throws ODataJPAProcessorException, SerializerException,
       ODataException {
 
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareRepresentationRequest(new RequestHandleMapResultSpy());
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareRepresentationRequest(new RequestHandleMapResultSpy());
 
     processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
 
@@ -399,11 +399,11 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testCallsValidateChangesOnSuccessfullProcessing() throws ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
+  void testCallsValidateChangesOnSuccessfullProcessing() throws ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
 
-    RequestHandleSpy spy = new RequestHandleSpy();
+    final RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
@@ -411,7 +411,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testDoesNotCallsValidateChangesOnForginTransaction() throws ODataException {
+  void testDoesNotCallsValidateChangesOnForginTransaction() throws ODataException {
     final ODataResponse response = new ODataResponse();
     final ODataRequest request = prepareSimpleRequest();
 
@@ -424,11 +424,11 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testDoesNotCallsValidateChangesOnError() throws ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
+  void testDoesNotCallsValidateChangesOnError() throws ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
 
-    JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
+    final JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     when(requestContext.getCUDRequestHandler()).thenReturn(handler);
 
     doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
@@ -440,11 +440,11 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testDoesRollbackIfValidateRaisesError() throws ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
+  void testDoesRollbackIfValidateRaisesError() throws ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
 
-    JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
+    final JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     when(requestContext.getCUDRequestHandler()).thenReturn(handler);
 
     doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
@@ -457,11 +457,11 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testDoesRollbackIfCreateRaisesArbitraryError() throws ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
+  void testDoesRollbackIfCreateRaisesArbitraryError() throws ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
 
-    JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
+    final JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     when(requestContext.getCUDRequestHandler()).thenReturn(handler);
 
     doThrow(new RuntimeException("Test")).when(handler).createEntity(any(), any());
@@ -473,11 +473,11 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testDoesRollbackOnWrongResponse() throws ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
-    String result = "";
-    JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
+  void testDoesRollbackOnWrongResponse() throws ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
+    final String result = "";
+    final JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     when(requestContext.getCUDRequestHandler()).thenReturn(handler);
     when(handler.createEntity(any(), any())).thenReturn(result);
 
@@ -488,11 +488,11 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testOwnTransactionCommitted() throws ODataJPAModelException, ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
+  void testOwnTransactionCommitted() throws ODataJPAModelException, ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
 
-    RequestHandleSpy spy = new RequestHandleSpy();
+    final RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
@@ -500,7 +500,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testResponseCreateChildSameTypeContent() throws ODataJPAProcessorException, SerializerException,
+  void testResponseCreateChildSameTypeContent() throws ODataJPAProcessorException, SerializerException,
       ODataException, IOException {
 
     when(ets.getName()).thenReturn("AdministrativeDivisions");
@@ -535,12 +535,12 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     assertNotNull(spy.requestEntity.getKeys());
     assertEquals("DE6", spy.requestEntity.getKeys().get("divisionCode"));
     assertNotNull(spy.requestEntity.getRelatedEntities());
-    for (Entry<JPAAssociationPath, List<JPARequestEntity>> c : spy.requestEntity.getRelatedEntities().entrySet())
+    for (final Entry<JPAAssociationPath, List<JPARequestEntity>> c : spy.requestEntity.getRelatedEntities().entrySet())
       assertEquals("Children", c.getKey().getAlias());
   }
 
   @Test
-  public void testResponseCreateChildDifferentTypeContent() throws ODataJPAProcessorException, SerializerException,
+  void testResponseCreateChildDifferentTypeContent() throws ODataJPAProcessorException, SerializerException,
       ODataException, IOException {
 
     final Organization org = new Organization("Test");
@@ -597,11 +597,11 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     assertNotNull(spy.requestEntity.getKeys());
     assertEquals("Test", spy.requestEntity.getKeys().get("iD"));
     assertNotNull(spy.requestEntity.getRelatedEntities());
-    for (Entry<JPAAssociationPath, List<JPARequestEntity>> c : spy.requestEntity.getRelatedEntities().entrySet())
+    for (final Entry<JPAAssociationPath, List<JPARequestEntity>> c : spy.requestEntity.getRelatedEntities().entrySet())
       assertEquals("Roles", c.getKey().getAlias());
   }
 
-  protected ODataRequest prepareRequestToCreateChild(JPAAbstractCUDRequestHandler spy)
+  protected ODataRequest prepareRequestToCreateChild(final JPAAbstractCUDRequestHandler spy)
       throws ODataJPAProcessorException, SerializerException, ODataException {
     // .../AdministrativeDivisions(DivisionCode='DE6',CodeID='NUTS1',CodePublisher='Eurostat')/Children
     final ODataRequest request = prepareSimpleRequest("return=representation");
@@ -632,14 +632,15 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     return request;
   }
 
-  private void createKeyPredicate(final List<UriParameter> uriKeys, String name, String value) {
-    UriParameter key = mock(UriParameter.class);
+  private void createKeyPredicate(final List<UriParameter> uriKeys, final String name, final String value) {
+    final UriParameter key = mock(UriParameter.class);
     uriKeys.add(key);
     when(key.getName()).thenReturn(name);
     when(key.getText()).thenReturn("'" + value + "'");
   }
 
-  private void createKeyProperty(final FullQualifiedName fqn, final EdmEntityType edmET, String name, String value)
+  private void createKeyProperty(final FullQualifiedName fqn, final EdmEntityType edmET, final String name,
+      final String value)
       throws EdmPrimitiveTypeException {
     final EdmKeyPropertyRef refType = mock(EdmKeyPropertyRef.class);
     when(edmET.getKeyPropertyRef(name)).thenReturn(refType);
@@ -647,7 +648,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     final EdmProperty edmProperty = mock(EdmProperty.class);
     when(refType.getProperty()).thenReturn(edmProperty);
     when(refType.getName()).thenReturn(name);
-    EdmPrimitiveType type = mock(EdmPrimitiveType.class);
+    final EdmPrimitiveType type = mock(EdmPrimitiveType.class);
     when(edmProperty.getType()).thenReturn(type);
     when(type.valueToString(ArgumentMatchers.eq(value), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers
         .any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(value);
@@ -676,7 +677,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     public Optional<JPAODataClaimProvider> claims;
     public List<String> groups;
 
-    RequestHandleSpy(Object result) {
+    RequestHandleSpy(final Object result) {
       this.result = result;
     }
 
@@ -686,7 +687,7 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     }
 
     @Override
-    public Object createEntity(final JPARequestEntity requestEntity, EntityManager em)
+    public Object createEntity(final JPARequestEntity requestEntity, final EntityManager em)
         throws ODataJPAProcessException {
 
       this.et = requestEntity.getEntityType();
@@ -715,9 +716,9 @@ public class TestJPACreateProcessor extends TestJPAModifyProcessor {
     public JPARequestEntity requestEntity;
 
     @Override
-    public Object createEntity(final JPARequestEntity requestEntity, EntityManager em)
+    public Object createEntity(final JPARequestEntity requestEntity, final EntityManager em)
         throws ODataJPAProcessException {
-      Map<String, Object> result = new HashMap<>();
+      final Map<String, Object> result = new HashMap<>();
       result.put("iD", "35");
       this.et = requestEntity.getEntityType();
       this.jpaAttributes = requestEntity.getData();

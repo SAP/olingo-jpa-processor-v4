@@ -544,8 +544,9 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
     return null;
   }
 
-  FromImpl<?, ?> determineParent() {
-    return this;
+  @SuppressWarnings("unchecked")
+  <U, V> FromImpl<U, V> determineParent() {
+    return (FromImpl<U, V>) this;
   }
 
   JPAStructuredType determineSource() throws ODataJPAModelException {

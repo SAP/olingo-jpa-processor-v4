@@ -81,6 +81,8 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
   protected boolean isVersion;
   protected boolean searchable;
   protected boolean conversionRequired;
+  private boolean isEnum;
+
   private final Map<String, JPAProtectionInfo> externalProtectedPathNames;
   private List<String> fieldGroups;
   protected List<String> requiredAttributes;
@@ -172,7 +174,12 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
 
   @Override
   public boolean isEnum() {
-    return schema.getEnumerationType(entityType) != null;
+    return isEnum;
+
+  }
+
+  private void determineIsEnum() {
+    isEnum = schema.getEnumerationType(entityType) != null;
   }
 
   @Override
@@ -206,6 +213,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
       determineIsVersion();
       determineProtection();
       determineFieldGroups();
+      determineIsEnum();
       checkConsistency();
     }
     postProcessor.processProperty(this, jpaAttribute.getDeclaringType().getJavaType().getCanonicalName());

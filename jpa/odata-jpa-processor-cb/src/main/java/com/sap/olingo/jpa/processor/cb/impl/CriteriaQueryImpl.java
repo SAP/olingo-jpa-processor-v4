@@ -21,25 +21,24 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Predicate.BooleanOperator;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
-import javax.persistence.criteria.Subquery;
 import javax.persistence.metamodel.EntityType;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.cb.api.ProcessorSelection;
-import com.sap.olingo.jpa.processor.cb.api.SqlConvertible;
-import com.sap.olingo.jpa.processor.cb.api.SqlKeyWords;
+import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaQuery;
+import com.sap.olingo.jpa.processor.cb.ProcessorSubquery;
 import com.sap.olingo.jpa.processor.cb.exeptions.InternalServerError;
 import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
 import com.sap.olingo.jpa.processor.cb.joiner.ExpressionCollector;
+import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
 import com.sap.olingo.jpa.processor.cb.joiner.StringBuilderCollector;
 
-class CriteriaQueryImpl<T> implements CriteriaQuery<T>, SqlConvertible {
+class CriteriaQueryImpl<T> implements ProcessorCriteriaQuery<T>, SqlConvertible {
   private final Class<T> resultType;
   private final Set<FromImpl<?, ?>> roots = new HashSet<>();
   private final JPAServiceDocument sd;
-  private ProcessorSelection<? extends T> selection;
+  private SelectionImpl<? extends T> selection;
   private Optional<Expression<Boolean>> where;
   private boolean distinct;
   private final AliasBuilder aliasBuilder;
@@ -71,7 +70,7 @@ class CriteriaQueryImpl<T> implements CriteriaQuery<T>, SqlConvertible {
     where.ifPresent(filterExpressions::add);
     roots.stream().forEach(r -> addInheritanceWhere(r, filterExpressions));
 
-    where = Optional.ofNullable(filterExpressions.stream().filter(Objects::nonNull).collect(new ExpressionCollector<>(
+    where = Optional.ofNullable(filterExpressions.stream().filter(Objects::nonNull).collect(new ExpressionCollector(
         cb, BooleanOperator.AND)));
 
     statement.append(SqlKeyWords.SELECT)
@@ -126,6 +125,18 @@ class CriteriaQueryImpl<T> implements CriteriaQuery<T>, SqlConvertible {
   @Override
   public <X> Root<X> from(final EntityType<X> entity) {
     return from(entity.getJavaType());
+  }
+
+  @Override
+  public <X> Root<X> from(@Nonnull final ProcessorSubquery<X> inner) {
+
+    try {
+      final Root<X> root = new SubqueryRootImpl<>(inner, aliasBuilder, sd);
+      roots.add((FromImpl<?, ?>) root);
+      return root;
+    } catch (final ODataJPAModelException e) {
+      throw new InternalServerError(e);
+    }
   }
 
   /**
@@ -371,7 +382,7 @@ class CriteriaQueryImpl<T> implements CriteriaQuery<T>, SqlConvertible {
   }
 
   @Override
-  public <U> Subquery<U> subquery(@Nonnull final Class<U> type) {
+  public <U> ProcessorSubquery<U> subquery(@Nonnull final Class<U> type) {
     return new SubqueryImpl<>(type, this, aliasBuilder, cb);
   }
 

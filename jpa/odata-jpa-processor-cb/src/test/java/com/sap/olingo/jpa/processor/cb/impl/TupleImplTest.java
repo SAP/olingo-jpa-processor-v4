@@ -27,10 +27,10 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
-import com.sap.olingo.jpa.processor.cb.api.ProcessorSelection;
+import com.sap.olingo.jpa.processor.cb.ProcessorSelection;
 import com.sap.olingo.jpa.processor.core.testmodel.DateTimeConverter;
 
-public class TupleImplTest {
+class TupleImplTest {
   private static final String SECOND_VALUE = "Second";
   private static final String THIRD_VALUE = "Third";
   private static final String FIRST_VALUE = "First";
@@ -41,7 +41,7 @@ public class TupleImplTest {
   private List<Entry<String, JPAAttribute>> selPath;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
 
     selPath = new ArrayList<>(3);
     selectionIndex = new HashMap<>(3);
@@ -80,68 +80,68 @@ public class TupleImplTest {
   }
 
   @Test
-  public void testToArrayReturnsCopyOf() {
+  void testToArrayReturnsCopyOf() {
     assertArrayEquals(values, cut.toArray());
     assertNotEquals(values, cut.toArray());
   }
 
   @Test
-  public void testGetByIndexReturnsCorrectValue() {
+  void testGetByIndexReturnsCorrectValue() {
     assertEquals("World", cut.get(1));
     assertEquals("Hello", cut.get(0));
   }
 
   @Test
-  public void testGetByIndexThrowsExceptionOnInvalidIndex() {
+  void testGetByIndexThrowsExceptionOnInvalidIndex() {
     assertThrows(IllegalArgumentException.class, () -> cut.get(5));
     assertThrows(IllegalArgumentException.class, () -> cut.get(-1));
   }
 
   @Test
-  public void testGetByAliasReturnsCorrectValue() {
+  void testGetByAliasReturnsCorrectValue() {
     assertEquals("World", cut.get(SECOND_VALUE));
     assertEquals("Hello", cut.get(FIRST_VALUE));
   }
 
   @Test
-  public void testGetByAliasReturnsConverted() {
+  void testGetByAliasReturnsConverted() {
     final Double act = cut.get(THIRD_VALUE, Double.class);
     assertNotNull(act);
   }
 
   @Test
-  public void testGetByAliseThrowsExceptionOnInvalidValue() {
+  void testGetByAliseThrowsExceptionOnInvalidValue() {
     assertThrows(IllegalArgumentException.class, () -> cut.get("Willi"));
   }
 
   @Test
-  public void testGetByIndexWithCastReturnsCorrectValue() {
+  void testGetByIndexWithCastReturnsCorrectValue() {
     assertEquals(3, cut.get(2, Number.class));
   }
 
   @Test
-  public void testGetByIndexWithCastThrowsExceptionOnInvalidIndex() {
+  void testGetByIndexWithCastThrowsExceptionOnInvalidIndex() {
     assertThrows(IllegalArgumentException.class, () -> cut.get(5, Number.class));
     assertThrows(IllegalArgumentException.class, () -> cut.get(-1, Number.class));
   }
 
   @Test
-  public void testGetByAliasWithCastReturnsCorrectValue() {
+  void testGetByAliasWithCastReturnsCorrectValue() {
     assertEquals(3, cut.get(THIRD_VALUE, Number.class));
   }
 
   @Test
-  public void testGetByAliseWithCastThrowsExceptionOnInvalidValue() {
+  void testGetByAliseWithCastThrowsExceptionOnInvalidValue() {
     assertThrows(IllegalArgumentException.class, () -> cut.get("Willi", Number.class));
   }
 
   @Test
-  public void testGetByAliasWithCastThrowsExceptionOnInvalidCast() {
+  void testGetByAliasWithCastThrowsExceptionOnInvalidCast() {
     assertThrows(IllegalArgumentException.class, () -> cut.get(FIRST_VALUE, Double.class));
   }
 
   @Test
-  public void testGetTupleElements() {
+  void testGetTupleElements() {
     final List<TupleElement<?>> act = cut.getElements();
     boolean secondFound = false;
     assertEquals(4, act.size());
@@ -156,7 +156,7 @@ public class TupleImplTest {
   }
 
   @Test
-  public void testTupleReturnsConvertedValue() {
+  void testTupleReturnsConvertedValue() {
     cut = new TupleImpl(values, selPath, selectionIndex);
     assertTrue(cut.get(TIME_VALUE) instanceof LocalDateTime);
   }

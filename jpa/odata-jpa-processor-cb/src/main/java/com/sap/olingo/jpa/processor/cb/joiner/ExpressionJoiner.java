@@ -20,7 +20,7 @@ final class ExpressionJoiner {
     this.isFirst = true;
   }
 
-  public ExpressionJoiner add(final Expression<Boolean> newExpression) {
+  public ExpressionJoiner add(@Nonnull final Expression<Boolean> newExpression) {
     if (isFirst) {
       this.expression = newExpression;
       isFirst = false;

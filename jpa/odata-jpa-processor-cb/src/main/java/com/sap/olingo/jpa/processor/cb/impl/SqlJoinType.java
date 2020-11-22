@@ -1,10 +1,10 @@
-package com.sap.olingo.jpa.processor.cb.api;
+package com.sap.olingo.jpa.processor.cb.impl;
 
 import java.util.EnumMap;
 
 import javax.persistence.criteria.JoinType;
 
-public enum SqlJoinType {
+enum SqlJoinType {
 
   INNER("INNER JOIN", JoinType.INNER),
   LEFT("LEFT OUTER JOIN", JoinType.LEFT),
@@ -12,8 +12,8 @@ public enum SqlJoinType {
 
   private static final EnumMap<JoinType, SqlJoinType> REL = new EnumMap<>(JoinType.class);
 
-  public static SqlJoinType byJoinType(final JoinType jt) {
-    SqlJoinType s = REL.get(jt);
+  static SqlJoinType byJoinType(final JoinType jt) {
+    final SqlJoinType s = REL.get(jt);
     if (s != null)
       return s;
     for (final SqlJoinType sql : SqlJoinType.values()) {

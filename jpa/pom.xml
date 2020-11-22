@@ -17,6 +17,7 @@
         <powermock.version>1.7.1</powermock.version>
         <coveralls.version>4.3.0</coveralls.version>
         <jpa.version>2.2.0</jpa.version>
+        <processor.version>1.0.1-SNAPSHOT</processor.version>
     </properties>
 
     <profiles>
@@ -104,9 +105,10 @@
         <module>odata-jpa-annotation</module>
         <module>odata-jpa-processor</module>
         <module>odata-jpa-processor-cb</module>
-        <module>odata-jpa-processor-parallel</module>
+        <module>odata-jpa-processor-parallel</module> 
         <module>odata-jpa-coverage</module>
         <module>odata-jpa-spring-support</module>
+        <module>odata-jpa-processor-ext</module>
     </modules>
     <build>
         <pluginManagement>
@@ -148,7 +150,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.3</version>
+                <version>0.8.6</version>
                 <executions>
                     <execution>
                         <id>prepare-agent</id>
@@ -157,6 +159,16 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <rules>
+                        <rule>
+                            <element>SOURCEFILE</element>
+                            <excludes>
+                                <exclude>*src/test/*</exclude>
+                            </excludes>
+                        </rule>
+                    </rules>
+                </configuration>                
             </plugin>
         </plugins>
     </build>

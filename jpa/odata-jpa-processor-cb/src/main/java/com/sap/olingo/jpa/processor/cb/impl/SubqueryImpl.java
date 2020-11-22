@@ -1,20 +1,27 @@
 package com.sap.olingo.jpa.processor.cb.impl;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
 import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CollectionJoin;
 import javax.persistence.criteria.CommonAbstractCriteria;
+import javax.persistence.criteria.CompoundSelection;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.ListJoin;
 import javax.persistence.criteria.MapJoin;
+import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
@@ -22,8 +29,10 @@ import javax.persistence.criteria.SetJoin;
 import javax.persistence.criteria.Subquery;
 import javax.persistence.metamodel.EntityType;
 
-import com.sap.olingo.jpa.processor.cb.api.ProcessorSubquery;
-import com.sap.olingo.jpa.processor.cb.api.SqlConvertible;
+import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaQuery;
+import com.sap.olingo.jpa.processor.cb.ProcessorSubquery;
+import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
+import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
 
 /**
  * The <code>Subquery</code> interface defines functionality that is
@@ -38,7 +47,9 @@ import com.sap.olingo.jpa.processor.cb.api.SqlConvertible;
 class SubqueryImpl<T> implements ProcessorSubquery<T>, SqlConvertible {
   private final Class<T> type;
   private final CriteriaQuery<?> parent;
-  private final CriteriaQuery<T> inner;
+  private final ProcessorCriteriaQuery<T> inner;
+  private Optional<Integer> maxResult;
+  private Optional<Integer> firstResult;
 
   SubqueryImpl(@Nonnull final Class<T> type, @Nonnull final CriteriaQuery<?> parent, final AliasBuilder ab,
       final CriteriaBuilder cb) {
@@ -46,6 +57,8 @@ class SubqueryImpl<T> implements ProcessorSubquery<T>, SqlConvertible {
     this.type = Objects.requireNonNull(type);
     this.parent = Objects.requireNonNull(parent);
     this.inner = new CriteriaQueryImpl<>(type, ((CriteriaQueryImpl<?>) parent).getServiceDocument(), ab, cb);
+    maxResult = Optional.empty();
+    firstResult = Optional.empty();
   }
 
   @Override
@@ -104,38 +117,32 @@ class SubqueryImpl<T> implements ProcessorSubquery<T>, SqlConvertible {
    */
   @Override
   public <Y> Root<Y> correlate(@Nonnull final Root<Y> parentRoot) {
-    // TODO Auto-generated method stub
-    return null;
+    throw new NotImplementedException();
   }
 
   @Override
   public <X, Y> Join<X, Y> correlate(@Nonnull final Join<X, Y> parentJoin) {
-    // TODO Auto-generated method stub
-    return null;
+    throw new NotImplementedException();
   }
 
   @Override
   public <X, Y> CollectionJoin<X, Y> correlate(@Nonnull final CollectionJoin<X, Y> parentCollection) {
-    // TODO Auto-generated method stub
-    return null;
+    throw new NotImplementedException();
   }
 
   @Override
   public <X, Y> SetJoin<X, Y> correlate(@Nonnull final SetJoin<X, Y> parentSet) {
-    // TODO Auto-generated method stub
-    return null;
+    throw new NotImplementedException();
   }
 
   @Override
   public <X, Y> ListJoin<X, Y> correlate(@Nonnull final ListJoin<X, Y> parentList) {
-    // TODO Auto-generated method stub
-    return null;
+    throw new NotImplementedException();
   }
 
   @Override
   public <X, K, V> MapJoin<X, K, V> correlate(@Nonnull final MapJoin<X, K, V> parentMap) {
-    // TODO Auto-generated method stub
-    return null;
+    throw new NotImplementedException();
   }
 
   @Override
@@ -145,19 +152,18 @@ class SubqueryImpl<T> implements ProcessorSubquery<T>, SqlConvertible {
 
   @Override
   public CommonAbstractCriteria getContainingQuery() {
-    // TODO Auto-generated method stub
-    return null;
+    return getParent();
   }
 
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   @Override
   public Expression<T> getSelection() {
-    return (Expression<T>) inner.getSelection();
+    return (Expression<T>) ((SelectionImpl) inner.getSelection()).selections.get(0);
   }
 
   @Override
   public Set<Join<?, ?>> getCorrelatedJoins() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new NotImplementedException();
   }
 
   @Override
@@ -196,101 +202,152 @@ class SubqueryImpl<T> implements ProcessorSubquery<T>, SqlConvertible {
   }
 
   @Override
-  public <U> Subquery<U> subquery(@Nonnull final Class<U> type) {
+  public <U> ProcessorSubquery<U> subquery(@Nonnull final Class<U> type) {
     return inner.subquery(type);
   }
 
+  /**
+   * Return the predicate that corresponds to the where clause
+   * restriction(s), or null if no restrictions have been
+   * specified.
+   * @return where clause predicate
+   */
   @Override
   public Predicate getRestriction() {
-    return inner.getGroupRestriction();
+    return inner.getRestriction();
   }
 
   @Override
   public Predicate isNull() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new NotImplementedException();
   }
 
   @Override
   public Predicate isNotNull() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new NotImplementedException();
   }
 
   @Override
   public Predicate in(@Nonnull final Object... values) {
-    // TODO Auto-generated method stub
-    return null;
+    throw new NotImplementedException();
   }
 
   @Override
   public Predicate in(@Nonnull final Expression<?>... values) {
-    // TODO Auto-generated method stub
-    return null;
+    throw new NotImplementedException();
   }
 
   @Override
   public Predicate in(@Nonnull final Collection<?> values) {
-    // TODO Auto-generated method stub
-    return null;
+    throw new NotImplementedException();
   }
 
   @Override
   public Predicate in(@Nonnull final Expression<Collection<?>> values) {
-    // TODO Auto-generated method stub
-    return null;
+    throw new NotImplementedException();
   }
 
   @Override
   public <X> Expression<X> as(@Nonnull final Class<X> type) {
-    // TODO Auto-generated method stub
-    return null;
+    throw new NotImplementedException();
   }
 
   @Override
   public Selection<T> alias(@Nonnull final String name) {
-    // TODO Auto-generated method stub
-    return null;
+    throw new NotImplementedException();
   }
 
+  /**
+   * Whether the selection item is a compound selection.
+   * @return boolean indicating whether the selection is a compound
+   * selection
+   */
   @Override
   public boolean isCompoundSelection() {
-    // TODO Auto-generated method stub
-    return false;
+    return inner.getSelection() instanceof CompoundSelection;
   }
 
+  /**
+   * Return the selection items composing a compound selection.
+   * Modifications to the list do not affect the query.
+   * <p>
+   * Star selections are not resolved currently!
+   * @return list of selection items
+   * @throws IllegalStateException if selection is not a
+   * compound selection
+   */
   @Override
   public List<Selection<?>> getCompoundSelectionItems() {
-    // TODO Auto-generated method stub
-    return null;
+    if (isCompoundSelection()) {
+      return new ArrayList<>(((CompoundSelection<?>) inner.getSelection()).getCompoundSelectionItems());
+    } else if (inner.getSelection() != null) {
+      final Selection<T> selection = inner.getSelection();
+      if (selection.isCompoundSelection())
+        return new ArrayList<>(selection.getCompoundSelectionItems());
+      else
+        return singletonList(inner.getSelection());
+    } else {
+      return emptyList();
+    }
   }
 
   @Override
   public Class<? extends T> getJavaType() {
-    return type;
+    return getResultType();
   }
 
   @Override
   public String getAlias() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new NotImplementedException();
   }
 
   @Override
-  public ProcessorSubquery<T> setMaxResults(final int maxResult) {
-    // TODO Auto-generated method stub
+  public ProcessorSubquery<T> setMaxResults(final Integer maxResult) {
+    this.maxResult = Optional.ofNullable(maxResult);
     return this;
   }
 
   @Override
-  public ProcessorSubquery<T> setFirstResult(final int startPosition) {
-    // TODO Auto-generated method stub
+  public ProcessorSubquery<T> setFirstResult(final Integer startPosition) {
+    this.firstResult = Optional.ofNullable(startPosition);
     return this;
   }
 
   @Override
-  public StringBuilder asSQL(@Nonnull final StringBuilder statment) {
-    return ((SqlConvertible) inner).asSQL(statment);
+  public StringBuilder asSQL(@Nonnull final StringBuilder statement) {
+    return ((SqlConvertible) inner).asSQL(statement)
+        .append(maxResult.map(i -> " LIMIT " + i).orElse(""))
+        .append(firstResult.map(i -> " OFFSET " + i).orElse(""));
+  }
+
+  @Override
+  public ProcessorSubquery<T> multiselect(final Selection<?>... selections) {
+    inner.multiselect(selections);
+    return this;
+  }
+
+  @Override
+  public ProcessorSubquery<T> multiselect(final List<Selection<?>> selectionList) {
+    inner.multiselect(selectionList);
+    return this;
+  }
+
+  @Override
+  public ProcessorSubquery<T> orderBy(final List<Order> o) {
+    inner.orderBy(o);
+    return this;
+  }
+
+  @Override
+  public ProcessorSubquery<T> orderBy(final Order... o) {
+    inner.orderBy(o);
+    return this;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <X> Root<X> from(final ProcessorSubquery<?> subquery) {
+    return (Root<X>) inner.from(subquery);
   }
 
 }

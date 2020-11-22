@@ -12,7 +12,7 @@ import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 
-public class CriteriaBuilderHSQLDBTest extends CriteriaBuilderOverallTest {
+class CriteriaBuilderHSQLDBTest extends CriteriaBuilderOverallTest {
   private static final String PUNIT_NAME = "com.sap.olingo.jpa";
   private static final String[] enumPackages = { "com.sap.olingo.jpa.processor.core.testmodel" };
   private static EntityManagerFactory emf;
@@ -21,7 +21,7 @@ public class CriteriaBuilderHSQLDBTest extends CriteriaBuilderOverallTest {
   private static DataSource ds;
 
   @BeforeAll
-  public static void classSetup() throws ODataException {
+  static void classSetup() throws ODataException {
     ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
     emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, ds);
     edmProvider = new JPAEdmProvider(PUNIT_NAME, emf, null, enumPackages);
@@ -30,7 +30,7 @@ public class CriteriaBuilderHSQLDBTest extends CriteriaBuilderOverallTest {
   }
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     super.setup(emf, sd);
   }
 }

@@ -7,16 +7,18 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Selection;
 import javax.persistence.criteria.Subquery;
 
-import com.sap.olingo.jpa.processor.cb.api.SqlConvertible;
-import com.sap.olingo.jpa.processor.cb.api.SqlKeyWords;
-import com.sap.olingo.jpa.processor.cb.api.SqlNullCheck;
-import com.sap.olingo.jpa.processor.cb.api.SqlSubQuery;
+import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
+import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
+import com.sap.olingo.jpa.processor.cb.joiner.StringBuilderCollector;
 
 /**
  *
@@ -27,11 +29,6 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
 
   private static final int REQUIRED_NO_OPERATOR = 2;
   protected final List<SqlConvertible> expressions;
-
-  protected PredicateImpl(final SqlConvertible... expressions) {
-    super();
-    this.expressions = Collections.unmodifiableList(Arrays.asList(expressions));
-  }
 
   static Predicate and(final Predicate[] restrictions) {
     if (restrictions == null || arrayIsEmpty(restrictions, REQUIRED_NO_OPERATOR))
@@ -61,28 +58,87 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
     return restrictions.length < requiredNoElements;
   }
 
-  abstract static class BooleanPredicate extends PredicateImpl {
+  protected PredicateImpl(final SqlConvertible... expressions) {
+    super();
+    this.expressions = Collections.unmodifiableList(Arrays.asList(expressions));
+  }
 
-    BooleanPredicate(final Expression<Boolean> x, final Expression<Boolean> y) {
-      super((SqlConvertible) x, (SqlConvertible) y);
-    }
+  @Override
+  public Selection<Boolean> alias(final String name) {
+    alias = Optional.ofNullable(name);
+    return this;
+  }
 
-    @Override
-    public String toString() {
-      return "AndPredicate [left=" + expressions.get(0) + ", right=" + expressions.get(1) + "]";
-    }
+  @Override
+  public <X> Expression<X> as(final Class<X> type) {
+    throw new NotImplementedException();
+  }
 
-    @Override
-    public StringBuilder asSQL(final StringBuilder statement) {
-      statement.append(OPENING_BRACKET);
-      expressions.get(0).asSQL(statement)
-          .append(" ")
-          .append(getOperator())
-          .append(" ");
-      expressions.get(1).asSQL(statement);
-      statement.append(CLOSING_BRACKET);
-      return statement;
-    }
+  @Override
+  @CheckForNull
+  public String getAlias() {
+    return alias.orElse(null);
+  }
+
+  @Override
+  public List<Selection<?>> getCompoundSelectionItems() {
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public List<Expression<Boolean>> getExpressions() {
+    return asExpression();
+  }
+
+  @Override
+  public Class<? extends Boolean> getJavaType() {
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public Predicate in(final Collection<?> values) {
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public Predicate in(final Expression<?>... values) {
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public Predicate in(final Expression<Collection<?>> values) {
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public Predicate in(final Object... values) {
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public boolean isCompoundSelection() {
+    return false;
+  }
+
+  /**
+   * Whether the predicate has been created from another
+   * predicate by applying the <code>Predicate.not()</code> method
+   * or the <code>CriteriaBuilder.not()</code> method.
+   * @return boolean indicating if the predicate is
+   * a negated predicate
+   */
+  @Override
+  public boolean isNegated() {
+    return false;
+  }
+
+  @Override
+  public Predicate not() {
+    return new NotPredicate(this);
+  }
+
+  private List<Expression<Boolean>> asExpression() {
+    return Collections.emptyList();
   }
 
   static class AndPredicate extends BooleanPredicate {
@@ -99,6 +155,185 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
     @Override
     public BooleanOperator getOperator() {
       return Predicate.BooleanOperator.AND;
+    }
+  }
+
+  static class BetweenExpressionPredicate extends PredicateImpl {
+
+    private final ExpressionImpl<?> attribute;
+
+    BetweenExpressionPredicate(final ExpressionImpl<?> attribute, final Expression<?> left, final Expression<?> right) {
+      super((SqlConvertible) left, (SqlConvertible) right);
+      this.attribute = attribute;
+    }
+
+    @Override
+    public StringBuilder asSQL(final StringBuilder statement) {
+      statement.append(OPENING_BRACKET);
+      this.attribute.asSQL(statement)
+          .append(" ")
+          .append(SqlKeyWords.BETWEEN)
+          .append(" ");
+      this.expressions.get(0).asSQL(statement)
+          .append(" ")
+          .append(SqlKeyWords.AND)
+          .append(" ");
+      return this.expressions.get(1).asSQL(statement).append(CLOSING_BRACKET);
+    }
+
+    @Override
+    public BooleanOperator getOperator() {
+      return null;
+    }
+  }
+
+  static class BinaryExpressionPredicate extends PredicateImpl {
+    private final Operation expression;
+
+    BinaryExpressionPredicate(final Operation operation, final Expression<?> left, final Expression<?> right) {
+      super((SqlConvertible) left, (SqlConvertible) right);
+      this.expression = operation;
+    }
+
+    @Override
+    public StringBuilder asSQL(final StringBuilder statement) {
+      statement.append(OPENING_BRACKET);
+      this.expressions.get(0).asSQL(statement)
+          .append(" ")
+          .append(expression)
+          .append(" ");
+      return this.expressions.get(1).asSQL(statement).append(CLOSING_BRACKET);
+    }
+
+    @Override
+    public BooleanOperator getOperator() {
+      return null;
+    }
+
+    enum Operation {
+      EQ("="), NE("<>"), GT(">"), GE(">="), LT("<"), LE("<=");
+
+      private String keyWord;
+
+      private Operation(final String keyWord) {
+        this.keyWord = keyWord;
+      }
+
+      @Override
+      public String toString() {
+        return keyWord;
+      }
+    }
+  }
+
+  abstract static class BooleanPredicate extends PredicateImpl {
+
+    BooleanPredicate(final Expression<Boolean> x, final Expression<Boolean> y) {
+      super((SqlConvertible) x, (SqlConvertible) y);
+    }
+
+    @Override
+    public StringBuilder asSQL(final StringBuilder statement) {
+      statement.append(OPENING_BRACKET);
+      expressions.get(0).asSQL(statement)
+          .append(" ")
+          .append(getOperator())
+          .append(" ");
+      expressions.get(1).asSQL(statement);
+      statement.append(CLOSING_BRACKET);
+      return statement;
+    }
+
+    @Override
+    public String toString() {
+      return "AndPredicate [left=" + expressions.get(0) + ", right=" + expressions.get(1) + "]";
+    }
+  }
+
+  static class LikePredicate extends PredicateImpl {
+    private final ParameterExpression<String, ?> pattern;
+    private final Optional<ParameterExpression<Character, ?>> escape;
+
+    public LikePredicate(final Expression<String> column, final ParameterExpression<String, ?> pattern) {
+      this(column, pattern, Optional.empty());
+    }
+
+    public LikePredicate(final Expression<String> column, final ParameterExpression<String, ?> pattern,
+        final Optional<ParameterExpression<Character, ?>> escapeChar) {
+      super((SqlConvertible) column);
+      this.pattern = pattern;
+      this.escape = escapeChar;
+    }
+
+    @Override
+    public StringBuilder asSQL(final StringBuilder statement) {
+      statement.append(OPENING_BRACKET);
+      this.expressions.get(0).asSQL(statement)
+          .append(" ")
+          .append(SqlKeyWords.LIKE)
+          .append(" ");
+      this.pattern.asSQL(statement);
+      this.escape.ifPresent(e -> statement
+          .append(" ")
+          .append(SqlKeyWords.ESCAPE)
+          .append(" "));
+      this.escape.ifPresent(e -> e.asSQL(statement));
+      return statement.append(CLOSING_BRACKET);
+    }
+
+    @Override
+    public BooleanOperator getOperator() {
+      return null;
+    }
+  }
+
+  static class NotPredicate extends PredicateImpl {
+
+    private final SqlConvertible positive;
+
+    NotPredicate(final SqlConvertible predicate) {
+      this.positive = predicate;
+    }
+
+    @Override
+    public StringBuilder asSQL(final StringBuilder statement) {
+      statement
+          .append(OPENING_BRACKET)
+          .append(SqlKeyWords.NOT)
+          .append(" ");
+      return positive.asSQL(statement)
+          .append(CLOSING_BRACKET);
+    }
+
+    @Override
+    public BooleanOperator getOperator() {
+      return null;
+    }
+
+    @Override
+    public boolean isNegated() {
+      return true;
+    }
+  }
+
+  static class NullPredicate extends PredicateImpl {
+
+    private final SqlNullCheck check;
+
+    NullPredicate(@Nonnull final Expression<?> expression, @Nonnull final SqlNullCheck check) {
+      super((SqlConvertible) Objects.requireNonNull(expression));
+      this.check = Objects.requireNonNull(check);
+    }
+
+    @Override
+    public StringBuilder asSQL(final StringBuilder statement) {
+      return expressions.get(0).asSQL(statement.append(OPENING_BRACKET))
+          .append(" ").append(check).append(CLOSING_BRACKET);
+    }
+
+    @Override
+    public BooleanOperator getOperator() {
+      return null;
     }
   }
 
@@ -119,138 +354,51 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
     }
   }
 
-  static class NotPredicate extends PredicateImpl {
+  static class In<X> extends PredicateImpl implements CriteriaBuilder.In<X> {
+    private final List<Path<? extends X>> paths;
 
-    private final SqlConvertible positive;
-
-    NotPredicate(final SqlConvertible predicate) {
-      this.positive = predicate;
-    }
-
-    @Override
-    public boolean isNegated() {
-      return true;
-    }
-
-    @Override
-    public BooleanOperator getOperator() {
-      return null;
-    }
-
-    @Override
-    public StringBuilder asSQL(final StringBuilder statement) {
-      statement
-          .append(OPENING_BRACKET)
-          .append(SqlKeyWords.NOT)
-          .append(" ");
-      return positive.asSQL(statement)
-          .append(CLOSING_BRACKET);
-    }
-  }
-
-  static class BetweenExpressionPredicate extends PredicateImpl {
-
-    private final ExpressionImpl<?> attribute;
-
-    BetweenExpressionPredicate(final ExpressionImpl<?> attribute, final Expression<?> left, final Expression<?> right) {
-      super((SqlConvertible) left, (SqlConvertible) right);
-      this.attribute = attribute;
-    }
-
-    @Override
-    public BooleanOperator getOperator() {
-      return null;
+    In(final List<Path<? extends X>> paths, final Subquery<?> subquery) {
+      super((SqlConvertible) Objects.requireNonNull(subquery));
+      this.paths = paths;
     }
 
     @Override
     public StringBuilder asSQL(final StringBuilder statement) {
       statement.append(OPENING_BRACKET);
-      this.attribute.asSQL(statement)
+      paths
+          .stream()
+          .map(p -> ((Expression<?>) p))
+          .collect(new StringBuilderCollector.ExpressionCollector(statement, ", "));
+      statement.append(CLOSING_BRACKET)
           .append(" ")
-          .append(SqlKeyWords.BETWEEN)
-          .append(" ");
-      this.expressions.get(0).asSQL(statement)
+          .append(SqlKeyWords.IN)
           .append(" ")
-          .append(SqlKeyWords.AND)
-          .append(" ");
-      return this.expressions.get(1).asSQL(statement).append(CLOSING_BRACKET);
-    }
-  }
-
-  static class BinaryExpressionPredicate extends PredicateImpl {
-    public enum Operation {
-      EQ("="), NE("<>"), GT(">"), GE(">="), LT("<"), LE("<=");
-
-      private String keyWord;
-
-      private Operation(final String keyWord) {
-        this.keyWord = keyWord;
-      }
-
-      @Override
-      public String toString() {
-        return keyWord;
-      }
+          .append(OPENING_BRACKET);
+      final SqlConvertible sub = expressions.get(0);
+      return sub.asSQL(statement).append(CLOSING_BRACKET);
     }
 
-    private final Operation expression;
+    @Override
+    public javax.persistence.criteria.CriteriaBuilder.In<X> value(final X value) {
+      throw new NotImplementedException();
+    }
 
-    BinaryExpressionPredicate(final Operation operation, final Expression<?> left, final Expression<?> right) {
-      super((SqlConvertible) left, (SqlConvertible) right);
-      this.expression = operation;
+    @Override
+    public javax.persistence.criteria.CriteriaBuilder.In<X> value(final Expression<? extends X> value) {
+      throw new NotImplementedException();
     }
 
     @Override
     public BooleanOperator getOperator() {
-      return null;
+      return BooleanOperator.AND;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public StringBuilder asSQL(final StringBuilder statement) {
-      statement.append(OPENING_BRACKET);
-      this.expressions.get(0).asSQL(statement)
-          .append(" ")
-          .append(expression)
-          .append(" ");
-      return this.expressions.get(1).asSQL(statement).append(CLOSING_BRACKET);
-    }
-  }
-
-  static class LikePredicate extends PredicateImpl {
-    private final ParameterExpression<String, ?> pattern;
-    private final Optional<ParameterExpression<Character, ?>> escape;
-
-    public LikePredicate(final Expression<String> column, final ParameterExpression<String, ?> pattern) {
-      this(column, pattern, Optional.empty());
+    public Expression<X> getExpression() {
+      return paths.isEmpty() ? null : (Expression<X>) paths.get(0);
     }
 
-    public LikePredicate(final Expression<String> column, final ParameterExpression<String, ?> pattern,
-        final Optional<ParameterExpression<Character, ?>> escapeChar) {
-      super((SqlConvertible) column);
-      this.pattern = pattern;
-      this.escape = escapeChar;
-    }
-
-    @Override
-    public BooleanOperator getOperator() {
-      return null;
-    }
-
-    @Override
-    public StringBuilder asSQL(final StringBuilder statement) {
-      statement.append(OPENING_BRACKET);
-      this.expressions.get(0).asSQL(statement)
-          .append(" ")
-          .append(SqlKeyWords.LIKE)
-          .append(" ");
-      this.pattern.asSQL(statement);
-      this.escape.ifPresent(e -> statement
-          .append(" ")
-          .append(SqlKeyWords.ESCAPE)
-          .append(" "));
-      this.escape.ifPresent(e -> e.asSQL(statement));
-      return statement.append(CLOSING_BRACKET);
-    }
   }
 
   static class SubQuery extends PredicateImpl {
@@ -263,11 +411,6 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
     }
 
     @Override
-    public BooleanOperator getOperator() {
-      return null;
-    }
-
-    @Override
     public StringBuilder asSQL(@Nonnull final StringBuilder statement) {
       statement.append(operator)
           .append(" ")
@@ -275,113 +418,11 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
       return query.asSQL(statement).append(CLOSING_BRACKET);
     }
 
-  }
-
-  static class NullPredicate extends PredicateImpl {
-
-    private final SqlNullCheck check;
-
-    NullPredicate(@Nonnull final Expression<?> expression, @Nonnull final SqlNullCheck check) {
-      super((SqlConvertible) Objects.requireNonNull(expression));
-      this.check = Objects.requireNonNull(check);
-    }
-
     @Override
     public BooleanOperator getOperator() {
       return null;
     }
 
-    @Override
-    public StringBuilder asSQL(final StringBuilder statement) {
-      return expressions.get(0).asSQL(statement.append(OPENING_BRACKET))
-          .append(" ").append(check).append(CLOSING_BRACKET);
-    }
-  }
-
-  @Override
-  public Predicate in(final Object... values) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public Predicate in(final Expression<?>... values) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public Predicate in(final Collection<?> values) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public Predicate in(final Expression<Collection<?>> values) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public <X> Expression<X> as(final Class<X> type) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public Selection<Boolean> alias(final String name) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public boolean isCompoundSelection() {
-    // TODO Auto-generated method stub
-    return false;
-  }
-
-  @Override
-  public List<Selection<?>> getCompoundSelectionItems() {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public Class<? extends Boolean> getJavaType() {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public String getAlias() {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  /**
-   * Whether the predicate has been created from another
-   * predicate by applying the <code>Predicate.not()</code> method
-   * or the <code>CriteriaBuilder.not()</code> method.
-   * @return boolean indicating if the predicate is
-   * a negated predicate
-   */
-  @Override
-  public boolean isNegated() {
-    return false;
-  }
-
-  @Override
-  public List<Expression<Boolean>> getExpressions() {
-    return asExpression();
-  }
-
-  private List<Expression<Boolean>> asExpression() {
-    return Collections.emptyList();
-  }
-
-  @Override
-  public Predicate not() {
-    return new NotPredicate(this);
   }
 
 }

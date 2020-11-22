@@ -4,8 +4,6 @@ import java.util.Objects;
 
 import javax.annotation.Nonnull;
 
-import com.sap.olingo.jpa.processor.cb.api.SqlConvertible;
-
 final class StringBuilderJoiner<T> {
   private final StringBuilder statement;
   private final String delimiter;

@@ -34,13 +34,13 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.cb.api.SqlConvertible;
 import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
+import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 
-public class FromImplTest extends BuilderBaseTest {
+class FromImplTest extends BuilderBaseTest {
   private From<Organization, Organization> cut;
   private AliasBuilder ab;
   private CriteriaBuilderImpl cb;
@@ -77,7 +77,7 @@ public class FromImplTest extends BuilderBaseTest {
   }
 
   @BeforeEach
-  public void setup() throws ODataJPAModelException {
+  void setup() throws ODataJPAModelException {
     final JPAEntityType et = sd.getEntity(Organization.class);
     cb = mock(CriteriaBuilderImpl.class);
     ab = new AliasBuilder();
@@ -86,19 +86,19 @@ public class FromImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCutNotNull() {
+  void testCutNotNull() {
     assertNotNull(cut);
   }
 
   @Test
-  public void testAsSqlReturnsDBTableNameWithoutAlias() {
+  void testAsSqlReturnsDBTableNameWithoutAlias() {
     final StringBuilder act = new StringBuilder();
     ((SqlConvertible) cut).asSQL(act);
     assertEquals("\"OLINGO\".\"BusinessPartner\" E0", act.toString());
   }
 
   @Test
-  public void testAsSqlReturnsDBTableNameWithAlias() {
+  void testAsSqlReturnsDBTableNameWithAlias() {
     final StringBuilder act = new StringBuilder();
     cut.alias("t0");
     ((SqlConvertible) cut).asSQL(act);
@@ -106,14 +106,14 @@ public class FromImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testGetByNameReturnsPathToAttribute() {
+  void testGetByNameReturnsPathToAttribute() {
     final Path<String> act = cut.get("iD");
     assertNotNull(act);
   }
 
   @ParameterizedTest
   @MethodSource("notImplemented")
-  public void testThrowsNotImplemented(final Method m) throws IllegalAccessException, IllegalArgumentException {
+  void testThrowsNotImplemented(final Method m) throws IllegalAccessException, IllegalArgumentException {
     InvocationTargetException e;
     if (m.getParameterCount() >= 1) {
       final Class<?>[] params = m.getParameterTypes();
@@ -132,7 +132,7 @@ public class FromImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateJoinByNavigationAttributeName() {
+  void testCreateJoinByNavigationAttributeName() {
     final String exp =
         "\"OLINGO\".\"BusinessPartner\" E0 INNER JOIN \"OLINGO\".\"BusinessPartnerRole\" E1 ON (E0.\"ID\" = E1.\"BusinessPartnerID\")";
     final StringBuilder statement = new StringBuilder();
@@ -145,7 +145,7 @@ public class FromImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateJoinByComplexAttributeName() {
+  void testCreateJoinByComplexAttributeName() {
     final String exp = "\"OLINGO\".\"BusinessPartner\" E0";
     final StringBuilder statement = new StringBuilder();
     final Join<?, ?> act = cut.join("address");
@@ -156,7 +156,7 @@ public class FromImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateJoinByDescriptionAttributeName() {
+  void testCreateJoinByDescriptionAttributeName() {
     final String exp =
         "\"OLINGO\".\"BusinessPartner\" E0 "
             + "LEFT OUTER JOIN \"OLINGO\".\"AdministrativeDivisionDescription\" E1 "
@@ -170,7 +170,7 @@ public class FromImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateJoinByDescriptionViaComplexAttributeName() {
+  void testCreateJoinByDescriptionViaComplexAttributeName() {
     final String exp =
         "\"OLINGO\".\"BusinessPartner\" E0 "
             + "LEFT OUTER JOIN \"OLINGO\".\"CountryDescription\" E2 "
@@ -185,7 +185,7 @@ public class FromImplTest extends BuilderBaseTest {
 
   // "Organizations?$select=Name1&$filter=SupportEngineers/any(d:d/LastName eq 'Doe')");
   @Test
-  public void testCreateJoinViaJoinTable() {
+  void testCreateJoinViaJoinTable() {
     final String exp =
         "\"OLINGO\".\"BusinessPartner\" E0 "
             + "INNER JOIN (\"OLINGO\".\"SupportRelationship\" E1 "
@@ -201,17 +201,17 @@ public class FromImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testGetJavaType() {
+  void testGetJavaType() {
     assertEquals(Organization.class, cut.getJavaType());
   }
 
   @Test
-  public void testAsWithSuperType() {
+  void testAsWithSuperType() {
     assertNotNull(cut.as(BusinessPartner.class));
   }
 
   @Test
-  public void testAsWithSubType() throws ODataJPAModelException {
+  void testAsWithSubType() throws ODataJPAModelException {
     final JPAEntityType et = sd.getEntity(BusinessPartner.class);
     cut = new FromImpl<>(et, ab, cb);
 
@@ -221,18 +221,18 @@ public class FromImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testAsUnknownTypeThrowsException() {
-    assertThrows(IllegalArgumentException.class, () -> cut.as(this.getClass()));
+  void testAsUnknownTypeThrowsException() {
+    assertThrows(IllegalArgumentException.class, () -> cut.as(Integer.class));
   }
 
   @Test
-  public void testAsRethrowsModelöException() throws ODataJPAModelException {
+  void testAsRethrowsModelöException() throws ODataJPAModelException {
     when(sd.getEntity(Person.class)).thenThrow(ODataJPAModelException.class);
     assertThrows(IllegalArgumentException.class, () -> cut.as(Person.class));
   }
 
   @Test
-  public void testJoinThrowsExceptionOnUnknowAttribute() {
+  void testJoinThrowsExceptionOnUnknowAttribute() {
     assertThrows(IllegalArgumentException.class, () -> cut.join("dummy"));
   }
 }

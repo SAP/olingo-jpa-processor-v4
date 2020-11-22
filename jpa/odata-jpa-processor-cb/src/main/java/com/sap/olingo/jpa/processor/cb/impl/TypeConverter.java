@@ -18,7 +18,7 @@ class TypeConverter {
 
   private TypeConverter() {}
 
-  static Object convert(final Object source, final Class<?> target) {
+  static Object convert(final Object source, final Class<?> target) { // NOSONAR
     if (target == null || source == null)
       return source;
     if (!target.isAssignableFrom(source.getClass())) {
@@ -45,32 +45,16 @@ class TypeConverter {
     if (temporalConversionAllowed(source.getClass(), target)) {
       try {
         if (target == Instant.class) {
-          if (source.getClass() == Long.class)
-            return Instant.ofEpochMilli(((Number) source).longValue());
-          if (source.getClass() == String.class)
-            return Instant.parse((String) source);
-          if (source.getClass() == Timestamp.class)
-            return ((Timestamp) source).toInstant();
+          return convertTemporalToInstant(source, target);
         }
         if (target == LocalDate.class) {
-          if (source.getClass() == Date.class)
-            return ((Date) source).toLocalDate();
-          if (source.getClass() == Timestamp.class)
-            return ((Timestamp) source).toLocalDateTime().toLocalDate();
-          if (source.getClass() == String.class)
-            return LocalDate.parse((String) source);
+          return convertTemporalToLocalDate(source, target);
         }
         if (target == LocalDateTime.class) {
-          if (source.getClass() == Timestamp.class)
-            return ((Timestamp) source).toLocalDateTime();
-          if (source.getClass() == String.class)
-            return LocalDateTime.parse((String) source);
+          return convertTemporalToLocalDateTime(source, target);
         }
         if (target == LocalTime.class) {
-          if (source.getClass() == Time.class)
-            return ((Time) source).toLocalTime();
-          if (source.getClass() == String.class)
-            return LocalTime.parse((String) source);
+          return convertTemporalToLocalTime(source, target);
         }
         if (target == OffsetTime.class) {
           return OffsetTime.parse((String) source);
@@ -82,6 +66,42 @@ class TypeConverter {
         throw new IllegalArgumentException(e);
       }
     }
+    throw new IllegalArgumentException(createCastException(source, target));
+  }
+
+  private static LocalTime convertTemporalToLocalTime(final Object source, final Class<?> target) {
+    if (source.getClass() == Time.class)
+      return ((Time) source).toLocalTime();
+    if (source.getClass() == String.class)
+      return LocalTime.parse((String) source);
+    throw new IllegalArgumentException(createCastException(source, target));
+  }
+
+  private static LocalDateTime convertTemporalToLocalDateTime(final Object source, final Class<?> target) {
+    if (source.getClass() == Timestamp.class)
+      return ((Timestamp) source).toLocalDateTime();
+    if (source.getClass() == String.class)
+      return LocalDateTime.parse((String) source);
+    throw new IllegalArgumentException(createCastException(source, target));
+  }
+
+  private static LocalDate convertTemporalToLocalDate(final Object source, final Class<?> target) {
+    if (source.getClass() == Date.class)
+      return ((Date) source).toLocalDate();
+    if (source.getClass() == Timestamp.class)
+      return ((Timestamp) source).toLocalDateTime().toLocalDate();
+    if (source.getClass() == String.class)
+      return LocalDate.parse((String) source);
+    throw new IllegalArgumentException(createCastException(source, target));
+  }
+
+  private static Instant convertTemporalToInstant(final Object source, final Class<?> target) {
+    if (source.getClass() == Long.class)
+      return Instant.ofEpochMilli(((Number) source).longValue());
+    if (source.getClass() == String.class)
+      return Instant.parse((String) source);
+    if (source.getClass() == Timestamp.class)
+      return ((Timestamp) source).toInstant();
     throw new IllegalArgumentException(createCastException(source, target));
   }
 
@@ -97,7 +117,7 @@ class TypeConverter {
     return javaType;
   }
 
-  private static Object convertNumber(final Number source, final Class<?> target) {
+  private static Object convertNumber(final Number source, final Class<?> target) { // NOSONAR
     if (numberConversionAllowed(source.getClass(), target)) {
       try {
         if (boxed(target) == Long.class) {
@@ -134,9 +154,9 @@ class TypeConverter {
   private static Object convertToBigDecimal(final Number result) {
     if (result instanceof Float || result instanceof Double) {
       final Double d = result.doubleValue();
-      if (d == Double.NEGATIVE_INFINITY || d == Double.POSITIVE_INFINITY)
+      if (Double.isInfinite(d))
         throw new IllegalArgumentException(
-            String.format("Type cast error: Can't convert infinit value of type '%s' to BigDecimal. @Convert required",
+            String.format("Type cast error: Can't convert infinity value of type '%s' to BigDecimal. @Convert required",
                 result));
       if (Double.isNaN(d))
         throw new IllegalArgumentException(
@@ -151,9 +171,10 @@ class TypeConverter {
         result.getClass(), target);
   }
 
-  private static boolean numberConversionAllowed(final Class<?> source, final Class<?> target) {
+  private static boolean numberConversionAllowed(final Class<?> source, final Class<?> target) { // NOSONAR
     if (target == Short.class || target == short.class) return source == Byte.class;
-    if (target == Integer.class || target == int.class) return source == Byte.class || source == Short.class;
+    if (target == Integer.class || target == int.class) return source == Byte.class || source == Short.class
+        || source == Long.class;
     if (target == Long.class || target == long.class) return source == Byte.class || source == Short.class
         || source == Integer.class;
     if (target == BigInteger.class) return source == Byte.class || source == Short.class || source == Integer.class

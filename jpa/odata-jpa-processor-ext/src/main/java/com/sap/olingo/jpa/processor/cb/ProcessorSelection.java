@@ -1,4 +1,4 @@
-package com.sap.olingo.jpa.processor.cb.api;
+package com.sap.olingo.jpa.processor.cb;
 
 import java.util.List;
 import java.util.Map;
@@ -9,7 +9,7 @@ import javax.persistence.criteria.Selection;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 
-public interface ProcessorSelection<X> extends Selection<X>, SqlConvertible {
+public interface ProcessorSelection<X> extends Selection<X> {
   /**
    *
    * @return a list of pairs of alias and path

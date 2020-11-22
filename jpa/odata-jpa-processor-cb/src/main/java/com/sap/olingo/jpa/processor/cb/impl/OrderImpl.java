@@ -6,12 +6,13 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Order;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.cb.api.SqlConvertible;
-import com.sap.olingo.jpa.processor.cb.api.SqlKeyWords;
 import com.sap.olingo.jpa.processor.cb.exeptions.InternalServerError;
+import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
 
 class OrderImpl implements Order, SqlConvertible {
 
+  private static final String SEPARATOR = ", ";
+  private static final int SEPARATOR_LENGTH = SEPARATOR.length();
   private final boolean isAscending;
   private final SqlConvertible expression;
 
@@ -39,12 +40,12 @@ class OrderImpl implements Order, SqlConvertible {
                   .asSQL(statement)
                   .append(" ")
                   .append(isAscending ? SqlKeyWords.ASC : SqlKeyWords.DESC)
-                  .append(", ");
+                  .append(SEPARATOR);
             } catch (final ODataJPAModelException e) {
               throw new InternalServerError(e);
             }
           });
-      return statement.delete(statement.length() - 2, statement.length());
+      return statement.delete(statement.length() - SEPARATOR_LENGTH, statement.length());
     } catch (final ODataJPAModelException e) {
       throw new InternalServerError(e);
     }

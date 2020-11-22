@@ -58,14 +58,14 @@ import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionKey;
 import com.sap.olingo.jpa.processor.core.testmodel.InhouseAddress;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 
-public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
+class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
 
   @Test
-  public void testHockIsCalled() throws ODataJPAModelException, ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
+  void testHockIsCalled() throws ODataJPAModelException, ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
 
-    RequestHandleSpy spy = new RequestHandleSpy();
+    final RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
@@ -74,13 +74,13 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testHttpMethodProvided() throws ODataJPAModelException, ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
+  void testHttpMethodProvided() throws ODataJPAModelException, ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
 
     when(request.getMethod()).thenReturn(HttpMethod.PATCH);
 
-    RequestHandleSpy spy = new RequestHandleSpy();
+    final RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
@@ -89,13 +89,13 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testEntityTypeProvided() throws ODataJPAModelException, ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
+  void testEntityTypeProvided() throws ODataJPAModelException, ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
 
     when(request.getMethod()).thenReturn(HttpMethod.PATCH);
 
-    RequestHandleSpy spy = new RequestHandleSpy();
+    final RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
@@ -105,18 +105,18 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testJPAAttributes() throws ODataJPAModelException, ODataException, UnsupportedEncodingException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
+  void testJPAAttributes() throws ODataJPAModelException, ODataException, UnsupportedEncodingException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
 
     when(request.getMethod()).thenReturn(HttpMethod.PATCH);
 
-    RequestHandleSpy spy = new RequestHandleSpy();
+    final RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
-    InputStream is = new ByteArrayInputStream("{\"ID\" : \"35\", \"Country\" : \"USA\"}".getBytes("UTF-8"));
+    final InputStream is = new ByteArrayInputStream("{\"ID\" : \"35\", \"Country\" : \"USA\"}".getBytes("UTF-8"));
     when(request.getBody()).thenReturn(is);
-    Map<String, Object> jpaAttributes = new HashMap<>();
+    final Map<String, Object> jpaAttributes = new HashMap<>();
     jpaAttributes.put("id", "35");
     jpaAttributes.put("country", "USA");
     when(convHelper.convertProperties(any(OData.class), any(JPAStructuredType.class), any(List.class)))
@@ -129,10 +129,10 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testProvideSimplePrimitivePutAsPatch() throws ODataJPAProcessorException, SerializerException,
+  void testProvideSimplePrimitivePutAsPatch() throws ODataJPAProcessorException, SerializerException,
       ODataException, UnsupportedEncodingException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
 
     final EdmProperty odataProperty = mock(EdmProperty.class);
     final UriResourceProperty uriProperty = mock(UriResourceProperty.class);
@@ -142,12 +142,12 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
 
     when(request.getMethod()).thenReturn(HttpMethod.PUT);
 
-    RequestHandleSpy spy = new RequestHandleSpy();
+    final RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
-    InputStream is = new ByteArrayInputStream("{ \"value\": \"New Road\"}".getBytes("UTF-8"));
+    final InputStream is = new ByteArrayInputStream("{ \"value\": \"New Road\"}".getBytes("UTF-8"));
     when(request.getBody()).thenReturn(is);
-    Map<String, Object> jpaAttributes = new HashMap<>();
+    final Map<String, Object> jpaAttributes = new HashMap<>();
     jpaAttributes.put("streetName", "New Road");
     when(convHelper.convertProperties(any(OData.class), any(JPAStructuredType.class), any(List.class)))
         .thenReturn(jpaAttributes);
@@ -160,18 +160,18 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
 
   @Disabled
   @Test
-  public void testProvideSimpleComplexPutAsPatch() {
+  void testProvideSimpleComplexPutAsPatch() {
     // Not implemented yet
     fail();
   }
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testProvidePrimitiveCollectionPutAsPatch() throws ODataJPAProcessorException, SerializerException,
+  void testProvidePrimitiveCollectionPutAsPatch() throws ODataJPAProcessorException, SerializerException,
       ODataException, UnsupportedEncodingException {
 
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
 
     final EdmProperty odataProperty = mock(EdmProperty.class);
     final UriResourceProperty uriProperty = mock(UriResourceProperty.class);
@@ -203,11 +203,11 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testProvideComplexCollectionPutAsPatch() throws ODataJPAProcessorException, SerializerException,
+  void testProvideComplexCollectionPutAsPatch() throws ODataJPAProcessorException, SerializerException,
       ODataException, UnsupportedEncodingException {
 
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
     final EdmProperty odataProperty = mock(EdmProperty.class);
     final UriResourceProperty uriProperty = mock(UriResourceProperty.class);
     pathParts.add(uriProperty);
@@ -238,7 +238,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testHeadersProvided() throws ODataJPAProcessorException, SerializerException,
+  void testHeadersProvided() throws ODataJPAProcessorException, SerializerException,
       ODataException {
     final ODataResponse response = new ODataResponse();
     final ODataRequest request = prepareSimpleRequest();
@@ -247,7 +247,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
     when(request.getAllHeaders()).thenReturn(headers);
     headers.put("If-Match", Arrays.asList("2"));
 
-    RequestHandleSpy spy = new RequestHandleSpy();
+    final RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
@@ -259,7 +259,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testClaimsProvided() throws ODataJPAProcessorException, SerializerException,
+  void testClaimsProvided() throws ODataJPAProcessorException, SerializerException,
       ODataException {
     final ODataResponse response = new ODataResponse();
     final ODataRequest request = prepareSimpleRequest();
@@ -278,7 +278,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testGroupsProvided() throws ODataJPAProcessorException, SerializerException,
+  void testGroupsProvided() throws ODataJPAProcessorException, SerializerException,
       ODataException {
     final ODataResponse response = new ODataResponse();
     final ODataRequest request = prepareSimpleRequest();
@@ -299,13 +299,13 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testMinimalResponseUpdateStatusCode() throws ODataJPAProcessorException, SerializerException,
+  void testMinimalResponseUpdateStatusCode() throws ODataJPAProcessorException, SerializerException,
       ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
 
     when(request.getMethod()).thenReturn(HttpMethod.PATCH);
-    RequestHandleSpy spy = new RequestHandleSpy(new JPAUpdateResult(false, new Organization()));
+    final RequestHandleSpy spy = new RequestHandleSpy(new JPAUpdateResult(false, new Organization()));
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
@@ -314,13 +314,13 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testMinimalResponseCreatedStatusCode() throws ODataJPAProcessorException, SerializerException,
+  void testMinimalResponseCreatedStatusCode() throws ODataJPAProcessorException, SerializerException,
       ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
 
     when(request.getMethod()).thenReturn(HttpMethod.PATCH);
-    RequestHandleSpy spy = new RequestHandleSpy(new JPAUpdateResult(true, new Organization()));
+    final RequestHandleSpy spy = new RequestHandleSpy(new JPAUpdateResult(true, new Organization()));
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
@@ -329,13 +329,13 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testMinimalResponseUpdatePreferHeader() throws ODataJPAProcessorException, SerializerException,
+  void testMinimalResponseUpdatePreferHeader() throws ODataJPAProcessorException, SerializerException,
       ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
 
     when(request.getMethod()).thenReturn(HttpMethod.PATCH);
-    RequestHandleSpy spy = new RequestHandleSpy(new JPAUpdateResult(false, new Organization()));
+    final RequestHandleSpy spy = new RequestHandleSpy(new JPAUpdateResult(false, new Organization()));
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
@@ -344,13 +344,13 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testMinimalResponseCreatedPreferHeader() throws ODataJPAProcessorException, SerializerException,
+  void testMinimalResponseCreatedPreferHeader() throws ODataJPAProcessorException, SerializerException,
       ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
 
     when(request.getMethod()).thenReturn(HttpMethod.PATCH);
-    RequestHandleSpy spy = new RequestHandleSpy(new JPAUpdateResult(true, new Organization()));
+    final RequestHandleSpy spy = new RequestHandleSpy(new JPAUpdateResult(true, new Organization()));
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
@@ -359,11 +359,11 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testRepresentationResponseUpdatedStatusCode() throws ODataJPAProcessorException, SerializerException,
+  void testRepresentationResponseUpdatedStatusCode() throws ODataJPAProcessorException, SerializerException,
       ODataException {
 
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareRepresentationRequest(new RequestHandleSpy(new JPAUpdateResult(false,
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareRepresentationRequest(new RequestHandleSpy(new JPAUpdateResult(false,
         new Organization())));
 
     processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
@@ -372,11 +372,11 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testRepresentationResponseCreatedStatusCode() throws ODataJPAProcessorException, SerializerException,
+  void testRepresentationResponseCreatedStatusCode() throws ODataJPAProcessorException, SerializerException,
       ODataException {
 
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareRepresentationRequest(new RequestHandleSpy(new JPAUpdateResult(true,
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareRepresentationRequest(new RequestHandleSpy(new JPAUpdateResult(true,
         new Organization())));
 
     processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
@@ -385,14 +385,14 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testRepresentationResponseUpdatedErrorMissingEntity() throws ODataJPAProcessorException, ODataException {
+  void testRepresentationResponseUpdatedErrorMissingEntity() throws ODataJPAProcessorException, ODataException {
 
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareRepresentationRequest(new RequestHandleSpy(new JPAUpdateResult(false, null)));
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareRepresentationRequest(new RequestHandleSpy(new JPAUpdateResult(false, null)));
 
     try {
       processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
-    } catch (ODataJPAProcessException e) {
+    } catch (final ODataJPAProcessException e) {
       assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), e.getStatusCode());
       return;
     }
@@ -400,14 +400,14 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testRepresentationResponseCreatedErrorMissingEntity() throws ODataJPAProcessorException, ODataException {
+  void testRepresentationResponseCreatedErrorMissingEntity() throws ODataJPAProcessorException, ODataException {
 
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareRepresentationRequest(new RequestHandleSpy(new JPAUpdateResult(true, null)));
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareRepresentationRequest(new RequestHandleSpy(new JPAUpdateResult(true, null)));
 
     try {
       processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
-    } catch (ODataJPAProcessException e) {
+    } catch (final ODataJPAProcessException e) {
       assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), e.getStatusCode());
       return;
     }
@@ -415,11 +415,11 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testRepresentationResponseUpdatedWithKey() throws ODataJPAProcessorException, SerializerException,
+  void testRepresentationResponseUpdatedWithKey() throws ODataJPAProcessorException, SerializerException,
       ODataException {
 
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareRepresentationRequest(new RequestHandleSpy(new JPAUpdateResult(false,
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareRepresentationRequest(new RequestHandleSpy(new JPAUpdateResult(false,
         new Organization())));
 
     final Map<String, Object> keys = new HashMap<>();
@@ -431,11 +431,11 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testCallsValidateChangesOnSuccessfullProcessing() throws ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
+  void testCallsValidateChangesOnSuccessfullProcessing() throws ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
 
-    RequestHandleSpy spy = new RequestHandleSpy();
+    final RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
@@ -443,11 +443,11 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testDoesNotCallsValidateChangesOnForginTransaction() throws ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
+  void testDoesNotCallsValidateChangesOnForginTransaction() throws ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
 
-    RequestHandleSpy spy = new RequestHandleSpy();
+    final RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
     when(factory.hasActiveTransaction()).thenReturn(Boolean.TRUE);
 
@@ -456,7 +456,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testDoesNotCallsValidateChangesOnError() throws ODataException {
+  void testDoesNotCallsValidateChangesOnError() throws ODataException {
     final ODataResponse response = new ODataResponse();
     final ODataRequest request = prepareSimpleRequest();
     when(request.getMethod()).thenReturn(HttpMethod.PATCH);
@@ -469,7 +469,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
 
     try {
       processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
-    } catch (ODataApplicationException e) {
+    } catch (final ODataApplicationException e) {
       verify(handler, never()).validateChanges(em);
       return;
     }
@@ -477,11 +477,11 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testDoesRollbackIfValidateRaisesError() throws ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
+  void testDoesRollbackIfValidateRaisesError() throws ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
 
-    JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
+    final JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     when(requestContext.getCUDRequestHandler()).thenReturn(handler);
 
     doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
@@ -494,11 +494,11 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testDoesRollbackIfUpdateRaisesError() throws ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
+  void testDoesRollbackIfUpdateRaisesError() throws ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
 
-    JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
+    final JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     when(requestContext.getCUDRequestHandler()).thenReturn(handler);
 
     doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
@@ -511,11 +511,11 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testDoesRollbackIfUpdateRaisesAbitaryError() throws ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
+  void testDoesRollbackIfUpdateRaisesAbitaryError() throws ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
 
-    JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
+    final JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     when(requestContext.getCUDRequestHandler()).thenReturn(handler);
 
     doThrow(new RuntimeException("Test")).when(handler).updateEntity(any(), any(), any());
@@ -527,11 +527,11 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testDoesRollbackOnEmptyResponse() throws ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
+  void testDoesRollbackOnEmptyResponse() throws ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
 
-    JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
+    final JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     when(requestContext.getCUDRequestHandler()).thenReturn(handler);
     when(handler.updateEntity(any(), any(), any())).thenReturn(null);
 
@@ -542,11 +542,11 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testDoesRollbackOnWrongResponse() throws ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
-    JPAUpdateResult result = new JPAUpdateResult(false, "");
-    JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
+  void testDoesRollbackOnWrongResponse() throws ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
+    final JPAUpdateResult result = new JPAUpdateResult(false, "");
+    final JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     when(requestContext.getCUDRequestHandler()).thenReturn(handler);
     when(handler.updateEntity(any(), any(), any())).thenReturn(result);
 
@@ -557,14 +557,14 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testResponseErrorIfNull() throws ODataJPAProcessorException, ODataException {
+  void testResponseErrorIfNull() throws ODataJPAProcessorException, ODataException {
 
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareRepresentationRequest(new RequestHandleSpy(null));
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareRepresentationRequest(new RequestHandleSpy(null));
 
     try {
       processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);
-    } catch (ODataJPAProcessException e) {
+    } catch (final ODataJPAProcessException e) {
       assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), e.getStatusCode());
       return;
     }
@@ -572,7 +572,7 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testResponseUpdateLink() throws ODataJPAProcessorException, ODataException {
+  void testResponseUpdateLink() throws ODataJPAProcessorException, ODataException {
 
     final AdministrativeDivisionKey key = new AdministrativeDivisionKey("Eurostat", "NUTS2", "DE60");
     final AdministrativeDivision resultEntity = new AdministrativeDivision(key);
@@ -592,11 +592,11 @@ public class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testOwnTransactionCommitted() throws ODataJPAModelException, ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
+  void testOwnTransactionCommitted() throws ODataJPAModelException, ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
 
-    RequestHandleSpy spy = new RequestHandleSpy();
+    final RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.updateEntity(request, response, ContentType.JSON, ContentType.JSON);

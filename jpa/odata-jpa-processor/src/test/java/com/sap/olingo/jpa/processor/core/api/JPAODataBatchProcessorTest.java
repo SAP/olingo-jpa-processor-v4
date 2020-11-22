@@ -78,7 +78,7 @@ public class JPAODataBatchProcessorTest {
 
   @BeforeEach
   public void setup() throws ODataJPATransactionException {
-    MockitoAnnotations.initMocks(this);
+    MockitoAnnotations.openMocks(this);
     when(requestContext.getEntityManager()).thenReturn(em);
     when(requestContext.getCUDRequestHandler()).thenReturn(cudHandler);
     when(requestContext.getTransactionFactory()).thenReturn(factory);

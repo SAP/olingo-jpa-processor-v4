@@ -13,7 +13,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Join;
@@ -24,7 +23,8 @@ import javax.persistence.criteria.Root;
 import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
-import com.sap.olingo.jpa.processor.cb.api.SqlConvertible;
+import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaBuilder;
+import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescription;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerProtected;
@@ -33,27 +33,27 @@ import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 import com.sap.olingo.jpa.processor.core.testmodel.Team;
 
-public abstract class CriteriaBuilderOverallTest {
-  protected CriteriaBuilder cb;
+abstract class CriteriaBuilderOverallTest {
+  protected ProcessorCriteriaBuilder cb;
   protected EntityManager em;
   protected StringBuilder stmt;
   protected CriteriaQuery<Tuple> q;
 
-  public void setup(final EntityManagerFactory emf, final JPAServiceDocument sd) {
+  void setup(final EntityManagerFactory emf, final JPAServiceDocument sd) {
     em = new EntityManagerWrapper(emf.createEntityManager(), sd);
-    cb = em.getCriteriaBuilder();
+    cb = (ProcessorCriteriaBuilder) em.getCriteriaBuilder();
     assertNotNull(cb);
     stmt = new StringBuilder();
     q = cb.createTupleQuery();
   }
 
   @Test
-  public void testCriteriaBuilderImplReturnsSQLQuery() {
+  void testCriteriaBuilderImplReturnsSQLQuery() {
     assertTrue(q instanceof SqlConvertible);
   }
 
   @Test
-  public void testSimpleQueryAll() {
+  void testSimpleQueryAll() {
     final Root<?> team = q.from(Team.class);
 
     q.multiselect(team);
@@ -66,7 +66,7 @@ public abstract class CriteriaBuilderOverallTest {
   }
 
   @Test
-  public void testWhereWithMultipleAnd() {
+  void testWhereWithMultipleAnd() {
     // SELECT E0."CodeID" FROM "OLINGO"."AdministrativeDivision" E0 WHERE (((E0."DivisionCode" = ?) AND (E0."CodeID" =
     // ?)) AND (E0."CodePublisher" = ?))
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
@@ -85,7 +85,7 @@ public abstract class CriteriaBuilderOverallTest {
   }
 
   @Test
-  public void testSimpleLikeQueryAll() {
+  void testSimpleLikeQueryAll() {
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
 
     q.multiselect(adminDiv.get("codeID"));
@@ -100,7 +100,7 @@ public abstract class CriteriaBuilderOverallTest {
   }
 
   @Test
-  public void testSimpleLikeQueryAllWithEscape() {
+  void testSimpleLikeQueryAllWithEscape() {
 
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Expression<String> p = cb.literal("%6-1");
@@ -119,7 +119,7 @@ public abstract class CriteriaBuilderOverallTest {
   }
 
   @Test
-  public void testOrderByClause() {
+  void testOrderByClause() {
     final Root<?> team = q.from(Team.class);
 
     q.multiselect(team);
@@ -134,7 +134,7 @@ public abstract class CriteriaBuilderOverallTest {
   }
 
   @Test
-  public void testOrderByClauseTwoElements() {
+  void testOrderByClauseTwoElements() {
     final Root<?> team = q.from(Team.class);
 
     q.multiselect(team);
@@ -150,7 +150,7 @@ public abstract class CriteriaBuilderOverallTest {
   }
 
   @Test
-  public void testSimpleToLowerQuery() {
+  void testSimpleToLowerQuery() {
     final Root<?> adminDiv = q.from(AdministrativeDivisionDescription.class);
     final Expression<Boolean> equal = cb.equal(adminDiv.get("language"), "de");
     final Expression<Boolean> lower = cb.equal(cb.lower(adminDiv.get("name")), "brandenburg");
@@ -168,7 +168,7 @@ public abstract class CriteriaBuilderOverallTest {
   }
 
   @Test
-  public void testSimpleSubstringQuery() {
+  void testSimpleSubstringQuery() {
     final Root<?> adminDiv = q.from(AdministrativeDivisionDescription.class);
     final Expression<Boolean> equal = cb.equal(adminDiv.get("language"), "de");
     final Expression<String> sub = cb.substring(adminDiv.get("name"), 1, 5);
@@ -190,7 +190,7 @@ public abstract class CriteriaBuilderOverallTest {
   // (LOWER(SUBSTR("Name", 1, 5)) = 'north'))
 
   @Test
-  public void testSimpleLocateQuery() {
+  void testSimpleLocateQuery() {
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Expression<Integer> locate = cb.locate(adminDiv.get("divisionCode"), "3");
 
@@ -207,7 +207,7 @@ public abstract class CriteriaBuilderOverallTest {
   }
 
   @Test
-  public void testSimpleConcatQuery() {
+  void testSimpleConcatQuery() {
     final Root<?> person = q.from(Person.class);
     final Expression<String> locate = cb.concat(cb.concat(person.get("lastName"), ","), person.get("firstName"));
 
@@ -224,7 +224,7 @@ public abstract class CriteriaBuilderOverallTest {
   }
 
   @Test
-  public void testSimpleTimestampQuery() {
+  void testSimpleTimestampQuery() {
     final Root<?> person = q.from(Person.class);
     final Expression<Timestamp> locate = person.get("administrativeInformation").get("created").get("at");
 
@@ -241,7 +241,7 @@ public abstract class CriteriaBuilderOverallTest {
   }
 
   @Test
-  public void testSelectPrimitiveCollectionProperty() {
+  void testSelectPrimitiveCollectionProperty() {
     final Root<?> org = q.from(Organization.class);
     final Join<Object, Object> comment = org.join("comment");
     final Path<Object> id = org.get("iD");
@@ -249,14 +249,14 @@ public abstract class CriteriaBuilderOverallTest {
     comment.alias("Comment");
     q.multiselect(id, comment);
     q.where(cb.equal(id, '1'));
-    // ((SqlConvertable) q).asSQL(stmt);
+    // ((SqlConvertible) q).asSQL(stmt);
     final TypedQuery<Tuple> tq = em.createQuery(q);
     final List<Tuple> act = tq.getResultList();
     assertEquals(2, act.size());
   }
 
   @Test
-  public void testSelectComplexCollectionProperty() {
+  void testSelectComplexCollectionProperty() {
     final Root<?> org = q.from(Person.class);
     final Join<Object, Object> addr = org.join("inhouseAddress");
     final Path<Object> id = org.get("iD");
@@ -272,7 +272,7 @@ public abstract class CriteriaBuilderOverallTest {
   }
 
   @Test
-  public void testSelectCountOneKey() {
+  void testSelectCountOneKey() {
     // SELECT COUNT(DISTINCT(*)) FROM "OLINGO"."BusinessPartnerProtected" E0 WHERE (E0."UserName" = ?)
     final CriteriaQuery<Long> qc = cb.createQuery(Long.class);
     final Root<?> org = qc.from(BusinessPartnerProtected.class);
@@ -284,7 +284,7 @@ public abstract class CriteriaBuilderOverallTest {
   }
 
   @Test
-  public void testSelectDateTime() {
+  void testSelectDateTime() {
     final Root<?> dateTime = q.from(DateTimeTest.class);
     final Path<Object> id = dateTime.get("iD");
     q.multiselect(dateTime);

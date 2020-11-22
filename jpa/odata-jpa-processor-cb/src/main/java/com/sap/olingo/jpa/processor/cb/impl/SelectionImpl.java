@@ -10,21 +10,29 @@ import javax.annotation.Nonnull;
 import javax.persistence.criteria.Selection;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
-import com.sap.olingo.jpa.processor.cb.api.ProcessorSelection;
+import com.sap.olingo.jpa.processor.cb.ProcessorSelection;
+import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
 import com.sap.olingo.jpa.processor.cb.joiner.StringBuilderCollector;
 
-class SelectionImpl<X> implements ProcessorSelection<X> {
+/**
+ *
+ * @author Oliver Grande
+ *
+ * @param <X> the type of the selection item
+ */
+class SelectionImpl<X> implements ProcessorSelection<X>, SqlConvertible {
   private Optional<String> alias;
   private final Class<X> resultType;
   protected final List<Selection<?>> selections;
   protected Optional<List<Map.Entry<String, JPAPath>>> resolvedSelection = Optional.empty();
 
-  public SelectionImpl(final List<Selection<?>> selections, final Class<X> resultType) {
+  SelectionImpl(final List<Selection<?>> selections, final Class<X> resultType) {
     this.resultType = resultType;
     this.selections = selections;
+    this.alias = Optional.empty();
   }
 
-  public SelectionImpl(final Selection<?> selection, final Class<X> resultType) {
+  SelectionImpl(final Selection<?> selection, final Class<X> resultType) {
     this(Arrays.asList(selection), resultType);
   }
 
@@ -43,7 +51,7 @@ class SelectionImpl<X> implements ProcessorSelection<X> {
   }
 
   @Override
-  public StringBuilder asSQL(final StringBuilder statement) {
+  public StringBuilder asSQL(@Nonnull final StringBuilder statement) {
     selections.stream().collect(new StringBuilderCollector.SelectionCollector(statement, ", "));
     return statement;
   }

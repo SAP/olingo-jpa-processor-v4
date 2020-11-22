@@ -1,6 +1,6 @@
-package com.sap.olingo.jpa.processor.cb.api;
+package com.sap.olingo.jpa.processor.cb.impl;
 
-public enum SqlArithmetic {
+enum SqlArithmetic {
 
   SUM("+"),
   PROD("*"),

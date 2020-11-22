@@ -1,6 +1,5 @@
 package com.sap.olingo.jpa.processor.cb.impl;
 
-import java.nio.channels.IllegalSelectorException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -12,7 +11,6 @@ import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Selection;
 import javax.persistence.metamodel.Bindable;
 import javax.persistence.metamodel.MapAttribute;
 import javax.persistence.metamodel.PluralAttribute;
@@ -41,22 +39,13 @@ class PathImpl<X> extends ExpressionImpl<X> implements Path<X> {
   final Optional<String> tableAlias;
   JPAEntityType st;
 
-  static List<Path<Object>> fromSelection(@Nonnull final Selection<?> sel) {
-    final List<Path<Object>> pathList = new ArrayList<>();
-    final PathImpl<?> compoundPath = (PathImpl<?>) sel;
-    for (final JPAPath path : compoundPath.getPathList()) {
-      pathList.add(new PathImpl<>(path, compoundPath.parent, compoundPath.st, compoundPath.tableAlias));
-    }
-    return pathList;
-  }
-
   PathImpl(@Nonnull final JPAPath path, @Nonnull final Optional<PathImpl<?>> parent, final JPAEntityType type,
       final Optional<String> tableAlias) {
     this(Optional.of(path), parent, type, tableAlias);
   }
 
-  PathImpl(final Optional<JPAPath> path, final Optional<PathImpl<?>> parent, final JPAEntityType type,
-      final Optional<String> tableAlias) {
+  PathImpl(@Nonnull final Optional<JPAPath> path, @Nonnull final Optional<PathImpl<?>> parent, final JPAEntityType type,
+      @Nonnull final Optional<String> tableAlias) {
 
     super();
     this.path = Objects.requireNonNull(path);
@@ -83,8 +72,7 @@ class PathImpl<X> extends ExpressionImpl<X> implements Path<X> {
    */
   @Override
   public <K, V, M extends Map<K, V>> Expression<M> get(final MapAttribute<X, K, V> map) {
-    // TODO Auto-generated method stub
-    return null;
+    throw new NotImplementedException();
   }
 
   /**
@@ -95,8 +83,7 @@ class PathImpl<X> extends ExpressionImpl<X> implements Path<X> {
    */
   @Override
   public <E, C extends Collection<E>> Expression<C> get(final PluralAttribute<X, C, E> collection) {
-    // TODO Auto-generated method stub
-    return null;
+    throw new NotImplementedException();
   }
 
   /**
@@ -107,8 +94,7 @@ class PathImpl<X> extends ExpressionImpl<X> implements Path<X> {
    */
   @Override
   public <Y> Path<Y> get(final SingularAttribute<? super X, Y> attribute) {
-    // TODO Auto-generated method stub
-    return null;
+    throw new NotImplementedException();
   }
 
   /**
@@ -212,12 +198,11 @@ class PathImpl<X> extends ExpressionImpl<X> implements Path<X> {
    */
   @Override
   public Expression<Class<? extends X>> type() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new NotImplementedException();
   }
 
   List<JPAPath> getPathList() {
-    return Arrays.asList(path.orElseThrow(IllegalSelectorException::new));
+    return Arrays.asList(path.orElseThrow(IllegalStateException::new));
   }
 
   private String tableAliasFromParent() {

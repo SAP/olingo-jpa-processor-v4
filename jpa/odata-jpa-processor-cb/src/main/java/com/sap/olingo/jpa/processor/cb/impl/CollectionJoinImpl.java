@@ -16,16 +16,15 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.cb.api.SqlConvertible;
-import com.sap.olingo.jpa.processor.cb.api.SqlJoinType;
 import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
+import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
 
 class CollectionJoinImpl<Z, X> extends AbstractJoinImp<Z, X> {
 
   private final JPACollectionAttribute attribute;
 
   CollectionJoinImpl(@Nonnull final JPAPath path, @Nonnull final FromImpl<?, Z> parent,
-      @Nonnull final AliasBuilder aliasBuilder, @Nonnull CriteriaBuilder cb) throws ODataJPAModelException {
+      @Nonnull final AliasBuilder aliasBuilder, @Nonnull final CriteriaBuilder cb) throws ODataJPAModelException {
 
     super(determineEt(path, parent), parent, determinePath(path), aliasBuilder, cb);
     this.attribute = (JPACollectionAttribute) path.getLeaf();
@@ -38,7 +37,7 @@ class CollectionJoinImpl<Z, X> extends AbstractJoinImp<Z, X> {
         ? path : null;
   }
 
-  private static JPAEntityType determineEt(final JPAPath path, final FromImpl<?, ?> parent)
+  private static JPAEntityType determineEt(@Nonnull final JPAPath path, @Nonnull final FromImpl<?, ?> parent)
       throws ODataJPAModelException {
     return Optional.ofNullable(((JPACollectionAttribute) path.getLeaf()).asAssociation().getJoinTable().getEntityType())
         .orElse(parent.st);
@@ -58,11 +57,10 @@ class CollectionJoinImpl<Z, X> extends AbstractJoinImp<Z, X> {
       tableAlias.ifPresent(p -> statement.append(" ").append(p));
       statement.append(" ON ");
       return ((SqlConvertible) on).asSQL(statement);
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException e) {
       throw new IllegalStateException("Target DB table of collection attribute &1 of &2"
           .replace("&1", attribute.getInternalName())
-          .replace("&2", st.getInternalName())
-          ,e);
+          .replace("&2", st.getInternalName()), e);
     }
   }
 
@@ -80,7 +78,7 @@ class CollectionJoinImpl<Z, X> extends AbstractJoinImp<Z, X> {
           pathList.add(new PathImpl<>(p, parent, st, tableAlias));
         }
       }
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException e) {
       throw new IllegalStateException(e);
     }
     return pathList;
@@ -98,7 +96,7 @@ class CollectionJoinImpl<Z, X> extends AbstractJoinImp<Z, X> {
         pathList.addAll(attribute.getStructuredType().getPathList().stream().filter(p -> !p.ignore()).collect(Collectors
             .toList()));
       }
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException e) {
       throw new IllegalStateException(e);
     }
     return pathList;

@@ -33,16 +33,20 @@
             <artifactId>odata-jpa-metadata</artifactId>
             <version>${project.version}</version>
         </dependency>
-       <dependency>
+        <dependency>
             <groupId>com.sap.olingo</groupId>
             <artifactId>odata-jpa-processor-cb</artifactId>
             <version>${project.version}</version>
-        </dependency>   <!-- -->
+        </dependency>     <!-- -->
+        <dependency>
+            <groupId>com.sap.olingo</groupId>
+            <artifactId>odata-jpa-processor-ext</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.olingo</groupId>
             <artifactId>odata-server-core</artifactId>
             <version>${odata.version}</version>
-            <!--<scope>runtime</scope> -->
         </dependency>
         <dependency>
             <groupId>org.eclipse.persistence</groupId>
@@ -81,4 +85,29 @@
             <version>5.2.4.RELEASE</version>
         </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.pitest</groupId>
+                <artifactId>pitest-maven</artifactId>
+                <version>1.5.2</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.pitest</groupId>
+                        <artifactId>pitest-junit5-plugin</artifactId>
+                        <version>0.12</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <targetClasses>
+                        <param>com.sap.olingo.jpa.processor.core*</param>
+                    </targetClasses>
+                    <targetTests>
+                        <param>com.sap.olingo.jpa.processor.core*</param>
+                    </targetTests>
+                    <verbose>true</verbose>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

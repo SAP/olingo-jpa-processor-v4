@@ -5,21 +5,21 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class AliasBuilderTest {
+class AliasBuilderTest {
   private AliasBuilder cut;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     cut = new AliasBuilder();
   }
 
   @Test
-  public void getFirstAlias() {
+  void getFirstAlias() {
     assertEquals("E0", cut.getNext());
   }
 
   @Test
-  public void getSecondAlias() {
+  void getSecondAlias() {
     cut.getNext();
     assertEquals("E1", cut.getNext());
   }

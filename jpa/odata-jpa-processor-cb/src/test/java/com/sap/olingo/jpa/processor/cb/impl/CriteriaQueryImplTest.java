@@ -25,11 +25,11 @@ import org.junit.jupiter.params.provider.Arguments;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.cb.api.ProcessorSelection;
+import com.sap.olingo.jpa.processor.cb.ProcessorSelection;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 
-public class CriteriaQueryImplTest extends BuilderBaseTest {
+class CriteriaQueryImplTest extends BuilderBaseTest {
   private CriteriaQueryImpl<Object> cut;
   private CriteriaBuilder cb;
 
@@ -45,32 +45,32 @@ public class CriteriaQueryImplTest extends BuilderBaseTest {
   }
 
   @BeforeEach
-  public void setup() throws ODataJPAModelException {
+  void setup() throws ODataJPAModelException {
     cb = new CriteriaBuilderImpl(sd, new ParameterBuffer());
     cut = new CriteriaQueryImpl<>(Object.class, sd, cb);
   }
 
   @Test
-  public void testSetDistinctTrue() {
+  void testSetDistinctTrue() {
     cut.distinct(true);
     assertTrue(cut.isDistinct());
   }
 
   @Test
-  public void testSetDistinctFalse() {
+  void testSetDistinctFalse() {
     cut.distinct(false);
     assertFalse(cut.isDistinct());
   }
 
   @Test
-  public void testCreateSelectFromAttribute() {
+  void testCreateSelectFromAttribute() {
     final Root<?> adminDiv = cut.from(AdministrativeDivision.class);
     final CriteriaQuery<Object> act = cut.multiselect(adminDiv.get("codeID"));
     assertNotNull(act);
   }
 
   @Test
-  public void testCreateOrderByWithArray() {
+  void testCreateOrderByWithArray() {
     final Root<?> adminDiv = cut.from(AdministrativeDivision.class);
     final CriteriaQuery<Object> act = cut.orderBy(cb.desc(adminDiv.get("codeID")));
     assertNotNull(act.getOrderList());
@@ -78,7 +78,7 @@ public class CriteriaQueryImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateOrderByWithList() {
+  void testCreateOrderByWithList() {
     final Root<?> adminDiv = cut.from(AdministrativeDivision.class);
     final CriteriaQuery<Object> act = cut.orderBy(Arrays.asList(cb.desc(adminDiv.get("codeID")), cb.asc(adminDiv.get(
         "divisionCode"))));
@@ -87,7 +87,7 @@ public class CriteriaQueryImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testResetOrderByWithArray() {
+  void testResetOrderByWithArray() {
     final Root<?> adminDiv = cut.from(AdministrativeDivision.class);
     final Order[] nullArray = null;
     CriteriaQuery<Object> act = cut.orderBy(Arrays.asList(cb.desc(adminDiv.get("codeID")), cb.asc(adminDiv.get(
@@ -98,7 +98,7 @@ public class CriteriaQueryImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testResetOrderByWithList() {
+  void testResetOrderByWithList() {
     final Root<?> adminDiv = cut.from(AdministrativeDivision.class);
     final List<Order> nullList = null;
     CriteriaQuery<Object> act = cut.orderBy(Arrays.asList(cb.desc(adminDiv.get("codeID")), cb.asc(adminDiv.get(
@@ -109,7 +109,7 @@ public class CriteriaQueryImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testWithBaseClass() {
+  void testWithBaseClass() {
     final StringBuilder stmt = new StringBuilder();
     final Root<?> act = cut.from(Organization.class);
     cut.multiselect(act.get("iD"));
@@ -118,7 +118,7 @@ public class CriteriaQueryImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testGroupBy() {
+  void testGroupBy() {
     final StringBuilder stmt = new StringBuilder();
     final Root<?> act = cut.from(Organization.class);
     cut.groupBy(act.get("aBCClass"), act.get("name2"));
@@ -130,7 +130,7 @@ public class CriteriaQueryImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testReplaceGroupByEmpty() {
+  void testReplaceGroupByEmpty() {
     final Expression<?>[] nullArray = null;
     final StringBuilder stmt = new StringBuilder();
     final Root<?> act = cut.from(Organization.class);
@@ -144,7 +144,7 @@ public class CriteriaQueryImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testHaving() {
+  void testHaving() {
     final StringBuilder stmt = new StringBuilder();
     final Root<?> act = cut.from(Organization.class);
     cut.having(cb.gt(cb.count(act.get("iD")), 1));
@@ -159,7 +159,7 @@ public class CriteriaQueryImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testDefaultImplementationOnPathWrapper() {
+  void testDefaultImplementationOnPathWrapper() {
     final Root<?> act = cut.from(Organization.class);
     cut.multiselect(act.get("aBCClass"), act.get("name2"));
     final Selection<Object> sel = cut.getSelection();

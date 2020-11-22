@@ -1,8 +1,10 @@
 package com.sap.olingo.jpa.processor.cb.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -12,21 +14,22 @@ import javax.persistence.AttributeConverter;
 import javax.persistence.Parameter;
 import javax.persistence.criteria.CriteriaBuilder.Coalesce;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Selection;
 import javax.persistence.criteria.Subquery;
+import javax.persistence.metamodel.Bindable;
+import javax.persistence.metamodel.MapAttribute;
+import javax.persistence.metamodel.PluralAttribute;
+import javax.persistence.metamodel.SingularAttribute;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.cb.api.SqlAggregation;
-import com.sap.olingo.jpa.processor.cb.api.SqlArithmetic;
-import com.sap.olingo.jpa.processor.cb.api.SqlConvertible;
-import com.sap.olingo.jpa.processor.cb.api.SqlKeyWords;
-import com.sap.olingo.jpa.processor.cb.api.SqlStringFunctions;
-import com.sap.olingo.jpa.processor.cb.api.SqlSubQuery;
-import com.sap.olingo.jpa.processor.cb.api.SqlTimeFunctions;
+import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaBuilder.WindowFunction;
 import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
+import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
 import com.sap.olingo.jpa.processor.cb.joiner.StringBuilderCollector;
 
 abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
@@ -73,56 +76,55 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
 
   @Override
   public List<Selection<?>> getCompoundSelectionItems() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new NotImplementedException();
   }
 
   @Override
   public Class<? extends T> getJavaType() {
-    // TODO Auto-generated method stub
     return null;
   }
 
   @Override
   public Predicate in(final Collection<?> values) {
-    // TODO Auto-generated method stub
-    return null;
+    throw new NotImplementedException();
   }
 
   @Override
   public Predicate in(final Expression<?>... values) {
-    // TODO Auto-generated method stub
-    return null;
+    throw new NotImplementedException();
   }
 
   @Override
   public Predicate in(final Expression<Collection<?>> values) {
-    // TODO Auto-generated method stub
-    return null;
+    throw new NotImplementedException();
   }
 
   @Override
   public Predicate in(final Object... values) {
-    // TODO Auto-generated method stub
-    return null;
+    throw new NotImplementedException();
   }
 
   @Override
   public boolean isCompoundSelection() {
-    // TODO Auto-generated method stub
     return false;
   }
 
+  /**
+   * Create a predicate to test whether the expression is not null.
+   * @return predicate testing whether the expression is not null
+   */
   @Override
   public Predicate isNotNull() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new NotImplementedException();
   }
 
+  /**
+   * Create a predicate to test whether the expression is null.
+   * @return predicate testing whether the expression is null
+   */
   @Override
   public Predicate isNull() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new NotImplementedException();
   }
 
   static class AggregationExpression<N extends Number> extends ExpressionImpl<N> {
@@ -131,8 +133,8 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
     private final SqlConvertible expression;
 
     AggregationExpression(@Nonnull final SqlAggregation function, @Nonnull final Expression<?> x) {
-      this.function = function;
-      this.expression = (SqlConvertible) x;
+      this.function = Objects.requireNonNull(function);
+      this.expression = Objects.requireNonNull((SqlConvertible) x);
     }
 
     @Override
@@ -183,8 +185,12 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
 
     @Override
     public StringBuilder asSQL(final StringBuilder statement) {
-      left.asSQL(statement.append(OPENING_BRACKET)).append(" ").append(operation).append(" ");
-      return right.asSQL(statement).append(CLOSING_BRACKET);
+      left.asSQL(statement.append(OPENING_BRACKET))
+          .append(" ")
+          .append(operation)
+          .append(" ");
+      return right.asSQL(statement)
+          .append(CLOSING_BRACKET);
     }
 
   }
@@ -257,9 +263,6 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
           from.st.getKey().stream()
               .map(a -> from.get(a.getInternalName()))
               .collect(new StringBuilderCollector.ExpressionCollector(statement, ", "));
-//              .append(((FromImpl<?, ?>) left).tableAlias.get())
-//              .append(DOT)
-//              .append("*")
           return statement.append(CLOSING_BRACKET);
         } catch (final ODataJPAModelException e) {
           throw new IllegalStateException(e);
@@ -268,7 +271,6 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
       }
       return left.asSQL(statement.append(SqlKeyWords.DISTINCT).append(OPENING_BRACKET)).append(CLOSING_BRACKET);
     }
-
   }
 
   static class FunctionExpression<T> extends ExpressionImpl<T> {
@@ -326,20 +328,18 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
     private final Integer index;
     private final S value;
     private Optional<AttributeConverter<S, T>> converter;
-    private Optional<Class<?>> dbType;
     private Optional<JPAPath> jpaPath;
 
     ParameterExpression(final Integer i, final S value) {
       this.index = i;
       this.value = value;
       this.converter = Optional.empty();
-      this.dbType = Optional.empty();
       this.jpaPath = Optional.empty();
     }
 
     @SuppressWarnings("unchecked")
     T getValue() {
-      if (converter.isPresent() && !dbType.orElseThrow(IllegalStateException::new).isAssignableFrom(value.getClass()))
+      if (converter.isPresent())
         return converter.get().convertToDatabaseColumn(value);
       if (jpaPath.isPresent() && jpaPath.get().getLeaf().isEnum())
         return (T) ((Number) ((Enum<?>) value).ordinal());
@@ -349,7 +349,6 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
     void setPath(@Nullable final Expression<?> x) {
       if (x instanceof PathImpl && ((PathImpl<?>) x).path.isPresent()) {
         jpaPath = Optional.of(((PathImpl<?>) x).path.get()); // NOSONAR
-        dbType = Optional.ofNullable(jpaPath.get().getLeaf().getType());
         converter = Optional.ofNullable(jpaPath.get().getLeaf().getConverter());
       }
     }
@@ -457,4 +456,120 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
 
   }
 
+  static class WindowFunctionExpression<T> extends ExpressionImpl<T> implements WindowFunction<T> {
+    private final SqlWindowFunctions function;
+    private Optional<List<Order>> orderBy;
+    private Optional<List<Expression<?>>> partitionBy;
+
+    WindowFunctionExpression(@Nonnull final SqlWindowFunctions function) {
+      this.function = function;
+      this.orderBy = Optional.empty();
+      this.partitionBy = Optional.empty();
+    }
+    // https://www.h2database.com/html/functions-window.html
+
+    // window_function_name ( expression ) OVER (
+    // partition_clause
+    // order_clause
+    // frame_clause
+    // )
+
+    @Override
+    public StringBuilder asSQL(final StringBuilder statement) {
+      statement.append(function)
+          .append(OPENING_BRACKET)
+          .append(CLOSING_BRACKET)
+          .append(" OVER")
+          .append(OPENING_BRACKET);
+      partitionBy.ifPresent(p -> {
+        statement
+            .append(" ")
+            .append(SqlKeyWords.PARTITION)
+            .append(" ");
+        p.stream().collect(new StringBuilderCollector.ExpressionCollector(statement, ", "));
+      });
+      orderBy.ifPresent(o -> {
+        statement
+            .append(" ")
+            .append(SqlKeyWords.ORDERBY)
+            .append(" ");
+        o.stream().collect(new StringBuilderCollector.OrderCollector(statement, ", "));
+      });
+      statement.append(CLOSING_BRACKET);
+      alias.ifPresent(a -> statement.append(" AS ").append(a));
+      return statement;
+    }
+
+    @Override
+    public WindowFunction<T> orderBy(final Order... o) {
+      this.orderBy = Optional.ofNullable(Arrays.asList(o));
+      return this;
+    }
+
+    @Override
+    public WindowFunction<T> partitionBy(final Path<?>... p) {
+      this.partitionBy = Optional.ofNullable(Arrays.asList(p));
+      return this;
+    }
+
+    @Override
+    public Path<T> asPath(final String tableAlias) {
+      return new ExpressionPath<>(alias, tableAlias);
+    }
+  }
+
+  static class ExpressionPath<T> extends ExpressionImpl<T> implements Path<T> {
+
+    private final Optional<String> name;
+    private final String tableAlias;
+
+    ExpressionPath(final Optional<String> name, final String tableAlias) {
+      this.name = name;
+      this.tableAlias = tableAlias;
+    }
+
+    @Override
+    public StringBuilder asSQL(final StringBuilder statement) {
+      statement
+          .append(tableAlias)
+          .append(DOT)
+          .append(name.orElseThrow(() -> new IllegalStateException("Missing name")));
+      return statement;
+    }
+
+    @Override
+    public Bindable<T> getModel() {
+      throw new NotImplementedException();
+    }
+
+    @Override
+    public Path<?> getParentPath() {
+      throw new NotImplementedException();
+    }
+
+    @Override
+    public <Y> Path<Y> get(final SingularAttribute<? super T, Y> attribute) {
+      throw new NotImplementedException();
+    }
+
+    @Override
+    public <E, C extends Collection<E>> Expression<C> get(final PluralAttribute<T, C, E> collection) {
+      throw new NotImplementedException();
+    }
+
+    @Override
+    public <K, V, M extends Map<K, V>> Expression<M> get(final MapAttribute<T, K, V> map) {
+      throw new NotImplementedException();
+    }
+
+    @Override
+    public Expression<Class<? extends T>> type() {
+      throw new NotImplementedException();
+    }
+
+    @Override
+    public <Y> Path<Y> get(final String attributeName) {
+      throw new NotImplementedException();
+    }
+  }
 }

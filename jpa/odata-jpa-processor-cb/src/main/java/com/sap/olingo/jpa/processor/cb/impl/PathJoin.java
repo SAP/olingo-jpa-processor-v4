@@ -47,8 +47,9 @@ class PathJoin<Z, X> extends AbstractJoinImp<Z, X> {
     return statement;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  FromImpl<?, ?> determineParent() {
+  FromImpl<?, Z> determineParent() {
     return parentFrom.determineParent();
   }
 

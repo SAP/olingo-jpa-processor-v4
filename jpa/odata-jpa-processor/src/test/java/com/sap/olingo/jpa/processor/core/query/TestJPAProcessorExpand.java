@@ -21,10 +21,10 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataGroupsProvider;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 
-public class TestJPAProcessorExpand extends TestBase {
+class TestJPAProcessorExpand extends TestBase {
 
   @Test
-  public void testExpandEntitySet() throws IOException, ODataException {
+  void testExpandEntitySet() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$orderby=ID&$expand=Roles");
     helper.assertStatus(200);
@@ -40,7 +40,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandOneEntity() throws IOException, ODataException {
+  void testExpandOneEntity() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('2')?$expand=Roles");
     helper.assertStatus(200);
@@ -59,7 +59,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandOneEntityCompoundKey() throws IOException, ODataException {
+  void testExpandOneEntityCompoundKey() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions(DivisionCode='BE25',CodeID='NUTS2',CodePublisher='Eurostat')?$expand=Parent");
@@ -72,7 +72,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandOneEntityCompoundKeyCollection() throws IOException, ODataException {
+  void testExpandOneEntityCompoundKeyCollection() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions(DivisionCode='BE25',CodeID='NUTS2',CodePublisher='Eurostat')?$expand=Children($orderby=DivisionCode asc)");
@@ -86,7 +86,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandEntitySetWithOutParentKeySelection() throws IOException, ODataException {
+  void testExpandEntitySetWithOutParentKeySelection() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations?$orderby=Name1&$select=Name1&$expand=Roles");
@@ -100,7 +100,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandEntitySetViaNonKeyField_FieldNotSelected() throws IOException, ODataException {
+  void testExpandEntitySetViaNonKeyField_FieldNotSelected() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations('3')/AdministrativeInformation/Created?$select=At&$expand=User");
@@ -111,7 +111,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandEntitySetViaNonKeyFieldNavi2Hops() throws IOException, ODataException {
+  void testExpandEntitySetViaNonKeyFieldNavi2Hops() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations('3')/AdministrativeInformation/Created?$expand=User");
@@ -123,7 +123,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandEntityViaComplexProperty() throws IOException, ODataException {
+  void testExpandEntityViaComplexProperty() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations('3')/Address?$expand=AdministrativeDivision");
@@ -135,7 +135,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandEntitySetViaNonKeyFieldNavi0Hops() throws IOException, ODataException {
+  void testExpandEntitySetViaNonKeyFieldNavi0Hops() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations('3')?$expand=AdministrativeInformation/Created/User");
@@ -149,7 +149,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandEntitySetViaNonKeyFieldNavi1Hop() throws IOException, ODataException {
+  void testExpandEntitySetViaNonKeyFieldNavi1Hop() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations('3')/AdministrativeInformation?$expand=Created/User");
@@ -161,7 +161,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testNestedExpandNestedExpand2LevelsSelf() throws IOException, ODataException {
+  void testNestedExpandNestedExpand2LevelsSelf() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions(DivisionCode='BE253',CodeID='NUTS3',CodePublisher='Eurostat')?$expand=Parent($expand=Children)");
     helper.assertStatus(200);
@@ -175,7 +175,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testNestedExpandNestedExpand3LevelsSelf() throws IOException, ODataException {
+  void testNestedExpandNestedExpand3LevelsSelf() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions(DivisionCode='33016',CodeID='LAU2',CodePublisher='Eurostat')?$expand=Parent($expand=Parent($expand=Parent))");
     helper.assertStatus(200);
@@ -196,7 +196,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testNestedExpandNestedExpand3Only1PossibleLevelsSelf() throws IOException, ODataException {
+  void testNestedExpandNestedExpand3Only1PossibleLevelsSelf() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions(DivisionCode='BE25',CodeID='NUTS2',CodePublisher='Eurostat')?$expand=Parent($expand=Parent($expand=Parent))");
     helper.assertStatus(200);
@@ -208,7 +208,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testNestedExpandNestedExpand2LevelsMixed() throws IOException, ODataException {
+  void testNestedExpandNestedExpand2LevelsMixed() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations('3')/Address?$select=Country&$expand=AdministrativeDivision($expand=Parent)");
     helper.assertStatus(200);
@@ -222,7 +222,7 @@ public class TestJPAProcessorExpand extends TestBase {
 
   @Disabled // TODO check how the result should look like
   @Test
-  public void testExpandWithNavigationToEntity() throws IOException, ODataException {
+  void testExpandWithNavigationToEntity() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions(DivisionCode='BE253',CodeID='3',CodePublisher='NUTS')?$expand=Parent/Parent");
     helper.assertStatus(200);
@@ -235,7 +235,7 @@ public class TestJPAProcessorExpand extends TestBase {
 
   @Disabled // TODO check with Olingo looks like OData does not support this
   @Test
-  public void testExpandWithNavigationToProperty() throws IOException, ODataException {
+  void testExpandWithNavigationToProperty() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions(DivisionCode='BE253',CodeID='NUTS3',CodePublisher='Eurostat')?$expand=Parent/CodeID");
     helper.assertStatus(200);
@@ -249,7 +249,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandAfterNavigationToEntity() throws IOException, ODataException {
+  void testExpandAfterNavigationToEntity() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions(DivisionCode='BE2',CodeID='NUTS1',CodePublisher='Eurostat')/Children?$filter=DivisionCode eq 'BE21'&$expand=Children($orderby=DivisionCode)");
     helper.assertStatus(200);
@@ -264,7 +264,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandAfterNavigationToEntityWithTop() throws IOException, ODataException {
+  void testExpandAfterNavigationToEntityWithTop() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions(DivisionCode='BE2',CodeID='NUTS1',CodePublisher='Eurostat')/Children?$filter=DivisionCode eq 'BE21'&$top=2&$expand=Children($orderby=DivisionCode)");
     helper.assertStatus(200);
@@ -279,7 +279,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandWithOrderByDesc() throws IOException, ODataException {
+  void testExpandWithOrderByDesc() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions(DivisionCode='BE2',CodeID='NUTS1',CodePublisher='Eurostat')?$expand=Children($orderby=DivisionCode desc)");
     helper.assertStatus(200);
@@ -291,7 +291,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandWithOrderByAsc() throws IOException, ODataException {
+  void testExpandWithOrderByAsc() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions(DivisionCode='BE2',CodeID='NUTS1',CodePublisher='Eurostat')?$expand=Children($orderby=DivisionCode asc)");
     helper.assertStatus(200);
@@ -303,7 +303,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandWithOrderByDescTop() throws IOException, ODataException {
+  void testExpandWithOrderByDescTop() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions(DivisionCode='BE2',CodeID='NUTS1',CodePublisher='Eurostat')?$expand=Children($top=2;$orderby=DivisionCode desc)");
     helper.assertStatus(200);
@@ -315,7 +315,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandWithOrderByDescTopSkip() throws IOException, ODataException {
+  void testExpandWithOrderByDescTopSkip() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions(DivisionCode='BE2',CodeID='NUTS1',CodePublisher='Eurostat')?$expand=Children($top=2;$skip=2;$orderby=DivisionCode desc)");
     helper.assertStatus(200);
@@ -327,7 +327,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandWithCount() throws IOException, ODataException {
+  void testExpandWithCount() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations?$count=true&$expand=Roles($count=true)&$orderby=Roles/$count desc");
     helper.assertStatus(200);
@@ -341,7 +341,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandWithCountPath() throws IOException, ODataException {
+  void testExpandWithCountPath() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations('2')?$expand=Roles/$count");
     helper.assertStatus(200);
@@ -353,7 +353,7 @@ public class TestJPAProcessorExpand extends TestBase {
 
   @Disabled // ODataJsonSerializer.writeExpandedNavigationProperty does not write a "@odata.count" for to 1 relations
   @Test
-  public void testExpandOppositeDirectionWithCount() throws IOException, ODataException {
+  void testExpandOppositeDirectionWithCount() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "BusinessPartnerRoles(BusinessPartnerID='1',RoleCategory='A')?$expand=Organization/$count");
     helper.assertStatus(200);
@@ -365,7 +365,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandWithCountAndTop() throws IOException, ODataException {
+  void testExpandWithCountAndTop() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations?$count=true&$expand=Roles($count=true;$top=1)&$orderby=Roles/$count desc");
     helper.assertStatus(200);
@@ -378,7 +378,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandWithOrderByDescTopSkipAndExternalOrderBy() throws IOException, ODataException {
+  void testExpandWithOrderByDescTopSkipAndExternalOrderBy() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations?$count=true&$expand=Roles($orderby=RoleCategory desc)&$orderby=Roles/$count desc");
 
@@ -395,7 +395,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandWithFilter() throws IOException, ODataException {
+  void testExpandWithFilter() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions(DivisionCode='BE25',CodeID='NUTS2',CodePublisher='Eurostat')?$expand=Children($filter=DivisionCode eq 'BE252')");
 
@@ -411,7 +411,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testFilterExpandWithFilter() throws IOException, ODataException {
+  void testFilterExpandWithFilter() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions?$filter=DivisionCode eq 'BE25' and CodeID eq 'NUTS2'&$expand=Children($filter=DivisionCode eq 'BE252')");
 
@@ -429,7 +429,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testFilterExpandWithFilterOnParentDescription() throws IOException, ODataException {
+  void testFilterExpandWithFilterOnParentDescription() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Persons?$select=ID&$filter=LocationName eq 'Deutschland'&$expand=Roles&$orderby=ID asc");
 
@@ -443,7 +443,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandCompleteEntitySet() throws IOException, ODataException {
+  void testExpandCompleteEntitySet() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$expand=Roles&$orderby=ID");
 
     helper.assertStatus(200);
@@ -459,7 +459,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandTwoNavigationPath() throws IOException, ODataException {
+  void testExpandTwoNavigationPath() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions(DivisionCode='BE32',CodeID='NUTS2',CodePublisher='Eurostat')?$expand=Parent,Children");
     helper.assertStatus(200);
@@ -473,7 +473,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandAllNavigationPath() throws IOException, ODataException {
+  void testExpandAllNavigationPath() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions(DivisionCode='BE32',CodeID='NUTS2',CodePublisher='Eurostat')?$expand=*");
     helper.assertStatus(200);
@@ -487,7 +487,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandAllNavigationPathOfPath() throws IOException, ODataException {
+  void testExpandAllNavigationPathOfPath() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions(DivisionCode='BE32',CodeID='NUTS2',CodePublisher='Eurostat')?$expand=*");
     helper.assertStatus(200);
@@ -501,7 +501,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandLevel1() throws IOException, ODataException {
+  void testExpandLevel1() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions(DivisionCode='38025',CodeID='LAU2',CodePublisher='Eurostat')?$expand=Parent($levels=1)");
     helper.assertStatus(200);
@@ -515,7 +515,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandLevel2() throws IOException, ODataException {
+  void testExpandLevel2() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions(DivisionCode='38025',CodeID='LAU2',CodePublisher='Eurostat')?$expand=Parent($levels=2)");
     helper.assertStatus(200);
@@ -534,7 +534,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandLevelMax() throws IOException, ODataException {
+  void testExpandLevelMax() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions(DivisionCode='BE241',CodeID='NUTS3',CodePublisher='Eurostat')?$expand=Parent($levels=max)");
     helper.assertStatus(200);
@@ -553,7 +553,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandAllNavigationPathWithComplex() throws IOException, ODataException {
+  void testExpandAllNavigationPathWithComplex() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('3')?$expand=*");
     helper.assertStatus(200);
 
@@ -563,14 +563,14 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandCompleteEntitySet2() throws IOException, ODataException {
+  void testExpandCompleteEntitySet2() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "AdministrativeDivisions?$expand=Parent");
 
     helper.assertStatus(200);
   }
 
   @Test
-  public void testExpandViaJoinTable() throws IOException, ODataException {
+  void testExpandViaJoinTable() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations('2')?$select=Name1&$expand=SupportEngineers($select=FirstName,LastName)");
     helper.assertStatus(200);
@@ -581,7 +581,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandViaJoinTable2Levels() throws IOException, ODataException {
+  void testExpandViaJoinTable2Levels() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations('1')?$select=Name1&$expand=SupportEngineers($select=FirstName,LastName;$expand=SupportedOrganizations)");
     helper.assertStatus(200);
@@ -603,7 +603,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandViaJoinTable2LevelsWithTop() throws IOException, ODataException {
+  void testExpandViaJoinTable2LevelsWithTop() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations?$top=1&$select=Name1&$expand=SupportEngineers($select=FirstName,LastName;$expand=SupportedOrganizations)&orderby=ID");
     helper.assertStatus(200);
@@ -627,7 +627,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandViaJoinTable1LevelNoSubType() throws IOException, ODataException {
+  void testExpandViaJoinTable1LevelNoSubType() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Persons?$select=LastName&$expand=Teams");
     helper.assertStatus(200);
@@ -637,7 +637,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandViaJoinTable1LevelNoMapped() throws IOException, ODataException {
+  void testExpandViaJoinTable1LevelNoMapped() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "JoinSources(1)?$expand=OneToMany");
     helper.assertStatus(200);
@@ -649,7 +649,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandViaJoinTable1LevelNoMappedHidden() throws IOException, ODataException {
+  void testExpandViaJoinTable1LevelNoMappedHidden() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "JoinSources(2)?$expand=OneToManyHidden");
     helper.assertStatus(200);
@@ -661,7 +661,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandViaJoinTableComplex() throws IOException, ODataException {
+  void testExpandViaJoinTableComplex() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "JoinSources(1)/Complex?$expand=OneToManyComplex");
     helper.assertStatus(200);
@@ -673,7 +673,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandWithSelect() throws IOException, ODataException {
+  void testExpandWithSelect() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions(DivisionCode='BE25',CodeID='NUTS2',CodePublisher='Eurostat')?$expand=Children($select=Population)");
 
@@ -691,7 +691,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandGroupNotProvided() throws IOException, ODataException {
+  void testExpandGroupNotProvided() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "BusinessPartnerWithGroupss('3')?$expand=Roles");
     helper.assertStatus(200);
@@ -701,7 +701,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandGroupProvided() throws IOException, ODataException {
+  void testExpandGroupProvided() throws IOException, ODataException {
     final JPAODataGroupsProvider groups = new JPAODataGroupsProvider();
     groups.addGroup("Company");
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -713,7 +713,7 @@ public class TestJPAProcessorExpand extends TestBase {
   }
 
   @Test
-  public void testExpandOnlyThoseFromTop() throws IOException, ODataException {
+  void testExpandOnlyThoseFromTop() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations?$top=2&$skip=2&$expand=Roles($count=true;$top=1)");
     helper.assertStatus(200);

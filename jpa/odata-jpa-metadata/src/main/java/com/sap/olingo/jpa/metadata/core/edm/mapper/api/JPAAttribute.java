@@ -62,6 +62,10 @@ public interface JPAAttribute extends JPAElement {
 
   public boolean isComplex();
 
+  /**
+   * True if the property has an enum as type
+   * @return
+   */
   public boolean isEnum();
 
   public boolean isEtag();

@@ -3,16 +3,12 @@ package com.sap.olingo.jpa.processor.cb.impl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -38,8 +34,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import com.sap.olingo.jpa.processor.cb.api.SqlConvertible;
 import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
+import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
 import com.sap.olingo.jpa.processor.core.testmodel.AccessRights;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescription;
@@ -47,8 +43,8 @@ import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 
-public class CriteriaBuilderImplTest extends BuilderBaseTest {
-  private CriteriaBuilderImpl cut;
+class CriteriaBuilderImplTest extends BuilderBaseTest {
+  CriteriaBuilderImpl cut;
   private StringBuilder stmt;
   private CriteriaQuery<Tuple> q;
 
@@ -231,7 +227,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     cut = new CriteriaBuilderImpl(sd, new ParameterBuffer());
     stmt = new StringBuilder();
     q = cut.createTupleQuery();
@@ -239,32 +235,13 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
 
   @ParameterizedTest
   @MethodSource("notImplemented")
-  public void testThrowsNotImplemented(final Method m) throws IllegalAccessException, IllegalArgumentException {
-
-    try {
-      if (m.getParameterCount() >= 1) {
-        final Class<?>[] params = m.getParameterTypes();
-        final List<Object> paramValues = new ArrayList<>(m.getParameterCount());
-        for (int i = 0; i < m.getParameterCount(); i++) {
-          if (params[i] == char.class)
-            paramValues.add(' ');
-          else
-            paramValues.add(null);
-        }
-        m.invoke(cut, paramValues.toArray());
-      } else {
-        m.invoke(cut);
-      }
-    } catch (final InvocationTargetException e) {
-      assertTrue(e.getCause() instanceof NotImplementedException);
-      return;
-    }
-    fail();
+  void testThrowsNotImplemented(final Method m) throws IllegalAccessException, IllegalArgumentException {
+    testNotImplemented(m, cut);
   }
 
   @ParameterizedTest
   @MethodSource("binaryImplemented")
-  public void testBinaryExpressionWithExpression(final Method m, final String exp) throws IllegalAccessException,
+  void testBinaryExpressionWithExpression(final Method m, final String exp) throws IllegalAccessException,
       IllegalArgumentException, InvocationTargetException {
 
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
@@ -278,7 +255,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
 
   @ParameterizedTest
   @MethodSource("binaryValueImplemented")
-  public void testBinaryExpressionWithObject(final Method m, final String exp) throws IllegalAccessException,
+  void testBinaryExpressionWithObject(final Method m, final String exp) throws IllegalAccessException,
       IllegalArgumentException, InvocationTargetException {
 
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
@@ -294,7 +271,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
 
   @ParameterizedTest
   @MethodSource("binaryImplementedNumeric")
-  public void testBinaryNumericExpressionWithExpression(final Method m, final String exp) throws IllegalAccessException,
+  void testBinaryNumericExpressionWithExpression(final Method m, final String exp) throws IllegalAccessException,
       IllegalArgumentException, InvocationTargetException {
 
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
@@ -307,7 +284,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
 
   @ParameterizedTest
   @MethodSource("binaryValueImplementedNumeric")
-  public void testBinaryNumericExpressionWithObject(final Method m, final String exp) throws IllegalAccessException,
+  void testBinaryNumericExpressionWithObject(final Method m, final String exp) throws IllegalAccessException,
       IllegalArgumentException, InvocationTargetException {
 
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
@@ -322,7 +299,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
 
   @ParameterizedTest
   @MethodSource("binaryValueImplementedNumericInverse")
-  public void testBinaryNumericExpressionWithObjectFirst(final Method m, final String exp)
+  void testBinaryNumericExpressionWithObjectFirst(final Method m, final String exp)
       throws IllegalAccessException,
       IllegalArgumentException, InvocationTargetException {
 
@@ -338,7 +315,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
 
   @ParameterizedTest
   @MethodSource("unaryFunctionsImplemented")
-  public void testCreateUnaryFunction(final Method m, final String exp) throws IllegalAccessException,
+  void testCreateUnaryFunction(final Method m, final String exp) throws IllegalAccessException,
       IllegalArgumentException, InvocationTargetException {
     final Root<?> adminDiv = q.from(AdministrativeDivisionDescription.class);
     final Object[] params = { adminDiv.get("name") };
@@ -348,7 +325,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
 
   @ParameterizedTest
   @MethodSource("subQueryExpressionsImplemented")
-  public void testCreateSubQuery(final Method m, final String exp) throws IllegalAccessException,
+  void testCreateSubQuery(final Method m, final String exp) throws IllegalAccessException,
       IllegalArgumentException, InvocationTargetException {
     final Subquery<Long> sub = q.subquery(Long.class);
     sub.select(cut.literal(1L));
@@ -359,40 +336,40 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testReturnsObjectQuery() {
+  void testReturnsObjectQuery() {
     assertNotNull(cut.createQuery());
     assertEquals(Object.class, cut.createQuery().getResultType());
   }
 
   @Test
-  public void testReturnsTupleQuery() {
+  void testReturnsTupleQuery() {
     assertNotNull(cut.createTupleQuery());
     assertEquals(Tuple.class, cut.createTupleQuery().getResultType());
   }
 
   @Test
-  public void testReturnsLongQuery() {
+  void testReturnsLongQuery() {
     assertNotNull(cut.createQuery(Long.class));
     assertEquals(Long.class, cut.createQuery(Long.class).getResultType());
   }
 
   @Test
-  public void testCreateCriteriaUpdateThrowsNotImplemented() {
+  void testCreateCriteriaUpdateThrowsNotImplemented() {
     assertThrows(NotImplementedException.class, () -> cut.createCriteriaUpdate(Organization.class));
   }
 
   @Test
-  public void testCreateCriteriaDeleteThrowsNotImplemented() {
+  void testCreateCriteriaDeleteThrowsNotImplemented() {
     assertThrows(NotImplementedException.class, () -> cut.createCriteriaDelete(Organization.class));
   }
 
   @Test
-  public void testCreateEqualThrowsNullPointerExpressionNull() {
+  void testCreateEqualThrowsNullPointerExpressionNull() {
     assertThrows(NullPointerException.class, () -> cut.equal(null, "NUTS2"));
   }
 
   @Test
-  public void testCreateGeExpressionWithExpression() {
+  void testCreateGeExpressionWithExpression() {
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Predicate act = cut.ge(adminDiv.get("area"), adminDiv.get("population"));
 
@@ -402,12 +379,12 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testThrowsNullPointerExpressionNull() {
+  void testThrowsNullPointerExpressionNull() {
     assertThrows(NullPointerException.class, () -> cut.equal(null, "NUTS2"));
   }
 
   @Test
-  public void testCreateMultiAnd() {
+  void testCreateMultiAnd() {
     final String exp = "(((E0.\"CodeID\" = ?1) AND (E0.\"DivisionCode\" = ?2)) AND (E0.\"CodePublisher\" = ?3))";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Predicate[] restrictions = new Predicate[3];
@@ -419,7 +396,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateMultiAndThrowsExceptionOnWrongParameter() {
+  void testCreateMultiAndThrowsExceptionOnWrongParameter() {
     final Predicate[] rNull = null;
     assertThrows(IllegalArgumentException.class, () -> cut.and(rNull));
 
@@ -433,7 +410,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateOneOr() {
+  void testCreateOneOr() {
     final String exp = "((E0.\"CodeID\" = ?1) OR (E0.\"CodeID\" = ?2))";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Predicate one = cut.equal(adminDiv.get("codeID"), "NUTS2");
@@ -443,7 +420,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateMultiOrThrowsExceptionOnWrongParameter() {
+  void testCreateMultiOrThrowsExceptionOnWrongParameter() {
     final Predicate[] rNull = null;
     assertThrows(IllegalArgumentException.class, () -> cut.or(rNull));
 
@@ -457,7 +434,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateMultiOr() {
+  void testCreateMultiOr() {
     final String exp = "(((E0.\"CodeID\" = ?1) OR (E0.\"DivisionCode\" = ?2)) OR (E0.\"CodePublisher\" = ?3))";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Predicate[] restrictions = new Predicate[3];
@@ -469,7 +446,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateNot() {
+  void testCreateNot() {
     final String exp = "(NOT (E0.\"CodeID\" = ?1))";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Predicate one = cut.equal(adminDiv.get("codeID"), "NUTS2");
@@ -478,7 +455,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testLiteralExpressionReturnsParameter() {
+  void testLiteralExpressionReturnsParameter() {
     final String exp = "?1";
     final Expression<LocalDate> act = cut.literal(LocalDate.now());
     assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
@@ -487,12 +464,12 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testLiteralThrowsExcpetionOnNullValue() {
+  void testLiteralThrowsExceptionOnNullValue() {
     assertThrows(IllegalArgumentException.class, () -> cut.literal(null));
   }
 
   @Test
-  public void testCreateLikeExpressionWithString() {
+  void testCreateLikeExpressionWithString() {
     final String exp = "(E0.\"CodeID\" LIKE ?1)";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Predicate act = cut.like(adminDiv.get("codeID"), "6-1");
@@ -500,7 +477,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateNotLikeExpressionWithString() {
+  void testCreateNotLikeExpressionWithString() {
     final String exp = "(NOT (E0.\"CodeID\" LIKE ?1))";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Predicate act = cut.notLike(adminDiv.get("codeID"), "6-1");
@@ -508,7 +485,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateLikeExpressionWithStringAndEscape() {
+  void testCreateLikeExpressionWithStringAndEscape() {
     final String exp = "(E0.\"CodeID\" LIKE ?1 ESCAPE ?2)";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Predicate act = cut.like(adminDiv.get("codeID"), "%6-1", '/');
@@ -516,7 +493,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateNotLikeExpressionWithStringAndEscape() {
+  void testCreateNotLikeExpressionWithStringAndEscape() {
     final String exp = "(NOT (E0.\"CodeID\" LIKE ?1 ESCAPE ?2))";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Predicate act = cut.notLike(adminDiv.get("codeID"), "%6-1", '/');
@@ -524,7 +501,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateLikeExpressionWithLieral() {
+  void testCreateLikeExpressionWithLiteral() {
     final String exp = "(E0.\"CodeID\" LIKE ?1)";
     final Expression<String> literal = cut.literal("%6-1");
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
@@ -533,7 +510,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateNotLikeExpressionWithLieral() {
+  void testCreateNotLikeExpressionWithLiteral() {
     final String exp = "(NOT (E0.\"CodeID\" LIKE ?1))";
     final Expression<String> literal = cut.literal("%6-1");
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
@@ -542,7 +519,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateLikeExpressionWithLiteralLiteral() {
+  void testCreateLikeExpressionWithLiteralLiteral() {
     final String exp = "(E0.\"CodeID\" LIKE ?1 ESCAPE ?2)";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Expression<String> p = cut.literal("6-1");
@@ -552,7 +529,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateNotLikeExpressionWithLiteralLiteral() {
+  void testCreateNotLikeExpressionWithLiteralLiteral() {
     final String exp = "(NOT (E0.\"CodeID\" LIKE ?1 ESCAPE ?2))";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Expression<String> p = cut.literal("6-1");
@@ -562,7 +539,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateLikeExpressionWithLiteralString() {
+  void testCreateLikeExpressionWithLiteralString() {
     final String exp = "(E0.\"CodeID\" LIKE ?2 ESCAPE ?1)";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Expression<Character> e = cut.literal('/');
@@ -571,7 +548,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateNotLikeExpressionWithLiteralString() {
+  void testCreateNotLikeExpressionWithLiteralString() {
     final String exp = "(NOT (E0.\"CodeID\" LIKE ?2 ESCAPE ?1))";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Expression<Character> e = cut.literal('/');
@@ -580,7 +557,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateLikeExpressionWithStrngLiteral() {
+  void testCreateLikeExpressionWithStrngLiteral() {
     final String exp = "(E0.\"CodeID\" LIKE ?1 ESCAPE ?2)";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Expression<String> p = cut.literal("6-1");
@@ -589,7 +566,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateNotLikeExpressionWithStrngLiteral() {
+  void testCreateNotLikeExpressionWithStrngLiteral() {
     final String exp = "(NOT (E0.\"CodeID\" LIKE ?1 ESCAPE ?2))";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Expression<String> p = cut.literal("6-1");
@@ -598,7 +575,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateOrderByDescending() {
+  void testCreateOrderByDescending() {
     final String exp = "E0.\"CodeID\" DESC";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Order act = cut.desc(adminDiv.get("codeID"));
@@ -606,7 +583,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateOrderByAscending() {
+  void testCreateOrderByAscending() {
     final String exp = "E0.\"CodeID\" ASC";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Order act = cut.asc(adminDiv.get("codeID"));
@@ -614,7 +591,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateOrderByAscendingCount() {
+  void testCreateOrderByAscendingCount() {
     final String exp = "COUNT(E0.\"CodeID\") ASC";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Expression<?> count = cut.count(adminDiv.get("codeID"));
@@ -623,7 +600,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateOrderByEntity() {
+  void testCreateOrderByEntity() {
     final String exp = "E0.\"CodePublisher\" ASC, E0.\"CodeID\" ASC, E0.\"DivisionCode\" ASC";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Order act = cut.asc(adminDiv);
@@ -631,7 +608,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateIsNull() {
+  void testCreateIsNull() {
     final String exp = "(E0.\"ParentCodeID\" IS NULL)";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Expression<?> act = cut.isNull(adminDiv.get("parentCodeID"));
@@ -639,7 +616,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateIsNotNull() {
+  void testCreateIsNotNull() {
     final String exp = "(E0.\"ParentCodeID\" IS NOT NULL)";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Expression<?> act = cut.isNotNull(adminDiv.get("parentCodeID"));
@@ -647,7 +624,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateLocateExpressionWithStringNull() {
+  void testCreateLocateExpressionWithStringNull() {
     final String exp = "LOCATE(?1, E0.\"DivisionCode\")";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Expression<Integer> act = cut.locate(adminDiv.get("divisionCode"), "3");
@@ -655,7 +632,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateLocateExpressionWithLiteralNull() {
+  void testCreateLocateExpressionWithLiteralNull() {
     final String exp = "LOCATE(?1, E0.\"DivisionCode\")";
     final Expression<String> literal = cut.literal("3");
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
@@ -664,7 +641,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateLocateExpressionWithLiteralLiteral() {
+  void testCreateLocateExpressionWithLiteralLiteral() {
     final String exp = "LOCATE(?1, E0.\"DivisionCode\", ?2)";
     final Expression<String> literal = cut.literal("3");
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
@@ -673,7 +650,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateLocateExpressionWithStringInt() {
+  void testCreateLocateExpressionWithStringInt() {
     final String exp = "LOCATE(?1, E0.\"DivisionCode\", ?2)";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Expression<Integer> act = cut.locate(adminDiv.get("divisionCode"), "3", 2);
@@ -681,7 +658,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateSubstringExpressionWithIntInt() {
+  void testCreateSubstringExpressionWithIntInt() {
     final String exp = "SUBSTRING(E0.\"Name\", ?1, ?2)";
     final Root<?> adminDiv = q.from(AdministrativeDivisionDescription.class);
     final Expression<String> act = cut.substring(adminDiv.get("name"), 1, 5);
@@ -689,7 +666,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateSubstringExpressionWithInt() {
+  void testCreateSubstringExpressionWithInt() {
     final String exp = "SUBSTRING(E0.\"Name\", ?1)";
     final Root<?> adminDiv = q.from(AdministrativeDivisionDescription.class);
     final Expression<String> act = cut.substring(adminDiv.get("name"), 1);
@@ -697,7 +674,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateSubstringExpressionWithLiteralLiteral() {
+  void testCreateSubstringExpressionWithLiteralLiteral() {
     final String exp = "SUBSTRING(E0.\"Name\", ?1, ?2)";
     final Expression<Integer> from = cut.literal(1);
     final Expression<Integer> len = cut.literal(5);
@@ -707,7 +684,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateSubstringExpressionWithLiteral() {
+  void testCreateSubstringExpressionWithLiteral() {
     final String exp = "SUBSTRING(E0.\"Name\", ?1)";
     final Expression<Integer> literal = cut.literal(1);
     final Root<?> adminDiv = q.from(AdministrativeDivisionDescription.class);
@@ -716,7 +693,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateCoalesceExpressionWithExpressionExpression() {
+  void testCreateCoalesceExpressionWithExpressionExpression() {
     final String exp = "COALESCE(E0.\"Area\", E0.\"ParentCodeID\")";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Expression<String> act = cut.coalesce(adminDiv.get("area"), adminDiv.get("parentCodeID"));
@@ -724,7 +701,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateCoalesceExpressionWithExpressionValue() {
+  void testCreateCoalesceExpressionWithExpressionValue() {
     final String exp = "COALESCE(E0.\"Area\", ?1)";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Expression<Integer> act = cut.coalesce(adminDiv.get("area"), 10);
@@ -732,7 +709,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateCountDistinctExpression() {
+  void testCreateCountDistinctExpression() {
     final String exp = "COUNT(DISTINCT(E0.\"CodeID\"))";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Expression<Long> act = cut.countDistinct(adminDiv.get("codeID"));
@@ -740,7 +717,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateFunctionExpression() {
+  void testCreateFunctionExpression() {
     // return cb.function(jpaFunction.getDBName(), jpaFunction.getResultParameter().getType(), jpaParameter);
     final String exp = "\"OLINGO\".\"PopulationDensity\"(E0.\"Area\", E0.\"Population\")";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
@@ -751,7 +728,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateEqualWithValueAndConverter() {
+  void testCreateEqualWithValueAndConverter() {
     // return cb.function(jpaFunction.getDBName(), jpaFunction.getResultParameter().getType(), jpaParameter);
     final String exp = "(E0.\"AccessRights\" = ?1)";
     final Root<?> person = q.from(Person.class);
@@ -762,7 +739,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateEqualWithLiteralAndConverter() {
+  void testCreateEqualWithLiteralAndConverter() {
     // return cb.function(jpaFunction.getDBName(), jpaFunction.getResultParameter().getType(), jpaParameter);
     // AccessRights[] accessRights
     final String exp = "(E0.\"AccessRights\" = ?1)";
@@ -774,7 +751,7 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateBetweenObject() {
+  void testCreateBetweenObject() {
     final String exp = "(E0.\"BusinessPartnerRole\" BETWEEN ?1 AND ?2)";
     final Root<?> roles = q.from(BusinessPartnerRole.class);
     final Expression<Boolean> act = cut.between(roles.get("roleCategory"), "A", "B");
@@ -782,12 +759,61 @@ public class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  public void testCreateBetweenExpression() {
+  void testCreateBetweenExpression() {
     final String exp = "(E0.\"BusinessPartnerRole\" BETWEEN ?1 AND ?2)";
     final Root<?> roles = q.from(BusinessPartnerRole.class);
     final Expression<String> low = cut.literal("A");
     final Expression<String> high = cut.literal("B");
     final Expression<Boolean> act = cut.between(roles.get("roleCategory"), low, high);
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+  }
+
+  @Test
+  void testCreateRowNumber() {
+    final String exp = "ROW_NUMBER() OVER()";
+    final Selection<Long> act = cut.rowNumber();
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+  }
+
+  @Test
+  void testCreateRowNumberWithAlice() {
+    final String exp = "ROW_NUMBER() OVER() AS \"A\"";
+    final Selection<Long> act = cut.rowNumber().alias("\"A\"");
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+  }
+
+  @Test
+  void testCreateRowNumberWithOrderBy() {
+    final String exp = "ROW_NUMBER() OVER( ORDER BY E0.\"CodeID\" ASC)";
+    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
+    final Selection<Long> act = cut.rowNumber().orderBy(cut.asc(adminDiv.get("codeID")));
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+  }
+
+  @Test
+  void testCreateRowNumberWithOrderByPrimaryKey() {
+    final String exp =
+        "ROW_NUMBER() OVER( ORDER BY E0.\"CodePublisher\" ASC, E0.\"CodeID\" ASC, E0.\"DivisionCode\" ASC)";
+    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
+    final Selection<Long> act = cut.rowNumber().orderBy(cut.asc(adminDiv));
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+  }
+
+  @Test
+  void testCreateRowNumberWithPartitionBy() {
+    final String exp = "ROW_NUMBER() OVER( PARTITION BY E0.\"CodeID\")";
+    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
+    final Selection<Long> act = cut.rowNumber().partitionBy(adminDiv.get("codeID"));
+    assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+  }
+
+  @Test
+  void testCreateRowNumberWithPartitionAndOrder() {
+    final String exp = "ROW_NUMBER() OVER( PARTITION BY E0.\"CodeID\" ORDER BY E0.\"CodeID\" ASC)";
+    final Root<?> adminDiv = q.from(AdministrativeDivision.class);
+    final Selection<Long> act = cut.rowNumber()
+        .partitionBy(adminDiv.get("codeID"))
+        .orderBy(cut.asc(adminDiv.get("codeID")));
     assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }
 }

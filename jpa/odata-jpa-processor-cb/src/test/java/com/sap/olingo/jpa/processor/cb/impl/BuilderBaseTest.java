@@ -1,6 +1,13 @@
 package com.sap.olingo.jpa.processor.cb.impl;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.spy;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
@@ -12,6 +19,7 @@ import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
+import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 
 abstract class BuilderBaseTest {
@@ -32,4 +40,40 @@ abstract class BuilderBaseTest {
     sd.getEdmEntityContainer();
   }
 
+  protected void testNotImplemented(final Method m, final Object cut) throws IllegalAccessException {
+    try {
+      invokeMethod(m, cut);
+    } catch (final InvocationTargetException e) {
+      assertTrue(e.getCause() instanceof NotImplementedException);
+      return;
+    }
+    fail();
+  }
+
+  protected Object invokeMethod(final Method m, final Object cut) throws IllegalAccessException,
+      InvocationTargetException {
+    if (m.getParameterCount() >= 1) {
+      final Class<?>[] params = m.getParameterTypes();
+      final List<Object> paramValues = new ArrayList<>(m.getParameterCount());
+      for (int i = 0; i < m.getParameterCount(); i++) {
+        if (params[i] == char.class)
+          paramValues.add(' ');
+        else
+          paramValues.add(null);
+      }
+      return m.invoke(cut, paramValues.toArray());
+    } else {
+      return m.invoke(cut);
+    }
+  }
+
+  protected Object invokeMethod(final Method m, final Object cut, final Object... paramValues)
+      throws IllegalAccessException,
+      InvocationTargetException {
+    if (m.getParameterCount() >= 1) {
+      return m.invoke(cut, paramValues);
+    } else {
+      return m.invoke(cut);
+    }
+  }
 }

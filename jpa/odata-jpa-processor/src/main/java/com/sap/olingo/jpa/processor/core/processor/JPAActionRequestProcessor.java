@@ -127,7 +127,7 @@ public class JPAActionRequestProcessor extends JPAOperationRequestProcessor {
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     } catch (final InvocationTargetException e) {
       final Throwable cause = e.getCause();
-      if (cause != null && cause instanceof ODataApplicationException) {
+      if (cause instanceof ODataApplicationException) {
         throw (ODataApplicationException) cause;
       } else {
         throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);

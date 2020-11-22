@@ -20,15 +20,15 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
-import com.sap.olingo.jpa.processor.cb.api.SqlConvertible;
+import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
 
-public class CompoundSelectionImplTest {
+class CompoundSelectionImplTest {
   private CompoundSelectionImpl<Long> cut;
   private Selection<?> expression;
   private List<Selection<?>> selections;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     expression = mock(ExpressionImpl.class, withSettings()
         .extraInterfaces(Selection.class));
     selections = new ArrayList<>();
@@ -44,24 +44,24 @@ public class CompoundSelectionImplTest {
   }
 
   @Test
-  public void testIsCompoundSelection() {
+  void testIsCompoundSelection() {
     assertTrue(cut.isCompoundSelection());
   }
 
   @Test
-  public void testGetCompoundSelectionItems() {
+  void testGetCompoundSelectionItems() {
     assertEquals(selections, cut.getCompoundSelectionItems());
   }
 
   @Test
-  public void testAsSQLFromExpression() {
+  void testAsSQLFromExpression() {
     final StringBuilder statement = new StringBuilder();
     when(((SqlConvertible) expression).asSQL(statement)).thenReturn(statement);
     assertEquals(statement, cut.asSQL(statement));
   }
 
   @Test
-  public void testAsSQLFromPath() {
+  void testAsSQLFromPath() {
     final PathImpl<?> path = mock(PathImpl.class, withSettings()
         .extraInterfaces(Selection.class));
     @SuppressWarnings("unchecked")
@@ -80,7 +80,7 @@ public class CompoundSelectionImplTest {
   }
 
   @Test
-  public void testResolveSelectionLateExpression() {
+  void testResolveSelectionLateExpression() {
     final List<Entry<String, JPAPath>> act = cut.resolveSelectionLate();
     assertEquals(1, act.size());
     assertEquals("Test", act.get(0).getKey());

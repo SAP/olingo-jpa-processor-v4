@@ -25,14 +25,14 @@ import org.mockito.stubbing.Answer;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
-public class JPAAttributeWrapperTest {
+class JPAAttributeWrapperTest {
 
   private Selection<String> selection;
   private JPAAttributeWrapper cut;
 
   @SuppressWarnings("unchecked")
   @BeforeEach
-  public void setup() {
+  void setup() {
     selection = mock(Selection.class);
     when(selection.getJavaType()).thenAnswer(new Answer<Class<String>>() {
       @Override
@@ -80,32 +80,32 @@ public class JPAAttributeWrapperTest {
 
   @ParameterizedTest
   @MethodSource("returnsNull")
-  public void testMethodReturnsNull(final Method m) throws IllegalAccessException, IllegalArgumentException,
+  void testMethodReturnsNull(final Method m) throws IllegalAccessException, IllegalArgumentException,
       InvocationTargetException {
     assertNull(m.invoke(cut));
   }
 
   @ParameterizedTest
   @MethodSource("returnsFalse")
-  public void testMethodReturnsFalse(final Method m) throws IllegalAccessException, IllegalArgumentException,
+  void testMethodReturnsFalse(final Method m) throws IllegalAccessException, IllegalArgumentException,
       InvocationTargetException {
     assertFalse((Boolean) m.invoke(cut));
   }
 
   @ParameterizedTest
   @MethodSource("returnsEmptyCollection")
-  public void testMethodReturnsEmptyCollection(final Method m) throws IllegalAccessException, IllegalArgumentException,
+  void testMethodReturnsEmptyCollection(final Method m) throws IllegalAccessException, IllegalArgumentException,
       InvocationTargetException {
     assertTrue(((Collection<?>) m.invoke(cut)).isEmpty());
   }
 
   @Test
-  public void testGetProtectionPathReturnsEmpty() throws ODataJPAModelException {
+  void testGetProtectionPathReturnsEmpty() throws ODataJPAModelException {
     assertTrue(cut.getProtectionPath("Test").isEmpty());
   }
 
   @Test
-  public void testGetType() {
+  void testGetType() {
     assertEquals(String.class, cut.getType());
   }
 }

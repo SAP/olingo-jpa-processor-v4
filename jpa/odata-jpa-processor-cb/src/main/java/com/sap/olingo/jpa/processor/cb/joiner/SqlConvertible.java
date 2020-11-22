@@ -1,4 +1,4 @@
-package com.sap.olingo.jpa.processor.cb.api;
+package com.sap.olingo.jpa.processor.cb.joiner;
 
 import javax.annotation.Nonnull;
 

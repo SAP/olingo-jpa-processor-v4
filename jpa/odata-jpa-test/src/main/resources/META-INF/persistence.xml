@@ -73,7 +73,7 @@
 		<properties>
 			<property name="javax.persistence.validation.mode" value="NONE" />
 			<property name="eclipselink.logging.level.sql" value="FINE"  />
-			<property name="eclipselink.logging.level" value="WARNING" />
+			<property name="eclipselink.logging.level" value="ERROR" />
 			<property name="eclipselink.logging.parameters" value="true" />
 			<property name="eclipselink.logging.timestamp" value="true" />
 			<property name="eclipselink.weaving" value="static" />

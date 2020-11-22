@@ -13,7 +13,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate.BooleanOperator;
 
-public class ExpressionCollector<T> implements Collector<Expression<Boolean>, ExpressionJoiner, Expression<Boolean>> {
+public class ExpressionCollector implements Collector<Expression<Boolean>, ExpressionJoiner, Expression<Boolean>> {
 
   final Supplier<ExpressionJoiner> supplier;
 

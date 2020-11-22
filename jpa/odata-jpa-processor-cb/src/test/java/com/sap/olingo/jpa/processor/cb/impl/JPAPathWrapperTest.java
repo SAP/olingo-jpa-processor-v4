@@ -29,7 +29,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
-public class JPAPathWrapperTest {
+class JPAPathWrapperTest {
 
   private static final String ALIAS = "Example";
   private Selection<String> selection;
@@ -37,7 +37,7 @@ public class JPAPathWrapperTest {
 
   @SuppressWarnings("unchecked")
   @BeforeEach
-  public void setup() {
+  void setup() {
     selection = mock(Selection.class);
     when(selection.getJavaType()).thenAnswer(new Answer<Class<String>>() {
       @Override
@@ -58,35 +58,35 @@ public class JPAPathWrapperTest {
 
   @ParameterizedTest
   @MethodSource("returnsFalse")
-  public void testMethodReturnsFalse(final Method m) throws IllegalAccessException, IllegalArgumentException,
+  void testMethodReturnsFalse(final Method m) throws IllegalAccessException, IllegalArgumentException,
       InvocationTargetException {
     assertFalse((Boolean) m.invoke(cut));
   }
 
   @Test
-  public void testIsPartOfGroupsIsFalse() throws ODataJPAModelException {
+  void testIsPartOfGroupsIsFalse() throws ODataJPAModelException {
     assertFalse(cut.isPartOfGroups(Collections.singletonList("Test")));
   }
 
   @Test
-  public void testGetAlias() {
+  void testGetAlias() {
     assertEquals(ALIAS, cut.getAlias());
   }
 
   @Test
-  public void testGetDBFieldNameNull() {
+  void testGetDBFieldNameNull() {
     assertNull(cut.getDBFieldName());
   }
 
   @Test
-  public void testGetPathReturnsLeaf() {
+  void testGetPathReturnsLeaf() {
     final List<JPAElement> act = cut.getPath();
     assertEquals(1, act.size());
     assertEquals(String.class, ((JPAAttribute) act.get(0)).getType());
   }
 
   @Test
-  public void testCompareTo() {
+  void testCompareTo() {
     final JPAPath path = mock(JPAPath.class);
     when(path.getAlias()).thenReturn(ALIAS);
     assertEquals(0, cut.compareTo(path));

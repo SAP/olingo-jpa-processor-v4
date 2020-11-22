@@ -77,5 +77,28 @@
         </dependency>
     </dependencies>
     <build>
+        <plugins>
+            <plugin>
+                <groupId>org.pitest</groupId>
+                <artifactId>pitest-maven</artifactId>
+                <version>1.5.2</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.pitest</groupId>
+                        <artifactId>pitest-junit5-plugin</artifactId>
+                        <version>0.12</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <targetClasses>
+                        <param>com.sap.olingo.jpa.metadata*</param>
+                    </targetClasses>
+                    <targetTests>
+                        <param>com.sap.olingo.jpa.metadata*</param>
+                    </targetTests>
+                    <verbose>true</verbose>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 </project>
