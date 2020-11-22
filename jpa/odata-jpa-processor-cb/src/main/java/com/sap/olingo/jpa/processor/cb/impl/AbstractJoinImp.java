@@ -1,8 +1,6 @@
 package com.sap.olingo.jpa.processor.cb.impl;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
@@ -10,18 +8,12 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.metamodel.Bindable;
-import javax.persistence.metamodel.MapAttribute;
-import javax.persistence.metamodel.PluralAttribute;
-import javax.persistence.metamodel.SingularAttribute;
 
 import com.sap.olingo.jpa.metadata.api.JPAJoinColumn;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
-import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
 import com.sap.olingo.jpa.processor.cb.impl.PredicateImpl.BinaryExpressionPredicate;
 import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
 import com.sap.olingo.jpa.processor.cb.joiner.StringBuilderCollector;
@@ -142,66 +134,7 @@ abstract class AbstractJoinImp<Z, X> extends FromImpl<Z, X> implements Join<Z, X
   @SuppressWarnings("unchecked")
   private BinaryExpressionPredicate createOnElement(final JPAJoinColumn column) {
     return new PredicateImpl.BinaryExpressionPredicate(PredicateImpl.BinaryExpressionPredicate.Operation.EQ,
-        new RawPath<>(column.getName(), ((FromImpl<Z, X>) related).tableAlias),
-        new RawPath<>(column.getReferencedColumnName(), tableAlias));
-  }
-
-  /**
-   * @param <X> the type referenced by the path
-   */
-  class RawPath<T> extends ExpressionImpl<T> implements Path<T> {
-
-    private final String dbFieldName;
-    private final Optional<String> table;
-
-    public RawPath(final String dbFieldName, final Optional<String> table) {
-      this.dbFieldName = dbFieldName;
-      this.table = table;
-    }
-
-    @Override
-    public StringBuilder asSQL(final StringBuilder statement) {
-      table.ifPresent(p -> {
-        statement.append(p);
-        statement.append(DOT);
-      });
-      statement.append(dbFieldName);
-      return statement;
-    }
-
-    @Override
-    public Bindable<T> getModel() {
-      throw new NotImplementedException();
-    }
-
-    @Override
-    public Path<?> getParentPath() {
-      throw new NotImplementedException();
-    }
-
-    @Override
-    public <Y> Path<Y> get(final SingularAttribute<? super T, Y> attribute) {
-      throw new NotImplementedException();
-    }
-
-    @Override
-    public <E, C extends Collection<E>> Expression<C> get(final PluralAttribute<T, C, E> collection) {
-      throw new NotImplementedException();
-    }
-
-    @Override
-    public <K, V, M extends Map<K, V>> Expression<M> get(final MapAttribute<T, K, V> map) {
-      throw new NotImplementedException();
-    }
-
-    @Override
-    public Expression<Class<? extends T>> type() {
-      throw new NotImplementedException();
-    }
-
-    @Override
-    public <Y> Path<Y> get(final String attributeName) {
-      throw new NotImplementedException();
-    }
+        new ExpressionPath<>(column.getName(), ((FromImpl<Z, X>) related).tableAlias),
+        new ExpressionPath<>(column.getReferencedColumnName(), tableAlias));
   }
 }

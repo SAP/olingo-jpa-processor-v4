@@ -41,7 +41,7 @@ class TypeConverter {
     return target.cast(source);
   }
 
-  private static Temporal convertTemporal(final Object source, final Class<?> target) {
+  private static Temporal convertTemporal(final Object source, final Class<?> target) { // NOSONAR
     if (temporalConversionAllowed(source.getClass(), target)) {
       try {
         if (target == Instant.class) {
@@ -189,7 +189,7 @@ class TypeConverter {
     return false;
   }
 
-  private static boolean temporalConversionAllowed(final Class<?> source, final Class<?> target) {
+  private static boolean temporalConversionAllowed(final Class<?> source, final Class<?> target) { // NOSONAR
     if (target == Instant.class) return source == Long.class || source == String.class || source == Timestamp.class;
     if (target == LocalDate.class) return source == Date.class || source == Timestamp.class || source == String.class;
     if (target == LocalDateTime.class) return source == Timestamp.class || source == String.class;

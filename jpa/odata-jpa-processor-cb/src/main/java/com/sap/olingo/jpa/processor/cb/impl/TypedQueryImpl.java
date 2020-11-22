@@ -27,9 +27,6 @@ import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.processor.cb.ProcessorSelection;
@@ -37,7 +34,6 @@ import com.sap.olingo.jpa.processor.cb.impl.ExpressionImpl.ParameterExpression;
 
 class TypedQueryImpl<T> implements TypedQuery<T> {
 
-  private static final Log LOGGER = LogFactory.getLog(TypedQueryImpl.class);
   private final CriteriaQueryImpl<T> parent;
   private final Query q;
   private final ProcessorSelection<T> selection;
@@ -145,33 +141,24 @@ class TypedQueryImpl<T> implements TypedQuery<T> {
   @SuppressWarnings("unchecked")
   @Override
   public List<T> getResultList() {
-    final long startTime = System.nanoTime();
-//    final long startMem = com.sap.jvm.monitor.vm.VmInfo.getThreadMemoryInfo(Thread.currentThread())
-//        .getMemoryConsumption();
-    try {
-      final List<?> result = q.getResultList();
-      if (parent.getResultType().isAssignableFrom(Tuple.class)) {
-        if (result.isEmpty())
-          return Collections.emptyList();
-        final List<Entry<String, JPAPath>> selPath = buildSelection();
-        final Map<String, Integer> index = buildSelectionIndex(selPath);
-        final List<Entry<String, JPAAttribute>> selAttributes = toAttributeList(selPath);
-        if (result.get(0).getClass().isArray()) {
-          return (List<T>) ((List<Object[]>) result).stream()
-              .map(r -> new TupleImpl(r, selAttributes, index))
-              .collect(Collectors.toList());
-        }
-        return (List<T>) ((List<Object>) result).stream()
+
+    final List<?> result = q.getResultList();
+    if (parent.getResultType().isAssignableFrom(Tuple.class)) {
+      if (result.isEmpty())
+        return Collections.emptyList();
+      final List<Entry<String, JPAPath>> selPath = buildSelection();
+      final Map<String, Integer> index = buildSelectionIndex(selPath);
+      final List<Entry<String, JPAAttribute>> selAttributes = toAttributeList(selPath);
+      if (result.get(0).getClass().isArray()) {
+        return (List<T>) ((List<Object[]>) result).stream()
             .map(r -> new TupleImpl(r, selAttributes, index))
             .collect(Collectors.toList());
       }
-      return (List<T>) result;
-    } finally {
-//    final long endMem = com.sap.jvm.monitor.vm.VmInfo.getThreadMemoryInfo(Thread.currentThread())
-//          .getMemoryConsumption();
-//          LOGGER.debug("Query execution add mem usage [kb]: " + (endMem - startMem) / 1000);
-      LOGGER.debug("Query execution time [µs]: " + (System.nanoTime() - startTime) / 1000);
+      return (List<T>) ((List<Object>) result).stream()
+          .map(r -> new TupleImpl(r, selAttributes, index))
+          .collect(Collectors.toList());
     }
+    return (List<T>) result;
   }
 
   /**

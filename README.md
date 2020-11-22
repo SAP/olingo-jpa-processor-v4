@@ -18,9 +18,13 @@ This project is licensed under the Apache Software License Version 2.0, except a
 
 ## Build State
 
-__Master__: 
+__Pull Request__: 
 
 [![Build Status](https://prod-build10200.wdf.sap.corp/job/odata-jpa/job/odata-jpa-odata-v4-jpa-processor-PR-linuxx86_64-linuxx86_64/badge/icon?style=plastic)](https://prod-build10200.wdf.sap.corp:443/job/odata-jpa/job/odata-jpa-odata-v4-jpa-processor-PR-linuxx86_64-linuxx86_64/) 
+
+__Master__: 
+
+[![Build Status](https://prod-build10200.wdf.sap.corp/job/odata-jpa/job/odata-jpa-odata-v4-jpa-processor-master-CI-linuxx86_64-linuxx86_64//badge/icon?style=plastic)](https://prod-build10200.wdf.sap.corp/job/odata-jpa/job/odata-jpa-odata-v4-jpa-processor-master-CI-linuxx86_64-linuxx86_64//) 
 
 __Sonar__:
 

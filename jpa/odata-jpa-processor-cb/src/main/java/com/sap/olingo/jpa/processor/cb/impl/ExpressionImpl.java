@@ -520,20 +520,26 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
 
   static class ExpressionPath<T> extends ExpressionImpl<T> implements Path<T> {
 
-    private final Optional<String> name;
-    private final String tableAlias;
+    private final Optional<String> dbFieldName;
+    private final Optional<String> tableAlias;
 
-    ExpressionPath(final Optional<String> name, final String tableAlias) {
-      this.name = name;
+    ExpressionPath(final Optional<String> dbFieldName, final String tableAlias) {
+      this.dbFieldName = dbFieldName;
+      this.tableAlias = Optional.of(tableAlias);
+    }
+
+    ExpressionPath(final String dbFieldName, final Optional<String> tableAlias) {
+      this.dbFieldName = Optional.of(dbFieldName);
       this.tableAlias = tableAlias;
     }
 
     @Override
     public StringBuilder asSQL(final StringBuilder statement) {
-      statement
-          .append(tableAlias)
-          .append(DOT)
-          .append(name.orElseThrow(() -> new IllegalStateException("Missing name")));
+      tableAlias.ifPresent(p -> {
+        statement.append(p);
+        statement.append(DOT);
+      });
+      statement.append(dbFieldName.orElseThrow(() -> new IllegalStateException("Missing name")));
       return statement;
     }
 
