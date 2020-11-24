@@ -50,13 +50,13 @@ import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 
-public class TestJPAQueryFromClause extends TestBase {
+class TestJPAQueryFromClause extends TestBase {
   private JPAAbstractJoinQuery cut;
   private JPAEntityType jpaEntityType;
   private JPAODataSessionContextAccess sessionContext;
 
   @BeforeEach
-  public void setup() throws ODataException, ODataJPAIllegalAccessException {
+  void setup() throws ODataException, ODataJPAIllegalAccessException {
     final UriInfo uriInfo = Mockito.mock(UriInfo.class);
     final EdmEntitySet odataEs = Mockito.mock(EdmEntitySet.class);
     final EdmType odataType = Mockito.mock(EdmEntityType.class);
@@ -81,11 +81,11 @@ public class TestJPAQueryFromClause extends TestBase {
     when(externalContext.getEntityManager()).thenReturn(emf.createEntityManager());
     final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext(externalContext);
     requestContext.setUriInfo(uriInfo);
-    cut = new JPAJoinQuery(null, sessionContext, headers, requestContext);
+    cut = new JPAJoinQuery(null, sessionContext, requestContext);
   }
 
   @Test
-  public void checkFromListContainsRoot() throws ODataApplicationException, JPANoSelectionException {
+  void checkFromListContainsRoot() throws ODataApplicationException, JPANoSelectionException {
 
     final Map<String, From<?, ?>> act = cut.createFromClause(Collections.emptyList(), Collections.emptyList(), cut.cq,
         null);
@@ -93,7 +93,7 @@ public class TestJPAQueryFromClause extends TestBase {
   }
 
   @Test
-  public void checkFromListOrderByContainsOne() throws ODataJPAModelException, ODataApplicationException,
+  void checkFromListOrderByContainsOne() throws ODataJPAModelException, ODataApplicationException,
       JPANoSelectionException {
     final List<JPAAssociationPath> orderBy = new ArrayList<>();
     final JPAAssociationPath exp = buildRoleAssociationPath(orderBy);
@@ -103,7 +103,7 @@ public class TestJPAQueryFromClause extends TestBase {
   }
 
   @Test
-  public void checkFromListOrderByOuterJoinOne() throws ODataJPAModelException, ODataApplicationException,
+  void checkFromListOrderByOuterJoinOne() throws ODataJPAModelException, ODataApplicationException,
       JPANoSelectionException {
     final List<JPAAssociationPath> orderBy = new ArrayList<>();
     buildRoleAssociationPath(orderBy);
@@ -122,7 +122,7 @@ public class TestJPAQueryFromClause extends TestBase {
   }
 
   @Test
-  public void checkFromListOrderByOuterJoinOnConditionOne() throws ODataJPAModelException, ODataApplicationException,
+  void checkFromListOrderByOuterJoinOnConditionOne() throws ODataJPAModelException, ODataApplicationException,
       JPANoSelectionException {
     final List<JPAAssociationPath> orderBy = new ArrayList<>();
     buildRoleAssociationPath(orderBy);
@@ -141,7 +141,7 @@ public class TestJPAQueryFromClause extends TestBase {
   }
 
   @Test
-  public void checkFromListDescriptionAssozationAllFields() throws ODataApplicationException, ODataJPAModelException,
+  void checkFromListDescriptionAssozationAllFields() throws ODataApplicationException, ODataJPAModelException,
       JPANoSelectionException {
     final List<JPAAssociationPath> orderBy = new ArrayList<>();
     final List<JPAPath> descriptionPathList = new ArrayList<>();
@@ -157,7 +157,7 @@ public class TestJPAQueryFromClause extends TestBase {
   }
 
   @Test
-  public void checkFromListDescriptionAssozationAllFields2() throws ODataApplicationException, ODataJPAModelException,
+  void checkFromListDescriptionAssozationAllFields2() throws ODataApplicationException, ODataJPAModelException,
       JPANoSelectionException {
     final List<JPAAssociationPath> orderBy = new ArrayList<>();
     final List<JPAPath> descriptionPathList = new ArrayList<>();
@@ -173,7 +173,7 @@ public class TestJPAQueryFromClause extends TestBase {
   }
 
   @Test
-  public void checkThrowsIfEliminatedByGroups() throws ODataJPAIllegalAccessException, ODataException,
+  void checkThrowsIfEliminatedByGroups() throws ODataJPAIllegalAccessException, ODataException,
       JPANoSelectionException {
 
     final JPAODataInternalRequestContext requestContext = buildRequestContextToTestGroups(null);
@@ -183,7 +183,7 @@ public class TestJPAQueryFromClause extends TestBase {
     collectionPathList.add(entity.getPath("ID"));
     collectionPathList.add(entity.getPath("Comment"));
 
-    cut = new JPAJoinQuery(null, sessionContext, headers, requestContext);
+    cut = new JPAJoinQuery(null, sessionContext, requestContext);
 
     assertThrows(JPANoSelectionException.class,
         () -> cut.createFromClause(Collections.emptyList(), collectionPathList, cut.cq, cut.lastInfo));
@@ -191,7 +191,7 @@ public class TestJPAQueryFromClause extends TestBase {
   }
 
   @Test
-  public void checkDoesNotThrowsIfGroupProvided() throws ODataJPAIllegalAccessException, ODataException,
+  void checkDoesNotThrowsIfGroupProvided() throws ODataJPAIllegalAccessException, ODataException,
       JPANoSelectionException {
     final JPAODataGroupsProvider groups = new JPAODataGroupsProvider();
     final JPAODataInternalRequestContext requestContext = buildRequestContextToTestGroups(groups);
@@ -201,7 +201,7 @@ public class TestJPAQueryFromClause extends TestBase {
     collectionPathList.add(entity.getPath("ID"));
     collectionPathList.add(entity.getPath("Comment"));
 
-    cut = new JPAJoinQuery(null, sessionContext, headers, requestContext);
+    cut = new JPAJoinQuery(null, sessionContext, requestContext);
 
     final Map<String, From<?, ?>> act = cut.createFromClause(Collections.emptyList(), collectionPathList, cut.cq,
         cut.lastInfo);

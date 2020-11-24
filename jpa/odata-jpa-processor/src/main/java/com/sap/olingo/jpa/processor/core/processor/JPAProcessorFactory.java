@@ -22,9 +22,9 @@ import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.queryoption.SystemQueryOption;
 import org.apache.olingo.server.api.uri.queryoption.SystemQueryOptionKind;
 
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
@@ -89,7 +89,7 @@ public final class JPAProcessorFactory {
       requestContext = new JPAODataInternalRequestContext(page, serializerFactory
           .createSerializer(responseFormat, page.getUriInfo(), Optional.ofNullable(header.get(
               HttpHeader.ODATA_MAX_VERSION))), context, header);
-    } catch (ODataJPAIllegalAccessException e) {
+    } catch (final ODataJPAIllegalAccessException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
 
@@ -142,7 +142,7 @@ public final class JPAProcessorFactory {
         if (page == null)
           throw new ODataJPAProcessorException(QUERY_SERVER_DRIVEN_PAGING_GONE, HttpStatusCode.GONE, skiptoken);
       } else {
-        final JPACountQuery countQuery = new JPAJoinQuery(odata, sessionContext, headers,
+        final JPACountQuery countQuery = new JPAJoinQuery(odata, sessionContext,
             new JPAODataInternalRequestContext(uriInfo, requestContext, headers));
         final Integer preferredPagesize = getPreferredPagesize(headers);
         final JPAODataPage firstPage = sessionContext.getPagingProvider().getFirstPage(uriInfo, preferredPagesize,
@@ -157,11 +157,11 @@ public final class JPAProcessorFactory {
 
     final List<String> preferredHeaders = getHeader("Prefer", headers);
     if (preferredHeaders != null) {
-      for (String header : preferredHeaders) {
+      for (final String header : preferredHeaders) {
         if (header.startsWith("odata.maxpagesize")) {
           try {
             return Integer.valueOf((header.split("=")[1]));
-          } catch (NumberFormatException e) {
+          } catch (final NumberFormatException e) {
             throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
           }
         }
@@ -172,7 +172,7 @@ public final class JPAProcessorFactory {
 
   private boolean serverDrivenPaging(final UriInfo uriInfo) throws ODataJPAProcessorException {
 
-    for (SystemQueryOption option : uriInfo.getSystemQueryOptions()) {
+    for (final SystemQueryOption option : uriInfo.getSystemQueryOptions()) {
       if (option.getKind() == SystemQueryOptionKind.SKIPTOKEN
           && sessionContext.getPagingProvider() == null)
         throw new ODataJPAProcessorException(QUERY_SERVER_DRIVEN_PAGING_NOT_IMPLEMENTED,
@@ -184,7 +184,7 @@ public final class JPAProcessorFactory {
   }
 
   private String skipToken(final UriInfo uriInfo) {
-    for (SystemQueryOption option : uriInfo.getSystemQueryOptions()) {
+    for (final SystemQueryOption option : uriInfo.getSystemQueryOptions()) {
       if (option.getKind() == SystemQueryOptionKind.SKIPTOKEN)
         return option.getText();
     }

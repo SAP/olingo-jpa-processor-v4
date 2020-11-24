@@ -61,7 +61,7 @@ public class TestQueryBase extends TestBase {
     when(externalContext.getEntityManager()).thenReturn(emf.createEntityManager());
     requestContext = new JPAODataInternalRequestContext(externalContext);
     requestContext.setUriInfo(uriInfo);
-    cut = new JPAJoinQuery(null, context, headers, requestContext);
+    cut = new JPAJoinQuery(null, context, requestContext);
 
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
     joinTables = new HashMap<>();

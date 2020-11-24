@@ -1,9 +1,11 @@
 package com.sap.olingo.jpa.processor.core.api;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.persistence.EntityManager;
 
@@ -39,4 +41,15 @@ public interface JPAODataRequestContextAccess extends JPAODataRequestParameterAc
 
   public Map<String, List<String>> getHeader();
 
+  /**
+   *
+   * @return most significant locale. Used e.g. for description properties
+   */
+  public @CheckForNull Locale getLocale();
+
+  /**
+   *
+   * @return list of locales provided for this request
+   */
+  public List<Locale> getProvidedLocale();
 }

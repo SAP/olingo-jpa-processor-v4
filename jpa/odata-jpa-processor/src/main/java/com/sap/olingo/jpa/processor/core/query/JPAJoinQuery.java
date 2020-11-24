@@ -58,11 +58,11 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
   }
 
   public JPAJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
-      final Map<String, List<String>> requestHeaders, final JPAODataRequestContextAccess requestContext)
+      final JPAODataRequestContextAccess requestContext)
       throws ODataException {
 
     super(odata, sessionContext, determineTargetEntityType(sessionContext, requestContext),
-        requestContext, requestHeaders, determineNavigationInfo(sessionContext, requestContext.getUriInfo()));
+        requestContext, determineNavigationInfo(sessionContext, requestContext.getUriInfo()));
   }
 
   /**
@@ -142,8 +142,9 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
     return navigationInfo;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public AbstractQuery<?> getQuery() {
+  public AbstractQuery<Tuple> getQuery() {
     return cq;
   }
 

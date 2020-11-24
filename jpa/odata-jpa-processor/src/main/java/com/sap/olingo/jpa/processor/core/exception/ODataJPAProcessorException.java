@@ -8,9 +8,9 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAMessageKey;
  * Copied from org.apache.olingo.odata2.jpa.processor.api.exception.ODataJPAModelException
  * See also org.apache.olingo.odata2.jpa.processor.core.exception.ODataJPAMessageServiceDefault
  */
-public class ODataJPAProcessorException extends ODataJPAProcessException {
+public class ODataJPAProcessorException extends ODataJPAProcessException { // NOSONAR
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = -7188499882306858747L;
 

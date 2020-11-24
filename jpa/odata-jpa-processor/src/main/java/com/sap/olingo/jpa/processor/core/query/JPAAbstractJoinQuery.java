@@ -86,21 +86,20 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
 
   public JPAAbstractJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
       final JPAEntityType jpaEntityType, final JPAODataRequestContextAccess requestContext,
-      final Map<String, List<String>> requestHeaders, final List<JPANavigationPropertyInfo> navigationInfo)
+      final List<JPANavigationPropertyInfo> navigationInfo)
       throws ODataException {
 
-    this(odata, sessionContext, jpaEntityType, requestContext.getUriInfo(), requestContext, requestHeaders,
-        navigationInfo);
+    this(odata, sessionContext, jpaEntityType, requestContext.getUriInfo(), requestContext, navigationInfo);
   }
 
   protected JPAAbstractJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
       final JPAEntityType jpaEntityType, final UriInfoResource uriInfo,
-      final JPAODataRequestContextAccess requestContext, final Map<String, List<String>> requestHeaders,
+      final JPAODataRequestContextAccess requestContext,
       final List<JPANavigationPropertyInfo> navigationInfo) throws ODataException {
 
     super(odata, sessionContext.getEdmProvider().getServiceDocument(), jpaEntityType, requestContext);
     this.requestContext = requestContext;
-    this.locale = ExpressionUtil.determineLocale(requestHeaders);
+    this.locale = requestContext.getLocale();
     this.uriResource = uriInfo;
     this.cq = cb.createTupleQuery();
     this.context = sessionContext;
@@ -109,9 +108,10 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
     this.lastInfo = determineLastInfo(navigationInfo);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public AbstractQuery<?> getQuery() {
-    return cq;
+  public <T> AbstractQuery<T> getQuery() {
+    return (AbstractQuery<T>) cq;
   }
 
   @Override

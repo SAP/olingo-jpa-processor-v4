@@ -9,14 +9,17 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Constructor;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
 
 import org.apache.olingo.server.api.uri.UriInfo;
+import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -37,26 +40,26 @@ import com.sap.olingo.jpa.processor.core.testmodel.FullNameCalculator;
 import com.sap.olingo.jpa.processor.core.testobjects.HeaderParamTransientPropertyConverter;
 import com.sap.olingo.jpa.processor.core.testobjects.TwoParameterTransientPropertyConverter;
 
-public class TestJPAODataRequestContextImpl {
+class TestJPAODataRequestContextImpl {
   private JPAODataInternalRequestContext cut;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     cut = new JPAODataInternalRequestContext();
   }
 
   @Test
-  public void testInitialEmptyClaimsProvider() {
+  void testInitialEmptyClaimsProvider() {
     assertFalse(cut.getClaimsProvider().isPresent());
   }
 
   @Test
-  public void testInitialEmptyGroupsProvider() {
+  void testInitialEmptyGroupsProvider() {
     assertFalse(cut.getGroupsProvider().isPresent());
   }
 
   @Test
-  public void testReturnsSetPage() throws ODataJPAIllegalAccessException {
+  void testReturnsSetPage() throws ODataJPAIllegalAccessException {
     final UriInfo uriInfo = mock(UriInfo.class);
     final JPAODataPage exp = new JPAODataPage(uriInfo, 0, 10, "12354");
     cut.setJPAODataPage(exp);
@@ -65,21 +68,21 @@ public class TestJPAODataRequestContextImpl {
   }
 
   @Test
-  public void testReturnsSetUriInfo() throws ODataJPAIllegalAccessException {
+  void testReturnsSetUriInfo() throws ODataJPAIllegalAccessException {
     final UriInfo exp = mock(UriInfo.class);
     cut.setUriInfo(exp);
     assertEquals(exp, cut.getUriInfo());
   }
 
   @Test
-  public void testReturnsSetJPASerializer() throws ODataJPAIllegalAccessException {
+  void testReturnsSetJPASerializer() throws ODataJPAIllegalAccessException {
     final JPASerializer exp = mock(JPASerializer.class);
     cut.setJPASerializer(exp);
     assertEquals(exp, cut.getSerializer());
   }
 
   @Test
-  public void testThrowsExceptionOnSetPageIfUriInfoExists() throws ODataJPAIllegalAccessException {
+  void testThrowsExceptionOnSetPageIfUriInfoExists() throws ODataJPAIllegalAccessException {
     final UriInfo uriInfo = mock(UriInfo.class);
     final JPAODataPage page = new JPAODataPage(uriInfo, 0, 10, "12354");
     cut.setUriInfo(uriInfo);
@@ -87,12 +90,12 @@ public class TestJPAODataRequestContextImpl {
   }
 
   @Test
-  public void testThrowsExceptionOnPageIsNull() throws ODataJPAIllegalAccessException {
+  void testThrowsExceptionOnPageIsNull() throws ODataJPAIllegalAccessException {
     assertThrows(NullPointerException.class, () -> cut.setJPAODataPage(null));
   }
 
   @Test
-  public void testThrowsExceptionOnSetUriInfoIfUriInfoExists() throws ODataJPAIllegalAccessException {
+  void testThrowsExceptionOnSetUriInfoIfUriInfoExists() throws ODataJPAIllegalAccessException {
     final UriInfo uriInfo = mock(UriInfo.class);
     final JPAODataPage page = new JPAODataPage(uriInfo, 0, 10, "12354");
     cut.setJPAODataPage(page);
@@ -100,17 +103,17 @@ public class TestJPAODataRequestContextImpl {
   }
 
   @Test
-  public void testThrowsExceptionOnUriInfoIsNull() throws ODataJPAIllegalAccessException {
+  void testThrowsExceptionOnUriInfoIsNull() throws ODataJPAIllegalAccessException {
     assertThrows(NullPointerException.class, () -> cut.setUriInfo(null));
   }
 
   @Test
-  public void testThrowsExceptionOnSerializerIsNull() throws ODataJPAIllegalAccessException {
+  void testThrowsExceptionOnSerializerIsNull() throws ODataJPAIllegalAccessException {
     assertThrows(NullPointerException.class, () -> cut.setJPASerializer(null));
   }
 
   @Test
-  public void testCopyConstructorCopysExternalAndAddsUriInfo() throws ODataJPAIllegalAccessException {
+  void testCopyConstructorCopysExternalAndAddsUriInfo() throws ODataJPAIllegalAccessException {
     fillContextForCopyConstructor();
     final JPASerializer serializer = mock(JPASerializer.class);
     final UriInfo uriInfo = mock(UriInfo.class);
@@ -125,7 +128,7 @@ public class TestJPAODataRequestContextImpl {
   }
 
   @Test
-  public void testCopyConstructorCopysExternalAndAddsPageSerializer() {
+  void testCopyConstructorCopysExternalAndAddsPageSerializer() {
     fillContextForCopyConstructor();
     final UriInfo uriInfo = mock(UriInfo.class);
     final JPAODataInternalRequestContext act = new JPAODataInternalRequestContext(uriInfo, cut);
@@ -135,7 +138,7 @@ public class TestJPAODataRequestContextImpl {
   }
 
   @Test
-  public void testCopyConstructorCopysExternalAndAddsUriInfoSerializer() {
+  void testCopyConstructorCopysExternalAndAddsUriInfoSerializer() {
     fillContextForCopyConstructor();
     final UriInfo uriInfo = mock(UriInfo.class);
     final JPASerializer serializer = mock(JPASerializer.class);
@@ -149,7 +152,7 @@ public class TestJPAODataRequestContextImpl {
   }
 
   @Test
-  public void testCopyConstructorCopysExternalAndAddsUriInfoSerializerNull() {
+  void testCopyConstructorCopysExternalAndAddsUriInfoSerializerNull() {
     fillContextForCopyConstructor();
     final UriInfo uriInfo = mock(UriInfo.class);
     final Map<String, List<String>> header = Collections.emptyMap();
@@ -161,7 +164,7 @@ public class TestJPAODataRequestContextImpl {
   }
 
   @Test
-  public void testGetCalculatorReturnsEmptyOptionalIfNotTransient() throws ODataJPAModelException,
+  void testGetCalculatorReturnsEmptyOptionalIfNotTransient() throws ODataJPAModelException,
       ODataJPAProcessorException {
     final JPAAttribute attribute = mock(JPAAttribute.class);
     when(attribute.isTransient()).thenReturn(false);
@@ -170,7 +173,7 @@ public class TestJPAODataRequestContextImpl {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testGetCalculatorReturnsInstanceNoParameter() throws ODataJPAModelException, ODataJPAProcessorException,
+  void testGetCalculatorReturnsInstanceNoParameter() throws ODataJPAModelException, ODataJPAProcessorException,
       NoSuchMethodException, SecurityException {
 
     final JPAAttribute attribute = mock(JPAAttribute.class);
@@ -183,7 +186,7 @@ public class TestJPAODataRequestContextImpl {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testGetCalculatorReturnsInstanceFromCache() throws ODataJPAModelException, ODataJPAProcessorException,
+  void testGetCalculatorReturnsInstanceFromCache() throws ODataJPAModelException, ODataJPAProcessorException,
       NoSuchMethodException, SecurityException {
 
     final JPAAttribute attribute = mock(JPAAttribute.class);
@@ -196,7 +199,7 @@ public class TestJPAODataRequestContextImpl {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testGetCalculatorReturnsInstanceEntityManager() throws ODataJPAModelException, ODataJPAProcessorException,
+  void testGetCalculatorReturnsInstanceEntityManager() throws ODataJPAModelException, ODataJPAProcessorException,
       NoSuchMethodException, SecurityException {
 
     final JPAAttribute attribute = mock(JPAAttribute.class);
@@ -214,7 +217,7 @@ public class TestJPAODataRequestContextImpl {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testGetCalculatorReturnsInstanceHeader() throws ODataJPAModelException, ODataJPAProcessorException,
+  void testGetCalculatorReturnsInstanceHeader() throws ODataJPAModelException, ODataJPAProcessorException,
       NoSuchMethodException, SecurityException {
 
     final JPAAttribute attribute = mock(JPAAttribute.class);
@@ -228,7 +231,7 @@ public class TestJPAODataRequestContextImpl {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testGetCalculatorReturnsInstanceTwoParameter() throws ODataJPAModelException, ODataJPAProcessorException,
+  void testGetCalculatorReturnsInstanceTwoParameter() throws ODataJPAModelException, ODataJPAProcessorException,
       NoSuchMethodException, SecurityException {
 
     final JPAAttribute attribute = mock(JPAAttribute.class);
@@ -243,6 +246,29 @@ public class TestJPAODataRequestContextImpl {
     assertTrue(act.isPresent());
     assertNotNull(((TwoParameterTransientPropertyConverter) act.get()).getEntityManager());
     assertNotNull(((TwoParameterTransientPropertyConverter) act.get()).getHeader());
+  }
+
+  @Test
+  void testGetLocaleReturnsValueFromExternalContext() {
+    cut = new JPAODataInternalRequestContext(JPAODataRequestContext
+        .with()
+        .setEntityManager(mock(EntityManager.class))
+        .setLocales(Arrays.asList(Locale.UK, Locale.ENGLISH))
+        .build());
+
+    assertEquals(Locale.UK, cut.getLocale());
+  }
+
+  @Test
+  void testGetLocaleReturnsValueFromExternalContextAfterCopy() {
+    cut = new JPAODataInternalRequestContext(JPAODataRequestContext
+        .with()
+        .setEntityManager(mock(EntityManager.class))
+        .setLocales(Arrays.asList(Locale.UK, Locale.ENGLISH))
+        .build());
+
+    cut = new JPAODataInternalRequestContext(mock(UriInfoResource.class), cut);
+    assertEquals(Locale.UK, cut.getLocale());
   }
 
   private void assertCopied(final JPAODataInternalRequestContext act) {

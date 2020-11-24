@@ -1,8 +1,13 @@
 package com.sap.olingo.jpa.processor.core.api;
 
+import static java.util.Collections.emptyList;
+import static java.util.Objects.requireNonNull;
+
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
@@ -20,6 +25,7 @@ public class JPAODataExternalRequestContext implements JPAODataRequestContext {
   private final JPAODataTransactionFactory transactionFactory;
   private final EntityManager em;
   private final JPACUDRequestHandler cudRequestHandler;
+  private final List<Locale> locales;
 
   public JPAODataExternalRequestContext(final Builder builder) {
 
@@ -30,6 +36,7 @@ public class JPAODataExternalRequestContext implements JPAODataRequestContext {
     this.em = builder.em;
     this.cudRequestHandler = builder.cudRequestHandler;
     this.customParameter = builder.customParameter;
+    this.locales = builder.locales;
   }
 
   @Override
@@ -72,7 +79,16 @@ public class JPAODataExternalRequestContext implements JPAODataRequestContext {
     return customParameter;
   }
 
+  @Override
+  public List<Locale> getLocales() {
+    return locales;
+  }
+
   public static class Builder {
+    public static final int CONTAINS_ONLY_LANGU = 1;
+    public static final int CONTAINS_LANGU_COUNTRY = 2;
+    public static final String SELECT_ITEM_SEPARATOR = ",";
+
     private final Map<String, Object> customParameter = new HashMap<>();
     private DebugSupport debugSupport;
     private JPAODataClaimProvider claimsProvider;
@@ -80,13 +96,14 @@ public class JPAODataExternalRequestContext implements JPAODataRequestContext {
     private JPAODataTransactionFactory transactionFactory;
     private EntityManager em;
     private JPACUDRequestHandler cudRequestHandler;
+    private List<Locale> locales = emptyList();
 
     public JPAODataRequestContext build() {
       return new JPAODataExternalRequestContext(this);
     }
 
     /**
-     * 
+     * Adds a Claims Provider to the request context providing the claims of the current user.
      * @param provider
      * @return Builder
      */
@@ -96,28 +113,28 @@ public class JPAODataExternalRequestContext implements JPAODataRequestContext {
     }
 
     /**
-     * 
+     *
      * @param cudRequestHandler
      * @return Builder
      */
     public Builder setCUDRequestHandler(@Nonnull final JPACUDRequestHandler cudRequestHandler) {
-      this.cudRequestHandler = Objects.requireNonNull(cudRequestHandler);
+      this.cudRequestHandler = requireNonNull(cudRequestHandler);
       return this;
     }
 
     /**
-     * 
+     *
      * @param name
      * @param value
      * @return
      */
     public Builder setParameter(@Nonnull final String name, @Nullable final Object value) {
-      customParameter.put(name, value);
+      customParameter.put(requireNonNull(name), value);
       return this;
     }
 
     /**
-     * 
+     *
      * @param debugSupport
      * @return Builder
      */
@@ -127,17 +144,18 @@ public class JPAODataExternalRequestContext implements JPAODataRequestContext {
     }
 
     /**
-     * 
+     * An entity manager can be provided. If the entity manager is not provided, one is created automatically from the
+     * entity manager factory provided by the session context {@link JPAODataServiceContext}
      * @param em
      * @return Builder
      */
     public Builder setEntityManager(@Nonnull final EntityManager em) {
-      this.em = Objects.requireNonNull(em);
+      this.em = requireNonNull(em);
       return this;
     }
 
     /**
-     * 
+     * Adds a Field Group Provider to the request context providing the field groups the current user is assiged to.
      * @param provider
      * @return Builder
      */
@@ -154,6 +172,28 @@ public class JPAODataExternalRequestContext implements JPAODataRequestContext {
      */
     public Builder setTransactionFactory(@Nullable final JPAODataTransactionFactory transactionFactory) {
       this.transactionFactory = transactionFactory;
+      return this;
+    }
+
+    /**
+     * Sets the locales relevant for the current request. The first locale is used e.g. for description properties. If
+     * no locale is set as a fallback the accept-language header is used.
+     * @param locales
+     * @return
+     */
+    public Builder setLocales(@Nonnull final List<Locale> locales) {
+      this.locales = requireNonNull(locales);
+      return this;
+    }
+
+    /**
+     * Sets the locale relevant for the current request. The locale is used e.g. for description properties. If no
+     * locale is set as a fallback the accept-language header is used.
+     * @param locale
+     * @return
+     */
+    public Builder setLocales(@Nonnull final Locale locale) {
+      this.locales = Collections.singletonList(requireNonNull(locale));
       return this;
     }
   }

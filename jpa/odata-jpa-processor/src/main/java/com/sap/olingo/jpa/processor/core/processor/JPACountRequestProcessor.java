@@ -48,14 +48,14 @@ public final class JPACountRequestProcessor extends JPAAbstractGetRequestProcess
 
     JPAJoinQuery query = null;
     try {
-      query = new JPAJoinQuery(odata, sessionContext, request.getAllHeaders(), requestContext);
-    } catch (ODataJPAModelException e) {
+      query = new JPAJoinQuery(odata, sessionContext, requestContext);
+    } catch (final ODataJPAModelException e) {
       throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.QUERY_PREPARATION_ERROR,
           HttpStatusCode.INTERNAL_SERVER_ERROR, e);
     }
 
     final EntityCollection entityCollection = new EntityCollection();
-    entityCollection.setCount(Integer.valueOf(query.countResults().intValue()));
+    entityCollection.setCount(query.countResults().intValue());
     return entityCollection;
   }
 }

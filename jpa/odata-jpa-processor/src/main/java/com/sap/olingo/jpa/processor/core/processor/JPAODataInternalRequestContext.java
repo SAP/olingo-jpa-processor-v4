@@ -6,6 +6,7 @@ import java.lang.reflect.Parameter;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -35,6 +36,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataTransactionFactory;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
+import com.sap.olingo.jpa.processor.core.query.ExpressionUtil;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializer;
 
 public final class JPAODataInternalRequestContext implements JPAODataRequestContextAccess,
@@ -54,6 +56,7 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
   private final Map<JPAAttribute, EdmTransientPropertyCalculator<?>> transientCalculatorCache;
   private final Map<String, List<String>> header;
   private Map<String, Object> customParameter;
+  private List<Locale> locales;
 
   public JPAODataInternalRequestContext() {
     this(null);
@@ -196,6 +199,18 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
     return this.uriInfo;
   }
 
+  @Override
+  public Locale getLocale() {
+    if (locales == null || locales.isEmpty())
+      return ExpressionUtil.determineLocale(header);
+    return locales.get(0);
+  }
+
+  @Override
+  public List<Locale> getProvidedLocale() {
+    return locales;
+  }
+
   public void setDebugFormat(final String debugFormat) {
     this.debugFormat = debugFormat;
   }
@@ -230,6 +245,7 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
     this.em = context.getEntityManager();
     this.cudRequestHandler = context.getCUDRequestHandler();
     this.debugger = context.getDebugger();
+    this.locales = context.getProvidedLocale();
   }
 
   private void copyRequestContext(final JPAODataRequestContext requestContext) {
@@ -242,8 +258,8 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
     debugSupport = requestContext != null && requestContext.getDebuggerSupport() != null ? new JPADebugSupportWrapper(
         debugSupport) : null;
     transactionFactory = requestContext != null ? requestContext.getTransactionFactory() : null;
+    locales = requestContext != null ? requestContext.getLocales() : Collections.emptyList();
     customParameter = requestContext != null ? requestContext.getParameters() : new HashMap<>();
-
   }
 
   private void createCalculator(final JPAAttribute transientProperty) throws ODataJPAModelException,

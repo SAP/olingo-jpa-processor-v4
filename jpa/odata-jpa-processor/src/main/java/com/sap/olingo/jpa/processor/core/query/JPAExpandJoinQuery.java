@@ -34,6 +34,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
@@ -60,12 +61,11 @@ public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
   private TypedQuery<Tuple> tupleQuery;
 
   public JPAExpandJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
-      final JPAInlineItemInfo item, final Map<String, List<String>> requestHeaders,
-      final JPAODataRequestContextAccess requestContext, final Optional<JPAKeyBoundary> keyBoundary)
+      final JPAInlineItemInfo item, final JPAODataRequestContextAccess requestContext,
+      final Optional<JPAKeyBoundary> keyBoundary)
       throws ODataException {
 
-    super(odata, sessionContext, item.getEntityType(), item.getUriInfo(), requestContext, requestHeaders,
-        item.getHops());
+    super(odata, sessionContext, item.getEntityType(), item.getUriInfo(), requestContext, item.getHops());
     this.association = item.getExpandAssociation();
     this.keyBoundary = keyBoundary;
   }
@@ -75,7 +75,7 @@ public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
       final Map<String, List<String>> requestHeaders, final JPAODataRequestContextAccess requestContext)
       throws ODataException {
 
-    super(odata, context, entityType, requestContext, requestHeaders, Collections.emptyList());
+    super(odata, context, entityType, requestContext, Collections.emptyList());
     this.association = association;
     this.keyBoundary = Optional.empty();
   }
@@ -339,7 +339,7 @@ public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
     final int handle = debugger.startRuntimeMeasurement(this, "createTupleQuery");
 
     final SelectionPathInfo<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
-    final Map<String, From<?, ?>> joinTables = createFromClause(new ArrayList<JPAAssociationPath>(1),
+    final Map<String, From<?, ?>> joinTables = createFromClause(new ArrayList<>(1),
         selectionPath.joinedPersistent(), cq, lastInfo);
 
     // TODO handle Join Column is ignored
@@ -412,7 +412,7 @@ public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
       return new SelectionPathInfo<>(association.getRightColumnsList(), jpaPathList);
     } catch (final ODataJPAModelException e) {
       throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR
-          .getStatusCode(), ODataJPAModelException.getLocales().nextElement(), e);
+          .getStatusCode(), ODataJPAException.getLocales().nextElement(), e);
     }
   }
 

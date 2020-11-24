@@ -1,7 +1,6 @@
 package com.sap.olingo.jpa.processor.core.exception;
 
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
 
@@ -14,11 +13,10 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAMessageText
 public abstract class ODataJPAProcessException extends ODataApplicationException {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = -3178033271311091314L;
   private static final String UNKNOWN_MESSAGE = "No message text found";
-  private static Enumeration<Locale> locales;
 
   protected final String id;
   protected final String[] parameter;
@@ -46,7 +44,7 @@ public abstract class ODataJPAProcessException extends ODataApplicationException
   }
 
   /**
-   * 
+   *
    * @param id
    * @param messageText
    * @param statusCode
@@ -58,7 +56,7 @@ public abstract class ODataJPAProcessException extends ODataApplicationException
   }
 
   /**
-   * 
+   *
    * @param id
    * @param messageText
    * @param statusCode
@@ -76,7 +74,7 @@ public abstract class ODataJPAProcessException extends ODataApplicationException
 
   protected ODataJPAMessageTextBuffer getTextBundle() {
     if (getBundleName() != null)
-      return new ODataJPAMessageTextBuffer(getBundleName(), locales);
+      return new ODataJPAMessageTextBuffer(getBundleName(), getLocale());
     else
       return null;
   }
@@ -88,10 +86,10 @@ public abstract class ODataJPAProcessException extends ODataApplicationException
 
   @Override
   public String getMessage() {
-    ODataJPAMessageBufferRead messageBuffer = getTextBundle();
+    final ODataJPAMessageBufferRead messageBuffer = getTextBundle();
 
     if (messageBuffer != null && id != null) {
-      String message = messageBuffer.getText(this, id, parameter);
+      final String message = messageBuffer.getText(this, id, parameter);
       if (message != null) {
         return message;
       }
@@ -111,14 +109,6 @@ public abstract class ODataJPAProcessException extends ODataApplicationException
 
   public String getId() {
     return id;
-  }
-
-  public static Enumeration<Locale> getLocales() {
-    return locales;
-  }
-
-  public static void setLocales(final Enumeration<Locale> locales) {
-    ODataJPAProcessException.locales = locales;
   }
 
   protected abstract String getBundleName();

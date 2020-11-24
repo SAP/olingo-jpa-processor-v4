@@ -41,10 +41,10 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAProtectionInfo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAClaimsPair;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
@@ -98,7 +98,7 @@ public abstract class JPAAbstractQuery {
     this.sd = sd;
     try {
       this.jpaEntity = sd.getEntity(edmEntityType);
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
     }
     this.debugger = new EmptyDebugger();
@@ -123,7 +123,7 @@ public abstract class JPAAbstractQuery {
 
   protected javax.persistence.criteria.Expression<Boolean> createWhereByKey(final From<?, ?> root,
       final javax.persistence.criteria.Expression<Boolean> whereCondition, final List<UriParameter> keyPredicates,
-      JPAEntityType et) throws ODataApplicationException {
+      final JPAEntityType et) throws ODataApplicationException {
     // .../Organizations('3')
     // .../BusinessPartnerRoles(BusinessPartnerID='6',RoleCategory='C')
     javax.persistence.criteria.Expression<Boolean> compoundCondition = whereCondition;
@@ -133,7 +133,7 @@ public abstract class JPAAbstractQuery {
         javax.persistence.criteria.Expression<Boolean> equalCondition;
         try {
           equalCondition = ExpressionUtil.createEQExpression(odata, cb, root, et, keyPredicate);
-        } catch (ODataJPAModelException e) {
+        } catch (final ODataJPAModelException e) {
           throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
         }
         if (compoundCondition == null)
@@ -147,7 +147,12 @@ public abstract class JPAAbstractQuery {
 
   public abstract From<?, ?> getRoot();
 
-  public abstract AbstractQuery<?> getQuery();
+  /**
+   *
+   * @param <T> the type of the result
+   * @return
+   */
+  public abstract <T> AbstractQuery<T> getQuery();
 
   public JPAServiceDebugger getDebugger() {
     return debugger;
@@ -160,7 +165,8 @@ public abstract class JPAAbstractQuery {
 
     for (final JPAPath descriptionFieldPath : pathSet) {
       final JPADescriptionAttribute descriptionField = ((JPADescriptionAttribute) descriptionFieldPath.getLeaf());
-      Join<?, ?> join = createJoinFromPath(descriptionFieldPath.getAlias(), descriptionFieldPath.getPath(), target,
+      final Join<?, ?> join = createJoinFromPath(descriptionFieldPath.getAlias(), descriptionFieldPath.getPath(),
+          target,
           JoinType.LEFT);
       if (descriptionField.isLocationJoin())
         join.on(createOnCondition(join, descriptionField, getLocale().toString()));
@@ -191,13 +197,13 @@ public abstract class JPAAbstractQuery {
     return join;
   }
 
-  private Expression<Boolean> createOnCondition(Join<?, ?> join, JPADescriptionAttribute descriptionField,
-      String localValue) {
+  private Expression<Boolean> createOnCondition(final Join<?, ?> join, final JPADescriptionAttribute descriptionField,
+      final String localValue) {
     final Predicate existingOn = join.getOn();
     Expression<Boolean> result = cb.equal(determineLocalePath(join, descriptionField.getLocaleFieldName()), localValue);
     if (existingOn != null)
       result = cb.and(existingOn, result);
-    for (JPAPath value : descriptionField.getFixedValueAssignment().keySet()) {
+    for (final JPAPath value : descriptionField.getFixedValueAssignment().keySet()) {
       result = cb.and(result,
           cb.equal(determineLocalePath(join, value), descriptionField.getFixedValueAssignment().get(value)));
     }
@@ -284,9 +290,9 @@ public abstract class JPAAbstractQuery {
             .supportsWildcards()));
       }
       return restriction;
-    } catch (NoSuchElementException e) {
+    } catch (final NoSuchElementException e) {
       throw new ODataJPAQueryException(MISSING_CLAIMS_PROVIDER, HttpStatusCode.FORBIDDEN);
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(QUERY_RESULT_ENTITY_TYPE_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
   }
@@ -295,12 +301,12 @@ public abstract class JPAAbstractQuery {
   private class EmptyDebugger implements JPAServiceDebugger {
 
     @Override
-    public int startRuntimeMeasurement(final Object instance, String methodName) {
+    public int startRuntimeMeasurement(final Object instance, final String methodName) {
       return 0;
     }
 
     @Override
-    public void stopRuntimeMeasurement(int handle) {
+    public void stopRuntimeMeasurement(final int handle) {
       // not needed
     }
 

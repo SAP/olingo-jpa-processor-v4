@@ -54,7 +54,7 @@ import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.JPAEntityTypeDouble;
 import com.sap.olingo.jpa.processor.core.util.TestQueryBase;
 
-public class TestJPAQueryWithProtection extends TestQueryBase {
+class TestJPAQueryWithProtection extends TestQueryBase {
   private JPAODataSessionContextAccess contextSpy;
   private JPAServiceDocument sdSpy;
   private EdmType odataType;
@@ -77,7 +77,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
   }
 
   @Test
-  public void testRestrictOnePropertyOneValue() throws IOException, ODataException {
+  void testRestrictOnePropertyOneValue() throws IOException, ODataException {
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add("UserId", new JPAClaimsPair<>("Willi"));
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -90,7 +90,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
 
   @ParameterizedTest
   @ValueSource(strings = { "Wil*", "Wi%i", "Wil+i", "Will_" })
-  public void testRestrictOnePropertyOneValueWithWildcard(final String minValue) throws IOException, ODataException {
+  void testRestrictOnePropertyOneValueWithWildcard(final String minValue) throws IOException, ODataException {
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add("UserId", new JPAClaimsPair<>(minValue));
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -102,7 +102,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
   }
 
   @Test
-  public void testRestrictOnePropertyTwoValues() throws IOException, ODataException {
+  void testRestrictOnePropertyTwoValues() throws IOException, ODataException {
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add("UserId", new JPAClaimsPair<>("Willi"));
     claims.add("UserId", new JPAClaimsPair<>("Marvin"));
@@ -118,7 +118,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
   @CsvSource({
       "200, 'Willi;Marvin', 13",
       "200, 'Willi', 3", })
-  public void testRestrictOnePropertyCount(final int statusCodeValue, final String claimEntries,
+  void testRestrictOnePropertyCount(final int statusCodeValue, final String claimEntries,
       final int noResults) throws IOException, ODataException {
 
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
@@ -135,7 +135,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
   }
 
   @Test
-  public void testRestrictNavigationResult() throws IOException, ODataException {
+  void testRestrictNavigationResult() throws IOException, ODataException {
 
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add("UserId", new JPAClaimsPair<>("Marvin"));
@@ -149,7 +149,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
   }
 
   @Test
-  public void testRestrictExpandResult() throws IOException, ODataException {
+  void testRestrictExpandResult() throws IOException, ODataException {
 
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add("UserId", new JPAClaimsPair<>("Marvin"));
@@ -165,7 +165,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
   }
 
   @Test
-  public void testThrowsUnauthorizedOnMissingClaimforRestrictExpandResult() throws IOException, ODataException {
+  void testThrowsUnauthorizedOnMissingClaimforRestrictExpandResult() throws IOException, ODataException {
 
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add("UserId", new JPAClaimsPair<>("Marvin"));
@@ -178,7 +178,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
   @CsvSource({
       "200, 'Willi;Marvin', 13",
       "200, 'Willi', 3", })
-  public void testRestrictOnePropertyInlineCount(final int statusCodeValue, final String claimEntries,
+  void testRestrictOnePropertyInlineCount(final int statusCodeValue, final String claimEntries,
       final int noResults) throws IOException, ODataException {
 
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
@@ -195,7 +195,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
   }
 
   @Test
-  public void testRestrictOnePropertyNoProvider() throws IOException, ODataException {
+  void testRestrictOnePropertyNoProvider() throws IOException, ODataException {
     final JPAODataClaimsProvider claims = null;
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -204,7 +204,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
   }
 
   @Test
-  public void testRestrictOnePropertyNoValue() throws IOException, ODataException {
+  void testRestrictOnePropertyNoValue() throws IOException, ODataException {
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "BusinessPartnerProtecteds?$select=ID,Name1,Country", claims);
@@ -212,7 +212,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
   }
 
   @Test
-  public void testRestrictOnePropertyBetweenValues() throws IOException, ODataException {
+  void testRestrictOnePropertyBetweenValues() throws IOException, ODataException {
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add("UserId", new JPAClaimsPair<>("Marvin", "Willi"));
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -229,7 +229,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
       "200, '2', 'Urs'",
       "200, '7', ''",
   })
-  public void testRestrictOnePropertyDeep(final int statusCodeValue, final String building, final String firstName)
+  void testRestrictOnePropertyDeep(final int statusCodeValue, final String building, final String firstName)
       throws IOException, ODataException {
 
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
@@ -249,7 +249,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
   }
 
   @Test
-  public void testRestrictOnePropertyOneValueWithNavigationToRoles() throws IOException, ODataException {
+  void testRestrictOnePropertyOneValueWithNavigationToRoles() throws IOException, ODataException {
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add("UserId", new JPAClaimsPair<>("Willi"));
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -261,7 +261,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
   }
 
   @Test
-  public void testRestrictComplexOnePropertyOneValue() throws ODataException, JPANoSelectionException {
+  void testRestrictComplexOnePropertyOneValue() throws ODataException, JPANoSelectionException {
     prepareTest();
     prepareComplexAttributeCreateUser("UserId");
 
@@ -281,7 +281,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
 
   @ParameterizedTest
   @ValueSource(strings = { "Mar*", "Mar%", "Mar+", "Mar_" })
-  public void testRestrictComplexOnePropertyOneValueWildcardTrue(final String minValue) throws ODataException,
+  void testRestrictComplexOnePropertyOneValueWildcardTrue(final String minValue) throws ODataException,
       JPANoSelectionException {
     prepareTest();
     prepareComplexAttributeUser("UserId", "AdministrativeInformation/Created/By", "created", true);
@@ -301,7 +301,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
   }
 
   @Test
-  public void testRestrictComplexOnePropertyUpperLowerValues() throws ODataException, JPANoSelectionException {
+  void testRestrictComplexOnePropertyUpperLowerValues() throws ODataException, JPANoSelectionException {
     final String claimName = "UserId";
     prepareTest();
     prepareComplexAttributeCreateUser(claimName);
@@ -321,7 +321,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
   }
 
   @Test
-  public void testRestrictComplexOnePropertyUpperLowerValuesWildcardTrue() throws ODataException,
+  void testRestrictComplexOnePropertyUpperLowerValuesWildcardTrue() throws ODataException,
       JPANoSelectionException {
     final String claimName = "UserId";
     prepareTest();
@@ -343,7 +343,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
   }
 
   @Test
-  public void testRestrictComplexOnePropertyTwoValues() throws ODataException, JPANoSelectionException {
+  void testRestrictComplexOnePropertyTwoValues() throws ODataException, JPANoSelectionException {
     final String claimName = "UserId";
     prepareTest();
     prepareComplexAttributeCreateUser(claimName);
@@ -366,7 +366,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
   }
 
   @Test
-  public void testRestrictComplexOnePropertyOneValuesDate() throws ODataException, JPANoSelectionException {
+  void testRestrictComplexOnePropertyOneValuesDate() throws ODataException, JPANoSelectionException {
     final String claimName = "CreationDate";
     prepareTest();
     prepareComplexAttributeDate(claimName);
@@ -386,7 +386,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
   }
 
   @Test
-  public void testRestrictComplexOnePropertyUpperLowerValuesDate() throws ODataException, JPANoSelectionException {
+  void testRestrictComplexOnePropertyUpperLowerValuesDate() throws ODataException, JPANoSelectionException {
     final String claimName = "CreationDate";
     prepareTest();
     prepareComplexAttributeDate(claimName);
@@ -406,7 +406,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
   }
 
   @Test
-  public void testRestrictComplexTwoPropertyOneValuesOperatorAND() throws ODataException, JPANoSelectionException {
+  void testRestrictComplexTwoPropertyOneValuesOperatorAND() throws ODataException, JPANoSelectionException {
     final String claimName = "UserId";
     prepareTest();
     prepareComplexAttributeCreateUser(claimName);
@@ -429,7 +429,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
   }
 
   @Test
-  public void testRestrictTwoPropertiesOneValuesOperatorAND() throws ODataException, JPANoSelectionException {
+  void testRestrictTwoPropertiesOneValuesOperatorAND() throws ODataException, JPANoSelectionException {
     final String claimName = "UserId";
     prepareTest();
     prepareComplexAttributeCreateUser(claimName);
@@ -558,7 +558,7 @@ public class TestJPAQueryWithProtection extends TestQueryBase {
     } catch (final ODataJPAIllegalAccessException e) {
       fail();
     }
-    cut = new JPAJoinQuery(null, contextSpy, headers, requestContext);
+    cut = new JPAJoinQuery(null, contextSpy, requestContext);
     cut.createFromClause(new ArrayList<JPAAssociationPath>(1), new ArrayList<JPAPath>(), cut.cq, null);
   }
 }

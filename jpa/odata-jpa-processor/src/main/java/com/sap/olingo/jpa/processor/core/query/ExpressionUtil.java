@@ -34,14 +34,16 @@ public final class ExpressionUtil {
   public static final int CONTAINS_ONLY_LANGU = 1;
   public static final int CONTAINS_LANGU_COUNTRY = 2;
   public static final String SELECT_ITEM_SEPARATOR = ",";
-  
+
   private ExpressionUtil() {}
 
-  public static Expression<Boolean> createEQExpression(final OData odata, CriteriaBuilder cb, From<?, ?> root,
-      JPAEntityType jpaEntity, UriParameter keyPredicate) throws ODataJPAFilterException, ODataJPAModelException {
+  public static Expression<Boolean> createEQExpression(final OData odata, final CriteriaBuilder cb,
+      final From<?, ?> root,
+      final JPAEntityType jpaEntity, final UriParameter keyPredicate) throws ODataJPAFilterException,
+      ODataJPAModelException {
 
-    JPAPath path = jpaEntity.getPath(keyPredicate.getName());
-    JPAAttribute attribute = path.getLeaf();
+    final JPAPath path = jpaEntity.getPath(keyPredicate.getName());
+    final JPAAttribute attribute = path.getLeaf();
 
     return cb.equal(convertToCriteriaPath(root, path.getPath()), convertValueOnAttribute(odata, attribute, keyPredicate
         .getText()));
@@ -93,14 +95,14 @@ public final class ExpressionUtil {
       // TODO literal does not convert decimals without scale properly
       String targetValue = null;
       final EdmPrimitiveType edmType = odata.createPrimitiveTypeInstance(edmTypeKind);
-      if (isUri) {
+      if (Boolean.TRUE.equals(isUri)) {
         targetValue = edmType.fromUriLiteral(value);
       } else {
         targetValue = value;
       }
       // Converter
       if (attribute.getConverter() != null) {
-        AttributeConverter<?, T> dbConverter = attribute.getConverter();
+        final AttributeConverter<?, T> dbConverter = attribute.getConverter();
         return dbConverter.convertToEntityAttribute(
             (T) edmType.valueOfString(targetValue, edmProperty.isNullable(), edmProperty.getMaxLength(),
                 edmProperty.getPrecision(), edmProperty.getScale(), true, attribute.getType()));
@@ -113,7 +115,7 @@ public final class ExpressionUtil {
     }
   }
 
-  public static Object convertValueOnFacet(final OData odata, JPAParameterFacet returnType, final String value)
+  public static Object convertValueOnFacet(final OData odata, final JPAParameterFacet returnType, final String value)
       throws ODataJPAFilterException {
     try {
       final EdmPrimitiveTypeKind edmTypeKind = EdmPrimitiveTypeKind.valueOfFQN(returnType.getTypeFQN());
@@ -131,7 +133,7 @@ public final class ExpressionUtil {
   public static Locale determineLocale(final Map<String, List<String>> headers) {
     // TODO Make this replaceable so the default can be overwritten
     // http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html (14.4 accept language header
-    // example: Accept-Language: da, en-gb;q=0.8, en;q=0.7)
+    // example: Accept-Language : da, en-gb;q=0.8, en;q=0.7)
     final List<String> languageHeaders = headers.get("accept-language");
     if (languageHeaders != null) {
       final String languageHeader = languageHeaders.get(0);

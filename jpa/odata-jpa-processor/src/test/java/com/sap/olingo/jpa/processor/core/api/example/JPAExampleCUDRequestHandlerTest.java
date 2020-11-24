@@ -69,7 +69,7 @@ import com.sap.olingo.jpa.processor.core.testobjects.OrganizationWithAudit;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 
-public class JPAExampleCUDRequestHandlerTest extends TestBase {
+class JPAExampleCUDRequestHandlerTest extends TestBase {
   private JPAExampleCUDRequestHandler cut;
   private EntityManager em;
   private Metamodel metamodel;
@@ -78,7 +78,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   private Map<String, Object> keys;
 
   @BeforeEach
-  public void setup() throws ODataException {
+  void setup() throws ODataException {
     helper = new TestHelper(emf, PUNIT_NAME);
     em = mock(EntityManager.class);
     requestEntity = mock(JPARequestEntity.class);
@@ -94,7 +94,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkCreateEntity() throws ODataJPAProcessException, ODataJPAModelException {
+  void checkCreateEntity() throws ODataJPAProcessException, ODataJPAModelException {
 
     final Object act = createAdminDiv();
     assertNotNull(act);
@@ -103,7 +103,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkCreateEntityWithPrimitiveCollcetion() throws ODataJPAProcessException, ODataJPAModelException {
+  void checkCreateEntityWithPrimitiveCollcetion() throws ODataJPAProcessException, ODataJPAModelException {
 
     doReturn(helper.getJPAEntityType("Organizations")).when(requestEntity).getEntityType();
 
@@ -122,7 +122,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkCreateEntityWithComplexCollection() throws ODataJPAProcessException, ODataJPAModelException {
+  void checkCreateEntityWithComplexCollection() throws ODataJPAProcessException, ODataJPAModelException {
 
     doReturn(helper.getJPAEntityType("Persons")).when(requestEntity).getEntityType();
 
@@ -153,7 +153,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkCreateEntityWithComplexCollcetionInitialyNull() throws ODataJPAProcessException,
+  void checkCreateEntityWithComplexCollcetionInitialyNull() throws ODataJPAProcessException,
       ODataJPAModelException {
     assertNull(new Collection().getNested());
 
@@ -192,7 +192,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkCreateLinkedEntity() throws ODataJPAProcessException, ODataJPAModelException {
+  void checkCreateLinkedEntity() throws ODataJPAProcessException, ODataJPAModelException {
     // http://localhost:8080/tutorial/v1/AdministrativeDivisions(DivisionCode='DE5',CodeID='NUTS1',CodePublisher='Eurostat')/Children
     // key = {divisionCode=DE5, codeID=NUTS1, codePublisher=Eurostat}
     // jpaDeepEntities = JPAAssPath ; JPARequestEntity
@@ -230,7 +230,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkCreateEntityAutoId() throws ODataJPAProcessException, ODataJPAModelException {
+  void checkCreateEntityAutoId() throws ODataJPAProcessException, ODataJPAModelException {
     final EntityType<?> jpaEt = mock(EntityType.class);
     final Set<EntityType<?>> jpaEts = new HashSet<>();
     final SingularAttribute<?, ?> at = mock(SingularAttribute.class);
@@ -252,7 +252,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkCreateEntityWithoutAutoId() throws ODataJPAProcessException, ODataJPAModelException {
+  void checkCreateEntityWithoutAutoId() throws ODataJPAProcessException, ODataJPAModelException {
     final EntityType<?> jpaEt = mock(EntityType.class);
     final Set<EntityType<?>> jpaEts = new HashSet<>();
     final SingularAttribute<?, ?> at = mock(SingularAttribute.class);
@@ -273,7 +273,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkCreateEntityAutoIdIdNotFound() throws ODataJPAProcessException, ODataJPAModelException {
+  void checkCreateEntityAutoIdIdNotFound() throws ODataJPAProcessException, ODataJPAModelException {
     final EntityType<?> jpaEt = mock(EntityType.class);
     final Set<EntityType<?>> jpaEts = new HashSet<>();
     jpaEts.add(jpaEt);
@@ -290,7 +290,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkCreateEntityAutoIdNoKey() throws ODataJPAProcessException, ODataJPAModelException {
+  void checkCreateEntityAutoIdNoKey() throws ODataJPAProcessException, ODataJPAModelException {
     final EntityType<?> jpaEt = mock(EntityType.class);
     final Set<EntityType<?>> jpaEts = new HashSet<>();
     jpaEts.add(jpaEt);
@@ -307,7 +307,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkCreateEntityAutoIdNoJpaEntityType() throws ODataJPAProcessException, ODataJPAModelException {
+  void checkCreateEntityAutoIdNoJpaEntityType() throws ODataJPAProcessException, ODataJPAModelException {
     final Set<EntityType<?>> jpaEts = new HashSet<>();
     doReturn(jpaEts).when(metamodel).getEntities();
 
@@ -320,7 +320,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkUpdateEntityNotFound() throws ODataJPAProcessException, ODataJPAModelException {
+  void checkUpdateEntityNotFound() throws ODataJPAProcessException, ODataJPAModelException {
     final String id = "1";
     final Organization beforeImage = new Organization(id);
     final JPAEntityType et = helper.getJPAEntityType("Organizations");
@@ -340,7 +340,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkDeleteSimplePrimitiveProperty() throws ODataJPAProcessException, ODataJPAModelException {
+  void checkDeleteSimplePrimitiveProperty() throws ODataJPAProcessException, ODataJPAModelException {
     final String id = "1";
     final Organization beforeImage = new Organization(id);
     beforeImage.setName1("Example Ltd");
@@ -358,7 +358,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkDeletePrimitiveCollectionProperty() throws ODataJPAProcessException, ODataJPAModelException {
+  void checkDeletePrimitiveCollectionProperty() throws ODataJPAProcessException, ODataJPAModelException {
     final String id = "1";
     final Organization beforeImage = new Organization(id);
     beforeImage.getComment().add("YAC");
@@ -376,7 +376,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkDeleteSimpleComplexProperty() throws ODataJPAProcessException, ODataJPAModelException {
+  void checkDeleteSimpleComplexProperty() throws ODataJPAProcessException, ODataJPAModelException {
     final String id = "1";
     final Organization beforeImage = new Organization(id);
     beforeImage.setAddress(new PostalAddressData());
@@ -394,7 +394,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkDeleteComplexCollectionProperty() throws ODataJPAProcessException, ODataJPAModelException {
+  void checkDeleteComplexCollectionProperty() throws ODataJPAProcessException, ODataJPAModelException {
 
     final String id = "2";
     final Person beforeImage = new Person();
@@ -414,7 +414,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkDeleteSimplePrimitivePropertyDeep() throws ODataJPAProcessException, ODataJPAModelException {
+  void checkDeleteSimplePrimitivePropertyDeep() throws ODataJPAProcessException, ODataJPAModelException {
     final String id = "1";
     final Organization beforeImage = new Organization(id);
     final PostalAddressData addr = new PostalAddressData();
@@ -439,7 +439,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkDeleteEntity() throws ODataJPAProcessException, ODataJPAModelException {
+  void checkDeleteEntity() throws ODataJPAProcessException, ODataJPAModelException {
     final String id = "1";
     final Organization beforeImage = new Organization(id);
 
@@ -451,7 +451,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkDeleteNoErrorIfEntityDoesNotExists() throws ODataJPAProcessException, ODataJPAModelException {
+  void checkDeleteNoErrorIfEntityDoesNotExists() throws ODataJPAProcessException, ODataJPAModelException {
     final String id = "1";
     final Organization beforeImage = new Organization(id);
 
@@ -463,7 +463,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkPatchOneSimplePrimitiveValue() throws ODataJPAModelException, ODataJPAProcessException {
+  void checkPatchOneSimplePrimitiveValue() throws ODataJPAModelException, ODataJPAProcessException {
     final JPAUpdateResult act = updateSimplePrimitiveValue();
 
     assertFalse(act.wasCreate());
@@ -471,7 +471,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkPatchOneSimpleComplexValue() throws ODataJPAModelException, ODataJPAProcessException {
+  void checkPatchOneSimpleComplexValue() throws ODataJPAModelException, ODataJPAProcessException {
 
     final String id = "1";
     final Organization beforeImage = new Organization(id);
@@ -505,7 +505,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkPatchEmptyComplexCollectionProperty() throws ODataJPAProcessException, ODataJPAModelException {
+  void checkPatchEmptyComplexCollectionProperty() throws ODataJPAProcessException, ODataJPAModelException {
 
     final String id = "2";
     final Person beforeImage = new Person();
@@ -527,7 +527,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkPatchComplexCollectionProperty() throws ODataJPAProcessException, ODataJPAModelException {
+  void checkPatchComplexCollectionProperty() throws ODataJPAProcessException, ODataJPAModelException {
 
     final String id = "2";
     final Person beforeImage = new Person();
@@ -561,7 +561,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkPatchOnePrimitiveCollectionValue() throws ODataJPAModelException, ODataJPAProcessException {
+  void checkPatchOnePrimitiveCollectionValue() throws ODataJPAModelException, ODataJPAProcessException {
     final String id = "1";
     final Organization beforeImage = new Organization(id);
     final List<String> newComments = Arrays.asList("This is a test", "YAT");
@@ -584,7 +584,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkPatchCreateBindingLinkBetweenTwoEntities() throws ODataJPAModelException,
+  void checkPatchCreateBindingLinkBetweenTwoEntities() throws ODataJPAModelException,
       ODataJPAProcessException {
     // URL: ../AdministrativeDivisions(DivisionCode='DE51',CodeID='NUTS2',CodePublisher='Eurostat')
     // Body: {
@@ -625,7 +625,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkAuditFieldsSetOnCreate() throws ODataJPAModelException, ODataJPAProcessException {
+  void checkAuditFieldsSetOnCreate() throws ODataJPAModelException, ODataJPAProcessException {
     final OrganizationWithAudit act = createOrganization();
     cut.validateChanges(em);
     assertNotNull(act.getCreatedBy());
@@ -635,7 +635,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkAuditFieldsSetOnUpdate() throws ODataJPAModelException, ODataJPAProcessException {
+  void checkAuditFieldsSetOnUpdate() throws ODataJPAModelException, ODataJPAProcessException {
     final OrganizationWithAudit act = (OrganizationWithAudit) updateOrganization().getModifiedEntity();
     cut.validateChanges(em);
     assertNotNull(act.getUpdatedBy());
@@ -645,7 +645,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkAuthorizationsCreateRejectsNotClaimsNotAllowed() throws ODataJPAModelException,
+  void checkAuthorizationsCreateRejectsNotClaimsNotAllowed() throws ODataJPAModelException,
       ODataJPAProcessException {
     final JPAExampleModifyException act = assertThrows(JPAExampleModifyException.class,
         () -> createPersonProtected(null));
@@ -653,7 +653,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkAuthorizationsCreateRejectsAttributeNotPresent() throws ODataJPAModelException,
+  void checkAuthorizationsCreateRejectsAttributeNotPresent() throws ODataJPAModelException,
       ODataJPAProcessException {
     final JPAODataClaimProvider claims = mock(JPAODataClaimProvider.class);
     final JPAExampleModifyException act = assertThrows(JPAExampleModifyException.class, () -> createPersonProtected(
@@ -662,7 +662,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkAuthorizationsCreateRejectsAttributeNotMatch() throws ODataJPAModelException,
+  void checkAuthorizationsCreateRejectsAttributeNotMatch() throws ODataJPAModelException,
       ODataJPAProcessException {
     final JPAClaimsPair<String> claim = new JPAClaimsPair<>("DOT01");
     final JPAODataClaimProvider claims = mock(JPAODataClaimProvider.class);
@@ -673,7 +673,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkAuthorizationsCreateRejectedOnyOneProvided() throws ODataJPAModelException,
+  void checkAuthorizationsCreateRejectedOnyOneProvided() throws ODataJPAModelException,
       ODataJPAProcessException {
     final JPAClaimsPair<String> claim = new JPAClaimsPair<>("MID*");
     final JPAODataClaimProvider claims = mock(JPAODataClaimProvider.class);
@@ -684,28 +684,28 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkAuthorizationsCreateAllowedWithWildCardMulti() throws ODataJPAModelException, // NOSONAR
+  void checkAuthorizationsCreateAllowedWithWildCardMulti() throws ODataJPAModelException, // NOSONAR
       ODataJPAProcessException {
     final JPAClaimsPair<String> claim = new JPAClaimsPair<>("MID*");
     createPersonProtected(createPersonProtectedClaims(claim));
   }
 
   @Test
-  public void checkAuthorizationsCreateAllowedWithWildCardSingle() throws ODataJPAModelException, // NOSONAR
+  void checkAuthorizationsCreateAllowedWithWildCardSingle() throws ODataJPAModelException, // NOSONAR
       ODataJPAProcessException {
     final JPAClaimsPair<String> claim = new JPAClaimsPair<>("MID_5");
     createPersonProtected(createPersonProtectedClaims(claim));
   }
 
   @Test
-  public void checkAuthorizationsCreateAllowedWithWildCardMix() throws ODataJPAModelException, // NOSONAR
+  void checkAuthorizationsCreateAllowedWithWildCardMix() throws ODataJPAModelException, // NOSONAR
       ODataJPAProcessException {
     final JPAClaimsPair<String> claim = new JPAClaimsPair<>("M_D*");
     createPersonProtected(createPersonProtectedClaims(claim));
   }
 
   @Test
-  public void checkAuthorizationsCreateRejectsWildCardNotMatch() throws ODataJPAModelException,
+  void checkAuthorizationsCreateRejectsWildCardNotMatch() throws ODataJPAModelException,
       ODataJPAProcessException {
     final JPAClaimsPair<String> claim = new JPAClaimsPair<>("D_D*");
 //    final JPAExampleModifyException act = assertThrows(JPAExampleModifyException.class,
@@ -714,21 +714,21 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkAuthorizationsCreateAllowedInRangeAllowsWildcard() throws ODataJPAModelException, // NOSONAR
+  void checkAuthorizationsCreateAllowedInRangeAllowsWildcard() throws ODataJPAModelException, // NOSONAR
       ODataJPAProcessException {
     final JPAClaimsPair<String> claim = new JPAClaimsPair<>("MID00", "MID99");
     createPersonProtected(createPersonProtectedClaims(claim));
   }
 
   @Test
-  public void checkAuthorizationsCreateAllowedInRangeWildcard() throws ODataJPAModelException, // NOSONAR
+  void checkAuthorizationsCreateAllowedInRangeWildcard() throws ODataJPAModelException, // NOSONAR
       ODataJPAProcessException {
     final JPAClaimsPair<String> claim = new JPAClaimsPair<>("MID0+", "MID9*");
     createPersonProtected(createPersonProtectedClaims(claim));
   }
 
   @Test
-  public void checkAuthorizationsCreateRejectRangeWilrdcardMin() throws ODataJPAModelException,
+  void checkAuthorizationsCreateRejectRangeWilrdcardMin() throws ODataJPAModelException,
       ODataJPAProcessException {
     final JPAClaimsPair<String> claim = new JPAClaimsPair<>("MI+0*", "MID99");
     final JPAExampleModifyException act = assertThrows(JPAExampleModifyException.class,
@@ -737,7 +737,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkAuthorizationsCreateRejectRangeWilrdcarMax() throws ODataJPAModelException,
+  void checkAuthorizationsCreateRejectRangeWilrdcarMax() throws ODataJPAModelException,
       ODataJPAProcessException {
     final JPAClaimsPair<String> claim = new JPAClaimsPair<>("MID00", "MI*99");
     final JPAExampleModifyException act = assertThrows(JPAExampleModifyException.class,
@@ -746,7 +746,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkAuthorizationsCreateAllowedTwoClaims() throws ODataJPAModelException, // NOSONAR
+  void checkAuthorizationsCreateAllowedTwoClaims() throws ODataJPAModelException, // NOSONAR
       ODataJPAProcessException {
     final JPAClaimsPair<String> claim1 = new JPAClaimsPair<>("MID25");
     final JPAClaimsPair<String> claim2 = new JPAClaimsPair<>("MID00");
@@ -757,7 +757,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkAuthorizationsCreateAllowedInRange() throws ODataJPAModelException, // NOSONAR
+  void checkAuthorizationsCreateAllowedInRange() throws ODataJPAModelException, // NOSONAR
       ODataJPAProcessException {
 
     buildOrganizationMockForAuthorizationTest();
@@ -768,7 +768,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
 
 //Authorization
   @Test
-  public void checkAuthorizationsCreateRejectRangeToLow() throws ODataJPAModelException,
+  void checkAuthorizationsCreateRejectRangeToLow() throws ODataJPAModelException,
       ODataJPAProcessException {
 
     buildOrganizationMockForAuthorizationTest();
@@ -779,7 +779,7 @@ public class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void checkAuthorizationsCreateRejectRangeToHigh() throws ODataJPAModelException,
+  void checkAuthorizationsCreateRejectRangeToHigh() throws ODataJPAModelException,
       ODataJPAProcessException {
 
     buildOrganizationMockForAuthorizationTest();

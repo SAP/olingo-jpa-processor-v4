@@ -31,8 +31,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterElementComplier;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterExpression;
@@ -50,7 +50,8 @@ public abstract class JPANavigationQuery extends JPAAbstractQuery {
   protected JPAFilterElementComplier filterComplier;
 
   public JPANavigationQuery(final OData odata, final JPAServiceDocument sd, final EdmEntityType edmEntityType,
-      final EntityManager em, final JPAAbstractQuery parent, From<?, ?> from, final JPAAssociationPath association,
+      final EntityManager em, final JPAAbstractQuery parent, final From<?, ?> from,
+      final JPAAssociationPath association,
       final Optional<JPAODataClaimProvider> claimsProvider) throws ODataApplicationException {
 
     super(odata, sd, edmEntityType, em, claimsProvider);
@@ -72,9 +73,10 @@ public abstract class JPANavigationQuery extends JPAAbstractQuery {
   public abstract <T extends Object> Subquery<T> getSubQueryExists(final Subquery<?> childQuery)
       throws ODataApplicationException;
 
+  @SuppressWarnings("unchecked")
   @Override
-  public AbstractQuery<?> getQuery() {
-    return subQuery;
+  public <T> AbstractQuery<T> getQuery() {
+    return (AbstractQuery<T>) subQuery;
   }
 
   @Override
@@ -149,7 +151,7 @@ public abstract class JPANavigationQuery extends JPAAbstractQuery {
       try {
         if (filterComplier.getExpressionMember() != null)
           whereCondition = addWhereClause(whereCondition, filterComplier.compile());
-      } catch (ExpressionVisitException e) {
+      } catch (final ExpressionVisitException e) {
         throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
       }
     return whereCondition;
@@ -173,7 +175,7 @@ public abstract class JPANavigationQuery extends JPAAbstractQuery {
       Expression<Boolean> whereCondition = createWhereByAssociation(from, queryJoinTable, left);
       whereCondition = cb.and(whereCondition, createWhereByAssociation(queryJoinTable, queryRoot, right));
       subQuery.where(applyAdditionalFilter(whereCondition));
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
 
@@ -188,7 +190,7 @@ public abstract class JPANavigationQuery extends JPAAbstractQuery {
    * @throws ODataJPAModelException
    */
   protected Expression<Boolean> createWhereByAssociation(final From<?, ?> subRoot, final From<?, ?> parentFrom,
-      JPAEntityType jpaEntity) throws ODataJPAModelException {
+      final JPAEntityType jpaEntity) throws ODataJPAModelException {
     Expression<Boolean> whereCondition = null;
 
     for (final JPAPath onItem : jpaEntity.getKeyPath()) {
@@ -229,7 +231,7 @@ public abstract class JPANavigationQuery extends JPAAbstractQuery {
 
       try {
         subQuery.having(this.filterComplier.compile());
-      } catch (ExpressionVisitException e) {
+      } catch (final ExpressionVisitException e) {
         throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
       }
     }
@@ -251,13 +253,13 @@ public abstract class JPANavigationQuery extends JPAAbstractQuery {
      * AND (t0."Type" = '1'))
      */
     try {
-      List<JPAOnConditionItem> left = association.getJoinTable().getJoinColumns(); // Person -->
-      List<JPAOnConditionItem> right = association.getJoinTable().getInverseJoinColumns(); // Team -->
+      final List<JPAOnConditionItem> left = association.getJoinTable().getJoinColumns(); // Person -->
+      final List<JPAOnConditionItem> right = association.getJoinTable().getInverseJoinColumns(); // Team -->
       createSelectClauseAggregation(subQuery, queryJoinTable, left);
-      Expression<Boolean> whereCondition = createWhereByAssociation(from, queryJoinTable, parentQuery.jpaEntity);
+      final Expression<Boolean> whereCondition = createWhereByAssociation(from, queryJoinTable, parentQuery.jpaEntity);
       subQuery.where(applyAdditionalFilter(whereCondition));
       handleAggregation(subQuery, queryJoinTable, right);
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
   }
