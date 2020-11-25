@@ -55,7 +55,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
  * @author Oliver Grande
  *
  */
-public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
+public final class JPAExpandJoinQuery extends JPAAbstractExpandQuery {
   private final JPAAssociationPath association;
   private final Optional<JPAKeyBoundary> keyBoundary;
   private TypedQuery<Tuple> tupleQuery;
@@ -72,7 +72,7 @@ public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
 
   public JPAExpandJoinQuery(final OData odata, final JPAODataSessionContextAccess context,
       final JPAAssociationPath association, final JPAEntityType entityType,
-      final Map<String, List<String>> requestHeaders, final JPAODataRequestContextAccess requestContext)
+      final JPAODataRequestContextAccess requestContext)
       throws ODataException {
 
     super(odata, context, entityType, requestContext, Collections.emptyList());
@@ -116,14 +116,14 @@ public final class JPAExpandJoinQuery extends JPAAbstractJoinQuery {
       buildSelectionAddNavigationAndSelect(uriResource, uriResource
           .getSelectOption(), requestedSelection);
       debugger.stopRuntimeMeasurement(handle);
-      return new JPAExpandQueryResult(result, count(), jpaEntity, requestedSelection.getODataSelections());
+      return new JPAExpandQueryResult(result, count(), jpaEntity, requestedSelection.joinedRequested());
 
     } catch (final JPANoSelectionException e) {
       return new JPAExpandQueryResult(Collections.emptyMap(), Collections.emptyMap(), this.jpaEntity, Collections
           .emptyList());
     } catch (final ODataJPAModelException e) {
       throw new ODataApplicationException(e.getLocalizedMessage(), HttpStatusCode.INTERNAL_SERVER_ERROR
-          .getStatusCode(), ODataJPAModelException.getLocales().nextElement(), e);
+          .getStatusCode(), getLocale(), e);
     }
   }
 

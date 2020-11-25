@@ -725,4 +725,20 @@ class TestJPAProcessorExpand extends TestBase {
     assertNotNull(org.get("Roles@odata.count"));
     assertEquals(3, org.get("Roles@odata.count").asInt());
   }
+
+  @Test
+  void testExpandReturnsTransientProperties() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Teams?$expand=Member($select=FullName)&$orderby=ID");
+    helper.assertStatus(200);
+
+    final ArrayNode teams = helper.getValues();
+    final ObjectNode team = (ObjectNode) teams.get(0);
+    assertNotNull(team.get("Member"));
+    final ArrayNode members = (ArrayNode) team.get("Member");
+    assertEquals(2, members.size());
+    final ObjectNode member = (ObjectNode) members.get(0);
+    assertFalse(member.get("FullName") instanceof NullNode);
+  }
+
 }

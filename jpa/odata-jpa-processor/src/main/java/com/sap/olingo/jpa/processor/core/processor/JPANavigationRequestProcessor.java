@@ -41,12 +41,13 @@ import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPANotImplementedException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
+import com.sap.olingo.jpa.processor.core.query.JPAAbstractExpandQuery;
 import com.sap.olingo.jpa.processor.core.query.JPACollectionItemInfo;
 import com.sap.olingo.jpa.processor.core.query.JPACollectionJoinQuery;
 import com.sap.olingo.jpa.processor.core.query.JPAConvertibleResult;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandItemInfo;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandItemInfoFactory;
-import com.sap.olingo.jpa.processor.core.query.JPAExpandJoinQuery;
+import com.sap.olingo.jpa.processor.core.query.JPAExpandQueryFactory;
 import com.sap.olingo.jpa.processor.core.query.JPAExpandQueryResult;
 import com.sap.olingo.jpa.processor.core.query.JPAJoinQuery;
 import com.sap.olingo.jpa.processor.core.query.JPAKeyBoundary;
@@ -262,8 +263,8 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
       final Optional<JPAKeyBoundary> keyBoundary) throws ODataException {
 
     final int handle = debugger.startRuntimeMeasurement(this, "readExpandEntities");
-    final Map<JPAAssociationPath, JPAExpandResult> allExpResults =
-        new HashMap<>();
+    final JPAExpandQueryFactory factory = new JPAExpandQueryFactory(odata, sessionContext, requestContext, cb);
+    final Map<JPAAssociationPath, JPAExpandResult> allExpResults = new HashMap<>();
     // x/a?$expand=b/c($expand=d,e/f)&$filter=...&$top=3&$orderBy=...
     // For performance reasons the expand query should only return results for the results of the higher-level query.
     // The solution for restrictions like a given key or a given filter condition, as it can be propagated to a
@@ -276,11 +277,10 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     final List<JPAExpandItemInfo> itemInfoList = new JPAExpandItemInfoFactory()
         .buildExpandItemInfo(sd, uriResourceInfo, parentHops);
     for (final JPAExpandItemInfo item : itemInfoList) {
-      final JPAExpandJoinQuery expandQuery = new JPAExpandJoinQuery(odata, sessionContext, item, requestContext,
-          keyBoundary);
+      final JPAAbstractExpandQuery expandQuery = factory.createQuery(item, keyBoundary);
       final JPAExpandQueryResult expandResult = expandQuery.execute();
       if (expandResult.getNoResults() > 0)
-        // Only go the next hop if the current one has a result
+        // Only go to the next hop if the current one has a result
         expandResult.putChildren(readExpandEntities(headers, item.getHops(), item.getUriInfo(), keyBoundary));
       allExpResults.put(item.getExpandAssociation(), expandResult);
     }

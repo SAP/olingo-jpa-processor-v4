@@ -87,7 +87,7 @@ public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertib
   @Override
   public void convert(final JPATupleChildConverter converter) throws ODataApplicationException {
     if (odataResult == null) {
-      for (Entry<JPAAssociationPath, JPAExpandResult> childResult : childrenResult.entrySet()) {
+      for (final Entry<JPAAssociationPath, JPAExpandResult> childResult : childrenResult.entrySet()) {
         childResult.getValue().convert(converter);
       }
       odataResult = converter.getResult(this, requestedSelection);
@@ -95,13 +95,13 @@ public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertib
   }
 
   @Override
-  public JPAExpandResult getChild(JPAAssociationPath associationPath) {
+  public JPAExpandResult getChild(final JPAAssociationPath associationPath) {
     return childrenResult.get(associationPath);
   }
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see org.apache.org.jpa.processor.core.converter.JPAExpandResult#getChildren()
    */
   @Override
@@ -111,7 +111,7 @@ public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertib
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see org.apache.org.jpa.processor.core.converter.JPAExpandResult#getCount()
    */
   @Override
@@ -121,7 +121,7 @@ public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertib
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see org.apache.org.jpa.processor.core.converter.JPAExpandResult#getEntityType()
    */
   @Override
@@ -135,7 +135,7 @@ public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertib
 
   public long getNoResultsDeep() {
     long count = 0;
-    for (Entry<String, List<Tuple>> result : jpaResult.entrySet()) {
+    for (final Entry<String, List<Tuple>> result : jpaResult.entrySet()) {
       count += result.getValue().size();
     }
     return count;
@@ -143,7 +143,7 @@ public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertib
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see org.apache.org.jpa.processor.core.converter.JPAExpandResult#getResult(java.lang.String)
    */
   @Override
@@ -153,7 +153,7 @@ public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertib
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see org.apache.org.jpa.processor.core.converter.JPAExpandResult#hasCount()
    */
   @Override
@@ -200,12 +200,12 @@ public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertib
         final JPAKeyPair boundary = new JPAKeyPair(jpaEntityType.getKey());
         for (final Tuple tuple : jpaResult.get(ROOT_RESULT_KEY)) {
           @SuppressWarnings("rawtypes")
-          Map<JPAAttribute, Comparable> key = createKey(tuple);
+          final Map<JPAAttribute, Comparable> key = createKey(tuple);
           boundary.setValue(key);
         }
         return Optional.of(new JPAKeyBoundary(hops.size(), boundary));
       }
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
     return JPAConvertibleResult.super.getKeyBoundary(requestContext, hops);
