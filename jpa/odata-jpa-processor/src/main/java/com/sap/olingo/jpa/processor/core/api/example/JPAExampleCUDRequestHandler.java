@@ -332,7 +332,8 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
 
   private boolean hasGeneratedKeyInt(final JPAEntityType et, final EntityType<?> jpaEt) {
     try {
-      for (final JPAAttribute key : et.getKey()) {
+      if (jpaEt.hasSingleIdAttribute()) {
+        final JPAAttribute key = et.getKey().get(0);
         final SingularAttribute<?, ?> at = jpaEt.getId(key.getType());
         if (at != null &&
             ((AnnotatedElement) at.getJavaMember()).getAnnotation(GeneratedValue.class) != null)

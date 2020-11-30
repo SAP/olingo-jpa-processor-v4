@@ -237,6 +237,7 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
     final Member atAsMember = mock(Member.class, new MockSettingsImpl<>().extraInterfaces(AnnotatedElement.class));
     final GeneratedValue generatedValue = mock(GeneratedValue.class);
     jpaEts.add(jpaEt);
+    doReturn(true).when(jpaEt).hasSingleIdAttribute();
     doReturn(jpaEts).when(metamodel).getEntities();
     doReturn("AdministrativeDivision").when(jpaEt).getName();
     doReturn(at).when(jpaEt).getId(any());
