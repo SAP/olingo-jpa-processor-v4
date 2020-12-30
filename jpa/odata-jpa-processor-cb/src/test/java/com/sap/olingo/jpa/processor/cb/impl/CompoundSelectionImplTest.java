@@ -40,7 +40,7 @@ class CompoundSelectionImplTest {
         return Long.class;
       }
     });
-    cut = new CompoundSelectionImpl<>(selections, Long.class);
+    cut = new CompoundSelectionImpl<>(selections, Long.class, new AliasBuilder("S"));
   }
 
   @Test
@@ -50,7 +50,9 @@ class CompoundSelectionImplTest {
 
   @Test
   void testGetCompoundSelectionItems() {
-    assertEquals(selections, cut.getCompoundSelectionItems());
+    final List<Selection<?>> act = cut.getCompoundSelectionItems();
+    assertEquals(selections.size(), act.size());
+    assertEquals(selections.get(0), ((SqlSelection<?>) act.get(0)).getSelection());
   }
 
   @Test
@@ -74,7 +76,7 @@ class CompoundSelectionImplTest {
 
     selections.clear();
     selections.add(path);
-    cut = new CompoundSelectionImpl<>(selections, Long.class);
+    cut = new CompoundSelectionImpl<>(selections, Long.class, new AliasBuilder("S"));
 
     assertEquals(statement, cut.asSQL(statement));
   }

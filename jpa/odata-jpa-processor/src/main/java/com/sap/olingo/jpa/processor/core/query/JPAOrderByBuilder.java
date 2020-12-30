@@ -10,10 +10,14 @@ import static org.apache.olingo.commons.api.http.HttpStatusCode.NOT_IMPLEMENTED;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Order;
@@ -21,6 +25,7 @@ import javax.persistence.criteria.Path;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
@@ -34,9 +39,11 @@ import org.apache.olingo.server.api.uri.queryoption.OrderByOption;
 import org.apache.olingo.server.api.uri.queryoption.expression.Expression;
 import org.apache.olingo.server.api.uri.queryoption.expression.Member;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -68,8 +75,9 @@ final class JPAOrderByBuilder {
   }
 
   /**
-   * Create a list of oder by for the root (non $expand) query part. Beside the $orderby query option, it also take $top
-   * and $skip into account. SO that for the later once a stable sorting is guaranteed.<p>
+   * Create a list of order by for the root (non $expand) query part. Beside the $orderby query option, it also take
+   * $top
+   * and $skip into account, so that for the later once a stable sorting is guaranteed.<p>
    * If asc or desc is not specified, the service MUST order by the specified property in ascending order.
    * See: <a href=
    * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398305"
@@ -80,15 +88,15 @@ final class JPAOrderByBuilder {
    * [...ComplexProperty,...PrimitiveProperty]<br>
    * .../Organizations?$orderby=Roles/$count --> one item, two resourcePaths [...NavigationProperty,...Count]<br>
    * .../Organizations?$orderby=Roles/$count desc,Address/Country asc -->two items <p>
-   * SQL example to order by number of entities<br>
+   * SQL example to order by number of entities<p>
    * <code>
    * SELECT t0."BusinessPartnerID" ,COUNT(t1."BusinessPartnerID")<br>
-   * FROM "OLINGO"."org.apache.olingo.jpa::BusinessPartner" t0 <br>
+   * <pre>FROM "OLINGO"."org.apache.olingo.jpa::BusinessPartner" t0 <br>
    * LEFT OUTER JOIN "OLINGO"."org.apache.olingo.jpa::BusinessPartnerRole" t1 <br>
-   * ON (t1."BusinessPartnerID" = t0."BusinessPartnerID")} v
+   * ON (t1."BusinessPartnerID" = t0."BusinessPartnerID")}
    * WHERE (t0."Type" = ?)<br>
    * GROUP BY t0."BusinessPartnerID"<br>
-   * ORDER BY COUNT(t1."BusinessPartnerID") DESC<br>
+   * ORDER BY COUNT(t1."BusinessPartnerID") DESC<br></pre>
    * </code>
    * @since 1.0.0
    * @param joinTables
@@ -99,15 +107,17 @@ final class JPAOrderByBuilder {
   @Nonnull
   List<Order> createOrderByList(@Nonnull final Map<String, From<?, ?>> joinTables,
       @Nonnull final UriInfoResource uriResource) throws ODataApplicationException {
+
     final List<Order> result = new ArrayList<>();
+    final Set<Path<?>> orderBys = new HashSet<>();
     try {
       if (uriResource.getOrderByOption() != null) {
-        LOGGER.trace("Determined $orderby: convert to ORBER BY");
-        addOrderByFromUriResource(joinTables, result, uriResource.getOrderByOption());
+        LOGGER.trace("Determined $orderby: convert to Order By");
+        addOrderByFromUriResource(joinTables, result, orderBys, uriResource.getOrderByOption());
       }
       if (uriResource.getTopOption() != null || uriResource.getSkipOption() != null) {
-        LOGGER.trace("Determined $top/$skip: add primary key to order by");
-        addOrderByPrimaryKey(result);
+        LOGGER.trace("Determined $top/$skip: add primary key to Order By");
+        addOrderByPrimaryKey(result, orderBys);
       }
     } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(e, BAD_REQUEST);
@@ -120,6 +130,121 @@ final class JPAOrderByBuilder {
     return Collections.emptyList();
   }
 
+  /**
+   * Create a list of order by for $expand query part. It does not take top and skip into account, but the
+   * association.<p>
+   */
+  @Nonnull
+  List<Order> createOrderByList(@Nonnull final Map<String, From<?, ?>> joinTables,
+      @Nullable final OrderByOption orderBy, @Nonnull final JPAAssociationPath association)
+      throws ODataApplicationException {
+
+    final List<Order> result = new ArrayList<>();
+    final Set<Path<?>> orderByPaths = new HashSet<>();
+    try {
+      LOGGER.trace("Determined relationship and add corresponding to OrderBy");
+      addOrderByJoinCondition(association, result);
+      if (orderBy != null) {
+        LOGGER.trace("Determined $orderby: convert to Order By");
+        addOrderByFromUriResource(joinTables, result, orderByPaths, orderBy);
+      }
+    } catch (final ODataJPAModelException e) {
+      throw new ODataJPAQueryException(e, BAD_REQUEST);
+    }
+    return result;
+  }
+
+  @Nonnull
+  List<Order> createOrderByListAlias(@Nonnull final Map<String, From<?, ?>> joinTables,
+      @Nullable final OrderByOption orderBy, @Nonnull final JPAAssociationPath association)
+      throws ODataApplicationException {
+
+    final List<Order> result = new ArrayList<>();
+    final Set<Path<?>> orderByPaths = new HashSet<>();
+    try {
+      LOGGER.trace("Determined relationship and add corresponding to OrderBy");
+      addOrderByJoinConditionAlias(association, result);
+      if (orderBy != null) {
+        LOGGER.trace("Determined $orderby: convert to Order By");
+        addOrderByFromUriResource(joinTables, result, orderByPaths, orderBy);
+      }
+    } catch (final ODataJPAModelException e) {
+      throw new ODataJPAQueryException(e, BAD_REQUEST);
+    }
+    return result;
+  }
+
+  @Nonnull
+  List<Order> createOrderByList(@Nonnull final Map<String, From<?, ?>> joinTables,
+      @Nullable final OrderByOption orderBy) throws ODataApplicationException {
+
+    final List<Order> result = new ArrayList<>();
+    final Set<Path<?>> orderByPaths = new HashSet<>();
+    try {
+      if (orderBy != null) {
+        LOGGER.trace("Determined $orderby: convert to Order By");
+        addOrderByFromUriResource(joinTables, result, orderByPaths, orderBy);
+      }
+    } catch (final ODataJPAModelException e) {
+      throw new ODataJPAQueryException(e, BAD_REQUEST);
+    }
+    return result;
+  }
+
+  void addOrderByJoinConditionAlias(final JPAAssociationPath association, final List<Order> orders)
+      throws ODataApplicationException {
+
+    try {
+      final List<JPAPath> joinColumns = association.hasJoinTable()
+          ? asPathList(association) : association.getRightColumnsList();
+
+      for (final JPAPath j : joinColumns) {
+        final Path<Object> jpaProperty = target.get(j.getAlias());
+        orders.add(cb.asc(jpaProperty));
+      }
+    } catch (final ODataJPAModelException e) {
+      throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
+    }
+  }
+
+  void addOrderByJoinCondition(final JPAAssociationPath association, final List<Order> orders)
+      throws ODataApplicationException {
+
+    try {
+      final List<JPAPath> joinColumns = association.hasJoinTable()
+          ? asPathList(association) : association.getRightColumnsList();
+
+      for (final JPAPath j : joinColumns) {
+        Path<?> jpaProperty = target;
+        for (final JPAElement pathElement : j.getPath()) {
+          jpaProperty = jpaProperty.get(pathElement.getInternalName());
+        }
+        orders.add(cb.asc(jpaProperty));
+      }
+    } catch (final ODataJPAModelException e) {
+      throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
+    }
+  }
+
+  private List<JPAPath> asPathList(final JPAAssociationPath association) throws ODataJPAModelException {
+    final List<JPAOnConditionItem> joinColumns = association.getJoinTable().getJoinColumns();
+    return joinColumns.stream()
+        .map(JPAOnConditionItem::getRightPath)
+        .collect(Collectors.toList());
+  }
+
+  @SuppressWarnings("unchecked")
+  <X extends Object, Y extends Object> From<X, Y> determineParentFrom(final JPAAssociationPath association,
+      final List<JPANavigationPropertyInfo> navigationInfo) throws ODataJPAQueryException {
+
+    for (final JPANavigationPropertyInfo item : navigationInfo) {
+      if (item.getAssociationPath() == association)
+        return (From<X, Y>) item.getFromClause();
+    }
+    throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_FILTER_ERROR,
+        HttpStatusCode.BAD_REQUEST);
+  }
+
   private void addOrderByExpression(final List<Order> orders, final OrderByItem orderByItem,
       final javax.persistence.criteria.Expression<?> expression) {
 
@@ -129,8 +254,17 @@ final class JPAOrderByBuilder {
       orders.add(cb.asc(expression));
   }
 
+  private void addOrderByExpression(final List<Order> orders, final OrderByItem orderByItem,
+      final Set<Path<?>> orderByPaths, final Path<?> path) {
+
+    if (!orderByPaths.contains(path)) {
+      orderByPaths.add(path);
+      addOrderByExpression(orders, orderByItem, path);
+    }
+  }
+
   private void addOrderByFromUriResource(final Map<String, From<?, ?>> joinTables, final List<Order> orders,
-      final OrderByOption orderByOption) throws ODataJPAProcessException,
+      final Set<Path<?>> orderByPaths, final OrderByOption orderByOption) throws ODataJPAProcessException,
       ODataJPAModelException {
 
     for (final OrderByItem orderByItem : orderByOption.getOrders()) {
@@ -143,7 +277,7 @@ final class JPAOrderByBuilder {
         for (final UriResource uriResourceItem : resourcePath.getUriResourceParts()) {
           if (isPrimitiveSimpleProperty(uriResourceItem)) {
             p = convertPropertyPath(type, uriResourceItem, p);
-            addOrderByExpression(orders, orderByItem, p);
+            addOrderByExpression(orders, orderByItem, orderByPaths, p);
           } else if (isComplexSimpleProperty(uriResourceItem)) {
             final JPAAttribute attribute = getAttribute(type, uriResourceItem);
             addPathByAttribute(externalPath, attribute);
@@ -181,11 +315,20 @@ final class JPAOrderByBuilder {
             pathElement.getExternalName());
       path = path.get(pathElement.getInternalName());
     }
+    path.alias(attributePath.getAlias());
     return path;
   }
 
-  private void addOrderByPrimaryKey(final List<Order> orders) {
-    orders.add(cb.asc(target));
+  private void addOrderByPrimaryKey(final List<Order> orders, final Set<Path<?>> existing)
+      throws ODataJPAQueryException, ODataJPAModelException {
+
+    final List<Path<Object>> paths = ExpressionUtil.convertToCriteriaPathList(target, jpaEntity, jpaEntity.getKey());
+    for (final Path<Object> p : paths) {
+      if (!existing.contains(p)) {
+        orders.add(cb.asc(p));
+        existing.add(p);
+      }
+    }
   }
 
   private void addPathByAttribute(final StringBuilder externalPath, final JPAAttribute attribute) {

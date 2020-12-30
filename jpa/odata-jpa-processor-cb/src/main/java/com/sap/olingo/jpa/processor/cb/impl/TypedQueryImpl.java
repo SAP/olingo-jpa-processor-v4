@@ -294,7 +294,7 @@ class TypedQueryImpl<T> implements TypedQuery<T> {
 
     final int[] count = { 0 };
     return selPath.stream()
-        .collect(Collectors.toMap(p -> p.getKey(), p -> count[0]++));
+        .collect(Collectors.toMap(Entry::getKey, p -> count[0]++));
   }
 
   private void copyParameter(final Map<Integer, ParameterExpression<?, ?>> map) {

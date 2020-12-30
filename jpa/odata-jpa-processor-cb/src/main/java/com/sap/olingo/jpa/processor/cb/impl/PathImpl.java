@@ -1,6 +1,8 @@
 package com.sap.olingo.jpa.processor.cb.impl;
 
-import java.util.ArrayList;
+import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -52,6 +54,14 @@ class PathImpl<X> extends ExpressionImpl<X> implements Path<X> {
     this.parent = Objects.requireNonNull(parent);
     this.st = type;
     this.tableAlias = Optional.ofNullable(tableAlias.orElseGet(this::tableAliasFromParent));
+  }
+
+  PathImpl(final PathImpl<X> s, final Optional<String> newTableAlias) {
+    super();
+    this.path = s.path;
+    this.parent = s.parent;
+    this.st = s.st;
+    this.tableAlias = newTableAlias;
   }
 
   @Override
@@ -211,12 +221,39 @@ class PathImpl<X> extends ExpressionImpl<X> implements Path<X> {
     return null;
   }
 
+  @SuppressWarnings("unchecked")
   List<Path<Object>> resolvePathElements() {
-    final List<Path<Object>> pathList = new ArrayList<>();
-    for (final JPAPath element : getPathList()) {
-      pathList.add(new PathImpl<>(element, parent, st, tableAlias));
-    }
-    return pathList;
+    if (path.isPresent())
+      return singletonList((Path<Object>) this);
+    return getPathList()
+        .stream()
+        .map(e -> new PathImpl<>(e, parent, st, tableAlias))
+        .collect(toList());
+
   }
 
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((!path.isPresent()) ? 0 : path.hashCode());
+    result = prime * result + ((!tableAlias.isPresent()) ? 0 : tableAlias.hashCode());
+    return result;
+  }
+
+  @SuppressWarnings("rawtypes")
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
+    final PathImpl other = (PathImpl) obj;
+    if (!path.isPresent()) {
+      if (other.path.isPresent()) return false;
+    } else if (!path.equals(other.path)) return false;
+    if (!tableAlias.isPresent()) {
+      if (other.tableAlias.isPresent()) return false;
+    } else if (!tableAlias.equals(other.tableAlias)) return false;
+    return true;
+  }
 }

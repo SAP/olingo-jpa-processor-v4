@@ -217,13 +217,13 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
     final Class<CriteriaBuilderImpl> c = CriteriaBuilderImpl.class;
     return Stream.of(
         arguments(c.getMethod("any", Subquery.class),
-            "ANY (SELECT ?1 FROM \"OLINGO\".\"AdministrativeDivision\" E0)"),
+            "ANY (SELECT ?1 S0 FROM \"OLINGO\".\"AdministrativeDivision\" E0)"),
         arguments(c.getMethod("all", Subquery.class),
-            "ALL (SELECT ?1 FROM \"OLINGO\".\"AdministrativeDivision\" E0)"),
+            "ALL (SELECT ?1 S0 FROM \"OLINGO\".\"AdministrativeDivision\" E0)"),
         arguments(c.getMethod("exists", Subquery.class),
-            "EXISTS (SELECT ?1 FROM \"OLINGO\".\"AdministrativeDivision\" E0)"),
+            "EXISTS (SELECT ?1 S0 FROM \"OLINGO\".\"AdministrativeDivision\" E0)"),
         arguments(c.getMethod("some", Subquery.class),
-            "SOME (SELECT ?1 FROM \"OLINGO\".\"AdministrativeDivision\" E0)"));
+            "SOME (SELECT ?1 S0 FROM \"OLINGO\".\"AdministrativeDivision\" E0)"));
   }
 
   @BeforeEach
@@ -777,7 +777,7 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
 
   @Test
   void testCreateRowNumberWithAlice() {
-    final String exp = "ROW_NUMBER() OVER() AS \"A\"";
+    final String exp = "ROW_NUMBER() OVER()";
     final Selection<Long> act = cut.rowNumber().alias("\"A\"");
     assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
   }

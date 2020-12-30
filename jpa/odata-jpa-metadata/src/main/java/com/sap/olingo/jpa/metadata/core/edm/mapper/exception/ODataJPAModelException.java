@@ -72,6 +72,7 @@ public class ODataJPAModelException extends ODataJPAException {
     NAVI_PROPERTY_NOT_FOUND,
     ON_LEFT_ATTRIBUTE_NULL,
     ON_RIGHT_ATTRIBUTE_NULL,
+    NO_JOIN_TABLE_TYPE,
     PATH_ELEMENT_NOT_FOUND,
     FILE_NOT_FOUND;
 

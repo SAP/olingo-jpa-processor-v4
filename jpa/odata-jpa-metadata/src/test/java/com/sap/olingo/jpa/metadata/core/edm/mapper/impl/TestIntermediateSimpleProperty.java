@@ -72,14 +72,14 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   private JPAEdmMetadataPostProcessor processor;
 
   @BeforeEach
-  public void setup() throws ODataJPAModelException {
+  void setup() throws ODataJPAModelException {
     helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
     errorHelper = new TestHelper(errorEmf.getMetamodel(), ERROR_PUNIT);
     processor = mock(JPAEdmMetadataPostProcessor.class);
   }
 
   @Test
-  public void checkPropertyCanBeCreated() throws ODataJPAModelException {
+  void checkPropertyCanBeCreated() throws ODataJPAModelException {
     final EmbeddableType<?> et = helper.getEmbeddableType(CommunicationData.class);
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(et, "landlinePhoneNumber");
     assertNotNull(new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME), jpaAttribute,
@@ -87,7 +87,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyName() throws ODataJPAModelException {
+  void checkGetPropertyName() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class), "type");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         jpaAttribute, helper.schema);
@@ -95,7 +95,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyDBFieldName() throws ODataJPAModelException {
+  void checkGetPropertyDBFieldName() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class), "type");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         jpaAttribute, helper.schema);
@@ -103,7 +103,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertySimpleType() throws ODataJPAModelException {
+  void checkGetPropertySimpleType() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class), "type");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         jpaAttribute, helper.schema);
@@ -112,7 +112,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyComplexType() throws ODataJPAModelException {
+  void checkGetPropertyComplexType() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class),
         "communicationData");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
@@ -121,7 +121,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyEnumTypeWithoutConverter() throws ODataJPAModelException {
+  void checkGetPropertyEnumTypeWithoutConverter() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(Organization.class), "aBCClass");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         jpaAttribute, helper.schema);
@@ -129,7 +129,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyEnumTypeWithoutConverterMustNotHaveMapper() throws ODataJPAModelException {
+  void checkGetPropertyEnumTypeWithoutConverterMustNotHaveMapper() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(Organization.class), "aBCClass");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         jpaAttribute,
@@ -138,7 +138,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyEnumTypeWithConverter() throws ODataJPAModelException {
+  void checkGetPropertyEnumTypeWithConverter() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(Person.class), "accessRights");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         jpaAttribute,
@@ -147,7 +147,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyIgnoreFalse() throws ODataJPAModelException {
+  void checkGetPropertyIgnoreFalse() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class), "type");
     final IntermediatePropertyAccess property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         jpaAttribute,
@@ -156,7 +156,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyIgnoreTrue() throws ODataJPAModelException {
+  void checkGetPropertyIgnoreTrue() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class),
         "customString1");
     final IntermediatePropertyAccess property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
@@ -166,7 +166,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyFacetsNullableTrue() throws ODataJPAModelException {
+  void checkGetPropertyFacetsNullableTrue() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class),
         "customString1");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
@@ -176,7 +176,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyFacetsNullableTrueComplex() throws ODataJPAModelException {
+  void checkGetPropertyFacetsNullableTrueComplex() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(
         helper.getEmbeddableType(PostalAddressData.class), "pOBox");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
@@ -185,7 +185,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyFacetsNullableFalse() throws ODataJPAModelException {
+  void checkGetPropertyFacetsNullableFalse() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class), "eTag");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         jpaAttribute, helper.schema);
@@ -193,7 +193,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyIsETagTrue() throws ODataJPAModelException {
+  void checkGetPropertyIsETagTrue() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class), "eTag");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         jpaAttribute, helper.schema);
@@ -201,7 +201,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyIsETagFalse() throws ODataJPAModelException {
+  void checkGetPropertyIsETagFalse() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class), "type");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         jpaAttribute, helper.schema);
@@ -210,7 +210,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyMaxLength() throws ODataJPAModelException {
+  void checkGetPropertyMaxLength() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class), "type");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         jpaAttribute, helper.schema);
@@ -219,7 +219,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyMaxLengthNullForClob() throws ODataJPAModelException {
+  void checkGetPropertyMaxLengthNullForClob() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getComplexType("DummyEmbeddedToIgnore"), "command");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         jpaAttribute, helper.schema);
@@ -228,7 +228,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyPrecisionDecimal() throws ODataJPAModelException {
+  void checkGetPropertyPrecisionDecimal() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class), "customNum1");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         jpaAttribute, helper.schema);
@@ -237,7 +237,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyScaleDecimal() throws ODataJPAModelException {
+  void checkGetPropertyScaleDecimal() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class), "customNum1");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         jpaAttribute, helper.schema);
@@ -245,7 +245,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyPrecisionTime() throws ODataJPAModelException {
+  void checkGetPropertyPrecisionTime() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class),
         "creationDateTime");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
@@ -255,7 +255,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyMapper() throws ODataJPAModelException {
+  void checkGetPropertyMapper() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class),
         "creationDateTime");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
@@ -265,7 +265,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyMapperWithConverter() throws ODataJPAModelException {
+  void checkGetPropertyMapperWithConverter() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(Person.class), "birthDay");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         jpaAttribute,
@@ -275,7 +275,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetNoPropertyMapperForClob() throws ODataJPAModelException {
+  void checkGetNoPropertyMapperForClob() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(Comment.class), "text");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         jpaAttribute,
@@ -284,7 +284,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkPostProcessorCalled() throws ODataJPAModelException {
+  void checkPostProcessorCalled() throws ODataJPAModelException {
     IntermediateSimpleProperty.setPostProcessor(processor);
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class),
         "creationDateTime");
@@ -296,7 +296,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkPostProcessorNameChanged() throws ODataJPAModelException {
+  void checkPostProcessorNameChanged() throws ODataJPAModelException {
     final PostProcessorSetName pPDouble = new PostProcessorSetName();
     IntermediateSimpleProperty.setPostProcessor(pPDouble);
 
@@ -310,7 +310,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkPostProcessorExternalNameChanged() throws ODataJPAModelException {
+  void checkPostProcessorExternalNameChanged() throws ODataJPAModelException {
     final PostProcessorSetName pPDouble = new PostProcessorSetName();
     IntermediateModelElement.setPostProcessor(pPDouble);
 
@@ -323,7 +323,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetConverterReturnedCOnvertionRequiered() throws ODataJPAModelException {
+  void checkGetConverterReturnedCOnvertionRequiered() throws ODataJPAModelException {
     final PostProcessorSetName pPDouble = new PostProcessorSetName();
     IntermediateModelElement.setPostProcessor(pPDouble);
 
@@ -336,7 +336,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetConverterNullNoConverterDefined() throws ODataJPAModelException {
+  void checkGetConverterNullNoConverterDefined() throws ODataJPAModelException {
     final PostProcessorSetName pPDouble = new PostProcessorSetName();
     IntermediateModelElement.setPostProcessor(pPDouble);
 
@@ -348,7 +348,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetConverterNullDBTypeEqJavaType() throws ODataJPAModelException {
+  void checkGetConverterNullDBTypeEqJavaType() throws ODataJPAModelException {
     final PostProcessorSetName pPDouble = new PostProcessorSetName();
     IntermediateModelElement.setPostProcessor(pPDouble);
 
@@ -360,7 +360,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetConverterNullConvertionNotRequired() throws ODataJPAModelException {
+  void checkGetConverterNullConvertionNotRequired() throws ODataJPAModelException {
     final PostProcessorSetName pPDouble = new PostProcessorSetName();
     IntermediateModelElement.setPostProcessor(pPDouble);
 
@@ -372,7 +372,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetRawConverterReturnedConvertionRequiered() throws ODataJPAModelException {
+  void checkGetRawConverterReturnedConvertionRequiered() throws ODataJPAModelException {
     final PostProcessorSetName pPDouble = new PostProcessorSetName();
     IntermediateModelElement.setPostProcessor(pPDouble);
 
@@ -385,7 +385,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetRawConverterNullNoConverterDefined() throws ODataJPAModelException {
+  void checkGetRawConverterNullNoConverterDefined() throws ODataJPAModelException {
     final PostProcessorSetName pPDouble = new PostProcessorSetName();
     IntermediateModelElement.setPostProcessor(pPDouble);
 
@@ -397,7 +397,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetRawConverterReturnsConvertionNotRequired() throws ODataJPAModelException {
+  void checkGetRawConverterReturnsConvertionNotRequired() throws ODataJPAModelException {
     final PostProcessorSetName pPDouble = new PostProcessorSetName();
     IntermediateModelElement.setPostProcessor(pPDouble);
 
@@ -409,7 +409,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyDefaultValue() throws ODataJPAModelException {
+  void checkGetPropertyDefaultValue() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEmbeddableType(PostalAddressData.class),
         "regionCodePublisher");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(nameBuilder,
@@ -418,7 +418,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyIsStream() throws ODataJPAModelException {
+  void checkGetPropertyIsStream() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(PersonImage.class),
         "image");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(nameBuilder,
@@ -427,7 +427,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyIsTransientTrue() throws ODataJPAModelException, NoSuchFieldException, SecurityException {
+  void checkGetPropertyIsTransientTrue() throws ODataJPAModelException, NoSuchFieldException, SecurityException {
 
     final Attribute<?, ?> jpaAttribute = new IntermediateStructuredType.TransientSingularAttribute<>(helper
         .getEntityType(Person.class), Person.class.getDeclaredField("fullName"));
@@ -438,7 +438,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyIsTransientFalse() throws ODataJPAModelException, NoSuchFieldException,
+  void checkGetPropertyIsTransientFalse() throws ODataJPAModelException, NoSuchFieldException,
       SecurityException {
 
     final Attribute<?, ?> jpaAttribute = new IntermediateStructuredType.TransientSingularAttribute<>(helper
@@ -450,7 +450,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyIsTransientThrowExceptionOnBeingKey() throws ODataJPAModelException,
+  void checkGetPropertyIsTransientThrowExceptionOnBeingKey() throws ODataJPAModelException,
       NoSuchFieldException, SecurityException {
 
     final Attribute<?, ?> jpaAttribute = new IntermediateStructuredType.TransientSingularAttribute<>(errorHelper
@@ -461,7 +461,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyGetCalculatorPersistantIsNull() throws ODataJPAModelException, NoSuchFieldException,
+  void checkGetPropertyGetCalculatorPersistantIsNull() throws ODataJPAModelException, NoSuchFieldException,
       SecurityException {
 
     final Attribute<?, ?> jpaAttribute = new IntermediateStructuredType.TransientSingularAttribute<>(helper
@@ -472,7 +472,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyGetCalculatorTransientNotNull() throws ODataJPAModelException, NoSuchFieldException,
+  void checkGetPropertyGetCalculatorTransientNotNull() throws ODataJPAModelException, NoSuchFieldException,
       SecurityException {
 
     final Attribute<?, ?> jpaAttribute = new IntermediateStructuredType.TransientSingularAttribute<>(helper
@@ -484,7 +484,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkTransientIsCollectionFalse() throws NoSuchFieldException, SecurityException {
+  void checkTransientIsCollectionFalse() throws NoSuchFieldException, SecurityException {
 
     final SingularAttribute<?, ?> jpaAttribute = new IntermediateStructuredType.TransientSingularAttribute<>(helper
         .getEntityType(Person.class), Person.class.getDeclaredField("fullName"));
@@ -492,7 +492,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkTransientBindableTypeNull() throws NoSuchFieldException, SecurityException {
+  void checkTransientBindableTypeNull() throws NoSuchFieldException, SecurityException {
 
     final SingularAttribute<?, ?> jpaAttribute = new IntermediateStructuredType.TransientSingularAttribute<>(helper
         .getEntityType(Person.class), Person.class.getDeclaredField("fullName"));
@@ -500,7 +500,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkTransientBindableJavaTypeNull() throws NoSuchFieldException, SecurityException {
+  void checkTransientBindableJavaTypeNull() throws NoSuchFieldException, SecurityException {
 
     final SingularAttribute<?, ?> jpaAttribute = new IntermediateStructuredType.TransientSingularAttribute<>(helper
         .getEntityType(Person.class), Person.class.getDeclaredField("fullName"));
@@ -508,7 +508,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkTransientTypeNull() throws NoSuchFieldException, SecurityException {
+  void checkTransientTypeNull() throws NoSuchFieldException, SecurityException {
 
     final SingularAttribute<?, ?> jpaAttribute = new IntermediateStructuredType.TransientSingularAttribute<>(helper
         .getEntityType(Person.class), Person.class.getDeclaredField("fullName"));
@@ -516,7 +516,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkTransientIsVersionFalse() throws NoSuchFieldException, SecurityException {
+  void checkTransientIsVersionFalse() throws NoSuchFieldException, SecurityException {
 
     final SingularAttribute<?, ?> jpaAttribute = new IntermediateStructuredType.TransientSingularAttribute<>(helper
         .getEntityType(Person.class), Person.class.getDeclaredField("fullName"));
@@ -524,7 +524,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkTransientIsOptionalTrue() throws NoSuchFieldException, SecurityException {
+  void checkTransientIsOptionalTrue() throws NoSuchFieldException, SecurityException {
 
     final SingularAttribute<?, ?> jpaAttribute = new IntermediateStructuredType.TransientSingularAttribute<>(helper
         .getEntityType(Person.class), Person.class.getDeclaredField("fullName"));
@@ -532,7 +532,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyGetCalculatorThrowExceptionOnMultipleConstructors() throws ODataJPAModelException,
+  void checkGetPropertyGetCalculatorThrowExceptionOnMultipleConstructors() throws ODataJPAModelException,
       NoSuchFieldException, SecurityException {
 
     final Attribute<?, ?> jpaAttribute = new IntermediateStructuredType.TransientSingularAttribute<>(errorHelper
@@ -545,7 +545,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyGetCalculatorThrowExceptionOnWrongConstructors() throws ODataJPAModelException,
+  void checkGetPropertyGetCalculatorThrowExceptionOnWrongConstructors() throws ODataJPAModelException,
       NoSuchFieldException, SecurityException {
 
     final Attribute<?, ?> jpaAttribute = new IntermediateStructuredType.TransientSingularAttribute<>(errorHelper
@@ -558,7 +558,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyGetCalculatorNullOnPersistantProperty() throws ODataJPAModelException,
+  void checkGetPropertyGetCalculatorNullOnPersistantProperty() throws ODataJPAModelException,
       NoSuchFieldException,
       SecurityException {
 
@@ -571,7 +571,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetTypeBoxedForPrimitive() throws ODataJPAModelException {
+  void checkGetTypeBoxedForPrimitive() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(AdministrativeDivision.class),
         "population");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(nameBuilder,
@@ -581,7 +581,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetTypeBoxed() throws ODataJPAModelException {
+  void checkGetTypeBoxed() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(AdministrativeDivision.class),
         "area");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(nameBuilder,
@@ -591,7 +591,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetTypeConvertionRequired() throws ODataJPAModelException {
+  void checkGetTypeConvertionRequired() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class),
         "creationDateTime");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
@@ -601,7 +601,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetTypeConvertionNotRequired() throws ODataJPAModelException {
+  void checkGetTypeConvertionNotRequired() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEmbeddableType(CollectionInnerComplex.class),
         "figure2");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(nameBuilder,
@@ -611,7 +611,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkTimestampWithoutPrecisionReturns0() throws ODataJPAModelException {
+  void checkTimestampWithoutPrecisionReturns0() throws ODataJPAModelException {
     // If Precision missing EdmDateTimeOffset.internalValueToString throws an exception => pre-check
     final Attribute<?, ?> jpaAttribute = mock(Attribute.class);
     final ManagedType<?> jpaManagedType = mock(ManagedType.class);
@@ -649,7 +649,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyHasProtectionFalse() throws ODataJPAModelException {
+  void checkGetPropertyHasProtectionFalse() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartnerProtected.class),
         "eTag");
     final IntermediatePropertyAccess property = new IntermediateSimpleProperty(nameBuilder,
@@ -658,7 +658,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyHasProtectionTrue() throws ODataJPAModelException {
+  void checkGetPropertyHasProtectionTrue() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartnerProtected.class),
         "username");
     final IntermediatePropertyAccess property = new IntermediateSimpleProperty(nameBuilder,
@@ -667,7 +667,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyProtectionSupportsWildCardTrue() throws ODataJPAModelException {
+  void checkGetPropertyProtectionSupportsWildCardTrue() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartnerProtected.class),
         "username");
     final IntermediateProperty property = new IntermediateSimpleProperty(nameBuilder,
@@ -676,7 +676,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyProtectionSupportsWildCardFalse() throws ODataJPAModelException {
+  void checkGetPropertyProtectionSupportsWildCardFalse() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getComplexType(
         "InhouseAddressWithThreeProtections"),
         "building");
@@ -686,7 +686,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyProtectionSupportsWildCardFalseNonString() throws ODataJPAModelException {
+  void checkGetPropertyProtectionSupportsWildCardFalseNonString() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getComplexType(
         "InhouseAddressWithThreeProtections"),
         "roomNumber");
@@ -696,7 +696,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyProtectedAttributeClaimName() throws ODataJPAModelException {
+  void checkGetPropertyProtectedAttributeClaimName() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartnerProtected.class),
         "username");
     final IntermediateProperty property = new IntermediateSimpleProperty(nameBuilder,
@@ -709,7 +709,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyNotProtectedAttributeClaimName() throws ODataJPAModelException {
+  void checkGetPropertyNotProtectedAttributeClaimName() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartnerProtected.class),
         "eTag");
     final IntermediateProperty property = new IntermediateSimpleProperty(nameBuilder,
@@ -719,7 +719,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetComplexPropertyProtectedAttributeClaimName() throws ODataJPAModelException {
+  void checkGetComplexPropertyProtectedAttributeClaimName() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartnerProtected.class),
         "administrativeInformation");
 
@@ -742,7 +742,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetComplexPropertyTwoProtectedAttributeClaimName() throws ODataJPAModelException {
+  void checkGetComplexPropertyTwoProtectedAttributeClaimName() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartnerProtected.class),
         "administrativeInformation");
 
@@ -774,7 +774,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetComplexPropertyTwoProtectedAttributeTwoClaimName() throws ODataJPAModelException {
+  void checkGetComplexPropertyTwoProtectedAttributeTwoClaimName() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartnerProtected.class),
         "administrativeInformation");
 
@@ -810,12 +810,12 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
 
   @Disabled
   @Test
-  public void checkGetSRID() {
+  void checkGetSRID() {
     // Test for spatial data missing
   }
 
   @Test
-  public void checkGetPropertyThrowsExceptionOnDateTimePrecisionGt12() throws ODataJPAModelException {
+  void checkGetPropertyThrowsExceptionOnDateTimePrecisionGt12() throws ODataJPAModelException {
     final Column jpaColumn = createDummyColumn();
     final Attribute<?, ?> jpaAttribute = createDummyAttribute(jpaColumn);
 
@@ -834,7 +834,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyThrowsExceptionOnDateTimePrecisionLt0() throws ODataJPAModelException {
+  void checkGetPropertyThrowsExceptionOnDateTimePrecisionLt0() throws ODataJPAModelException {
     final Column jpaColumn = createDummyColumn();
     final Attribute<?, ?> jpaAttribute = createDummyAttribute(jpaColumn);
 
@@ -853,7 +853,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyPrecisionNullOnDecimalPrecision0() throws ODataJPAModelException {
+  void checkGetPropertyPrecisionNullOnDecimalPrecision0() throws ODataJPAModelException {
     final Column jpaColumn = createDummyColumn();
     final Attribute<?, ?> jpaAttribute = createDummyAttribute(jpaColumn);
 

@@ -17,7 +17,7 @@ public class TestSelectionPathInfo {
     cut = new SelectionPathInfo<>(new HashSet<>(), new HashSet<>(), new HashSet<>());
     assertNotNull(cut);
     assertNotNull(cut.getODataSelections());
-    assertNotNull(cut.getRequitedSelections());
+    assertNotNull(cut.getRequiredSelections());
     assertNotNull(cut.getTransientSelections());
     assertNotNull(cut.joined());
   }
@@ -27,7 +27,7 @@ public class TestSelectionPathInfo {
     cut = new SelectionPathInfo<>(null, new HashSet<>(), new HashSet<>());
     assertNotNull(cut);
     assertNotNull(cut.getODataSelections());
-    assertNotNull(cut.getRequitedSelections());
+    assertNotNull(cut.getRequiredSelections());
     assertNotNull(cut.getTransientSelections());
     assertNotNull(cut.joined());
   }
@@ -37,7 +37,7 @@ public class TestSelectionPathInfo {
     cut = new SelectionPathInfo<>(new HashSet<>(), null, new HashSet<>());
     assertNotNull(cut);
     assertNotNull(cut.getODataSelections());
-    assertNotNull(cut.getRequitedSelections());
+    assertNotNull(cut.getRequiredSelections());
     assertNotNull(cut.getTransientSelections());
     assertNotNull(cut.joined());
   }
@@ -47,7 +47,7 @@ public class TestSelectionPathInfo {
     cut = new SelectionPathInfo<>(new HashSet<>(), new HashSet<>(), null);
     assertNotNull(cut);
     assertNotNull(cut.getODataSelections());
-    assertNotNull(cut.getRequitedSelections());
+    assertNotNull(cut.getRequiredSelections());
     assertNotNull(cut.getTransientSelections());
     assertNotNull(cut.joined());
   }

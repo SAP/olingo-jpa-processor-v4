@@ -126,19 +126,19 @@ public abstract class BusinessPartner implements KeyAccess {
   @OneToMany(mappedBy = "businessPartner", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
   private Collection<BusinessPartnerRole> roles;
 
-  public BusinessPartner() {
+  public BusinessPartner() { // NOSONAR
     super();
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj)
       return true;
     if (obj == null)
       return false;
     if (getClass() != obj.getClass())
       return false;
-    BusinessPartner other = (BusinessPartner) obj;
+    final BusinessPartner other = (BusinessPartner) obj;
     if (iD == null) {
       if (other.iD != null)
         return false;
@@ -270,7 +270,7 @@ public abstract class BusinessPartner implements KeyAccess {
   @PrePersist
   public void onCreate() {
     administrativeInformation = new AdministrativeInformation();
-    ChangeInformation created = new ChangeInformation("99", Date.valueOf(LocalDate.now()));
+    final ChangeInformation created = new ChangeInformation("99", Date.valueOf(LocalDate.now()));
     administrativeInformation.setCreated(created);
     administrativeInformation.setUpdated(created);
   }

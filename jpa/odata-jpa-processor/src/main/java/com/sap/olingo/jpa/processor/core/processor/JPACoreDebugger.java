@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -14,9 +16,19 @@ import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 class JPACoreDebugger implements JPAServiceDebugger {
   private final List<RuntimeMeasurement> runtimeInformation = new ArrayList<>();
   private final boolean isDebugMode;
+  private Object[] memoryInfoReader;
+  private boolean isSAPJvm = true;
 
-  public JPACoreDebugger(boolean isDebugMode) {
+  public JPACoreDebugger(final boolean isDebugMode) {
     this.isDebugMode = isDebugMode;
+
+    try {
+      memoryInfoReader = getMemoryInformation();
+    } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalAccessException
+        | IllegalArgumentException | InvocationTargetException | InstantiationException e) {
+      memoryInfoReader = null;
+      isSAPJvm = false;
+    }
   }
 
   @Override
@@ -39,11 +51,13 @@ class JPACoreDebugger implements JPAServiceDebugger {
         runtimeMeasurement.setTimeStopped(System.nanoTime());
         final Long threadID = Thread.currentThread().getId();
         final Long runtime = (runtimeMeasurement.getTimeStopped() - runtimeMeasurement.getTimeStarted()) / 1000;
+        final Long memory = getCurrentThreadMemoryConsumption() / 1000;
         LogFactory.getLog(runtimeMeasurement.getClassName())
-            .trace(String.format("thread: %d, method: %s,  runtime [µs]: %d",
+            .trace(String.format("thread: %d, method: %s,  runtime [µs]: %d; memory [kb]: %d",
                 threadID,
                 runtimeMeasurement.getMethodName(),
-                runtime));
+                runtime,
+                memory));
         if (!isDebugMode)
           runtimeInformation.remove(handle);
       }
@@ -82,14 +96,51 @@ class JPACoreDebugger implements JPAServiceDebugger {
 
   private String composeLog(final String pattern, final Object... arguments) {
     final Long threadID = Thread.currentThread().getId();
-    final StringBuilder log = new StringBuilder().append("thread: %d,").append(pattern);
+    final StringBuilder log = new StringBuilder().append("thread: %d, ").append(pattern);
     return String.format(log.toString(), composeArguments(threadID, arguments));
   }
 
   private Object[] composeArguments(final Long threadID, final Object... arguments) {
-    Object[] allArgs = new Object[arguments.length + 1];
+    final Object[] allArgs = new Object[arguments.length + 1];
     System.arraycopy(arguments, 0, allArgs, 1, arguments.length);
     allArgs[0] = threadID;
     return allArgs;
   }
+
+  private long getCurrentThreadMemoryConsumption() {
+    long result = 0;
+    if (!isSAPJvm) {
+      return result;
+    }
+    try {
+      result = getMemoryConsumption();
+    } catch (NoClassDefFoundError | Exception e) {
+      isSAPJvm = false;
+    }
+    return result;
+  }
+
+  protected long getMemoryConsumption() {
+
+    try {
+
+      final Object memInfo = ((Method) memoryInfoReader[1]).invoke(memoryInfoReader[0], Thread.currentThread());
+      final Method getMemConsumption = memInfo.getClass().getMethod("getMemoryConsumption");
+      return (long) getMemConsumption.invoke(memInfo);
+    } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
+        | SecurityException e) {
+      return 0;
+    }
+  }
+
+  private Object[] getMemoryInformation() throws ClassNotFoundException, NoSuchMethodException,
+      IllegalAccessException, InvocationTargetException, InstantiationException {
+
+    final Class<?> info = Class.forName("com.sap.jvm.monitor.vm.VmInfo");
+    final Object vmInfo = info.getConstructor().newInstance();
+    final Method getMemInfo = info.getMethod("getThreadMemoryInfo", Thread.class);
+
+    return new Object[] { vmInfo, getMemInfo };
+  }
+
 }

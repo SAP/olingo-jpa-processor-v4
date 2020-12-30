@@ -84,17 +84,16 @@ class TupleImpl implements Tuple {
   @Override
   public Object get(final String alias) {
     try {
-      if (selection.get(selectionIndex.get(alias)).getValue().isEnum()
-          && values[selectionIndex.get(alias)] != null) {
-        return selection.get(selectionIndex.get(alias)).getValue().getType()
-            .getEnumConstants()[(int) values[selectionIndex.get(alias)]];
-      } else {
-        final JPAAttribute attribute = selection.get(selectionIndex.get(alias)).getValue();
-        if (attribute.getRawConverter() != null)
-          return attribute.getRawConverter().convertToEntityAttribute(values[selectionIndex.get(alias)]);
-        else
-          return convert(values[selectionIndex.get(alias)], attribute.getType());
-      }
+      final int index = selectionIndex.get(alias);
+      final JPAAttribute attribute = selection.get(index).getValue();
+      if (values[index] == null)
+        return null;
+      if (attribute.isEnum() && attribute.getConverter() == null && values[index] != null)
+        return attribute.getType().getEnumConstants()[(int) values[index]];
+      final Object value = convert(values[index], attribute.getType());
+      if (attribute.getConverter() != null)
+        return attribute.getConverter().convertToEntityAttribute(value);
+      return value;
     } catch (final NullPointerException e) {
       throw new IllegalArgumentException("Unknown alias: " + alias, e);
     }

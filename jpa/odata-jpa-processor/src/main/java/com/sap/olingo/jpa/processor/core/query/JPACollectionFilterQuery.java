@@ -32,11 +32,11 @@ import com.sap.olingo.jpa.processor.core.filter.JPAOperationConverter;
  * <code>CollectionDeeps?$select=ID&$filter=FirstLevel/SecondLevel/Address/any(s:s/TaskID eq 'DEV')</code> or
  * <code>CollectionDeeps?$filter=FirstLevel/SecondLevel/Comment/$count eq 2</code>.
  * This is done as sub-query instead of a join to have more straightforward way to implement OR or AND conditions
- * 
+ *
  * @author Oliver Grande
  *
  */
-public final class JPACollectionFilterQuery extends JPANavigationQuery {
+public final class JPACollectionFilterQuery extends JPAAbstractSubQuery {
 
   public JPACollectionFilterQuery(final OData odata, final JPAServiceDocument sd, final EntityManager em,
       final JPAAbstractQuery parent, final List<UriResource> uriResourceParts, final VisitableExpression expression,
@@ -82,25 +82,26 @@ public final class JPACollectionFilterQuery extends JPANavigationQuery {
     pathName.deleteCharAt(pathName.lastIndexOf(JPAPath.PATH_SEPARATOR));
     try {
       return jpaEntity.getCollectionAttribute(pathName.toString()).asAssociation();
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> Subquery<T> getSubQueryExists(Subquery<?> childQuery) throws ODataApplicationException {
+  public <T> Subquery<T> getSubQuery(final Subquery<?> childQuery) throws ODataApplicationException {
 
     if (this.queryJoinTable != null) {
       if (this.aggregationType != null) {
 
         try {
-          final List<JPAOnConditionItem> right = association.getJoinTable().getInverseJoinColumns();
-          createSelectClause(subQuery, queryJoinTable, right);
-          Expression<Boolean> whereCondition = createWhereByAssociation(from, queryJoinTable, jpaEntity);
+          final List<JPAOnConditionItem> right = association.getJoinTable()
+              .getInverseJoinColumns();
+          createSelectClauseJoin(subQuery, queryJoinTable, right);
+          final Expression<Boolean> whereCondition = createWhereByAssociation(from, queryJoinTable, jpaEntity);
           subQuery.where(applyAdditionalFilter(whereCondition));
           handleAggregation(subQuery, queryJoinTable, right);
-        } catch (ODataJPAModelException e) {
+        } catch (final ODataJPAModelException e) {
           throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
         }
       } else {
@@ -117,7 +118,7 @@ public final class JPACollectionFilterQuery extends JPANavigationQuery {
   }
 
   @Override
-  protected void createRoots(JPAAssociationPath association) throws ODataJPAQueryException {
+  protected void createRoots(final JPAAssociationPath association) throws ODataJPAQueryException {
     if (association.hasJoinTable()) {
       if (association.getJoinTable().getEntityType() != null) {
         if (aggregationType != null) {
@@ -127,7 +128,8 @@ public final class JPACollectionFilterQuery extends JPANavigationQuery {
             p = p.join(association.getPath().get(i).getInternalName());
           this.queryRoot = p.join(association.getLeaf().getInternalName(), JoinType.LEFT);
         } else {
-          this.queryRoot = this.queryJoinTable = subQuery.from(association.getJoinTable().getEntityType()
+          this.queryRoot = this.queryJoinTable = subQuery.from(association.getJoinTable()
+              .getEntityType()
               .getTypeClass());
         }
       } else {
@@ -150,11 +152,13 @@ public final class JPACollectionFilterQuery extends JPANavigationQuery {
      * AND C."Text" LIKE '%just%')
      */
     try {
-      final List<JPAOnConditionItem> left = association.getJoinTable().getJoinColumns();
-      createSelectClause(subQuery, queryRoot, left);
-      Expression<Boolean> whereCondition = createWhereByAssociation(from, queryJoinTable, left);
+      final List<JPAOnConditionItem> left = association
+          .getJoinTable()
+          .getJoinColumns();
+      createSelectClauseJoin(subQuery, queryRoot, left);
+      final Expression<Boolean> whereCondition = createWhereByAssociation(from, queryJoinTable, left);
       subQuery.where(applyAdditionalFilter(whereCondition));
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
   }

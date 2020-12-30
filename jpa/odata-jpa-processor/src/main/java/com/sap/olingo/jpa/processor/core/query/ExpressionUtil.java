@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.processor.core.query;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -29,6 +30,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPATypeConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 public final class ExpressionUtil {
   public static final int CONTAINS_ONLY_LANGU = 1;
@@ -38,9 +40,8 @@ public final class ExpressionUtil {
   private ExpressionUtil() {}
 
   public static Expression<Boolean> createEQExpression(final OData odata, final CriteriaBuilder cb,
-      final From<?, ?> root,
-      final JPAEntityType jpaEntity, final UriParameter keyPredicate) throws ODataJPAFilterException,
-      ODataJPAModelException {
+      final From<?, ?> root, final JPAEntityType jpaEntity, final UriParameter keyPredicate)
+      throws ODataJPAFilterException, ODataJPAModelException {
 
     final JPAPath path = jpaEntity.getPath(keyPredicate.getName());
     final JPAAttribute attribute = path.getLeaf();
@@ -77,6 +78,32 @@ public final class ExpressionUtil {
     for (final JPAElement jpaPathElement : jpaPath)
       p = p.get(jpaPathElement.getInternalName());
     return p;
+  }
+
+  /**
+   * Converts a OData attribute into an JPA path. Sets the alias to the alias of the OData path of the attribute.
+   * @param root From the path be derived from
+   * @param et OData Entity Type
+   * @param jpaAttributes Attribute to be converted into an JPA path
+   * @return
+   * @throws ODataJPAQueryException
+   */
+  @SuppressWarnings("unchecked")
+  public static List<Path<Object>> convertToCriteriaPathList(final From<?, ?> root, final JPAEntityType et,
+      final List<JPAAttribute> jpaAttributes) throws ODataJPAQueryException {
+
+    try {
+      final List<Path<Object>> result = new ArrayList<>(jpaAttributes.size());
+      for (final JPAAttribute attribute : jpaAttributes) {
+        final JPAPath path = et.getPath(attribute.getExternalName());
+        final Path<Object> p = (Path<Object>) convertToCriteriaPath(root, path.getPath());
+        p.alias(path.getAlias());
+        result.add(p);
+      }
+      return result;
+    } catch (final ODataJPAModelException e) {
+      throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    }
   }
 
   public static Object convertValueOnAttribute(final OData odata, final JPAAttribute attribute, final String value)
@@ -130,8 +157,7 @@ public final class ExpressionUtil {
     }
   }
 
-  public static Locale determineLocale(final Map<String, List<String>> headers) {
-    // TODO Make this replaceable so the default can be overwritten
+  public static Locale determineFallbackLocale(final Map<String, List<String>> headers) {
     // http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html (14.4 accept language header
     // example: Accept-Language : da, en-gb;q=0.8, en;q=0.7)
     final List<String> languageHeaders = headers.get("accept-language");

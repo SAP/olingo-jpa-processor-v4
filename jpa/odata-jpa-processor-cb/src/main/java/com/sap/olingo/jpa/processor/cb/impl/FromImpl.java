@@ -77,7 +77,7 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
   }
 
   /**
-   * Perform a typecast upon the expression, returning a new expression object.
+   * Perform a type cast upon the expression, returning a new expression object.
    * This method does not cause type conversion:<br>
    * the runtime type is not changed.
    * Warning: may result in a runtime failure.

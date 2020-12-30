@@ -165,6 +165,22 @@ class TestJPAQueryWithProtection extends TestQueryBase {
   }
 
   @Test
+  void testRestrictExpandResultWithTop() throws IOException, ODataException {
+
+    final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    claims.add("UserId", new JPAClaimsPair<>("Marvin"));
+    claims.add("RoleCategory", new JPAClaimsPair<>("A", "B"));
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerProtecteds?$filter=ID eq '3'&$expand=RolesProtected($top=1)", claims);
+    helper.assertStatus(200);
+
+    final ArrayNode act = helper.getValues();
+    assertEquals(1, act.size());
+    final ArrayNode actExpand = (ArrayNode) act.get(0).get("RolesProtected");
+    assertEquals(1, actExpand.size());
+  }
+
+  @Test
   void testThrowsUnauthorizedOnMissingClaimforRestrictExpandResult() throws IOException, ODataException {
 
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();

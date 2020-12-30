@@ -141,6 +141,11 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
     return Collections.emptyList();
   }
 
+  @Override
+  public String toString() {
+    return "PredicateImpl [sql=" + asSQL(new StringBuilder()) + "]";
+  }
+
   static class AndPredicate extends BooleanPredicate {
 
     AndPredicate(final Expression<Boolean> x, final Expression<Boolean> y) {
@@ -367,7 +372,7 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
       statement.append(OPENING_BRACKET);
       paths
           .stream()
-          .map(p -> ((Expression<?>) p))
+          .map(p -> ((Expression<?>) p)) // NOSONAR
           .collect(new StringBuilderCollector.ExpressionCollector(statement, ", "));
       statement.append(CLOSING_BRACKET)
           .append(" ")
@@ -424,5 +429,4 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
     }
 
   }
-
 }

@@ -27,13 +27,13 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
  * hand by its Property Facets. The type is a qualified name of either a
  * primitive type, a complex type or a enumeration type. Primitive types are
  * mapped by {@link JPATypeConverter}.
- * 
+ *
  * <p>
  * For details about Property metadata see: <a href=
  * "https://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406397954"
  * >OData Version 4.0 Part 3 - 6 Structural Property </a>
- * 
- * 
+ *
+ *
  * @author Oliver Grande
  *
  */
@@ -83,7 +83,7 @@ class IntermediateSimpleProperty extends IntermediateProperty {
   }
 
   @Override
-  Class<?> determineEntityType() {
+  Class<?> determinePropertyType() {
     return jpaAttribute.getJavaType();
   }
 
@@ -157,7 +157,7 @@ class IntermediateSimpleProperty extends IntermediateProperty {
         // Class could not be instantiated e.g. abstract class like
         // Business Partner => default could not be determined
         // and will be ignored
-        LOGGER.debug("Default could not be determined:" + jpaAttribute.getJavaMember().getName() + " abstarct");
+        LOGGER.debug("Default could not be determined:" + jpaAttribute.getJavaMember().getName() + " abstract");
       }
     }
     return valueString;

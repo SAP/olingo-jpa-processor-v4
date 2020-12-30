@@ -38,7 +38,7 @@ import com.sap.olingo.jpa.processor.core.filter.JPAFilterElementComplier;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterExpression;
 import com.sap.olingo.jpa.processor.core.filter.JPAMemberOperator;
 
-public abstract class JPANavigationQuery extends JPAAbstractQuery {
+public abstract class JPAAbstractSubQuery extends JPAAbstractQuery {
 
   protected From<?, ?> queryJoinTable = null;
   protected Subquery<?> subQuery;
@@ -49,7 +49,7 @@ public abstract class JPANavigationQuery extends JPAAbstractQuery {
   protected final JPAAssociationPath association;
   protected JPAFilterElementComplier filterComplier;
 
-  public JPANavigationQuery(final OData odata, final JPAServiceDocument sd, final EdmEntityType edmEntityType,
+  JPAAbstractSubQuery(final OData odata, final JPAServiceDocument sd, final EdmEntityType edmEntityType,
       final EntityManager em, final JPAAbstractQuery parent, final From<?, ?> from,
       final JPAAssociationPath association,
       final Optional<JPAODataClaimProvider> claimsProvider) throws ODataApplicationException {
@@ -60,7 +60,7 @@ public abstract class JPANavigationQuery extends JPAAbstractQuery {
     this.association = association;
   }
 
-  public JPANavigationQuery(final OData odata, final JPAServiceDocument sd, final JPAEntityType jpaEntity,
+  JPAAbstractSubQuery(final OData odata, final JPAServiceDocument sd, final JPAEntityType jpaEntity,
       final EntityManager em, final JPAAbstractQuery parent, final From<?, ?> from,
       final JPAAssociationPath association) {
 
@@ -70,7 +70,7 @@ public abstract class JPANavigationQuery extends JPAAbstractQuery {
     this.association = association;
   }
 
-  public abstract <T extends Object> Subquery<T> getSubQueryExists(final Subquery<?> childQuery)
+  public abstract <T extends Object> Subquery<T> getSubQuery(final Subquery<?> childQuery)
       throws ODataApplicationException;
 
   @SuppressWarnings("unchecked")
@@ -91,7 +91,7 @@ public abstract class JPANavigationQuery extends JPAAbstractQuery {
 
   protected void createRoots(final JPAAssociationPath association) throws ODataJPAQueryException {
 
-    if (association.hasJoinTable()) {
+    if (association != null && association.hasJoinTable()) {
       if (association.getJoinTable().getEntityType() != null) {
         if (aggregationType != null) {
           this.queryJoinTable = subQuery.from(from.getJavaType());
@@ -101,7 +101,9 @@ public abstract class JPANavigationQuery extends JPAAbstractQuery {
           this.queryRoot = p.join(association.getLeaf().getInternalName(), JoinType.LEFT);
         } else {
           this.queryRoot = subQuery.from(this.jpaEntity.getTypeClass());
-          this.queryJoinTable = subQuery.from(association.getJoinTable().getEntityType().getTypeClass());
+          this.queryJoinTable = subQuery.from(association.getJoinTable()
+              .getEntityType()
+              .getTypeClass());
         }
       } else {
         throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_NOT_IMPLEMENTED,
@@ -113,7 +115,7 @@ public abstract class JPANavigationQuery extends JPAAbstractQuery {
   }
 
   @SuppressWarnings("unchecked")
-  protected <T> void createSelectClause(final Subquery<T> subQuery, final From<?, ?> from,
+  protected <T> void createSelectClauseJoin(final Subquery<T> subQuery, final From<?, ?> from,
       final List<JPAOnConditionItem> conditionItems) {
 
     Path<?> p = from;
@@ -169,9 +171,13 @@ public abstract class JPANavigationQuery extends JPAAbstractQuery {
      * AND t1."NameLine2" = 'Mustermann'))
      */
     try {
-      final List<JPAOnConditionItem> left = association.getJoinTable().getJoinColumns(); // Team -->
-      final List<JPAOnConditionItem> right = association.getJoinTable().getInverseJoinColumns(); // Person -->
-      createSelectClause(subQuery, queryRoot, right);
+      final List<JPAOnConditionItem> left = association
+          .getJoinTable()
+          .getJoinColumns(); // Team -->
+      final List<JPAOnConditionItem> right = association
+          .getJoinTable()
+          .getInverseJoinColumns(); // Person -->
+      createSelectClauseJoin(subQuery, queryRoot, right);
       Expression<Boolean> whereCondition = createWhereByAssociation(from, queryJoinTable, left);
       whereCondition = cb.and(whereCondition, createWhereByAssociation(queryJoinTable, queryRoot, right));
       subQuery.where(applyAdditionalFilter(whereCondition));
@@ -253,8 +259,12 @@ public abstract class JPANavigationQuery extends JPAAbstractQuery {
      * AND (t0."Type" = '1'))
      */
     try {
-      final List<JPAOnConditionItem> left = association.getJoinTable().getJoinColumns(); // Person -->
-      final List<JPAOnConditionItem> right = association.getJoinTable().getInverseJoinColumns(); // Team -->
+      final List<JPAOnConditionItem> left = association
+          .getJoinTable()
+          .getJoinColumns(); // Person -->
+      final List<JPAOnConditionItem> right = association
+          .getJoinTable()
+          .getInverseJoinColumns(); // Team -->
       createSelectClauseAggregation(subQuery, queryJoinTable, left);
       final Expression<Boolean> whereCondition = createWhereByAssociation(from, queryJoinTable, parentQuery.jpaEntity);
       subQuery.where(applyAdditionalFilter(whereCondition));

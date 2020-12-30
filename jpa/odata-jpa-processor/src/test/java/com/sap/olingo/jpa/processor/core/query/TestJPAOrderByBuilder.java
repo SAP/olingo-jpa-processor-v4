@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.From;
@@ -55,7 +56,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 
-public class TestJPAOrderByBuilder extends TestBase {
+class TestJPAOrderByBuilder extends TestBase {
   private JPAOrderByBuilder cut;
   private Map<String, From<?, ?>> joinTables;
   private UriInfoResource uriResource;
@@ -70,7 +71,7 @@ public class TestJPAOrderByBuilder extends TestBase {
   private List<String> groups;
 
   @BeforeEach
-  public void setup() throws ODataJPAModelException, ODataException {
+  void setup() throws ODataJPAModelException, ODataException {
     cb = emf.getCriteriaBuilder();
     jpaAdminEntity = getHelper().getJPAEntityType(AdministrativeDivisionDescription.class);
     adminTarget = cb.createQuery().from(getHelper().getEntityType(AdministrativeDivisionDescription.class));
@@ -87,35 +88,41 @@ public class TestJPAOrderByBuilder extends TestBase {
   }
 
   @Test
-  public void testNoTopSkipOrderByReturnsEmptyList() throws IOException, ODataException {
+  void testNoTopSkipOrderByReturnsEmptyList() throws IOException, ODataException {
     final List<Order> act = cut.createOrderByList(joinTables, uriResource);
     assertEquals(0, act.size());
   }
 
   @Test
-  public void testTopReturnsByPrimaryKey() throws IOException, ODataException {
+  void testTopReturnsByPrimaryKey() throws IOException, ODataException {
     when(uriResource.getTopOption()).thenReturn(top);
     when(top.getValue()).thenReturn(5);
 
     final List<Order> act = cut.createOrderByList(joinTables, uriResource);
 
-    assertEquals(1, act.size());
-    assertEquals(AdministrativeDivisionDescription.class, act.get(0).getExpression().getJavaType());
+    assertEquals(4, act.size());
+    assertEquals(4, act.stream()
+        .filter(Order::isAscending)
+        .collect(Collectors.toList()).size());
+    assertOrder(act);
   }
 
   @Test
-  public void testSkipReturnsByPrimaryKey() throws IOException, ODataException {
+  void testSkipReturnsByPrimaryKey() throws IOException, ODataException {
     when(uriResource.getSkipOption()).thenReturn(skip);
     when(skip.getValue()).thenReturn(5);
 
     final List<Order> act = cut.createOrderByList(joinTables, uriResource);
 
-    assertEquals(1, act.size());
-    assertEquals(AdministrativeDivisionDescription.class, act.get(0).getExpression().getJavaType());
+    assertEquals(4, act.size());
+    assertEquals(4, act.stream()
+        .filter(Order::isAscending)
+        .collect(Collectors.toList()).size());
+    assertOrder(act);
   }
 
   @Test
-  public void testTopSkipReturnsByPrimaryKey() throws IOException, ODataException {
+  void testTopSkipReturnsByPrimaryKey() throws IOException, ODataException {
     when(uriResource.getTopOption()).thenReturn(top);
     when(top.getValue()).thenReturn(5);
     when(uriResource.getSkipOption()).thenReturn(skip);
@@ -123,12 +130,15 @@ public class TestJPAOrderByBuilder extends TestBase {
 
     final List<Order> act = cut.createOrderByList(joinTables, uriResource);
 
-    assertEquals(1, act.size());
-    assertEquals(AdministrativeDivisionDescription.class, act.get(0).getExpression().getJavaType());
+    assertEquals(4, act.size());
+    assertEquals(4, act.stream()
+        .filter(Order::isAscending)
+        .collect(Collectors.toList()).size());
+    assertOrder(act);
   }
 
   @Test
-  public void testOrderByEmptyReturnsEmptyList() throws ODataApplicationException {
+  void testOrderByEmptyReturnsEmptyList() throws ODataApplicationException {
     when(uriResource.getOrderByOption()).thenReturn(orderBy);
     when(orderBy.getOrders()).thenReturn(Collections.emptyList());
     final List<Order> act = cut.createOrderByList(joinTables, uriResource);
@@ -136,7 +146,7 @@ public class TestJPAOrderByBuilder extends TestBase {
   }
 
   @Test
-  public void testOrderByOneProperty() throws ODataApplicationException, ODataJPAModelException {
+  void testOrderByOneProperty() throws ODataApplicationException, ODataJPAModelException {
     createOrderByItem("Name");
     when(uriResource.getOrderByOption()).thenReturn(orderBy);
     final List<Order> act = cut.createOrderByList(joinTables, uriResource);
@@ -145,7 +155,7 @@ public class TestJPAOrderByBuilder extends TestBase {
   }
 
   @Test
-  public void testOrderByOneComplexProperty() throws ODataApplicationException, ODataJPAModelException {
+  void testOrderByOneComplexProperty() throws ODataApplicationException, ODataJPAModelException {
     cut = new JPAOrderByBuilder(jpaOrgEntity, orgTarget, cb, groups);
     createComplexOrderByItem();
     when(uriResource.getOrderByOption()).thenReturn(orderBy);
@@ -155,7 +165,7 @@ public class TestJPAOrderByBuilder extends TestBase {
   }
 
   @Test
-  public void testThrowsNotImplementedOnOrderByFunction() {
+  void testThrowsNotImplementedOnOrderByFunction() {
     final List<UriResource> pathParts = createOrderByClause(null);
     final UriResourceFunction part = mock(UriResourceFunction.class);
     pathParts.add(part);
@@ -166,7 +176,7 @@ public class TestJPAOrderByBuilder extends TestBase {
   }
 
   @Test
-  public void testOrderByNavigationCountDefault() throws ODataException {
+  void testOrderByNavigationCountDefault() throws ODataException {
     cut = new JPAOrderByBuilder(jpaOrgEntity, orgTarget, cb, groups);
     final List<UriResource> pathParts = createOrderByClause(null);
     final UriResourceNavigation navigationPart = mock(UriResourceNavigation.class);
@@ -187,7 +197,7 @@ public class TestJPAOrderByBuilder extends TestBase {
   }
 
   @Test
-  public void testOrderByNavigationCountDescending() throws ODataException {
+  void testOrderByNavigationCountDescending() throws ODataException {
     cut = new JPAOrderByBuilder(jpaOrgEntity, orgTarget, cb, groups);
     final List<UriResource> pathParts = createOrderByClause(Boolean.TRUE);
     final UriResourceNavigation navigationPart = mock(UriResourceNavigation.class);
@@ -208,7 +218,7 @@ public class TestJPAOrderByBuilder extends TestBase {
   }
 
   @Test
-  public void testOrderByCollectionOrderByCountAsc() throws IOException, ODataException {
+  void testOrderByCollectionOrderByCountAsc() throws IOException, ODataException {
     final JPAEntityType jpaEntity = getHelper().getJPAEntityType(CollectionDeep.class);
     final From<?, ?> target = cb.createQuery().from(getHelper().getEntityType(CollectionDeep.class));
     cut = new JPAOrderByBuilder(jpaEntity, target, cb, groups);
@@ -238,7 +248,7 @@ public class TestJPAOrderByBuilder extends TestBase {
   }
 
   @Test
-  public void testThrowsBadRequestExcpetionOnUnkownProperty() throws ODataApplicationException, ODataJPAModelException {
+  void testThrowsBadRequestExcpetionOnUnkownProperty() throws ODataApplicationException, ODataJPAModelException {
     createOrderByItem("Name");
     when(uriResource.getOrderByOption()).thenReturn(orderBy);
     cut = new JPAOrderByBuilder(jpaOrgEntity, orgTarget, cb, groups);
@@ -247,7 +257,7 @@ public class TestJPAOrderByBuilder extends TestBase {
   }
 
   @Test
-  public void testThrowsBadRequestExcpetionOnUnkownComplex() throws ODataApplicationException, ODataJPAModelException {
+  void testThrowsBadRequestExcpetionOnUnkownComplex() throws ODataApplicationException, ODataJPAModelException {
     createComplexOrderByItem();
     when(uriResource.getOrderByOption()).thenReturn(orderBy);
     cut = new JPAOrderByBuilder(jpaAdminEntity, adminTarget, cb, groups);
@@ -256,7 +266,7 @@ public class TestJPAOrderByBuilder extends TestBase {
   }
 
   @Test
-  public void testThrowExceptionOrderByGroupedPropertyWithoutGroup() throws IOException, ODataException {
+  void testThrowExceptionOrderByGroupedPropertyWithoutGroup() throws IOException, ODataException {
     final JPAEntityType jpaEntity = getHelper().getJPAEntityType(BusinessPartnerWithGroups.class);
     final From<?, ?> target = cb.createQuery().from(getHelper().getEntityType(BusinessPartnerWithGroups.class));
     cut = new JPAOrderByBuilder(jpaEntity, target, cb, groups);
@@ -269,7 +279,7 @@ public class TestJPAOrderByBuilder extends TestBase {
   }
 
   @Test
-  public void testOrderByPropertyWithGroupsOneGroup() throws IOException, ODataException {
+  void testOrderByPropertyWithGroupsOneGroup() throws IOException, ODataException {
     final JPAEntityType jpaEntity = getHelper().getJPAEntityType(BusinessPartnerWithGroups.class);
     final From<?, ?> target = cb.createQuery().from(getHelper().getEntityType(BusinessPartnerWithGroups.class));
     groups.add("Person");
@@ -283,7 +293,7 @@ public class TestJPAOrderByBuilder extends TestBase {
   }
 
   @Test
-  public void testOrderByPropertyAndTop() throws IOException, ODataException {
+  void testOrderByPropertyAndTop() throws IOException, ODataException {
     createOrderByItem("DivisionCode");
     when(top.getValue()).thenReturn(5);
     when(uriResource.getOrderByOption()).thenReturn(orderBy);
@@ -291,13 +301,13 @@ public class TestJPAOrderByBuilder extends TestBase {
 
     final List<Order> act = cut.createOrderByList(joinTables, uriResource);
 
-    assertEquals(2, act.size());
+    assertFalse(act.isEmpty());
     assertEquals(String.class, act.get(0).getExpression().getJavaType());
-    assertEquals(AdministrativeDivisionDescription.class, act.get(1).getExpression().getJavaType());
+    assertEquals("DivisionCode", act.get(0).getExpression().getAlias());
   }
 
   @Test
-  public void testThrowExceptionOrderByTransientPrimitveSimpleProperty() throws IOException, ODataException {
+  void testThrowExceptionOrderByTransientPrimitveSimpleProperty() throws IOException, ODataException {
     final JPAEntityType jpaEntity = getHelper().getJPAEntityType(Person.class);
     final From<?, ?> target = cb.createQuery().from(getHelper().getEntityType(Person.class));
     cut = new JPAOrderByBuilder(jpaEntity, target, cb, groups);
@@ -357,4 +367,12 @@ public class TestJPAOrderByBuilder extends TestBase {
     when(complexPart.getProperty()).thenReturn(edmComplexProperty);
     when(edmComplexProperty.getName()).thenReturn(name);
   }
+
+  private void assertOrder(final List<Order> act) {
+    assertEquals("CodePublisher", act.get(0).getExpression().getAlias());
+    assertEquals("CodeID", act.get(1).getExpression().getAlias());
+    assertEquals("DivisionCode", act.get(2).getExpression().getAlias());
+    assertEquals("Language", act.get(3).getExpression().getAlias());
+  }
+
 }

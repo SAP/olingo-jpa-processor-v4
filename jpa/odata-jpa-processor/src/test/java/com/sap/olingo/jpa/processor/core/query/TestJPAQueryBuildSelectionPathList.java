@@ -265,7 +265,7 @@ class TestJPAQueryBuildSelectionPathList extends TestBase {
         "Address/Street")));
     assertEquals(2, act.getODataSelections().size());
     assertEquals(1, act.getTransientSelections().size());
-    assertEquals(2, act.getRequitedSelections().size());
+    assertEquals(2, act.getRequiredSelections().size());
   }
 
   @Test
@@ -278,7 +278,7 @@ class TestJPAQueryBuildSelectionPathList extends TestBase {
         "FullName")));
     assertEquals(2, act.getODataSelections().size());
     assertEquals(1, act.getTransientSelections().size());
-    assertEquals(2, act.getRequitedSelections().size());
+    assertEquals(2, act.getRequiredSelections().size());
   }
 
 }

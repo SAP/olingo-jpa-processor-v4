@@ -72,7 +72,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
   protected final Attribute<?, ?> jpaAttribute;
   protected final IntermediateSchema schema;
   protected CsdlProperty edmProperty;
-  protected IntermediateStructuredType<?> type;
+  protected JPAStructuredType type;
   protected AttributeConverter<?, ?> valueConverter;
   protected String dbFieldName;
   protected Class<?> dbType;
@@ -200,7 +200,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
   protected void buildProperty(final JPAEdmNameBuilder nameBuilder) throws ODataJPAModelException {
     // Set element specific attributes of super type
     this.setExternalName(nameBuilder.buildPropertyName(internalName));
-    entityType = dbType = determineEntityType();
+    entityType = dbType = determinePropertyType();
 
     if (this.jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
       determineIgnore();
@@ -277,7 +277,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
     return null;
   }
 
-  abstract Class<?> determineEntityType();
+  abstract Class<?> determinePropertyType();
 
   abstract void determineIsVersion();
 
@@ -531,8 +531,8 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
         .getAnnotation(Convert.class);
     if (jpaConverter != null) {
       try {
-        final Type[] convType = jpaConverter.converter().getGenericInterfaces();
-        final Type[] types = ((ParameterizedType) convType[0]).getActualTypeArguments();
+        final Type[] converterType = jpaConverter.converter().getGenericInterfaces();
+        final Type[] types = ((ParameterizedType) converterType[0]).getActualTypeArguments();
         entityType = (Class<?>) types[0];
         dbType = (Class<?>) types[1];
         conversionRequired = !JPATypeConverter.isSupportedByOlingo(entityType);

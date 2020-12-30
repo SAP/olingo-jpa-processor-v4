@@ -100,7 +100,7 @@ final class JPAPathImpl implements JPAPath {
 
   @Override
   public boolean isTransient() {
-    return isTransient.orElseGet(this::determinIsTransient);
+    return isTransient.orElseGet(this::determineIsTransient);
   }
 
   @Override
@@ -166,7 +166,7 @@ final class JPAPathImpl implements JPAPath {
     return false;
   }
 
-  private Boolean determinIsTransient() {
+  private Boolean determineIsTransient() {
     isTransient = Optional.of(
         pathElements.stream()
             .filter(e -> e instanceof JPAAttribute)

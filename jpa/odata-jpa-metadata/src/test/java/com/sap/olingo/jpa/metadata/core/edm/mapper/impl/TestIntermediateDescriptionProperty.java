@@ -43,7 +43,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.Country;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 
-public class TestIntermediateDescriptionProperty extends TestMappingRoot {
+class TestIntermediateDescriptionProperty extends TestMappingRoot {
   private TestHelper helper;
   private IntermediateDescriptionProperty cut;
   private JPAEdmMetadataPostProcessor processor;
@@ -51,7 +51,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
   private JPAEdmNameBuilder nameBuilder;
 
   @BeforeEach
-  public void setup() throws ODataJPAModelException {
+  void setup() throws ODataJPAModelException {
     helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
     processor = mock(JPAEdmMetadataPostProcessor.class);
     nameBuilder = new JPADefaultEdmNameBuilder(PUNIT_NAME);
@@ -61,28 +61,28 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkPropertyCanBeCreated() throws ODataJPAModelException {
+  void checkPropertyCanBeCreated() throws ODataJPAModelException {
     final EmbeddableType<?> emtype = helper.getEmbeddableType("PostalAddressData");
     final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(emtype, "countryName");
     assertNotNull(new IntermediateDescriptionProperty(nameBuilder, jpaAttribute, et, helper.schema));
   }
 
   @Test
-  public void checkGetDescriptionAttributeReturnsAttribute() throws ODataJPAModelException {
+  void checkGetDescriptionAttributeReturnsAttribute() throws ODataJPAModelException {
     createDefaultCut();
     assertNotNull(cut.getDescriptionAttribute());
     assertEquals("name", cut.getDescriptionAttribute().getInternalName());
   }
 
   @Test
-  public void checkGetFixedValueAssignmentReturnsEmptyList() throws ODataJPAModelException {
+  void checkGetFixedValueAssignmentReturnsEmptyList() throws ODataJPAModelException {
     createDefaultCut();
     assertNotNull(cut.getFixedValueAssignment());
     assertTrue(cut.getFixedValueAssignment().isEmpty());
   }
 
   @Test
-  public void checkGetFixedValueAssignmentReturnsList() throws ODataJPAModelException {
+  void checkGetFixedValueAssignmentReturnsList() throws ODataJPAModelException {
     final EntityType<?> type = helper.getEntityType(Person.class);
     et = new IntermediateEntityType<>(nameBuilder, type, helper.schema);
     final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(BusinessPartner.class),
@@ -94,33 +94,33 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetTypeReturnsDescAttributeType() throws ODataJPAModelException {
+  void checkGetTypeReturnsDescAttributeType() throws ODataJPAModelException {
     createDefaultCut();
     assertNotNull(cut.getType());
     assertEquals(String.class, cut.getType());
   }
 
   @Test
-  public void checkIsAssociationReturnsTrue() throws ODataJPAModelException {
+  void checkIsAssociationReturnsTrue() throws ODataJPAModelException {
     createDefaultCut();
     assertTrue(cut.isAssociation());
   }
 
   @Test
-  public void checkGetLocaleFieldNameReturnsPath() throws ODataJPAModelException {
+  void checkGetLocaleFieldNameReturnsPath() throws ODataJPAModelException {
     createDefaultCut();
     assertNotNull(cut.getLocaleFieldName());
     assertEquals("\"LanguageISO\"", cut.getLocaleFieldName().getDBFieldName());
   }
 
   @Test
-  public void checkGetPropertyNameOneToMany() throws ODataJPAModelException {
+  void checkGetPropertyNameOneToMany() throws ODataJPAModelException {
     createDefaultCut();
     assertEquals("CountryName", cut.getEdmItem().getName(), "Wrong name");
   }
 
   @Test
-  public void checkGetPropertyNameManyToMany() throws ODataJPAModelException {
+  void checkGetPropertyNameManyToMany() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEmbeddableType("PostalAddressData"),
         "regionName");
     cut = new IntermediateDescriptionProperty(nameBuilder, jpaAttribute, et, helper.schema);
@@ -128,7 +128,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyType() throws ODataJPAModelException {
+  void checkGetPropertyType() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEmbeddableType("PostalAddressData"),
         "countryName");
     cut = new IntermediateDescriptionProperty(nameBuilder, jpaAttribute, et, helper.schema);
@@ -137,20 +137,20 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetTargetEntity() throws ODataJPAModelException {
+  void checkGetTargetEntity() throws ODataJPAModelException {
     createDefaultCut();
     final JPAStructuredType target = cut.getTargetEntity();
     assertEquals("Country", target.getExternalName());
   }
 
   @Test
-  public void checkGetPartnerNull() throws ODataJPAModelException {
+  void checkGetPartnerNull() throws ODataJPAModelException {
     createDefaultCut();
     assertNull(cut.getPartner());
   }
 
   @Test
-  public void checkGetPropertyIgnoreFalse() throws ODataJPAModelException {
+  void checkGetPropertyIgnoreFalse() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEmbeddableType("PostalAddressData"),
         "countryName");
     final IntermediatePropertyAccess property = new IntermediateDescriptionProperty(nameBuilder, jpaAttribute, et,
@@ -159,7 +159,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyFacetsNullableTrue() throws ODataJPAModelException {
+  void checkGetPropertyFacetsNullableTrue() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEmbeddableType("PostalAddressData"),
         "countryName");
     cut = new IntermediateDescriptionProperty(nameBuilder, jpaAttribute, et, helper.schema);
@@ -167,7 +167,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPropertyMaxLength() throws ODataJPAModelException {
+  void checkGetPropertyMaxLength() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEmbeddableType("PostalAddressData"),
         "countryName");
     cut = new IntermediateDescriptionProperty(nameBuilder, jpaAttribute, et, helper.schema);
@@ -175,7 +175,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkWrongPathElementThrowsException() {
+  void checkWrongPathElementThrowsException() {
 
     final Attribute<?, ?> jpaAttribute = mock(Attribute.class);
     final EdmDescriptionAssociation association = prepareCheckPath(jpaAttribute);
@@ -198,7 +198,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkWrongPathStartThrowsException() {
+  void checkWrongPathStartThrowsException() {
 
     final Attribute<?, ?> jpaAttribute = mock(Attribute.class);
     final EdmDescriptionAssociation association = prepareCheckPath(jpaAttribute);
@@ -246,7 +246,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkAnnotations() throws ODataJPAModelException {
+  void checkAnnotations() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(BusinessPartner.class),
         "locationName");
     cut = new IntermediateDescriptionProperty(nameBuilder, jpaAttribute, et, helper.schema);
@@ -259,7 +259,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkPostProcessorCalled() throws ODataJPAModelException {
+  void checkPostProcessorCalled() throws ODataJPAModelException {
     // PostProcessorSpy spy = new PostProcessorSpy();
     IntermediateModelElement.setPostProcessor(processor);
     final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEmbeddableType("PostalAddressData"),
@@ -270,7 +270,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkPostProcessorNameChanged() throws ODataJPAModelException {
+  void checkPostProcessorNameChanged() throws ODataJPAModelException {
     final PostProcessorSetName pPDouble = new PostProcessorSetName();
     IntermediateModelElement.setPostProcessor(pPDouble);
     final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEmbeddableType("PostalAddressData"),
@@ -281,7 +281,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkPostProcessorExternalNameChanged() throws ODataJPAModelException {
+  void checkPostProcessorExternalNameChanged() throws ODataJPAModelException {
     final PostProcessorSetName pPDouble = new PostProcessorSetName();
     IntermediateModelElement.setPostProcessor(pPDouble);
 
@@ -294,7 +294,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkEmptyAssociationThrowsException() throws ODataJPAModelException {
+  void checkEmptyAssociationThrowsException() throws ODataJPAModelException {
 
     final IntermediateDescriptionProperty cut = new IntermediateDescriptionProperty(nameBuilder, createAttributeMock(
         false, false, 0), et, helper.schema);
@@ -303,7 +303,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkUnknownAttributeAtTargetThrowsException() throws ODataJPAModelException {
+  void checkUnknownAttributeAtTargetThrowsException() throws ODataJPAModelException {
 
     final IntermediateDescriptionProperty cut = new IntermediateDescriptionProperty(nameBuilder, createAttributeMock(
         true, false, 0), et, helper.schema);
@@ -312,7 +312,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkNoLocationAtTargetThrowsException() throws ODataJPAModelException {
+  void checkNoLocationAtTargetThrowsException() throws ODataJPAModelException {
 
     final IntermediateDescriptionProperty cut = new IntermediateDescriptionProperty(nameBuilder, createAttributeMock(
         true, true, 0), et, helper.schema);
@@ -321,7 +321,7 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkLocationAndLanguageAtTargetThrowsException() throws ODataJPAModelException {
+  void checkLocationAndLanguageAtTargetThrowsException() throws ODataJPAModelException {
 
     final IntermediateDescriptionProperty cut = new IntermediateDescriptionProperty(nameBuilder, createAttributeMock(
         true, true, 2), et, helper.schema);
@@ -330,75 +330,75 @@ public class TestIntermediateDescriptionProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetPathReturns() throws ODataJPAModelException {
+  void checkGetPathReturns() throws ODataJPAModelException {
     createDefaultCut();
     assertNotNull(cut.getPath());
   }
 
   @Test
-  public void checkPathLeftColumnsListEmpty() throws ODataJPAModelException {
+  void checkPathLeftColumnsListEmpty() throws ODataJPAModelException {
     createDefaultCut();
     assertTrue(cut.getPath().getLeftColumnsList().isEmpty());
   }
 
   @Test
-  public void checkPathRightColumnsListEmpty() throws ODataJPAModelException {
+  void checkPathRightColumnsListEmpty() throws ODataJPAModelException {
     createDefaultCut();
     assertTrue(cut.getPath().getRightColumnsList().isEmpty());
   }
 
   @Test
-  public void checkGetLeafNull() throws ODataJPAModelException {
+  void checkGetLeafNull() throws ODataJPAModelException {
     createDefaultCut();
     assertNull(cut.getPath().getLeaf());
   }
 
   @Test
-  public void checkPathGetPathEmpty() throws ODataJPAModelException {
+  void checkPathGetPathEmpty() throws ODataJPAModelException {
     createDefaultCut();
     assertTrue(cut.getPath().getPath().isEmpty());
   }
 
   @Test
-  public void checkPathGetInverseLeftJoinColumnsListEmpty() throws ODataJPAModelException {
+  void checkPathGetInverseLeftJoinColumnsListEmpty() throws ODataJPAModelException {
     createDefaultCut();
     assertTrue(cut.getPath().getInverseLeftJoinColumnsList().isEmpty());
   }
 
   @Test
-  public void checkPathIsCollectionFalse() throws ODataJPAModelException {
+  void checkPathIsCollectionFalse() throws ODataJPAModelException {
     createDefaultCut();
     assertFalse(cut.getPath().isCollection());
   }
 
   @Test
-  public void checkPathGetPartnerNull() throws ODataJPAModelException {
+  void checkPathGetPartnerNull() throws ODataJPAModelException {
     createDefaultCut();
     assertNull(cut.getPath().getPartner());
   }
 
   @Test
-  public void checkPathGetJoinTableNull() throws ODataJPAModelException {
+  void checkPathGetJoinTableNull() throws ODataJPAModelException {
     createDefaultCut();
     assertNull(cut.getPath().getJoinTable());
   }
 
   @Test
-  public void checkPathGetSource() throws ODataJPAModelException {
+  void checkPathGetSource() throws ODataJPAModelException {
     createDefaultCut();
     final JPAStructuredType act = cut.getPath().getSourceType();
     assertEquals("BusinessPartner", act.getExternalName());
   }
 
   @Test
-  public void checkPathGetAliasNull() throws ODataJPAModelException {
+  void checkPathGetAliasNull() throws ODataJPAModelException {
     createDefaultCut();
     final JPAAssociationPath act = cut.getPath();
     assertNull(act.getAlias());
   }
 
   @Test
-  public void checkPathHasJoinTableNull() throws ODataJPAModelException {
+  void checkPathHasJoinTableNull() throws ODataJPAModelException {
     createDefaultCut();
     final JPAAssociationPath act = cut.getPath();
     assertNull(act.getJoinTable());

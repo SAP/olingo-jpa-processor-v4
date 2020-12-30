@@ -1,12 +1,7 @@
 package com.sap.olingo.jpa.processor.core.query;
 
 import static com.sap.olingo.jpa.processor.core.converter.JPAExpandResult.ROOT_RESULT_KEY;
-import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_ORDER_BY_TRANSIENT;
-import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR;
-import static org.apache.olingo.commons.api.http.HttpStatusCode.INTERNAL_SERVER_ERROR;
-import static org.apache.olingo.commons.api.http.HttpStatusCode.NOT_IMPLEMENTED;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,27 +14,17 @@ import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.From;
 
-import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
-import org.apache.olingo.server.api.uri.UriResource;
-import org.apache.olingo.server.api.uri.UriResourceNavigation;
-import org.apache.olingo.server.api.uri.UriResourceProperty;
-import org.apache.olingo.server.api.uri.queryoption.OrderByItem;
-import org.apache.olingo.server.api.uri.queryoption.OrderByOption;
-import org.apache.olingo.server.api.uri.queryoption.expression.Expression;
-import org.apache.olingo.server.api.uri.queryoption.expression.Member;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
-import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery {
 
@@ -103,7 +88,7 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
     // Pre-process URI parameter, so they can be used at different places
     final int handle = debugger.startRuntimeMeasurement(this, "execute");
 
-    final List<JPAAssociationPath> orderByNaviAttributes = extractOrderByNaviAttributes();
+    final List<JPAAssociationPath> orderByNaviAttributes = extractOrderByNaviAttributes(uriResource.getOrderByOption());
     final SelectionPathInfo<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
     try {
       final Map<String, From<?, ?>> joinTables = createFromClause(orderByNaviAttributes,
@@ -119,7 +104,7 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
       cq.orderBy(new JPAOrderByBuilder(jpaEntity, target, cb, groups).createOrderByList(joinTables, uriResource));
 
       if (!orderByNaviAttributes.isEmpty())
-        cq.groupBy(createGroupBy(joinTables, selectionPath.joinedPersistent()));
+        cq.groupBy(createGroupBy(joinTables, root, selectionPath.joinedPersistent()));
 
       final TypedQuery<Tuple> tq = em.createQuery(cq);
       addTopSkip(tq);
@@ -148,21 +133,6 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
     return cq;
   }
 
-  private List<javax.persistence.criteria.Expression<?>> createGroupBy(final Map<String, From<?, ?>> joinTables,
-      final Collection<JPAPath> selectionPathList) {
-    final int handle = debugger.startRuntimeMeasurement(this, "createGroupBy");
-
-    final List<javax.persistence.criteria.Expression<?>> groupBy =
-        new ArrayList<>();
-
-    for (final JPAPath jpaPath : selectionPathList) {
-      groupBy.add(ExpressionUtil.convertToCriteriaPath(joinTables, root, jpaPath.getPath()));
-    }
-
-    debugger.stopRuntimeMeasurement(handle);
-    return groupBy;
-  }
-
   private javax.persistence.criteria.Expression<Boolean> createWhere() throws ODataApplicationException {
     return addWhereClause(super.createWhere(uriResource, navigationInfo), createProtectionWhere(claimsProvider));
   }
@@ -174,44 +144,6 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
    */
   private boolean determineDistinct() {
     return claimsProvider.isPresent();
-  }
-
-  private List<JPAAssociationPath> extractOrderByNaviAttributes() throws ODataApplicationException {
-
-    final List<JPAAssociationPath> naviAttributes = new ArrayList<>();
-    final OrderByOption orderBy = uriResource.getOrderByOption();
-    if (orderBy != null) {
-      for (final OrderByItem orderByItem : orderBy.getOrders()) {
-        final Expression expression = orderByItem.getExpression();
-        if (expression instanceof Member) {
-          final UriInfoResource resourcePath = ((Member) expression).getResourcePath();
-          final StringBuilder pathString = new StringBuilder();
-          for (final UriResource uriResource : resourcePath.getUriResourceParts()) {
-            try {
-              if (uriResource instanceof UriResourceNavigation) {
-                final EdmNavigationProperty edmNaviProperty = ((UriResourceNavigation) uriResource).getProperty();
-                naviAttributes.add(jpaEntity.getAssociationPath(edmNaviProperty.getName()));
-              } else if (uriResource instanceof UriResourceProperty && ((UriResourceProperty) uriResource)
-                  .isCollection()) {
-                pathString.append(((UriResourceProperty) uriResource).getProperty().getName());
-                final JPAPath jpaPath = jpaEntity.getPath(pathString.toString());
-                if (jpaPath.isTransient())
-                  throw new ODataJPAQueryException(QUERY_PREPARATION_ORDER_BY_TRANSIENT, NOT_IMPLEMENTED, jpaPath
-                      .getLeaf().toString());
-                naviAttributes.add(((JPACollectionAttribute) jpaPath.getLeaf()).asAssociation());
-
-              } else if (uriResource instanceof UriResourceProperty) {
-                pathString.append(((UriResourceProperty) uriResource).getProperty().getName());
-                pathString.append(JPAPath.PATH_SEPARATOR);
-              }
-            } catch (final ODataJPAModelException e) {
-              throw new ODataJPAQueryException(QUERY_RESULT_CONV_ERROR, INTERNAL_SERVER_ERROR, e);
-            }
-          }
-        }
-      }
-    }
-    return naviAttributes;
   }
 
   private JPAConvertibleResult returnEmptyResult(final Collection<JPAPath> selectionPath) {

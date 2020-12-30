@@ -37,7 +37,7 @@ import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
 import com.sap.olingo.jpa.processor.core.query.JPACollectionFilterQuery;
 import com.sap.olingo.jpa.processor.core.query.JPANavigationFilterQuery;
 import com.sap.olingo.jpa.processor.core.query.JPANavigationPropertyInfo;
-import com.sap.olingo.jpa.processor.core.query.JPANavigationQuery;
+import com.sap.olingo.jpa.processor.core.query.JPAAbstractSubQuery;
 
 /**
  * In case the query result shall be filtered on an attribute of navigation target a sub-select will be generated.<p>
@@ -120,7 +120,7 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
     // 1. Determine all relevant associations
     final List<JPANavigationPropertyInfo> naviPathList = determineAssociations(sd, allUriResourceParts);
     JPAAbstractQuery parent = root;
-    final List<JPANavigationQuery> queryList = new ArrayList<>();
+    final List<JPAAbstractSubQuery> queryList = new ArrayList<>();
 
     // 2. Create the queries and roots
     for (int i = naviPathList.size() - 1; i >= 0; i--) {
@@ -144,7 +144,7 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
     // 3. Create select statements
     Subquery<?> childQuery = null;
     for (int i = queryList.size() - 1; i >= 0; i--) {
-      childQuery = queryList.get(i).getSubQueryExists(childQuery);
+      childQuery = queryList.get(i).getSubQuery(childQuery);
     }
     return childQuery;
   }

@@ -10,7 +10,7 @@ import javax.annotation.Nullable;
 
 /**
  * Immutable triple of sets, that are related to each other.
- * 
+ *
  * @author Oliver Grande
  * Created: 27.03.2020
  *
@@ -18,7 +18,7 @@ import javax.annotation.Nullable;
  */
 class SelectionPathInfo<T> {
   private final Set<T> odataSelections;
-  private final Set<T> requitedSelections;
+  private final Set<T> requiredSelections;
   private final Set<T> transientSelections;
   private Set<T> joinedPersistent;
   private Set<T> joinedRequested;
@@ -27,20 +27,21 @@ class SelectionPathInfo<T> {
       @Nullable final Set<T> transientSelections) {
     super();
     this.odataSelections = odataSelections == null ? Collections.emptySet() : odataSelections;
-    this.requitedSelections = requitedSelections == null ? Collections.emptySet() : requitedSelections;
+    this.requiredSelections = requitedSelections == null ? Collections.emptySet() : requitedSelections;
     this.transientSelections = transientSelections == null ? Collections.emptySet() : transientSelections;
   }
 
-  SelectionPathInfo(@Nonnull List<T> additionalODataSelections, @Nonnull SelectionPathInfo<T> jpaSelectionPath) {
+  SelectionPathInfo(@Nonnull final List<T> additionalODataSelections,
+      @Nonnull final SelectionPathInfo<T> jpaSelectionPath) {
     this.odataSelections = new HashSet<>(additionalODataSelections);
     this.odataSelections.addAll(jpaSelectionPath.odataSelections);
-    this.requitedSelections = jpaSelectionPath.requitedSelections;
+    this.requiredSelections = jpaSelectionPath.requiredSelections;
     this.transientSelections = jpaSelectionPath.transientSelections;
   }
 
   SelectionPathInfo() {
     this.odataSelections = new HashSet<>();
-    this.requitedSelections = new HashSet<>();
+    this.requiredSelections = new HashSet<>();
     this.transientSelections = new HashSet<>();
   }
 
@@ -48,8 +49,8 @@ class SelectionPathInfo<T> {
     return odataSelections;
   }
 
-  Set<T> getRequitedSelections() {
-    return requitedSelections;
+  Set<T> getRequiredSelections() {
+    return requiredSelections;
   }
 
   Set<T> getTransientSelections() {
@@ -58,7 +59,7 @@ class SelectionPathInfo<T> {
 
   Set<T> joined() {
     final Set<T> joined = new HashSet<>(odataSelections);
-    joined.addAll(requitedSelections);
+    joined.addAll(requiredSelections);
     joined.addAll(transientSelections);
     return joined;
   }
@@ -66,7 +67,7 @@ class SelectionPathInfo<T> {
   Set<T> joinedPersistent() {
     if (joinedPersistent == null) {
       joinedPersistent = new HashSet<>(odataSelections);
-      joinedPersistent.addAll(requitedSelections);
+      joinedPersistent.addAll(requiredSelections);
     }
     return joinedPersistent;
   }
@@ -81,7 +82,7 @@ class SelectionPathInfo<T> {
 
   @Override
   public String toString() {
-    return "SelectionPathInfo [odatat=" + odataSelections + ", required=" + requitedSelections + ", transient="
+    return "SelectionPathInfo [odata=" + odataSelections + ", required=" + requiredSelections + ", transient="
         + transientSelections
         + "]";
   }

@@ -37,7 +37,8 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
   public static final String OPENING_BRACKET = "(";
   public static final String CLOSING_BRACKET = ")";
   public static final String DOT = ".";
-
+  public static final String SELECTION_REPLACMENT = "_";
+  public static final String SELECTION_REPLACMENT_REGEX = "\\.|/";
   protected Optional<String> alias = Optional.empty();
 
   /**
@@ -459,7 +460,7 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
   static class WindowFunctionExpression<T> extends ExpressionImpl<T> implements WindowFunction<T> {
     private final SqlWindowFunctions function;
     private Optional<List<Order>> orderBy;
-    private Optional<List<Expression<?>>> partitionBy;
+    private Optional<List<Path<?>>> partitionBy;
 
     WindowFunctionExpression(@Nonnull final SqlWindowFunctions function) {
       this.function = function;
@@ -496,7 +497,7 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
         o.stream().collect(new StringBuilderCollector.OrderCollector(statement, ", "));
       });
       statement.append(CLOSING_BRACKET);
-      alias.ifPresent(a -> statement.append(" AS ").append(a));
+      // alias.ifPresent(a -> statement.append(" AS ").append(a));
       return statement;
     }
 
@@ -507,8 +508,20 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
     }
 
     @Override
+    public WindowFunction<T> orderBy(final List<Order> o) {
+      this.orderBy = Optional.ofNullable(o);
+      return this;
+    }
+
+    @Override
     public WindowFunction<T> partitionBy(final Path<?>... p) {
       this.partitionBy = Optional.ofNullable(Arrays.asList(p));
+      return this;
+    }
+
+    @Override
+    public WindowFunction<T> partitionBy(final List<Path<?>> p) {
+      this.partitionBy = Optional.ofNullable(p);
       return this;
     }
 

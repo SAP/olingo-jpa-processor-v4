@@ -33,6 +33,7 @@ import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpMethod;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataHttpHandler;
+import org.apache.olingo.server.api.debug.DefaultDebugSupport;
 import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 
@@ -155,6 +156,7 @@ public class IntegrationTestHelper {
     when(externalContext.getEntityManager()).thenReturn(em);
     when(externalContext.getClaimsProvider()).thenReturn(Optional.ofNullable(claims));
     when(externalContext.getGroupsProvider()).thenReturn(Optional.ofNullable(groups));
+    when(externalContext.getDebuggerSupport()).thenReturn(new DefaultDebugSupport());
     final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext(externalContext);
 
     handler.register(new JPAODataRequestProcessor(sessionContext, requestContext));

@@ -58,7 +58,7 @@ abstract class CriteriaBuilderOverallTest {
 
     q.multiselect(team);
     ((SqlConvertible) q).asSQL(stmt);
-    assertEquals("SELECT E0.\"TeamKey\", E0.\"Name\" FROM \"OLINGO\".\"Team\" E0", stmt.toString().trim());
+    assertEquals("SELECT E0.\"TeamKey\" S0, E0.\"Name\" S1 FROM \"OLINGO\".\"Team\" E0", stmt.toString().trim());
     final TypedQuery<Tuple> tq = em.createQuery(q);
     final List<Tuple> act = tq.getResultList();
     assertEquals(4, act.size());
@@ -91,7 +91,7 @@ abstract class CriteriaBuilderOverallTest {
     q.multiselect(adminDiv.get("codeID"));
     q.where(cb.like(adminDiv.get("codeID"), "%6-1"));
     ((SqlConvertible) q).asSQL(stmt);
-    assertEquals("SELECT E0.\"CodeID\" FROM \"OLINGO\".\"AdministrativeDivision\" E0 WHERE (E0.\"CodeID\" LIKE ?1)",
+    assertEquals("SELECT E0.\"CodeID\" S0 FROM \"OLINGO\".\"AdministrativeDivision\" E0 WHERE (E0.\"CodeID\" LIKE ?1)",
         stmt.toString().trim());
     final TypedQuery<Tuple> tq = em.createQuery(q);
     final List<Tuple> act = tq.getResultList();
@@ -110,7 +110,7 @@ abstract class CriteriaBuilderOverallTest {
     q.where(cb.like(adminDiv.get("codeID"), p, e));
     ((SqlConvertible) q).asSQL(stmt);
     assertEquals(
-        "SELECT E0.\"CodeID\" FROM \"OLINGO\".\"AdministrativeDivision\" E0 WHERE (E0.\"CodeID\" LIKE ?1 ESCAPE ?2)",
+        "SELECT E0.\"CodeID\" S0 FROM \"OLINGO\".\"AdministrativeDivision\" E0 WHERE (E0.\"CodeID\" LIKE ?1 ESCAPE ?2)",
         stmt.toString().trim());
     final TypedQuery<Tuple> tq = em.createQuery(q);
     final List<Tuple> act = tq.getResultList();
@@ -125,7 +125,7 @@ abstract class CriteriaBuilderOverallTest {
     q.multiselect(team);
     q.orderBy(cb.asc(team.get("name")));
     ((SqlConvertible) q).asSQL(stmt);
-    assertEquals("SELECT E0.\"TeamKey\", E0.\"Name\" FROM \"OLINGO\".\"Team\" E0 ORDER BY E0.\"Name\" ASC", stmt
+    assertEquals("SELECT E0.\"TeamKey\" S0, E0.\"Name\" S1 FROM \"OLINGO\".\"Team\" E0 ORDER BY E0.\"Name\" ASC", stmt
         .toString().trim());
     final TypedQuery<Tuple> tq = em.createQuery(q);
     final List<Tuple> act = tq.getResultList();
@@ -141,7 +141,7 @@ abstract class CriteriaBuilderOverallTest {
     q.orderBy(cb.asc(team.get("name")), cb.desc(team.get("iD")));
     ((SqlConvertible) q).asSQL(stmt);
     assertEquals(
-        "SELECT E0.\"TeamKey\", E0.\"Name\" FROM \"OLINGO\".\"Team\" E0 ORDER BY E0.\"Name\" ASC, E0.\"TeamKey\" DESC",
+        "SELECT E0.\"TeamKey\" S0, E0.\"Name\" S1 FROM \"OLINGO\".\"Team\" E0 ORDER BY E0.\"Name\" ASC, E0.\"TeamKey\" DESC",
         stmt.toString().trim());
     final TypedQuery<Tuple> tq = em.createQuery(q);
     final List<Tuple> act = tq.getResultList();
@@ -159,7 +159,7 @@ abstract class CriteriaBuilderOverallTest {
     q.where(cb.and(equal, lower));
     ((SqlConvertible) q).asSQL(stmt);
     assertEquals(
-        "SELECT E0.\"CodeID\" FROM \"OLINGO\".\"AdministrativeDivisionDescription\" E0 WHERE ((E0.\"LanguageISO\" = ?1) AND (LOWER(E0.\"Name\") = ?2))",
+        "SELECT E0.\"CodeID\" S0 FROM \"OLINGO\".\"AdministrativeDivisionDescription\" E0 WHERE ((E0.\"LanguageISO\" = ?1) AND (LOWER(E0.\"Name\") = ?2))",
         stmt.toString().trim());
     final TypedQuery<Tuple> tq = em.createQuery(q);
     final List<Tuple> act = tq.getResultList();
@@ -178,7 +178,7 @@ abstract class CriteriaBuilderOverallTest {
     q.where(cb.and(equal, lower));
     ((SqlConvertible) q).asSQL(stmt);
     assertEquals(
-        "SELECT E0.\"CodeID\" FROM \"OLINGO\".\"AdministrativeDivisionDescription\" E0 WHERE ((E0.\"LanguageISO\" = ?1) AND (LOWER(SUBSTRING(E0.\"Name\", ?2, ?3)) = ?4))",
+        "SELECT E0.\"CodeID\" S0 FROM \"OLINGO\".\"AdministrativeDivisionDescription\" E0 WHERE ((E0.\"LanguageISO\" = ?1) AND (LOWER(SUBSTRING(E0.\"Name\", ?2, ?3)) = ?4))",
         stmt.toString().trim());
     final TypedQuery<Tuple> tq = em.createQuery(q);
     final List<Tuple> act = tq.getResultList();
@@ -198,7 +198,7 @@ abstract class CriteriaBuilderOverallTest {
     q.where(cb.equal(locate, 4));
     ((SqlConvertible) q).asSQL(stmt);
     assertEquals(
-        "SELECT E0.\"CodeID\" FROM \"OLINGO\".\"AdministrativeDivision\" E0 WHERE (LOCATE(?1, E0.\"DivisionCode\") = ?2)",
+        "SELECT E0.\"CodeID\" S0 FROM \"OLINGO\".\"AdministrativeDivision\" E0 WHERE (LOCATE(?1, E0.\"DivisionCode\") = ?2)",
         stmt.toString().trim());
     final TypedQuery<Tuple> tq = em.createQuery(q);
     final List<Tuple> act = tq.getResultList();
@@ -215,7 +215,7 @@ abstract class CriteriaBuilderOverallTest {
     q.where(cb.equal(locate, "Mustermann,Max"));
     ((SqlConvertible) q).asSQL(stmt);
     assertEquals(
-        "SELECT E0.\"ID\" FROM \"OLINGO\".\"BusinessPartner\" E0 WHERE ((CONCAT(CONCAT(E0.\"NameLine2\", ?1), E0.\"NameLine1\") = ?2) AND (E0.\"Type\" = ?3))",
+        "SELECT E0.\"ID\" S0 FROM \"OLINGO\".\"BusinessPartner\" E0 WHERE ((CONCAT(CONCAT(E0.\"NameLine2\", ?1), E0.\"NameLine1\") = ?2) AND (E0.\"Type\" = ?3))",
         stmt.toString().trim());
     final TypedQuery<Tuple> tq = em.createQuery(q);
     final List<Tuple> act = tq.getResultList();
@@ -232,7 +232,7 @@ abstract class CriteriaBuilderOverallTest {
     q.where(cb.lessThan(locate, cb.currentTimestamp()));
     ((SqlConvertible) q).asSQL(stmt);
     assertEquals(
-        "SELECT E0.\"ID\", E0.\"CreatedAt\" FROM \"OLINGO\".\"BusinessPartner\" E0 WHERE ((E0.\"CreatedAt\" < CURRENT_TIMESTAMP) AND (E0.\"Type\" = ?1))",
+        "SELECT E0.\"ID\" S0, E0.\"CreatedAt\" S1 FROM \"OLINGO\".\"BusinessPartner\" E0 WHERE ((E0.\"CreatedAt\" < CURRENT_TIMESTAMP) AND (E0.\"Type\" = ?1))",
         stmt.toString().trim());
     final TypedQuery<Tuple> tq = em.createQuery(q);
     final List<Tuple> act = tq.getResultList();

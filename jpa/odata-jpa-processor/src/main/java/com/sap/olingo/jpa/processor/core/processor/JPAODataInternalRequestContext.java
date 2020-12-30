@@ -202,7 +202,7 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
   @Override
   public Locale getLocale() {
     if (locales == null || locales.isEmpty())
-      return ExpressionUtil.determineLocale(header);
+      return ExpressionUtil.determineFallbackLocale(header);
     return locales.get(0);
   }
 

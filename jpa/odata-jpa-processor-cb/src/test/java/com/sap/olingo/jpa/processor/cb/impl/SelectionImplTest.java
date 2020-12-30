@@ -3,27 +3,29 @@ package com.sap.olingo.jpa.processor.cb.impl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import java.util.List;
-
-import javax.persistence.criteria.Selection;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class SelectionImplTest {
 
-  private List<Selection<?>> selections;
+  private SqlSelection<Long> selection;
   private SelectionImpl<Long> cut;
 
+  @SuppressWarnings("unchecked")
   @BeforeEach
   void setup() {
-    cut = new SelectionImpl<>(selections, Long.class);
+    selection = mock(SqlSelection.class);
+    when(selection.asSQL(any())).thenReturn(new StringBuilder("Dummy"));
+    cut = new SelectionImpl<>(selection, Long.class, new AliasBuilder("X"));
   }
 
   @Test
-  void testGetAliasReturnsEmptyStringNotSet() {
-    assertEquals("", cut.getAlias());
+  void testGetAliasReturnsGeneratedStringNotSet() {
+    assertEquals("X0", cut.getAlias());
   }
 
   @Test
@@ -48,5 +50,10 @@ class SelectionImplTest {
   void testCompoundSelections() {
     assertFalse(cut.isCompoundSelection());
     assertThrows(IllegalStateException.class, () -> cut.getCompoundSelectionItems());
+  }
+
+  @Test
+  void testAsSql() {
+    assertEquals("Dummy X0", cut.asSQL(new StringBuilder()).toString());
   }
 }

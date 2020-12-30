@@ -21,11 +21,15 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.metamodel.Metamodel;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaBuilder;
 import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
 
 public class EntityManagerWrapper implements EntityManager { // NOSONAR
+  private static final Log LOG = LogFactory.getLog(EntityManagerWrapper.class);
   private Optional<ProcessorCriteriaBuilder> cb;
   private final EntityManager em;
   private final JPAServiceDocument sd;
@@ -399,6 +403,7 @@ public class EntityManagerWrapper implements EntityManager { // NOSONAR
    */
   @Override
   public Query createNativeQuery(final String sqlString) {
+    LOG.trace(sqlString);
     return em.createNativeQuery(sqlString);
   }
 
@@ -411,6 +416,7 @@ public class EntityManagerWrapper implements EntityManager { // NOSONAR
    */
   @Override
   public Query createNativeQuery(final String sqlString, @SuppressWarnings("rawtypes") final Class resultClass) {
+    LOG.trace(sqlString);
     return em.createNativeQuery(sqlString, resultClass);
   }
 

@@ -215,6 +215,6 @@ class SubqueryImplTest extends BuilderBaseTest {
     cut.select(expression);
     assertNotNull(cut.getCompoundSelectionItems());
     assertEquals(1, cut.getCompoundSelectionItems().size());
-    assertEquals(expression, ((SelectionImpl<?>) cut.getCompoundSelectionItems().get(0)).selections.get(0));
+    assertEquals(expression, ((SelectionImpl<?>) cut.getCompoundSelectionItems().get(0)).selection);
   }
 }

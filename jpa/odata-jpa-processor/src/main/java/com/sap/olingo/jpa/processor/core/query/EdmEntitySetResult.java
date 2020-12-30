@@ -50,9 +50,9 @@ final class EdmEntitySetResult implements EdmEntitySetInfo {
     if (navigationPath == null || navigationPath.isEmpty())
       return this.edmEntitySet;
     else {
-      for (EdmNavigationPropertyBinding navi : this.edmEntitySet.getNavigationPropertyBindings()) {
-        if (navi.getPath().equals(navigationPath))
-          return edmEntitySet.getEntityContainer().getEntitySet(navi.getTarget());
+      for (EdmNavigationPropertyBinding navigation : this.edmEntitySet.getNavigationPropertyBindings()) {
+        if (navigation.getPath().equals(navigationPath))
+          return edmEntitySet.getEntityContainer().getEntitySet(navigation.getTarget());
       }
       return this.edmEntitySet;
     }

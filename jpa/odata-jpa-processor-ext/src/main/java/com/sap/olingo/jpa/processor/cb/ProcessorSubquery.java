@@ -2,12 +2,13 @@ package com.sap.olingo.jpa.processor.cb;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 import javax.persistence.criteria.Subquery;
 
-public interface ProcessorSubquery<T> extends Subquery<T> {
+public interface ProcessorSubquery<T> extends Subquery<T> , ProcessorSubQueryProvider{
 
   @Override
   public <U> ProcessorSubquery<U> subquery(Class<U> type);
@@ -78,7 +79,7 @@ public interface ProcessorSubquery<T> extends Subquery<T> {
    * @return the same query instance
    * @throws IllegalArgumentException if the argument is negative
    */
-  ProcessorSubquery<T> setMaxResults(final Integer maxResult);
+  ProcessorSubquery<T> setMaxResults(@Nullable final Integer maxResult);
 
   /**
    * Set the position of the first result to retrieve.
@@ -87,7 +88,7 @@ public interface ProcessorSubquery<T> extends Subquery<T> {
    * @return the same query instance
    * @throws IllegalArgumentException if the argument is negative
    */
-  ProcessorSubquery<T> setFirstResult(final Integer startPosition);
+  ProcessorSubquery<T> setFirstResult(@Nullable final Integer startPosition);
 
-  <X> Root<X> from(ProcessorSubquery<?> nuts2RowQuery);
+  <X> Root<X> from(ProcessorSubquery<?> innerQuery);
 }

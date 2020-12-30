@@ -35,11 +35,6 @@
         </dependency>
         <dependency>
             <groupId>com.sap.olingo</groupId>
-            <artifactId>odata-jpa-processor-cb</artifactId>
-            <version>${project.version}</version>
-        </dependency>     <!-- -->
-        <dependency>
-            <groupId>com.sap.olingo</groupId>
             <artifactId>odata-jpa-processor-ext</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -85,6 +80,28 @@
             <version>5.2.4.RELEASE</version>
         </dependency>
     </dependencies>
+    <profiles>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.sap.olingo</groupId>
+                    <artifactId>odata-jpa-processor-cb</artifactId>
+                    <version>${project.version}</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>wo-extension</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+        </profile>
+    </profiles>
     <build>
         <plugins>
             <plugin>

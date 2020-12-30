@@ -1,8 +1,10 @@
 package com.sap.olingo.jpa.processor.cb.impl;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
+
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -11,6 +13,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
@@ -38,10 +41,11 @@ class CriteriaQueryImpl<T> implements ProcessorCriteriaQuery<T>, SqlConvertible 
   private final Class<T> resultType;
   private final Set<FromImpl<?, ?>> roots = new HashSet<>();
   private final JPAServiceDocument sd;
-  private SelectionImpl<? extends T> selection;
+  private SqlSelection<?> selection;
   private Optional<Expression<Boolean>> where;
   private boolean distinct;
   private final AliasBuilder aliasBuilder;
+  private final AliasBuilder selectAliasBuilder;
   private Optional<List<Order>> orderList;
   private Optional<List<Expression<?>>> groupBy;
   private Optional<Expression<Boolean>> having;
@@ -58,6 +62,7 @@ class CriteriaQueryImpl<T> implements ProcessorCriteriaQuery<T>, SqlConvertible 
     this.having = Optional.empty();
     this.aliasBuilder = ab;
     this.cb = cb;
+    this.selectAliasBuilder = new AliasBuilder("S");
   }
 
   CriteriaQueryImpl(final Class<T> clazz, final JPAServiceDocument sd, final CriteriaBuilder cb) {
@@ -147,7 +152,7 @@ class CriteriaQueryImpl<T> implements ProcessorCriteriaQuery<T>, SqlConvertible 
    */
   @Override
   public List<Expression<?>> getGroupList() {
-    return groupBy.orElse(Collections.emptyList());
+    return groupBy.orElse(emptyList());
   }
 
   /**
@@ -163,12 +168,12 @@ class CriteriaQueryImpl<T> implements ProcessorCriteriaQuery<T>, SqlConvertible 
 
   @Override
   public List<Order> getOrderList() {
-    return orderList.orElse(Collections.emptyList());
+    return orderList.orElse(emptyList());
   }
 
   @Override
   public Set<ParameterExpression<?>> getParameters() {
-    return Collections.emptySet();
+    return emptySet();
   }
 
   /**
@@ -189,7 +194,9 @@ class CriteriaQueryImpl<T> implements ProcessorCriteriaQuery<T>, SqlConvertible 
 
   @Override
   public Set<Root<?>> getRoots() {
-    return roots.stream().map(r -> (Root<?>) r).collect(Collectors.toSet());
+    return roots.stream()
+        .map(r -> (Root<?>) r) // NOSONAR
+        .collect(Collectors.toSet());
   }
 
   @SuppressWarnings("unchecked")
@@ -211,7 +218,7 @@ class CriteriaQueryImpl<T> implements ProcessorCriteriaQuery<T>, SqlConvertible 
    */
   @Override
   public CriteriaQuery<T> groupBy(final Expression<?>... grouping) {
-    return groupBy(grouping != null ? Arrays.asList(grouping) : null);
+    return groupBy(grouping != null ? Arrays.asList(grouping) : emptyList());
   }
 
   /**
@@ -227,7 +234,7 @@ class CriteriaQueryImpl<T> implements ProcessorCriteriaQuery<T>, SqlConvertible 
    */
   @Override
   public CriteriaQuery<T> groupBy(final List<Expression<?>> grouping) {
-    groupBy = Optional.ofNullable(grouping);
+    groupBy = Optional.ofNullable(grouping.isEmpty() ? null : grouping);
     return this;
   }
 
@@ -334,7 +341,7 @@ class CriteriaQueryImpl<T> implements ProcessorCriteriaQuery<T>, SqlConvertible 
    */
   @Override
   public CriteriaQuery<T> multiselect(final List<Selection<?>> selectionList) {
-    selection = new CompoundSelectionImpl<>(selectionList, resultType);
+    selection = new CompoundSelectionImpl<>(selectionList, resultType, selectAliasBuilder);
     return this;
   }
 
@@ -377,7 +384,7 @@ class CriteriaQueryImpl<T> implements ProcessorCriteriaQuery<T>, SqlConvertible 
 
   @Override
   public CriteriaQuery<T> select(final Selection<? extends T> selection) {
-    this.selection = new SelectionImpl<>(selection, resultType);
+    this.selection = new SelectionImpl<>(selection, resultType, selectAliasBuilder);
     return this;
   }
 
@@ -389,15 +396,15 @@ class CriteriaQueryImpl<T> implements ProcessorCriteriaQuery<T>, SqlConvertible 
   /**
    * Modify the query to restrict the query result according
    * to the specified boolean expression.
-   * Replaces the previously added restriction(s), if any.
-   * This method only overrides the return type of the
-   * corresponding <code>AbstractQuery</code> method.
+   * Replaces the previously added restriction(s), if any. <br>
+   * This method overrides the return type of the
+   * corresponding <code>AbstractQuery</code> method;
    * @param restriction a simple or compound boolean expression
    * @return the modified query
    */
   @Override
-  public CriteriaQuery<T> where(@Nonnull final Expression<Boolean> restriction) {
-    where = Optional.of(restriction);
+  public CriteriaQuery<T> where(@Nullable final Expression<Boolean> restriction) {
+    where = Optional.ofNullable(restriction);
     return this;
   }
 

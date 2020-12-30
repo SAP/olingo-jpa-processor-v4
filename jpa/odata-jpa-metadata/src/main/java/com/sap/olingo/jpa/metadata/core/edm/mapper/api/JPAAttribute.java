@@ -50,6 +50,10 @@ public interface JPAAttribute extends JPAElement {
    */
   public List<String> getProtectionPath(String claimName) throws ODataJPAModelException;
 
+  /**
+   * 
+   * @return
+   */
   public Class<?> getType();
 
   public boolean isAssociation();

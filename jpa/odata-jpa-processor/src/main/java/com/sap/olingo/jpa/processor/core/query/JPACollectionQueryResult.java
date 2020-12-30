@@ -49,10 +49,10 @@ public class JPACollectionQueryResult implements JPACollectionResult, JPAConvert
     return EMPTY_RESULT;
   }
 
-  public JPACollectionQueryResult(final JPAEntityType jpaEntityType, final JPAAssociationPath assoziation,
+  public JPACollectionQueryResult(final JPAEntityType jpaEntityType, final JPAAssociationPath association,
       final Collection<JPAPath> selectionPath) {
 
-    this(putEmptyResult(), Collections.emptyMap(), jpaEntityType, assoziation, selectionPath);
+    this(putEmptyResult(), Collections.emptyMap(), jpaEntityType, association, selectionPath);
   }
 
   public JPACollectionQueryResult(final Map<String, List<Tuple>> result, final Map<String, Long> counts,

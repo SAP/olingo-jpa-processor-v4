@@ -83,17 +83,17 @@ final class IntermediateEntitySet extends IntermediateModelElement implements In
 
   private List<CsdlNavigationPropertyBinding> determinePropertyBinding() throws ODataJPAModelException {
     final List<CsdlNavigationPropertyBinding> navPropBindingList = new ArrayList<>();
-    final List<JPAAssociationPath> naviPropertyList = entityType.getAssociationPathList();
-    if (naviPropertyList != null && !naviPropertyList.isEmpty()) {
+    final List<JPAAssociationPath> navigationPropertyList = entityType.getAssociationPathList();
+    if (navigationPropertyList != null && !navigationPropertyList.isEmpty()) {
       // http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406398035
 
-      for (final JPAAssociationPath naviPropertyPath : naviPropertyList) {
+      for (final JPAAssociationPath navigationPropertyPath : navigationPropertyList) {
         final CsdlNavigationPropertyBinding navPropBinding = new CsdlNavigationPropertyBinding();
-        navPropBinding.setPath(naviPropertyPath.getAlias());
+        navPropBinding.setPath(navigationPropertyPath.getAlias());
 
         // TODO Check is FQN is better here
-        final JPAAssociationAttribute naviProperty = naviPropertyPath.getLeaf();
-        navPropBinding.setTarget(nameBuilder.buildEntitySetName(naviProperty.getTargetEntity().getExternalName()));
+        final JPAAssociationAttribute navigationProperty = navigationPropertyPath.getLeaf();
+        navPropBinding.setTarget(nameBuilder.buildEntitySetName(navigationProperty.getTargetEntity().getExternalName()));
         navPropBindingList.add(navPropBinding);
       }
     }

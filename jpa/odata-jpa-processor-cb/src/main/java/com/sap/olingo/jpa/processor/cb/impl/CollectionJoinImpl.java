@@ -29,17 +29,25 @@ class CollectionJoinImpl<Z, X> extends AbstractJoinImp<Z, X> {
     super(determineEt(path, parent), parent, determinePath(path), aliasBuilder, cb);
     this.attribute = (JPACollectionAttribute) path.getLeaf();
 
-    createOn(attribute.asAssociation().getJoinTable().getRawJoinInformation());
+    createOn(attribute.asAssociation()
+        .getJoinTable()
+        .getRawJoinInformation());
   }
 
   private static JPAPath determinePath(final JPAPath path) throws ODataJPAModelException {
-    return ((JPACollectionAttribute) path.getLeaf()).asAssociation().getJoinTable().getEntityType() == null
-        ? path : null;
+    return ((JPACollectionAttribute) path.getLeaf())
+        .asAssociation()
+        .getJoinTable()
+        .getEntityType() == null
+            ? path : null;
   }
 
   private static JPAEntityType determineEt(@Nonnull final JPAPath path, @Nonnull final FromImpl<?, ?> parent)
       throws ODataJPAModelException {
-    return Optional.ofNullable(((JPACollectionAttribute) path.getLeaf()).asAssociation().getJoinTable().getEntityType())
+    return Optional.ofNullable(((JPACollectionAttribute) path.getLeaf())
+        .asAssociation()
+        .getJoinTable()
+        .getEntityType())
         .orElse(parent.st);
   }
 
@@ -50,7 +58,8 @@ class CollectionJoinImpl<Z, X> extends AbstractJoinImp<Z, X> {
       statement.append(" ")
           .append(SqlJoinType.byJoinType(getJoinType()))
           .append(" ")
-          .append(attribute.asAssociation()
+          .append(attribute
+              .asAssociation()
               .getJoinTable()
               .getTableName());
 
@@ -114,5 +123,25 @@ class CollectionJoinImpl<Z, X> extends AbstractJoinImp<Z, X> {
   @Override
   public JoinType getJoinType() {
     return JoinType.INNER;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + ((attribute == null) ? 0 : attribute.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) return true;
+    if (!super.equals(obj)) return false;
+    if (getClass() != obj.getClass()) return false;
+    final CollectionJoinImpl<?, ?> other = (CollectionJoinImpl<?, ?>) obj;
+    if (attribute == null) {
+      if (other.attribute != null) return false;
+    } else if (!attribute.equals(other.attribute)) return false;
+    return true;
   }
 }

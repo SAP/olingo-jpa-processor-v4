@@ -113,7 +113,7 @@ class CriteriaQueryImplTest extends BuilderBaseTest {
     final StringBuilder stmt = new StringBuilder();
     final Root<?> act = cut.from(Organization.class);
     cut.multiselect(act.get("iD"));
-    assertEquals("SELECT E0.\"ID\" FROM \"OLINGO\".\"BusinessPartner\" E0 WHERE (E0.\"Type\" = ?1)",
+    assertEquals("SELECT E0.\"ID\" S0 FROM \"OLINGO\".\"BusinessPartner\" E0 WHERE (E0.\"Type\" = ?1)",
         cut.asSQL(stmt).toString());
   }
 
@@ -124,7 +124,7 @@ class CriteriaQueryImplTest extends BuilderBaseTest {
     cut.groupBy(act.get("aBCClass"), act.get("name2"));
     cut.multiselect(act.get("aBCClass"), act.get("name2"));
     assertEquals(
-        "SELECT E0.\"ABCClass\", E0.\"NameLine2\" FROM \"OLINGO\".\"BusinessPartner\" E0 "
+        "SELECT E0.\"ABCClass\" S0, E0.\"NameLine2\" S1 FROM \"OLINGO\".\"BusinessPartner\" E0 "
             + "WHERE (E0.\"Type\" = ?1) GROUP BY E0.\"ABCClass\", E0.\"NameLine2\"",
         cut.asSQL(stmt).toString());
   }
@@ -138,7 +138,7 @@ class CriteriaQueryImplTest extends BuilderBaseTest {
     cut.multiselect(act.get("aBCClass"), act.get("name2"));
     cut.groupBy(nullArray);
     assertEquals(
-        "SELECT E0.\"ABCClass\", E0.\"NameLine2\" FROM \"OLINGO\".\"BusinessPartner\" E0 "
+        "SELECT E0.\"ABCClass\" S0, E0.\"NameLine2\" S1 FROM \"OLINGO\".\"BusinessPartner\" E0 "
             + "WHERE (E0.\"Type\" = ?1)",
         cut.asSQL(stmt).toString());
   }
@@ -151,7 +151,7 @@ class CriteriaQueryImplTest extends BuilderBaseTest {
     cut.groupBy(act.get("name2"));
     cut.multiselect(act.get("aBCClass"), act.get("name2"));
     assertEquals(
-        "SELECT E0.\"ABCClass\", E0.\"NameLine2\" FROM \"OLINGO\".\"BusinessPartner\" E0 "
+        "SELECT E0.\"ABCClass\" S0, E0.\"NameLine2\" S1 FROM \"OLINGO\".\"BusinessPartner\" E0 "
             + "WHERE (E0.\"Type\" = ?2) "
             + "GROUP BY E0.\"NameLine2\" "
             + "HAVING (COUNT(E0.\"ID\") > ?1)",

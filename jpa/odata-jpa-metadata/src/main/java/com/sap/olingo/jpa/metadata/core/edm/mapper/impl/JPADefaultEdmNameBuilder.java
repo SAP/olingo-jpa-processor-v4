@@ -36,8 +36,8 @@ public final class JPADefaultEdmNameBuilder implements JPAEdmNameBuilder {
    * Use JPA Embeddable Type Simple Name as Complex Type Name
    */
   @Override
-  public final String buildComplexTypeName(final EmbeddableType<?> jpaEnbeddedType) {
-    return jpaEnbeddedType.getJavaType().getSimpleName();
+  public final String buildComplexTypeName(final EmbeddableType<?> jpaEmbeddedType) {
+    return jpaEmbeddedType.getJavaType().getSimpleName();
   }
 
   /**

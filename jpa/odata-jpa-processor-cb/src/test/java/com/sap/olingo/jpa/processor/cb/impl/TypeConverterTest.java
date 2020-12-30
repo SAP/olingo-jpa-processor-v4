@@ -31,6 +31,7 @@ class TypeConverterTest {
   static Stream<Arguments> numericConversion() {
     return Stream.of(
         arguments(new Short((short) 5), new Byte("5"), Short.class),
+        arguments(new Short((short) 5), new Integer(5), Short.class),
 
         arguments(new Integer(5), new Byte("5"), Integer.class),
         arguments(new Integer(5), new Short((short) 5), Integer.class),
@@ -78,7 +79,6 @@ class TypeConverterTest {
     return Stream.of(
 
         arguments(new Long(5), Short.class),
-        arguments(new Integer(5), Short.class),
         arguments(new Float(5), Short.class),
         arguments(new Double(5), Short.class),
         arguments(BigInteger.TEN, Short.class),

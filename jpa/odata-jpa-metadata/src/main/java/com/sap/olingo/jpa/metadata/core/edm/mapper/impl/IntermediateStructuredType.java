@@ -687,7 +687,6 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
           // Only direct attributes
           final IntermediateProperty property = (IntermediateProperty) attributePath.getLeaf();
           final IntermediateStructuredType<?> is = (IntermediateStructuredType<?>) property.getStructuredType();
-
           for (final JPAAssociationPath association : is.getAssociationPathList()) {
             associationPath = new JPAAssociationPathImpl(association, this, determineJoinColumns(property, association),
                 property);

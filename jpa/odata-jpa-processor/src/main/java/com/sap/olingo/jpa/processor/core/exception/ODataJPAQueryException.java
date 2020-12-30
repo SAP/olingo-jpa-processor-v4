@@ -10,7 +10,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAMessageKey;
  */
 public class ODataJPAQueryException extends ODataJPAProcessException { // NOSONAR
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = -7188499882306858747L;
 
@@ -34,6 +34,7 @@ public class ODataJPAQueryException extends ODataJPAProcessException { // NOSONA
     QUERY_PREPARATION_NOT_IMPLEMENTED,
     QUERY_PREPARATION_NOT_ALLOWED_MEMBER,
     QUERY_PREPARATION_ORDER_BY_TRANSIENT,
+    QUERY_PREPARATION_JOIN_TABLE_TYPE_MISSING,
     NOT_SUPPORTED_RESOURCE_TYPE,
     MISSING_CLAIMS_PROVIDER,
     MISSING_CLAIM,

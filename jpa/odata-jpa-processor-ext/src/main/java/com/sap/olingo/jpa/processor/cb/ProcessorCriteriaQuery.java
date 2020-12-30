@@ -3,7 +3,7 @@ package com.sap.olingo.jpa.processor.cb;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-public interface ProcessorCriteriaQuery<T> extends CriteriaQuery<T> {
+public interface ProcessorCriteriaQuery<T>  extends CriteriaQuery<T> , ProcessorSubQueryProvider{
 
   @Override
   public <U> ProcessorSubquery<U> subquery(Class<U> type);

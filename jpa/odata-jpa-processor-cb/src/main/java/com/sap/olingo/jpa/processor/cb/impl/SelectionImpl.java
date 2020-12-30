@@ -1,6 +1,8 @@
 package com.sap.olingo.jpa.processor.cb.impl;
 
-import java.util.Arrays;
+import static com.sap.olingo.jpa.processor.cb.impl.ExpressionImpl.SELECTION_REPLACMENT;
+import static com.sap.olingo.jpa.processor.cb.impl.ExpressionImpl.SELECTION_REPLACMENT_REGEX;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -10,9 +12,7 @@ import javax.annotation.Nonnull;
 import javax.persistence.criteria.Selection;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
-import com.sap.olingo.jpa.processor.cb.ProcessorSelection;
 import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
-import com.sap.olingo.jpa.processor.cb.joiner.StringBuilderCollector;
 
 /**
  *
@@ -20,20 +20,19 @@ import com.sap.olingo.jpa.processor.cb.joiner.StringBuilderCollector;
  *
  * @param <X> the type of the selection item
  */
-class SelectionImpl<X> implements ProcessorSelection<X>, SqlConvertible {
+final class SelectionImpl<X> implements SqlSelection<X> {
   private Optional<String> alias;
   private final Class<X> resultType;
-  protected final List<Selection<?>> selections;
+  final Selection<?> selection;
   protected Optional<List<Map.Entry<String, JPAPath>>> resolvedSelection = Optional.empty();
+  protected final AliasBuilder aliasBuilder;
 
-  SelectionImpl(final List<Selection<?>> selections, final Class<X> resultType) {
+  SelectionImpl(final Selection<?> selection, final Class<X> resultType, final AliasBuilder aliasBuilder) {
     this.resultType = resultType;
-    this.selections = selections;
-    this.alias = Optional.empty();
-  }
-
-  SelectionImpl(final Selection<?> selection, final Class<X> resultType) {
-    this(Arrays.asList(selection), resultType);
+    this.selection = selection;
+    this.alias = Optional.ofNullable(selection.getAlias() == null || selection.getAlias().isEmpty()
+        ? null : selection.getAlias());
+    this.aliasBuilder = aliasBuilder;
   }
 
   /**
@@ -44,7 +43,7 @@ class SelectionImpl<X> implements ProcessorSelection<X>, SqlConvertible {
    * @return selection item
    */
   @Override
-  public Selection<X> alias(@Nonnull final String name) {
+  public SqlSelection<X> alias(@Nonnull final String name) {
     if (!alias.isPresent())
       alias = Optional.of(name);
     return this;
@@ -52,19 +51,21 @@ class SelectionImpl<X> implements ProcessorSelection<X>, SqlConvertible {
 
   @Override
   public StringBuilder asSQL(@Nonnull final StringBuilder statement) {
-    selections.stream().collect(new StringBuilderCollector.SelectionCollector(statement, ", "));
-    return statement;
+
+    return ((SqlConvertible) selection)
+        .asSQL(statement)
+        .append(" ")
+        .append(getAlias().replaceAll(SELECTION_REPLACMENT_REGEX, SELECTION_REPLACMENT));
   }
 
   /**
-   * Return the alias assigned to the tuple element or null,
+   * Return the alias assigned to the tuple element or creates on,
    * if no alias has been assigned.
-   * @return alias
+   * @return alias if not set returns an empty string
    */
-
   @Override
   public String getAlias() {
-    return alias.orElse("");
+    return alias.orElseGet(this::createAlias);
   }
 
   /**
@@ -105,5 +106,16 @@ class SelectionImpl<X> implements ProcessorSelection<X>, SqlConvertible {
 
   protected List<Map.Entry<String, JPAPath>> resolveSelectionLate() {
     return Collections.emptyList();
+  }
+
+  private String createAlias() {
+    alias = Optional.of(aliasBuilder.getNext());
+    return alias.get();
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public Selection<X> getSelection() {
+    return (Selection<X>) selection;
   }
 }

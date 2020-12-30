@@ -155,10 +155,14 @@ class SubqueryImpl<T> implements ProcessorSubquery<T>, SqlConvertible {
     return getParent();
   }
 
+  /**
+   * Return the selection expression.
+   * @return the item to be returned in the subquery result
+   */
   @SuppressWarnings({ "unchecked", "rawtypes" })
   @Override
   public Expression<T> getSelection() {
-    return (Expression<T>) ((SelectionImpl) inner.getSelection()).selections.get(0);
+    return (Expression<T>) ((SelectionImpl) inner.getSelection()).selection;
   }
 
   @Override
@@ -349,5 +353,4 @@ class SubqueryImpl<T> implements ProcessorSubquery<T>, SqlConvertible {
   public <X> Root<X> from(final ProcessorSubquery<?> subquery) {
     return (Root<X>) inner.from(subquery);
   }
-
 }

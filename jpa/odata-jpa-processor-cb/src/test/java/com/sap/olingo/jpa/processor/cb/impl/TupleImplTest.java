@@ -70,7 +70,7 @@ class TupleImplTest {
 
   private JPAAttribute mockAttributeWithConverter(final String alias) {
     final JPAAttribute attribute = mockAttribute(alias, Timestamp.class);
-    when(attribute.getRawConverter()).thenAnswer(new Answer<AttributeConverter<LocalDateTime, Timestamp>>() {
+    when(attribute.getConverter()).thenAnswer(new Answer<AttributeConverter<LocalDateTime, Timestamp>>() {
       @Override
       public AttributeConverter<LocalDateTime, Timestamp> answer(final InvocationOnMock invocation) throws Throwable {
         return new DateTimeConverter();

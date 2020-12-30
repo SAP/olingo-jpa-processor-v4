@@ -38,13 +38,17 @@ public interface ProcessorCriteriaBuilder extends CriteriaBuilder {
      */
     WindowFunction<T> orderBy(final Order... order);
 
+    WindowFunction<T> orderBy(final List<Order> order);
     /**
      * Takes an array of simple path expressions.
      * @param parh
      * @return
      */
     WindowFunction<T> partitionBy(final Path<?>... path);
+    
+    WindowFunction<T> partitionBy(final List<Path<?>> path);
 
     Path<T> asPath(final String tableAlias);
+
   }
 }

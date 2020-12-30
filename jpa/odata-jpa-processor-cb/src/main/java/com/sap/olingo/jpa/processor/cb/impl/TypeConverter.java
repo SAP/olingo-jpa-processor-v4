@@ -105,7 +105,7 @@ class TypeConverter {
     throw new IllegalArgumentException(createCastException(source, target));
   }
 
-  private static Class<?> boxed(final Class<?> javaType) {
+  public static Class<?> boxed(final Class<?> javaType) {
     if (javaType == int.class) return Integer.class;
     if (javaType == long.class) return Long.class;
     if (javaType == boolean.class) return Boolean.class;
@@ -172,7 +172,7 @@ class TypeConverter {
   }
 
   private static boolean numberConversionAllowed(final Class<?> source, final Class<?> target) { // NOSONAR
-    if (target == Short.class || target == short.class) return source == Byte.class;
+    if (target == Short.class || target == short.class) return source == Byte.class || source == Integer.class;
     if (target == Integer.class || target == int.class) return source == Byte.class || source == Short.class
         || source == Long.class;
     if (target == Long.class || target == long.class) return source == Byte.class || source == Short.class

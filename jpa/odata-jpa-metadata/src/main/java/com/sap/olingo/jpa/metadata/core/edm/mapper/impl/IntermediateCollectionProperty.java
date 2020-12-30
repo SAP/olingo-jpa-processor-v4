@@ -175,7 +175,7 @@ class IntermediateCollectionProperty extends IntermediateProperty implements JPA
   }
 
   @Override
-  Class<?> determineEntityType() {
+  Class<?> determinePropertyType() {
     return getRowType().getJavaType();
   }
 

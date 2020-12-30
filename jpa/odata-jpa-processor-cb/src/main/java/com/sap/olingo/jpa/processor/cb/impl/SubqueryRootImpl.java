@@ -1,7 +1,5 @@
 package com.sap.olingo.jpa.processor.cb.impl;
 
-import java.util.Optional;
-
 import javax.annotation.Nonnull;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
@@ -51,23 +49,52 @@ class SubqueryRootImpl<X> extends FromImpl<X, X> implements Root<X> {
    * @throws IllegalArgumentException if attribute of the given
    * name does not otherwise exist
    **/
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   @Override
   public <Y> Path<Y> get(final String attributeName) {
 
-    final Optional<Selection<?>> selection = query.getCompoundSelectionItems()
-        .stream()
-        .filter(s -> s.getAlias().equals(attributeName))
-        .findFirst();
-    if (selection.isPresent()) {
-      final Selection<?> s = selection.get();
-      if (s instanceof Path<?>)
-        return (Path<Y>) s;
-      if (s instanceof WindowFunctionExpression<?>)
-        return ((WindowFunctionExpression<Y>) s).asPath(tableAlias.orElse(""));
-    } else {
-      return super.get(attributeName);
+    for (final Selection<?> sel : query.getCompoundSelectionItems()) {
+      if (sel instanceof SelectionImpl<?>) {
+        final SelectionImpl<?> selImpl = (SelectionImpl<?>) sel;
+        final Selection<?> x = selImpl.selection;
+
+        if (x instanceof PathImpl<?>) {
+          if (x.getAlias().equals(attributeName)
+              || ((PathImpl<?>) x).path
+                  .orElseThrow(IllegalStateException::new)
+                  .getAlias().equals(attributeName)
+              || ((PathImpl<?>) x).path
+                  .orElseThrow(IllegalStateException::new)
+                  .getLeaf().getInternalName().equals(attributeName)) {
+            return new SelectionPath(selImpl, tableAlias);
+          }
+        } else if (x instanceof WindowFunctionExpression<?>
+            && x.getAlias().equals(attributeName)) {
+          return ((WindowFunctionExpression<Y>) x).asPath(tableAlias.orElse(""));
+        }
+      }
     }
-    throw new IllegalArgumentException("Attribute unknown: " + attributeName);
+    return super.get(attributeName);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + ((query == null) ? 0 : query.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) return true;
+    if (!super.equals(obj)) return false;
+    if (getClass() != obj.getClass()) return false;
+    @SuppressWarnings("unchecked")
+    final SubqueryRootImpl<X> other = (SubqueryRootImpl<X>) obj;
+    if (query == null) {
+      if (other.query != null) return false;
+    } else if (!query.equals(other.query)) return false;
+    return true;
   }
 }

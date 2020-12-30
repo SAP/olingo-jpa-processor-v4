@@ -6,8 +6,6 @@ import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 class StringBuilderJoinerTest {
   private static final String delimiter = "//";
@@ -47,15 +45,5 @@ class StringBuilderJoinerTest {
     assertEquals(cut, cut.add(first));
     assertEquals(cut, cut.add(second));
     assertEquals("Test//Test", cut.finish().toString());
-  }
-
-  private static class AsSqlAnswer implements Answer<StringBuilder> {
-
-    @Override
-    public StringBuilder answer(final InvocationOnMock invocation) throws Throwable {
-      final StringBuilder statement = invocation.getArgument(0);
-      return statement.append("Test");
-    }
-
   }
 }
