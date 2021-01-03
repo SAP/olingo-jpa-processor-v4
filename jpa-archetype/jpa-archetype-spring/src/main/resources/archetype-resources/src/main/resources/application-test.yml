@@ -7,7 +7,7 @@ odata:
     punit_name: ${punit}
     root_packages: ${package}
 server:
-  port: 9010
+  port: ${port}
 spring:
   datasource:
     url: jdbc:h2:mem:testdb
@@ -17,7 +17,7 @@ spring:
   flyway:
     enabled: true
     schemas:
-    - test
+    -  ${schema}
   servlet:
     multipart:
       enabled: false
