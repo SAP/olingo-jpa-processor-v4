@@ -4,12 +4,12 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.geo.SRID;
+import org.apache.olingo.commons.api.edm.provider.CsdlMapping;
 import org.apache.olingo.commons.api.edm.provider.CsdlParameter;
 import org.apache.olingo.commons.api.edm.provider.CsdlReturnType;
 
@@ -62,17 +62,17 @@ class IntermediateJavaFunction extends IntermediateFunction implements JPAJavaFu
   public List<JPAParameter> getParameter() throws ODataJPAModelException {
     if (parameterList == null) {
       parameterList = new ArrayList<>();
-      Class<?>[] types = javaFunction.getParameterTypes();
-      Parameter[] declaredParameters = javaFunction.getParameters();
+      final Class<?>[] types = javaFunction.getParameterTypes();
+      final Parameter[] declaredParameters = javaFunction.getParameters();
       for (int i = 0; i < declaredParameters.length; i++) {
-        Parameter declaredParameter = declaredParameters[i];
-        EdmParameter definedParameter = declaredParameter.getAnnotation(EdmParameter.class);
+        final Parameter declaredParameter = declaredParameters[i];
+        final EdmParameter definedParameter = declaredParameter.getAnnotation(EdmParameter.class);
         if (definedParameter == null)
           // Function parameter %1$s of method %2$s at class %3$s without required annotation
           throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.FUNC_PARAM_ANNOTATION_MISSING,
               declaredParameter.getName(), javaFunction.getName(), javaFunction
                   .getDeclaringClass().getName());
-        JPAParameter parameter = new IntermediateFunctionParameter(definedParameter, nameBuilder
+        final JPAParameter parameter = new IntermediateFunctionParameter(definedParameter, nameBuilder
             .buildPropertyName(definedParameter.name()), declaredParameter.getName(), types[i]);
         parameterList.add(parameter);
       }
@@ -81,8 +81,8 @@ class IntermediateJavaFunction extends IntermediateFunction implements JPAJavaFu
   }
 
   @Override
-  public JPAParameter getParameter(String internalName) throws ODataJPAModelException {
-    for (JPAParameter parameter : getParameter()) {
+  public JPAParameter getParameter(final String internalName) throws ODataJPAModelException {
+    for (final JPAParameter parameter : getParameter()) {
       if (parameter.getInternalName().equals(internalName))
         return parameter;
     }
@@ -102,22 +102,30 @@ class IntermediateJavaFunction extends IntermediateFunction implements JPAJavaFu
 
   @Override
   protected List<CsdlParameter> determineEdmInputParameter() throws ODataJPAModelException {
-    List<CsdlParameter> parameters = new ArrayList<>();
-    for (Parameter declaredParameter : Arrays.asList(javaFunction.getParameters())) {
-      CsdlParameter parameter = new CsdlParameter();
-      EdmParameter definedParameter = declaredParameter.getAnnotation(EdmParameter.class);
-      parameter.setName(nameBuilder.buildPropertyName(definedParameter.name()));
-      parameter.setType(determineParameterType(declaredParameter.getType(), definedParameter));
+    final List<CsdlParameter> parameters = new ArrayList<>();
+    final List<JPAParameter> jpaParameterList = getParameter();
+
+    for (int i = 0; i < jpaParameterList.size(); i++) {
+      final JPAParameter jpaParameter = jpaParameterList.get(i);
+      final CsdlParameter parameter = new CsdlParameter();
+      parameter.setName(jpaParameter.getName());
+      parameter.setType(jpaParameter.getTypeFQN());
+      parameter.setPrecision(nullIfNotSet(jpaParameter.getPrecision()));
+      parameter.setScale(nullIfNotSet(jpaParameter.getScale()));
+      parameter.setMaxLength(nullIfNotSet(jpaParameter.getMaxLength()));
+      parameter.setSrid(jpaParameter.getSrid());
+      parameter.setMapping(new CsdlMapping()
+          .setInternalName(getInternalName())
+          .setMappedJavaClass(jpaParameter.getType()));
       parameters.add(parameter);
     }
     return parameters;
   }
 
-  // TODO handle multiple schemas
   @Override
   protected CsdlReturnType determineEdmResultType(final ReturnType definedReturnType) throws ODataJPAModelException {
     final CsdlReturnType edmResultType = new CsdlReturnType();
-    Class<?> declaredReturnType = javaFunction.getReturnType();
+    final Class<?> declaredReturnType = javaFunction.getReturnType();
 
     if (IntermediateOperationHelper.isCollection(declaredReturnType)) {
       if (definedReturnType.type() == Object.class)
@@ -155,7 +163,7 @@ class IntermediateJavaFunction extends IntermediateFunction implements JPAJavaFu
   }
 
   @Override
-  protected void lazyBuildEdmItem() throws ODataJPAModelException {
+  protected synchronized void lazyBuildEdmItem() throws ODataJPAModelException {
     super.lazyBuildEdmItem();
     edmFunction.setBound(false);
   }

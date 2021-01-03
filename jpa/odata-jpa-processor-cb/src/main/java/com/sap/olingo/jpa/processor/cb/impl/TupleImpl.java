@@ -83,7 +83,8 @@ class TupleImpl implements Tuple {
    */
   @Override
   public Object get(final String alias) {
-    try {
+
+    if (selectionIndex.containsKey(alias)) {
       final int index = selectionIndex.get(alias);
       final JPAAttribute attribute = selection.get(index).getValue();
       if (values[index] == null)
@@ -94,8 +95,8 @@ class TupleImpl implements Tuple {
       if (attribute.getConverter() != null)
         return attribute.getConverter().convertToEntityAttribute(value);
       return value;
-    } catch (final NullPointerException e) {
-      throw new IllegalArgumentException("Unknown alias: " + alias, e);
+    } else {
+      throw new IllegalArgumentException("Unknown alias: " + alias);
     }
   }
 

@@ -536,7 +536,7 @@ class CriteriaBuilderImpl implements ProcessorCriteriaBuilder { // NOSONAR
    */
   @Override
   public <T> In<T> in(final Expression<? extends T> expression) {
-    // e.g.: return new Expressions.In<>(expression);
+    // e.g.: return new Expressions.In<>(expression); //NOSONAR
     throw new NotImplementedException();
   }
 

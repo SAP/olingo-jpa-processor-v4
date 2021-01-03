@@ -63,7 +63,7 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
     this.cardinality = ((JPAAssociationPathImpl) associationPath).getCardinality();
     this.isCollection = associationPath.isCollection();
     this.partner = associationPath.getPartner();
-    this.joinTable = associationPath.hasJoinTable() // ? associationPath.getJoinTable() : null;
+    this.joinTable = associationPath.hasJoinTable()
         ? ((IntermediateJoinTable) associationPath.getJoinTable()).withSource(source)
         : null;
 

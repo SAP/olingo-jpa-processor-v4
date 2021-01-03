@@ -496,9 +496,7 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
             .append(" ");
         o.stream().collect(new StringBuilderCollector.OrderCollector(statement, ", "));
       });
-      statement.append(CLOSING_BRACKET);
-      // alias.ifPresent(a -> statement.append(" AS ").append(a));
-      return statement;
+      return statement.append(CLOSING_BRACKET);
     }
 
     @Override

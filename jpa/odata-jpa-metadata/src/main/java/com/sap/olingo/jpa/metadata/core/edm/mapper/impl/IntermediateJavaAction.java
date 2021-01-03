@@ -12,6 +12,8 @@ import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.CheckForNull;
+
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.geo.SRID;
@@ -87,6 +89,7 @@ class IntermediateJavaAction extends IntermediateOperation implements JPAAction 
   }
 
   @Override
+  @CheckForNull
   public JPAParameter getParameter(final Parameter declaredParameter) throws ODataJPAModelException {
     for (final JPAParameter param : getParameter()) {
       if (param.getInternalName().equals(declaredParameter.getName()))
@@ -167,8 +170,8 @@ class IntermediateJavaAction extends IntermediateOperation implements JPAAction 
   @Override
   protected synchronized void lazyBuildEdmItem() throws ODataJPAModelException {
     if (edmAction == null) {
+      // TODO handle annotations
       edmAction = new CsdlAction();
-//      edmAction.setAnnotations(annotations);
       edmAction.setBound(jpaAction.isBound());
       edmAction.setName(getExternalName());
       edmAction.setParameters(returnNullIfEmpty(determineEdmInputParameter()));
@@ -192,12 +195,11 @@ class IntermediateJavaAction extends IntermediateOperation implements JPAAction 
 
   private CsdlReturnType determineEdmResultType(final ReturnType definedReturnType, final Method javaOperation)
       throws ODataJPAModelException {
-    final CsdlReturnType edmResultType = new CsdlReturnType();
     final Class<?> declaredReturnType = javaOperation.getReturnType();
-
     if (declaredReturnType == void.class)
       return null;
 
+    final CsdlReturnType edmResultType = new CsdlReturnType();
     if (IntermediateOperationHelper.isCollection(declaredReturnType)) {
       if (definedReturnType.type() == Object.class)
         // Type parameter expected for %1$s
@@ -221,12 +223,6 @@ class IntermediateJavaAction extends IntermediateOperation implements JPAAction 
       edmResultType.setSrid(srid);
     }
     return edmResultType;
-  }
-
-  private Integer nullIfNotSet(final Integer number) {
-    if (number != null && number > -1)
-      return number;
-    return null;
   }
 
   private String setEntitySetPath() throws ODataJPAModelException {

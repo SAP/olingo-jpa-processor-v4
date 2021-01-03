@@ -13,4 +13,10 @@ abstract class IntermediateOperation extends IntermediateModelElement {
 
   abstract boolean isBound() throws ODataJPAModelException;
 
+  protected Integer nullIfNotSet(final Integer number) {
+    if (number != null && number > -1)
+      return number;
+    return null;
+  }
+
 }

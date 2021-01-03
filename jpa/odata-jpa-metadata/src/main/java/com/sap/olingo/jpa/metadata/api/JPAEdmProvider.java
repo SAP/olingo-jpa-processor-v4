@@ -71,7 +71,7 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
   public CsdlComplexType getComplexType(final FullQualifiedName complexTypeName) throws ODataException {
     for (final CsdlSchema schema : serviceDocument.getAllSchemas()) {
       if (schema.getNamespace().equals(complexTypeName.getNamespace())
-          || schema.getAlias() != null && schema.getAlias().equals(complexTypeName.getNamespace())) {
+          || (schema.getAlias() != null && schema.getAlias().equals(complexTypeName.getNamespace()))) {
         return schema.getComplexType(complexTypeName.getName());
       }
     }

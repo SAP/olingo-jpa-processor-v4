@@ -8,10 +8,10 @@ import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
 
 @AnalyzeClasses(packages = "com.sap.olingo.jpa.processor.cb")
-public class ArchitectureTest {
+class ArchitectureTest { // NOSONAR
 
   @ArchTest
-  public static final ArchRule visibilityRule = classes()
+  static final ArchRule visibilityRule = classes()
       .that()
       .resideInAPackage("..impl..")
       .should()
@@ -21,7 +21,7 @@ public class ArchitectureTest {
           "com.sap.olingo.jpa.processor.cb.impl.EntityManagerWrapper");
 
   @ArchTest
-  public static final ArchRule layerRule = layeredArchitecture()
+  static final ArchRule layerRule = layeredArchitecture()
       .layer("Api").definedBy("..api..")
       .layer("Implementation").definedBy("..impl..")
       .layer("Reuse").definedBy("..joiner..", "..exeptions..")

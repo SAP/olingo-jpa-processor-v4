@@ -87,7 +87,7 @@ class TestIntermediateComplexType extends TestMappingRoot {
   void checkGetPropertyByNameCorrectEntity() throws ODataJPAModelException {
     final IntermediateComplexType<?> ct = new IntermediateComplexType<>(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         getEmbeddableType("CommunicationData"), schema);
-    assertEquals(ct.getEdmItem().getProperty("LandlinePhoneNumber").getName(), "LandlinePhoneNumber");
+    assertEquals("LandlinePhoneNumber", ct.getEdmItem().getProperty("LandlinePhoneNumber").getName());
   }
 
   @Test

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.sap.olingo.jpa.metadata.api;
 
@@ -44,6 +44,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediatePropert
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateReferenceList;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateReferenceList.IntermediateReferenceAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.CustomJPANameBuilder;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 
 /**
@@ -51,7 +52,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
  * Created: 10.02.2020
  *
  */
-public class TestJPAEdmProvider {
+class TestJPAEdmProvider {
   private static final String PUNIT_NAME = "com.sap.olingo.jpa";
   private static final String[] enumPackages = { "com.sap.olingo.jpa.processor.core.testmodel" };
   private static EntityManagerFactory emf;
@@ -66,23 +67,33 @@ public class TestJPAEdmProvider {
   }
 
   @BeforeEach
-  public void setup() throws ODataException {
+  void setup() throws ODataException {
     cut = new JPAEdmProvider(PUNIT_NAME, emf, null, enumPackages);
   }
 
   @Test
-  public void checkThrowsExceptionOnMissingNamespace() throws ODataException {
+  void checkReturnsDefaultNamerBuilderIfNotProvided() throws ODataException {
+    assertTrue(cut.getEdmNameBuilder() instanceof JPADefaultEdmNameBuilder);
+  }
+
+  @Test
+  void checkReturnsReferencesFromServiceDocument() throws ODataException {
+    assertEquals(cut.getServiceDocument().getReferences(), cut.getReferences());
+  }
+
+  @Test
+  void checkThrowsExceptionOnMissingNamespace() throws ODataException {
     assertThrows(NullPointerException.class, () -> new JPAEdmProvider(null, emf, null, enumPackages));
   }
 
   @Test
-  public void checkThrowsExceptionOnMissingEmf() throws ODataException {
+  void checkThrowsExceptionOnMissingEmf() throws ODataException {
     final EntityManagerFactory nullFactory = null;
     assertThrows(NullPointerException.class, () -> new JPAEdmProvider("Willi", nullFactory, null, enumPackages));
   }
 
   @Test
-  public void checkGetSchemas() throws ODataException {
+  void checkGetSchemas() throws ODataException {
     final JPAEdmNameBuilder nameBuilder = new CustomJPANameBuilder();
     cut = new JPAEdmProvider(emf.getMetamodel(), null, null, nameBuilder);
     final JPAServiceDocument act = cut.getServiceDocument();
@@ -91,7 +102,7 @@ public class TestJPAEdmProvider {
   }
 
   @Test
-  public void checkGetSchemasReturnsOneSchema() throws ODataException {
+  void checkGetSchemasReturnsOneSchema() throws ODataException {
     final List<CsdlSchema> act = cut.getSchemas();
     assertEquals(1, act.size());
     assertNotNull(act.get(0));
@@ -99,46 +110,46 @@ public class TestJPAEdmProvider {
   }
 
   @Test
-  public void checkGetEnumReturnsNullOnUnknown() throws ODataException {
+  void checkGetEnumReturnsNullOnUnknown() throws ODataException {
     final CsdlEnumType act = cut.getEnumType(new FullQualifiedName("Hello", "World"));
     assertNull(act);
   }
 
   @Test
-  public void checkGetEnumReturnsKnownEnum() throws ODataException {
+  void checkGetEnumReturnsKnownEnum() throws ODataException {
     final CsdlEnumType act = cut.getEnumType(new FullQualifiedName(PUNIT_NAME, "AccessRights"));
     assertNotNull(act);
     assertTrue(act.isFlags());
   }
 
   @Test
-  public void checkGetComplexTypeReturnsNullOnUnknown() throws ODataException {
+  void checkGetComplexTypeReturnsNullOnUnknown() throws ODataException {
     final CsdlComplexType act = cut.getComplexType(new FullQualifiedName("Hello", "World"));
     assertNull(act);
   }
 
   @Test
-  public void checkGetComplexTypeReturnsKnownEnum() throws ODataException {
+  void checkGetComplexTypeReturnsKnownEnum() throws ODataException {
     final CsdlComplexType act = cut.getComplexType(new FullQualifiedName(PUNIT_NAME, "PostalAddressData"));
     assertNotNull(act);
     assertFalse(act.isAbstract());
   }
 
   @Test
-  public void checkGeEntityContainerReturnsContainer() throws ODataException {
+  void checkGeEntityContainerReturnsContainer() throws ODataException {
     final CsdlEntityContainer act = cut.getEntityContainer();
     assertNotNull(act);
     assertEquals(cut.getServiceDocument().getNameBuilder().buildContainerName(), act.getName());
   }
 
   @Test
-  public void checkGetEntityContainerInfoReturnsNullOnUnknown() throws ODataException {
+  void checkGetEntityContainerInfoReturnsNullOnUnknown() throws ODataException {
     final CsdlEntityContainerInfo act = cut.getEntityContainerInfo(new FullQualifiedName("Hello", "World"));
     assertNull(act);
   }
 
   @Test
-  public void checkEntityContainerInfoReturnsKnownContainer() throws ODataException {
+  void checkEntityContainerInfoReturnsKnownContainer() throws ODataException {
     final String name = cut.getServiceDocument().getNameBuilder().buildContainerName();
     final FullQualifiedName fqn = new FullQualifiedName(PUNIT_NAME, name);
     final CsdlEntityContainerInfo act = cut.getEntityContainerInfo(new FullQualifiedName(PUNIT_NAME, name));
@@ -147,7 +158,7 @@ public class TestJPAEdmProvider {
   }
 
   @Test
-  public void checkEntityContainerInfoReturnsContainerIfNull() throws ODataException {
+  void checkEntityContainerInfoReturnsContainerIfNull() throws ODataException {
     final FullQualifiedName fqn = buildContainerFQN();
     final CsdlEntityContainerInfo act = cut.getEntityContainerInfo(null);
     assertNotNull(act);
@@ -155,14 +166,21 @@ public class TestJPAEdmProvider {
   }
 
   @Test
-  public void checkGetEntitySetReturnsNullOnUnknown() throws ODataException {
+  void checkGetEntitySetReturnsNullOnUnknownSet() throws ODataException {
     final FullQualifiedName fqn = buildContainerFQN();
     final CsdlEntitySet act = cut.getEntitySet(fqn, "Hello");
     assertNull(act);
   }
 
   @Test
-  public void checkGetEntitySetReturnsKnownSet() throws ODataException {
+  void checkGetEntitySetReturnsNullOnUnknownNamespace() throws ODataException {
+    final FullQualifiedName fqn = new FullQualifiedName(PUNIT_NAME, "Hello");
+    final CsdlEntitySet act = cut.getEntitySet(fqn, "World");
+    assertNull(act);
+  }
+
+  @Test
+  void checkGetEntitySetReturnsKnownSet() throws ODataException {
     final FullQualifiedName fqn = buildContainerFQN();
     final CsdlEntitySet act = cut.getEntitySet(fqn, "Persons");
     assertNotNull(act);
@@ -170,52 +188,52 @@ public class TestJPAEdmProvider {
   }
 
   @Test
-  public void checkGetEntityTypeReturnsNullOnUnknown() throws ODataException {
+  void checkGetEntityTypeReturnsNullOnUnknown() throws ODataException {
     final CsdlEntityType act = cut.getEntityType(new FullQualifiedName("Hello", "World"));
     assertNull(act);
   }
 
   @Test
-  public void checkGetEntityTypeReturnsKnownEnum() throws ODataException {
+  void checkGetEntityTypeReturnsKnownEnum() throws ODataException {
     final CsdlEntityType act = cut.getEntityType(new FullQualifiedName(PUNIT_NAME, "BusinessPartner"));
     assertNotNull(act);
     assertTrue(act.isAbstract());
   }
 
   @Test
-  public void checkGetFunctionImportReturnsNullOnUnknownContainer() throws ODataException {
+  void checkGetFunctionImportReturnsNullOnUnknownContainer() throws ODataException {
     final CsdlFunctionImport act = cut.getFunctionImport(new FullQualifiedName("Hello", "World"), "Hello");
     assertNull(act);
   }
 
   @Test
-  public void checkGetFunctionImportReturnsNullOnUnknownFunction() throws ODataException {
+  void checkGetFunctionImportReturnsNullOnUnknownFunction() throws ODataException {
     final FullQualifiedName fqn = buildContainerFQN();
     final CsdlFunctionImport act = cut.getFunctionImport(fqn, "Hello");
     assertNull(act);
   }
 
   @Test
-  public void checkGetFunctionImportReturnsKnownImport() throws ODataException {
+  void checkGetFunctionImportReturnsKnownImport() throws ODataException {
     final FullQualifiedName fqn = buildContainerFQN();
     final CsdlFunctionImport act = cut.getFunctionImport(fqn, "Siblings");
     assertNotNull(act);
   }
 
   @Test
-  public void checkGetFunctionsReturnsNullOnUnknownFunction() throws ODataException {
+  void checkGetFunctionsReturnsNullOnUnknownFunction() throws ODataException {
     final List<CsdlFunction> act = cut.getFunctions(new FullQualifiedName(PUNIT_NAME, "Hello"));
     assertNull(act);
   }
 
   @Test
-  public void checkGetFunctionsReturnsNullOnUnknownschema() throws ODataException {
+  void checkGetFunctionsReturnsNullOnUnknownschema() throws ODataException {
     final List<CsdlFunction> act = cut.getFunctions(new FullQualifiedName("Hallo", "Welt"));
     assertNull(act);
   }
 
   @Test
-  public void checkGetFunctionsReturnsKnownFunction() throws ODataException {
+  void checkGetFunctionsReturnsKnownFunction() throws ODataException {
     final List<CsdlFunction> act = cut.getFunctions(new FullQualifiedName(PUNIT_NAME, "PopulationDensity"));
     assertNotNull(act);
     assertEquals(1, act.size());
@@ -223,19 +241,19 @@ public class TestJPAEdmProvider {
   }
 
   @Test
-  public void checkGetAnnotationsGroupReturnsNull() throws ODataException {
+  void checkGetAnnotationsGroupReturnsNull() throws ODataException {
     final CsdlAnnotations act = cut.getAnnotationsGroup(new FullQualifiedName(PUNIT_NAME, "Hello"), "World");
     assertNull(act);
   }
 
   @Test
-  public void checkGetTermReturnsNullOnUnknown() throws ODataException {
+  void checkGetTermReturnsNullOnUnknown() throws ODataException {
     final CsdlTerm act = cut.getTerm(new FullQualifiedName("Hello", "World"));
     assertNull(act);
   }
 
   @Test
-  public void checkGetTermReturnsKnownTerm() throws ODataException {
+  void checkGetTermReturnsKnownTerm() throws ODataException {
     pp = new PostProcessor();
     cut = new JPAEdmProvider(PUNIT_NAME, emf, pp, enumPackages);
     final CsdlTerm act = cut.getTerm(new FullQualifiedName("Org.OData.Measures.V1", "ISOCurrency"));
@@ -243,19 +261,19 @@ public class TestJPAEdmProvider {
   }
 
   @Test
-  public void checkTypeDefinitionReturnsNullOnUnknown() throws ODataException {
+  void checkTypeDefinitionReturnsNullOnUnknown() throws ODataException {
     final CsdlTypeDefinition act = cut.getTypeDefinition(new FullQualifiedName("Hello", "World"));
     assertNull(act);
   }
 
   @Test
-  public void checkGetActionsReturnsNullOnUnknown() throws ODataException {
+  void checkGetActionsReturnsNullOnUnknown() throws ODataException {
     final List<CsdlAction> act = cut.getActions(new FullQualifiedName("Hello", "World"));
     assertNull(act);
   }
 
   @Test
-  public void checkGetActionsReturnsKnownAction() throws ODataException {
+  void checkGetActionsReturnsKnownAction() throws ODataException {
     final String[] operationPackages = { "com.sap.olingo.jpa.metadata.core.edm.mapper.testaction",
         "com.sap.olingo.jpa.processor.core.testmodel" };
     cut = new JPAEdmProvider(PUNIT_NAME, emf, null, operationPackages);
@@ -265,20 +283,20 @@ public class TestJPAEdmProvider {
   }
 
   @Test
-  public void checkGetActionImportReturnsNullOnUnknownContainer() throws ODataException {
+  void checkGetActionImportReturnsNullOnUnknownContainer() throws ODataException {
     final CsdlActionImport act = cut.getActionImport(new FullQualifiedName("Hello", "World"), "Dummy");
     assertNull(act);
   }
 
   @Test
-  public void checkGetActionImportReturnsNullOnUnknownAction() throws ODataException {
+  void checkGetActionImportReturnsNullOnUnknownAction() throws ODataException {
     final FullQualifiedName fqn = buildContainerFQN();
     final CsdlActionImport act = cut.getActionImport(fqn, "Dummy");
     assertNull(act);
   }
 
   @Test
-  public void checkGetActionImportReturnsKnownAction() throws ODataException {
+  void checkGetActionImportReturnsKnownAction() throws ODataException {
     final FullQualifiedName fqn = buildContainerFQN();
     final String[] operationPackages = { "com.sap.olingo.jpa.metadata.core.edm.mapper.testaction",
         "com.sap.olingo.jpa.processor.core.testmodel" };
@@ -302,12 +320,13 @@ public class TestJPAEdmProvider {
     public void processProperty(final IntermediatePropertyAccess property, final String jpaManagedTypeClassName) {}
 
     @Override
-    public void processEntityType(IntermediateEntityTypeAccess entity) {}
+    public void processEntityType(final IntermediateEntityTypeAccess entity) {}
 
     @Override
     public void provideReferences(final IntermediateReferenceList references) throws ODataJPAModelException {
-      String uri = "http://docs.oasisopen.org/odata/odata/v4.0/os/vocabularies/Org.OData.Measures.V1.xml";
-      IntermediateReferenceAccess reference = references.addReference(uri, "annotations/Org.OData.Measures.V1.xml");
+      final String uri = "http://docs.oasisopen.org/odata/odata/v4.0/os/vocabularies/Org.OData.Measures.V1.xml";
+      final IntermediateReferenceAccess reference = references.addReference(uri,
+          "annotations/Org.OData.Measures.V1.xml");
       reference.addInclude("Org.OData.Core.V1", "Core");
     }
   }
