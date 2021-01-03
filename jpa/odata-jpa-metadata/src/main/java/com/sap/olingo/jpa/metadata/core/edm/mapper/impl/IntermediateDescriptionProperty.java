@@ -83,7 +83,7 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
   @Override
   protected synchronized void lazyBuildEdmItem() throws ODataJPAModelException {
     final Member jpaMember = jpaAttribute.getJavaMember();
-    String languageAttribute;
+    final String languageAttribute;
 
     if (this.edmProperty == null) {
       super.lazyBuildEdmItem();
@@ -110,8 +110,8 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
           languageAttribute = association.languageAttribute();
           localeAttribute = association.localeAttribute();
 
-          if (emptyString(languageAttribute) && emptyString(localeAttribute) ||
-              !languageAttribute.isEmpty() && !localeAttribute.isEmpty())
+          if ((emptyString(languageAttribute) && emptyString(localeAttribute)) ||
+              (!languageAttribute.isEmpty() && !localeAttribute.isEmpty()))
             throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.DESCRIPTION_LOCALE_FIELD_MISSING,
                 targetEntity.getInternalName(), this.internalName);
           if (!descriptionProperty.getType().equals(String.class))

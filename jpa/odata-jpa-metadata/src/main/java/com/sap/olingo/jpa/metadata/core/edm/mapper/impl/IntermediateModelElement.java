@@ -35,7 +35,7 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
     postProcessor = pP;
   }
 
-  public IntermediateModelElement(final JPAEdmNameBuilder nameBuilder, final String internalName) {
+  IntermediateModelElement(final JPAEdmNameBuilder nameBuilder, final String internalName) {
     super();
     this.nameBuilder = nameBuilder;
     this.internalName = internalName;
@@ -138,7 +138,7 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
    * @throws ODataJPAModelException
    */
   protected void getAnnotations(final List<CsdlAnnotation> edmAnnotations, final Member member,
-      final String internalName, final AppliesTo property) throws ODataJPAModelException {
+      final String internalName) throws ODataJPAModelException {
     if (member instanceof AnnotatedElement) {
       extractAnnotations(edmAnnotations, (AnnotatedElement) member, internalName);
     }

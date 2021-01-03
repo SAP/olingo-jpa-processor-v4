@@ -18,7 +18,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.ODataAction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaOneAction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaTwoActions;
 
-public class TestIntermediateActionFactory extends TestMappingRoot {
+class TestIntermediateActionFactory extends TestMappingRoot {
   private TestHelper helper;
 
   private Reflections reflections;
@@ -26,7 +26,7 @@ public class TestIntermediateActionFactory extends TestMappingRoot {
   private Set<Class<? extends ODataAction>> javaActions;
 
   @BeforeEach
-  public void setUp() throws ODataJPAModelException {
+  void setUp() throws ODataJPAModelException {
     helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
 
     reflections = mock(Reflections.class);
@@ -36,37 +36,40 @@ public class TestIntermediateActionFactory extends TestMappingRoot {
   }
 
   @Test
-  public void checkReturnEmptyMapIfReflectionsNull() throws ODataJPAModelException {
-    Reflections r = null;
+  void checkReturnEmptyMapIfReflectionsNull() throws ODataJPAModelException {
+    final Reflections r = null;
     assertNotNull(cut.create(new JPADefaultEdmNameBuilder(PUNIT_NAME), r, helper.schema));
   }
 
   @Test
-  public void checkReturnEmptyMapIfNoJavaFunctionsFound() throws ODataJPAModelException {
+  void checkReturnEmptyMapIfNoJavaFunctionsFound() throws ODataJPAModelException {
     assertNotNull(cut.create(new JPADefaultEdmNameBuilder(PUNIT_NAME), reflections, helper.schema));
   }
 
   @Test
-  public void checkReturnMapWithOneIfOneJavaFunctionsFound() throws ODataJPAModelException {
+  void checkReturnMapWithOneIfOneJavaFunctionsFound() throws ODataJPAModelException {
     javaActions.add(ExampleJavaOneAction.class);
-    Map<? extends String, ? extends IntermediateJavaAction> act = cut.create(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+    final Map<? extends String, ? extends IntermediateJavaAction> act = cut.create(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
         reflections, helper.schema);
     assertEquals(1, act.size());
   }
 
   @Test
-  public void checkReturnMapWithTwoIfTwoJavaFunctionsFound() throws ODataJPAModelException {
+  void checkReturnMapWithTwoIfTwoJavaFunctionsFound() throws ODataJPAModelException {
     javaActions.add(ExampleJavaTwoActions.class);
-    Map<? extends String, ? extends IntermediateJavaAction> act = cut.create(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+    final Map<? extends String, ? extends IntermediateJavaAction> act = cut.create(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
         reflections, helper.schema);
     assertEquals(2, act.size());
   }
 
   @Test
-  public void checkReturnMapWithWithJavaFunctionsFromTwoClassesFound() throws ODataJPAModelException {
+  void checkReturnMapWithWithJavaFunctionsFromTwoClassesFound() throws ODataJPAModelException {
     javaActions.add(ExampleJavaOneAction.class);
     javaActions.add(ExampleJavaTwoActions.class);
-    Map<? extends String, ? extends IntermediateJavaAction> act = cut.create(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+    final Map<? extends String, ? extends IntermediateJavaAction> act = cut.create(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME),
         reflections, helper.schema);
     assertEquals(3, act.size());
   }

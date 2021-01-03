@@ -157,7 +157,7 @@ class IntermediateSimpleProperty extends IntermediateProperty {
         // Class could not be instantiated e.g. abstract class like
         // Business Partner => default could not be determined
         // and will be ignored
-        LOGGER.debug("Default could not be determined:" + jpaAttribute.getJavaMember().getName() + " abstract");
+        LOGGER.debug("Default could not be determined:" + jpaAttribute.getJavaMember().getName() + " abstract", e);
       }
     }
     return valueString;

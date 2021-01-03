@@ -46,7 +46,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
  * http://services.odata.org/V4/Northwind/Northwind.svc/$metadata
  */
 class IntermediateServiceDocument implements JPAServiceDocument {
-  
+
   private static final Log LOGGER = LogFactory.getLog(IntermediateServiceDocument.class);
   private final Metamodel jpaMetamodel;
   private final JPAEdmNameBuilder nameBuilder;
@@ -265,7 +265,7 @@ class IntermediateServiceDocument implements JPAServiceDocument {
     try {
       return getEntity(entitySetOrSingleton.getEntityType().getFullQualifiedName()).hasEtag();
     } catch (final ODataJPAModelException e) {
-      LOGGER.debug("Error during binding target determination: " + e.getMessage());
+      LOGGER.debug("Error during binding target determination", e);
       return false;
     }
   }
@@ -301,7 +301,7 @@ class IntermediateServiceDocument implements JPAServiceDocument {
     }
   }
 
-  private List<CsdlSchema> extractEdmSchemas()throws ODataJPAModelException {
+  private List<CsdlSchema> extractEdmSchemas() throws ODataJPAModelException {
     final List<CsdlSchema> schemas = new ArrayList<>();
     try {
       if (schemaListInternalKey.isEmpty())
@@ -319,9 +319,10 @@ class IntermediateServiceDocument implements JPAServiceDocument {
   private void setContainer() {
     for (final IntermediateSchema schema : schemaListInternalKey.values()) {
       schema.setContainer(container);
-      // OData allows to combine multiple schemas in one metadata document. The container has to be added to one of those. 
+      // OData allows to combine multiple schemas in one metadata document. The container has to be added to one of
+      // those.
       // We pick the first that we can get:
-      break; //NOSONAR
+      break; // NOSONAR
     }
   }
 

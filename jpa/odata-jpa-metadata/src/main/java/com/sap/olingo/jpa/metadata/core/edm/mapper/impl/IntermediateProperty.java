@@ -44,7 +44,6 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmSearchable;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransient;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransientPropertyCalculator;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmVisibleFor;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.AppliesTo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
@@ -88,7 +87,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
   protected List<String> requiredAttributes;
   private Constructor<? extends EdmTransientPropertyCalculator<?>> transientCalculatorConstructor;
 
-  public IntermediateProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,
+  IntermediateProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,
       final IntermediateSchema schema) throws ODataJPAModelException {
     super(nameBuilder, IntNameBuilder.buildAttributeName(jpaAttribute));
     this.jpaAttribute = jpaAttribute;
@@ -219,19 +218,19 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
     postProcessor.processProperty(this, jpaAttribute.getDeclaringType().getJavaType().getCanonicalName());
     // Process annotations after post processing, as external name it could
     // have been changed
-    getAnnotations(edmAnnotations, this.jpaAttribute.getJavaMember(), internalName, AppliesTo.PROPERTY);
+    getAnnotations(edmAnnotations, this.jpaAttribute.getJavaMember(), internalName);
   }
 
   protected FullQualifiedName determineTypeByPersistenceType(final Enum<?> persistanceType)
       throws ODataJPAModelException {
-    if (persistanceType == PersistentAttributeType.BASIC || persistanceType == PersistenceType.BASIC) {
+    if (PersistentAttributeType.BASIC.equals(persistanceType) || PersistenceType.BASIC.equals(persistanceType)) {
       final IntermediateModelElement odataType = getODataPrimitiveType();
       if (odataType == null)
         return getSimpleType();
       else
         return odataType.getExternalFQN();
     }
-    if (persistanceType == PersistentAttributeType.EMBEDDED || persistanceType == PersistenceType.EMBEDDABLE)
+    if (PersistentAttributeType.EMBEDDED.equals(persistanceType) || PersistenceType.EMBEDDABLE.equals(persistanceType))
       return buildFQN(type.getExternalName());
     else
       return EdmPrimitiveTypeKind.Boolean.getFullQualifiedName();

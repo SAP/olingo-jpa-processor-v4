@@ -231,7 +231,7 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
     JPAPath targetPath = resolvedPathMap.get(externalName);
     if (targetPath == null)
       targetPath = intermediatePathMap.get(externalName);
-    if (targetPath == null || targetPath.ignore() && respectIgnore)
+    if (targetPath == null || (targetPath.ignore() && respectIgnore))
       return null;
     return targetPath;
   }

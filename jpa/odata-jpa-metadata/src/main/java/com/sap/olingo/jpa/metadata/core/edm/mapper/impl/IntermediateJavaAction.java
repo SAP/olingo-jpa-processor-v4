@@ -16,6 +16,7 @@ import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.geo.SRID;
 import org.apache.olingo.commons.api.edm.provider.CsdlAction;
+import org.apache.olingo.commons.api.edm.provider.CsdlMapping;
 import org.apache.olingo.commons.api.edm.provider.CsdlParameter;
 import org.apache.olingo.commons.api.edm.provider.CsdlReturnType;
 
@@ -119,6 +120,9 @@ class IntermediateJavaAction extends IntermediateOperation implements JPAAction 
       parameter.setScale(nullIfNotSet(jpaParameter.getScale()));
       parameter.setMaxLength(nullIfNotSet(jpaParameter.getMaxLength()));
       parameter.setSrid(jpaParameter.getSrid());
+      parameter.setMapping(new CsdlMapping()
+          .setInternalName(getInternalName())
+          .setMappedJavaClass(jpaParameter.getType()));
       parameters.add(parameter);
     }
     if (jpaAction.isBound() && bindingPosition.getPos() != 1)
