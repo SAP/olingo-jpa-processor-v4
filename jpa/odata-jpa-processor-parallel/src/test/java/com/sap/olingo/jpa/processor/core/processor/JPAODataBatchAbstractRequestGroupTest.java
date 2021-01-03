@@ -23,7 +23,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 
-public abstract class JPAODataBatchAbstractRequestGroupTest {
+abstract class JPAODataBatchAbstractRequestGroupTest {
 
   protected JPAODataParallelBatchProcessor processor;
   protected ODataHandler odataHandler;
@@ -35,7 +35,7 @@ public abstract class JPAODataBatchAbstractRequestGroupTest {
   private JPAServiceDebugger debugger;
 
   @BeforeEach
-  public void setup() throws ODataApplicationException, ODataLibraryException {
+  void setup() throws ODataApplicationException, ODataLibraryException {
 
     debugger = mock(JPAServiceDebugger.class);
     odata = mock(OData.class);
@@ -51,7 +51,7 @@ public abstract class JPAODataBatchAbstractRequestGroupTest {
     when(odata.createRawHandler(serviceMetadata)).thenReturn(odataHandler);
     when(requestContext.getDebugger()).thenReturn(debugger);
     when(debugger.startRuntimeMeasurement(any(), any())).thenReturn(1);
-    
+
   }
 
   protected ODataRequest buildPart() {

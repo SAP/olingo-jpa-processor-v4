@@ -19,7 +19,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import com.sap.olingo.jpa.processor.test.util.IntegrationTestHelper;
 
-public class JPAODataParallelBatchProcessorIntegrationTest {
+class JPAODataParallelBatchProcessorIntegrationTest {
 
   private static final String PUNIT_NAME = "com.sap.olingo.jpa";
 
@@ -32,8 +32,8 @@ public class JPAODataParallelBatchProcessorIntegrationTest {
     emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, ds);
   }
 
-  @Test //Response 
-  public void testOneGetRequestGetResponse() throws IOException, ODataException {
+  @Test // Response
+  void testOneGetRequestGetResponse() throws IOException, ODataException {
     final StringBuilder requestBody = createBodyOneGet();
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "$batch", requestBody);
@@ -42,7 +42,7 @@ public class JPAODataParallelBatchProcessorIntegrationTest {
   }
 
   @Test
-  public void testOneGetRequestCheckStatus() throws IOException, ODataException {
+  void testOneGetRequestCheckStatus() throws IOException, ODataException {
     final StringBuilder requestBody = createBodyOneGet();
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "$batch", requestBody);
@@ -50,7 +50,7 @@ public class JPAODataParallelBatchProcessorIntegrationTest {
   }
 
   @Test
-  public void testOneGetRequestCheckValue() throws IOException, ODataException {
+  void testOneGetRequestCheckValue() throws IOException, ODataException {
     final StringBuilder requestBody = createBodyOneGet();
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "$batch", requestBody);
@@ -60,7 +60,7 @@ public class JPAODataParallelBatchProcessorIntegrationTest {
   }
 
   @Test
-  public void testTwoGetRequestSecondFailCheckStatus() throws IOException, ODataException {
+  void testTwoGetRequestSecondFailCheckStatus() throws IOException, ODataException {
     final StringBuilder requestBody = createBodyTwoGetOneFail();
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "$batch", requestBody);
@@ -68,7 +68,7 @@ public class JPAODataParallelBatchProcessorIntegrationTest {
   }
 
   @Test
-  public void testTwoGetRequestCheckValue() throws IOException, ODataException {
+  void testTwoGetRequestCheckValue() throws IOException, ODataException {
     final StringBuilder requestBody = createBodyTwoGet();
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "$batch", requestBody);

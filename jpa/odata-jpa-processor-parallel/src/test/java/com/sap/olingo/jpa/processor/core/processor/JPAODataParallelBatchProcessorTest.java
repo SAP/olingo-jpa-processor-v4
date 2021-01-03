@@ -33,7 +33,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataTransactionFactory.JPAOData
 import com.sap.olingo.jpa.processor.core.exception.ODataJPABatchException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPATransactionException;
 
-public class JPAODataParallelBatchProcessorTest {
+class JPAODataParallelBatchProcessorTest {
   private JPAODataParallelBatchProcessor cut;
 
   @Mock
@@ -64,8 +64,8 @@ public class JPAODataParallelBatchProcessorTest {
   private JPAODataSessionContextAccess sessionContext;
 
   @BeforeEach
-  public void setup() throws ODataJPATransactionException {
-    MockitoAnnotations.initMocks(this);
+  void setup() throws ODataJPATransactionException {
+    MockitoAnnotations.openMocks(this);
     when(requestContext.getEntityManager()).thenReturn(em);
     when(requestContext.getCUDRequestHandler()).thenReturn(cudHandler);
     when(requestContext.getTransactionFactory()).thenReturn(factory);
@@ -76,14 +76,14 @@ public class JPAODataParallelBatchProcessorTest {
   }
 
   @Test
-  public void testBuildGroupsReturnsEmptyListOnEmptyInput() throws ODataJPABatchException {
+  void testBuildGroupsReturnsEmptyListOnEmptyInput() throws ODataJPABatchException {
     final List<JPAODataBatchRequestGroup> act = cut.buildGroups(Collections.emptyList());
     Assertions.assertNotNull(act);
     Assertions.assertTrue(act.isEmpty());
   }
 
   @Test
-  public void testBuildGroupsReturnsOneSequentialGroupOnOnePart() throws ODataJPABatchException {
+  void testBuildGroupsReturnsOneSequentialGroupOnOnePart() throws ODataJPABatchException {
     final List<BatchRequestPart> requests = buildParts(buildGet(false));
 
     final List<JPAODataBatchRequestGroup> act = cut.buildGroups(requests);
@@ -93,7 +93,7 @@ public class JPAODataParallelBatchProcessorTest {
   }
 
   @Test
-  public void testBuildGroupsThrowsExceptionOnNonChangeSetWithMultipleEntries() {
+  void testBuildGroupsThrowsExceptionOnNonChangeSetWithMultipleEntries() {
     final List<BatchRequestPart> requests = buildParts(buildGet(false, mock(ODataRequest.class)));
     final ODataJPABatchException act = Assertions.assertThrows(ODataJPABatchException.class, () -> cut.buildGroups(
         requests));
@@ -101,7 +101,7 @@ public class JPAODataParallelBatchProcessorTest {
   }
 
   @Test
-  public void testBuildGroupsAcceptsChangeSetWithMultipleEntries() throws ODataJPABatchException {
+  void testBuildGroupsAcceptsChangeSetWithMultipleEntries() throws ODataJPABatchException {
     final List<BatchRequestPart> requests = buildParts(buildGet(true, mock(ODataRequest.class)));
 
     final List<JPAODataBatchRequestGroup> act = cut.buildGroups(requests);
@@ -111,7 +111,7 @@ public class JPAODataParallelBatchProcessorTest {
   }
 
   @Test
-  public void testBuildGroupsReturnsOneParallelForTwoGets() throws ODataJPABatchException {
+  void testBuildGroupsReturnsOneParallelForTwoGets() throws ODataJPABatchException {
     final List<BatchRequestPart> requests = buildParts(buildGet(false), buildGet(false));
 
     final List<JPAODataBatchRequestGroup> act = cut.buildGroups(requests);
@@ -121,7 +121,7 @@ public class JPAODataParallelBatchProcessorTest {
   }
 
   @Test
-  public void testBuildGroupsReturnsSeqSeqForGetPost() throws ODataJPABatchException {
+  void testBuildGroupsReturnsSeqSeqForGetPost() throws ODataJPABatchException {
     final List<BatchRequestPart> requests = buildParts(buildGet(false), buildPost(false));
 
     final List<JPAODataBatchRequestGroup> act = cut.buildGroups(requests);
@@ -132,7 +132,7 @@ public class JPAODataParallelBatchProcessorTest {
   }
 
   @Test
-  public void testBuildGroupsReturnsParaSeqForGetGetPost() throws ODataJPABatchException {
+  void testBuildGroupsReturnsParaSeqForGetGetPost() throws ODataJPABatchException {
     final List<BatchRequestPart> requests = buildParts(buildGet(false), buildGet(false), buildPost(false));
 
     final List<JPAODataBatchRequestGroup> act = cut.buildGroups(requests);
@@ -143,7 +143,7 @@ public class JPAODataParallelBatchProcessorTest {
   }
 
   @Test
-  public void testBuildGroupsReturnsSeqParaForPatchGetGet() throws ODataJPABatchException {
+  void testBuildGroupsReturnsSeqParaForPatchGetGet() throws ODataJPABatchException {
     final List<BatchRequestPart> requests = buildParts(buildPatch(false), buildGet(false), buildGet(false));
 
     final List<JPAODataBatchRequestGroup> act = cut.buildGroups(requests);
@@ -154,7 +154,7 @@ public class JPAODataParallelBatchProcessorTest {
   }
 
   @Test
-  public void testBuildGroupsReturnsParaSeqParaForGetGetPatchGetGet() throws ODataJPABatchException {
+  void testBuildGroupsReturnsParaSeqParaForGetGetPatchGetGet() throws ODataJPABatchException {
     final List<BatchRequestPart> requests = buildParts(buildGet(false), buildGet(false), buildPatch(false), buildGet(
         false), buildGet(false));
 
@@ -167,7 +167,7 @@ public class JPAODataParallelBatchProcessorTest {
   }
 
   @Test
-  public void testBuildGroupsReturnsParaSeqForGetGetChangeSet() throws ODataJPABatchException {
+  void testBuildGroupsReturnsParaSeqForGetGetChangeSet() throws ODataJPABatchException {
     final List<BatchRequestPart> requests = buildParts(buildGet(false), buildGet(false), buildGet(true));
 
     final List<JPAODataBatchRequestGroup> act = cut.buildGroups(requests);
@@ -178,7 +178,7 @@ public class JPAODataParallelBatchProcessorTest {
   }
 
   @Test
-  public void testBuildGroupsReturnsParaSeqForChangeSetGetGet() throws ODataJPABatchException {
+  void testBuildGroupsReturnsParaSeqForChangeSetGetGet() throws ODataJPABatchException {
     final List<BatchRequestPart> requests = buildParts(buildGet(true), buildGet(false), buildGet(false));
 
     final List<JPAODataBatchRequestGroup> act = cut.buildGroups(requests);

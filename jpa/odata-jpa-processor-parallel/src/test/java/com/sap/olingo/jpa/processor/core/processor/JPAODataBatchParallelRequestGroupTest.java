@@ -24,23 +24,23 @@ import org.mockito.stubbing.Answer;
 
 import com.sap.olingo.jpa.processor.core.exception.ODataJPABatchRuntimeException;
 
-public class JPAODataBatchParallelRequestGroupTest extends JPAODataBatchAbstractRequestGroupTest {
+class JPAODataBatchParallelRequestGroupTest extends JPAODataBatchAbstractRequestGroupTest {
   private JPAODataBatchParallelRequestGroup cut;
 
   @Override
   @BeforeEach
-  public void setup() throws ODataApplicationException, ODataLibraryException {
+  void setup() throws ODataApplicationException, ODataLibraryException {
     super.setup();
     cut = new JPAODataBatchParallelRequestGroup(processor, groupElements);
   }
 
   @Test
-  public void testEmptyGroupsReturnEmptyResult() {
+  void testEmptyGroupsReturnEmptyResult() {
     Assertions.assertTrue(cut.execute().isEmpty());
   }
 
   @Test
-  public void testOneGroupOneResult() {
+  void testOneGroupOneResult() {
     final BatchRequestPart part = mock(BatchRequestPart.class);
     final List<ODataRequest> get = new ArrayList<>(1);
     final ODataRequest request = mock(ODataRequest.class);
@@ -54,7 +54,7 @@ public class JPAODataBatchParallelRequestGroupTest extends JPAODataBatchAbstract
   }
 
   @Test
-  public void testTwoPartsFirstSlower() {
+  void testTwoPartsFirstSlower() {
     final ODataRequest request1 = buildPart();
     final ODataRequest request2 = buildPart();
     final ODataResponse part1 = mock(ODataResponse.class);
@@ -72,7 +72,7 @@ public class JPAODataBatchParallelRequestGroupTest extends JPAODataBatchAbstract
   }
 
   @Test
-  public void testTwoPartsSecondSlower() {
+  void testTwoPartsSecondSlower() {
     final ODataRequest request1 = buildPart();
     final ODataRequest request2 = buildPart();
     final ODataResponse part1 = mock(ODataResponse.class);
@@ -90,7 +90,7 @@ public class JPAODataBatchParallelRequestGroupTest extends JPAODataBatchAbstract
   }
 
   @Test
-  public void testThreePartsSecondSlower() {
+  void testThreePartsSecondSlower() {
     final ODataRequest request1 = buildPart();
     final ODataRequest request2 = buildPart();
     final ODataRequest request3 = buildPart();
@@ -110,7 +110,7 @@ public class JPAODataBatchParallelRequestGroupTest extends JPAODataBatchAbstract
   }
 
   @Test
-  public void testExecuteRethrowsException() throws ODataApplicationException, ODataLibraryException {
+  void testExecuteRethrowsException() throws ODataApplicationException, ODataLibraryException {
     final BatchRequestPart part = mock(BatchRequestPart.class);
     final List<ODataRequest> post = new ArrayList<>(1);
     final ODataRequest request = mock(ODataRequest.class);
@@ -137,7 +137,7 @@ public class JPAODataBatchParallelRequestGroupTest extends JPAODataBatchAbstract
     }
 
     @Override
-    public T answer(InvocationOnMock invocation) throws Throwable {
+    public T answer(final InvocationOnMock invocation) throws Throwable {
       Thread.sleep(millisDelay); // NOSONAR
       return response;
     }

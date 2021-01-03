@@ -22,24 +22,24 @@ import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.processor.core.exception.ODataJPABatchRuntimeException;
 
-public class JPAODataBatchSequentialRequestGroupTest extends JPAODataBatchAbstractRequestGroupTest {
+class JPAODataBatchSequentialRequestGroupTest extends JPAODataBatchAbstractRequestGroupTest {
 
   private JPAODataBatchSequentialRequestGroup cut;
 
   @Override
   @BeforeEach
-  public void setup() throws ODataApplicationException, ODataLibraryException {
+  void setup() throws ODataApplicationException, ODataLibraryException {
     super.setup();
     cut = new JPAODataBatchSequentialRequestGroup(processor, groupElements);
   }
 
   @Test
-  public void testEmptyGroupsReturnEmptyResult() {
+  void testEmptyGroupsReturnEmptyResult() {
     Assertions.assertTrue(cut.execute().isEmpty());
   }
 
   @Test
-  public void testOneGroupOneResult() {
+  void testOneGroupOneResult() {
     final BatchRequestPart part = mock(BatchRequestPart.class);
     final List<ODataRequest> get = new ArrayList<>(1);
     final ODataRequest request = mock(ODataRequest.class);
@@ -52,7 +52,7 @@ public class JPAODataBatchSequentialRequestGroupTest extends JPAODataBatchAbstra
   }
 
   @Test
-  public void testTwoGroupTwoResults() {
+  void testTwoGroupTwoResults() {
     final ODataRequest request1 = buildPart();
     final ODataRequest request2 = buildPart();
     final ODataResponse part1 = mock(ODataResponse.class);
@@ -69,7 +69,7 @@ public class JPAODataBatchSequentialRequestGroupTest extends JPAODataBatchAbstra
   }
 
   @Test
-  public void testExecuteRethrowsException() throws ODataApplicationException, ODataLibraryException {
+  void testExecuteRethrowsException() throws ODataApplicationException, ODataLibraryException {
     final BatchRequestPart part = mock(BatchRequestPart.class);
     final List<ODataRequest> post = new ArrayList<>(1);
     final ODataRequest request = mock(ODataRequest.class);
