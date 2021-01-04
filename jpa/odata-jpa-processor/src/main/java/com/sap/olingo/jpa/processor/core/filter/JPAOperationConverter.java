@@ -236,8 +236,10 @@ public class JPAOperationConverter {
     if (jpaOperator.getRight() instanceof JPAPrimitiveTypeOperator) {
       if (((JPAPrimitiveTypeOperator) jpaOperator.getRight()).isNull())
         return nullFunction.apply(jpaOperator.getLeft());
-      else
+      else if (jpaOperator.getRight() instanceof JPAEnumerationOperator)
         return expressionObjectFunction.apply(jpaOperator.getLeft(), ((JPAOperator) jpaOperator.getRight()).get());
+      else
+        return expressionObjectFunction.apply(jpaOperator.getLeft(), jpaOperator.getRightAsComparable());
     } else {
       return allExpressionFunction.apply(jpaOperator.getLeft(), jpaOperator.getRightAsExpression());
     }

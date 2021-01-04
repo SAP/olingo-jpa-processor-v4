@@ -75,7 +75,7 @@ public abstract class BusinessPartner implements KeyAccess {
   @Column(name = "\"Type\"", length = 1, insertable = false, updatable = false, nullable = false)
   protected String type;
 
-  @Column(name = "\"CreatedAt\"", precision = 3, insertable = false, updatable = false)
+  @Column(name = "\"CreatedAt\"", precision = 2, insertable = false, updatable = false)
   @Convert(converter = DateTimeConverter.class)
   private LocalDateTime creationDateTime;
 

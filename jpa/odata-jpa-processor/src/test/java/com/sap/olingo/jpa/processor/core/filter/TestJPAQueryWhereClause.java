@@ -34,6 +34,18 @@ class TestJPAQueryWhereClause extends TestBase {
   }
 
   @Test
+  void testFilterOneEqualsDateTime() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations?$filter=CreationDateTime eq 2016-01-20T09:21:23Z");
+    helper.assertStatus(200);
+    // This test shall ensure that the Date Time value is mapped correct.
+    // Unfortunately the query returns an empty result locally, but 10 rows on Jenkins
+    final ArrayNode orgs = helper.getValues();
+    assertNotNull(orgs);
+  }
+
+  @Test
   void testFilterOneDescriptionEquals() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,

@@ -251,7 +251,7 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         jpaAttribute, helper.schema);
 
-    assertEquals(new Integer(3), property.getEdmItem().getPrecision());
+    assertEquals(new Integer(2), property.getEdmItem().getPrecision());
   }
 
   @Test
