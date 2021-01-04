@@ -66,6 +66,22 @@ abstract class CriteriaBuilderOverallTest {
   }
 
   @Test
+  void testSimpleQueryMultiySelect() {
+    final Root<?> org = q.from(Organization.class);
+
+    q.multiselect(org.get("type").alias("count"), org.get("iD"), org.get("eTag"));
+    ((SqlConvertible) q).asSQL(stmt);
+    assertEquals(
+        "SELECT E0.\"Type\" S0, E0.\"ID\" S1, E0.\"ETag\" S2 FROM \"OLINGO\".\"BusinessPartner\" E0 WHERE (E0.\"Type\" = ?1)",
+        stmt.toString().trim());
+    final TypedQuery<Tuple> tq = em.createQuery(q);
+    final List<Tuple> act = tq.getResultList();
+    assertEquals(10, act.size());
+    assertNotNull(act.get(0));
+    assertEquals("2", act.get(0).get("count"));
+  }
+
+  @Test
   void testWhereWithMultipleAnd() {
     // SELECT E0."CodeID" FROM "OLINGO"."AdministrativeDivision" E0 WHERE (((E0."DivisionCode" = ?) AND (E0."CodeID" =
     // ?)) AND (E0."CodePublisher" = ?))

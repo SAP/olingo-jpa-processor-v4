@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Selection;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
@@ -30,8 +31,14 @@ final class SelectionImpl<X> implements SqlSelection<X> {
   SelectionImpl(final Selection<?> selection, final Class<X> resultType, final AliasBuilder aliasBuilder) {
     this.resultType = resultType;
     this.selection = selection;
-    this.alias = Optional.ofNullable(selection.getAlias() == null || selection.getAlias().isEmpty()
-        ? null : selection.getAlias());
+    if (selection instanceof Path<?>)
+      // Use a generated alias for standard columns
+      this.alias = Optional.empty();
+    else
+      // Take the given alias for ROW_NUMBER, so that no mapping is needed e.g. when used in WHERE clause
+      this.alias = Optional.ofNullable(selection.getAlias() == null || selection.getAlias().isEmpty()
+          ? null : selection.getAlias());
+
     this.aliasBuilder = aliasBuilder;
   }
 
