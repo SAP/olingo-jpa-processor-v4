@@ -15,7 +15,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.ODataFunction;
 
-final class IntermediateFunctionFactory extends IntermediateOperationFactory {
+final class IntermediateFunctionFactory<F extends IntermediateFunction> extends IntermediateOperationFactory<F> {
 
   /**
    * Creates all functions declared at on entity type
@@ -25,10 +25,10 @@ final class IntermediateFunctionFactory extends IntermediateOperationFactory {
    * @return
    * @throws ODataJPAModelException
    */
-  Map<? extends String, ? extends IntermediateFunction> create(final JPAEdmNameBuilder nameBuilder,
-      final EntityType<?> jpaEntityType, final IntermediateSchema schema) throws ODataJPAModelException {
+  Map<String, F> create(final JPAEdmNameBuilder nameBuilder,
+      final EntityType<?> jpaEntityType, final IntermediateSchema schema) {
 
-    final Map<String, IntermediateFunction> funcList = new HashMap<>();
+    final Map<String, F> funcList = new HashMap<>();
 
     if (jpaEntityType.getJavaType() instanceof AnnotatedElement) {
       final EdmFunctions jpaStoredProcedureList = jpaEntityType.getJavaType()
@@ -47,26 +47,27 @@ final class IntermediateFunctionFactory extends IntermediateOperationFactory {
     return funcList;
   }
 
-  @SuppressWarnings("unchecked")
-  Map<? extends String, ? extends IntermediateFunction> create(final JPAEdmNameBuilder nameBuilder,
+  Map<String, F> create(final JPAEdmNameBuilder nameBuilder,
       final Reflections reflections, final IntermediateSchema schema) throws ODataJPAModelException {
-    return (Map<? extends String, ? extends IntermediateFunction>) createOperationMap(nameBuilder, reflections, schema,
+    return createOperationMap(nameBuilder, reflections, schema,
         ODataFunction.class, EdmFunction.class);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  IntermediateOperation createOperation(final JPAEdmNameBuilder nameBuilder, final IntermediateSchema schema,
+  F createOperation(final JPAEdmNameBuilder nameBuilder, final IntermediateSchema schema,
       final Method m, final Object functionDescription) throws ODataJPAModelException {
-    return new IntermediateJavaFunction(nameBuilder, (EdmFunction) functionDescription, m, schema);
+    return (F) new IntermediateJavaFunction(nameBuilder, (EdmFunction) functionDescription, m, schema);
   }
 
+  @SuppressWarnings("unchecked")
   private void putFunction(final JPAEdmNameBuilder nameBuilder, final EntityType<?> jpaEntityType,
-      final IntermediateSchema schema, final Map<String, IntermediateFunction> funcList,
-      final EdmFunction jpaStoredProcedure) throws ODataJPAModelException {
+      final IntermediateSchema schema, final Map<String, F> funcList,
+      final EdmFunction jpaStoredProcedure) {
 
     final IntermediateFunction func = new IntermediateDataBaseFunction(nameBuilder, jpaStoredProcedure, jpaEntityType
         .getJavaType(), schema);
-    funcList.put(func.getInternalName(), func);
+    funcList.put(func.getInternalName(), (F) func);
   }
 
 }

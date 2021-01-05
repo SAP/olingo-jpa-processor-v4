@@ -26,6 +26,7 @@ import javax.persistence.metamodel.SingularAttribute;
 import org.apache.olingo.commons.api.http.HttpMethod;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
@@ -282,8 +283,11 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
 
         final Object newInstance = createOneEntity(requestEntity, em, parentInstance);
         util.linkEntities(parentInstance, newInstance, pathInfo);
-        if (pathInfo.getPartner() != null) try {
-          util.linkEntities(newInstance, parentInstance, pathInfo.getPartner().getPath());
+        try {
+          final JPAAssociationAttribute attribute = pathInfo.getPartner();
+          if (attribute != null) {
+            util.linkEntities(newInstance, parentInstance, attribute.getPath());
+          }
         } catch (final ODataJPAModelException e) {
           throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
         }

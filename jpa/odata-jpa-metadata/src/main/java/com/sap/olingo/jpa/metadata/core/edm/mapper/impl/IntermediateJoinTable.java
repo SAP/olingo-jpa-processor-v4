@@ -155,26 +155,12 @@ class IntermediateJoinTable implements JPAJoinTable {
     return new IntermediateJoinTable(this, mappedBy);
   }
 
-  IntermediateJoinTable withSource(final IntermediateStructuredType<?> sourceType) throws ODataJPAModelException {
-    return new IntermediateJoinTable(this, sourceType);
-  }
-
   List<IntermediateJoinColumn> buildInverseJoinColumns() throws ODataJPAModelException {
 
     if (inverseJoinColumns == null) {
       inverseJoinColumns = new ArrayList<>(jpaJoinTable.inverseJoinColumns().length);
       for (final JoinColumn column : jpaJoinTable.inverseJoinColumns()) {
-        if (column.referencedColumnName() == null || column.referencedColumnName().isEmpty()) {
-          if (jpaJoinTable.joinColumns().length > 1)
-            throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.NOT_SUPPORTED_NO_IMPLICIT_COLUMNS,
-                intermediateProperty.getInternalName());
-          else
-            inverseJoinColumns.add(new IntermediateJoinColumn(
-                ((IntermediateProperty) ((IntermediateEntityType<?>) getTargetType()).getKey().get(0)).getDBFieldName(),
-                column.name()));
-        } else {
-          inverseJoinColumns.add(new IntermediateJoinColumn(column.referencedColumnName(), column.name()));
-        }
+        buildInversJoinColumn(column);
       }
     }
     return inverseJoinColumns;
@@ -185,25 +171,47 @@ class IntermediateJoinTable implements JPAJoinTable {
       joinColumns = new ArrayList<>(jpaJoinTable.inverseJoinColumns().length);
 
       for (final JoinColumn column : jpaJoinTable.joinColumns()) {
-        if (column.referencedColumnName() == null || column.referencedColumnName().isEmpty()) {
-          if (jpaJoinTable.joinColumns().length > 1)
-            throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.NOT_SUPPORTED_NO_IMPLICIT_COLUMNS,
-                intermediateProperty.getInternalName());
-          else if (!(intermediateProperty.getSourceType() instanceof IntermediateEntityType))
-            throw new ODataJPAModelException(
-                ODataJPAModelException.MessageKeys.NOT_SUPPORTED_NO_IMPLICIT_COLUMNS_COMPLEX,
-                intermediateProperty.getInternalName());
-          else {
-            joinColumns.add(new IntermediateJoinColumn(
-                ((IntermediateProperty) ((IntermediateEntityType<?>) intermediateProperty.getSourceType()).getKey().get(
-                    0)).getDBFieldName(), column.name()));
-          }
-        } else {
-          joinColumns.add(new IntermediateJoinColumn(column.referencedColumnName(), column.name()));
-        }
+        buildJoinColumn(column);
       }
     }
     return joinColumns;
+  }
+
+  IntermediateJoinTable withSource(final IntermediateStructuredType<?> sourceType) throws ODataJPAModelException {
+    return new IntermediateJoinTable(this, sourceType);
+  }
+
+  private void buildInversJoinColumn(final JoinColumn column) throws ODataJPAModelException {
+    if (column.referencedColumnName() == null || column.referencedColumnName().isEmpty()) {
+      if (jpaJoinTable.joinColumns().length > 1)
+        throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.NOT_SUPPORTED_NO_IMPLICIT_COLUMNS,
+            intermediateProperty.getInternalName());
+      else
+        inverseJoinColumns.add(new IntermediateJoinColumn(
+            ((IntermediateProperty) ((IntermediateEntityType<?>) getTargetType()).getKey().get(0)).getDBFieldName(),
+            column.name()));
+    } else {
+      inverseJoinColumns.add(new IntermediateJoinColumn(column.referencedColumnName(), column.name()));
+    }
+  }
+
+  private void buildJoinColumn(final JoinColumn column) throws ODataJPAModelException {
+    if (column.referencedColumnName() == null || column.referencedColumnName().isEmpty()) {
+      if (jpaJoinTable.joinColumns().length > 1)
+        throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.NOT_SUPPORTED_NO_IMPLICIT_COLUMNS,
+            intermediateProperty.getInternalName());
+      else if (!(intermediateProperty.getSourceType() instanceof IntermediateEntityType))
+        throw new ODataJPAModelException(
+            ODataJPAModelException.MessageKeys.NOT_SUPPORTED_NO_IMPLICIT_COLUMNS_COMPLEX,
+            intermediateProperty.getInternalName());
+      else {
+        joinColumns.add(new IntermediateJoinColumn(
+            ((IntermediateProperty) ((IntermediateEntityType<?>) intermediateProperty.getSourceType()).getKey().get(
+                0)).getDBFieldName(), column.name()));
+      }
+    } else {
+      joinColumns.add(new IntermediateJoinColumn(column.referencedColumnName(), column.name()));
+    }
   }
 
   private IntermediateStructuredType<?> getTargetType() throws ODataJPAModelException {

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.annotation.Nonnull;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.EmbeddableType;
 import javax.persistence.metamodel.EntityType;
@@ -112,6 +113,7 @@ final class IntermediateSchema extends IntermediateModelElement {
     return null;
   }
 
+  @Nonnull
   List<JPAAction> getActions() {
     final ArrayList<JPAAction> actions = new ArrayList<>();
     for (final Entry<String, IntermediateJavaAction> action : actionListInternalKey.entrySet()) {
@@ -178,6 +180,7 @@ final class IntermediateSchema extends IntermediateModelElement {
 
   }
 
+  @Nonnull
   List<JPAFunction> getFunctions() {
     final ArrayList<JPAFunction> functions = new ArrayList<>();
     for (final Entry<String, IntermediateFunction> func : functionListInternalKey.entrySet()) {
@@ -259,7 +262,7 @@ final class IntermediateSchema extends IntermediateModelElement {
   private Map<String, IntermediateFunction> buildFunctionList() throws ODataJPAModelException {
     final HashMap<String, IntermediateFunction> funcList = new HashMap<>();
     // 1. Option: Create Function from Entity Annotations
-    final IntermediateFunctionFactory factory = new IntermediateFunctionFactory();
+    final IntermediateFunctionFactory<?> factory = new IntermediateFunctionFactory<>();
     for (final EntityType<?> entity : this.jpaMetamodel.getEntities()) {
 
       funcList.putAll(factory.create(nameBuilder, entity, this));

@@ -142,11 +142,9 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
       final IntermediateSchema schema = namespace.getValue();
       final List<JPAFunction> functions = schema.getFunctions();
 
-      if (functions != null) {
-        for (final JPAFunction jpaFu : functions) {
-          if (!((IntermediateFunction) jpaFu).isBound() && ((IntermediateFunction) jpaFu).hasImport())
-            edmFunctionImports.add(buildFunctionImport(((IntermediateFunction) jpaFu).getEdmItem()));
-        }
+      for (final JPAFunction jpaFu : functions) {
+        if (!((IntermediateFunction) jpaFu).isBound() && ((IntermediateFunction) jpaFu).hasImport())
+          edmFunctionImports.add(buildFunctionImport(((IntermediateFunction) jpaFu).getEdmItem()));
       }
     }
     return edmFunctionImports;
@@ -160,11 +158,9 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
       final IntermediateSchema schema = namespace.getValue();
       final List<JPAAction> actions = schema.getActions();
 
-      if (actions != null) {
-        for (final JPAAction jpaAc : actions) {
-          if (((IntermediateJavaAction) jpaAc).hasImport())
-            edmActionImports.add(buildActionImport(((IntermediateJavaAction) jpaAc).getEdmItem()));
-        }
+      for (final JPAAction jpaAc : actions) {
+        if (((IntermediateJavaAction) jpaAc).hasImport())
+          edmActionImports.add(buildActionImport(((IntermediateJavaAction) jpaAc).getEdmItem()));
       }
     }
     return edmActionImports;

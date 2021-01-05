@@ -92,31 +92,17 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
             EdmDescriptionAssociation.class);
         if (association != null) {
           // determine generic type of a collection in case of an OneToMany association
-          if (jpaMember instanceof Field) {
-            final Field jpaField = (Field) jpaMember;
-            final ParameterizedType jpaTargetEntityType = (ParameterizedType) jpaField.getGenericType();
-            if (jpaTargetEntityType != null)
-              targetEntity = schema.getEntityType((Class<?>) jpaTargetEntityType.getActualTypeArguments()[0]);
-            else
-              targetEntity = schema.getEntityType(jpaAttribute.getJavaType());
-          } else {
-            targetEntity = schema.getEntityType(jpaAttribute.getJavaType());
-          }
+          determineTargetEntityType(jpaMember);
           descriptionProperty = (IntermediateSimpleProperty) targetEntity.getAttribute(association
-              .descriptionAttribute()).orElseThrow(() ->
-          // The attribute %2$s has not been found at entity %1$s
-          new ODataJPAModelException(MessageKeys.INVALID_DESCRIPTION_PROPERTY, targetEntity.getInternalName(),
-              association.descriptionAttribute()));
+              .descriptionAttribute())
+              .orElseThrow(() ->
+              // The attribute %2$s has not been found at entity %1$s
+              new ODataJPAModelException(MessageKeys.INVALID_DESCRIPTION_PROPERTY, targetEntity.getInternalName(),
+                  association.descriptionAttribute()));
+
           languageAttribute = association.languageAttribute();
           localeAttribute = association.localeAttribute();
-
-          if ((emptyString(languageAttribute) && emptyString(localeAttribute)) ||
-              (!languageAttribute.isEmpty() && !localeAttribute.isEmpty()))
-            throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.DESCRIPTION_LOCALE_FIELD_MISSING,
-                targetEntity.getInternalName(), this.internalName);
-          if (!descriptionProperty.getType().equals(String.class))
-            throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.DESCRIPTION_FIELD_WRONG_TYPE,
-                targetEntity.getInternalName(), this.internalName);
+          checkConsistancyOfLocalInfo(languageAttribute);
 
           edmProperty.setType(JPATypeConverter.convertToEdmSimpleType(descriptionProperty.getType())
               .getFullQualifiedName());
@@ -129,6 +115,29 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
               sourceType.getInternalName(), this.internalName);
         }
       }
+    }
+  }
+
+  private void checkConsistancyOfLocalInfo(final String languageAttribute) throws ODataJPAModelException {
+    if ((emptyString(languageAttribute) && emptyString(localeAttribute)) ||
+        (!languageAttribute.isEmpty() && !localeAttribute.isEmpty()))
+      throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.DESCRIPTION_LOCALE_FIELD_MISSING,
+          targetEntity.getInternalName(), this.internalName);
+    if (!descriptionProperty.getType().equals(String.class))
+      throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.DESCRIPTION_FIELD_WRONG_TYPE,
+          targetEntity.getInternalName(), this.internalName);
+  }
+
+  private void determineTargetEntityType(final Member jpaMember) {
+    if (jpaMember instanceof Field) {
+      final Field jpaField = (Field) jpaMember;
+      final ParameterizedType jpaTargetEntityType = (ParameterizedType) jpaField.getGenericType();
+      if (jpaTargetEntityType != null)
+        targetEntity = schema.getEntityType((Class<?>) jpaTargetEntityType.getActualTypeArguments()[0]);
+      else
+        targetEntity = schema.getEntityType(jpaAttribute.getJavaType());
+    } else {
+      targetEntity = schema.getEntityType(jpaAttribute.getJavaType());
     }
   }
 
