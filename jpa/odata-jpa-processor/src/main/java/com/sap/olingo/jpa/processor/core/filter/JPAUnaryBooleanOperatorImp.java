@@ -9,10 +9,10 @@ final class JPAUnaryBooleanOperatorImp implements JPAUnaryBooleanOperator {
 
   private final JPAOperationConverter converter;
   private final UnaryOperatorKind operator;
-  private final JPAExpressionOperator left;
+  private final JPAExpression left;
 
   public JPAUnaryBooleanOperatorImp(final JPAOperationConverter converter, final UnaryOperatorKind operator,
-      final JPAExpressionOperator left) {
+      final JPAExpression left) {
     super();
     this.converter = converter;
     this.operator = operator;
@@ -21,7 +21,7 @@ final class JPAUnaryBooleanOperatorImp implements JPAUnaryBooleanOperator {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sap.olingo.jpa.processor.core.filter.JPAUnaryBooleanOperator#get()
    */
   @Override
@@ -31,7 +31,7 @@ final class JPAUnaryBooleanOperatorImp implements JPAUnaryBooleanOperator {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sap.olingo.jpa.processor.core.filter.JPAUnaryBooleanOperator#getLeft()
    */
   @Override
@@ -41,7 +41,7 @@ final class JPAUnaryBooleanOperatorImp implements JPAUnaryBooleanOperator {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sap.olingo.jpa.processor.core.filter.JPAUnaryBooleanOperator#getOperator()
    */
   @Override

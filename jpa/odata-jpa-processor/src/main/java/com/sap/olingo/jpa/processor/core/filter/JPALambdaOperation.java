@@ -16,10 +16,10 @@ import org.apache.olingo.server.api.uri.queryoption.expression.Expression;
 import org.apache.olingo.server.api.uri.queryoption.expression.Member;
 
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
+import com.sap.olingo.jpa.processor.core.query.JPAAbstractSubQuery;
 import com.sap.olingo.jpa.processor.core.query.JPACollectionFilterQuery;
 import com.sap.olingo.jpa.processor.core.query.JPANavigationFilterQuery;
 import com.sap.olingo.jpa.processor.core.query.JPANavigationPropertyInfo;
-import com.sap.olingo.jpa.processor.core.query.JPAAbstractSubQuery;
 
 abstract class JPALambdaOperation extends JPAExistsOperation {
 
@@ -30,7 +30,7 @@ abstract class JPALambdaOperation extends JPAExistsOperation {
     this.member = member;
   }
 
-  public JPALambdaOperation(final JPAFilterComplierAccess jpaComplier, final Member member) {
+  JPALambdaOperation(final JPAFilterComplierAccess jpaComplier, final Member member) {
     super(jpaComplier);
     this.member = member.getResourcePath();
   }

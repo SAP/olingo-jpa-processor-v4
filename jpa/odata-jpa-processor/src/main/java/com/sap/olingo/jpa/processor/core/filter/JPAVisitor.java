@@ -48,7 +48,7 @@ import com.sap.olingo.jpa.processor.core.query.Util;
 class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
 
   /**
-   * 
+   *
    */
   private final JPAFilterComplierAccess jpaComplier;
   private final JPAServiceDebugger debugger;
@@ -224,7 +224,7 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
     final int handle = debugger.startRuntimeMeasurement(this, "visitBinaryOperator");
     if (operator == UnaryOperatorKind.NOT) {
       debugger.stopRuntimeMeasurement(handle);
-      return new JPAUnaryBooleanOperatorImp(this.jpaComplier.getConverter(), operator, (JPAExpressionOperator) operand);
+      return new JPAUnaryBooleanOperatorImp(this.jpaComplier.getConverter(), operator, (JPAExpression) operand);
     } else {
       debugger.stopRuntimeMeasurement(handle);
       throw new ODataJPAFilterException(NOT_SUPPORTED_OPERATOR, NOT_IMPLEMENTED, operator.name());

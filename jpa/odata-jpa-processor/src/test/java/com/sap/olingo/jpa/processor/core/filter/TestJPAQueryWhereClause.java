@@ -658,6 +658,18 @@ class TestJPAQueryWhereClause extends TestBase {
   }
 
   @Test
+  void testFilterNavigationStartswithAll() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Persons?$filter=InhouseAddress/all(d:startswith(d/TaskID, 'D'))");
+
+    helper.assertStatus(200);
+    final ArrayNode pers = helper.getValues();
+    assertEquals(1, pers.size());
+    assertEquals("97", pers.get(0).get("ID").asText());
+  }
+
+  @Test
   void testFilterNavigationPropertyToManyValueAll() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,

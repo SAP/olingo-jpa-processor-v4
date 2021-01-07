@@ -4,7 +4,9 @@ enum SqlAggregation {
 
   AVG("AVG"),
   COUNT("COUNT"),
-  SUM("SUM");
+  SUM("SUM"),
+  MAX("MAX"),
+  MIN("MIN");
 
   private String keyWord;
 
