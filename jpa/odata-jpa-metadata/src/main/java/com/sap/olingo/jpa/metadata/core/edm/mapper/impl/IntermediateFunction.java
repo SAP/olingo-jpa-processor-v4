@@ -1,5 +1,8 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
+import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.FUNC_RETURN_TYPE_ENTITY_SET;
+import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.FUNC_UNBOUND_ENTITY_SET;
+
 import java.util.List;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
@@ -61,9 +64,24 @@ abstract class IntermediateFunction extends IntermediateOperation implements JPA
        * A navigation segment names the simple identifier of the navigation property to be traversed. A type-cast
        * segment names the qualified name of the entity type that should be returned from the type cast.
        */
-      // TODO edmFunction.setEntitySetPath(entitySetPath) for bound functions
+      edmFunction.setEntitySetPath(setEntitySetPath());
 
     }
+  }
+
+  private String setEntitySetPath() throws ODataJPAModelException {
+
+    final String path = jpaFunction.entitySetPath();
+    if (path == null || path.isEmpty())
+      return null;
+    if (!jpaFunction.isBound())
+      // Entity Set Path shall only provided for bound functions. Function '%1$s' is unbound.
+      throw new ODataJPAModelException(FUNC_UNBOUND_ENTITY_SET, jpaFunction.functionName());
+    if (schema.getEntityType(jpaFunction.returnType().type()) == null)
+      // Entity Set Path shall only if a function returns an entity or collection of entities. Function '%1$s' has a
+      // wrong return type.
+      throw new ODataJPAModelException(FUNC_RETURN_TYPE_ENTITY_SET, jpaFunction.functionName());
+    return path;
   }
 
   @Override
@@ -108,8 +126,8 @@ abstract class IntermediateFunction extends IntermediateOperation implements JPA
       this.type = jpaParameter.type();
     }
 
-    IntermediateFunctionParameter(EdmParameter jpaParameter, String externalName,
-        String internalName, Class<?> type) {
+    IntermediateFunctionParameter(final EdmParameter jpaParameter, final String externalName,
+        final String internalName, final Class<?> type) {
       this.jpaParameter = jpaParameter;
       this.internalName = internalName;
       this.externalName = externalName;

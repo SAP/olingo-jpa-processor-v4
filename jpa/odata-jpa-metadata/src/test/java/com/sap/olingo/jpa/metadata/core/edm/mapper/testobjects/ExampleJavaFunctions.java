@@ -16,6 +16,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.ODataFunction;
 import com.sap.olingo.jpa.processor.core.testmodel.ABCClassification;
 import com.sap.olingo.jpa.processor.core.testmodel.AccessRights;
+import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
 import com.sap.olingo.jpa.processor.core.testmodel.ChangeInformation;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 import com.sap.olingo.jpa.processor.core.testmodel.PostalAddressData;
@@ -98,5 +99,11 @@ public class ExampleJavaFunctions implements ODataFunction {
   @EdmFunction(name = "", returnType = @ReturnType(type = ABCClassification.class))
   public List<ABCClassification> returnEnumerationCollection() {
     return new ArrayList<>();
+  }
+
+  @EdmFunction(name = "", isBound = true, entitySetPath = "Person/Roles", returnType = @ReturnType())
+  public BusinessPartnerRole boundWithEntitySetPath(
+      @EdmParameter(name = "Person") final Person person) {
+    return null;
   }
 }

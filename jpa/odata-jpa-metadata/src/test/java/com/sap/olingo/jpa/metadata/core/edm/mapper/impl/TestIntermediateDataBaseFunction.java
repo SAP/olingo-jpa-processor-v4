@@ -3,6 +3,7 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
@@ -23,7 +24,9 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
+import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeInformation;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
+import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
 import com.sap.olingo.jpa.processor.core.testmodel.ChangeInformation;
 import com.sap.olingo.jpa.processor.core.testmodel.DateConverter;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
@@ -231,6 +234,42 @@ class TestIntermediateDataBaseFunction extends TestMappingRoot {
   }
 
   @Test
+  void checkReturnsEntitySetPathForBound() throws ODataJPAModelException {
+    final EdmFunction func = createBoundFunction();
+    final IntermediateFunction act = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        func, Person.class, helper.schema);
+
+    assertNotNull(act.getEdmItem());
+    assertTrue(act.getEdmItem().isBound());
+    assertEquals("Person/Roles", act.getEdmItem().getEntitySetPath());
+  }
+
+  @Test
+  void checkThrowsExcpetionOnEntitySetGivenUnbound() throws ODataJPAModelException {
+    final EdmFunction func = createBoundFunction();
+    when(func.isBound()).thenReturn(false);
+
+    final IntermediateFunction act = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        func, Person.class, helper.schema);
+    assertThrows(ODataJPAModelException.class, () -> act.getEdmItem());
+  }
+
+  @Test
+  void checkThrowsExcpetionOnEntitySetGivenNoEntityReturnType() throws ODataJPAModelException {
+    final EdmFunction func = createBoundFunction();
+    when(func.returnType().type()).thenAnswer(new Answer<Class<?>>() {
+      @Override
+      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
+        return AdministrativeInformation.class;
+      }
+    });
+
+    final IntermediateFunction act = new IntermediateDataBaseFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        func, Person.class, helper.schema);
+    assertThrows(ODataJPAModelException.class, () -> act.getEdmItem());
+  }
+
+  @Test
   void checkReturnTypeUnknown() throws ODataJPAModelException {
     final EdmFunction func = mock(EdmFunction.class);
     final EdmFunction.ReturnType retType = mock(EdmFunction.ReturnType.class);
@@ -255,4 +294,19 @@ class TestIntermediateDataBaseFunction extends TestMappingRoot {
     fail();
   }
 
+  private EdmFunction createBoundFunction() {
+    final EdmFunction func = mock(EdmFunction.class);
+    final EdmFunction.ReturnType retType = mock(EdmFunction.ReturnType.class);
+    when(func.isBound()).thenReturn(true);
+    when(func.entitySetPath()).thenReturn("Person/Roles");
+    when(func.returnType()).thenReturn(retType);
+    when(func.parameter()).thenReturn(new EdmParameter[0]);
+    when(retType.type()).thenAnswer(new Answer<Class<?>>() {
+      @Override
+      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
+        return BusinessPartnerRole.class;
+      }
+    });
+    return func;
+  }
 }

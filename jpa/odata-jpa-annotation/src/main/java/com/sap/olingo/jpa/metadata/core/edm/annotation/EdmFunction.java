@@ -20,7 +20,7 @@ public @interface EdmFunction {
   /**
    * Define if the return type for the function. It can be a collection (entity set) or
    * an single entity (entity).
-   * 
+   *
    */
   @interface ReturnType {
 
@@ -43,7 +43,7 @@ public @interface EdmFunction {
 
     /**
      * Define the return type for the function import.<p>
-     * 
+     *
      * @return Class of java parameter (row) type. This can be either a simple type like <code> Integer.class</code> or
      * the POJO defining an Entity. If the type is not set and the
      * function is defined at an JPA Entity POJO, the corresponding Entity Type is used. In addition, in case of an
@@ -97,8 +97,24 @@ public @interface EdmFunction {
   boolean hasFunctionImport() default false;
 
   /**
+   * Bound functions that return an entity or a collection of entities MAY specify a value for the EntitySetPath
+   * attribute if determination of the entity set for the return type is contingent on the binding parameter.
+   * <p>
+   * The value for the EntitySetPath attribute consists of a series of segments joined together with forward slashes.
+   * <p>
+   * The first segment of the entity set path MUST be the name of the binding parameter. The remaining segments of the
+   * entity set path MUST represent navigation segments or type casts.
+   * <p>
+   * <a href =
+   * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406398015"
+   * />OData Version 4.0 Part 3 - 13.6 Element edm:FunctionImport</a> <p>
+   *
+   */
+  String entitySetPath() default "";
+
+  /**
    * Define the return type of this function
-   * 
+   *
    * @return return type of this function
    */
   ReturnType returnType();

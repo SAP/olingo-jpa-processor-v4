@@ -50,8 +50,7 @@ class TestIntermediateActionFactory extends TestMappingRoot {
   void checkReturnMapWithOneIfOneJavaFunctionsFound() throws ODataJPAModelException {
     javaActions.add(ExampleJavaOneAction.class);
     final Map<? extends String, ? extends IntermediateJavaAction> act = cut.create(new JPADefaultEdmNameBuilder(
-        PUNIT_NAME),
-        reflections, helper.schema);
+        PUNIT_NAME), reflections, helper.schema);
     assertEquals(1, act.size());
   }
 
@@ -59,8 +58,7 @@ class TestIntermediateActionFactory extends TestMappingRoot {
   void checkReturnMapWithTwoIfTwoJavaFunctionsFound() throws ODataJPAModelException {
     javaActions.add(ExampleJavaTwoActions.class);
     final Map<? extends String, ? extends IntermediateJavaAction> act = cut.create(new JPADefaultEdmNameBuilder(
-        PUNIT_NAME),
-        reflections, helper.schema);
+        PUNIT_NAME), reflections, helper.schema);
     assertEquals(2, act.size());
   }
 
@@ -69,8 +67,7 @@ class TestIntermediateActionFactory extends TestMappingRoot {
     javaActions.add(ExampleJavaOneAction.class);
     javaActions.add(ExampleJavaTwoActions.class);
     final Map<? extends String, ? extends IntermediateJavaAction> act = cut.create(new JPADefaultEdmNameBuilder(
-        PUNIT_NAME),
-        reflections, helper.schema);
+        PUNIT_NAME), reflections, helper.schema);
     assertEquals(3, act.size());
   }
 

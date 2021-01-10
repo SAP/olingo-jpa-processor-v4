@@ -232,7 +232,7 @@ class IntermediateJavaAction extends IntermediateOperation implements JPAAction 
       // Entity Set Path shall only provided for bound actions. Action method %1$s of class %2$s is unbound.
       throw new ODataJPAModelException(ACTION_UNBOUND_ENTITY_SET,
           javaAction.getName(), javaAction.getDeclaringClass().getName());
-    if (!edmAction.getReturnType().isCollection() && schema.getEntityType(javaAction.getReturnType()) == null)
+    if (schema.getEntityType(javaAction.getReturnType()) == null)
       throw new ODataJPAModelException(ACTION_UNBOUND_ENTITY_SET,
           javaAction.getName(), javaAction.getDeclaringClass().getName());
     return jpaAction.entitySetPath();
