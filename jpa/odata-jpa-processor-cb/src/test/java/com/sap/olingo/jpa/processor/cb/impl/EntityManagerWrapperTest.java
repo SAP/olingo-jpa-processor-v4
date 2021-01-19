@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -25,6 +26,7 @@ import javax.persistence.FlushModeType;
 import javax.persistence.LockModeType;
 import javax.persistence.Query;
 import javax.persistence.StoredProcedureQuery;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.metamodel.Metamodel;
@@ -57,6 +59,7 @@ class EntityManagerWrapperTest {
   private static Map<String, Object> properties;
   private static EntityTransaction transaction;
   private static Metamodel metamodel;
+  private static TypedQuery<String> typedquery;
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
   @BeforeAll
@@ -65,6 +68,7 @@ class EntityManagerWrapperTest {
     emf = mock(EntityManagerFactory.class);
     em = mock(EntityManager.class);
     query = mock(Query.class);
+    typedquery = mock(TypedQuery.class);
     cu = mock(CriteriaUpdate.class);
     cd = mock(CriteriaDelete.class);
     graph = mock(EntityGraph.class);
@@ -80,6 +84,8 @@ class EntityManagerWrapperTest {
     when(em.createQuery(anyString())).thenReturn(query);
     when(em.createQuery(cu)).thenReturn(query);
     when(em.createQuery(cd)).thenReturn(query);
+    when(em.createNamedQuery(anyString())).thenReturn(query);
+    when(em.createNamedQuery(anyString(), eq(String.class))).thenReturn(typedquery);
     when(em.unwrap(EntityManager.class)).thenReturn(em);
     when(em.isJoinedToTransaction()).thenReturn(false);
     when(em.createEntityGraph(EntityManager.class)).thenReturn((EntityGraph<EntityManager>) graph);
@@ -142,6 +148,7 @@ class EntityManagerWrapperTest {
         arguments(c.getMethod("createQuery", CriteriaUpdate.class), cu, query),
         arguments(c.getMethod("createQuery", CriteriaDelete.class), cd, query),
         arguments(c.getMethod("createNativeQuery", String.class), dummy, null),
+        arguments(c.getMethod("createNamedQuery", String.class), dummy, query),
         arguments(c.getMethod("createNamedStoredProcedureQuery", String.class), dummy, storedProcedure),
         arguments(c.getMethod("createStoredProcedureQuery", String.class), dummy, storedProcedure),
         arguments(c.getMethod("unwrap", Class.class), c, em),
@@ -164,6 +171,7 @@ class EntityManagerWrapperTest {
         arguments(c.getMethod("refresh", Object.class, Map.class), dummy, new HashMap<>(), null),
         arguments(c.getMethod("setProperty", String.class, Object.class), dummy, dummy, null),
         arguments(c.getMethod("createNativeQuery", String.class, Class.class), dummy, c, query),
+        arguments(c.getMethod("createNamedQuery", String.class, Class.class), dummy, String.class, typedquery),
         arguments(c.getMethod("createStoredProcedureQuery", String.class, Class[].class), dummy, new Class[0],
             storedProcedure),
         arguments(c.getMethod("createStoredProcedureQuery", String.class, String[].class), dummy, new String[0],
@@ -189,10 +197,8 @@ class EntityManagerWrapperTest {
     final Class<EntityManager> c = EntityManager.class;
     final String dummy = "Test";
     return Stream.of(
-        arguments(c.getMethod("createNamedQuery", String.class), dummy, dummy),
         arguments(c.getMethod("createNativeQuery", String.class, String.class), dummy, dummy),
-        arguments(c.getMethod("createQuery", String.class, Class.class), dummy, c),
-        arguments(c.getMethod("createNamedQuery", String.class, Class.class), dummy, c));
+        arguments(c.getMethod("createQuery", String.class, Class.class), dummy, c));
   }
 
   @ParameterizedTest

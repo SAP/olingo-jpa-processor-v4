@@ -365,7 +365,8 @@ public class EntityManagerWrapper implements EntityManager { // NOSONAR
    */
   @Override
   public Query createNamedQuery(final String name) {
-    throw new NotImplementedException();
+    LOG.trace("Create query: " + name);
+    return em.createNamedQuery(name);
   }
 
   /**
@@ -385,7 +386,8 @@ public class EntityManagerWrapper implements EntityManager { // NOSONAR
    */
   @Override
   public <T> TypedQuery<T> createNamedQuery(final String name, final Class<T> resultClass) {
-    throw new NotImplementedException();
+    LOG.trace("Create query: " + name);
+    return em.createNamedQuery(name, resultClass);
   }
 
   /**
