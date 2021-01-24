@@ -61,9 +61,11 @@ import com.sap.olingo.jpa.processor.core.processor.JPARequestLink;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionKey;
 import com.sap.olingo.jpa.processor.core.testmodel.Collection;
+import com.sap.olingo.jpa.processor.core.testmodel.DeepProtectedExample;
 import com.sap.olingo.jpa.processor.core.testmodel.InhouseAddress;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
+import com.sap.olingo.jpa.processor.core.testmodel.PersonDeepProtected;
 import com.sap.olingo.jpa.processor.core.testmodel.PostalAddressData;
 import com.sap.olingo.jpa.processor.core.testobjects.OrganizationWithAudit;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
@@ -709,9 +711,9 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
   void checkAuthorizationsCreateRejectsWildCardNotMatch() throws ODataJPAModelException,
       ODataJPAProcessException {
     final JPAClaimsPair<String> claim = new JPAClaimsPair<>("D_D*");
-//    final JPAExampleModifyException act = assertThrows(JPAExampleModifyException.class,
-//        () -> createPersonProtected(createPersonProtectedClaims(claim)));
-//    assertEquals(HttpStatusCode.FORBIDDEN.getStatusCode(), act.getStatusCode());
+    final JPAExampleModifyException act = assertThrows(JPAExampleModifyException.class,
+        () -> createPersonProtected(createPersonProtectedClaims(claim)));
+    assertEquals(HttpStatusCode.FORBIDDEN.getStatusCode(), act.getStatusCode());
   }
 
   @Test
@@ -767,7 +769,6 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
 
   }
 
-//Authorization
   @Test
   void checkAuthorizationsCreateRejectRangeToLow() throws ODataJPAModelException,
       ODataJPAProcessException {
@@ -789,6 +790,31 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
     final JPAExampleModifyException act = assertThrows(JPAExampleModifyException.class,
         () -> cut.createEntity(requestEntity, em));
     assertEquals(HttpStatusCode.FORBIDDEN.getStatusCode(), act.getStatusCode());
+  }
+
+  @Test
+  void checkAuthorizationsCreateAll() throws ODataJPAModelException, ODataJPAProcessException {
+    final JPAODataClaimProvider claims = mock(JPAODataClaimProvider.class);
+    final JPAClaimsPair<String> claim = new JPAClaimsPair<>("*");
+    when(claims.get("BuildingNumber")).thenReturn(Arrays.asList(claim));
+    when(claims.get("Floor")).thenReturn(Arrays.asList(claim));
+    when(claims.get("RoomNumber")).thenReturn(Arrays.asList(claim));
+
+    final JPAEntityType et = helper.getJPAEntityType(DeepProtectedExample.class);
+    final Map<String, Object> postalAddress = new HashMap<>();
+    final Map<String, Object> inhouseAddress = new HashMap<>();
+    doReturn(et).when(requestEntity).getEntityType();
+    doReturn(Optional.ofNullable(claims)).when(requestEntity).getClaims();
+
+    inhouseAddress.put("building", "MID25");
+    inhouseAddress.put("floor", 3);
+    inhouseAddress.put("roomNumber", 222);
+    postalAddress.put("inhouseAddress", inhouseAddress);
+
+    data.put("iD", "100");
+    data.put("postalAddress", postalAddress);
+    final Object result = cut.createEntity(requestEntity, em);
+    assertNotNull(result);
   }
 
   private void buildOrganizationMockForAuthorizationTest() throws ODataJPAModelException {
@@ -834,7 +860,7 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
 
   private void createPersonProtected(final JPAODataClaimProvider claims) throws ODataJPAModelException,
       ODataJPAProcessException {
-    final JPAEntityType et = helper.getJPAEntityType("PersonProtecteds");
+    final JPAEntityType et = helper.getJPAEntityType(PersonDeepProtected.class);
     final Map<String, Object> address = new HashMap<>();
     final Map<String, Object> inhouseAddress = new HashMap<>();
     final Map<String, Object> protectedAdminInfo = new HashMap<>();

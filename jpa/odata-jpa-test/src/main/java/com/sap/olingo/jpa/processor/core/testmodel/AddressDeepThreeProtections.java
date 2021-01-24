@@ -17,4 +17,20 @@ public class AddressDeepThreeProtections {
   @Embedded
   private InhouseAddressWithThreeProtections inhouseAddress;
 
+  public String getType() {
+    return type;
+  }
+
+  public void setType(final String type) {
+    this.type = type;
+  }
+
+  public InhouseAddressWithThreeProtections getInhouseAddress() {
+    return inhouseAddress;
+  }
+
+  public void setInhouseAddress(final InhouseAddressWithThreeProtections inhouseAddress) {
+    this.inhouseAddress = inhouseAddress;
+  }
+
 }

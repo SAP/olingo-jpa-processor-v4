@@ -24,7 +24,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.MembershipKey;
  * Created: 11.11.2019
  *
  */
-public class TestEqualHashCodeMethodsTestModel extends TestEqualHashCodeMethods {
+class TestEqualHashCodeMethodsTestModel extends TestEqualHashCodeMethods {
   private static final String PUNIT_NAME = "com.sap.olingo.jpa";
   private static final String ENTITY_MANAGER_DATA_SOURCE = "javax.persistence.nonJtaDataSource";
 
@@ -38,7 +38,7 @@ public class TestEqualHashCodeMethodsTestModel extends TestEqualHashCodeMethods 
   }
 
   @Test
-  public void testBusinessPartnerRoleKeyEqual() {
+  void testBusinessPartnerRoleKeyEqual() {
     final BusinessPartnerRoleKey cut = new BusinessPartnerRoleKey("12", "A");
     assertFalse(cut.equals(null));
     assertTrue(cut.equals(cut));
@@ -51,7 +51,7 @@ public class TestEqualHashCodeMethodsTestModel extends TestEqualHashCodeMethods 
   }
 
   @Test
-  public void testInstanceRestrictionKeyEqual() {
+  void testInstanceRestrictionKeyEqual() {
     final InstanceRestrictionKey cut = new InstanceRestrictionKey("12", 1);
     assertFalse(cut.equals(null));
     assertTrue(cut.equals(cut));
@@ -64,7 +64,7 @@ public class TestEqualHashCodeMethodsTestModel extends TestEqualHashCodeMethods 
   }
 
   @Test
-  public void testMembershipKeyEqual() {
+  void testMembershipKeyEqual() {
     final MembershipKey cut = new MembershipKey("12", "A");
     assertFalse(cut.equals(null));
     assertTrue(cut.equals(cut));
@@ -77,7 +77,7 @@ public class TestEqualHashCodeMethodsTestModel extends TestEqualHashCodeMethods 
   }
 
   @Test
-  public void testAdministrativeDivisionKeyEqual() {
+  void testAdministrativeDivisionKeyEqual() {
     final AdministrativeDivisionKey cut = new AdministrativeDivisionKey("A", "B", "C");
     assertFalse(cut.equals(null));
     assertTrue(cut.equals(cut));
@@ -92,7 +92,7 @@ public class TestEqualHashCodeMethodsTestModel extends TestEqualHashCodeMethods 
   }
 
   @Test
-  public void testAdministrativeDivisionKeyCompareTo() {
+  void testAdministrativeDivisionKeyCompareTo() {
     final AdministrativeDivisionKey cut = new AdministrativeDivisionKey("B", "B", "B");
 
     assertEquals(0, cut.compareTo(cut));

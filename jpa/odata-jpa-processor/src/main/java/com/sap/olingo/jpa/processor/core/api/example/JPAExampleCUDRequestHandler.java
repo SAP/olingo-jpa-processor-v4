@@ -141,9 +141,10 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
   @SuppressWarnings({ "rawtypes", "unchecked" })
   private boolean checkAuthorizationsOnePair(final Object value, boolean match, final JPAClaimsPair<?> pair)
       throws JPAExampleModifyException {
-    if (!pair.hasUpperBoundary && value.equals(pair.min))
+    if (!pair.hasUpperBoundary &&
+        ("*".equals(pair.min) || value.equals(pair.min))) {
       match = true;
-    else if (pair.hasUpperBoundary) {
+    } else if (pair.hasUpperBoundary) {
       if (!(value instanceof Comparable<?>))
         throw new JPAExampleModifyException(MODIFY_NOT_ALLOWED, HttpStatusCode.FORBIDDEN);
       if (((Comparable) value).compareTo(pair.min) >= 0
