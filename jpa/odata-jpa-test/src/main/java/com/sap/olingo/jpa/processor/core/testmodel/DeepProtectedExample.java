@@ -7,9 +7,6 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
-
-@EdmIgnore
 @Entity(name = "ProtectionExample")
 @Table(schema = "\"OLINGO\"", name = "\"BusinessPartner\"")
 public class DeepProtectedExample {

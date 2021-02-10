@@ -43,6 +43,7 @@ public class TestQueryBase extends TestBase {
   protected JPAODataSessionContextAccess context;
   protected UriInfo uriInfo;
   protected JPAODataInternalRequestContext requestContext;
+  protected JPAODataRequestContext externalContext;
 
   public TestQueryBase() {
     super();
@@ -57,7 +58,7 @@ public class TestQueryBase extends TestBase {
     createHeaders();
     context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null, TestBase.enumPackages), ds,
         null);
-    final JPAODataRequestContext externalContext = mock(JPAODataRequestContext.class);
+    externalContext = mock(JPAODataRequestContext.class);
     when(externalContext.getEntityManager()).thenReturn(emf.createEntityManager());
     requestContext = new JPAODataInternalRequestContext(externalContext);
     requestContext.setUriInfo(uriInfo);

@@ -286,9 +286,11 @@ public abstract class JPAAbstractQuery {
         final List<JPAClaimsPair<?>> values = claimsProvider.get().get(protection.getClaimName()); // NOSONAR
         if (values.isEmpty())
           throw new ODataJPAQueryException(MISSING_CLAIM, HttpStatusCode.FORBIDDEN);
-        final Path<?> p = ExpressionUtil.convertToCriteriaPath(dummyJoinTables, from, protection.getPath().getPath());
-        restriction = addWhereClause(restriction, createProtectionWhereForAttribute(values, p, protection
-            .supportsWildcards()));
+        if (!(containsAll(values))) {
+          final Path<?> p = ExpressionUtil.convertToCriteriaPath(dummyJoinTables, from, protection.getPath().getPath());
+          restriction = addWhereClause(restriction, createProtectionWhereForAttribute(values, p, protection
+              .supportsWildcards()));
+        }
       }
       return restriction;
     } catch (final NoSuchElementException e) {
@@ -296,6 +298,11 @@ public abstract class JPAAbstractQuery {
     } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(QUERY_RESULT_ENTITY_TYPE_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  private boolean containsAll(final List<JPAClaimsPair<?>> values) {
+    return values.stream()
+        .anyMatch(value -> JPAClaimsPair.ALL.equals(value.min));
   }
 
   protected Expression<Boolean> createWhereByKey(final JPANavigationPropertyInfo naviInfo)

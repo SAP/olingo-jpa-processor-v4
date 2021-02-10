@@ -4,8 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -17,6 +20,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Predicate.BooleanOperator;
@@ -45,7 +50,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAClaimsPair;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
-import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContext;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
@@ -63,6 +67,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
   private List<String> pathList;
   private JPAEntityType etSpy;
   private List<JPAProtectionInfo> protections;
+  private CriteriaBuilder cbSpy;
 
   @Override
   @BeforeEach
@@ -74,6 +79,10 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     when(contextSpy.getEdmProvider()).thenReturn(providerSpy);
     when(providerSpy.getServiceDocument()).thenReturn(sdSpy);
 
+    final EntityManager emSpy = spy(emf.createEntityManager());
+    cbSpy = spy(emSpy.getCriteriaBuilder());
+    when(emSpy.getCriteriaBuilder()).thenReturn(cbSpy);
+    when(externalContext.getEntityManager()).thenReturn(emSpy);
   }
 
   @Test
@@ -439,7 +448,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     attributes.add(aSpy);
 
     final Expression<Boolean> act = ((JPAJoinQuery) cut).createProtectionWhere(Optional.of(claims));
-    assertEquals(BooleanOperator.AND, ((CompoundExpressionImpl) act).getOperator());
+    verify(cbSpy).and(any(), any());
     for (final Expression<?> part : ((CompoundExpressionImpl) act).getChildExpressions())
       assertEqual(part);
   }
@@ -462,9 +471,49 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     attributes.add(aSpy);
 
     final Expression<Boolean> act = ((JPAJoinQuery) cut).createProtectionWhere(Optional.of(claims));
-    assertEquals(BooleanOperator.AND, ((Predicate) act).getOperator());
+    verify(cbSpy).and(any(), any());
     for (final Expression<?> part : ((Predicate) act).getExpressions())
       assertEqual(part);
+  }
+
+  @Test
+  void testAllowAllOnNonStringProperties() throws ODataException, JPANoSelectionException {
+    prepareTestDeepProtcted();
+    when(etSpy.getProtections()).thenCallRealMethod();
+    final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    claims.add("BuildingNumber", new JPAClaimsPair<>("DEV"));
+    claims.add("Floor", new JPAClaimsPair<>(Short.valueOf("12")));
+    claims.add("RoomNumber", new JPAClaimsPair<>("*"));
+    final Expression<Boolean> act = ((JPAJoinQuery) cut).createProtectionWhere(Optional.of(claims));
+    assertNotNull(act);
+    assertEquals(2, ((Predicate) act).getExpressions().size());
+    verify(cbSpy).and(any(), any());
+  }
+
+  @Test
+  void testAllowAllOnNonStringPropertiesAlsoDouble() throws ODataException, JPANoSelectionException {
+    prepareTestDeepProtcted();
+    when(etSpy.getProtections()).thenCallRealMethod();
+    final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    claims.add("BuildingNumber", new JPAClaimsPair<>("DEV"));
+    claims.add("Floor", new JPAClaimsPair<>(Short.valueOf("12")));
+    claims.add("RoomNumber", new JPAClaimsPair<>("*"));
+    claims.add("RoomNumber", new JPAClaimsPair<>(1, 10));
+    ((JPAJoinQuery) cut).createProtectionWhere(Optional.of(claims));
+    verify(cbSpy).and(any(), any());
+  }
+
+  @Test
+  void testAllowAllOnMultipleClaims() throws ODataException, JPANoSelectionException {
+    prepareTestDeepProtcted();
+    when(etSpy.getProtections()).thenCallRealMethod();
+    final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
+    claims.add("BuildingNumber", new JPAClaimsPair<>(JPAClaimsPair.ALL));
+    claims.add("Floor", new JPAClaimsPair<>(Short.valueOf("12")));
+    claims.add("RoomNumber", new JPAClaimsPair<>(JPAClaimsPair.ALL));
+    final Expression<Boolean> act = ((JPAJoinQuery) cut).createProtectionWhere(Optional.of(claims));
+    assertNotNull(act);
+    verify(cbSpy, times(0)).and(any(), any());
   }
 
   private void assertBetween(final Expression<Boolean> act) {
@@ -566,8 +615,30 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     doReturn(protections).when(etSpy).getProtections();
     doReturn(etSpy).when(sdSpy).getEntity("BusinessPartnerProtecteds");
     doReturn(etSpy).when(sdSpy).getEntity(odataType);
-    final JPAODataRequestContext externalContext = mock(JPAODataRequestContext.class);
-    when(externalContext.getEntityManager()).thenReturn(emf.createEntityManager());
+    final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext(externalContext);
+    try {
+      requestContext.setUriInfo(uriInfo);
+    } catch (final ODataJPAIllegalAccessException e) {
+      fail();
+    }
+    cut = new JPAJoinQuery(null, contextSpy, requestContext);
+    cut.createFromClause(new ArrayList<JPAAssociationPath>(1), new ArrayList<JPAPath>(), cut.cq, null);
+  }
+
+  private void prepareTestDeepProtcted() throws ODataException, JPANoSelectionException {
+    buildUriInfo("ProtectionExamples", "ProtectionExample");
+    odataType = ((UriResourceEntitySet) uriInfo.getUriResourceParts().get(0)).getType();
+    attributes = new ArrayList<>();
+    claimNames = new HashSet<>();
+    pathList = new ArrayList<>();
+    protections = new ArrayList<>();
+
+    etSpy = spy(new JPAEntityTypeDouble(sdSpy.getEntity("ProtectionExamples")));
+    doReturn(attributes).when(etSpy).getAttributes();
+    doReturn(protections).when(etSpy).getProtections();
+    doReturn(etSpy).when(sdSpy).getEntity("ProtectionExamples");
+    doReturn(etSpy).when(sdSpy).getEntity(odataType);
+    doReturn(null).when(etSpy).getAssociation("");
     final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext(externalContext);
     try {
       requestContext.setUriInfo(uriInfo);

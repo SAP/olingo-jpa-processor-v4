@@ -276,7 +276,6 @@ class TestCriteriaBuilder {
     cq.where(in);
     // Execute query
     final TypedQuery<Tuple> tq = em.createQuery(cq);
-    final DatabaseQuery dq = ((EJBQueryImpl<Tuple>) tq).getDatabaseQuery();
     final List<Tuple> act = tq.getResultList();
     // Ensure EclipsLink problem still exists: ("WHERE ((NULL, NULL, NULL, NULL) IN "));
     assertEquals(0, act.size());

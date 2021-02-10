@@ -1,12 +1,15 @@
 package com.sap.olingo.jpa.processor.core.api;
 
 /**
- * Allows to provide a single value or a closed interval.
+ * Allows to provide a single value or a closed interval.<p>
+ * In case the min value is equals to {@linkplain JPAClaimsPair#ALL} the access is not restricted by this pair. This
+ * value has to be used independent from the type of the attribute used to protect an entity.
  * @author Oliver Grande
  *
- * @param <T>
+ * @param <T> Type of the attribute.
  */
 public class JPAClaimsPair<T> {
+  public static final String ALL = "*";
   public final T min;
   public final T max;
   public final boolean hasUpperBoundary;
