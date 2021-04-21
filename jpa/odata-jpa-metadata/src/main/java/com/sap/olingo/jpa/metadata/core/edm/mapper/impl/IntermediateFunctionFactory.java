@@ -7,7 +7,7 @@ import java.util.Map;
 
 import javax.persistence.metamodel.EntityType;
 
-import org.reflections.Reflections;
+import org.reflections8.Reflections;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;

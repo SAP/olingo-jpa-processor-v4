@@ -21,18 +21,18 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 public class JPAEntityTypeDouble implements JPAEntityType {
   private final JPAEntityType base;
 
-  public JPAEntityTypeDouble(JPAEntityType base) {
+  public JPAEntityTypeDouble(final JPAEntityType base) {
     super();
     this.base = base;
   }
 
   @Override
-  public JPAAssociationAttribute getAssociation(String internalName) throws ODataJPAModelException {
+  public JPAAssociationAttribute getAssociation(final String internalName) throws ODataJPAModelException {
     return base.getAssociation(internalName);
   }
 
   @Override
-  public JPAAssociationPath getAssociationPath(String externalName) throws ODataJPAModelException {
+  public JPAAssociationPath getAssociationPath(final String externalName) throws ODataJPAModelException {
     return base.getAssociationPath(externalName);
   }
 
@@ -43,13 +43,13 @@ public class JPAEntityTypeDouble implements JPAEntityType {
   }
 
   @Override
-  public Optional<JPAAttribute> getAttribute(UriResourceProperty uriResourceItem) throws ODataJPAModelException {
+  public Optional<JPAAttribute> getAttribute(final UriResourceProperty uriResourceItem) throws ODataJPAModelException {
     fail();
     return Optional.empty();
   }
 
   @Override
-  public Optional<JPAAttribute> getAttribute(String internalName) throws ODataJPAModelException {
+  public Optional<JPAAttribute> getAttribute(final String internalName) throws ODataJPAModelException {
     return base.getAttribute(internalName);
   }
 
@@ -77,7 +77,7 @@ public class JPAEntityTypeDouble implements JPAEntityType {
   }
 
   @Override
-  public Optional<JPAAttribute> getDeclaredAttribute(String internalName) throws ODataJPAModelException {
+  public Optional<JPAAttribute> getDeclaredAttribute(final String internalName) throws ODataJPAModelException {
     fail();
     return Optional.empty();
   }
@@ -89,7 +89,7 @@ public class JPAEntityTypeDouble implements JPAEntityType {
   }
 
   @Override
-  public JPAPath getPath(String externalName) throws ODataJPAModelException {
+  public JPAPath getPath(final String externalName) throws ODataJPAModelException {
     return base.getPath(externalName);
   }
 
@@ -185,12 +185,12 @@ public class JPAEntityTypeDouble implements JPAEntityType {
   }
 
   @Override
-  public List<JPAPath> searchChildPath(JPAPath selectItemPath) {
+  public List<JPAPath> searchChildPath(final JPAPath selectItemPath) {
     return base.searchChildPath(selectItemPath);
   }
 
   @Override
-  public JPACollectionAttribute getCollectionAttribute(String externalName) throws ODataJPAModelException {
+  public JPACollectionAttribute getCollectionAttribute(final String externalName) throws ODataJPAModelException {
     return base.getCollectionAttribute(externalName);
   }
 

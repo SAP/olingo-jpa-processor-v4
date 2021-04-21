@@ -60,11 +60,11 @@
             <artifactId>jackson-dataformat-yaml</artifactId>
             <version>${jackson.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.reflections</groupId>
-            <artifactId>reflections</artifactId>
-            <version>0.9.11</version>
-        </dependency>
+		<dependency>
+			<groupId>net.oneandone.reflections8</groupId>
+			<artifactId>reflections8</artifactId>
+			<version>0.11.7</version>
+		</dependency>
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>

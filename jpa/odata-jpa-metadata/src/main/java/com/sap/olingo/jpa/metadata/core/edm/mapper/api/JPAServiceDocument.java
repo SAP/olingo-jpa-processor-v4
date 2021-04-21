@@ -46,7 +46,8 @@ public interface JPAServiceDocument extends CustomETagSupport {
 
   /**
    *
-   * Returns the internal representation of an entity type by given entity set name
+   * Returns the internal representation of an entity type by given entity set name. Entity types that are annotated
+   * with EdmIgnore are ignored.
    * @param edmEntitySetName
    * @return null if not found
    * @throws ODataJPAModelException
@@ -56,7 +57,8 @@ public interface JPAServiceDocument extends CustomETagSupport {
 
   /**
    *
-   * Returns the internal representation of an entity type by JPA pojo class
+   * Returns the internal representation of an entity type by JPA POJO class. Entity types that are annotated with
+   * EdmIgnore are respected.
    * @param entityClass
    * @return null if not found
    * @throws ODataJPAModelException

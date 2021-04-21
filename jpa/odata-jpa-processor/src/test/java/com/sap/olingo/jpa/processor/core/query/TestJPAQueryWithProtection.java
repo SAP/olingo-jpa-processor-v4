@@ -54,6 +54,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.processor.JPAODataInternalRequestContext;
+import com.sap.olingo.jpa.processor.core.testmodel.DeepProtectedExample;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.JPAEntityTypeDouble;
 import com.sap.olingo.jpa.processor.core.util.TestQueryBase;
@@ -478,7 +479,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
 
   @Test
   void testAllowAllOnNonStringProperties() throws ODataException, JPANoSelectionException {
-    prepareTestDeepProtcted();
+    prepareTestDeepProtected();
     when(etSpy.getProtections()).thenCallRealMethod();
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add("BuildingNumber", new JPAClaimsPair<>("DEV"));
@@ -492,7 +493,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
 
   @Test
   void testAllowAllOnNonStringPropertiesAlsoDouble() throws ODataException, JPANoSelectionException {
-    prepareTestDeepProtcted();
+    prepareTestDeepProtected();
     when(etSpy.getProtections()).thenCallRealMethod();
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add("BuildingNumber", new JPAClaimsPair<>("DEV"));
@@ -505,7 +506,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
 
   @Test
   void testAllowAllOnMultipleClaims() throws ODataException, JPANoSelectionException {
-    prepareTestDeepProtcted();
+    prepareTestDeepProtected();
     when(etSpy.getProtections()).thenCallRealMethod();
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add("BuildingNumber", new JPAClaimsPair<>(JPAClaimsPair.ALL));
@@ -625,7 +626,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     cut.createFromClause(new ArrayList<JPAAssociationPath>(1), new ArrayList<JPAPath>(), cut.cq, null);
   }
 
-  private void prepareTestDeepProtcted() throws ODataException, JPANoSelectionException {
+  private void prepareTestDeepProtected() throws ODataException, JPANoSelectionException {
     buildUriInfo("ProtectionExamples", "ProtectionExample");
     odataType = ((UriResourceEntitySet) uriInfo.getUriResourceParts().get(0)).getType();
     attributes = new ArrayList<>();
@@ -633,7 +634,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     pathList = new ArrayList<>();
     protections = new ArrayList<>();
 
-    etSpy = spy(new JPAEntityTypeDouble(sdSpy.getEntity("ProtectionExamples")));
+    etSpy = spy(new JPAEntityTypeDouble(sdSpy.getEntity(DeepProtectedExample.class)));
     doReturn(attributes).when(etSpy).getAttributes();
     doReturn(protections).when(etSpy).getProtections();
     doReturn(etSpy).when(sdSpy).getEntity("ProtectionExamples");

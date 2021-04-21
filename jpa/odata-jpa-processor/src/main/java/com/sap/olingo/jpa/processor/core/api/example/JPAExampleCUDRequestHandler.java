@@ -69,8 +69,7 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
       throws ODataJPAProcessException {
 
     // POST an Entity
-    Object instance = null;
-    instance = createOneEntity(requestEntity, em, null);
+    Object instance = createOneEntity(requestEntity, null);
     if (requestEntity.getKeys().isEmpty()) {
       if (!hasGeneratedKey(requestEntity, em)) {
         final Object old = em.find(requestEntity.getEntityType().getTypeClass(),
@@ -167,8 +166,8 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
     } else {
       // '+' and '_' --> .
       // '*' and '%' --> .+
-      final String minPattern = ((String) pair.minAs()).replaceAll("\\.", "\\.").replaceAll("[+,_]", ".")
-          .replaceAll("[*,%]", ".+");
+      final String minPattern = ((String) pair.minAs()).replace("\\.", "\\#").replaceAll("[+_]", ".")
+          .replaceAll("[*%]", ".+");
       if (Pattern.matches(minPattern, (String) value))
         match = true;
     }
@@ -208,7 +207,7 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
     }
   }
 
-  private Object createOneEntity(final JPARequestEntity requestEntity, final EntityManager em,
+  private Object createOneEntity(final JPARequestEntity requestEntity,
       final Object parent) throws ODataJPAProcessException {
 
     final Object instance = createInstance(getConstructor(requestEntity.getEntityType(), parent), parent);
@@ -219,7 +218,7 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
   }
 
   private String determineAuthorizationPrefix(final Object restriction) throws JPAExampleModifyException {
-    final String[] minPrefix = ((String) restriction).split("[*,%,+,_]");
+    final String[] minPrefix = ((String) restriction).split("[*%+_]");
     if (minPrefix.length > 1)
       throw new JPAExampleModifyException(WILDCARD_RANGE_NOT_SUPPORTED, HttpStatusCode.NOT_IMPLEMENTED);
     return minPrefix[0];
@@ -282,7 +281,7 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
       final JPAAssociationPath pathInfo = entity.getKey();
       for (final JPARequestEntity requestEntity : entity.getValue()) {
 
-        final Object newInstance = createOneEntity(requestEntity, em, parentInstance);
+        final Object newInstance = createOneEntity(requestEntity, parentInstance);
         util.linkEntities(parentInstance, newInstance, pathInfo);
         try {
           final JPAAssociationAttribute attribute = pathInfo.getPartner();

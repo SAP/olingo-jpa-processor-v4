@@ -16,7 +16,7 @@ import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.PluralAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 
-import org.reflections.Reflections;
+import org.reflections8.Reflections;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEnumeration;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
@@ -32,8 +32,8 @@ public class TestHelper {
 
   public TestHelper(final Metamodel metamodel, final String namespace) throws ODataJPAModelException {
     final Reflections r = mock(Reflections.class);
-    when(r.getTypesAnnotatedWith(EdmEnumeration.class)).thenReturn(new HashSet<>(Arrays.asList(new Class<?>[] {
-        ABCClassification.class, AccessRights.class })));
+    when(r.getTypesAnnotatedWith(EdmEnumeration.class)).thenReturn(new HashSet<>(Arrays.asList(ABCClassification.class,
+        AccessRights.class)));
 
     this.jpaMetamodel = metamodel;
     this.schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(namespace), jpaMetamodel, r);

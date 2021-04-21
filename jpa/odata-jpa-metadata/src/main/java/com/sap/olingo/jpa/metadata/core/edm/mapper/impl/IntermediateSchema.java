@@ -20,7 +20,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
 import org.apache.olingo.commons.api.edm.provider.CsdlEnumType;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
-import org.reflections.Reflections;
+import org.reflections8.Reflections;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEnumeration;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAction;
