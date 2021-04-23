@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>com.sap.olingo</groupId>
 		<artifactId>odata-jpa</artifactId>
-		<version>0.3.8-SNAPSHOT</version>
+		<version>0.3.9-SNAPSHOT</version>
 	</parent>
 
 
@@ -64,9 +64,9 @@
 			<version>${jackson.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.reflections</groupId>
-			<artifactId>reflections</artifactId>
-			<version>0.9.11</version>
+			<groupId>net.oneandone.reflections8</groupId>
+			<artifactId>reflections8</artifactId>
+			<version>0.11.7</version>
 		</dependency>
 		<dependency>
 			<groupId>com.vividsolutions</groupId>
