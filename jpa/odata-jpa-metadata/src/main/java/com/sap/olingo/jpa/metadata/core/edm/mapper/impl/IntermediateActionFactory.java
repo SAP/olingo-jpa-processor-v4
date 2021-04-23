@@ -3,7 +3,7 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import org.reflections.Reflections;
+import org.reflections8.Reflections;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
