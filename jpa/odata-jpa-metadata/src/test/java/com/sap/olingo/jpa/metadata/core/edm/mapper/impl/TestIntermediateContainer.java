@@ -80,6 +80,14 @@ class TestIntermediateContainer extends TestMappingRoot {
   }
 
   @Test
+  void checkGetNoSingletons() throws ODataJPAModelException {
+
+    final IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), schemas);
+    assertEquals(TestDataConstants.NO_SINGLETONS, container.getEdmItem().getSingletons().size());
+  }
+
+  @Test
   void checkGetEntitySetName() throws ODataJPAModelException {
 
     final IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(

@@ -7,6 +7,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateEntityT
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateNavigationPropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediatePropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateReferenceList;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateSingletonAccess;
 
 public abstract class JPAEdmMetadataPostProcessor {
 
@@ -16,11 +17,13 @@ public abstract class JPAEdmMetadataPostProcessor {
 
   public void processEntitySet(final IntermediateEntitySetAccess entitySet) {}
 
+  public void processSingleton(final IntermediateSingletonAccess singleton) {}
+
   public abstract void processNavigationProperty(final IntermediateNavigationPropertyAccess property,
       final String jpaManagedTypeClassName);
 
   /**
-   * 
+   *
    * @param property
    * @param jpaManagedTypeClassName
    * @return

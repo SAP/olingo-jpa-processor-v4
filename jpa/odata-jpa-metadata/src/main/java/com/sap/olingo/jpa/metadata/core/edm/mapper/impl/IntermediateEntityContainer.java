@@ -13,6 +13,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunctionImport;
+import org.apache.olingo.commons.api.edm.provider.CsdlSingleton;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
@@ -33,6 +34,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateEntityC
 final class IntermediateEntityContainer extends IntermediateModelElement implements IntermediateEntityContainerAccess {
   private final Map<String, IntermediateSchema> schemaList;
   private final Map<String, IntermediateEntitySet> entitySetListInternalKey;
+  private final Map<String, IntermediateSingleton> singletonListInternalKey;
 
   private CsdlEntityContainer edmContainer;
 
@@ -41,6 +43,7 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
     this.schemaList = schemaList;
     this.setExternalName(nameBuilder.buildContainerName());
     this.entitySetListInternalKey = new HashMap<>();
+    this.singletonListInternalKey = new HashMap<>();
   }
 
   @Override
@@ -58,7 +61,7 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
       edmContainer.setFunctionImports(buildFunctionImports());
       edmContainer.setActionImports(buildActionImports());
       edmContainer.setAnnotations(edmAnnotations);
-      // TODO Singleton
+      edmContainer.setSingletons(buildSingletons());
     }
   }
 
@@ -107,13 +110,31 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
   private List<CsdlEntitySet> buildEntitySets() throws ODataJPAModelException {
     for (final Entry<String, IntermediateSchema> schema : schemaList.entrySet()) {
       for (final IntermediateEntityType<?> et : schema.getValue().getEntityTypes()) {
-        if (!et.ignore() || et.asEntitySet()) {
+        if ((!et.ignore() || et.asTopLevelOnly()) && et.asEntitySet()) {
           final IntermediateEntitySet es = new IntermediateEntitySet(nameBuilder, et);
           entitySetListInternalKey.put(es.internalName, es);
         }
       }
     }
     return (List<CsdlEntitySet>) extractEdmModelElements(entitySetListInternalKey);
+  }
+
+  /**
+   *
+   * @return List of Singletons
+   * @throws ODataJPAModelException
+   */
+  @SuppressWarnings("unchecked")
+  private List<CsdlSingleton> buildSingletons() throws ODataJPAModelException {
+    for (final Entry<String, IntermediateSchema> schema : schemaList.entrySet()) {
+      for (final IntermediateEntityType<?> et : schema.getValue().getEntityTypes()) {
+        if ((!et.ignore() || et.asTopLevelOnly()) && et.asSingleton()) {
+          final IntermediateSingleton singleton = new IntermediateSingleton(nameBuilder, et);
+          singletonListInternalKey.put(singleton.internalName, singleton);
+        }
+      }
+    }
+    return (List<CsdlSingleton>) extractEdmModelElements(singletonListInternalKey);
   }
 
   /**

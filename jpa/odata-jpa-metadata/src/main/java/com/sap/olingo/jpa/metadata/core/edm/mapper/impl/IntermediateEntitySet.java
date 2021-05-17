@@ -1,15 +1,11 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
-import org.apache.olingo.commons.api.edm.provider.CsdlNavigationPropertyBinding;
 
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -17,19 +13,19 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateEntitySetAccess;
 
 /**
- *
+ * <a href=
+ * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406398028">OData
+ * Version 4.0 Part 3 - 13.2 Element edm:EntitySet</a>
  * @author Oliver Grande
  *
  */
-final class IntermediateEntitySet extends IntermediateModelElement implements IntermediateEntitySetAccess,
+final class IntermediateEntitySet extends IntermediateTopLevelEntity implements IntermediateEntitySetAccess,
     JPAEntitySet {
-  private final IntermediateEntityType<?> entityType;
   private CsdlEntitySet edmEntitySet;
 
   IntermediateEntitySet(final JPAEdmNameBuilder nameBuilder, final IntermediateEntityType<?> et)
       throws ODataJPAModelException {
-    super(nameBuilder, IntNameBuilder.buildEntitySetName(nameBuilder, et));
-    entityType = et;
+    super(nameBuilder, et);
     setExternalName(nameBuilder.buildEntitySetName(et.getEdmItem()));
   }
 
@@ -51,7 +47,7 @@ final class IntermediateEntitySet extends IntermediateModelElement implements In
    */
   @Override
   public JPAEntityType getODataEntityType() throws ODataJPAModelException {
-    if (entityType.asEntitySet())
+    if (entityType.asTopLevelOnly())
       return (JPAEntityType) entityType.getBaseType();
     else
       return entityType;
@@ -79,25 +75,6 @@ final class IntermediateEntitySet extends IntermediateModelElement implements In
       edmEntitySet.setNavigationPropertyBindings(returnNullIfEmpty(determinePropertyBinding()));
       edmEntitySet.setAnnotations(edmAnnotations);
     }
-  }
-
-  private List<CsdlNavigationPropertyBinding> determinePropertyBinding() throws ODataJPAModelException {
-    final List<CsdlNavigationPropertyBinding> navPropBindingList = new ArrayList<>();
-    final List<JPAAssociationPath> navigationPropertyList = entityType.getAssociationPathList();
-    if (navigationPropertyList != null && !navigationPropertyList.isEmpty()) {
-      // http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406398035
-
-      for (final JPAAssociationPath navigationPropertyPath : navigationPropertyList) {
-        final CsdlNavigationPropertyBinding navPropBinding = new CsdlNavigationPropertyBinding();
-        navPropBinding.setPath(navigationPropertyPath.getAlias());
-
-        // TODO Check is FQN is better here
-        final JPAAssociationAttribute navigationProperty = navigationPropertyPath.getLeaf();
-        navPropBinding.setTarget(nameBuilder.buildEntitySetName(navigationProperty.getTargetEntity().getExternalName()));
-        navPropBindingList.add(navPropBinding);
-      }
-    }
-    return navPropBindingList;
   }
 
   @Override

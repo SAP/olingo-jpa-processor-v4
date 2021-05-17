@@ -810,6 +810,17 @@ CREATE TABLE "JoinHiddenRelation" (
 insert into "JoinHiddenRelation" values (2, 20);
 insert into "JoinHiddenRelation" values (2, 21);
 
+------Top Level-----------------------------
+
+CREATE TABLE "GeneralSettings"(
+	"Name" VARCHAR(255));
+	
+CREATE TABLE "DetailSettings"(
+	"Id" INTEGER NOT NULL ,
+	"Name" VARCHAR(255),
+	"GeneralName" VARCHAR(255),
+	PRIMARY KEY ("Id"));
+
 ------Authorizations------------------------	
 --top-secret;  --logo
 CREATE TABLE "User" (	 

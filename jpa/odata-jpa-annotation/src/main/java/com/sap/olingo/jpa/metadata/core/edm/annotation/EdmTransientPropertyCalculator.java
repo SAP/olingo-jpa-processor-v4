@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.sap.olingo.jpa.metadata.core.edm.annotation;
 
@@ -13,15 +13,14 @@ import javax.persistence.Tuple;
 /**
  * Transient property converter.<p>
  * A converter take a row returned from the database and calculates, based on its values, either one additional value or
- * a
- * collection of values.<br>
+ * a collection of values.<br>
  * The converter is mentioned in the {@link EdmTransient} annotation at a POJO attribute. E.g.:<p>
  * <code>
  * {@literal @}EdmTransient(requiredAttributes = { "lastName", "firstName" }, calculator = FullNameCalculator.class)<br>
  * {@literal @}Transient<br>
  * private String fullName;<br>
  * </code><p>
- * 
+ *
  * An instance of the converter is created once per OData request. That is, it could be created multiple times per http
  * request in case of $batch requests. <p>
  * An implementing class may provide <b>one</b> constructor having no parameter or a combination of the following:

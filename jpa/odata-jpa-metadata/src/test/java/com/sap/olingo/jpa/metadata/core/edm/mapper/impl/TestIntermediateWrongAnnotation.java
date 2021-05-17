@@ -34,20 +34,20 @@ import com.sap.olingo.jpa.processor.core.errormodel.PersonDeepCollectionProtecte
 import com.sap.olingo.jpa.processor.core.errormodel.TeamWithTransientError;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 
-public class TestIntermediateWrongAnnotation {
+class TestIntermediateWrongAnnotation {
   private TestHelper helper;
   protected static final String PUNIT_NAME = "error";
   protected static EntityManagerFactory emf;
 
   @BeforeEach
-  public void setup() throws ODataJPAModelException {
+  void setup() throws ODataJPAModelException {
     emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, DataSourceHelper.createDataSource(
         DataSourceHelper.DB_HSQLDB));
     helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
   }
 
   @Test
-  public void checkErrorOnProtectedCollectionAttribute() {
+  void checkErrorOnProtectedCollectionAttribute() {
     final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         CollectionAttributeProtected.class), "inhouseAddress");
     final IntermediateStructuredType<?> entityType = helper.schema.getEntityType(
@@ -63,7 +63,7 @@ public class TestIntermediateWrongAnnotation {
   }
 
   @Test
-  public void checkErrorOnProtectedCollectionAttributeDeep() {
+  void checkErrorOnProtectedCollectionAttributeDeep() {
     final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         PersonDeepCollectionProtected.class), "inhouseAddress");
     final IntermediateStructuredType<?> entityType = helper.schema.getEntityType(PersonDeepCollectionProtected.class);
@@ -77,7 +77,7 @@ public class TestIntermediateWrongAnnotation {
   }
 
   @Test
-  public void checkErrorOnProtectedNavigationAttribute() {
+  void checkErrorOnProtectedNavigationAttribute() {
     final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(
         NavigationAttributeProtected.class), "teams");
 
@@ -90,7 +90,7 @@ public class TestIntermediateWrongAnnotation {
   }
 
   @Test
-  public void checkErrorOnProtectedComplexAttributeMissingPath() {
+  void checkErrorOnProtectedComplexAttributeMissingPath() {
     final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(
         ComplexProtectedNoPath.class),
         "administrativeInformation");
@@ -103,7 +103,7 @@ public class TestIntermediateWrongAnnotation {
   }
 
   @Test
-  public void checkErrorOnProtectedComplexAttributeWrongPath() throws ODataJPAModelException {
+  void checkErrorOnProtectedComplexAttributeWrongPath() throws ODataJPAModelException {
     // ComplexProtectedWrongPath
     final EntityType<ComplexProtectedWrongPath> jpaEt = helper.getEntityType(ComplexProtectedWrongPath.class);
     final IntermediateEntityType<ComplexProtectedWrongPath> et = new IntermediateEntityType<>(
@@ -119,7 +119,7 @@ public class TestIntermediateWrongAnnotation {
   }
 
   @Test
-  public void checkErrorOnNavigationPropertyPartOfGroup() throws ODataJPAModelException {
+  void checkErrorOnNavigationPropertyPartOfGroup() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(
         NavigationPropertyPartOfGroup.class), "teams");
     final IntermediateStructuredType<?> entityType = helper.schema.getEntityType(NavigationPropertyPartOfGroup.class);
@@ -133,7 +133,7 @@ public class TestIntermediateWrongAnnotation {
   }
 
   @Test
-  public void checkErrorOnMandatoryPropertyPartOfGroup() throws ODataJPAModelException {
+  void checkErrorOnMandatoryPropertyPartOfGroup() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(
         MandatoryPartOfGroup.class), "eTag");
 
@@ -145,7 +145,7 @@ public class TestIntermediateWrongAnnotation {
   }
 
   @Test
-  public void checkErrorOnKeyPropertyPartOfGroup() throws ODataJPAModelException {
+  void checkErrorOnKeyPropertyPartOfGroup() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(
         KeyPartOfGroup.class), "iD");
 
@@ -157,7 +157,7 @@ public class TestIntermediateWrongAnnotation {
   }
 
   @Test
-  public void checkErrorOnEmbeddedKeyPropertyPartOfGroup() throws ODataJPAModelException {
+  void checkErrorOnEmbeddedKeyPropertyPartOfGroup() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(
         EmbeddedKeyPartOfGroup.class), "key");
 
@@ -169,7 +169,7 @@ public class TestIntermediateWrongAnnotation {
   }
 
   @Test
-  public void checkErrorOnTransientFieldWithUnknownRequired() {
+  void checkErrorOnTransientFieldWithUnknownRequired() throws ODataJPAModelException {
     final EntityType<TeamWithTransientError> jpaEt = helper.getEntityType(TeamWithTransientError.class);
     final IntermediateEntityType<TeamWithTransientError> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), jpaEt, helper.schema);

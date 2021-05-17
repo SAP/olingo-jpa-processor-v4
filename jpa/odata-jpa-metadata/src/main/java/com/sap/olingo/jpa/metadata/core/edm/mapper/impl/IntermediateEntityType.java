@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
+import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.INVALID_TOP_LEVEL_SETTING;
+
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -31,6 +33,8 @@ import org.apache.olingo.commons.api.edm.provider.CsdlPropertyRef;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAsEntitySet;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEntityType;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.TopLevelElementRepresentation;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
@@ -53,13 +57,24 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
     IntermediateEntityTypeAccess {
   private Optional<JPAPath> etagPath;
   private List<JPAAttribute> keyAttributes;
+  private final boolean asTopLevelOnly;
   private final boolean asEntitySet;
+  private final boolean asSingleton;
 
   IntermediateEntityType(final JPAEdmNameBuilder nameBuilder, final EntityType<T> et, final IntermediateSchema schema) {
     super(nameBuilder, et, schema);
     this.setExternalName(nameBuilder.buildEntityTypeName(et));
+    asTopLevelOnly = determineAsTopLevelOnly();
     asEntitySet = determineAsEntitySet();
+    asSingleton = determineAsSingleton();
     etagPath = Optional.empty();
+  }
+
+  private void checkTopLevelTypeConsistency() throws ODataJPAModelException {
+    final EdmAsEntitySet jpaAsEntitySet = this.jpaManagedType.getJavaType().getAnnotation(EdmAsEntitySet.class);
+    final EdmEntityType jpaEntityType = this.jpaManagedType.getJavaType().getAnnotation(EdmEntityType.class);
+    if (jpaAsEntitySet != null && jpaEntityType != null)
+      throw new ODataJPAModelException(INVALID_TOP_LEVEL_SETTING, getInternalName());
   }
 
   @Override
@@ -244,7 +259,7 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
 
   @Override
   public boolean ignore() {
-    return (asEntitySet || super.ignore());
+    return (asTopLevelOnly || super.ignore());
   }
 
   @Override
@@ -305,13 +320,31 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
       ((CsdlEntityType) edmStructuralType).setHasStream(determineHasStream());
       edmStructuralType.setAnnotations(determineAnnotations());
       determineHasEtag();
+      checkTopLevelTypeConsistency();
       checkPropertyConsistency(); //
       // TODO determine OpenType
     }
   }
 
+  /**
+   * The top level representation of this entity type is entity set.
+   * @return
+   */
   boolean asEntitySet() {
     return asEntitySet;
+  }
+
+  boolean asSingleton() {
+    return asSingleton;
+  }
+
+  /**
+   * This entity type represents only an entity set and not a entity type itself, but an alternative way to access the
+   * superordinate entity type. See: {@link EdmAsEntitySet}
+   * @return
+   */
+  boolean asTopLevelOnly() {
+    return asTopLevelOnly;
   }
 
   boolean dbEquals(final String dbCatalog, final String dbSchema, final String dbTableName) {
@@ -398,10 +431,28 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
     return edmAnnotations;
   }
 
-  private boolean determineAsEntitySet() {
-
+  private boolean determineAsTopLevelOnly() {
     final EdmAsEntitySet jpaAsEntitySet = this.jpaManagedType.getJavaType().getAnnotation(EdmAsEntitySet.class);
-    return jpaAsEntitySet != null;
+    final EdmEntityType jpaEntityType = this.jpaManagedType.getJavaType().getAnnotation(EdmEntityType.class);
+    return jpaAsEntitySet != null
+        || (jpaEntityType != null
+            && (jpaEntityType.as() == TopLevelElementRepresentation.AS_ENTITY_SET_ONLY
+                || jpaEntityType.as() == TopLevelElementRepresentation.AS_SINGLETON_ONLY));
+  }
+
+  private boolean determineAsEntitySet() {
+    final EdmAsEntitySet jpaAsEntitySet = this.jpaManagedType.getJavaType().getAnnotation(EdmAsEntitySet.class);
+    final EdmEntityType jpaEntityType = this.jpaManagedType.getJavaType().getAnnotation(EdmEntityType.class);
+    return jpaAsEntitySet != null
+        || jpaEntityType == null
+        || jpaEntityType.as() == TopLevelElementRepresentation.AS_ENTITY_SET
+        || jpaEntityType.as() == TopLevelElementRepresentation.AS_ENTITY_SET_ONLY;
+  }
+
+  private boolean determineAsSingleton() {
+    final EdmEntityType jpaEntityType = this.jpaManagedType.getJavaType().getAnnotation(EdmEntityType.class);
+    return jpaEntityType != null && (jpaEntityType.as() == TopLevelElementRepresentation.AS_SINGLETON
+        || jpaEntityType.as() == TopLevelElementRepresentation.AS_SINGLETON_ONLY);
   }
 
   private void determineHasEtag() throws ODataJPAModelException {

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.sap.olingo.jpa.metadata.core.edm.mapper.api;
 
@@ -20,12 +20,12 @@ import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
 public interface JPAEdmNameBuilder {
 
   /**
-   * 
-   * @param jpaEnbeddedType
+   *
+   * @param jpaEmbeddedType
    * @return
    */
   @Nonnull
-  String buildComplexTypeName(final EmbeddableType<?> jpaEnbeddedType);
+  String buildComplexTypeName(final EmbeddableType<?> jpaEmbeddedType);
 
   /**
    * Container names are <a
@@ -37,10 +37,6 @@ public interface JPAEdmNameBuilder {
   @Nonnull
   String buildContainerName();
 
-  default String buildEntitySetName(final CsdlEntityType entityType) {
-    return buildEntitySetName(entityType.getName());
-  }
-
   /**
    * Create a name of an <a
    * href="http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_12.2_The_edm:EntitySet">
@@ -50,6 +46,26 @@ public interface JPAEdmNameBuilder {
    */
   @Nonnull
   String buildEntitySetName(final String entityTypeName);
+
+  default String buildEntitySetName(final CsdlEntityType entityType) {
+    return buildEntitySetName(entityType.getName());
+  }
+
+  /**
+   * Create a name of an <a
+   * href="http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406398032">
+   * Singleton</a> derived from the name of the corresponding entity type.
+   * @param entityTypeName
+   * @return non empty unique name of a Singleton
+   */
+  @Nonnull
+  default String buildSingletonName(final String entityTypeName) {
+    return entityTypeName;
+  }
+
+  default String buildSingletonName(final CsdlEntityType entityType) {
+    return buildSingletonName(entityType.getName());
+  }
 
   /**
    * Creates the name of an <a

@@ -6,9 +6,14 @@ import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 
-public interface IntermediateEntitySetAccess extends JPAElement {
+/**
+ *
+ * @author D023143
+ * @since 1.0.3
+ */
+public interface IntermediateSingletonAccess extends JPAElement {
   /**
-   * Enables to add or overwrite annotations to an entity set, e.g. because the type of annotation is not enabled via
+   * Enables to add or change annotations of a singleton, e.g. because the type of annotation is not enabled via
    * {@link com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAnnotation EdmAnnotation} or they should be changed
    * during runtime.
    * @param annotations
@@ -16,7 +21,7 @@ public interface IntermediateEntitySetAccess extends JPAElement {
   public void addAnnotations(final List<CsdlAnnotation> annotations);
 
   /**
-   * Enables a rename external, OData, name of an entity set.
+   * Overwrite the external, OData, name of a Singleton.
    * @param externalName
    */
   void setExternalName(String externalName);

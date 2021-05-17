@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
@@ -24,20 +24,20 @@ import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescrip
  * Created: 22.03.2020
  *
  */
-public class TestIntermediateEmbeddedIdProperty extends TestMappingRoot {
+class TestIntermediateEmbeddedIdProperty extends TestMappingRoot {
   private TestHelper helper;
   private TestHelper errorHelper;
   private JPAEdmNameBuilder nameBuilder;
 
   @BeforeEach
-  public void setup() throws ODataJPAModelException {
+  void setup() throws ODataJPAModelException {
     helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
     errorHelper = new TestHelper(errorEmf.getMetamodel(), ERROR_PUNIT);
     nameBuilder = new JPADefaultEdmNameBuilder(PUNIT_NAME);
   }
 
   @Test
-  public void checkEmbeddedIdCanBeCreated() throws ODataJPAModelException {
+  void checkEmbeddedIdCanBeCreated() throws ODataJPAModelException {
     final EntityType<?> et = helper.getEntityType(AdministrativeDivisionDescription.class);
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(et, "key");
     assertNotNull(new IntermediateEmbeddedIdProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME), jpaAttribute,
@@ -45,7 +45,7 @@ public class TestIntermediateEmbeddedIdProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkEmbeddedIdIsKey() throws ODataJPAModelException {
+  void checkEmbeddedIdIsKey() throws ODataJPAModelException {
     final EntityType<?> et = helper.getEntityType(AdministrativeDivisionDescription.class);
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(et, "key");
     final IntermediateEmbeddedIdProperty cut = new IntermediateEmbeddedIdProperty(new JPADefaultEdmNameBuilder(
@@ -54,7 +54,7 @@ public class TestIntermediateEmbeddedIdProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkEmbeddedIdThrowsExceptionIfTransient() throws ODataJPAModelException {
+  void checkEmbeddedIdThrowsExceptionIfTransient() throws ODataJPAModelException {
     final EntityType<?> et = errorHelper.getEntityType(TeamWithTransientEmbeddableKey.class);
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(et, "key");
     assertException(ODataJPAModelException.class,

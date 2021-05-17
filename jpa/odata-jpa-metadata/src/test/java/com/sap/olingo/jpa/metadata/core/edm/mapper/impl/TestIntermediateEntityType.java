@@ -44,6 +44,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateEntityT
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateNavigationPropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediatePropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateReferenceList;
+import com.sap.olingo.jpa.processor.core.errormodel.SingletonAsEntitySet;
 import com.sap.olingo.jpa.processor.core.errormodel.TeamWithTransientError;
 import com.sap.olingo.jpa.processor.core.testmodel.ABCClassification;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
@@ -54,13 +55,16 @@ import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerProtected;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
 import com.sap.olingo.jpa.processor.core.testmodel.Collection;
 import com.sap.olingo.jpa.processor.core.testmodel.CollectionDeep;
+import com.sap.olingo.jpa.processor.core.testmodel.CurrentUser;
 import com.sap.olingo.jpa.processor.core.testmodel.DeepProtectedExample;
 import com.sap.olingo.jpa.processor.core.testmodel.DummyToBeIgnored;
+import com.sap.olingo.jpa.processor.core.testmodel.EntityTypeOnly;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 import com.sap.olingo.jpa.processor.core.testmodel.PersonDeepProtectedHidden;
 import com.sap.olingo.jpa.processor.core.testmodel.PersonImage;
 import com.sap.olingo.jpa.processor.core.testmodel.SalesTeam;
+import com.sap.olingo.jpa.processor.core.testmodel.Singleton;
 import com.sap.olingo.jpa.processor.core.testmodel.TestDataConstants;
 import com.sap.olingo.jpa.processor.core.testmodel.TransientRefComplex;
 
@@ -82,7 +86,7 @@ class TestIntermediateEntityType extends TestMappingRoot {
   }
 
   @Test
-  void checkEntityTypeCanBeCreated() {
+  void checkEntityTypeCanBeCreated() throws ODataJPAModelException {
 
     assertNotNull(new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), getEntityType(BusinessPartner.class), schema));
@@ -653,6 +657,52 @@ class TestIntermediateEntityType extends TestMappingRoot {
     final JPAAttribute act = et.getProperty("fullName");
     assertNotNull(act);
     assertTrue(act.isTransient());
+  }
+
+  @Test
+  void checkAsSingletonReturnsTrueIfTypeIsAnnotated() throws ODataJPAModelException {
+    final IntermediateEntityType<Singleton> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        getEntityType(Singleton.class), schema);
+    assertTrue(et.asSingleton());
+  }
+
+  @Test
+  void checkAsSingletonReturnsFalseIfTypeIsNotAnnotated() {
+    final IntermediateEntityType<EntityTypeOnly> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(EntityTypeOnly.class), schema);
+    assertFalse(et.asSingleton());
+  }
+
+  @Test
+  void checkAsSingletonErrorOnAsEntitySet() throws ODataJPAModelException {
+    final EntityType<SingletonAsEntitySet> jpaEt = errorEmf.getMetamodel().entity(SingletonAsEntitySet.class);
+    final IntermediateEntityType<SingletonAsEntitySet> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        ERROR_PUNIT), jpaEt, errorSchema);
+    assertThrows(ODataJPAModelException.class, () -> et.getEdmItem());
+  }
+
+  @Test
+  void checkAnnotatedAsEntityType() {
+    final IntermediateEntityType<EntityTypeOnly> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(EntityTypeOnly.class), schema);
+    assertFalse(et.asSingleton());
+    assertFalse(et.asEntitySet());
+  }
+
+  @Test
+  void checkAsEntitySetWithoutAnnotation() throws ODataJPAModelException {
+    final IntermediateEntityType<Organization> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(Organization.class), schema);
+    assertTrue(et.asEntitySet());
+  }
+
+  @Test
+  void checkAsSingletonOnly() throws ODataJPAModelException {
+    final IntermediateEntityType<CurrentUser> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        ERROR_PUNIT), getEntityType(CurrentUser.class), schema);
+    assertTrue(et.asSingleton());
+    assertFalse(et.asEntitySet());
+    assertTrue(et.asTopLevelOnly());
   }
 
   private void assertComplexDeep(final List<JPAProtectionInfo> act) {

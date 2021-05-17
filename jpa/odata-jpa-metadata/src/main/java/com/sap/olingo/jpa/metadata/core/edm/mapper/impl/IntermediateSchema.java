@@ -235,7 +235,7 @@ final class IntermediateSchema extends IntermediateModelElement {
     return ctList;
   }
 
-  private Map<String, IntermediateEntityType<?>> buildEntityTypeList() {
+  private Map<String, IntermediateEntityType<?>> buildEntityTypeList() throws ODataJPAModelException {
     final HashMap<String, IntermediateEntityType<?>> etList = new HashMap<>();
 
     for (final EntityType<?> entity : this.jpaMetamodel.getEntities()) {
