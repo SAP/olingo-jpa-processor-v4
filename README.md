@@ -5,6 +5,7 @@
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE.txt)
 ![GitHub last commit (develop)](https://img.shields.io/github/last-commit/SAP/OLINGO-JPA-PROCESSOR-V4/develop.svg)
 [![GitHub pre-release](https://img.shields.io/github/release-pre/sap/olingo-jpa-processor-v4.svg?color=orange&label=pre-release)](https://github.com/SAP/olingo-jpa-processor-v4/releases/)
+[![REUSE status](https://api.reuse.software/badge/github.com/SAP/olingo-jpa-processor-v4)](https://api.reuse.software/info/github.com/SAP/olingo-jpa-processor-v4)
 
 The JPA Processor shall fill the gap between [Olingo V4](https://olingo.apache.org/doc/odata4/index.html) and the database if [JPA](https://en.wikipedia.org/wiki/Java_Persistence_API) is used for object-relational mapping.
 
@@ -62,8 +63,8 @@ The flowing extensions/changes are planned:
 * Overload Operations
 
 # License
-Copyright (c) 2017 - 2020 SAP SE or an SAP affiliate company. All rights reserved.
-This file is licensed under the Apache Software License, v.2 except as noted otherwise in the [License file](/LICENSE.txt).
+Copyright (c) 2016-2021 SAP SE or an SAP affiliate company and olingo-jpa-processor-v4 contributors. Please see our [LICENSE.txt](LICENSE.txt) for copyright and license information.
+Detailed information including third-party components and their licensing/copyright information is available via the [REUSE tool](https://api.reuse.software/info/github.com/SAP/olingo-jpa-processor-v4).
 
 # Release Notes
 
