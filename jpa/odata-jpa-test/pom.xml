@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>com.sap.olingo</groupId>
 		<artifactId>odata-jpa</artifactId>
-		<version>0.3.9-SNAPSHOT</version>
+		<version>0.3.10-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>odata-jpa-test</artifactId>
@@ -22,12 +22,12 @@
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter</artifactId>
-			<version>5.4.2</version>
+			<version>5.8.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-launcher</artifactId>
-			<version>1.4.2</version>
+			<version>1.8.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>

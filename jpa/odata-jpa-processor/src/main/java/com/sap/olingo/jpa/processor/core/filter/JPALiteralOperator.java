@@ -1,8 +1,5 @@
 package com.sap.olingo.jpa.processor.core.filter;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-
 import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -23,10 +20,9 @@ public class JPALiteralOperator implements JPAPrimitiveTypeOperator {
 
   public JPALiteralOperator(final OData odata, final Literal literal) {
     this(odata, literal, literal.getText());
-
   }
 
-  private JPALiteralOperator(OData odata, Literal literal, String literalText) {
+  private JPALiteralOperator(final OData odata, final Literal literal, final String literalText) {
     this.literal = literal;
     this.odata = odata;
     this.literalText = literalText;
@@ -34,19 +30,19 @@ public class JPALiteralOperator implements JPAPrimitiveTypeOperator {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sap.olingo.jpa.processor.core.filter.JPAPrimitiveTypeOperator#get()
    */
   @Override
   public Object get() throws ODataApplicationException {
     final EdmPrimitiveType edmType = ((EdmPrimitiveType) literal.getType());
-    try {
 
-      final Class<?> defaultType = edmType.getDefaultType();
-      final Constructor<?> c = defaultType.getConstructor(String.class);
-      return c.newInstance(edmType.fromUriLiteral(literalText));
-    } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
-        | EdmPrimitiveTypeException | InstantiationException | NoSuchMethodException | SecurityException e) {
+    try {
+      final Object value = edmType.valueOfString(literalText, true, null, null, null, true, edmType.getDefaultType());
+      if (value instanceof String)
+        return ((String) value).replace("'", "");
+      return value;
+    } catch (final EdmPrimitiveTypeException e) {
       throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
   }
@@ -58,11 +54,11 @@ public class JPALiteralOperator implements JPAPrimitiveTypeOperator {
     return ExpressionUtil.convertValueOnAttribute(odata, attribute, literalText);
   }
 
-  public Object get(JPAOperationResultParameter returnType) throws ODataApplicationException {
+  public Object get(final JPAOperationResultParameter returnType) throws ODataApplicationException {
     return ExpressionUtil.convertValueOnFacet(odata, returnType, literalText);
   }
 
-  public Object get(JPAParameter jpaParameter) throws ODataApplicationException {
+  public Object get(final JPAParameter jpaParameter) throws ODataApplicationException {
 
     return ExpressionUtil.convertValueOnFacet(odata, jpaParameter, literalText);
   }
@@ -72,8 +68,8 @@ public class JPALiteralOperator implements JPAPrimitiveTypeOperator {
     return literal.getText().equals("null");
   }
 
-  JPALiteralOperator clone(String prefix, String postfix) {
-    return new JPALiteralOperator(odata, literal, "'" + prefix + literal.getText().replaceAll("'", "") + postfix + "'");
+  JPALiteralOperator clone(final String prefix, final String postfix) {
+    return new JPALiteralOperator(odata, literal, "'" + prefix + literal.getText().replace("'", "") + postfix + "'");
   }
 
   Literal getLiteral() {
