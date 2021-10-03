@@ -26,7 +26,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
 
-public class TestJPAVisitor {
+class TestJPAVisitor {
 
   private JPAFilterComplierAccess compiler;
   private JPAAbstractQuery query;
@@ -50,22 +50,22 @@ public class TestJPAVisitor {
   }
 
   @Test
-  public void createFunctionOperation() throws ExpressionVisitException, ODataApplicationException {
+  void createFunctionOperation() throws ExpressionVisitException, ODataApplicationException {
 
 //  final UriResource resource = member.getResourcePath().getUriResourceParts().get(0);
-    Member member = mock(Member.class);
-    UriInfoResource info = mock(UriInfoResource.class);
-    UriResourceFunction uriFunction = mock(UriResourceFunction.class);
+    final Member member = mock(Member.class);
+    final UriInfoResource info = mock(UriInfoResource.class);
+    final UriResourceFunction uriFunction = mock(UriResourceFunction.class);
 
-    List<UriResource> resources = new ArrayList<>();
+    final List<UriResource> resources = new ArrayList<>();
     resources.add(uriFunction);
 
     when(member.getResourcePath()).thenReturn(info);
     when(info.getUriResourceParts()).thenReturn(resources);
 //  final JPAFunction jpaFunction = this.jpaComplier.getSd().getFunction(((UriResourceFunction) resource).getFunction());
-    JPAServiceDocument sd = mock(JPAServiceDocument.class);
-    JPADataBaseFunction jpaFunction = mock(JPADataBaseFunction.class);
-    EdmFunction edmFunction = mock(EdmFunction.class);
+    final JPAServiceDocument sd = mock(JPAServiceDocument.class);
+    final JPADataBaseFunction jpaFunction = mock(JPADataBaseFunction.class);
+    final EdmFunction edmFunction = mock(EdmFunction.class);
 
     when(uriFunction.getFunction()).thenReturn(edmFunction);
     when(compiler.getSd()).thenReturn(sd);
