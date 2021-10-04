@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
+import java.util.Collections;
 import java.util.List;
 
 import javax.persistence.metamodel.Attribute;
@@ -23,6 +24,7 @@ import javax.persistence.metamodel.ManagedType;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -270,27 +272,14 @@ class TestIntermediateDescriptionProperty extends TestMappingRoot {
   }
 
   @Test
-  void checkPostProcessorNameChanged() throws ODataJPAModelException {
+  void checkPostProcessorAnnotationAdded() throws ODataJPAModelException {
     final PostProcessorSetName pPDouble = new PostProcessorSetName();
     IntermediateModelElement.setPostProcessor(pPDouble);
     final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEmbeddableType("PostalAddressData"),
         "countryName");
     cut = new IntermediateDescriptionProperty(nameBuilder, jpaAttribute, et, helper.schema);
 
-    assertEquals("CountryDescription", cut.getEdmItem().getName(), "Wrong name");
-  }
-
-  @Test
-  void checkPostProcessorExternalNameChanged() throws ODataJPAModelException {
-    final PostProcessorSetName pPDouble = new PostProcessorSetName();
-    IntermediateModelElement.setPostProcessor(pPDouble);
-
-    final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEmbeddableType("PostalAddressData"),
-        "countryName");
-    final IntermediatePropertyAccess property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
-        jpaAttribute, helper.schema);
-
-    assertEquals("CountryDescription", property.getExternalName(), "Wrong name");
+    assertEquals(1L, cut.getEdmItem().getAnnotations().stream().filter(a -> a.getTerm().equals("Immutable")).count());
   }
 
   @Test
@@ -410,7 +399,10 @@ class TestIntermediateDescriptionProperty extends TestMappingRoot {
     public void processProperty(final IntermediatePropertyAccess property, final String jpaManagedTypeClassName) {
       if (jpaManagedTypeClassName.equals(ADDR_CANONICAL_NAME)) {
         if (property.getInternalName().equals("countryName")) {
-          property.setExternalName("CountryDescription");
+          final CsdlAnnotation annotation = new CsdlAnnotation();
+          annotation.setTerm("Immutable");
+          annotation.setExpression(new CsdlConstantExpression(ConstantExpressionType.Bool, "true"));
+          property.addAnnotations(Collections.singletonList(annotation));
         }
       }
     }

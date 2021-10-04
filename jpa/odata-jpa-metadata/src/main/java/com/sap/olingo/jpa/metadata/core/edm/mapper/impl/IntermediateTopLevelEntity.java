@@ -55,7 +55,7 @@ abstract class IntermediateTopLevelEntity extends IntermediateModelElement {
    * @return
    * @throws ODataJPAModelException
    */
-  public JPAEntityType getODataEntityType() throws ODataJPAModelException {
+  public JPAEntityType getODataEntityType() {
     if (entityType.asTopLevelOnly())
       return (JPAEntityType) entityType.getBaseType();
     else

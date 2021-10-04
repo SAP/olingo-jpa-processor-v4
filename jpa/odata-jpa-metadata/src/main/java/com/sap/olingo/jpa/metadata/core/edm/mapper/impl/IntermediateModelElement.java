@@ -66,14 +66,7 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
     return toBeIgnored;
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateModelItemAccess#setExternalName(java.lang.String)
-   */
-  @Override
-  public void setExternalName(final String externalName) {
+  protected void setExternalName(final String externalName) {
     this.externalName = externalName;
   }
 

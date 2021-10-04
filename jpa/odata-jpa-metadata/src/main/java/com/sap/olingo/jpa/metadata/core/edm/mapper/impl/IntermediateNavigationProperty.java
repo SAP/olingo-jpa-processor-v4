@@ -208,6 +208,7 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
       edmNaviProperty.setName(getExternalName());
       edmNaviProperty.setType(buildFQN(targetType.getExternalName()));
       edmNaviProperty.setCollection(jpaAttribute.isCollection());
+      edmNaviProperty.setAnnotations(edmAnnotations);
       // Optional --> RelationAnnotation
       if (jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
         final AnnotatedElement annotatedElement = (AnnotatedElement) jpaAttribute.getJavaMember();

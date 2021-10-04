@@ -24,6 +24,7 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.util.Collections;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -34,7 +35,10 @@ import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.SingularAttribute;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
+import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression;
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -66,7 +70,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.Person;
 import com.sap.olingo.jpa.processor.core.testmodel.PersonImage;
 import com.sap.olingo.jpa.processor.core.testmodel.PostalAddressData;
 
-public class TestIntermediateSimpleProperty extends TestMappingRoot {
+class TestIntermediateSimpleProperty extends TestMappingRoot {
   private TestHelper helper;
   private TestHelper errorHelper;
   private JPAEdmMetadataPostProcessor processor;
@@ -296,30 +300,16 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
   }
 
   @Test
-  void checkPostProcessorNameChanged() throws ODataJPAModelException {
+  void checkPostProcessorAnnotationAdded() throws ODataJPAModelException {
     final PostProcessorSetName pPDouble = new PostProcessorSetName();
     IntermediateSimpleProperty.setPostProcessor(pPDouble);
 
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class),
         "customString1");
-    final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
-        jpaAttribute,
-        helper.schema);
-
-    assertEquals("ContactPersonName", property.getEdmItem().getName(), "Wrong name");
-  }
-
-  @Test
-  void checkPostProcessorExternalNameChanged() throws ODataJPAModelException {
-    final PostProcessorSetName pPDouble = new PostProcessorSetName();
-    IntermediateModelElement.setPostProcessor(pPDouble);
-
-    final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class),
-        "customString1");
-    final IntermediatePropertyAccess property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+    final IntermediateSimpleProperty cut = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         jpaAttribute, helper.schema);
 
-    assertEquals("ContactPersonName", property.getExternalName(), "Wrong name");
+    assertEquals(1L, cut.getEdmItem().getAnnotations().stream().filter(a -> a.getTerm().equals("Immutable")).count());
   }
 
   @Test
@@ -906,8 +896,14 @@ public class TestIntermediateSimpleProperty extends TestMappingRoot {
     @Override
     public void processProperty(final IntermediatePropertyAccess property, final String jpaManagedTypeClassName) {
       if (jpaManagedTypeClassName.equals(
-          "com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner")) if (property.getInternalName().equals(
-              "customString1")) property.setExternalName("ContactPersonName");
+          "com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner")) {
+        if (property.getInternalName().equals("customString1")) {
+          final CsdlAnnotation annotation = new CsdlAnnotation();
+          annotation.setTerm("Immutable");
+          annotation.setExpression(new CsdlConstantExpression(ConstantExpressionType.Bool, "true"));
+          property.addAnnotations(Collections.singletonList(annotation));
+        }
+      }
     }
 
     @Override

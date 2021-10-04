@@ -32,7 +32,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateReferen
 import com.sap.olingo.jpa.processor.core.testmodel.ABCClassification;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescription;
 import com.sap.olingo.jpa.processor.core.testmodel.BestOrganization;
-import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 
 class TestIntermediateEntitySet extends TestMappingRoot {
@@ -95,18 +94,6 @@ class TestIntermediateEntitySet extends TestMappingRoot {
     assertEquals(et.buildFQN("BusinessPartner").getFullQualifiedNameAsString(), act.getType());
   }
 
-  @Test
-  void checkPostProcessorExternalNameChanged() throws ODataJPAModelException {
-    IntermediateModelElement.setPostProcessor(new PostProcessor());
-
-    final IntermediateEntityType<BusinessPartner> et = new IntermediateEntityType<>(nameBuilder, getEntityType(
-        "BusinessPartner"), schema);
-    final IntermediateEntitySet set = new IntermediateEntitySet(nameBuilder, et);
-    set.getEdmItem(); // Trigger build of EdmEntitySet
-
-    assertEquals("BusinessPartnerList", set.getExternalName(), "Wrong name");
-  }
-
   private class PostProcessor extends JPAEdmMetadataPostProcessor {
 
     @Override
@@ -139,10 +126,6 @@ class TestIntermediateEntitySet extends TestMappingRoot {
       final List<CsdlAnnotation> annotations = new ArrayList<>();
       annotations.add(annotation);
       entitySet.addAnnotations(annotations);
-
-      if ("BusinessPartners".equals(entitySet.getExternalName())) {
-        entitySet.setExternalName("BusinessPartnerList");
-      }
     }
   }
 

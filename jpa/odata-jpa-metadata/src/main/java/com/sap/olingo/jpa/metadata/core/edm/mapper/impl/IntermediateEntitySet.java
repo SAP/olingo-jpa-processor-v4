@@ -43,10 +43,9 @@ final class IntermediateEntitySet extends IntermediateTopLevelEntity implements 
    * This can differ from the internally used one e.g. if multiple entity sets shall
    * point to the same entity type, but base on different tables
    * @return
-   * @throws ODataJPAModelException
    */
   @Override
-  public JPAEntityType getODataEntityType() throws ODataJPAModelException {
+  public JPAEntityType getODataEntityType() {
     if (entityType.asTopLevelOnly())
       return (JPAEntityType) entityType.getBaseType();
     else

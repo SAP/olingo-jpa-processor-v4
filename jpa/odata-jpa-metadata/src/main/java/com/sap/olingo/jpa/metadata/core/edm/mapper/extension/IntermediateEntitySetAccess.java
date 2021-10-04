@@ -15,9 +15,4 @@ public interface IntermediateEntitySetAccess extends JPAElement {
    */
   public void addAnnotations(final List<CsdlAnnotation> annotations);
 
-  /**
-   * Enables a rename external, OData, name of an entity set.
-   * @param externalName
-   */
-  void setExternalName(String externalName);
 }

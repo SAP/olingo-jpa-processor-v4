@@ -14,6 +14,7 @@ import static org.mockito.Mockito.withSettings;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -22,9 +23,12 @@ import javax.persistence.metamodel.EmbeddableType;
 import javax.persistence.metamodel.EntityType;
 import javax.persistence.metamodel.ManagedType;
 
+import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlOnDelete;
 import org.apache.olingo.commons.api.edm.provider.CsdlOnDeleteAction;
 import org.apache.olingo.commons.api.edm.provider.CsdlReferentialConstraint;
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression;
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -358,31 +362,16 @@ class TestIntermediateNavigationProperty extends TestMappingRoot {
   }
 
   @Test
-  void checkPostProcessorNameChanged() throws ODataJPAModelException {
+  void checkPostProcessorAnnotationAdded() throws ODataJPAModelException {
     final PostProcessorSetName pPDouble = new PostProcessorSetName();
     IntermediateModelElement.setPostProcessor(pPDouble);
 
     final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(BusinessPartner.class),
         "roles");
-    final IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
-        PUNIT_NAME),
-        schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
+    final IntermediateNavigationProperty cut = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
 
-    assertEquals("RoleAssignment", property.getEdmItem().getName(), "Wrong name");
-  }
-
-  @Test
-  void checkPostProcessorExternalNameChanged() throws ODataJPAModelException {
-    final PostProcessorSetName pPDouble = new PostProcessorSetName();
-    IntermediateModelElement.setPostProcessor(pPDouble);
-
-    final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(BusinessPartner.class),
-        "roles");
-    final JPAAssociationAttribute property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
-        PUNIT_NAME),
-        schema.getStructuredType(jpaAttribute), jpaAttribute, schema);
-
-    assertEquals("RoleAssignment", property.getExternalName(), "Wrong name");
+    assertEquals(1L, cut.getEdmItem().getAnnotations().stream().filter(a -> a.getTerm().equals("Immutable")).count());
   }
 
   @Test
@@ -644,10 +633,12 @@ class TestIntermediateNavigationProperty extends TestMappingRoot {
     @Override
     public void processNavigationProperty(final IntermediateNavigationPropertyAccess property,
         final String jpaManagedTypeClassName) {
-      if (jpaManagedTypeClassName.equals(
-          BUPA_CANONICAL_NAME)) {
+      if (jpaManagedTypeClassName.equals(BUPA_CANONICAL_NAME)) {
         if (property.getInternalName().equals("roles")) {
-          property.setExternalName("RoleAssignment");
+          final CsdlAnnotation annotation = new CsdlAnnotation();
+          annotation.setTerm("Immutable");
+          annotation.setExpression(new CsdlConstantExpression(ConstantExpressionType.Bool, "true"));
+          property.addAnnotations(Collections.singletonList(annotation));
         }
       }
     }

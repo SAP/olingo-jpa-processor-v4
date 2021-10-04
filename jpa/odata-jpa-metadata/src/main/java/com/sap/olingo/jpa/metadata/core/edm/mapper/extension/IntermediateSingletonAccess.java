@@ -20,9 +20,4 @@ public interface IntermediateSingletonAccess extends JPAElement {
    */
   public void addAnnotations(final List<CsdlAnnotation> annotations);
 
-  /**
-   * Overwrite the external, OData, name of a Singleton.
-   * @param externalName
-   */
-  void setExternalName(String externalName);
 }
