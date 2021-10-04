@@ -274,6 +274,11 @@ class IntermediateServiceDocument implements JPAServiceDocument {
     return false;
   }
 
+  @Override
+  public JPAEdmNameBuilder getNameBuilder() {
+    return nameBuilder;
+  }
+  
   private void buildIntermediateSchemas()
       throws ODataJPAModelException {
     final IntermediateSchema schema = new IntermediateSchema(nameBuilder, jpaMetamodel, reflections);

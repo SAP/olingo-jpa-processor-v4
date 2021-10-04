@@ -58,8 +58,7 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
       final String[] packageName, final JPAEdmNameBuilder nameBuilder) throws ODataException {
     super();
     this.nameBuilder = nameBuilder;
-    this.serviceDocument = new JPAServiceDocumentFactory(nameBuilder.getNamespace(), jpaMetamodel, postProcessor,
-        packageName).getServiceDocument();
+    this.serviceDocument = new JPAServiceDocumentFactory(nameBuilder, jpaMetamodel, postProcessor, packageName).getServiceDocument();
   }
 
   @Override
