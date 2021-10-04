@@ -83,11 +83,11 @@
             <artifactId>servlet-api</artifactId>
             <version>${javax.version}</version>
         </dependency>
-        <dependency>
+       <!--  <dependency>
             <groupId>org.apache.olingo</groupId>
             <artifactId>odata-server-api</artifactId>
             <version>${odata.version}</version>
-        </dependency>
+        </dependency> -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
