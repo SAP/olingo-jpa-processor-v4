@@ -14,14 +14,14 @@ import org.apache.olingo.server.api.uri.UriParameter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class TestEdmEntitySetResult {
+class TestEdmEntitySetResult {
   private EdmEntitySetResult cut;
   private List<UriParameter> keys;
   private EdmEntitySet es;
   private EdmEntitySet est;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     keys = new ArrayList<>();
     es = mock(EdmEntitySet.class);
     when(es.getName()).thenReturn("Persons");
@@ -30,13 +30,13 @@ public class TestEdmEntitySetResult {
   }
 
   @Test
-  public void testGetEntitySetName() {
+  void testGetEntitySetName() {
     cut = new EdmEntitySetResult(es, keys, "");
     assertEquals("Persons", cut.getName());
   }
 
   @Test
-  public void testGetEntitySetGetKeys() {
+  void testGetEntitySetGetKeys() {
     final UriParameter key = mock(UriParameter.class);
     when(key.getName()).thenReturn("ID");
     keys.add(key);
@@ -45,20 +45,20 @@ public class TestEdmEntitySetResult {
   }
 
   @Test
-  public void testGetEntitySetGet() {
+  void testGetEntitySetGet() {
     cut = new EdmEntitySetResult(es, keys, "Roles");
     assertEquals("Roles", cut.getNavigationPath());
   }
 
   @Test
-  public void testDetermineTargetEntitySetWithNaviNull() {
+  void testDetermineTargetEntitySetWithNaviNull() {
     when(es.getNavigationPropertyBindings()).thenReturn(null);
     cut = new EdmEntitySetResult(es, keys, null);
     assertEquals(es, cut.getTargetEdmEntitySet());
   }
 
   @Test
-  public void testDetermineTargetEntitySetWithNaviEmpty() {
+  void testDetermineTargetEntitySetWithNaviEmpty() {
     when(es.getNavigationPropertyBindings()).thenReturn(null);
     cut = new EdmEntitySetResult(es, keys, "");
     assertEquals(es, cut.getTargetEdmEntitySet());
@@ -66,7 +66,7 @@ public class TestEdmEntitySetResult {
 
 // return edmEntitySet.getEntityContainer().getEntitySet(navi.getTarget());
   @Test
-  public void testDetermineTargetEntitySetWithNavigation() {
+  void testDetermineTargetEntitySetWithNavigation() {
     final EdmEntityContainer container = mock(EdmEntityContainer.class);
     final List<EdmNavigationPropertyBinding> bindings = new ArrayList<>(2);
     EdmNavigationPropertyBinding binding = mock(EdmNavigationPropertyBinding.class);

@@ -81,6 +81,13 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
         entitySetListInternalKey);
   }
 
+  IntermediateSingleton getSingleton(final String edmSingletonName) throws ODataJPAModelException {
+    if (edmContainer == null) {
+      lazyBuildEdmItem();
+    }
+    return (IntermediateSingleton) findModelElementByEdmItem(edmSingletonName, singletonListInternalKey);
+  }
+
   /**
    * Internal Entity Type
    * @param entityType

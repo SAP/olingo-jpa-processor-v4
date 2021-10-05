@@ -30,15 +30,6 @@ final class IntermediateEntitySet extends IntermediateTopLevelEntity implements 
   }
 
   /**
-   * Returns the entity type to be used internally e.g. for the query generation
-   * @return
-   */
-  @Override
-  public JPAEntityType getEntityType() {
-    return entityType;
-  }
-
-  /**
    * Returns the entity type that shall be used to create the metadata document.
    * This can differ from the internally used one e.g. if multiple entity sets shall
    * point to the same entity type, but base on different tables

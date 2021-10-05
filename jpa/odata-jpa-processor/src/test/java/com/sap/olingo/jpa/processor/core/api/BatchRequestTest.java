@@ -13,47 +13,47 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 
-public class TestBatchRequests extends TestBase {
+class BatchRequestTest extends TestBase {
 
   @Test
-  public void testOneGetRequestGetResponse() throws IOException, ODataException {
-    StringBuffer requestBody = createBodyOneGet();
+  void testOneGetRequestGetResponse() throws IOException, ODataException {
+    final StringBuffer requestBody = createBodyOneGet();
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "$batch", requestBody);
-    List<String> act = helper.getRawBatchResult();
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "$batch", requestBody);
+    final List<String> act = helper.getRawBatchResult();
     assertNotNull(act);
   }
 
   @Test
-  public void testOneGetRequestCheckStatus() throws IOException, ODataException {
-    StringBuffer requestBody = createBodyOneGet();
+  void testOneGetRequestCheckStatus() throws IOException, ODataException {
+    final StringBuffer requestBody = createBodyOneGet();
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "$batch", requestBody);
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "$batch", requestBody);
     assertEquals(200, helper.getBatchResultStatus(1));
   }
 
   @Test
-  public void testOneGetRequestCheckValue() throws IOException, ODataException {
-    StringBuffer requestBody = createBodyOneGet();
+  void testOneGetRequestCheckValue() throws IOException, ODataException {
+    final StringBuffer requestBody = createBodyOneGet();
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "$batch", requestBody);
-    JsonNode value = helper.getBatchResult(1);
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "$batch", requestBody);
+    final JsonNode value = helper.getBatchResult(1);
     assertEquals("3", value.get("ID").asText());
   }
 
   @Test
-  public void testTwoGetRequestSecondFailCheckStatus() throws IOException, ODataException {
-    StringBuffer requestBody = createBodyTwoGetOneFail();
+  void testTwoGetRequestSecondFailCheckStatus() throws IOException, ODataException {
+    final StringBuffer requestBody = createBodyTwoGetOneFail();
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "$batch", requestBody);
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "$batch", requestBody);
     assertEquals(404, helper.getBatchResultStatus(2));
   }
 
   @Test
-  public void testTwoGetRequestCheckValue() throws IOException, ODataException {
-    StringBuffer requestBody = createBodyTwoGet();
+  void testTwoGetRequestCheckValue() throws IOException, ODataException {
+    final StringBuffer requestBody = createBodyTwoGet();
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf, "$batch", requestBody);
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "$batch", requestBody);
 
     JsonNode value = helper.getBatchResult(1);
     System.out.println(value);
@@ -69,7 +69,7 @@ public class TestBatchRequests extends TestBase {
   }
 
   private StringBuffer createBodyTwoGetOneFail() {
-    StringBuffer requestBody = new StringBuffer("--abc123\r\n");
+    final StringBuffer requestBody = new StringBuffer("--abc123\r\n");
     requestBody.append("Content-Type: application/http\r\n");
     requestBody.append("Content-Transfer-Encoding: binary\r\n");
     requestBody.append("\r\n");
@@ -90,7 +90,7 @@ public class TestBatchRequests extends TestBase {
   }
 
   private StringBuffer createBodyTwoGet() {
-    StringBuffer requestBody = new StringBuffer("--abc123\r\n");
+    final StringBuffer requestBody = new StringBuffer("--abc123\r\n");
     requestBody.append("Content-Type: application/http\r\n");
     requestBody.append("Content-Transfer-Encoding: binary\r\n");
     requestBody.append("\r\n");
@@ -111,7 +111,7 @@ public class TestBatchRequests extends TestBase {
   }
 
   private StringBuffer createBodyOneGet() {
-    StringBuffer requestBody = new StringBuffer("--abc123\r\n");
+    final StringBuffer requestBody = new StringBuffer("--abc123\r\n");
     requestBody.append("Content-Type: application/http\r\n");
     requestBody.append("Content-Transfer-Encoding: binary\r\n");
     requestBody.append("\r\n");

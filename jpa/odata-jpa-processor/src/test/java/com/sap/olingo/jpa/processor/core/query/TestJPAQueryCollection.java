@@ -19,10 +19,10 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataGroupsProvider;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 
-public class TestJPAQueryCollection extends TestBase {
+class TestJPAQueryCollection extends TestBase {
 
   @Test
-  public void testSelectPropertyAndCollection() throws IOException, ODataException {
+  void testSelectPropertyAndCollection() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$select=ID,Comment&orderby=ID");
     helper.assertStatus(200);
@@ -36,7 +36,7 @@ public class TestJPAQueryCollection extends TestBase {
 
   // @Ignore // See https://issues.apache.org/jira/browse/OLINGO-1231
   @Test
-  public void testSelectPropertyOfCollection() throws IOException, ODataException {
+  void testSelectPropertyOfCollection() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Persons('99')/InhouseAddress?$select=Building");
@@ -50,7 +50,7 @@ public class TestJPAQueryCollection extends TestBase {
   }
 
   @Test
-  public void testSelectAllWithComplexCollection() throws IOException, ODataException {
+  void testSelectAllWithComplexCollection() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Persons('99')?$select=*");
@@ -62,7 +62,7 @@ public class TestJPAQueryCollection extends TestBase {
   }
 
   @Test
-  public void testSelectAllWithPrimitiveCollection() throws IOException, ODataException {
+  void testSelectAllWithPrimitiveCollection() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations('1')?$select=*");
@@ -74,7 +74,7 @@ public class TestJPAQueryCollection extends TestBase {
   }
 
   @Test
-  public void testSelectWithNestedComplexCollection() throws IOException, ODataException {
+  void testSelectWithNestedComplexCollection() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Collections('504')?$select=Nested");
@@ -90,7 +90,7 @@ public class TestJPAQueryCollection extends TestBase {
   }
 
   @Test
-  public void testSelectComplexContainingCollection() throws IOException, ODataException {
+  void testSelectComplexContainingCollection() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Collections('502')?$select=Complex");
@@ -112,7 +112,7 @@ public class TestJPAQueryCollection extends TestBase {
   }
 
   @Test
-  public void testSelectComplexContainingTwoCollections() throws IOException, ODataException {
+  void testSelectComplexContainingTwoCollections() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Collections('501')?$select=Complex");
@@ -130,7 +130,7 @@ public class TestJPAQueryCollection extends TestBase {
   }
 
   @Test
-  public void testSelectAllWithComplexContainingCollection() throws IOException, ODataException {
+  void testSelectAllWithComplexContainingCollection() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Collections('502')");
     helper.assertStatus(200);
@@ -151,7 +151,7 @@ public class TestJPAQueryCollection extends TestBase {
   }
 
   @Test
-  public void testSelectAllDeepComplexContainingCollection() throws IOException, ODataException {
+  void testSelectAllDeepComplexContainingCollection() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "CollectionDeeps('501')");
     helper.assertStatus(200);
@@ -166,7 +166,7 @@ public class TestJPAQueryCollection extends TestBase {
   }
 
   @Test
-  public void testSelectOnlyOneCollectionDeepComplex() throws IOException, ODataException {
+  void testSelectOnlyOneCollectionDeepComplex() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "CollectionDeeps('502')?$select=FirstLevel/SecondLevel/Comment");
@@ -183,7 +183,7 @@ public class TestJPAQueryCollection extends TestBase {
   }
 
   @Test
-  public void testSelectOnlyNoCollectionDeepComplex() throws IOException, ODataException {
+  void testSelectOnlyNoCollectionDeepComplex() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "CollectionDeeps('501')?$select=FirstLevel/SecondLevel/Number");
@@ -200,7 +200,7 @@ public class TestJPAQueryCollection extends TestBase {
   }
 
   @Test
-  public void testSelectCollectionWithoutRequiredGroup() throws IOException, ODataException {
+  void testSelectCollectionWithoutRequiredGroup() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "BusinessPartnerWithGroupss('1')?$select=Comment");
@@ -213,7 +213,7 @@ public class TestJPAQueryCollection extends TestBase {
   }
 
   @Test
-  public void testSelectCollectionWithRequiredGroup() throws IOException, ODataException {
+  void testSelectCollectionWithRequiredGroup() throws IOException, ODataException {
     final JPAODataGroupsProvider groups = new JPAODataGroupsProvider();
     groups.addGroup("Company");
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -226,7 +226,7 @@ public class TestJPAQueryCollection extends TestBase {
   }
 
   @Test
-  public void testSelectCollection() throws IOException, ODataException {
+  void testSelectCollection() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations('1')?$select=Comment");
@@ -238,7 +238,7 @@ public class TestJPAQueryCollection extends TestBase {
   }
 
   @Test
-  public void testSelectCollectionWithTop() throws IOException, ODataException {
+  void testSelectCollectionWithTop() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations?$select=Comment&$top=2");
@@ -252,7 +252,7 @@ public class TestJPAQueryCollection extends TestBase {
   }
 
   @Test
-  public void testSelectCollectionWithTopAndOrderBy() throws IOException, ODataException {
+  void testSelectCollectionWithTopAndOrderBy() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations?$select=Comment&$top=2&orderby=Name1");
@@ -265,14 +265,14 @@ public class TestJPAQueryCollection extends TestBase {
   }
 
   @Test
-  public void testCollectionCount() throws IOException, ODataException {
+  void testCollectionCount() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Persons('99')/InhouseAddress/$count");
     assertEquals(501, helper.getStatus());
   }
 
   @Test
-  public void testPathWithTransientCollection() throws IOException, ODataException {
+  void testPathWithTransientCollection() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "CollectionDeeps('501')/FirstLevel");
     helper.assertStatus(200);
@@ -284,7 +284,7 @@ public class TestJPAQueryCollection extends TestBase {
   }
 
   @Test
-  public void testPathToTransientCollection() throws IOException, ODataException {
+  void testPathToTransientCollection() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "CollectionDeeps('501')/FirstLevel/TransientCollection"); // SecondLevel/Address"); //
@@ -296,7 +296,7 @@ public class TestJPAQueryCollection extends TestBase {
   }
 
   @Test
-  public void testPathToTransientCollectionWoRequired() throws IOException, ODataException {
+  void testPathToTransientCollectionWoRequired() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "CollectionWithTransients('501')/TransientComment");
@@ -308,7 +308,7 @@ public class TestJPAQueryCollection extends TestBase {
   }
 
   @Test
-  public void testPathWithCollections() throws IOException, ODataException {
+  void testPathWithCollections() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "CollectionDeeps('501')/FirstLevel/SecondLevel");
@@ -319,7 +319,7 @@ public class TestJPAQueryCollection extends TestBase {
   }
 
   @Test
-  public void testPathToCollectionWithTransient() throws IOException, ODataException {
+  void testPathToCollectionWithTransient() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "CollectionWithTransients('501')/Nested"); // $select=Log");
@@ -332,7 +332,7 @@ public class TestJPAQueryCollection extends TestBase {
   }
 
   @Test
-  public void testSelectTransientOfCollection() throws IOException, ODataException {
+  void testSelectTransientOfCollection() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "CollectionWithTransients('501')/Nested$select=Log");
@@ -345,7 +345,7 @@ public class TestJPAQueryCollection extends TestBase {
   }
 
   @Test
-  public void testPathToCollections() throws IOException, ODataException {
+  void testPathToCollections() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "CollectionDeeps('501')/FirstLevel/SecondLevel/Address");

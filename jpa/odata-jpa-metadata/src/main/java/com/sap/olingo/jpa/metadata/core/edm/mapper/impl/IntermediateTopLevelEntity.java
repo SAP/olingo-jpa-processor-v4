@@ -61,4 +61,13 @@ abstract class IntermediateTopLevelEntity extends IntermediateModelElement {
     else
       return entityType;
   }
+
+  /**
+   * Returns the entity type to be used internally e.g. for the query generation
+   * @return
+   */
+  public JPAEntityType getEntityType() {
+    return entityType;
+  }
+
 }

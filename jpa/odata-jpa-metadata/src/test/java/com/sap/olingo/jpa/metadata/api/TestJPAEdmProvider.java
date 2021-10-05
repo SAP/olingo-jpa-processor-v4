@@ -28,6 +28,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlEnumType;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunctionImport;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
+import org.apache.olingo.commons.api.edm.provider.CsdlSingleton;
 import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
 import org.apache.olingo.commons.api.edm.provider.CsdlTypeDefinition;
 import org.apache.olingo.commons.api.ex.ODataException;
@@ -185,6 +186,26 @@ class TestJPAEdmProvider {
     final CsdlEntitySet act = cut.getEntitySet(fqn, "Persons");
     assertNotNull(act);
     assertEquals("Persons", act.getName());
+  }
+
+  @Test
+  void checkGeSingletonReturnsNullOnUnknown() throws ODataException {
+    final FullQualifiedName fqn = buildContainerFQN();
+    assertNull(cut.getSingleton(fqn, "Hello"));
+  }
+
+  @Test
+  void checkGetSingletonReturnsNullOnUnknownNamespace() throws ODataException {
+    final FullQualifiedName fqn = new FullQualifiedName(PUNIT_NAME, "Hello");
+    assertNull(cut.getSingleton(fqn, "CurrentUser"));
+  }
+
+  @Test
+  void checkGetSingletonReturnsKnown() throws ODataException {
+    final FullQualifiedName fqn = buildContainerFQN();
+    final CsdlSingleton act = cut.getSingleton(fqn, "CurrentUser");
+    assertNotNull(act);
+    assertEquals("CurrentUser", act.getName());
   }
 
   @Test

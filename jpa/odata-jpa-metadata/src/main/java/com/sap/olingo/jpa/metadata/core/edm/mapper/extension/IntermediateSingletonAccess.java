@@ -19,5 +19,4 @@ public interface IntermediateSingletonAccess extends JPAElement {
    * @param annotations
    */
   public void addAnnotations(final List<CsdlAnnotation> annotations);
-
 }

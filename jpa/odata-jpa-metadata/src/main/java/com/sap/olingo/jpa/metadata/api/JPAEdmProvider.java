@@ -23,6 +23,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlEnumType;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunctionImport;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
+import org.apache.olingo.commons.api.edm.provider.CsdlSingleton;
 import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
 import org.apache.olingo.commons.api.edm.provider.CsdlTypeDefinition;
 import org.apache.olingo.commons.api.edmx.EdmxReference;
@@ -122,6 +123,16 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
     final CsdlEntityContainer container = serviceDocument.getEdmEntityContainer();
     if (entityContainerFQN.equals(buildFQN(container.getName()))) {
       return container.getEntitySet(entitySetName);
+    }
+    return null;
+  }
+
+  @Override
+  public CsdlSingleton getSingleton(final FullQualifiedName entityContainerFQN, final String singletonName)
+      throws ODataException {
+    final CsdlEntityContainer container = serviceDocument.getEdmEntityContainer();
+    if (entityContainerFQN.equals(buildFQN(container.getName()))) {
+      return container.getSingleton(singletonName);
     }
     return null;
   }
@@ -308,5 +319,4 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
   protected final FullQualifiedName buildFQN(final String name) {
     return new FullQualifiedName(nameBuilder.getNamespace(), name);
   }
-
 }

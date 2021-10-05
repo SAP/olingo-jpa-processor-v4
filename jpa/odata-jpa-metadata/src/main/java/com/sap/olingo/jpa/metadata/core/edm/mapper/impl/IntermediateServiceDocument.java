@@ -186,9 +186,12 @@ class IntermediateServiceDocument implements JPAServiceDocument {
    * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getEntity(java.lang.String)
    */
   @Override
-  public JPAEntityType getEntity(final String edmEntitySetName) throws ODataJPAModelException {
-    final IntermediateEntitySet entitySet = container.getEntitySet(edmEntitySetName);
-    return entitySet != null ? entitySet.getEntityType() : null;
+  public JPAEntityType getEntity(final String edmTargetName) throws ODataJPAModelException {
+    IntermediateTopLevelEntity target = container.getEntitySet(edmTargetName);
+    if (target == null) {
+      target = container.getSingleton(edmTargetName);
+    }
+    return target != null ? target.getEntityType() : null;
   }
 
   /*
