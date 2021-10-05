@@ -115,4 +115,10 @@ public class EdmPropertyDouble implements EdmProperty {
     return null;
   }
 
+  @Override
+  public String getScaleAsString() {
+    fail();
+    return null;
+  }
+
 }
