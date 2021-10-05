@@ -3,9 +3,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.sap.olingo</groupId>
-        <artifactId>odata-jpa-archetype</artifactId>
-        <version>0.3.8</version>
+	<groupId>com.sap.olingo</groupId>
+	<artifactId>odata-jpa-archetype</artifactId>
+        <version>0.3.10</version>
     </parent>
     <artifactId>odata-jpa-archetype-spring</artifactId>
     <name>Archetype - odata-jpa-archetype-spring</name>
