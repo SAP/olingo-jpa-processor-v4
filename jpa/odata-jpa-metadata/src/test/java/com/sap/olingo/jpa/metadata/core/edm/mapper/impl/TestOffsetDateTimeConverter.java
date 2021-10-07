@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
@@ -22,26 +22,26 @@ import com.sap.olingo.jpa.metadata.converter.OffsetDateTimeConverter;
  * Created: 09.03.2020
  *
  */
-public class TestOffsetDateTimeConverter {
+class TestOffsetDateTimeConverter {
   private OffsetDateTimeConverter cut;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     cut = new OffsetDateTimeConverter();
   }
 
   @Test
-  public void checkConvertToDatabaseColumnReturnNullOnNull() {
+  void checkConvertToDatabaseColumnReturnNullOnNull() {
     assertNull(cut.convertToDatabaseColumn(null));
   }
 
   @Test
-  public void checkConvertToEntityAttributeReturnNullOnNull() {
+  void checkConvertToEntityAttributeReturnNullOnNull() {
     assertNull(cut.convertToEntityAttribute(null));
   }
 
   @Test
-  public void checkConvertToDatabaseColumnReturnConvertedOnNonNull() {
+  void checkConvertToDatabaseColumnReturnConvertedOnNonNull() {
     final ZonedDateTime time = ZonedDateTime
         .of(LocalDateTime.of(2020, 10, 20, 6, 23, 10), ZoneId.of(ZoneId.SHORT_IDS.get("ECT")));
     final OffsetDateTime act = cut.convertToDatabaseColumn(time);
@@ -49,7 +49,7 @@ public class TestOffsetDateTimeConverter {
   }
 
   @Test
-  public void checkConvertToEntityAttributeReturnConvertedOnNonNull() {
+  void checkConvertToEntityAttributeReturnConvertedOnNonNull() {
     final OffsetDateTime time = OffsetDateTime.of(
         LocalDateTime.of(2020, 10, 20, 6, 23), ZoneOffset.ofHours(3));
     final ZonedDateTime act = cut.convertToEntityAttribute(time);

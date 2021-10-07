@@ -40,7 +40,7 @@ import org.mockito.Mockito;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmGeospatial;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
-public class TestJPATypeConvertor {
+class TestJPATypeConvertor {
 
   static Stream<Arguments> mappingJavaLobToOData() {
 
@@ -245,7 +245,7 @@ public class TestJPATypeConvertor {
 
   @ParameterizedTest
   @MethodSource("mappingJavaGeographyToOData")
-  public void checkConvertJavaGeographyToOData(final Class<?> javaType, final Attribute<?, ?> jpaAttribute,
+  void checkConvertJavaGeographyToOData(final Class<?> javaType, final Attribute<?, ?> jpaAttribute,
       final EdmPrimitiveTypeKind ODataType) throws ODataJPAModelException {
 
     assertEquals(ODataType, JPATypeConverter.convertToEdmSimpleType(javaType, jpaAttribute));
@@ -256,7 +256,7 @@ public class TestJPATypeConvertor {
 
   @ParameterizedTest
   @MethodSource("mappingJavaGeometryToOData")
-  public void checkConvertJavaGeometryToOData(final Class<?> javaType, final Attribute<?, ?> jpaAttribute,
+  void checkConvertJavaGeometryToOData(final Class<?> javaType, final Attribute<?, ?> jpaAttribute,
       final EdmPrimitiveTypeKind ODataType) throws ODataJPAModelException {
 
     assertEquals(ODataType, JPATypeConverter.convertToEdmSimpleType(javaType, jpaAttribute));
@@ -267,7 +267,7 @@ public class TestJPATypeConvertor {
 
   @ParameterizedTest
   @MethodSource("mappingJavaTimeToOData")
-  public void checkConvertJavaDateTimeToOData(final Class<?> javaType, final Attribute<?, ?> jpaAttribute,
+  void checkConvertJavaDateTimeToOData(final Class<?> javaType, final Attribute<?, ?> jpaAttribute,
       final EdmPrimitiveTypeKind ODataType) throws ODataJPAModelException {
 
     assertEquals(ODataType, JPATypeConverter.convertToEdmSimpleType(javaType, jpaAttribute));
@@ -275,7 +275,7 @@ public class TestJPATypeConvertor {
 
   @ParameterizedTest
   @MethodSource("mappingJavaLobToOData")
-  public void checkConvertJavaLobToOData(final Class<?> javaType, final Attribute<?, ?> jpaAttribute,
+  void checkConvertJavaLobToOData(final Class<?> javaType, final Attribute<?, ?> jpaAttribute,
       final EdmPrimitiveTypeKind ODataType) throws ODataJPAModelException {
 
     assertEquals(ODataType, JPATypeConverter.convertToEdmSimpleType(javaType, jpaAttribute));
@@ -287,7 +287,7 @@ public class TestJPATypeConvertor {
 
   @ParameterizedTest
   @MethodSource("mappingSimpleJavaToOData")
-  public void checkConvertSimpleJavaToOData(final Class<?> javaType, final EdmPrimitiveTypeKind ODataType)
+  void checkConvertSimpleJavaToOData(final Class<?> javaType, final EdmPrimitiveTypeKind ODataType)
       throws ODataJPAModelException {
 
     assertEquals(ODataType, JPATypeConverter.convertToEdmSimpleType(javaType));
@@ -295,7 +295,7 @@ public class TestJPATypeConvertor {
 
   @ParameterizedTest
   @MethodSource("scalarJavaTypes")
-  public void checkIsScalarJavaType(final Class<?> javaType, final Attribute<?, ?> jpaAttribute,
+  void checkIsScalarJavaType(final Class<?> javaType, final Attribute<?, ?> jpaAttribute,
       final boolean isScalar) {
 
     assertEquals(isScalar, JPATypeConverter.isScalarType(javaType));
@@ -303,7 +303,7 @@ public class TestJPATypeConvertor {
 
   @ParameterizedTest
   @MethodSource("simpleJavaTypes")
-  public void checkIsSimpleJavaType(final Class<?> javaType, final Attribute<?, ?> jpaAttribute,
+  void checkIsSimpleJavaType(final Class<?> javaType, final Attribute<?, ?> jpaAttribute,
       final boolean isSimple) {
 
     assertEquals(isSimple, JPATypeConverter.isSimpleType(javaType, jpaAttribute));
@@ -311,26 +311,26 @@ public class TestJPATypeConvertor {
 
   @ParameterizedTest
   @MethodSource("supportedByOlingo")
-  public void checkIsSupportedByOlingo(final Class<?> javaType, final boolean isSupported) {
+  void checkIsSupportedByOlingo(final Class<?> javaType, final boolean isSupported) {
 
     assertEquals(isSupported, JPATypeConverter.isSupportedByOlingo(javaType));
   }
 
   @Test
-  public void checkReturnsNullOnUnknownTypeWithoutAnnotation() throws ODataJPAModelException {
+  void checkReturnsNullOnUnknownTypeWithoutAnnotation() throws ODataJPAModelException {
 
     assertNull(JPATypeConverter.convertToEdmSimpleType(SimpleTimeZone.class));
   }
 
   @Test
-  public void checkThrowsExceptionOnUnknownTypeWithAnnotation() throws ODataJPAModelException {
+  void checkThrowsExceptionOnUnknownTypeWithAnnotation() throws ODataJPAModelException {
 
     assertThrows(ODataJPAModelException.class,
         () -> JPATypeConverter.convertToEdmSimpleType(SimpleTimeZone.class, buildTimeAttribute(TemporalType.TIME)));
   }
 
   @Test
-  public void checkThrowsExceptionOnUnknownGeographyType() throws ODataJPAModelException {
+  void checkThrowsExceptionOnUnknownGeographyType() throws ODataJPAModelException {
 
     assertThrows(ODataJPAModelException.class,
         () -> JPATypeConverter.convertToEdmSimpleType(SimpleTimeZone.class, buildDimensionAttribute(
@@ -338,7 +338,7 @@ public class TestJPATypeConvertor {
   }
 
   @Test
-  public void checkThrowsExceptionOnUnknownGeometryType() throws ODataJPAModelException {
+  void checkThrowsExceptionOnUnknownGeometryType() throws ODataJPAModelException {
 
     assertThrows(ODataJPAModelException.class,
         () -> JPATypeConverter.convertToEdmSimpleType(SimpleTimeZone.class, buildDimensionAttribute(

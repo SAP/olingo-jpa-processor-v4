@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
+import javax.annotation.CheckForNull;
+
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.geo.SRID;
 
@@ -9,7 +11,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOperationResultParamet
 
 class IntermediateOperationResultParameter implements JPAOperationResultParameter {
   /**
-   * 
+   *
    */
   private final JPAOperation jpaOperation;
   private final ReturnType jpaReturnType;
@@ -17,8 +19,7 @@ class IntermediateOperationResultParameter implements JPAOperationResultParamete
   private final boolean isCollection;
 
   public IntermediateOperationResultParameter(final JPAOperation jpaOperation, final ReturnType jpaReturnType,
-      final Class<?> returnType,
-      boolean isCollection) {
+      final Class<?> returnType, final boolean isCollection) {
     this.jpaOperation = jpaOperation;
     this.jpaReturnType = jpaReturnType;
     this.isCollection = isCollection;
@@ -67,9 +68,13 @@ class IntermediateOperationResultParameter implements JPAOperationResultParamete
   }
 
   @Override
+  @CheckForNull
   public SRID getSrid() {
-    // TODO Auto-generated method stub
-    return null;
+    if (jpaReturnType.srid().srid().isEmpty())
+      return null;
+    final SRID srid = SRID.valueOf(jpaReturnType.srid().srid());
+    srid.setDimension(jpaReturnType.srid().dimension());
+    return srid;
   }
 
 }

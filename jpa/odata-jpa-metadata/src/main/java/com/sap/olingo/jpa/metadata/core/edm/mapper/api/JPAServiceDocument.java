@@ -46,14 +46,15 @@ public interface JPAServiceDocument extends CustomETagSupport {
 
   /**
    *
-   * Returns the internal representation of an entity type by given entity set name. Entity types that are annotated
+   * Returns the internal representation of an entity type by given entity set or singleton name. Entity types that are
+   * annotated
    * with EdmIgnore are ignored.
-   * @param edmEntitySetName
+   * @param edmTargetName
    * @return null if not found
    * @throws ODataJPAModelException
    */
   @CheckForNull
-  JPAEntityType getEntity(final String edmEntitySetName) throws ODataJPAModelException;
+  JPAEntityType getEntity(final String edmTargetName) throws ODataJPAModelException;
 
   /**
    *

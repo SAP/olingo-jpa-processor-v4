@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
-public class TestAnnotationSchema {
+class TestAnnotationSchema {
   private static final String AGGREGATION_ANNOTATIONS = "annotations/Org.OData.Aggregation.V1.xml";
   private static final String CAPABILITIES_ANNOTATIONS = "annotations/Org.OData.Capabilities.V1.xml";
   private static final String TEST_ANNOTATIONS = "annotations/Org.Olingo.Test.V1.xml";
@@ -39,7 +39,7 @@ public class TestAnnotationSchema {
   private Charset charset;
 
   @BeforeEach
-  public void setup() throws ODataJPAModelException, IOException {
+  void setup() throws ODataJPAModelException, IOException {
     final CsdlDocumentReader reader = new CsdlDocumentReader();
     charset = Charset.defaultCharset();
     cutCore = reader.readFromResource(CORE_ANNOTATIONS, charset);
@@ -49,7 +49,7 @@ public class TestAnnotationSchema {
   }
 
   @Test
-  public void testGetAliasFromPath() throws IOException, ODataJPAModelException {
+  void testGetAliasFromPath() throws IOException, ODataJPAModelException {
 
     final Map<String, ? extends CsdlSchema> act = cutCore.getSchemas();
     assertNotNull(act.get("Org.OData.Core.V1"));
@@ -58,7 +58,7 @@ public class TestAnnotationSchema {
   }
 
   @Test
-  public void testGetTermsFromPath() throws IOException, ODataJPAModelException {
+  void testGetTermsFromPath() throws IOException, ODataJPAModelException {
 
     final Map<String, ? extends CsdlSchema> act = cutCore.getSchemas();
     assertNotNull(act.get("Org.OData.Core.V1"));
@@ -67,7 +67,7 @@ public class TestAnnotationSchema {
   }
 
   @Test
-  public void testGetTypeDefinitionFromPath() throws IOException, ODataJPAModelException {
+  void testGetTypeDefinitionFromPath() throws IOException, ODataJPAModelException {
 
     final Map<String, ? extends CsdlSchema> act = cutCore.getSchemas();
     assertNotNull(act.get("Org.OData.Core.V1"));
@@ -78,7 +78,7 @@ public class TestAnnotationSchema {
   }
 
   @Test
-  public void testGetTypeDefinitions() throws IOException, ODataJPAModelException {
+  void testGetTypeDefinitions() throws IOException, ODataJPAModelException {
 
     final CsdlSchema act = cutTest.getSchemas().get("Org.OData.Capabilities.V1");
     assertEquals(3, act.getTypeDefinitions().size());
@@ -106,7 +106,7 @@ public class TestAnnotationSchema {
   }
 
   @Test
-  public void testGetEnumSchemaFromPath() throws IOException, ODataJPAModelException {
+  void testGetEnumSchemaFromPath() throws IOException, ODataJPAModelException {
 
     final Map<String, ? extends CsdlSchema> act = cutCore.getSchemas();
     assertNotNull(act.get("Org.OData.Core.V1"));
@@ -118,7 +118,7 @@ public class TestAnnotationSchema {
   }
 
   @Test
-  public void testGetSimpleComplexTypes() throws IOException, ODataJPAModelException {
+  void testGetSimpleComplexTypes() throws IOException, ODataJPAModelException {
 
     final Map<String, ? extends CsdlSchema> act = cutTest.getSchemas();
     assertEquals(2, act.size());
@@ -137,7 +137,7 @@ public class TestAnnotationSchema {
   }
 
   @Test
-  public void testGetDeepComplexTypes() throws IOException, ODataJPAModelException {
+  void testGetDeepComplexTypes() throws IOException, ODataJPAModelException {
     final CsdlComplexType actCt = cutTest.getSchemas()
         .get("Org.OData.Capabilities.V1").getComplexType("TestType");
     assertNotNull(actCt);
@@ -151,7 +151,7 @@ public class TestAnnotationSchema {
   }
 
   @Test
-  public void testGetSimpleProperty() throws IOException, ODataJPAModelException {
+  void testGetSimpleProperty() throws IOException, ODataJPAModelException {
     final CsdlComplexType actCt = cutTest.getSchemas()
         .get("Org.OData.Capabilities.V1").getComplexType("TestType");
     final CsdlProperty actProperty = actCt.getProperty("Deletable");
@@ -167,7 +167,7 @@ public class TestAnnotationSchema {
   }
 
   @Test
-  public void testGetDecimalProperty() throws IOException, ODataJPAModelException {
+  void testGetDecimalProperty() throws IOException, ODataJPAModelException {
     final CsdlComplexType actCt = cutTest.getSchemas()
         .get("Org.OData.Capabilities.V1").getComplexType("TestType");
     final CsdlProperty actProperty = actCt.getProperty("TestDecimals");
@@ -183,7 +183,7 @@ public class TestAnnotationSchema {
   }
 
   @Test
-  public void testGetStringProperty() throws IOException, ODataJPAModelException {
+  void testGetStringProperty() throws IOException, ODataJPAModelException {
     final CsdlComplexType actCt = cutTest.getSchemas()
         .get("Org.OData.Capabilities.V1").getComplexType("TestType");
     final CsdlProperty actProperty = actCt.getProperty("TestString");
@@ -199,7 +199,7 @@ public class TestAnnotationSchema {
   }
 
   @Test
-  public void testGetGeoProperty() throws IOException, ODataJPAModelException {
+  void testGetGeoProperty() throws IOException, ODataJPAModelException {
     final CsdlComplexType actCt = cutTest.getSchemas()
         .get("Org.OData.Capabilities.V1").getComplexType("TestType");
     final CsdlProperty actProperty = actCt.getProperty("TestGeo");
@@ -216,7 +216,7 @@ public class TestAnnotationSchema {
   }
 
   @Test
-  public void testGetCollectionProperty() throws IOException, ODataJPAModelException {
+  void testGetCollectionProperty() throws IOException, ODataJPAModelException {
     final CsdlComplexType actCt = cutTest.getSchemas()
         .get("Org.OData.Capabilities.V1").getComplexType("TestType");
     final CsdlProperty actProperty = actCt.getProperty("NonDeletableNavigationProperties");
@@ -227,14 +227,14 @@ public class TestAnnotationSchema {
   }
 
   @Test
-  public void testGetEnum() throws IOException, ODataJPAModelException {
+  void testGetEnum() throws IOException, ODataJPAModelException {
     final CsdlSchema act = cutCapabilities.getSchemas()
         .get("Org.OData.Capabilities.V1");
     assertEquals(4, act.getEnumTypes().size());
   }
 
   @Test
-  public void testGetEnumNotAsFlags() throws IOException, ODataJPAModelException {
+  void testGetEnumNotAsFlags() throws IOException, ODataJPAModelException {
     final CsdlEnumType actEnum = cutAggregation.getSchemas()
         .get("Org.OData.Aggregation.V1").getEnumType("RollupType");
     assertNotNull(actEnum);
@@ -245,7 +245,7 @@ public class TestAnnotationSchema {
   }
 
   @Test
-  public void testGetEnumAsFlags() throws IOException, ODataJPAModelException {
+  void testGetEnumAsFlags() throws IOException, ODataJPAModelException {
     final CsdlEnumType actEnum = cutCapabilities.getSchemas()
         .get("Org.OData.Capabilities.V1").getEnumType("IsolationLevel");
     assertNotNull(actEnum);
@@ -259,14 +259,14 @@ public class TestAnnotationSchema {
   }
 
   @Test
-  public void testGetFunctions() throws IOException, ODataJPAModelException {
+  void testGetFunctions() throws IOException, ODataJPAModelException {
     final CsdlSchema act = cutAggregation.getSchemas()
         .get("Org.OData.Aggregation.V1");
     assertEquals(5, act.getFunctions().size());
   }
 
   @Test
-  public void testGetFunctionAttributes() throws IOException, ODataJPAModelException {
+  void testGetFunctionAttributes() throws IOException, ODataJPAModelException {
     final List<CsdlFunction> act = cutAggregation.getSchemas()
         .get("Org.OData.Aggregation.V1").getFunctions("isleaf");
     assertEquals(1, act.size());
@@ -279,7 +279,7 @@ public class TestAnnotationSchema {
   }
 
   @Test
-  public void testGetFunctionParameter() throws IOException, ODataJPAModelException {
+  void testGetFunctionParameter() throws IOException, ODataJPAModelException {
     final List<CsdlFunction> act = cutAggregation.getSchemas()
         .get("Org.OData.Aggregation.V1").getFunctions("isancestor");
 
@@ -296,7 +296,7 @@ public class TestAnnotationSchema {
   }
 
   @Test
-  public void testGetFunctionParameterFacet() throws IOException, ODataJPAModelException {
+  void testGetFunctionParameterFacet() throws IOException, ODataJPAModelException {
     final List<CsdlFunction> act = cutTest.getSchemas()
         .get("Org.OData.Capabilities.V1").getFunctions("TestTheRest1");
 
@@ -319,7 +319,7 @@ public class TestAnnotationSchema {
   }
 
   @Test
-  public void testGetFunctionReturnType() throws IOException, ODataJPAModelException {
+  void testGetFunctionReturnType() throws IOException, ODataJPAModelException {
     final List<CsdlFunction> act = cutAggregation.getSchemas()
         .get("Org.OData.Aggregation.V1").getFunctions("isancestor");
 
@@ -336,7 +336,7 @@ public class TestAnnotationSchema {
   }
 
   @Test
-  public void testGetFunctionReturnTypeFacet() throws IOException, ODataJPAModelException {
+  void testGetFunctionReturnTypeFacet() throws IOException, ODataJPAModelException {
     final List<CsdlFunction> act = cutTest.getSchemas()
         .get("Org.OData.Capabilities.V1").getFunctions("TestTheRest1");
 
@@ -354,14 +354,14 @@ public class TestAnnotationSchema {
   }
 
   @Test
-  public void testGetActionss() throws IOException, ODataJPAModelException {
+  void testGetActionss() throws IOException, ODataJPAModelException {
     final List<CsdlAction> act = cutTest.getSchemas()
         .get("Org.OData.Capabilities.V1").getActions();
     assertEquals(2, act.size());
   }
 
   @Test
-  public void testGetActionParameter() throws IOException, ODataJPAModelException {
+  void testGetActionParameter() throws IOException, ODataJPAModelException {
     final List<CsdlAction> act = cutTest.getSchemas()
         .get("Org.OData.Capabilities.V1").getActions("UpsertTimeExample");
 
@@ -377,7 +377,7 @@ public class TestAnnotationSchema {
   }
 
   @Test
-  public void testGetActionReturnType() throws IOException, ODataJPAModelException {
+  void testGetActionReturnType() throws IOException, ODataJPAModelException {
     final List<CsdlAction> act = cutTest.getSchemas()
         .get("Org.OData.Capabilities.V1").getActions("UpsertTimeExample");
 

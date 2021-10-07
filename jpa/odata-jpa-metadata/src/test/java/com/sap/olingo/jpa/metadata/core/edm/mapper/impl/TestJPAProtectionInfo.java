@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
@@ -20,27 +20,27 @@ import org.junit.jupiter.api.Test;
  * Created: 14.02.2020
  *
  */
-public class TestJPAProtectionInfo {
+class TestJPAProtectionInfo {
   private JPAProtectionInfo cut;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     cut = new JPAProtectionInfo(Arrays.asList("AdministrativeInformation/Created/By"), true);
   }
 
   @Test
-  public void checkToStringContainsPath() {
+  void checkToStringContainsPath() {
     assertNotNull(cut.toString());
     assertTrue(cut.toString().contains("AdministrativeInformation/Created/By"));
   }
 
   @Test
-  public void checkWildcardsTrue() {
+  void checkWildcardsTrue() {
     assertTrue(cut.supportsWildcards());
   }
 
   @Test
-  public void checkPathGetsReturned() {
+  void checkPathGetsReturned() {
     final List<String> act = cut.getPath();
     assertNotNull(act);
     assertEquals(1, act.size());
@@ -48,17 +48,17 @@ public class TestJPAProtectionInfo {
   }
 
   @Test
-  public void checkWildcardsReturnsFalseForInteger() {
+  void checkWildcardsReturnsFalseForInteger() {
     assertFalse(cut.supportsWildcards(Integer.class));
   }
 
   @Test
-  public void checkWildcardsReturnsFalseForDate() {
+  void checkWildcardsReturnsFalseForDate() {
     assertFalse(cut.supportsWildcards(LocalDate.class));
   }
 
   @Test
-  public void checkWildcardsReturnsTrueForString() {
+  void checkWildcardsReturnsTrueForString() {
     assertTrue(cut.supportsWildcards(String.class));
   }
 }

@@ -18,35 +18,35 @@ import com.sap.olingo.jpa.metadata.converter.TimeInstantLongConverter;
  * @author Oliver Grande
  * @since 1.0.0-RC
  */
-public class TestTimeInstantLongConverter {
+class TestTimeInstantLongConverter {
   private static final String FIVE_DAYS_LATER = "1970-01-06T00:00:00Z";
   private static final long FIVE_DAYS = 5 * 24 * 60 * 60 * 1000;
   private TimeInstantLongConverter cut;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     cut = new TimeInstantLongConverter();
   }
 
   @Test
-  public void checkConvertToDatabaseColumnReturnNullOnNull() {
+  void checkConvertToDatabaseColumnReturnNullOnNull() {
     assertNull(cut.convertToDatabaseColumn(null));
   }
 
   @Test
-  public void checkConvertToEntityAttributeReturnNullOnNull() {
+  void checkConvertToEntityAttributeReturnNullOnNull() {
     assertNull(cut.convertToEntityAttribute(null));
   }
 
   @Test
-  public void checkConvertToDatabaseColumnReturnConvertedOnNonNull() {
+  void checkConvertToDatabaseColumnReturnConvertedOnNonNull() {
     final Instant time = Instant.parse(FIVE_DAYS_LATER);
     final Long act = (Long) cut.convertToDatabaseColumn(time);
     assertEquals(FIVE_DAYS, act);
   }
 
   @Test
-  public void checkConvertToEntityAttributeReturnConvertedOnNonNull() {
+  void checkConvertToEntityAttributeReturnConvertedOnNonNull() {
     final Instant act = cut.convertToEntityAttribute(FIVE_DAYS);
     assertEquals(FIVE_DAYS_LATER, act.toString());
   }
