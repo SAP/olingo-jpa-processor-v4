@@ -3,7 +3,7 @@ package com.sap.olingo.jpa.processor.core.query;
 import java.util.Iterator;
 import java.util.List;
 
-class JPAKeyBocks<T> implements Iterable<List<T>> {
+class JPAKeyBlocks<T> implements Iterable<List<T>> {
   public static int BLOCK_SIZE = 1;
   private Iterable<List<T>> keys;
 

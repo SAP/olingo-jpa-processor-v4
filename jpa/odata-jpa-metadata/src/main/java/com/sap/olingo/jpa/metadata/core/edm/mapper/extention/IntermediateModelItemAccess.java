@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.extention;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 
 /**
@@ -14,9 +15,9 @@ public interface IntermediateModelItemAccess extends JPAElement {
   boolean ignore();
 
   /**
-   * Enables to overwrite the External, OData, name of a model item.
-   * @param externalName
+   * @deprecated (0.3.10, Overriding the external name not working correctly. Create an {@link JPAEdmNameBuilder} instead )
    */
+  @Deprecated
   void setExternalName(String externalName);
 
   /**

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 
 public interface IntermediateEntitySetAccess extends JPAElement {
@@ -15,8 +16,8 @@ public interface IntermediateEntitySetAccess extends JPAElement {
   public void addAnnotations(final List<CsdlAnnotation> annotations);
 
   /**
-   * Enables a rename external, OData, name of an entity set.
-   * @param externalName
+   * @deprecated (0.3.10, Overriding the external name not working correctly. Create an {@link JPAEdmNameBuilder} instead )
    */
+  @Deprecated
   void setExternalName(String externalName);
 }

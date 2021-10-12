@@ -53,5 +53,7 @@ public interface JPAServiceDocument extends CustomETagSupport {
   JPAEnumerationAttribute getEnumType(final EdmEnumType type);
 
   JPAEnumerationAttribute getEnumType(final String fqnAsString);
+  
+  JPAEdmNameBuilder getNameBuilder();
 
 }

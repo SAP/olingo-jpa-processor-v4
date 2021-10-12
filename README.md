@@ -3,6 +3,7 @@
 [![Build Status](https://travis-ci.org/SAP/olingo-jpa-processor-v4.svg?branch=develop)](https://travis-ci.org/github/SAP/olingo-jpa-processor-v4)
 [![Coverage Status](https://coveralls.io/repos/github/SAP/olingo-jpa-processor-v4/badge.svg?branch=develop)](https://coveralls.io/github/SAP/olingo-jpa-processor-v4?branch=develop)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE.txt)
+[![REUSE status](https://api.reuse.software/badge/github.com/SAP/olingo-jpa-processor-v4)](https://api.reuse.software/info/github.com/SAP/olingo-jpa-processor-v4)
 ![GitHub last commit (develop)](https://img.shields.io/github/last-commit/SAP/OLINGO-JPA-PROCESSOR-V4/develop.svg)
 [![GitHub pre-release](https://img.shields.io/github/release-pre/sap/olingo-jpa-processor-v4.svg?color=orange&label=pre-release)](https://github.com/SAP/olingo-jpa-processor-v4/releases/)
 [![REUSE status](https://api.reuse.software/badge/github.com/SAP/olingo-jpa-processor-v4)](https://api.reuse.software/info/github.com/SAP/olingo-jpa-processor-v4)
@@ -18,11 +19,13 @@ At the current state the JPA Processor provide support for:
 More details can be found in the [Tutorials](/jpa-tutorial/Tutorials/Introduction/Introduction.md).
 
 # Requirements
+
 The JPA Processor requires,minimum Java version [1.8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html). The current version comes with Olingo 4.7.1. If you want to be updated about Olingo changes subscribe to Olingos [user mailing list](user-subscribe@olingo.apache.org).
 
 Even so no JPA implementation is preferred, as long as it supports [JSR-338 Java Persistence 2.1](https://jcp.org/en/jsr/detail?id=317), it has to be stated that all test have been performed with [Eclipselink 2.7.1](http://www.eclipse.org/eclipselink/). If you have any problem e.g. with [Hibernate](http://hibernate.org) create an [issue](https://github.com/SAP/olingo-jpa-processor-v4/issues), but there is no guaranty that it can be solved, as Hibernate implements some JPA interfaces "differently" than EclipseLink.
 
 # Download and Installation
+
 The JPA Processor is a collection of [Maven](https://maven.apache.org) projects. To use it you need to
 clone the repository, import the projects and declare a dependency to either the metadata generation only:
 
@@ -30,7 +33,7 @@ clone the repository, import the projects and declare a dependency to either the
 <dependency>
     <groupId>com.sap.olingo</groupId>
     <artifactId>odata-jpa-metadata</artifactId>
-    <version>0.3.8-SNAPSHOT</version>
+    <version>0.3.10-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -40,17 +43,20 @@ Or to the complete processor:
 <dependency>
     <groupId>com.sap.olingo</groupId>
     <artifactId>odata-jpa-processor</artifactId>
-    <version>0.3.8-SNAPSHOT</version>
+    <version>0.3.10-SNAPSHOT</version>
 </dependency>
 ```
 
 # Limitations
+
 The project is still in the state of incubation, so some incompatible changes my come up, see To-Do. Nevertheless feel free to use the JPA processor where ever it helps.
 
 # How to obtain support
+
 For bugs, questions and ideas for enhancement please open an issue in github.
 
 # To-Do (upcoming-changes)
+
 The flowing extensions/changes are planned:
 
 * Transient fields
@@ -63,6 +69,7 @@ The flowing extensions/changes are planned:
 * Overload Operations
 
 # License
+
 Copyright (c) 2016-2021 SAP SE or an SAP affiliate company and olingo-jpa-processor-v4 contributors. Please see our [LICENSE.txt](LICENSE.txt) for copyright and license information.
 Detailed information including third-party components and their licensing/copyright information is available via the [REUSE tool](https://api.reuse.software/info/github.com/SAP/olingo-jpa-processor-v4).
 
@@ -84,5 +91,5 @@ Detailed information including third-party components and their licensing/copyri
 |0.3.6|- Enable more flexible transaction handling<br> - Part solution for issue [#83](https://github.com/SAP/olingo-jpa-processor-v4/issues/83)<br> - Increase support of Spring by performing request mapping in case a mapping path is provided via the service context|No|
 |0.3.7| - Update Olingo dependency to 4.7.0|No|
 |0.3.8| - Update Olingo dependency to 4.7.1<br> - Support of  `java.time` data types. Prerequisite is the usage of JPA 2.2. <br> - Support of Absolute Context URL. See issue [#103](https://github.com/SAP/olingo-jpa-processor-v4/issues/103)<br> - Temporal data types do not longer require a Precision [#98](https://github.com/SAP/olingo-jpa-processor-v4/issues/98)<br>Support of MappedSuperclass|No|
-|0.3.9| - Solutions for issue [#112](https://github.com/SAP/olingo-jpa-processor-v4/issues/112) <br> Solutions for issue [#114](https://github.com/SAP/olingo-jpa-processor-v4/issues/114)|No|
-
+|0.3.9| - Solutions for issue [#112](https://github.com/SAP/olingo-jpa-processor-v4/issues/112) <br> - Solutions for issue [#114](https://github.com/SAP/olingo-jpa-processor-v4/issues/114)|No|
+|0.3.10| - Update Olingo dependency to 4.8.0<br> - Deprecation of ```setExternalName``` in ```IntermediateModelItemAccess```<br>- Solutions for issue [#134](https://github.com/SAP/olingo-jpa-processor-v4/issues/136)<br>- Solutions for issue [#136](https://github.com/SAP/olingo-jpa-processor-v4/issues/136) |No|

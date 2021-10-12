@@ -17,7 +17,7 @@ public class JPACoreDebuggerTest {
   private JPACoreDebugger cut;
 
   @BeforeEach
-  public void steup() {
+  public void setup() {
     cut = new JPACoreDebugger();
   }
 

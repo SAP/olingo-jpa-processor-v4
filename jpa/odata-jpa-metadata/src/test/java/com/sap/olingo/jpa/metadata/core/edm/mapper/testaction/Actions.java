@@ -20,4 +20,11 @@ public class Actions implements ODataAction {
       @EdmParameter(name = "A", precision = 34, scale = 10) BigDecimal a) {
     // Do nothing
   }
+  
+  @EdmAction(name = "WithImport", isBound = false)
+  public void withImport(
+      @EdmParameter(name = "Person") Person person,
+      @EdmParameter(name = "A", precision = 34, scale = 10) BigDecimal a) {
+    // Do nothing
+  }
 }

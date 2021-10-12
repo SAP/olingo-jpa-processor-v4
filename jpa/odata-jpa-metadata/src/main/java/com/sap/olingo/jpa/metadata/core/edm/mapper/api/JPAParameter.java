@@ -9,7 +9,7 @@ public interface JPAParameter extends JPAParamaterFacet {
   public String getInternalName();
 
   /**
-   * Externaly used name
+   * Externally used name
    * @return
    */
   public String getName();
