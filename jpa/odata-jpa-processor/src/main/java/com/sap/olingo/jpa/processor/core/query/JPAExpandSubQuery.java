@@ -31,9 +31,6 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 
 public class JPAExpandSubQuery extends JPAAbstractJoinQuery {
 
-  private final JPAAssociationPath assoziation;
-  private final SortedSet<? extends Comparable<?>> rootKeys;
-
   public JPAExpandSubQuery(final OData odata, final JPAODataCRUDContextAccess sessionContext,
       final JPAInlineItemInfo item, final Map<String, List<String>> requestHeaders,
       final JPAODataRequestContextAccess requestContext, final SortedSet<? extends Comparable<?>> rootKeys)
@@ -41,24 +38,20 @@ public class JPAExpandSubQuery extends JPAAbstractJoinQuery {
 
     super(odata, sessionContext, item.getEntityType(), item.getUriInfo(), requestContext, requestHeaders,
         item.getHops());
-    this.assoziation = item.getExpandAssociation();
-    this.rootKeys = rootKeys;
   }
 
   public <K extends Comparable<K>> JPAExpandSubQuery(final OData odata, final JPAODataCRUDContextAccess context,
-      final JPAAssociationPath assoziation, final JPAEntityType entityType,
+      final JPAAssociationPath association, final JPAEntityType entityType,
       final Map<String, List<String>> requestHeaders, final JPAODataRequestContextAccess requestContext,
       final SortedSet<K> rootKeys)
       throws ODataException {
 
     super(odata, context, entityType, requestContext, requestHeaders, Collections.emptyList());
-    this.assoziation = assoziation;
-    this.rootKeys = rootKeys;
+
   }
 
   @Override
   public JPAConvertableResult execute() throws ODataApplicationException {
-    // TODO Auto-generated method stub
     return null;
   }
 }

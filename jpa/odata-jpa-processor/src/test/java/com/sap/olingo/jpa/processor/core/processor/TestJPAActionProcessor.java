@@ -164,7 +164,7 @@ public class TestJPAActionProcessor {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testCallsConstructorWithParemeter() throws ODataJPAProcessException, InstantiationException,
+  public void testCallsConstructorWithParameter() throws ODataJPAProcessException, InstantiationException,
       IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException,
       SecurityException, ODataApplicationException {
     TestJavaActions.constructorCalls = 0;

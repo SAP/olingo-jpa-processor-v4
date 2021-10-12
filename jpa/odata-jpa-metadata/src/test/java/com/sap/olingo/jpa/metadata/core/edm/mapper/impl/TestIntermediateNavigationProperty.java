@@ -162,7 +162,7 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkGetProptertyFacetsColletionFalse() throws ODataJPAModelException {
+  public void checkGetProptertyFacetsCollectionFalse() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(BusinessPartnerRole.class),
         "businessPartner");
     final IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
@@ -493,7 +493,7 @@ public class TestIntermediateNavigationProperty extends TestMappingRoot {
   }
 
   @Test
-  public void checkIsAssocationReturnsTrue() throws ODataJPAModelException {
+  public void checkIsAssociationReturnsTrue() throws ODataJPAModelException {
     final IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), schema.getEntityType(JoinSource.class), createDummyAttribute(), schema);
     assertTrue(property.isAssociation());

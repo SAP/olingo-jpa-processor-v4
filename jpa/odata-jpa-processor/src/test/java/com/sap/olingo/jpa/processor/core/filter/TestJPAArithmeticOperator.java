@@ -158,7 +158,7 @@ public class TestJPAArithmeticOperator {
   }
 
   @Test
-  public void testGetMemberMemberGetRightAsNumber_Exeption() throws ODataApplicationException {
+  public void testGetMemberMemberGetRightAsNumber_Exception() throws ODataApplicationException {
     JPAMemberOperator right = mock(JPAMemberOperator.class);
     JPAMemberOperator left = mock(JPAMemberOperator.class);
     JPAAttribute attribute = mock(JPAAttribute.class);
@@ -172,11 +172,11 @@ public class TestJPAArithmeticOperator {
     } catch (ODataApplicationException e) {
       return;
     }
-    fail("Exception expecetd");
+    fail("Exception expected");
   }
 
   @Test
-  public void testGetBooleanMemberGetRightAsNumber_Exeption() throws ODataApplicationException {
+  public void testGetBooleanMemberGetRightAsNumber_Exception() throws ODataApplicationException {
     JPAMemberOperator right = mock(JPAMemberOperator.class);
     JPABooleanOperatorImp left = mock(JPABooleanOperatorImp.class);
 
@@ -186,11 +186,11 @@ public class TestJPAArithmeticOperator {
     } catch (ODataApplicationException e) {
       return;
     }
-    fail("Exception expecetd");
+    fail("Exception expected");
   }
 
   @Test
-  public void testGetMemberBooleanGetRightAsNumber_Exeption() throws ODataApplicationException {
+  public void testGetMemberBooleanGetRightAsNumber_Exception() throws ODataApplicationException {
     JPAMemberOperator left = mock(JPAMemberOperator.class);
     JPABooleanOperatorImp right = mock(JPABooleanOperatorImp.class);
 
@@ -200,6 +200,6 @@ public class TestJPAArithmeticOperator {
     } catch (ODataApplicationException e) {
       return;
     }
-    fail("Exception expecetd");
+    fail("Exception expected");
   }
 }
