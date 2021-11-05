@@ -6,5 +6,5 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 
 public interface JPAAction extends JPAOperation, JPAJavaOperation {
 
-  JPAParameter getParameter(Parameter declaredParameter) throws ODataJPAModelException;
+  JPAParameter getParameter(final Parameter declaredParameter) throws ODataJPAModelException;
 }

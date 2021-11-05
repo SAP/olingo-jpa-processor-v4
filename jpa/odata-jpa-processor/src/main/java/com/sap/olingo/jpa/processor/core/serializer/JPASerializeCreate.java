@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.apache.olingo.commons.api.data.ContextURL;
 import org.apache.olingo.commons.api.data.EntityCollection;
-import org.apache.olingo.commons.api.edm.EdmEntitySet;
+import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.format.ContentType;
@@ -60,12 +60,12 @@ final class JPASerializeCreate implements JPASerializer {
       throws SerializerException, ODataJPASerializerException {
 
     final ExpandOption expandOption = new ExpandOptionWrapper(new ExpandItemWrapper());
-    final EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(uriInfo.getUriResourceParts());
-    final EdmEntityType entityType = targetEdmEntitySet.getEntityType();
+    final EdmBindingTarget targetEdmBindingTarget = Util.determineBindingTarget(uriInfo.getUriResourceParts());
+    final EdmEntityType entityType = targetEdmBindingTarget.getEntityType();
     try {
       final ContextURL contextUrl = ContextURL.with()
           .serviceRoot(buildServiceRoot(request, serviceContext))
-          .entitySet(targetEdmEntitySet)
+          .entitySetOrSingletonOrType(targetEdmBindingTarget.getName())
           .build();
 
       final EntitySerializerOptions options = EntitySerializerOptions.with()
@@ -190,4 +190,3 @@ final class JPASerializeCreate implements JPASerializer {
     }
   }
 }
-

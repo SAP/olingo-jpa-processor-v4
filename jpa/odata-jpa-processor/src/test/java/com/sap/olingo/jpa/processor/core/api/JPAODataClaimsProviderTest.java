@@ -10,17 +10,17 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class JPAODataClaimsProviderTest {
+class JPAODataClaimsProviderTest {
 
   private JPAODataClaimsProvider cut;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     cut = new JPAODataClaimsProvider();
   }
 
   @Test
-  public void checkAddSinglePairReturnsOne() {
+  void checkAddSinglePairReturnsOne() {
     cut.add("Test", new JPAClaimsPair<>("Hugo"));
     final List<JPAClaimsPair<?>> claims = cut.get("Test");
     assertNotNull(claims);
@@ -28,7 +28,7 @@ public class JPAODataClaimsProviderTest {
   }
 
   @Test
-  public void checkAddThreeSinglePairsReturnsThree() {
+  void checkAddThreeSinglePairsReturnsThree() {
     cut.add("Test", new JPAClaimsPair<>("Hugo"));
     cut.add("Test", new JPAClaimsPair<>("Willi"));
     cut.add("Test", new JPAClaimsPair<>("Walter"));
@@ -38,14 +38,14 @@ public class JPAODataClaimsProviderTest {
   }
 
   @Test
-  public void checkNotProvidedAttributeReturnsEmptyList() {
+  void checkNotProvidedAttributeReturnsEmptyList() {
     final List<JPAClaimsPair<?>> claims = cut.get("Test");
     assertNotNull(claims);
     assertEquals(0, claims.size());
   }
 
   @Test
-  public void checkAddTwoAttributesSinglePairs() {
+  void checkAddTwoAttributesSinglePairs() {
     cut.add("Test", new JPAClaimsPair<>("Hugo"));
     cut.add("Dummy", new JPAClaimsPair<>("Willi"));
 
@@ -59,17 +59,17 @@ public class JPAODataClaimsProviderTest {
   }
 
   @Test
-  public void checkCreateWithUser() {
+  void checkCreateWithUser() {
     assertNotNull(new JPAODataClaimsProvider("Willi"));
   }
 
   @Test
-  public void checkUserReturnedWhenInConstructor() {
+  void checkUserReturnedWhenInConstructor() {
     assertTrue(new JPAODataClaimsProvider("Willi").user().isPresent());
   }
 
   @Test
-  public void checkUserNotPresentWhenNotInConstructor() {
+  void checkUserNotPresentWhenNotInConstructor() {
     assertFalse(cut.user().isPresent());
   }
 

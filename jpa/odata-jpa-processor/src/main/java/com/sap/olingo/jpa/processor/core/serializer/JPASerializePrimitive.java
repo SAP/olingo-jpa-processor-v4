@@ -6,7 +6,7 @@ import org.apache.olingo.commons.api.data.Annotatable;
 import org.apache.olingo.commons.api.data.ContextURL;
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.Property;
-import org.apache.olingo.commons.api.edm.EdmEntitySet;
+import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.format.ContentType;
@@ -64,7 +64,7 @@ final class JPASerializePrimitive extends JPASerializePrimitiveAbstract {
   public SerializerResult serialize(final ODataRequest request, final EntityCollection result)
       throws SerializerException, ODataJPASerializerException {
 
-    final EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(uriInfo.getUriResourceParts());
+    final EdmBindingTarget targetEdmBindingTarget = Util.determineBindingTarget(uriInfo.getUriResourceParts());
     final UriResourceProperty uriProperty = (UriResourceProperty) uriInfo.getUriResourceParts().get(uriInfo
         .getUriResourceParts().size() - 1);
 
@@ -74,7 +74,7 @@ final class JPASerializePrimitive extends JPASerializePrimitiveAbstract {
     try {
       final ContextURL contextUrl = ContextURL.with()
           .serviceRoot(buildServiceRoot(request, serviceContext))
-          .entitySet(targetEdmEntitySet)
+          .entitySetOrSingletonOrType(targetEdmBindingTarget.getName())
           .navOrPropertyPath(property.getPath())
           .build();
 

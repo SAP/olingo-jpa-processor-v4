@@ -9,29 +9,29 @@ import java.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class TestJPAODataGroupsProvider {
+class JPAODataGroupsProviderTest {
   private JPAODataGroupsProvider cut;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     cut = new JPAODataGroupsProvider();
   }
 
   @Test
-  public void getEmptyListIfNoGroupProvided() {
+  void getEmptyListIfNoGroupProvided() {
     assertNotNull(cut.getGroups());
     assertTrue(cut.getGroups().isEmpty());
   }
 
   @Test
-  public void getReturnsOneProvidedGroup() {
+  void getReturnsOneProvidedGroup() {
     cut.addGroup("Willi");
     assertEquals(1, cut.getGroups().size());
     assertEquals("Willi", cut.getGroups().get(0));
   }
 
   @Test
-  public void getReturnsTwoSeparateProvidedGroup() {
+  void getReturnsTwoSeparateProvidedGroup() {
     cut.addGroup("Willi");
     cut.addGroup("Hugo");
     assertEquals(2, cut.getGroups().size());
@@ -40,7 +40,7 @@ public class TestJPAODataGroupsProvider {
   }
 
   @Test
-  public void getReturnsOneIgnoreNullSeperateProvidedGroup() {
+  void getReturnsOneIgnoreNullSeperateProvidedGroup() {
     cut.addGroup("Willi");
     cut.addGroup(null);
     assertEquals(1, cut.getGroups().size());
@@ -48,7 +48,7 @@ public class TestJPAODataGroupsProvider {
   }
 
   @Test
-  public void getReturnsProvidedGroupArray() {
+  void getReturnsProvidedGroupArray() {
     cut.addGroups("Hugo", "Willi");
     assertEquals(2, cut.getGroups().size());
     assertTrue(cut.getGroups().contains("Willi"));
@@ -56,7 +56,7 @@ public class TestJPAODataGroupsProvider {
   }
 
   @Test
-  public void getReturnsProvidedGroupCollection() {
+  void getReturnsProvidedGroupCollection() {
     cut.addGroups(Arrays.asList("Hugo", null, "Willi"));
     assertEquals(2, cut.getGroups().size());
     assertTrue(cut.getGroups().contains("Willi"));

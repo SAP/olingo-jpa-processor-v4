@@ -2,12 +2,12 @@ package com.sap.olingo.jpa.processor.core.query;
 
 import java.util.List;
 
-import org.apache.olingo.commons.api.edm.EdmEntitySet;
+import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.server.api.uri.UriParameter;
 
-public interface EdmEntitySetInfo {
+public interface EdmBindingTargetInfo {
 
-  public EdmEntitySet getEdmEntitySet();
+  public EdmBindingTarget getEdmBindingTarget();
 
   public List<UriParameter> getKeyPredicates();
 
@@ -15,5 +15,5 @@ public interface EdmEntitySetInfo {
 
   public String getNavigationPath();
 
-  public EdmEntitySet getTargetEdmEntitySet();
+  public EdmBindingTarget getTargetEdmBindingTarget();
 }

@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -40,6 +41,7 @@ import org.mockito.Mockito;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ValueNode;
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
+import com.sap.olingo.jpa.metadata.api.JPARequestParameterMap;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
@@ -69,6 +71,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
   private JPAEntityType etSpy;
   private List<JPAProtectionInfo> protections;
   private CriteriaBuilder cbSpy;
+  private JPARequestParameterMap parameter;
 
   @Override
   @BeforeEach
@@ -81,9 +84,11 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     when(providerSpy.getServiceDocument()).thenReturn(sdSpy);
 
     final EntityManager emSpy = spy(emf.createEntityManager());
+    parameter = mock(JPARequestParameterMap.class);
     cbSpy = spy(emSpy.getCriteriaBuilder());
     when(emSpy.getCriteriaBuilder()).thenReturn(cbSpy);
     when(externalContext.getEntityManager()).thenReturn(emSpy);
+    when(externalContext.getRequestParameter()).thenReturn(parameter);
   }
 
   @Test

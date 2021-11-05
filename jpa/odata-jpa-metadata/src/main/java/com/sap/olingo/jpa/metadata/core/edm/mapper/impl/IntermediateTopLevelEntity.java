@@ -2,6 +2,7 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlNavigationPropertyBinding;
 
@@ -9,10 +10,12 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAQueryExtension;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPATopLevelEntity;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
-abstract class IntermediateTopLevelEntity extends IntermediateModelElement {
+abstract class IntermediateTopLevelEntity extends IntermediateModelElement implements JPATopLevelEntity {
 
   final IntermediateEntityType<?> entityType;
 
@@ -70,4 +73,8 @@ abstract class IntermediateTopLevelEntity extends IntermediateModelElement {
     return entityType;
   }
 
+  @Override
+  public Optional<JPAQueryExtension> getQueryExtention() throws ODataJPAModelException {
+    return getEntityType().getQueryExtention();
+  }
 }

@@ -15,6 +15,7 @@ import java.util.Optional;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.Expression;
 
+import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
 import org.apache.olingo.commons.api.ex.ODataException;
@@ -27,6 +28,8 @@ import org.apache.olingo.server.api.uri.UriResourceNavigation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.sap.olingo.jpa.metadata.api.JPAHttpHeaderMap;
+import com.sap.olingo.jpa.metadata.api.JPARequestParameterMap;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -68,6 +71,8 @@ class TestJPAExpandJoinQuery extends TestBase {
     when(requestContext.getDebugger()).thenReturn(debugger);
     when(requestContext.getClaimsProvider()).thenReturn(Optional.empty());
     when(requestContext.getEntityManager()).thenReturn(em);
+    when(requestContext.getHeader()).thenReturn(mock(JPAHttpHeaderMap.class));
+    when(requestContext.getRequestParameter()).thenReturn(mock(JPARequestParameterMap.class));
   }
 
   @Test
@@ -175,6 +180,7 @@ class TestJPAExpandJoinQuery extends TestBase {
     final UriResourceEntitySet uriEts = mock(UriResourceEntitySet.class);
     when(uriEts.getKeyPredicates()).thenReturn(keyPredicates);
     final EdmEntityType edmType = mock(EdmEntityType.class);
+    final EdmEntitySet edmSet = mock(EdmEntitySet.class);
 
     final List<JPANavigationPropertyInfo> hops = new ArrayList<>();
     JPANavigationPropertyInfo hop = new JPANavigationPropertyInfo(helper.sd, uriEts, et.getAssociationPath(
@@ -198,19 +204,22 @@ class TestJPAExpandJoinQuery extends TestBase {
     when(item.getExpandAssociation()).thenReturn(et.getAssociationPath("Children"));
     when(uriInfo.getUriResourceParts()).thenReturn(resourceParts);
     when(uriEts.getType()).thenReturn(edmType);
+    when(uriEts.getEntitySet()).thenReturn(edmSet);
+    when(edmSet.getName()).thenReturn("AdministrativeDivisions");
     when(edmType.getNamespace()).thenReturn(PUNIT_NAME);
     when(edmType.getName()).thenReturn("AdministrativeDivision");
     return item;
   }
 
   private JPAInlineItemInfo createOrgExpandRoles(final List<UriParameter> keyPredicates,
-      final Expression<Boolean> expression)
-      throws ODataJPAModelException, ODataApplicationException {
+      final Expression<Boolean> expression) throws ODataJPAModelException, ODataApplicationException {
+
     final JPAEntityType et = helper.getJPAEntityType("BusinessPartnerRoles");
     final JPAExpandItemWrapper uriInfo = mock(JPAExpandItemWrapper.class);
     final UriResourceEntitySet uriEts = mock(UriResourceEntitySet.class);
     when(uriEts.getKeyPredicates()).thenReturn(keyPredicates);
     final EdmEntityType edmType = mock(EdmEntityType.class);
+    final EdmEntitySet edmSet = mock(EdmEntitySet.class);
 
     final List<JPANavigationPropertyInfo> hops = new ArrayList<>();
     JPANavigationPropertyInfo hop = new JPANavigationPropertyInfo(helper.sd, uriEts, helper.getJPAEntityType(
@@ -235,6 +244,8 @@ class TestJPAExpandJoinQuery extends TestBase {
         .getAssociationPath("Roles"));
     when(uriInfo.getUriResourceParts()).thenReturn(resourceParts);
     when(uriEts.getType()).thenReturn(edmType);
+    when(uriEts.getEntitySet()).thenReturn(edmSet);
+    when(edmSet.getName()).thenReturn("Organizations");
     when(edmType.getNamespace()).thenReturn(PUNIT_NAME);
     when(edmType.getName()).thenReturn("Organization");
     return item;

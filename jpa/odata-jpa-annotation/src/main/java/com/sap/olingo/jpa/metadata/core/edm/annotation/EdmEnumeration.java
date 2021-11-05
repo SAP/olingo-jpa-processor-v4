@@ -35,7 +35,7 @@ import javax.persistence.Enumerated;
 public @interface EdmEnumeration {
 
   /**
-   * Converter to convert that converts the enumeration value. If no converter is provided, the ordinal is taken.
+   * Converter to convert enumeration value into a number. If no converter is provided, the ordinal is taken.
    */
   Class<? extends AttributeConverter<? extends Enum<?>[], ? extends Number>> converter() default DummyConverter.class;
 
@@ -48,13 +48,13 @@ public @interface EdmEnumeration {
   static class DummyConverter implements AttributeConverter<Enum<?>[], Integer> {
 
     @Override
-    public Integer convertToDatabaseColumn(Enum<?>[] attributes) {
+    public Integer convertToDatabaseColumn(final Enum<?>[] attributes) {
       return attributes[0].ordinal();
     }
 
     @Enumerated
     @Override
-    public Enum<?>[] convertToEntityAttribute(Integer dbData) {
+    public Enum<?>[] convertToEntityAttribute(final Integer dbData) {
       return null; // NOSONAR
     }
 

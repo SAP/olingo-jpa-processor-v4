@@ -28,7 +28,7 @@ import com.sap.olingo.jpa.processor.core.util.TestHelper;
 import com.sap.olingo.jpa.processor.core.util.TupleDouble;
 import com.sap.olingo.jpa.processor.core.util.UriHelperDouble;
 
-public class TestJPATupleChildConverterCompoundKey extends TestBase {
+class TestJPATupleChildConverterCompoundKey extends TestBase {
   public static final int NO_POSTAL_ADDRESS_FIELDS = 8;
   public static final int NO_ADMIN_INFO_FIELDS = 2;
   private JPATupleChildConverter cut;
@@ -38,7 +38,7 @@ public class TestJPATupleChildConverterCompoundKey extends TestBase {
   private JPAODataRequestContextAccess requestContext;
 
   @BeforeEach
-  public void setup() throws ODataException {
+  void setup() throws ODataException {
     helper = new TestHelper(emf, PUNIT_NAME);
     jpaQueryResult = new ArrayList<>();
     uriHelper = new UriHelperDouble();
@@ -47,10 +47,10 @@ public class TestJPATupleChildConverterCompoundKey extends TestBase {
   }
 
   @Test
-  public void checkConvertsOneResultsTwoKeys() throws ODataApplicationException, ODataJPAModelException {
+  void checkConvertsOneResultsTwoKeys() throws ODataApplicationException, ODataJPAModelException {
     // .../BusinessPartnerRoles(BusinessPartnerID='3',RoleCategory='C')
 
-    HashMap<String, List<Tuple>> resultContainer = new HashMap<>(1);
+    final HashMap<String, List<Tuple>> resultContainer = new HashMap<>(1);
     resultContainer.put("root", jpaQueryResult);
 
     cut = new JPATupleChildConverter(helper.sd, uriHelper, new ServiceMetadataDouble(nameBuilder,
@@ -66,7 +66,7 @@ public class TestJPATupleChildConverterCompoundKey extends TestBase {
     uriHelper.setKeyPredicates(keyPredicates, "BusinessPartnerID");
     keyPredicates.put("3", "BusinessPartnerID='3',RoleCategory='C'");
 
-    EntityCollection act = cut.getResult(new JPAExpandQueryResult(resultContainer, null, helper.getJPAEntityType(
+    final EntityCollection act = cut.getResult(new JPAExpandQueryResult(resultContainer, null, helper.getJPAEntityType(
         "BusinessPartnerRoles"), Collections.emptyList()), Collections.emptyList()).get(ROOT_RESULT_KEY);
 
     assertEquals(1, act.getEntities().size());
@@ -78,16 +78,16 @@ public class TestJPATupleChildConverterCompoundKey extends TestBase {
   }
 
   @Test // EmbeddedIds are resolved to elementary key properties
-  public void checkConvertsOneResultsEmbeddedKey() throws ODataApplicationException, ODataJPAModelException {
+  void checkConvertsOneResultsEmbeddedKey() throws ODataApplicationException, ODataJPAModelException {
     // .../AdministrativeDivisionDescriptions(CodePublisher='ISO', CodeID='3166-1', DivisionCode='DEU',Language='en')
 
-    HashMap<String, List<Tuple>> resultContainer = new HashMap<>(1);
+    final HashMap<String, List<Tuple>> resultContainer = new HashMap<>(1);
     resultContainer.put("root", jpaQueryResult);
 
     cut = new JPATupleChildConverter(helper.sd, uriHelper, new ServiceMetadataDouble(nameBuilder,
         "AdministrativeDivisionDescription"), requestContext);
 
-    AdministrativeDivisionDescriptionKey country = new AdministrativeDivisionDescriptionKey();
+    final AdministrativeDivisionDescriptionKey country = new AdministrativeDivisionDescriptionKey();
     country.setLanguage("en");
 
     HashMap<String, Object> result;
@@ -101,7 +101,7 @@ public class TestJPATupleChildConverterCompoundKey extends TestBase {
     uriHelper.setKeyPredicates(keyPredicates, "DivisionCode");
     keyPredicates.put("DEU", "CodePublisher='ISO',CodeID='3166-1',DivisionCode='DEU',Language='en'");
 
-    EntityCollection act = cut.getResult(new JPAExpandQueryResult(resultContainer, null, helper.getJPAEntityType(
+    final EntityCollection act = cut.getResult(new JPAExpandQueryResult(resultContainer, null, helper.getJPAEntityType(
         "AdministrativeDivisionDescriptions"), Collections.emptyList()), Collections.emptyList()).get(ROOT_RESULT_KEY);
 
     assertEquals(1, act.getEntities().size());

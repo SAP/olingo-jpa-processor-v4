@@ -44,7 +44,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPATransactionException;
 import com.sap.olingo.jpa.processor.core.processor.JPAEmptyDebugger;
 
-public class JPAODataBatchProcessorTest {
+class JPAODataBatchProcessorTest {
   private JPAODataBatchProcessor cut;
 
   @Mock
@@ -77,7 +77,7 @@ public class JPAODataBatchProcessorTest {
   private List<ODataRequest> requests;
 
   @BeforeEach
-  public void setup() throws ODataJPATransactionException {
+  void setup() throws ODataJPATransactionException {
     MockitoAnnotations.openMocks(this);
     when(requestContext.getEntityManager()).thenReturn(em);
     when(requestContext.getCUDRequestHandler()).thenReturn(cudHandler);
@@ -93,7 +93,7 @@ public class JPAODataBatchProcessorTest {
   }
 
   @Test
-  public void whenNotOptimisticLockRollBackExceptionThenThrowODataJPAProcessorExceptionWithHttpCode500()
+  void whenNotOptimisticLockRollBackExceptionThenThrowODataJPAProcessorExceptionWithHttpCode500()
       throws ODataApplicationException, ODataLibraryException {
     when(response.getStatusCode()).thenReturn(HttpStatusCode.OK.getStatusCode());
     when(facade.handleODataRequest(request)).thenReturn(response);
@@ -105,7 +105,7 @@ public class JPAODataBatchProcessorTest {
   }
 
   @Test
-  public void whenOptimisticLockRollBackExceptionThenThrowODataJPAProcessorExceptionWithHttpCode412()
+  void whenOptimisticLockRollBackExceptionThenThrowODataJPAProcessorExceptionWithHttpCode412()
       throws ODataApplicationException, ODataLibraryException {
     when(response.getStatusCode()).thenReturn(HttpStatusCode.OK.getStatusCode());
     when(facade.handleODataRequest(request)).thenReturn(response);
@@ -119,7 +119,7 @@ public class JPAODataBatchProcessorTest {
   }
 
   @Test
-  public void whenSuccessfulThenCallValidateChanges() throws ODataApplicationException,
+  void whenSuccessfulThenCallValidateChanges() throws ODataApplicationException,
       ODataLibraryException {
     cut = new JPAODataBatchProcessor(sessionContext, requestContext);
 
@@ -131,7 +131,7 @@ public class JPAODataBatchProcessorTest {
   }
 
   @Test
-  public void whenValidateChangesThrowsThenRollbackAndThrow() throws ODataApplicationException,
+  void whenValidateChangesThrowsThenRollbackAndThrow() throws ODataApplicationException,
       ODataLibraryException {
     cut = new JPAODataBatchProcessor(sessionContext, requestContext);
     final ODataJPAProcessException error = new ODataJPAProcessorException(
@@ -146,7 +146,7 @@ public class JPAODataBatchProcessorTest {
 //ODataLibraryException
 
   @Test
-  public void whenODataLibraryExceptionThrowsThenRollbackAndThrow() throws ODataApplicationException,
+  void whenODataLibraryExceptionThrowsThenRollbackAndThrow() throws ODataApplicationException,
       ODataLibraryException {
     cut = new JPAODataBatchProcessor(sessionContext, requestContext);
     final ODataLibraryException error = new BatchSerializerException("",
@@ -159,7 +159,7 @@ public class JPAODataBatchProcessorTest {
   }
 
   @Test
-  public void whenNoExceptionOccurredThenCommit() throws ODataApplicationException, ODataLibraryException {
+  void whenNoExceptionOccurredThenCommit() throws ODataApplicationException, ODataLibraryException {
 
     when(response.getStatusCode()).thenReturn(HttpStatusCode.OK.getStatusCode());
     when(facade.handleODataRequest(request)).thenReturn(response);
@@ -170,7 +170,7 @@ public class JPAODataBatchProcessorTest {
   }
 
   @Test
-  public void whenProcessChangeSetReturnsUnsuccessfulCallThenRollback() throws ODataApplicationException,
+  void whenProcessChangeSetReturnsUnsuccessfulCallThenRollback() throws ODataApplicationException,
       ODataLibraryException {
     cut = new JPAODataBatchProcessor(sessionContext, requestContext);
 
@@ -185,7 +185,7 @@ public class JPAODataBatchProcessorTest {
   }
 
   @Test
-  public void whenTransactionCouldNotBeCreatedThenThrowWith501() throws ODataApplicationException,
+  void whenTransactionCouldNotBeCreatedThenThrowWith501() throws ODataApplicationException,
       ODataLibraryException {
 
     when(factory.createTransaction()).thenThrow(new ODataJPATransactionException(
@@ -199,14 +199,14 @@ public class JPAODataBatchProcessorTest {
   }
 
   @Test
-  public void whenNoContinueHeaderContinueOnErrorReturnsFalse() {
+  void whenNoContinueHeaderContinueOnErrorReturnsFalse() {
     final Preferences preferences = mock(Preferences.class);
     when(preferences.getPreference(PreferenceName.CONTINUE_ON_ERROR.getName())).thenReturn(null);
     assertFalse(cut.continueOnError(preferences));
   }
 
   @Test
-  public void whenContinueHeaderNoValueContinueOnErrorReturnsTrue() {
+  void whenContinueHeaderNoValueContinueOnErrorReturnsTrue() {
     final Preferences preferences = mock(Preferences.class);
     final Preference continueOnError = mock(Preference.class);
     when(preferences.getPreference(PreferenceName.CONTINUE_ON_ERROR.getName())).thenReturn(continueOnError);
@@ -215,7 +215,7 @@ public class JPAODataBatchProcessorTest {
   }
 
   @Test
-  public void whenContinueHeaderTrueContinueOnErrorReturnsTrue() {
+  void whenContinueHeaderTrueContinueOnErrorReturnsTrue() {
     final Preferences preferences = mock(Preferences.class);
     final Preference continueOnError = mock(Preference.class);
     when(preferences.getPreference(PreferenceName.CONTINUE_ON_ERROR.getName())).thenReturn(continueOnError);
@@ -224,7 +224,7 @@ public class JPAODataBatchProcessorTest {
   }
 
   @Test
-  public void whenContinueHeaderFalseContinueOnErrorReturnsFalse() {
+  void whenContinueHeaderFalseContinueOnErrorReturnsFalse() {
     final Preferences preferences = mock(Preferences.class);
     final Preference continueOnError = mock(Preference.class);
     when(preferences.getPreference(PreferenceName.CONTINUE_ON_ERROR.getName())).thenReturn(continueOnError);
@@ -233,7 +233,7 @@ public class JPAODataBatchProcessorTest {
   }
 
   @Test
-  public void whenNotContinueOnErrorSecondNotPerformed() throws ODataApplicationException, ODataLibraryException {
+  void whenNotContinueOnErrorSecondNotPerformed() throws ODataApplicationException, ODataLibraryException {
     final List<BatchRequestPart> requestParts = createBatchRequest();
     final ODataResponsePart resp = mock(ODataResponsePart.class);
     final List<ODataResponse> responses = createBatchPartResponse(400);
@@ -247,7 +247,7 @@ public class JPAODataBatchProcessorTest {
   }
 
   @Test
-  public void whenContinueOnErrorSecondPerformed() throws ODataApplicationException, ODataLibraryException {
+  void whenContinueOnErrorSecondPerformed() throws ODataApplicationException, ODataLibraryException {
     final List<BatchRequestPart> requestParts = createBatchRequest();
     final ODataResponsePart resp1 = mock(ODataResponsePart.class);
     final ODataResponsePart resp2 = mock(ODataResponsePart.class);
@@ -266,7 +266,7 @@ public class JPAODataBatchProcessorTest {
   }
 
   @Test
-  public void whenNotContinueOnErrorSecondPerformedNoFailuer() throws ODataApplicationException, ODataLibraryException {
+  void whenNotContinueOnErrorSecondPerformedNoFailuer() throws ODataApplicationException, ODataLibraryException {
     final List<BatchRequestPart> requestParts = createBatchRequest();
     final ODataResponsePart resp1 = mock(ODataResponsePart.class);
     final ODataResponsePart resp2 = mock(ODataResponsePart.class);

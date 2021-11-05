@@ -1,10 +1,6 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Parameter;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -15,14 +11,16 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.persistence.EntityManager;
 
-import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 
+import com.sap.olingo.jpa.metadata.api.JPAHttpHeaderMap;
+import com.sap.olingo.jpa.metadata.api.JPARequestParameterMap;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmQueryExtensionProvider;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransientPropertyCalculator;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.processor.core.api.JPAAbstractCUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.api.JPACUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
@@ -31,7 +29,6 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContext;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataRequestParameterAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataTransactionFactory;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
@@ -53,20 +50,19 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
   private JPADebugSupportWrapper debugSupport;
   private String debugFormat;
   private JPAODataTransactionFactory transactionFactory;
-  private final Map<JPAAttribute, EdmTransientPropertyCalculator<?>> transientCalculatorCache;
-  private final Map<String, List<String>> header;
-  private Map<String, Object> customParameter;
+  private final JPAHttpHeaderMap header;
+  private JPARequestParameterMap customParameter;
   private List<Locale> locales;
+  private final JPAHookFactory hookFactory;
 
   public JPAODataInternalRequestContext() {
     this(null);
-
   }
 
   public JPAODataInternalRequestContext(@Nullable final JPAODataRequestContext requestContext) {
-    this.transientCalculatorCache = new HashMap<>();
-    this.header = Collections.emptyMap();
+    this.header = new JPAHttpHeaderHashMap(Collections.emptyMap());
     copyRequestContext(requestContext);
+    this.hookFactory = new JPAHookFactory(em, header, customParameter);
     initDebugger();
   }
 
@@ -96,37 +92,33 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
     copyContextValues(context);
     this.serializer = serializer;
     this.cudRequestHandler = new JPADefaultCUDRequestHandler();
-    this.transientCalculatorCache = new HashMap<>();
-    this.header = header;
-    this.customParameter = new HashMap<>(context.getParameters());
+    this.header = new JPAHttpHeaderHashMap(header);
+    this.customParameter = new JPARequestParameterHashMap(context.getRequestParameter());
+    this.hookFactory = new JPAHookFactory(em, this.header, customParameter);
     setJPAODataPage(page);
   }
 
   JPAODataInternalRequestContext(final UriInfoResource uriInfo, @Nullable final JPASerializer serializer,
       final JPAODataRequestContextAccess context, final Map<String, List<String>> header) {
+
     copyContextValues(context);
     this.serializer = serializer;
     this.uriInfo = uriInfo;
-    this.transientCalculatorCache = new HashMap<>();
-    this.header = header;
-    this.customParameter = new HashMap<>(context.getParameters());
+    this.header = new JPAHttpHeaderHashMap(header);
+    this.customParameter = new JPARequestParameterHashMap(context.getRequestParameter());
+    this.hookFactory = new JPAHookFactory(em, this.header, customParameter);
   }
 
   @Override
   public Optional<EdmTransientPropertyCalculator<?>> getCalculator(@Nonnull final JPAAttribute transientProperty)
       throws ODataJPAProcessorException {
-    try {
-      if (transientProperty.isTransient()) {
-        if (!transientCalculatorCache.containsKey(transientProperty)) {
-          createCalculator(transientProperty);
-        }
-        return Optional.of(transientCalculatorCache.get(transientProperty));
-      }
-    } catch (ODataJPAModelException | InstantiationException | IllegalAccessException | IllegalArgumentException
-        | InvocationTargetException e) {
-      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-    }
-    return Optional.empty();
+    return hookFactory.getTransientPropertyCalculator(transientProperty);
+  }
+
+  @Override
+  public Optional<EdmQueryExtensionProvider> getQueryEnhancment(final JPAEntityType et)
+      throws ODataJPAProcessorException {
+    return hookFactory.getQueryExtensionProvider(et);
   }
 
   @Override
@@ -163,23 +155,18 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
   }
 
   @Override
-  public Map<String, List<String>> getHeader() {
+  public JPAHttpHeaderMap getHeader() {
     return header;
+  }
+
+  @Override
+  public JPARequestParameterMap getRequestParameter() {
+    return customParameter;
   }
 
   @Override
   public JPAODataPage getPage() {
     return page;
-  }
-
-  @Override
-  public Object getParameter(final String parameterName) {
-    return customParameter.get(parameterName);
-  }
-
-  @Override
-  public Map<String, Object> getParameters() {
-    return customParameter;
   }
 
   @Override
@@ -259,26 +246,7 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
         debugSupport) : null;
     transactionFactory = requestContext != null ? requestContext.getTransactionFactory() : null;
     locales = requestContext != null ? requestContext.getLocales() : Collections.emptyList();
-    customParameter = requestContext != null ? requestContext.getParameters() : new HashMap<>();
-  }
-
-  private void createCalculator(final JPAAttribute transientProperty) throws ODataJPAModelException,
-      InstantiationException, IllegalAccessException, InvocationTargetException {
-    final Constructor<? extends EdmTransientPropertyCalculator<?>> c = transientProperty
-        .getCalculatorConstructor();
-    final Parameter[] parameters = c.getParameters();
-    final Object[] paramValues = new Object[parameters.length];
-    for (int i = 0; i < parameters.length; i++) {
-      final Parameter parameter = parameters[i];
-      if (parameter.getType().isAssignableFrom(EntityManager.class))
-        paramValues[i] = em;
-      if (parameter.getType().isAssignableFrom(Map.class))
-        paramValues[i] = header;
-      if (parameter.getType().isAssignableFrom(JPAODataRequestParameterAccess.class))
-        paramValues[i] = this;
-    }
-    final EdmTransientPropertyCalculator<?> calculator = c.newInstance(paramValues);
-    transientCalculatorCache.put(transientProperty, calculator);
+    customParameter = requestContext != null ? requestContext.getRequestParameter() : new JPARequestParameterHashMap();
   }
 
   private void createDefaultTransactionFactory() {

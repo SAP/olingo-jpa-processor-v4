@@ -24,7 +24,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
 
-public class TestJPARequestLinkImpl {
+class JPARequestLinkImplTest {
   private JPARequestLinkImpl cut;
   private JPAAssociationPath path;
   private List<JPAOnConditionItem> items;
@@ -32,7 +32,7 @@ public class TestJPARequestLinkImpl {
   private JPAAssociationAttribute pathLeaf;
 
   @BeforeEach
-  public void setUp() throws ODataJPAModelException {
+  void setUp() throws ODataJPAModelException {
     helper = new JPAConversionHelper();
     items = new ArrayList<>();
     path = mock(JPAAssociationPath.class);
@@ -42,14 +42,14 @@ public class TestJPARequestLinkImpl {
 
   @Disabled
   @Test
-  public void testCreateMultipleStringKeysChildren() throws ODataJPAModelException, ODataException {
-    String link = "AdministrativeDivisions(DivisionCode='DE100',CodeID='NUTS3',CodePublisher='Eurostat')";
+  void testCreateMultipleStringKeysChildren() throws ODataJPAModelException, ODataException {
+    final String link = "AdministrativeDivisions(DivisionCode='DE100',CodeID='NUTS3',CodePublisher='Eurostat')";
     cut = new JPARequestLinkImpl(path, link, helper);
 
     items.add(createConditionItem("codePublisher", "CodePublisher", "codePublisher", "CodePublisher"));
     items.add(createConditionItem("codeID", "CodeID", "parentCodeID", "ParentCodeID"));
     items.add(createConditionItem("divisionCode", "DivisionCode", "parentDivisionCode", "ParentDivisionCode"));
-    Map<String, Object> act = cut.getRelatedKeys();
+    final Map<String, Object> act = cut.getRelatedKeys();
     assertNotNull(act);
     assertEquals("DE100", act.get("parentDivisionCode"));
     assertEquals("NUTS3", act.get("parentCodeID"));
@@ -57,14 +57,14 @@ public class TestJPARequestLinkImpl {
   }
 
   @Test
-  public void testCreateMultipleStringKeysParent() throws ODataJPAModelException, ODataException {
-    String link = "AdministrativeDivisions(DivisionCode='DE100',CodeID='NUTS3',CodePublisher='Eurostat')";
+  void testCreateMultipleStringKeysParent() throws ODataJPAModelException, ODataException {
+    final String link = "AdministrativeDivisions(DivisionCode='DE100',CodeID='NUTS3',CodePublisher='Eurostat')";
     cut = new JPARequestLinkImpl(path, link, helper);
 
     items.add(createConditionItem("codePublisher", "CodePublisher", "codePublisher", "CodePublisher"));
     items.add(createConditionItem("parentCodeID", "ParentCodeID", "codeID", "CodeID"));
     items.add(createConditionItem("parentDivisionCode", "ParentDivisionCode", "divisionCode", "DivisionCode"));
-    Map<String, Object> act = cut.getRelatedKeys();
+    final Map<String, Object> act = cut.getRelatedKeys();
     assertNotNull(act);
     assertEquals("DE100", act.get("divisionCode"));
     assertEquals("NUTS3", act.get("codeID"));
@@ -73,14 +73,14 @@ public class TestJPARequestLinkImpl {
 
   @Disabled
   @Test
-  public void testCreateMultipleStringValuesChildren() throws ODataJPAModelException, ODataException {
-    String link = "AdministrativeDivisions(DivisionCode='DE100',CodeID='NUTS3',CodePublisher='Eurostat')";
+  void testCreateMultipleStringValuesChildren() throws ODataJPAModelException, ODataException {
+    final String link = "AdministrativeDivisions(DivisionCode='DE100',CodeID='NUTS3',CodePublisher='Eurostat')";
     cut = new JPARequestLinkImpl(path, link, helper);
 
     items.add(createConditionItem("codePublisher", "CodePublisher", "codePublisher", "CodePublisher"));
     items.add(createConditionItem("codeID", "CodeID", "parentCodeID", "ParentCodeID"));
     items.add(createConditionItem("divisionCode", "DivisionCode", "parentDivisionCode", "ParentDivisionCode"));
-    Map<String, Object> act = cut.getValues();
+    final Map<String, Object> act = cut.getValues();
 
     assertNotNull(act);
     assertEquals("DE100", act.get("divisionCode"));
@@ -89,14 +89,14 @@ public class TestJPARequestLinkImpl {
   }
 
   @Test
-  public void testCreateMultipleStringValuesParent() throws ODataJPAModelException, ODataException {
-    String link = "AdministrativeDivisions(DivisionCode='DE100',CodeID='NUTS3',CodePublisher='Eurostat')";
+  void testCreateMultipleStringValuesParent() throws ODataJPAModelException, ODataException {
+    final String link = "AdministrativeDivisions(DivisionCode='DE100',CodeID='NUTS3',CodePublisher='Eurostat')";
     cut = new JPARequestLinkImpl(path, link, helper);
 
     items.add(createConditionItem("codePublisher", "CodePublisher", "codePublisher", "CodePublisher"));
     items.add(createConditionItem("parentCodeID", "ParentCodeID", "codeID", "CodeID"));
     items.add(createConditionItem("parentDivisionCode", "ParentDivisionCode", "divisionCode", "DivisionCode"));
-    Map<String, Object> act = cut.getValues();
+    final Map<String, Object> act = cut.getValues();
 
     assertNotNull(act);
     assertEquals("DE100", act.get("parentDivisionCode"));
@@ -105,36 +105,36 @@ public class TestJPARequestLinkImpl {
   }
 
   @Test
-  public void testCreateSingleStringKey() throws ODataJPAModelException, ODataException {
-    String link = "BusinessPartners('123456')";
+  void testCreateSingleStringKey() throws ODataJPAModelException, ODataException {
+    final String link = "BusinessPartners('123456')";
     cut = new JPARequestLinkImpl(path, link, helper);
 
     completeJPAPath();
 
-    Map<String, Object> act = cut.getRelatedKeys();
+    final Map<String, Object> act = cut.getRelatedKeys();
     assertNotNull(act);
     assertEquals("123456", act.get("ID"));
   }
 
   @Test
-  public void testCreateSingleStringValue() throws ODataJPAModelException, ODataException {
-    String link = "BusinessPartners('123456')";
+  void testCreateSingleStringValue() throws ODataJPAModelException, ODataException {
+    final String link = "BusinessPartners('123456')";
     cut = new JPARequestLinkImpl(path, link, helper);
     completeJPAPath();
 
-    Map<String, Object> act = cut.getValues();
+    final Map<String, Object> act = cut.getValues();
     assertNotNull(act);
     assertEquals("123456", act.get("businessPartnerID"));
   }
 
   private void completeJPAPath() throws ODataJPAModelException {
-    JPAEntityType targetEt = mock(JPAEntityType.class);
-    JPAEntityType sourceEt = mock(JPAEntityType.class);
-    JPAAttribute bupaKey = mock(JPAAttribute.class);
-    JPAAttribute roleKey1 = mock(JPAAttribute.class);
-    JPAAttribute roleKey2 = mock(JPAAttribute.class);
-    List<JPAAttribute> bupaKeys = new ArrayList<>();
-    List<JPAAttribute> roleKeys = new ArrayList<>();
+    final JPAEntityType targetEt = mock(JPAEntityType.class);
+    final JPAEntityType sourceEt = mock(JPAEntityType.class);
+    final JPAAttribute bupaKey = mock(JPAAttribute.class);
+    final JPAAttribute roleKey1 = mock(JPAAttribute.class);
+    final JPAAttribute roleKey2 = mock(JPAAttribute.class);
+    final List<JPAAttribute> bupaKeys = new ArrayList<>();
+    final List<JPAAttribute> roleKeys = new ArrayList<>();
     bupaKeys.add(bupaKey);
     roleKeys.add(roleKey1);
     roleKeys.add(roleKey2);
@@ -154,18 +154,18 @@ public class TestJPARequestLinkImpl {
     when(sourceEt.getKey()).thenReturn(roleKeys);
   }
 
-  private JPAOnConditionItem createConditionItem(String leftInternalName, String leftExternalName,
-      String rightInternalName, String rightExternalName) throws ODataJPAModelException {
+  private JPAOnConditionItem createConditionItem(final String leftInternalName, final String leftExternalName,
+      final String rightInternalName, final String rightExternalName) throws ODataJPAModelException {
 
-    JPAOnConditionItem item = mock(JPAOnConditionItem.class);
+    final JPAOnConditionItem item = mock(JPAOnConditionItem.class);
 
-    JPAPath leftPath = mock(JPAPath.class);
-    JPAPath rightPath = mock(JPAPath.class);
+    final JPAPath leftPath = mock(JPAPath.class);
+    final JPAPath rightPath = mock(JPAPath.class);
     when(item.getLeftPath()).thenReturn(leftPath);
     when(item.getRightPath()).thenReturn(rightPath);
 
-    JPAAttribute leftAttribute = mock(JPAAttribute.class);
-    JPAAttribute rightAttribute = mock(JPAAttribute.class);
+    final JPAAttribute leftAttribute = mock(JPAAttribute.class);
+    final JPAAttribute rightAttribute = mock(JPAAttribute.class);
     when(leftPath.getLeaf()).thenReturn(leftAttribute);
     when(rightPath.getLeaf()).thenReturn(rightAttribute);
 

@@ -98,4 +98,5 @@ public interface JPAServiceDocument extends CustomETagSupport {
    * @throws ODataJPAModelException
    */
   Map<String, JPAProtectionInfo> getClaims() throws ODataJPAModelException;
+
 }

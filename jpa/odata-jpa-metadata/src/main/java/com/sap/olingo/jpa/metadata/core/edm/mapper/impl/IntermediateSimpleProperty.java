@@ -7,6 +7,7 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 
 import javax.persistence.Column;
 import javax.persistence.Version;
@@ -130,7 +131,9 @@ class IntermediateSimpleProperty extends IntermediateProperty {
   @Override
   String getDefaultValue() throws ODataJPAModelException {
     String valueString = null;
-    if (jpaAttribute.getJavaMember() instanceof Field
+    final boolean isAbstarct = Modifier.isAbstract(jpaAttribute.getDeclaringType().getJavaType().getModifiers());
+    if (!isAbstarct
+        && jpaAttribute.getJavaMember() instanceof Field
         && jpaAttribute.getPersistentAttributeType() == PersistentAttributeType.BASIC) {
       // It is not possible to get the default value directly from the
       // Field, only from an instance field.get(Object obj).toString(); //NOSONAR
@@ -157,7 +160,10 @@ class IntermediateSimpleProperty extends IntermediateProperty {
         // Class could not be instantiated e.g. abstract class like
         // Business Partner => default could not be determined
         // and will be ignored
-        LOGGER.debug("Default could not be determined:" + jpaAttribute.getJavaMember().getName() + " abstract", e);
+        LOGGER.debug("Default could not be determined: "
+            + jpaAttribute.getDeclaringType().getJavaType().getName()
+            + "#"
+            + jpaAttribute.getJavaMember().getName(), e);
       }
     }
     return valueString;

@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
-class TestJPAEdmNameBuilder {
+class JPAEdmNameBuilderTest {
   private JPADefaultEdmNameBuilder cut;
 
   @BeforeEach

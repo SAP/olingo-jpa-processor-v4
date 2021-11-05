@@ -11,6 +11,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +63,7 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
     entityBuffer = new HashMap<>();
     // Doing so all the changes of one request get the same updatedAt
     now = LocalDateTime.now(ZoneId.of("UTC"));
+    new Date();
   }
 
   @Override

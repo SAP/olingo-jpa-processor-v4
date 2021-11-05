@@ -71,6 +71,8 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
+import com.sap.olingo.jpa.metadata.api.JPAHttpHeaderMap;
+import com.sap.olingo.jpa.metadata.api.JPARequestParameterMap;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -83,7 +85,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAUpdateResult;
 import com.sap.olingo.jpa.processor.core.testobjects.TestJavaActionNoParameter;
 
-public class TestJPAODataRequestProcessor {
+class JPAODataRequestProcessorTest {
 
   private static final String ODATA_VERSION = "4.00";
   private static JPAODataRequestProcessor cut;
@@ -262,7 +264,7 @@ public class TestJPAODataRequestProcessor {
   }
 
   @BeforeEach
-  public void setup() throws DeserializerException, SerializerException {
+  void setup() throws DeserializerException, SerializerException {
     final List<String> versionList = Collections.singletonList(ODATA_VERSION);
     final Preferences prefer = mock(Preferences.class);
     odata = mock(OData.class);
@@ -273,6 +275,8 @@ public class TestJPAODataRequestProcessor {
     serializerResult = mock(SerializerResult.class);
     when(requestContext.getClaimsProvider()).thenReturn(Optional.ofNullable(claims));
     when(requestContext.getEntityManager()).thenReturn(em);
+    when(requestContext.getRequestParameter()).thenReturn(mock(JPARequestParameterMap.class));
+    when(requestContext.getHeader()).thenReturn(mock(JPAHttpHeaderMap.class));
     when(requestContext.getDebugger()).thenReturn(debugger);
     when(odata.createDeserializer(any())).thenReturn(deserializer);
     when(odata.createDeserializer(any(), eq(versionList))).thenReturn(deserializer);
@@ -294,7 +298,7 @@ public class TestJPAODataRequestProcessor {
 
   @ParameterizedTest
   @MethodSource("modifyMediaTypeMethodsProvider")
-  public void checkModifyMediaEntityThrowsNotImplemented(final Executable m) {
+  void checkModifyMediaEntityThrowsNotImplemented(final Executable m) {
 
     final ODataJPAProcessorException act = assertThrows(ODataJPAProcessorException.class, m);
     assertEquals(HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), act.getStatusCode());
@@ -302,7 +306,7 @@ public class TestJPAODataRequestProcessor {
 
   @ParameterizedTest
   @MethodSource("notSupportedMethodsProvider")
-  public void checkNutSupportedThrowsNotImplemented(final Executable m) {
+  void checkNutSupportedThrowsNotImplemented(final Executable m) {
 
     final ODataJPAProcessorException act = assertThrows(ODataJPAProcessorException.class, m);
     assertEquals(HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), act.getStatusCode());
@@ -310,7 +314,7 @@ public class TestJPAODataRequestProcessor {
 
   @ParameterizedTest
   @MethodSource("throwsSerializerExceptionMethodsProvider")
-  public void checkCreateEntityPropagateSerializerException(final Executable m) throws SerializerException {
+  void checkCreateEntityPropagateSerializerException(final Executable m) throws SerializerException {
     when(odata.createSerializer(JSON, Collections.emptyList()))
         .thenThrow(SerializerException.class);
 
@@ -318,7 +322,7 @@ public class TestJPAODataRequestProcessor {
   }
 
   @Test
-  public void checkUpdateEntityPropagateSerializerException() throws SerializerException {
+  void checkUpdateEntityPropagateSerializerException() throws SerializerException {
     when(odata.createSerializer(JSON, Collections.emptyList()))
         .thenThrow(SerializerException.class);
 
@@ -328,7 +332,7 @@ public class TestJPAODataRequestProcessor {
   }
 
   @Test
-  public void checkDeleteEntityCallsDelete() throws ODataException {
+  void checkDeleteEntityCallsDelete() throws ODataException {
 
     when(request.getMethod()).thenReturn(HttpMethod.DELETE);
 
@@ -345,7 +349,7 @@ public class TestJPAODataRequestProcessor {
   }
 
   @Test
-  public void checkDeleteEntityRethrowExceptionOnHandlerFail() throws ODataException {
+  void checkDeleteEntityRethrowExceptionOnHandlerFail() throws ODataException {
 
     when(request.getMethod()).thenReturn(HttpMethod.DELETE);
 
@@ -387,7 +391,7 @@ public class TestJPAODataRequestProcessor {
 
   @ParameterizedTest
   @MethodSource("deletingMethods")
-  public void checkDeleteElementCallsUpdate(final Pair<Executable, UriResourceProperty> test) throws Throwable {
+  void checkDeleteElementCallsUpdate(final Pair<Executable, UriResourceProperty> test) throws Throwable {
     when(request.getMethod()).thenReturn(HttpMethod.DELETE);
     final JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     final JPAServiceDocument sd = prepareRequest(handler);
@@ -401,7 +405,7 @@ public class TestJPAODataRequestProcessor {
 
   @ParameterizedTest
   @MethodSource("deletingMethods")
-  public void checkDeleteElementRethrowsRollbackAsPreconditionFailed(final Pair<Executable, UriResourceProperty> test)
+  void checkDeleteElementRethrowsRollbackAsPreconditionFailed(final Pair<Executable, UriResourceProperty> test)
       throws ODataException {
 
     when(request.getMethod()).thenReturn(HttpMethod.DELETE);
@@ -421,7 +425,7 @@ public class TestJPAODataRequestProcessor {
   }
 
   @Test
-  public void checkDeleteEntityRethrowsRollbackAsPreconditionFailed() throws ODataException {
+  void checkDeleteEntityRethrowsRollbackAsPreconditionFailed() throws ODataException {
 
     when(request.getMethod()).thenReturn(HttpMethod.DELETE);
     final JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
@@ -439,7 +443,7 @@ public class TestJPAODataRequestProcessor {
   }
 
   @Test
-  public void checkDeletePrimitiveRethrowExceptionOnHandlerFail() throws ODataException {
+  void checkDeletePrimitiveRethrowExceptionOnHandlerFail() throws ODataException {
 
     when(request.getMethod()).thenReturn(HttpMethod.DELETE);
 
@@ -459,7 +463,7 @@ public class TestJPAODataRequestProcessor {
   }
 
   @Test
-  public void checkDeletePrimitiveCollectionRethrowExceptionOnHandlerFail() throws ODataException {
+  void checkDeletePrimitiveCollectionRethrowExceptionOnHandlerFail() throws ODataException {
 
     when(request.getMethod()).thenReturn(HttpMethod.DELETE);
 
@@ -479,7 +483,7 @@ public class TestJPAODataRequestProcessor {
   }
 
   @Test
-  public void checkDeleteComplexCollectionRethrowExceptionOnHandlerFail() throws ODataException {
+  void checkDeleteComplexCollectionRethrowExceptionOnHandlerFail() throws ODataException {
 
     when(request.getMethod()).thenReturn(HttpMethod.DELETE);
 
@@ -500,7 +504,7 @@ public class TestJPAODataRequestProcessor {
 
   @ParameterizedTest
   @MethodSource("supportedMethodsProvider")
-  public void checkThrowProcessorExceptionOnODataException(final Executable m) throws ODataException {
+  void checkThrowProcessorExceptionOnODataException(final Executable m) throws ODataException {
     final ODataSerializer serializer = mock(ODataSerializer.class);
     when(odata.createSerializer(JSON, Collections.emptyList())).thenReturn(serializer);
     prepareRequestThrowsException();
@@ -509,7 +513,7 @@ public class TestJPAODataRequestProcessor {
   }
 
   @Test
-  public void checkUpdateEntityCallsUpdate() throws ODataException {
+  void checkUpdateEntityCallsUpdate() throws ODataException {
 
     when(request.getMethod()).thenReturn(HttpMethod.PATCH);
 
@@ -528,7 +532,7 @@ public class TestJPAODataRequestProcessor {
   }
 
   @Test
-  public void checkUpdateEntityRethrowsRollbackAsPreconditionFailed() throws ODataException {
+  void checkUpdateEntityRethrowsRollbackAsPreconditionFailed() throws ODataException {
 
     when(request.getMethod()).thenReturn(HttpMethod.PATCH);
 
@@ -548,7 +552,7 @@ public class TestJPAODataRequestProcessor {
   }
 
   @Test
-  public void checkActionWithReturnIsPerformed() throws ODataException, NoSuchMethodException, SecurityException {
+  void checkActionWithReturnIsPerformed() throws ODataException, NoSuchMethodException, SecurityException {
 
     when(request.getMethod()).thenReturn(HttpMethod.POST);
 
@@ -569,7 +573,7 @@ public class TestJPAODataRequestProcessor {
   }
 
   @Test
-  public void checkActionWithVoidIsPerformed() throws ODataException, NoSuchMethodException, SecurityException {
+  void checkActionWithVoidIsPerformed() throws ODataException, NoSuchMethodException, SecurityException {
     final ODataResponse response = mock(ODataResponse.class);
     when(request.getMethod()).thenReturn(HttpMethod.POST);
 

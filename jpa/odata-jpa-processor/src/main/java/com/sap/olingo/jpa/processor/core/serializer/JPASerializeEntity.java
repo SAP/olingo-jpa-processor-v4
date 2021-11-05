@@ -5,7 +5,7 @@ import java.net.URISyntaxException;
 import org.apache.olingo.commons.api.data.Annotatable;
 import org.apache.olingo.commons.api.data.ContextURL;
 import org.apache.olingo.commons.api.data.EntityCollection;
-import org.apache.olingo.commons.api.edm.EdmEntitySet;
+import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.format.ContentType;
@@ -80,11 +80,8 @@ final class JPASerializeEntity implements JPAOperationSerializer {
   public SerializerResult serialize(final ODataRequest request, final EntityCollection result)
       throws SerializerException, ODataJPASerializerException {
 
-    final EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(uriInfo.getUriResourceParts());
-
-    final EdmEntityType entityType = targetEdmEntitySet.getEntityType();
-
+    final EdmBindingTarget targetEdmBindingTarget = Util.determineBindingTarget(uriInfo.getUriResourceParts());
+    final EdmEntityType entityType = targetEdmBindingTarget.getEntityType();
     return serialize(result, entityType, request);
   }
 }
-

@@ -16,6 +16,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAProtectionInfo;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAQueryExtension;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 public class JPAEntityTypeDouble implements JPAEntityType {
@@ -209,6 +210,11 @@ public class JPAEntityTypeDouble implements JPAEntityType {
   public boolean hasCompoundKey() {
     fail();
     return false;
+  }
+
+  @Override
+  public Optional<JPAQueryExtension> getQueryExtention() {
+    return Optional.empty();
   }
 
 }

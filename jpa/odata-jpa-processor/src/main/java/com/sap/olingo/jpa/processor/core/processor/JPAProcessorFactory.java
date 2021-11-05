@@ -103,6 +103,7 @@ public final class JPAProcessorFactory {
       case primitiveProperty:
       case navigationProperty:
       case entitySet:
+      case singleton:
       case value:
         checkNavigationPathSupported(resourceParts);
         return new JPANavigationRequestProcessor(odata, serviceMetadata, sessionContext, requestContext);
@@ -124,6 +125,7 @@ public final class JPAProcessorFactory {
           && resourceItem.getKind() != UriResourceKind.primitiveProperty
           && resourceItem.getKind() != UriResourceKind.navigationProperty
           && resourceItem.getKind() != UriResourceKind.entitySet
+          && resourceItem.getKind() != UriResourceKind.singleton
           && resourceItem.getKind() != UriResourceKind.value)
         throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
             HttpStatusCode.NOT_IMPLEMENTED, resourceItem.getKind().toString());

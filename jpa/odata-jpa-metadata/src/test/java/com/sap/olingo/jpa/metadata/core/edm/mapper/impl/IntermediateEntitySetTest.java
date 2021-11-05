@@ -34,7 +34,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescrip
 import com.sap.olingo.jpa.processor.core.testmodel.BestOrganization;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 
-class TestIntermediateEntitySet extends TestMappingRoot {
+class IntermediateEntitySetTest extends TestMappingRoot {
   private IntermediateSchema schema;
   private Set<EntityType<?>> etList;
   private JPADefaultEdmNameBuilder nameBuilder;

@@ -80,7 +80,8 @@ public abstract class JPAAbstractQuery {
   protected static final String COUNT_COLUMN_NAME = "\"$count\"";
   protected final EntityManager em;
   protected final CriteriaBuilder cb;
-  protected final JPAEntityType jpaEntity;
+  protected final JPAEntityType jpaEntity; // Entity type of the result, which may not be the same as the start of a
+                                           // navigation
   protected final JPAServiceDocument sd;
   protected JPAServiceDebugger debugger;
   protected final OData odata;
@@ -563,4 +564,5 @@ public abstract class JPAAbstractQuery {
     }
     return null;
   }
+
 }

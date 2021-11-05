@@ -110,7 +110,7 @@ class IntermediateCollectionProperty extends IntermediateProperty implements JPA
     if (isComplex())
       return null;
     else {
-      for (final JPAAttribute a : ((IntermediateStructuredType<?>) joinTable.getEntityType()).getAttributes()) {
+      for (final JPAAttribute a : ((IntermediateStructuredType<?>) getJoinTable().getEntityType()).getAttributes()) {
         if (dbFieldName.equals(((IntermediateProperty) a).getDBFieldName()))
           return a;
       }
@@ -208,7 +208,7 @@ class IntermediateCollectionProperty extends IntermediateProperty implements JPA
     return null;
   }
 
-  IntermediateCollectionTable getJoinTable() throws ODataJPAModelException {
+  JPAJoinTable getJoinTable() throws ODataJPAModelException {
     if (joinTable == null) {
       final javax.persistence.CollectionTable jpaJoinTable = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
           .getAnnotation(javax.persistence.CollectionTable.class);

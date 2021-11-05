@@ -2,6 +2,7 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.atLeastOnce;
@@ -17,7 +18,10 @@ import javax.persistence.metamodel.PluralAttribute;
 import javax.persistence.metamodel.PluralAttribute.CollectionType;
 import javax.persistence.metamodel.Type.PersistenceType;
 
+import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
+import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
+import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,6 +31,7 @@ import org.reflections8.Reflections;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -36,7 +41,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.ComplexWithTransientComplexCo
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 
-class TestIntermediateCollectionProperty extends TestMappingRoot {
+class IntermediateCollectionPropertyTest extends TestMappingRoot {
   private IntermediateCollectionProperty cut;
   private TestHelper helper;
   private JPAEdmMetadataPostProcessor processor;
@@ -297,6 +302,58 @@ class TestIntermediateCollectionProperty extends TestMappingRoot {
         jpaAttribute, helper.schema, helper.schema.getEntityType(Person.class));
 
     assertFalse(property.isEtag());
+  }
+
+  @Test
+  void checkGetJoinTableGetInverseAlias() throws ODataJPAModelException, NoSuchFieldException,
+      SecurityException {
+
+    final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
+        Person.class), "inhouseAddress");
+    final IntermediateCollectionProperty property = new IntermediateCollectionProperty(nameBuilder,
+        jpaAttribute, helper.schema, helper.schema.getEntityType(Person.class));
+
+    assertNull(property.getJoinTable().getInverseAlias("Dummy"));
+  }
+
+  @Test
+  void checkGetTargetEntity() throws ODataJPAModelException, NoSuchFieldException,
+      SecurityException {
+
+    final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
+        Person.class), "inhouseAddress");
+    final IntermediateCollectionProperty property = new IntermediateCollectionProperty(nameBuilder,
+        jpaAttribute, helper.schema, helper.schema.getEntityType(Person.class));
+
+    assertNotNull(property.getTargetEntity());
+  }
+
+  @Test
+  void checkGetTargetAttributeOfSimpleNotNull() throws ODataJPAModelException, NoSuchFieldException,
+      SecurityException {
+
+    final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
+        Organization.class), "comment");
+    final IntermediateCollectionProperty property = new IntermediateCollectionProperty(nameBuilder,
+        jpaAttribute, helper.schema, helper.schema.getEntityType(Organization.class));
+
+    final JPAAttribute act = property.getTargetAttribute();
+
+    assertNotNull(act);
+    assertEquals(EdmPrimitiveType.EDM_NAMESPACE + "." + EdmPrimitiveTypeKind.String,
+        ((CsdlProperty) act.getProperty()).getType());
+  }
+
+  @Test
+  void checkGetTargetAttributeOfComplexNull() throws ODataJPAModelException, NoSuchFieldException,
+      SecurityException {
+
+    final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
+        Person.class), "inhouseAddress");
+    final IntermediateCollectionProperty property = new IntermediateCollectionProperty(nameBuilder,
+        jpaAttribute, helper.schema, helper.schema.getEntityType(Person.class));
+
+    assertNull(property.getTargetAttribute());
   }
 
   private PluralAttribute<?, ?, ?> createTransientPluralAttribute() throws NoSuchFieldException {

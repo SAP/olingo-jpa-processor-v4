@@ -16,20 +16,19 @@ import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 
-public class TestJPA_DERBY_DatabaseProcessor extends TestJPA_XXX_DatabaseProcessor {
-
+class JPA_POSTSQL_DatabaseProcessorTest extends JPA_XXX_DatabaseProcessorTest {
   @BeforeEach
   public void setup() {
     initEach();
-    oneParameterResult = "SELECT * FROM TABLE (Example(?1))";
-    twoParameterResult = "SELECT * FROM TABLE (Example(?1,?2))";
-    countResult = "SELECT COUNT(*) FROM TABLE (Example(?1))";
-    cut = new JPA_DERBY_DatabaseProcessor();
+    oneParameterResult = "SELECT * FROM Example(?1)";
+    twoParameterResult = "SELECT * FROM Example(?1,?2)";
+    countResult = "SELECT COUNT(*) FROM Example(?1)";
+    cut = new JPA_POSTSQL_DatabaseProcessor();
   }
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testAbortsOnSearchRequest() {
+  void testAbortsOnSearchRequest() {
     final CriteriaBuilder cb = mock(CriteriaBuilder.class);
     final CriteriaQuery<String> cq = mock(CriteriaQuery.class);
     final Root<String> root = mock(Root.class);

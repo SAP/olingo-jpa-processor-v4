@@ -44,6 +44,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ValueNode;
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
+import com.sap.olingo.jpa.metadata.api.JPARequestParameterMap;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.core.api.JPAODataBatchProcessor;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimsProvider;
@@ -157,6 +158,7 @@ public class IntegrationTestHelper {
     when(externalContext.getClaimsProvider()).thenReturn(Optional.ofNullable(claims));
     when(externalContext.getGroupsProvider()).thenReturn(Optional.ofNullable(groups));
     when(externalContext.getDebuggerSupport()).thenReturn(new DefaultDebugSupport());
+    when(externalContext.getRequestParameter()).thenReturn(mock(JPARequestParameterMap.class));
     final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext(externalContext);
 
     handler.register(new JPAODataRequestProcessor(sessionContext, requestContext));

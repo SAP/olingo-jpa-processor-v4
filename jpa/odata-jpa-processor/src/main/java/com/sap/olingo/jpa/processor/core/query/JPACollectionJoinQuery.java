@@ -67,7 +67,7 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
       debugger.stopRuntimeMeasurement(resultHandle);
 
       final Map<String, List<Tuple>> result = convertResult(intermediateResult, association, 0, Long.MAX_VALUE);
-      return new JPACollectionQueryResult(result, new HashMap<String, Long>(1), jpaEntity, this.association,
+      return new JPACollectionQueryResult(result, new HashMap<>(1), jpaEntity, this.association,
           requestedSelection.joinedRequested());
     } catch (final JPANoSelectionException e) {
       return new JPACollectionQueryResult(this.jpaEntity, association, Collections.emptyList());

@@ -3,12 +3,15 @@ package com.sap.olingo.jpa.processor.core.query;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.CheckForNull;
 import javax.persistence.criteria.From;
 
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriParameter;
+import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.UriResourcePartTyped;
+import org.apache.olingo.server.api.uri.UriResourceSingleton;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -27,7 +30,7 @@ public final class JPANavigationPropertyInfo {
   private JPAFilterComplier filterCompiler = null;
 
   /**
-   * 
+   *
    * Copy constructor, that does not copy the <i>from</i> clause, so the new JPANavigationPropertyInfo can be used in a
    * new query.
    * @param original
@@ -76,15 +79,38 @@ public final class JPANavigationPropertyInfo {
    * Set the association path to a other entity.
    * @param associationPath
    */
-  public void setAssociationPath(JPAAssociationPath associationPath) {
+  public void setAssociationPath(final JPAAssociationPath associationPath) {
     assert this.associationPath == null;
     this.associationPath = associationPath;
   }
 
+  @CheckForNull
   JPAEntityType getEntityType() throws ODataJPAModelException {
     if (et != null)
       return et;
-    return sd.getEntity(getUriResource().getType());
+    return determineEntityType();
+  }
+
+  private JPAEntityType determineEntityType() throws ODataJPAModelException {
+
+    final UriResourcePartTyped resource = getUriResource();
+    if (getUriResource() instanceof UriResourceEntitySet) {
+      et = sd.getEntity(((UriResourceEntitySet) resource).getEntitySet().getName());
+      if (((UriResourceEntitySet) resource).getTypeFilterOnCollection() != null)
+        et = sd.getEntity(((UriResourceEntitySet) resource).getTypeFilterOnCollection());
+      if (((UriResourceEntitySet) resource).getTypeFilterOnEntry() != null)
+        et = sd.getEntity(((UriResourceEntitySet) resource).getTypeFilterOnEntry());
+    } else if (resource instanceof UriResourceSingleton) {
+      et = sd.getEntity(((UriResourceSingleton) resource).getSingleton().getName());
+      if (((UriResourceSingleton) resource).getEntityTypeFilter() != null)
+        et = sd.getEntity(((UriResourceSingleton) resource).getEntityTypeFilter());
+    } else {
+      et = sd.getEntity(resource.getType());
+    }
+
+    if (et == null)
+      throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.JOIN_TABLE_NOT_FOUND);
+    return et;
   }
 
   JPAFilterComplier getFilterCompiler() {
@@ -103,7 +129,7 @@ public final class JPANavigationPropertyInfo {
     return uriInfo;
   }
 
-  void setFilterCompiler(JPAFilterComplier filterCompiler) {
+  void setFilterCompiler(final JPAFilterComplier filterCompiler) {
     assert this.filterCompiler == null;
     this.filterCompiler = filterCompiler;
   }
@@ -119,5 +145,17 @@ public final class JPANavigationPropertyInfo {
 
   private JPAServiceDocument getServiceDocument() {
     return sd;
+  }
+
+  @Override
+  public String toString() {
+    try {
+      final String typeName = getEntityType() != null ? getEntityType().getExternalName() : "";
+      final String assoziationName = associationPath != null ? associationPath.getAlias() : "";
+      return "JPANavigationPropertyInfo [et=" + typeName
+          + ", associationPath=" + assoziationName + "]";
+    } catch (final ODataJPAModelException e) {
+      return super.toString();
+    }
   }
 }

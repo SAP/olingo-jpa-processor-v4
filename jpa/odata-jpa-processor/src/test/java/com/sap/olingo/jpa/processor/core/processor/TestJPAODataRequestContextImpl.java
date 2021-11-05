@@ -23,6 +23,7 @@ import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.sap.olingo.jpa.metadata.api.JPAHttpHeaderMap;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransientPropertyCalculator;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -221,7 +222,7 @@ class TestJPAODataRequestContextImpl {
       NoSuchMethodException, SecurityException {
 
     final JPAAttribute attribute = mock(JPAAttribute.class);
-    final Constructor<?> c = HeaderParamTransientPropertyConverter.class.getConstructor(Map.class);
+    final Constructor<?> c = HeaderParamTransientPropertyConverter.class.getConstructor(JPAHttpHeaderMap.class);
     when(attribute.isTransient()).thenReturn(true);
     when(attribute.getCalculatorConstructor()).thenReturn((Constructor<EdmTransientPropertyCalculator<?>>) c);
     final Optional<EdmTransientPropertyCalculator<?>> act = cut.getCalculator(attribute);
@@ -236,7 +237,7 @@ class TestJPAODataRequestContextImpl {
 
     final JPAAttribute attribute = mock(JPAAttribute.class);
     final Constructor<?> c = TwoParameterTransientPropertyConverter.class.getConstructor(EntityManager.class,
-        Map.class);
+        JPAHttpHeaderMap.class);
     cut = new JPAODataInternalRequestContext(JPAODataRequestContext
         .with().setEntityManager(mock(EntityManager.class)).build());
     when(attribute.isTransient()).thenReturn(true);

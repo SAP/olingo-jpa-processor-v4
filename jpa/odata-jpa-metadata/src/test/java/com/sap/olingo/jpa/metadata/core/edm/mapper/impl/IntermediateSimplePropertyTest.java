@@ -70,7 +70,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.Person;
 import com.sap.olingo.jpa.processor.core.testmodel.PersonImage;
 import com.sap.olingo.jpa.processor.core.testmodel.PostalAddressData;
 
-class TestIntermediateSimpleProperty extends TestMappingRoot {
+class IntermediateSimplePropertyTest extends TestMappingRoot {
   private TestHelper helper;
   private TestHelper errorHelper;
   private JPAEdmMetadataPostProcessor processor;
@@ -405,6 +405,15 @@ class TestIntermediateSimpleProperty extends TestMappingRoot {
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(nameBuilder,
         jpaAttribute, helper.schema);
     assertEquals("ISO", property.getEdmItem().getDefaultValue());
+  }
+
+  @Test
+  void checkGetPropertyDefaultValueIgnortOnAbstractClass() throws ODataJPAModelException {
+    final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class),
+        "iD");
+    final IntermediateSimpleProperty property = new IntermediateSimpleProperty(nameBuilder,
+        jpaAttribute, helper.schema);
+    assertNull(property.getEdmItem().getDefaultValue());
   }
 
   @Test

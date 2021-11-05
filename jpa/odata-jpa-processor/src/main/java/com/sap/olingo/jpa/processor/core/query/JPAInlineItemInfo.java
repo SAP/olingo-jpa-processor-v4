@@ -16,7 +16,7 @@ public abstract class JPAInlineItemInfo {
   protected final List<JPANavigationPropertyInfo> hops;
   protected final List<JPANavigationPropertyInfo> parentHops;
 
-  public JPAInlineItemInfo(final JPAExpandItem uriInfo,
+  JPAInlineItemInfo(final JPAExpandItem uriInfo,
       final JPAAssociationPath expandAssociation, final List<JPANavigationPropertyInfo> parentHops) {
 
     this.uriInfo = uriInfo;

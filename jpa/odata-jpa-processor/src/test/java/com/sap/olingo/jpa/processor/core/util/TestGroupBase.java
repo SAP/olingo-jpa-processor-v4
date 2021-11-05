@@ -14,7 +14,6 @@ import javax.persistence.criteria.Root;
 
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
-import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriResource;
@@ -72,7 +71,7 @@ public class TestGroupBase extends TestBase {
   protected UriInfo buildUriInfo(final String esName, final String etName) {
     final UriInfo ui = Mockito.mock(UriInfo.class);
     final EdmEntitySet odataEs = Mockito.mock(EdmEntitySet.class);
-    final EdmType odataType = Mockito.mock(EdmEntityType.class);
+    final EdmEntityType odataType = Mockito.mock(EdmEntityType.class);
     final List<UriResource> resources = new ArrayList<>();
     final UriResourceEntitySet esResource = Mockito.mock(UriResourceEntitySet.class);
     Mockito.when(ui.getUriResourceParts()).thenReturn(resources);
@@ -81,6 +80,7 @@ public class TestGroupBase extends TestBase {
     Mockito.when(esResource.getKind()).thenReturn(UriResourceKind.entitySet);
     Mockito.when(esResource.getType()).thenReturn(odataType);
     Mockito.when(odataEs.getName()).thenReturn(esName);
+    Mockito.when(odataEs.getEntityType()).thenReturn(odataType);
     Mockito.when(odataType.getNamespace()).thenReturn(PUNIT_NAME);
     Mockito.when(odataType.getName()).thenReturn(etName);
     resources.add(esResource);

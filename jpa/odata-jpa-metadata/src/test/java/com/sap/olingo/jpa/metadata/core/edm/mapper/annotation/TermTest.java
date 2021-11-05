@@ -112,6 +112,6 @@ class TermTest {
       ODataJPAModelException {
 
     final Term cut = new Term();
-    final ODataJPAModelException act = assertThrows(ODataJPAModelException.class, () -> cut.setScale("variable"));
+    assertThrows(ODataJPAModelException.class, () -> cut.setScale("variable"));
   }
 }

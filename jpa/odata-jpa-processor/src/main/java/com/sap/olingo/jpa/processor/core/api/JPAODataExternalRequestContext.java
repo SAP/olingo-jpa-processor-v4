@@ -4,10 +4,8 @@ import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
@@ -16,9 +14,12 @@ import javax.persistence.EntityManager;
 
 import org.apache.olingo.server.api.debug.DebugSupport;
 
+import com.sap.olingo.jpa.metadata.api.JPARequestParameterMap;
+import com.sap.olingo.jpa.processor.core.processor.JPARequestParameterHashMap;
+
 public class JPAODataExternalRequestContext implements JPAODataRequestContext {
 
-  private final Map<String, Object> customParameter;
+  private final JPARequestParameterMap customParameter;
   private final DebugSupport debugSupport;
   private final Optional<JPAODataClaimProvider> claims;
   private final Optional<JPAODataGroupProvider> groups;
@@ -70,16 +71,6 @@ public class JPAODataExternalRequestContext implements JPAODataRequestContext {
   }
 
   @Override
-  public Object getParameter(final String parameterName) {
-    return customParameter.get(parameterName);
-  }
-
-  @Override
-  public Map<String, Object> getParameters() {
-    return customParameter;
-  }
-
-  @Override
   public List<Locale> getLocales() {
     return locales;
   }
@@ -89,7 +80,7 @@ public class JPAODataExternalRequestContext implements JPAODataRequestContext {
     public static final int CONTAINS_LANGU_COUNTRY = 2;
     public static final String SELECT_ITEM_SEPARATOR = ",";
 
-    private final Map<String, Object> customParameter = new HashMap<>();
+    private final JPARequestParameterMap customParameter = new JPARequestParameterHashMap();
     private DebugSupport debugSupport;
     private JPAODataClaimProvider claimsProvider;
     private JPAODataGroupProvider groupsProvider;
@@ -123,7 +114,7 @@ public class JPAODataExternalRequestContext implements JPAODataRequestContext {
     }
 
     /**
-     *
+     * Add a request specific parameter to re request context.
      * @param name
      * @param value
      * @return
@@ -196,5 +187,10 @@ public class JPAODataExternalRequestContext implements JPAODataRequestContext {
       this.locales = Collections.singletonList(requireNonNull(locale));
       return this;
     }
+  }
+
+  @Override
+  public JPARequestParameterMap getRequestParameter() {
+    return customParameter;
   }
 }

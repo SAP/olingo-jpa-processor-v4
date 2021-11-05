@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.api;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
@@ -77,4 +78,6 @@ public interface JPAEntityType extends JPAStructuredType {
   public boolean hasStream() throws ODataJPAModelException;
 
   public List<JPAPath> searchChildPath(final JPAPath selectItemPath);
+
+  public Optional<JPAQueryExtension> getQueryExtention() throws ODataJPAModelException;
 }

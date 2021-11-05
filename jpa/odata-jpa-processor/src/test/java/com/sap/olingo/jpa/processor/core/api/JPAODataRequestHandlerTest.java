@@ -27,21 +27,21 @@ import org.mockito.ArgumentMatcher;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 
-public class JPAODataRequestHandlerTest extends TestBase {
+class JPAODataRequestHandlerTest extends TestBase {
   private JPAODataRequestHandler cut;
   private HttpServletRequest request;
   private HttpServletResponse response;
   private static final String PUNIT_NAME = "com.sap.olingo.jpa";
 
   @BeforeEach
-  public void setup() throws IOException {
+  void setup() throws IOException {
     request = IntegrationTestHelper.getRequestMock("http://localhost:8080/Test/Olingo.svc/Organizations",
         new StringBuilder(), headers);
     response = IntegrationTestHelper.getResponseMock();
   }
 
   @Test
-  public void testGetHandlerProvidingSessionContext() throws ODataException {
+  void testGetHandlerProvidingSessionContext() throws ODataException {
     final JPAODataSessionContextAccess sessionContext = JPAODataServiceContext.with()
         .setDataSource(ds)
         .setPUnit(PUNIT_NAME)
@@ -51,7 +51,7 @@ public class JPAODataRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void testPropertiesInstanceProvidingSessionContext() throws ODataException {
+  void testPropertiesInstanceProvidingSessionContext() throws ODataException {
 
     final JPAODataSessionContextAccess context = JPAODataServiceContext.with()
         .setDataSource(ds).setPUnit(PUNIT_NAME).build();
@@ -60,7 +60,7 @@ public class JPAODataRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void testProcessOnlyProvidingSessionContext() throws ODataException {
+  void testProcessOnlyProvidingSessionContext() throws ODataException {
 
     final JPAODataSessionContextAccess context = JPAODataServiceContext.with()
         .setDataSource(ds)
@@ -72,7 +72,7 @@ public class JPAODataRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void testProcessWithEntityManagerProvidingSessionContext() throws ODataException {
+  void testProcessWithEntityManagerProvidingSessionContext() throws ODataException {
 
     final JPAODataSessionContextAccess sessionContext = JPAODataServiceContext.with()
         .setDataSource(ds)
@@ -86,7 +86,7 @@ public class JPAODataRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void testProcessOnlyProvidingSessionContextWithEm() throws ODataException {
+  void testProcessOnlyProvidingSessionContextWithEm() throws ODataException {
 
     final JPAODataSessionContextAccess sessionContext = JPAODataServiceContext.with()
         .setPUnit(PUNIT_NAME)
@@ -101,7 +101,7 @@ public class JPAODataRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void testMappingPathInSessionContextCreatesMapper() throws ODataException {
+  void testMappingPathInSessionContextCreatesMapper() throws ODataException {
     final OData odata = mock(OData.class);
     final ODataHttpHandler handler = mock(ODataHttpHandler.class);
     when(odata.createHandler(any())).thenReturn(handler);
@@ -116,7 +116,7 @@ public class JPAODataRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void testEmptyMappingPathInSessionContextNoMapper() throws ODataException {
+  void testEmptyMappingPathInSessionContextNoMapper() throws ODataException {
     final OData odata = mock(OData.class);
     final ODataHttpHandler handler = mock(ODataHttpHandler.class);
     when(odata.createHandler(any())).thenReturn(handler);
@@ -130,7 +130,7 @@ public class JPAODataRequestHandlerTest extends TestBase {
   }
 
   @Test
-  public void testEmptyMappingPathInSessionContextEmptyMapper() throws ODataException {
+  void testEmptyMappingPathInSessionContextEmptyMapper() throws ODataException {
     final OData odata = mock(OData.class);
     final ODataHttpHandler handler = mock(ODataHttpHandler.class);
     when(odata.createHandler(any())).thenReturn(handler);

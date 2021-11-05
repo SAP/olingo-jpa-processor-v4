@@ -137,7 +137,7 @@ class TestJPAEdmProvider {
   }
 
   @Test
-  void checkGeEntityContainerReturnsContainer() throws ODataException {
+  void checkGetEntityContainerReturnsContainer() throws ODataException {
     final CsdlEntityContainer act = cut.getEntityContainer();
     assertNotNull(act);
     assertEquals(cut.getServiceDocument().getNameBuilder().buildContainerName(), act.getName());
@@ -189,7 +189,7 @@ class TestJPAEdmProvider {
   }
 
   @Test
-  void checkGeSingletonReturnsNullOnUnknown() throws ODataException {
+  void checkGetSingletonReturnsNullOnUnknown() throws ODataException {
     final FullQualifiedName fqn = buildContainerFQN();
     assertNull(cut.getSingleton(fqn, "Hello"));
   }

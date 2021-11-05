@@ -1,6 +1,6 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
-import static com.sap.olingo.jpa.metadata.core.edm.annotation.TopLevelElementRepresentation.AS_SINGLETON;
+import static com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTopLevelElementRepresentation.AS_SINGLETON;
 
 import java.util.List;
 

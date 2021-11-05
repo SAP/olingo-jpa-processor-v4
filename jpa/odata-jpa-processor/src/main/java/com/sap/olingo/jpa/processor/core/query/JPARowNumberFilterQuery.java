@@ -41,7 +41,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterComplier;
 
-class JPARowNumberFilterQuery extends JPAExpandFilterQuery {
+final class JPARowNumberFilterQuery extends JPAExpandFilterQuery {
 
   private final JPAFilterComplier filter;
   private final Set<JPAPath> outerSelections;

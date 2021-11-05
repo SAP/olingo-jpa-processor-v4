@@ -77,7 +77,7 @@ import com.sap.olingo.jpa.processor.core.testobjects.FileAccess;
 import com.sap.olingo.jpa.processor.core.testobjects.TestJavaActionNoParameter;
 import com.sap.olingo.jpa.processor.core.testobjects.TestJavaActions;
 
-public class TestJPAActionProcessor {
+class JPAActionProcessorTest {
 
   private JPAActionRequestProcessor cut;
   private ContentType requestFormat;
@@ -113,7 +113,7 @@ public class TestJPAActionProcessor {
   private UriResourceEntitySet bindingEntity;
 
   @BeforeEach
-  public void setup() throws ODataException {
+  void  setup() throws ODataException {
     MockitoAnnotations.openMocks(this);
 
     uriResources = new ArrayList<>();
@@ -151,7 +151,7 @@ public class TestJPAActionProcessor {
   }
 
   @Test
-  public void testCallsConstructorWithoutParameter() throws InstantiationException,
+  void  testCallsConstructorWithoutParameter() throws InstantiationException,
       IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException,
       SecurityException, ODataApplicationException {
     TestJavaActionNoParameter.resetCalls();
@@ -165,7 +165,7 @@ public class TestJPAActionProcessor {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testCallsConstructorWithParameter() throws ODataJPAProcessException, InstantiationException,
+  void  testCallsConstructorWithParameter() throws ODataJPAProcessException, InstantiationException,
       IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException,
       SecurityException, ODataApplicationException {
     TestJavaActions.constructorCalls = 0;
@@ -183,7 +183,7 @@ public class TestJPAActionProcessor {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testCallsActionVoidNoParameterReturnNoContent() throws ODataJPAProcessException, NoSuchMethodException,
+  void  testCallsActionVoidNoParameterReturnNoContent() throws ODataJPAProcessException, NoSuchMethodException,
       SecurityException, ODataApplicationException {
 
     @SuppressWarnings("rawtypes")
@@ -199,7 +199,7 @@ public class TestJPAActionProcessor {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testCallsActionPrimitiveNoParameterReturnValue() throws ODataJPAProcessException, NoSuchMethodException,
+  void  testCallsActionPrimitiveNoParameterReturnValue() throws ODataJPAProcessException, NoSuchMethodException,
       SecurityException, SerializerException, ODataApplicationException {
 
     @SuppressWarnings("rawtypes")
@@ -223,7 +223,7 @@ public class TestJPAActionProcessor {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testCallsActionEntityNoParameterReturnValue() throws NoSuchMethodException,
+  void  testCallsActionEntityNoParameterReturnValue() throws NoSuchMethodException,
       SecurityException, SerializerException, ODataApplicationException {
 
     @SuppressWarnings("rawtypes")
@@ -255,7 +255,7 @@ public class TestJPAActionProcessor {
   }
 
   @Test
-  public void testCallsActionVoidOneParameterReturnNoContent() throws ODataJPAProcessException, NoSuchMethodException,
+  void  testCallsActionVoidOneParameterReturnNoContent() throws ODataJPAProcessException, NoSuchMethodException,
       SecurityException, ODataJPAModelException, NumberFormatException, ODataApplicationException {
     TestJavaActionNoParameter.resetCalls();
 
@@ -269,7 +269,7 @@ public class TestJPAActionProcessor {
   }
 
   @Test
-  public void testCallsActionVoidOneEnumerationParameterReturnNoContent() throws ODataJPAProcessException,
+  void  testCallsActionVoidOneEnumerationParameterReturnNoContent() throws ODataJPAProcessException,
       NoSuchMethodException, SecurityException, ODataJPAModelException, NumberFormatException,
       ODataApplicationException {
 
@@ -285,7 +285,7 @@ public class TestJPAActionProcessor {
   }
 
   @Test
-  public void testCallsActionVoidTwoParameterReturnNoContent() throws ODataJPAProcessException, NoSuchMethodException,
+  void  testCallsActionVoidTwoParameterReturnNoContent() throws ODataJPAProcessException, NoSuchMethodException,
       SecurityException, ODataJPAModelException, NumberFormatException, ODataApplicationException {
     TestJavaActionNoParameter.resetCalls();
 
@@ -300,7 +300,7 @@ public class TestJPAActionProcessor {
   }
 
   @Test
-  public void testCallsActionVoidOneParameterNullableGivenNullReturnNoContent() throws ODataJPAProcessException,
+  void  testCallsActionVoidOneParameterNullableGivenNullReturnNoContent() throws ODataJPAProcessException,
       NoSuchMethodException, SecurityException, ODataJPAModelException, NumberFormatException,
       ODataApplicationException {
     TestJavaActionNoParameter.resetCalls();
@@ -315,7 +315,7 @@ public class TestJPAActionProcessor {
   }
 
   @Test
-  public void testCallsActionVoidOnlyBindingParameter() throws ODataJPAProcessException,
+  void  testCallsActionVoidOnlyBindingParameter() throws ODataJPAProcessException,
       NoSuchMethodException, SecurityException, ODataJPAModelException, NumberFormatException,
       EdmPrimitiveTypeException, ODataApplicationException {
     TestJavaActionNoParameter.resetCalls();
@@ -333,7 +333,7 @@ public class TestJPAActionProcessor {
   }
 
   @Test
-  public void testCallsActionVoidBindingParameterPlusTwoBothNull() throws ODataJPAProcessException,
+  void  testCallsActionVoidBindingParameterPlusTwoBothNull() throws ODataJPAProcessException,
       NoSuchMethodException, SecurityException, ODataJPAModelException, NumberFormatException,
       EdmPrimitiveTypeException, ODataApplicationException {
     TestJavaActionNoParameter.resetCalls();
@@ -362,7 +362,7 @@ public class TestJPAActionProcessor {
   }
 
   @Test
-  public void testCallsActionVoidBindingParameterPlusTwoFirstNull() throws ODataJPAProcessException,
+  void  testCallsActionVoidBindingParameterPlusTwoFirstNull() throws ODataJPAProcessException,
       NoSuchMethodException, SecurityException, ODataJPAModelException, NumberFormatException,
       EdmPrimitiveTypeException, ODataApplicationException {
     TestJavaActionNoParameter.resetCalls();

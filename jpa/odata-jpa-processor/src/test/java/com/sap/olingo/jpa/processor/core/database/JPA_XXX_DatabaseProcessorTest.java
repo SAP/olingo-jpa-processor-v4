@@ -45,7 +45,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 
-public abstract class TestJPA_XXX_DatabaseProcessor {
+public abstract class JPA_XXX_DatabaseProcessorTest {
 
   protected JPAODataDatabaseProcessor cut;
   protected EntityManager em;
@@ -66,7 +66,7 @@ public abstract class TestJPA_XXX_DatabaseProcessor {
   protected String twoParameterResult;
   protected String countResult;
 
-  public void initEach() {
+  void initEach() {
     em = mock(EntityManager.class);
     functionQuery = mock(Query.class);
     uriResourceParts = new ArrayList<>();
@@ -98,7 +98,7 @@ public abstract class TestJPA_XXX_DatabaseProcessor {
   }
 
   @Test
-  public void testAbortsOnNotImplementedChaining() throws ODataJPAModelException {
+  void testAbortsOnNotImplementedChaining() throws ODataJPAModelException {
 
     createFunctionWithOneParameter();
     final UriResourceCount uriResourceCount = mock(UriResourceCount.class);
@@ -112,7 +112,7 @@ public abstract class TestJPA_XXX_DatabaseProcessor {
   }
 
   @Test
-  public void testBoundConvertsExceptionOnParameterProblem() throws ODataJPAModelException {
+  void testBoundConvertsExceptionOnParameterProblem() throws ODataJPAModelException {
 
     createBoundFunctionWithOneParameter();
     when(jpaFunction.getParameter()).thenThrow(ODataJPAModelException.class);
@@ -123,7 +123,7 @@ public abstract class TestJPA_XXX_DatabaseProcessor {
   }
 
   @Test
-  public void testBoundFunctionWithOneParameterCount() throws ODataApplicationException,
+  void testBoundFunctionWithOneParameterCount() throws ODataApplicationException,
       ODataJPAModelException {
     createBoundFunctionWithOneParameter();
 
@@ -132,7 +132,7 @@ public abstract class TestJPA_XXX_DatabaseProcessor {
     when(uriResourceCount.getKind()).thenReturn(UriResourceKind.count);
     when(functionQuery.getSingleResult()).thenReturn(5L);
 
-    final List<BusinessPartner> act = cut.executeFunctionQuery(uriResourceParts, jpaFunction, em);
+    final List<Long> act = cut.executeFunctionQuery(uriResourceParts, jpaFunction, em);
 
     verify(em, times(1)).createNativeQuery((String) argThat(new Equals(countResult)));
     verify(functionQuery, times(1)).setParameter(1, "5");
@@ -144,7 +144,7 @@ public abstract class TestJPA_XXX_DatabaseProcessor {
   }
 
   @Test
-  public void testBoundFunctionWithOneParameterReturnsBuPas() throws ODataApplicationException,
+  void testBoundFunctionWithOneParameterReturnsBuPas() throws ODataApplicationException,
       ODataJPAModelException {
 
     createBoundFunctionWithOneParameter();
@@ -158,7 +158,7 @@ public abstract class TestJPA_XXX_DatabaseProcessor {
   }
 
   @Test
-  public void testBoundFunctionWithTwoParameterReturnsBuPas() throws ODataApplicationException,
+  void testBoundFunctionWithTwoParameterReturnsBuPas() throws ODataApplicationException,
       ODataJPAModelException {
 
     createBoundFunctionWithOneParameter();
@@ -173,7 +173,7 @@ public abstract class TestJPA_XXX_DatabaseProcessor {
   }
 
   @Test
-  public void testBoundRaisesExceptionOnMissingParameter() throws ODataJPAModelException {
+  void testBoundRaisesExceptionOnMissingParameter() throws ODataJPAModelException {
 
     createBoundFunctionWithOneParameter();
     when(uriEntitySet.getKeyPredicates()).thenReturn(new ArrayList<>());
@@ -185,7 +185,7 @@ public abstract class TestJPA_XXX_DatabaseProcessor {
   }
 
   @Test
-  public void testCheckRaiseExceptionOnProblemValueToString() throws ODataJPAModelException,
+  void testCheckRaiseExceptionOnProblemValueToString() throws ODataJPAModelException,
       EdmPrimitiveTypeException {
 
     createBoundFunctionWithOneParameter();
@@ -202,7 +202,7 @@ public abstract class TestJPA_XXX_DatabaseProcessor {
   }
 
   @Test
-  public void testCheckRaisesExceptionOnIsBound() throws ODataJPAModelException {
+  void testCheckRaisesExceptionOnIsBound() throws ODataJPAModelException {
 
     createBoundFunctionWithOneParameter();
     when(jpaFunction.isBound()).thenThrow(ODataJPAModelException.class);
@@ -213,7 +213,7 @@ public abstract class TestJPA_XXX_DatabaseProcessor {
   }
 
   @Test
-  public void testUnboundConvertsExceptionOnParameterProblem() throws ODataJPAModelException {
+  void testUnboundConvertsExceptionOnParameterProblem() throws ODataJPAModelException {
 
     createFunctionWithOneParameter();
     when(jpaFunction.getParameter()).thenThrow(ODataJPAModelException.class);
@@ -224,7 +224,7 @@ public abstract class TestJPA_XXX_DatabaseProcessor {
   }
 
   @Test
-  public void testUnboundFunctionWithOneParameterCount() throws ODataApplicationException, ODataJPAModelException {
+  void testUnboundFunctionWithOneParameterCount() throws ODataApplicationException, ODataJPAModelException {
 
     createFunctionWithOneParameter();
 
@@ -245,7 +245,7 @@ public abstract class TestJPA_XXX_DatabaseProcessor {
   }
 
   @Test
-  public void testUnboundFunctionWithOneParameterReturnsBuPas() throws ODataApplicationException,
+  void testUnboundFunctionWithOneParameterReturnsBuPas() throws ODataApplicationException,
       ODataJPAModelException {
 
     createFunctionWithOneParameter();
@@ -259,7 +259,7 @@ public abstract class TestJPA_XXX_DatabaseProcessor {
   }
 
   @Test
-  public void testUnboundFunctionWithTwoParameterReturnsBuPas() throws ODataApplicationException,
+  void testUnboundFunctionWithTwoParameterReturnsBuPas() throws ODataApplicationException,
       ODataJPAModelException {
 
     createFunctionWithOneParameter();
@@ -275,7 +275,7 @@ public abstract class TestJPA_XXX_DatabaseProcessor {
   }
 
   @Test
-  public void testUnboundRaisesExceptionOnMissingParameter() throws ODataJPAModelException {
+  void testUnboundRaisesExceptionOnMissingParameter() throws ODataJPAModelException {
 
     createFunctionWithOneParameter();
     when(uriFunction.getParameters()).thenReturn(new ArrayList<>());

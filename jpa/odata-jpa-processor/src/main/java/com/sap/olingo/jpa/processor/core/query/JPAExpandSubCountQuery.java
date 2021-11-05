@@ -42,7 +42,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
  * @since 1.0.1
  * 25.11.2020
  */
-public class JPAExpandSubCountQuery extends JPAAbstractExpandQuery {
+public final class JPAExpandSubCountQuery extends JPAAbstractExpandQuery {
 
   public JPAExpandSubCountQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
       final JPAODataRequestContextAccess requestContext, final JPAEntityType et,

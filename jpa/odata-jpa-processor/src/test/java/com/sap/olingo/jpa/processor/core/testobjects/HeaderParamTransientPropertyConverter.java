@@ -1,11 +1,12 @@
 /**
- * 
+ *
  */
 package com.sap.olingo.jpa.processor.core.testobjects;
 
 import java.util.List;
 import java.util.Map;
 
+import com.sap.olingo.jpa.metadata.api.JPAHttpHeaderMap;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransientPropertyCalculator;
 
 /**
@@ -14,9 +15,9 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransientPropertyCalcu
  *
  */
 public class HeaderParamTransientPropertyConverter implements EdmTransientPropertyCalculator<String> {
-  private final Map<String, List<String>> header;
+  private final JPAHttpHeaderMap header;
 
-  public HeaderParamTransientPropertyConverter(final Map<String, List<String>> header) {
+  public HeaderParamTransientPropertyConverter(final JPAHttpHeaderMap header) {
     super();
     this.header = header;
   }

@@ -2,32 +2,32 @@ package com.sap.olingo.jpa.processor.core.query;
 
 import java.util.List;
 
-import org.apache.olingo.commons.api.edm.EdmEntitySet;
+import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.edm.EdmNavigationPropertyBinding;
 import org.apache.olingo.server.api.uri.UriParameter;
 
 /**
- * Container to provide result e.g. of target entity set determination
+ * Container to provide result e.g. of target entity set or singleton determination
  * @author Oliver Grande
  *
  */
-final class EdmEntitySetResult implements EdmEntitySetInfo {
+final class EdmBindingTargetResult implements EdmBindingTargetInfo {
 
-  private final EdmEntitySet edmEntitySet;
+  private final EdmBindingTarget edmBindingTarget;
   private final List<UriParameter> keyPredicates;
   private final String navigationPath;
 
-  EdmEntitySetResult(final EdmEntitySet edmEntitySet, final List<UriParameter> keyPredicates,
+  EdmBindingTargetResult(final EdmBindingTarget targetEdmBindingTarget, final List<UriParameter> keyPredicates,
       final String navigationPath) {
     super();
-    this.edmEntitySet = edmEntitySet;
+    this.edmBindingTarget = targetEdmBindingTarget;
     this.keyPredicates = keyPredicates;
     this.navigationPath = navigationPath;
   }
 
   @Override
-  public EdmEntitySet getEdmEntitySet() {
-    return this.edmEntitySet;
+  public EdmBindingTarget getEdmBindingTarget() {
+    return this.edmBindingTarget;
   }
 
   @Override
@@ -37,7 +37,7 @@ final class EdmEntitySetResult implements EdmEntitySetInfo {
 
   @Override
   public String getName() {
-    return edmEntitySet.getName();
+    return edmBindingTarget.getName();
   }
 
   @Override
@@ -46,16 +46,15 @@ final class EdmEntitySetResult implements EdmEntitySetInfo {
   }
 
   @Override
-  public EdmEntitySet getTargetEdmEntitySet() {
+  public EdmBindingTarget getTargetEdmBindingTarget() {
     if (navigationPath == null || navigationPath.isEmpty())
-      return this.edmEntitySet;
+      return this.edmBindingTarget;
     else {
-      for (EdmNavigationPropertyBinding navigation : this.edmEntitySet.getNavigationPropertyBindings()) {
+      for (final EdmNavigationPropertyBinding navigation : this.edmBindingTarget.getNavigationPropertyBindings()) {
         if (navigation.getPath().equals(navigationPath))
-          return edmEntitySet.getEntityContainer().getEntitySet(navigation.getTarget());
+          return edmBindingTarget.getEntityContainer().getEntitySet(navigation.getTarget());
       }
-      return this.edmEntitySet;
+      return this.edmBindingTarget;
     }
   }
-
 }

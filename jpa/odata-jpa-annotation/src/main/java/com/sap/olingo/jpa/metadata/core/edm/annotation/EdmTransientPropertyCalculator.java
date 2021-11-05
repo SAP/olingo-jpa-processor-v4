@@ -26,7 +26,8 @@ import javax.persistence.Tuple;
  * An implementing class may provide <b>one</b> constructor having no parameter or a combination of the following:
  * <ul>
  * <li>An Entity Manager: javax.persistence.EntityManager</li>
- * <li>All header: java.util.Map{@literal<}String, List{@literal<}String{@literal>}{@literal>}</li>
+ * <li>All header: com.sap.olingo.jpa.metadata.api.JPAHttpHeaderMap</li>
+ * <li>Access to own request parameter: com.sap.olingo.jpa.processor.core.api.JPAODataRequestParameterAccess</li>
  * </ul>
  * @author Oliver Grande<br>
  * Created: 14.03.2020

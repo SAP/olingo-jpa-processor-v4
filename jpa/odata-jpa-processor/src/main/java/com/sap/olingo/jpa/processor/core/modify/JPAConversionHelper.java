@@ -46,7 +46,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys;
-import com.sap.olingo.jpa.processor.core.query.EdmEntitySetInfo;
+import com.sap.olingo.jpa.processor.core.query.EdmBindingTargetInfo;
 import com.sap.olingo.jpa.processor.core.query.ExpressionUtil;
 import com.sap.olingo.jpa.processor.core.query.Util;
 
@@ -121,7 +121,7 @@ public class JPAConversionHelper {
       final List<UriResource> uriResourceParts) throws ODataJPAProcessorException {
 
     final InputStream requestInputStream = request.getBody();
-    final EdmEntitySetInfo targetEntityInfo = Util.determineModifyEntitySetAndKeys(uriResourceParts);
+    final EdmBindingTargetInfo targetEntityInfo = Util.determineModifyEntitySetAndKeys(uriResourceParts);
     try {
       final ODataDeserializer deserializer = createDeserializer(odata, requestFormat,
           request.getHeaders(HttpHeader.ODATA_VERSION));
@@ -155,7 +155,7 @@ public class JPAConversionHelper {
             .getProperty());
         return requestEntity;
       } else {
-        return deserializer.entity(requestInputStream, targetEntityInfo.getTargetEdmEntitySet().getEntityType())
+        return deserializer.entity(requestInputStream, targetEntityInfo.getTargetEdmBindingTarget().getEntityType())
             .getEntity();
       }
     } catch (final DeserializerException e) {
@@ -164,7 +164,7 @@ public class JPAConversionHelper {
   }
 
   /**
-   * 
+   *
    * @param odata
    * @param request
    * @param edmEntitySet
@@ -188,7 +188,7 @@ public class JPAConversionHelper {
   /**
    * Creates nested map of attributes and there (new) values. Primitive values are instances of e.g. Integer. Embedded
    * Types are returned as maps.
-   * 
+   *
    * @param odata
    * @param st
    * @param odataProperties
@@ -263,7 +263,7 @@ public class JPAConversionHelper {
   }
 
   /**
-   * 
+   *
    * @param keyPredicates
    * @return
    * @throws ODataJPAFilterException
@@ -397,9 +397,9 @@ public class JPAConversionHelper {
         + odata.createUriHelper().buildCanonicalURL(edmEntitySet, createdEntity);
   }
 
-  private String convertKeyToLocalMap(final OData odata, final ODataRequest request, final EdmEntitySet edmEntitySet,
-      final JPAEntityType et, final Map<String, Object> newPOJO) throws SerializerException,
-      ODataJPAProcessorException {
+  private String convertKeyToLocalMap(final OData odata, final ODataRequest request,
+      final EdmEntitySet edmEntitySet, final JPAEntityType et, final Map<String, Object> newPOJO)
+      throws SerializerException, ODataJPAProcessorException {
 
     final Entity createdEntity = new Entity();
 

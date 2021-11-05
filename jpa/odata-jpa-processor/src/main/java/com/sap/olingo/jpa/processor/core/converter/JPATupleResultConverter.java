@@ -56,7 +56,7 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
   protected EdmEntityType edmType;
   protected final JPAODataRequestContextAccess requestContext;
 
-  public JPATupleResultConverter(final JPAServiceDocument sd, final UriHelper uriHelper,
+  protected JPATupleResultConverter(final JPAServiceDocument sd, final UriHelper uriHelper,
       final ServiceMetadata serviceMetadata, final JPAODataRequestContextAccess requestContext) {
     this.uriHelper = uriHelper;
     this.sd = sd;

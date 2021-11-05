@@ -72,7 +72,7 @@ public class TestQueryBase extends TestBase {
   protected EdmType buildUriInfo(final String esName, final String etName) {
     uriInfo = Mockito.mock(UriInfo.class);
     final EdmEntitySet odataEs = Mockito.mock(EdmEntitySet.class);
-    final EdmType odataType = Mockito.mock(EdmEntityType.class);
+    final EdmEntityType odataType = Mockito.mock(EdmEntityType.class);
     final List<UriResource> resources = new ArrayList<>();
     final UriResourceEntitySet esResource = Mockito.mock(UriResourceEntitySet.class);
     Mockito.when(uriInfo.getUriResourceParts()).thenReturn(resources);
@@ -81,6 +81,7 @@ public class TestQueryBase extends TestBase {
     Mockito.when(esResource.getKind()).thenReturn(UriResourceKind.entitySet);
     Mockito.when(esResource.getType()).thenReturn(odataType);
     Mockito.when(odataEs.getName()).thenReturn(esName);
+    Mockito.when(odataEs.getEntityType()).thenReturn(odataType);
     Mockito.when(odataType.getNamespace()).thenReturn(PUNIT_NAME);
     Mockito.when(odataType.getName()).thenReturn(etName);
     resources.add(esResource);

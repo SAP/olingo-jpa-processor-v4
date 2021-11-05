@@ -17,6 +17,7 @@ import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.UriResourceNavigation;
 import org.apache.olingo.server.api.uri.UriResourcePartTyped;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
+import org.apache.olingo.server.api.uri.UriResourceSingleton;
 import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
 import org.apache.olingo.server.api.uri.queryoption.SelectItem;
 import org.apache.olingo.server.api.uri.queryoption.SelectOption;
@@ -145,7 +146,8 @@ public final class JPAExpandItemInfoFactory {
     } else {
       for (final UriResource uriElement : startResourceList) {
         try {
-          if (uriElement instanceof UriResourceEntitySet || uriElement instanceof UriResourceNavigation) {
+          if (uriElement instanceof UriResourceEntitySet || uriElement instanceof UriResourceSingleton
+              || uriElement instanceof UriResourceNavigation) {
             result[ST_INDEX] = result[ET_INDEX] = sd.getEntity(((UriResourcePartTyped) uriElement)
                 .getType());
             path = new StringBuilder(); // Reset path on switch between entities

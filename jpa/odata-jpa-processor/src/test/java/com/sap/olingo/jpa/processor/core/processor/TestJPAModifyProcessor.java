@@ -53,7 +53,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataTransactionFactory.JPAOData
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
-import com.sap.olingo.jpa.processor.core.query.EdmEntitySetInfo;
+import com.sap.olingo.jpa.processor.core.query.EdmBindingTargetInfo;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializer;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionKey;
@@ -91,7 +91,7 @@ public abstract class TestJPAModifyProcessor {
   protected JPAODataTransaction transaction;
   protected JPASerializer serializer;
   protected EdmEntitySet ets;
-  protected EdmEntitySetInfo etsInfo;
+  protected EdmBindingTargetInfo etsInfo;
   protected List<UriParameter> keyPredicates;
   protected JPAConversionHelper convHelper;
   protected List<UriResource> pathParts = new ArrayList<>();
@@ -109,7 +109,7 @@ public abstract class TestJPAModifyProcessor {
     uriInfo = mock(UriInfo.class);
     keyPredicates = new ArrayList<>();
     ets = mock(EdmEntitySet.class);
-    etsInfo = mock(EdmEntitySetInfo.class);
+    etsInfo = mock(EdmBindingTargetInfo.class);
     serializer = mock(JPASerializer.class);
     uriEts = mock(UriResourceEntitySet.class);
     pathParts.add(uriEts);
@@ -132,7 +132,7 @@ public abstract class TestJPAModifyProcessor {
     when(uriEts.getKind()).thenReturn(UriResourceKind.entitySet);
     when(ets.getName()).thenReturn("Organizations");
     when(factory.createTransaction()).thenReturn(transaction);
-    when(etsInfo.getEdmEntitySet()).thenReturn(ets);
+    when(etsInfo.getEdmBindingTarget()).thenReturn(ets);
     processor = new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext, convHelper);
 
   }
@@ -245,7 +245,7 @@ public abstract class TestJPAModifyProcessor {
     final ODataRequest request = mock(ODataRequest.class);
     when(request.getHeaders(HttpHeader.PREFER)).thenReturn(header);
     when(sessionContext.getEdmProvider()).thenReturn(jpaEdm);
-    when(etsInfo.getEdmEntitySet()).thenReturn(ets);
+    when(etsInfo.getEdmBindingTarget()).thenReturn(ets);
     header.add(content);
 
     Entity odataEntity = mock(Entity.class);

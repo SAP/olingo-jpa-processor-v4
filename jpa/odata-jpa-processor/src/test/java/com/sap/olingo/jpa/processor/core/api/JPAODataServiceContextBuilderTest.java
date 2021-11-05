@@ -43,7 +43,7 @@ import com.sap.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 
-class TestJPAODataServiceContextBuilder {
+class JPAODataServiceContextBuilderTest {
   private static final String PUNIT_NAME = "com.sap.olingo.jpa";
   private static final String[] enumPackages = { "com.sap.olingo.jpa.processor.core.testmodel" };
 

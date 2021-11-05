@@ -22,25 +22,25 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContext;
 import com.sap.olingo.jpa.processor.core.api.JPAODataTransactionFactory;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
 
-public class TestJPAODataRequestContextBuilder {
+class JPAODataRequestContextBuilderTest {
   private static final String PARAMETER_VALUE = "Test";
   private static final String PARAMETER_NAME = "MyParameter";
   private Builder cut;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     cut = JPAODataRequestContext.with();
   }
 
   @Test
-  public void testCreateWithSetDebugSupport() {
+  void testCreateWithSetDebugSupport() {
     final DefaultDebugSupport exp = new DefaultDebugSupport();
     cut.setDebugSupport(exp);
     assertEquals(exp, cut.build().getDebuggerSupport());
   }
 
   @Test
-  public void testCreateWithSetClaimsProvider() {
+  void testCreateWithSetClaimsProvider() {
     final JPAODataClaimProvider exp = new JPAODataClaimsProvider();
     cut.setClaimsProvider(exp);
     final JPAODataRequestContext act = cut.build();
@@ -49,7 +49,7 @@ public class TestJPAODataRequestContextBuilder {
   }
 
   @Test
-  public void testCreateWithSetGroupsProvider() {
+  void testCreateWithSetGroupsProvider() {
     final JPAODataGroupProvider exp = new JPAODataGroupsProvider();
     cut.setGroupsProvider(exp);
     final JPAODataRequestContext act = cut.build();
@@ -58,7 +58,7 @@ public class TestJPAODataRequestContextBuilder {
   }
 
   @Test
-  public void testCreateWithSetTransactionFactory() {
+  void testCreateWithSetTransactionFactory() {
     final EntityManager em = mock(EntityManager.class);
     final JPAODataTransactionFactory exp = new JPAODataDefaultTransactionFactory(em);
 
@@ -69,7 +69,7 @@ public class TestJPAODataRequestContextBuilder {
   }
 
   @Test
-  public void testCreateWithSetEntityManager() {
+  void testCreateWithSetEntityManager() {
     final EntityManager exp = mock(EntityManager.class);
 
     cut.setEntityManager(exp);
@@ -79,12 +79,12 @@ public class TestJPAODataRequestContextBuilder {
   }
 
   @Test
-  public void testThrowsExceptionOnEntityManagerIsNull() throws ODataJPAIllegalAccessException {
+  void testThrowsExceptionOnEntityManagerIsNull() throws ODataJPAIllegalAccessException {
     assertThrows(NullPointerException.class, () -> cut.setEntityManager(null));
   }
 
   @Test
-  public void testCreateWithSetCUDRequestHandler() {
+  void testCreateWithSetCUDRequestHandler() {
     final JPACUDRequestHandler exp = mock(JPACUDRequestHandler.class);
 
     cut.setCUDRequestHandler(exp);
@@ -94,9 +94,9 @@ public class TestJPAODataRequestContextBuilder {
   }
 
   @Test
-  public void testCreateWithSetCustomParameter() {
+  void testCreateWithSetCustomParameter() {
     cut.setParameter(PARAMETER_NAME, PARAMETER_VALUE);
     final JPAODataRequestContext act = cut.build();
-    assertEquals(PARAMETER_VALUE, act.getParameter(PARAMETER_NAME));
+    assertEquals(PARAMETER_VALUE, act.getRequestParameter().get(PARAMETER_NAME));
   }
 }

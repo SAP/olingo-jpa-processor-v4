@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import javax.persistence.metamodel.EntityType;
 
@@ -56,8 +55,10 @@ import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
 import com.sap.olingo.jpa.processor.core.testmodel.Collection;
 import com.sap.olingo.jpa.processor.core.testmodel.CollectionDeep;
 import com.sap.olingo.jpa.processor.core.testmodel.CurrentUser;
+import com.sap.olingo.jpa.processor.core.testmodel.CurrentUserQueryExtension;
 import com.sap.olingo.jpa.processor.core.testmodel.DeepProtectedExample;
 import com.sap.olingo.jpa.processor.core.testmodel.DummyToBeIgnored;
+import com.sap.olingo.jpa.processor.core.testmodel.EmptyQueryExtensionProvider;
 import com.sap.olingo.jpa.processor.core.testmodel.EntityTypeOnly;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
@@ -68,8 +69,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.Singleton;
 import com.sap.olingo.jpa.processor.core.testmodel.TestDataConstants;
 import com.sap.olingo.jpa.processor.core.testmodel.TransientRefComplex;
 
-class TestIntermediateEntityType extends TestMappingRoot {
-  private Set<EntityType<?>> etList;
+class IntermediateEntityTypeTest extends TestMappingRoot {
   private IntermediateSchema schema;
   private IntermediateSchema errorSchema;
 
@@ -80,7 +80,6 @@ class TestIntermediateEntityType extends TestMappingRoot {
     when(r.getTypesAnnotatedWith(EdmEnumeration.class)).thenReturn(new HashSet<>(Arrays.asList(
         ABCClassification.class)));
 
-    etList = emf.getMetamodel().getEntities();
     schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), r);
     errorSchema = new IntermediateSchema(new JPADefaultEdmNameBuilder(ERROR_PUNIT), errorEmf.getMetamodel(), r);
   }
@@ -705,6 +704,41 @@ class TestIntermediateEntityType extends TestMappingRoot {
     assertTrue(et.asTopLevelOnly());
   }
 
+  @Test
+  void checkQueryExtentionProvderNotPresent() throws ODataJPAModelException {
+    final IntermediateEntityType<AdministrativeDivision> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(AdministrativeDivision.class), schema);
+    et.getEdmItem();
+    assertFalse(et.getQueryExtention().isPresent());
+  }
+
+  @Test
+  void checkQueryExtentionProvderPresent() throws ODataJPAModelException {
+    final IntermediateEntityType<BusinessPartner> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(BusinessPartner.class), schema);
+    et.getEdmItem();
+    assertTrue(et.getQueryExtention().isPresent());
+    assertEquals(EmptyQueryExtensionProvider.class, et.getQueryExtention().get().getConstructor().getDeclaringClass());
+  }
+
+  @Test
+  void checkQueryExtentionProvderInherited() throws ODataJPAModelException {
+    final IntermediateEntityType<Person> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(Person.class), schema);
+    et.getEdmItem();
+    assertTrue(et.getQueryExtention().isPresent());
+    assertEquals(EmptyQueryExtensionProvider.class, et.getQueryExtention().get().getConstructor().getDeclaringClass());
+  }
+
+  @Test
+  void checkQueryExtentionProvderOverride() throws ODataJPAModelException {
+    final IntermediateEntityType<CurrentUser> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(CurrentUser.class), schema);
+    et.getEdmItem();
+    assertTrue(et.getQueryExtention().isPresent());
+    assertEquals(CurrentUserQueryExtension.class, et.getQueryExtention().get().getConstructor().getDeclaringClass());
+  }
+
   private void assertComplexDeep(final List<JPAProtectionInfo> act) {
     for (final JPAProtectionInfo info : act) {
       if (info.getClaimName().equals("BuildingNumber")) {
@@ -741,16 +775,6 @@ class TestIntermediateEntityType extends TestMappingRoot {
       }
     }
     fail("Inherited not found");
-  }
-
-  @SuppressWarnings("unchecked")
-  private <T> EntityType<T> getEntityType(final Class<T> type) {
-    for (final EntityType<?> entityType : etList) {
-      if (entityType.getJavaType().equals(type)) {
-        return (EntityType<T>) entityType;
-      }
-    }
-    return null;
   }
 
   private static class PostProcessorSetIgnore extends JPAEdmMetadataPostProcessor {

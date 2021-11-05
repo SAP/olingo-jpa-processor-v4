@@ -9,9 +9,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-
-import javax.persistence.metamodel.EntityType;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlSingleton;
@@ -33,9 +30,8 @@ import com.sap.olingo.jpa.processor.core.testmodel.ABCClassification;
 import com.sap.olingo.jpa.processor.core.testmodel.CurrentUser;
 import com.sap.olingo.jpa.processor.core.testmodel.Singleton;
 
-class TestIntermediateSingleton extends TestMappingRoot {
+class IntermediateSingletonTest extends TestMappingRoot {
   private IntermediateSchema schema;
-  private Set<EntityType<?>> etList;
   private JPADefaultEdmNameBuilder nameBuilder;
 
   @BeforeEach
@@ -45,7 +41,6 @@ class TestIntermediateSingleton extends TestMappingRoot {
     when(r.getTypesAnnotatedWith(EdmEnumeration.class)).thenReturn(new HashSet<>(Arrays.asList(
         ABCClassification.class)));
 
-    etList = emf.getMetamodel().getEntities();
     nameBuilder = new JPADefaultEdmNameBuilder(PUNIT_NAME);
     schema = new IntermediateSchema(nameBuilder, emf.getMetamodel(), r);
   }
@@ -126,16 +121,6 @@ class TestIntermediateSingleton extends TestMappingRoot {
     final IntermediateSingleton singleton = new IntermediateSingleton(nameBuilder, et);
     final CsdlSingleton item = singleton.getEdmItem();
     assertEquals(PUNIT_NAME + ".BusinessPartner", item.getType());
-  }
-
-  @SuppressWarnings("unchecked")
-  private <T> EntityType<T> getEntityType(final Class<T> type) {
-    for (final EntityType<?> entityType : etList) {
-      if (entityType.getJavaType().equals(type)) {
-        return (EntityType<T>) entityType;
-      }
-    }
-    return null;
   }
 
   private class PostProcessor extends JPAEdmMetadataPostProcessor {

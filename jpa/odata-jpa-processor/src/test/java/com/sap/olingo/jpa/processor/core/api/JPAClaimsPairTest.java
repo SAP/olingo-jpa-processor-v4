@@ -7,36 +7,36 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-public class JPAClaimsPairTest {
+class JPAClaimsPairTest {
 
   @Test
-  public void checkCreateIntegerPairOnlyMin() {
+  void checkCreateIntegerPairOnlyMin() {
     final JPAClaimsPair<Integer> cut = new JPAClaimsPair<>(7);
     assertEquals((Integer) 7, cut.min);
     assertEquals((Integer) null, cut.max);
   }
 
   @Test
-  public void checkCreateIntegerPairNoUpperBoundary() {
+  void checkCreateIntegerPairNoUpperBoundary() {
     final JPAClaimsPair<Integer> cut = new JPAClaimsPair<>(7);
     assertFalse(cut.hasUpperBoundary);
   }
 
   @Test
-  public void checkCreateIntegerPair() {
+  void checkCreateIntegerPair() {
     final JPAClaimsPair<Integer> cut = new JPAClaimsPair<>(7, 10);
     assertEquals((Integer) 7, cut.min);
     assertEquals((Integer) 10, cut.max);
   }
 
   @Test
-  public void checkCreateIntegerPairUpperBoundary() {
+  void checkCreateIntegerPairUpperBoundary() {
     final JPAClaimsPair<Integer> cut = new JPAClaimsPair<>(7, 10);
     assertTrue(cut.hasUpperBoundary);
   }
 
   @Test
-  public void checkHasToStringMethod() {
+  void checkHasToStringMethod() {
     final JPAClaimsPair<Integer> cut = new JPAClaimsPair<>(7, 10);
     final String act = cut.toString();
     assertNotNull(act);
@@ -44,7 +44,7 @@ public class JPAClaimsPairTest {
   }
 
   @Test
-  public void checkCastIntegerValueToLong() {
+  void checkCastIntegerValueToLong() {
     final JPAClaimsPair<Integer> cut = new JPAClaimsPair<>(7, 10);
     assertEquals(7, (int) cut.minAs());
     assertEquals(10, (int) cut.maxAs());

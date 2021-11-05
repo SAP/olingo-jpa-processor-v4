@@ -8,16 +8,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.From;
 
+import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.ex.ODataException;
+import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
+import org.apache.olingo.server.api.uri.UriResource;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
@@ -25,6 +29,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery {
 
@@ -38,8 +43,23 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
   private static JPAEntityType determineTargetEntityType(final JPAODataSessionContextAccess sessionContext,
       final JPAODataRequestContextAccess requestContext) throws ODataException {
 
-    return sessionContext.getEdmProvider().getServiceDocument().getEntity(Util.determineTargetEntitySet(requestContext
-        .getUriInfo().getUriResourceParts()).getName());
+    final List<UriResource> resources = requestContext.getUriInfo().getUriResourceParts();
+    final EdmBindingTarget bindingTarget = Util.determineBindingTarget(resources);
+    if (bindingTarget instanceof EdmBoundCast)
+      return sessionContext.getEdmProvider().getServiceDocument().getEntity(bindingTarget.getEntityType());
+    return sessionContext.getEdmProvider().getServiceDocument().getEntity(bindingTarget.getName());
+  }
+
+  private static JPAEntityType determineODataTargetEntityType(final JPAODataSessionContextAccess sessionContext,
+      final JPAODataRequestContextAccess requestContext) throws ODataApplicationException {
+
+    final List<UriResource> resources = requestContext.getUriInfo().getUriResourceParts();
+    try {
+      final EdmBindingTarget bindingTarget = Util.determineBindingTarget(resources);
+      return sessionContext.getEdmProvider().getServiceDocument().getEntity(bindingTarget.getEntityType());
+    } catch (final ODataException e) {
+      throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    }
   }
 
   public JPAJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
@@ -153,11 +173,12 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
     return new JPAExpandQueryResult(jpaEntity, selectionPath);
   }
 
-  private JPAConvertibleResult returnResult(final Collection<JPAPath> selectionPath,
-      final HashMap<String, List<Tuple>> result) {
+  private JPAConvertibleResult returnResult(@Nonnull final Collection<JPAPath> selectionPath,
+      final HashMap<String, List<Tuple>> result) throws ODataApplicationException {
+    final JPAEntityType odataEntityType = determineODataTargetEntityType(context, requestContext);
     if (lastInfo.getAssociationPath() != null
         && (lastInfo.getAssociationPath().getLeaf() instanceof JPACollectionAttribute))
-      return new JPACollectionQueryResult(result, null, jpaEntity, lastInfo.getAssociationPath(), selectionPath);
-    return new JPAExpandQueryResult(result, null, jpaEntity, selectionPath);
+      return new JPACollectionQueryResult(result, null, odataEntityType, lastInfo.getAssociationPath(), selectionPath);
+    return new JPAExpandQueryResult(result, null, odataEntityType, selectionPath);
   }
 }

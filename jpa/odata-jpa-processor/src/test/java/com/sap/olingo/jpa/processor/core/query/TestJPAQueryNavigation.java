@@ -287,4 +287,11 @@ class TestJPAQueryNavigation extends TestBase {
     assertTrue(values.get(1).asText().equals("This is just a test") || values.get(1).asText().equals(
         "This is another test"));
   }
+
+  @Test
+  void testNavigationViaEntitySetOnly() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "BestOrganizations");
+    helper.assertStatus(200);
+  }
 }

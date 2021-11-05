@@ -3,7 +3,7 @@
  */
 package com.sap.olingo.jpa.metadata.core.edm.annotation;
 
-import static com.sap.olingo.jpa.metadata.core.edm.annotation.TopLevelElementRepresentation.AS_ENTITY_SET;
+import static com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTopLevelElementRepresentation.AS_ENTITY_SET;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
@@ -24,5 +24,15 @@ public @interface EdmEntityType {
   /**
    * Indicates what the type represents. This could be an Entity Set, an Entity Type or a (nullable) Singleton.
    */
-  TopLevelElementRepresentation as() default AS_ENTITY_SET;
+  EdmTopLevelElementRepresentation as() default AS_ENTITY_SET;
+
+  /**
+   * Query Extension Provider provides a set to methods to extend or influence the generated query. This may be from
+   * interest in case a subset of records shall be represented by an Entity Set or Singleton and it is not possible to
+   * use a database view. <p>
+   *
+   * A Query Extension Provider are inherited. One that is given at a sub type overrides one that is given at the super
+   * type or base type.
+   */
+  Class<? extends EdmQueryExtensionProvider> extensionProvider() default EdmQueryExtensionProvider.class;
 }

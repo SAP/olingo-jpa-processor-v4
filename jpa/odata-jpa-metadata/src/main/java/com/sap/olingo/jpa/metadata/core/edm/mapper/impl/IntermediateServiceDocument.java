@@ -5,7 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 
+import javax.annotation.CheckForNull;
 import javax.persistence.metamodel.Metamodel;
 
 import org.apache.commons.logging.Log;
@@ -187,11 +189,14 @@ class IntermediateServiceDocument implements JPAServiceDocument {
    */
   @Override
   public JPAEntityType getEntity(final String edmTargetName) throws ODataJPAModelException {
-    IntermediateTopLevelEntity target = container.getEntitySet(edmTargetName);
-    if (target == null) {
-      target = container.getSingleton(edmTargetName);
-    }
+    final IntermediateTopLevelEntity target = determineTopLevelEntity(edmTargetName);
     return target != null ? target.getEntityType() : null;
+  }
+
+  @CheckForNull
+  private IntermediateTopLevelEntity determineTopLevelEntity(final String edmTargetName) throws ODataJPAModelException {
+    final Optional<IntermediateTopLevelEntity> target = Optional.ofNullable(container.getEntitySet(edmTargetName));
+    return target.orElse(container.getSingleton(edmTargetName));
   }
 
   /*

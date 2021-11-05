@@ -27,6 +27,7 @@ import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpress
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAnnotation;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssociation;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
@@ -36,6 +37,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 @DiscriminatorColumn(name = "\"Type\"")
 @Entity(name = "BusinessPartner")
 @Table(schema = "\"OLINGO\"", name = "\"BusinessPartner\"")
+@EdmEntityType(extensionProvider = EmptyQueryExtensionProvider.class)
 @EdmFunctions({
     @EdmFunction(
         name = "CountRoles",

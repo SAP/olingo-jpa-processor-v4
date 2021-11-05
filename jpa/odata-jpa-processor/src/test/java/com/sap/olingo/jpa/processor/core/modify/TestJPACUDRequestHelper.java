@@ -59,7 +59,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
-import com.sap.olingo.jpa.processor.core.query.EdmEntitySetInfo;
+import com.sap.olingo.jpa.processor.core.query.EdmBindingTargetInfo;
 import com.sap.olingo.jpa.processor.core.testmodel.ABCClassification;
 import com.sap.olingo.jpa.processor.core.testmodel.AccessRights;
 import com.sap.olingo.jpa.processor.core.testmodel.AccessRightsConverter;
@@ -86,7 +86,7 @@ public class TestJPACUDRequestHelper {
   @Test
   public void testConvertEmptyInputStream() throws UnsupportedEncodingException {
 
-    final EdmEntitySetInfo etsInfo = mock(EdmEntitySetInfo.class);
+    final EdmBindingTargetInfo etsInfo = mock(EdmBindingTargetInfo.class);
     final EdmEntitySet ets = mock(EdmEntitySet.class);
     final UriResourceEntitySet uriEs = mock(UriResourceEntitySet.class);
 
@@ -96,8 +96,8 @@ public class TestJPACUDRequestHelper {
     when(uriEs.getEntitySet()).thenReturn(ets);
     when(uriEs.getKind()).thenReturn(UriResourceKind.entitySet);
     when(request.getBody()).thenReturn(is);
-    when(etsInfo.getEdmEntitySet()).thenReturn(ets);
-    when(etsInfo.getTargetEdmEntitySet()).thenReturn(ets);
+    when(etsInfo.getEdmBindingTarget()).thenReturn(ets);
+    when(etsInfo.getTargetEdmBindingTarget()).thenReturn(ets);
 
     try {
       cut.convertInputStream(OData.newInstance(), request, ContentType.APPLICATION_JSON, uriResourceParts);

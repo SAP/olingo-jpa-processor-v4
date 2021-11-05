@@ -34,12 +34,14 @@ import org.apache.olingo.server.api.uri.UriResourceProperty;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAsEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEntityType;
-import com.sap.olingo.jpa.metadata.core.edm.annotation.TopLevelElementRepresentation;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmQueryExtensionProvider;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTopLevelElementRepresentation;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAQueryExtension;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateEntityTypeAccess;
@@ -56,6 +58,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateEntityT
 final class IntermediateEntityType<T> extends IntermediateStructuredType<T> implements JPAEntityType,
     IntermediateEntityTypeAccess {
   private Optional<JPAPath> etagPath;
+  private Optional<JPAQueryExtension> extensionQueryProvider;
   private List<JPAAttribute> keyAttributes;
   private final boolean asTopLevelOnly;
   private final boolean asEntitySet;
@@ -68,13 +71,6 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
     asEntitySet = determineAsEntitySet();
     asSingleton = determineAsSingleton();
     etagPath = Optional.empty();
-  }
-
-  private void checkTopLevelTypeConsistency() throws ODataJPAModelException {
-    final EdmAsEntitySet jpaAsEntitySet = this.jpaManagedType.getJavaType().getAnnotation(EdmAsEntitySet.class);
-    final EdmEntityType jpaEntityType = this.jpaManagedType.getJavaType().getAnnotation(EdmEntityType.class);
-    if (jpaAsEntitySet != null && jpaEntityType != null)
-      throw new ODataJPAModelException(INVALID_TOP_LEVEL_SETTING, getInternalName());
   }
 
   @Override
@@ -205,6 +201,13 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
   }
 
   @Override
+  public Optional<JPAQueryExtension> getQueryExtention() throws ODataJPAModelException {
+    if (extensionQueryProvider == null)
+      determineExtensionQueryProvide();
+    return extensionQueryProvider;
+  }
+
+  @Override
   public List<JPAPath> getSearchablePath() throws ODataJPAModelException {
     final List<JPAPath> allPath = getPathList();
     final List<JPAPath> searchablePath = new ArrayList<>();
@@ -307,6 +310,7 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
       buildPropertyList();
       buildNaviPropertyList();
       addTransientProperties();
+      determineExtensionQueryProvide();
       postProcessor.processEntityType(this);
 
       edmStructuralType = new CsdlEntityType();
@@ -426,18 +430,16 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
     return keyElements;
   }
 
+  private void checkTopLevelTypeConsistency() throws ODataJPAModelException {
+    final EdmAsEntitySet jpaAsEntitySet = this.jpaManagedType.getJavaType().getAnnotation(EdmAsEntitySet.class);
+    final EdmEntityType jpaEntityType = this.jpaManagedType.getJavaType().getAnnotation(EdmEntityType.class);
+    if (jpaAsEntitySet != null && jpaEntityType != null)
+      throw new ODataJPAModelException(INVALID_TOP_LEVEL_SETTING, getInternalName());
+  }
+
   private List<CsdlAnnotation> determineAnnotations() throws ODataJPAModelException {
     getAnnotations(edmAnnotations, this.jpaManagedType.getJavaType(), internalName);
     return edmAnnotations;
-  }
-
-  private boolean determineAsTopLevelOnly() {
-    final EdmAsEntitySet jpaAsEntitySet = this.jpaManagedType.getJavaType().getAnnotation(EdmAsEntitySet.class);
-    final EdmEntityType jpaEntityType = this.jpaManagedType.getJavaType().getAnnotation(EdmEntityType.class);
-    return jpaAsEntitySet != null
-        || (jpaEntityType != null
-            && (jpaEntityType.as() == TopLevelElementRepresentation.AS_ENTITY_SET_ONLY
-                || jpaEntityType.as() == TopLevelElementRepresentation.AS_SINGLETON_ONLY));
   }
 
   private boolean determineAsEntitySet() {
@@ -445,14 +447,38 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
     final EdmEntityType jpaEntityType = this.jpaManagedType.getJavaType().getAnnotation(EdmEntityType.class);
     return jpaAsEntitySet != null
         || jpaEntityType == null
-        || jpaEntityType.as() == TopLevelElementRepresentation.AS_ENTITY_SET
-        || jpaEntityType.as() == TopLevelElementRepresentation.AS_ENTITY_SET_ONLY;
+        || jpaEntityType.as() == EdmTopLevelElementRepresentation.AS_ENTITY_SET
+        || jpaEntityType.as() == EdmTopLevelElementRepresentation.AS_ENTITY_SET_ONLY;
   }
 
   private boolean determineAsSingleton() {
     final EdmEntityType jpaEntityType = this.jpaManagedType.getJavaType().getAnnotation(EdmEntityType.class);
-    return jpaEntityType != null && (jpaEntityType.as() == TopLevelElementRepresentation.AS_SINGLETON
-        || jpaEntityType.as() == TopLevelElementRepresentation.AS_SINGLETON_ONLY);
+    return jpaEntityType != null && (jpaEntityType.as() == EdmTopLevelElementRepresentation.AS_SINGLETON
+        || jpaEntityType.as() == EdmTopLevelElementRepresentation.AS_SINGLETON_ONLY);
+  }
+
+  private boolean determineAsTopLevelOnly() {
+    final EdmAsEntitySet jpaAsEntitySet = this.jpaManagedType.getJavaType().getAnnotation(EdmAsEntitySet.class);
+    final EdmEntityType jpaEntityType = this.jpaManagedType.getJavaType().getAnnotation(EdmEntityType.class);
+    return jpaAsEntitySet != null
+        || (jpaEntityType != null
+            && (jpaEntityType.as() == EdmTopLevelElementRepresentation.AS_ENTITY_SET_ONLY
+                || jpaEntityType.as() == EdmTopLevelElementRepresentation.AS_SINGLETON_ONLY));
+  }
+
+  @SuppressWarnings("unchecked")
+  private void determineExtensionQueryProvide() throws ODataJPAModelException {
+    extensionQueryProvider = Optional.empty();
+    final EdmEntityType jpaEntityType = this.jpaManagedType.getJavaType().getAnnotation(EdmEntityType.class);
+    if (jpaEntityType != null) {
+      final Class<?> provider = jpaEntityType.extensionProvider();
+      final Class<?> defaultProvider = EdmQueryExtensionProvider.class;
+      if (provider != null && provider != defaultProvider)
+        extensionQueryProvider = Optional.of(new JPAQueryExtensionProvider(
+            (Class<? extends EdmQueryExtensionProvider>) provider));
+    }
+    if (!extensionQueryProvider.isPresent() && getBaseType() != null)
+      extensionQueryProvider = ((IntermediateEntityType<?>) getBaseType()).getQueryExtention();
   }
 
   private void determineHasEtag() throws ODataJPAModelException {

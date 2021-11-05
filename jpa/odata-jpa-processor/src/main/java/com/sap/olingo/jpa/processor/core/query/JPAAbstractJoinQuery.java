@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.annotation.CheckForNull;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.AbstractQuery;
@@ -29,6 +30,8 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -47,6 +50,7 @@ import org.apache.olingo.server.api.uri.queryoption.SkipOption;
 import org.apache.olingo.server.api.uri.queryoption.TopOption;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitException;
 
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmQueryExtensionProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
@@ -69,6 +73,7 @@ import com.sap.olingo.jpa.processor.core.filter.JPAOperationConverter;
 import com.sap.olingo.jpa.processor.core.processor.JPAODataInternalRequestContext;
 
 public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements JPAQuery {
+  private static final Log LOGGER = LogFactory.getLog(JPAAbstractJoinQuery.class);
   protected static final String ALIAS_SEPARATOR = ".";
   protected final UriInfoResource uriResource;
   protected final CriteriaQuery<Tuple> cq;
@@ -88,7 +93,14 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
     this(odata, sessionContext, jpaEntityType, requestContext.getUriInfo(), requestContext, navigationInfo);
   }
 
-  protected JPAAbstractJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
+  JPAAbstractJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
+      final JPAODataRequestContextAccess requestContext, final List<JPANavigationPropertyInfo> navigationInfo)
+      throws ODataException {
+    this(odata, sessionContext, navigationInfo.get(0).getEntityType(), requestContext.getUriInfo(), requestContext,
+        navigationInfo);
+  }
+
+  JPAAbstractJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
       final JPAEntityType jpaEntityType, final UriInfoResource uriInfo,
       final JPAODataRequestContextAccess requestContext,
       final List<JPANavigationPropertyInfo> navigationInfo) throws ODataException {
@@ -102,6 +114,12 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
     this.page = requestContext.getPage();
     this.navigationInfo = navigationInfo;
     this.lastInfo = determineLastInfo(navigationInfo);
+  }
+
+  @CheckForNull
+  private static JPAEntityType determineCast(final UriInfoResource uriInfo) {
+
+    return null;
   }
 
   @SuppressWarnings("unchecked")
@@ -333,7 +351,11 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
       whereCondition = addWhereClause(whereCondition,
           context.getDatabaseProcessor().createSearchWhereClause(cb, this.cq, target, jpaEntity, uriInfo
               .getSearchOption()));
-
+    final Optional<EdmQueryExtensionProvider> queryEnhancment = requestContext.getQueryEnhancment(jpaEntity);
+    if (queryEnhancment.isPresent()) {
+      LOGGER.trace("Query Enhancment found. Add WHERE condition of: " + queryEnhancment.get().getClass().getName());
+      whereCondition = addWhereClause(whereCondition, queryEnhancment.get().getFilterExtension(cb, target));
+    }
     debugger.stopRuntimeMeasurement(handle);
     return whereCondition;
   }

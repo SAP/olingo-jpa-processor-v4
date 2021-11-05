@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.sap.olingo.jpa.processor.core.testobjects;
 
@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.persistence.EntityManager;
 
+import com.sap.olingo.jpa.metadata.api.JPAHttpHeaderMap;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransientPropertyCalculator;
 
 /**
@@ -19,7 +20,7 @@ public class TwoParameterTransientPropertyConverter implements EdmTransientPrope
   private final EntityManager em;
   private final Map<String, List<String>> header;
 
-  public TwoParameterTransientPropertyConverter(final EntityManager em, final Map<String, List<String>> header) {
+  public TwoParameterTransientPropertyConverter(final EntityManager em, final JPAHttpHeaderMap header) {
     super();
     this.em = em;
     this.header = header;

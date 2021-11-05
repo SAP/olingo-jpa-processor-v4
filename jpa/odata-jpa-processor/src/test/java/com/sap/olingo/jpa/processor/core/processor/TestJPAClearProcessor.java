@@ -51,7 +51,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPATransactionException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
 import com.sap.olingo.jpa.processor.core.modify.JPAUpdateResult;
 
-public class TestJPAClearProcessor extends TestJPAModifyProcessor {
+class JPAClearProcessorTest extends TestJPAModifyProcessor {
   private ODataRequest request;
 
   @Override
@@ -64,9 +64,9 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testSuccessReturnCode() throws ODataApplicationException {
+  void testSuccessReturnCode() throws ODataApplicationException {
     // .../Organizations('35')/Name2
-    ODataResponse response = new ODataResponse();
+    final ODataResponse response = new ODataResponse();
 
     prepareDeleteName2();
     processor.clearFields(request, response);
@@ -74,23 +74,23 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testHockIsCalled() throws ODataApplicationException {
+  void testHockIsCalled() throws ODataApplicationException {
     // .../Organizations('35')/Name2
 
-    RequestHandleSpy spy = prepareDeleteName2();
+    final RequestHandleSpy spy = prepareDeleteName2();
 
     processor.clearFields(request, new ODataResponse());
     assertTrue(spy.called);
   }
 
   @Test
-  public void testHeadersProvided() throws ODataJPAProcessorException, SerializerException, ODataException {
+  void testHeadersProvided() throws ODataJPAProcessorException, SerializerException, ODataException {
     final Map<String, List<String>> headers = new HashMap<>();
 
     when(request.getAllHeaders()).thenReturn(headers);
     headers.put("If-Match", Arrays.asList("2"));
 
-    RequestHandleSpy spy = new RequestHandleSpy();
+    final RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.clearFields(request, new ODataResponse());
@@ -102,7 +102,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testClaimsProvided() throws ODataJPAProcessorException, SerializerException,
+  void testClaimsProvided() throws ODataJPAProcessorException, SerializerException,
       ODataException {
 
     final ODataRequest request = prepareSimpleRequest();
@@ -121,7 +121,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testGroupsProvided() throws ODataJPAProcessorException, SerializerException,
+  void testGroupsProvided() throws ODataJPAProcessorException, SerializerException,
       ODataException {
 
     final ODataRequest request = prepareSimpleRequest();
@@ -142,21 +142,21 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testSimplePropertyEntityTypeProvided() throws ODataApplicationException {
+  void testSimplePropertyEntityTypeProvided() throws ODataApplicationException {
     // .../Organizations('35')/Name2
-    RequestHandleSpy spy = prepareDeleteName2();
+    final RequestHandleSpy spy = prepareDeleteName2();
 
     processor.clearFields(request, new ODataResponse());
     assertEquals("Organization", spy.et.getExternalName());
   }
 
   @Test
-  public void testSimplePropertyKeyProvided() throws ODataApplicationException {
+  void testSimplePropertyKeyProvided() throws ODataApplicationException {
     // .../Organizations('35')/Name2
-    RequestHandleSpy spy = prepareDeleteName2();
+    final RequestHandleSpy spy = prepareDeleteName2();
 
-    List<UriParameter> keys = new ArrayList<>();
-    UriParameter uriParam = mock(UriParameter.class);
+    final List<UriParameter> keys = new ArrayList<>();
+    final UriParameter uriParam = mock(UriParameter.class);
     when(uriParam.getText()).thenReturn("'35'");
     when(uriParam.getName()).thenReturn("ID");
     keys.add(uriParam);
@@ -169,42 +169,42 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testSimplePropertyAttributeProvided() throws ODataApplicationException {
+  void testSimplePropertyAttributeProvided() throws ODataApplicationException {
     // .../Organizations('35')/Name2
-    RequestHandleSpy spy = prepareDeleteName2();
+    final RequestHandleSpy spy = prepareDeleteName2();
 
     processor.clearFields(request, new ODataResponse());
     assertEquals(1, spy.jpaAttributes.size());
-    Object[] keys = spy.jpaAttributes.keySet().toArray();
+    final Object[] keys = spy.jpaAttributes.keySet().toArray();
     assertEquals("name2", keys[0].toString());
   }
 
   @Test
-  public void testSimpleCollectionPropertyAttributeProvided() throws ODataApplicationException {
+  void testSimpleCollectionPropertyAttributeProvided() throws ODataApplicationException {
     // .../Organizations('35')/Comment
-    RequestHandleSpy spy = prepareDeleteComment();
+    final RequestHandleSpy spy = prepareDeleteComment();
 
     processor.clearFields(request, new ODataResponse());
     assertEquals(1, spy.jpaAttributes.size());
-    Object[] keys = spy.jpaAttributes.keySet().toArray();
+    final Object[] keys = spy.jpaAttributes.keySet().toArray();
     assertEquals("comment", keys[0].toString());
   }
 
   @Test
-  public void testComplexPropertyHoleProvided() throws ODataApplicationException {
+  void testComplexPropertyHoleProvided() throws ODataApplicationException {
     // .../Organizations('35')/Address
-    RequestHandleSpy spy = prepareDeleteAddress();
+    final RequestHandleSpy spy = prepareDeleteAddress();
 
     processor.clearFields(request, new ODataResponse());
     assertEquals(1, spy.jpaAttributes.size());
-    Object[] keys = spy.jpaAttributes.keySet().toArray();
+    final Object[] keys = spy.jpaAttributes.keySet().toArray();
     assertEquals("address", keys[0].toString());
   }
 
   @Test
-  public void testSimplePropertyValueAttributeProvided() throws ODataApplicationException {
+  void testSimplePropertyValueAttributeProvided() throws ODataApplicationException {
     // .../Organizations('35')/Name2/$value
-    RequestHandleSpy spy = prepareDeleteName2();
+    final RequestHandleSpy spy = prepareDeleteName2();
 
     UriResourceValue uriProperty;
     uriProperty = mock(UriResourceValue.class);
@@ -212,47 +212,47 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
 
     processor.clearFields(request, new ODataResponse());
     assertEquals(1, spy.jpaAttributes.size());
-    Object[] keys = spy.jpaAttributes.keySet().toArray();
+    final Object[] keys = spy.jpaAttributes.keySet().toArray();
     assertEquals("name2", keys[0].toString());
   }
 
   @Test
-  public void testComplexPropertyOnePropertyProvided() throws ODataApplicationException {
+  void testComplexPropertyOnePropertyProvided() throws ODataApplicationException {
     // .../Organizations('35')/Address/Country
-    RequestHandleSpy spy = prepareDeleteAddressCountry();
+    final RequestHandleSpy spy = prepareDeleteAddressCountry();
 
     processor.clearFields(request, new ODataResponse());
     assertEquals(1, spy.jpaAttributes.size());
 
     @SuppressWarnings("unchecked")
-    Map<String, Object> address = (Map<String, Object>) spy.jpaAttributes.get("address");
+    final Map<String, Object> address = (Map<String, Object>) spy.jpaAttributes.get("address");
     assertEquals(1, address.size());
-    Object[] keys = address.keySet().toArray();
+    final Object[] keys = address.keySet().toArray();
     assertEquals("country", keys[0].toString());
   }
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testTwoComplexPropertiesOnePropertyProvided() throws ODataApplicationException {
+  void testTwoComplexPropertiesOnePropertyProvided() throws ODataApplicationException {
     // .../Organizations('4')/AdministrativeInformation/Updated/By
-    RequestHandleSpy spy = prepareDeleteAdminInfo();
+    final RequestHandleSpy spy = prepareDeleteAdminInfo();
 
     processor.clearFields(request, new ODataResponse());
     assertEquals(1, spy.jpaAttributes.size());
 
-    Map<String, Object> adminInfo = (Map<String, Object>) spy.jpaAttributes.get("administrativeInformation");
+    final Map<String, Object> adminInfo = (Map<String, Object>) spy.jpaAttributes.get("administrativeInformation");
     assertEquals(1, adminInfo.size());
-    Map<String, Object> update = (Map<String, Object>) adminInfo.get("updated");
+    final Map<String, Object> update = (Map<String, Object>) adminInfo.get("updated");
     assertEquals(1, update.size());
-    Object[] keys = update.keySet().toArray();
+    final Object[] keys = update.keySet().toArray();
     assertEquals("by", keys[0].toString());
   }
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testTwoComplexPropertiesOnePropertyValueProvided() throws ODataApplicationException {
+  void testTwoComplexPropertiesOnePropertyValueProvided() throws ODataApplicationException {
     // .../Organizations('4')/AdministrativeInformation/Updated/By/$value
-    RequestHandleSpy spy = prepareDeleteAdminInfo();
+    final RequestHandleSpy spy = prepareDeleteAdminInfo();
 
     UriResourceValue uriProperty;
     uriProperty = mock(UriResourceValue.class);
@@ -261,16 +261,16 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     processor.clearFields(request, new ODataResponse());
     assertEquals(1, spy.jpaAttributes.size());
 
-    Map<String, Object> adminInfo = (Map<String, Object>) spy.jpaAttributes.get("administrativeInformation");
+    final Map<String, Object> adminInfo = (Map<String, Object>) spy.jpaAttributes.get("administrativeInformation");
     assertEquals(1, adminInfo.size());
-    Map<String, Object> update = (Map<String, Object>) adminInfo.get("updated");
+    final Map<String, Object> update = (Map<String, Object>) adminInfo.get("updated");
     assertEquals(1, update.size());
-    Object[] keys = update.keySet().toArray();
+    final Object[] keys = update.keySet().toArray();
     assertEquals("by", keys[0].toString());
   }
 
   @Test
-  public void testBeginIsCalledOnNoTransaction() throws ODataApplicationException {
+  void testBeginIsCalledOnNoTransaction() throws ODataApplicationException {
     // .../Organizations('35')/Name2
     prepareDeleteName2();
 
@@ -280,7 +280,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testBeginIsNotCalledOnTransaction() throws ODataApplicationException {
+  void testBeginIsNotCalledOnTransaction() throws ODataApplicationException {
     // .../Organizations('35')/Name2
     prepareDeleteName2();
     when(factory.hasActiveTransaction()).thenReturn(true);
@@ -291,7 +291,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testCommitIsCalledOnNoTransaction() throws ODataApplicationException {
+  void testCommitIsCalledOnNoTransaction() throws ODataApplicationException {
     // .../Organizations('35')/Name2
     prepareDeleteName2();
 
@@ -301,7 +301,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testCommitIsNotCalledOnTransaction() throws ODataApplicationException {
+  void testCommitIsNotCalledOnTransaction() throws ODataApplicationException {
     // .../Organizations('35')/Name2
     prepareDeleteName2();
     when(factory.hasActiveTransaction()).thenReturn(true);
@@ -312,13 +312,13 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testErrorReturnCodeWithRollback() throws ODataJPATransactionException {
+  void testErrorReturnCodeWithRollback() throws ODataJPATransactionException {
     // .../Organizations('35')/Name2
-    ODataResponse response = new ODataResponse();
+    final ODataResponse response = new ODataResponse();
 
-    RequestHandleSpy spy = prepareDeleteName2();
+    final RequestHandleSpy spy = prepareDeleteName2();
     spy.raiseException(1);
-    ODataApplicationException act = assertThrows(ODataApplicationException.class,
+    final ODataApplicationException act = assertThrows(ODataApplicationException.class,
         () -> processor.clearFields(request, response));
 
     assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), act.getStatusCode());
@@ -326,29 +326,30 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testErrorReturnCodeWithOutRollback() throws ODataJPATransactionException {
+  void testErrorReturnCodeWithOutRollback() throws ODataJPATransactionException {
     // .../Organizations('35')/Name2
-    ODataResponse response = new ODataResponse();
+    final ODataResponse response = new ODataResponse();
 
-    RequestHandleSpy spy = prepareDeleteName2();
+    final RequestHandleSpy spy = prepareDeleteName2();
     spy.raiseException(1);
     when(factory.hasActiveTransaction()).thenReturn(true);
 
-    ODataApplicationException act = assertThrows(ODataApplicationException.class, () -> processor.clearFields(request,
+    final ODataApplicationException act = assertThrows(ODataApplicationException.class, () -> processor.clearFields(
+        request,
         response));
     assertEquals(HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), act.getStatusCode());
     verify(transaction, times(0)).rollback();
   }
 
   @Test
-  public void testReraiseWithRollback() throws ODataJPATransactionException {
+  void testReraiseWithRollback() throws ODataJPATransactionException {
     // .../Organizations('35')/Name2
-    ODataResponse response = new ODataResponse();
+    final ODataResponse response = new ODataResponse();
 
-    RequestHandleSpy spy = prepareDeleteName2();
+    final RequestHandleSpy spy = prepareDeleteName2();
     spy.raiseException(2);
 
-    ODataJPAProcessException act = assertThrows(ODataJPAProcessException.class,
+    final ODataJPAProcessException act = assertThrows(ODataJPAProcessException.class,
         () -> processor.clearFields(request, response));
 
     assertEquals(HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), act.getStatusCode());
@@ -356,14 +357,14 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testReraiseReturnCodeWithOutRollback() throws ODataJPAProcessException {
+  void testReraiseReturnCodeWithOutRollback() throws ODataJPAProcessException {
     // .../Organizations('35')/Name2
-    ODataResponse response = new ODataResponse();
+    final ODataResponse response = new ODataResponse();
 
-    RequestHandleSpy spy = prepareDeleteName2();
+    final RequestHandleSpy spy = prepareDeleteName2();
     spy.raiseException(2);
     when(factory.hasActiveTransaction()).thenReturn(true);
-    ODataJPAProcessorException act = assertThrows(ODataJPAProcessorException.class,
+    final ODataJPAProcessorException act = assertThrows(ODataJPAProcessorException.class,
         () -> processor.clearFields(request, response));
 
     assertEquals(HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), act.getStatusCode());
@@ -371,11 +372,11 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testCallsValidateChangesOnSuccessfullProcessing() throws ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
+  void testCallsValidateChangesOnSuccessfullProcessing() throws ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
 
-    RequestHandleSpy spy = new RequestHandleSpy();
+    final RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.clearFields(request, response);
@@ -383,11 +384,11 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testDoesNotCallsValidateChangesOnForginTransaction() throws ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
+  void testDoesNotCallsValidateChangesOnForginTransaction() throws ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
 
-    RequestHandleSpy spy = new RequestHandleSpy();
+    final RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
     when(factory.hasActiveTransaction()).thenReturn(Boolean.TRUE);
 
@@ -396,12 +397,12 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testDoesNotCallsValidateChangesOnError() throws ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
+  void testDoesNotCallsValidateChangesOnError() throws ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
     when(request.getMethod()).thenReturn(HttpMethod.POST);
 
-    JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
+    final JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     when(requestContext.getCUDRequestHandler()).thenReturn(handler);
 
     doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
@@ -414,11 +415,11 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testDoesRollbackIfValidateRaisesError() throws ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = prepareSimpleRequest();
+  void testDoesRollbackIfValidateRaisesError() throws ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = prepareSimpleRequest();
 
-    JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
+    final JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     when(requestContext.getCUDRequestHandler()).thenReturn(handler);
 
     doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
@@ -440,7 +441,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     when(uriProperty.getProperty()).thenReturn(property);
     when(property.getName()).thenReturn("Name2");
 
-    RequestHandleSpy spy = new RequestHandleSpy();
+    final RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     return spy;
@@ -457,7 +458,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     when(uriProperty.getProperty()).thenReturn(property);
     when(property.getName()).thenReturn("Comment");
 
-    RequestHandleSpy spy = new RequestHandleSpy();
+    final RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     return spy;
@@ -474,14 +475,14 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     when(uriProperty.getProperty()).thenReturn(property);
     when(property.getName()).thenReturn("Address");
 
-    RequestHandleSpy spy = new RequestHandleSpy();
+    final RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     return spy;
   }
 
   private RequestHandleSpy prepareDeleteAddressCountry() {
-    RequestHandleSpy spy = prepareDeleteAddress();
+    final RequestHandleSpy spy = prepareDeleteAddress();
 
     UriResourcePrimitiveProperty uriProperty;
     EdmProperty property;
@@ -521,7 +522,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
     when(uriPrimProperty.getProperty()).thenReturn(property);
     when(property.getName()).thenReturn("By");
 
-    RequestHandleSpy spy = new RequestHandleSpy();
+    final RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     return spy;
@@ -557,7 +558,7 @@ public class TestJPAClearProcessor extends TestJPAModifyProcessor {
       return null;
     }
 
-    public void raiseException(int type) {
+    void raiseException(final int type) {
       this.raiseEx = type;
 
     }

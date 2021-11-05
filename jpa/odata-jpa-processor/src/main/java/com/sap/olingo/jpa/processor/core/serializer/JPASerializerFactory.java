@@ -95,6 +95,7 @@ public final class JPASerializerFactory {
     switch (uriResourceKind) {
       case entitySet:
       case navigationProperty:
+      case singleton:
         return createSerializerCollectionRequest(responseFormat, uriInfo, isCollection, responseVersion);
       case complexProperty:
         return createSerializerComplexPropertyRequest(responseFormat, uriInfo, responseVersion);

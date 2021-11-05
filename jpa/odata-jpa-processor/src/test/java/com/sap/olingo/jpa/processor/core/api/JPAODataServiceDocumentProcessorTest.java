@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.processor.core.util.matcher.InputStreamMatcher;
 
-public class TestJPAODataServiceDocumentProcessor {
+class JPAODataServiceDocumentProcessorTest {
   private JPAODataServiceDocumentProcessor cut;
   private JPAODataSessionContextAccess sessionContext;
   private ServiceMetadata metadata;
@@ -32,7 +32,7 @@ public class TestJPAODataServiceDocumentProcessor {
   private EdmEntityContainer container;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     sessionContext = mock(JPAODataSessionContextAccess.class);
     edm = mock(Edm.class);
     container = mock(EdmEntityContainer.class);
@@ -45,19 +45,19 @@ public class TestJPAODataServiceDocumentProcessor {
   }
 
   @Test
-  public void testInstanceCanBeCreated() {
+  void testInstanceCanBeCreated() {
     assertNotNull(new JPAODataServiceDocumentProcessor(sessionContext));
   }
 
   @Test
-  public void testInitCanBeCalled() {
+  void testInitCanBeCalled() {
     cut = new JPAODataServiceDocumentProcessor(sessionContext);
     cut.init(OData.newInstance(), metadata);
     assertNotNull(cut);
   }
 
   @Test
-  public void testCreateServiceDocumentWithRelativeMetadataUrl() throws ODataApplicationException,
+  void testCreateServiceDocumentWithRelativeMetadataUrl() throws ODataApplicationException,
       ODataLibraryException {
     when(sessionContext.useAbsoluteContextURL()).thenReturn(false);
     cut = new JPAODataServiceDocumentProcessor(sessionContext);
@@ -67,7 +67,7 @@ public class TestJPAODataServiceDocumentProcessor {
   }
 
   @Test
-  public void testCreateServiceDocumentWithAbsoluteMetadataUrl() throws ODataApplicationException,
+  void testCreateServiceDocumentWithAbsoluteMetadataUrl() throws ODataApplicationException,
       ODataLibraryException {
     when(sessionContext.useAbsoluteContextURL()).thenReturn(true);
     when(request.getRawBaseUri()).thenReturn("http://localhost:8080/test");

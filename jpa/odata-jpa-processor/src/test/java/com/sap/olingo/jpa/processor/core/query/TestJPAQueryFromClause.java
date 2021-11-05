@@ -22,7 +22,6 @@ import javax.persistence.criteria.Root;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmProperty;
-import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfo;
@@ -35,6 +34,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
+import com.sap.olingo.jpa.metadata.api.JPARequestParameterMap;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -59,7 +59,7 @@ class TestJPAQueryFromClause extends TestBase {
   void setup() throws ODataException, ODataJPAIllegalAccessException {
     final UriInfo uriInfo = Mockito.mock(UriInfo.class);
     final EdmEntitySet odataEs = Mockito.mock(EdmEntitySet.class);
-    final EdmType odataType = Mockito.mock(EdmEntityType.class);
+    final EdmEntityType odataType = Mockito.mock(EdmEntityType.class);
     final List<UriResource> resources = new ArrayList<>();
     final UriResourceEntitySet esResource = Mockito.mock(UriResourceEntitySet.class);
     Mockito.when(uriInfo.getUriResourceParts()).thenReturn(resources);
@@ -68,6 +68,7 @@ class TestJPAQueryFromClause extends TestBase {
     Mockito.when(esResource.getKind()).thenReturn(UriResourceKind.entitySet);
     Mockito.when(esResource.getType()).thenReturn(odataType);
     Mockito.when(odataEs.getName()).thenReturn("Organizations");
+    Mockito.when(odataEs.getEntityType()).thenReturn(odataType);
     Mockito.when(odataType.getNamespace()).thenReturn(PUNIT_NAME);
     Mockito.when(odataType.getName()).thenReturn("Organization");
     resources.add(esResource);
@@ -79,6 +80,7 @@ class TestJPAQueryFromClause extends TestBase {
     createHeaders();
     final JPAODataRequestContext externalContext = mock(JPAODataRequestContext.class);
     when(externalContext.getEntityManager()).thenReturn(emf.createEntityManager());
+    when(externalContext.getRequestParameter()).thenReturn(mock(JPARequestParameterMap.class));
     final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext(externalContext);
     requestContext.setUriInfo(uriInfo);
     cut = new JPAJoinQuery(null, sessionContext, requestContext);
@@ -213,7 +215,7 @@ class TestJPAQueryFromClause extends TestBase {
       throws ODataJPAIllegalAccessException {
     final UriInfo uriInfo = Mockito.mock(UriInfo.class);
     final EdmEntitySet odataEs = Mockito.mock(EdmEntitySet.class);
-    final EdmType odataType = Mockito.mock(EdmEntityType.class);
+    final EdmEntityType odataType = Mockito.mock(EdmEntityType.class);
     final List<UriResource> resources = new ArrayList<>();
     final UriResourceEntitySet esResource = Mockito.mock(UriResourceEntitySet.class);
     final UriResourcePrimitiveProperty ppResource = Mockito.mock(UriResourcePrimitiveProperty.class);
@@ -224,6 +226,7 @@ class TestJPAQueryFromClause extends TestBase {
     Mockito.when(esResource.getKind()).thenReturn(UriResourceKind.entitySet);
     Mockito.when(esResource.getType()).thenReturn(odataType);
     Mockito.when(odataEs.getName()).thenReturn("BusinessPartnerWithGroupss");
+    Mockito.when(odataEs.getEntityType()).thenReturn(odataType);
     Mockito.when(odataType.getNamespace()).thenReturn(PUNIT_NAME);
     Mockito.when(odataType.getName()).thenReturn("BusinessPartnerWithGroups");
     Mockito.when(ppResource.isCollection()).thenReturn(true);
@@ -235,6 +238,7 @@ class TestJPAQueryFromClause extends TestBase {
     final JPAODataRequestContext externalContext = mock(JPAODataRequestContext.class);
     when(externalContext.getEntityManager()).thenReturn(emf.createEntityManager());
     when(externalContext.getGroupsProvider()).thenReturn(Optional.ofNullable(groups));
+    when(externalContext.getRequestParameter()).thenReturn(mock(JPARequestParameterMap.class));
     final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext(externalContext);
     requestContext.setUriInfo(uriInfo);
     return requestContext;

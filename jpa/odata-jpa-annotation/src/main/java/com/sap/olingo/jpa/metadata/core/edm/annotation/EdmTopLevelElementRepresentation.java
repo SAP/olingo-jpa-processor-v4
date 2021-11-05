@@ -5,7 +5,7 @@ package com.sap.olingo.jpa.metadata.core.edm.annotation;
  * Created: 01.05.2021
  *
  */
-public enum TopLevelElementRepresentation {
+public enum EdmTopLevelElementRepresentation {
   /**
    * Allows to state that a jpa entity is exposed as odata entity type only.
    */

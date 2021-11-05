@@ -79,8 +79,8 @@ class JPAODataExternalRequestContextTest {
     final Integer value = new Integer(10);
     assertEquals(cut, cut.setParameter(key, value));
     final JPAODataRequestContext act = cut.build();
-    assertEquals(value, act.getParameter(key));
-    assertTrue(act.getParameters().containsKey(key));
+    assertEquals(value, act.getRequestParameter().get(key));
+    assertTrue(act.getRequestParameter().containsKey(key));
   }
 
   @Test
@@ -93,8 +93,8 @@ class JPAODataExternalRequestContextTest {
     assertEquals(cut, cut.setParameter(key2, value2));
 
     final JPAODataRequestContext act = cut.build();
-    assertEquals(value2, act.getParameter(key2));
-    assertTrue(act.getParameters().containsKey(key2));
+    assertEquals(value2, act.getRequestParameter().get(key2));
+    assertTrue(act.getRequestParameter().containsKey(key2));
   }
 
   @Test
@@ -106,7 +106,7 @@ class JPAODataExternalRequestContextTest {
     assertEquals(cut, cut.setParameter(key1, value2));
 
     final JPAODataRequestContext act = cut.build();
-    assertEquals(value2, act.getParameter(key1));
+    assertEquals(value2, act.getRequestParameter().get(key1));
   }
 
   @Test

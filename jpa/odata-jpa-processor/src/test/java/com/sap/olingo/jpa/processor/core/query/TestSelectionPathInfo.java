@@ -9,11 +9,11 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-public class TestSelectionPathInfo {
+class TestSelectionPathInfo {
   private SelectionPathInfo<Integer> cut;
 
   @Test
-  public void testSetTripleEmptySets() {
+  void testSetTripleEmptySets() {
     cut = new SelectionPathInfo<>(new HashSet<>(), new HashSet<>(), new HashSet<>());
     assertNotNull(cut);
     assertNotNull(cut.getODataSelections());
@@ -23,7 +23,7 @@ public class TestSelectionPathInfo {
   }
 
   @Test
-  public void testSetTripleFirstNull() {
+  void testSetTripleFirstNull() {
     cut = new SelectionPathInfo<>(null, new HashSet<>(), new HashSet<>());
     assertNotNull(cut);
     assertNotNull(cut.getODataSelections());
@@ -33,7 +33,7 @@ public class TestSelectionPathInfo {
   }
 
   @Test
-  public void testSetTripleSecondNull() {
+  void testSetTripleSecondNull() {
     cut = new SelectionPathInfo<>(new HashSet<>(), null, new HashSet<>());
     assertNotNull(cut);
     assertNotNull(cut.getODataSelections());
@@ -43,7 +43,7 @@ public class TestSelectionPathInfo {
   }
 
   @Test
-  public void testSetTripleThirdNull() {
+  void testSetTripleThirdNull() {
     cut = new SelectionPathInfo<>(new HashSet<>(), new HashSet<>(), null);
     assertNotNull(cut);
     assertNotNull(cut.getODataSelections());
@@ -53,7 +53,7 @@ public class TestSelectionPathInfo {
   }
 
   @Test
-  public void testJoinedDoesNotReturnDuplicates() {
+  void testJoinedDoesNotReturnDuplicates() {
     final Set<Integer> first = new HashSet<>(Arrays.asList(1, 3, 5, 7, 9, 2));
     final Set<Integer> second = new HashSet<>(Arrays.asList(1, 4, 6, 2));
     final Set<Integer> third = new HashSet<>(Arrays.asList(7, 8));
@@ -65,7 +65,7 @@ public class TestSelectionPathInfo {
   }
 
   @Test
-  public void testJoinedPersistantDoesNotReturnTransient() {
+  void testJoinedPersistantDoesNotReturnTransient() {
     final Set<Integer> first = new HashSet<>(Arrays.asList(1, 3, 5, 7, 9, 2));
     final Set<Integer> second = new HashSet<>(Arrays.asList(1, 4, 6, 2));
     final Set<Integer> third = new HashSet<>(Arrays.asList(7, 8));
@@ -77,7 +77,7 @@ public class TestSelectionPathInfo {
   }
 
   @Test
-  public void testJoinedRequestedDoesNotReturnRequired() {
+  void testJoinedRequestedDoesNotReturnRequired() {
     final Set<Integer> first = new HashSet<>(Arrays.asList(1, 3, 5, 7, 9, 2));
     final Set<Integer> second = new HashSet<>(Arrays.asList(1, 4, 6, 2));
     final Set<Integer> third = new HashSet<>(Arrays.asList(7, 8));

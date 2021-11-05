@@ -12,7 +12,6 @@ import java.util.List;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmProperty;
-import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfo;
@@ -67,7 +66,7 @@ class TestJPAQueryBuildSelectionPathList extends TestBase {
   private List<UriResource> buildUriInfo(final String esName, final String etName) {
     uriInfo = mock(UriInfo.class);
     final EdmEntitySet odataEs = mock(EdmEntitySet.class);
-    final EdmType odataType = mock(EdmEntityType.class);
+    final EdmEntityType odataType = mock(EdmEntityType.class);
     final List<UriResource> resources = new ArrayList<>();
     final UriResourceEntitySet esResource = mock(UriResourceEntitySet.class);
     when(uriInfo.getUriResourceParts()).thenReturn(resources);
@@ -76,6 +75,7 @@ class TestJPAQueryBuildSelectionPathList extends TestBase {
     when(esResource.getKind()).thenReturn(UriResourceKind.entitySet);
     when(esResource.getType()).thenReturn(odataType);
     when(odataEs.getName()).thenReturn(esName);
+    when(odataEs.getEntityType()).thenReturn(odataType);
     when(odataType.getNamespace()).thenReturn(PUNIT_NAME);
     when(odataType.getName()).thenReturn(etName);
     resources.add(esResource);

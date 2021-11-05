@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.processor.core.query;
 
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static org.apache.olingo.commons.api.http.HttpStatusCode.INTERNAL_SERVER_ERROR;
 
@@ -39,7 +40,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
  * @since 1.0.1
  * 25.11.2020
  */
-public class JPAExpandJoinCountQuery extends JPAAbstractExpandQuery {
+public final class JPAExpandJoinCountQuery extends JPAAbstractExpandQuery {
   private final Optional<JPAKeyBoundary> keyBoundary;
 
   public JPAExpandJoinCountQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
@@ -117,7 +118,7 @@ public class JPAExpandJoinCountQuery extends JPAAbstractExpandQuery {
       return convertCountResult(intermediateResult);
     }
     debugger.stopRuntimeMeasurement(handle);
-    return null;
+    return emptyMap();
   }
 
   void createCountFrom(final CriteriaQuery<Tuple> countQuery) throws ODataJPAQueryException {

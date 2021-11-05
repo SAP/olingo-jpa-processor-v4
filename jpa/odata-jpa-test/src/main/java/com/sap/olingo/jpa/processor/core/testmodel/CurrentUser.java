@@ -4,12 +4,12 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEntityType;
-import com.sap.olingo.jpa.metadata.core.edm.annotation.TopLevelElementRepresentation;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTopLevelElementRepresentation;
 
 //Problem with multi-level inheritance hierarchy Inheritance Type SINGLE_TABLE. Therefore inherit also from
 //Business Partner
 @Entity(name = "CurrentUser")
 @DiscriminatorValue(value = "1")
-@EdmEntityType(
-    as = TopLevelElementRepresentation.AS_SINGLETON_ONLY)
+@EdmEntityType(as = EdmTopLevelElementRepresentation.AS_SINGLETON_ONLY,
+    extensionProvider = CurrentUserQueryExtension.class)
 public class CurrentUser extends BusinessPartner {}

@@ -28,6 +28,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAProtectionInfo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -331,6 +332,13 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
     final Map<String, JPAProtectionInfo> act = cut.getClaims();
     assertNotNull(act);
     assertTrue(act.containsKey("BuildingNumber"));
+  }
+
+  @Test
+  void checkGetEntityTypeOfSingleton() throws ODataJPAModelException {
+    final FullQualifiedName fqn = new FullQualifiedName(PUNIT_NAME, "CurrentUser");
+    final JPAEntityType act = cut.getEntity(fqn);
+    assertNotNull(act);
   }
 
   private IntermediateServiceDocument createCutWithCustomNameBuilder() throws ODataJPAModelException {

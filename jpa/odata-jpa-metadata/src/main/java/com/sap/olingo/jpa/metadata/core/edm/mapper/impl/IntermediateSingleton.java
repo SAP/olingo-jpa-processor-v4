@@ -7,6 +7,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
 import org.apache.olingo.commons.api.edm.provider.CsdlSingleton;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPASingleton;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateSingletonAccess;
 
@@ -17,7 +18,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateSinglet
  * @author Oliver Grande
  * @since 1.0.3
  */
-final class IntermediateSingleton extends IntermediateTopLevelEntity implements IntermediateSingletonAccess {
+final class IntermediateSingleton extends IntermediateTopLevelEntity implements IntermediateSingletonAccess,
+    JPASingleton {
 
   private CsdlSingleton edmSingleton;
 

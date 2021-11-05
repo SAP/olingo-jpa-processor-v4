@@ -5,7 +5,7 @@ import java.net.URISyntaxException;
 import org.apache.olingo.commons.api.data.Annotatable;
 import org.apache.olingo.commons.api.data.ContextURL;
 import org.apache.olingo.commons.api.data.EntityCollection;
-import org.apache.olingo.commons.api.edm.EdmEntitySet;
+import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.format.ContentType;
@@ -28,7 +28,7 @@ final class JPASerializeEntityCollection implements JPAOperationSerializer {
   private final UriInfo uriInfo;
   private final UriHelper uriHelper;
   private final ODataSerializer serializer;
-  private ContentType responseFormat;
+  private final ContentType responseFormat;
   private final JPAODataSessionContextAccess serviceContext;
 
   JPASerializeEntityCollection(final ServiceMetadata serviceMetadata, final ODataSerializer serializer,
@@ -46,23 +46,23 @@ final class JPASerializeEntityCollection implements JPAOperationSerializer {
   public SerializerResult serialize(final ODataRequest request, final EntityCollection result)
       throws SerializerException, ODataJPASerializerException {
 
-    final EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(uriInfo.getUriResourceParts());
+    final EdmBindingTarget targetEdmBindingTarget = Util.determineBindingTarget(uriInfo.getUriResourceParts());
 
-    final String selectList = uriHelper.buildContextURLSelectList(targetEdmEntitySet.getEntityType(),
+    final String selectList = uriHelper.buildContextURLSelectList(targetEdmBindingTarget.getEntityType(),
         uriInfo.getExpandOption(), uriInfo.getSelectOption());
 
     ContextURL contextUrl;
     try {
       contextUrl = ContextURL.with()
           .serviceRoot(buildServiceRoot(request, serviceContext))
-          .entitySet(targetEdmEntitySet)
+          .entitySetOrSingletonOrType(targetEdmBindingTarget.getName())
           .selectList(selectList)
           .build();
-    } catch (URISyntaxException e) {
+    } catch (final URISyntaxException e) {
       throw new ODataJPASerializerException(e, HttpStatusCode.BAD_REQUEST);
     }
 
-    final String id = request.getRawBaseUri() + "/" + targetEdmEntitySet.getEntityType().getName();
+    final String id = request.getRawBaseUri() + "/" + targetEdmBindingTarget.getEntityType().getName();
     final EntityCollectionSerializerOptions opts = EntityCollectionSerializerOptions.with()
         .contextURL(contextUrl)
         .id(id)
@@ -71,7 +71,7 @@ final class JPASerializeEntityCollection implements JPAOperationSerializer {
         .expand(uriInfo.getExpandOption())
         .build();
 
-    return serializer.entityCollection(this.serviceMetadata, targetEdmEntitySet.getEntityType(), result, opts);
+    return serializer.entityCollection(this.serviceMetadata, targetEdmBindingTarget.getEntityType(), result, opts);
 
   }
 
@@ -91,7 +91,7 @@ final class JPASerializeEntityCollection implements JPAOperationSerializer {
           .type(entityType)
           .selectList(selectList)
           .build();
-    } catch (URISyntaxException e) {
+    } catch (final URISyntaxException e) {
       throw new ODataJPASerializerException(e, HttpStatusCode.BAD_REQUEST);
     }
 

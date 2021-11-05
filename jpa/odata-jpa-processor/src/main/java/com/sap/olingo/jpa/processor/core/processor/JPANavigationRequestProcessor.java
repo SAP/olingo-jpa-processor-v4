@@ -132,7 +132,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
      */
     if (hasNoContent(entityCollection.getEntities()))
       response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
-    else if (doesNoeExists(entityCollection.getEntities()))
+    else if (doesNotExists(entityCollection.getEntities()))
       response.setStatusCode(HttpStatusCode.NOT_FOUND.getStatusCode());
     // 200 OK indicates that either a result was found or that the a Entity Collection query had no result
     else if (entityCollection.getEntities() != null) {
@@ -157,10 +157,10 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     if (page != null && page.getSkiptoken() != null) {
       try {
         if (page.getSkiptoken() instanceof String)
-          return new URI(Util.determineTargetEntitySet(uriInfo.getUriResourceParts()).getName() + "?"
+          return new URI(Util.determineBindingTarget(uriInfo.getUriResourceParts()).getName() + "?"
               + SystemQueryOptionKind.SKIPTOKEN.toString() + "='" + page.getSkiptoken() + "'");
         else
-          return new URI(Util.determineTargetEntitySet(uriInfo.getUriResourceParts()).getName() + "?"
+          return new URI(Util.determineBindingTarget(uriInfo.getUriResourceParts()).getName() + "?"
               + SystemQueryOptionKind.SKIPTOKEN.toString() + "=" + page.getSkiptoken().toString());
       } catch (final URISyntaxException e) {
         throw new ODataJPAProcessorException(ODATA_MAXPAGESIZE_NOT_A_NUMBER, HttpStatusCode.INTERNAL_SERVER_ERROR, e);
@@ -185,13 +185,14 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     return true;
   }
 
-  private boolean doesNoeExists(final List<Entity> entities) throws ODataApplicationException {
+  private boolean doesNotExists(final List<Entity> entities) throws ODataApplicationException {
     // handle ../Organizations('xx')
     return (entities.isEmpty()
-        && (lastItem.getKind() == UriResourceKind.primitiveProperty
+        && ((lastItem.getKind() == UriResourceKind.primitiveProperty
             || lastItem.getKind() == UriResourceKind.complexProperty
             || lastItem.getKind() == UriResourceKind.entitySet
-                && !Util.determineKeyPredicates(lastItem).isEmpty()));
+                && !Util.determineKeyPredicates(lastItem).isEmpty())
+            || lastItem.getKind() == UriResourceKind.singleton));
   }
 
   private boolean hasNoContent(final List<Entity> entities) {

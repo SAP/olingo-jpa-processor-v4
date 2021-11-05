@@ -15,7 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class TestEdmEntitySetResult {
-  private EdmEntitySetResult cut;
+  private EdmBindingTargetResult cut;
   private List<UriParameter> keys;
   private EdmEntitySet es;
   private EdmEntitySet est;
@@ -31,7 +31,7 @@ class TestEdmEntitySetResult {
 
   @Test
   void testGetEntitySetName() {
-    cut = new EdmEntitySetResult(es, keys, "");
+    cut = new EdmBindingTargetResult(es, keys, "");
     assertEquals("Persons", cut.getName());
   }
 
@@ -40,28 +40,28 @@ class TestEdmEntitySetResult {
     final UriParameter key = mock(UriParameter.class);
     when(key.getName()).thenReturn("ID");
     keys.add(key);
-    cut = new EdmEntitySetResult(es, keys, "");
+    cut = new EdmBindingTargetResult(es, keys, "");
     assertEquals(keys, cut.getKeyPredicates());
   }
 
   @Test
   void testGetEntitySetGet() {
-    cut = new EdmEntitySetResult(es, keys, "Roles");
+    cut = new EdmBindingTargetResult(es, keys, "Roles");
     assertEquals("Roles", cut.getNavigationPath());
   }
 
   @Test
   void testDetermineTargetEntitySetWithNaviNull() {
     when(es.getNavigationPropertyBindings()).thenReturn(null);
-    cut = new EdmEntitySetResult(es, keys, null);
-    assertEquals(es, cut.getTargetEdmEntitySet());
+    cut = new EdmBindingTargetResult(es, keys, null);
+    assertEquals(es, cut.getTargetEdmBindingTarget());
   }
 
   @Test
   void testDetermineTargetEntitySetWithNaviEmpty() {
     when(es.getNavigationPropertyBindings()).thenReturn(null);
-    cut = new EdmEntitySetResult(es, keys, "");
-    assertEquals(es, cut.getTargetEdmEntitySet());
+    cut = new EdmBindingTargetResult(es, keys, "");
+    assertEquals(es, cut.getTargetEdmBindingTarget());
   }
 
 // return edmEntitySet.getEntityContainer().getEntitySet(navi.getTarget());
@@ -81,8 +81,8 @@ class TestEdmEntitySetResult {
     when(es.getNavigationPropertyBindings()).thenReturn(bindings);
     when(container.getEntitySet("BusinessPartnerRoles")).thenReturn(est);
 
-    cut = new EdmEntitySetResult(es, keys, "Roles");
-    assertEquals(es, cut.getEdmEntitySet());
-    assertEquals(est, cut.getTargetEdmEntitySet());
+    cut = new EdmBindingTargetResult(es, keys, "Roles");
+    assertEquals(es, cut.getEdmBindingTarget());
+    assertEquals(est, cut.getTargetEdmBindingTarget());
   }
 }

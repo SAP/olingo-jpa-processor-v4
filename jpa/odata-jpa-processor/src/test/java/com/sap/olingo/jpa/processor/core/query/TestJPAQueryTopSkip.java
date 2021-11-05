@@ -12,10 +12,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 
-public class TestJPAQueryTopSkip extends TestBase {
+class TestJPAQueryTopSkip extends TestBase {
 
   @Test
-  public void testTop() throws IOException, ODataException {
+  void testTop() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions?$top=10");
@@ -29,7 +29,7 @@ public class TestJPAQueryTopSkip extends TestBase {
   }
 
   @Test
-  public void testSkip() throws IOException, ODataException {
+  void testSkip() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions?$skip=5");
@@ -41,9 +41,9 @@ public class TestJPAQueryTopSkip extends TestBase {
     assertEquals("LAU2", act.get(0).get("CodeID").asText());
     assertEquals("31022", act.get(0).get("DivisionCode").asText());
   }
-  
+
   @Test
-  public void testTopSkip() throws IOException, ODataException {
+  void testTopSkip() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions?$skip=5&$top=5");

@@ -1,6 +1,6 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
-import static com.sap.olingo.jpa.metadata.core.edm.annotation.TopLevelElementRepresentation.AS_ENTITY_TYPE;
+import static com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTopLevelElementRepresentation.AS_ENTITY_TYPE;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
