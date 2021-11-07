@@ -15,7 +15,7 @@ public abstract class JPAEntityBasedResult extends JPACreateResult {
 
   protected List<Tuple> result;
 
-  public JPAEntityBasedResult(JPAEntityType et, Map<String, List<String>> requestHeaders)
+  protected JPAEntityBasedResult(final JPAEntityType et, final Map<String, List<String>> requestHeaders)
       throws ODataJPAModelException {
     super(et, requestHeaders);
   }
@@ -35,7 +35,7 @@ public abstract class JPAEntityBasedResult extends JPACreateResult {
   @Override
   protected String determineLocale(final Map<String, Object> descGetterMap, final JPAPath localeAttribute,
       final int index) throws ODataJPAProcessorException {
-    Object value = descGetterMap.get(localeAttribute.getPath().get(index).getInternalName());
+    final Object value = descGetterMap.get(localeAttribute.getPath().get(index).getInternalName());
     if (localeAttribute.getPath().size() == index + 1 || value == null) {
       return (String) value;
     } else {

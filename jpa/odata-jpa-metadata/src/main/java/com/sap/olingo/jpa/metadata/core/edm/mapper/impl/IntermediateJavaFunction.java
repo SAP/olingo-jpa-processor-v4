@@ -43,9 +43,10 @@ class IntermediateJavaFunction extends IntermediateFunction implements JPAJavaFu
     this.javaConstructor = IntermediateOperationHelper.determineConstructor(javaFunction);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public Constructor<?> getConstructor() {
-    return javaConstructor;
+  public <X> Constructor<X> getConstructor() {
+    return (Constructor<X>) javaConstructor;
   }
 
   @Override

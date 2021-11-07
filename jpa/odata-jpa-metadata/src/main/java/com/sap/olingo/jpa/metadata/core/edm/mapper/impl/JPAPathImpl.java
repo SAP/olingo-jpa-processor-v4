@@ -169,8 +169,8 @@ final class JPAPathImpl implements JPAPath {
   private Boolean determineIsTransient() {
     isTransient = Optional.of(
         pathElements.stream()
-            .filter(e -> e instanceof JPAAttribute)
-            .map(e -> (JPAAttribute) e)
+            .filter(JPAAttribute.class::isInstance)
+            .map(JPAAttribute.class::cast)
             .anyMatch(JPAAttribute::isTransient));
     return isTransient.get();
 

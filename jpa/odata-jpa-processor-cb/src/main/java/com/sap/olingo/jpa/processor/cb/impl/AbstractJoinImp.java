@@ -102,6 +102,16 @@ abstract class AbstractJoinImp<Z, X> extends FromImpl<Z, X> implements Join<Z, X
     return this;
   }
 
+  @Override
+  public int hashCode() {
+    return super.hashCode();
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    return super.equals(obj);
+  }
+
   protected void createOn(final List<JPAOnConditionItem> items, final JPAEntityType targetType) {
     for (final JPAOnConditionItem item : items) {
       final Predicate eq = createOnElement(item, targetType);

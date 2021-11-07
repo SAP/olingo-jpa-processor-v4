@@ -594,4 +594,14 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
   private boolean isSubtype(final Class<?> type) {
     return st.getTypeClass().isAssignableFrom(type);
   }
+
+  @Override
+  public int hashCode() {
+    return super.hashCode();
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    return super.equals(obj);
+  }
 }

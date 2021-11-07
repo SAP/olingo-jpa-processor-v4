@@ -1,12 +1,15 @@
 package com.sap.olingo.jpa.processor.core.query;
 
 import static com.sap.olingo.jpa.processor.core.converter.JPAExpandResult.ROOT_RESULT_KEY;
+import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_ENTITY_UNKNOWN;
+import static org.apache.olingo.commons.api.http.HttpStatusCode.INTERNAL_SERVER_ERROR;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.annotation.Nonnull;
 import javax.persistence.Tuple;
@@ -17,7 +20,6 @@ import javax.persistence.criteria.From;
 
 import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.ex.ODataException;
-import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
@@ -50,15 +52,19 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
     return sessionContext.getEdmProvider().getServiceDocument().getEntity(bindingTarget.getName());
   }
 
+  @Nonnull
   private static JPAEntityType determineODataTargetEntityType(final JPAODataSessionContextAccess sessionContext,
       final JPAODataRequestContextAccess requestContext) throws ODataApplicationException {
 
     final List<UriResource> resources = requestContext.getUriInfo().getUriResourceParts();
     try {
       final EdmBindingTarget bindingTarget = Util.determineBindingTarget(resources);
-      return sessionContext.getEdmProvider().getServiceDocument().getEntity(bindingTarget.getEntityType());
+      return Optional.ofNullable(sessionContext.getEdmProvider().getServiceDocument()
+          .getEntity(bindingTarget.getEntityType()))
+          .orElseThrow(() -> new ODataJPAQueryException(QUERY_PREPARATION_ENTITY_UNKNOWN, INTERNAL_SERVER_ERROR,
+              bindingTarget.getEntityType().getName()));
     } catch (final ODataException e) {
-      throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+      throw new ODataJPAQueryException(e, INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -179,6 +185,6 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
     if (lastInfo.getAssociationPath() != null
         && (lastInfo.getAssociationPath().getLeaf() instanceof JPACollectionAttribute))
       return new JPACollectionQueryResult(result, null, odataEntityType, lastInfo.getAssociationPath(), selectionPath);
-    return new JPAExpandQueryResult(result, null, odataEntityType, selectionPath);
+    return new JPAExpandQueryResult(result, Collections.emptyMap(), odataEntityType, selectionPath);
   }
 }

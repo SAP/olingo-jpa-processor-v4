@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -807,10 +808,10 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
     assertEquals("AdministrativeInformation/Created/At", actPath.get(0));
   }
 
-  @Disabled
+  @Disabled("Test for spatial data missing")
   @Test
   void checkGetSRID() {
-    // Test for spatial data missing
+    fail();
   }
 
   @Test

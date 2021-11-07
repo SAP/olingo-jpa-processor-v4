@@ -15,7 +15,7 @@ public abstract class JPASerializePrimitiveAbstract implements JPAOperationSeria
   protected final ServiceMetadata serviceMetadata;
   protected final UriInfo uriInfo;
 
-  public JPASerializePrimitiveAbstract(final ServiceMetadata serviceMetadata, final UriInfo uriInfo) {
+  protected JPASerializePrimitiveAbstract(final ServiceMetadata serviceMetadata, final UriInfo uriInfo) {
     super();
     this.serviceMetadata = serviceMetadata;
     this.uriInfo = uriInfo;

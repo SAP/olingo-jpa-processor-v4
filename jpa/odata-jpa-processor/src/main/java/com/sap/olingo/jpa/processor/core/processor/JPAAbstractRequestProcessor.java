@@ -13,8 +13,8 @@ import org.apache.olingo.server.api.serializer.SerializerResult;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializer;
 
@@ -31,7 +31,7 @@ abstract class JPAAbstractRequestProcessor {
   protected int successStatusCode = HttpStatusCode.OK.getStatusCode();
   protected final JPAODataRequestContextAccess requestContext;
 
-  public JPAAbstractRequestProcessor(final OData odata, final JPAODataSessionContextAccess context,
+  JPAAbstractRequestProcessor(final OData odata, final JPAODataSessionContextAccess context,
       final JPAODataRequestContextAccess requestContext) throws ODataException {
 
     this.em = requestContext.getEntityManager();

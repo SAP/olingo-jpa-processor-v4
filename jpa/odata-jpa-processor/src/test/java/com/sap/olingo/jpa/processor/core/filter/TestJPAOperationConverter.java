@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 
-public class TestJPAOperationConverter {
+class TestJPAOperationConverter {
   private CriteriaBuilder cb;
 
   private Expression<Number> expressionLeft;
@@ -27,7 +27,7 @@ public class TestJPAOperationConverter {
 
   @SuppressWarnings("unchecked")
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
     cb = mock(CriteriaBuilder.class);
     extension = mock(JPAODataDatabaseOperations.class);
     cut = new JPAOperationConverter(cb, extension);
@@ -36,7 +36,7 @@ public class TestJPAOperationConverter {
   }
 
   @Test
-  public void testAddMemberMember() throws ODataApplicationException {
+  void testAddMemberMember() throws ODataApplicationException {
     final JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
     @SuppressWarnings("unchecked")
     final Expression<Number> result = mock(Path.class);
@@ -51,7 +51,7 @@ public class TestJPAOperationConverter {
   }
 
   @Test
-  public void testAddMemberLiteral() throws ODataApplicationException {
+  void testAddMemberLiteral() throws ODataApplicationException {
     final JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
     @SuppressWarnings("unchecked")
     final Expression<Number> result = mock(Path.class);
@@ -66,7 +66,7 @@ public class TestJPAOperationConverter {
   }
 
   @Test
-  public void testSubMemberMember() throws ODataApplicationException {
+  void testSubMemberMember() throws ODataApplicationException {
     final JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
     @SuppressWarnings("unchecked")
     final Expression<Number> result = mock(Path.class);
@@ -81,7 +81,7 @@ public class TestJPAOperationConverter {
   }
 
   @Test
-  public void testSubMemberLiteral() throws ODataApplicationException {
+  void testSubMemberLiteral() throws ODataApplicationException {
     final JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
     @SuppressWarnings("unchecked")
     final Expression<Number> result = mock(Path.class);
@@ -96,7 +96,7 @@ public class TestJPAOperationConverter {
   }
 
   @Test
-  public void testDivMemberMember() throws ODataApplicationException {
+  void testDivMemberMember() throws ODataApplicationException {
     final JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
     @SuppressWarnings("unchecked")
     final Expression<Number> result = mock(Path.class);
@@ -111,7 +111,7 @@ public class TestJPAOperationConverter {
   }
 
   @Test
-  public void testDivMemberLiteral() throws ODataApplicationException {
+  void testDivMemberLiteral() throws ODataApplicationException {
     final JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
     @SuppressWarnings("unchecked")
     final Expression<Number> result = mock(Path.class);
@@ -126,7 +126,7 @@ public class TestJPAOperationConverter {
   }
 
   @Test
-  public void testMulMemberMember() throws ODataApplicationException {
+  void testMulMemberMember() throws ODataApplicationException {
     final JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
     @SuppressWarnings("unchecked")
     final Expression<Number> result = mock(Path.class);
@@ -141,7 +141,7 @@ public class TestJPAOperationConverter {
   }
 
   @Test
-  public void testMulMemberLiteral() throws ODataApplicationException {
+  void testMulMemberLiteral() throws ODataApplicationException {
     final JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
     @SuppressWarnings("unchecked")
     final Expression<Number> result = mock(Path.class);
@@ -156,7 +156,7 @@ public class TestJPAOperationConverter {
   }
 
   @Test
-  public void testUnknownOperation_CallExtension() throws ODataApplicationException {
+  void testUnknownOperation_CallExtension() throws ODataApplicationException {
     final JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
     when(operator.getOperator()).thenReturn(BinaryOperatorKind.AND);
     when(extension.convert(operator)).thenThrow(new ODataApplicationException(null, HttpStatusCode.NOT_IMPLEMENTED

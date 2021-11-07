@@ -19,11 +19,11 @@ public abstract class JPAAbstractFilter implements JPAFilterComplier, JPAFilterC
   final VisitableExpression expression;
   final JPAAssociationPath association;
 
-  public JPAAbstractFilter(final JPAEntityType jpaEntityType, final VisitableExpression expression) {
+  JPAAbstractFilter(final JPAEntityType jpaEntityType, final VisitableExpression expression) {
     this(jpaEntityType, expression, null);
   }
 
-  public JPAAbstractFilter(final JPAEntityType jpaEntityType, final UriInfoResource uriResource,
+  JPAAbstractFilter(final JPAEntityType jpaEntityType, final UriInfoResource uriResource,
       final JPAAssociationPath association) {
     super();
     this.jpaEntityType = jpaEntityType;
@@ -35,7 +35,7 @@ public abstract class JPAAbstractFilter implements JPAFilterComplier, JPAFilterC
     this.association = association;
   }
 
-  public JPAAbstractFilter(final JPAEntityType jpaEntityType, final VisitableExpression expression,
+  JPAAbstractFilter(final JPAEntityType jpaEntityType, final VisitableExpression expression,
       final JPAAssociationPath association) {
     super();
     this.jpaEntityType = jpaEntityType;
@@ -49,7 +49,7 @@ public abstract class JPAAbstractFilter implements JPAFilterComplier, JPAFilterC
     if (expression != null) {
       try {
         expression.accept(visitor);
-      } catch (ExpressionVisitException e) {
+      } catch (final ExpressionVisitException e) {
         throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
       }
       return Collections.unmodifiableList(visitor.get());

@@ -88,8 +88,7 @@ class TestCsdlDocumentReader {
     assertEquals("Org.OData.Validation.V1", include.getNamespace());
   }
 
-  // TODO This test may not run because of proxy setting problems!! -> find alternative for Integration tests
-  @Disabled
+  @Disabled("This test may not run because of proxy setting problems!! -> find alternative for Integration tests")
   @Test
   void testReadFromURI() throws URISyntaxException, JsonParseException, JsonMappingException,
       MalformedURLException, IOException {

@@ -23,7 +23,7 @@ public class User {
     return username;
   }
 
-  public void setId(String username) {
+  public void setId(final String username) {
     this.username = username;
   }
 
@@ -35,7 +35,7 @@ public class User {
     return password;
   }
 
-  public void setPassword(String password) {
+  public void setPassword(final String password) {
     this.password = password;
   }
 
@@ -43,11 +43,11 @@ public class User {
     return enabled;
   }
 
-  public void setEnabled(Boolean enabled) {
+  public void setEnabled(final Boolean enabled) {
     this.enabled = enabled;
   }
 
-  public void setUsername(String username) {
-    this.username = username;
+  public void setUsername(final String username) {
+    setId(username);
   }
 }

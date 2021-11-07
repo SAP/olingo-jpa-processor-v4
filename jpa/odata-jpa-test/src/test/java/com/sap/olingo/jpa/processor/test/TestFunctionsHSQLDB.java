@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 
-public class TestFunctionsHSQLDB {
+class TestFunctionsHSQLDB {
   protected static final String PUNIT_NAME = "com.sap.olingo.jpa";
   private static final String ENTITY_MANAGER_DATA_SOURCE = "javax.persistence.nonJtaDataSource";
   private static EntityManagerFactory emf;
@@ -34,7 +34,7 @@ public class TestFunctionsHSQLDB {
   @BeforeAll
   public static void setupClass() {
 
-    Map<String, Object> properties = new HashMap<>();
+    final Map<String, Object> properties = new HashMap<>();
 
     ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
 
@@ -52,32 +52,31 @@ public class TestFunctionsHSQLDB {
     cb = em.getCriteriaBuilder();
   }
 
-  // @Ignore
   @Test
-  public void TestScalarFunctionsWhere() {
+  void TestScalarFunctionsWhere() {
     CreateUDFHSQLDB();
 
-    CriteriaQuery<Tuple> count = cb.createTupleQuery();
-    Root<?> adminDiv = count.from(AdministrativeDivision.class);
+    final CriteriaQuery<Tuple> count = cb.createTupleQuery();
+    final Root<?> adminDiv = count.from(AdministrativeDivision.class);
     count.multiselect(adminDiv);
 
     count.where(cb.and(cb.greaterThan(
         //
         cb.function("PopulationDensity", Integer.class, adminDiv.get("area"), adminDiv.get("population")),
-        Integer.valueOf(60))), cb.equal(adminDiv.get("countryCode"), cb.literal("BEL")));
+        60)), cb.equal(adminDiv.get("countryCode"), cb.literal("BEL")));
     // cb.literal
-    TypedQuery<Tuple> tq = em.createQuery(count);
-    List<Tuple> act = tq.getResultList();
+    final TypedQuery<Tuple> tq = em.createQuery(count);
+    final List<Tuple> act = tq.getResultList();
     assertNotNull(act);
     tq.getFirstResult();
   }
 
   private void CreateUDFHSQLDB() {
-    EntityTransaction t = em.getTransaction();
+    final EntityTransaction t = em.getTransaction();
 
     // StringBuffer dropString = new StringBuffer("DROP FUNCTION PopulationDensity");
 
-    StringBuffer sqlString = new StringBuffer();
+    final StringBuffer sqlString = new StringBuffer();
 
     sqlString.append("CREATE FUNCTION  PopulationDensity (area INT, population BIGINT ) ");
     sqlString.append("RETURNS INT ");
@@ -87,7 +86,7 @@ public class TestFunctionsHSQLDB {
 
     t.begin();
     // Query d = em.createNativeQuery(dropString.toString());
-    Query q = em.createNativeQuery(sqlString.toString());
+    final Query q = em.createNativeQuery(sqlString.toString());
     // d.executeUpdate();
     q.executeUpdate();
     t.commit();

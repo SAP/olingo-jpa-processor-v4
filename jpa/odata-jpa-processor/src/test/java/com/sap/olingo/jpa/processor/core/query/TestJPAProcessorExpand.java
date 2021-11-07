@@ -226,7 +226,7 @@ class TestJPAProcessorExpand extends TestBase {
     assertEquals("3166-1", parent.get("CodeID").asText());
   }
 
-  @Disabled // TODO check how the result should look like
+  @Disabled("check how the result should look like")
   @Test
   void testExpandWithNavigationToEntity() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -239,7 +239,7 @@ class TestJPAProcessorExpand extends TestBase {
     assertEquals("1", parent.get("Parent").get("CodeID").asText());
   }
 
-  @Disabled // TODO check with Olingo looks like OData does not support this
+  @Disabled("Check with Olingo looks like OData does not support this")
   @Test
   void testExpandWithNavigationToProperty() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -429,7 +429,7 @@ class TestJPAProcessorExpand extends TestBase {
     assertEquals(2, org.get("Roles@odata.count").asInt());
   }
 
-  @Disabled // ODataJsonSerializer.writeExpandedNavigationProperty does not write a "@odata.count" for to 1 relations
+  @Disabled("ODataJsonSerializer.writeExpandedNavigationProperty does not write a \"@odata.count\" for to 1 relations")
   @Test
   void testExpandOppositeDirectionWithCount() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -611,7 +611,7 @@ class TestJPAProcessorExpand extends TestBase {
     assertEquals("BE25", grandparentDivCode.asText());
   }
 
-  @Disabled
+  @Disabled("Not implemented")
   @Test
   void testExpandLevelMax() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,

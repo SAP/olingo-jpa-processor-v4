@@ -30,7 +30,7 @@ abstract class JPACreateResult implements JPAExpandResult {
   protected final JPAConversionHelper helper;
   protected final Map<String, List<String>> requestHeaders;
 
-  public JPACreateResult(final JPAEntityType et, final Map<String, List<String>> requestHeaders)
+  JPACreateResult(final JPAEntityType et, final Map<String, List<String>> requestHeaders)
       throws ODataJPAModelException {
 
     this.et = et;

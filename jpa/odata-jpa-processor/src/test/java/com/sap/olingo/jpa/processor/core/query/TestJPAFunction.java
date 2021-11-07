@@ -41,7 +41,7 @@ class TestJPAFunction {
     createFunction();
   }
 
-  @Disabled // The segment of an action or of a non-composable function must be the last resource-path segment.
+  @Disabled("The segment of an action or of a non-composable function must be the last resource-path segment.")
   @Test
   void testNavigationAfterFunctionNotAllowed() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds,

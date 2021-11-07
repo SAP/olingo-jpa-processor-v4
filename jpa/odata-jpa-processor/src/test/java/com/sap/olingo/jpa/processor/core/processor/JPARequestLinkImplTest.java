@@ -40,7 +40,7 @@ class JPARequestLinkImplTest {
     when(path.getJoinColumnsList()).thenReturn(items);
   }
 
-  @Disabled
+  @Disabled("Multiple String Keys")
   @Test
   void testCreateMultipleStringKeysChildren() throws ODataJPAModelException, ODataException {
     final String link = "AdministrativeDivisions(DivisionCode='DE100',CodeID='NUTS3',CodePublisher='Eurostat')";
@@ -71,7 +71,7 @@ class JPARequestLinkImplTest {
     assertEquals("Eurostat", act.get("codePublisher"));
   }
 
-  @Disabled
+  @Disabled("Multiple String Values")
   @Test
   void testCreateMultipleStringValuesChildren() throws ODataJPAModelException, ODataException {
     final String link = "AdministrativeDivisions(DivisionCode='DE100',CodeID='NUTS3',CodePublisher='Eurostat')";

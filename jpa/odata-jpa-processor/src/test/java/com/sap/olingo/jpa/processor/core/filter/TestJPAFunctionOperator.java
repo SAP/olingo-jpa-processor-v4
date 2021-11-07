@@ -24,7 +24,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOperationResultParameter;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 
-public class TestJPAFunctionOperator {
+class TestJPAFunctionOperator {
   private CriteriaBuilder cb;
   private JPAFunctionOperator cut;
   private UriResourceFunction uriFunction;
@@ -34,7 +34,7 @@ public class TestJPAFunctionOperator {
   private List<UriParameter> uriParams;
 
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
 
     cb = mock(CriteriaBuilder.class);
     jpaVisitor = mock(JPAVisitor.class);
@@ -53,7 +53,7 @@ public class TestJPAFunctionOperator {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testReturnsExpression() throws ODataApplicationException {
+  void testReturnsExpression() throws ODataApplicationException {
 
     final Expression<?>[] jpaParameter = new Expression<?>[0];
 
@@ -67,7 +67,7 @@ public class TestJPAFunctionOperator {
   }
 
   @Test
-  public void testAbortOnNonFunctionReturnsCollection() {
+  void testAbortOnNonFunctionReturnsCollection() {
 
     when(jpaFunction.getDBName()).thenReturn("org.apache.olingo.jpa::Siblings");
     when(jpaResultParam.isCollection()).thenReturn(true);
@@ -81,7 +81,7 @@ public class TestJPAFunctionOperator {
   }
 
   @Test
-  public void testAbortOnNonScalarFunction() {
+  void testAbortOnNonScalarFunction() {
 
     when(jpaFunction.getDBName()).thenReturn("org.apache.olingo.jpa::Siblings");
     when(jpaResultParam.isCollection()).thenReturn(false);

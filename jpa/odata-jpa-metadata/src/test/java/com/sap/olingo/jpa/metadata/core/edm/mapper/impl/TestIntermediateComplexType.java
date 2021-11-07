@@ -208,7 +208,7 @@ class TestIntermediateComplexType extends TestMappingRoot {
     assertNotEquals(ct.getProperty("created"), ct.getProperty("updated"));
   }
 
-  @Disabled
+  @Disabled("Enumeration Type Property")
   @Test
   void checkGetPropertyWithEnumerationType() {
 

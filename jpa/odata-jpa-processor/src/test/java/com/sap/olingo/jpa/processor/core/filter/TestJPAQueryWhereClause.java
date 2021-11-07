@@ -199,7 +199,7 @@ class TestJPAQueryWhereClause extends TestBase {
     assertEquals(4, orgs.size());
   }
 
-  @Disabled // TODO Clarify if GT, LE .. not supported by OData or "only" by Olingo
+  @Disabled("Clarify if GT, LE .. not supported by OData or \"only\" by Olingo")
   @Test
   void testFilterOneEnumGreaterThan() throws IOException, ODataException {
 
@@ -500,8 +500,9 @@ class TestJPAQueryWhereClause extends TestBase {
     assertEquals(2, orgs.size());
   }
 
-  @Disabled // Usage of mult currently creates parser error: The types 'Edm.Double' and '[Int64, Int32, Int16, Byte,
-            // SByte]' are not compatible.
+  // Usage of mult currently creates parser error: The types 'Edm.Double' and '[Int64, Int32, Int16, Byte, SByte]' are
+  // not compatible.
+  @Disabled("Usage of mult currently creates parser error")
   @Test
   void testFilterSubstringStartCalculated() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,

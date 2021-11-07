@@ -41,11 +41,11 @@ import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRoleProtected;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRoleWithGroup;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerWithGroups;
 import com.sap.olingo.jpa.processor.core.testmodel.ChangeInformation;
-import com.sap.olingo.jpa.processor.core.testmodel.CollectionInnerComplex;
-import com.sap.olingo.jpa.processor.core.testmodel.CollectionNestedComplex;
 import com.sap.olingo.jpa.processor.core.testmodel.Collection;
 import com.sap.olingo.jpa.processor.core.testmodel.CollectionDeep;
 import com.sap.olingo.jpa.processor.core.testmodel.CollectionFirstLevelComplex;
+import com.sap.olingo.jpa.processor.core.testmodel.CollectionInnerComplex;
+import com.sap.olingo.jpa.processor.core.testmodel.CollectionNestedComplex;
 import com.sap.olingo.jpa.processor.core.testmodel.CollectionPartOfComplex;
 import com.sap.olingo.jpa.processor.core.testmodel.CollectionSecondLevelComplex;
 import com.sap.olingo.jpa.processor.core.testmodel.Comment;
@@ -76,7 +76,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.User;
  * Created: 05.10.2019
  *
  */
-public class TestStandardMethodsOfTestModel {
+class TestStandardMethodsOfTestModel {
 
   private final String expString = "TestString";
   private final Integer expInteger = 20;
@@ -155,13 +155,13 @@ public class TestStandardMethodsOfTestModel {
   }
 
   @BeforeEach
-  public void setup() throws SQLException {
+  void setup() throws SQLException {
     expClob = new JDBCClob("Test");
   }
 
   @ParameterizedTest
   @MethodSource({ "testModelEntities", "testErrorEntities" })
-  public void testGetterReturnsSetPrimitiveValue(final Class<?> clazz) throws NoSuchMethodException, SecurityException,
+  void testGetterReturnsSetPrimitiveValue(final Class<?> clazz) throws NoSuchMethodException, SecurityException,
       InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
     final Method[] methods = clazz.getMethods();
@@ -194,7 +194,7 @@ public class TestStandardMethodsOfTestModel {
 
   @ParameterizedTest
   @MethodSource({ "testModelEntities", "testErrorEntities" })
-  public void testToStringReturnsValue(final Class<?> clazz) throws NoSuchMethodException, SecurityException,
+  void testToStringReturnsValue(final Class<?> clazz) throws NoSuchMethodException, SecurityException,
       InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
     final Constructor<?> constructor = clazz.getConstructor();
@@ -205,7 +205,7 @@ public class TestStandardMethodsOfTestModel {
 
   @ParameterizedTest
   @MethodSource({ "testModelEntities", "testErrorEntities" })
-  public void testHasValueReturnsValue(final Class<?> clazz) throws NoSuchMethodException, SecurityException,
+  void testHasValueReturnsValue(final Class<?> clazz) throws NoSuchMethodException, SecurityException,
       InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
     final Method[] methods = clazz.getMethods();

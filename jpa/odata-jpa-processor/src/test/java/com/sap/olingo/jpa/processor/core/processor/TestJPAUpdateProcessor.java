@@ -158,10 +158,9 @@ class TestJPAUpdateProcessor extends TestJPAModifyProcessor {
     assertEquals(HttpMethod.PATCH, spy.method);
   }
 
-  @Disabled
+  @Disabled("Not implemented yet")
   @Test
   void testProvideSimpleComplexPutAsPatch() {
-    // Not implemented yet
     fail();
   }
 

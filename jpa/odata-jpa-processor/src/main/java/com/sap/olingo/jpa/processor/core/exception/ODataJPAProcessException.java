@@ -22,24 +22,24 @@ public abstract class ODataJPAProcessException extends ODataApplicationException
   protected final String[] parameter;
   protected final String messageText;
 
-  public ODataJPAProcessException(final String id, final HttpStatusCode statusCode) {
+  protected ODataJPAProcessException(final String id, final HttpStatusCode statusCode) {
     this(id, null, statusCode, new String[] {});
   }
 
-  public ODataJPAProcessException(final Throwable cause, final HttpStatusCode statusCode) {
+  protected ODataJPAProcessException(final Throwable cause, final HttpStatusCode statusCode) {
     this(null, null, statusCode, cause, new String[] {});
   }
 
-  public ODataJPAProcessException(final String id, final HttpStatusCode statusCode, final Throwable cause) {
+  protected ODataJPAProcessException(final String id, final HttpStatusCode statusCode, final Throwable cause) {
     this(id, null, statusCode, cause, new String[] {});
   }
 
-  public ODataJPAProcessException(final String id, final HttpStatusCode statusCode, final Throwable cause,
+  protected ODataJPAProcessException(final String id, final HttpStatusCode statusCode, final Throwable cause,
       final String[] params) {
     this(id, null, statusCode, cause, params);
   }
 
-  public ODataJPAProcessException(final String id, final HttpStatusCode statusCode, final String[] params) {
+  protected ODataJPAProcessException(final String id, final HttpStatusCode statusCode, final String[] params) {
     this(id, null, statusCode, params);
   }
 
@@ -50,7 +50,7 @@ public abstract class ODataJPAProcessException extends ODataApplicationException
    * @param statusCode
    * @param params
    */
-  public ODataJPAProcessException(final String id, final String messageText, final HttpStatusCode statusCode,
+  protected ODataJPAProcessException(final String id, final String messageText, final HttpStatusCode statusCode,
       final String[] params) {
     this(id, messageText, statusCode, null, params);
   }
@@ -63,7 +63,7 @@ public abstract class ODataJPAProcessException extends ODataApplicationException
    * @param cause
    * @param params
    */
-  public ODataJPAProcessException(final String id, final String messageText, final HttpStatusCode statusCode,
+  protected ODataJPAProcessException(final String id, final String messageText, final HttpStatusCode statusCode,
       final Throwable cause, final String[] params) {
 
     super("", statusCode.getStatusCode(), Locale.ENGLISH, cause);

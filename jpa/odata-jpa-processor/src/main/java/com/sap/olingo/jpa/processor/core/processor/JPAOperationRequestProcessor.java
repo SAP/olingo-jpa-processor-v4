@@ -26,8 +26,8 @@ import org.apache.olingo.server.api.uri.UriHelper;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOperation;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.converter.JPAComplexResultConverter;
 import com.sap.olingo.jpa.processor.core.converter.JPAEntityResultConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
@@ -38,8 +38,8 @@ abstract class JPAOperationRequestProcessor extends JPAAbstractRequestProcessor 
 
   private static final String RESULT = "Result";
 
-  public JPAOperationRequestProcessor(OData odata, JPAODataSessionContextAccess context,
-      JPAODataRequestContextAccess requestContext) throws ODataException {
+  JPAOperationRequestProcessor(final OData odata, final JPAODataSessionContextAccess context,
+      final JPAODataRequestContextAccess requestContext) throws ODataException {
     super(odata, context, requestContext);
   }
 
@@ -101,8 +101,8 @@ abstract class JPAOperationRequestProcessor extends JPAAbstractRequestProcessor 
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  private EntityCollection createEntityCollection(final EdmEntityType returnType, Object result,
-      UriHelper createUriHelper, final JPAOperation jpaFunction)
+  private EntityCollection createEntityCollection(final EdmEntityType returnType, final Object result,
+      final UriHelper createUriHelper, final JPAOperation jpaFunction)
       throws ODataApplicationException {
 
     final List resultList = new ArrayList();

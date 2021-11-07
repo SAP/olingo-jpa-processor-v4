@@ -3,6 +3,7 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.api;
 import java.util.List;
 import java.util.Optional;
 
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmQueryExtensionProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 public interface JPAEntityType extends JPAStructuredType {
@@ -79,5 +80,6 @@ public interface JPAEntityType extends JPAStructuredType {
 
   public List<JPAPath> searchChildPath(final JPAPath selectItemPath);
 
-  public Optional<JPAQueryExtension> getQueryExtention() throws ODataJPAModelException;
+  public <X extends EdmQueryExtensionProvider> Optional<JPAQueryExtension<X>> getQueryExtention()
+      throws ODataJPAModelException;
 }

@@ -58,7 +58,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateEntityT
 final class IntermediateEntityType<T> extends IntermediateStructuredType<T> implements JPAEntityType,
     IntermediateEntityTypeAccess {
   private Optional<JPAPath> etagPath;
-  private Optional<JPAQueryExtension> extensionQueryProvider;
+  private Optional<Optional<JPAQueryExtension<EdmQueryExtensionProvider>>> extensionQueryProvider;
   private List<JPAAttribute> keyAttributes;
   private final boolean asTopLevelOnly;
   private final boolean asEntitySet;
@@ -71,6 +71,7 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
     asEntitySet = determineAsEntitySet();
     asSingleton = determineAsSingleton();
     etagPath = Optional.empty();
+    extensionQueryProvider = Optional.empty();
   }
 
   @Override
@@ -201,10 +202,8 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
   }
 
   @Override
-  public Optional<JPAQueryExtension> getQueryExtention() throws ODataJPAModelException {
-    if (extensionQueryProvider == null)
-      determineExtensionQueryProvide();
-    return extensionQueryProvider;
+  public Optional<JPAQueryExtension<EdmQueryExtensionProvider>> getQueryExtention() throws ODataJPAModelException {
+    return extensionQueryProvider.orElse(determineExtensionQueryProvide());
   }
 
   @Override
@@ -467,18 +466,21 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
   }
 
   @SuppressWarnings("unchecked")
-  private void determineExtensionQueryProvide() throws ODataJPAModelException {
-    extensionQueryProvider = Optional.empty();
+  private Optional<JPAQueryExtension<EdmQueryExtensionProvider>> determineExtensionQueryProvide()
+      throws ODataJPAModelException {
+    extensionQueryProvider = Optional.of(Optional.empty());
     final EdmEntityType jpaEntityType = this.jpaManagedType.getJavaType().getAnnotation(EdmEntityType.class);
     if (jpaEntityType != null) {
-      final Class<?> provider = jpaEntityType.extensionProvider();
+      final Class<EdmQueryExtensionProvider> provider = (Class<EdmQueryExtensionProvider>) jpaEntityType
+          .extensionProvider();
       final Class<?> defaultProvider = EdmQueryExtensionProvider.class;
       if (provider != null && provider != defaultProvider)
-        extensionQueryProvider = Optional.of(new JPAQueryExtensionProvider(
-            (Class<? extends EdmQueryExtensionProvider>) provider));
+        extensionQueryProvider = Optional.of(Optional.of(new JPAQueryExtensionProvider<>(
+            provider)));
     }
-    if (!extensionQueryProvider.isPresent() && getBaseType() != null)
-      extensionQueryProvider = ((IntermediateEntityType<?>) getBaseType()).getQueryExtention();
+    if (!extensionQueryProvider.get().isPresent() && getBaseType() != null)
+      extensionQueryProvider = Optional.ofNullable(((IntermediateEntityType<?>) getBaseType()).getQueryExtention());
+    return extensionQueryProvider.get();
   }
 
   private void determineHasEtag() throws ODataJPAModelException {

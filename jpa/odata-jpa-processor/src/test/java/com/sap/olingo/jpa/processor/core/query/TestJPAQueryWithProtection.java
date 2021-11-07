@@ -104,7 +104,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = { "Wil*", "Wi%i", "Wil+i", "Will_" })
+  @ValueSource(strings = { "Wil*", "Wi%i", "Wil+i", "Will_", "Wi*i", "_illi" })
   void testRestrictOnePropertyOneValueWithWildcard(final String minValue) throws IOException, ODataException {
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add("UserId", new JPAClaimsPair<>(minValue));

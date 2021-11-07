@@ -150,7 +150,7 @@ public final class JPANavigationPropertyInfo {
   @Override
   public String toString() {
     try {
-      final String typeName = getEntityType() != null ? getEntityType().getExternalName() : "";
+      final String typeName = getEntityType().getExternalName();
       final String assoziationName = associationPath != null ? associationPath.getAlias() : "";
       return "JPANavigationPropertyInfo [et=" + typeName
           + ", associationPath=" + assoziationName + "]";

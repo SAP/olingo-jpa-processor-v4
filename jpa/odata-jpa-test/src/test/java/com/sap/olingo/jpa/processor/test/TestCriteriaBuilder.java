@@ -80,7 +80,7 @@ class TestCriteriaBuilder {
     assertFalse(tq.getResultList().isEmpty());
   }
 
-  @Disabled // To time consuming
+  @Disabled("To time consuming")
   @Test
   void testSubSelect() {
     // https://stackoverflow.com/questions/29719321/combining-conditional-expressions-with-and-and-or-predicates-using-the-jpa-c
@@ -194,7 +194,7 @@ class TestCriteriaBuilder {
     tq.getFirstResult();
   }
 
-  @Disabled
+  @Disabled("To be checked")
   @Test
   void testSearchEmbeddedId() {
     final CriteriaQuery<Tuple> cq = cb.createTupleQuery();
@@ -214,7 +214,7 @@ class TestCriteriaBuilder {
     System.out.println(act.size());
   }
 
-  @Disabled
+  @Disabled("To be checked")
   @Test
   void testSearchNoSubquery() {
     final CriteriaQuery<Tuple> cq = cb.createTupleQuery();

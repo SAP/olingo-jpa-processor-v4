@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlNavigationPropertyBinding;
 
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmQueryExtensionProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
@@ -74,7 +75,8 @@ abstract class IntermediateTopLevelEntity extends IntermediateModelElement imple
   }
 
   @Override
-  public Optional<JPAQueryExtension> getQueryExtention() throws ODataJPAModelException {
+  public Optional<JPAQueryExtension<EdmQueryExtensionProvider>> getQueryExtention()
+      throws ODataJPAModelException {
     return getEntityType().getQueryExtention();
   }
 }

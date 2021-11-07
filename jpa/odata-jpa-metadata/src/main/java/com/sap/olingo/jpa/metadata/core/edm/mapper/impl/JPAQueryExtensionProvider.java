@@ -13,12 +13,12 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmQueryExtensionProvider
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAQueryExtension;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
-class JPAQueryExtensionProvider implements JPAQueryExtension {
+class JPAQueryExtensionProvider<X extends EdmQueryExtensionProvider> implements JPAQueryExtension<X> {
 
-  private final Constructor<? extends EdmQueryExtensionProvider> constructor;
+  private final Constructor<X> constructor;
 
   @SuppressWarnings("unchecked")
-  JPAQueryExtensionProvider(@Nonnull final Class<? extends EdmQueryExtensionProvider> provider)
+  JPAQueryExtensionProvider(@Nonnull final Class<X> provider)
       throws ODataJPAModelException {
 
     final Constructor<?>[] constructors = provider.getConstructors();
@@ -29,11 +29,11 @@ class JPAQueryExtensionProvider implements JPAQueryExtension {
       if (p.getType() != Map.class)
         throw new ODataJPAModelException(EXTENSION_PROVIDER_WRONG_PARAMETER, provider.getCanonicalName());
     }
-    this.constructor = (Constructor<? extends EdmQueryExtensionProvider>) provider.getConstructors()[0];
+    this.constructor = (Constructor<X>) provider.getConstructors()[0];
   }
 
   @Override
-  public Constructor<?> getConstructor() {
+  public Constructor<X> getConstructor() {
     return constructor;
   }
 

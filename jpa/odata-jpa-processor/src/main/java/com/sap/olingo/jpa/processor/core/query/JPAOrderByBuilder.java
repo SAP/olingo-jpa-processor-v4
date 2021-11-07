@@ -59,7 +59,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
  */
 final class JPAOrderByBuilder {
   private static final Log LOGGER = LogFactory.getLog(JPAOrderByBuilder.class);
-
+  private static final String LOG_ORDER_BY = "Determined $orderby: convert to Order By";
   private final JPAEntityType jpaEntity;
   private final From<?, ?> target;
   private final CriteriaBuilder cb;
@@ -112,7 +112,7 @@ final class JPAOrderByBuilder {
     final Set<Path<?>> orderBys = new HashSet<>();
     try {
       if (uriResource.getOrderByOption() != null) {
-        LOGGER.trace("Determined $orderby: convert to Order By");
+        LOGGER.trace(LOG_ORDER_BY);
         addOrderByFromUriResource(joinTables, result, orderBys, uriResource.getOrderByOption());
       }
       if (uriResource.getTopOption() != null || uriResource.getSkipOption() != null) {
@@ -145,7 +145,7 @@ final class JPAOrderByBuilder {
       LOGGER.trace("Determined relationship and add corresponding to OrderBy");
       addOrderByJoinCondition(association, result);
       if (orderBy != null) {
-        LOGGER.trace("Determined $orderby: convert to Order By");
+        LOGGER.trace(LOG_ORDER_BY);
         addOrderByFromUriResource(joinTables, result, orderByPaths, orderBy);
       }
     } catch (final ODataJPAModelException e) {
@@ -165,7 +165,7 @@ final class JPAOrderByBuilder {
       LOGGER.trace("Determined relationship and add corresponding to OrderBy");
       addOrderByJoinConditionAlias(association, result);
       if (orderBy != null) {
-        LOGGER.trace("Determined $orderby: convert to Order By");
+        LOGGER.trace(LOG_ORDER_BY);
         addOrderByFromUriResource(joinTables, result, orderByPaths, orderBy);
       }
     } catch (final ODataJPAModelException e) {
@@ -182,7 +182,7 @@ final class JPAOrderByBuilder {
     final Set<Path<?>> orderByPaths = new HashSet<>();
     try {
       if (orderBy != null) {
-        LOGGER.trace("Determined $orderby: convert to Order By");
+        LOGGER.trace(LOG_ORDER_BY);
         addOrderByFromUriResource(joinTables, result, orderByPaths, orderBy);
       }
     } catch (final ODataJPAModelException e) {

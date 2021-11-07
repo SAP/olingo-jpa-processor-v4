@@ -233,7 +233,7 @@ public abstract class JPA_XXX_DatabaseProcessorTest {
     when(uriResourceCount.getKind()).thenReturn(UriResourceKind.count);
     when(functionQuery.getSingleResult()).thenReturn(5L);
 
-    final List<BusinessPartner> act = cut.executeFunctionQuery(uriResourceParts, jpaFunction, em);
+    final List<Long> act = cut.executeFunctionQuery(uriResourceParts, jpaFunction, em);
 
     verify(em, times(1)).createNativeQuery((String) argThat(new Equals(countResult)));
     verify(functionQuery, times(1)).setParameter(1, "5");
@@ -296,7 +296,7 @@ public abstract class JPA_XXX_DatabaseProcessorTest {
     when(secondUriParameter.getText()).thenReturn("3");
     when(secondParameter.getName()).thenReturn("B");
     when(secondUriParameter.getName()).thenReturn("B");
-    when(edmEntityType.getProperty(eq("B"))).thenReturn(edmSecondElement);
+    when(edmEntityType.getProperty("B")).thenReturn(edmSecondElement);
     when(edmSecondElement.getType()).thenReturn(EdmString.getInstance());
     when(secondParameter.getMaxLength()).thenReturn(10);
     when(secondParameter.getType()).thenAnswer(new Answer<Class<?>>() {
@@ -317,7 +317,7 @@ public abstract class JPA_XXX_DatabaseProcessorTest {
     when(secondUriParameter.getText()).thenReturn("3");
     when(secondParameter.getName()).thenReturn("B");
     when(secondUriParameter.getName()).thenReturn("B");
-    when(edmFunction.getParameter(eq("B"))).thenReturn(edmSecondElement);
+    when(edmFunction.getParameter("B")).thenReturn(edmSecondElement);
     when(edmSecondElement.getType()).thenReturn(EdmString.getInstance());
     when(secondParameter.getMaxLength()).thenReturn(10);
     when(secondParameter.getType()).thenAnswer(new Answer<Class<?>>() {
@@ -348,7 +348,7 @@ public abstract class JPA_XXX_DatabaseProcessorTest {
 
     uriParameters.add(firstUriParameter);
     when(firstUriParameter.getName()).thenReturn("A");
-    when(edmEntityType.getProperty(eq("A"))).thenReturn(edmElement);
+    when(edmEntityType.getProperty("A")).thenReturn(edmElement);
     when(firstUriParameter.getText()).thenReturn("5");
     when(edmElement.getType()).thenReturn(EdmString.getInstance());
     when(firstParameter.getMaxLength()).thenReturn(10);
@@ -377,7 +377,7 @@ public abstract class JPA_XXX_DatabaseProcessorTest {
 
     uriParameters.add(firstUriParameter);
     when(firstUriParameter.getName()).thenReturn("A");
-    when(edmFunction.getParameter(eq("A"))).thenReturn(edmElement);
+    when(edmFunction.getParameter("A")).thenReturn(edmElement);
     when(firstUriParameter.getText()).thenReturn("5");
     when(edmElement.getType()).thenReturn(EdmString.getInstance());
     when(firstParameter.getMaxLength()).thenReturn(10);

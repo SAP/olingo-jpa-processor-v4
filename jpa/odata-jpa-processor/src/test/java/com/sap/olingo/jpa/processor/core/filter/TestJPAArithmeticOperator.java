@@ -20,7 +20,7 @@ import org.mockito.stubbing.Answer;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 
-public class TestJPAArithmeticOperator {
+class TestJPAArithmeticOperator {
   private CriteriaBuilder cb;
 
   private JPAOperationConverter converter;
@@ -28,14 +28,14 @@ public class TestJPAArithmeticOperator {
 
   @SuppressWarnings("unchecked")
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
     converter = mock(JPAOperationConverter.class);
     cb = mock(CriteriaBuilder.class);
     expression = mock(Path.class);
   }
 
   @Test
-  public void testMemberLiteralGetLeft_Member() throws ODataApplicationException {
+  void testMemberLiteralGetLeft_Member() throws ODataApplicationException {
     final JPAMemberOperator left = mock(JPAMemberOperator.class);
     final JPALiteralOperator right = mock(JPALiteralOperator.class);
 
@@ -52,7 +52,7 @@ public class TestJPAArithmeticOperator {
   }
 
   @Test
-  public void testLiteralMemberGetLeft_Member() throws ODataApplicationException {
+  void testLiteralMemberGetLeft_Member() throws ODataApplicationException {
     final JPAMemberOperator right = mock(JPAMemberOperator.class);
     final JPALiteralOperator left = mock(JPALiteralOperator.class);
 
@@ -70,7 +70,7 @@ public class TestJPAArithmeticOperator {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testGetLeftLiteralLiteral_Left() throws ODataApplicationException {
+  void testGetLeftLiteralLiteral_Left() throws ODataApplicationException {
     final JPALiteralOperator right = mock(JPALiteralOperator.class);
     final JPALiteralOperator left = mock(JPALiteralOperator.class);
     final Integer leftValue = new Integer(5);
@@ -95,7 +95,7 @@ public class TestJPAArithmeticOperator {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testGetLeftMemberMember_Left() throws ODataApplicationException {
+  void testGetLeftMemberMember_Left() throws ODataApplicationException {
     final JPAMemberOperator right = mock(JPAMemberOperator.class);
     final JPAMemberOperator left = mock(JPAMemberOperator.class);
 
@@ -120,7 +120,7 @@ public class TestJPAArithmeticOperator {
   }
 
   @Test
-  public void testMemberLiteralGetRightAsNumber_Right() throws ODataApplicationException {
+  void testMemberLiteralGetRightAsNumber_Right() throws ODataApplicationException {
     final JPAMemberOperator left = mock(JPAMemberOperator.class);
     final JPALiteralOperator right = mock(JPALiteralOperator.class);
     final JPAAttribute attribute = mock(JPAAttribute.class);
@@ -133,7 +133,7 @@ public class TestJPAArithmeticOperator {
   }
 
   @Test
-  public void testLiteralMemberGetRightAsNumber_Left() throws ODataApplicationException {
+  void testLiteralMemberGetRightAsNumber_Left() throws ODataApplicationException {
     final JPAMemberOperator right = mock(JPAMemberOperator.class);
     final JPALiteralOperator left = mock(JPALiteralOperator.class);
     final JPAAttribute attribute = mock(JPAAttribute.class);
@@ -146,7 +146,7 @@ public class TestJPAArithmeticOperator {
   }
 
   @Test
-  public void testLiteralLiteralGetRightAsNumber_Right() throws ODataApplicationException {
+  void testLiteralLiteralGetRightAsNumber_Right() throws ODataApplicationException {
     final JPALiteralOperator right = mock(JPALiteralOperator.class);
     final JPALiteralOperator left = mock(JPALiteralOperator.class);
 
@@ -158,7 +158,7 @@ public class TestJPAArithmeticOperator {
   }
 
   @Test
-  public void testGetMemberMemberGetRightAsNumber_Exception() throws ODataApplicationException {
+  void testGetMemberMemberGetRightAsNumber_Exception() throws ODataApplicationException {
     final JPAMemberOperator right = mock(JPAMemberOperator.class);
     final JPAMemberOperator left = mock(JPAMemberOperator.class);
     final JPAAttribute attribute = mock(JPAAttribute.class);
@@ -172,7 +172,7 @@ public class TestJPAArithmeticOperator {
   }
 
   @Test
-  public void testGetBooleanMemberGetRightAsNumber_Exception() throws ODataApplicationException {
+  void testGetBooleanMemberGetRightAsNumber_Exception() throws ODataApplicationException {
     final JPAMemberOperator right = mock(JPAMemberOperator.class);
     final JPABooleanOperatorImp left = mock(JPABooleanOperatorImp.class);
 
@@ -182,7 +182,7 @@ public class TestJPAArithmeticOperator {
   }
 
   @Test
-  public void testGetMemberBooleanGetRightAsNumber_Exception() throws ODataApplicationException {
+  void testGetMemberBooleanGetRightAsNumber_Exception() throws ODataApplicationException {
     final JPAMemberOperator left = mock(JPAMemberOperator.class);
     final JPABooleanOperatorImp right = mock(JPABooleanOperatorImp.class);
 

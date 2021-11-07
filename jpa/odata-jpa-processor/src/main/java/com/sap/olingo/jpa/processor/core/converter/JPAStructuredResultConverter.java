@@ -41,7 +41,7 @@ public abstract class JPAStructuredResultConverter {
   protected final List<?> jpaQueryResult;
   protected final JPAStructuredType jpaTopLevelType;
 
-  public JPAStructuredResultConverter(final List<?> jpaQueryResult, final JPAStructuredType jpaStructuredType) {
+  protected JPAStructuredResultConverter(final List<?> jpaQueryResult, final JPAStructuredType jpaStructuredType) {
 
     super();
     this.jpaQueryResult = jpaQueryResult;
@@ -73,7 +73,7 @@ public abstract class JPAStructuredResultConverter {
     final Map<String, Method> methodMap = getMethods(jpaStructuredType.getTypeClass());
     try {
       attributeList = jpaStructuredType.getAttributes();
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
 
@@ -103,7 +103,7 @@ public abstract class JPAStructuredResultConverter {
     if (row != null) {
       Object odataValue = getMethod.invoke(row);
       if (attribute.getConverter() != null) {
-        AttributeConverter<T, S> converter = attribute.getConverter();
+        final AttributeConverter<T, S> converter = attribute.getConverter();
         odataValue = converter.convertToDatabaseColumn((T) odataValue);
       }
 

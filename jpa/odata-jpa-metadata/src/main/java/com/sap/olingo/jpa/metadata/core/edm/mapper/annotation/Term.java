@@ -125,7 +125,7 @@ class Term extends CsdlTerm {
    * @param srid
    */
   @JacksonXmlProperty(localName = "SRID", isAttribute = true)
-  void setSrid(final String srid) throws ODataJPAModelException {
+  void setSrid(final String srid) {
     super.setSrid(SRID.valueOf(srid));
   }
 }

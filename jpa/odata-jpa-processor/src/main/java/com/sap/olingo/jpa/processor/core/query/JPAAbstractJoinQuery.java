@@ -642,9 +642,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
 
   @SuppressWarnings("unchecked")
   private <Y extends Comparable<? super Y>> javax.persistence.criteria.Expression<Boolean> createBoundaryWithUpper(
-      final JPAEntityType et,
-      final From<?, ?> f, final JPAKeyPair jpaKeyPair)
-      throws ODataJPAModelException {
+      final JPAEntityType et, final From<?, ?> f, final JPAKeyPair jpaKeyPair) throws ODataJPAModelException {
 
     final List<JPAAttribute> keyElements = new ArrayList<>(et.getKey());
     Collections.reverse(keyElements);

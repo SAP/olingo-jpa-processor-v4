@@ -41,8 +41,7 @@ class TestIntermediateReferences extends TestMappingRoot {
     cut = new IntermediateReferences();
   }
 
-  // TODO This test may not run because of proxy setting problems!! -> find alternative for Integration tests
-  @Disabled
+  @Disabled("This test may not run because of proxy setting problems!! -> find alternative for Integration tests")
   @Test
   void checkAddOnlyURI() throws ODataJPAModelException, URISyntaxException {
     final String uri = CORE_V1_URL;

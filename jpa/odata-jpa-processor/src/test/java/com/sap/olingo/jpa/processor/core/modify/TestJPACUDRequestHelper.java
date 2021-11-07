@@ -2,7 +2,6 @@ package com.sap.olingo.jpa.processor.core.modify;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -66,7 +65,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.AccessRightsConverter;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
 import com.sap.olingo.jpa.processor.core.testmodel.DateConverter;
 
-public class TestJPACUDRequestHelper {
+class TestJPACUDRequestHelper {
   private static final String COMMENT_INT_PROPERTY_NAME = "comment";
   private static final String COMMENT_EXT_PROPERTY_NAME = "Comment";
   private static final String INHOUSE_EXT_PROPERTY_NAME = "InhouseAddress";
@@ -76,7 +75,7 @@ public class TestJPACUDRequestHelper {
   private List<String> headers;
 
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
     request = mock(ODataRequest.class);
     headers = new ArrayList<>(1);
     uriResourceParts = new ArrayList<>();
@@ -84,7 +83,7 @@ public class TestJPACUDRequestHelper {
   }
 
   @Test
-  public void testConvertEmptyInputStream() throws UnsupportedEncodingException {
+  void testConvertEmptyInputStream() throws UnsupportedEncodingException {
 
     final EdmBindingTargetInfo etsInfo = mock(EdmBindingTargetInfo.class);
     final EdmEntitySet ets = mock(EdmEntitySet.class);
@@ -110,7 +109,7 @@ public class TestJPACUDRequestHelper {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testConvertInputStreamComplexColectionProperty() throws UnsupportedEncodingException,
+  void testConvertInputStreamComplexColectionProperty() throws UnsupportedEncodingException,
       ODataJPAProcessorException, EdmPrimitiveTypeException {
 
     final EdmEntitySet edmEntitySet = mock(EdmEntitySet.class);
@@ -169,7 +168,7 @@ public class TestJPACUDRequestHelper {
   }
 
   @Test
-  public void testConvertInputStreamEntitySet() throws UnsupportedEncodingException, ODataJPAProcessorException,
+  void testConvertInputStreamEntitySet() throws UnsupportedEncodingException, ODataJPAProcessorException,
       EdmPrimitiveTypeException {
 
     prepareEntitySet();
@@ -182,7 +181,7 @@ public class TestJPACUDRequestHelper {
   }
 
   @Test
-  public void testConvertInputStreamEntitySetWithAnnotationV400() throws UnsupportedEncodingException,
+  void testConvertInputStreamEntitySetWithAnnotationV400() throws UnsupportedEncodingException,
       ODataJPAProcessorException, EdmPrimitiveTypeException {
 
     headers.add("4.00");
@@ -199,7 +198,7 @@ public class TestJPACUDRequestHelper {
   }
 
   @Test
-  public void testConvertInputStreamEntitySetWithAnnotationV401() throws UnsupportedEncodingException,
+  void testConvertInputStreamEntitySetWithAnnotationV401() throws UnsupportedEncodingException,
       ODataJPAProcessorException, EdmPrimitiveTypeException {
 
     headers.add("4.01");
@@ -216,7 +215,7 @@ public class TestJPACUDRequestHelper {
   }
 
   @Test
-  public void testConvertInputStreamEntitySetThrowsExceptioOnAnnotationMissmatch() throws UnsupportedEncodingException,
+  void testConvertInputStreamEntitySetThrowsExceptioOnAnnotationMissmatch() throws UnsupportedEncodingException,
       ODataJPAProcessorException, EdmPrimitiveTypeException {
 
     prepareEntitySet();
@@ -231,7 +230,7 @@ public class TestJPACUDRequestHelper {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testConvertInputStreamPrimitiveColectionProperty() throws UnsupportedEncodingException,
+  void testConvertInputStreamPrimitiveColectionProperty() throws UnsupportedEncodingException,
       ODataJPAProcessorException, EdmPrimitiveTypeException {
 
     final EdmEntitySet edmEntitySet = mock(EdmEntitySet.class);
@@ -285,7 +284,7 @@ public class TestJPACUDRequestHelper {
   }
 
   @Test
-  public void testConvertInputStreamPrimitiveSimpleProperty() throws UnsupportedEncodingException,
+  void testConvertInputStreamPrimitiveSimpleProperty() throws UnsupportedEncodingException,
       ODataJPAProcessorException, EdmPrimitiveTypeException {
 
     final ODataRequest request = preparePrimitiveSimpleProperty();
@@ -298,7 +297,7 @@ public class TestJPACUDRequestHelper {
   }
 
   @Test
-  public void testConvertInputStreamWithAnnotationV400PrimitiveSimpleProperty() throws UnsupportedEncodingException,
+  void testConvertInputStreamWithAnnotationV400PrimitiveSimpleProperty() throws UnsupportedEncodingException,
       ODataJPAProcessorException, EdmPrimitiveTypeException {
 
     final ODataRequest request = preparePrimitiveSimpleProperty();
@@ -312,7 +311,7 @@ public class TestJPACUDRequestHelper {
   }
 
   @Test
-  public void testConvertInputStreamWithAnnotationV401PrimitiveSimpleProperty() throws UnsupportedEncodingException,
+  void testConvertInputStreamWithAnnotationV401PrimitiveSimpleProperty() throws UnsupportedEncodingException,
       ODataJPAProcessorException, EdmPrimitiveTypeException {
 
     final ODataRequest request = preparePrimitiveSimpleProperty();
@@ -326,7 +325,7 @@ public class TestJPACUDRequestHelper {
   }
 
   @Test
-  public void testConvertPropertiesConvertException() throws ODataJPAModelException {
+  void testConvertPropertiesConvertException() throws ODataJPAModelException {
     final List<Property> odataProperties = new ArrayList<>();
     final JPAStructuredType st = mock(JPAStructuredType.class);
     final Property propertyID = mock(Property.class);
@@ -347,7 +346,7 @@ public class TestJPACUDRequestHelper {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testConvertPropertiesEmptyComplexCollcetionProperty() throws ODataJPAProcessException,
+  void testConvertPropertiesEmptyComplexCollcetionProperty() throws ODataJPAProcessException,
       ODataJPAModelException {
 
     final List<Property> odataProperties = new ArrayList<>();
@@ -370,7 +369,7 @@ public class TestJPACUDRequestHelper {
   }
 
   @Test
-  public void testConvertPropertiesEmptyList() throws ODataJPAProcessException {
+  void testConvertPropertiesEmptyList() throws ODataJPAProcessException {
     final List<Property> odataProperties = new ArrayList<>();
     final JPAStructuredType st = mock(JPAStructuredType.class);
 
@@ -381,7 +380,7 @@ public class TestJPACUDRequestHelper {
   }
 
   @Test
-  public void testConvertPropertiesEmptySimpleCollcetionProperty() throws ODataJPAProcessException,
+  void testConvertPropertiesEmptySimpleCollcetionProperty() throws ODataJPAProcessException,
       ODataJPAModelException {
 
     final List<Property> odataProperties = new ArrayList<>();
@@ -402,7 +401,7 @@ public class TestJPACUDRequestHelper {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testConvertPropertiesOneComplexCollcetionProperty() throws ODataJPAProcessException,
+  void testConvertPropertiesOneComplexCollcetionProperty() throws ODataJPAProcessException,
       ODataJPAModelException {
 
     final List<Property> odataProperties = new ArrayList<>();
@@ -437,7 +436,7 @@ public class TestJPACUDRequestHelper {
   }
 
   @Test
-  public void testConvertPropertiesOneComplexProperty() throws ODataJPAProcessException, ODataJPAModelException {
+  void testConvertPropertiesOneComplexProperty() throws ODataJPAProcessException, ODataJPAModelException {
 
     final List<Property> odataProperties = new ArrayList<>();
     final JPAStructuredType st = mock(JPAStructuredType.class);
@@ -489,7 +488,7 @@ public class TestJPACUDRequestHelper {
   }
 
   @Test
-  public void testConvertPropertiesOneEnumPropertyWithConverter() throws ODataJPAProcessException,
+  void testConvertPropertiesOneEnumPropertyWithConverter() throws ODataJPAProcessException,
       ODataJPAModelException {
 
     final List<Property> odataProperties = new ArrayList<>();
@@ -532,7 +531,7 @@ public class TestJPACUDRequestHelper {
   }
 
   @Test
-  public void testConvertPropertiesOneEnumPropertyWithoutConverter() throws ODataJPAProcessException,
+  void testConvertPropertiesOneEnumPropertyWithoutConverter() throws ODataJPAProcessException,
       ODataJPAModelException {
 
     final List<Property> odataProperties = new ArrayList<>();
@@ -568,7 +567,7 @@ public class TestJPACUDRequestHelper {
   }
 
   @Test
-  public void testConvertPropertiesOnePrimitiveProperty() throws ODataJPAProcessException, ODataJPAModelException {
+  void testConvertPropertiesOnePrimitiveProperty() throws ODataJPAProcessException, ODataJPAModelException {
     final List<Property> odataProperties = new ArrayList<>();
     final JPAStructuredType st = mock(JPAStructuredType.class);
     final Property propertyID = mock(Property.class);
@@ -602,7 +601,7 @@ public class TestJPACUDRequestHelper {
   }
 
   @Test
-  public void testConvertPropertiesOneSimpleCollcetionProperty() throws ODataJPAProcessException,
+  void testConvertPropertiesOneSimpleCollcetionProperty() throws ODataJPAProcessException,
       ODataJPAModelException {
 
     final List<Property> odataProperties = new ArrayList<>();
@@ -625,7 +624,7 @@ public class TestJPACUDRequestHelper {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testConvertPropertiesTwoComplexCollcetionProperty() throws ODataJPAProcessException,
+  void testConvertPropertiesTwoComplexCollcetionProperty() throws ODataJPAProcessException,
       ODataJPAModelException {
 
     final List<Property> odataProperties = new ArrayList<>();
@@ -673,7 +672,7 @@ public class TestJPACUDRequestHelper {
   }
 
   @Test
-  public void testConvertPropertiesTwoSimpleCollcetionProperty() throws ODataJPAProcessException,
+  void testConvertPropertiesTwoSimpleCollcetionProperty() throws ODataJPAProcessException,
       ODataJPAModelException {
 
     final List<Property> odataProperties = new ArrayList<>();
@@ -697,7 +696,7 @@ public class TestJPACUDRequestHelper {
   }
 
   @Test
-  public void testConvertPropertiesUnknownValueType() {
+  void testConvertPropertiesUnknownValueType() {
     final List<Property> odataProperties = new ArrayList<>();
     final JPAStructuredType st = mock(JPAStructuredType.class);
     final Property propertyID = mock(Property.class);
@@ -716,18 +715,18 @@ public class TestJPACUDRequestHelper {
     fail();
   }
 
-  @Disabled
+  @Disabled("Different Instances")
   @Test
-  public void testDifferentInstanceWhenReadingDifferentInstance() throws ODataJPAProcessorException {
+  void testDifferentInstanceWhenReadingDifferentInstance() throws ODataJPAProcessorException {
 
     final Map<String, Object> exp = cut.buildGetterMap(new BusinessPartnerRole("100", "A"));
     final Map<String, Object> act = cut.buildGetterMap(new BusinessPartnerRole("100", "A"));
 
-    assertFalse(exp == act);
+    assertEquals(exp, act);
   }
 
   @Test
-  public void testInstanceNull() {
+  void testInstanceNull() {
 
     try {
       cut.buildGetterMap(null);
@@ -739,7 +738,7 @@ public class TestJPACUDRequestHelper {
   }
 
   @Test
-  public void testInstanceWithGetter() throws ODataJPAProcessorException {
+  void testInstanceWithGetter() throws ODataJPAProcessorException {
     final BusinessPartnerRole role = new BusinessPartnerRole();
     role.setBusinessPartnerID("ID");
 
@@ -750,7 +749,7 @@ public class TestJPACUDRequestHelper {
   }
 
   @Test
-  public void testInstanceWithoutGetter() throws ODataJPAProcessorException {
+  void testInstanceWithoutGetter() throws ODataJPAProcessorException {
 
     final Map<String, Object> act = cut.buildGetterMap(new DateConverter());
     assertNotNull(act);
@@ -759,7 +758,7 @@ public class TestJPACUDRequestHelper {
   }
 
   @Test
-  public void testSameInstanceWhenReadingTwice() throws ODataJPAProcessorException {
+  void testSameInstanceWhenReadingTwice() throws ODataJPAProcessorException {
     final BusinessPartnerRole role = new BusinessPartnerRole();
 
     final Map<String, Object> exp = cut.buildGetterMap(role);

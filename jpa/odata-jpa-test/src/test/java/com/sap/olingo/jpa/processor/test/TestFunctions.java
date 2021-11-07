@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Test;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 
-public class TestFunctions {
+class TestFunctions {
   protected static final String PUNIT_NAME = "com.sap.olingo.jpa";
   private static final String ENTITY_MANAGER_DATA_SOURCE = "javax.persistence.nonJtaDataSource";
   private static EntityManagerFactory emf;
@@ -54,14 +54,14 @@ public class TestFunctions {
   private CriteriaBuilder cb;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     em = emf.createEntityManager();
     cb = em.getCriteriaBuilder();
   }
 
-  @Disabled
+  @Disabled("Not implemented")
   @Test
-  public void TestProcedure() throws SQLException {
+  void TestProcedure() throws SQLException {
     final StoredProcedureQuery pc = em.createStoredProcedureQuery("\"OLINGO\".\"org.apache.olingo.jpa::Siblings\"");
 
     pc.registerStoredProcedureParameter("CodePublisher", String.class, ParameterMode.IN);
@@ -70,7 +70,7 @@ public class TestFunctions {
     pc.setParameter("CodeID", "NUTS2");
     pc.registerStoredProcedureParameter("DivisionCode", String.class, ParameterMode.IN);
     pc.setParameter("DivisionCode", "BE25");
-//    pc.setParameter("CodePublisher", "Eurostat");  
+//    pc.setParameter("CodePublisher", "Eurostat");
 //    pc.setParameter("CodeID", "NUTS2");
 //    pc.setParameter("DivisionCode", "BE25");
 
@@ -138,9 +138,9 @@ public class TestFunctions {
     assertNotNull(one);
   }
 
-  @Disabled
+  @Disabled("Not implemented")
   @Test
-  public void TestScalarFunctionsWhere() {
+  void TestScalarFunctionsWhere() {
     CreateUDFDerby();
 
     final CriteriaQuery<Tuple> count = cb.createTupleQuery();

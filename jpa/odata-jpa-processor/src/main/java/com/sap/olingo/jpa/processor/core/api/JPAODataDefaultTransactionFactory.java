@@ -12,10 +12,10 @@ import javax.persistence.RollbackException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.sap.olingo.jpa.processor.core.exception.ODataJPATransactionException;;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPATransactionException;
 
 public class JPAODataDefaultTransactionFactory implements JPAODataTransactionFactory {
-  
+
   private static final Log LOGGER = LogFactory.getLog(JPAODataDefaultTransactionFactory.class);
   private final EntityManager em;
   private JPAODataTransaction currentTransaction;
@@ -32,7 +32,7 @@ public class JPAODataDefaultTransactionFactory implements JPAODataTransactionFac
         throw new ODataJPATransactionException(CANNOT_CREATE_NEW_TRANSACTION);
       currentTransaction = new JPAODataEntityTransaction(em.getTransaction());
       return currentTransaction;
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new ODataJPATransactionException(CANNOT_CREATE_NEW_TRANSACTION, e);
     }
   }
@@ -66,9 +66,9 @@ public class JPAODataDefaultTransactionFactory implements JPAODataTransactionFac
     public void commit() throws ODataJPATransactionException {
       try {
         et.commit();
-      } catch (RollbackException e) {
+      } catch (final RollbackException e) {
         throw e;
-      } catch (RuntimeException e) {
+      } catch (final RuntimeException e) {
         throw new ODataJPATransactionException(e);
       }
     }
@@ -77,7 +77,7 @@ public class JPAODataDefaultTransactionFactory implements JPAODataTransactionFac
     public void rollback() throws ODataJPATransactionException {
       try {
         et.rollback();
-      } catch (RuntimeException e) {
+      } catch (final RuntimeException e) {
         throw new ODataJPATransactionException(e);
       }
     }
@@ -86,7 +86,7 @@ public class JPAODataDefaultTransactionFactory implements JPAODataTransactionFac
     public boolean isActive() throws ODataJPATransactionException {
       try {
         return et.isActive();
-      } catch (RuntimeException e) {
+      } catch (final RuntimeException e) {
         throw new ODataJPATransactionException(e);
       }
     }
@@ -95,7 +95,7 @@ public class JPAODataDefaultTransactionFactory implements JPAODataTransactionFac
     public boolean rollbackOnly() throws ODataJPATransactionException {
       try {
         return et.getRollbackOnly();
-      } catch (RuntimeException e) {
+      } catch (final RuntimeException e) {
         throw new ODataJPATransactionException(e);
       }
     }

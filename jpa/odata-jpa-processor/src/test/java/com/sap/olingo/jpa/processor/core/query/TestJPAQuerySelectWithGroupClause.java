@@ -20,10 +20,10 @@ import com.sap.olingo.jpa.processor.core.util.SelectOptionDouble;
 import com.sap.olingo.jpa.processor.core.util.TestGroupBase;
 import com.sap.olingo.jpa.processor.core.util.UriInfoDouble;
 
-public class TestJPAQuerySelectWithGroupClause extends TestGroupBase {
+class TestJPAQuerySelectWithGroupClause extends TestGroupBase {
 
   @Test
-  public void checkSelectAllWithoutGroupReturnsNotAssigned() throws ODataApplicationException, ODataJPAModelException {
+  void checkSelectAllWithoutGroupReturnsNotAssigned() throws ODataApplicationException, ODataJPAModelException {
     fillJoinTable(root);
 
     final List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
@@ -36,7 +36,7 @@ public class TestJPAQuerySelectWithGroupClause extends TestGroupBase {
   }
 
   @Test
-  public void checkSelectAllWithOneGroupReturnsAlsoThose() throws ODataException, ODataJPAIllegalAccessException {
+  void checkSelectAllWithOneGroupReturnsAlsoThose() throws ODataException, ODataJPAIllegalAccessException {
     root = emf.getCriteriaBuilder().createTupleQuery().from(BusinessPartnerWithGroups.class);
     fillJoinTable(root);
     final List<String> groups = new ArrayList<>();
@@ -51,7 +51,7 @@ public class TestJPAQuerySelectWithGroupClause extends TestGroupBase {
   }
 
   @Test
-  public void checkSelectAllWithTwoGroupReturnsAlsoThose() throws ODataException, ODataJPAIllegalAccessException {
+  void checkSelectAllWithTwoGroupReturnsAlsoThose() throws ODataException, ODataJPAIllegalAccessException {
     root = emf.getCriteriaBuilder().createTupleQuery().from(BusinessPartnerWithGroups.class);
     fillJoinTable(root);
     final List<String> groups = new ArrayList<>();
@@ -67,7 +67,7 @@ public class TestJPAQuerySelectWithGroupClause extends TestGroupBase {
   }
 
   @Test
-  public void checkSelectTwoWithOneGroupReturnsAll() throws ODataApplicationException, ODataJPAModelException {
+  void checkSelectTwoWithOneGroupReturnsAll() throws ODataApplicationException, ODataJPAModelException {
     root = emf.getCriteriaBuilder().createTupleQuery().from(BusinessPartnerWithGroups.class);
     fillJoinTable(root);
     final List<String> groups = new ArrayList<>();
@@ -84,7 +84,7 @@ public class TestJPAQuerySelectWithGroupClause extends TestGroupBase {
   }
 
   @Test
-  public void checkSelectTwoWithOneGroupReturnsOnlyID() throws ODataApplicationException, ODataJPAModelException {
+  void checkSelectTwoWithOneGroupReturnsOnlyID() throws ODataApplicationException, ODataJPAModelException {
     root = emf.getCriteriaBuilder().createTupleQuery().from(BusinessPartnerWithGroups.class);
     fillJoinTable(root);
     final List<String> groups = new ArrayList<>();
@@ -100,7 +100,7 @@ public class TestJPAQuerySelectWithGroupClause extends TestGroupBase {
   }
 
   @Test
-  public void checkSelectTwoWithoutGroupReturnsOnlyID() throws ODataApplicationException, ODataJPAModelException {
+  void checkSelectTwoWithoutGroupReturnsOnlyID() throws ODataApplicationException, ODataJPAModelException {
     root = emf.getCriteriaBuilder().createTupleQuery().from(BusinessPartnerWithGroups.class);
     fillJoinTable(root);
     final JPAODataGroupsProvider groups = new JPAODataGroupsProvider();
@@ -116,16 +116,16 @@ public class TestJPAQuerySelectWithGroupClause extends TestGroupBase {
     assertContainsNot(selectClause, "CreationDateTime");
   }
 
-  private void assertContains(List<Selection<?>> selectClause, String alias) {
-    for (Selection<?> selection : selectClause) {
+  private void assertContains(final List<Selection<?>> selectClause, final String alias) {
+    for (final Selection<?> selection : selectClause) {
       if (selection.getAlias().equals(alias))
         return;
     }
     fail(alias + " not found");
   }
 
-  private void assertContainsNot(List<Selection<?>> selectClause, String alias) {
-    for (Selection<?> selection : selectClause) {
+  private void assertContainsNot(final List<Selection<?>> selectClause, final String alias) {
+    for (final Selection<?> selection : selectClause) {
       if (selection.getAlias().equals(alias))
         fail(alias + " was found, but was not expected");
     }
