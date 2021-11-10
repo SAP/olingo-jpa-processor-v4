@@ -14,7 +14,7 @@ import org.apache.olingo.server.api.uri.UriParameter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class TestEdmEntitySetResult {
+class EdmEntitySetResultTest {
   private EdmBindingTargetResult cut;
   private List<UriParameter> keys;
   private EdmEntitySet es;

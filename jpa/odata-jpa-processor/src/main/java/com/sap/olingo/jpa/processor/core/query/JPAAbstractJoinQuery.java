@@ -1,7 +1,6 @@
 package com.sap.olingo.jpa.processor.core.query;
 
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys.ATTRIBUTE_NOT_FOUND;
-import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_ENTITY_UNKNOWN;
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_FILTER_ERROR;
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_INVALID_SELECTION_PATH;
 import static com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys.QUERY_RESULT_ENTITY_TYPE_ERROR;
@@ -32,7 +31,6 @@ import javax.persistence.criteria.Root;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
@@ -40,9 +38,7 @@ import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResource;
-import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.UriResourceKind;
-import org.apache.olingo.server.api.uri.UriResourceNavigation;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
 import org.apache.olingo.server.api.uri.queryoption.SelectItem;
 import org.apache.olingo.server.api.uri.queryoption.SelectOption;
@@ -716,18 +712,6 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
 
     for (int i = 0; i < this.navigationInfo.size() - 1; i++) {
       final JPANavigationPropertyInfo naviInfo = this.navigationInfo.get(i);
-
-      EdmType castType = null;
-      if (naviInfo.getUriResource() instanceof UriResourceNavigation)
-        castType = ((UriResourceNavigation) naviInfo.getUriResource()).getTypeFilterOnEntry();
-      else
-        castType = ((UriResourceEntitySet) naviInfo.getUriResource()).getTypeFilterOnEntry();
-      if (castType != null) {
-        final JPAEntityType et = sd.getEntity(castType.getFullQualifiedName());
-        if (et == null)
-          throw new ODataJPAQueryException(QUERY_PREPARATION_ENTITY_UNKNOWN, BAD_REQUEST, castType.getName());
-        target = (From<?, ?>) target.as(et.getTypeClass());
-      }
       naviInfo.setFromClause(target);
       if (naviInfo.getUriInfo() != null && naviInfo.getUriInfo().getFilterOption() != null) {
         try {
@@ -737,8 +721,13 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
         }
       }
       target = createJoinFromPath(naviInfo.getAssociationPath().getAlias(), naviInfo.getAssociationPath()
-          .getPath(),
-          target, JoinType.INNER);
+          .getPath(), target, JoinType.INNER);
+      try {
+        final JPAEntityType cast = this.navigationInfo.get(i + 1).getEntityType();
+        target = (From<?, ?>) target.as(cast.getTypeClass());
+      } catch (final ODataJPAModelException e) {
+        throw new ODataJPAQueryException(e, INTERNAL_SERVER_ERROR);
+      }
       joinTables.put(naviInfo.getAssociationPath().getAlias(), target);
     }
   }

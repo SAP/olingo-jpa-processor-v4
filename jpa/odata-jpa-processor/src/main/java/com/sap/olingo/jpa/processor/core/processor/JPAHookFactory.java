@@ -91,7 +91,8 @@ final class JPAHookFactory {
     transientCalculatorCache.put(transientProperty, calculator);
   }
 
-  private EdmQueryExtensionProvider createQueryExtentionProvider(final JPAQueryExtension queryExtension) {
+  private EdmQueryExtensionProvider createQueryExtentionProvider(
+      final JPAQueryExtension<EdmQueryExtensionProvider> queryExtension) {
 
     final Constructor<?> c = queryExtension.getConstructor();
     try {

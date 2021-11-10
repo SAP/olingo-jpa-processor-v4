@@ -212,6 +212,17 @@ class TestJPAQueryNavigation extends TestBase {
   }
 
   @Test
+  void testNavigationWithCast() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerRoles(BusinessPartnerID='98',RoleCategory='X')/BusinessPartner/com.sap.olingo.jpa.Person");
+    helper.assertStatus(200);
+
+    final ObjectNode org = helper.getValue();
+    assertEquals("Doe", org.get("LastName").asText());
+  }
+
+  @Test
   void testNavigationJoinTableMappedBy() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('1')/SupportEngineers");

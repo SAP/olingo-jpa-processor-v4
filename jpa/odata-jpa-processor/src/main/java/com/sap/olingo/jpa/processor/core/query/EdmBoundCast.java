@@ -1,12 +1,15 @@
 package com.sap.olingo.jpa.processor.core.query;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.olingo.commons.api.edm.EdmAnnotation;
 import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.edm.EdmEntityContainer;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
+import org.apache.olingo.commons.api.edm.EdmException;
 import org.apache.olingo.commons.api.edm.EdmMapping;
+import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
 import org.apache.olingo.commons.api.edm.EdmNavigationPropertyBinding;
 import org.apache.olingo.commons.api.edm.EdmTerm;
 
@@ -47,12 +50,18 @@ class EdmBoundCast implements EdmBindingTarget {
 
   @Override
   public EdmBindingTarget getRelatedBindingTarget(final String path) {
-    return null;
+    final EdmNavigationProperty navigation = edmType.getNavigationProperty(path);
+    if (navigation == null)
+      throw new EdmException("Unknown navigation propery with name: " + path);
+    final EdmEntityType targetEntityType = navigation.getType();
+    if (targetEntityType == null)
+      throw new EdmException("Target entity type not found of navigation propery with name: " + path);
+    return new EdmBoundCast(targetEntityType, this);
   }
 
   @Override
   public List<EdmNavigationPropertyBinding> getNavigationPropertyBindings() {
-    return getNavigationPropertyBindings();
+    return Collections.emptyList();
   }
 
   @Override
@@ -67,7 +76,7 @@ class EdmBoundCast implements EdmBindingTarget {
 
   @Override
   public EdmEntityType getEntityTypeWithAnnotations() {
-    return getEntityType();
+    return null;
   }
 
 }

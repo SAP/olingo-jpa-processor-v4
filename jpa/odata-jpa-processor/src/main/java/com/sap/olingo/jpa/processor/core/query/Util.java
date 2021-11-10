@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
@@ -43,7 +45,9 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAUtilException;
 
 public final class Util {
 
+  private static final String FOUND_CAST_FROM = "Found cast from ";
   public static final String VALUE_RESOURCE = "$VALUE";
+  private static final Log LOGGER = LogFactory.getLog(Util.class);
 
   public static JPAAssociationPath determineAssociation(final JPAServiceDocument sd, final EdmType naviStart,
       final StringBuilder associationName) throws ODataApplicationException {
@@ -73,9 +77,6 @@ public final class Util {
           naviStartType = sd.getEntity(((UriResourceEntitySet) naviStart).getType());
       }
       if (naviStart instanceof UriResourceSingleton) {
-//          if (((UriResourceEntitySet) naviStart).getTypeFilterOnEntry() != null)
-//            naviStartType = sd.getEntity(((UriResourceEntitySet) naviStart).getTypeFilterOnEntry());
-//          else
         naviStartType = sd.getEntity(((UriResourceSingleton) naviStart).getType());
       } else if (naviStart instanceof UriResourceNavigation) {
         if (((UriResourceNavigation) naviStart).getTypeFilterOnEntry() != null)
@@ -99,8 +100,7 @@ public final class Util {
   public static Map<JPAExpandItem, JPAAssociationPath> determineAssociations(final JPAServiceDocument sd,
       final List<UriResource> startResourceList, final ExpandOption expandOption) throws ODataApplicationException {
 
-    final Map<JPAExpandItem, JPAAssociationPath> pathList =
-        new HashMap<>();
+    final Map<JPAExpandItem, JPAAssociationPath> pathList = new HashMap<>();
     final StringBuilder associationNamePrefix = new StringBuilder();
 
     UriResource startResourceItem = null;
@@ -122,6 +122,7 @@ public final class Util {
       // Example4 : ?$expand=*
       // Example5 : ?$expand=*/$ref,Parent
       // Example6 : ?$expand=Parent($levels=2)
+      // Example7 : ?$expand=BusinessPartner/com.sap.olingo.jpa.Person
       StringBuilder associationName;
       for (final ExpandItem item : expandOption.getExpandItems()) {
         if (item.isStar()) {
@@ -138,7 +139,7 @@ public final class Util {
             throw new ODataJPAUtilException(UNKNOWN_ENTITY_TYPE, BAD_REQUEST, e);
           }
         } else {
-          final List<UriResource> targetResourceList = item.getResourcePath().getUriResourceParts();
+          final List<UriResource> targetResourceList = item.getResourcePath().getUriResourceParts(); // Has Cast
           associationName = new StringBuilder();
           associationName.append(associationNamePrefix);
           UriResource targetResourceItem = null;
@@ -189,14 +190,28 @@ public final class Util {
       if (resourceItem.getKind() == UriResourceKind.navigationProperty) {
         naviPropertyName.append(((UriResourceNavigation) resourceItem).getProperty().getName());
         targetKeyPredicates = ((UriResourceNavigation) resourceItem).getKeyPredicates();
-        final EdmBindingTarget edmBindingTarget = targetEdmBindingTarget.getRelatedBindingTarget(naviPropertyName
-            .toString());
-        if (edmBindingTarget instanceof EdmEntitySet)
+        final EdmBindingTarget edmBindingTarget = determineBindingTargetOfNavigation(targetEdmBindingTarget,
+            (UriResourceNavigation) resourceItem, naviPropertyName);
+        if (edmBindingTarget instanceof EdmEntitySet || edmBindingTarget instanceof EdmBoundCast)
           targetEdmBindingTarget = edmBindingTarget;
         naviPropertyName = new StringBuilder();
       }
     }
     return new EdmBindingTargetResult(targetEdmBindingTarget, targetKeyPredicates, naviPropertyName.toString());
+  }
+
+  private static EdmBindingTarget determineBindingTargetOfNavigation(final EdmBindingTarget targetEdmBindingTarget,
+      final UriResourceNavigation resourceItem, final StringBuilder naviPropertyName) {
+
+    final EdmBindingTarget target = targetEdmBindingTarget.getRelatedBindingTarget(naviPropertyName
+        .toString());
+    if (target instanceof EdmBindingTarget) {
+      if (resourceItem.getTypeFilterOnEntry() != null)
+        return new EdmBoundCast((EdmEntityType) resourceItem.getTypeFilterOnEntry(), target);
+      else if (resourceItem.getTypeFilterOnCollection() != null)
+        return new EdmBoundCast((EdmEntityType) resourceItem.getTypeFilterOnCollection(), target);
+    }
+    return target;
   }
 
   public static List<UriParameter> determineKeyPredicates(final UriResource uriResourceItem)
@@ -355,6 +370,16 @@ public final class Util {
       if (resourceItem.getKind() == UriResourceKind.navigationProperty) {
         // first try the simple way like in the example
         targetEdmEntity = (EdmEntityType) ((UriResourceNavigation) resourceItem).getType();
+        if (((UriResourceNavigation) resourceItem).getTypeFilterOnEntry() != null) {
+          targetEdmEntity = (EdmEntityType) ((UriResourceNavigation) resourceItem).getTypeFilterOnEntry();
+          LOGGER.trace(FOUND_CAST_FROM + ((UriResourceNavigation) resourceItem).getType().getName() + " to "
+              + targetEdmEntity.getName());
+        }
+        if (((UriResourceNavigation) resourceItem).getTypeFilterOnCollection() != null) {
+          targetEdmEntity = (EdmEntityType) ((UriResourceNavigation) resourceItem).getTypeFilterOnCollection();
+          LOGGER.trace(FOUND_CAST_FROM + ((UriResourceNavigation) resourceItem).getType().getName() + " to "
+              + targetEdmEntity.getName());
+        }
       }
     }
     return targetEdmEntity;
@@ -375,9 +400,13 @@ public final class Util {
     if (resourceItem.getTypeFilterOnCollection() != null) {
       targetEdmBindingTarget = new EdmBoundCast((EdmEntityType) resourceItem.getTypeFilterOnCollection(), resourceItem
           .getEntitySet());
+      LOGGER.trace(FOUND_CAST_FROM + resourceItem.getEntitySet().getName() + " to "
+          + targetEdmBindingTarget.getName());
     } else if (resourceItem.getTypeFilterOnEntry() != null) {
       targetEdmBindingTarget = new EdmBoundCast((EdmEntityType) resourceItem.getTypeFilterOnEntry(), resourceItem
           .getEntitySet());
+      LOGGER.trace(FOUND_CAST_FROM + resourceItem.getEntitySet().getName() + " to "
+          + targetEdmBindingTarget.getName());
     } else {
       targetEdmBindingTarget = resourceItem.getEntitySet();
     }

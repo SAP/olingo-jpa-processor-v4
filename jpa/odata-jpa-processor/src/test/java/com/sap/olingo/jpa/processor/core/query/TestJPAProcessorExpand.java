@@ -883,4 +883,38 @@ class TestJPAProcessorExpand extends TestBase {
     assertFalse(member.get("FullName") instanceof NullNode);
   }
 
+  @Test
+  void testExpandReturnsCast() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerRoles?$expand=BusinessPartner/com.sap.olingo.jpa.Person");
+    helper.assertStatus(200);
+
+    final ArrayNode roles = helper.getValues();
+    for (final JsonNode role : roles) {
+      final String id = role.get("BusinessPartnerID").asText();
+      final JsonNode bupas = role.get("BusinessPartner");
+
+      if ("99".equals(id) || "98".equals(id) || "97".equals(id)) {
+        assertTrue(bupas instanceof ObjectNode);
+        assertNotNull(bupas.get("FullName"));
+      } else {
+        assertTrue(bupas instanceof NullNode, "For id: " + id);
+      }
+    }
+  }
+
+  @Test
+  void testExpandReturnsCastWithFilter() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "BusinessPartnerRoles?$expand=BusinessPartner/com.sap.olingo.jpa.Person($filter=ID eq '1')");
+    helper.assertStatus(200);
+
+    final ArrayNode roles = helper.getValues();
+    for (final JsonNode role : roles) {
+      final String id = role.get("BusinessPartnerID").asText();
+      final JsonNode bupas = role.get("BusinessPartner");
+
+      assertTrue(bupas instanceof NullNode, "For id: " + id);
+    }
+  }
 }
