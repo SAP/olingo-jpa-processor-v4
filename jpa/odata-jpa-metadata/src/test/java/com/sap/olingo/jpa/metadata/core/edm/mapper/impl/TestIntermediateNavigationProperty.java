@@ -51,6 +51,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
 import com.sap.olingo.jpa.processor.core.testmodel.DummyToBeIgnored;
+import com.sap.olingo.jpa.processor.core.testmodel.EntityTypeOnly;
 import com.sap.olingo.jpa.processor.core.testmodel.JoinComplex;
 import com.sap.olingo.jpa.processor.core.testmodel.JoinSource;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
@@ -345,6 +346,17 @@ class TestIntermediateNavigationProperty extends TestMappingRoot {
     for (final CsdlReferentialConstraint c : constraints) {
       assertEquals(c.getReferencedProperty(), c.getProperty());
     }
+  }
+
+  @Test
+  void checkGetReferentialConstraintNotCreatedIfPropertyToBeIgnored() throws ODataJPAModelException {
+    final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(EntityTypeOnly.class),
+        "generalSettings");
+    final IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), schema.getEntityType(EntityTypeOnly.class), jpaAttribute, schema);
+    final List<CsdlReferentialConstraint> constraints = property.getProperty().getReferentialConstraints();
+
+    assertTrue(constraints.isEmpty());
   }
 
   @Test

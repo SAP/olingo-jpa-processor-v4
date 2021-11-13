@@ -119,7 +119,6 @@ public abstract class BusinessPartner implements KeyAccess {
           @JoinColumn(referencedColumnName = "\"Address.RegionCodePublisher\"", name = "\"CodePublisher\""),
           @JoinColumn(referencedColumnName = "\"Address.RegionCodeID\"", name = "\"CodeID\""),
           @JoinColumn(referencedColumnName = "\"Address.Region\"", name = "\"DivisionCode\"") })
-
   private PostalAddressData address = new PostalAddressData();
 
   @Embedded

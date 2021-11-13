@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.persistence.AssociationOverride;
@@ -39,6 +40,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAJoinTable;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelIgnoreException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateNavigationPropertyAccess;
 
 /**
@@ -411,37 +413,65 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
       return;
 
     final List<CsdlReferentialConstraint> constraints = edmNaviProperty.getReferentialConstraints();
-    for (final IntermediateJoinColumn intermediateColumn : joinColumns) {
-
-      final CsdlReferentialConstraint constraint = new CsdlReferentialConstraint();
-      constraints.add(constraint);
-      IntermediateModelElement p = null;
-      p = sourceType.getPropertyByDBField(intermediateColumn.getName());
-      if (p != null) {
-        constraint.setProperty(p.getExternalName());
-        p = targetType.getPropertyByDBField(intermediateColumn.getReferencedColumnName());
-        if (p != null)
-          constraint.setReferencedProperty(p.getExternalName());
-        else
-          throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.REFERENCED_PROPERTY_NOT_FOUND,
-              getInternalName(), intermediateColumn.getReferencedColumnName(), targetType.getExternalName());
-      } else {
-        p = sourceType.getPropertyByDBField(intermediateColumn.getReferencedColumnName());
-        if (p != null) {
-          constraint.setProperty(p.getExternalName());
-          p = targetType.getPropertyByDBField(intermediateColumn.getName());
-          if (p != null)
-            constraint.setReferencedProperty(p.getExternalName());
-          else
-            throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.REFERENCED_PROPERTY_NOT_FOUND,
-                getInternalName(), intermediateColumn.getName(), targetType.getExternalName());
-
-        } else {
-          throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.REFERENCED_PROPERTY_NOT_FOUND,
-              getInternalName(), intermediateColumn.getReferencedColumnName(), sourceType.getExternalName());
-        }
+    try {
+      for (final IntermediateJoinColumn intermediateColumn : joinColumns) {
+        final CsdlReferentialConstraint constraint = determineReferentialConstraint(intermediateColumn)
+            .orElse(determineReversReferentialConstraint(intermediateColumn).orElse(null));
+        constraints.add(constraint);
       }
+    } catch (final ODataJPAModelIgnoreException e) {
+      constraints.clear();
     }
+  }
+
+  private Optional<CsdlReferentialConstraint> determineReferentialConstraint(
+      final IntermediateJoinColumn intermediateColumn) throws ODataJPAModelException, ODataJPAModelIgnoreException {
+
+    final CsdlReferentialConstraint constraint = new CsdlReferentialConstraint();
+    IntermediateModelElement p = null;
+    p = sourceType.getPropertyByDBField(intermediateColumn.getName());
+    if (p != null) {
+      if (p.ignore())
+        throw new ODataJPAModelIgnoreException();
+      constraint.setProperty(p.getExternalName());
+      p = targetType.getPropertyByDBField(intermediateColumn.getReferencedColumnName());
+      if (p != null) {
+        if (p.ignore())
+          throw new ODataJPAModelIgnoreException();
+        constraint.setReferencedProperty(p.getExternalName());
+      } else {
+        throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.REFERENCED_PROPERTY_NOT_FOUND,
+            getInternalName(), intermediateColumn.getReferencedColumnName(), targetType.getExternalName());
+      }
+    } else {
+      return Optional.empty();
+    }
+    return Optional.of(constraint);
+  }
+
+  private Optional<CsdlReferentialConstraint> determineReversReferentialConstraint(
+      final IntermediateJoinColumn intermediateColumn) throws ODataJPAModelException, ODataJPAModelIgnoreException {
+
+    final CsdlReferentialConstraint constraint = new CsdlReferentialConstraint();
+    IntermediateModelElement p = null;
+    p = sourceType.getPropertyByDBField(intermediateColumn.getReferencedColumnName());
+    if (p != null) {
+      if (p.ignore())
+        throw new ODataJPAModelIgnoreException();
+      constraint.setProperty(p.getExternalName());
+      p = targetType.getPropertyByDBField(intermediateColumn.getName());
+      if (p != null) {
+        if (p.ignore())
+          throw new ODataJPAModelIgnoreException();
+        constraint.setReferencedProperty(p.getExternalName());
+      } else {
+        throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.REFERENCED_PROPERTY_NOT_FOUND,
+            getInternalName(), intermediateColumn.getName(), targetType.getExternalName());
+      }
+    } else {
+      return Optional.empty();
+    }
+    return Optional.of(constraint);
   }
 
   private void determinePartner(final String mappedBy) throws ODataJPAModelException {
