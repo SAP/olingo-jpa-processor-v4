@@ -38,4 +38,9 @@ final class IntermediateJoinColumn implements JPAJoinColumn {
     this.referencedColumnName = referencedColumnName;
   }
 
+  @Override
+  public String toString() {
+    return "IntermediateJoinColumn [name=" + name + ", referencedColumnName=" + referencedColumnName + "]";
+  }
+
 }

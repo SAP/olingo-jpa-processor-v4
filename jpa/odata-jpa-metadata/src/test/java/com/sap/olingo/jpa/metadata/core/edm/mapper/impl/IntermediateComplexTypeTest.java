@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 
 import java.util.List;
@@ -36,7 +37,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.DummyEmbeddedToIgnore;
 import com.sap.olingo.jpa.processor.core.testmodel.InhouseAddressWithProtection;
 import com.sap.olingo.jpa.processor.core.testmodel.PostalAddressData;
 
-class TestIntermediateComplexType extends TestMappingRoot {
+class IntermediateComplexTypeTest extends TestMappingRoot {
   private Set<EmbeddableType<?>> etList;
   private IntermediateSchema schema;
 
@@ -211,7 +212,7 @@ class TestIntermediateComplexType extends TestMappingRoot {
   @Disabled("Enumeration Type Property")
   @Test
   void checkGetPropertyWithEnumerationType() {
-
+    fail();
   }
 
   @Test

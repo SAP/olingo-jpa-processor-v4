@@ -3,8 +3,6 @@ package com.sap.olingo.jpa.processor.core.query;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriResource;
@@ -32,7 +30,6 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 // TODO In case of second level $expand expandItem.getResourcePath() returns an empty UriInfoResource => Bug or
 // Feature?
 public class JPAExpandItemWrapper implements JPAExpandItem {
-  private static final Log LOGGER = LogFactory.getLog(JPAExpandItemWrapper.class);
   private final ExpandItem item;
   private final JPAEntityType jpaEntityType;
 
@@ -55,7 +52,7 @@ public class JPAExpandItemWrapper implements JPAExpandItem {
 
   @Override
   public List<CustomQueryOption> getCustomQueryOptions() {
-    return null;
+    return Collections.emptyList();
   }
 
   @Override

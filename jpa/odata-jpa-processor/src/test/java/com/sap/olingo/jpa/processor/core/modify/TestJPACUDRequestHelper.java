@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import javax.persistence.AttributeConverter;
 
@@ -47,6 +48,8 @@ import org.apache.olingo.server.api.uri.UriResourceProperty;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentMatchers;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -283,44 +286,25 @@ class TestJPACUDRequestHelper {
     assertEquals("WTN", actValue.get(1));
   }
 
-  @Test
-  void testConvertInputStreamPrimitiveSimpleProperty() throws UnsupportedEncodingException,
-      ODataJPAProcessorException, EdmPrimitiveTypeException {
+  static Stream<ByteArrayInputStream> stringIntAndListProvider() throws UnsupportedEncodingException {
+    return Arrays.asList(new ByteArrayInputStream("{\"value\" : \"Willi\"}".getBytes("UTF-8")), // Primitive
+        new ByteArrayInputStream("{\"value\" : \"Willi\"}".getBytes("UTF-8")), // WithAnnotationV400
+        new ByteArrayInputStream( // WithAnnotationV401
+            "{ \"@jpa.odata.context\": \"$metadata#Organisations\", \"value\" : \"Willi\"}".getBytes("UTF-8")))
+        .stream();
 
-    final ODataRequest request = preparePrimitiveSimpleProperty();
-    final InputStream is = new ByteArrayInputStream("{\"value\" : \"Willi\"}".getBytes("UTF-8"));
-    when(request.getBody()).thenReturn(is);
-
-    final Entity act = cut.convertInputStream(OData.newInstance(), request, ContentType.APPLICATION_JSON,
-        uriResourceParts);
-    assertEquals("Willi", act.getProperty("Name2").getValue());
   }
 
-  @Test
-  void testConvertInputStreamWithAnnotationV400PrimitiveSimpleProperty() throws UnsupportedEncodingException,
+  @ParameterizedTest
+  @MethodSource("stringIntAndListProvider")
+  void testConvertInputStreamSimpleProperty(final InputStream is) throws UnsupportedEncodingException,
       ODataJPAProcessorException, EdmPrimitiveTypeException {
-
     final ODataRequest request = preparePrimitiveSimpleProperty();
-    final InputStream is = new ByteArrayInputStream(
-        "{ \"@jpa.odata.context\": \"$metadata#Organisations\", \"value\" : \"Willi\"}".getBytes("UTF-8"));
     when(request.getBody()).thenReturn(is);
 
     final Entity act = cut.convertInputStream(OData.newInstance(), request, ContentType.APPLICATION_JSON,
         uriResourceParts);
-    assertEquals("Willi", act.getProperty("Name2").getValue());
-  }
 
-  @Test
-  void testConvertInputStreamWithAnnotationV401PrimitiveSimpleProperty() throws UnsupportedEncodingException,
-      ODataJPAProcessorException, EdmPrimitiveTypeException {
-
-    final ODataRequest request = preparePrimitiveSimpleProperty();
-    final InputStream is = new ByteArrayInputStream(
-        "{ \"@context\": \"$metadata#Organisations\", \"value\" : \"Willi\"}".getBytes("UTF-8"));
-    when(request.getBody()).thenReturn(is);
-
-    final Entity act = cut.convertInputStream(OData.newInstance(), request, ContentType.APPLICATION_JSON,
-        uriResourceParts);
     assertEquals("Willi", act.getProperty("Name2").getValue());
   }
 

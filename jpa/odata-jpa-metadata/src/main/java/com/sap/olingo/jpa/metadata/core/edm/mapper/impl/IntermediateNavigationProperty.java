@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
+import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.REFERENCED_PROPERTY_NOT_FOUND;
+
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -413,39 +415,48 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
       return;
 
     final List<CsdlReferentialConstraint> constraints = edmNaviProperty.getReferentialConstraints();
-    try {
-      for (final IntermediateJoinColumn intermediateColumn : joinColumns) {
-        final CsdlReferentialConstraint constraint = determineReferentialConstraint(intermediateColumn)
-            .orElse(determineReversReferentialConstraint(intermediateColumn).orElse(null));
-        constraints.add(constraint);
+    boolean ignore = false;
+    for (final IntermediateJoinColumn intermediateColumn : joinColumns) {
+      try {
+        final Optional<CsdlReferentialConstraint> constraint = Optional.ofNullable(
+            determineReferentialConstraint(intermediateColumn)
+                .orElse(determineReversReferentialConstraint(intermediateColumn).orElse(null)));
+        constraints.add(constraint.orElseThrow(
+            () -> new ODataJPAModelException(REFERENCED_PROPERTY_NOT_FOUND, getInternalName(), intermediateColumn
+                .getReferencedColumnName(), sourceType.getExternalName())));
+      } catch (final ODataJPAModelIgnoreException e) {
+        ignore = true;
       }
-    } catch (final ODataJPAModelIgnoreException e) {
-      constraints.clear();
     }
+    if (ignore)
+      constraints.clear();
   }
 
   private Optional<CsdlReferentialConstraint> determineReferentialConstraint(
       final IntermediateJoinColumn intermediateColumn) throws ODataJPAModelException, ODataJPAModelIgnoreException {
 
     final CsdlReferentialConstraint constraint = new CsdlReferentialConstraint();
+    boolean ignore = false;
     IntermediateModelElement p = null;
     p = sourceType.getPropertyByDBField(intermediateColumn.getName());
     if (p != null) {
       if (p.ignore())
-        throw new ODataJPAModelIgnoreException();
+        ignore = true;
       constraint.setProperty(p.getExternalName());
       p = targetType.getPropertyByDBField(intermediateColumn.getReferencedColumnName());
       if (p != null) {
         if (p.ignore())
-          throw new ODataJPAModelIgnoreException();
+          ignore = true;
         constraint.setReferencedProperty(p.getExternalName());
       } else {
-        throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.REFERENCED_PROPERTY_NOT_FOUND,
-            getInternalName(), intermediateColumn.getReferencedColumnName(), targetType.getExternalName());
+        throw new ODataJPAModelException(REFERENCED_PROPERTY_NOT_FOUND, getInternalName(), intermediateColumn
+            .getReferencedColumnName(), targetType.getExternalName());
       }
     } else {
       return Optional.empty();
     }
+    if (ignore)
+      throw new ODataJPAModelIgnoreException();
     return Optional.of(constraint);
   }
 
@@ -453,24 +464,27 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
       final IntermediateJoinColumn intermediateColumn) throws ODataJPAModelException, ODataJPAModelIgnoreException {
 
     final CsdlReferentialConstraint constraint = new CsdlReferentialConstraint();
+    boolean ignore = false;
     IntermediateModelElement p = null;
     p = sourceType.getPropertyByDBField(intermediateColumn.getReferencedColumnName());
     if (p != null) {
       if (p.ignore())
-        throw new ODataJPAModelIgnoreException();
+        ignore = true;
       constraint.setProperty(p.getExternalName());
       p = targetType.getPropertyByDBField(intermediateColumn.getName());
       if (p != null) {
         if (p.ignore())
-          throw new ODataJPAModelIgnoreException();
+          ignore = true;
         constraint.setReferencedProperty(p.getExternalName());
       } else {
-        throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.REFERENCED_PROPERTY_NOT_FOUND,
-            getInternalName(), intermediateColumn.getName(), targetType.getExternalName());
+        throw new ODataJPAModelException(REFERENCED_PROPERTY_NOT_FOUND, getInternalName(), intermediateColumn.getName(),
+            targetType.getExternalName());
       }
     } else {
       return Optional.empty();
     }
+    if (ignore)
+      throw new ODataJPAModelIgnoreException();
     return Optional.of(constraint);
   }
 
