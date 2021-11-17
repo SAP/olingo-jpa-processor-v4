@@ -34,6 +34,8 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Comment</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.CommunicationData</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.ComplexWithTransientComplexCollection</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.ComplexSubType</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.ComplexBaseType</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.CollcetionNestedComplexWithTransient</class>
         <class>com.sap.olingo.jpa.processor.core.testmodel.Country</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.CountryKey</class>

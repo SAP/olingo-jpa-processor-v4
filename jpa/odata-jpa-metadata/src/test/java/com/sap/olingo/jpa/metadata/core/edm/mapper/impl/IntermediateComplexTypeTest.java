@@ -4,9 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Set;
@@ -18,6 +20,8 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.reflections8.Reflections;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
@@ -27,12 +31,16 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateEntityT
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateNavigationPropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediatePropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateReferenceList;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ComplexSubTypeError;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ComplexSubTypeOfIgnore;
 import com.sap.olingo.jpa.processor.core.testmodel.AddressDeepProtected;
 import com.sap.olingo.jpa.processor.core.testmodel.AddressDeepThreeProtections;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeInformation;
 import com.sap.olingo.jpa.processor.core.testmodel.ChangeInformation;
 import com.sap.olingo.jpa.processor.core.testmodel.CollectionFirstLevelComplex;
 import com.sap.olingo.jpa.processor.core.testmodel.CommunicationData;
+import com.sap.olingo.jpa.processor.core.testmodel.ComplexBaseType;
+import com.sap.olingo.jpa.processor.core.testmodel.ComplexSubType;
 import com.sap.olingo.jpa.processor.core.testmodel.DummyEmbeddedToIgnore;
 import com.sap.olingo.jpa.processor.core.testmodel.InhouseAddressWithProtection;
 import com.sap.olingo.jpa.processor.core.testmodel.PostalAddressData;
@@ -286,6 +294,49 @@ class IntermediateComplexTypeTest extends TestMappingRoot {
         getEmbeddableType(CollectionFirstLevelComplex.class), schema);
 
     assertTrue(ct.getAttribute("transientCollection").get().isTransient());
+  }
+
+  @Test
+  void checkGetBaseType() throws ODataJPAModelException {
+    final IntermediateComplexType<ComplexSubType> ct = new IntermediateComplexType<>(nameBuilder,
+        getEmbeddableType(ComplexSubType.class), schema);
+
+    assertNotNull(ct.getBaseType());
+    assertEquals(ComplexBaseType.class.getName(), ct.getBaseType().getInternalName());
+  }
+
+  @Test
+  void checkGetBaseTypeNotFound() throws ODataJPAModelException {
+    @SuppressWarnings("unchecked")
+    final EmbeddableType<ComplexSubTypeError> complexType = mock(EmbeddableType.class);
+
+    when(complexType.getJavaType()).thenAnswer(new Answer<Class<?>>() {
+      @Override
+      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
+        return ComplexSubTypeError.class;
+      }
+    });
+
+    final IntermediateComplexType<ComplexSubTypeError> ct = new IntermediateComplexType<>(nameBuilder,
+        complexType, schema);
+    assertNull(ct.getBaseType());
+  }
+
+  @Test
+  void checkGetBaseTypeBaseTypeIgnore() throws ODataJPAModelException {
+    @SuppressWarnings("unchecked")
+    final EmbeddableType<ComplexSubTypeOfIgnore> complexType = mock(EmbeddableType.class);
+
+    when(complexType.getJavaType()).thenAnswer(new Answer<Class<?>>() {
+      @Override
+      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
+        return ComplexSubTypeError.class;
+      }
+    });
+
+    final IntermediateComplexType<ComplexSubTypeOfIgnore> ct = new IntermediateComplexType<>(nameBuilder,
+        complexType, schema);
+    assertNull(ct.getBaseType());
   }
 
   private class PostProcessorSetIgnore extends JPAEdmMetadataPostProcessor {
