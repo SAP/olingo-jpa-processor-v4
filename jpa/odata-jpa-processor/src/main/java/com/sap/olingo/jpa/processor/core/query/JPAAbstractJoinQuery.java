@@ -29,8 +29,6 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
@@ -69,7 +67,6 @@ import com.sap.olingo.jpa.processor.core.filter.JPAOperationConverter;
 import com.sap.olingo.jpa.processor.core.processor.JPAODataInternalRequestContext;
 
 public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements JPAQuery {
-  private static final Log LOGGER = LogFactory.getLog(JPAAbstractJoinQuery.class);
   protected static final String ALIAS_SEPARATOR = ".";
   protected final UriInfoResource uriResource;
   protected final CriteriaQuery<Tuple> cq;
@@ -349,7 +346,8 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
               .getSearchOption()));
     final Optional<EdmQueryExtensionProvider> queryEnhancment = requestContext.getQueryEnhancment(jpaEntity);
     if (queryEnhancment.isPresent()) {
-      LOGGER.trace("Query Enhancment found. Add WHERE condition of: " + queryEnhancment.get().getClass().getName());
+      debugger.trace(this, "Query Enhancment found. Add WHERE condition of: %s", queryEnhancment.get().getClass()
+          .getName());
       whereCondition = addWhereClause(whereCondition, queryEnhancment.get().getFilterExtension(cb, target));
     }
     debugger.stopRuntimeMeasurement(handle);
@@ -375,24 +373,35 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
     if (selectItemPath == null)
       throw new ODataJPAQueryException(QUERY_PREPARATION_INVALID_SELECTION_PATH, BAD_REQUEST);
     if (selectItemPath.getLeaf().isComplex()) {
-      // Complex Type
-      final List<JPAPath> c = jpaEntity.searchChildPath(selectItemPath);
-      if (targetIsCollection)
-        for (final JPAPath p : c) {
-          if (p.isTransient())
-            jpaPathList.getTransientSelections().add(p);
-          else
-            jpaPathList.getODataSelections().add(p);
-        }
-      else
-        copySelectableProperties(jpaPathList, c);
+      expandComplexPath(jpaEntity, jpaPathList, targetIsCollection, selectItemPath);
     } else if (selectItemPath.isTransient()) {
-      buildRequiredSelections(jpaEntity, selectItemPath, jpaPathList.getRequiredSelections());
-      jpaPathList.getTransientSelections().add(selectItemPath);
+      addTransientAttribute(jpaEntity, jpaPathList, selectItemPath);
     } else if (!selectItemPath.getLeaf().isCollection()
         || targetIsCollection) {// Primitive Type
       jpaPathList.getODataSelections().add(selectItemPath);
     }
+  }
+
+  private void expandComplexPath(final JPAEntityType jpaEntity, final SelectionPathInfo<JPAPath> jpaPathList,
+      final boolean targetIsCollection, final JPAPath selectItemPath) throws ODataJPAModelException,
+      ODataJPAProcessorException {
+    final List<JPAPath> c = jpaEntity.searchChildPath(selectItemPath);
+    if (targetIsCollection) {
+      for (final JPAPath p : c) {
+        if (p.isTransient())
+          addTransientAttribute(jpaEntity, jpaPathList, p);
+        else
+          jpaPathList.getODataSelections().add(p);
+      }
+    } else {
+      copySelectableProperties(jpaPathList, c);
+    }
+  }
+
+  private void addTransientAttribute(final JPAEntityType jpaEntity, final SelectionPathInfo<JPAPath> jpaPathList,
+      final JPAPath p) throws ODataJPAModelException, ODataJPAProcessorException {
+    buildRequiredSelections(jpaEntity, p, jpaPathList.getRequiredSelections());
+    jpaPathList.getTransientSelections().add(p);
   }
 
   /*
@@ -494,12 +503,12 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
     }
 
     for (final String internalName : transientAttributePath.getLeaf().getRequiredProperties()) {
-      final String externalName = st.getAttribute(internalName)
+      final String externalName = st.getAttribute(internalName, false)
           .orElseThrow(() -> new ODataJPAProcessorException(ATTRIBUTE_NOT_FOUND,
               HttpStatusCode.INTERNAL_SERVER_ERROR, internalName))
           .getExternalName();
       final StringBuilder requiredPathName = new StringBuilder(pathName.toString()).append(externalName);
-      requitedSelections.add(et.getPath(requiredPathName.toString()));
+      requitedSelections.add(et.getPath(requiredPathName.toString(), false));
     }
   }
 
@@ -595,15 +604,17 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
    * (Organization)Comment or (Person)InhouseAddress/Room
    * @param selPathList
    * @param allPathList
+   * @throws ODataJPAProcessorException
    * @throws ODataJPAModelException
    */
-  private void copySelectableProperties(final SelectionPathInfo<JPAPath> selPathList, final List<JPAPath> allPathList) {
+  private void copySelectableProperties(final SelectionPathInfo<JPAPath> selPathList, final List<JPAPath> allPathList)
+      throws ODataJPAProcessorException, ODataJPAModelException {
     for (final JPAPath p : allPathList) {
       boolean skip = false;
       for (final JPAElement pathElement : p.getPath()) {
         if (pathElement instanceof JPAAttribute) {
           if (((JPAAttribute) pathElement).isTransient()) {
-            selPathList.getTransientSelections().add(p);
+            addTransientAttribute(jpaEntity, selPathList, p);
           }
           if (((JPAAttribute) pathElement).isCollection() || ((JPAAttribute) pathElement).isTransient()) {
             skip = true;

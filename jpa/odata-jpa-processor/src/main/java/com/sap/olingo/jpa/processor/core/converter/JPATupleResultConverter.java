@@ -243,7 +243,8 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
         try {
           odataValue = calculator.get().calculateProperty(parentRow);
         } catch (final IllegalArgumentException e) {
-          requestContext.getDebugger().debug(this, e.getMessage());
+          requestContext.getDebugger().debug(this, "Error in transient field calculator %s: %s",
+              calculator.get().getClass().getName(), e.getMessage());
           throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
         }
       }

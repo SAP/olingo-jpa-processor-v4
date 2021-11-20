@@ -5,11 +5,13 @@ import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
 import javax.persistence.Transient;
 
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransient;
 
 @Embeddable
 public class CollectionNestedComplexWithTransient {
 
+  @EdmIgnore
   @Column(name = "\"Number\"")
   private Long number;
 
@@ -24,7 +26,7 @@ public class CollectionNestedComplexWithTransient {
     return number;
   }
 
-  public void setNumber(Long number) {
+  public void setNumber(final Long number) {
     this.number = number;
   }
 
@@ -32,7 +34,7 @@ public class CollectionNestedComplexWithTransient {
     return inner;
   }
 
-  public void setInner(CollectionInnerComplex inner) {
+  public void setInner(final CollectionInnerComplex inner) {
     this.inner = inner;
   }
 }

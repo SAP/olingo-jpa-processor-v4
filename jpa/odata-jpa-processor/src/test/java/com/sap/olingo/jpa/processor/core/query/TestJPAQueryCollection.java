@@ -327,7 +327,6 @@ class TestJPAQueryCollection extends TestBase {
     final ObjectNode result = helper.getValue();
     final ArrayNode collection = (ArrayNode) result.get("value");
     assertEquals(2, collection.size());
-    assertFalse(collection.get(0).get("Number") instanceof NullNode);
     assertFalse(collection.get(0).get("Log") instanceof NullNode);
   }
 

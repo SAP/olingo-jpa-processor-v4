@@ -44,7 +44,23 @@ public interface JPAStructuredType extends JPAElement {
    */
   public List<JPAAssociationPath> getAssociationPathList() throws ODataJPAModelException;
 
+  /**
+   * Returns declared attribute. Attributes that shall be ignored are ignored.
+   * @param internalName
+   * @return
+   * @throws ODataJPAModelException
+   */
   public Optional<JPAAttribute> getAttribute(@Nonnull final String internalName) throws ODataJPAModelException;
+
+  /**
+   * Returns declared attribute. If ignored attributes shall be respected respectIgnore needs to be true.
+   * @param internalName
+   * @param respectIgnore
+   * @return
+   * @throws ODataJPAModelException
+   */
+  public Optional<JPAAttribute> getAttribute(@Nonnull final String internalName, final boolean respectIgnore)
+      throws ODataJPAModelException;
 
   public Optional<JPAAttribute> getAttribute(@Nonnull final UriResourceProperty uriResourceItem)
       throws ODataJPAModelException;

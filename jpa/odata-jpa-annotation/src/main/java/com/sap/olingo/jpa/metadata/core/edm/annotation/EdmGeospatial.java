@@ -9,7 +9,7 @@ import org.apache.olingo.commons.api.edm.geo.Geospatial.Dimension;
 import org.apache.olingo.commons.api.edm.geo.SRID;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
+@Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE, ElementType.FIELD })
 public @interface EdmGeospatial {
   /**
    * Olingo Geospatial dimension. Possible Values are GEOMETRY and GEOGRAPHY.
@@ -18,7 +18,8 @@ public @interface EdmGeospatial {
   Dimension dimension() default Dimension.GEOGRAPHY;
 
   /**
-   * Non negative integer value of the SRID. Value range is described in {@link SRID} are taken.<br>
+   * Non negative integer value of the Spatial Reference System Identifier (SRID). Value range is described in
+   * {@link SRID} are taken.<br>
    * If no value is set than the EdmGeospatial is ignored within function parameter.
    * @return
    */
