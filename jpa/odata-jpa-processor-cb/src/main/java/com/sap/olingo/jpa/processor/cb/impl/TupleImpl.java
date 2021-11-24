@@ -91,9 +91,9 @@ class TupleImpl implements Tuple {
         return null;
       if (attribute.isEnum() && attribute.getConverter() == null && values[index] != null)
         return attribute.getType().getEnumConstants()[(int) values[index]];
-      final Object value = convert(values[index], attribute.getType());
-      if (attribute.getConverter() != null)
-        return attribute.getConverter().convertToEntityAttribute(value);
+      final Object value = convert(values[index], attribute.getDbType());
+      if (attribute.getRawConverter() != null)
+        return attribute.getRawConverter().convertToEntityAttribute(value);
       return value;
     } else {
       throw new IllegalArgumentException("Unknown alias: " + alias);

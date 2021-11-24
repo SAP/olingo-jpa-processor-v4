@@ -120,7 +120,7 @@ class IntermediateSingletonTest extends TestMappingRoot {
         PUNIT_NAME), getEntityType(CurrentUser.class), schema);
     final IntermediateSingleton singleton = new IntermediateSingleton(nameBuilder, et);
     final CsdlSingleton item = singleton.getEdmItem();
-    assertEquals(PUNIT_NAME + ".BusinessPartner", item.getType());
+    assertEquals(PUNIT_NAME + ".Person", item.getType());
   }
 
   private class PostProcessor extends JPAEdmMetadataPostProcessor {

@@ -462,20 +462,6 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetAttributeByInternalNameIgnoreFalse() throws ODataJPAModelException {
-    final IntermediateStructuredType<BusinessPartnerProtected> et = new IntermediateEntityType<>(
-        new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(BusinessPartnerProtected.class), schema);
-    assertTrue(et.getAttribute("eTag", false).isPresent());
-  }
-
-  @Test
-  void checkGetAttributeByInternalNameIgnoreTrue() throws ODataJPAModelException {
-    final IntermediateStructuredType<BusinessPartnerProtected> et = new IntermediateEntityType<>(
-        new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(BusinessPartnerProtected.class), schema);
-    assertFalse(et.getAttribute("eTag", true).isPresent());
-  }
-
-  @Test
   void checkAllPathContainsComplexCollection() throws ODataJPAModelException {
     final IntermediateStructuredType<Collection> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), getEntityType(Collection.class), schema);

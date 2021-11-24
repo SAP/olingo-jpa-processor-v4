@@ -9,6 +9,7 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.criteria.CollectionJoin;
@@ -28,6 +29,9 @@ import javax.persistence.metamodel.MapAttribute;
 import javax.persistence.metamodel.PluralAttribute;
 import javax.persistence.metamodel.SetAttribute;
 import javax.persistence.metamodel.SingularAttribute;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
@@ -56,11 +60,11 @@ import com.sap.olingo.jpa.processor.cb.joiner.StringBuilderCollector;
  */
 @SuppressWarnings("hiding")
 class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
-
+  private static final Log LOGGER = LogFactory.getLog(FromImpl.class);
   private final Set<Join<X, ?>> joins;
   private final Set<Fetch<X, ?>> fetches;
   private final AliasBuilder aliasBuilder;
-  private InheritanceType inType;
+  private InheritanceInfo inInfo;
   private final CriteriaBuilder cb;
 
   FromImpl(final JPAEntityType type, final AliasBuilder ab, final CriteriaBuilder cb) {
@@ -73,7 +77,7 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
     this.fetches = new HashSet<>();
     this.aliasBuilder = ab;
     this.cb = cb;
-    this.inType = determineInheritanceType(type);
+    this.inInfo = new InheritanceInfo(type);
   }
 
   /**
@@ -93,7 +97,7 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
         throw new IllegalArgumentException(type.getName() + " is unknown");
       if (isSubtype(type)) {
         st = target;
-        inType = determineInheritanceType(target);
+        inInfo = new InheritanceInfo(target);
       }
       return (Expression<X>) this;
     } catch (final ODataJPAModelException e) {
@@ -518,13 +522,11 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
   }
 
   Expression<Boolean> createInheritanceWhere() {
-    if (inType == InheritanceType.SINGLE_TABLE) {
-      final DiscriminatorColumn discriminatorColumn = st.getTypeClass().getSuperclass().getDeclaredAnnotation(
-          DiscriminatorColumn.class);
-      if (discriminatorColumn == null)
+    if (inInfo.getInheritanceType() == InheritanceType.SINGLE_TABLE) {
+      final String columnName = inInfo.getDiscriminatorColumn();
+      if (columnName == null || columnName.isEmpty())
         throw new IllegalStateException("DiscriminatorColumn annotation missing at " + st.getTypeClass().getSuperclass()
             .getCanonicalName());
-      final String columnName = discriminatorColumn.name();
       Path<?> columnPath = null;
       try {
         for (final JPAPath a : st.getPathList()) {
@@ -540,6 +542,8 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
         throw new IllegalStateException("DiscriminatorValue annotation missing at " + st.getTypeClass()
             .getCanonicalName());
       return cb.equal(columnPath, value.value());
+    } else if (inInfo.inType != null) {
+      LOGGER.warn("Unsupported inheritance type " + inInfo.getInheritanceType() + " not supported");
     }
     return null;
   }
@@ -568,13 +572,8 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
     }
   }
 
-  private InheritanceType determineInheritanceType(final JPAEntityType et) {
-    if (et != null && et.getTypeClass().getSuperclass() != null) {
-      final Inheritance inheritance = et.getTypeClass().getSuperclass().getDeclaredAnnotation(Inheritance.class);
-      if (inheritance != null)
-        return inheritance.strategy();
-    }
-    return null;
+  InheritanceType getInheritanceType() {
+    return inInfo.getInheritanceType();
   }
 
   private JPAPath determinePath(final JPAAttribute joinAttribute) throws ODataJPAModelException {
@@ -603,5 +602,75 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
   @Override
   public boolean equals(final Object obj) {
     return super.equals(obj);
+  }
+
+  static class InheritanceInfo {
+    private final InheritanceType inType;
+    private final Class<?> baseClass;
+    private final String discriminatorColumn;
+
+    InheritanceInfo(final JPAEntityType type) {
+      baseClass = determineBaseClass(type);
+      inType = determineInType(baseClass);
+      discriminatorColumn = determineColumn(baseClass);
+    }
+
+    Class<?> getBaseClass() {
+      return baseClass;
+    }
+
+    String getDiscriminatorColumn() {
+      return discriminatorColumn;
+    }
+
+    private String determineColumn(final Class<?> clazz) {
+      if (clazz != null) {
+        final DiscriminatorColumn column = clazz.getDeclaredAnnotation(DiscriminatorColumn.class);
+        return column.name();
+      }
+      return null;
+    }
+
+    private InheritanceType determineInType(final Class<?> baseClass) {
+      if (baseClass != null) {
+        final Inheritance inheritance = baseClass.getDeclaredAnnotation(Inheritance.class);
+        return inheritance.strategy();
+      }
+      return null;
+    }
+
+    public InheritanceType getInheritanceType() {
+      return inType;
+    }
+
+    boolean hasInheritance() {
+      return inType != null;
+    }
+
+    private Class<?> determineBaseClass(final JPAEntityType et) {
+      if (et != null && et.getTypeClass().getSuperclass() != null) {
+        final Class<?> superClass = et.getTypeClass().getSuperclass();
+        return determineInheritanceByClass(et, superClass);
+      }
+      return null;
+    }
+
+    private Class<?> determineInheritanceByClass(final JPAEntityType et, final Class<?> clazz) {
+      final Entity jpaEntity = clazz.getDeclaredAnnotation(Entity.class);
+      if (jpaEntity != null) {
+        final Inheritance inheritance = clazz.getDeclaredAnnotation(Inheritance.class);
+        if (inheritance != null) {
+          return clazz;
+        } else {
+          final Class<?> superClass = clazz.getSuperclass();
+          if (superClass != null) {
+            return determineInheritanceByClass(et, superClass);
+          } else {
+            LOGGER.debug("Cloud not find InheritanceType for " + et.getInternalName());
+          }
+        }
+      }
+      return null;
+    }
   }
 }

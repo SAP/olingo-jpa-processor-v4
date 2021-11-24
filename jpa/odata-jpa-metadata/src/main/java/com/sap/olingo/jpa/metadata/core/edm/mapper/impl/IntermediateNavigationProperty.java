@@ -149,6 +149,11 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
   }
 
   @Override
+  public Class<?> getDbType() {
+    return null;
+  }
+
+  @Override
   public boolean hasProtection() {
     return false;
   }

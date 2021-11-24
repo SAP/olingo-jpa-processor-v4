@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import javax.persistence.InheritanceType;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Join;
@@ -37,6 +38,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
 import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
+import com.sap.olingo.jpa.processor.core.testmodel.CurrentUser;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 
@@ -221,12 +223,24 @@ class FromImplTest extends BuilderBaseTest {
   }
 
   @Test
+  void testGetInheritanceType() {
+    assertEquals(InheritanceType.SINGLE_TABLE, ((FromImpl<Organization, Organization>) cut).getInheritanceType());
+  }
+
+  @Test
+  void testGetInheritanceTypeMultiLevel() throws ODataJPAModelException {
+    final JPAEntityType type = sd.getEntity(CurrentUser.class);
+    final FromImpl<CurrentUser, CurrentUser> from = new FromImpl<>(type, ab, cb);
+    assertEquals(InheritanceType.SINGLE_TABLE, from.getInheritanceType());
+  }
+
+  @Test
   void testAsUnknownTypeThrowsException() {
     assertThrows(IllegalArgumentException.class, () -> cut.as(Integer.class));
   }
 
   @Test
-  void testAsRethrowsModelöException() throws ODataJPAModelException {
+  void testAsRethrowsModelException() throws ODataJPAModelException {
     when(sd.getEntity(Person.class)).thenThrow(ODataJPAModelException.class);
     assertThrows(IllegalArgumentException.class, () -> cut.as(Person.class));
   }

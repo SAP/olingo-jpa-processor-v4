@@ -113,22 +113,15 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
   }
 
   @Override
-  public Optional<JPAAttribute> getAttribute(final String internalName, final boolean respectIgnore)
-      throws ODataJPAModelException {
+  public Optional<JPAAttribute> getAttribute(final String internalName) throws ODataJPAModelException {
     if (edmStructuralType == null)
       lazyBuildEdmItem();
     Optional<JPAAttribute> result = Optional.ofNullable(declaredPropertiesList.get(internalName));
     if (!result.isPresent() && getBaseType() != null)
       result = getBaseType().getAttribute(internalName);
-    else if (result.isPresent() &&
-        ((IntermediateModelElement) result.get()).ignore() && respectIgnore)
+    else if (result.isPresent() && ((IntermediateModelElement) result.get()).ignore())
       return Optional.empty();
     return result;
-  }
-
-  @Override
-  public Optional<JPAAttribute> getAttribute(final String internalName) throws ODataJPAModelException {
-    return getAttribute(internalName, true);
   }
 
   @Override
@@ -194,7 +187,7 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
       lazyBuildEdmItem();
     Optional<JPAAttribute> result = Optional.ofNullable(declaredPropertiesList.get(internalName));
     if (!result.isPresent() && getBaseType() != null)
-      result = getBaseType().getAttribute(internalName);
+      result = getBaseType().getDeclaredAttribute(internalName);
     return result;
   }
 

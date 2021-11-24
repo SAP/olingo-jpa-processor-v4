@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.CheckForNull;
 import javax.persistence.AttributeConverter;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
@@ -51,10 +52,19 @@ public interface JPAAttribute extends JPAElement {
   public List<String> getProtectionPath(String claimName) throws ODataJPAModelException;
 
   /**
-   * 
-   * @return
+   * @return The JAVA type that is used to derive an OData (Edm) type. This could be a simple JAVA type like Integer or
+   * String or a complex type in case of embedded attributes of navigation attributes. For simple attributes the type is
+   * usually the type given in the entity definition. In case this is not supported by Olingo and an
+   * {@link AttributeConverter} is provided, the database type is used.
+   *
    */
   public Class<?> getType();
+
+  /**
+   * @return For simple attributes the JAVA type that can be expected to be returned from the database, otherwise null.
+   *
+   */
+  public @CheckForNull Class<?> getDbType();
 
   public boolean isAssociation();
 

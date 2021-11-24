@@ -23,7 +23,7 @@ import java.lang.reflect.Member;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Timestamp;
-import java.time.Instant;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -62,7 +62,6 @@ import com.sap.olingo.jpa.processor.core.errormodel.TeamWithTransientKey;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerProtected;
-import com.sap.olingo.jpa.processor.core.testmodel.CollectionInnerComplex;
 import com.sap.olingo.jpa.processor.core.testmodel.Comment;
 import com.sap.olingo.jpa.processor.core.testmodel.CommunicationData;
 import com.sap.olingo.jpa.processor.core.testmodel.DummyToBeIgnored;
@@ -597,17 +596,21 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
         jpaAttribute, helper.schema);
 
+    assertTrue(property.conversionRequired);
     assertEquals(Timestamp.class, property.getType());
+    assertEquals(Timestamp.class, property.getDbType());
   }
 
   @Test
   void checkGetTypeConvertionNotRequired() throws ODataJPAModelException {
-    final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEmbeddableType(CollectionInnerComplex.class),
-        "figure2");
+    final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(Person.class),
+        "birthDay");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(nameBuilder,
         jpaAttribute, helper.schema);
 
-    assertEquals(Instant.class, property.getType());
+    assertFalse(property.conversionRequired);
+    assertEquals(LocalDate.class, property.getType());
+    assertEquals(Date.class, property.getDbType());
   }
 
   @Test

@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,7 +15,11 @@ import java.time.OffsetTime;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.Temporal;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 class TypeConverter {
+  private static final Log LOGGER = LogFactory.getLog(TypeConverter.class);
 
   private TypeConverter() {}
 
@@ -34,11 +39,39 @@ class TypeConverter {
       }
       if (Temporal.class.isAssignableFrom(target)) {
         return convertTemporal(source, target);
+      }
+      if (boxed(target) == Character.class && source instanceof String) {
+        return convertToCharacter((String) source);
+      }
+      if (target == Duration.class) {
+        return convertDuration(source);
       } else {
+        LOGGER.debug("No converter found to convert " + source.getClass().getSimpleName() + " to " + target
+            .getSimpleName());
         throw new IllegalArgumentException(createCastException(source, target));
       }
     }
     return target.cast(source);
+
+  }
+
+  private static Character convertToCharacter(final String source) {
+    if (source.length() > 1) {
+      LOGGER.debug("Implicit convertion to Character from String only supported if String not longer than 1");
+      throw new IllegalArgumentException("String to long");
+    }
+    if (source.length() == 0)
+      return ' ';
+    return source.charAt(0);
+  }
+
+  private static Object convertDuration(final Object source) {
+    if (boxed(source.getClass()) == Long.class)
+      return Duration.ofSeconds((long) source);
+    if (source.getClass() == String.class)
+      return Duration.parse((String) source);
+    LOGGER.debug("No converter found to convert " + source.getClass().getSimpleName() + " to Duration");
+    throw new IllegalArgumentException(createCastException(source, Duration.class));
   }
 
   private static Temporal convertTemporal(final Object source, final Class<?> target) { // NOSONAR

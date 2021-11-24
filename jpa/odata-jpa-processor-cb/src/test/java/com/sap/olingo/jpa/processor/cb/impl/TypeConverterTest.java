@@ -11,6 +11,7 @@ import java.math.BigInteger;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -151,6 +152,12 @@ class TypeConverterTest {
             OffsetDateTime.class));
   }
 
+  static Stream<Arguments> durationConversion() {
+    return Stream.of(
+        arguments(Duration.ofHours(3L), new Long(10800L), Duration.class),
+        arguments(Duration.ofHours(3L), "PT3H", Duration.class));
+  }
+
   @Test
   void testToString() {
     assertEquals("123456789", convert(new Integer(123456789), String.class));
@@ -199,6 +206,13 @@ class TypeConverterTest {
   @ParameterizedTest
   @MethodSource("temporalConversion")
   void testConvertTemporal(final Object exp, final Object source, final Class<?> targetType) {
+
+    assertEquals(exp, convert(source, targetType));
+  }
+
+  @ParameterizedTest
+  @MethodSource("durationConversion")
+  void testConvertDuration(final Object exp, final Object source, final Class<?> targetType) {
 
     assertEquals(exp, convert(source, targetType));
   }

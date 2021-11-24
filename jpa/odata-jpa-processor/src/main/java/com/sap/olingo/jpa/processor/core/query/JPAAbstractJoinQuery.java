@@ -503,7 +503,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
     }
 
     for (final String internalName : transientAttributePath.getLeaf().getRequiredProperties()) {
-      final String externalName = st.getAttribute(internalName, false)
+      final String externalName = st.getDeclaredAttribute(internalName)
           .orElseThrow(() -> new ODataJPAProcessorException(ATTRIBUTE_NOT_FOUND,
               HttpStatusCode.INTERNAL_SERVER_ERROR, internalName))
           .getExternalName();

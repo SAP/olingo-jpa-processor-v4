@@ -12,4 +12,4 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTopLevelElementReprese
 @DiscriminatorValue(value = "1")
 @EdmEntityType(as = EdmTopLevelElementRepresentation.AS_SINGLETON_ONLY,
     extensionProvider = CurrentUserQueryExtension.class)
-public class CurrentUser extends BusinessPartner {}
+public class CurrentUser extends Person {}

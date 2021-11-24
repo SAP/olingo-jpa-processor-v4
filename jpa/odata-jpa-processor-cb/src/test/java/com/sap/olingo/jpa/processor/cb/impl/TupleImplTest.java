@@ -76,6 +76,12 @@ class TupleImplTest {
         return new DateTimeConverter();
       }
     });
+    when(attribute.getRawConverter()).thenAnswer(new Answer<AttributeConverter<LocalDateTime, Timestamp>>() {
+      @Override
+      public AttributeConverter<LocalDateTime, Timestamp> answer(final InvocationOnMock invocation) throws Throwable {
+        return new DateTimeConverter();
+      }
+    });
     return attribute;
   }
 

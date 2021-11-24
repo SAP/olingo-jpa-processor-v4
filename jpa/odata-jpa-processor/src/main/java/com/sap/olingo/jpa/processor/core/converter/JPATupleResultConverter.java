@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.processor.core.converter;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -255,6 +256,8 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
       odataValue = ((Enum<?>) value).ordinal();
     } else if (attribute != null && value != null && attribute.isCollection()) {
       return;
+    } else if (attribute != null && value != null && attribute.getType() == Duration.class) {
+      odataValue = ((Duration) value).getSeconds();
     } else {
       odataValue = value;
     }

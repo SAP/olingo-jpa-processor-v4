@@ -55,12 +55,6 @@ public class JPAEntityTypeDouble implements JPAEntityType {
   }
 
   @Override
-  public Optional<JPAAttribute> getAttribute(final String internalName, final boolean respectIgnore)
-      throws ODataJPAModelException {
-    return base.getAttribute(internalName, respectIgnore);
-  }
-
-  @Override
   public List<JPAAttribute> getAttributes() throws ODataJPAModelException {
     return base.getAttributes();
   }
@@ -79,14 +73,12 @@ public class JPAEntityTypeDouble implements JPAEntityType {
 
   @Override
   public List<JPAAttribute> getDeclaredAttributes() throws ODataJPAModelException {
-    fail();
-    return Collections.emptyList();
+    return base.getDeclaredAttributes();
   }
 
   @Override
   public Optional<JPAAttribute> getDeclaredAttribute(final String internalName) throws ODataJPAModelException {
-    fail();
-    return Optional.empty();
+    return base.getDeclaredAttribute(internalName);
   }
 
   @Override

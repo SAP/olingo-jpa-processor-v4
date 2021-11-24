@@ -80,6 +80,11 @@ class JPAAttributeWrapper implements JPAAttribute {
   }
 
   @Override
+  public Class<?> getDbType() {
+    return selection.getJavaType();
+  }
+
+  @Override
   public boolean isAssociation() {
     return false;
   }

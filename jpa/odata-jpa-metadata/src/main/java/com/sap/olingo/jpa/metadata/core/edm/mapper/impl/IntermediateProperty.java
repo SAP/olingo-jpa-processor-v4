@@ -167,6 +167,11 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
   }
 
   @Override
+  public Class<?> getDbType() {
+    return dbType.isPrimitive() ? boxPrimitive(dbType) : dbType;
+  }
+
+  @Override
   public boolean hasProtection() {
     return !externalProtectedPathNames.isEmpty();
   }
