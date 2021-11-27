@@ -160,7 +160,7 @@ class JPAHookFactoryTest {
     assertFalse(cut.getQueryExtensionProvider(et).isPresent());
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   @Test
   void testGetQueryExtensionReturnsInstanceNoParameter() throws ODataJPAModelException, ODataJPAProcessorException,
       NoSuchMethodException, SecurityException {
@@ -179,7 +179,7 @@ class JPAHookFactoryTest {
     assertTrue(cut.getQueryExtensionProvider(et).isPresent());
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   @Test
   void testGetQueryExtensionReturnsInstanceEntityManagerParameter() throws ODataJPAModelException,
       ODataJPAProcessorException, NoSuchMethodException, SecurityException {
@@ -198,7 +198,7 @@ class JPAHookFactoryTest {
     assertTrue(cut.getQueryExtensionProvider(et).isPresent());
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   @Test
   void testGetQueryExtensionReturnsInstanceAllParameter() throws ODataJPAModelException,
       ODataJPAProcessorException, NoSuchMethodException, SecurityException {

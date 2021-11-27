@@ -9,6 +9,9 @@ import java.util.Optional;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.sap.olingo.jpa.metadata.api.JPAJoinColumn;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAJoinTable;
@@ -16,6 +19,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 class IntermediateJoinTable implements JPAJoinTable {
+  private static final Log LOGGER = LogFactory.getLog(IntermediateJoinTable.class);
+
   private final IntermediateNavigationProperty intermediateProperty;
   private final JoinTable jpaJoinTable;
   private final IntermediateStructuredType<?> sourceType;
@@ -31,6 +36,8 @@ class IntermediateJoinTable implements JPAJoinTable {
     this.sourceType = intermediateProperty.getSourceType();
     this.jpaEntityType = Optional.ofNullable(schema.getEntityType(jpaJoinTable.catalog(), jpaJoinTable.schema(),
         jpaJoinTable.name()));
+    LOGGER.trace("Determined entity type of join table: "
+        + jpaEntityType.map(JPAEntityType::getInternalName).orElse("null"));
   }
 
   private IntermediateJoinTable(final IntermediateJoinTable intermediateJoinTable,
@@ -95,7 +102,6 @@ class IntermediateJoinTable implements JPAJoinTable {
               .orElseThrow(() -> new ODataJPAModelException(NO_JOIN_TABLE_TYPE)))
                   .getPathByDBField(column.getReferencedColumnName()),
           targetType.getPathByDBField(column.getName())));
-
     }
     return result;
   }

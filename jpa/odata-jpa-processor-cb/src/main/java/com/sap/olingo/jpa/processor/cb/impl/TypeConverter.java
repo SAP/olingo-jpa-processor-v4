@@ -65,7 +65,7 @@ class TypeConverter {
     return source.charAt(0);
   }
 
-  private static Object convertDuration(final Object source) {
+  private static Duration convertDuration(final Object source) {
     if (boxed(source.getClass()) == Long.class)
       return Duration.ofSeconds((long) source);
     if (source.getClass() == String.class)

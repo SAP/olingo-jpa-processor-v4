@@ -16,7 +16,7 @@ import javax.persistence.criteria.From;
  * An implementing class may provide <b>one</b> constructor having no parameter or a combination of the following:
  * <ul>
  * <li>All header: com.sap.olingo.jpa.metadata.api.JPAHttpHeaderMap</li></li>
- * <li>Access to own request parameter: com.sap.olingo.jpa.processor.core.api.JPAODataRequestParameterAccess</li>
+ * <li>Access to own request parameter: com.sap.olingo.jpa.metadata.api.JPARequestParameterMap</li>
  * </ul>
  *
  * <b>

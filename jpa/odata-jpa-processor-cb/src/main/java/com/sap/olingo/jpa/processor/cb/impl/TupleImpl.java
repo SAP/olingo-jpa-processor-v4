@@ -89,8 +89,10 @@ class TupleImpl implements Tuple {
       final JPAAttribute attribute = selection.get(index).getValue();
       if (values[index] == null)
         return null;
-      if (attribute.isEnum() && attribute.getConverter() == null && values[index] != null)
-        return attribute.getType().getEnumConstants()[(int) values[index]];
+      if (attribute.isEnum() && attribute.getConverter() == null) {
+        final int value = (Integer) convert(values[index], Integer.class);
+        return attribute.getType().getEnumConstants()[value];
+      }
       final Object value = convert(values[index], attribute.getDbType());
       if (attribute.getRawConverter() != null)
         return attribute.getRawConverter().convertToEntityAttribute(value);

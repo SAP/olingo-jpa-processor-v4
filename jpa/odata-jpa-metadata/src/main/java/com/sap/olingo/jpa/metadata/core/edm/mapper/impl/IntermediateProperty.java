@@ -36,6 +36,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlMapping;
 import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 
+import com.sap.olingo.jpa.metadata.api.JPAHttpHeaderMap;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmGeospatial;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtectedBy;
@@ -46,6 +47,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransientPropertyCalcu
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmVisibleFor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -485,7 +487,8 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
     if (c.getParameters() != null) {
       for (final Parameter p : c.getParameters()) {
         if (!(p.getType().isAssignableFrom(EntityManager.class)
-            || p.getType().isAssignableFrom(Map.class)))
+            || p.getType().isAssignableFrom(JPAParameter.class)
+            || p.getType().isAssignableFrom(JPAHttpHeaderMap.class)))
           throw new ODataJPAModelException(MessageKeys.TRANSIENT_CALCULATOR_WRONG_PARAMETER,
               calculator.getName(), jpaAttribute.getName(),
               jpaAttribute.getJavaMember().getDeclaringClass().getName());

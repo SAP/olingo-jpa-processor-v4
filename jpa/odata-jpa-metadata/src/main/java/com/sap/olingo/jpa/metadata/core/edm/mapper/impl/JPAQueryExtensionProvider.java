@@ -5,10 +5,11 @@ import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAMode
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
-import java.util.Map;
 
 import javax.annotation.Nonnull;
 
+import com.sap.olingo.jpa.metadata.api.JPAHttpHeaderMap;
+import com.sap.olingo.jpa.metadata.api.JPARequestParameterMap;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmQueryExtensionProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAQueryExtension;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -26,7 +27,8 @@ class JPAQueryExtensionProvider<X extends EdmQueryExtensionProvider> implements 
       throw new ODataJPAModelException(EXTENSION_PROVIDER_TOO_MANY_CONSTRUCTORS, provider.getCanonicalName());
     final Constructor<?> c = provider.getConstructors()[0];
     for (final Parameter p : c.getParameters()) {
-      if (p.getType() != Map.class)
+      if (p.getType() != JPAHttpHeaderMap.class
+          && p.getType() != JPARequestParameterMap.class)
         throw new ODataJPAModelException(EXTENSION_PROVIDER_WRONG_PARAMETER, provider.getCanonicalName());
     }
     this.constructor = (Constructor<X>) provider.getConstructors()[0];

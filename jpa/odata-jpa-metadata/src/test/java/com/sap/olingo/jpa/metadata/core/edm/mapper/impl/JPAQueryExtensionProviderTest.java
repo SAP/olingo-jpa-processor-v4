@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
+import static java.util.Objects.requireNonNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -12,6 +13,8 @@ import javax.persistence.criteria.From;
 
 import org.junit.jupiter.api.Test;
 
+import com.sap.olingo.jpa.metadata.api.JPAHttpHeaderMap;
+import com.sap.olingo.jpa.metadata.api.JPARequestParameterMap;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmQueryExtensionProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.testmodel.EmptyQueryExtensionProvider;
@@ -20,24 +23,25 @@ class JPAQueryExtensionProviderTest {
 
   @Test
   void checkReturnsDefaultConstructor() throws ODataJPAModelException {
-    assertNotNull(new JPAQueryExtensionProvider(EmptyQueryExtensionProvider.class).getConstructor());
+    assertNotNull(new JPAQueryExtensionProvider<>(EmptyQueryExtensionProvider.class)
+        .getConstructor());
   }
 
   @Test
   void checkThrowsExceptionTwoConstructors() {
-    assertThrows(ODataJPAModelException.class, () -> new JPAQueryExtensionProvider(
+    assertThrows(ODataJPAModelException.class, () -> new JPAQueryExtensionProvider<>(
         ExtensionProviderWithTwoConstructors.class).getConstructor());
   }
 
   @Test
   void checkThrowsExceptionWrongParametr() {
-    assertThrows(ODataJPAModelException.class, () -> new JPAQueryExtensionProvider(
+    assertThrows(ODataJPAModelException.class, () -> new JPAQueryExtensionProvider<>(
         ExtensionProviderWithWrongParameter.class).getConstructor());
   }
 
   @Test
   void checkReturnsConstructorWithHeaderAsParameter() throws ODataJPAModelException {
-    assertNotNull(new JPAQueryExtensionProvider(ExtensionProviderWithAllowedParameter.class).getConstructor());
+    assertNotNull(new JPAQueryExtensionProvider<>(ExtensionProviderWithAllowedParameter.class).getConstructor());
   }
 
   private static class ExtensionProviderWithTwoConstructors implements EdmQueryExtensionProvider {
@@ -63,6 +67,8 @@ class JPAQueryExtensionProviderTest {
   private static class ExtensionProviderWithAllowedParameter implements EdmQueryExtensionProvider {
     @SuppressWarnings("unused")
     private final Map<String, List<String>> header;
+    @SuppressWarnings("unused")
+    private final JPARequestParameterMap parameter;
 
     @Override
     public Expression<Boolean> getFilterExtension(final CriteriaBuilder cb, final From<?, ?> from) {
@@ -70,8 +76,10 @@ class JPAQueryExtensionProviderTest {
     }
 
     @SuppressWarnings("unused")
-    public ExtensionProviderWithAllowedParameter(final Map<String, List<String>> header) {
-      this.header = header;
+    public ExtensionProviderWithAllowedParameter(final JPAHttpHeaderMap header,
+        final JPARequestParameterMap parameter) {
+      this.header = requireNonNull(header);
+      this.parameter = requireNonNull(parameter);
     }
   }
 
