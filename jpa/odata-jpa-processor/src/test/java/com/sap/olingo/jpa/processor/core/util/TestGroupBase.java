@@ -20,7 +20,6 @@ import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.junit.jupiter.api.BeforeEach;
-import org.mockito.Mockito;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -69,31 +68,23 @@ public class TestGroupBase extends TestBase {
   }
 
   protected UriInfo buildUriInfo(final String esName, final String etName) {
-    final UriInfo ui = Mockito.mock(UriInfo.class);
-    final EdmEntitySet odataEs = Mockito.mock(EdmEntitySet.class);
-    final EdmEntityType odataType = Mockito.mock(EdmEntityType.class);
+    final UriInfo ui = mock(UriInfo.class);
+    final EdmEntitySet odataEs = mock(EdmEntitySet.class);
+    final EdmEntityType odataType = mock(EdmEntityType.class);
     final List<UriResource> resources = new ArrayList<>();
-    final UriResourceEntitySet esResource = Mockito.mock(UriResourceEntitySet.class);
-    Mockito.when(ui.getUriResourceParts()).thenReturn(resources);
-    Mockito.when(esResource.getKeyPredicates()).thenReturn(new ArrayList<>(0));
-    Mockito.when(esResource.getEntitySet()).thenReturn(odataEs);
-    Mockito.when(esResource.getKind()).thenReturn(UriResourceKind.entitySet);
-    Mockito.when(esResource.getType()).thenReturn(odataType);
-    Mockito.when(odataEs.getName()).thenReturn(esName);
-    Mockito.when(odataEs.getEntityType()).thenReturn(odataType);
-    Mockito.when(odataType.getNamespace()).thenReturn(PUNIT_NAME);
-    Mockito.when(odataType.getName()).thenReturn(etName);
+    final UriResourceEntitySet esResource = mock(UriResourceEntitySet.class);
+    when(ui.getUriResourceParts()).thenReturn(resources);
+    when(esResource.getKeyPredicates()).thenReturn(new ArrayList<>(0));
+    when(esResource.getEntitySet()).thenReturn(odataEs);
+    when(esResource.getKind()).thenReturn(UriResourceKind.entitySet);
+    when(esResource.getType()).thenReturn(odataType);
+    when(odataEs.getName()).thenReturn(esName);
+    when(odataEs.getEntityType()).thenReturn(odataType);
+    when(odataType.getNamespace()).thenReturn(PUNIT_NAME);
+    when(odataType.getName()).thenReturn(etName);
     resources.add(esResource);
     return ui;
   }
-
-//  protected EdmType buildRequestContext(final String esName, final String etName) throws JPAIllicalAccessException {
-//    final EdmType odataType = buildUriInfo(esName, etName);
-//    requestContext = new JPAODataRequestContextImpl();
-//    requestContext.setEntityManager(emf.createEntityManager());
-//    requestContext.setUriInfo(uriInfo);
-//    return odataType;
-//  }
 
   protected void fillJoinTable(final Root<?> joinRoot) {
     Join<?, ?> join = joinRoot.join("locationName", JoinType.LEFT);

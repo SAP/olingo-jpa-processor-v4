@@ -116,7 +116,7 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
   }
 
   @Override
-  public Optional<EdmQueryExtensionProvider> getQueryEnhancment(final JPAEntityType et)
+  public Optional<EdmQueryExtensionProvider> getQueryEnhancement(final JPAEntityType et)
       throws ODataJPAProcessorException {
     return hookFactory.getQueryExtensionProvider(et);
   }

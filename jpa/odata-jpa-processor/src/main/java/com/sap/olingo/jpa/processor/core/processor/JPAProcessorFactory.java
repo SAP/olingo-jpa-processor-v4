@@ -138,11 +138,11 @@ public final class JPAProcessorFactory {
     JPAODataPage page = new JPAODataPage(uriInfo, 0, Integer.MAX_VALUE, null);
     // Server-Driven-Paging
     if (serverDrivenPaging(uriInfo)) {
-      final String skiptoken = skipToken(uriInfo);
-      if (skiptoken != null && !skiptoken.isEmpty()) {
-        page = sessionContext.getPagingProvider().getNextPage(skiptoken);
+      final String skipToken = skipToken(uriInfo);
+      if (skipToken != null && !skipToken.isEmpty()) {
+        page = sessionContext.getPagingProvider().getNextPage(skipToken);
         if (page == null)
-          throw new ODataJPAProcessorException(QUERY_SERVER_DRIVEN_PAGING_GONE, HttpStatusCode.GONE, skiptoken);
+          throw new ODataJPAProcessorException(QUERY_SERVER_DRIVEN_PAGING_GONE, HttpStatusCode.GONE, skipToken);
       } else {
         final JPACountQuery countQuery = new JPAJoinQuery(odata, sessionContext,
             new JPAODataInternalRequestContext(uriInfo, requestContext, headers));

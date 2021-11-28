@@ -1,7 +1,7 @@
 package com.sap.olingo.jpa.processor.cb.impl;
 
-import static com.sap.olingo.jpa.processor.cb.impl.ExpressionImpl.SELECTION_REPLACMENT;
-import static com.sap.olingo.jpa.processor.cb.impl.ExpressionImpl.SELECTION_REPLACMENT_REGEX;
+import static com.sap.olingo.jpa.processor.cb.impl.ExpressionImpl.SELECTION_REPLACEMENT;
+import static com.sap.olingo.jpa.processor.cb.impl.ExpressionImpl.SELECTION_REPLACEMENT_REGEX;
 
 import java.util.Collections;
 import java.util.List;
@@ -62,7 +62,7 @@ final class SelectionImpl<X> implements SqlSelection<X> {
     return ((SqlConvertible) selection)
         .asSQL(statement)
         .append(" ")
-        .append(getAlias().replaceAll(SELECTION_REPLACMENT_REGEX, SELECTION_REPLACMENT));
+        .append(getAlias().replaceAll(SELECTION_REPLACEMENT_REGEX, SELECTION_REPLACEMENT));
   }
 
   /**

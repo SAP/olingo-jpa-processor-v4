@@ -103,7 +103,7 @@ class TestJPAServerDrivenPaging extends TestBase {
 
     final JPAODataPagingProvider provider = mock(JPAODataPagingProvider.class);
     when(provider.getFirstPage(any(), any(), any(), any())).thenAnswer(i -> new JPAODataPage((UriInfo) i
-        .getArguments()[0], 0, 5, new Integer(123456789)));
+        .getArguments()[0], 0, 5, Integer.valueOf(123456789)));
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$orderby=ID desc", provider);
     helper.assertStatus(200);

@@ -75,7 +75,7 @@ abstract class IntermediateTopLevelEntity extends IntermediateModelElement imple
   }
 
   @Override
-  public Optional<JPAQueryExtension<EdmQueryExtensionProvider>> getQueryExtention()
+  public Optional<JPAQueryExtension<EdmQueryExtensionProvider>> getQueryExtension()
       throws ODataJPAModelException {
     return getEntityType().getQueryExtention();
   }

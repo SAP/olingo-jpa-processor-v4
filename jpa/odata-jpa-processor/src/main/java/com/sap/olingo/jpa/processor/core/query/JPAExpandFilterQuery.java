@@ -124,7 +124,7 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
         .getOrderByOption());
     createRoots(childQuery, queries, nextQuery);
     buildJoinTable(orderByAttributes, emptyList(), childQuery);
-    final List<JPAPath> selections = selectonPathIn();
+    final List<JPAPath> selections = selectionPathIn();
     nextQuery.where(createWhere(childQuery));
     nextQuery.multiselect(selectIn(childQuery, selections));
     nextQuery.orderBy(createOrderBy(childQuery));
@@ -296,7 +296,7 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
         .collect(toList());
   }
 
-  private List<JPAPath> selectonPathIn() throws ODataJPAQueryException {
+  private List<JPAPath> selectionPathIn() throws ODataJPAQueryException {
     try {
       final List<JPAOnConditionItem> columns = association.hasJoinTable()
           ? association.getJoinTable().getJoinColumns()

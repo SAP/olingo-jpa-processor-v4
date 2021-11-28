@@ -354,7 +354,7 @@ class TestAnnotationSchema {
   }
 
   @Test
-  void testGetActionss() throws IOException, ODataJPAModelException {
+  void testGetActions() throws IOException, ODataJPAModelException {
     final List<CsdlAction> act = cutTest.getSchemas()
         .get("Org.OData.Capabilities.V1").getActions();
     assertEquals(2, act.size());

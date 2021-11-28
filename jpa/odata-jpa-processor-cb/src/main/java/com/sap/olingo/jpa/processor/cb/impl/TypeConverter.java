@@ -57,7 +57,7 @@ class TypeConverter {
 
   private static Character convertToCharacter(final String source) {
     if (source.length() > 1) {
-      LOGGER.debug("Implicit convertion to Character from String only supported if String not longer than 1");
+      LOGGER.debug("Implicit conversion to Character from String only supported if String not longer than 1");
       throw new IllegalArgumentException("String to long");
     }
     if (source.length() == 0)

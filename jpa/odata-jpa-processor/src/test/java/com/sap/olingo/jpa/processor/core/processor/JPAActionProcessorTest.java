@@ -261,11 +261,11 @@ class JPAActionProcessorTest {
 
     final Method m = setConstructorAndMethod("unboundVoidOneParameter", Short.class);
 
-    addParameter(m, new Short("10"), "A", 0);
+    addParameter(m, Short.valueOf("10"), "A", 0);
 
     cut.performAction(request, response, requestFormat);
     verify(response, times(1)).setStatusCode(204);
-    assertEquals(new Short((short) 10), TestJavaActionNoParameter.param1);
+    assertEquals(Short.valueOf((short) 10), TestJavaActionNoParameter.param1);
   }
 
   @Test
@@ -291,12 +291,12 @@ class JPAActionProcessorTest {
 
     final Method m = setConstructorAndMethod("unboundVoidTwoParameter", Short.class, Integer.class);
 
-    addParameter(m, new Short("10"), "A", 0);
-    addParameter(m, new Integer("200000"), "B", 1);
+    addParameter(m, Short.valueOf("10"), "A", 0);
+    addParameter(m, Integer.valueOf("200000"), "B", 1);
 
     cut.performAction(request, response, requestFormat);
     verify(response, times(1)).setStatusCode(204);
-    assertEquals(new Short((short) 10), TestJavaActionNoParameter.param1);
+    assertEquals(Short.valueOf((short) 10), TestJavaActionNoParameter.param1);
   }
 
   @Test
@@ -385,7 +385,7 @@ class JPAActionProcessorTest {
     assertNotNull(TestJavaActionNoParameter.bindingParam);
     assertEquals("LAU2", TestJavaActionNoParameter.bindingParam.getCodeID());
     assertNull(TestJavaActionNoParameter.param1);
-    assertEquals(new Integer(20), TestJavaActionNoParameter.param2);
+    assertEquals(Integer.valueOf(20), TestJavaActionNoParameter.param2);
   }
 
   private void setBindingParameter(final Method m) throws ODataJPAModelException, EdmPrimitiveTypeException {

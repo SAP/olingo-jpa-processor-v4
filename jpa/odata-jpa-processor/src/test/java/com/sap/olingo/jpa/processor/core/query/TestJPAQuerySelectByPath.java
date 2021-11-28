@@ -292,8 +292,8 @@ class TestJPAQuerySelectByPath extends TestBase {
         "BusinessPartners('98')/com.sap.olingo.jpa.Person");
 
     helper.assertStatus(200);
-    final ObjectNode pers = helper.getValue();
-    assertEquals("98", pers.get("ID").asText());
+    final ObjectNode person = helper.getValue();
+    assertEquals("98", person.get("ID").asText());
   }
 
   @Test

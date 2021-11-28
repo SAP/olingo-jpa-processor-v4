@@ -143,7 +143,7 @@ class TestJPATupleChildConverter extends TestBase {
     HashMap<String, Object> result;
     result = new HashMap<>();
     result.put("ID", new String("1"));
-    result.put("ETag", new Integer(2));
+    result.put("ETag", Integer.valueOf(2));
     jpaQueryResult.add(new TupleDouble(result));
 
     final EntityCollection act = cut.getResult(new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType(

@@ -9,6 +9,7 @@ import java.util.Optional;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
 
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmQueryExtensionProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
@@ -211,7 +212,8 @@ public class JPAEntityTypeDouble implements JPAEntityType {
   }
 
   @Override
-  public Optional<JPAQueryExtension> getQueryExtention() {
+  public <X extends EdmQueryExtensionProvider> Optional<JPAQueryExtension<X>> getQueryExtention()
+      throws ODataJPAModelException {
     return Optional.empty();
   }
 }

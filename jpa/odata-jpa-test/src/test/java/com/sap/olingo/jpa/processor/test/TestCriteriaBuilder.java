@@ -65,7 +65,7 @@ class TestCriteriaBuilder {
 
   @SuppressWarnings("unchecked")
   @Test
-  void testSubstringWithExperession() {
+  void testSubstringWithExpression() {
     final CriteriaQuery<Tuple> adminQ = cb.createTupleQuery();
     final Root<AdministrativeDivisionDescription> adminRoot1 = adminQ.from(AdministrativeDivisionDescription.class);
 //    (Expression<T>) cb.sum(jpaOperator.getLeft(), jpaOperator.getRightAsNumber());
@@ -277,7 +277,7 @@ class TestCriteriaBuilder {
     // Execute query
     final TypedQuery<Tuple> tq = em.createQuery(cq);
     final List<Tuple> act = tq.getResultList();
-    // Ensure EclipsLink problem still exists: ("WHERE ((NULL, NULL, NULL, NULL) IN "));
+    // Ensure EclipseLink problem still exists: ("WHERE ((NULL, NULL, NULL, NULL) IN "));
     assertEquals(0, act.size());
   }
 

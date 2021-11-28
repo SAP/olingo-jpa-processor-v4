@@ -170,9 +170,9 @@ public final class JPANavigationPropertyInfo {
   public String toString() {
     try {
       final String typeName = getEntityType().getExternalName();
-      final String assoziationName = associationPath != null ? associationPath.getAlias() : "";
+      final String associationName = associationPath != null ? associationPath.getAlias() : "";
       return "JPANavigationPropertyInfo [et=" + typeName
-          + ", associationPath=" + assoziationName + "]";
+          + ", associationPath=" + associationName + "]";
     } catch (final ODataJPAModelException e) {
       return super.toString();
     }

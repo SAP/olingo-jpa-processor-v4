@@ -31,7 +31,6 @@ import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.UriResourcePrimitiveProperty;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.api.JPARequestParameterMap;
@@ -57,20 +56,20 @@ class TestJPAQueryFromClause extends TestBase {
 
   @BeforeEach
   void setup() throws ODataException, ODataJPAIllegalAccessException {
-    final UriInfo uriInfo = Mockito.mock(UriInfo.class);
-    final EdmEntitySet odataEs = Mockito.mock(EdmEntitySet.class);
-    final EdmEntityType odataType = Mockito.mock(EdmEntityType.class);
+    final UriInfo uriInfo = mock(UriInfo.class);
+    final EdmEntitySet odataEs = mock(EdmEntitySet.class);
+    final EdmEntityType odataType = mock(EdmEntityType.class);
     final List<UriResource> resources = new ArrayList<>();
-    final UriResourceEntitySet esResource = Mockito.mock(UriResourceEntitySet.class);
-    Mockito.when(uriInfo.getUriResourceParts()).thenReturn(resources);
-    Mockito.when(esResource.getKeyPredicates()).thenReturn(new ArrayList<>(0));
-    Mockito.when(esResource.getEntitySet()).thenReturn(odataEs);
-    Mockito.when(esResource.getKind()).thenReturn(UriResourceKind.entitySet);
-    Mockito.when(esResource.getType()).thenReturn(odataType);
-    Mockito.when(odataEs.getName()).thenReturn("Organizations");
-    Mockito.when(odataEs.getEntityType()).thenReturn(odataType);
-    Mockito.when(odataType.getNamespace()).thenReturn(PUNIT_NAME);
-    Mockito.when(odataType.getName()).thenReturn("Organization");
+    final UriResourceEntitySet esResource = mock(UriResourceEntitySet.class);
+    when(uriInfo.getUriResourceParts()).thenReturn(resources);
+    when(esResource.getKeyPredicates()).thenReturn(new ArrayList<>(0));
+    when(esResource.getEntitySet()).thenReturn(odataEs);
+    when(esResource.getKind()).thenReturn(UriResourceKind.entitySet);
+    when(esResource.getType()).thenReturn(odataType);
+    when(odataEs.getName()).thenReturn("Organizations");
+    when(odataEs.getEntityType()).thenReturn(odataType);
+    when(odataType.getNamespace()).thenReturn(PUNIT_NAME);
+    when(odataType.getName()).thenReturn("Organization");
     resources.add(esResource);
 
     helper = new TestHelper(emf, PUNIT_NAME);
@@ -213,25 +212,25 @@ class TestJPAQueryFromClause extends TestBase {
 
   private JPAODataInternalRequestContext buildRequestContextToTestGroups(final JPAODataGroupsProvider groups)
       throws ODataJPAIllegalAccessException {
-    final UriInfo uriInfo = Mockito.mock(UriInfo.class);
-    final EdmEntitySet odataEs = Mockito.mock(EdmEntitySet.class);
-    final EdmEntityType odataType = Mockito.mock(EdmEntityType.class);
+    final UriInfo uriInfo = mock(UriInfo.class);
+    final EdmEntitySet odataEs = mock(EdmEntitySet.class);
+    final EdmEntityType odataType = mock(EdmEntityType.class);
     final List<UriResource> resources = new ArrayList<>();
-    final UriResourceEntitySet esResource = Mockito.mock(UriResourceEntitySet.class);
-    final UriResourcePrimitiveProperty ppResource = Mockito.mock(UriResourcePrimitiveProperty.class);
-    final EdmProperty ppProperty = Mockito.mock(EdmProperty.class);
-    Mockito.when(uriInfo.getUriResourceParts()).thenReturn(resources);
-    Mockito.when(esResource.getKeyPredicates()).thenReturn(new ArrayList<>(0));
-    Mockito.when(esResource.getEntitySet()).thenReturn(odataEs);
-    Mockito.when(esResource.getKind()).thenReturn(UriResourceKind.entitySet);
-    Mockito.when(esResource.getType()).thenReturn(odataType);
-    Mockito.when(odataEs.getName()).thenReturn("BusinessPartnerWithGroupss");
-    Mockito.when(odataEs.getEntityType()).thenReturn(odataType);
-    Mockito.when(odataType.getNamespace()).thenReturn(PUNIT_NAME);
-    Mockito.when(odataType.getName()).thenReturn("BusinessPartnerWithGroups");
-    Mockito.when(ppResource.isCollection()).thenReturn(true);
-    Mockito.when(ppResource.getProperty()).thenReturn(ppProperty);
-    Mockito.when(ppProperty.getName()).thenReturn("Comment");
+    final UriResourceEntitySet esResource = mock(UriResourceEntitySet.class);
+    final UriResourcePrimitiveProperty ppResource = mock(UriResourcePrimitiveProperty.class);
+    final EdmProperty ppProperty = mock(EdmProperty.class);
+    when(uriInfo.getUriResourceParts()).thenReturn(resources);
+    when(esResource.getKeyPredicates()).thenReturn(new ArrayList<>(0));
+    when(esResource.getEntitySet()).thenReturn(odataEs);
+    when(esResource.getKind()).thenReturn(UriResourceKind.entitySet);
+    when(esResource.getType()).thenReturn(odataType);
+    when(odataEs.getName()).thenReturn("BusinessPartnerWithGroupss");
+    when(odataEs.getEntityType()).thenReturn(odataType);
+    when(odataType.getNamespace()).thenReturn(PUNIT_NAME);
+    when(odataType.getName()).thenReturn("BusinessPartnerWithGroups");
+    when(ppResource.isCollection()).thenReturn(true);
+    when(ppResource.getProperty()).thenReturn(ppProperty);
+    when(ppProperty.getName()).thenReturn("Comment");
     resources.add(esResource);
     resources.add(ppResource);
 

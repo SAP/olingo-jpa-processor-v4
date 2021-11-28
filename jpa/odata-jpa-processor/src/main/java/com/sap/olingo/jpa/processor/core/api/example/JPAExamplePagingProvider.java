@@ -25,11 +25,11 @@ public class JPAExamplePagingProvider implements JPAODataPagingProvider {
   private final int cacheSize;
   private final Queue<String> index;
 
-  public JPAExamplePagingProvider(Map<String, Integer> pageSizes) {
+  public JPAExamplePagingProvider(final Map<String, Integer> pageSizes) {
     this(pageSizes, DEFAULT_BUFFER_SIZE);
   }
 
-  public JPAExamplePagingProvider(Map<String, Integer> pageSizes, final int bufferSize) {
+  public JPAExamplePagingProvider(final Map<String, Integer> pageSizes, final int bufferSize) {
     maxPageSizes = pageSizes;
     pageCache = new HashMap<>(bufferSize);
     cacheSize = bufferSize;
@@ -37,24 +37,24 @@ public class JPAExamplePagingProvider implements JPAODataPagingProvider {
   }
 
   @Override
-  public JPAODataPage getNextPage(final String skiptoken) {
-    final CacheEntry privousePage = pageCache.get(skiptoken.replace("'", ""));
-    if (privousePage != null) {
+  public JPAODataPage getNextPage(final String skipToken) {
+    final CacheEntry previousPage = pageCache.get(skipToken.replace("'", ""));
+    if (previousPage != null) {
       // Calculate next page
-      final Integer skip = privousePage.getPage().getSkip() + privousePage.getPage().getTop();
-      // Create a new skiptoken if next page is not the last one
+      final Integer skip = previousPage.getPage().getSkip() + previousPage.getPage().getTop();
+      // Create a new skip token if next page is not the last one
       String nextToken = null;
-      if (skip + privousePage.getPage().getTop() < privousePage.getMaxTop())
+      if (skip + previousPage.getPage().getTop() < previousPage.getMaxTop())
         nextToken = UUID.randomUUID().toString();
-      final int top = (int) ((skip + privousePage.getPage().getTop()) < privousePage.getMaxTop() ? privousePage
-          .getPage().getTop() : privousePage.getMaxTop() - skip);
-      final JPAODataPage page = new JPAODataPage(privousePage.getPage().getUriInfo(),
+      final int top = (int) ((skip + previousPage.getPage().getTop()) < previousPage.getMaxTop() ? previousPage
+          .getPage().getTop() : previousPage.getMaxTop() - skip);
+      final JPAODataPage page = new JPAODataPage(previousPage.getPage().getUriInfo(),
           skip, top, nextToken);
       if (nextToken != null)
-        addToCache(page, privousePage.getMaxTop());
+        addToCache(page, previousPage.getMaxTop());
       return page;
     }
-    // skiptoken not found => let JPA Processor handle this
+    // skip token not found => let JPA Processor handle this
     return null;
   }
 
@@ -73,17 +73,17 @@ public class JPAExamplePagingProvider implements JPAODataPagingProvider {
         final Integer topValue = uriInfo.getTopOption() != null ? uriInfo.getTopOption().getValue() : null;
         // Determine end of list
         final Long count = topValue != null ? (topValue + skipValue) : countQuery.countResults();
-        // Determine page size 
+        // Determine page size
         final Integer size = preferredPageSize != null && preferredPageSize < maxSize ? preferredPageSize : maxSize;
-        // Create a unique skiptoken if needed
-        String skiptoken = null;
+        // Create a unique skip token if needed
+        String skipToken = null;
         if (size < count)
-          skiptoken = UUID.randomUUID().toString();
+          skipToken = UUID.randomUUID().toString();
         // Create page information
         final JPAODataPage page = new JPAODataPage(uriInfo, skipValue, topValue != null && topValue < size ? topValue
-            : size, skiptoken);
+            : size, skipToken);
         // Cache page to be able to fulfill next link based request
-        if (skiptoken != null)
+        if (skipToken != null)
           addToCache(page, count);
         return page;
       }
@@ -95,15 +95,15 @@ public class JPAExamplePagingProvider implements JPAODataPagingProvider {
     if (pageCache.size() == cacheSize)
       pageCache.remove(index.poll());
 
-    pageCache.put((String) page.getSkiptoken(), new CacheEntry(count, page));
-    index.add((String) page.getSkiptoken());
+    pageCache.put((String) page.getSkipToken(), new CacheEntry(count, page));
+    index.add((String) page.getSkipToken());
   }
 
   private static class CacheEntry {
     private final Long maxTop;
     private final JPAODataPage page;
 
-    CacheEntry(Long count, JPAODataPage page) {
+    CacheEntry(final Long count, final JPAODataPage page) {
       super();
       this.maxTop = count;
       this.page = page;

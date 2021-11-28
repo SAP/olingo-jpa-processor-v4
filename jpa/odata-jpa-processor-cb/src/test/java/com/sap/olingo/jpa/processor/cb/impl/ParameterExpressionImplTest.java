@@ -84,7 +84,7 @@ class ParameterExpressionImplTest {
 
     when(jpaPath.getLeaf()).thenReturn(leaf);
     when(leaf.getConverter()).thenReturn(converter);
-    when(converter.convertToDatabaseColumn("Value")).thenReturn(new Integer(100));
+    when(converter.convertToDatabaseColumn("Value")).thenReturn(Integer.valueOf(100));
     cut.setPath(path);
     assertEquals(100, cut.getValue());
   }

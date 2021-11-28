@@ -37,8 +37,8 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
   public static final String OPENING_BRACKET = "(";
   public static final String CLOSING_BRACKET = ")";
   public static final String DOT = ".";
-  public static final String SELECTION_REPLACMENT = "_";
-  public static final String SELECTION_REPLACMENT_REGEX = "\\.|/";
+  public static final String SELECTION_REPLACEMENT = "_";
+  public static final String SELECTION_REPLACEMENT_REGEX = "\\.|/";
   protected Optional<String> alias = Optional.empty();
 
   /**

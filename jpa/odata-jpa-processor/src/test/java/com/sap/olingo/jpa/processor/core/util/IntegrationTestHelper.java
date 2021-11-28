@@ -356,7 +356,7 @@ public class IntegrationTestHelper {
 
     @Override
     public void write(final int b) throws IOException {
-      buffer.add(new Integer(b));
+      buffer.add(Integer.valueOf(b));
     }
 
     public Iterator<Integer> getBuffer() {

@@ -76,7 +76,7 @@ class JPAODataExternalRequestContextTest {
   @Test
   void testSetOneParameter() {
     final String key = "MyKey";
-    final Integer value = new Integer(10);
+    final Integer value = Integer.valueOf(10);
     assertEquals(cut, cut.setParameter(key, value));
     final JPAODataRequestContext act = cut.build();
     assertEquals(value, act.getRequestParameter().get(key));
@@ -86,10 +86,10 @@ class JPAODataExternalRequestContextTest {
   @Test
   void testSetTwoParameter() {
     final String key1 = "MyKey1";
-    final Integer value1 = new Integer(10);
+    final Integer value1 = Integer.valueOf(10);
     assertEquals(cut, cut.setParameter(key1, value1));
     final String key2 = "MyKey2";
-    final Integer value2 = new Integer(50);
+    final Integer value2 = Integer.valueOf(50);
     assertEquals(cut, cut.setParameter(key2, value2));
 
     final JPAODataRequestContext act = cut.build();
@@ -100,9 +100,9 @@ class JPAODataExternalRequestContextTest {
   @Test
   void testReplaceParameter() {
     final String key1 = "MyKey1";
-    final Integer value1 = new Integer(10);
+    final Integer value1 = Integer.valueOf(10);
     assertEquals(cut, cut.setParameter(key1, value1));
-    final Integer value2 = new Integer(50);
+    final Integer value2 = Integer.valueOf(50);
     assertEquals(cut, cut.setParameter(key1, value2));
 
     final JPAODataRequestContext act = cut.build();

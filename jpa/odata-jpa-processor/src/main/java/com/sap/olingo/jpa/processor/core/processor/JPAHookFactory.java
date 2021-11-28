@@ -63,7 +63,7 @@ final class JPAHookFactory {
     if (!queryExtensionProviderCache.containsKey(et)) {
       try {
         queryExtensionProviderCache.put(et, et.getQueryExtention()
-            .map(this::createQueryExtentionProvider)
+            .map(this::createQueryExtensionProvider)
             .orElse(null));
       } catch (final Exception e) {
         throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
@@ -91,7 +91,7 @@ final class JPAHookFactory {
     transientCalculatorCache.put(transientProperty, calculator);
   }
 
-  private EdmQueryExtensionProvider createQueryExtentionProvider(
+  private EdmQueryExtensionProvider createQueryExtensionProvider(
       final JPAQueryExtension<EdmQueryExtensionProvider> queryExtension) {
 
     final Constructor<?> c = queryExtension.getConstructor();

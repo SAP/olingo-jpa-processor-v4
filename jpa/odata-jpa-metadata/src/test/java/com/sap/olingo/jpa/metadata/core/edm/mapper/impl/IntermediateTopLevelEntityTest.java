@@ -32,10 +32,10 @@ class IntermediateTopLevelEntityTest extends TestMappingRoot {
   }
 
   @Test
-  void checkQueryExtentionProvderPresent() throws ODataJPAModelException {
+  void checkQueryExtensionProviderPresent() throws ODataJPAModelException {
     final IntermediateEntityType<Singleton> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), getEntityType(Singleton.class), schema);
     final IntermediateSingleton singleton = new IntermediateSingleton(nameBuilder, et);
-    assertFalse(singleton.getQueryExtention().isPresent());
+    assertFalse(singleton.getQueryExtension().isPresent());
   }
 }

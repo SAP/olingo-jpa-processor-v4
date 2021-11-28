@@ -25,7 +25,7 @@ import com.sap.olingo.jpa.processor.cb.joiner.StringBuilderCollector;
  * @author Oliver Grande
  *
  */
-abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicate, SqlConvertible {
+abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicate {
 
   private static final int REQUIRED_NO_OPERATOR = 2;
   protected final List<SqlConvertible> expressions;

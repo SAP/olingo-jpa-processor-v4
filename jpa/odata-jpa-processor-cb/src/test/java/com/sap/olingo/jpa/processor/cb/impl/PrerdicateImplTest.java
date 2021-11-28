@@ -120,7 +120,7 @@ class PredicateImplTest extends BuilderBaseTest {
     final Subquery<Long> subQuery = mock(Subquery.class, withSettings().extraInterfaces(SqlConvertible.class));
     final In<Integer> act = new PredicateImpl.In<>(Collections.emptyList(), subQuery);
 
-    assertThrows(NotImplementedException.class, () -> act.value(new Integer(5)));
+    assertThrows(NotImplementedException.class, () -> act.value(Integer.valueOf(5)));
     assertThrows(NotImplementedException.class, () -> act.value(mock(Expression.class)));
   }
 

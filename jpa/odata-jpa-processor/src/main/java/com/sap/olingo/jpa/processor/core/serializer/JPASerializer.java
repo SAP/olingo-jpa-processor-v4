@@ -22,12 +22,12 @@ public interface JPASerializer {
   default URI buildServiceRoot(final ODataRequest request, final JPAODataSessionContextAccess serviceContext)
       throws URISyntaxException {
 
-    final String pathSeperator = "/";
+    final String pathSeparator = "/";
     if (serviceContext.useAbsoluteContextURL()) {
       final String serviceRoot = request.getRawBaseUri();
       if (serviceRoot == null)
         return null;
-      return new URI(serviceRoot.endsWith(pathSeperator) ? serviceRoot : (serviceRoot + pathSeperator));
+      return new URI(serviceRoot.endsWith(pathSeparator) ? serviceRoot : (serviceRoot + pathSeparator));
     }
     return null;
   }

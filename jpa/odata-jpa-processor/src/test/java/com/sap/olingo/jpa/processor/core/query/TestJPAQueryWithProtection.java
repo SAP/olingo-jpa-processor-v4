@@ -36,7 +36,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.Mockito;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ValueNode;
@@ -77,9 +76,9 @@ class TestJPAQueryWithProtection extends TestQueryBase {
   @BeforeEach
   public void setup() throws ODataException, ODataJPAIllegalAccessException {
     super.setup();
-    contextSpy = Mockito.spy(context);
-    final JPAEdmProvider providerSpy = Mockito.spy(context.getEdmProvider());
-    sdSpy = Mockito.spy(context.getEdmProvider().getServiceDocument());
+    contextSpy = spy(context);
+    final JPAEdmProvider providerSpy = spy(context.getEdmProvider());
+    sdSpy = spy(context.getEdmProvider().getServiceDocument());
     when(contextSpy.getEdmProvider()).thenReturn(providerSpy);
     when(providerSpy.getServiceDocument()).thenReturn(sdSpy);
 
@@ -300,7 +299,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add("UserId", new JPAClaimsPair<>("Marvin"));
 
-    final JPAAttribute aSpy = Mockito.spy(etSpy.getAttribute("administrativeInformation").get());
+    final JPAAttribute aSpy = spy(etSpy.getAttribute("administrativeInformation").get());
     doReturn(true).when(aSpy).hasProtection();
     doReturn(claimNames).when(aSpy).getProtectionClaimNames();
     doReturn(pathList).when(aSpy).getProtectionPath("UserId");
@@ -321,7 +320,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add("UserId", new JPAClaimsPair<>(minValue));
 
-    final JPAAttribute aSpy = Mockito.spy(etSpy.getAttribute("administrativeInformation").get());
+    final JPAAttribute aSpy = spy(etSpy.getAttribute("administrativeInformation").get());
     doReturn(true).when(aSpy).hasProtection();
     doReturn(claimNames).when(aSpy).getProtectionClaimNames();
     doReturn(pathList).when(aSpy).getProtectionPath("UserId");
@@ -341,7 +340,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add(claimName, new JPAClaimsPair<>("Marvin", "Willi"));
 
-    final JPAAttribute aSpy = Mockito.spy(etSpy.getAttribute("administrativeInformation").get());
+    final JPAAttribute aSpy = spy(etSpy.getAttribute("administrativeInformation").get());
     doReturn(true).when(aSpy).hasProtection();
     doReturn(claimNames).when(aSpy).getProtectionClaimNames();
     doReturn(pathList).when(aSpy).getProtectionPath("UserId");
@@ -362,7 +361,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add(claimName, new JPAClaimsPair<>("Marv*", "Willi"));
 
-    final JPAAttribute aSpy = Mockito.spy(etSpy.getAttribute("administrativeInformation").get());
+    final JPAAttribute aSpy = spy(etSpy.getAttribute("administrativeInformation").get());
     doReturn(true).when(aSpy).hasProtection();
     doReturn(claimNames).when(aSpy).getProtectionClaimNames();
     doReturn(pathList).when(aSpy).getProtectionPath("UserId");
@@ -384,7 +383,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     claims.add(claimName, new JPAClaimsPair<>("Marvin"));
     claims.add(claimName, new JPAClaimsPair<>("Willi"));
 
-    final JPAAttribute aSpy = Mockito.spy(etSpy.getAttribute("administrativeInformation").get());
+    final JPAAttribute aSpy = spy(etSpy.getAttribute("administrativeInformation").get());
     doReturn(true).when(aSpy).hasProtection();
     doReturn(claimNames).when(aSpy).getProtectionClaimNames();
     doReturn(pathList).when(aSpy).getProtectionPath(claimName);
@@ -406,7 +405,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add(claimName, new JPAClaimsPair<>(Date.valueOf("2010-01-01")));
 
-    final JPAAttribute aSpy = Mockito.spy(etSpy.getAttribute("administrativeInformation").get());
+    final JPAAttribute aSpy = spy(etSpy.getAttribute("administrativeInformation").get());
     doReturn(true).when(aSpy).hasProtection();
     doReturn(claimNames).when(aSpy).getProtectionClaimNames();
     doReturn(pathList).when(aSpy).getProtectionPath(claimName);
@@ -426,7 +425,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add(claimName, new JPAClaimsPair<>(Date.valueOf("2010-01-01"), Date.valueOf("9999-12-30")));
 
-    final JPAAttribute aSpy = Mockito.spy(etSpy.getAttribute("administrativeInformation").get());
+    final JPAAttribute aSpy = spy(etSpy.getAttribute("administrativeInformation").get());
     doReturn(true).when(aSpy).hasProtection();
     doReturn(claimNames).when(aSpy).getProtectionClaimNames();
     doReturn(pathList).when(aSpy).getProtectionPath(claimName);
@@ -447,7 +446,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add(claimName, new JPAClaimsPair<>("Marvin"));
 
-    final JPAAttribute aSpy = Mockito.spy(etSpy.getAttribute("administrativeInformation").get());
+    final JPAAttribute aSpy = spy(etSpy.getAttribute("administrativeInformation").get());
     doReturn(true).when(aSpy).hasProtection();
     doReturn(claimNames).when(aSpy).getProtectionClaimNames();
     doReturn(pathList).when(aSpy).getProtectionPath(claimName);
@@ -470,7 +469,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add("UserId", new JPAClaimsPair<>("Marvin"));
 
-    final JPAAttribute aSpy = Mockito.spy(etSpy.getAttribute("administrativeInformation").get());
+    final JPAAttribute aSpy = spy(etSpy.getAttribute("administrativeInformation").get());
     doReturn(true).when(aSpy).hasProtection();
     doReturn(claimNames).when(aSpy).getProtectionClaimNames();
     doReturn(pathList).when(aSpy).getProtectionPath(claimName);
@@ -550,15 +549,15 @@ class TestJPAQueryWithProtection extends TestQueryBase {
   private void prepareComplexAttributeUser(final String claimName, final String pathName,
       final String intermediateElement, final boolean wildcardSupported) throws ODataJPAModelException {
 
-    final JPAProtectionInfo protection = Mockito.mock(JPAProtectionInfo.class);
+    final JPAProtectionInfo protection = mock(JPAProtectionInfo.class);
     protections.add(protection);
 
     final String path = pathName;
     pathList.add(path);
-    final JPAPath jpaPath = Mockito.mock(JPAPath.class);
-    final JPAElement adminAttribute = Mockito.mock(JPAElement.class);
-    final JPAElement complexAttribute = Mockito.mock(JPAElement.class);
-    final JPAAttribute simpleAttribute = Mockito.mock(JPAAttribute.class);
+    final JPAPath jpaPath = mock(JPAPath.class);
+    final JPAElement adminAttribute = mock(JPAElement.class);
+    final JPAElement complexAttribute = mock(JPAElement.class);
+    final JPAAttribute simpleAttribute = mock(JPAAttribute.class);
     final List<JPAElement> pathElements = Arrays.asList(adminAttribute, complexAttribute, simpleAttribute);
     doReturn(pathElements).when(jpaPath).getPath();
     doReturn("administrativeInformation").when(adminAttribute).getInternalName();
@@ -584,15 +583,15 @@ class TestJPAQueryWithProtection extends TestQueryBase {
 
   private void prepareComplexAttributeDate(final String claimName) throws ODataJPAModelException {
 
-    final JPAProtectionInfo protection = Mockito.mock(JPAProtectionInfo.class);
+    final JPAProtectionInfo protection = mock(JPAProtectionInfo.class);
     protections.add(protection);
 
     final String path = "AdministrativeInformation/Created/At";
     pathList.add(path);
-    final JPAPath jpaPath = Mockito.mock(JPAPath.class);
-    final JPAElement adminAttribute = Mockito.mock(JPAElement.class);
-    final JPAElement complexAttribute = Mockito.mock(JPAElement.class);
-    final JPAAttribute simpleAttribute = Mockito.mock(JPAAttribute.class);
+    final JPAPath jpaPath = mock(JPAPath.class);
+    final JPAElement adminAttribute = mock(JPAElement.class);
+    final JPAElement complexAttribute = mock(JPAElement.class);
+    final JPAAttribute simpleAttribute = mock(JPAAttribute.class);
     final List<JPAElement> pathElements = Arrays.asList(adminAttribute, complexAttribute, simpleAttribute);
     doReturn(pathElements).when(jpaPath).getPath();
     doReturn("administrativeInformation").when(adminAttribute).getInternalName();
@@ -616,7 +615,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     pathList = new ArrayList<>();
     protections = new ArrayList<>();
 
-    etSpy = Mockito.spy(new JPAEntityTypeDouble(sdSpy.getEntity("BusinessPartnerProtecteds")));
+    etSpy = spy(new JPAEntityTypeDouble(sdSpy.getEntity("BusinessPartnerProtecteds")));
     doReturn(attributes).when(etSpy).getAttributes();
     doReturn(protections).when(etSpy).getProtections();
     doReturn(etSpy).when(sdSpy).getEntity("BusinessPartnerProtecteds");

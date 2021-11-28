@@ -344,11 +344,11 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
       whereCondition = addWhereClause(whereCondition,
           context.getDatabaseProcessor().createSearchWhereClause(cb, this.cq, target, jpaEntity, uriInfo
               .getSearchOption()));
-    final Optional<EdmQueryExtensionProvider> queryEnhancment = requestContext.getQueryEnhancment(jpaEntity);
-    if (queryEnhancment.isPresent()) {
-      debugger.trace(this, "Query Enhancment found. Add WHERE condition of: %s", queryEnhancment.get().getClass()
+    final Optional<EdmQueryExtensionProvider> queryEnhancement = requestContext.getQueryEnhancement(jpaEntity);
+    if (queryEnhancement.isPresent()) {
+      debugger.trace(this, "Query Enhancement found. Add WHERE condition of: %s", queryEnhancement.get().getClass()
           .getName());
-      whereCondition = addWhereClause(whereCondition, queryEnhancment.get().getFilterExtension(cb, target));
+      whereCondition = addWhereClause(whereCondition, queryEnhancement.get().getFilterExtension(cb, target));
     }
     debugger.stopRuntimeMeasurement(handle);
     return whereCondition;

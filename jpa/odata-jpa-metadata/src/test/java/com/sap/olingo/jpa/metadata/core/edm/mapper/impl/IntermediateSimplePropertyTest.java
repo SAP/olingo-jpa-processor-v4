@@ -590,7 +590,7 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetTypeConvertionRequired() throws ODataJPAModelException {
+  void checkGetTypeConversionRequired() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class),
         "creationDateTime");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
@@ -602,7 +602,7 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetTypeConvertionNotRequired() throws ODataJPAModelException {
+  void checkGetTypeConversionNotRequired() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(Person.class),
         "birthDay");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(nameBuilder,

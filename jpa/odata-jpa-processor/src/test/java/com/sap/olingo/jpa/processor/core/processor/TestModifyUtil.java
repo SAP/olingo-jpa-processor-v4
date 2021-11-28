@@ -251,9 +251,9 @@ class TestModifyUtil extends TestBase {
       }
     });
 
-    jpaAttributes.put("iD", new Integer(10));
+    jpaAttributes.put("iD", Integer.valueOf(10));
     final Integer act = (Integer) cut.createPrimaryKey(et, jpaAttributes, org);
-    assertEquals(new Integer(10), act);
+    assertEquals(Integer.valueOf(10), act);
   }
 
   @Test

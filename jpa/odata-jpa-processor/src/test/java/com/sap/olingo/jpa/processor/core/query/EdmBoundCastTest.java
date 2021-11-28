@@ -88,7 +88,7 @@ class EdmBoundCastTest {
   }
 
   @Test
-  void testGetTitleeturnsNull() {
+  void testGetTitleReturnsNull() {
     when(et.getName()).thenReturn("Person");
     cut = new EdmBoundCast(et, bindingTarget);
 

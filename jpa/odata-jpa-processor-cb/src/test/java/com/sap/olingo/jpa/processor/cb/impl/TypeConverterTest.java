@@ -31,75 +31,75 @@ class TypeConverterTest {
 
   static Stream<Arguments> numericConversion() {
     return Stream.of(
-        arguments(new Short((short) 5), new Byte("5"), Short.class),
-        arguments(new Short((short) 5), new Integer(5), Short.class),
+        arguments(Short.valueOf((short) 5), Byte.valueOf("5"), Short.class),
+        arguments(Short.valueOf((short) 5), Integer.valueOf(5), Short.class),
 
-        arguments(new Integer(5), new Byte("5"), Integer.class),
-        arguments(new Integer(5), new Short((short) 5), Integer.class),
+        arguments(Integer.valueOf(5), Byte.valueOf("5"), Integer.class),
+        arguments(Integer.valueOf(5), Short.valueOf((short) 5), Integer.class),
 
-        arguments(new Long(5), new Byte("5"), Long.class),
-        arguments(new Long(5), new Short((short) 5), Long.class),
-        arguments(new Long(5), new Integer(5), Long.class),
+        arguments(Long.valueOf(5), Byte.valueOf("5"), Long.class),
+        arguments(Long.valueOf(5), Short.valueOf((short) 5), Long.class),
+        arguments(Long.valueOf(5), Integer.valueOf(5), Long.class),
 
-        arguments(new Float(5), new Byte("5"), Float.class),
-        arguments(new Float(5), new Short((short) 5), Float.class),
-        arguments(new Float(5), new Integer(5), Float.class),
-        arguments(new Float(5), new Long(5), Float.class),
-        arguments(new Float(10), BigInteger.TEN, Float.class),
-        arguments(new Float(10), BigDecimal.TEN, Float.class),
+        arguments(Float.valueOf(5), Byte.valueOf("5"), Float.class),
+        arguments(Float.valueOf(5), Short.valueOf((short) 5), Float.class),
+        arguments(Float.valueOf(5), Integer.valueOf(5), Float.class),
+        arguments(Float.valueOf(5), Long.valueOf(5), Float.class),
+        arguments(Float.valueOf(10), BigInteger.TEN, Float.class),
+        arguments(Float.valueOf(10), BigDecimal.TEN, Float.class),
 
-        arguments(new Double(5), new Byte("5"), Double.class),
-        arguments(new Double(5), new Short((short) 5), Double.class),
-        arguments(new Double(5), new Integer(5), Double.class),
-        arguments(new Double(5), new Long(5), Double.class),
-        arguments(new Double(5), new Float(5), Double.class),
-        arguments(new Double(10), BigInteger.TEN, Double.class),
-        arguments(new Double(10), BigDecimal.TEN, Double.class),
+        arguments(Double.valueOf(5), Byte.valueOf("5"), Double.class),
+        arguments(Double.valueOf(5), Short.valueOf((short) 5), Double.class),
+        arguments(Double.valueOf(5), Integer.valueOf(5), Double.class),
+        arguments(Double.valueOf(5), Long.valueOf(5), Double.class),
+        arguments(Double.valueOf(5), Float.valueOf(5), Double.class),
+        arguments(Double.valueOf(10), BigInteger.TEN, Double.class),
+        arguments(Double.valueOf(10), BigDecimal.TEN, Double.class),
 
-        arguments(BigInteger.TEN, new Byte("10"), BigInteger.class),
-        arguments(BigInteger.TEN, new Short((short) 10), BigInteger.class),
-        arguments(BigInteger.TEN, new Integer(10), BigInteger.class),
-        arguments(BigInteger.TEN, new Long(10), BigInteger.class),
+        arguments(BigInteger.TEN, Byte.valueOf("10"), BigInteger.class),
+        arguments(BigInteger.TEN, Short.valueOf((short) 10), BigInteger.class),
+        arguments(BigInteger.TEN, Integer.valueOf(10), BigInteger.class),
+        arguments(BigInteger.TEN, Long.valueOf(10), BigInteger.class),
 
-        arguments(BigDecimal.TEN, new Byte("10"), BigDecimal.class),
-        arguments(BigDecimal.TEN, new Short((short) 10), BigDecimal.class),
-        arguments(BigDecimal.TEN, new Integer(10), BigDecimal.class),
-        arguments(BigDecimal.TEN, new Long(10), BigDecimal.class),
-        arguments(BigDecimal.valueOf(new Double(10)), new Float(10), BigDecimal.class),
-        arguments(BigDecimal.valueOf(new Double(10)), new Double(10), BigDecimal.class),
+        arguments(BigDecimal.TEN, Byte.valueOf("10"), BigDecimal.class),
+        arguments(BigDecimal.TEN, Short.valueOf((short) 10), BigDecimal.class),
+        arguments(BigDecimal.TEN, Integer.valueOf(10), BigDecimal.class),
+        arguments(BigDecimal.TEN, Long.valueOf(10), BigDecimal.class),
+        arguments(BigDecimal.valueOf(Double.valueOf(10)), Float.valueOf(10), BigDecimal.class),
+        arguments(BigDecimal.valueOf(Double.valueOf(10)), Double.valueOf(10), BigDecimal.class),
         arguments(BigDecimal.TEN, BigInteger.TEN, BigDecimal.class),
 
-        arguments(new Short((short) 10), new Byte("10"), short.class),
-        arguments(new Integer(10), new Byte("10"), int.class),
-        arguments(new Long(5), new Byte("5"), long.class),
-        arguments(new Float(5), new Byte("5"), float.class),
-        arguments(new Double(10), new Byte("10"), double.class));
+        arguments(Short.valueOf((short) 10), Byte.valueOf("10"), short.class),
+        arguments(Integer.valueOf(10), Byte.valueOf("10"), int.class),
+        arguments(Long.valueOf(5), Byte.valueOf("5"), long.class),
+        arguments(Float.valueOf(5), Byte.valueOf("5"), float.class),
+        arguments(Double.valueOf(10), Byte.valueOf("10"), double.class));
   }
 
   static Stream<Arguments> numericConversionNotSupported() {
     return Stream.of(
 
-        arguments(new Long(5), Short.class),
-        arguments(new Float(5), Short.class),
-        arguments(new Double(5), Short.class),
+        arguments(Long.valueOf(5), Short.class),
+        arguments(Float.valueOf(5), Short.class),
+        arguments(Double.valueOf(5), Short.class),
         arguments(BigInteger.TEN, Short.class),
         arguments(BigDecimal.TEN, Short.class),
 
-        // arguments(new Long(5), Integer.class),
-        arguments(new Float(5), Integer.class),
-        arguments(new Double(5), Integer.class),
+        // arguments(Long.valueOf(5), Integer.class),
+        arguments(Float.valueOf(5), Integer.class),
+        arguments(Double.valueOf(5), Integer.class),
         arguments(BigInteger.TEN, Integer.class),
         arguments(BigDecimal.TEN, Integer.class),
 
-        arguments(new Float(5.3), Long.class),
-        arguments(new Double(5), Long.class),
+        arguments(Float.valueOf(5.3F), Long.class),
+        arguments(Double.valueOf(5), Long.class),
         arguments(BigInteger.TEN, Long.class),
         arguments(BigDecimal.TEN, Long.class),
 
-        arguments(new Double(5), Float.class),
+        arguments(Double.valueOf(5), Float.class),
 
-        arguments(new Float(10), BigInteger.class),
-        arguments(new Double(10), BigInteger.class),
+        arguments(Float.valueOf(10), BigInteger.class),
+        arguments(Double.valueOf(10), BigInteger.class),
         arguments(BigDecimal.TEN, BigInteger.class));
   }
 
@@ -134,7 +134,7 @@ class TypeConverterTest {
 
   static Stream<Arguments> temporalConversion() {
     return Stream.of(
-        arguments(Instant.parse("2007-12-03T10:15:30.05Z"), new Long(1196676930050L), Instant.class),
+        arguments(Instant.parse("2007-12-03T10:15:30.05Z"), Long.valueOf(1196676930050L), Instant.class),
         arguments(Instant.parse("2007-12-03T10:15:30.05Z"), "2007-12-03T10:15:30.05Z", Instant.class),
         arguments(Instant.parse("2007-12-03T10:15:30.05Z").minusMillis(TimeZone.getDefault().getRawOffset()), Timestamp
             .valueOf("2007-12-03 10:15:30.05"), Instant.class),
@@ -154,13 +154,13 @@ class TypeConverterTest {
 
   static Stream<Arguments> durationConversion() {
     return Stream.of(
-        arguments(Duration.ofHours(3L), new Long(10800L), Duration.class),
+        arguments(Duration.ofHours(3L), Long.valueOf(10800L), Duration.class),
         arguments(Duration.ofHours(3L), "PT3H", Duration.class));
   }
 
   @Test
   void testToString() {
-    assertEquals("123456789", convert(new Integer(123456789), String.class));
+    assertEquals("123456789", convert(Integer.valueOf(123456789), String.class));
   }
 
   @ParameterizedTest

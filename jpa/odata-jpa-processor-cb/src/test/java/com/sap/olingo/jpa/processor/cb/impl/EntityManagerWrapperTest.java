@@ -59,7 +59,7 @@ class EntityManagerWrapperTest {
   private static Map<String, Object> properties;
   private static EntityTransaction transaction;
   private static Metamodel metamodel;
-  private static TypedQuery<String> typedquery;
+  private static TypedQuery<String> typedQuery;
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
   @BeforeAll
@@ -68,7 +68,7 @@ class EntityManagerWrapperTest {
     emf = mock(EntityManagerFactory.class);
     em = mock(EntityManager.class);
     query = mock(Query.class);
-    typedquery = mock(TypedQuery.class);
+    typedQuery = mock(TypedQuery.class);
     cu = mock(CriteriaUpdate.class);
     cd = mock(CriteriaDelete.class);
     graph = mock(EntityGraph.class);
@@ -85,7 +85,7 @@ class EntityManagerWrapperTest {
     when(em.createQuery(cu)).thenReturn(query);
     when(em.createQuery(cd)).thenReturn(query);
     when(em.createNamedQuery(anyString())).thenReturn(query);
-    when(em.createNamedQuery(anyString(), eq(String.class))).thenReturn(typedquery);
+    when(em.createNamedQuery(anyString(), eq(String.class))).thenReturn(typedQuery);
     when(em.unwrap(EntityManager.class)).thenReturn(em);
     when(em.isJoinedToTransaction()).thenReturn(false);
     when(em.createEntityGraph(EntityManager.class)).thenReturn((EntityGraph<EntityManager>) graph);
@@ -171,7 +171,7 @@ class EntityManagerWrapperTest {
         arguments(c.getMethod("refresh", Object.class, Map.class), dummy, new HashMap<>(), null),
         arguments(c.getMethod("setProperty", String.class, Object.class), dummy, dummy, null),
         arguments(c.getMethod("createNativeQuery", String.class, Class.class), dummy, c, query),
-        arguments(c.getMethod("createNamedQuery", String.class, Class.class), dummy, String.class, typedquery),
+        arguments(c.getMethod("createNamedQuery", String.class, Class.class), dummy, String.class, typedQuery),
         arguments(c.getMethod("createStoredProcedureQuery", String.class, Class[].class), dummy, new Class[0],
             storedProcedure),
         arguments(c.getMethod("createStoredProcedureQuery", String.class, String[].class), dummy, new String[0],

@@ -206,8 +206,8 @@ class TypedQueryImplTest extends BuilderBaseTest {
   void testSetParameterByValue() {
     @SuppressWarnings("unchecked")
     final Parameter<Integer> param = mock(Parameter.class);
-    assertEquals(cut, cut.setParameter(param, new Integer(1)));
-    verify(q).setParameter(param, new Integer(1));
+    assertEquals(cut, cut.setParameter(param, Integer.valueOf(1)));
+    verify(q).setParameter(param, Integer.valueOf(1));
   }
 
   @Test

@@ -66,7 +66,7 @@ abstract class CriteriaBuilderOverallTest {
   }
 
   @Test
-  void testSimpleQueryMultiySelect() {
+  void testSimpleQueryMultiSelect() {
     final Root<?> org = q.from(Organization.class);
 
     q.multiselect(org.get("type").alias("count"), org.get("iD"), org.get("eTag"));

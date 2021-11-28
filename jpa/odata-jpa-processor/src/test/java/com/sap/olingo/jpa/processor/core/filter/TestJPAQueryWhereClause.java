@@ -539,7 +539,7 @@ class TestJPAQueryWhereClause extends TestBase {
   }
 
   @Test
-  void testFilterToUpperInvers() throws IOException, ODataException {
+  void testFilterToUpperInverse() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions?$filter=toupper('nuts1') eq CodeID");
@@ -659,7 +659,7 @@ class TestJPAQueryWhereClause extends TestBase {
   }
 
   @Test
-  void testFilterNavigationStartswithAll() throws IOException, ODataException {
+  void testFilterNavigationStartsWithAll() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Persons?$filter=InhouseAddress/all(d:startswith(d/TaskID, 'D'))");
@@ -896,7 +896,7 @@ class TestJPAQueryWhereClause extends TestBase {
 
   };
 
-  @Disabled // EclipsLinkProblem see https://bugs.eclipse.org/bugs/show_bug.cgi?id=529565
+  @Disabled // EclipseLinkProblem see https://bugs.eclipse.org/bugs/show_bug.cgi?id=529565
   @Test
   void testFilterNavigationPropertyViaJoinTableCountSubType() throws IOException, // NOSONAR
       ODataException {

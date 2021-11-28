@@ -102,7 +102,7 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
 
           languageAttribute = association.languageAttribute();
           localeAttribute = association.localeAttribute();
-          checkConsistancyOfLocalInfo(languageAttribute);
+          checkConsistencyOfLocalInfo(languageAttribute);
 
           edmProperty.setType(JPATypeConverter.convertToEdmSimpleType(descriptionProperty.getType())
               .getFullQualifiedName());
@@ -118,7 +118,7 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
     }
   }
 
-  private void checkConsistancyOfLocalInfo(final String languageAttribute) throws ODataJPAModelException {
+  private void checkConsistencyOfLocalInfo(final String languageAttribute) throws ODataJPAModelException {
     if ((emptyString(languageAttribute) && emptyString(localeAttribute)) ||
         (!languageAttribute.isEmpty() && !localeAttribute.isEmpty()))
       throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.DESCRIPTION_LOCALE_FIELD_MISSING,

@@ -42,7 +42,7 @@ public interface JPAODataRequestContextAccess {
   public Optional<EdmTransientPropertyCalculator<?>> getCalculator(@Nonnull final JPAAttribute transientProperty)
       throws ODataJPAProcessorException;
 
-  public Optional<EdmQueryExtensionProvider> getQueryEnhancment(@Nonnull final JPAEntityType et)
+  public Optional<EdmQueryExtensionProvider> getQueryEnhancement(@Nonnull final JPAEntityType et)
       throws ODataJPAProcessorException;
 
   public @Nonnull JPAHttpHeaderMap getHeader();

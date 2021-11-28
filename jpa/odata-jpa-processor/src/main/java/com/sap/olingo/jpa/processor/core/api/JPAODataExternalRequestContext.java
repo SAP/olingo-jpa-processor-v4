@@ -146,7 +146,7 @@ public class JPAODataExternalRequestContext implements JPAODataRequestContext {
     }
 
     /**
-     * Adds a Field Group Provider to the request context providing the field groups the current user is assiged to.
+     * Adds a Field Group Provider to the request context providing the field groups the current user is assigned to.
      * @param provider
      * @return Builder
      */

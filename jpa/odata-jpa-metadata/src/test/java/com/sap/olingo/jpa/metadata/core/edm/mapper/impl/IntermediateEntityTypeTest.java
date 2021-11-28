@@ -705,7 +705,7 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
   }
 
   @Test
-  void checkQueryExtentionProvderNotPresent() throws ODataJPAModelException {
+  void checkQueryExtensionProviderNotPresent() throws ODataJPAModelException {
     final IntermediateEntityType<AdministrativeDivision> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), getEntityType(AdministrativeDivision.class), schema);
     et.getEdmItem();
@@ -713,7 +713,7 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
   }
 
   @Test
-  void checkQueryExtentionProvderPresent() throws ODataJPAModelException {
+  void checkQueryExtensionProviderPresent() throws ODataJPAModelException {
     final IntermediateEntityType<BusinessPartner> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), getEntityType(BusinessPartner.class), schema);
     et.getEdmItem();
@@ -722,7 +722,7 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
   }
 
   @Test
-  void checkQueryExtentionProvderInherited() throws ODataJPAModelException {
+  void checkQueryExtensionProviderInherited() throws ODataJPAModelException {
     final IntermediateEntityType<Person> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), getEntityType(Person.class), schema);
     et.getEdmItem();
@@ -731,7 +731,7 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
   }
 
   @Test
-  void checkQueryExtentionProvderOverride() throws ODataJPAModelException {
+  void checkQueryExtensionProviderOverride() throws ODataJPAModelException {
     final IntermediateEntityType<CurrentUser> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), getEntityType(CurrentUser.class), schema);
     et.getEdmItem();

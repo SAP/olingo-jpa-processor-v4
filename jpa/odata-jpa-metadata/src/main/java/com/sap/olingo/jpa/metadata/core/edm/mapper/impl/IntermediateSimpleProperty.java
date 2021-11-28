@@ -131,8 +131,8 @@ class IntermediateSimpleProperty extends IntermediateProperty {
   @Override
   String getDefaultValue() throws ODataJPAModelException {
     String valueString = null;
-    final boolean isAbstarct = Modifier.isAbstract(jpaAttribute.getDeclaringType().getJavaType().getModifiers());
-    if (!isAbstarct
+    final boolean isAbstract = Modifier.isAbstract(jpaAttribute.getDeclaringType().getJavaType().getModifiers());
+    if (!isAbstract
         && jpaAttribute.getJavaMember() instanceof Field
         && jpaAttribute.getPersistentAttributeType() == PersistentAttributeType.BASIC) {
       // It is not possible to get the default value directly from the

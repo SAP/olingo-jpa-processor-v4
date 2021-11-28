@@ -173,7 +173,7 @@ class TestIntermediateDescriptionProperty extends TestMappingRoot {
     final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEmbeddableType("PostalAddressData"),
         "countryName");
     cut = new IntermediateDescriptionProperty(nameBuilder, jpaAttribute, et, helper.schema);
-    assertEquals(new Integer(100), cut.getEdmItem().getMaxLength());
+    assertEquals(Integer.valueOf(100), cut.getEdmItem().getMaxLength());
   }
 
   @Test

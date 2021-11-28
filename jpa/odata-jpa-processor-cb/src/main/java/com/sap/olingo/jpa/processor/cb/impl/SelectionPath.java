@@ -36,7 +36,7 @@ class SelectionPath<X> extends ExpressionImpl<X> implements Path<X> {
       statement.append(p);
       statement.append(DOT);
     });
-    return statement.append(selection.getAlias().replaceAll(SELECTION_REPLACMENT_REGEX, SELECTION_REPLACMENT));
+    return statement.append(selection.getAlias().replaceAll(SELECTION_REPLACEMENT_REGEX, SELECTION_REPLACEMENT));
   }
 
   @Override
