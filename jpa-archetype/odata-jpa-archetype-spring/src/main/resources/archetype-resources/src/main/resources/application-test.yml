@@ -1,0 +1,23 @@
+logging:
+  level:
+    org:
+      springframework: DEBUG
+odata:
+  jpa:
+    punit_name: ${punit}
+    root_packages: ${package}
+server:
+  port: ${port}
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driverClassName: org.h2.Driver
+    username: sa
+    password: ''
+  flyway:
+    enabled: true
+    schemas:
+    -  ${schema}
+  servlet:
+    multipart:
+      enabled: false
