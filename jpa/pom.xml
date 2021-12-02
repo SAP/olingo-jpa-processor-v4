@@ -13,7 +13,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.build.source>1.8</project.build.source>
+		<project.build.source>17</project.build.source>
         <odata.version>4.8.0</odata.version>
         <jackson.version>2.12.5</jackson.version>
         <powermock.version>1.7.1</powermock.version>
@@ -93,7 +93,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.6</version>
+                <version>0.8.7</version>
                 <executions>
                     <execution>
                         <id>prepare-agent</id>

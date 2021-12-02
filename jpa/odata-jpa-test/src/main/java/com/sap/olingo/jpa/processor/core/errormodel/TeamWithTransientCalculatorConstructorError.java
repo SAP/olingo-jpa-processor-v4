@@ -7,7 +7,7 @@ import javax.persistence.Table;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransient;
 
-@Entity(name = "TeamWithTransientError")
+@Entity(name = "TeamWithTransientConstructorError")
 @Table(schema = "\"OLINGO\"", name = "\"Team\"")
 public class TeamWithTransientCalculatorConstructorError {
 

@@ -11,7 +11,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAsEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEntityType;
 
 @Table(schema = "\"OLINGO\"", name = "\"GeneralSettings\"")
-@Entity(name = "Singleton")
+@Entity(name = "SingletonWithError")
 @EdmEntityType(as = AS_SINGLETON)
 @EdmAsEntitySet
 public class SingletonAsEntitySet {
