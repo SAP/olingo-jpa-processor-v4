@@ -14,7 +14,6 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.build.source>1.8</project.build.source>
-		<maven.complier.version>3.8.0</maven.complier.version>
         <odata.version>4.8.0</odata.version>
         <jackson.version>2.12.5</jackson.version>
         <powermock.version>1.7.1</powermock.version>
@@ -73,7 +72,6 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>${maven.complier.version}</version>
                     <configuration>
                         <source>${project.build.source}</source>
                         <target>${project.build.source}</target>
