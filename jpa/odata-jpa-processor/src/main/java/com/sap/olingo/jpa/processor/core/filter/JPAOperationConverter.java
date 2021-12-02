@@ -109,35 +109,29 @@ public class JPAOperationConverter {
   public Expression<?> convert(final JPAMethodCall jpaFunction) throws ODataApplicationException {
     switch (jpaFunction.getFunction()) {
       // First String functions
+      // TODO Escape like functions
       case LENGTH:
         return cb.length((Expression<String>) (jpaFunction.getParameter(0).get()));
       case CONTAINS:
         if (jpaFunction.getParameter(1) instanceof JPALiteralOperator) {
-          final StringBuilder contains = new StringBuilder();
-          contains.append('%');
-          contains.append((String) ((JPALiteralOperator) jpaFunction.getParameter(1)).get());
-          contains.append('%');
-          return cb.like((Expression<String>) (jpaFunction.getParameter(0).get()), contains.toString());
+          return cb.like((Expression<String>) (jpaFunction.getParameter(0).get()),
+              buildLikeLiteral(jpaFunction, "%", "%").toString());
         } else {
           return cb.like((Expression<String>) (jpaFunction.getParameter(0).get()),
               (Expression<String>) ((JPAMethodCall) jpaFunction.getParameter(1)).get("%", "%"));
         }
       case ENDSWITH:
         if (jpaFunction.getParameter(1) instanceof JPALiteralOperator) {
-          final StringBuilder ends = new StringBuilder();
-          ends.append('%');
-          ends.append((String) ((JPALiteralOperator) jpaFunction.getParameter(1)).get());
-          return cb.like((Expression<String>) (jpaFunction.getParameter(0).get()), ends.toString());
+          return cb.like((Expression<String>) (jpaFunction.getParameter(0).get()),
+              buildLikeLiteral(jpaFunction, "%", "").toString());
         } else {
           return cb.like((Expression<String>) (jpaFunction.getParameter(0).get()),
               (Expression<String>) ((JPAMethodCall) jpaFunction.getParameter(1)).get("%", ""));
         }
       case STARTSWITH:
         if (jpaFunction.getParameter(1) instanceof JPALiteralOperator) {
-          final StringBuilder starts = new StringBuilder();
-          starts.append((String) ((JPALiteralOperator) jpaFunction.getParameter(1)).get());
-          starts.append('%');
-          return cb.like((Expression<String>) (jpaFunction.getParameter(0).get()), starts.toString());
+          return cb.like((Expression<String>) (jpaFunction.getParameter(0).get()),
+              buildLikeLiteral(jpaFunction, "", "%").toString());
         } else {
           return cb.like((Expression<String>) (jpaFunction.getParameter(0).get()),
               (Expression<String>) ((JPAMethodCall) jpaFunction.getParameter(1)).get("", "%"));
@@ -188,6 +182,16 @@ public class JPAOperationConverter {
     }
   }
 
+  private StringBuilder buildLikeLiteral(final JPAMethodCall jpaFunction, final String prefix,
+      final String postfix) throws ODataApplicationException {
+
+    final StringBuilder contains = new StringBuilder();
+    contains.append(prefix);
+    contains.append((String) ((JPALiteralOperator) jpaFunction.getParameter(1)).get());
+    contains.append(postfix);
+    return contains;
+  }
+
   public final Expression<Boolean> convert(final JPAUnaryBooleanOperatorImp jpaOperator)
       throws ODataApplicationException {
 
@@ -218,8 +222,9 @@ public class JPAOperationConverter {
         return cb.sum((Expression<Integer>) jpaFunction.getParameter(parameterIndex).get(), offset);
       else
         return (Expression<Integer>) jpaFunction.getParameter(parameterIndex).get();
-    } else
+    } else {
       return cb.literal(new Integer(parameter.get().toString()) + offset);
+    }
   }
 
   private Expression<Boolean> equalExpression(
@@ -228,13 +233,15 @@ public class JPAOperationConverter {
       final Function<Expression<?>, Expression<Boolean>> nullFunction,
       final JPAComparisonOperator<?> jpaOperator) throws ODataApplicationException {
 
-    if (jpaOperator.getRight() instanceof JPAPrimitiveTypeOperator)
+    if (jpaOperator.getRight() instanceof JPAPrimitiveTypeOperator) {
       if (((JPAPrimitiveTypeOperator) jpaOperator.getRight()).isNull())
         return nullFunction.apply(jpaOperator.getLeft());
-      else
+      else if (jpaOperator.getRight() instanceof JPAEnumerationOperator)
         return expressionObjectFunction.apply(jpaOperator.getLeft(), ((JPAOperator) jpaOperator.getRight()).get());
-    else
+      else
+        return expressionObjectFunction.apply(jpaOperator.getLeft(), jpaOperator.getRightAsComparable());
+    } else {
       return allExpressionFunction.apply(jpaOperator.getLeft(), jpaOperator.getRightAsExpression());
+    }
   }
-
 }

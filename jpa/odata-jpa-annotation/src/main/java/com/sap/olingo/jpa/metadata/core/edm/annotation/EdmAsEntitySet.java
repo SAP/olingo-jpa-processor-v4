@@ -11,7 +11,9 @@ import java.lang.annotation.Target;
  * <a href=
  * "https://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part3-csdl/odata-v4.0-errata03-os-part3-csdl-complete.html#_Toc453752596"
  * >OData Version 4.0 Part 3 - 13 Entity Container Example 30</a>
+ * @deprecated (since 1.0.3, replace with {@link EdmEntityType}, deleted with 1.1.0 )
  */
+@Deprecated
 @Target({ ElementType.TYPE })
 @Retention(value = RetentionPolicy.RUNTIME)
 public @interface EdmAsEntitySet {

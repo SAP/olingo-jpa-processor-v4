@@ -3,6 +3,7 @@ package com.sap.olingo.jpa.metadata.core.edm.annotation;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
@@ -13,6 +14,7 @@ import java.lang.annotation.Target;
  * @author Oliver Grande
  *
  */
+@Repeatable(EdmProtections.class)
 @Retention(RUNTIME)
 @Target(FIELD)
 public @interface EdmProtectedBy {

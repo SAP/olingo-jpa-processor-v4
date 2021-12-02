@@ -1,13 +1,16 @@
 package com.sap.olingo.jpa.processor.core.converter;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.annotation.Nullable;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Tuple;
+import javax.persistence.TupleElement;
 
 import org.apache.olingo.commons.api.Constants;
 import org.apache.olingo.commons.api.data.ComplexValue;
@@ -22,6 +25,7 @@ import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.uri.UriHelper;
 
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransientPropertyCalculator;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
@@ -31,8 +35,10 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
-import com.sap.olingo.jpa.processor.core.query.JPAConvertableResult;
+import com.sap.olingo.jpa.processor.core.query.JPAConvertibleResult;
 
 /**
  * Abstract super class for result converter, which convert Tuple based results.
@@ -49,18 +55,20 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
   protected final JPAServiceDocument sd;
   protected final ServiceMetadata serviceMetadata;
   protected EdmEntityType edmType;
+  protected final JPAODataRequestContextAccess requestContext;
 
-  public JPATupleResultConverter(final JPAServiceDocument sd, final UriHelper uriHelper,
-      final ServiceMetadata serviceMetadata) {
+  protected JPATupleResultConverter(final JPAServiceDocument sd, final UriHelper uriHelper,
+      final ServiceMetadata serviceMetadata, final JPAODataRequestContextAccess requestContext) {
     this.uriHelper = uriHelper;
     this.sd = sd;
     this.serviceMetadata = serviceMetadata;
+    this.requestContext = requestContext;
   }
 
   protected String buildConcatenatedKey(final Tuple row, final List<JPAPath> leftColumns) {
     final StringBuilder buffer = new StringBuilder();
     for (final JPAPath item : leftColumns) {
-      buffer.append(JPAPath.PATH_SEPERATOR);
+      buffer.append(JPAPath.PATH_SEPARATOR);
       // TODO Tuple returns the converted value in case a @Convert(converter = annotation is given
       buffer.append(row.get(item.getAlias()));
     }
@@ -69,7 +77,7 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
   }
 
   protected String buildPath(final String prefix, final JPAAssociationAttribute association) {
-    return EMPTY_PREFIX.equals(prefix) ? association.getExternalName() : prefix + JPAPath.PATH_SEPERATOR + association
+    return EMPTY_PREFIX.equals(prefix) ? association.getExternalName() : prefix + JPAPath.PATH_SEPARATOR + association
         .getExternalName();
   }
 
@@ -84,7 +92,50 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
         convertComplexAttribute(value, jpaPath.getAlias(), complexValueBuffer, properties, attribute, parentRow,
             prefix, odataEntity);
       } else if (attribute != null) {
-        convertPrimitiveAttribute(value, properties, jpaPath, attribute, odataEntity);
+        convertPrimitiveAttribute(value, properties, jpaPath, attribute, parentRow);
+      }
+    }
+  }
+
+  protected void convertRowWithOutSelection(final JPAEntityType rowEntity, final Tuple row,
+      final Map<String, ComplexValue> complexValueBuffer, final Entity odataEntity, final List<Property> properties)
+      throws ODataApplicationException {
+    for (final TupleElement<?> element : row.getElements()) {
+      try {
+        if (odataEntity.getProperty(element.getAlias()) == null) {
+          final JPAPath path = rowEntity.getPath(element.getAlias());
+          convertAttribute(row.get(element.getAlias()), path, complexValueBuffer, properties, row, EMPTY_PREFIX,
+              odataEntity);
+        }
+      } catch (final ODataJPAModelException e) {
+        throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
+            HttpStatusCode.INTERNAL_SERVER_ERROR, e);
+      }
+    }
+  }
+
+  protected void convertRowWithSelection(final Tuple row, final Collection<JPAPath> requestedSelection,
+      final Map<String, ComplexValue> complexValueBuffer, final Entity odataEntity, final List<Property> properties)
+      throws ODataApplicationException {
+    for (final JPAPath p : requestedSelection) {
+      try {
+        final Object value = p.isTransient() ? null : row.get(p.getAlias());
+        if (odataEntity == null || odataEntity.getProperty(p.getAlias()) == null)
+          convertAttribute(value, p, complexValueBuffer, properties, row, EMPTY_PREFIX, odataEntity);
+
+      } catch (final IllegalArgumentException e) {
+        // Skipped property; add it to result
+        final JPATuple skipped = new JPATuple();
+        skipped.addElement(p.getAlias(), p.getLeaf().getType(), null);
+        try {
+          convertAttribute(null, p, complexValueBuffer, properties, skipped, EMPTY_PREFIX, odataEntity);
+        } catch (final ODataJPAModelException e1) {
+          throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
+              HttpStatusCode.INTERNAL_SERVER_ERROR, e1);
+        }
+      } catch (final ODataJPAModelException e) {
+        throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
+            HttpStatusCode.INTERNAL_SERVER_ERROR, e);
       }
     }
   }
@@ -114,7 +165,7 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
       for (final JPAAssociationAttribute a : jpaStructuredType.getDeclaredAssociations()) {
         path = jpaConversionTargetEntity.getAssociationPath(buildPath(prefix, a));
         final JPAExpandResult child = jpaQueryResult.getChild(path);
-        final String linkURI = rootURI + JPAPath.PATH_SEPERATOR + path.getAlias();
+        final String linkURI = rootURI + JPAPath.PATH_SEPARATOR + path.getAlias();
         if (child != null) {
           // TODO Check how to convert Organizations('3')/AdministrativeInformation?$expand=Created/User
           entityExpandLinks.add(getLink(path, row, child, linkURI));
@@ -124,7 +175,7 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
       }
     } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_NAVI_PROPERTY_ERROR,
-          HttpStatusCode.INTERNAL_SERVER_ERROR, path != null ? path.getAlias() : EMPTY_PREFIX);
+          HttpStatusCode.INTERNAL_SERVER_ERROR, e, path != null ? path.getAlias() : EMPTY_PREFIX);
     }
     return entityExpandLinks;
   }
@@ -132,7 +183,10 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
   protected final String determineAlias(final String alias, final String prefix) {
     if (EMPTY_PREFIX.equals(prefix))
       return alias;
-    return alias.substring(alias.indexOf(prefix) + prefix.length() + 1);
+    final int startPos = alias.indexOf(prefix) + prefix.length() + 1;
+    if (startPos > alias.length())
+      return null;
+    return alias.substring(startPos);
   }
 
   protected final JPAStructuredType determineCollectionRoot(final JPAEntityType et, final List<JPAElement> pathList)
@@ -145,7 +199,7 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
 
   protected final String determinePrefix(final String alias) {
     final String prefix = alias;
-    final int index = prefix.lastIndexOf(JPAPath.PATH_SEPERATOR);
+    final int index = prefix.lastIndexOf(JPAPath.PATH_SEPARATOR);
     if (index < 0)
       return EMPTY_PREFIX;
     else
@@ -153,7 +207,7 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
   }
 
   String buildPath(final JPAAttribute attribute, final String prefix) {
-    return EMPTY_PREFIX.equals(prefix) ? attribute.getExternalName() : prefix + JPAPath.PATH_SEPERATOR + attribute
+    return EMPTY_PREFIX.equals(prefix) ? attribute.getExternalName() : prefix + JPAPath.PATH_SEPARATOR + attribute
         .getExternalName();
   }
 
@@ -170,7 +224,7 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
     }
 
     final List<Property> values = complexValueBuffer.get(bufferKey).getValue();
-    final int splitIndex = attribute.getExternalName().length() + JPAPath.PATH_SEPERATOR.length();
+    final int splitIndex = attribute.getExternalName().length() + JPAPath.PATH_SEPARATOR.length();
     final String attributeName = splitIndex < externalName.length() ? externalName.substring(splitIndex) : externalName;
     convertAttribute(value, attribute.getStructuredType().getPath(attributeName), complexValueBuffer, values,
         parentRow, buildPath(attribute, prefix), odataEntity);
@@ -178,17 +232,32 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
 
   @SuppressWarnings("unchecked")
   <T extends Object, S extends Object> void convertPrimitiveAttribute(final Object value,
-      final List<Property> properties, final JPAPath jpaPath, final JPAAttribute attribute,
-      @Nullable final Entity odataEntity) {
+      final List<Property> properties, final JPAPath jpaPath, final JPAAttribute attribute, final Tuple parentRow)
+      throws ODataJPAProcessorException {
 
-    Object odataValue;
-    if (attribute != null && attribute.getConverter() != null) {
+    Object odataValue = null;
+    if (attribute != null && attribute.isTransient()) {
+      if (attribute.isCollection())
+        return;
+      final Optional<EdmTransientPropertyCalculator<?>> calculator = requestContext.getCalculator(attribute);
+      if (calculator.isPresent()) {
+        try {
+          odataValue = calculator.get().calculateProperty(parentRow);
+        } catch (final IllegalArgumentException e) {
+          requestContext.getDebugger().debug(this, "Error in transient field calculator %s: %s",
+              calculator.get().getClass().getName(), e.getMessage());
+          throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+        }
+      }
+    } else if (attribute != null && attribute.getConverter() != null) {
       final AttributeConverter<T, S> converter = attribute.getConverter();
       odataValue = converter.convertToDatabaseColumn((T) value);
     } else if (attribute != null && value != null && attribute.isEnum()) {
       odataValue = ((Enum<?>) value).ordinal();
     } else if (attribute != null && value != null && attribute.isCollection()) {
       return;
+    } else if (attribute != null && value != null && attribute.getType() == Duration.class) {
+      odataValue = ((Duration) value).getSeconds();
     } else {
       odataValue = value;
     }
@@ -209,10 +278,10 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
     }
   }
 
-  Integer determineCount(final JPAAssociationPath assoziation, final Tuple parentRow, final JPAExpandResult child)
+  Integer determineCount(final JPAAssociationPath association, final Tuple parentRow, final JPAExpandResult child)
       throws ODataJPAQueryException {
     try {
-      final Long count = child.getCount(buildConcatenatedKey(parentRow, assoziation.getLeftColumnsList()));
+      final Long count = child.getCount(buildConcatenatedKey(parentRow, association.getLeftColumnsList()));
       return count != null ? count.intValue() : null;
     } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_CONV_ERROR,
@@ -220,18 +289,27 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
     }
   }
 
-  private Link getLink(final JPAAssociationPath assoziation, final Tuple parentRow, final JPAExpandResult child,
+  private Link getLink(final JPAAssociationPath association, final String linkURI) {
+    final Link link = new Link();
+    link.setTitle(association.getLeaf().getExternalName());
+    link.setRel(Constants.NS_NAVIGATION_LINK_REL + link.getTitle());
+    link.setType(Constants.ENTITY_NAVIGATION_LINK_TYPE);
+    link.setHref(linkURI);
+    return link;
+  }
+
+  private Link getLink(final JPAAssociationPath association, final Tuple parentRow, final JPAExpandResult child,
       final String linkURI) throws ODataApplicationException {
     final Link link = new Link();
-    link.setTitle(assoziation.getLeaf().getExternalName());
+    link.setTitle(association.getLeaf().getExternalName());
     link.setRel(Constants.NS_NAVIGATION_LINK_REL + link.getTitle());
     link.setType(Constants.ENTITY_NAVIGATION_LINK_TYPE);
     try {
-      final EntityCollection expandCollection = ((JPAConvertableResult) child).getEntityCollection(
-          buildConcatenatedKey(parentRow, assoziation.getLeftColumnsList()));
+      final EntityCollection expandCollection = ((JPAConvertibleResult) child).getEntityCollection(
+          buildConcatenatedKey(parentRow, association.getLeftColumnsList()));
 
-      expandCollection.setCount(determineCount(assoziation, parentRow, child));
-      if (assoziation.getLeaf().isCollection()) {
+      expandCollection.setCount(determineCount(association, parentRow, child));
+      if (association.getLeaf().isCollection()) {
         link.setInlineEntitySet(expandCollection);
         link.setHref(linkURI);
       } else {
@@ -247,14 +325,4 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
     }
     return link;
   }
-
-  private Link getLink(final JPAAssociationPath assoziation, final String linkURI) {
-    final Link link = new Link();
-    link.setTitle(assoziation.getLeaf().getExternalName());
-    link.setRel(Constants.NS_NAVIGATION_LINK_REL + link.getTitle());
-    link.setType(Constants.ENTITY_NAVIGATION_LINK_TYPE);
-    link.setHref(linkURI);
-    return link;
-  }
-
 }

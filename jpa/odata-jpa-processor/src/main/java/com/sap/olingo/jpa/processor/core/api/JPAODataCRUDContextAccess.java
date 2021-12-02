@@ -7,27 +7,19 @@ import javax.persistence.EntityManagerFactory;
 
 import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.commons.api.ex.ODataException;
-import org.apache.olingo.server.api.debug.DebugSupport;
 import org.apache.olingo.server.api.processor.ErrorProcessor;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 
 /**
- * 
+
  * @author Oliver Grande
  *
  */
 public interface JPAODataCRUDContextAccess {
 
   public JPAODataDatabaseProcessor getDatabaseProcessor();
-
-  /**
-   * @deprecated (will be removed with 1.0.0; use request context)
-   * @return
-   */
-  @Deprecated
-  public DebugSupport getDebugSupport();
 
   public JPAEdmProvider getEdmProvider() throws ODataException;
 
@@ -36,17 +28,10 @@ public interface JPAODataCRUDContextAccess {
   public List<EdmxReference> getReferences();
 
   /**
-   * @deprecated (will be removed with 1.0.0; use request context)
-   * @return
-   */
-  @Deprecated
-  public JPACUDRequestHandler getCUDRequestHandler();
-
-  /**
    * Returns a list of packages that may contain Enumerations of Java implemented OData operations
    * @return
    */
-  public String[] getPackageName();
+  public List<String> getPackageName();
 
   /**
    * If server side paging shall be supported <code>getPagingProvider</code> returns an implementation of a paging
@@ -57,7 +42,7 @@ public interface JPAODataCRUDContextAccess {
    */
   public JPAODataPagingProvider getPagingProvider();
 
-  public default Optional<EntityManagerFactory> getEntityManagerFactory() {
+  public default Optional<? extends EntityManagerFactory> getEntityManagerFactory() {
     return Optional.empty();
   }
 
@@ -67,6 +52,10 @@ public interface JPAODataCRUDContextAccess {
 
   public default String getMappingPath() {
     return "";
+  }
+
+  public default <T extends JPAODataBatchProcessor> JPAODataBatchProcessorFactory<T> getBatchProcessorFactory() {
+    return null;
   }
 
   public default boolean useAbsoluteContextURL() {

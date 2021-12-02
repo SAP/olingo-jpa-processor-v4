@@ -14,67 +14,76 @@ import org.reflections8.Reflections;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEnumeration;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.core.testmodel.ABCClassifiaction;
+import com.sap.olingo.jpa.processor.core.testmodel.ABCClassification;
 import com.sap.olingo.jpa.processor.core.testmodel.AccessRights;
 import com.sap.olingo.jpa.processor.core.testmodel.TestDataConstants;
 
-public class TestIntermediateSchema extends TestMappingRoot {
+class TestIntermediateSchema extends TestMappingRoot {
   private Reflections r;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     r = mock(Reflections.class);
-    when(r.getTypesAnnotatedWith(EdmEnumeration.class)).thenReturn(new HashSet<>(Arrays.asList(new Class<?>[] {
-        ABCClassifiaction.class, AccessRights.class })));
+    when(r.getTypesAnnotatedWith(EdmEnumeration.class)).thenReturn(new HashSet<>(Arrays.asList(ABCClassification.class,
+        AccessRights.class)));
   }
 
   @Test
-  public void checkSchemaCanBeCreated() throws ODataJPAModelException {
+  void checkSchemaCanBeCreated() throws ODataJPAModelException {
 
-    new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), r);
+    final IntermediateSchema schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf
+        .getMetamodel(), r);
+    assertNotNull(schema);
   }
 
   @Test
-  public void checkSchemaGetAllEntityTypes() throws ODataJPAModelException {
-    IntermediateSchema schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), r);
+  void checkSchemaGetAllEntityTypes() throws ODataJPAModelException {
+    final IntermediateSchema schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf
+        .getMetamodel(), r);
     assertEquals(TestDataConstants.NO_ENTITY_TYPES, schema.getEdmItem().getEntityTypes().size(),
         "Wrong number of entities");
   }
 
   @Test
-  public void checkSchemaGetEntityTypeByNameNotNull() throws ODataJPAModelException {
-    IntermediateSchema schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), r);
+  void checkSchemaGetEntityTypeByNameNotNull() throws ODataJPAModelException {
+    final IntermediateSchema schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf
+        .getMetamodel(), r);
     assertNotNull(schema.getEdmItem().getEntityType("BusinessPartner"));
   }
 
   @Test
-  public void checkSchemaGetEntityTypeByNameRightEntity() throws ODataJPAModelException {
-    IntermediateSchema schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), r);
+  void checkSchemaGetEntityTypeByNameRightEntity() throws ODataJPAModelException {
+    final IntermediateSchema schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf
+        .getMetamodel(), r);
     assertEquals("BusinessPartner", schema.getEdmItem().getEntityType("BusinessPartner").getName());
   }
 
   @Test
-  public void checkSchemaGetAllComplexTypes() throws ODataJPAModelException {
-    IntermediateSchema schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), r);
+  void checkSchemaGetAllComplexTypes() throws ODataJPAModelException {
+    final IntermediateSchema schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf
+        .getMetamodel(), r);
     // ChangeInformation,CommunicationData,AdministrativeInformation,PostalAddressData
-    assertEquals(20, schema.getEdmItem().getComplexTypes().size(), "Wrong number of complex types");
+    assertEquals(23, schema.getEdmItem().getComplexTypes().size(), "Wrong number of complex types");
   }
 
   @Test
-  public void checkSchemaGetComplexTypeByNameNotNull() throws ODataJPAModelException {
-    IntermediateSchema schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), r);
+  void checkSchemaGetComplexTypeByNameNotNull() throws ODataJPAModelException {
+    final IntermediateSchema schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf
+        .getMetamodel(), r);
     assertNotNull(schema.getEdmItem().getComplexType("CommunicationData"));
   }
 
   @Test
-  public void checkSchemaGetComplexTypeByNameRightEntity() throws ODataJPAModelException {
-    IntermediateSchema schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), r);
+  void checkSchemaGetComplexTypeByNameRightEntity() throws ODataJPAModelException {
+    final IntermediateSchema schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf
+        .getMetamodel(), r);
     assertEquals("CommunicationData", schema.getEdmItem().getComplexType("CommunicationData").getName());
   }
 
   @Test
-  public void checkSchemaGetAllFunctions() throws ODataJPAModelException {
-    IntermediateSchema schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf.getMetamodel(), r);
+  void checkSchemaGetAllFunctions() throws ODataJPAModelException {
+    final IntermediateSchema schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf
+        .getMetamodel(), r);
     assertEquals(10, schema.getEdmItem().getFunctions().size(), "Wrong number of entities");
   }
 }

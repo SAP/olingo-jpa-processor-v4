@@ -18,17 +18,17 @@ import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.UriResourcePartTyped;
 
-import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPASerializerException;
 
 public final class JPASerializerFactory {
   private final ServiceMetadata serviceMetadata;
   private final OData odata;
   private final UriHelper uriHelper;
-  private final JPAODataCRUDContextAccess serviceContext;
+  private final JPAODataSessionContextAccess serviceContext;
 
   public JPASerializerFactory(final OData odata, final ServiceMetadata serviceMetadata,
-      final JPAODataCRUDContextAccess serviceContext) {
+      final JPAODataSessionContextAccess serviceContext) {
     this.odata = odata;
     this.serviceMetadata = serviceMetadata;
     this.uriHelper = odata.createUriHelper();
@@ -48,9 +48,9 @@ public final class JPASerializerFactory {
     // Assumption: Type of last resource path item rules the type of the response
     final List<UriResource> resourceParts = uriInfo.getUriResourceParts();
     final UriResource lastItem = resourceParts.get(resourceParts.size() - 1);
-    final boolean isColletion = determineIsCollection(lastItem);
+    final boolean isCollection = determineIsCollection(lastItem);
 
-    return createSerializer(responseFormat, uriInfo, lastItem.getKind(), isColletion, responseVersion);
+    return createSerializer(responseFormat, uriInfo, lastItem.getKind(), isCollection, responseVersion);
   }
 
   public ServiceMetadata getServiceMetadata() {
@@ -58,67 +58,68 @@ public final class JPASerializerFactory {
   }
 
   JPASerializer createSerializer(final ContentType responseFormat, final UriInfo uriInfo, final EdmTypeKind edmTypeKind,
-      final boolean isColletion, final Optional<List<String>> responseVersion) throws SerializerException,
+      final boolean isCollection, final Optional<List<String>> responseVersion) throws SerializerException,
       ODataJPASerializerException {
 
     final ODataSerializer serializer = odata.createSerializer(responseFormat,
         responseVersion.orElse(Collections.emptyList()));
     switch (edmTypeKind) {
-    case ENTITY:
-      if (isColletion)
-        return new JPASerializeEntityCollection(serviceMetadata, serializer, uriHelper, uriInfo, responseFormat,
-            serviceContext);
-      else
-        return new JPASerializeEntity(serviceMetadata, serializer, uriHelper, uriInfo, responseFormat,
-            serviceContext);
-    case COMPLEX:
-      if (isColletion)
-        return new JPASerializeComplexCollection(serviceMetadata, serializer, responseFormat, serviceContext);
-      else
-        return new JPASerializeComplex(serviceMetadata, serializer, uriHelper, uriInfo, responseFormat,
-            serviceContext);
-    case PRIMITIVE:
-      if (isColletion)
-        return new JPASerializePrimitiveCollection(serviceMetadata, serializer, responseFormat, serviceContext);
-      else
-        return new JPASerializePrimitive(serviceMetadata, serializer, uriInfo, responseFormat, serviceContext);
-    default:
-      throw new ODataJPASerializerException(ODataJPASerializerException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
-          HttpStatusCode.NOT_IMPLEMENTED, edmTypeKind.toString());
+      case ENTITY:
+        if (isCollection)
+          return new JPASerializeEntityCollection(serviceMetadata, serializer, uriHelper, uriInfo, responseFormat,
+              serviceContext);
+        else
+          return new JPASerializeEntity(serviceMetadata, serializer, uriHelper, uriInfo, responseFormat,
+              serviceContext);
+      case COMPLEX:
+        if (isCollection)
+          return new JPASerializeComplexCollection(serviceMetadata, serializer, responseFormat, serviceContext);
+        else
+          return new JPASerializeComplex(serviceMetadata, serializer, uriHelper, uriInfo, responseFormat,
+              serviceContext);
+      case PRIMITIVE:
+        if (isCollection)
+          return new JPASerializePrimitiveCollection(serviceMetadata, serializer, responseFormat, serviceContext);
+        else
+          return new JPASerializePrimitive(serviceMetadata, serializer, uriInfo, responseFormat, serviceContext);
+      default:
+        throw new ODataJPASerializerException(ODataJPASerializerException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
+            HttpStatusCode.NOT_IMPLEMENTED, edmTypeKind.toString());
     }
   }
 
   JPASerializer createSerializer(final ContentType responseFormat, final UriInfo uriInfo,
-      final UriResourceKind uriResourceKind, final boolean isColletion, final Optional<List<String>> responseVersion)
+      final UriResourceKind uriResourceKind, final boolean isCollection, final Optional<List<String>> responseVersion)
       throws SerializerException, ODataJPASerializerException {
 
     switch (uriResourceKind) {
-    case entitySet:
-    case navigationProperty:
-      return createSerializerCollectionRequest(responseFormat, uriInfo, isColletion, responseVersion);
-    case complexProperty:
-      return createSerializerComplexPropertyRequest(responseFormat, uriInfo, responseVersion);
-    case primitiveProperty:
-      return createSerializerPrimitivePropertyRequest(responseFormat, uriInfo, responseVersion);
-    case action:
-    case function:
-      return new JPASerializeFunction(uriInfo, responseFormat, this, responseVersion);
-    case count:
-      return new JPASerializeCount(odata.createFixedFormatSerializer());
-    case value:
-      return new JPASerializeValue(serviceMetadata, odata.createFixedFormatSerializer(), uriInfo);
-    default:
-      throw new ODataJPASerializerException(ODataJPASerializerException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
-          HttpStatusCode.NOT_IMPLEMENTED, uriResourceKind.toString());
+      case entitySet:
+      case navigationProperty:
+      case singleton:
+        return createSerializerCollectionRequest(responseFormat, uriInfo, isCollection, responseVersion);
+      case complexProperty:
+        return createSerializerComplexPropertyRequest(responseFormat, uriInfo, responseVersion);
+      case primitiveProperty:
+        return createSerializerPrimitivePropertyRequest(responseFormat, uriInfo, responseVersion);
+      case action:
+      case function:
+        return new JPASerializeFunction(uriInfo, responseFormat, this, responseVersion);
+      case count:
+        return new JPASerializeCount(odata.createFixedFormatSerializer());
+      case value:
+        return new JPASerializeValue(serviceMetadata, odata.createFixedFormatSerializer(), uriInfo);
+      default:
+        throw new ODataJPASerializerException(ODataJPASerializerException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
+            HttpStatusCode.NOT_IMPLEMENTED, uriResourceKind.toString());
     }
   }
 
   private JPASerializer createSerializerCollectionRequest(final ContentType responseFormat, final UriInfo uriInfo,
-      final boolean isColletion, final Optional<List<String>> responseVersion) throws SerializerException {
+      final boolean isCollection, final Optional<List<String>> responseVersion) throws SerializerException {
 
     final ODataSerializer serializer = odata.createSerializer(responseFormat,
         responseVersion.orElse(Collections.emptyList()));
-    if (isColletion)
+    if (isCollection)
       return new JPASerializeEntityCollection(serviceMetadata, serializer, uriHelper, uriInfo, responseFormat,
           serviceContext);
     else

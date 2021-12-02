@@ -9,7 +9,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
 import javax.persistence.OneToMany;
 
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssoziation;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssociation;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmVisibleFor;
 
@@ -37,12 +37,12 @@ public class PostalAddressDataWithGroup {
   @Column(name = "\"Address.Region\"")
   private String region;
 
-  @EdmDescriptionAssoziation(languageAttribute = "language", descriptionAttribute = "name")
+  @EdmDescriptionAssociation(languageAttribute = "language", descriptionAttribute = "name")
   @OneToMany(fetch = FetchType.LAZY)
   @JoinColumn(name = "\"ISOCode\"", referencedColumnName = "\"Address.Country\"", insertable = false, updatable = false)
   private Collection<Country> countryName;
 
-  @EdmDescriptionAssoziation(languageAttribute = "key/language", descriptionAttribute = "name")
+  @EdmDescriptionAssociation(languageAttribute = "key/language", descriptionAttribute = "name")
   @OneToMany(fetch = FetchType.LAZY)
   @JoinColumns({
       @JoinColumn(name = "\"CodePublisher\"", referencedColumnName = "\"Address.RegionCodePublisher\"",

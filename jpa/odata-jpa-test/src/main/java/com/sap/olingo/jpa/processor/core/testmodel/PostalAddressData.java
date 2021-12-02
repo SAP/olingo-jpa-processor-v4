@@ -6,12 +6,13 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Transient;
 
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssoziation;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssociation;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransient;
 
 @Embeddable
 public class PostalAddressData {
@@ -35,34 +36,32 @@ public class PostalAddressData {
   private String regionCodeID = "3166-2";
   @Column(name = "\"Address.Region\"")
   private String region;
+  @Transient
+  @EdmTransient(calculator = StreetPropertyCalculator.class, requiredAttributes = { "streetName", "houseNumber" })
+  private String street;
 
-  @EdmDescriptionAssoziation(languageAttribute = "language", descriptionAttribute = "name")
+  @EdmDescriptionAssociation(languageAttribute = "language", descriptionAttribute = "name")
   @OneToMany(fetch = FetchType.LAZY)
   @JoinColumn(name = "\"ISOCode\"", referencedColumnName = "\"Address.Country\"", insertable = false, updatable = false)
   private Collection<Country> countryName;
 
-  @EdmDescriptionAssoziation(languageAttribute = "key/language", descriptionAttribute = "name")
+  @EdmDescriptionAssociation(languageAttribute = "key/language", descriptionAttribute = "name")
   @OneToMany(fetch = FetchType.LAZY)
-  @JoinColumns({
-      @JoinColumn(name = "\"CodePublisher\"", referencedColumnName = "\"Address.RegionCodePublisher\"",
-          insertable = false, updatable = false),
-      @JoinColumn(name = "\"CodeID\"", referencedColumnName = "\"Address.RegionCodeID\"", insertable = false,
-          updatable = false),
-      @JoinColumn(name = "\"DivisionCode\"", referencedColumnName = "\"Address.Region\"", insertable = false,
-          updatable = false)
-  })
+  @JoinColumn(name = "\"CodePublisher\"", referencedColumnName = "\"Address.RegionCodePublisher\"",
+      insertable = false, updatable = false)
+  @JoinColumn(name = "\"CodeID\"", referencedColumnName = "\"Address.RegionCodeID\"", insertable = false,
+      updatable = false)
+  @JoinColumn(name = "\"DivisionCode\"", referencedColumnName = "\"Address.Region\"", insertable = false,
+      updatable = false)
   private Collection<AdministrativeDivisionDescription> regionName;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumns({
-      @JoinColumn(name = "\"Address.RegionCodePublisher\"", referencedColumnName = "\"CodePublisher\"",
-          nullable = false,
-          insertable = false, updatable = false),
-      @JoinColumn(name = "\"Address.RegionCodeID\"", referencedColumnName = "\"CodeID\"", nullable = false,
-          insertable = false, updatable = false),
-      @JoinColumn(name = "\"Address.Region\"", referencedColumnName = "\"DivisionCode\"", nullable = false,
-          insertable = false, updatable = false)
-  })
+  @JoinColumn(name = "\"Address.RegionCodePublisher\"", referencedColumnName = "\"CodePublisher\"",
+      nullable = false, insertable = false, updatable = false)
+  @JoinColumn(name = "\"Address.RegionCodeID\"", referencedColumnName = "\"CodeID\"", nullable = false,
+      insertable = false, updatable = false)
+  @JoinColumn(name = "\"Address.Region\"", referencedColumnName = "\"DivisionCode\"", nullable = false,
+      insertable = false, updatable = false)
   private AdministrativeDivision administrativeDivision;
 
   public String getStreetName() {

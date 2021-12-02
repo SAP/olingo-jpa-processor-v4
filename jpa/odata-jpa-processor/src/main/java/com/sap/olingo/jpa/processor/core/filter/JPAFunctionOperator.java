@@ -1,5 +1,7 @@
 package com.sap.olingo.jpa.processor.core.filter;
 
+import static com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FILTER;
+
 import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -17,7 +19,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOperationResultParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPATypeConvertor;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPATypeConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 
@@ -50,7 +52,7 @@ final class JPAFunctionOperator implements JPAOperator {
           HttpStatusCode.NOT_IMPLEMENTED);
     }
 
-    if (!JPATypeConvertor.isScalarType(
+    if (!JPATypeConverter.isScalarType(
         jpaFunction.getResultParameter().getType())) {
       throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FUNCTION_NOT_SCALAR,
           HttpStatusCode.NOT_IMPLEMENTED);
@@ -72,12 +74,14 @@ final class JPAFunctionOperator implements JPAOperator {
         final JPALiteralOperator operator = new JPALiteralOperator(visitor.getOdata(), new ParameterLiteral(p
             .getText()));
         jpaParameter[i] = cb.literal(operator.get(parameters.get(i)));
-      } else {
+      } else if (p != null && p.getExpression() != null) {
         try {
           jpaParameter[i] = (Expression<?>) p.getExpression().accept(visitor).get();
         } catch (ExpressionVisitException e) {
           throw new ODataJPAFilterException(e, HttpStatusCode.NOT_IMPLEMENTED);
         }
+      } else {
+        throw new ODataJPAFilterException(NOT_SUPPORTED_FILTER, HttpStatusCode.NOT_IMPLEMENTED);
       }
     }
     return cb.function(jpaFunction.getDBName(), jpaFunction.getResultParameter().getType(), jpaParameter);

@@ -23,7 +23,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.core.testmodel.ABCClassifiaction;
+import com.sap.olingo.jpa.processor.core.testmodel.ABCClassification;
 import com.sap.olingo.jpa.processor.core.testmodel.AccessRights;
 
 public class TestHelper {
@@ -32,9 +32,8 @@ public class TestHelper {
 
   public TestHelper(final Metamodel metamodel, final String namespace) throws ODataJPAModelException {
     final Reflections r = mock(Reflections.class);
-    when(r.getTypesAnnotatedWith(EdmEnumeration.class)).thenReturn(new HashSet<>(Arrays.asList(new Class<?>[] {
-        ABCClassifiaction.class, AccessRights.class })));
-
+    when(r.getTypesAnnotatedWith(EdmEnumeration.class)).thenReturn(new HashSet<>(Arrays.asList(ABCClassification.class,
+        AccessRights.class)));
     this.jpaMetamodel = metamodel;
     this.schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(namespace), jpaMetamodel, r);
   }
@@ -81,13 +80,21 @@ public class TestHelper {
     return null;
   }
 
-  public EmbeddableType<?> getEmbeddedableType(final String typeName) {
+  public EmbeddableType<?> getEmbeddableType(final String typeName) {
     for (final EmbeddableType<?> embeddableType : jpaMetamodel.getEmbeddables()) {
       if (embeddableType.getJavaType().getSimpleName().equals(typeName)) {
         return embeddableType;
       }
     }
     return null;
+  }
+
+  public <T> EmbeddableType<T> getEmbeddableType(final Class<T> clazz) {
+    try {
+      return jpaMetamodel.embeddable(clazz);
+    } catch (final IllegalArgumentException e) {
+      return null;
+    }
   }
 
   public <T> EntityType<T> getEntityType(final Class<T> clazz) {

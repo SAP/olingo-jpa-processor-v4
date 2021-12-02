@@ -36,7 +36,7 @@ import com.sap.olingo.jpa.processor.core.util.TestBase;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 import com.sap.olingo.jpa.processor.core.util.TupleDouble;
 
-public class TestJPAExpandQueryResult extends TestBase {
+class TestJPAExpandQueryResult extends TestBase {
   private JPAExpandQueryResult cut;
   private UriInfoResource uriInfo;
   private TopOption top;
@@ -44,17 +44,17 @@ public class TestJPAExpandQueryResult extends TestBase {
   private ExpandOption expand;
   private JPAODataRequestContextAccess requestContext;
   private TestHelper helper;
-  private HashMap<String, List<Tuple>> queryResult = new HashMap<>(1);
-  private List<Tuple> tuples = new ArrayList<>();
+  private final HashMap<String, List<Tuple>> queryResult = new HashMap<>(1);
+  private final List<Tuple> tuples = new ArrayList<>();
   private JPAEntityType et;
-  private List<JPANavigationProptertyInfo> hops;
+  private List<JPANavigationPropertyInfo> hops;
 
   @BeforeEach
-  public void setup() throws ODataException {
+  void setup() throws ODataException {
     helper = new TestHelper(emf, PUNIT_NAME);
     final UriResourceEntitySet uriEts = mock(UriResourceEntitySet.class);
-    final JPANavigationProptertyInfo hop0 = new JPANavigationProptertyInfo(helper.sd, uriEts, null, null);
-    final JPANavigationProptertyInfo hop1 = new JPANavigationProptertyInfo(helper.sd, uriEts, helper.getJPAEntityType(
+    final JPANavigationPropertyInfo hop0 = new JPANavigationPropertyInfo(helper.sd, uriEts, null, null);
+    final JPANavigationPropertyInfo hop1 = new JPANavigationPropertyInfo(helper.sd, uriEts, helper.getJPAEntityType(
         "Organizations").getAssociationPath("Roles"), null);
 
     hops = Arrays.asList(hop0, hop1);
@@ -69,7 +69,7 @@ public class TestJPAExpandQueryResult extends TestBase {
   }
 
   @Test
-  public void checkGetKeyBoundaryEmptyBoundaryNoTopOrSkip() throws ODataJPAModelException, ODataJPAQueryException {
+  void checkGetKeyBoundaryEmptyBoundaryNoTopOrSkip() throws ODataJPAModelException, ODataJPAQueryException {
 
     cut = new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType("Organizations"),
         Collections.emptyList());
@@ -78,7 +78,7 @@ public class TestJPAExpandQueryResult extends TestBase {
   }
 
   @Test
-  public void checkGetKeyBoundaryEmptyBoundaryExpandWithoutTopSkip() throws ODataJPAModelException,
+  void checkGetKeyBoundaryEmptyBoundaryExpandWithoutTopSkip() throws ODataJPAModelException,
       ODataJPAQueryException {
 
     cut = new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType("AdministrativeDivisionDescriptions"),
@@ -89,7 +89,7 @@ public class TestJPAExpandQueryResult extends TestBase {
   }
 
   @Test
-  public void checkGetKeyBoundaryEmptyBoundaryNoExpand() throws ODataJPAModelException, ODataJPAQueryException {
+  void checkGetKeyBoundaryEmptyBoundaryNoExpand() throws ODataJPAModelException, ODataJPAQueryException {
 
     final Map<String, Object> key = new HashMap<>(1);
     final TupleDouble tuple = new TupleDouble(key);
@@ -104,7 +104,7 @@ public class TestJPAExpandQueryResult extends TestBase {
   }
 
   @Test
-  public void checkGetKeyBoundaryEmptyBoundaryNotComparable() throws ODataJPAModelException,
+  void checkGetKeyBoundaryEmptyBoundaryNotComparable() throws ODataJPAModelException,
       NumberFormatException, ODataApplicationException {
 
     cut = new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType("AdministrativeDivisionDescriptions"),
@@ -113,8 +113,8 @@ public class TestJPAExpandQueryResult extends TestBase {
     assertFalse(act.isPresent());
   }
 
-  @Test  
-  public void checkGetKeyBoundaryEmptyBoundaryNoResult() throws ODataJPAModelException, ODataJPAQueryException {
+  @Test
+  void checkGetKeyBoundaryEmptyBoundaryNoResult() throws ODataJPAModelException, ODataJPAQueryException {
 
     queryResult.put("root", Collections.emptyList());
 
@@ -126,9 +126,9 @@ public class TestJPAExpandQueryResult extends TestBase {
     final Optional<JPAKeyBoundary> act = cut.getKeyBoundary(requestContext, hops);
     assertFalse(act.isPresent());
   }
-  
+
   @Test
-  public void checkGetKeyBoundaryOneResultWithTop() throws ODataJPAModelException, ODataJPAQueryException {
+  void checkGetKeyBoundaryOneResultWithTop() throws ODataJPAModelException, ODataJPAQueryException {
 
     final Map<String, Object> key = new HashMap<>(1);
     final TupleDouble tuple = new TupleDouble(key);
@@ -144,9 +144,9 @@ public class TestJPAExpandQueryResult extends TestBase {
   }
 
   @Test
-  public void checkGetKeyBoundaryOneResultWithSkip() throws ODataJPAModelException, ODataJPAQueryException {
+  void checkGetKeyBoundaryOneResultWithSkip() throws ODataJPAModelException, ODataJPAQueryException {
 
-    addTuple(Integer.valueOf(12));
+    addTuple(12);
     cut = new JPAExpandQueryResult(queryResult, null, et, Collections.emptyList());
     when(uriInfo.getSkipOption()).thenReturn(skip);
     when(uriInfo.getExpandOption()).thenReturn(expand);
@@ -157,9 +157,9 @@ public class TestJPAExpandQueryResult extends TestBase {
   }
 
   @Test
-  public void checkGetKeyBoundaryContainsNoHops() throws ODataJPAModelException, ODataJPAQueryException {
+  void checkGetKeyBoundaryContainsNoHops() throws ODataJPAModelException, ODataJPAQueryException {
 
-    addTuple(Integer.valueOf(12));
+    addTuple(12);
     cut = new JPAExpandQueryResult(queryResult, null, et, Collections.emptyList());
     when(uriInfo.getSkipOption()).thenReturn(skip);
     when(uriInfo.getExpandOption()).thenReturn(expand);
@@ -170,10 +170,10 @@ public class TestJPAExpandQueryResult extends TestBase {
   }
 
   @Test
-  public void checkGetKeyBoundaryTwoResultWithSkip() throws ODataJPAModelException, ODataJPAQueryException {
+  void checkGetKeyBoundaryTwoResultWithSkip() throws ODataJPAModelException, ODataJPAQueryException {
 
-    addTuple(Integer.valueOf(12));
-    addTuple(Integer.valueOf(15));
+    addTuple(12);
+    addTuple(15);
     cut = new JPAExpandQueryResult(queryResult, null, et, Collections.emptyList());
     when(uriInfo.getSkipOption()).thenReturn(skip);
     when(uriInfo.getExpandOption()).thenReturn(expand);
@@ -185,7 +185,7 @@ public class TestJPAExpandQueryResult extends TestBase {
   }
 
   @Test
-  public void checkGetKeyBoundaryOneCompoundResultWithTop() throws ODataJPAModelException, ODataJPAQueryException {
+  void checkGetKeyBoundaryOneCompoundResultWithTop() throws ODataJPAModelException, ODataJPAQueryException {
 
     final Map<String, Object> key = new HashMap<>(1);
     final TupleDouble tuple = new TupleDouble(key);
@@ -205,10 +205,10 @@ public class TestJPAExpandQueryResult extends TestBase {
   }
 
   @Test
-  public void checkGetKeyBoundaryCollectionRequested() throws ODataJPAModelException, ODataJPAQueryException {
+  void checkGetKeyBoundaryCollectionRequested() throws ODataJPAModelException, ODataJPAQueryException {
 
-    addTuple(Integer.valueOf(12));
-    addTuple(Integer.valueOf(15));
+    addTuple(12);
+    addTuple(15);
     cut = new JPAExpandQueryResult(queryResult, null, et, Collections.emptyList());
     when(uriInfo.getSkipOption()).thenReturn(skip);
     when(uriInfo.getExpandOption()).thenReturn(expand);

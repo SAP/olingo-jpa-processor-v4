@@ -17,52 +17,49 @@ import javax.persistence.PostUpdate;
 import javax.persistence.Table;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 
-@EdmFunctions({
-    @EdmFunction(
-        name = "SiblingsBound",
-        functionName = "\"OLINGO\".\"Siblings\"",
-        isBound = true,
-        hasFunctionImport = false,
-        returnType = @EdmFunction.ReturnType(isCollection = true),
-        parameter = {
-            @EdmParameter(name = "CodePublisher", parameterName = "\"Publisher\"",
-                type = String.class, maxLength = 10),
-            @EdmParameter(name = "CodeID", parameterName = "\"ID\"", type = String.class, maxLength = 10),
-            @EdmParameter(name = "DivisionCode", parameterName = "\"Division\"", type = String.class,
-                maxLength = 10) }),
-    @EdmFunction(
-        name = "Siblings",
-        functionName = "\"OLINGO\".\"Siblings\"",
-        isBound = false,
-        hasFunctionImport = true,
-        returnType = @EdmFunction.ReturnType(isCollection = true),
-        parameter = {
-            @EdmParameter(name = "CodePublisher", parameterName = "\"Publisher\"",
-                type = String.class, maxLength = 10),
-            @EdmParameter(name = "CodeID", parameterName = "\"ID\"", type = String.class, maxLength = 10),
-            @EdmParameter(name = "DivisionCode", parameterName = "\"Division\"", type = String.class,
-                maxLength = 10) }),
-    @EdmFunction(
-        name = "PopulationDensity",
-        functionName = "\"OLINGO\".\"PopulationDensity\"",
-        isBound = false,
-        hasFunctionImport = false,
-        returnType = @EdmFunction.ReturnType(isCollection = false, type = Double.class),
-        parameter = {
-            @EdmParameter(name = "Area", parameterName = "UnitArea", type = Integer.class),
-            @EdmParameter(name = "Population", parameterName = "Population", type = Long.class) }),
-    @EdmFunction(
-        name = "ConvertToQkm",
-        functionName = "\"OLINGO\".\"ConvertToQkm\"",
-        isBound = false,
-        hasFunctionImport = false,
-        returnType = @EdmFunction.ReturnType(isCollection = false, type = Integer.class),
-        parameter = {
-            @EdmParameter(name = "Area", parameterName = "UnitArea", type = Integer.class) }),
-})
+@EdmFunction(
+    name = "SiblingsBound",
+    functionName = "\"OLINGO\".\"Siblings\"",
+    isBound = true,
+    hasFunctionImport = false,
+    returnType = @EdmFunction.ReturnType(isCollection = true),
+    parameter = {
+        @EdmParameter(name = "CodePublisher", parameterName = "\"Publisher\"",
+            type = String.class, maxLength = 10),
+        @EdmParameter(name = "CodeID", parameterName = "\"ID\"", type = String.class, maxLength = 10),
+        @EdmParameter(name = "DivisionCode", parameterName = "\"Division\"", type = String.class,
+            maxLength = 10) })
+@EdmFunction(
+    name = "Siblings",
+    functionName = "\"OLINGO\".\"Siblings\"",
+    isBound = false,
+    hasFunctionImport = true,
+    returnType = @EdmFunction.ReturnType(isCollection = true),
+    parameter = {
+        @EdmParameter(name = "CodePublisher", parameterName = "\"Publisher\"",
+            type = String.class, maxLength = 10),
+        @EdmParameter(name = "CodeID", parameterName = "\"ID\"", type = String.class, maxLength = 10),
+        @EdmParameter(name = "DivisionCode", parameterName = "\"Division\"", type = String.class,
+            maxLength = 10) })
+@EdmFunction(
+    name = "PopulationDensity",
+    functionName = "\"OLINGO\".\"PopulationDensity\"",
+    isBound = false,
+    hasFunctionImport = false,
+    returnType = @EdmFunction.ReturnType(isCollection = false, type = Double.class),
+    parameter = {
+        @EdmParameter(name = "Area", parameterName = "UnitArea", type = Integer.class),
+        @EdmParameter(name = "Population", parameterName = "Population", type = Long.class) })
+@EdmFunction(
+    name = "ConvertToQkm",
+    functionName = "\"OLINGO\".\"ConvertToQkm\"",
+    isBound = false,
+    hasFunctionImport = false,
+    returnType = @EdmFunction.ReturnType(isCollection = false, type = Integer.class),
+    parameter = {
+        @EdmParameter(name = "Area", parameterName = "UnitArea", type = Integer.class) })
 
 @IdClass(AdministrativeDivisionKey.class)
 @Entity(name = "AdministrativeDivision")

@@ -4,6 +4,10 @@ target/
 
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
+<<<<<<< HEAD
 # --- EclipseIDE stuff START
 .settings/
 .metadata
+=======
+/.sts4-cache/
+>>>>>>> odata-v4-jpa-processor/feature/release-1.0.3

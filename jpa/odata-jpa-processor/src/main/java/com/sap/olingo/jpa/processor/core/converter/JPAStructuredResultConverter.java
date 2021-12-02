@@ -41,7 +41,7 @@ public abstract class JPAStructuredResultConverter {
   protected final List<?> jpaQueryResult;
   protected final JPAStructuredType jpaTopLevelType;
 
-  public JPAStructuredResultConverter(final List<?> jpaQueryResult, final JPAStructuredType jpaStructuredType) {
+  protected JPAStructuredResultConverter(final List<?> jpaQueryResult, final JPAStructuredType jpaStructuredType) {
 
     super();
     this.jpaQueryResult = jpaQueryResult;
@@ -57,7 +57,7 @@ public abstract class JPAStructuredResultConverter {
 
       final Method[] allMethods = clazz.getMethods();
       for (final Method m : allMethods) {
-        if (m.getReturnType().getName() != "void"
+        if (!m.getReturnType().getName().equalsIgnoreCase("void")
             && Modifier.isPublic(m.getModifiers()))
           methods.put(m.getName(), m);
       }
@@ -66,75 +66,93 @@ public abstract class JPAStructuredResultConverter {
     return methods;
   }
 
-  @SuppressWarnings("unchecked")
-  protected <T extends Object, S extends Object> void convertProperties(final Object row,
+  protected void convertProperties(final Object row,
       final List<Property> properties, final JPAStructuredType jpaStructuredType) throws ODataJPAQueryException {
 
     List<JPAAttribute> attributeList;
     final Map<String, Method> methodMap = getMethods(jpaStructuredType.getTypeClass());
     try {
       attributeList = jpaStructuredType.getAttributes();
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
 
     for (final JPAAttribute attribute : attributeList) {
       final String attributeName = attribute.getInternalName();
+      if (attribute.isTransient())
+        continue;
       final Method getMethod = getGetter(attributeName, methodMap);
       try {
         if (attribute.isCollection()) {
-          final Collection<?> odataValue = (Collection<?>) getMethod.invoke(row);
-          final List<Object> collection = new ArrayList<>();
-          if (attribute.isComplex() && odataValue != null) {
-            for (final Object element : odataValue) {
-              final ComplexValue values = new ComplexValue();
-              convertProperties(element, values.getValue(), attribute.getStructuredType());
-              collection.add(values);
-            }
-          } else if (odataValue != null)
-            collection.addAll(odataValue);
-
-          properties.add(new Property(
-              attribute.getExternalFQN().getFullQualifiedNameAsString(),
-              attribute.getExternalName(),
-              attribute.isComplex() ? ValueType.COLLECTION_COMPLEX : ValueType.COLLECTION_PRIMITIVE,
-              collection));
-
+          convertCollectionProperty(row, properties, attribute, getMethod);
         } else if (attribute.isComplex()) {
-          final ComplexValue complexValue = new ComplexValue();
-          properties.add(new Property(
-              attribute.getStructuredType().getExternalFQN().getFullQualifiedNameAsString(),
-              attribute.getExternalName(),
-              ValueType.COMPLEX,
-              complexValue));
-          final List<Property> values = complexValue.getValue();
-          convertProperties(getMethod.invoke(row), values, attribute.getStructuredType());
-
+          convertComplexProperty(row, properties, attribute, getMethod);
         } else {
-          if (row != null) {
-            Object odataValue = getMethod.invoke(row);
-            if (attribute.getConverter() != null) {
-              AttributeConverter<T, S> converter = attribute.getConverter();
-              odataValue = converter.convertToDatabaseColumn((T) odataValue);
-            }
-
-            properties.add(new Property(
-                attribute.getExternalFQN().getFullQualifiedNameAsString(),
-                attribute.getExternalName(),
-                ValueType.PRIMITIVE,
-                odataValue));
-          } else
-            properties.add(new Property(
-                attribute.getExternalFQN().getFullQualifiedNameAsString(),
-                attribute.getExternalName(),
-                ValueType.PRIMITIVE,
-                null));
+          convertPrimitiveProperty(row, properties, attribute, getMethod);
         }
       } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
           | ODataJPAModelException e) {
         throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
       }
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  private <T, S> void convertPrimitiveProperty(final Object row, final List<Property> properties,
+      final JPAAttribute attribute, final Method getMethod) throws IllegalAccessException, InvocationTargetException {
+    if (row != null) {
+      Object odataValue = getMethod.invoke(row);
+      if (attribute.getConverter() != null) {
+        final AttributeConverter<T, S> converter = attribute.getConverter();
+        odataValue = converter.convertToDatabaseColumn((T) odataValue);
+      }
+
+      properties.add(new Property(
+          attribute.getExternalFQN().getFullQualifiedNameAsString(),
+          attribute.getExternalName(),
+          ValueType.PRIMITIVE,
+          odataValue));
+    } else {
+      properties.add(new Property(
+          attribute.getExternalFQN().getFullQualifiedNameAsString(),
+          attribute.getExternalName(),
+          ValueType.PRIMITIVE,
+          null));
+    }
+  }
+
+  private void convertComplexProperty(final Object row, final List<Property> properties, final JPAAttribute attribute,
+      final Method getMethod) throws ODataJPAModelException, ODataJPAQueryException, IllegalAccessException,
+      InvocationTargetException {
+    final ComplexValue complexValue = new ComplexValue();
+    properties.add(new Property(
+        attribute.getStructuredType().getExternalFQN().getFullQualifiedNameAsString(),
+        attribute.getExternalName(),
+        ValueType.COMPLEX,
+        complexValue));
+    final List<Property> values = complexValue.getValue();
+    convertProperties(getMethod.invoke(row), values, attribute.getStructuredType());
+  }
+
+  private void convertCollectionProperty(final Object row, final List<Property> properties,
+      final JPAAttribute attribute, final Method getMethod) throws IllegalAccessException, InvocationTargetException,
+      ODataJPAQueryException, ODataJPAModelException {
+    final Collection<?> odataValue = (Collection<?>) getMethod.invoke(row);
+    final List<Object> collection = new ArrayList<>();
+    if (attribute.isComplex() && odataValue != null) {
+      for (final Object element : odataValue) {
+        final ComplexValue values = new ComplexValue();
+        convertProperties(element, values.getValue(), attribute.getStructuredType());
+        collection.add(values);
+      }
+    } else if (odataValue != null) {
+      collection.addAll(odataValue);
+    }
+    properties.add(new Property(
+        attribute.getExternalFQN().getFullQualifiedNameAsString(),
+        attribute.getExternalName(),
+        attribute.isComplex() ? ValueType.COLLECTION_COMPLEX : ValueType.COLLECTION_PRIMITIVE,
+        collection));
   }
 
   private Method getGetter(final String attributeName, final Map<String, Method> methodMap)

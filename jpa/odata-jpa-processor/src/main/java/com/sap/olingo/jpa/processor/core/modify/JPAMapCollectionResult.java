@@ -42,7 +42,7 @@ class JPAMapCollectionResult extends JPAMapBaseResult implements JPACollectionRe
       if (attribute.isComplex()) {
         for (JPAPath p : attribute.getStructuredType().getPathList())
           convertPathToTuple(tuple, (Map<String, Object>) value, et.getPath(this.path.getAlias()
-              + JPAPath.PATH_SEPERATOR + p.getAlias()), 1);
+              + JPAPath.PATH_SEPARATOR + p.getAlias()), 1);
       } else {
         tuple.addElement(path.getAlias(), attribute.getType(), value);
       }
@@ -62,7 +62,7 @@ class JPAMapCollectionResult extends JPAMapBaseResult implements JPACollectionRe
   }
 
   @Override
-  public JPAAssociationPath getAssoziation() {
+  public JPAAssociationPath getAssociation() {
     return path;
   }
 

@@ -5,6 +5,7 @@ import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAMode
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
@@ -18,6 +19,7 @@ final class JPAPathImpl implements JPAPath {
   private final String dbFieldName;
   private final boolean ignore;
   private final List<String> fieldGroups;
+  private Optional<Boolean> isTransient;
 
   JPAPathImpl(final String alias, final String dbFieldName, final IntermediateProperty element)
       throws ODataJPAModelException {
@@ -33,6 +35,7 @@ final class JPAPathImpl implements JPAPath {
     this.dbFieldName = dbFieldName;
     this.ignore = ((IntermediateModelElement) pathElements.get(pathElements.size() - 1)).ignore();
     this.fieldGroups = determineFieldGroups();
+    this.isTransient = Optional.empty();
   }
 
   @Override
@@ -57,7 +60,7 @@ final class JPAPathImpl implements JPAPath {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAPath#getAlias()
    */
   @Override
@@ -67,7 +70,7 @@ final class JPAPathImpl implements JPAPath {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAPath#getDBFieldName()
    */
   @Override
@@ -77,7 +80,7 @@ final class JPAPathImpl implements JPAPath {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAPath#getLeaf()
    */
   @Override
@@ -87,12 +90,17 @@ final class JPAPathImpl implements JPAPath {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAPath#getPath()
    */
   @Override
   public List<JPAElement> getPath() {
     return pathElements;
+  }
+
+  @Override
+  public boolean isTransient() {
+    return isTransient.orElseGet(this::determineIsTransient);
   }
 
   @Override
@@ -106,7 +114,7 @@ final class JPAPathImpl implements JPAPath {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAPath#ignore()
    */
   @Override
@@ -115,7 +123,7 @@ final class JPAPathImpl implements JPAPath {
   }
 
   @Override
-  public boolean isPartOfGroups(List<String> groups) {
+  public boolean isPartOfGroups(final List<String> groups) {
 
     return fieldGroups == EMPTY_FILED_GROUPS || fieldGroupMatches(groups);
   }
@@ -132,12 +140,12 @@ final class JPAPathImpl implements JPAPath {
    */
   private List<String> determineFieldGroups() throws ODataJPAModelException {
     List<String> groups = null;
-    for (JPAElement pathElement : pathElements) {
+    for (final JPAElement pathElement : pathElements) {
       if (pathElement instanceof IntermediateProperty && ((IntermediateProperty) pathElement).isPartOfGroup()) {
         if (groups == null)
           groups = ((IntermediateProperty) pathElement).getGroups();
         else {
-          List<String> newGroups = ((IntermediateProperty) pathElement).getGroups();
+          final List<String> newGroups = ((IntermediateProperty) pathElement).getGroups();
           if (groups.size() != newGroups.size() || !groups.stream().allMatch(newGroups::contains))
             throw new ODataJPAModelException(NOT_SUPPORTED_MIXED_PART_OF_GROUP, alias);
         }
@@ -158,4 +166,13 @@ final class JPAPathImpl implements JPAPath {
     return false;
   }
 
+  private Boolean determineIsTransient() {
+    isTransient = Optional.of(
+        pathElements.stream()
+            .filter(JPAAttribute.class::isInstance)
+            .map(JPAAttribute.class::cast)
+            .anyMatch(JPAAttribute::isTransient));
+    return isTransient.get();
+
+  }
 }

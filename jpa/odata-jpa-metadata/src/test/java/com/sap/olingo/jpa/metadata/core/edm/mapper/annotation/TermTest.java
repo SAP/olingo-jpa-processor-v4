@@ -64,7 +64,7 @@ class TermTest {
   }
 
   @Test
-  void testGetTermWithScalePresition() throws JsonParseException, JsonMappingException, IOException,
+  void testGetTermWithScalePrecision() throws JsonParseException, JsonMappingException, IOException,
       ODataJPAModelException {
     final Map<String, Map<String, CsdlTerm>> act = cutTest.getTerms();
 

@@ -8,14 +8,15 @@ import org.reflections8.Reflections;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.ODataAction;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.ODataAction;
 
-class IntermediateActionFactory extends IntermediateOperationFactory {
-
+class IntermediateActionFactory extends IntermediateOperationFactory<IntermediateJavaAction> {
+//Description
   @Override
-  IntermediateOperation createOperation(JPAEdmNameBuilder nameBuilder, IntermediateSchema schema, Method m,
-      Object functionDescribtion) throws ODataJPAModelException {
-    return new IntermediateJavaAction(nameBuilder, (EdmAction) functionDescribtion, m, schema);
+  IntermediateJavaAction createOperation(final JPAEdmNameBuilder nameBuilder, final IntermediateSchema schema,
+      final Method m,
+      final Object functionDescription) throws ODataJPAModelException {
+    return new IntermediateJavaAction(nameBuilder, (EdmAction) functionDescription, m, schema);
   }
 
   @SuppressWarnings("unchecked")

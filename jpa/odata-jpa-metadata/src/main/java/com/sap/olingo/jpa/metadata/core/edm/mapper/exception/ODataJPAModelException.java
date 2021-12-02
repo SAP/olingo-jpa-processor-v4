@@ -15,7 +15,11 @@ public class ODataJPAModelException extends ODataJPAException {
     INVALID_DESCRIPTION_PROPERTY,
     INVALID_COLLECTION_TYPE,
 
+    INVALID_TOP_LEVEL_SETTING,
+
     TYPE_NOT_SUPPORTED,
+    FUNC_UNBOUND_ENTITY_SET,
+    FUNC_RETURN_TYPE_ENTITY_SET,
     FUNC_RETURN_TYPE_EXP,
     FUNC_RETURN_TYPE_UNKNOWN,
     FUNC_RETURN_TYPE_INVALID,
@@ -62,6 +66,8 @@ public class ODataJPAModelException extends ODataJPAException {
     TRANSIENT_CALCULATOR_TOO_MANY_CONSTRUCTORS,
     TRANSIENT_CALCULATOR_WRONG_PARAMETER,
     TRANSIENT_KEY_NOT_SUPPORTED,
+    EXTENSION_PROVIDER_TOO_MANY_CONSTRUCTORS,
+    EXTENSION_PROVIDER_WRONG_PARAMETER,
     INHERITANCE_NOT_ALLOWED,
     TO_MANY_STREAMS,
     MISSING_TERM_NAMESPACE,
@@ -73,6 +79,7 @@ public class ODataJPAModelException extends ODataJPAException {
     NAVI_PROPERTY_NOT_FOUND,
     ON_LEFT_ATTRIBUTE_NULL,
     ON_RIGHT_ATTRIBUTE_NULL,
+    NO_JOIN_TABLE_TYPE,
     PATH_ELEMENT_NOT_FOUND,
     FILE_NOT_FOUND;
 
@@ -83,7 +90,7 @@ public class ODataJPAModelException extends ODataJPAException {
 
   }
 
-  private static final String BUNDEL_NAME = "metadata-exceptions-i18n";
+  private static final String BUNDLE_NAME = "metadata-exceptions-i18n";
 
   public ODataJPAModelException(final Throwable e) {
     super(e);
@@ -107,7 +114,7 @@ public class ODataJPAModelException extends ODataJPAException {
 
   @Override
   protected String getBundleName() {
-    return BUNDEL_NAME;
+    return BUNDLE_NAME;
   }
 
   public String getId() {

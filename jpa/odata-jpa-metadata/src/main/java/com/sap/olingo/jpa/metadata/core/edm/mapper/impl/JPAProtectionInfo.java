@@ -35,7 +35,7 @@ final class JPAProtectionInfo {
    * @param clazz
    * @return
    */
-  <T> boolean supportsWildcards(Class<T> clazz) {
+  <T> boolean supportsWildcards(final Class<T> clazz) {
     if (clazz.equals(String.class))
       return wildcards;
     return false;

@@ -50,7 +50,9 @@ class IntermediateEnumerationType extends IntermediateModelElement implements JP
   @SuppressWarnings("unchecked")
   @Override
   public <T extends Enum<?>> T enumOf(final String value) throws ODataJPAModelException {
-    lazyBuildEdmItem();
+    if (edmEnumType == null) {
+      lazyBuildEdmItem();
+    }
     for (Object member : javaMembers)
       if (((T) member).name().equals(value))
         return (T) member;
@@ -60,8 +62,9 @@ class IntermediateEnumerationType extends IntermediateModelElement implements JP
   @Override
   @SuppressWarnings("unchecked")
   public <T extends Number, E extends Enum<E>> E enumOf(final T value) throws ODataJPAModelException {
-    lazyBuildEdmItem();
-
+    if (edmEnumType == null) {
+      lazyBuildEdmItem();
+    }
     if (annotation.converter() != DummyConverter.class) {
       try {
         final AttributeConverter<Enum<?>[], T> converter = (AttributeConverter<Enum<?>[], T>) annotation.converter()
@@ -80,7 +83,9 @@ class IntermediateEnumerationType extends IntermediateModelElement implements JP
 
   @Override
   public boolean isFlags() throws ODataJPAModelException {
-    lazyBuildEdmItem();
+    if (edmEnumType == null) {
+      lazyBuildEdmItem();
+    }
     return edmEnumType.isFlags();
   }
 
@@ -117,7 +122,7 @@ class IntermediateEnumerationType extends IntermediateModelElement implements JP
   }
 
   @Override
-  protected void lazyBuildEdmItem() throws ODataJPAModelException {
+  protected synchronized void lazyBuildEdmItem() throws ODataJPAModelException {
     if (edmEnumType == null) {
       annotation = getAnnotation();
       edmEnumType = new CsdlEnumType();
@@ -130,7 +135,9 @@ class IntermediateEnumerationType extends IntermediateModelElement implements JP
 
   @Override
   CsdlEnumType getEdmItem() throws ODataJPAModelException {
-    lazyBuildEdmItem();
+    if (edmEnumType == null) {
+      lazyBuildEdmItem();
+    }
     return edmEnumType;
   }
 
@@ -165,7 +172,7 @@ class IntermediateEnumerationType extends IntermediateModelElement implements JP
       return EdmPrimitiveTypeKind.Int32.getFullQualifiedName();
 
     final T value = valueOf(javaEnum.getEnumConstants()[0].toString());
-    final EdmPrimitiveTypeKind type = JPATypeConvertor.convertToEdmSimpleType(value.getClass());
+    final EdmPrimitiveTypeKind type = JPATypeConverter.convertToEdmSimpleType(value.getClass());
     if (isValidType(type))
       return type.getFullQualifiedName();
     // Enumeration '%1$s' has the unsupported type '%2$s'.

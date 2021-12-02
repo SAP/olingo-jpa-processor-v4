@@ -39,7 +39,7 @@ public class TestJPASerializePrimitive extends TestJPAOperationSerializer {
   }
 
   @Override
-  protected void initTest(final List<UriResource> resouceParts) {
+  protected void initTest(final List<UriResource> resourceParts) {
     annotatable = mock(Property.class);
     edmPT = mock(EdmPrimitiveType.class);
 
@@ -49,7 +49,7 @@ public class TestJPASerializePrimitive extends TestJPAOperationSerializer {
     when(uriPT.getKind()).thenReturn(UriResourceKind.primitiveProperty);
     when(edmProperty.getName()).thenReturn("name1");
     when(edmProperty.isCollection()).thenReturn(false);
-    resouceParts.add(uriPT);
+    resourceParts.add(uriPT);
 
     final Entity resultEntity = mock(Entity.class);
     final List<Entity> resultEntities = new ArrayList<>();

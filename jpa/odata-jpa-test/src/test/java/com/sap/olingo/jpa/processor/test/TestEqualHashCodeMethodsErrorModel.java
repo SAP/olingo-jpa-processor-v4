@@ -1,3 +1,6 @@
+/**
+ * 
+ */
 package com.sap.olingo.jpa.processor.test;
 
 import java.util.HashMap;

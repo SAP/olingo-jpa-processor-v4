@@ -8,11 +8,13 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 public class JPAExampleModifyException extends ODataJPAProcessException { // NOSONAR
 
   private static final long serialVersionUID = 121932494074522961L;
-  private static final String BUNDEL_NAME = "example-exceptions-i18n";
+  private static final String BUNDLE_NAME = "example-exceptions-i18n";
 
   public enum MessageKeys implements ODataJPAMessageKey {
     ENTITY_NOT_FOUND,
-    ENTITY_ALREADY_EXISTS;
+    ENTITY_ALREADY_EXISTS,
+    MODIFY_NOT_ALLOWED,
+    WILDCARD_RANGE_NOT_SUPPORTED;
 
     @Override
     public String getKey() {
@@ -25,9 +27,13 @@ public class JPAExampleModifyException extends ODataJPAProcessException { // NOS
     super(messageKey.getKey(), statusCode);
   }
 
+  public JPAExampleModifyException(final Exception e, final HttpStatusCode statusCode) {
+    super(e, statusCode);
+  }
+
   @Override
   protected String getBundleName() {
-    return BUNDEL_NAME;
+    return BUNDLE_NAME;
   }
 
 }

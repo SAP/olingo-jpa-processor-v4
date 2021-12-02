@@ -41,12 +41,12 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
 
-public class TestJPADeleteProcessor extends TestJPAModifyProcessor {
+class TestJPADeleteProcessor extends TestJPAModifyProcessor {
 
   @Test
-  public void testSuccessReturnCode() throws ODataApplicationException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = mock(ODataRequest.class);
+  void testSuccessReturnCode() throws ODataApplicationException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = mock(ODataRequest.class);
     when(requestContext.getCUDRequestHandler()).thenReturn(new RequestHandleSpy());
 
     processor.deleteEntity(request, response);
@@ -54,10 +54,10 @@ public class TestJPADeleteProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testThrowUnexpectedExceptionInCaseOfError() throws ODataJPAProcessException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = mock(ODataRequest.class);
-    JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
+  void testThrowUnexpectedExceptionInCaseOfError() throws ODataJPAProcessException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = mock(ODataRequest.class);
+    final JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     doThrow(NullPointerException.class).when(handler).deleteEntity(any(JPARequestEntity.class), any(
         EntityManager.class));
 
@@ -69,10 +69,10 @@ public class TestJPADeleteProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testThrowExpectedExceptionInCaseOfError() throws ODataJPAProcessException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = mock(ODataRequest.class);
-    JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
+  void testThrowExpectedExceptionInCaseOfError() throws ODataJPAProcessException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = mock(ODataRequest.class);
+    final JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
         HttpStatusCode.BAD_REQUEST)).when(handler).deleteEntity(any(JPARequestEntity.class), any(EntityManager.class));
 
@@ -85,11 +85,11 @@ public class TestJPADeleteProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testConvertEntityType() throws ODataJPAProcessException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = mock(ODataRequest.class);
-    RequestHandleSpy spy = new RequestHandleSpy();
-    UriParameter param = mock(UriParameter.class);
+  void testConvertEntityType() throws ODataJPAProcessException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = mock(ODataRequest.class);
+    final RequestHandleSpy spy = new RequestHandleSpy();
+    final UriParameter param = mock(UriParameter.class);
 
     keyPredicates.add(param);
 
@@ -104,7 +104,7 @@ public class TestJPADeleteProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testHeadersProvided() throws ODataJPAProcessorException, SerializerException, ODataException {
+  void testHeadersProvided() throws ODataJPAProcessorException, SerializerException, ODataException {
     final ODataResponse response = new ODataResponse();
     final ODataRequest request = mock(ODataRequest.class);
     final Map<String, List<String>> headers = new HashMap<>();
@@ -112,7 +112,7 @@ public class TestJPADeleteProcessor extends TestJPAModifyProcessor {
     when(request.getAllHeaders()).thenReturn(headers);
     headers.put("If-Match", Arrays.asList("2"));
 
-    RequestHandleSpy spy = new RequestHandleSpy();
+    final RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.deleteEntity(request, response);
@@ -124,7 +124,7 @@ public class TestJPADeleteProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testClaimsProvided() throws ODataJPAProcessorException, SerializerException,
+  void testClaimsProvided() throws ODataJPAProcessorException, SerializerException,
       ODataException {
     final ODataResponse response = new ODataResponse();
     final ODataRequest request = mock(ODataRequest.class);
@@ -143,7 +143,7 @@ public class TestJPADeleteProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testGroupsProvided() throws ODataJPAProcessorException, SerializerException,
+  void testGroupsProvided() throws ODataJPAProcessorException, SerializerException,
       ODataException {
     final ODataResponse response = new ODataResponse();
     final ODataRequest request = mock(ODataRequest.class);
@@ -164,11 +164,11 @@ public class TestJPADeleteProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testConvertKeySingleAttribute() throws ODataJPAProcessException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = mock(ODataRequest.class);
-    RequestHandleSpy spy = new RequestHandleSpy();
-    UriParameter param = mock(UriParameter.class);
+  void testConvertKeySingleAttribute() throws ODataJPAProcessException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = mock(ODataRequest.class);
+    final RequestHandleSpy spy = new RequestHandleSpy();
+    final UriParameter param = mock(UriParameter.class);
 
     keyPredicates.add(param);
 
@@ -184,13 +184,13 @@ public class TestJPADeleteProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testConvertKeyTwoAttributes() throws ODataJPAProcessException {
+  void testConvertKeyTwoAttributes() throws ODataJPAProcessException {
     // BusinessPartnerRole
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = mock(ODataRequest.class);
-    RequestHandleSpy spy = new RequestHandleSpy();
-    UriParameter param1 = mock(UriParameter.class);
-    UriParameter param2 = mock(UriParameter.class);
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = mock(ODataRequest.class);
+    final RequestHandleSpy spy = new RequestHandleSpy();
+    final UriParameter param1 = mock(UriParameter.class);
+    final UriParameter param2 = mock(UriParameter.class);
 
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
     when(ets.getName()).thenReturn("BusinessPartnerRoles");
@@ -211,11 +211,11 @@ public class TestJPADeleteProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testCallsValidateChangesOnSuccessfullProcessing() throws ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = mock(ODataRequest.class);
+  void testCallsValidateChangesOnSuccessfullProcessing() throws ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = mock(ODataRequest.class);
 
-    RequestHandleSpy spy = new RequestHandleSpy();
+    final RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
 
     processor.deleteEntity(request, response);
@@ -223,11 +223,11 @@ public class TestJPADeleteProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testDoesNotCallsValidateChangesOnForginTransaction() throws ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = mock(ODataRequest.class);
+  void testDoesNotCallsValidateChangesOnForginTransaction() throws ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = mock(ODataRequest.class);
 
-    RequestHandleSpy spy = new RequestHandleSpy();
+    final RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
     when(factory.hasActiveTransaction()).thenReturn(Boolean.TRUE);
     when(requestContext.getEntityManager()).thenReturn(em);
@@ -240,11 +240,11 @@ public class TestJPADeleteProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testDoesNotCallsValidateChangesOnError() throws ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = mock(ODataRequest.class);
+  void testDoesNotCallsValidateChangesOnError() throws ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = mock(ODataRequest.class);
 
-    JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
+    final JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     when(requestContext.getCUDRequestHandler()).thenReturn(handler);
 
     doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
@@ -255,17 +255,17 @@ public class TestJPADeleteProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testDoesRollbackIfValidateRaisesError() throws ODataException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = mock(ODataRequest.class);
+  void testDoesRollbackIfValidateRaisesError() throws ODataException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = mock(ODataRequest.class);
 
-    RequestHandleSpy spy = new RequestHandleSpy();
+    final RequestHandleSpy spy = new RequestHandleSpy();
     when(requestContext.getCUDRequestHandler()).thenReturn(spy);
     // when(em.getTransaction()).thenReturn(transaction);
     when(transaction.isActive()).thenReturn(Boolean.FALSE);
     when(requestContext.getEntityManager()).thenReturn(em);
 
-    JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
+    final JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     when(requestContext.getCUDRequestHandler()).thenReturn(handler);
 
     processor = new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext,
@@ -280,9 +280,9 @@ public class TestJPADeleteProcessor extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testBeginIsCalledOnNoTransaction() throws ODataApplicationException {
-    ODataResponse response = new ODataResponse();
-    ODataRequest request = mock(ODataRequest.class);
+  void testBeginIsCalledOnNoTransaction() throws ODataApplicationException {
+    final ODataResponse response = new ODataResponse();
+    final ODataRequest request = mock(ODataRequest.class);
     when(requestContext.getCUDRequestHandler()).thenReturn(new RequestHandleSpy());
     processor.deleteEntity(request, response);
     verify(factory, times(1)).createTransaction();

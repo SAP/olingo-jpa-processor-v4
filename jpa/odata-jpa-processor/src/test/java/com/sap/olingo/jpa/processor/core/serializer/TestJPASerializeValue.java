@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.processor.core.exception.ODataJPASerializerException;
 
-public class TestJPASerializeValue {
+class TestJPASerializeValue {
   private JPASerializeValue cut;
   private ServiceMetadata serviceMetadata;
   private FixedFormatSerializer serializer;
@@ -49,7 +49,7 @@ public class TestJPASerializeValue {
   }
 
   @Test
-  public void testDoesNotProvideNullValue() throws SerializerException, ODataJPASerializerException {
+  void testDoesNotProvideNullValue() throws SerializerException, ODataJPASerializerException {
 
     final EntityCollection results = new EntityCollection();
     final Entity result = new Entity();

@@ -5,14 +5,14 @@ import org.apache.olingo.server.api.uri.UriInfo;
 public class JPAODataPage {
   private final int skip;
   private final int top;
-  private final Object skiptoken;
+  private final Object skipToken;
   private final UriInfo uriInfo;
 
-  public JPAODataPage(final UriInfo uriInfo, final int skip, final int top, final Object skiptoken) {
+  public JPAODataPage(final UriInfo uriInfo, final int skip, final int top, final Object skipToken) {
     super();
     this.skip = skip;
     this.top = top;
-    this.skiptoken = skiptoken;
+    this.skipToken = skipToken;
     this.uriInfo = uriInfo;
   }
 
@@ -24,8 +24,8 @@ public class JPAODataPage {
     return top;
   }
 
-  public Object getSkiptoken() {
-    return skiptoken;
+  public Object getSkipToken() {
+    return skipToken;
   }
 
   public UriInfo getUriInfo() {

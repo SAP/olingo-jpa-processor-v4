@@ -1,12 +1,13 @@
 package com.sap.olingo.jpa.metadata.api;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityContainerAccess;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntitySetAccess;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityTypeAccess;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateEntityContainerAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateEntitySetAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateEntityTypeAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateNavigationPropertyAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediatePropertyAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateReferenceList;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateSingletonAccess;
 
 public abstract class JPAEdmMetadataPostProcessor {
 
@@ -16,11 +17,13 @@ public abstract class JPAEdmMetadataPostProcessor {
 
   public void processEntitySet(final IntermediateEntitySetAccess entitySet) {}
 
+  public void processSingleton(final IntermediateSingletonAccess singleton) {}
+
   public abstract void processNavigationProperty(final IntermediateNavigationPropertyAccess property,
       final String jpaManagedTypeClassName);
 
   /**
-   * 
+   *
    * @param property
    * @param jpaManagedTypeClassName
    * @return

@@ -1,5 +1,9 @@
+/**
+ *
+ */
 package com.sap.olingo.jpa.processor.test;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -37,11 +41,11 @@ import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRoleProtected;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRoleWithGroup;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerWithGroups;
 import com.sap.olingo.jpa.processor.core.testmodel.ChangeInformation;
-import com.sap.olingo.jpa.processor.core.testmodel.CollcetionInnerComplex;
-import com.sap.olingo.jpa.processor.core.testmodel.CollcetionNestedComplex;
 import com.sap.olingo.jpa.processor.core.testmodel.Collection;
 import com.sap.olingo.jpa.processor.core.testmodel.CollectionDeep;
 import com.sap.olingo.jpa.processor.core.testmodel.CollectionFirstLevelComplex;
+import com.sap.olingo.jpa.processor.core.testmodel.CollectionInnerComplex;
+import com.sap.olingo.jpa.processor.core.testmodel.CollectionNestedComplex;
 import com.sap.olingo.jpa.processor.core.testmodel.CollectionPartOfComplex;
 import com.sap.olingo.jpa.processor.core.testmodel.CollectionSecondLevelComplex;
 import com.sap.olingo.jpa.processor.core.testmodel.Comment;
@@ -72,7 +76,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.User;
  * Created: 05.10.2019
  *
  */
-public class TestStandardMethodsOfTestModel {
+class TestStandardMethodsOfTestModel {
 
   private final String expString = "TestString";
   private final Integer expInteger = 20;
@@ -106,9 +110,9 @@ public class TestStandardMethodsOfTestModel {
         arguments(ChangeInformation.class),
         arguments(CommunicationData.class),
         arguments(Collection.class),
-        arguments(CollcetionInnerComplex.class),
+        arguments(CollectionInnerComplex.class),
         arguments(CollectionPartOfComplex.class),
-        arguments(CollcetionNestedComplex.class),
+        arguments(CollectionNestedComplex.class),
         arguments(CollectionDeep.class),
         arguments(CollectionFirstLevelComplex.class),
         arguments(CollectionSecondLevelComplex.class),
@@ -140,8 +144,8 @@ public class TestStandardMethodsOfTestModel {
         arguments(com.sap.olingo.jpa.processor.core.errormodel.AdministrativeInformation.class),
         arguments(com.sap.olingo.jpa.processor.core.errormodel.ChangeInformation.class),
         arguments(com.sap.olingo.jpa.processor.core.errormodel.CollectionAttributeProtected.class),
-        arguments(com.sap.olingo.jpa.processor.core.errormodel.ComplextProtectedNoPath.class),
-        arguments(com.sap.olingo.jpa.processor.core.errormodel.ComplextProtectedWrongPath.class),
+        arguments(com.sap.olingo.jpa.processor.core.errormodel.ComplexProtectedNoPath.class),
+        arguments(com.sap.olingo.jpa.processor.core.errormodel.ComplexProtectedWrongPath.class),
         arguments(com.sap.olingo.jpa.processor.core.errormodel.EmbeddedKeyPartOfGroup.class),
         arguments(com.sap.olingo.jpa.processor.core.errormodel.NavigationAttributeProtected.class),
         arguments(com.sap.olingo.jpa.processor.core.errormodel.NavigationPropertyPartOfGroup.class),
@@ -151,19 +155,19 @@ public class TestStandardMethodsOfTestModel {
   }
 
   @BeforeEach
-  public void setup() throws SQLException {
+  void setup() throws SQLException {
     expClob = new JDBCClob("Test");
   }
 
   @ParameterizedTest
   @MethodSource({ "testModelEntities", "testErrorEntities" })
-  public void testGetterReturnsSetPrimitiveValue(final Class<?> clazz) throws NoSuchMethodException, SecurityException,
+  void testGetterReturnsSetPrimitiveValue(final Class<?> clazz) throws NoSuchMethodException, SecurityException,
       InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
     final Method[] methods = clazz.getMethods();
     final Constructor<?> constructor = clazz.getConstructor();
     assertNotNull(constructor);
-    final Object instanze = constructor.newInstance();
+    final Object instance = constructor.newInstance();
 
     for (final Method setter : methods) {
       if ("set".equals(setter.getName().substring(0, 3))
@@ -175,8 +179,14 @@ public class TestStandardMethodsOfTestModel {
         final Class<?> paramType = setter.getParameterTypes()[0];
         final Object exp = getExpected(paramType);
         if (exp != null) {
-          setter.invoke(instanze, exp);
-          assertEquals(exp, getter.invoke(instanze));
+          setter.invoke(instance, exp);
+          if (exp.getClass().isArray())
+            if ("byte[]".equals(exp.getClass().getTypeName()))
+              assertArrayEquals((byte[]) exp, (byte[]) getter.invoke(instance));
+            else
+              assertArrayEquals((Object[]) exp, (Object[]) getter.invoke(instance));
+          else
+            assertEquals(exp, getter.invoke(instance));
         }
       }
     }
@@ -184,29 +194,29 @@ public class TestStandardMethodsOfTestModel {
 
   @ParameterizedTest
   @MethodSource({ "testModelEntities", "testErrorEntities" })
-  public void testToStringReturnsValue(final Class<?> clazz) throws NoSuchMethodException, SecurityException,
+  void testToStringReturnsValue(final Class<?> clazz) throws NoSuchMethodException, SecurityException,
       InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
     final Constructor<?> constructor = clazz.getConstructor();
     assertNotNull(constructor);
-    final Object instanze = constructor.newInstance();
-    assertFalse(instanze.toString().isEmpty());
+    final Object instance = constructor.newInstance();
+    assertFalse(instance.toString().isEmpty());
   }
 
   @ParameterizedTest
   @MethodSource({ "testModelEntities", "testErrorEntities" })
-  public void testHashValueReturnsValue(final Class<?> clazz) throws NoSuchMethodException, SecurityException,
+  void testHasValueReturnsValue(final Class<?> clazz) throws NoSuchMethodException, SecurityException,
       InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
     final Method[] methods = clazz.getMethods();
     final Constructor<?> constructor = clazz.getConstructor();
     assertNotNull(constructor);
-    final Object instanze = constructor.newInstance();
+    final Object instance = constructor.newInstance();
 
     for (final Method hashcode : methods) {
       if ("hashCode".equals(hashcode.getName())
           && hashcode.getParameterCount() == 0) {
-        assertNotEquals(0, hashcode.invoke(instanze));
+        assertNotEquals(0, hashcode.invoke(instance));
       }
     }
   }

@@ -26,7 +26,7 @@ public class TestJPASerializeCreate extends TestJPASerializer {
   }
 
   @Override
-  protected void initTest(final List<UriResource> resouceParts) {
+  protected void initTest(final List<UriResource> resourceParts) {
     final Entity resultEntity = mock(Entity.class);
     final List<Entity> resultEntities = new ArrayList<>();
     resultEntities.add(resultEntity);

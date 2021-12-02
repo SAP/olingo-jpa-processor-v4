@@ -7,6 +7,7 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 
 import javax.persistence.Column;
 import javax.persistence.Version;
@@ -14,6 +15,8 @@ import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.Attribute.PersistentAttributeType;
 import javax.persistence.metamodel.SingularAttribute;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmMediaStream;
@@ -24,18 +27,19 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
  * A Property is described on the one hand by its Name and Type and on the other
  * hand by its Property Facets. The type is a qualified name of either a
  * primitive type, a complex type or a enumeration type. Primitive types are
- * mapped by {@link JPATypeConvertor}.
- * 
+ * mapped by {@link JPATypeConverter}.
+ *
  * <p>
  * For details about Property metadata see: <a href=
  * "https://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406397954"
  * >OData Version 4.0 Part 3 - 6 Structural Property </a>
- * 
- * 
+ *
  * @author Oliver Grande
  *
  */
 class IntermediateSimpleProperty extends IntermediateProperty {
+
+  private static final Log LOGGER = LogFactory.getLog(IntermediateSimpleProperty.class);
   private EdmMediaStream streamInfo;
 
   IntermediateSimpleProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,
@@ -68,7 +72,7 @@ class IntermediateSimpleProperty extends IntermediateProperty {
   }
 
   @Override
-  void checkConsistancy() throws ODataJPAModelException {
+  void checkConsistency() throws ODataJPAModelException {
     final Column jpaColumn = ((AnnotatedElement) jpaAttribute.getJavaMember()).getAnnotation(Column.class);
     if (jpaColumn != null && isPartOfGroup() && !jpaColumn.nullable())
       throw new ODataJPAModelException(NOT_SUPPORTED_MANDATORY_PART_OF_GROUP, jpaAttribute.getDeclaringType()
@@ -79,7 +83,7 @@ class IntermediateSimpleProperty extends IntermediateProperty {
   }
 
   @Override
-  Class<?> determineEntityType() {
+  Class<?> determinePropertyType() {
     return jpaAttribute.getJavaType();
   }
 
@@ -95,7 +99,8 @@ class IntermediateSimpleProperty extends IntermediateProperty {
   @Override
   void determineStreamInfo() throws ODataJPAModelException {
     streamInfo = ((AnnotatedElement) jpaAttribute.getJavaMember()).getAnnotation(EdmMediaStream.class);
-    if (streamInfo != null && (streamInfo.contentType() == null || streamInfo.contentType().isEmpty())
+    if (streamInfo != null
+        && (streamInfo.contentType() == null || streamInfo.contentType().isEmpty())
         && (streamInfo.contentTypeAttribute() == null || streamInfo.contentTypeAttribute().isEmpty()))
       throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.ANNOTATION_STREAM_INCOMPLETE,
           internalName);
@@ -111,7 +116,7 @@ class IntermediateSimpleProperty extends IntermediateProperty {
 
   @Override
   FullQualifiedName determineType() throws ODataJPAModelException {
-    return determineTypeByPersistanceType(jpaAttribute.getPersistentAttributeType());
+    return determineTypeByPersistenceType(jpaAttribute.getPersistentAttributeType());
   }
 
   String getContentType() {
@@ -123,15 +128,17 @@ class IntermediateSimpleProperty extends IntermediateProperty {
   }
 
   @Override
-  String getDeafultValue() throws ODataJPAModelException {
+  String getDefaultValue() throws ODataJPAModelException {
     String valueString = null;
-    if (jpaAttribute.getJavaMember() instanceof Field
+    final boolean isAbstract = Modifier.isAbstract(jpaAttribute.getDeclaringType().getJavaType().getModifiers());
+    if (!isAbstract
+        && jpaAttribute.getJavaMember() instanceof Field
         && jpaAttribute.getPersistentAttributeType() == PersistentAttributeType.BASIC) {
       // It is not possible to get the default value directly from the
       // Field, only from an instance field.get(Object obj).toString(); //NOSONAR
       try {
         // Problem: In case of compound key, which is not referenced via @EmbeddedId Hibernate returns a field of the
-        // key class, whereas Eclipselink returns a field of the entity class; which can be checked via
+        // key class, whereas EclipseLink returns a field of the entity class; which can be checked via
         // field.getDeclaringClass()
         final Field field = (Field) jpaAttribute.getJavaMember();
         Constructor<?> constructor;
@@ -148,10 +155,14 @@ class IntermediateSimpleProperty extends IntermediateProperty {
           | InvocationTargetException e) {
         throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.PROPERTY_DEFAULT_ERROR, e,
             jpaAttribute.getName());
-      } catch (InstantiationException e) {
+      } catch (final InstantiationException e) {
         // Class could not be instantiated e.g. abstract class like
-        // Business Partner=> default could not be determined
+        // Business Partner => default could not be determined
         // and will be ignored
+        LOGGER.debug("Default could not be determined: "
+            + jpaAttribute.getDeclaringType().getJavaType().getName()
+            + "#"
+            + jpaAttribute.getJavaMember().getName(), e);
       }
     }
     return valueString;

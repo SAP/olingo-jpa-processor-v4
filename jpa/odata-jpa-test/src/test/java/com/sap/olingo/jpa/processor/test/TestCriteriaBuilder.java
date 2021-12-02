@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.ArrayList;
@@ -39,7 +40,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 
-public class TestCriteriaBuilder {
+class TestCriteriaBuilder {
   protected static final String PUNIT_NAME = "com.sap.olingo.jpa";
   private static final String ENTITY_MANAGER_DATA_SOURCE = "javax.persistence.nonJtaDataSource";
   private static EntityManagerFactory emf;
@@ -48,14 +49,14 @@ public class TestCriteriaBuilder {
 
   @BeforeAll
   public static void setupClass() {
-    Map<String, Object> properties = new HashMap<>();
+    final Map<String, Object> properties = new HashMap<>();
     properties.put(ENTITY_MANAGER_DATA_SOURCE, DataSourceHelper.createDataSource(
         DataSourceHelper.DB_HSQLDB));
     emf = Persistence.createEntityManagerFactory(PUNIT_NAME, properties);
   }
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     em = emf.createEntityManager();
     assertNotNull(em);
     cb = em.getCriteriaBuilder();
@@ -64,34 +65,34 @@ public class TestCriteriaBuilder {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testSubstringWithExperession() {
-    CriteriaQuery<Tuple> adminQ = cb.createTupleQuery();
-    Root<AdministrativeDivisionDescription> adminRoot1 = adminQ.from(AdministrativeDivisionDescription.class);
+  void testSubstringWithExpression() {
+    final CriteriaQuery<Tuple> adminQ = cb.createTupleQuery();
+    final Root<AdministrativeDivisionDescription> adminRoot1 = adminQ.from(AdministrativeDivisionDescription.class);
 //    (Expression<T>) cb.sum(jpaOperator.getLeft(), jpaOperator.getRightAsNumber());
 //    cb.substring((Expression<String>) (jpaFunction.getParameter(0).get()), start, length);
-    Path<?> p = adminRoot1.get("name");
+    final Path<?> p = adminRoot1.get("name");
 
-    Expression<Integer> sum = cb.sum(cb.literal(1), cb.literal(4));
+    final Expression<Integer> sum = cb.sum(cb.literal(1), cb.literal(4));
 
     adminQ.where(cb.equal(cb.substring((Expression<String>) (p), cb.literal(1), sum), "North"));
     adminQ.multiselect(adminRoot1.get("name"));
-    TypedQuery<Tuple> tq = em.createQuery(adminQ);
-    tq.getResultList();
+    final TypedQuery<Tuple> tq = em.createQuery(adminQ);
+    assertFalse(tq.getResultList().isEmpty());
   }
 
-  @Disabled // To time consuming
+  @Disabled("To time consuming")
   @Test
-  public void testSubSelect() {
+  void testSubSelect() {
     // https://stackoverflow.com/questions/29719321/combining-conditional-expressions-with-and-and-or-predicates-using-the-jpa-c
-    CriteriaQuery<Tuple> adminQ1 = cb.createTupleQuery();
-    Subquery<Long> adminQ2 = adminQ1.subquery(Long.class);
-    Subquery<Long> adminQ3 = adminQ2.subquery(Long.class);
-    Subquery<Long> org = adminQ3.subquery(Long.class);
+    final CriteriaQuery<Tuple> adminQ1 = cb.createTupleQuery();
+    final Subquery<Long> adminQ2 = adminQ1.subquery(Long.class);
+    final Subquery<Long> adminQ3 = adminQ2.subquery(Long.class);
+    final Subquery<Long> org = adminQ3.subquery(Long.class);
 
-    Root<AdministrativeDivision> adminRoot1 = adminQ1.from(AdministrativeDivision.class);
-    Root<AdministrativeDivision> adminRoot2 = adminQ2.from(AdministrativeDivision.class);
-    Root<AdministrativeDivision> adminRoot3 = adminQ3.from(AdministrativeDivision.class);
-    Root<Organization> org1 = org.from(Organization.class);
+    final Root<AdministrativeDivision> adminRoot1 = adminQ1.from(AdministrativeDivision.class);
+    final Root<AdministrativeDivision> adminRoot2 = adminQ2.from(AdministrativeDivision.class);
+    final Root<AdministrativeDivision> adminRoot3 = adminQ3.from(AdministrativeDivision.class);
+    final Root<Organization> org1 = org.from(Organization.class);
 
     org.where(cb.and(cb.equal(org1.get("iD"), "3")), createParentOrg(org1, adminRoot3));
     org.select(cb.literal(1L));
@@ -105,28 +106,28 @@ public class TestCriteriaBuilder {
     adminQ1.where(cb.exists(adminQ2));
     adminQ1.multiselect(adminRoot1.get("divisionCode"));
 
-    TypedQuery<Tuple> tq = em.createQuery(adminQ1);
+    final TypedQuery<Tuple> tq = em.createQuery(adminQ1);
     tq.getResultList();
   }
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testSubSelectTopOrderBy() {
+  void testSubSelectTopOrderBy() {
     // https://stackoverflow.com/questions/9321916/jpa-criteriabuilder-how-to-use-in-comparison-operator
     // https://stackoverflow.com/questions/24109412/in-clause-with-a-composite-primary-key-in-jpa-criteria#24265131
-    CriteriaQuery<Tuple> roleQ = cb.createTupleQuery();
-    Root<BusinessPartnerRole> roleRoot = roleQ.from(BusinessPartnerRole.class);
+    final CriteriaQuery<Tuple> roleQ = cb.createTupleQuery();
+    final Root<BusinessPartnerRole> roleRoot = roleQ.from(BusinessPartnerRole.class);
 
-    Subquery<BusinessPartner> bupaQ = roleQ.subquery(BusinessPartner.class);
+    final Subquery<BusinessPartner> bupaQ = roleQ.subquery(BusinessPartner.class);
     @SuppressWarnings("rawtypes")
-    Root bupaRoot = roleQ.from(BusinessPartner.class);
+    final Root bupaRoot = roleQ.from(BusinessPartner.class);
 
     bupaQ.select(bupaRoot.get("iD"));
 //    Expression<String> exp = scheduleRequest.get("createdBy");
 //    Predicate predicate = exp.in(myList);
 //    criteria.where(predicate);
 
-    List<String> ids = new ArrayList<>();
+    final List<String> ids = new ArrayList<>();
     ids.add("1");
     ids.add("2");
     bupaQ.where(bupaRoot.get("iD").in(ids));
@@ -138,86 +139,86 @@ public class TestCriteriaBuilder {
     // roleQ.where(cb.in(roleRoot.get("businessPartnerID")).value(bupaQ));
     roleQ.where(cb.in(roleRoot.get("businessPartnerID")).value(bupaQ));
     roleQ.multiselect(roleRoot.get("businessPartnerID"));
-    TypedQuery<Tuple> tq = em.createQuery(roleQ);
+    final TypedQuery<Tuple> tq = em.createQuery(roleQ);
     tq.getResultList();
   }
 
   @Test
-  public void testFilterOnPrimitiveCollectionAttribute() {
-    CriteriaQuery<Tuple> orgQ = cb.createTupleQuery();
-    Root<Organization> orgRoot = orgQ.from(Organization.class);
+  void testFilterOnPrimitiveCollectionAttribute() {
+    final CriteriaQuery<Tuple> orgQ = cb.createTupleQuery();
+    final Root<Organization> orgRoot = orgQ.from(Organization.class);
     orgQ.select(orgRoot.get("iD"));
     orgQ.where(cb.like(orgRoot.get("comment"), "%just%"));
-    TypedQuery<Tuple> tq = em.createQuery(orgQ);
-    List<Tuple> act = tq.getResultList();
+    final TypedQuery<Tuple> tq = em.createQuery(orgQ);
+    final List<Tuple> act = tq.getResultList();
     assertEquals(1, act.size());
   }
 
   @Test
-  public void testFilterOnEmbeddedCollectionAttribute() {
-    CriteriaQuery<Tuple> pQ = cb.createTupleQuery();
-    Root<Person> pRoot = pQ.from(Person.class);
+  void testFilterOnEmbeddedCollectionAttribute() {
+    final CriteriaQuery<Tuple> pQ = cb.createTupleQuery();
+    final Root<Person> pRoot = pQ.from(Person.class);
     pQ.select(pRoot.get("iD"));
     pQ.where(cb.equal(pRoot.get("inhouseAddress").get("taskID"), "MAIN"));
-    TypedQuery<Tuple> tq = em.createQuery(pQ);
-    List<Tuple> act = tq.getResultList();
+    final TypedQuery<Tuple> tq = em.createQuery(pQ);
+    final List<Tuple> act = tq.getResultList();
     assertEquals(1, act.size());
   }
 
   @Test
-  public void testExpandCount() {
-    CriteriaQuery<Tuple> count = cb.createTupleQuery();
-    Root<?> roles = count.from(BusinessPartnerRole.class);
+  void testExpandCount() {
+    final CriteriaQuery<Tuple> count = cb.createTupleQuery();
+    final Root<?> roles = count.from(BusinessPartnerRole.class);
 
-    count.multiselect(roles.get("businessPartnerID"), cb.count(roles).alias("$count"));
+    count.multiselect(roles.get("businessPartnerID").alias("S0"), cb.count(roles).alias("$count"));
     count.groupBy(roles.get("businessPartnerID"));
     count.orderBy(cb.desc(cb.count(roles)));
-    TypedQuery<Tuple> tq = em.createQuery(count);
+    final TypedQuery<Tuple> tq = em.createQuery(count);
     tq.getResultList();
-    tq.getFirstResult();
+    assertEquals(0, tq.getFirstResult());
   }
 
   @Test
-  public void testAnd() {
-    CriteriaQuery<Tuple> count = cb.createTupleQuery();
-    Root<?> adminDiv = count.from(AdministrativeDivision.class);
+  void testAnd() {
+    final CriteriaQuery<Tuple> count = cb.createTupleQuery();
+    final Root<?> adminDiv = count.from(AdministrativeDivision.class);
 
     count.multiselect(adminDiv);
-    Predicate[] restrictions = new Predicate[3];
+    final Predicate[] restrictions = new Predicate[3];
     restrictions[0] = cb.equal(adminDiv.get("codeID"), "NUTS2");
     restrictions[1] = cb.equal(adminDiv.get("divisionCode"), "BE34");
     restrictions[2] = cb.equal(adminDiv.get("codePublisher"), "Eurostat");
     count.where(cb.and(restrictions));
-    TypedQuery<Tuple> tq = em.createQuery(count);
+    final TypedQuery<Tuple> tq = em.createQuery(count);
     tq.getResultList();
     tq.getFirstResult();
   }
 
-  @Disabled
+  @Disabled("To be checked")
   @Test
-  public void testSearchEmbeddedId() {
-    CriteriaQuery<Tuple> cq = cb.createTupleQuery();
-    Root<?> adminDiv = cq.from(AdministrativeDivisionDescription.class);
+  void testSearchEmbeddedId() {
+    final CriteriaQuery<Tuple> cq = cb.createTupleQuery();
+    final Root<?> adminDiv = cq.from(AdministrativeDivisionDescription.class);
     cq.multiselect(adminDiv);
 
-    Subquery<AdministrativeDivisionDescriptionKey> sq = cq.subquery(AdministrativeDivisionDescriptionKey.class);
-    Root<AdministrativeDivisionDescription> text = sq.from(AdministrativeDivisionDescription.class);
+    final Subquery<AdministrativeDivisionDescriptionKey> sq = cq.subquery(AdministrativeDivisionDescriptionKey.class);
+    final Root<AdministrativeDivisionDescription> text = sq.from(AdministrativeDivisionDescription.class);
     sq.where(cb.function("CONTAINS", Boolean.class, text.get("name"), cb.literal("luettich")));
-    Expression<AdministrativeDivisionDescriptionKey> exp = text.get("key");
+    final Expression<AdministrativeDivisionDescriptionKey> exp = text.get("key");
     sq.select(exp);
 
     cq.where(cb.and(cb.equal(adminDiv.get("key").get("codeID"), "NUTS2"),
         cb.in(sq).value(sq)));
-    TypedQuery<Tuple> tq = em.createQuery(cq);
-    List<Tuple> act = tq.getResultList();
+    final TypedQuery<Tuple> tq = em.createQuery(cq);
+    final List<Tuple> act = tq.getResultList();
     System.out.println(act.size());
   }
 
-  @Disabled
+  @Disabled("To be checked")
   @Test
-  public void testSearchNoSubquery() {
-    CriteriaQuery<Tuple> cq = cb.createTupleQuery();
-    Root<?> adminDiv = cq.from(AdministrativeDivisionDescription.class);
+  void testSearchNoSubquery() {
+    final CriteriaQuery<Tuple> cq = cb.createTupleQuery();
+    final Root<?> adminDiv = cq.from(AdministrativeDivisionDescription.class);
     cq.multiselect(adminDiv);
 
     // Predicate[] restrictions = new Predicate[2];
@@ -226,13 +227,13 @@ public class TestCriteriaBuilder {
             cb.function("CONTAINS", Boolean.class, adminDiv.get("name"), cb.literal("luettich"))),
             cb.equal(adminDiv.get("key").get("codeID"), "NUTS2")));
 
-    TypedQuery<Tuple> tq = em.createQuery(cq);
-    List<Tuple> act = tq.getResultList();
+    final TypedQuery<Tuple> tq = em.createQuery(cq);
+    final List<Tuple> act = tq.getResultList();
     System.out.println(act.size());
   }
 
   @Test
-  public void testInClauseSimpleKey() {
+  void testInClauseSimpleKey() {
 
     final CriteriaQuery<Tuple> cq = cb.createTupleQuery();
     final Root<?> bupa = cq.from(BusinessPartner.class);
@@ -241,24 +242,23 @@ public class TestCriteriaBuilder {
     cq.where(cb.in(bupa.get("iD")).value("3"));
     // (bupa.get("iD").in(Arrays.asList("3")));
 
-    TypedQuery<Tuple> tq = em.createQuery(cq);
-    DatabaseQuery dq = ((EJBQueryImpl<Tuple>) tq).getDatabaseQuery();
+    final TypedQuery<Tuple> tq = em.createQuery(cq);
+    final DatabaseQuery dq = ((EJBQueryImpl<Tuple>) tq).getDatabaseQuery();
     System.out.println(dq.getSQLString());
-    List<Tuple> act = tq.getResultList();
+    final List<Tuple> act = tq.getResultList();
     System.out.println(dq.getSQLString());
     Assertions.assertEquals(1, act.size());
   }
 
   @Test
-  public void testEntityTransaction() {
+  void testEntityTransaction() {
     Assertions.assertFalse(em.getTransaction().isActive());
     em.getTransaction().begin();
     Assertions.assertTrue(em.getTransaction().isActive());
   }
 
-  // @Disabled
   @Test
-  public void testInClauseComplexKey() {
+  void testInClauseComplexKey() {
 
     final CriteriaQuery<Tuple> cq = cb.createTupleQuery();
     final Root<?> adminDiv = cq.from(AdministrativeDivisionDescription.class);
@@ -270,25 +270,24 @@ public class TestCriteriaBuilder {
     key.setDivisionCode("DEU");
     key.setLanguage("de");
     // Create IN step by step
-    In<Object> in = cb.in(adminDiv.get("key"));
+    final In<Object> in = cb.in(adminDiv.get("key"));
     in.value(key);
     cq.where(in);
     // Execute query
-    TypedQuery<Tuple> tq = em.createQuery(cq);
-    DatabaseQuery dq = ((EJBQueryImpl<Tuple>) tq).getDatabaseQuery();
+    final TypedQuery<Tuple> tq = em.createQuery(cq);
     final List<Tuple> act = tq.getResultList();
-    // Ensure EclipsLink problem still exists: ("WHERE ((NULL, NULL, NULL, NULL) IN "));
-    Assertions.assertEquals(0, act.size());
+    // Ensure EclipseLink problem still exists: ("WHERE ((NULL, NULL, NULL, NULL) IN "));
+    assertEquals(0, act.size());
   }
 
-  private Expression<Boolean> createParentAdmin(Root<AdministrativeDivision> subQuery,
-      Root<AdministrativeDivision> query) {
+  private Expression<Boolean> createParentAdmin(final Root<AdministrativeDivision> subQuery,
+      final Root<AdministrativeDivision> query) {
     return cb.and(cb.equal(query.get("codePublisher"), subQuery.get("codePublisher")),
         cb.and(cb.equal(query.get("codeID"), subQuery.get("parentCodeID")),
             cb.equal(query.get("divisionCode"), subQuery.get("parentDivisionCode"))));
   }
 
-  private Predicate createParentOrg(Root<Organization> org1, Root<AdministrativeDivision> adminRoot3) {
+  private Predicate createParentOrg(final Root<Organization> org1, final Root<AdministrativeDivision> adminRoot3) {
     return cb.and(cb.equal(adminRoot3.get("codePublisher"), org1.get("address").get("regionCodePublisher")),
         cb.and(cb.equal(adminRoot3.get("codeID"), org1.get("address").get("regionCodeID")),
             cb.equal(adminRoot3.get("divisionCode"), org1.get("address").get("region"))));

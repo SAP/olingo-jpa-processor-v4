@@ -1,45 +1,33 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
-import org.apache.olingo.commons.api.edm.provider.CsdlNavigationPropertyBinding;
 
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntitySetAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateEntitySetAccess;
 
 /**
- *
+ * <a href=
+ * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406398028">OData
+ * Version 4.0 Part 3 - 13.2 Element edm:EntitySet</a>
  * @author Oliver Grande
  *
  */
-final class IntermediateEntitySet extends IntermediateModelElement implements IntermediateEntitySetAccess,
+final class IntermediateEntitySet extends IntermediateTopLevelEntity implements IntermediateEntitySetAccess,
     JPAEntitySet {
-  private final IntermediateEntityType<?> entityType;
+
   private CsdlEntitySet edmEntitySet;
 
   IntermediateEntitySet(final JPAEdmNameBuilder nameBuilder, final IntermediateEntityType<?> et)
       throws ODataJPAModelException {
-    super(nameBuilder, IntNameBuilder.buildEntitySetName(nameBuilder, et));
-    entityType = et;
+    super(nameBuilder, et);
     setExternalName(nameBuilder.buildEntitySetName(et.getEdmItem()));
-  }
-
-  /**
-   * Returns the entity type to be used internally e.g. for the query generation
-   * @return
-   */
-  @Override
-  public JPAEntityType getEntityType() {
-    return entityType;
   }
 
   /**
@@ -47,11 +35,10 @@ final class IntermediateEntitySet extends IntermediateModelElement implements In
    * This can differ from the internally used one e.g. if multiple entity sets shall
    * point to the same entity type, but base on different tables
    * @return
-   * @throws ODataJPAModelException
    */
   @Override
-  public JPAEntityType getODataEntityType() throws ODataJPAModelException {
-    if (entityType.asEntitySet())
+  public JPAEntityType getODataEntityType() {
+    if (entityType.asTopLevelOnly())
       return (JPAEntityType) entityType.getBaseType();
     else
       return entityType;
@@ -63,7 +50,7 @@ final class IntermediateEntitySet extends IntermediateModelElement implements In
   }
 
   @Override
-  protected void lazyBuildEdmItem() throws ODataJPAModelException {
+  protected synchronized void lazyBuildEdmItem() throws ODataJPAModelException {
     if (edmEntitySet == null) {
       postProcessor.processEntitySet(this);
       edmEntitySet = new CsdlEntitySet();
@@ -81,28 +68,11 @@ final class IntermediateEntitySet extends IntermediateModelElement implements In
     }
   }
 
-  private List<CsdlNavigationPropertyBinding> determinePropertyBinding() throws ODataJPAModelException {
-    final List<CsdlNavigationPropertyBinding> navPropBindingList = new ArrayList<>();
-    final List<JPAAssociationPath> naviPropertyList = entityType.getAssociationPathList();
-    if (naviPropertyList != null && !naviPropertyList.isEmpty()) {
-      // http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406398035
-
-      for (final JPAAssociationPath naviPropertyPath : naviPropertyList) {
-        final CsdlNavigationPropertyBinding navPropBinding = new CsdlNavigationPropertyBinding();
-        navPropBinding.setPath(naviPropertyPath.getAlias());
-
-        // TODO Check is FQN is better here
-        final JPAAssociationAttribute naviProperty = naviPropertyPath.getLeaf();
-        navPropBinding.setTarget(nameBuilder.buildEntitySetName(naviProperty.getTargetEntity().getExternalName()));
-        navPropBindingList.add(navPropBinding);
-      }
-    }
-    return navPropBindingList;
-  }
-
   @Override
   CsdlEntitySet getEdmItem() throws ODataJPAModelException { // New test EdmItem with ODataEntityType
-    lazyBuildEdmItem();
+    if (edmEntitySet == null) {
+      lazyBuildEdmItem();
+    }
     return edmEntitySet;
   }
 

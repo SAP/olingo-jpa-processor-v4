@@ -3,19 +3,19 @@ package com.sap.olingo.jpa.processor.core.api;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.sql.DataSource;
 
 import org.apache.olingo.commons.api.edmx.EdmxReference;
-import org.apache.olingo.server.api.debug.DebugSupport;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseProcessorFactory;
 
-public class JPAODataContextAccessDouble implements JPAODataCRUDContextAccess {
+public class JPAODataContextAccessDouble implements JPAODataSessionContextAccess {
   private final JPAEdmProvider edmProvider;
   private final DataSource ds;
   private final JPAODataDatabaseOperations context;
@@ -34,12 +34,6 @@ public class JPAODataContextAccessDouble implements JPAODataCRUDContextAccess {
 
   @Override
   public List<EdmxReference> getReferences() {
-    fail();
-    return null;
-  }
-
-  @Override
-  public DebugSupport getDebugSupport() {
     fail();
     return null;
   }
@@ -65,14 +59,8 @@ public class JPAODataContextAccessDouble implements JPAODataCRUDContextAccess {
   }
 
   @Override
-  public JPACUDRequestHandler getCUDRequestHandler() {
-    fail();
-    return null;
-  }
-
-  @Override
-  public String[] getPackageName() {
-    return packageNames;
+  public List<String> getPackageName() {
+    return Arrays.asList(packageNames);
   }
 
   @Override

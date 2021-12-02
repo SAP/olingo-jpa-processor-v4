@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.api;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Container that provides claims
@@ -11,6 +12,14 @@ import java.util.List;
  */
 public interface JPAODataClaimProvider {
 
+/**
+ * @param attributeName 
+ * @return Provides a list claim values for a given attribute.
+ */
   List<JPAClaimsPair<?>> get(final String attributeName); // NOSONAR
-
+  /**
+   * 
+   * @return An optional that may contain the user id for the current request
+   */
+  default Optional<String> user() {return Optional.empty();}
 }

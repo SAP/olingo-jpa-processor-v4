@@ -11,7 +11,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 
 /**
  * Build the internal name for Intermediate Model Elements
- * 
+ *
  * @author Oliver Grande
  *
  */
@@ -37,6 +37,10 @@ final class JPANameBuilder {
   }
 
   public String buildEntitySetName(final JPAEdmNameBuilder nameBuilder, final JPAStructuredType entityType) {
+    return buildFQN(entityType.getInternalName(), nameBuilder).getFullQualifiedNameAsString();
+  }
+
+  public String buildSingletonName(final JPAEdmNameBuilder nameBuilder, final JPAStructuredType entityType) {
     return buildFQN(entityType.getInternalName(), nameBuilder).getFullQualifiedNameAsString();
   }
 

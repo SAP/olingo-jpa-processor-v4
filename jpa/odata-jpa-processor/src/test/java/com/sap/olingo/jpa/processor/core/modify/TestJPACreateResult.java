@@ -21,9 +21,11 @@ import org.junit.jupiter.api.Test;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.converter.JPACollectionResult;
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
+import com.sap.olingo.jpa.processor.core.processor.JPAODataInternalRequestContext;
 import com.sap.olingo.jpa.processor.core.util.ServiceMetadataDouble;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 
@@ -31,18 +33,19 @@ public abstract class TestJPACreateResult extends TestBase {
 
   protected JPAExpandResult cut;
   protected JPAEntityType et;
-  protected Map<String, List<String>> headers;
   protected Object jpaEntity;
   protected JPATupleChildConverter converter;
+  protected JPAODataRequestContextAccess requestContext;
 
   public TestJPACreateResult() {
     super();
+    requestContext = new JPAODataInternalRequestContext();
   }
 
   @Test
   public void testGetChildrenProvidesEmptyMap() throws ODataJPAModelException, ODataApplicationException {
     converter = new JPATupleChildConverter(helper.sd, OData.newInstance()
-        .createUriHelper(), new ServiceMetadataDouble(nameBuilder, "Organizations"));
+        .createUriHelper(), new ServiceMetadataDouble(nameBuilder, "Organizations"), requestContext);
 
     createCutProvidesEmptyMap();
 
@@ -63,6 +66,19 @@ public abstract class TestJPACreateResult extends TestBase {
     assertNotNull(act);
     assertEquals(1, act.size());
     assertEquals("34", act.get(0).get("BusinessPartnerID"));
+  }
+
+  @Test
+  public void testGetResultEntityWithTransient() throws ODataJPAModelException, ODataApplicationException {
+    et = helper.getJPAEntityType("Persons");
+
+    createCutGetResultEntityWithTransient();
+
+    List<Tuple> act = cut.getResult("root");
+
+    assertNotNull(act);
+    assertEquals(1, act.size());
+    assertEquals("Hubert, Hans", act.get(0).get("FullName"));
   }
 
   @Test
@@ -296,5 +312,8 @@ public abstract class TestJPACreateResult extends TestBase {
       ODataApplicationException;
 
   protected abstract void createCutGetResultEntityWithComplexWithCollection() throws ODataJPAModelException,
+      ODataApplicationException;
+
+  protected abstract void createCutGetResultEntityWithTransient() throws ODataJPAModelException,
       ODataApplicationException;
 }

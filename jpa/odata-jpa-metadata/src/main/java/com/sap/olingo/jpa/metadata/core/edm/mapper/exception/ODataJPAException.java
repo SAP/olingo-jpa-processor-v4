@@ -23,35 +23,35 @@ public abstract class ODataJPAException extends ODataException {
   protected final ODataJPAMessageTextBuffer messageBuffer;
   protected final String[] parameter;
 
-  public ODataJPAException(final String id) {
+  protected ODataJPAException(final String id) {
     super("");
     this.id = id;
     this.messageBuffer = new ODataJPAMessageTextBuffer(getBundleName(), locales);
     this.parameter = null;
   }
 
-  public ODataJPAException(final String id, final String... params) {
+  protected ODataJPAException(final String id, final String... params) {
     super("");
     this.id = id;
     this.messageBuffer = new ODataJPAMessageTextBuffer(getBundleName(), locales);
     this.parameter = params;
   }
 
-  public ODataJPAException(final String id, final Throwable cause, final String... params) {
+  protected ODataJPAException(final String id, final Throwable cause, final String... params) {
     super("", cause);
     this.id = id;
     this.messageBuffer = new ODataJPAMessageTextBuffer(getBundleName(), locales);
     this.parameter = params;
   }
 
-  public ODataJPAException(final String id, final Throwable cause) {
+  protected ODataJPAException(final String id, final Throwable cause) {
     super("", cause);
     this.id = id;
     this.messageBuffer = new ODataJPAMessageTextBuffer(getBundleName(), locales);
     this.parameter = null;
   }
 
-  public ODataJPAException(final Throwable cause) {
+  protected ODataJPAException(final Throwable cause) {
     super(cause);
     id = null;
     messageBuffer = null;

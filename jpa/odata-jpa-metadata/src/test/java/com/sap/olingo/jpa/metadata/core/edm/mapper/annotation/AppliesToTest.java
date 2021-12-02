@@ -10,7 +10,7 @@ import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 
 class AppliesToTest {
-  
+
   @TestFactory
   Stream<DynamicTest> checkEnumHasValue() {
     return Stream.of(AppliesTo.values())

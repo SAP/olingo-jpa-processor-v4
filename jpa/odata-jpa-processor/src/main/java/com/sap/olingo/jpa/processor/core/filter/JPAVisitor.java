@@ -1,14 +1,22 @@
 package com.sap.olingo.jpa.processor.core.filter;
 
-import java.util.List;
+import static com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FILTER;
+import static com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR;
+import static com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_TRANSIENT;
+import static org.apache.olingo.commons.api.http.HttpStatusCode.INTERNAL_SERVER_ERROR;
+import static org.apache.olingo.commons.api.http.HttpStatusCode.NOT_IMPLEMENTED;
 
+import java.util.List;
+import java.util.Optional;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Predicate;
 
 import org.apache.olingo.commons.api.edm.EdmEnumType;
 import org.apache.olingo.commons.api.edm.EdmType;
-import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
@@ -25,17 +33,22 @@ import org.apache.olingo.server.api.uri.queryoption.expression.Member;
 import org.apache.olingo.server.api.uri.queryoption.expression.MethodKind;
 import org.apache.olingo.server.api.uri.queryoption.expression.UnaryOperatorKind;
 
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEnumerationAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
+import com.sap.olingo.jpa.processor.core.query.Util;
 
-class JPAVisitor implements JPAExpressionVisitor {
+class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
 
   /**
-   * 
+   *
    */
   private final JPAFilterComplierAccess jpaComplier;
   private final JPAServiceDebugger debugger;
@@ -61,70 +74,70 @@ class JPAVisitor implements JPAExpressionVisitor {
   @Override
   public JPAOperator visitAlias(final String aliasName) throws ExpressionVisitException, ODataApplicationException {
 
-    throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FILTER,
-        HttpStatusCode.NOT_IMPLEMENTED, "Alias");
+    throw new ODataJPAFilterException(NOT_SUPPORTED_FILTER, NOT_IMPLEMENTED, "Alias");
   }
 
-  @SuppressWarnings("rawtypes")
   @Override
   public JPAOperator visitBinaryOperator(final BinaryOperatorKind operator, final JPAOperator left,
       final JPAOperator right) throws ExpressionVisitException, ODataApplicationException {
-    int handle = debugger.startRuntimeMeasurement(this, "visitBinaryOperator"); // NOSONAR
 
-    if (operator == BinaryOperatorKind.AND || operator == BinaryOperatorKind.OR) {
-      // Connecting operations have to be handled first, as JPANavigationOperation do not need special treatment
+    final int handle = debugger.startRuntimeMeasurement(this, "visitBinaryOperator"); // NOSONAR
+    try {
+      if (operator == BinaryOperatorKind.AND || operator == BinaryOperatorKind.OR) {
+        // Connecting operations have to be handled first, as JPANavigationOperation do not need special treatment
+        return new JPABooleanOperatorImp(this.jpaComplier.getConverter(), operator, (JPAExpression) left,
+            (JPAExpression) right);
+      }
+      if (left instanceof JPANavigationOperation || right instanceof JPANavigationOperation)
+        return handleBinaryWithNavigation(operator, left, right);
+      if (hasNavigation(left) || hasNavigation(right))
+        return new JPANavigationOperation(this.jpaComplier, operator, left, right);
+      if (operator == BinaryOperatorKind.EQ
+          || operator == BinaryOperatorKind.NE
+          || operator == BinaryOperatorKind.GE
+          || operator == BinaryOperatorKind.GT
+          || operator == BinaryOperatorKind.LT
+          || operator == BinaryOperatorKind.LE
+          || operator == BinaryOperatorKind.HAS) {
+        return new JPAComparisonOperatorImp<>(this.jpaComplier.getConverter(), operator, left, right);
+      }
+      if (operator == BinaryOperatorKind.ADD
+          || operator == BinaryOperatorKind.SUB
+          || operator == BinaryOperatorKind.MUL
+          || operator == BinaryOperatorKind.DIV
+          || operator == BinaryOperatorKind.MOD) {
+        return new JPAArithmeticOperatorImp(this.jpaComplier.getConverter(), operator, left, right);
+      }
+    } finally {
       debugger.stopRuntimeMeasurement(handle);
-      return new JPABooleanOperatorImp(this.jpaComplier.getConverter(), operator, (JPAExpression) left,
-          (JPAExpression) right);
     }
-    if (left instanceof JPANavigationOperation || right instanceof JPANavigationOperation)
-      return handleBinaryWithNavigation(operator, left, right);
-    if (hasNavigation(left) || hasNavigation(right))
-      return new JPANavigationOperation(this.jpaComplier, operator, left, right);
-    if (operator == BinaryOperatorKind.EQ
-        || operator == BinaryOperatorKind.NE
-        || operator == BinaryOperatorKind.GE
-        || operator == BinaryOperatorKind.GT
-        || operator == BinaryOperatorKind.LT
-        || operator == BinaryOperatorKind.LE
-        || operator == BinaryOperatorKind.HAS) {
-      debugger.stopRuntimeMeasurement(handle);
-      return new JPAComparisonOperatorImp(this.jpaComplier.getConverter(), operator, left, right);
-    }
-    if (operator == BinaryOperatorKind.ADD
-        || operator == BinaryOperatorKind.SUB
-        || operator == BinaryOperatorKind.MUL
-        || operator == BinaryOperatorKind.DIV
-        || operator == BinaryOperatorKind.MOD) {
-      debugger.stopRuntimeMeasurement(handle);
-      return new JPAArithmeticOperatorImp(this.jpaComplier.getConverter(), operator, left, right);
-    }
-    debugger.stopRuntimeMeasurement(handle);
-    throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
-        HttpStatusCode.NOT_IMPLEMENTED, operator.name());
+    throw new ODataJPAFilterException(NOT_SUPPORTED_OPERATOR, NOT_IMPLEMENTED, operator.name());
   }
 
   @Override
-  public JPAOperator visitBinaryOperator(BinaryOperatorKind operator, JPAOperator left, List<JPAOperator> right)
+  public JPAOperator visitBinaryOperator(final BinaryOperatorKind operator, final JPAOperator left,
+      final List<JPAOperator> right)
       throws ExpressionVisitException, ODataApplicationException {
-    throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
-        HttpStatusCode.NOT_IMPLEMENTED, operator.name());
+    throw new ODataJPAFilterException(NOT_SUPPORTED_OPERATOR, NOT_IMPLEMENTED, operator.name());
   }
 
   @Override
   public JPAEnumerationOperator visitEnum(final EdmEnumType type, final List<String> enumValues)
-      throws ExpressionVisitException,
-      ODataApplicationException {
+      throws ExpressionVisitException, ODataApplicationException {
+
     final int handle = debugger.startRuntimeMeasurement(this, "visitEnum");
     final JPAEnumerationAttribute jpaEnumerationAttribute = this.jpaComplier.getSd().getEnumType(type);
     try {
+      if (jpaEnumerationAttribute == null)
+        throw new IllegalArgumentException(type.getFullQualifiedName().getFullQualifiedNameAsString() + " unknown");
       if (!jpaEnumerationAttribute.isFlags() && enumValues.size() > 1)
-        throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FILTER,
-            HttpStatusCode.NOT_IMPLEMENTED, "Collection of Enumerations if not flags");
-    } catch (ODataJPAModelException e) {
-      throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+        throw new ODataJPAFilterException(NOT_SUPPORTED_FILTER, NOT_IMPLEMENTED,
+            "Collection of Enumerations if not flags");
+    } catch (final ODataJPAModelException | IllegalArgumentException e) {
+      throw new ODataJPAFilterException(e, INTERNAL_SERVER_ERROR);
+    } finally {
+      debugger.stopRuntimeMeasurement(handle);
     }
-    debugger.stopRuntimeMeasurement(handle);
     return new JPAEnumerationOperator(this.jpaComplier.getSd().getEnumType(type), enumValues);
   }
 
@@ -133,16 +146,14 @@ class JPAVisitor implements JPAExpressionVisitor {
       final org.apache.olingo.server.api.uri.queryoption.expression.Expression expression)
       throws ExpressionVisitException, ODataApplicationException {
 
-    throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FILTER,
-        HttpStatusCode.NOT_IMPLEMENTED, "Lambda Expression");
+    throw new ODataJPAFilterException(NOT_SUPPORTED_FILTER, NOT_IMPLEMENTED, "Lambda Expression");
   }
 
   @Override
   public JPAOperator visitLambdaReference(final String variableName) throws ExpressionVisitException,
       ODataApplicationException {
 
-    throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FILTER,
-        HttpStatusCode.NOT_IMPLEMENTED, "Lambda Reference");
+    throw new ODataJPAFilterException(NOT_SUPPORTED_FILTER, NOT_IMPLEMENTED, "Lambda Reference");
   }
 
   @Override
@@ -156,6 +167,9 @@ class JPAVisitor implements JPAExpressionVisitor {
   public JPAOperator visitMember(final Member member) throws ExpressionVisitException, ODataApplicationException {
 
     final int handle = debugger.startRuntimeMeasurement(this, "visitMember");
+    final JPAPath attributePath = determineAttributePath(this.jpaComplier.getJpaEntityType(), member,
+        jpaComplier.getAssociation());
+    checkTransient(attributePath);
     if (getLambdaType(member.getResourcePath()) == UriResourceKind.lambdaAny) {
       debugger.stopRuntimeMeasurement(handle);
       return new JPALambdaAnyOperation(this.jpaComplier, member);
@@ -174,8 +188,8 @@ class JPAVisitor implements JPAExpressionVisitor {
       return new JPAFunctionOperator(this, odataParams, jpaFunction);
     }
     debugger.stopRuntimeMeasurement(handle);
-    return new JPAMemberOperator(this.jpaComplier.getJpaEntityType(), this.jpaComplier.getRoot(), member, jpaComplier
-        .getAssoziation(), this.jpaComplier.getGroups());
+    return new JPAMemberOperator(this.jpaComplier.getRoot(), member, jpaComplier
+        .getAssociation(), this.jpaComplier.getGroups(), attributePath);
   }
 
   @Override
@@ -185,10 +199,10 @@ class JPAVisitor implements JPAExpressionVisitor {
     final int handle = debugger.startRuntimeMeasurement(this, "visitMethodCall");
     if (!parameters.isEmpty()) {
       if (parameters.get(0) instanceof JPANavigationOperation ||
-          parameters.size() == 2 && parameters.get(1) instanceof JPANavigationOperation)
-        throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FILTER,
-            HttpStatusCode.NOT_IMPLEMENTED, "Nested method calls together with navigation");
-      if ((hasNavigation(parameters.get(0)) || parameters.size() == 2 && hasNavigation(parameters.get(1)))) {
+          (parameters.size() == 2 && parameters.get(1) instanceof JPANavigationOperation))
+        throw new ODataJPAFilterException(NOT_SUPPORTED_FILTER, NOT_IMPLEMENTED,
+            "Nested method calls together with navigation");
+      if (hasNavigation(parameters.get(0)) || (parameters.size() == 2 && hasNavigation(parameters.get(1)))) {
         return new JPANavigationOperation(this.jpaComplier, methodCall, parameters);
       }
     }
@@ -201,8 +215,7 @@ class JPAVisitor implements JPAExpressionVisitor {
 
   @Override
   public JPAOperator visitTypeLiteral(final EdmType type) throws ExpressionVisitException, ODataApplicationException {
-    throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FILTER,
-        HttpStatusCode.NOT_IMPLEMENTED, "Type Literal");
+    throw new ODataJPAFilterException(NOT_SUPPORTED_FILTER, NOT_IMPLEMENTED, "Type Literal");
   }
 
   @Override
@@ -211,11 +224,10 @@ class JPAVisitor implements JPAExpressionVisitor {
     final int handle = debugger.startRuntimeMeasurement(this, "visitBinaryOperator");
     if (operator == UnaryOperatorKind.NOT) {
       debugger.stopRuntimeMeasurement(handle);
-      return new JPAUnaryBooleanOperatorImp(this.jpaComplier.getConverter(), operator, (JPAExpressionOperator) operand);
+      return new JPAUnaryBooleanOperatorImp(this.jpaComplier.getConverter(), operator, (JPAExpression) operand);
     } else {
       debugger.stopRuntimeMeasurement(handle);
-      throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR,
-          HttpStatusCode.NOT_IMPLEMENTED, operator.name());
+      throw new ODataJPAFilterException(NOT_SUPPORTED_OPERATOR, NOT_IMPLEMENTED, operator.name());
     }
   }
 
@@ -253,8 +265,8 @@ class JPAVisitor implements JPAExpressionVisitor {
   private JPAOperator handleBinaryWithNavigation(final BinaryOperatorKind operator, final JPAOperator left,
       final JPAOperator right) throws ODataJPAFilterException {
     if (left instanceof JPANavigationOperation && right instanceof JPANavigationOperation)
-      throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_FILTER,
-          HttpStatusCode.NOT_IMPLEMENTED, "Binary operations comparing two navigations");
+      throw new ODataJPAFilterException(NOT_SUPPORTED_FILTER, NOT_IMPLEMENTED,
+          "Binary operations comparing two navigation");
 
     if (left instanceof JPANavigationOperation) {
       return new JPANavigationOperation(operator, (JPANavigationOperation) left, (JPALiteralOperator) right,
@@ -273,5 +285,40 @@ class JPAVisitor implements JPAExpressionVisitor {
 
     return (!resourcePath.getUriResourceParts().isEmpty()
         && resourcePath.getUriResourceParts().get(0) instanceof UriResourceFunction);
+  }
+
+  private @Nullable JPAPath determineAttributePath(@Nullable final JPAEntityType jpaEntityType,
+      @Nonnull final Member member, @Nullable final JPAAssociationPath jpaAssociationPath)
+      throws ODataApplicationException {
+
+    if (jpaEntityType == null)
+      return null;
+    final String attributePathName = Util.determinePropertyNavigationPath(member.getResourcePath()
+        .getUriResourceParts());
+    JPAPath selectItemPath = null;
+    try {
+      selectItemPath = jpaEntityType.getPath(attributePathName);
+      if (selectItemPath == null && jpaAssociationPath != null) {
+        selectItemPath = jpaEntityType.getPath(attributePathName.isEmpty()
+            ? jpaAssociationPath.getAlias()
+            : (jpaAssociationPath.getAlias() + JPAPath.PATH_SEPARATOR + attributePathName));
+      }
+    } catch (final ODataJPAModelException e) {
+      throw new ODataJPAFilterException(e, INTERNAL_SERVER_ERROR);
+    }
+    return selectItemPath;
+  }
+
+  private void checkTransient(@Nullable final JPAPath attributePath) throws ODataApplicationException {
+
+    if (attributePath != null) {
+      final Optional<JPAAttribute> transientProperty = attributePath.getPath()
+          .stream()
+          .map(e -> (JPAAttribute) e)
+          .filter(JPAAttribute::isTransient)
+          .findFirst();
+      if (transientProperty.isPresent())
+        throw new ODataJPAFilterException(NOT_SUPPORTED_TRANSIENT, NOT_IMPLEMENTED, attributePath.toString());
+    }
   }
 }

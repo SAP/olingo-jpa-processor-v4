@@ -1,5 +1,9 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
+import static com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys.ACTION_UNKNOWN;
+import static org.apache.olingo.commons.api.http.HttpStatusCode.BAD_REQUEST;
+import static org.apache.olingo.commons.api.http.HttpStatusCode.INTERNAL_SERVER_ERROR;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Parameter;
@@ -24,14 +28,14 @@ import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
 
 public class JPAActionRequestProcessor extends JPAOperationRequestProcessor {
 
-  public JPAActionRequestProcessor(final OData odata, final JPAODataCRUDContextAccess sessionContext,
+  public JPAActionRequestProcessor(final OData odata, final JPAODataSessionContextAccess sessionContext,
       final JPAODataRequestContextAccess requestContext) throws ODataException {
     super(odata, sessionContext, requestContext);
   }
@@ -43,32 +47,15 @@ public class JPAActionRequestProcessor extends JPAOperationRequestProcessor {
     final UriResourceAction resource = (UriResourceAction) resourceList.get(resourceList.size() - 1);
     try {
       final JPAAction jpaAction = sd.getAction(resource.getAction());
-
-      final Object instance = createInstanze(jpaAction.getConstructor());
-
-      final List<Object> parameter = new ArrayList<>();
-      final Parameter[] methodParameter = jpaAction.getMethod().getParameters();
+      if (jpaAction == null)
+        throw new ODataJPAProcessorException(ACTION_UNKNOWN, BAD_REQUEST, resource.getAction().getName());
+      final Object instance = createInstance(jpaAction.getConstructor());
 
       final ODataDeserializer deserializer = odata.createDeserializer(requestFormat);
       final Map<String, org.apache.olingo.commons.api.data.Parameter> actionParameter =
           deserializer.actionParameters(request.getBody(), resource.getAction()).getActionParameters();
 
-      for (int i = 0; i < methodParameter.length; i++) {
-        final Parameter declairedParameter = methodParameter[i];
-        if (i == 0 && resource.getAction().isBound()) {
-          parameter.add(createBindingParameter((UriResourceEntitySet) resourceList.get(resourceList.size() - 2),
-              jpaAction.getParameter(declairedParameter)));
-        } else {
-          // Any nullable parameter values not specified in the request MUST be assumed to have the null value.
-          // This is guaranteed by Olingo => no code needed
-          final String externalName = jpaAction.getParameter(declairedParameter).getName();
-          final org.apache.olingo.commons.api.data.Parameter param = actionParameter.get(externalName);
-          if (param != null)
-            parameter.add(JPAConversionHelper.convertParameter(param, sd));
-          else
-            parameter.add(null);
-        }
-      }
+      final List<Object> parameter = convertActionParameter(resourceList, resource, jpaAction, actionParameter);
       Annotatable r = null;
       EdmType returnType = null;
       if (resource.getAction().getReturnType() != null) {
@@ -84,18 +71,44 @@ public class JPAActionRequestProcessor extends JPAOperationRequestProcessor {
         response.setStatusCode(successStatusCode);
 
     } catch (InstantiationException | IllegalAccessException | IllegalArgumentException e) {
-      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+      throw new ODataJPAProcessorException(e, INTERNAL_SERVER_ERROR);
     } catch (InvocationTargetException | ODataException e) {
       final Throwable cause = e.getCause();
-      if (cause != null && cause instanceof ODataApplicationException) {
+      if (cause instanceof ODataApplicationException) {
         throw (ODataApplicationException) cause;
       } else {
-        throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+        throw new ODataJPAProcessorException(e, INTERNAL_SERVER_ERROR);
       }
     }
   }
 
-  private Object createBindingParameter(UriResourceEntitySet entitySet, JPAParameter parameter)
+  private List<Object> convertActionParameter(final List<UriResource> resourceList, final UriResourceAction resource,
+      final JPAAction jpaAction, final Map<String, org.apache.olingo.commons.api.data.Parameter> actionParameter)
+      throws ODataJPAModelException, ODataApplicationException {
+
+    final List<Object> parameter = new ArrayList<>();
+    final Parameter[] methodParameter = jpaAction.getMethod().getParameters();
+
+    for (int i = 0; i < methodParameter.length; i++) {
+      final Parameter declaredParameter = methodParameter[i];
+      if (i == 0 && resource.getAction().isBound()) {
+        parameter.add(createBindingParameter((UriResourceEntitySet) resourceList.get(resourceList.size() - 2),
+            jpaAction.getParameter(declaredParameter)));
+      } else {
+        // Any nullable parameter values not specified in the request MUST be assumed to have the null value.
+        // This is guaranteed by Olingo => no code needed
+        final String externalName = jpaAction.getParameter(declaredParameter).getName();
+        final org.apache.olingo.commons.api.data.Parameter param = actionParameter.get(externalName);
+        if (param != null)
+          parameter.add(JPAConversionHelper.convertParameter(param, sd));
+        else
+          parameter.add(null);
+      }
+    }
+    return parameter;
+  }
+
+  private Object createBindingParameter(final UriResourceEntitySet entitySet, final JPAParameter parameter)
       throws ODataJPAModelException, ODataApplicationException {
     try {
 
@@ -112,9 +125,9 @@ public class JPAActionRequestProcessor extends JPAOperationRequestProcessor {
     } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
         | IllegalArgumentException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-    } catch (InvocationTargetException e) {
-      Throwable cause = e.getCause();
-      if (cause != null && cause instanceof ODataApplicationException) {
+    } catch (final InvocationTargetException e) {
+      final Throwable cause = e.getCause();
+      if (cause instanceof ODataApplicationException) {
         throw (ODataApplicationException) cause;
       } else {
         throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
@@ -123,7 +136,7 @@ public class JPAActionRequestProcessor extends JPAOperationRequestProcessor {
     return null;
   }
 
-  protected Object createInstanze(final Constructor<?> c) throws InstantiationException, IllegalAccessException,
+  protected Object createInstance(final Constructor<?> c) throws InstantiationException, IllegalAccessException,
       InvocationTargetException {
     Object instance;
     if (c.getParameterCount() == 1)

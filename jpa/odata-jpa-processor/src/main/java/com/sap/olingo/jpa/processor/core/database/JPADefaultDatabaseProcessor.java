@@ -67,10 +67,10 @@ public class JPADefaultDatabaseProcessor extends JPAAbstractDatabaseProcessor im
        * To provide a unique, but slightly slower, solution a workaround is used, see
        * https://stackoverflow.com/questions/20570481/jpa-oracle-bit-operations-using-criteriabuilder#25508741
        */
-      Long n = ((JPAEnumerationBasedOperator) jpaOperator.getRight()).getValue().longValue();
+      final Number n = ((JPAEnumerationBasedOperator) jpaOperator.getRight()).getValue();
       @SuppressWarnings("unchecked")
-      Expression<Integer> div = cb.quot(jpaOperator.getLeft(), n);
-      Expression<Integer> mod = cb.mod(div, 2);
+      final Expression<Integer> div = cb.quot(jpaOperator.getLeft(), n);
+      final Expression<Integer> mod = cb.mod(div, 2);
       return cb.equal(mod, 1);
 
     }

@@ -46,7 +46,7 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
   }
 
   JPAAssociationPathImpl(final JPAAssociationPath associationPath, final IntermediateStructuredType<?> source,
-      final List<IntermediateJoinColumn> joinColumns, final JPAAttribute attribute) {
+      final List<IntermediateJoinColumn> joinColumns, final JPAAttribute attribute) throws ODataJPAModelException {
 
     final List<JPAElement> pathElementsBuffer = new ArrayList<>();
     pathElementsBuffer.add(attribute);
@@ -63,7 +63,9 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
     this.cardinality = ((JPAAssociationPathImpl) associationPath).getCardinality();
     this.isCollection = associationPath.isCollection();
     this.partner = associationPath.getPartner();
-    this.joinTable = associationPath.getJoinTable();
+    this.joinTable = associationPath.hasJoinTable()
+        ? ((IntermediateJoinTable) associationPath.getJoinTable()).withSource(source)
+        : null;
   }
 
   /**
@@ -89,11 +91,6 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
     this.joinTable = collectionProperty.getJoinTable();
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath#getAlias()
-   */
   @Override
   public String getAlias() {
     return alias;
@@ -152,12 +149,10 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
     final List<JPAPath> result = new ArrayList<>();
     for (final IntermediateJoinColumn column : this.joinColumns) {
       JPAPath columnPath = null;
-      if (joinTable != null || (cardinality == PersistentAttributeType.MANY_TO_ONE)) {
+      if (joinTable != null || (cardinality == PersistentAttributeType.MANY_TO_ONE))
         columnPath = sourceType.getPathByDBField(column.getName());
-
-      } else {
+      else
         columnPath = sourceType.getPathByDBField(column.getReferencedColumnName());
-      }
       if (columnPath != null)
         result.add(columnPath);
     }
@@ -184,11 +179,10 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
     final List<JPAPath> result = new ArrayList<>();
     for (final IntermediateJoinColumn column : this.joinColumns) {
       JPAPath columnPath = null;
-      if (cardinality == PersistentAttributeType.MANY_TO_ONE)
+      if (joinTable != null || (cardinality == PersistentAttributeType.MANY_TO_ONE))
         columnPath = targetType.getPathByDBField(column.getReferencedColumnName());
       else
         columnPath = targetType.getPathByDBField(column.getName());
-
       if (columnPath != null)
         result.add(columnPath);
     }
@@ -264,10 +258,20 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
 
     name.append(parent.getExternalName());
     for (final JPAElement pathElement : associationPath.getPath()) {
-      name.append(JPAPath.PATH_SEPERATOR);
+      name.append(JPAPath.PATH_SEPARATOR);
       name.append(pathElement.getExternalName());
 
     }
     return name.toString();
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAAssociationPath#hasJoinTable()
+   */
+  @Override
+  public boolean hasJoinTable() {
+    return joinTable != null;
   }
 }

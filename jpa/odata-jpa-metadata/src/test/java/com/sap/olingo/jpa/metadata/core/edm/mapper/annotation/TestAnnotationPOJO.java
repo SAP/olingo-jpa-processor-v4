@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
-public class TestAnnotationPOJO {
+class TestAnnotationPOJO {
   private final String terms =
       "<edmx:Edmx xmlns:edmx=\"http://docs.oasis-open.org/odata/ns/edmx\" Version=\"4.0\">"
           + "<edmx:Reference Uri=\"http://docs.oasis-open.org/odata/odata/v4.0/os/vocabularies/Org.OData.Core.V1.xml\">"
@@ -40,7 +40,7 @@ public class TestAnnotationPOJO {
           + "</edmx:Edmx>";
 
   @Test
-  public void TestSimpleXMLConverted() throws JsonParseException, JsonMappingException, IOException {
+  void TestSimpleXMLConverted() throws JsonParseException, JsonMappingException, IOException {
     final JacksonXmlModule module = new JacksonXmlModule();
     module.setDefaultUseWrapper(false);
     final XmlMapper xmlMapper = new XmlMapper(module);

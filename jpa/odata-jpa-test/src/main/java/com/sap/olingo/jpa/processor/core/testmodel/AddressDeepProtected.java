@@ -5,7 +5,6 @@ import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
 
 //Only for Unit Tests
-// @EdmIgnore
 @Embeddable
 public class AddressDeepProtected {
 
@@ -15,4 +14,19 @@ public class AddressDeepProtected {
   @Embedded
   private InhouseAddressWithProtection inhouseAddress;
 
+  public String getType() {
+    return type;
+  }
+
+  public void setType(final String type) {
+    this.type = type;
+  }
+
+  public InhouseAddressWithProtection getInhouseAddress() {
+    return inhouseAddress;
+  }
+
+  public void setInhouseAddress(final InhouseAddressWithProtection inhouseAddress) {
+    this.inhouseAddress = inhouseAddress;
+  }
 }

@@ -31,7 +31,8 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterElementComplier;
 import com.sap.olingo.jpa.processor.core.filter.JPAOperationConverter;
 
-public final class JPANavigationFilterQuery extends JPANavigationQuery {
+public final class JPANavigationFilterQuery extends JPAAbstractSubQuery {
+
   private final List<UriParameter> keyPredicates;
 
   public JPANavigationFilterQuery(final OData odata, final JPAServiceDocument sd, final UriResource uriResourceItem,
@@ -71,7 +72,7 @@ public final class JPANavigationFilterQuery extends JPANavigationQuery {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sap.olingo.jpa.processor.core.query.JPANavigationQuery#getRoot()
    */
   @Override
@@ -80,19 +81,15 @@ public final class JPANavigationFilterQuery extends JPANavigationQuery {
     return queryRoot;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.sap.olingo.jpa.processor.core.query.JPANavigationQuery#getSubQueryExists(javax.persistence.criteria.Subquery)
+  /**
+   * Creates a exist sub query including the where clause joining this query with the parent query
    */
-
   @Override
   @SuppressWarnings("unchecked")
-  public <T extends Object> Subquery<T> getSubQueryExists(final Subquery<?> childQuery)
+  public <T extends Object> Subquery<T> getSubQuery(final Subquery<?> childQuery)
       throws ODataApplicationException {
-    final Subquery<T> query = (Subquery<T>) this.subQuery;
 
+    final Subquery<T> query = (Subquery<T>) this.subQuery;
     if (this.queryJoinTable != null) {
       if (this.aggregationType != null)
         createSubQueryJoinTableAggregation();
@@ -106,32 +103,32 @@ public final class JPANavigationFilterQuery extends JPANavigationQuery {
 
   private void createDescriptionJoin() throws ODataApplicationException {
     final HashMap<String, From<?, ?>> joinTables = new HashMap<>();
-    generateDesciptionJoin(joinTables, determineAllDescriptionPath(), getRoot());
+    generateDescriptionJoin(joinTables, determineAllDescriptionPath(), getRoot());
   }
 
   private <T> void createSubQueryAggregation(final Subquery<?> childQuery, final Subquery<T> query)
       throws ODataApplicationException {
 
-    List<JPAOnConditionItem> conditionItems = determineJoinColumns();
-    createSelectClause(query, queryRoot, conditionItems);
+    final List<JPAOnConditionItem> conditionItems = determineJoinColumns();
+    createSelectClauseJoin(query, queryRoot, conditionItems);
     Expression<Boolean> whereCondition = null;
     whereCondition = addWhereClause(
         createWhereByAssociation(from, queryRoot, conditionItems),
-        createWhereByKey(queryRoot, null, this.keyPredicates, jpaEntity));
+        createWhereByKey(queryRoot, this.keyPredicates, jpaEntity));
     if (childQuery != null) {
       whereCondition = cb.and(whereCondition, cb.exists(childQuery));
     }
-    whereCondition = addWhereClause(whereCondition, createProtectionWhereForEntityType(claimsProvider, jpaEntity,
-        queryRoot));
+    whereCondition = addWhereClause(whereCondition,
+        createProtectionWhereForEntityType(claimsProvider, jpaEntity, queryRoot));
 
     query.where(applyAdditionalFilter(whereCondition));
     handleAggregation(query, queryRoot, conditionItems);
   }
 
   private Set<JPAPath> determineAllDescriptionPath() throws ODataApplicationException {
-    Set<JPAPath> allPath = new HashSet<>();
+    final Set<JPAPath> allPath = new HashSet<>();
     if (filterComplier != null) {
-      for (JPAPath path : filterComplier.getMember()) {
+      for (final JPAPath path : filterComplier.getMember()) {
         if (path.getLeaf() instanceof JPADescriptionAttribute)
           allPath.add(path);
       }
@@ -142,14 +139,13 @@ public final class JPANavigationFilterQuery extends JPANavigationQuery {
   private List<JPAOnConditionItem> determineJoinColumns() throws ODataJPAQueryException {
 
     try {
-      List<JPAOnConditionItem> conditionItems = association.getJoinColumnsList();
+      final List<JPAOnConditionItem> conditionItems = association.getJoinColumnsList();
       if (conditionItems.isEmpty())
         throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_JOIN_NOT_DEFINED,
             HttpStatusCode.INTERNAL_SERVER_ERROR, association.getTargetType().getExternalName(), association
                 .getSourceType().getExternalName());
       return conditionItems;
-
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_NAVI_PROPERTY_UNKNOWN,
           HttpStatusCode.INTERNAL_SERVER_ERROR, e, association.getAlias());
     }

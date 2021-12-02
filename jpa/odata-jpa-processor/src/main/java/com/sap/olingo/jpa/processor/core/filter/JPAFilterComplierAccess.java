@@ -36,7 +36,7 @@ interface JPAFilterComplierAccess {
 
   JPAServiceDebugger getDebugger();
 
-  JPAAssociationPath getAssoziation();
+  JPAAssociationPath getAssociation();
 
   Optional<JPAODataClaimProvider> getClaimsProvider();
 

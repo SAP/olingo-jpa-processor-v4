@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.processor.core.modify;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -16,11 +17,11 @@ import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescrip
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescriptionKey;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
-import com.sap.olingo.jpa.processor.core.testmodel.CollcetionInnerComplex;
-import com.sap.olingo.jpa.processor.core.testmodel.CollcetionNestedComplex;
 import com.sap.olingo.jpa.processor.core.testmodel.Collection;
 import com.sap.olingo.jpa.processor.core.testmodel.CollectionDeep;
 import com.sap.olingo.jpa.processor.core.testmodel.CollectionFirstLevelComplex;
+import com.sap.olingo.jpa.processor.core.testmodel.CollectionInnerComplex;
+import com.sap.olingo.jpa.processor.core.testmodel.CollectionNestedComplex;
 import com.sap.olingo.jpa.processor.core.testmodel.CollectionPartOfComplex;
 import com.sap.olingo.jpa.processor.core.testmodel.CollectionSecondLevelComplex;
 import com.sap.olingo.jpa.processor.core.testmodel.InhouseAddress;
@@ -37,7 +38,7 @@ public class TestJPAEntityResult extends TestJPACreateResult {
     helper = new TestHelper(emf, PUNIT_NAME);
     et = helper.getJPAEntityType("Organizations");
     converter = new JPATupleChildConverter(helper.sd, OData.newInstance()
-        .createUriHelper(), new ServiceMetadataDouble(nameBuilder, "Organizations"));
+        .createUriHelper(), new ServiceMetadataDouble(nameBuilder, "Organizations"), requestContext);
   }
 
   @Override
@@ -54,8 +55,17 @@ public class TestJPAEntityResult extends TestJPACreateResult {
   }
 
   @Override
+  protected void createCutGetResultEntityWithTransient() throws ODataJPAModelException, ODataApplicationException {
+    jpaEntity = new Person();
+    ((Person) jpaEntity).setID("1222");
+    ((Person) jpaEntity).setFirstName("Hans");
+    ((Person) jpaEntity).setLastName("Hubert");
+    cut = new JPAEntityResult(et, jpaEntity, headers, converter);
+  }
+
+  @Override
   protected void createCutGetResultWithOneLevelEmbedded() throws ODataJPAModelException, ODataApplicationException {
-    AdministrativeDivisionDescriptionKey key = new AdministrativeDivisionDescriptionKey();
+    final AdministrativeDivisionDescriptionKey key = new AdministrativeDivisionDescriptionKey();
     key.setCodeID("A");
     key.setLanguage("en");
     jpaEntity = new AdministrativeDivisionDescription();
@@ -95,8 +105,8 @@ public class TestJPAEntityResult extends TestJPACreateResult {
   protected void createCutGetResultWithWithOneLinked() throws ODataJPAModelException, ODataApplicationException {
     et = helper.getJPAEntityType("AdministrativeDivisions");
     jpaEntity = new AdministrativeDivision();
-    AdministrativeDivision child = new AdministrativeDivision();
-    List<AdministrativeDivision> children = new ArrayList<>();
+    final AdministrativeDivision child = new AdministrativeDivision();
+    final List<AdministrativeDivision> children = new ArrayList<>();
     children.add(child);
     ((AdministrativeDivision) jpaEntity).setChildren(children);
 
@@ -115,8 +125,8 @@ public class TestJPAEntityResult extends TestJPACreateResult {
   protected void createCutGetResultWithWithTwoLinked() throws ODataJPAModelException, ODataApplicationException {
     createCutGetResultWithWithOneLinked();
 
-    AdministrativeDivision child = new AdministrativeDivision();
-    List<AdministrativeDivision> children = ((AdministrativeDivision) jpaEntity).getChildren();
+    final AdministrativeDivision child = new AdministrativeDivision();
+    final List<AdministrativeDivision> children = ((AdministrativeDivision) jpaEntity).getChildren();
     children.add(child);
 
     child.setCodeID("NUTS2");
@@ -193,21 +203,21 @@ public class TestJPAEntityResult extends TestJPACreateResult {
     et = helper.getJPAEntityType("Collections");
 
     final Collection collection = new Collection();
-    final List<CollcetionNestedComplex> nested = new ArrayList<>();
+    final List<CollectionNestedComplex> nested = new ArrayList<>();
     collection.setNested(nested);
 
-    CollcetionNestedComplex nestedItem = new CollcetionNestedComplex();
-    CollcetionInnerComplex inner = new CollcetionInnerComplex();
+    CollectionNestedComplex nestedItem = new CollectionNestedComplex();
+    CollectionInnerComplex inner = new CollectionInnerComplex();
     inner.setFigure1(1L);
-    inner.setFigure3(3L);
+    inner.setFigure3(BigInteger.valueOf(3L));
     nestedItem.setInner(inner);
     nestedItem.setNumber(100L);
     nested.add(nestedItem);
 
-    nestedItem = new CollcetionNestedComplex();
-    inner = new CollcetionInnerComplex();
+    nestedItem = new CollectionNestedComplex();
+    inner = new CollectionInnerComplex();
     inner.setFigure1(11L);
-    inner.setFigure3(13L);
+    inner.setFigure3(BigInteger.valueOf(13L));
     nestedItem.setInner(inner);
     nestedItem.setNumber(200L);
     nested.add(nestedItem);

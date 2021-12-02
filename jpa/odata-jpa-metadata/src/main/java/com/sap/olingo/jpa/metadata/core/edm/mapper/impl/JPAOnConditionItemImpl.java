@@ -32,4 +32,14 @@ final class JPAOnConditionItemImpl implements JPAOnConditionItem {
     return jpaRightAttribute;
   }
 
+  @Override
+  public String toString() {
+    return "JPAOnConditionItem [LeftAttribute=("
+        + jpaLeftAttribute.getAlias() + "/"
+        + jpaLeftAttribute.getDBFieldName() + "), RightAttribute=("
+        + jpaRightAttribute.getAlias() + "/"
+        + jpaRightAttribute.getDBFieldName()
+        + ")]";
+  }
+
 }

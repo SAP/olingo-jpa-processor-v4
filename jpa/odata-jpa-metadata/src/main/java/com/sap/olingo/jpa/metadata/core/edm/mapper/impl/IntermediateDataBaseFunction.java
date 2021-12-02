@@ -20,6 +20,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
 
+
 class IntermediateDataBaseFunction extends IntermediateFunction implements JPADataBaseFunction {
   private final Class<?> jpaDefiningPOJO;
 
@@ -45,7 +46,7 @@ class IntermediateDataBaseFunction extends IntermediateFunction implements JPADa
   public List<JPAParameter> getParameter() {
     final List<JPAParameter> parameterList = new ArrayList<>();
     for (final EdmParameter jpaParameter : jpaFunction.parameter()) {
-      parameterList.add(new IntermediatFunctionParameter(jpaParameter));
+      parameterList.add(new IntermediateFunctionParameter(jpaParameter));
     }
     return parameterList;
   }
@@ -61,7 +62,7 @@ class IntermediateDataBaseFunction extends IntermediateFunction implements JPADa
 
   @Override
   public JPAOperationResultParameter getResultParameter() {
-    return new IntermediatOperationResultParameter(this, jpaFunction.returnType(),
+    return new IntermediateOperationResultParameter(this, jpaFunction.returnType(),
         jpaFunction.returnType().type().equals(Object.class) ? schema.getEntityType(jpaDefiningPOJO).getTypeClass()
             : jpaFunction.returnType().type());
   }
@@ -134,7 +135,7 @@ class IntermediateDataBaseFunction extends IntermediateFunction implements JPADa
   protected FullQualifiedName determineParameterType(final Class<?> type, final EdmParameter definedParameter)
       throws ODataJPAModelException {
 
-    final EdmPrimitiveTypeKind edmType = JPATypeConvertor.convertToEdmSimpleType(definedParameter.type());
+    final EdmPrimitiveTypeKind edmType = JPATypeConverter.convertToEdmSimpleType(definedParameter.type());
     if (edmType != null)
       return edmType.getFullQualifiedName();
     else {
@@ -163,7 +164,7 @@ class IntermediateDataBaseFunction extends IntermediateFunction implements JPADa
         if (enumType != null) {
           return enumType.getExternalFQN();
         } else {
-          final EdmPrimitiveTypeKind pt = JPATypeConvertor.convertToEdmSimpleType(returnType.type());
+          final EdmPrimitiveTypeKind pt = JPATypeConverter.convertToEdmSimpleType(returnType.type());
           if (pt != null)
             return pt.getFullQualifiedName();
           else

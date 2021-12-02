@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Container that contains the claims that must be fulfilled, so an entity my be modified or read.
@@ -14,6 +15,16 @@ import java.util.Map;
 public class JPAODataClaimsProvider implements JPAODataClaimProvider {
 
   private final Map<String, List<JPAClaimsPair<?>>> claims = new HashMap<>();
+  private final Optional<String> user;
+
+  public JPAODataClaimsProvider() {
+    this(null);
+  }
+
+  public JPAODataClaimsProvider(final String user) {
+    super();
+    this.user = Optional.ofNullable(user);
+  }
 
   public void add(final String attributeName, final JPAClaimsPair<?> claimsPair) {
     if (!claims.containsKey(attributeName))
@@ -30,8 +41,13 @@ public class JPAODataClaimsProvider implements JPAODataClaimProvider {
   }
 
   @Override
+  public Optional<String> user() {
+    return user;
+  }
+
+  @Override
   public String toString() {
-    return "JPAODataClaimsProvider [claims=" + claims + "]";
+    return "JPAODataClaimsProvider [claims=" + claims + ", user=" + user + "]";
   }
 
 }

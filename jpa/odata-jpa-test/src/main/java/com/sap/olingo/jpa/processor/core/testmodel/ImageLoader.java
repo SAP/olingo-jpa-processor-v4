@@ -110,7 +110,7 @@ public class ImageLoader {
     else {
       for (int i = 0; i < image.length; i++) {
         if (image[i] != storedImage[i]) {
-          fail("[Image]: missmatch at" + Integer.toString(i));
+          fail("[Image]: mismatch at" + Integer.toString(i));
           break;
         }
       }

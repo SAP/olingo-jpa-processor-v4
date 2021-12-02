@@ -25,9 +25,12 @@ public class ODataJPATransactionException extends ODataJPAProcessException { // 
     super(messageKey.name(), HttpStatusCode.INTERNAL_SERVER_ERROR);
   }
 
+  public ODataJPATransactionException(MessageKeys messageKey, Exception e) {
+    super(messageKey.name(), HttpStatusCode.INTERNAL_SERVER_ERROR,e);
+  }
+
   @Override
   protected String getBundleName() {
     return null;
   }
-
 }

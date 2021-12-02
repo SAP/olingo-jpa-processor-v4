@@ -25,6 +25,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlEnumType;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunctionImport;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
+import org.apache.olingo.commons.api.edm.provider.CsdlSingleton;
 import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
 import org.apache.olingo.commons.api.edm.provider.CsdlTypeDefinition;
 import org.apache.olingo.commons.api.ex.ODataException;
@@ -35,15 +36,20 @@ import org.junit.jupiter.api.Test;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityTypeAccess;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList.IntermediateReferenceAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateEntityTypeAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateNavigationPropertyAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediatePropertyAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateReferenceList;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateReferenceList.IntermediateReferenceAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.CustomJPANameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 
+/**
+ * @author Oliver Grande
+ * Created: 10.02.2020
+ *
+ */
 class TestJPAEdmProvider {
   private static final String PUNIT_NAME = "com.sap.olingo.jpa";
   private static final String[] enumPackages = { "com.sap.olingo.jpa.processor.core.testmodel" };
@@ -128,7 +134,7 @@ class TestJPAEdmProvider {
   }
 
   @Test
-  void checkGeEntityContainerReturnsContainer() throws ODataException {
+  void checkGetEntityContainerReturnsContainer() throws ODataException {
     final CsdlEntityContainer act = cut.getEntityContainer();
     assertNotNull(act);
     assertEquals(cut.getServiceDocument().getNameBuilder().buildContainerName(), act.getName());
@@ -180,6 +186,26 @@ class TestJPAEdmProvider {
   }
 
   @Test
+  void checkGetSingletonReturnsNullOnUnknown() throws ODataException {
+    final FullQualifiedName fqn = buildContainerFQN();
+    assertNull(cut.getSingleton(fqn, "Hello"));
+  }
+
+  @Test
+  void checkGetSingletonReturnsNullOnUnknownNamespace() throws ODataException {
+    final FullQualifiedName fqn = new FullQualifiedName(PUNIT_NAME, "Hello");
+    assertNull(cut.getSingleton(fqn, "CurrentUser"));
+  }
+
+  @Test
+  void checkGetSingletonReturnsKnown() throws ODataException {
+    final FullQualifiedName fqn = buildContainerFQN();
+    final CsdlSingleton act = cut.getSingleton(fqn, "CurrentUser");
+    assertNotNull(act);
+    assertEquals("CurrentUser", act.getName());
+  }
+
+  @Test
   void checkGetEntityTypeReturnsNullOnUnknown() throws ODataException {
     final CsdlEntityType act = cut.getEntityType(new FullQualifiedName("Hello", "World"));
     assertNull(act);
@@ -210,6 +236,12 @@ class TestJPAEdmProvider {
     final FullQualifiedName fqn = buildContainerFQN();
     final CsdlFunctionImport act = cut.getFunctionImport(fqn, "Siblings");
     assertNotNull(act);
+  }
+
+  @Test
+  void checkGetFunctionsReturnsNullOnUnknownFunction() throws ODataException {
+    final List<CsdlFunction> act = cut.getFunctions(new FullQualifiedName(PUNIT_NAME, "Hello"));
+    assertNull(act);
   }
 
   @Test

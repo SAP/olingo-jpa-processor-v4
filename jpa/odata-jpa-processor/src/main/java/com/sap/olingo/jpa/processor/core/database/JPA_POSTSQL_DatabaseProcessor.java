@@ -23,13 +23,14 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPADBAdaptorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 
 /**
- * Copy template of a database processor for PostgreSQL
+ * Sample implementation a database processor for PostgreSQL
  * 
  * @author Oliver Grande
  * Created: 04.07.2019
  *
  */
-class JPA_POSTSQL_DatabaseProcessor extends JPAAbstractDatabaseProcessor { // NOSONAR
+public class JPA_POSTSQL_DatabaseProcessor extends JPAAbstractDatabaseProcessor { // NOSONAR
+
   private static final String SELECT_BASE_PATTERN = "SELECT * FROM $FUNCTIONNAME$($PARAMETER$)";
   private static final String SELECT_COUNT_PATTERN = "SELECT COUNT(*) FROM $FUNCTIONNAME$($PARAMETER$)";
 
@@ -47,7 +48,7 @@ class JPA_POSTSQL_DatabaseProcessor extends JPAAbstractDatabaseProcessor { // NO
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> java.util.List<T> executeFunctionQuery(final List<UriResource> uriResourceParts,
+  public <T> List<T> executeFunctionQuery(final List<UriResource> uriResourceParts,
       final JPADataBaseFunction jpaFunction, final EntityManager em) throws ODataApplicationException {
 
     final UriResource last = uriResourceParts.get(uriResourceParts.size() - 1);

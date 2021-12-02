@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -37,14 +38,14 @@ import com.sap.olingo.jpa.processor.core.testobjects.OrganizationWithoutGetter;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 
-public class TestModifyUtil extends TestBase {
+class TestModifyUtil extends TestBase {
   private JPAModifyUtil cut;
   private Map<String, Object> jpaAttributes;
   private BusinessPartner partner;
   private JPAEntityType org;
 
   @BeforeEach
-  public void setUp() throws ODataException {
+  void setUp() throws ODataException {
     cut = new JPAModifyUtil();
     jpaAttributes = new HashMap<>();
     partner = new Organization();
@@ -53,14 +54,14 @@ public class TestModifyUtil extends TestBase {
   }
 
   @Test
-  public void testSetAttributeOneAttribute() throws ODataJPAProcessException {
+  void testSetAttributeOneAttribute() throws ODataJPAProcessException {
     jpaAttributes.put("iD", "Willi");
     cut.setAttributes(jpaAttributes, partner, org);
     assertEquals("Willi", partner.getID());
   }
 
   @Test
-  public void testSetAttributeMultipleAttribute() throws ODataJPAProcessException {
+  void testSetAttributeMultipleAttribute() throws ODataJPAProcessException {
     jpaAttributes.put("iD", "Willi");
     jpaAttributes.put("type", "2");
     cut.setAttributes(jpaAttributes, partner, org);
@@ -69,7 +70,7 @@ public class TestModifyUtil extends TestBase {
   }
 
   @Test
-  public void testSetAttributeIfAttributeNull() throws ODataJPAProcessException {
+  void testSetAttributeIfAttributeNull() throws ODataJPAProcessException {
     partner.setType("2");
     jpaAttributes.put("iD", "Willi");
     jpaAttributes.put("type", null);
@@ -79,7 +80,7 @@ public class TestModifyUtil extends TestBase {
   }
 
   @Test
-  public void testDoNotSetAttributeIfNotInMap() throws ODataJPAProcessException {
+  void testDoNotSetAttributeIfNotInMap() throws ODataJPAProcessException {
     partner.setType("2");
     jpaAttributes.put("iD", "Willi");
     cut.setAttributes(jpaAttributes, partner, org);
@@ -88,14 +89,14 @@ public class TestModifyUtil extends TestBase {
   }
 
   @Test
-  public void testSetAttributesDeepOneAttribute() throws ODataJPAProcessException {
+  void testSetAttributesDeepOneAttribute() throws ODataJPAProcessException {
     jpaAttributes.put("iD", "Willi");
     cut.setAttributesDeep(jpaAttributes, partner, org);
     assertEquals("Willi", partner.getID());
   }
 
   @Test
-  public void testSetAttributesDeepMultipleAttribute() throws ODataJPAProcessException {
+  void testSetAttributesDeepMultipleAttribute() throws ODataJPAProcessException {
     jpaAttributes.put("iD", "Willi");
     jpaAttributes.put("country", "DEU");
     cut.setAttributesDeep(jpaAttributes, partner, org);
@@ -104,7 +105,7 @@ public class TestModifyUtil extends TestBase {
   }
 
   @Test
-  public void testSetAttributeDeepIfAttributeNull() throws ODataJPAProcessException,
+  void testSetAttributeDeepIfAttributeNull() throws ODataJPAProcessException,
       ODataJPAInvocationTargetException {
     partner.setType("2");
     jpaAttributes.put("iD", "Willi");
@@ -115,7 +116,7 @@ public class TestModifyUtil extends TestBase {
   }
 
   @Test
-  public void testDoNotSetAttributeDeepIfNotInMap() throws ODataJPAProcessException,
+  void testDoNotSetAttributeDeepIfNotInMap() throws ODataJPAProcessException,
       ODataJPAInvocationTargetException {
     partner.setType("2");
     jpaAttributes.put("iD", "Willi");
@@ -125,18 +126,23 @@ public class TestModifyUtil extends TestBase {
   }
 
   @Test
-  public void testSetAttributesDeepShallIgnoreRequestEntities() throws ODataJPAProcessException,
+  void testSetAttributesDeepShallIgnoreRequestEntities() throws ODataJPAProcessException,
       ODataJPAInvocationTargetException {
-    JPARequestEntity roles = mock(JPARequestEntity.class);
-    jpaAttributes.put("iD", "Willi");
-    jpaAttributes.put("roles", roles);
-    cut.setAttributesDeep(jpaAttributes, partner, org);
+    try {
+      final JPARequestEntity roles = mock(JPARequestEntity.class);
+      jpaAttributes.put("iD", "Willi");
+      jpaAttributes.put("roles", roles);
+      cut.setAttributesDeep(jpaAttributes, partner, org);
+    } catch (final Exception e) {
+      fail();
+    }
+
   }
 
   @Test
-  public void testSetAttributesDeepOneLevelViaGetter() throws ODataJPAProcessException,
+  void testSetAttributesDeepOneLevelViaGetter() throws ODataJPAProcessException,
       ODataJPAInvocationTargetException, ODataJPAModelException {
-    Map<String, Object> embeddedAttributes = new HashMap<>();
+    final Map<String, Object> embeddedAttributes = new HashMap<>();
     jpaAttributes.put("iD", "Willi");
     jpaAttributes.put("address", embeddedAttributes);
     embeddedAttributes.put("cityName", "Test Town");
@@ -147,23 +153,23 @@ public class TestModifyUtil extends TestBase {
   }
 
   @Test
-  public void testSetAttributesDeepOneLevelViaGetterWithWrongRequestData() throws Throwable {
-    Map<String, Object> embeddedAttributes = new HashMap<>();
-    Map<String, Object> innerEmbeddedAttributes = new HashMap<>();
+  void testSetAttributesDeepOneLevelViaGetterWithWrongRequestData() throws Throwable {
+    final Map<String, Object> embeddedAttributes = new HashMap<>();
+    final Map<String, Object> innerEmbeddedAttributes = new HashMap<>();
     jpaAttributes.put("iD", "Willi");
     jpaAttributes.put("administrativeInformation", embeddedAttributes);
     embeddedAttributes.put("updated", innerEmbeddedAttributes);
     innerEmbeddedAttributes.put("by", null);
     try {
       cut.setAttributesDeep(jpaAttributes, partner, org);
-    } catch (ODataJPAInvocationTargetException e) {
+    } catch (final ODataJPAInvocationTargetException e) {
       assertEquals("Organization/AdministrativeInformation/Updated/By", e.getPath());
       assertEquals(NullPointerException.class, e.getCause().getClass());
     }
   }
 
   @Test
-  public void testDoNotSetAttributesDeepOneLevelIfNotProvided() throws ODataJPAProcessException,
+  void testDoNotSetAttributesDeepOneLevelIfNotProvided() throws ODataJPAProcessException,
       ODataJPAInvocationTargetException {
     jpaAttributes.put("iD", "Willi");
     jpaAttributes.put("address", null);
@@ -174,7 +180,7 @@ public class TestModifyUtil extends TestBase {
   }
 
   @Test
-  public void testSetAttributesDeepOneLevelIfNull() throws ODataJPAProcessException,
+  void testSetAttributesDeepOneLevelIfNull() throws ODataJPAProcessException,
       ODataJPAInvocationTargetException {
     final PostalAddressData address = new PostalAddressData();
     address.setCityName("Test City");
@@ -189,9 +195,9 @@ public class TestModifyUtil extends TestBase {
   }
 
   @Test
-  public void testSetAttributesDeepOneLevelViaSetter() throws ODataJPAProcessException,
+  void testSetAttributesDeepOneLevelViaSetter() throws ODataJPAProcessException,
       ODataJPAInvocationTargetException, ODataJPAModelException {
-    Map<String, Object> embeddedAttributes = new HashMap<>();
+    final Map<String, Object> embeddedAttributes = new HashMap<>();
     jpaAttributes.put("iD", "Willi");
     jpaAttributes.put("communicationData", embeddedAttributes);
     embeddedAttributes.put("email", "Test@Town");
@@ -203,9 +209,9 @@ public class TestModifyUtil extends TestBase {
   }
 
   @Test
-  public void testSetAttributesDeepTwoLevel() throws ODataJPAProcessException, ODataJPAModelException {
-    Map<String, Object> embeddedAttributes = new HashMap<>();
-    Map<String, Object> innerEmbeddedAttributes = new HashMap<>();
+  void testSetAttributesDeepTwoLevel() throws ODataJPAProcessException, ODataJPAModelException {
+    final Map<String, Object> embeddedAttributes = new HashMap<>();
+    final Map<String, Object> innerEmbeddedAttributes = new HashMap<>();
     jpaAttributes.put("iD", "Willi");
     jpaAttributes.put("administrativeInformation", embeddedAttributes);
     embeddedAttributes.put("updated", innerEmbeddedAttributes);
@@ -219,60 +225,60 @@ public class TestModifyUtil extends TestBase {
   }
 
   @Test
-  public void testCreatePrimaryKeyOneStringKeyField() throws ODataJPAProcessException, ODataJPAModelException {
+  void testCreatePrimaryKeyOneStringKeyField() throws ODataJPAProcessException, ODataJPAModelException {
     final JPAEntityType et = createSingleKeyEntityType();
 
     when(et.getKeyType()).thenAnswer(new Answer<Class<?>>() {
       @Override
-      public Class<?> answer(InvocationOnMock invocation) throws Throwable {
+      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
         return String.class;
       }
     });
 
     jpaAttributes.put("iD", "Willi");
-    String act = (String) cut.createPrimaryKey(et, jpaAttributes, org);
+    final String act = (String) cut.createPrimaryKey(et, jpaAttributes, org);
     assertEquals("Willi", act);
   }
 
   @Test
-  public void testCreatePrimaryKeyOneIntegerKeyField() throws ODataJPAProcessException, ODataJPAModelException {
+  void testCreatePrimaryKeyOneIntegerKeyField() throws ODataJPAProcessException, ODataJPAModelException {
     final JPAEntityType et = createSingleKeyEntityType();
 
     when(et.getKeyType()).thenAnswer(new Answer<Class<?>>() {
       @Override
-      public Class<?> answer(InvocationOnMock invocation) throws Throwable {
+      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
         return Integer.class;
       }
     });
 
-    jpaAttributes.put("iD", new Integer(10));
-    Integer act = (Integer) cut.createPrimaryKey(et, jpaAttributes, org);
-    assertEquals(new Integer(10), act);
+    jpaAttributes.put("iD", Integer.valueOf(10));
+    final Integer act = (Integer) cut.createPrimaryKey(et, jpaAttributes, org);
+    assertEquals(Integer.valueOf(10), act);
   }
 
   @Test
-  public void testCreatePrimaryKeyOneBigIntegerKeyField() throws ODataJPAProcessException, ODataJPAModelException {
+  void testCreatePrimaryKeyOneBigIntegerKeyField() throws ODataJPAProcessException, ODataJPAModelException {
     final JPAEntityType et = createSingleKeyEntityType();
 
     when(et.getKeyType()).thenAnswer(new Answer<Class<?>>() {
       @Override
-      public Class<?> answer(InvocationOnMock invocation) throws Throwable {
+      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
         return BigInteger.class;
       }
     });
 
     jpaAttributes.put("iD", new BigInteger("10"));
-    BigInteger act = (BigInteger) cut.createPrimaryKey(et, jpaAttributes, org);
+    final BigInteger act = (BigInteger) cut.createPrimaryKey(et, jpaAttributes, org);
     assertEquals(new BigInteger("10"), act);
   }
 
   @Test
-  public void testCreatePrimaryKeyMultipleField() throws ODataJPAProcessException, ODataJPAModelException {
+  void testCreatePrimaryKeyMultipleField() throws ODataJPAProcessException, ODataJPAModelException {
     final JPAEntityType et = mock(JPAEntityType.class);
 
     when(et.getKeyType()).thenAnswer(new Answer<Class<?>>() {
       @Override
-      public Class<?> answer(InvocationOnMock invocation) throws Throwable {
+      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
         return AdministrativeDivisionKey.class;
       }
     });
@@ -280,14 +286,14 @@ public class TestModifyUtil extends TestBase {
     jpaAttributes.put("codePublisher", "Test");
     jpaAttributes.put("codeID", "10");
     jpaAttributes.put("divisionCode", "10.1");
-    AdministrativeDivisionKey act = (AdministrativeDivisionKey) cut.createPrimaryKey(et, jpaAttributes, org);
+    final AdministrativeDivisionKey act = (AdministrativeDivisionKey) cut.createPrimaryKey(et, jpaAttributes, org);
     assertEquals("Test", act.getCodePublisher());
     assertEquals("10", act.getCodeID());
     assertEquals("10.1", act.getDivisionCode());
   }
 
   @Test
-  public void testDeepLinkComplexNotExist() throws ODataJPAProcessorException, ODataJPAModelException {
+  void testDeepLinkComplexNotExist() throws ODataJPAProcessorException, ODataJPAModelException {
     final Organization source = new Organization("100");
     final Person target = new Person();
     target.setID("A");
@@ -302,7 +308,7 @@ public class TestModifyUtil extends TestBase {
   }
 
   @Test
-  public void testDirectLink() throws ODataJPAProcessorException, ODataJPAModelException {
+  void testDirectLink() throws ODataJPAProcessorException, ODataJPAModelException {
     final Organization source = new Organization("100");
     final BusinessPartnerRole target = new BusinessPartnerRole();
     target.setBusinessPartnerID("100");
@@ -318,7 +324,7 @@ public class TestModifyUtil extends TestBase {
   }
 
   @Test
-  public void testSetForeignKeyOneKey() throws ODataJPAModelException, ODataJPAProcessorException {
+  void testSetForeignKeyOneKey() throws ODataJPAModelException, ODataJPAProcessorException {
     final Organization source = new Organization("100");
     final BusinessPartnerRole target = new BusinessPartnerRole();
     target.setRoleCategory("A");
@@ -330,7 +336,7 @@ public class TestModifyUtil extends TestBase {
   }
 
   @Test
-  public void testSetForeignKeyTrhowsExceptionOnMissingGetter() throws ODataJPAModelException,
+  void testSetForeignKeyTrhowsExceptionOnMissingGetter() throws ODataJPAModelException,
       ODataJPAProcessorException {
     final OrganizationWithoutGetter source = new OrganizationWithoutGetter("100");
     final BusinessPartnerRole target = new BusinessPartnerRole();
@@ -343,7 +349,7 @@ public class TestModifyUtil extends TestBase {
   }
 
   @Test
-  public void testSetForeignKeyTrhowsExceptionOnMissingSetter() throws ODataJPAModelException,
+  void testSetForeignKeyTrhowsExceptionOnMissingSetter() throws ODataJPAModelException,
       ODataJPAProcessorException {
     final Organization source = new Organization("100");
     final BusinessPartnerRoleWithoutSetter target = new BusinessPartnerRoleWithoutSetter();

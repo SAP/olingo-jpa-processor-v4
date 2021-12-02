@@ -26,9 +26,10 @@ import org.apache.olingo.commons.api.edmx.EdmxReferenceIncludeAnnotation;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.CsdlDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.CsdlDocumentReader;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateReferenceList;
 
 final class IntermediateReferences implements IntermediateReferenceList {
+
   final List<IntermediateReference> references = new ArrayList<>();
   private List<EdmxReference> edmxReferences = new ArrayList<>();
   final Map<String, Map<String, CsdlTerm>> terms = new HashMap<>();
@@ -37,6 +38,7 @@ final class IntermediateReferences implements IntermediateReferenceList {
 
   @Override
   public IntermediateReferenceAccess addReference(final String uri) throws ODataJPAModelException {
+
     try {
       final URI sourceURI = new URI(uri);
       final CsdlDocument vocabulary = new CsdlDocumentReader().readFromURI(sourceURI);
@@ -55,7 +57,6 @@ final class IntermediateReferences implements IntermediateReferenceList {
     try {
       final URI sourceURI = new URI(uri);
       final CsdlDocument vocabulary = new CsdlDocumentReader().readFromResource(path, charset);
-
       if (vocabulary == null)
         // Path '%1$s' to read the file containing vocabulary '%2$s' is wrong
         throw new ODataJPAModelException(ANNOTATION_PATH_NOT_FOUND, path, uri);
@@ -77,13 +78,9 @@ final class IntermediateReferences implements IntermediateReferenceList {
 
   public CsdlTerm getTerm(final FullQualifiedName termName) {
     Map<String, CsdlTerm> schema = terms.get(termName.getNamespace());
-    if (schema == null) {
-      for (final IntermediateReference r : references) {
-        final String namespace = r.convertAlias(termName.getNamespace());
-        if (namespace != null) {
-          schema = terms.get(namespace);
-        }
-      }
+    if (schema == null) for (final IntermediateReference r : references) {
+      final String namespace = r.convertAlias(termName.getNamespace());
+      if (namespace != null) schema = terms.get(namespace);
     }
     if (schema == null)
       return null;
@@ -91,25 +88,23 @@ final class IntermediateReferences implements IntermediateReferenceList {
   }
 
   public List<CsdlSchema> getSchemas() {
-
     final List<CsdlSchema> result = new ArrayList<>();
-    for (final Entry<String, CsdlSchema> schema : schemas.entrySet()) {
+    for (final Entry<String, CsdlSchema> schema : schemas.entrySet())
       result.add(schema.getValue());
-    }
     return result;
   }
 
   List<EdmxReference> getEdmReferences() {
     if (references.size() != edmxReferences.size()) {
       edmxReferences = new ArrayList<>(references.size());
-      for (final IntermediateReference r : references) {
+      for (final IntermediateReference r : references)
         edmxReferences.add(r.getEdmReference());
-      }
     }
     return edmxReferences;
   }
 
   private IntermediateReference createReference(final URI sourceURI, final String path, final CsdlDocument vocabulary) {
+
     final IntermediateReference reference = new IntermediateReference(sourceURI, path);
     schemas.putAll(vocabulary.getSchemas());
     terms.putAll(vocabulary.getTerms());
@@ -155,8 +150,9 @@ final class IntermediateReferences implements IntermediateReferenceList {
     }
 
     @Override
-    public void addIncludeAnnotation(final String termNamespace, final String qualifier, final String targetNamespace)
-        throws ODataJPAModelException {
+    public void addIncludeAnnotation(@Nonnull final String termNamespace, final String qualifier,
+        final String targetNamespace) throws ODataJPAModelException {
+
       final IntermediateReferenceAnnotationInclude include = new IntermediateReferenceAnnotationInclude(termNamespace,
           qualifier, targetNamespace);
       this.annotation.add(include);
@@ -178,10 +174,12 @@ final class IntermediateReferences implements IntermediateReferenceList {
     }
 
     private class IntermediateReferenceInclude {
+
       private final String namespace;
       private final String alias;
 
       public IntermediateReferenceInclude(final String namespace, final String alias) {
+
         this.namespace = namespace;
         this.alias = alias;
       }

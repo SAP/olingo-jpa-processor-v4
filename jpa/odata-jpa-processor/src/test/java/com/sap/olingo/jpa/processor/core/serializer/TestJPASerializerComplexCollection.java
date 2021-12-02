@@ -28,7 +28,7 @@ public class TestJPASerializerComplexCollection extends TestJPASerializerCollect
   }
 
   @Override
-  protected void initTest(final List<UriResource> resouceParts) {
+  protected void initTest(final List<UriResource> resourceParts) {
     cut = new JPASerializeComplexCollection(serviceMetadata, serializer, ContentType.APPLICATION_JSON, context);
   }
 

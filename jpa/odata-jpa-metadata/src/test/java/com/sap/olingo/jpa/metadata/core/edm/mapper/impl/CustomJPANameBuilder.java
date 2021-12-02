@@ -19,8 +19,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 public class CustomJPANameBuilder implements JPAEdmNameBuilder {
 
   @Override
-  public String buildComplexTypeName(EmbeddableType<?> jpaEnbeddedType) {
-    return new StringBuilder("T_").append(jpaEnbeddedType.getJavaType().getSimpleName()).toString();
+  public String buildComplexTypeName(final EmbeddableType<?> jpaEmbeddedType) {
+    return new StringBuilder("T_").append(jpaEmbeddedType.getJavaType().getSimpleName()).toString();
   }
 
   @Override
@@ -29,36 +29,36 @@ public class CustomJPANameBuilder implements JPAEdmNameBuilder {
   }
 
   @Override
-  public String buildEntitySetName(String entityTypeName) {
+  public String buildEntitySetName(final String entityTypeName) {
     return entityTypeName.toUpperCase();
   }
 
   @Override
-  public String buildEntityTypeName(EntityType<?> jpaEntityType) {
+  public String buildEntityTypeName(final EntityType<?> jpaEntityType) {
     final StringBuilder externalName = new StringBuilder();
     final IntStream name = jpaEntityType.getName().chars();
-    name.forEach(i -> this.appeendChar(externalName, i));
+    name.forEach(i -> this.appendChar(externalName, i));
     externalName.deleteCharAt(0);
     return externalName.toString();
   }
 
   @Override
-  public String buildEnumerationTypeName(Class<? extends Enum<?>> javaEnum) {
+  public String buildEnumerationTypeName(final Class<? extends Enum<?>> javaEnum) {
     return new StringBuilder("E_").append(javaEnum.getSimpleName()).toString();
   }
 
   @Override
-  public String buildNaviPropertyName(Attribute<?, ?> jpaAttribute) {
+  public String buildNaviPropertyName(final Attribute<?, ?> jpaAttribute) {
     return jpaAttribute.getName();
   }
 
   @Override
-  public String buildOperationName(String internalOperationName) {
+  public String buildOperationName(final String internalOperationName) {
     return new StringBuilder("O_").append(internalOperationName).toString();
   }
 
   @Override
-  public String buildPropertyName(String jpaAttributeName) {
+  public String buildPropertyName(final String jpaAttributeName) {
     return jpaAttributeName;
   }
 
@@ -67,7 +67,7 @@ public class CustomJPANameBuilder implements JPAEdmNameBuilder {
     return "test";
   }
 
-  private void appeendChar(final StringBuilder builder, int i) {
+  private void appendChar(final StringBuilder builder, final int i) {
     if (Character.isUpperCase(i))
       builder.append('_').append(Character.toChars(i)[0]);
     else

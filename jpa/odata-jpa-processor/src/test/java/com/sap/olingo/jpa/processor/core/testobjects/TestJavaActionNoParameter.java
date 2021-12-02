@@ -24,7 +24,7 @@ public class TestJavaActionNoParameter {
   }
 
   @EdmAction(returnType = @ReturnType(isNullable = false, precision = 20, scale = 5))
-  public BigDecimal unboundReturnPrimitivetNoParameter() {
+  public BigDecimal unboundReturnPrimitiveNoParameter() {
     return new BigDecimal(7);
   }
 

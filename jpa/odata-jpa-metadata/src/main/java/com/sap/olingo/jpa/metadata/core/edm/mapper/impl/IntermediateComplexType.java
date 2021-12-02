@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.persistence.metamodel.EmbeddableType;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
 import org.apache.olingo.commons.api.edm.provider.CsdlNavigationProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
@@ -28,7 +30,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
  *
  */
 final class IntermediateComplexType<T> extends IntermediateStructuredType<T> {
-  private CsdlComplexType edmComplexType;
+
+  private static final Log LOGGER = LogFactory.getLog(IntermediateComplexType.class);
 
   IntermediateComplexType(final JPAEdmNameBuilder nameBuilder, final EmbeddableType<T> jpaEmbeddable,
       final IntermediateSchema schema) {
@@ -40,17 +43,18 @@ final class IntermediateComplexType<T> extends IntermediateStructuredType<T> {
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void lazyBuildEdmItem() throws ODataJPAModelException {
-    if (edmComplexType == null) {
+  protected synchronized void lazyBuildEdmItem() throws ODataJPAModelException {
+    if (edmStructuralType == null) {
       buildPropertyList();
       buildNaviPropertyList();
-      edmComplexType = new CsdlComplexType();
+      addTransientProperties();
+      edmStructuralType = new CsdlComplexType();
 
-      edmComplexType.setName(this.getExternalName());
-      edmComplexType.setProperties((List<CsdlProperty>) extractEdmModelElements(declaredPropertiesList));
-      edmComplexType.setNavigationProperties((List<CsdlNavigationProperty>) extractEdmModelElements(
+      edmStructuralType.setName(this.getExternalName());
+      edmStructuralType.setProperties((List<CsdlProperty>) extractEdmModelElements(declaredPropertiesList));
+      edmStructuralType.setNavigationProperties((List<CsdlNavigationProperty>) extractEdmModelElements(
           declaredNaviPropertiesList));
-      edmComplexType.setBaseType(determineBaseType());
+      edmStructuralType.setBaseType(determineBaseType());
       // TODO Abstract
       // edmComplexType.setAbstract(isAbstract)
       // TODO OpenType
@@ -64,8 +68,25 @@ final class IntermediateComplexType<T> extends IntermediateStructuredType<T> {
 
   @Override
   CsdlComplexType getEdmItem() throws ODataJPAModelException {
-    lazyBuildEdmItem();
-    return edmComplexType;
+    if (edmStructuralType == null) {
+      lazyBuildEdmItem();
+    }
+    return (CsdlComplexType) edmStructuralType;
   }
 
+  @Override
+  protected IntermediateStructuredType<? super T> getBaseType() {
+    final Class<?> baseType = jpaManagedType.getJavaType().getSuperclass();
+    if (baseType != null) {
+      @SuppressWarnings("unchecked")
+      final IntermediateStructuredType<? super T> baseComplex = (IntermediateStructuredType<? super T>) schema
+          .getComplexType(baseType);
+      if (baseComplex != null)
+        return baseComplex;
+      else if (baseType != Object.class)
+        LOGGER.warn("Embeddable " + jpaManagedType.getJavaType().getName()
+            + " is subtype of " + baseType.getName() + " but this is not embeddable or shall be ignored");
+    }
+    return null;
+  }
 }

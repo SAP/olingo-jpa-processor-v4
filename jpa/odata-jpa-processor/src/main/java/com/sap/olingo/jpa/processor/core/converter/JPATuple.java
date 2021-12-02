@@ -66,7 +66,7 @@ public final class JPATuple implements Tuple {
     return new Object[] {};
   }
 
-  private class JPATupleElement<X> implements TupleElement<X> {
+  private static class JPATupleElement<X> implements TupleElement<X> {
 
     private final String alias;
     private final Class<? extends X> javaType;

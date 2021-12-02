@@ -1,5 +1,8 @@
 package com.sap.olingo.jpa.processor.core.util;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,22 +14,21 @@ import javax.persistence.criteria.Root;
 
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
-import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.junit.jupiter.api.BeforeEach;
-import org.mockito.Mockito;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
 import com.sap.olingo.jpa.processor.core.api.JPAODataContextAccessDouble;
-import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
-import com.sap.olingo.jpa.processor.core.exception.JPAIllicalAccessException;
-import com.sap.olingo.jpa.processor.core.processor.JPAODataRequestContextImpl;
+import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContext;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
+import com.sap.olingo.jpa.processor.core.processor.JPAODataInternalRequestContext;
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractJoinQuery;
 import com.sap.olingo.jpa.processor.core.query.JPAJoinQuery;
 
@@ -36,16 +38,16 @@ public class TestGroupBase extends TestBase {
   protected JPAEntityType jpaEntityType;
   protected HashMap<String, From<?, ?>> joinTables;
   protected Root<?> root;
-  protected JPAODataCRUDContextAccess context;
+  protected JPAODataSessionContextAccess context;
   protected UriInfo uriInfo;
-  protected JPAODataRequestContextImpl requestContext;
+  protected JPAODataInternalRequestContext requestContext;
 
   public TestGroupBase() {
     super();
   }
 
   @BeforeEach
-  public void setup() throws ODataException, JPAIllicalAccessException {
+  public void setup() throws ODataException, ODataJPAIllegalAccessException {
     uriInfo = buildUriInfo("BusinessPartnerWithGroupss", "BusinessPartnerWithGroups");
 
     helper = new TestHelper(emf, PUNIT_NAME);
@@ -54,11 +56,11 @@ public class TestGroupBase extends TestBase {
     createHeaders();
     context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null, TestBase.enumPackages), ds,
         null);
-
-    requestContext = new JPAODataRequestContextImpl();
-    requestContext.setEntityManager(emf.createEntityManager());
+    final JPAODataRequestContext externalContext = mock(JPAODataRequestContext.class);
+    when(externalContext.getEntityManager()).thenReturn(emf.createEntityManager());
+    requestContext = new JPAODataInternalRequestContext(externalContext);
     requestContext.setUriInfo(uriInfo);
-    cut = new JPAJoinQuery(null, context, headers, requestContext);
+    cut = new JPAJoinQuery(null, context, requestContext);
 
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
     joinTables = new HashMap<>();
@@ -66,32 +68,25 @@ public class TestGroupBase extends TestBase {
   }
 
   protected UriInfo buildUriInfo(final String esName, final String etName) {
-    final UriInfo ui = Mockito.mock(UriInfo.class);
-    final EdmEntitySet odataEs = Mockito.mock(EdmEntitySet.class);
-    final EdmType odataType = Mockito.mock(EdmEntityType.class);
+    final UriInfo ui = mock(UriInfo.class);
+    final EdmEntitySet odataEs = mock(EdmEntitySet.class);
+    final EdmEntityType odataType = mock(EdmEntityType.class);
     final List<UriResource> resources = new ArrayList<>();
-    final UriResourceEntitySet esResource = Mockito.mock(UriResourceEntitySet.class);
-    Mockito.when(ui.getUriResourceParts()).thenReturn(resources);
-    Mockito.when(esResource.getKeyPredicates()).thenReturn(new ArrayList<>(0));
-    Mockito.when(esResource.getEntitySet()).thenReturn(odataEs);
-    Mockito.when(esResource.getKind()).thenReturn(UriResourceKind.entitySet);
-    Mockito.when(esResource.getType()).thenReturn(odataType);
-    Mockito.when(odataEs.getName()).thenReturn(esName);
-    Mockito.when(odataType.getNamespace()).thenReturn(PUNIT_NAME);
-    Mockito.when(odataType.getName()).thenReturn(etName);
+    final UriResourceEntitySet esResource = mock(UriResourceEntitySet.class);
+    when(ui.getUriResourceParts()).thenReturn(resources);
+    when(esResource.getKeyPredicates()).thenReturn(new ArrayList<>(0));
+    when(esResource.getEntitySet()).thenReturn(odataEs);
+    when(esResource.getKind()).thenReturn(UriResourceKind.entitySet);
+    when(esResource.getType()).thenReturn(odataType);
+    when(odataEs.getName()).thenReturn(esName);
+    when(odataEs.getEntityType()).thenReturn(odataType);
+    when(odataType.getNamespace()).thenReturn(PUNIT_NAME);
+    when(odataType.getName()).thenReturn(etName);
     resources.add(esResource);
     return ui;
   }
 
-//  protected EdmType buildRequestContext(final String esName, final String etName) throws JPAIllicalAccessException {
-//    final EdmType odataType = buildUriInfo(esName, etName);
-//    requestContext = new JPAODataRequestContextImpl();
-//    requestContext.setEntityManager(emf.createEntityManager());
-//    requestContext.setUriInfo(uriInfo);
-//    return odataType;
-//  }
-
-  protected void fillJoinTable(Root<?> joinRoot) {
+  protected void fillJoinTable(final Root<?> joinRoot) {
     Join<?, ?> join = joinRoot.join("locationName", JoinType.LEFT);
     joinTables.put("locationName", join);
     join = joinRoot.join("address", JoinType.LEFT);

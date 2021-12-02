@@ -5,7 +5,7 @@
 
 	<groupId>com.sap.olingo</groupId>
 	<artifactId>odata-jpa</artifactId>
-	<version>0.3.10-SNAPSHOT</version>
+	<version>1.0.3</version>
 	<packaging>pom</packaging>
 
 	<name>odata-jpa</name>
@@ -15,91 +15,106 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.build.source>1.8</project.build.source>
 		<maven.complier.version>3.8.0</maven.complier.version>
-		<odata.version>4.8.0</odata.version>
+        <odata.version>4.8.0</odata.version>
         <jackson.version>2.12.5</jackson.version>
-		<powermock.version>1.7.1</powermock.version>
-		<coveralls.version>4.3.0</coveralls.version>
+        <powermock.version>1.7.1</powermock.version>
+        <coveralls.version>4.3.0</coveralls.version>
+        <jpa.version>2.2.1</jpa.version>
+        <processor.version>1.0.3</processor.version>
 	</properties>
 
-	<profiles>
-		<profile>
-			<id>build.fast</id>
-			<properties>
-				<pmd.skip>true</pmd.skip>
-				<rat.skip>true</rat.skip>
-				<checkstyle.skip>true</checkstyle.skip>
-				<exclude.regex>.*(proxy|client).*</exclude.regex>
-			</properties>
-		</profile>
-		<profile>
-			<id>build.quality</id>
-			<properties>
-				<cobertura.skip>false</cobertura.skip>
-				<!-- nothing excluded -->
-				<exclude.regex></exclude.regex>
-			</properties>
-		</profile>
-	</profiles>
+    <profiles>
+        <profile>
+            <id>build.fast</id>
+            <properties>
+                <pmd.skip>true</pmd.skip>
+                <rat.skip>true</rat.skip>
+                <checkstyle.skip>true</checkstyle.skip>
+                <exclude.regex>.*(proxy|client).*</exclude.regex>
+            </properties>
+        </profile>
+        <profile>
+            <id>build.quality</id>
+            <properties>
+                <cobertura.skip>false</cobertura.skip>
+                <!-- nothing excluded -->
+                <exclude.regex></exclude.regex>
+            </properties>
+        </profile>
+    </profiles>
 
-	<modules>
-		<module>odata-jpa-annotation</module>
-		<module>odata-jpa-metadata</module>
-		<module>odata-jpa-processor</module>
-		<module>odata-jpa-coverage</module>
-		<module>odata-jpa-test</module>
-		<module>odata-jpa-spring-support</module>
-	</modules>
-	<build>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-surefire-plugin</artifactId>
-					<version>3.0.0-M3</version>
-					<configuration>
-						<properties>
-							<configurationParameters>
-								junit.platform.output.capture.stdout =
-								false
-							</configurationParameters>
-						</properties>
-					</configuration>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-compiler-plugin</artifactId>
-					<version>${maven.complier.version}</version>
-					<configuration>
-						<source>${project.build.source}</source>
-						<target>${project.build.source}</target>
-						<showWarnings>true</showWarnings>
-						<showDeprecation>true</showDeprecation>
-						<compilerArgument>-Xlint:unchecked</compilerArgument>
-						<encoding>${project.build.sourceEncoding}</encoding>
-					</configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
+    <modules>
+        <module>odata-jpa-metadata</module>
+        <module>odata-jpa-test</module>
+        <module>odata-jpa-annotation</module>
+        <module>odata-jpa-processor</module>
+        <module>odata-jpa-processor-cb</module>
+        <module>odata-jpa-processor-parallel</module>
+        <module>odata-jpa-coverage</module>
+        <module>odata-jpa-spring-support</module>
+        <module>odata-jpa-processor-ext</module>
+    </modules>
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.0.0-M3</version>
+                    <configuration>
+                        <properties>
+                            <configurationParameters>
+                                junit.platform.output.capture.stdout =
+                                false
+                            </configurationParameters>
+                        </properties>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven.complier.version}</version>
+                    <configuration>
+                        <source>${project.build.source}</source>
+                        <target>${project.build.source}</target>
+                        <showWarnings>true</showWarnings>
+                        <showDeprecation>true</showDeprecation>
+                        <compilerArgument>-Xlint:unchecked</compilerArgument>
+                        <encoding>${project.build.sourceEncoding}</encoding>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.sonarsource.scanner.maven</groupId>
+                    <artifactId>sonar-maven-plugin</artifactId>
+                    <version>3.7.0.1746</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
 
-		<plugins>
-			<plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.5</version>
-				<executions>
-					<execution>
-						<id>prepare-agent</id>
-						<goals>
-							<goal>prepare-agent</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+        <plugins>
             <plugin>
-                <groupId>org.eluder.coveralls</groupId>
-                <artifactId>coveralls-maven-plugin</artifactId>
-				<version>${coveralls.version}</version>
-            </plugin>			
-		</plugins>
-	</build>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.6</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <rules>
+                        <rule>
+                            <element>SOURCEFILE</element>
+                            <excludes>
+                                <exclude>*src/test/*</exclude>
+                            </excludes>
+                        </rule>
+                    </rules>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

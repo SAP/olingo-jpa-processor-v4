@@ -1,8 +1,10 @@
+/**
+ *
+ */
 package com.sap.olingo.jpa.processor.test;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -32,7 +34,7 @@ import org.junit.jupiter.params.provider.MethodSource;
  * Created: 11.11.2019
  *
  */
-public abstract class TestEqualHashCodeMethods {
+abstract class TestEqualHashCodeMethods {
 
   protected static Metamodel model;
 
@@ -58,7 +60,7 @@ public abstract class TestEqualHashCodeMethods {
         } catch (SecurityException | InstantiationException | IllegalAccessException
             | IllegalArgumentException | InvocationTargetException e) {
           continue;
-        } catch (NoSuchMethodException e) {
+        } catch (final NoSuchMethodException e) {
           System.out.println(e.toString());
         }
       }
@@ -100,7 +102,7 @@ public abstract class TestEqualHashCodeMethods {
         } catch (SecurityException | InstantiationException | IllegalAccessException
             | IllegalArgumentException | InvocationTargetException e) {
           continue;
-        } catch (NoSuchMethodException e) {
+        } catch (final NoSuchMethodException e) {
           System.out.println(e.toString());
         }
       }
@@ -134,7 +136,7 @@ public abstract class TestEqualHashCodeMethods {
       for (final Object keyElement : attributes) {
         keyElements.add((SingularAttribute) keyElement);
       }
-    } catch (IllegalArgumentException e) {
+    } catch (final IllegalArgumentException e) {
       final SingularAttribute<?, ?> id = et.getId(et.getIdType().getJavaType());
       keyElements.add(id);
     }
@@ -162,37 +164,37 @@ public abstract class TestEqualHashCodeMethods {
   @SuppressWarnings("rawtypes")
   private static Method getSetter(final Class<?> keyClass, final SingularAttribute keyElement)
       throws NoSuchMethodException {
-    StringBuilder setterName = new StringBuilder();
+    final StringBuilder setterName = new StringBuilder();
     setterName
         .append("set")
         .append(keyElement.getName().substring(0, 1).toUpperCase())
         .append(keyElement.getName().substring(1));
-    Method setter = keyClass.getMethod(setterName.toString(), keyElement.getJavaType());
+    final Method setter = keyClass.getMethod(setterName.toString(), keyElement.getJavaType());
     return setter;
   }
 
   @ParameterizedTest
   @MethodSource("equalInstances")
-  public void testEqualsReturnsTrue(final Entry<Object, List<Object>> instance) {
-    for (Object comparator : instance.getValue()) {
-      assertTrue(instance.getKey().equals(comparator));
+  void testEqualsReturnsTrue(final Entry<Object, List<Object>> instance) {
+    for (final Object comparator : instance.getValue()) {
+      assertEquals(comparator, instance.getKey());
     }
 
   }
 
   @ParameterizedTest
   @MethodSource("notEqualInstances")
-  public void testEqualsReturnsFalse(final Entry<Object, List<Object>> instance) {
+  void testEqualsReturnsFalse(final Entry<Object, List<Object>> instance) {
 
-    for (Object comparator : instance.getValue()) {
-      assertFalse(instance.getKey().equals(comparator));
+    for (final Object comparator : instance.getValue()) {
+      assertNotEquals(comparator, instance.getKey());
     }
 
   }
 
   @ParameterizedTest
   @MethodSource("equalInstances")
-  public void tesHashCodeReturnsValue(final Entry<Object, List<Object>> instance) {
+  void tesHashCodeReturnsValue(final Entry<Object, List<Object>> instance) {
 
     assertNotEquals(0, instance.getKey().hashCode());
   }

@@ -22,7 +22,7 @@ import com.sap.olingo.jpa.processor.core.util.TestBase;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 import com.sap.olingo.jpa.processor.core.util.UriHelperDouble;
 
-public class TestJPAInstanceResultConverter extends TestBase {
+class TestJPAInstanceResultConverter extends TestBase {
   public static final int NO_POSTAL_ADDRESS_FIELDS = 8;
   public static final int NO_ADMIN_INFO_FIELDS = 2;
   private JPAEntityResultConverter cut;
@@ -30,10 +30,10 @@ public class TestJPAInstanceResultConverter extends TestBase {
   private UriHelperDouble uriHelper;
 
   @BeforeEach
-  public void setup() throws ODataException {
+  void setup() throws ODataException {
     helper = new TestHelper(emf, PUNIT_NAME);
     jpaQueryResult = new ArrayList<>();
-    HashMap<String, String> keyStrings = new HashMap<>();
+    final HashMap<String, String> keyStrings = new HashMap<>();
     keyStrings.put("BE21", "DivisionCode='BE21',CodeID='NUTS2',CodePublisher='Eurostat'");
     keyStrings.put("BE22", "DivisionCode='BE22',CodeID='NUTS2',CodePublisher='Eurostat'");
 
@@ -44,50 +44,50 @@ public class TestJPAInstanceResultConverter extends TestBase {
   }
 
   @Test
-  public void checkConvertsEmptyResult() throws ODataApplicationException, SerializerException, URISyntaxException {
+  void checkConvertsEmptyResult() throws ODataApplicationException, SerializerException, URISyntaxException {
     assertNotNull(cut.getResult());
   }
 
   @Test
-  public void checkConvertsOneResult() throws ODataApplicationException, SerializerException, URISyntaxException {
-    AdministrativeDivision division = firstResult();
+  void checkConvertsOneResult() throws ODataApplicationException, SerializerException, URISyntaxException {
+    final AdministrativeDivision division = firstResult();
 
     jpaQueryResult.add(division);
 
-    EntityCollection act = cut.getResult();
+    final EntityCollection act = cut.getResult();
     assertEquals(1, act.getEntities().size());
   }
 
   @Test
-  public void checkConvertsTwoResult() throws ODataApplicationException, SerializerException, URISyntaxException {
+  void checkConvertsTwoResult() throws ODataApplicationException, SerializerException, URISyntaxException {
 
     jpaQueryResult.add(firstResult());
     jpaQueryResult.add(secondResult());
-    EntityCollection act = cut.getResult();
+    final EntityCollection act = cut.getResult();
     assertEquals(2, act.getEntities().size());
   }
 
   @Test
-  public void checkConvertsOneResultOneElement() throws ODataApplicationException, SerializerException,
+  void checkConvertsOneResultOneElement() throws ODataApplicationException, SerializerException,
       URISyntaxException {
-    AdministrativeDivision division = firstResult();
+    final AdministrativeDivision division = firstResult();
 
     jpaQueryResult.add(division);
 
-    EntityCollection act = cut.getResult();
+    final EntityCollection act = cut.getResult();
     assertEquals(1, act.getEntities().size());
     assertEquals("BE21", act.getEntities().get(0).getProperty("DivisionCode").getValue().toString());
 
   }
 
   @Test
-  public void checkConvertsOneResultMultiElement() throws ODataApplicationException, SerializerException,
+  void checkConvertsOneResultMultiElement() throws ODataApplicationException, SerializerException,
       URISyntaxException {
-    AdministrativeDivision division = firstResult();
+    final AdministrativeDivision division = firstResult();
 
     jpaQueryResult.add(division);
 
-    EntityCollection act = cut.getResult();
+    final EntityCollection act = cut.getResult();
     assertEquals(1, act.getEntities().size());
     assertEquals("BE21", act.getEntities().get(0).getProperty("DivisionCode").getValue().toString());
     assertEquals("BE2", act.getEntities().get(0).getProperty("ParentDivisionCode").getValue().toString());
@@ -95,7 +95,7 @@ public class TestJPAInstanceResultConverter extends TestBase {
   }
 
   AdministrativeDivision firstResult() {
-    AdministrativeDivision division = new AdministrativeDivision();
+    final AdministrativeDivision division = new AdministrativeDivision();
 
     division.setCodePublisher("Eurostat");
     division.setCodeID("NUTS2");
@@ -110,7 +110,7 @@ public class TestJPAInstanceResultConverter extends TestBase {
   }
 
   private Object secondResult() {
-    AdministrativeDivision division = new AdministrativeDivision();
+    final AdministrativeDivision division = new AdministrativeDivision();
 
     division.setCodePublisher("Eurostat");
     division.setCodeID("NUTS2");

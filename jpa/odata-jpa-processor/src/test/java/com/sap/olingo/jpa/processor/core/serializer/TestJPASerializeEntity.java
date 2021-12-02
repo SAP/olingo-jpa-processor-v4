@@ -33,7 +33,7 @@ public class TestJPASerializeEntity extends TestJPAOperationSerializer {
   }
 
   @Override
-  protected void initTest(final List<UriResource> resouceParts) {
+  protected void initTest(final List<UriResource> resourceParts) {
     annotatable = mock(EntityCollection.class);
     final Entity resultEntity = mock(Entity.class);
     final List<Entity> resultEntities = new ArrayList<>();

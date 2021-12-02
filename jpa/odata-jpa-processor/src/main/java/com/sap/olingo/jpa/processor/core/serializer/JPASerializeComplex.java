@@ -8,8 +8,8 @@ import org.apache.olingo.commons.api.data.ComplexValue;
 import org.apache.olingo.commons.api.data.ContextURL;
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.Property;
+import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.edm.EdmComplexType;
-import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -28,7 +28,7 @@ import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.UriResourceNavigation;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
 
-import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPASerializerException;
 import com.sap.olingo.jpa.processor.core.query.Util;
 
@@ -38,11 +38,11 @@ public final class JPASerializeComplex implements JPAOperationSerializer {
   private final UriHelper uriHelper;
   private final ODataSerializer serializer;
   private final ContentType responseFormat;
-  private final JPAODataCRUDContextAccess serviceContext;
+  private final JPAODataSessionContextAccess serviceContext;
 
   JPASerializeComplex(final ServiceMetadata serviceMetadata, final ODataSerializer serializer,
       final UriHelper uriHelper, final UriInfo uriInfo, final ContentType responseFormat,
-      final JPAODataCRUDContextAccess serviceContext) {
+      final JPAODataSessionContextAccess serviceContext) {
 
     this.uriInfo = uriInfo;
     this.serializer = serializer;
@@ -74,19 +74,19 @@ public final class JPASerializeComplex implements JPAOperationSerializer {
   public SerializerResult serialize(final ODataRequest request, final EntityCollection result)
       throws SerializerException, ODataJPASerializerException {
 
-    final EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(uriInfo.getUriResourceParts());
+    final EdmBindingTarget targetEdmBindingTarget = Util.determineBindingTarget(uriInfo.getUriResourceParts());
     final List<UriResource> resourceParts = uriInfo.getUriResourceParts();
     final UriResourceProperty uriProperty = (UriResourceProperty) resourceParts.get(resourceParts.size() - 1);
     final EdmComplexType edmPropertyType = ((UriResourceComplexProperty) uriProperty).getComplexType();
 
-    final String selectList = uriHelper.buildContextURLSelectList(targetEdmEntitySet.getEntityType(),
+    final String selectList = uriHelper.buildContextURLSelectList(targetEdmBindingTarget.getEntityType(),
         uriInfo.getExpandOption(), uriInfo.getSelectOption());
 
     try {
       final ContextURL contextUrl = ContextURL.with()
           .serviceRoot(buildServiceRoot(request, serviceContext))
-          .entitySet(targetEdmEntitySet)
-          .navOrPropertyPath(Util.determineProptertyNavigationPath(uriInfo.getUriResourceParts()))
+          .entitySetOrSingletonOrType(targetEdmBindingTarget.getName())
+          .navOrPropertyPath(Util.determinePropertyNavigationPath(uriInfo.getUriResourceParts()))
           .selectList(selectList)
           .build();
 
@@ -97,17 +97,17 @@ public final class JPASerializeComplex implements JPAOperationSerializer {
           .build();
 
       if (uriProperty.getProperty().isCollection())
-        return serializer.complexCollection(serviceMetadata, edmPropertyType, determineProperty(targetEdmEntitySet,
+        return serializer.complexCollection(serviceMetadata, edmPropertyType, determineProperty(targetEdmBindingTarget,
             result), options);
       else
-        return serializer.complex(serviceMetadata, edmPropertyType, determineProperty(targetEdmEntitySet, result),
+        return serializer.complex(serviceMetadata, edmPropertyType, determineProperty(targetEdmBindingTarget, result),
             options);
     } catch (final URISyntaxException e) {
       throw new ODataJPASerializerException(e, HttpStatusCode.BAD_REQUEST);
     }
   }
 
-  private Property determineProperty(final EdmEntitySet targetEdmEntitySet, final EntityCollection result) {
+  private Property determineProperty(final EdmBindingTarget targetEdmBindingTarget, final EntityCollection result) {
     UriResourceProperty uriProperty = null;
     Property property = null;
 
@@ -116,9 +116,9 @@ public final class JPASerializeComplex implements JPAOperationSerializer {
 
     for (final UriResource hop : uriInfo.getUriResourceParts()) {
       if (hop.getKind().equals(UriResourceKind.entitySet)
-          && ((UriResourceEntitySet) hop).getEntitySet() == targetEdmEntitySet
+          && ((UriResourceEntitySet) hop).getEntitySet() == targetEdmBindingTarget
           || hop.getKind().equals(UriResourceKind.navigationProperty)
-              && ((UriResourceNavigation) hop).getType() == targetEdmEntitySet.getEntityType())
+              && ((UriResourceNavigation) hop).getType() == targetEdmBindingTarget.getEntityType())
         found = true;
       if (found && hop.getKind().equals(UriResourceKind.complexProperty)) {
         uriProperty = (UriResourceProperty) hop;

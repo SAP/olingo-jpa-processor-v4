@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.apache.olingo.commons.api.data.ContextURL;
 import org.apache.olingo.commons.api.data.EntityCollection;
-import org.apache.olingo.commons.api.edm.EdmEntitySet;
+import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.format.ContentType;
@@ -32,7 +32,7 @@ import org.apache.olingo.server.api.uri.queryoption.SkipOption;
 import org.apache.olingo.server.api.uri.queryoption.SystemQueryOptionKind;
 import org.apache.olingo.server.api.uri.queryoption.TopOption;
 
-import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPASerializerException;
 import com.sap.olingo.jpa.processor.core.query.Util;
 
@@ -40,10 +40,11 @@ final class JPASerializeCreate implements JPASerializer {
   private final ServiceMetadata serviceMetadata;
   private final UriInfo uriInfo;
   private final ODataSerializer serializer;
-  private final JPAODataCRUDContextAccess serviceContext;
+  private final JPAODataSessionContextAccess serviceContext;
 
   public JPASerializeCreate(final ServiceMetadata serviceMetadata, final ODataSerializer serializer,
-      final UriInfo uriInfo, final JPAODataCRUDContextAccess serviceContext) {
+      final UriInfo uriInfo, final JPAODataSessionContextAccess serviceContext) {
+
     this.uriInfo = uriInfo;
     this.serializer = serializer;
     this.serviceMetadata = serviceMetadata;
@@ -60,12 +61,12 @@ final class JPASerializeCreate implements JPASerializer {
       throws SerializerException, ODataJPASerializerException {
 
     final ExpandOption expandOption = new ExpandOptionWrapper(new ExpandItemWrapper());
-    final EdmEntitySet targetEdmEntitySet = Util.determineTargetEntitySet(uriInfo.getUriResourceParts());
-    final EdmEntityType entityType = targetEdmEntitySet.getEntityType();
+    final EdmBindingTarget targetEdmBindingTarget = Util.determineBindingTarget(uriInfo.getUriResourceParts());
+    final EdmEntityType entityType = targetEdmBindingTarget.getEntityType();
     try {
       final ContextURL contextUrl = ContextURL.with()
           .serviceRoot(buildServiceRoot(request, serviceContext))
-          .entitySet(targetEdmEntitySet)
+          .entitySetOrSingletonOrType(targetEdmBindingTarget.getName())
           .build();
 
       final EntitySerializerOptions options = EntitySerializerOptions.with()

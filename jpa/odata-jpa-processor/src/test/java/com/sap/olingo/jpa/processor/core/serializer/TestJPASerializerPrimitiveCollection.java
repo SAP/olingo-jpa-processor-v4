@@ -28,7 +28,7 @@ public class TestJPASerializerPrimitiveCollection extends TestJPASerializerColle
   }
 
   @Override
-  protected void initTest(final List<UriResource> resouceParts) {
+  protected void initTest(final List<UriResource> resourceParts) {
     cut = new JPASerializePrimitiveCollection(serviceMetadata, serializer, ContentType.APPLICATION_JSON, context);
 
   }

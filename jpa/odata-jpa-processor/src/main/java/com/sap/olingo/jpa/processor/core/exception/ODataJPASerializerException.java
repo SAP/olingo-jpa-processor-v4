@@ -8,7 +8,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAMessageKey;
  * Copied from org.apache.olingo.odata2.jpa.processor.api.exception.ODataJPAModelException
  * See also org.apache.olingo.odata2.jpa.processor.core.exception.ODataJPAMessageServiceDefault
  */
-public class ODataJPASerializerException extends ODataJPAProcessException {
+public class ODataJPASerializerException extends ODataJPAProcessException { //NOSONAR
   /**
    * 
    */
@@ -25,7 +25,7 @@ public class ODataJPASerializerException extends ODataJPAProcessException {
 
   }
 
-  private static final String BUNDEL_NAME = "processor-exceptions-i18n";
+  private static final String BUNDLE_NAME = "processor-exceptions-i18n";
 
   public ODataJPASerializerException(final Throwable e, final HttpStatusCode statusCode) {
     super(e, statusCode);
@@ -51,7 +51,7 @@ public class ODataJPASerializerException extends ODataJPAProcessException {
 
   @Override
   protected String getBundleName() {
-    return BUNDEL_NAME;
+    return BUNDLE_NAME;
   }
 
 }

@@ -24,13 +24,13 @@ import com.sap.olingo.jpa.processor.core.testmodel.MembershipKey;
  * Created: 11.11.2019
  *
  */
-public class TestEqualHashCodeMethodsTestModel extends TestEqualHashCodeMethods {
+class TestEqualHashCodeMethodsTestModel extends TestEqualHashCodeMethods {
   private static final String PUNIT_NAME = "com.sap.olingo.jpa";
   private static final String ENTITY_MANAGER_DATA_SOURCE = "javax.persistence.nonJtaDataSource";
 
   @BeforeAll
   public static void setupClass() {
-    Map<String, Object> properties = new HashMap<>();
+    final Map<String, Object> properties = new HashMap<>();
     properties.put(ENTITY_MANAGER_DATA_SOURCE, DataSourceHelper.createDataSource(
         DataSourceHelper.DB_HSQLDB));
     final EntityManagerFactory emf = Persistence.createEntityManagerFactory(PUNIT_NAME, properties);
@@ -38,7 +38,7 @@ public class TestEqualHashCodeMethodsTestModel extends TestEqualHashCodeMethods 
   }
 
   @Test
-  public void testBusinessPartnerRoleKeyEqual() {
+  void testBusinessPartnerRoleKeyEqual() {
     final BusinessPartnerRoleKey cut = new BusinessPartnerRoleKey("12", "A");
     assertFalse(cut.equals(null));
     assertTrue(cut.equals(cut));
@@ -51,7 +51,7 @@ public class TestEqualHashCodeMethodsTestModel extends TestEqualHashCodeMethods 
   }
 
   @Test
-  public void testInstanceRestrictionKeyEqual() {
+  void testInstanceRestrictionKeyEqual() {
     final InstanceRestrictionKey cut = new InstanceRestrictionKey("12", 1);
     assertFalse(cut.equals(null));
     assertTrue(cut.equals(cut));
@@ -64,7 +64,7 @@ public class TestEqualHashCodeMethodsTestModel extends TestEqualHashCodeMethods 
   }
 
   @Test
-  public void testMembershipKeyEqual() {
+  void testMembershipKeyEqual() {
     final MembershipKey cut = new MembershipKey("12", "A");
     assertFalse(cut.equals(null));
     assertTrue(cut.equals(cut));
@@ -77,7 +77,22 @@ public class TestEqualHashCodeMethodsTestModel extends TestEqualHashCodeMethods 
   }
 
   @Test
-  public void testAdministrativeDivisionKeyCompareTo() {
+  void testAdministrativeDivisionKeyEqual() {
+    final AdministrativeDivisionKey cut = new AdministrativeDivisionKey("A", "B", "C");
+    assertFalse(cut.equals(null));
+    assertTrue(cut.equals(cut));
+    assertTrue(cut.equals(new AdministrativeDivisionKey("A", "B", "C")));
+    assertFalse(cut.equals(new AdministrativeDivisionKey()));
+    assertFalse(new AdministrativeDivisionKey("B", "B", "C").equals(cut));
+    assertFalse(new AdministrativeDivisionKey("A", "C", "C").equals(cut));
+    assertFalse(new AdministrativeDivisionKey("A", "B", "D").equals(cut));
+    assertFalse(new AdministrativeDivisionKey(null, "B", "C").equals(cut));
+    assertFalse(new AdministrativeDivisionKey("A", null, "C").equals(cut));
+    assertFalse(new AdministrativeDivisionKey("A", "B", null).equals(cut));
+  }
+
+  @Test
+  void testAdministrativeDivisionKeyCompareTo() {
     final AdministrativeDivisionKey cut = new AdministrativeDivisionKey("B", "B", "B");
 
     assertEquals(0, cut.compareTo(cut));
