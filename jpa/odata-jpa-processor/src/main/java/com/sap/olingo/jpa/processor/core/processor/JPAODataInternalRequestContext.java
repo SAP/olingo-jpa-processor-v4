@@ -11,7 +11,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.persistence.EntityManager;
 
-import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 
@@ -48,7 +47,6 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
   private JPACUDRequestHandler cudRequestHandler;
   private JPAServiceDebugger debugger;
   private JPADebugSupportWrapper debugSupport;
-  private String debugFormat;
   private JPAODataTransactionFactory transactionFactory;
   private final JPAHttpHeaderMap header;
   private JPARequestParameterMap customParameter;
@@ -91,7 +89,8 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
 
     copyContextValues(context);
     this.serializer = serializer;
-    this.cudRequestHandler = new JPADefaultCUDRequestHandler();
+    this.cudRequestHandler = this.cudRequestHandler == null ? new JPADefaultCUDRequestHandler()
+        : this.cudRequestHandler;
     this.header = new JPAHttpHeaderHashMap(header);
     this.customParameter = new JPARequestParameterHashMap(context.getRequestParameter());
     this.hookFactory = new JPAHookFactory(em, this.header, customParameter);
@@ -103,6 +102,8 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
 
     copyContextValues(context);
     this.serializer = serializer;
+    this.cudRequestHandler = this.cudRequestHandler == null ? new JPADefaultCUDRequestHandler()
+        : this.cudRequestHandler;
     this.uriInfo = uriInfo;
     this.header = new JPAHttpHeaderHashMap(header);
     this.customParameter = new JPARequestParameterHashMap(context.getRequestParameter());
@@ -176,7 +177,7 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
 
   @Override
   public JPAODataTransactionFactory getTransactionFactory() {
-    if (transactionFactory == null)
+    if (transactionFactory == null && em != null)
       createDefaultTransactionFactory();
     return this.transactionFactory;
   }
@@ -196,10 +197,6 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
   @Override
   public List<Locale> getProvidedLocale() {
     return locales;
-  }
-
-  public void setDebugFormat(final String debugFormat) {
-    this.debugFormat = debugFormat;
   }
 
   public void setEntityManager(@Nonnull final EntityManager em) {
@@ -227,12 +224,14 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
   }
 
   private void copyContextValues(final JPAODataRequestContextAccess context) {
+    this.em = context.getEntityManager();
     this.claims = context.getClaimsProvider();
     this.groups = context.getGroupsProvider();
-    this.em = context.getEntityManager();
     this.cudRequestHandler = context.getCUDRequestHandler();
-    this.debugger = context.getDebugger();
+    this.transactionFactory = context.getTransactionFactory();
     this.locales = context.getProvidedLocale();
+    this.debugSupport = context instanceof JPAODataInternalRequestContext ? ((JPAODataInternalRequestContext) context)
+        .getDebugSupport() : null;
   }
 
   private void copyRequestContext(final JPAODataRequestContext requestContext) {
@@ -243,7 +242,7 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
     cudRequestHandler = requestContext != null ? requestContext.getCUDRequestHandler()
         : new JPADefaultCUDRequestHandler();
     debugSupport = requestContext != null && requestContext.getDebuggerSupport() != null ? new JPADebugSupportWrapper(
-        debugSupport) : null;
+        requestContext.getDebuggerSupport()) : null;
     transactionFactory = requestContext != null ? requestContext.getTransactionFactory() : null;
     locales = requestContext != null ? requestContext.getLocales() : Collections.emptyList();
     customParameter = requestContext != null ? requestContext.getRequestParameter() : new JPARequestParameterHashMap();
@@ -255,16 +254,10 @@ public final class JPAODataInternalRequestContext implements JPAODataRequestCont
 
   private void initDebugger() {
     // see org.apache.olingo.server.core.debug.ServerCoreDebugger
-    boolean isDebugMode = false;
     debugger = new JPAEmptyDebugger();
     if (debugSupport != null) {
-      // Should we read the parameter from the servlet here and ignore multiple parameters?
-      if (debugFormat != null) {
-        debugSupport.init(OData.newInstance());
-        isDebugMode = debugSupport.isUserAuthorized();
-      }
-      debugger = new JPACoreDebugger(isDebugMode);
-      debugSupport.setDebugger(debugger);
+      debugger = new JPACoreDebugger(debugSupport.isUserAuthorized());
+      debugSupport.addDebugger(debugger);
     }
   }
 

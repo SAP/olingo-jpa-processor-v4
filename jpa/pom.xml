@@ -4,7 +4,7 @@
 
     <groupId>com.sap.olingo</groupId>
     <artifactId>odata-jpa</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <packaging>pom</packaging>
 
     <name>odata-jpa</name>
@@ -12,6 +12,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.source>1.8</project.build.source>
+        <maven.complier.version>3.8.0</maven.complier.version>
         <odata.version>4.8.0</odata.version>
         <jackson.version>2.12.5</jackson.version>
         <powermock.version>1.7.1</powermock.version>
@@ -46,7 +47,7 @@
         <module>odata-jpa-annotation</module>
         <module>odata-jpa-processor</module>
         <module>odata-jpa-processor-cb</module>
-        <module>odata-jpa-processor-parallel</module> 
+        <module>odata-jpa-processor-parallel</module>
         <module>odata-jpa-coverage</module>
         <module>odata-jpa-spring-support</module>
         <module>odata-jpa-processor-ext</module>
@@ -70,6 +71,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven.complier.version}</version>
                     <configuration>
                         <source>${project.build.source}</source>
                         <target>${project.build.source}</target>
@@ -109,7 +111,7 @@
                             </excludes>
                         </rule>
                     </rules>
-                </configuration>                
+                </configuration>
             </plugin>
         </plugins>
     </build>

@@ -15,7 +15,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataRequestHandler;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 
 @RestController
-@RequestMapping("${punit}/v1/**")
+@RequestMapping("${punit}/v1/")
 @RequestScope
 public class ODataController {
   

@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataHttpHandler;
-import org.apache.olingo.server.api.debug.DebugSupport;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.processor.core.processor.JPAODataInternalRequestContext;
@@ -32,7 +31,7 @@ public class JPAODataRequestHandler {
   }
 
   /**
-   * 
+   *
    * @param serviceContext
    * @param requestContext
    */
@@ -83,7 +82,6 @@ public class JPAODataRequestHandler {
 
     final ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(jpaEdm, jpaEdm.getReferences()));
     serviceContext.getEdmProvider().setRequestLocales(request.getLocales());
-    requestContext.setDebugFormat(request.getParameter(DebugSupport.ODATA_DEBUG_QUERY_PARAMETER));
     final HttpServletRequest mappedRequest = prepareRequestMapping(request, serviceContext.getMappingPath());
     handler.register(requestContext.getDebugSupport());
     handler.register(new JPAODataRequestProcessor(serviceContext, requestContext));

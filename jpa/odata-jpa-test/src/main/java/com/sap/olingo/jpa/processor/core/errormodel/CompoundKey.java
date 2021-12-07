@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.errormodel;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -9,7 +10,7 @@ import javax.persistence.Embeddable;
 public class CompoundKey implements Serializable {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = -2350388598203342905L;
 
@@ -27,5 +28,19 @@ public class CompoundKey implements Serializable {
     super();
     this.iD = iD;
     this.name = name;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(iD, name);
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
+    final CompoundKey other = (CompoundKey) obj;
+    return Objects.equals(iD, other.iD) && Objects.equals(name, other.name);
   }
 }

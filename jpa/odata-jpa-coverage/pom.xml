@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.sap.olingo</groupId>
         <artifactId>odata-jpa</artifactId>
-        <version>1.0.3</version>
+        <version>1.0.4</version>
     </parent>
 
     <artifactId>odata-jpa-coverage</artifactId>
@@ -54,7 +54,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.6</version>
+                <version>0.8.7</version>
                 <executions>
                     <execution>
                         <goals>

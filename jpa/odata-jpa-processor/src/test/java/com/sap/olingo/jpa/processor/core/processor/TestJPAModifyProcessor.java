@@ -46,8 +46,8 @@ import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.processor.core.api.JPAAbstractCUDRequestHandler;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataTransactionFactory;
 import com.sap.olingo.jpa.processor.core.api.JPAODataTransactionFactory.JPAODataTransaction;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
@@ -62,7 +62,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 
-public abstract class TestJPAModifyProcessor {
+abstract class TestJPAModifyProcessor {
   protected static final String LOCATION_HEADER = "Organization('35')";
   protected static final String PREFERENCE_APPLIED = "return=minimal";
   protected static final String PUNIT_NAME = "com.sap.olingo.jpa";
@@ -72,7 +72,7 @@ public abstract class TestJPAModifyProcessor {
 
   @BeforeAll
   public static void setupClass() throws ODataException {
-    JPAEdmMetadataPostProcessor pP = mock(JPAEdmMetadataPostProcessor.class);
+    final JPAEdmMetadataPostProcessor pP = mock(JPAEdmMetadataPostProcessor.class);
 
     ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
     emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, ds);
@@ -137,7 +137,7 @@ public abstract class TestJPAModifyProcessor {
 
   }
 
-  protected ODataRequest prepareRepresentationRequest(JPAAbstractCUDRequestHandler spy)
+  protected ODataRequest prepareRepresentationRequest(final JPAAbstractCUDRequestHandler spy)
       throws ODataJPAProcessorException, SerializerException, ODataException {
 
     final ODataRequest request = prepareSimpleRequest("return=representation");
@@ -171,7 +171,7 @@ public abstract class TestJPAModifyProcessor {
     return request;
   }
 
-  protected ODataRequest prepareLinkRequest(JPAAbstractCUDRequestHandler spy)
+  protected ODataRequest prepareLinkRequest(final JPAAbstractCUDRequestHandler spy)
       throws ODataJPAProcessorException, SerializerException, ODataException {
 
     // .../AdministrativeDivisions(DivisionCode='DE60',CodeID='NUTS2',CodePublisher='Eurostat')
@@ -197,7 +197,7 @@ public abstract class TestJPAModifyProcessor {
     when(edmET.getKeyPredicateNames()).thenReturn(keyNames);
     when(edmET.getFullQualifiedName()).thenReturn(fqn);
 
-    EdmPrimitiveType type = EdmString.getInstance();
+    final EdmPrimitiveType type = EdmString.getInstance();
     EdmKeyPropertyRef refType = mock(EdmKeyPropertyRef.class);
     EdmProperty edmProperty = mock(EdmProperty.class);
     when(edmET.getKeyPropertyRef("DivisionCode")).thenReturn(refType);
@@ -236,7 +236,7 @@ public abstract class TestJPAModifyProcessor {
   }
 
   @SuppressWarnings("unchecked")
-  protected ODataRequest prepareSimpleRequest(String content) throws ODataException, ODataJPAProcessorException,
+  protected ODataRequest prepareSimpleRequest(final String content) throws ODataException, ODataJPAProcessorException,
       SerializerException {
 
     final EntityTransaction transaction = mock(EntityTransaction.class);
@@ -248,7 +248,7 @@ public abstract class TestJPAModifyProcessor {
     when(etsInfo.getEdmBindingTarget()).thenReturn(ets);
     header.add(content);
 
-    Entity odataEntity = mock(Entity.class);
+    final Entity odataEntity = mock(Entity.class);
     when(convHelper.convertInputStream(same(odata), same(request), same(ContentType.JSON), any(List.class)))
         .thenReturn(odataEntity);
     when(convHelper.convertKeyToLocal(ArgumentMatchers.eq(odata), ArgumentMatchers.eq(request), ArgumentMatchers.eq(
@@ -256,7 +256,7 @@ public abstract class TestJPAModifyProcessor {
     return request;
   }
 
-  protected ODataRequest preparePersonRequest(JPAAbstractCUDRequestHandler spy)
+  protected ODataRequest preparePersonRequest(final JPAAbstractCUDRequestHandler spy)
       throws ODataJPAProcessorException, SerializerException, ODataException {
 
     final ODataRequest request = prepareSimpleRequest("return=representation");

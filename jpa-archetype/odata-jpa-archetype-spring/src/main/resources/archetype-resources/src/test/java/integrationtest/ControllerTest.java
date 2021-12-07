@@ -34,7 +34,7 @@ import io.restassured.path.xml.element.Node;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = SpringApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(properties = { "spring.config.location=classpath:application-test.yml" })
-public class ControllerTest {
+class ControllerTest {
 
   @Autowired
   private WebApplicationContext context;
@@ -42,12 +42,12 @@ public class ControllerTest {
   private int port;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     RestAssuredMockMvc.webAppContextSetup(context);
   }
 
   @Test
-  public void testRetrieveServiceDocument() {
+  void testRetrieveServiceDocument() {
     final String xml = given()
         .accept(ContentType.XML)
         .when()
@@ -65,7 +65,7 @@ public class ControllerTest {
   }
 
   @Test
-  public void testRetrieveMetadataDocument() {
+  void  testRetrieveMetadataDocument() {
     final String xml = given()
         .when()
         .get("/${punit}/v1/$metadata")
@@ -83,7 +83,7 @@ public class ControllerTest {
   }
 
   @Test
-  public void testCreateInstance() {
+  void  testCreateInstance() {
     given()
         .contentType("application/json")
         .body("{ \"Data\" : \"Hello World\" }")
@@ -100,7 +100,7 @@ public class ControllerTest {
   }
 
   @Test
-  public void testCreateInstanceWithBatch() throws URISyntaxException {
+  void  testCreateInstanceWithBatch() throws URISyntaxException {
 
     URI uri = getClass().getClassLoader()
         .getResource("requests/CreateEntityViaBatch.txt").toURI();
@@ -129,7 +129,7 @@ public class ControllerTest {
   }
 
   @Test
-  public void testCreateInstanceDeep() {
+  void  testCreateInstanceDeep() {
     given()
         .contentType(ContentType.JSON)
         .accept(ContentType.JSON)
@@ -152,7 +152,7 @@ public class ControllerTest {
   }
 
   @AfterEach
-  public void teardown() {
+  void  teardown() {
     RestAssuredMockMvc.reset();
   }
 }

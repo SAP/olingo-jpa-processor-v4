@@ -111,18 +111,6 @@ class TestJPACustomScalarFunctions {
     assertEquals(7, orgs.size());
   }
 
-//  @Test
-//  void  testOrderByFunction() throws IOException, ODataException {
-//
-//    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-//        "AdministrativeDivisions?$orderby=com.sap.olingo.jpa.PopulationDensity(Area=$it/Area,Population=$it/Population) desc&$top=1");
-//    helper.assertStatus(200);
-//    ArrayNode orgs = helper.getValues();
-//    assertEquals(1, orgs.size());
-//    JsonNode act = orgs.get(0);
-//    assertEquals("35013", act.get("DivisionCode"));
-//  }
-
   private static void CreateDensityFunction() {
     final EntityManager em = emf.createEntityManager();
     final EntityTransaction t = em.getTransaction();

@@ -68,8 +68,6 @@ class TestCriteriaBuilder {
   void testSubstringWithExpression() {
     final CriteriaQuery<Tuple> adminQ = cb.createTupleQuery();
     final Root<AdministrativeDivisionDescription> adminRoot1 = adminQ.from(AdministrativeDivisionDescription.class);
-//    (Expression<T>) cb.sum(jpaOperator.getLeft(), jpaOperator.getRightAsNumber());
-//    cb.substring((Expression<String>) (jpaFunction.getParameter(0).get()), start, length);
     final Path<?> p = adminRoot1.get("name");
 
     final Expression<Integer> sum = cb.sum(cb.literal(1), cb.literal(4));
@@ -257,7 +255,6 @@ class TestCriteriaBuilder {
     Assertions.assertTrue(em.getTransaction().isActive());
   }
 
-  // @Disabled
   @Test
   void testInClauseComplexKey() {
 
