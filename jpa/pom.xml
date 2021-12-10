@@ -18,7 +18,7 @@
         <powermock.version>1.7.1</powermock.version>
         <coveralls.version>4.3.0</coveralls.version>
         <jpa.version>2.2.1</jpa.version>
-        <processor.version>1.0.3</processor.version>
+        <processor.version>1.0.4</processor.version>
     </properties>
 
     <profiles>
@@ -62,8 +62,7 @@
                     <configuration>
                         <properties>
                             <configurationParameters>
-                                junit.platform.output.capture.stdout =
-                                false
+                                junit.platform.output.capture.stdout = false
                             </configurationParameters>
                         </properties>
                     </configuration>

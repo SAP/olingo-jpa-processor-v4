@@ -89,8 +89,8 @@ public class Person extends BusinessPartner {// #NOSONAR use equal method from B
 
   @ManyToMany
   @JoinTable(name = "\"Membership\"", schema = "\"OLINGO\"",
-      joinColumns = @JoinColumn(name = "\"PersonID\""),
-      inverseJoinColumns = @JoinColumn(name = "\"TeamID\""))
+      joinColumns = @JoinColumn(name = "\"PersonID\"", referencedColumnName = "\"ID\""),
+      inverseJoinColumns = @JoinColumn(name = "\"TeamID\"", referencedColumnName = "\"TeamKey\""))
   private List<Team> teams;
 
   public Person() {

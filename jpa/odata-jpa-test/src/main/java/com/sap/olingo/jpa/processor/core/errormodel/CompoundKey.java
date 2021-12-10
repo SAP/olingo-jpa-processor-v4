@@ -30,6 +30,26 @@ public class CompoundKey implements Serializable {
     this.name = name;
   }
 
+  public String getID() {
+    return iD;
+  }
+
+  public void setID(final String iD) {
+    this.iD = iD;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(final String name) {
+    this.name = name;
+  }
+
+  public static long getSerialversionuid() {
+    return serialVersionUID;
+  }
+
   @Override
   public int hashCode() {
     return Objects.hash(iD, name);

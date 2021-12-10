@@ -14,20 +14,18 @@ import javax.persistence.PreUpdate;
 
 @Embeddable
 public class AdministrativeInformation {
-  @Embedded
 
+  @Embedded
   @AttributeOverride(name = "by", column = @Column(name = "\"CreatedBy\""))
   @AttributeOverride(name = "at", column = @Column(name = "\"CreatedAt\""))
-
   @AssociationOverride(name = "user",
       joinColumns = @JoinColumn(referencedColumnName = "\"ID\"", name = "\"CreatedBy\"", insertable = false,
           updatable = false))
   private ChangeInformation created;
-  @Embedded
 
+  @Embedded
   @AttributeOverride(name = "by", column = @Column(name = "\"UpdatedBy\""))
   @AttributeOverride(name = "at", column = @Column(name = "\"UpdatedAt\""))
-
   @AssociationOverride(name = "user",
       joinColumns = @JoinColumn(referencedColumnName = "\"ID\"", name = "\"UpdatedBy\"", insertable = false,
           updatable = false))
@@ -41,11 +39,11 @@ public class AdministrativeInformation {
     return updated;
   }
 
-  public void setCreated(ChangeInformation created) {
+  public void setCreated(final ChangeInformation created) {
     this.created = created;
   }
 
-  public void setUpdated(ChangeInformation updated) {
+  public void setUpdated(final ChangeInformation updated) {
     this.updated = updated;
   }
 
