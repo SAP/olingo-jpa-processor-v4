@@ -193,6 +193,7 @@ public final class JPAODataRequestContextImpl implements JPAODataCRUDRequestCont
     this.em = context.getEntityManager();
     this.jpaCUDRequestHandler = context.getCUDRequestHandler();
     this.debugger = context.getDebugger();
+    this.transactionFactory = context.getTransactionFactory();
   }
 
   private void createDefaultTransactionFactory() {

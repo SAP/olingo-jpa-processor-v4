@@ -33,7 +33,7 @@ clone the repository, import the projects and declare a dependency to either the
 <dependency>
     <groupId>com.sap.olingo</groupId>
     <artifactId>odata-jpa-metadata</artifactId>
-    <version>0.3.10-SNAPSHOT</version>
+    <version>0.3.11-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -43,7 +43,7 @@ Or to the complete processor:
 <dependency>
     <groupId>com.sap.olingo</groupId>
     <artifactId>odata-jpa-processor</artifactId>
-    <version>0.3.10-SNAPSHOT</version>
+    <version>0.3.11-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -93,3 +93,4 @@ Detailed information including third-party components and their licensing/copyri
 |0.3.8| - Update Olingo dependency to 4.7.1<br> - Support of  `java.time` data types. Prerequisite is the usage of JPA 2.2. <br> - Support of Absolute Context URL. See issue [#103](https://github.com/SAP/olingo-jpa-processor-v4/issues/103)<br> - Temporal data types do not longer require a Precision [#98](https://github.com/SAP/olingo-jpa-processor-v4/issues/98)<br>Support of MappedSuperclass|No|
 |0.3.9| - Solutions for issue [#112](https://github.com/SAP/olingo-jpa-processor-v4/issues/112) <br> - Solutions for issue [#114](https://github.com/SAP/olingo-jpa-processor-v4/issues/114)|No|
 |0.3.10| - Update Olingo dependency to 4.8.0<br> - Deprecation of ```setExternalName``` in ```IntermediateModelItemAccess```<br>- Solutions for issue [#134](https://github.com/SAP/olingo-jpa-processor-v4/issues/136)<br>- Solutions for issue [#136](https://github.com/SAP/olingo-jpa-processor-v4/issues/136) |No|
+|0.3.10| - - Solutions for issue [#138](https://github.com/SAP/olingo-jpa-processor-v4/issues/138)|No|
