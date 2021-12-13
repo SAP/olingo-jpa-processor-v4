@@ -1,3 +1,6 @@
+/**
+ *
+ */
 package com.sap.olingo.jpa.metadata.core.edm.mapper.api;
 
 import javax.annotation.Nonnull;

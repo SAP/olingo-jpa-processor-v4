@@ -70,7 +70,6 @@ public final class JPAFilterCrossComplier extends JPAAbstractFilter {
       final JPAAssociationPath association, final JPAODataRequestContextAccess requestContext) {
 
     super(jpaEntityType, requestContext.getUriInfo(), association);
-
     final Optional<JPAODataGroupProvider> groupsProvider = requestContext.getGroupsProvider();
     this.uriResourceParts = requestContext.getUriInfo().getUriResourceParts();
     this.converter = converter;

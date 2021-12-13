@@ -32,4 +32,5 @@ public class AddressDeepThreeProtections {
   public void setInhouseAddress(final InhouseAddressWithThreeProtections inhouseAddress) {
     this.inhouseAddress = inhouseAddress;
   }
+
 }

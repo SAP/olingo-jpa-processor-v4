@@ -29,4 +29,5 @@ public interface JPAODataPagingProvider {
    */
   JPAODataPage getFirstPage(final UriInfo uriInfo, final Integer preferredPageSize, final JPACountQuery countQuery,
       final EntityManager em) throws ODataApplicationException;
+
 }

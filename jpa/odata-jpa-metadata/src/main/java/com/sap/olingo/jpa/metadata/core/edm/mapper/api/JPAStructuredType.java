@@ -16,7 +16,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
  *
  */
 public interface JPAStructuredType extends JPAElement {
-
   public JPAAssociationAttribute getAssociation(@Nonnull final String internalName) throws ODataJPAModelException;
 
   /**
@@ -32,7 +31,7 @@ public interface JPAStructuredType extends JPAElement {
    * @throws ODataJPAModelException
    */
   public JPAAssociationPath getAssociationPath(@Nonnull final String externalName) throws ODataJPAModelException;
-  
+
   /**
    * Searches in the navigation properties that are available for this type via the OData service. That is:
    * <ul>
@@ -115,13 +114,13 @@ public interface JPAStructuredType extends JPAElement {
   public JPAPath getPath(final String externalName, final boolean respectIgnore) throws ODataJPAModelException;
 
   /**
-   * List of the path to all collection properties of this type. That is:
+   * List of all attributes that are available for this type via the OData service. That is:
    * <ul>
    * <li> All not ignored properties of the type.
    * <li> All not ignored properties from super types.
    * <li> All not ignored properties from embedded types.
    * </ul>
-   * @return
+   * @return List of all attributes that are available via the OData service.
    * @throws ODataJPAModelException
    */
   public List<JPAPath> getPathList() throws ODataJPAModelException;

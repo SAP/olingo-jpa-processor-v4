@@ -19,7 +19,7 @@ public class TeamWithTransientKey {
   @Id
   @Column(name = "\"TeamKey\"")
   private String iD;
-  
+
   @Id
   @Transient
   @EdmTransient(calculator = DummyPropertyCalculator.class)
@@ -31,11 +31,11 @@ public class TeamWithTransientKey {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) return true;
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
-    TeamWithTransientKey other = (TeamWithTransientKey) obj;
+    final TeamWithTransientKey other = (TeamWithTransientKey) obj;
     return Objects.equals(iD, other.iD) && Objects.equals(name, other.name);
   }
 }

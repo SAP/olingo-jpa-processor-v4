@@ -14,4 +14,5 @@ public interface IntermediateEntitySetAccess extends JPAElement {
    * @param annotations
    */
   public void addAnnotations(final List<CsdlAnnotation> annotations);
+
 }

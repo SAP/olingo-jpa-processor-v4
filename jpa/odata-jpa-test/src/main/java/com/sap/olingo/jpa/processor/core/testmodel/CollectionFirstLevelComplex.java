@@ -11,6 +11,7 @@ import javax.persistence.Transient;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransient;
 import com.sap.olingo.jpa.processor.core.errormodel.DummyPropertyCalculator;
 
+
 @Embeddable
 public class CollectionFirstLevelComplex {
 

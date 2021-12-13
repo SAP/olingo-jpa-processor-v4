@@ -35,7 +35,6 @@ class SelectOptionUtil {
 
       selectItemPath = jpaEntity.getPath(pathPrefix.isEmpty() ? pathItem : pathPrefix
           + JPAPath.PATH_SEPARATOR + pathItem);
-      
       if (selectItemPath == null)
         throw new ODataJPAQueryException(MessageKeys.QUERY_PREPARATION_INVALID_SELECTION_PATH,
             HttpStatusCode.BAD_REQUEST);

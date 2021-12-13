@@ -162,7 +162,7 @@ class TestJPAArithmeticOperator {
     final JPAMemberOperator right = mock(JPAMemberOperator.class);
     final JPAMemberOperator left = mock(JPAMemberOperator.class);
     final JPAAttribute attribute = mock(JPAAttribute.class);
-    
+
     when(left.determineAttribute()).thenReturn(attribute);
     when(right.determineAttribute()).thenReturn(attribute);
 

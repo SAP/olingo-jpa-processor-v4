@@ -21,4 +21,5 @@ public class EdmxReferenceInclude {
   public String getAlias() {
     return alias;
   }
+
 }

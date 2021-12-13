@@ -1,6 +1,5 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.api;
 
-
 import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.Set;

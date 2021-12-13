@@ -12,7 +12,6 @@ public interface JPAProtectionInfo {
    */
   JPAAttribute getAttribute();
 
-
   /**
    * Path within the entity type to the attribute
    * @return

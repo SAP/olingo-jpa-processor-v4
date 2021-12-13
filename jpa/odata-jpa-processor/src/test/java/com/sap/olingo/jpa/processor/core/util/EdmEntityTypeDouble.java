@@ -17,7 +17,6 @@ import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 
-
 public class EdmEntityTypeDouble implements EdmEntityType {
 
   private final String name;

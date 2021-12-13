@@ -34,6 +34,7 @@ public class TestHelper {
     final Reflections r = mock(Reflections.class);
     when(r.getTypesAnnotatedWith(EdmEnumeration.class)).thenReturn(new HashSet<>(Arrays.asList(ABCClassification.class,
         AccessRights.class)));
+
     this.jpaMetamodel = metamodel;
     this.schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(namespace), jpaMetamodel, r);
   }

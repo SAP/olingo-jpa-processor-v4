@@ -16,7 +16,7 @@ public interface JPAAssociationPath {
    * @throws ODataJPAModelException
    */
   List<JPAPath> getInverseLeftJoinColumnsList() throws ODataJPAModelException;
-  
+
   List<JPAOnConditionItem> getJoinColumnsList() throws ODataJPAModelException;
 
   /**

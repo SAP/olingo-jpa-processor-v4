@@ -66,6 +66,7 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
     this.joinTable = associationPath.hasJoinTable()
         ? ((IntermediateJoinTable) associationPath.getJoinTable()).withSource(source)
         : null;
+
   }
 
   /**

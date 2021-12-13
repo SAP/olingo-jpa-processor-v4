@@ -33,4 +33,5 @@ public class ODataJPATransactionException extends ODataJPAProcessException { // 
   protected String getBundleName() {
     return null;
   }
+
 }

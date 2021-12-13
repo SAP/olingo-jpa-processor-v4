@@ -98,7 +98,6 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
     if (edmContainer == null) {
       lazyBuildEdmItem();
     }
-
     for (final Entry<String, IntermediateEntitySet> entitySet : entitySetListInternalKey.entrySet()) {
       if (entitySet.getValue().getEntityType().getExternalFQN().equals(entityType.getExternalFQN())) {
         return entitySet.getValue();

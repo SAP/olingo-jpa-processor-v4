@@ -19,11 +19,7 @@ public interface JPAMethodCall extends JPAOperator {
    * Returns extended by a prefix and a suffix<p>
    * Main use for method as parameter of of other methods. E.g.: contains(tolower('BE1'))
    * @param prefix
-<<<<<<< HEAD
-   * @param postix
-=======
    * @param suffix
->>>>>>> odata-v4-jpa-processor/feature/release-1.0.3
    * @return
    * @throws ODataApplicationException
    */

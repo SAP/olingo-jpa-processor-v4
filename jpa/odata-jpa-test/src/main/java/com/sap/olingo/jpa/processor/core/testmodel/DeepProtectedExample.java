@@ -75,4 +75,5 @@ public class DeepProtectedExample {
     } else if (!iD.equals(other.iD)) return false;
     return true;
   }
+
 }

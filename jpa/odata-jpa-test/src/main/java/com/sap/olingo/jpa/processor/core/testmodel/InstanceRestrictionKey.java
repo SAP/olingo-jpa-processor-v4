@@ -6,7 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
 @Embeddable
-public class InstanceRestrictionKey implements Serializable{
+public class InstanceRestrictionKey implements Serializable {
 
   private static final long serialVersionUID = 2019259550692982797L;
 
@@ -20,7 +20,7 @@ public class InstanceRestrictionKey implements Serializable{
     // Needed
   }
 
-  public InstanceRestrictionKey(String username, Integer sequenceNumber) {
+  public InstanceRestrictionKey(final String username, final Integer sequenceNumber) {
     super();
     this.username = username;
     this.sequenceNumber = sequenceNumber;
@@ -36,11 +36,11 @@ public class InstanceRestrictionKey implements Serializable{
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) return true;
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
-    InstanceRestrictionKey other = (InstanceRestrictionKey) obj;
+    final InstanceRestrictionKey other = (InstanceRestrictionKey) obj;
     if (sequenceNumber == null) {
       if (other.sequenceNumber != null) return false;
     } else if (!sequenceNumber.equals(other.sequenceNumber)) return false;

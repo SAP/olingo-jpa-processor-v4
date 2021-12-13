@@ -224,14 +224,14 @@ class FromImplTest extends BuilderBaseTest {
 
   @Test
   void testGetInheritanceType() {
-    assertEquals(InheritanceType.SINGLE_TABLE, ((FromImpl<Organization, Organization>) cut).getInheritanceType());
+    assertEquals(InheritanceType.SINGLE_TABLE, ((FromImpl<Organization, Organization>) cut).getInheritanceType().get());
   }
 
   @Test
   void testGetInheritanceTypeMultiLevel() throws ODataJPAModelException {
     final JPAEntityType type = sd.getEntity(CurrentUser.class);
     final FromImpl<CurrentUser, CurrentUser> from = new FromImpl<>(type, ab, cb);
-    assertEquals(InheritanceType.SINGLE_TABLE, from.getInheritanceType());
+    assertEquals(InheritanceType.SINGLE_TABLE, from.getInheritanceType().get());
   }
 
   @Test

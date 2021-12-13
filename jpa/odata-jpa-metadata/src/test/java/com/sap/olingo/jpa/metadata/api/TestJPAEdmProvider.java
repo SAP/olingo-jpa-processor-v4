@@ -1,3 +1,6 @@
+/**
+ *
+ */
 package com.sap.olingo.jpa.metadata.api;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

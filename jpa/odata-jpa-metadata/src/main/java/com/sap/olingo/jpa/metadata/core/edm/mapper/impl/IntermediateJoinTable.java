@@ -19,7 +19,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 class IntermediateJoinTable implements JPAJoinTable {
-
   private static final Log LOGGER = LogFactory.getLog(IntermediateJoinTable.class);
 
   private final IntermediateNavigationProperty intermediateProperty;

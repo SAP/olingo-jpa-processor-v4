@@ -76,4 +76,5 @@ public class DummyToBeIgnored implements Serializable {
     } else if (!ID.equals(other.ID)) return false;
     return true;
   }
+
 }

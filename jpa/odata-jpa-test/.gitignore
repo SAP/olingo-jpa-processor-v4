@@ -6,9 +6,5 @@
 /*.log
 
 # JDT-specific (Eclipse Java Development Tools)
-<<<<<<< HEAD
-.classpath
-=======
 .classpath
 /.sts4-cache/
->>>>>>> odata-v4-jpa-processor/feature/release-1.0.3

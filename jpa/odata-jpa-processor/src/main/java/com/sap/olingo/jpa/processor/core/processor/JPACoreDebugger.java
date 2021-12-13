@@ -3,7 +3,6 @@ package com.sap.olingo.jpa.processor.core.processor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -65,7 +64,7 @@ class JPACoreDebugger implements JPAServiceDebugger {
   }
 
   @Override
-  public Collection<RuntimeMeasurement> getRuntimeInformation() {
+  public List<RuntimeMeasurement> getRuntimeInformation() {
     if (isDebugMode)
       return runtimeInformation;
     return Collections.emptyList();

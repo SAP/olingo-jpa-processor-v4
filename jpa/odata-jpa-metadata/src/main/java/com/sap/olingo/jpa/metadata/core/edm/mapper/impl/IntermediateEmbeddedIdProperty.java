@@ -11,6 +11,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 final class IntermediateEmbeddedIdProperty extends IntermediateSimpleProperty {
+
   IntermediateEmbeddedIdProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,
       final IntermediateSchema schema) throws ODataJPAModelException {
     super(nameBuilder, jpaAttribute, schema);

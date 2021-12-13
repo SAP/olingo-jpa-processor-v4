@@ -5,7 +5,6 @@ import javax.persistence.JoinColumn;
 import com.sap.olingo.jpa.metadata.api.JPAJoinColumn;
 
 final class IntermediateJoinColumn implements JPAJoinColumn {
-
   private String name;
   private String referencedColumnName;
 
@@ -43,4 +42,5 @@ final class IntermediateJoinColumn implements JPAJoinColumn {
   public String toString() {
     return "IntermediateJoinColumn [name=" + name + ", referencedColumnName=" + referencedColumnName + "]";
   }
+
 }

@@ -42,6 +42,7 @@ public final class ExpressionUtil {
   public static Expression<Boolean> createEQExpression(final OData odata, final CriteriaBuilder cb,
       final From<?, ?> root, final JPAEntityType jpaEntity, final UriParameter keyPredicate)
       throws ODataJPAFilterException, ODataJPAModelException {
+
     final JPAPath path = jpaEntity.getPath(keyPredicate.getName());
     final JPAAttribute attribute = path.getLeaf();
 

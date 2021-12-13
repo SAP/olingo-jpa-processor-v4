@@ -21,7 +21,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateEntityS
  */
 final class IntermediateEntitySet extends IntermediateTopLevelEntity implements IntermediateEntitySetAccess,
     JPAEntitySet {
-
   private CsdlEntitySet edmEntitySet;
 
   IntermediateEntitySet(final JPAEdmNameBuilder nameBuilder, final IntermediateEntityType<?> et)

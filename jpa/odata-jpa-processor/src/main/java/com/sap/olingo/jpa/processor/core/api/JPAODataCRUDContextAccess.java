@@ -13,7 +13,7 @@ import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 
 /**
-
+ *
  * @author Oliver Grande
  *
  */

@@ -9,7 +9,3 @@ target/
 .settings/
 .metadata
 *.log
-<<<<<<< HEAD
-
-=======
->>>>>>> odata-v4-jpa-processor/feature/release-1.0.3

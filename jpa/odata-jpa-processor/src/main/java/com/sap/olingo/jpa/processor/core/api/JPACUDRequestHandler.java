@@ -10,11 +10,7 @@ import com.sap.olingo.jpa.processor.core.processor.JPARequestEntity;
 
 public interface JPACUDRequestHandler {
   /**
-<<<<<<< HEAD
-   * 
-=======
    *
->>>>>>> odata-v4-jpa-processor/feature/release-1.0.3
    * @param requestEntity
    * @param em
    * @throws ODataJPAProcessException
@@ -55,11 +51,7 @@ public interface JPACUDRequestHandler {
    * <a href=
    * "http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752306"
    * >OData Version 4.0 Part 1 - 11.4.9 Managing Values and Properties Directly</a><br>
-<<<<<<< HEAD
-   * 
-=======
    *
->>>>>>> odata-v4-jpa-processor/feature/release-1.0.3
    * @param requestEntity See {@link com.sap.olingo.jpa.processor.core.processor.JPARequestEntity JPARequestEntity}
    * @param em Instance of an entity manager with an open transaction.
    * @param httpMethod The original http method: PATCH, PUT, DELETE
@@ -73,12 +65,8 @@ public interface JPACUDRequestHandler {
   /**
    * Hook that is called after all changes of one transaction have been processed. The method shall enable a check of
    * all modification within the new context. This can be imported if multiple entities are changes with the same
-<<<<<<< HEAD
-   * request (batch request or deep-insert) and consistency constrains exist between them.
-=======
    * request (batch request or deep-insert) and consistency constrains exist between them.<p>
    * In case changes are made to the entities, these changes are not part of the response in case of batch requests.
->>>>>>> odata-v4-jpa-processor/feature/release-1.0.3
    * @throws ODataJPAProcessException
    */
   public void validateChanges(final EntityManager em) throws ODataJPAProcessException;

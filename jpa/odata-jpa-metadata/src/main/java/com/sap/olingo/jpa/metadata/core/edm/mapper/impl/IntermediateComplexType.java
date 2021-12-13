@@ -30,7 +30,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
  *
  */
 final class IntermediateComplexType<T> extends IntermediateStructuredType<T> {
-
   private static final Log LOGGER = LogFactory.getLog(IntermediateComplexType.class);
 
   IntermediateComplexType(final JPAEdmNameBuilder nameBuilder, final EmbeddableType<T> jpaEmbeddable,

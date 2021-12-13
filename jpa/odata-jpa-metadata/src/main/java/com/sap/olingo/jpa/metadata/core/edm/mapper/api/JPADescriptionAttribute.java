@@ -14,6 +14,7 @@ public interface JPADescriptionAttribute extends JPAAttribute {
   public JPAPath getLocaleFieldName();
 
   public Map<JPAPath, String> getFixedValueAssignment();
-  
+
   public JPAAssociationAttribute asAssociationAttribute();
+
 }

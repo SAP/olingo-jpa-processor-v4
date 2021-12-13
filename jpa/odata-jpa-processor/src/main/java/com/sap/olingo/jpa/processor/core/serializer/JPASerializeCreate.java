@@ -44,7 +44,6 @@ final class JPASerializeCreate implements JPASerializer {
 
   public JPASerializeCreate(final ServiceMetadata serviceMetadata, final ODataSerializer serializer,
       final UriInfo uriInfo, final JPAODataSessionContextAccess serviceContext) {
-
     this.uriInfo = uriInfo;
     this.serializer = serializer;
     this.serviceMetadata = serviceMetadata;

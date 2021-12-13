@@ -29,4 +29,5 @@ public class AddressDeepProtected {
   public void setInhouseAddress(final InhouseAddressWithProtection inhouseAddress) {
     this.inhouseAddress = inhouseAddress;
   }
+
 }

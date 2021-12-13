@@ -32,7 +32,6 @@ import com.sap.olingo.jpa.processor.core.filter.JPAFilterElementComplier;
 import com.sap.olingo.jpa.processor.core.filter.JPAOperationConverter;
 
 public final class JPANavigationFilterQuery extends JPAAbstractSubQuery {
-
   private final List<UriParameter> keyPredicates;
 
   public JPANavigationFilterQuery(final OData odata, final JPAServiceDocument sd, final UriResource uriResourceItem,
@@ -145,6 +144,7 @@ public final class JPANavigationFilterQuery extends JPAAbstractSubQuery {
             HttpStatusCode.INTERNAL_SERVER_ERROR, association.getTargetType().getExternalName(), association
                 .getSourceType().getExternalName());
       return conditionItems;
+
     } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_RESULT_NAVI_PROPERTY_UNKNOWN,
           HttpStatusCode.INTERNAL_SERVER_ERROR, e, association.getAlias());

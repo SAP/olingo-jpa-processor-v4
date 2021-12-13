@@ -41,9 +41,7 @@ public class JPA_DERBY_DatabaseProcessor extends JPAAbstractDatabaseProcessor { 
   @Override
   public <T> java.util.List<T> executeFunctionQuery(final List<UriResource> uriResourceParts,
       final JPADataBaseFunction jpaFunction, final EntityManager em) throws ODataApplicationException {
-    /*
-     * See https://db.apache.org/derby/docs/10.15/ref/rrefsqljtfinvoke.html
-     */
+
     final UriResource last = uriResourceParts.get(uriResourceParts.size() - 1);
 
     if (last.getKind() == UriResourceKind.count) {

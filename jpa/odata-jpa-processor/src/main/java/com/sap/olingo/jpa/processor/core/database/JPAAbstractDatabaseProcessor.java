@@ -70,8 +70,8 @@ public abstract class JPAAbstractDatabaseProcessor implements JPAODataDatabasePr
       throws ODataJPAProcessorException {
 
     final StringBuilder parameterList = new StringBuilder();
-    final String queryString = queryPattern.replace(FUNC_NAME_PLACEHOLDER, jpaFunction.getDBName());
 
+    final String queryString = queryPattern.replace(FUNC_NAME_PLACEHOLDER, jpaFunction.getDBName());
     try {
       for (int i = 1; i <= jpaFunction.getParameter().size(); i++) {
         parameterList.append(',');

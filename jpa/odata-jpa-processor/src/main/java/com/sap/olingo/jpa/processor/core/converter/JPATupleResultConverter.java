@@ -325,4 +325,5 @@ abstract class JPATupleResultConverter implements JPAResultConverter {
     }
     return link;
   }
+
 }

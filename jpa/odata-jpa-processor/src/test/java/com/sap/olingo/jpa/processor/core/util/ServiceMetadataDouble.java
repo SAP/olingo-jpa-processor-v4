@@ -25,7 +25,6 @@ import org.apache.olingo.server.api.etag.ServiceMetadataETagSupport;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 
-
 public class ServiceMetadataDouble implements ServiceMetadata {
   private final Edm edm;
 

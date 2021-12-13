@@ -22,11 +22,8 @@ public interface JPAEntityType extends JPAStructuredType {
   public JPACollectionAttribute getCollectionAttribute(final String externalName) throws ODataJPAModelException;
 
   /**
-<<<<<<< HEAD
-   * 
-=======
    *
->>>>>>> odata-v4-jpa-processor/feature/release-1.0.3
+   *
    * @return Mime type of streaming content
    * @throws ODataJPAModelException
    */
@@ -38,12 +35,7 @@ public interface JPAEntityType extends JPAStructuredType {
 
   /**
    * Returns a resolved list of all attributes that are marked as Id, so the attributes of an EmbeddedId are returned as
-<<<<<<< HEAD
-   * separate entries. For compound keys has the opposite order of the attributes in the entity or embedded id
-   * respectively.
-=======
    * separate entries. They are returned in the same order they are mentioned in the corresponding type.
->>>>>>> odata-v4-jpa-processor/feature/release-1.0.3
    * @return
    * @throws ODataJPAModelException
    */
@@ -69,11 +61,7 @@ public interface JPAEntityType extends JPAStructuredType {
   public boolean hasCompoundKey();
 
   /**
-<<<<<<< HEAD
-   * 
-=======
    *
->>>>>>> odata-v4-jpa-processor/feature/release-1.0.3
    * @return
    * @throws ODataJPAModelException
    */

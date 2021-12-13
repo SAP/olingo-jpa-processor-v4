@@ -71,7 +71,7 @@ abstract class TestJPAModifyProcessor {
   protected static DataSource ds;
 
   @BeforeAll
-  static void setupClass() throws ODataException {
+  public static void setupClass() throws ODataException {
     final JPAEdmMetadataPostProcessor pP = mock(JPAEdmMetadataPostProcessor.class);
 
     ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);

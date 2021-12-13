@@ -1,26 +1,25 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.sap.olingo</groupId>
-	<artifactId>odata-jpa</artifactId>
-	<version>1.0.3</version>
-	<packaging>pom</packaging>
+    <groupId>com.sap.olingo</groupId>
+    <artifactId>odata-jpa</artifactId>
+    <version>1.0.4</version>
+    <packaging>pom</packaging>
 
-	<name>odata-jpa</name>
-	<url>https://github.com/SAP/olingo-jpa-processor-v4</url>
-
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.build.source>1.8</project.build.source>
+    <name>odata-jpa</name>
+    <url>https://github.com/SAP/olingo-jpa-processor-v4</url>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.build.source>1.8</project.build.source>
+        <maven.complier.version>3.8.0</maven.complier.version>
         <odata.version>4.8.0</odata.version>
         <jackson.version>2.12.5</jackson.version>
         <powermock.version>1.7.1</powermock.version>
         <coveralls.version>4.3.0</coveralls.version>
         <jpa.version>2.2.1</jpa.version>
         <processor.version>1.0.3</processor.version>
-	</properties>
+    </properties>
 
     <profiles>
         <profile>
@@ -72,6 +71,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven.complier.version}</version>
                     <configuration>
                         <source>${project.build.source}</source>
                         <target>${project.build.source}</target>

@@ -32,7 +32,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 
 final class IntermediateDescriptionProperty extends IntermediateSimpleProperty implements JPADescriptionAttribute,
     JPAAssociationAttribute {
-
   private IntermediateSimpleProperty descriptionProperty;
   private String localeAttribute;
   private final IntermediateStructuredType<?> sourceType;

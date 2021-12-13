@@ -15,7 +15,7 @@ public abstract class JPAMapBaseResult extends JPACreateResult {
 
   protected Map<String, Object> valuePairedResult;
   protected List<Tuple> result;
-  
+
   protected JPAMapBaseResult(final JPAEntityType et, final Map<String, List<String>> requestHeaders)
       throws ODataJPAModelException {
     super(et, requestHeaders);

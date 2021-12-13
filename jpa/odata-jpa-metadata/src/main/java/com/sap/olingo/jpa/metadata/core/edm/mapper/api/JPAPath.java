@@ -52,4 +52,5 @@ public interface JPAPath extends Comparable<JPAPath> {
    * @return True in case at least on of the elements of the path is a transient property
    */
   public boolean isTransient();
+
 }

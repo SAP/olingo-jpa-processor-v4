@@ -11,7 +11,6 @@ import java.util.Optional;
  *
  */
 public interface JPAODataClaimProvider {
-
 /**
  * @param attributeName 
  * @return Provides a list claim values for a given attribute.

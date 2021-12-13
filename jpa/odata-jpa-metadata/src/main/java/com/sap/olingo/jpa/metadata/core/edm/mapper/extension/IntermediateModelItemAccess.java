@@ -7,7 +7,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
  *
  */
 public interface IntermediateModelItemAccess extends JPAElement {
-
   /**
    * Element shall be ignored for metadata generation.
    * @return

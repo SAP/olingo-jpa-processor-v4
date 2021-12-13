@@ -5,9 +5,9 @@
     <parent>
         <groupId>com.sap.olingo</groupId>
         <artifactId>odata-jpa</artifactId>
-        <version>1.0.3</version>
+        <version>1.0.4</version>
     </parent>
-    
+
     <artifactId>odata-jpa-test</artifactId>
 
     <name>odata-jpa-test</name>
@@ -135,12 +135,12 @@
                 <dependency>
                     <groupId>org.hibernate</groupId>
                     <artifactId>hibernate-entitymanager</artifactId>
-                    <version>${hibernate.version}</version>
+                    <version>5.6.1.Final</version>
                 </dependency>
                 <dependency>
                     <groupId>org.hibernate</groupId>
                     <artifactId>hibernate-java8</artifactId>
-                    <version>5.4.4.Final</version>
+                    <version>5.6.1.Final</version>
                 </dependency>
             </dependencies>
         </profile>

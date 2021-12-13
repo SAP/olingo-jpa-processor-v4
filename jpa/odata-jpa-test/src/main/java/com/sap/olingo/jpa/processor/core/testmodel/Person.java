@@ -37,6 +37,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransient;
     parameter = {
         @EdmParameter(name = "R", parameterName = "Right", type = AccessRights.class),
         @EdmParameter(name = "U", parameterName = "UserRights", type = Integer.class) })
+
 @EdmFunction(
     name = "ReturnRights",
     functionName = "RETURN_RIGHTS",
@@ -45,6 +46,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransient;
     returnType = @EdmFunction.ReturnType(type = AccessRights.class, isCollection = false),
     parameter = {
         @EdmParameter(name = "U", parameterName = "UserRights", type = Integer.class) })
+
 @DiscriminatorValue(value = "1")
 public class Person extends BusinessPartner {// #NOSONAR use equal method from BusinessPartner
 

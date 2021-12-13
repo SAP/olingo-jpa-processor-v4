@@ -2,8 +2,8 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.testaction.function;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.ODataFunction;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 
 public class Function implements ODataFunction {
   @EdmFunction(name = "", returnType = @ReturnType)

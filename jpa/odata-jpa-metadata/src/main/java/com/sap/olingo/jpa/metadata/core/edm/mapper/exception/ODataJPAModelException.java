@@ -14,7 +14,6 @@ public class ODataJPAModelException extends ODataJPAException {
 
     INVALID_DESCRIPTION_PROPERTY,
     INVALID_COLLECTION_TYPE,
-
     INVALID_TOP_LEVEL_SETTING,
 
     TYPE_NOT_SUPPORTED,

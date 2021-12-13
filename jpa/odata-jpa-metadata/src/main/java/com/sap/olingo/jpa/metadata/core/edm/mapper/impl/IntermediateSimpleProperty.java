@@ -34,6 +34,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
  * "https://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406397954"
  * >OData Version 4.0 Part 3 - 6 Structural Property </a>
  *
+ *
  * @author Oliver Grande
  *
  */

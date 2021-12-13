@@ -133,4 +133,5 @@ public abstract class TestJPASerializerCollection {
 
   protected abstract <T> void verifySerializerCall(final ODataSerializer serializer, final String pattern)
       throws SerializerException;
+
 }

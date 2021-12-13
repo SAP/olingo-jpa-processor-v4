@@ -41,7 +41,6 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
   private final JPAServiceDocument serviceDocument;
 
   // http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406397930
-
   public JPAEdmProvider(@Nonnull final String namespace, @Nonnull final EntityManagerFactory emf,
       final JPAEdmMetadataPostProcessor postProcessor, final String[] packageName) throws ODataException {
     this(namespace, Objects.requireNonNull(emf.getMetamodel()), postProcessor, packageName);

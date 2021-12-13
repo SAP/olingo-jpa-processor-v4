@@ -10,7 +10,6 @@ import javax.persistence.metamodel.EntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 
 public final class JPADefaultEdmNameBuilder implements JPAEdmNameBuilder {
-
   private static final int DISTANCE_NEXT_TO_LAST_CHAR = 2;
   private static final int DISTANCE_LAST_CHAR = 1;
   // V2 NameBuilder: package org.apache.olingo.odata2.jpa.processor.core.access.model
@@ -26,7 +25,7 @@ public final class JPADefaultEdmNameBuilder implements JPAEdmNameBuilder {
   }
 
   private final String namespace;
-  
+
   public JPADefaultEdmNameBuilder(@Nonnull final String namespace) {
     super();
     this.namespace = Objects.requireNonNull(namespace);
