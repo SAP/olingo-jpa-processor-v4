@@ -121,7 +121,7 @@ public class TestJPAODataRequestContextImpl {
   }
 
   @Test
-  public void testCopyConstructorCopysExternalAndAddsUriInfo() throws JPAIllicalAccessException {
+  public void testCopyConstructorCopyExternalAndAddsUriInfo() throws JPAIllicalAccessException {
     fillContextForCopyConstructor();
     final JPASerializer serializer = mock(JPASerializer.class);
     final UriInfo uriInfo = mock(UriInfo.class);
@@ -135,7 +135,7 @@ public class TestJPAODataRequestContextImpl {
   }
 
   @Test
-  public void testCopyConstructorCopysExternalAndAddsPageSerializer() {
+  public void testCopyConstructorCopyExternalAndAddsPageSerializer() {
     fillContextForCopyConstructor();
     final UriInfo uriInfo = mock(UriInfo.class);
     JPAODataRequestContextImpl act = new JPAODataRequestContextImpl(uriInfo, cut);
@@ -145,7 +145,7 @@ public class TestJPAODataRequestContextImpl {
   }
 
   @Test
-  public void testCopyConstructorCopysExternalAndAddsUriInfoSerializer() {
+  public void testCopyConstructorCopyExternalAndAddsUriInfoSerializer() {
     fillContextForCopyConstructor();
     final UriInfo uriInfo = mock(UriInfo.class);
     final JPASerializer serializer = mock(JPASerializer.class);
@@ -157,7 +157,7 @@ public class TestJPAODataRequestContextImpl {
   }
 
   @Test
-  public void testCopyConstructorCopysExternalAndAddsUriInfoSerializerNull() {
+  public void testCopyConstructorCopyExternalAndAddsUriInfoSerializerNull() {
     fillContextForCopyConstructor();
     final UriInfo uriInfo = mock(UriInfo.class);
     JPAODataRequestContextImpl act = new JPAODataRequestContextImpl(uriInfo, null, cut);
@@ -165,6 +165,14 @@ public class TestJPAODataRequestContextImpl {
     assertEquals(uriInfo, act.getUriInfo());
     assertEquals(null, act.getSerializer());
     assertCopied(act);
+  }
+  @Test
+  public void testCopyConstructorCopyTransactionFactory() {
+    fillContextForCopyConstructor();
+    final UriInfo uriInfo = mock(UriInfo.class);
+    JPAODataRequestContextImpl act = new JPAODataRequestContextImpl(uriInfo, null, cut);
+
+    assertEquals(cut.getTransactionFactory(), act.getTransactionFactory());
   }
 
   @Test
@@ -191,8 +199,10 @@ public class TestJPAODataRequestContextImpl {
     final EntityManager expEm = mock(EntityManager.class);
     final JPAODataClaimProvider expCp = new JPAODataClaimsProvider();
     final JPAODataGroupProvider expGp = new JPAODataGroupsProvider();
+    final JPAODataTransactionFactory expTF = mock(JPAODataTransactionFactory.class);
     cut.setEntityManager(expEm);
     cut.setClaimsProvider(expCp);
     cut.setGroupsProvider(expGp);
+    cut.setTransactionFactory(expTF);
   }
 }
