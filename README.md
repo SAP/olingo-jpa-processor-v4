@@ -20,7 +20,7 @@ More details can be found in the [Tutorials](/jpa-tutorial/Tutorials/Introductio
 
 # Requirements
 
-The JPA Processor requires,minimum Java version [1.8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html). The current version comes with Olingo 4.7.1. If you want to be updated about Olingo changes subscribe to Olingos [user mailing list](user-subscribe@olingo.apache.org).
+The JPA Processor requires,minimum Java version [1.8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html). The current version comes with Olingo 4.8.0. If you want to be updated about Olingo changes subscribe to Olingos [user mailing list](user-subscribe@olingo.apache.org).
 
 Even so no JPA implementation is preferred, as long as it supports [JSR-338 Java Persistence 2.1](https://jcp.org/en/jsr/detail?id=317), it has to be stated that all test have been performed with [Eclipselink 2.7.1](http://www.eclipse.org/eclipselink/). If you have any problem e.g. with [Hibernate](http://hibernate.org) create an [issue](https://github.com/SAP/olingo-jpa-processor-v4/issues), but there is no guaranty that it can be solved, as Hibernate implements some JPA interfaces "differently" than EclipseLink.
 
@@ -93,4 +93,4 @@ Detailed information including third-party components and their licensing/copyri
 |0.3.8| - Update Olingo dependency to 4.7.1<br> - Support of  `java.time` data types. Prerequisite is the usage of JPA 2.2. <br> - Support of Absolute Context URL. See issue [#103](https://github.com/SAP/olingo-jpa-processor-v4/issues/103)<br> - Temporal data types do not longer require a Precision [#98](https://github.com/SAP/olingo-jpa-processor-v4/issues/98)<br>Support of MappedSuperclass|No|
 |0.3.9| - Solutions for issue [#112](https://github.com/SAP/olingo-jpa-processor-v4/issues/112) <br> - Solutions for issue [#114](https://github.com/SAP/olingo-jpa-processor-v4/issues/114)|No|
 |0.3.10| - Update Olingo dependency to 4.8.0<br> - Deprecation of ```setExternalName``` in ```IntermediateModelItemAccess```<br>- Solutions for issue [#134](https://github.com/SAP/olingo-jpa-processor-v4/issues/136)<br>- Solutions for issue [#136](https://github.com/SAP/olingo-jpa-processor-v4/issues/136) |No|
-|0.3.10| - - Solutions for issue [#138](https://github.com/SAP/olingo-jpa-processor-v4/issues/138)|No|
+|0.3.11| - - Solutions for issue [#138](https://github.com/SAP/olingo-jpa-processor-v4/issues/138)|No|
