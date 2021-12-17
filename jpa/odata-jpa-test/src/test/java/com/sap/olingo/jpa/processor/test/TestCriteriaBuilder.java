@@ -107,7 +107,7 @@ class TestCriteriaBuilder {
     adminQ1.multiselect(adminRoot1.get("divisionCode"));
 
     final TypedQuery<Tuple> tq = em.createQuery(adminQ1);
-    tq.getResultList();
+    assertNotNull(tq.getResultList());
   }
 
   @SuppressWarnings("unchecked")
@@ -140,7 +140,7 @@ class TestCriteriaBuilder {
     roleQ.where(cb.in(roleRoot.get("businessPartnerID")).value(bupaQ));
     roleQ.multiselect(roleRoot.get("businessPartnerID"));
     final TypedQuery<Tuple> tq = em.createQuery(roleQ);
-    tq.getResultList();
+    assertNotNull(tq.getResultList());
   }
 
   @Test
@@ -191,7 +191,7 @@ class TestCriteriaBuilder {
     count.where(cb.and(restrictions));
     final TypedQuery<Tuple> tq = em.createQuery(count);
     tq.getResultList();
-    tq.getFirstResult();
+    assertNotNull(tq.getFirstResult());
   }
 
   @Disabled("To be checked")
@@ -212,6 +212,7 @@ class TestCriteriaBuilder {
     final TypedQuery<Tuple> tq = em.createQuery(cq);
     final List<Tuple> act = tq.getResultList();
     System.out.println(act.size());
+    assertNotNull(act);
   }
 
   @Disabled("To be checked")
@@ -230,6 +231,7 @@ class TestCriteriaBuilder {
     final TypedQuery<Tuple> tq = em.createQuery(cq);
     final List<Tuple> act = tq.getResultList();
     System.out.println(act.size());
+    assertNotNull(act);
   }
 
   @Test
@@ -310,7 +312,7 @@ class TestCriteriaBuilder {
     final Root<Team> root = cq.from(Team.class);
 
     final Subquery<String> subquery = cq.subquery(String.class);
-    final Root<BusinessPartner> subRoot = subquery.from(BusinessPartner.class);
+    final Root<Person> subRoot = subquery.from(Person.class);
     subquery.select(subRoot.get("iD"));
     final Root<Membership> subJoin = subquery.from(Membership.class);
     subquery.where(
