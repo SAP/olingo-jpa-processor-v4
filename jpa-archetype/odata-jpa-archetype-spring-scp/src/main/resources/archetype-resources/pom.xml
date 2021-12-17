@@ -16,7 +16,7 @@
 	</parent>
 
 	<properties>
-		<processor.version>1.0.3</processor.version>
+		<processor.version>1.0.4</processor.version>
 		<java.version>1.8</java.version>
         <eclipselink.version>2.7.7</eclipselink.version>
         <jpa.version>2.2.1</jpa.version>

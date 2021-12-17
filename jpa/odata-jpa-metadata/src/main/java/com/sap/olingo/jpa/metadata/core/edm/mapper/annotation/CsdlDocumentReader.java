@@ -19,7 +19,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
 
 /**
- * 
+ *
  * @author Oliver Grande
  * @since 15.12.2019
  * @version 0.3.8

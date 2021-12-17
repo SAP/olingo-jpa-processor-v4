@@ -38,6 +38,8 @@ import javax.persistence.metamodel.PluralAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 import javax.persistence.metamodel.Type;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlStructuralType;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
@@ -58,6 +60,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 
 abstract class IntermediateStructuredType<T> extends IntermediateModelElement implements JPAStructuredType {
 //
+  private static final Log LOGGER = LogFactory.getLog(IntermediateStructuredType.class);
   protected final Map<String, IntermediateProperty> declaredPropertiesList;
   protected final Map<String, IntermediateNavigationProperty> declaredNaviPropertiesList;
   protected final Map<String, JPAPathImpl> resolvedPathMap;
@@ -304,12 +307,17 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
               final IntermediateDescriptionProperty descProperty = new IntermediateDescriptionProperty(nameBuilder,
                   jpaAttribute, this, schema);
               declaredPropertiesList.put(descProperty.internalName, descProperty);
+              if (LOGGER.isTraceEnabled())
+                LOGGER.trace(getExternalName() + ": found description property '" + descProperty.getExternalName()
+                    + "'");
               break;
             }
           }
           final IntermediateNavigationProperty navProp = new IntermediateNavigationProperty(nameBuilder, this,
               jpaAttribute, schema);
           declaredNaviPropertiesList.put(navProp.internalName, navProp);
+          if (LOGGER.isTraceEnabled())
+            LOGGER.trace(getExternalName() + ": found navigation property '" + navProp.getExternalName() + "'");
           break;
         default:
           throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.NOT_SUPPORTED_ATTRIBUTE_TYPE,
