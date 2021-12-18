@@ -1,7 +1,7 @@
 logging:
   level:
     org:
-      springframework: DEBUG
+      springframework: INFO
 odata:
   jpa:
     punit_name: ${punit}

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,13 +19,12 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaBuilder.In;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
-import org.eclipse.persistence.internal.jpa.EJBQueryImpl;
-import org.eclipse.persistence.queries.DatabaseQuery;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,8 +37,10 @@ import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescrip
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
+import com.sap.olingo.jpa.processor.core.testmodel.Membership;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
+import com.sap.olingo.jpa.processor.core.testmodel.Team;
 
 class TestCriteriaBuilder {
   protected static final String PUNIT_NAME = "com.sap.olingo.jpa";
@@ -105,7 +107,7 @@ class TestCriteriaBuilder {
     adminQ1.multiselect(adminRoot1.get("divisionCode"));
 
     final TypedQuery<Tuple> tq = em.createQuery(adminQ1);
-    tq.getResultList();
+    assertNotNull(tq.getResultList());
   }
 
   @SuppressWarnings("unchecked")
@@ -138,7 +140,7 @@ class TestCriteriaBuilder {
     roleQ.where(cb.in(roleRoot.get("businessPartnerID")).value(bupaQ));
     roleQ.multiselect(roleRoot.get("businessPartnerID"));
     final TypedQuery<Tuple> tq = em.createQuery(roleQ);
-    tq.getResultList();
+    assertNotNull(tq.getResultList());
   }
 
   @Test
@@ -189,7 +191,7 @@ class TestCriteriaBuilder {
     count.where(cb.and(restrictions));
     final TypedQuery<Tuple> tq = em.createQuery(count);
     tq.getResultList();
-    tq.getFirstResult();
+    assertNotNull(tq.getFirstResult());
   }
 
   @Disabled("To be checked")
@@ -210,6 +212,7 @@ class TestCriteriaBuilder {
     final TypedQuery<Tuple> tq = em.createQuery(cq);
     final List<Tuple> act = tq.getResultList();
     System.out.println(act.size());
+    assertNotNull(act);
   }
 
   @Disabled("To be checked")
@@ -228,10 +231,12 @@ class TestCriteriaBuilder {
     final TypedQuery<Tuple> tq = em.createQuery(cq);
     final List<Tuple> act = tq.getResultList();
     System.out.println(act.size());
+    assertNotNull(act);
   }
 
   @Test
-  void testInClauseSimpleKey() {
+  void testInClauseSimpleKey() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException,
+      NoSuchMethodException, SecurityException {
 
     final CriteriaQuery<Tuple> cq = cb.createTupleQuery();
     final Root<?> bupa = cq.from(BusinessPartner.class);
@@ -241,10 +246,18 @@ class TestCriteriaBuilder {
     // (bupa.get("iD").in(Arrays.asList("3")));
 
     final TypedQuery<Tuple> tq = em.createQuery(cq);
-    final DatabaseQuery dq = ((EJBQueryImpl<Tuple>) tq).getDatabaseQuery();
-    System.out.println(dq.getSQLString());
+    Object dq;
+    String sqlMethod;
+    if ("org.eclipse.persistence.internal.jpa.EJBQueryImpl".equals(tq.getClass().getCanonicalName())) {
+      dq = tq.getClass().getMethod("getDatabaseQuery").invoke(tq);
+      sqlMethod = "getSQLString";
+    } else {
+      dq = tq;
+      sqlMethod = "toString";
+    }
+    System.out.println(dq.getClass().getMethod(sqlMethod).invoke(dq));
     final List<Tuple> act = tq.getResultList();
-    System.out.println(dq.getSQLString());
+    System.out.println(dq.getClass().getMethod(sqlMethod).invoke(dq));
     Assertions.assertEquals(1, act.size());
   }
 
@@ -274,20 +287,63 @@ class TestCriteriaBuilder {
     // Execute query
     final TypedQuery<Tuple> tq = em.createQuery(cq);
     final List<Tuple> act = tq.getResultList();
-    // Ensure EclipseLink problem still exists: ("WHERE ((NULL, NULL, NULL, NULL) IN "));
-    assertEquals(0, act.size());
+    if ("org.apache.openjpa.persistence.criteria.CriteriaBuilderImpl".equals(cb.getClass().getCanonicalName()))
+      assertEquals(1, act.size());
+    else
+      // Ensure EclipseLink problem still exists: ("WHERE ((NULL, NULL, NULL, NULL) IN "));
+      assertEquals(0, act.size());
+  }
+
+  @Test
+  void testManyToMany() {
+    final CriteriaQuery<Tuple> cq = cb.createTupleQuery();
+    final Root<Person> root = cq.from(Person.class);
+    final Join<Person, Team> join = root.join("teams");
+    cq.multiselect(root.get("iD"), join.get("iD"));
+
+    final TypedQuery<Tuple> tq = em.createQuery(cq);
+    final List<Tuple> act = tq.getResultList();
+    assertEquals(5, act.size());
+  }
+
+  @Test
+  void testManyToManySubquery() {
+    final CriteriaQuery<Tuple> cq = cb.createTupleQuery();
+    final Root<Team> root = cq.from(Team.class);
+
+    final Subquery<String> subquery = cq.subquery(String.class);
+    final Root<Person> subRoot = subquery.from(Person.class);
+    subquery.select(subRoot.get("iD"));
+    final Root<Membership> subJoin = subquery.from(Membership.class);
+    subquery.where(
+        cb.and(
+            cb.equal(subRoot.get("country"), "DEU"),
+            cb.and(
+                cb.equal(subRoot.get("iD"), subJoin.get("personID")),
+                cb.equal(root.get("iD"), subJoin.get("teamID")))));
+
+    cq.where(cb.exists(subquery));
+    cq.multiselect(root.get("iD"));
+
+    final TypedQuery<Tuple> tq = em.createQuery(cq);
+    final List<Tuple> act = tq.getResultList();
+    assertEquals(2, act.size());
   }
 
   private Expression<Boolean> createParentAdmin(final Root<AdministrativeDivision> subQuery,
       final Root<AdministrativeDivision> query) {
-    return cb.and(cb.equal(query.get("codePublisher"), subQuery.get("codePublisher")),
-        cb.and(cb.equal(query.get("codeID"), subQuery.get("parentCodeID")),
+    return cb.and(
+        cb.equal(query.get("codePublisher"), subQuery.get("codePublisher")),
+        cb.and(
+            cb.equal(query.get("codeID"), subQuery.get("parentCodeID")),
             cb.equal(query.get("divisionCode"), subQuery.get("parentDivisionCode"))));
   }
 
   private Predicate createParentOrg(final Root<Organization> org1, final Root<AdministrativeDivision> adminRoot3) {
-    return cb.and(cb.equal(adminRoot3.get("codePublisher"), org1.get("address").get("regionCodePublisher")),
-        cb.and(cb.equal(adminRoot3.get("codeID"), org1.get("address").get("regionCodeID")),
+    return cb.and(
+        cb.equal(adminRoot3.get("codePublisher"), org1.get("address").get("regionCodePublisher")),
+        cb.and(
+            cb.equal(adminRoot3.get("codeID"), org1.get("address").get("regionCodeID")),
             cb.equal(adminRoot3.get("divisionCode"), org1.get("address").get("region"))));
   }
 }

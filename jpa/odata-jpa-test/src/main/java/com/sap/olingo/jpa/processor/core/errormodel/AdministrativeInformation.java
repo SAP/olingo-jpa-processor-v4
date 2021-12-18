@@ -12,17 +12,15 @@ import javax.persistence.PreUpdate;
 
 @Embeddable
 public class AdministrativeInformation {
-  @Embedded
 
+  @Embedded
   @AttributeOverride(name = "by", column = @Column(name = "\"CreatedBy\""))
   @AttributeOverride(name = "at", column = @Column(name = "\"CreatedAt\""))
-
   private ChangeInformation created;
-  @Embedded
 
+  @Embedded
   @AttributeOverride(name = "by", column = @Column(name = "\"UpdatedBy\""))
   @AttributeOverride(name = "at", column = @Column(name = "\"UpdatedAt\""))
-
   private ChangeInformation updated;
 
   public ChangeInformation getCreated() {
@@ -33,11 +31,11 @@ public class AdministrativeInformation {
     return updated;
   }
 
-  public void setCreated(ChangeInformation created) {
+  public void setCreated(final ChangeInformation created) {
     this.created = created;
   }
 
-  public void setUpdated(ChangeInformation updated) {
+  public void setUpdated(final ChangeInformation updated) {
     this.updated = updated;
   }
 

@@ -22,11 +22,11 @@ public class ChangeInformation {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "\"by\"", referencedColumnName = "\"ID\"", insertable = false, updatable = false)
-  Person user;
+  private Person user;
 
   public ChangeInformation() {}
 
-  public ChangeInformation(String by, Date at) {
+  public ChangeInformation(final String by, final Date at) {
     super();
     this.by = by;
     this.at = at;

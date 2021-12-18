@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.sap.olingo.jpa.processor.core.errormodel;
 
@@ -25,5 +25,21 @@ public class KeyPartOfGroup {
   @Version
   @Column(name = "\"ETag\"", nullable = false)
   protected long eTag;
+
+  public String getiD() {
+    return iD;
+  }
+
+  public void setiD(final String iD) {
+    this.iD = iD;
+  }
+
+  public long geteTag() {
+    return eTag;
+  }
+
+  public void seteTag(final long eTag) {
+    this.eTag = eTag;
+  }
 
 }

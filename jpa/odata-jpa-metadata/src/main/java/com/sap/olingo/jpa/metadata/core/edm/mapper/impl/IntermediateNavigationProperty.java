@@ -24,6 +24,8 @@ import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.Attribute.PersistentAttributeType;
 import javax.persistence.metamodel.PluralAttribute;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlNavigationProperty;
@@ -57,6 +59,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateNavigat
  */
 final class IntermediateNavigationProperty extends IntermediateModelElement implements
     IntermediateNavigationPropertyAccess, JPAAssociationAttribute {
+
+  private static final Log LOGGER = LogFactory.getLog(IntermediateNavigationProperty.class);
 
   private final Attribute<?, ?> jpaAttribute;
   private CsdlNavigationProperty edmNaviProperty;
@@ -342,7 +346,8 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
         final IntermediateJoinColumn intermediateColumn = new IntermediateJoinColumn(column);
         fillMissingName(isSourceOne, intermediateColumn);
         result.add(intermediateColumn);
-
+        if (LOGGER.isTraceEnabled())
+          LOGGER.trace(getExternalName() + ": Add join condition = " + intermediateColumn.toString());
       }
     }
     return result;
@@ -395,6 +400,8 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
     // Process annotations after post processing, as external name could have been changed
     getAnnotations(edmAnnotations, this.jpaAttribute.getJavaMember(), internalName);
     checkConsistency();
+    if (LOGGER.isTraceEnabled())
+      LOGGER.trace(toString());
   }
 
   private void checkConsistency() throws ODataJPAModelException {
@@ -423,9 +430,9 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
     boolean ignore = false;
     for (final IntermediateJoinColumn intermediateColumn : joinColumns) {
       try {
-        final Optional<CsdlReferentialConstraint> constraint = Optional.ofNullable(
-            determineReferentialConstraint(intermediateColumn)
-                .orElse(determineReversReferentialConstraint(intermediateColumn).orElse(null)));
+        Optional<CsdlReferentialConstraint> constraint = determineReferentialConstraint(intermediateColumn);
+        if (!constraint.isPresent())
+          constraint = determineReversReferentialConstraint(intermediateColumn);
         constraints.add(constraint.orElseThrow(
             () -> new ODataJPAModelException(REFERENCED_PROPERTY_NOT_FOUND, getInternalName(), intermediateColumn
                 .getReferencedColumnName(), sourceType.getExternalName())));
@@ -546,5 +553,11 @@ final class IntermediateNavigationProperty extends IntermediateModelElement impl
   @Override
   public List<String> getRequiredProperties() {
     return Collections.emptyList();
+  }
+
+  @Override
+  public String toString() {
+    return getExternalName() + ": [sourceType=" + sourceType + ", targetType=" + targetType + ", partner="
+        + partner + ", joinTable=" + joinTable + "]";
   }
 }

@@ -88,7 +88,7 @@ class TestAssociations {
   void getBuPaCountryName() {
     final CriteriaQuery<Tuple> cq = cb.createTupleQuery();
     final Root<BusinessPartner> root = cq.from(BusinessPartner.class);
-
+    // Works with eclipselink, but not with openjap
     cq.multiselect(root.get("address").get("countryName").alias("CN"));
     final TypedQuery<Tuple> tq = em.createQuery(cq);
     final List<Tuple> result = tq.getResultList();
