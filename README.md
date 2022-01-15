@@ -15,15 +15,17 @@ At the current state the JPA Processor provide support for:
 2. Processing Get requests by converting them into Criteria Builder queries.
 3. Supporting entity manipulations.
 
-More details can be found in the [Tutorials](/jpa-tutorial/Tutorials/Introduction/Introduction.md).
+To get started make use of the [Quicks Start](/jpa-tutorial/QuickStart/QuickStart.md) tutorial.
 
-# Requirements
+The tutorials from the previous major version is still available under: [Tutorials](/jpa-tutorial/Tutorials/Introduction/Introduction.md).
 
-The JPA Processor requires,minimum Java version [1.8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html). The current version comes with [Olingo 4.8.0](https://github.com/apache/olingo-odata4). If you want to be updated about Olingo changes subscribe to Olingos [user mailing list](user-subscribe@olingo.apache.org).
+## Requirements
+
+The JPA Processor requires, minimum Java version [1.8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html). The current version comes with [Olingo 4.8.0](https://github.com/apache/olingo-odata4). If you want to be updated about Olingo changes subscribe to Olingo's [user mailing list](user-subscribe@olingo.apache.org).
 
 Even so no JPA implementation is preferred, as long as it supports [JSR-338 Java Persistence 2.2](https://jcp.org/en/jsr/detail?id=338), it has to be stated that all test have been performed with [Eclipselink 2.7.9](http://www.eclipse.org/eclipselink/). If you have any problem e.g. with [Hibernate](http://hibernate.org) or [OpenJPA](https://openjpa.apache.org/), create an [issue](https://github.com/SAP/olingo-jpa-processor-v4/issues), but there is no guaranty that it can be solved, as e.g. Hibernate implements some JPA interfaces "differently" than EclipseLink.
 
-# Download and Installation
+## Download and Installation
 
 The JPA Processor is a collection of [Maven](https://maven.apache.org) projects. To use it you need to
 clone the repository, import the projects and declare a dependency to either the metadata generation only:
@@ -46,18 +48,19 @@ Or to the complete processor:
 </dependency>
 ```
 
-# Limitations
+## Limitations
 
-The project is still in the state of incubation, so some incompatible changes my come up, see To-Do. Nevertheless feel free to use the JPA processor where ever it helps.
+The core of this project became stable. Some of the addons are still in the state of incubation, so some incompatible changes my come up. Nevertheless feel free to use the JPA processor and the addons where ever it helps.
 
-# How to obtain support
+## How to obtain support
 
 For bugs, questions and ideas for enhancement please open an issue in github.
 
-# To-Do (upcoming-changes)
+## To-Do (upcoming-changes)
 
 The flowing extensions/changes are planned:
 
+* Tenant depended metadata
 * Enable hooks for retrieving data
 * Support of $ref
 * ETag on $metadata
@@ -65,12 +68,14 @@ The flowing extensions/changes are planned:
 * Parallel processing for $expand
 * Overload Operations
 
-# License
+New versions will follow [Semantic Versioning](https://semver.org).
+
+## License
 
 Copyright (c) 2016-2021 SAP SE or an SAP affiliate company and olingo-jpa-processor-v4 contributors. Please see our [LICENSE.txt](LICENSE.txt) for copyright and license information.
 Detailed information including third-party components and their licensing/copyright information is available via the [REUSE tool](https://api.reuse.software/info/github.com/SAP/olingo-jpa-processor-v4).
 
-# Release Notes
+## Release Notes
 
 |Version|Changes|Incompatible Changes|
 |-- |-- |-- |
