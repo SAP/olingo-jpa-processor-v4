@@ -80,9 +80,10 @@ class TestJPAQueryFromClause extends TestBase {
     final JPAODataRequestContext externalContext = mock(JPAODataRequestContext.class);
     when(externalContext.getEntityManager()).thenReturn(emf.createEntityManager());
     when(externalContext.getRequestParameter()).thenReturn(mock(JPARequestParameterMap.class));
-    final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext(externalContext);
+    final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext(externalContext,
+        sessionContext);
     requestContext.setUriInfo(uriInfo);
-    cut = new JPAJoinQuery(null, sessionContext, requestContext);
+    cut = new JPAJoinQuery(null, requestContext);
   }
 
   @Test
@@ -184,7 +185,7 @@ class TestJPAQueryFromClause extends TestBase {
     collectionPathList.add(entity.getPath("ID"));
     collectionPathList.add(entity.getPath("Comment"));
 
-    cut = new JPAJoinQuery(null, sessionContext, requestContext);
+    cut = new JPAJoinQuery(null, requestContext);
 
     assertThrows(JPANoSelectionException.class,
         () -> cut.createFromClause(Collections.emptyList(), collectionPathList, cut.cq, cut.lastInfo));
@@ -202,7 +203,7 @@ class TestJPAQueryFromClause extends TestBase {
     collectionPathList.add(entity.getPath("ID"));
     collectionPathList.add(entity.getPath("Comment"));
 
-    cut = new JPAJoinQuery(null, sessionContext, requestContext);
+    cut = new JPAJoinQuery(null, requestContext);
 
     final Map<String, From<?, ?>> act = cut.createFromClause(Collections.emptyList(), collectionPathList, cut.cq,
         cut.lastInfo);
@@ -238,7 +239,8 @@ class TestJPAQueryFromClause extends TestBase {
     when(externalContext.getEntityManager()).thenReturn(emf.createEntityManager());
     when(externalContext.getGroupsProvider()).thenReturn(Optional.ofNullable(groups));
     when(externalContext.getRequestParameter()).thenReturn(mock(JPARequestParameterMap.class));
-    final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext(externalContext);
+    final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext(externalContext,
+        sessionContext);
     requestContext.setUriInfo(uriInfo);
     return requestContext;
   }

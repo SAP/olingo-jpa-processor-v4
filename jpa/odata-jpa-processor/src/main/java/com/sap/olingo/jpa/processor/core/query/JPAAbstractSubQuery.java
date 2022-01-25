@@ -32,7 +32,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterElementComplier;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterExpression;
@@ -51,8 +51,8 @@ public abstract class JPAAbstractSubQuery extends JPAAbstractQuery {
 
   JPAAbstractSubQuery(final OData odata, final JPAServiceDocument sd, final EdmEntityType edmEntityType,
       final EntityManager em, final JPAAbstractQuery parent, final From<?, ?> from,
-      final JPAAssociationPath association,
-      final Optional<JPAODataClaimProvider> claimsProvider) throws ODataApplicationException {
+      final JPAAssociationPath association, final Optional<JPAODataClaimProvider> claimsProvider)
+      throws ODataApplicationException {
 
     super(odata, sd, edmEntityType, em, claimsProvider);
     this.parentQuery = parent;
@@ -85,7 +85,7 @@ public abstract class JPAAbstractSubQuery extends JPAAbstractQuery {
   }
 
   @Override
-  JPAODataSessionContextAccess getContext() {
+  JPAODataRequestContextAccess getContext() {
     return parentQuery.getContext();
   }
 

@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.sap.olingo</groupId>
         <artifactId>odata-jpa</artifactId>
-        <version>1.0.6</version>
+        <version>1.0.7</version>
     </parent>
 
     <artifactId>odata-jpa-coverage</artifactId>
@@ -13,7 +13,6 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <sonar.coverage.jacoco.xmlReportPaths>../jpa-coverage/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     </properties>
     
     <dependencies>

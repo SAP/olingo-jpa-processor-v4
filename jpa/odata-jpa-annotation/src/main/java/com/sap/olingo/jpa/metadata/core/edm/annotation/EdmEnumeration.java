@@ -49,6 +49,8 @@ public @interface EdmEnumeration {
 
     @Override
     public Integer convertToDatabaseColumn(final Enum<?>[] attributes) {
+      if (attributes == null || attributes.length == 0)
+        return null;
       return attributes[0].ordinal();
     }
 

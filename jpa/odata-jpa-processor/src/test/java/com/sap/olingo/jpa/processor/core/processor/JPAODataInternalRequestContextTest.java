@@ -1,10 +1,8 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -20,6 +18,7 @@ import java.util.Optional;
 
 import javax.persistence.EntityManager;
 
+import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.debug.DebugSupport;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriInfoResource;
@@ -28,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.api.JPARequestParameterMap;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmQueryExtensionProvider;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransientPropertyCalculator;
@@ -37,13 +37,16 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAQueryExtension;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPACUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
+import com.sap.olingo.jpa.processor.core.api.JPAODataDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.api.JPAODataDefaultTransactionFactory;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContext;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataTransactionFactory;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
+import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 import com.sap.olingo.jpa.processor.core.errormodel.DummyPropertyCalculator;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
@@ -54,6 +57,7 @@ class JPAODataInternalRequestContextTest {
   private JPAODataInternalRequestContext cut;
   private JPAODataRequestContextAccess contextAccess;
   private JPAODataRequestContext requestContext;
+  private JPAODataSessionContextAccess sessionContext;
   private JPAODataPage page;
   private Map<String, List<String>> header;
   private JPASerializer serializer;
@@ -68,11 +72,15 @@ class JPAODataInternalRequestContextTest {
   private UriInfoResource uriInfoResource;
   private JPACUDRequestHandler cudHandler;
   private DebugSupport debugSupport;
+  private JPAODataDatabaseProcessor dbProcessor;
+  private JPAEdmProvider edmProvider;
+  private JPAODataDatabaseOperations operationConverter;
 
   @BeforeEach
-  void setup() {
+  void setup() throws ODataException {
     contextAccess = mock(JPAODataRequestContextAccess.class);
     requestContext = mock(JPAODataRequestContext.class);
+    sessionContext = mock(JPAODataSessionContextAccess.class);
     page = mock(JPAODataPage.class);
     uriInfoResource = mock(UriInfoResource.class);
     header = new HashMap<>();
@@ -87,6 +95,10 @@ class JPAODataInternalRequestContextTest {
     locales = new LinkedList<>();
     cudHandler = mock(JPACUDRequestHandler.class);
     debugSupport = mock(DebugSupport.class);
+    dbProcessor = mock(JPAODataDatabaseProcessor.class);
+    edmProvider = mock(JPAEdmProvider.class);
+    operationConverter = mock(JPAODataDatabaseOperations.class);
+
     when(contextAccess.getTransactionFactory()).thenReturn(transactionFactory);
     when(contextAccess.getRequestParameter()).thenReturn(customParameter);
     when(contextAccess.getEntityManager()).thenReturn(em);
@@ -105,10 +117,14 @@ class JPAODataInternalRequestContextTest {
     when(requestContext.getEntityManager()).thenReturn(em);
     when(requestContext.getDebuggerSupport()).thenReturn(debugSupport);
     when(debugSupport.isUserAuthorized()).thenReturn(Boolean.TRUE);
+
+    when(sessionContext.getDatabaseProcessor()).thenReturn(dbProcessor);
+    when(sessionContext.getEdmProvider()).thenReturn(edmProvider);
+    when(sessionContext.getOperationConverter()).thenReturn(operationConverter);
   }
 
   @Test
-  void testCreateFromContextAccessWithDebugger() throws ODataJPAIllegalAccessException {
+  void testCreateFromContextAccessWithDebugger() throws ODataJPAIllegalAccessException, ODataJPAProcessorException {
 
     cut = new JPAODataInternalRequestContext(page, serializer, contextAccess, header);
 
@@ -127,7 +143,7 @@ class JPAODataInternalRequestContextTest {
   }
 
   @Test
-  void testCreateFromContextUriAccessWithDebugger() throws ODataJPAIllegalAccessException {
+  void testCreateFromContextUriAccessWithDebugger() throws ODataJPAIllegalAccessException, ODataJPAProcessorException {
 
     cut = new JPAODataInternalRequestContext(uriInfoResource, serializer, contextAccess, header);
 
@@ -145,7 +161,7 @@ class JPAODataInternalRequestContextTest {
   }
 
   @Test
-  void testCreateFromContextUriContextAccess() throws ODataJPAIllegalAccessException {
+  void testCreateFromContextUriContextAccess() throws ODataJPAIllegalAccessException, ODataJPAProcessorException {
 
     when(contextAccess.getHeader()).thenReturn(new JPAHttpHeaderHashMap(header));
     cut = new JPAODataInternalRequestContext(uriInfoResource, contextAccess);
@@ -164,7 +180,7 @@ class JPAODataInternalRequestContextTest {
   }
 
   @Test
-  void testCreateFromContextUriContextAccessHeader() throws ODataJPAIllegalAccessException {
+  void testCreateFromContextUriContextAccessHeader() throws ODataJPAIllegalAccessException, ODataJPAProcessorException {
 
     cut = new JPAODataInternalRequestContext(uriInfoResource, contextAccess, header);
 
@@ -182,27 +198,9 @@ class JPAODataInternalRequestContextTest {
   }
 
   @Test
-  void testCreate() {
-    cut = new JPAODataInternalRequestContext();
-
-    assertNull(cut.getEntityManager());
-    assertNotNull(cut.getCUDRequestHandler());
-    assertNull(cut.getSerializer());
-    assertNotNull(cut.getHeader());
-    assertNotNull(cut.getRequestParameter());
-    assertFalse(cut.getClaimsProvider().isPresent());
-    assertFalse(cut.getGroupsProvider().isPresent());
-    assertTrue(cut.getDebugger() instanceof JPAEmptyDebugger);
-    assertTrue(cut.getProvidedLocale().isEmpty());
-    assertNull(cut.getPage());
-    assertNull(cut.getUriInfo());
-    assertNull(cut.getTransactionFactory());
-  }
-
-  @Test
   void testCreateFromRequestContextWithDebugSupport() throws ODataJPAIllegalAccessException {
     // contextAccess.get
-    cut = new JPAODataInternalRequestContext(requestContext);
+    cut = new JPAODataInternalRequestContext(requestContext, sessionContext);
 
     assertEquals(em, cut.getEntityManager());
     assertEquals(claims, cut.getClaimsProvider());
@@ -215,14 +213,14 @@ class JPAODataInternalRequestContextTest {
   }
 
   @Test
-  void testCreateFromContextAccessWithDebugSupport() throws ODataJPAIllegalAccessException {
-    cut = new JPAODataInternalRequestContext(requestContext);
+  void testCreateFromContextAccessWithDebugSupport() throws ODataJPAIllegalAccessException, ODataJPAProcessorException {
+    cut = new JPAODataInternalRequestContext(requestContext, sessionContext);
     cut = new JPAODataInternalRequestContext(page, serializer, cut, header);
     assertTrue(cut.getDebugSupport().isUserAuthorized());
   }
 
   @Test
-  void testGetLocaleLocaleNotEmpty() throws ODataJPAIllegalAccessException {
+  void testGetLocaleLocaleNotEmpty() throws ODataJPAIllegalAccessException, ODataJPAProcessorException {
     cut = new JPAODataInternalRequestContext(page, serializer, contextAccess, header);
     locales.add(Locale.JAPAN);
     locales.add(Locale.CANADA_FRENCH);
@@ -231,14 +229,14 @@ class JPAODataInternalRequestContextTest {
   }
 
   @Test
-  void testGetLocaleLocaleEmpty() throws ODataJPAIllegalAccessException {
+  void testGetLocaleLocaleEmpty() throws ODataJPAIllegalAccessException, ODataJPAProcessorException {
     cut = new JPAODataInternalRequestContext(page, serializer, contextAccess, header);
 
     assertEquals(Locale.ENGLISH, cut.getLocale());
   }
 
   @Test
-  void testGetLocaleLocaleNull() throws ODataJPAIllegalAccessException {
+  void testGetLocaleLocaleNull() throws ODataJPAIllegalAccessException, ODataJPAProcessorException {
     when(contextAccess.getProvidedLocale()).thenReturn(null);
     cut = new JPAODataInternalRequestContext(page, serializer, contextAccess, header);
 
@@ -246,7 +244,7 @@ class JPAODataInternalRequestContextTest {
   }
 
   @Test
-  void testGetTransactionFactoryIfNull() throws ODataJPAIllegalAccessException {
+  void testGetTransactionFactoryIfNull() throws ODataJPAIllegalAccessException, ODataJPAProcessorException {
     when(contextAccess.getTransactionFactory()).thenReturn(null);
     cut = new JPAODataInternalRequestContext(page, serializer, contextAccess, header);
 
@@ -254,7 +252,7 @@ class JPAODataInternalRequestContextTest {
   }
 
   @Test
-  void testGetDebuggerReturnsDefaultIfNullAndFalse() throws ODataJPAIllegalAccessException {
+  void testGetDebuggerReturnsDefaultIfNullAndFalse() throws ODataJPAIllegalAccessException, ODataJPAProcessorException {
     when(contextAccess.getDebugger()).thenReturn(null);
     cut = new JPAODataInternalRequestContext(page, serializer, contextAccess, header);
 
@@ -295,21 +293,22 @@ class JPAODataInternalRequestContextTest {
   }
 
   @Test
-  void testSetUriInfoThrowsExceptionPageExists() throws ODataJPAIllegalAccessException {
+  void testSetUriInfoThrowsExceptionPageExists() throws ODataJPAIllegalAccessException, ODataJPAProcessorException {
     cut = new JPAODataInternalRequestContext(page, serializer, contextAccess, header);
 
     assertThrows(ODataJPAIllegalAccessException.class, () -> cut.setUriInfo(uriInfo));
   }
 
   @Test
-  void testSetJPAODataPageThrowsExceptionUriInfoExists() throws ODataJPAIllegalAccessException {
+  void testSetJPAODataPageThrowsExceptionUriInfoExists() throws ODataJPAIllegalAccessException,
+      ODataJPAProcessorException {
     cut = new JPAODataInternalRequestContext(uriInfoResource, serializer, contextAccess, header);
 
     assertThrows(ODataJPAIllegalAccessException.class, () -> cut.setJPAODataPage(page));
   }
 
   @Test
-  void testSetEntityManager() throws ODataJPAIllegalAccessException {
+  void testSetEntityManager() throws ODataJPAIllegalAccessException, ODataJPAProcessorException {
     final EntityManager entityManager = mock(EntityManager.class);
     cut = new JPAODataInternalRequestContext(page, serializer, contextAccess, header);
     cut.setEntityManager(entityManager);
@@ -318,11 +317,29 @@ class JPAODataInternalRequestContextTest {
   }
 
   @Test
-  void testSetSerializer() throws ODataJPAIllegalAccessException {
+  void testSetSerializer() throws ODataJPAIllegalAccessException, ODataJPAProcessorException {
     final JPASerializer jpaSerializer = mock(JPASerializer.class);
     cut = new JPAODataInternalRequestContext(page, serializer, contextAccess, header);
     cut.setJPASerializer(jpaSerializer);
 
     assertEquals(jpaSerializer, cut.getSerializer());
+  }
+
+  @Test
+  void testGetDatabaseProcessor() {
+    cut = new JPAODataInternalRequestContext(requestContext, sessionContext);
+    assertEquals(dbProcessor, cut.getDatabaseProcessor());
+  }
+
+  @Test
+  void testGetEdmProvider() throws ODataException {
+    cut = new JPAODataInternalRequestContext(requestContext, sessionContext);
+    assertEquals(edmProvider, cut.getEdmProvider());
+  }
+
+  @Test
+  void testGetOperationConverter() {
+    cut = new JPAODataInternalRequestContext(requestContext, sessionContext);
+    assertEquals(operationConverter, cut.getOperationConverter());
   }
 }

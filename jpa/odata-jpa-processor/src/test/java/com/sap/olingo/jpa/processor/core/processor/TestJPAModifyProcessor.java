@@ -47,7 +47,6 @@ import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.processor.core.api.JPAAbstractCUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataTransactionFactory;
 import com.sap.olingo.jpa.processor.core.api.JPAODataTransactionFactory.JPAODataTransaction;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
@@ -83,7 +82,6 @@ abstract class TestJPAModifyProcessor {
   protected JPACUDRequestProcessor processor;
   protected OData odata;
   protected ServiceMetadata serviceMetadata;
-  protected JPAODataSessionContextAccess sessionContext;
   protected JPAODataRequestContextAccess requestContext;
   protected UriInfo uriInfo;
   protected UriResourceEntitySet uriEts;
@@ -103,7 +101,6 @@ abstract class TestJPAModifyProcessor {
   @BeforeEach
   public void setup() throws Exception {
     odata = OData.newInstance();
-    sessionContext = mock(JPAODataSessionContextAccess.class);
     requestContext = mock(JPAODataRequestContextAccess.class);
     serviceMetadata = mock(ServiceMetadata.class);
     uriInfo = mock(UriInfo.class);
@@ -120,7 +117,7 @@ abstract class TestJPAModifyProcessor {
     debugger = mock(JPAServiceDebugger.class);
     factory = mock(JPAODataTransactionFactory.class);
 
-    when(sessionContext.getEdmProvider()).thenReturn(jpaEdm);
+    when(requestContext.getEdmProvider()).thenReturn(jpaEdm);
     when(requestContext.getDebugger()).thenReturn(debugger);
     when(requestContext.getEntityManager()).thenReturn(em);
     when(requestContext.getUriInfo()).thenReturn(uriInfo);
@@ -133,7 +130,7 @@ abstract class TestJPAModifyProcessor {
     when(ets.getName()).thenReturn("Organizations");
     when(factory.createTransaction()).thenReturn(transaction);
     when(etsInfo.getEdmBindingTarget()).thenReturn(ets);
-    processor = new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext, convHelper);
+    processor = new JPACUDRequestProcessor(odata, serviceMetadata, requestContext, convHelper);
 
   }
 
@@ -244,7 +241,7 @@ abstract class TestJPAModifyProcessor {
 
     final ODataRequest request = mock(ODataRequest.class);
     when(request.getHeaders(HttpHeader.PREFER)).thenReturn(header);
-    when(sessionContext.getEdmProvider()).thenReturn(jpaEdm);
+    when(requestContext.getEdmProvider()).thenReturn(jpaEdm);
     when(etsInfo.getEdmBindingTarget()).thenReturn(ets);
     header.add(content);
 

@@ -58,7 +58,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
@@ -72,38 +71,34 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
   protected final CriteriaQuery<Tuple> cq;
   protected Root<?> root; // Start of an navigation
   protected From<?, ?> target; // The entity that shall be returned by the query
-  protected final JPAODataSessionContextAccess context;
   protected final JPAODataPage page;
   protected final List<JPANavigationPropertyInfo> navigationInfo;
   protected final JPANavigationPropertyInfo lastInfo;
   protected final JPAODataRequestContextAccess requestContext;
 
-  JPAAbstractJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
-      final JPAEntityType jpaEntityType, final JPAODataRequestContextAccess requestContext,
-      final List<JPANavigationPropertyInfo> navigationInfo)
-      throws ODataException {
-
-    this(odata, sessionContext, jpaEntityType, requestContext.getUriInfo(), requestContext, navigationInfo);
-  }
-
-  JPAAbstractJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
+  JPAAbstractJoinQuery(final OData odata, final JPAEntityType jpaEntityType,
       final JPAODataRequestContextAccess requestContext, final List<JPANavigationPropertyInfo> navigationInfo)
       throws ODataException {
-    this(odata, sessionContext, navigationInfo.get(0).getEntityType(), requestContext.getUriInfo(), requestContext,
+
+    this(odata, jpaEntityType, requestContext.getUriInfo(), requestContext, navigationInfo);
+  }
+
+  JPAAbstractJoinQuery(final OData odata, final JPAODataRequestContextAccess requestContext,
+      final List<JPANavigationPropertyInfo> navigationInfo)
+      throws ODataException {
+    this(odata, navigationInfo.get(0).getEntityType(), requestContext.getUriInfo(), requestContext,
         navigationInfo);
   }
 
-  JPAAbstractJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
-      final JPAEntityType jpaEntityType, final UriInfoResource uriInfo,
-      final JPAODataRequestContextAccess requestContext,
-      final List<JPANavigationPropertyInfo> navigationInfo) throws ODataException {
+  JPAAbstractJoinQuery(final OData odata, final JPAEntityType jpaEntityType, final UriInfoResource uriInfo,
+      final JPAODataRequestContextAccess requestContext, final List<JPANavigationPropertyInfo> navigationInfo)
+      throws ODataException {
 
-    super(odata, sessionContext.getEdmProvider().getServiceDocument(), jpaEntityType, requestContext);
+    super(odata, jpaEntityType, requestContext);
     this.requestContext = requestContext;
     this.locale = requestContext.getLocale();
     this.uriResource = uriInfo;
     this.cq = cb.createTupleQuery();
-    this.context = sessionContext;
     this.page = requestContext.getPage();
     this.navigationInfo = navigationInfo;
     this.lastInfo = determineLastInfo(navigationInfo);
@@ -342,7 +337,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
 
     if (uriInfo.getSearchOption() != null && uriInfo.getSearchOption().getSearchExpression() != null)
       whereCondition = addWhereClause(whereCondition,
-          context.getDatabaseProcessor().createSearchWhereClause(cb, this.cq, target, jpaEntity, uriInfo
+          requestContext.getDatabaseProcessor().createSearchWhereClause(cb, this.cq, target, jpaEntity, uriInfo
               .getSearchOption()));
     final Optional<EdmQueryExtensionProvider> queryEnhancement = requestContext.getQueryEnhancement(jpaEntity);
     if (queryEnhancement.isPresent()) {
@@ -426,8 +421,8 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
   }
 
   @Override
-  JPAODataSessionContextAccess getContext() {
-    return context;
+  JPAODataRequestContextAccess getContext() {
+    return requestContext;
   }
 
   private void addCollection(final Map<String, From<?, ?>> joinTables, final JPAPath path,
@@ -681,7 +676,7 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
   }
 
   private void createFromClauseCollectionsJoins(final HashMap<String, From<?, ?>> joinTables)
-      throws ODataJPAQueryException {
+      throws ODataJPAQueryException, ODataJPAProcessorException {
 
     try {
       if (lastInfo.getAssociationPath() != null
@@ -697,12 +692,12 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
         }
         joinTables.put(lastInfo.getAssociationPath().getAlias(), p);
         final JPAEntityType targetEt = (JPAEntityType) ((JPAAssociationAttribute) element).getTargetEntity(); // NOSONAR
-        final JPAOperationConverter converter = new JPAOperationConverter(cb, context.getOperationConverter());
+        final JPAOperationConverter converter = new JPAOperationConverter(cb, requestContext.getOperationConverter());
         final JPAODataRequestContextAccess subContext = new JPAODataInternalRequestContext(uriResource, requestContext);
         lastInfo.setFilterCompiler(new JPAFilterCrossComplier(odata, sd, targetEt, converter, this, p,
             lastInfo.getAssociationPath(), subContext));
       } else {
-        final JPAOperationConverter converter = new JPAOperationConverter(cb, context.getOperationConverter());
+        final JPAOperationConverter converter = new JPAOperationConverter(cb, requestContext.getOperationConverter());
         final JPAODataRequestContextAccess subContext = new JPAODataInternalRequestContext(uriResource, requestContext);
         lastInfo.setFilterCompiler(new JPAFilterCrossComplier(odata, sd, jpaEntity, converter, this, lastInfo
             .getAssociationPath(), subContext));
@@ -717,9 +712,10 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
    * Completes NavigationInfo and add Joins for navigation parts e.g. from <code>../Organizations('3')/Roles</code>
    * @param joinTables
    * @throws ODataJPAQueryException
+   * @throws ODataJPAProcessorException
    */
   protected final void createFromClauseNavigationJoins(final HashMap<String, From<?, ?>> joinTables)
-      throws ODataJPAQueryException {
+      throws ODataJPAQueryException, ODataJPAProcessorException {
 
     for (int i = 0; i < this.navigationInfo.size() - 1; i++) {
       final JPANavigationPropertyInfo naviInfo = this.navigationInfo.get(i);
@@ -743,9 +739,10 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
     }
   }
 
-  protected final void addFilterCompiler(final JPANavigationPropertyInfo navigationInfo) throws ODataJPAModelException {
+  protected final void addFilterCompiler(final JPANavigationPropertyInfo navigationInfo) throws ODataJPAModelException,
+      ODataJPAProcessorException {
 
-    final JPAOperationConverter converter = new JPAOperationConverter(cb, context.getOperationConverter());
+    final JPAOperationConverter converter = new JPAOperationConverter(cb, requestContext.getOperationConverter());
     final JPAODataRequestContextAccess subContext = new JPAODataInternalRequestContext(navigationInfo.getUriInfo(),
         requestContext);
     navigationInfo.setFilterCompiler(new JPAFilterCrossComplier(odata, sd, navigationInfo.getEntityType(), converter,

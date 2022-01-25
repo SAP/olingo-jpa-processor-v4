@@ -13,8 +13,8 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException.MessageKeys;
 
 /**
- * 
- * 
+ *
+ *
  * @author Oliver Grande
  * Created: 01.11.2019
  *
@@ -31,15 +31,14 @@ class SelectOptionUtil {
     try {
       final String pathItem = sItem.getResourcePath().getUriResourceParts().stream().map(path -> (path
           .getSegmentValue())).collect(Collectors.joining(JPAPath.PATH_SEPARATOR));
-      JPAPath selectItemPath;
 
-      selectItemPath = jpaEntity.getPath(pathPrefix.isEmpty() ? pathItem : pathPrefix
+      final JPAPath selectItemPath = jpaEntity.getPath(pathPrefix.isEmpty() ? pathItem : pathPrefix
           + JPAPath.PATH_SEPARATOR + pathItem);
       if (selectItemPath == null)
         throw new ODataJPAQueryException(MessageKeys.QUERY_PREPARATION_INVALID_SELECTION_PATH,
             HttpStatusCode.BAD_REQUEST);
       return selectItemPath;
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
   }

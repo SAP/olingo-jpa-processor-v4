@@ -32,7 +32,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaQuery;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 /**
@@ -44,12 +43,11 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
  */
 public final class JPAExpandSubCountQuery extends JPAAbstractExpandQuery {
 
-  public JPAExpandSubCountQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
-      final JPAODataRequestContextAccess requestContext, final JPAEntityType et,
-      final JPAAssociationPath association, final List<JPANavigationPropertyInfo> hops)
+  public JPAExpandSubCountQuery(final OData odata, final JPAODataRequestContextAccess requestContext,
+      final JPAEntityType et, final JPAAssociationPath association, final List<JPANavigationPropertyInfo> hops)
       throws ODataException {
 
-    super(odata, sessionContext, requestContext, et, association, copyHops(hops));
+    super(odata, requestContext, et, association, copyHops(hops));
   }
 
   private static List<JPANavigationPropertyInfo> copyHops(final List<JPANavigationPropertyInfo> hops) {
@@ -124,7 +122,7 @@ public final class JPAExpandSubCountQuery extends JPAAbstractExpandQuery {
           if (hop.getUriInfo() != null) {
             final JPAAbstractQuery parent = hops.getLast();
             final JPAAssociationPath childAssociation = i > 0 ? navigationInfo.get(i - 1).getAssociationPath() : null;
-            hops.push(new JPAExpandFilterQuery(odata, context, requestContext, hop, parent, childAssociation));
+            hops.push(new JPAExpandFilterQuery(odata, requestContext, hop, parent, childAssociation));
           }
         }
         Subquery<Object> sq = null;

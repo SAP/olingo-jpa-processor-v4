@@ -232,8 +232,7 @@ class TestJPADeleteProcessor extends TestJPAModifyProcessor {
     when(factory.hasActiveTransaction()).thenReturn(Boolean.TRUE);
     when(requestContext.getEntityManager()).thenReturn(em);
 
-    processor = new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext,
-        new JPAConversionHelper());
+    processor = new JPACUDRequestProcessor(odata, serviceMetadata, requestContext, new JPAConversionHelper());
 
     processor.deleteEntity(request, response);
     assertEquals(0, spy.noValidateCalls);
@@ -268,8 +267,7 @@ class TestJPADeleteProcessor extends TestJPAModifyProcessor {
     final JPACUDRequestHandler handler = mock(JPACUDRequestHandler.class);
     when(requestContext.getCUDRequestHandler()).thenReturn(handler);
 
-    processor = new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext,
-        new JPAConversionHelper());
+    processor = new JPACUDRequestProcessor(odata, serviceMetadata, requestContext, new JPAConversionHelper());
 
     doThrow(new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_DELETE,
         HttpStatusCode.BAD_REQUEST)).when(handler).validateChanges(em);

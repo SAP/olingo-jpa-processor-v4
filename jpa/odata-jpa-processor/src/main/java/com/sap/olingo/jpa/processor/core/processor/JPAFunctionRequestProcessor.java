@@ -36,7 +36,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAJavaFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPADBAdaptorException;
@@ -52,10 +51,10 @@ public final class JPAFunctionRequestProcessor extends JPAOperationRequestProces
 
   private final JPAODataDatabaseProcessor dbProcessor;
 
-  public JPAFunctionRequestProcessor(final OData odata, final JPAODataSessionContextAccess context,
-      final JPAODataRequestContextAccess requestContext) throws ODataException {
-    super(odata, context, requestContext);
-    this.dbProcessor = context.getDatabaseProcessor();
+  public JPAFunctionRequestProcessor(final OData odata, final JPAODataRequestContextAccess requestContext)
+      throws ODataException {
+    super(odata, requestContext);
+    this.dbProcessor = requestContext.getDatabaseProcessor();
   }
 
   @Override

@@ -34,7 +34,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
@@ -43,7 +42,6 @@ import com.sap.olingo.jpa.processor.core.util.TestHelper;
 class TestJPAExpandJoinQuery extends TestBase {
   private JPAExpandJoinQuery cut;
   private EntityManager em;
-  private JPAODataSessionContextAccess sessionContext;
   private JPAODataRequestContextAccess requestContext;
   private TestHelper helper;
   private JPAKeyPair orgPair;
@@ -58,7 +56,6 @@ class TestJPAExpandJoinQuery extends TestBase {
     createHeaders();
     helper = new TestHelper(emf, PUNIT_NAME);
     em = emf.createEntityManager();
-    sessionContext = mock(JPAODataSessionContextAccess.class);
     requestContext = mock(JPAODataRequestContextAccess.class);
     orgPair = new JPAKeyPair(helper.getJPAEntityType("Organizations").getKey());
     orgBoundary = Optional.of(new JPAKeyBoundary(1, orgPair));
@@ -66,20 +63,20 @@ class TestJPAExpandJoinQuery extends TestBase {
     adminBoundary = Optional.of(new JPAKeyBoundary(1, adminPair));
     final JPAServiceDebugger debugger = mock(JPAServiceDebugger.class);
 
-    when(sessionContext.getEdmProvider()).thenReturn(helper.edmProvider);
-    when(sessionContext.getOperationConverter()).thenReturn(new JPADefaultDatabaseProcessor());
     when(requestContext.getDebugger()).thenReturn(debugger);
     when(requestContext.getClaimsProvider()).thenReturn(Optional.empty());
     when(requestContext.getEntityManager()).thenReturn(em);
     when(requestContext.getHeader()).thenReturn(mock(JPAHttpHeaderMap.class));
     when(requestContext.getRequestParameter()).thenReturn(mock(JPARequestParameterMap.class));
+    when(requestContext.getEdmProvider()).thenReturn(helper.edmProvider);
+    when(requestContext.getOperationConverter()).thenReturn(new JPADefaultDatabaseProcessor());
   }
 
   @Test
   void testSelectAllWithAllExpand() throws ODataException {
     // .../Organizations?$expand=Roles&$format=json
     final JPAInlineItemInfo item = createOrgExpandRoles(null, null);
-    cut = new JPAExpandJoinQuery(OData.newInstance(), sessionContext, item, requestContext, Optional.empty());
+    cut = new JPAExpandJoinQuery(OData.newInstance(), item, requestContext, Optional.empty());
     final JPAExpandQueryResult act = cut.execute();
     assertEquals(4, act.getNoResults());
     assertEquals(7, act.getNoResultsDeep());
@@ -96,7 +93,7 @@ class TestJPAExpandJoinQuery extends TestBase {
     keyPredicates.add(key);
     final JPAInlineItemInfo item = createOrgExpandRoles(keyPredicates, null);
 
-    cut = new JPAExpandJoinQuery(OData.newInstance(), sessionContext, item, requestContext, Optional.empty());
+    cut = new JPAExpandJoinQuery(OData.newInstance(), item, requestContext, Optional.empty());
     final JPAExpandQueryResult act = cut.execute();
     assertEquals(1, act.getNoResults());
     assertEquals(2, act.getNoResultsDeep());
@@ -107,7 +104,7 @@ class TestJPAExpandJoinQuery extends TestBase {
     // .../Organizations?$expand=Roles&$skip=2&$format=json
     final JPAInlineItemInfo item = createOrgExpandRoles(null, null);
     setSimpleKey(3);
-    cut = new JPAExpandJoinQuery(OData.newInstance(), sessionContext, item, requestContext, orgBoundary);
+    cut = new JPAExpandJoinQuery(OData.newInstance(), item, requestContext, orgBoundary);
     final JPAExpandQueryResult act = cut.execute();
     assertTrue(cut.getSQLString().contains(".\"ID\" = ?"));
     assertEquals(1, act.getNoResults());
@@ -119,7 +116,7 @@ class TestJPAExpandJoinQuery extends TestBase {
     // .../Organizations?$expand=Roles&$skip=2&$format=json
     final JPAInlineItemInfo item = createAdminDivExpandChildren(null, null);
     setComplexKey("Eurostat", "NUTS1", "BE2");
-    cut = new JPAExpandJoinQuery(OData.newInstance(), sessionContext, item, requestContext, adminBoundary);
+    cut = new JPAExpandJoinQuery(OData.newInstance(), item, requestContext, adminBoundary);
     final JPAExpandQueryResult act = cut.execute();
     assertTrue(cut.getSQLString().contains(
         "(((t1.\"DivisionCode\" = ?) AND (t1.\"CodeID\" = ?)) AND (t1.\"CodePublisher\" = ?)) "));
@@ -133,7 +130,7 @@ class TestJPAExpandJoinQuery extends TestBase {
     final JPAInlineItemInfo item = createOrgExpandRoles(null, null);
     setSimpleKey(2);
     setSimpleKey(1);
-    cut = new JPAExpandJoinQuery(OData.newInstance(), sessionContext, item, requestContext, orgBoundary);
+    cut = new JPAExpandJoinQuery(OData.newInstance(), item, requestContext, orgBoundary);
     final JPAExpandQueryResult act = cut.execute();
     assertTrue(cut.getSQLString().contains(".\"ID\" >= ?"));
     assertTrue(cut.getSQLString().contains(".\"ID\" <= ?"));
@@ -147,7 +144,7 @@ class TestJPAExpandJoinQuery extends TestBase {
     final JPAInlineItemInfo item = createAdminDivExpandChildren(null, null);
     setComplexKey("Eurostat", "NUTS1", "BE1");
     setComplexKey("Eurostat", "NUTS2", "BE25");
-    cut = new JPAExpandJoinQuery(OData.newInstance(), sessionContext, item, requestContext, adminBoundary);
+    cut = new JPAExpandJoinQuery(OData.newInstance(), item, requestContext, adminBoundary);
     final JPAExpandQueryResult act = cut.execute();
     assertTrue(cut.getSQLString().contains(
         "(((t1.\"DivisionCode\" >= ?) AND (t1.\"CodeID\" = ?)) AND (t1.\"CodePublisher\" = ?))"));
@@ -165,7 +162,7 @@ class TestJPAExpandJoinQuery extends TestBase {
   void testSQLStringNotEmptyAfterExecute() throws ODataException {
     // .../Organizations?$expand=Roles&$format=json
     final JPAInlineItemInfo item = createOrgExpandRoles(null, null);
-    cut = new JPAExpandJoinQuery(OData.newInstance(), sessionContext, item, requestContext, Optional.empty());
+    cut = new JPAExpandJoinQuery(OData.newInstance(), item, requestContext, Optional.empty());
     assertTrue(cut.getSQLString().isEmpty());
     cut.execute();
     assertFalse(cut.getSQLString().isEmpty());

@@ -345,7 +345,7 @@ class TestJPACreateProcessor extends TestJPAModifyProcessor {
     when(requestContext.getSerializer()).thenReturn(jpaSerializer);
     when(requestContext.getCalculator(any())).thenReturn(Optional.of(new FullNameCalculator()));
     when(ets.getName()).thenReturn("Persons");
-    processor = new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext, convHelper);
+    processor = new JPACUDRequestProcessor(odata, serviceMetadata, requestContext, convHelper);
     final Person person = new Person();
     person.setID("35");
     person.setFirstName("Willi");
@@ -529,7 +529,7 @@ class TestJPACreateProcessor extends TestJPAModifyProcessor {
     when(convHelper.buildGetterMap(child)).thenReturn(new JPAConversionHelper().determineGetter(child));
     pathParts.add(uriChild);
 
-    processor = new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext, convHelper);
+    processor = new JPACUDRequestProcessor(odata, serviceMetadata, requestContext, convHelper);
     processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
 
     assertNotNull(spy.requestEntity.getKeys());
@@ -591,7 +591,7 @@ class TestJPACreateProcessor extends TestJPAModifyProcessor {
     pathParts.add(uriChild);
     // return serviceMetadata.getEdm().getEntityType(es.getODataEntityType().getExternalFQN());
     // com.sap.olingo.jpa.BusinessPartnerRole
-    processor = new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext, convHelper);
+    processor = new JPACUDRequestProcessor(odata, serviceMetadata, requestContext, convHelper);
     processor.createEntity(request, response, ContentType.JSON, ContentType.JSON);
 
     assertNotNull(spy.requestEntity.getKeys());

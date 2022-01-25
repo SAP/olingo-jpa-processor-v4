@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nonnull;
 import javax.persistence.Tuple;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
@@ -30,7 +31,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 /**
@@ -43,13 +43,13 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 public final class JPAExpandJoinCountQuery extends JPAAbstractExpandQuery {
   private final Optional<JPAKeyBoundary> keyBoundary;
 
-  public JPAExpandJoinCountQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
+  public JPAExpandJoinCountQuery(final OData odata,
       final JPAODataRequestContextAccess requestContext, final JPAEntityType et,
       final JPAAssociationPath association, final List<JPANavigationPropertyInfo> hops,
       final Optional<JPAKeyBoundary> keyBoundary)
       throws ODataException {
 
-    super(odata, sessionContext, requestContext, et, association, copyHops(hops));
+    super(odata, requestContext, et, association, copyHops(hops));
     this.keyBoundary = keyBoundary;
   }
 
@@ -84,7 +84,7 @@ public final class JPAExpandJoinCountQuery extends JPAAbstractExpandQuery {
   }
 
   @Override
-  protected JPAAssociationPath getAssociation(final JPAInlineItemInfo item) {
+  protected JPAAssociationPath getAssociation(@Nonnull final JPAInlineItemInfo item) {
     return item.hops.get(item.hops.size() - 2).getAssociationPath();
   }
 

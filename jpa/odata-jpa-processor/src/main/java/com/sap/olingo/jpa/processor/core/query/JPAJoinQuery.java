@@ -29,37 +29,36 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery {
 
   private static List<JPANavigationPropertyInfo> determineNavigationInfo(
-      final JPAODataSessionContextAccess sessionContext, final UriInfoResource uriResource) throws ODataException {
+      final JPAServiceDocument sd, final UriInfoResource uriResource) throws ODataException {
 
-    return Util.determineNavigationPath(sessionContext.getEdmProvider().getServiceDocument(), uriResource
-        .getUriResourceParts(), uriResource);
+    return Util.determineNavigationPath(sd, uriResource.getUriResourceParts(), uriResource);
   }
 
-  private static JPAEntityType determineTargetEntityType(final JPAODataSessionContextAccess sessionContext,
-      final JPAODataRequestContextAccess requestContext) throws ODataException {
+  private static JPAEntityType determineTargetEntityType(final JPAODataRequestContextAccess requestContext)
+      throws ODataException {
 
     final List<UriResource> resources = requestContext.getUriInfo().getUriResourceParts();
     final EdmBindingTarget bindingTarget = Util.determineBindingTarget(resources);
     if (bindingTarget instanceof EdmBoundCast)
-      return sessionContext.getEdmProvider().getServiceDocument().getEntity(bindingTarget.getEntityType());
-    return sessionContext.getEdmProvider().getServiceDocument().getEntity(bindingTarget.getName());
+      return requestContext.getEdmProvider().getServiceDocument().getEntity(bindingTarget.getEntityType());
+    return requestContext.getEdmProvider().getServiceDocument().getEntity(bindingTarget.getName());
   }
 
   @Nonnull
-  private static JPAEntityType determineODataTargetEntityType(final JPAODataSessionContextAccess sessionContext,
-      final JPAODataRequestContextAccess requestContext) throws ODataApplicationException {
+  private static JPAEntityType determineODataTargetEntityType(final JPAODataRequestContextAccess requestContext)
+      throws ODataApplicationException {
 
     final List<UriResource> resources = requestContext.getUriInfo().getUriResourceParts();
     try {
       final EdmBindingTarget bindingTarget = Util.determineBindingTarget(resources);
-      return Optional.ofNullable(sessionContext.getEdmProvider().getServiceDocument()
+      return Optional.ofNullable(requestContext.getEdmProvider().getServiceDocument()
           .getEntity(bindingTarget.getEntityType()))
           .orElseThrow(() -> new ODataJPAQueryException(QUERY_PREPARATION_ENTITY_UNKNOWN, INTERNAL_SERVER_ERROR,
               bindingTarget.getEntityType().getName()));
@@ -68,12 +67,12 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
     }
   }
 
-  public JPAJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
-      final JPAODataRequestContextAccess requestContext)
+  public JPAJoinQuery(final OData odata, final JPAODataRequestContextAccess requestContext)
       throws ODataException {
 
-    super(odata, sessionContext, determineTargetEntityType(sessionContext, requestContext),
-        requestContext, determineNavigationInfo(sessionContext, requestContext.getUriInfo()));
+    super(odata, determineTargetEntityType(requestContext),
+        requestContext, determineNavigationInfo(requestContext.getEdmProvider().getServiceDocument(), requestContext
+            .getUriInfo()));
   }
 
   /**
@@ -181,7 +180,7 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
 
   private JPAConvertibleResult returnResult(@Nonnull final Collection<JPAPath> selectionPath,
       final HashMap<String, List<Tuple>> result) throws ODataApplicationException {
-    final JPAEntityType odataEntityType = determineODataTargetEntityType(context, requestContext);
+    final JPAEntityType odataEntityType = determineODataTargetEntityType(requestContext);
     if (lastInfo.getAssociationPath() != null
         && (lastInfo.getAssociationPath().getLeaf() instanceof JPACollectionAttribute))
       return new JPACollectionQueryResult(result, null, odataEntityType, lastInfo.getAssociationPath(), selectionPath);

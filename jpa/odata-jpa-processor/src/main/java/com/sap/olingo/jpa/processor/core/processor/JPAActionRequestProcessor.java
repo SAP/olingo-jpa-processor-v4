@@ -29,15 +29,14 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
 
 public class JPAActionRequestProcessor extends JPAOperationRequestProcessor {
 
-  public JPAActionRequestProcessor(final OData odata, final JPAODataSessionContextAccess sessionContext,
-      final JPAODataRequestContextAccess requestContext) throws ODataException {
-    super(odata, sessionContext, requestContext);
+  public JPAActionRequestProcessor(final OData odata, final JPAODataRequestContextAccess requestContext)
+      throws ODataException {
+    super(odata, requestContext);
   }
 
   public void performAction(final ODataRequest request, final ODataResponse response, final ContentType requestFormat)

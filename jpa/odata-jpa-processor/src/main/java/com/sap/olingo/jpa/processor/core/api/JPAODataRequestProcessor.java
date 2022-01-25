@@ -199,6 +199,7 @@ public final class JPAODataRequestProcessor
           requestContext);
       p.retrieveData(request, response, responseFormat);
     } catch (ODataApplicationException | ODataLibraryException e) {
+      requestContext.getDebugger().debug(this, e.getMessage());
       throw e;
     } catch (final ODataException e) {
       throw new ODataApplicationException(e.getLocalizedMessage(),
@@ -214,6 +215,7 @@ public final class JPAODataRequestProcessor
           requestContext);
       p.retrieveData(request, response, responseFormat);
     } catch (ODataApplicationException | ODataLibraryException e) {
+      requestContext.getDebugger().debug(this, e.getMessage());
       throw e;
     } catch (final ODataException e) {
       throw new ODataApplicationException(e.getLocalizedMessage(),
@@ -230,6 +232,7 @@ public final class JPAODataRequestProcessor
           requestContext);
       p.retrieveData(request, response, responseFormat);
     } catch (ODataApplicationException | ODataLibraryException e) {
+      requestContext.getDebugger().debug(this, e.getMessage());
       throw e;
     } catch (final ODataException e) {
       throw new ODataApplicationException(e.getLocalizedMessage(),
@@ -246,7 +249,7 @@ public final class JPAODataRequestProcessor
           requestContext);
       p.retrieveData(request, response, responseFormat);
     } catch (ODataApplicationException | ODataLibraryException e) {
-      requestContext.getDebugger().debug(this, e.getMessage(), new Object[0]);
+      requestContext.getDebugger().debug(this, e.getMessage());
       throw e;
     } catch (final ODataException e) {
       throw new ODataApplicationException(e.getLocalizedMessage(),
@@ -262,6 +265,7 @@ public final class JPAODataRequestProcessor
           requestContext);
       p.retrieveData(request, response, responseFormat);
     } catch (ODataApplicationException | ODataLibraryException e) {
+      requestContext.getDebugger().debug(this, e.getMessage());
       throw e;
     } catch (final ODataException e) {
       throw new ODataApplicationException(e.getLocalizedMessage(),
@@ -278,6 +282,7 @@ public final class JPAODataRequestProcessor
           requestContext);
       p.retrieveData(request, response, responseFormat);
     } catch (ODataApplicationException | ODataLibraryException e) {
+      requestContext.getDebugger().debug(this, e.getMessage());
       throw e;
     } catch (final ODataException e) {
       throw new ODataApplicationException(e.getLocalizedMessage(),
@@ -294,6 +299,7 @@ public final class JPAODataRequestProcessor
           requestContext);
       p.retrieveData(request, response, responseFormat);
     } catch (ODataApplicationException | ODataLibraryException e) {
+      requestContext.getDebugger().debug(this, e.getMessage());
       throw e;
     } catch (final ODataException e) {
       throw new ODataApplicationException(e.getLocalizedMessage(),
@@ -311,6 +317,7 @@ public final class JPAODataRequestProcessor
           requestContext);
       p.retrieveData(request, response, responseFormat);
     } catch (ODataApplicationException | ODataLibraryException e) {
+      requestContext.getDebugger().debug(this, e.getMessage());
       throw e;
     } catch (final ODataException e) {
       throw new ODataApplicationException(e.getLocalizedMessage(),

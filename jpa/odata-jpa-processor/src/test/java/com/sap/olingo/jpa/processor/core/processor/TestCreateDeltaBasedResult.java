@@ -33,7 +33,7 @@ class TestCreateDeltaBasedResult extends TestJPAModifyProcessor {
   @Override
   public void setup() throws Exception {
     super.setup();
-    cut = new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext, new JPAConversionHelper());
+    cut = new JPACUDRequestProcessor(odata, serviceMetadata, requestContext, new JPAConversionHelper());
     pathElements = new ArrayList<>(3);
     path = mock(JPAAssociationPath.class);
 

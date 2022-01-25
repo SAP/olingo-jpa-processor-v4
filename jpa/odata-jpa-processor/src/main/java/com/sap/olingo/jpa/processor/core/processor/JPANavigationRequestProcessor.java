@@ -35,7 +35,6 @@ import org.apache.olingo.server.api.uri.queryoption.SystemQueryOptionKind;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPANotImplementedException;
@@ -60,10 +59,10 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
   private final JPAODataPage page;
 
   public JPANavigationRequestProcessor(final OData odata, final ServiceMetadata serviceMetadata,
-      final JPAODataSessionContextAccess context, final JPAODataRequestContextAccess requestContext)
+      final JPAODataRequestContextAccess requestContext)
       throws ODataException {
 
-    super(odata, context, requestContext);
+    super(odata, requestContext);
     this.serviceMetadata = serviceMetadata;
     final List<UriResource> resourceParts = uriInfo.getUriResourceParts();
     this.lastItem = resourceParts.get(resourceParts.size() - 1);
@@ -79,7 +78,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     // Create a JPQL Query and execute it
     JPAJoinQuery query = null;
     try {
-      query = new JPAJoinQuery(odata, sessionContext, requestContext);
+      query = new JPAJoinQuery(odata, requestContext);
     } catch (final ODataException e) {
       debugger.stopRuntimeMeasurement(handle);
       throw new ODataJPAProcessorException(QUERY_PREPARATION_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR, e);
@@ -106,7 +105,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     // Count results if requested
     final CountOption countOption = uriInfo.getCountOption();
     if (countOption != null && countOption.getValue())
-      entityCollection.setCount(new JPAJoinQuery(odata, sessionContext, requestContext)
+      entityCollection.setCount(new JPAJoinQuery(odata, requestContext)
           .countResults().intValue());
 
     /*
@@ -264,7 +263,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
       final Optional<JPAKeyBoundary> keyBoundary) throws ODataException {
 
     final int handle = debugger.startRuntimeMeasurement(this, "readExpandEntities");
-    final JPAExpandQueryFactory factory = new JPAExpandQueryFactory(odata, sessionContext, requestContext, cb);
+    final JPAExpandQueryFactory factory = new JPAExpandQueryFactory(odata, requestContext, cb);
     final Map<JPAAssociationPath, JPAExpandResult> allExpResults = new HashMap<>();
     // x/a?$expand=b/c($expand=d,e/f)&$filter=...&$top=3&$orderBy=...
     // For performance reasons the expand query should only return results for the results of the higher-level query.
@@ -290,7 +289,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
     final List<JPACollectionItemInfo> collectionInfoList = new JPAExpandItemInfoFactory()
         .buildCollectionItemInfo(sd, uriResourceInfo, parentHops, requestContext.getGroupsProvider());
     for (final JPACollectionItemInfo item : collectionInfoList) {
-      final JPACollectionJoinQuery collectionQuery = new JPACollectionJoinQuery(odata, sessionContext, item,
+      final JPACollectionJoinQuery collectionQuery = new JPACollectionJoinQuery(odata, item,
           new JPAODataInternalRequestContext(item.getUriInfo(), requestContext, headers), keyBoundary);
       final JPAExpandResult expandResult = collectionQuery.execute();
       allExpResults.put(item.getExpandAssociation(), expandResult);

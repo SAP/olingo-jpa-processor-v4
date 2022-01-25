@@ -32,33 +32,31 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 public abstract class JPAAbstractExpandQuery extends JPAAbstractJoinQuery {
 
   protected final JPAAssociationPath association;
 
-  JPAAbstractExpandQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
+  JPAAbstractExpandQuery(final OData odata,
       final JPAEntityType jpaEntityType, final JPAODataRequestContextAccess requestContext,
       final JPAAssociationPath association) throws ODataException {
 
-    super(odata, sessionContext, jpaEntityType, requestContext, emptyList());
+    super(odata, jpaEntityType, requestContext, emptyList());
     this.association = association;
   }
 
-  JPAAbstractExpandQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
-      final JPAODataRequestContextAccess requestContext, final JPAInlineItemInfo item) throws ODataException {
+  JPAAbstractExpandQuery(final OData odata, final JPAODataRequestContextAccess requestContext,
+      final JPAInlineItemInfo item) throws ODataException {
 
-    super(odata, sessionContext, item.getEntityType(), item.getUriInfo(), requestContext, item.getHops());
+    super(odata, item.getEntityType(), item.getUriInfo(), requestContext, item.getHops());
     this.association = getAssociation(item);
   }
 
-  JPAAbstractExpandQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
-      final JPAODataRequestContextAccess requestContext, final JPAEntityType et, final JPAAssociationPath association,
-      final List<JPANavigationPropertyInfo> hops) throws ODataException {
+  JPAAbstractExpandQuery(final OData odata, final JPAODataRequestContextAccess requestContext, final JPAEntityType et,
+      final JPAAssociationPath association, final List<JPANavigationPropertyInfo> hops) throws ODataException {
 
-    super(odata, sessionContext, et, requestContext, hops);
+    super(odata, et, requestContext, hops);
     this.association = association;
   }
 

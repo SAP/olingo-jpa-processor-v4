@@ -23,7 +23,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaOneFun
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaPrivateConstructor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaTwoParameterConstructor;
 
-class TestIntermediateJavaFunction extends TestMappingRoot {
+class IntermediateJavaFunctionTest extends TestMappingRoot {
   private TestHelper helper;
 
   @BeforeEach
@@ -233,13 +233,13 @@ class TestIntermediateJavaFunction extends TestMappingRoot {
   @Test
   void checkExceptConstructorWithoutParameter() throws ODataJPAModelException {
     final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "sum");
-    act.getEdmItem();
+    assertNotNull(act.getEdmItem());
   }
 
   @Test
   void checkExceptConstructorWithEntityManagerParameter() throws ODataJPAModelException {
     final IntermediateJavaFunction act = createFunction(ExampleJavaEmConstructor.class, "sum");
-    act.getEdmItem();
+    assertNotNull(act.getEdmItem());
   }
 
   @Test
