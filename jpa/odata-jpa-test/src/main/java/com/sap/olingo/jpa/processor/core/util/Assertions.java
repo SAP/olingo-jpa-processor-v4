@@ -25,7 +25,7 @@ public class Assertions {
       final String expMessageKey, final Integer expStatusCode) {
 
     try {
-      final T act = assertThrows(expectedType, executable);
+      final T act = assertThrows(expectedType, executable);  // NOSONAR
       final List<Method> methods = Arrays.asList(act.getClass().getMethods());
 
       if (hasMethod(methods, "getId")) {
@@ -42,11 +42,11 @@ public class Assertions {
     }
   }
 
-  private static boolean hasMethod(final List<Method> methods, String name) {
+  private static boolean hasMethod(final List<Method> methods, final String name) {
     return methods.stream().filter(m -> m.getName().equals(name)).count() > 0;
   }
 
-  public static <T> void assertListEquals(final List<T> exp, final List<T> act, Class<T> reflection) {
+  public static <T> void assertListEquals(final List<T> exp, final List<T> act, final Class<T> reflection) {
     assertEquals(exp.size(), act.size());
     boolean found;
     for (final T expItem : exp) {

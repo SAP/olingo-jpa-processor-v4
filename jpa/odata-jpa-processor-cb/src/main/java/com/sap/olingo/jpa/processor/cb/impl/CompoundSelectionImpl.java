@@ -49,9 +49,9 @@ final class CompoundSelectionImpl<X> implements CompoundSelection<X>, SqlSelecti
   @Override
   public StringBuilder asSQL(@Nonnull final StringBuilder statement) {
 
-    getCompoundSelectionItems().stream()
+    statement.append(getCompoundSelectionItems().stream()
         .map(s -> (Selection<?>) s) // NOSONAR
-        .collect(new StringBuilderCollector.SelectionCollector(statement, ", "));
+        .collect(new StringBuilderCollector.SelectionCollector(statement, ", ")));
     return statement;
   }
 

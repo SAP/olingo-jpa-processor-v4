@@ -74,6 +74,7 @@ import com.sap.olingo.jpa.processor.core.filter.JPAFilterComplier;
 import com.sap.olingo.jpa.processor.core.processor.JPAEmptyDebugger;
 
 public abstract class JPAAbstractQuery {
+  protected static final String PERMISSIONS_REGEX = ".*[\\*\\%\\+\\_].*";
   protected static final String SELECT_ITEM_SEPARATOR = ",";
   protected static final String SELECT_ALL = "*";
   protected static final String ROW_NUMBER_COLUMN_NAME = "rowNumber";
@@ -491,12 +492,12 @@ public abstract class JPAAbstractQuery {
     javax.persistence.criteria.Expression<Boolean> attributeRestriction = null;
     for (final JPAClaimsPair<?> value : values) { // for each given claim value
       if (value.hasUpperBoundary) {
-        if (wildcardsSupported && ((String) value.min).matches("[^\\*]*[\\*|\\%|\\+|\\_].*"))
+        if (wildcardsSupported && containsWildcard((String) value.min))
           throw new ODataJPAQueryException(WILDCARD_UPPER_NOT_SUPPORTED, HttpStatusCode.BAD_REQUEST);
         else
           attributeRestriction = orWhereClause(attributeRestriction, createBetween(value, p));
       } else {
-        if (wildcardsSupported && ((String) value.min).matches("^[^\\*]*[\\*|\\%|\\+|\\_].*"))
+        if (wildcardsSupported && containsWildcard((String) value.min))
           attributeRestriction = orWhereClause(attributeRestriction, cb.like((Path<String>) p,
               ((String) value.min).replace('*', '%').replace('+', '_')));
         else
@@ -504,6 +505,14 @@ public abstract class JPAAbstractQuery {
       }
     }
     return attributeRestriction;
+  }
+
+  private boolean containsWildcard(final String min) {
+    // TODO: Check regex usage after upgrade to java >= 9 min.matches(PERMISSIONS_REGEX)
+    return min.contains("*")
+        || min.contains("+")
+        || min.contains("%")
+        || min.contains("_");
   }
 
   private javax.persistence.criteria.Expression<?> determineLocalePath(final Join<?, ?> join,

@@ -85,7 +85,7 @@ class CriteriaQueryImpl<T> implements ProcessorCriteriaQuery<T>, SqlConvertible 
     statement.append(" ")
         .append(SqlKeyWords.FROM)
         .append(" ");
-    roots.stream().collect(new StringBuilderCollector.ExpressionCollector(statement, ", "));
+    statement.append(roots.stream().collect(new StringBuilderCollector.ExpressionCollector(statement, ", ")));
     where.ifPresent(e -> {
       statement.append(" ")
           .append(SqlKeyWords.WHERE)
@@ -94,11 +94,11 @@ class CriteriaQueryImpl<T> implements ProcessorCriteriaQuery<T>, SqlConvertible 
     });
     groupBy.ifPresent(g -> {
       statement.append(" ").append(SqlKeyWords.GROUPBY).append(" ");
-      g.stream().collect(new StringBuilderCollector.ExpressionCollector(statement, ", "));
+      statement.append(g.stream().collect(new StringBuilderCollector.ExpressionCollector(statement, ", ")));
     });
     orderList.ifPresent(l -> {
       statement.append(" ").append(SqlKeyWords.ORDERBY).append(" ");
-      l.stream().collect(new StringBuilderCollector.OrderCollector(statement, ", "));
+      statement.append(l.stream().collect(new StringBuilderCollector.OrderCollector(statement, ", ")));
     });
     having.ifPresent(e -> {
       statement.append(" ")

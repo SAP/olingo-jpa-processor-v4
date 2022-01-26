@@ -72,7 +72,7 @@ class JoinTableJoin<Z, X> extends AbstractJoinImp<Z, X> {
         statement.append(OPENING_BRACKET);
       statement.append(association.getJoinTable().getTableName());
       tableAlias.ifPresent(p -> statement.append(" ").append(p));
-      getJoins().stream().collect(new StringBuilderCollector.ExpressionCollector(statement, " "));
+      statement.append(getJoins().stream().collect(new StringBuilderCollector.ExpressionCollector(statement, " ")));
       if (!getJoins().isEmpty())
         statement.append(CLOSING_BRACKET);
       statement.append(" ON ");

@@ -190,8 +190,7 @@ class TestCriteriaBuilder {
     restrictions[2] = cb.equal(adminDiv.get("codePublisher"), "Eurostat");
     count.where(cb.and(restrictions));
     final TypedQuery<Tuple> tq = em.createQuery(count);
-    tq.getResultList();
-    assertNotNull(tq.getFirstResult());
+    assertNotNull(tq.getResultList());
   }
 
   @Disabled("To be checked")

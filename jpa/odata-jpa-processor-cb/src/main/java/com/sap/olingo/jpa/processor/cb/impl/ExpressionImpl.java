@@ -209,7 +209,7 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
 
       statement.append(SqlKeyWords.COALESCE)
           .append(OPENING_BRACKET);
-      values.stream().collect(new StringBuilderCollector.ExpressionCollector(statement, ", "));
+      statement.append(values.stream().collect(new StringBuilderCollector.ExpressionCollector(statement, ", ")));
       return statement.append(CLOSING_BRACKET);
     }
 
@@ -261,9 +261,9 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
           final FromImpl<?, ?> from = ((FromImpl<?, ?>) left);
           statement.append(SqlKeyWords.DISTINCT)
               .append(OPENING_BRACKET);
-          from.st.getKey().stream()
+          statement.append(from.st.getKey().stream()
               .map(a -> from.get(a.getInternalName()))
-              .collect(new StringBuilderCollector.ExpressionCollector(statement, ", "));
+              .collect(new StringBuilderCollector.ExpressionCollector(statement, ", ")));
           return statement.append(CLOSING_BRACKET);
         } catch (final ODataJPAModelException e) {
           throw new IllegalStateException(e);
@@ -487,14 +487,14 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
             .append(" ")
             .append(SqlKeyWords.PARTITION)
             .append(" ");
-        p.stream().collect(new StringBuilderCollector.ExpressionCollector(statement, ", "));
+        statement.append(p.stream().collect(new StringBuilderCollector.ExpressionCollector(statement, ", ")));
       });
       orderBy.ifPresent(o -> {
         statement
             .append(" ")
             .append(SqlKeyWords.ORDERBY)
             .append(" ");
-        o.stream().collect(new StringBuilderCollector.OrderCollector(statement, ", "));
+        statement.append(o.stream().collect(new StringBuilderCollector.OrderCollector(statement, ", ")));
       });
       return statement.append(CLOSING_BRACKET);
     }

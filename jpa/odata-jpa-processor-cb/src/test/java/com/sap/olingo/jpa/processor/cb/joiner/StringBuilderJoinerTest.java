@@ -28,14 +28,14 @@ class StringBuilderJoinerTest {
   }
 
   @Test
-  void testFinishReturnsStatement() {
-    assertEquals(statement, cut.finish());
+  void testFinishReturnsEmptyString() {
+    assertEquals("", cut.finish());
   }
 
   @Test
   void testAddFirst() {
     assertEquals(cut, cut.add(first));
-    assertEquals("Test", cut.finish().toString());
+    assertEquals("Test", statement.toString());
   }
 
   @Test
@@ -44,6 +44,7 @@ class StringBuilderJoinerTest {
     when(second.asSQL(statement)).thenAnswer(new AsSqlAnswer());
     assertEquals(cut, cut.add(first));
     assertEquals(cut, cut.add(second));
-    assertEquals("Test//Test", cut.finish().toString());
+    assertEquals("", cut.finish());
+    assertEquals("Test//Test", statement.toString());
   }
 }
