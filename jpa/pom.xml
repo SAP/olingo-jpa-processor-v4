@@ -21,7 +21,7 @@
         <processor.version>1.0.6</processor.version>
         <sonar.organization>sap-1</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>        
-        <sonar.coverage.jacoco.xmlReportPaths>${basedir}/odata-jpa-coverage/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.coverage.jacoco.xmlReportPaths>${basedir}/../odata-jpa-coverage/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     </properties>
 
     <profiles>
