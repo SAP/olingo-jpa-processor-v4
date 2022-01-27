@@ -1,7 +1,7 @@
 # Description
 
 [![Build Status](https://app.travis-ci.com/SAP/olingo-jpa-processor-v4.svg?branch=develop)](https://app.travis-ci.com/github/SAP/olingo-jpa-processor-v4)
-[![Coverage Status](https://coveralls.io/repos/github/SAP/olingo-jpa-processor-v4/badge.svg?branch=develop)](https://coveralls.io/github/SAP/olingo-jpa-processor-v4?branch=develop)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=SAP_olingo-jpa-processor-v4&metric=coverage)](https://sonarcloud.io/dashboard?id=SAP_olingo-jpa-processor-v4)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE.txt)
 [![REUSE status](https://api.reuse.software/badge/github.com/SAP/olingo-jpa-processor-v4)](https://api.reuse.software/info/github.com/SAP/olingo-jpa-processor-v4)
 ![GitHub last commit (develop)](https://img.shields.io/github/last-commit/SAP/OLINGO-JPA-PROCESSOR-V4/develop.svg)
