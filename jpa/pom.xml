@@ -4,7 +4,7 @@
 
     <groupId>com.sap.olingo</groupId>
     <artifactId>odata-jpa</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>odata-jpa</name>
@@ -18,11 +18,10 @@
         <powermock.version>1.7.1</powermock.version>
         <coveralls.version>4.3.0</coveralls.version>
         <jpa.version>2.2.1</jpa.version>
-        <processor.version>1.1.0</processor.version>
+        <processor.version>1.1.0-SNAPSHOT</processor.version>
         <sonar.coverage.jacoco.xmlReportPaths>
         	${project.basedir}/odata-jpa-coverage/target/site/jacoco-aggregate/jacoco.xml,
-        	${project.basedir}/../odata-jpa-coverage/target/site/jacoco-aggregate/jacoco.xml,
-        	${project.basedir}/../../odata-jpa-coverage/target/site/jacoco-aggregate/jacoco.xml
+        	${project.basedir}/../odata-jpa-coverage/target/site/jacoco-aggregate/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>        
     </properties>
 
