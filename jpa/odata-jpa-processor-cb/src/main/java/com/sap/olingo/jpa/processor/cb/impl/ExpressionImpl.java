@@ -289,7 +289,7 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
     @Override
     public StringBuilder asSQL(final StringBuilder statement) {
       statement.append(functionName).append(OPENING_BRACKET);
-      args.stream().collect(new StringBuilderCollector.ExpressionCollector(statement, ", "));
+      statement.append(args.stream().collect(new StringBuilderCollector.ExpressionCollector(statement, ", ")));
       return statement.append(CLOSING_BRACKET);
     }
 
