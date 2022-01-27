@@ -45,7 +45,7 @@ abstract class AbstractJoinImp<Z, X> extends FromImpl<Z, X> implements Join<Z, X
       statement.append(OPENING_BRACKET);
     statement.append(st.getTableName());
     tableAlias.ifPresent(p -> statement.append(" ").append(p));
-    getJoins().stream().collect(new StringBuilderCollector.ExpressionCollector(statement, " "));
+    statement.append(getJoins().stream().collect(new StringBuilderCollector.ExpressionCollector(statement, " ")));
     if (!getJoins().isEmpty())
       statement.append(CLOSING_BRACKET);
     statement.append(" ON ");

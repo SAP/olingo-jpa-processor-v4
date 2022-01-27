@@ -13,7 +13,7 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Selection;
 
-public abstract class StringBuilderCollector<T> implements Collector<T, StringBuilderJoiner<T>, StringBuilder> {
+public abstract class StringBuilderCollector<T> implements Collector<T, StringBuilderJoiner<T>, String> {
 
   final Supplier<StringBuilderJoiner<T>> supplier;
 
@@ -37,7 +37,7 @@ public abstract class StringBuilderCollector<T> implements Collector<T, StringBu
   }
 
   @Override
-  public Function<StringBuilderJoiner<T>, StringBuilder> finisher() {
+  public Function<StringBuilderJoiner<T>, String> finisher() {
     return StringBuilderJoiner::finish;
   }
 

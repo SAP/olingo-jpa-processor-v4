@@ -5,6 +5,7 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 
 final class StringBuilderJoiner<T> {
+  private static final String EMPTY_RESULT = "";
   private final StringBuilder statement;
   private final String delimiter;
   private final int initLength;
@@ -24,8 +25,8 @@ final class StringBuilderJoiner<T> {
     return this;
   }
 
-  public StringBuilder finish() {
-    return statement;
+  public String finish() {
+    return EMPTY_RESULT;
   }
 
   private StringBuilder prepareStatement() {

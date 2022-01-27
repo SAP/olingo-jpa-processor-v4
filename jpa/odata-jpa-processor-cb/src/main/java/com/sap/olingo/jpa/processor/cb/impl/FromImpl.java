@@ -106,7 +106,7 @@ class FromImpl<Z, X> extends PathImpl<X> implements From<Z, X> {
   public StringBuilder asSQL(final StringBuilder statement) {
     statement.append(st.getTableName());
     tableAlias.ifPresent(p -> statement.append(" ").append(p));
-    joins.stream().collect(new StringBuilderCollector.ExpressionCollector(statement, " "));
+    statement.append(joins.stream().collect(new StringBuilderCollector.ExpressionCollector(statement, " ")));
     return statement;
   }
 

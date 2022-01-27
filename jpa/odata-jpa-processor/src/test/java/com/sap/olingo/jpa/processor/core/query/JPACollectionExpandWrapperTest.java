@@ -25,7 +25,7 @@ import org.junit.jupiter.api.TestFactory;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 
-public class JPACollectionExpandWrapperTest {
+class JPACollectionExpandWrapperTest {
   private JPACollectionExpandWrapper cut;
   private JPAEntityType jpaEntityType;
   private UriInfoResource uriInfo;
@@ -47,11 +47,6 @@ public class JPACollectionExpandWrapperTest {
     when(uriInfo.getCountOption()).thenReturn(countOptions);
     when(uriInfo.getSelectOption()).thenReturn(selectOptions);
     when(uriInfo.getUriResourceParts()).thenReturn(parts);
-  }
-
-  @Test
-  void testReturnsNull() {
-
   }
 
   @Test

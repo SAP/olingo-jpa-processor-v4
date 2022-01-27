@@ -42,7 +42,7 @@ class PathJoin<Z, X> extends AbstractJoinImp<Z, X> {
   @Override
   public StringBuilder asSQL(final StringBuilder statement) {
     if (!getJoins().isEmpty()) {
-      getJoins().stream().collect(new StringBuilderCollector.ExpressionCollector(statement, " "));
+      statement.append(getJoins().stream().collect(new StringBuilderCollector.ExpressionCollector(statement, " ")));
     }
     return statement;
   }

@@ -370,10 +370,10 @@ abstract class PredicateImpl extends ExpressionImpl<Boolean> implements Predicat
     @Override
     public StringBuilder asSQL(final StringBuilder statement) {
       statement.append(OPENING_BRACKET);
-      paths
+      statement.append(paths
           .stream()
           .map(p -> ((Expression<?>) p)) // NOSONAR
-          .collect(new StringBuilderCollector.ExpressionCollector(statement, ", "));
+          .collect(new StringBuilderCollector.ExpressionCollector(statement, ", ")));
       statement.append(CLOSING_BRACKET)
           .append(" ")
           .append(SqlKeyWords.IN)
