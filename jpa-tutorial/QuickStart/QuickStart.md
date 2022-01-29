@@ -203,3 +203,9 @@ The Spring controller implementation in _com.example.trippin.controller_ is simp
 ### Model
 
 The model is located in `com.example.trippin.model`. It contains as of now only two entities: _Person_ in `EntityTemplate` and _Trip_ in `ValueObjectTemplate`.
+
+## Next steps
+
+As of now only the previous set of tutorials exist:
+[Tutorials](/jpa-tutorial/Tutorials/Introduction/Introduction.md).
+Even so they are not always up to date, they can be helpful.
