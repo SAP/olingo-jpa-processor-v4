@@ -25,7 +25,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 
-public class TestJPACustomScalarFunctions {
+class TestJPACustomScalarFunctions {
 
   protected static final String PUNIT_NAME = "com.sap.olingo.jpa";
   protected static EntityManagerFactory emf;
@@ -48,74 +48,74 @@ public class TestJPACustomScalarFunctions {
   }
 
   @Test
-  public void testFilterOnFunction() throws IOException, ODataException {
+  void testFilterOnFunction() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions?$filter=com.sap.olingo.jpa.PopulationDensity(Area=$it/Area,Population=$it/Population) gt 1");
     helper.assertStatus(200);
   }
 
   @Test
-  public void testFilterOnFunctionAndProperty() throws IOException, ODataException {
+  void testFilterOnFunctionAndProperty() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions?$filter=com.sap.olingo.jpa.PopulationDensity(Area=$it/Area,Population=$it/Population)  mul 1000000 gt 1000 and ParentDivisionCode eq 'BE255'&orderBy=DivisionCode)");
     helper.assertStatus(200);
 
-    ArrayNode orgs = helper.getValues();
+    final ArrayNode orgs = helper.getValues();
     assertEquals(2, orgs.size());
     assertEquals("35002", orgs.get(0).get("DivisionCode").asText());
   }
 
   @Test
-  public void testFilterOnFunctionAndMultiply() throws IOException, ODataException {
+  void testFilterOnFunctionAndMultiply() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions?$filter=com.sap.olingo.jpa.PopulationDensity(Area=Area,Population=Population)  mul 1000000 gt 100");
     helper.assertStatus(200);
 
-    ArrayNode orgs = helper.getValues();
+    final ArrayNode orgs = helper.getValues();
     assertEquals(59, orgs.size());
   }
 
   @Test
-  public void testFilterOnFunctionWithFixedValue() throws IOException, ODataException {
+  void testFilterOnFunctionWithFixedValue() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions?$filter=com.sap.olingo.jpa.PopulationDensity(Area=13079087,Population=$it/Population)  mul 1000000 gt 1000");
     helper.assertStatus(200);
 
-    ArrayNode orgs = helper.getValues();
+    final ArrayNode orgs = helper.getValues();
     assertEquals(29, orgs.size());
   }
 
   @Test
-  public void testFilterOnFunctionComputeValue() throws IOException, ODataException {
+  void testFilterOnFunctionComputedValue() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions?$filter=com.sap.olingo.jpa.PopulationDensity(Area=Area div 1000000,Population=Population) gt 1000");
     helper.assertStatus(200);
 
-    ArrayNode orgs = helper.getValues();
+    final ArrayNode orgs = helper.getValues();
     assertEquals(7, orgs.size());
   }
 
   @Test
-  public void testFilterOnFunctionMixParamOrder() throws IOException, ODataException {
+  void testFilterOnFunctionMixParamOrder() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions?$filter=com.sap.olingo.jpa.PopulationDensity(Population=Population,Area=Area) mul 1000000 gt 1000");
     helper.assertStatus(200);
 
-    ArrayNode orgs = helper.getValues();
+    final ArrayNode orgs = helper.getValues();
     assertEquals(7, orgs.size());
   }
 
   private static void CreateDensityFunction() {
-    EntityManager em = emf.createEntityManager();
-    EntityTransaction t = em.getTransaction();
+    final EntityManager em = emf.createEntityManager();
+    final EntityTransaction t = em.getTransaction();
 
-    StringBuffer sqlString = new StringBuffer();
+    final StringBuffer sqlString = new StringBuffer();
 
     sqlString.append(
         "CREATE FUNCTION  \"OLINGO\".\"PopulationDensity\" (UnitArea  INT, Population BIGINT ) ");
@@ -131,21 +131,21 @@ public class TestJPACustomScalarFunctions {
     sqlString.append("END");
 
     t.begin();
-    Query q = em.createNativeQuery(sqlString.toString());
+    final Query q = em.createNativeQuery(sqlString.toString());
     q.executeUpdate();
     t.commit();
   }
 
   private static void DropDensityFunction() {
-    EntityManager em = emf.createEntityManager();
-    EntityTransaction t = em.getTransaction();
+    final EntityManager em = emf.createEntityManager();
+    final EntityTransaction t = em.getTransaction();
 
-    StringBuffer sqlString = new StringBuffer();
+    final StringBuffer sqlString = new StringBuffer();
 
     sqlString.append("DROP FUNCTION  \"OLINGO\".\"PopulationDensity\"");
 
     t.begin();
-    Query q = em.createNativeQuery(sqlString.toString());
+    final Query q = em.createNativeQuery(sqlString.toString());
     q.executeUpdate();
     t.commit();
   }

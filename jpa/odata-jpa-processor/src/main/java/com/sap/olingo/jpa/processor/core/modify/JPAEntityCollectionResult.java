@@ -45,7 +45,7 @@ final class JPAEntityCollectionResult extends JPAEntityBasedResult implements JP
         final Map<String, Object> embeddedGetterMap = helper.buildGetterMap(value);
         for (JPAPath p : attribute.getStructuredType().getPathList())
           convertPathToTuple(tuple, embeddedGetterMap, et.getPath(this.path.getAlias()
-              + JPAPath.PATH_SEPERATOR + p.getAlias()), 1);
+              + JPAPath.PATH_SEPARATOR + p.getAlias()), 1);
       } else {
         tuple.addElement(path.getAlias(), attribute.getType(), value);
       }
@@ -65,7 +65,7 @@ final class JPAEntityCollectionResult extends JPAEntityBasedResult implements JP
   }
 
   @Override
-  public JPAAssociationPath getAssoziation() {
+  public JPAAssociationPath getAssociation() {
     return path;
   }
 }

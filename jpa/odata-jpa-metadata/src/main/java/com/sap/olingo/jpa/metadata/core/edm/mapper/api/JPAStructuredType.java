@@ -1,8 +1,9 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.api;
 
 import java.util.List;
+import java.util.Optional;
 
-import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 
 import org.apache.olingo.server.api.uri.UriResourceProperty;
 
@@ -15,7 +16,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
  *
  */
 public interface JPAStructuredType extends JPAElement {
-  public JPAAssociationAttribute getAssociation(final String internalName) throws ODataJPAModelException;
+  public JPAAssociationAttribute getAssociation(@Nonnull final String internalName) throws ODataJPAModelException;
 
   /**
    * Searches for an AssociationPath defined by the name used in the OData metadata in all the navigation properties
@@ -29,7 +30,7 @@ public interface JPAStructuredType extends JPAElement {
    * @return
    * @throws ODataJPAModelException
    */
-  public JPAAssociationPath getAssociationPath(final String externalName) throws ODataJPAModelException;
+  public JPAAssociationPath getAssociationPath(@Nonnull final String externalName) throws ODataJPAModelException;
 
   /**
    * Searches in the navigation properties that are available for this type via the OData service. That is:
@@ -43,11 +44,19 @@ public interface JPAStructuredType extends JPAElement {
    */
   public List<JPAAssociationPath> getAssociationPathList() throws ODataJPAModelException;
 
-  @CheckForNull
-  public JPAAttribute getAttribute(final String internalName) throws ODataJPAModelException;
+  /**
+   * Returns declared attribute. Attributes that shall be ignored are ignored.<p>
+   * In case all properties are needed use {@link #getDeclaredAttribute(String)}
+   * @param internalName
+   * @return
+   * @throws ODataJPAModelException
+   */
+  public Optional<JPAAttribute> getAttribute(@Nonnull final String internalName) throws ODataJPAModelException;
 
-  public JPAAttribute getAttribute(final UriResourceProperty uriResourceItem) throws ODataJPAModelException;
+  public Optional<JPAAttribute> getAttribute(@Nonnull final UriResourceProperty uriResourceItem)
+      throws ODataJPAModelException;
 
+  @Nonnull
   public List<JPAAttribute> getAttributes() throws ODataJPAModelException;
 
   /**
@@ -60,19 +69,8 @@ public interface JPAStructuredType extends JPAElement {
    * @return
    * @throws ODataJPAModelException
    */
+  @Nonnull
   public List<JPAPath> getCollectionAttributesPath() throws ODataJPAModelException;
-
-  /**
-   * In case the type is within the given association path, the sub-path is returned.
-   * E.g. structured type is AdministrativeInformation and associationPath = AdministrativeInformation/Created/User
-   * Created/User is returned.
-   * @param associationPath
-   * @return
-   * @throws ODataJPAModelException
-   */
-  public JPAAssociationPath getDeclaredAssociation(JPAAssociationPath associationPath) throws ODataJPAModelException;
-
-  public JPAAssociationPath getDeclaredAssociation(final String externalName) throws ODataJPAModelException;
 
   /**
    * List of all associations that are declared at this type. That is:
@@ -83,10 +81,11 @@ public interface JPAStructuredType extends JPAElement {
    * @return
    * @throws ODataJPAModelException
    */
+  @Nonnull
   public List<JPAAssociationAttribute> getDeclaredAssociations() throws ODataJPAModelException;
 
   /**
-   * List of all associations that are declared at this type. That is:
+   * List of all attributes that are declared at this type. That is:
    * <ul>
    * <li> All properties of this type.
    * <li> All properties from super types.
@@ -94,10 +93,13 @@ public interface JPAStructuredType extends JPAElement {
    * @return
    * @throws ODataJPAModelException
    */
+  @Nonnull
   public List<JPAAttribute> getDeclaredAttributes() throws ODataJPAModelException;
 
+  public Optional<JPAAttribute> getDeclaredAttribute(@Nonnull final String internalName) throws ODataJPAModelException;
+
   /**
-   * List of all associations that are declared at this type. That is:
+   * List of all collection attributes that are declared at this type. That is:
    * <ul>
    * <li> All collection properties of this type.
    * <li> All collection properties from super types.
@@ -107,16 +109,9 @@ public interface JPAStructuredType extends JPAElement {
    */
   public List<JPACollectionAttribute> getDeclaredCollectionAttributes() throws ODataJPAModelException;
 
-  /**
-   * List of all associations that are declared at this type. That is:
-   * <ul>
-   * <li> All not ignored collection properties of this type.
-   * <li> All not ignored collection properties from super types.
-   * </ul>
-   * @return
-   * @throws ODataJPAModelException
-   */
   public JPAPath getPath(final String externalName) throws ODataJPAModelException;
+
+  public JPAPath getPath(final String externalName, final boolean respectIgnore) throws ODataJPAModelException;
 
   /**
    * List of all attributes that are available for this type via the OData service. That is:

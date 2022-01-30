@@ -105,9 +105,10 @@ class JPAArithmeticOperatorImp implements JPAArithmeticOperator {
       else
         throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR_TYPE,
             HttpStatusCode.NOT_IMPLEMENTED);
-    } else
+    } else {
       throw new ODataJPAFilterException(ODataJPAFilterException.MessageKeys.NOT_SUPPORTED_OPERATOR_TYPE,
           HttpStatusCode.NOT_IMPLEMENTED);
+    }
   }
 
   /*

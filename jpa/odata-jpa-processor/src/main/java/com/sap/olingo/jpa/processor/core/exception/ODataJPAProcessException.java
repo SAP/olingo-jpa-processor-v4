@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.exception;
 
-import java.util.Enumeration;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -12,58 +13,57 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAMessageText
 public abstract class ODataJPAProcessException extends ODataApplicationException {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = -3178033271311091314L;
   private static final String UNKNOWN_MESSAGE = "No message text found";
-  private static Enumeration<Locale> locales;
 
   protected final String id;
   protected final String[] parameter;
   protected final String messageText;
 
-  public ODataJPAProcessException(final String id, final HttpStatusCode statusCode) {
+  protected ODataJPAProcessException(final String id, final HttpStatusCode statusCode) {
     this(id, null, statusCode, new String[] {});
   }
 
-  public ODataJPAProcessException(final Throwable cause, final HttpStatusCode statusCode) {
+  protected ODataJPAProcessException(final Throwable cause, final HttpStatusCode statusCode) {
     this(null, null, statusCode, cause, new String[] {});
   }
 
-  public ODataJPAProcessException(final String id, final HttpStatusCode statusCode, final Throwable cause) {
+  protected ODataJPAProcessException(final String id, final HttpStatusCode statusCode, final Throwable cause) {
     this(id, null, statusCode, cause, new String[] {});
   }
 
-  public ODataJPAProcessException(final String id, final HttpStatusCode statusCode, final Throwable cause,
+  protected ODataJPAProcessException(final String id, final HttpStatusCode statusCode, final Throwable cause,
       final String[] params) {
     this(id, null, statusCode, cause, params);
   }
 
-  public ODataJPAProcessException(final String id, final HttpStatusCode statusCode, final String[] params) {
+  protected ODataJPAProcessException(final String id, final HttpStatusCode statusCode, final String[] params) {
     this(id, null, statusCode, params);
   }
 
   /**
-   * 
+   *
    * @param id
    * @param messageText
    * @param statusCode
    * @param params
    */
-  public ODataJPAProcessException(final String id, final String messageText, final HttpStatusCode statusCode,
+  protected ODataJPAProcessException(final String id, final String messageText, final HttpStatusCode statusCode,
       final String[] params) {
     this(id, messageText, statusCode, null, params);
   }
 
   /**
-   * 
+   *
    * @param id
    * @param messageText
    * @param statusCode
    * @param cause
    * @param params
    */
-  public ODataJPAProcessException(final String id, final String messageText, final HttpStatusCode statusCode,
+  protected ODataJPAProcessException(final String id, final String messageText, final HttpStatusCode statusCode,
       final Throwable cause, final String[] params) {
 
     super("", statusCode.getStatusCode(), Locale.ENGLISH, cause);
@@ -74,7 +74,7 @@ public abstract class ODataJPAProcessException extends ODataApplicationException
 
   protected ODataJPAMessageTextBuffer getTextBundle() {
     if (getBundleName() != null)
-      return new ODataJPAMessageTextBuffer(getBundleName(), locales);
+      return new ODataJPAMessageTextBuffer(getBundleName(), getLocale());
     else
       return null;
   }
@@ -86,10 +86,10 @@ public abstract class ODataJPAProcessException extends ODataApplicationException
 
   @Override
   public String getMessage() {
-    ODataJPAMessageBufferRead messageBuffer = getTextBundle();
+    final ODataJPAMessageBufferRead messageBuffer = getTextBundle();
 
     if (messageBuffer != null && id != null) {
-      String message = messageBuffer.getText(this, id, parameter);
+      final String message = messageBuffer.getText(this, id, parameter);
       if (message != null) {
         return message;
       }
@@ -103,20 +103,12 @@ public abstract class ODataJPAProcessException extends ODataApplicationException
     }
   }
 
-  public String[] getParameter() {
-    return parameter;
+  public List<String> getParameter() {
+    return Arrays.asList(parameter);
   }
 
   public String getId() {
     return id;
-  }
-
-  public static Enumeration<Locale> getLocales() {
-    return locales;
-  }
-
-  public static void setLocales(final Enumeration<Locale> locales) {
-    ODataJPAProcessException.locales = locales;
   }
 
   protected abstract String getBundleName();

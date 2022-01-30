@@ -7,3 +7,4 @@
 
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
+/.sts4-cache/

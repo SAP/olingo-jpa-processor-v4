@@ -6,7 +6,6 @@
 
 	<persistence-unit name="com.sap.olingo.jpa"
 		transaction-type="RESOURCE_LOCAL">
-
 		<class>com.sap.olingo.jpa.processor.core.testmodel.AccessRightsConverter</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.AddressDeepProtected</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.AddressDeepThreeProtections</class> 
@@ -26,16 +25,25 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.CollcetionInnerComplex</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.CollcetionNestedComplex</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Collection</class>
-		<class>com.sap.olingo.jpa.processor.core.testmodel.CollectionDeep</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.CollectionWithTransient</class>
+        <class>com.sap.olingo.jpa.processor.core.testmodel.CollectionDeep</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.CollectionFirstLevelComplex</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.CollectionPartOfComplex</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.CollectionSecondLevelComplex</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.CollectionInnerComplex</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.CollectionNestedComplexWithTransient</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Comment</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.CommunicationData</class>
-		<class>com.sap.olingo.jpa.processor.core.testmodel.Country</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.ComplexWithTransientComplexCollection</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.ComplexSubType</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.ComplexBaseType</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.CollectionNestedComplex</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.CollcetionNestedComplexWithTransient</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.CollectionPartOfComplex</class>
+        <class>com.sap.olingo.jpa.processor.core.testmodel.Country</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.CountryKey</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DateConverter</class>
-        <class>com.sap.olingo.jpa.processor.core.testmodel.DateTimeConverter</class>		
+        <class>com.sap.olingo.jpa.processor.core.testmodel.DateTimeConverter</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DeepProtectedExample</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DummyEmbeddedToIgnore</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DummyToBeIgnored</class>
@@ -45,11 +53,11 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.InhouseAddressWithProtection</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.InhouseAddressWithThreeProtections</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.InhouseAddressWithGroup</class>
-		<class>com.sap.olingo.jpa.processor.core.testmodel.InstanceRestrictionKey</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.JoinComplex</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.JoinRelation</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.JoinSource</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.JoinTarget</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.JoinRelationKey</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Membership</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Organization</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.OrganizationImage</class>
@@ -63,11 +71,17 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.SalesTeam</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.SupportRelationship</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.Team</class>
-	    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.Singleton</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.EntityTypeOnly</class>
+		<class>com.sap.olingo.jpa.metadata.converter.TimeInstantLongConverter</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.TransientRefComplex</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.DateTimeTest</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.CurrentUser</class>
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
 		<properties>
 			<property name="javax.persistence.validation.mode" value="NONE" />
-			<property name="eclipselink.logging.level.sql" value="WARNING"  />
-			<property name="eclipselink.logging.level" value="WARNING" />
+			<property name="eclipselink.logging.level.sql" value="FINE"  />
+			<property name="eclipselink.logging.level" value="ERROR" />
 			<property name="eclipselink.logging.parameters" value="true" />
 			<property name="eclipselink.logging.timestamp" value="true" />
 			<property name="eclipselink.weaving" value="static" />
@@ -77,7 +91,7 @@
 
 			<!--  -->
 			<property name="openjpa.DynamicEnhancementAgent" value="true"/>
-			<property name="openjpa.RuntimeUnenhancedClasses" value="unsupported"/>
+			<property name="openjpa.RuntimeUnenhancedClasses" value="supported"/>
 			<property name="openjpa.ConnectionFactoryProperties" value="PrintParameters=true"/>
 			<!--  -->
 			<property name="hibernate.create_empty_composites.enabled" value ="true"/>
@@ -86,6 +100,8 @@
 		</properties>
 	</persistence-unit>
 	<persistence-unit name="error">
+		<class>com.sap.olingo.jpa.processor.core.errormodel.AdministrativeInformation</class>
+		<class>com.sap.olingo.jpa.processor.core.errormodel.ChangeInformation</class>
 		<class>com.sap.olingo.jpa.processor.core.errormodel.CollectionAttributeProtected</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.CountryKey</class>
 		<class>com.sap.olingo.jpa.processor.core.errormodel.NavigationAttributeProtected</class>
@@ -93,15 +109,20 @@
 		<class>com.sap.olingo.jpa.processor.core.errormodel.EmbeddedKeyPartOfGroup</class>
 		<class>com.sap.olingo.jpa.processor.core.errormodel.MandatoryPartOfGroup</class>
 		<class>com.sap.olingo.jpa.processor.core.errormodel.KeyPartOfGroup</class>
-		<class>com.sap.olingo.jpa.processor.core.errormodel.ComplextProtectedNoPath</class>
-		<class>com.sap.olingo.jpa.processor.core.errormodel.ComplextProtectedWrongPath</class>
+		<class>com.sap.olingo.jpa.processor.core.errormodel.ComplexProtectedNoPath</class>
+		<class>com.sap.olingo.jpa.processor.core.errormodel.ComplexProtectedWrongPath</class>
 		<class>com.sap.olingo.jpa.processor.core.errormodel.PersonDeepCollectionProtected</class> 
 		<class>com.sap.olingo.jpa.processor.core.testmodel.AddressDeepProtected</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.InhouseAddress</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.InhouseAddressWithProtection</class>
 		<class>com.sap.olingo.jpa.processor.core.errormodel.Team</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.AccessRightsConverter</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DateConverter</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.StringConverter</class>
+		<class>com.sap.olingo.jpa.processor.core.errormodel.TeamWithTransientError</class>
+        <class>com.sap.olingo.jpa.processor.core.errormodel.CompoundKey</class>
+        <class>com.sap.olingo.jpa.processor.core.errormodel.TeamWithTransientEmbeddableKey</class>
+        <class>com.sap.olingo.jpa.processor.core.errormodel.SingletonAsEntitySet</class>
 		<exclude-unlisted-classes>true</exclude-unlisted-classes>
 		<properties>
 			<property name="eclipselink.logging.parameters" value="true" />
@@ -113,7 +134,7 @@
 			<property name="eclipselink.logging.level.metadata" value="ALL"/>
 			<!--  -->
 			<property name="openjpa.DynamicEnhancementAgent" value="true"/>
-			<property name="openjpa.RuntimeUnenhancedClasses" value="unsupported"/>
+			<property name="openjpa.RuntimeUnenhancedClasses" value="supported"/>
 			<property name="openjpa.ConnectionFactoryProperties" value="PrintParameters=true"/>			
 		</properties>
 	</persistence-unit>

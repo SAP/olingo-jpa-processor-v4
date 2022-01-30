@@ -52,4 +52,5 @@ public class MembershipKey implements Serializable {
     } else if (!teamID.equals(other.teamID)) return false;
     return true;
   }
+
 }

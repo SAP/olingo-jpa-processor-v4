@@ -1,5 +1,8 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
+import java.util.Objects;
+
+import javax.annotation.Nonnull;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.EmbeddableType;
 import javax.persistence.metamodel.EntityType;
@@ -7,6 +10,8 @@ import javax.persistence.metamodel.EntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 
 public final class JPADefaultEdmNameBuilder implements JPAEdmNameBuilder {
+  private static final int DISTANCE_NEXT_TO_LAST_CHAR = 2;
+  private static final int DISTANCE_LAST_CHAR = 1;
   // V2 NameBuilder: package org.apache.olingo.odata2.jpa.processor.core.access.model
   private static final String ENTITY_CONTAINER_SUFFIX = "Container";
   private static final String ENTITY_SET_SUFFIX = "s";
@@ -21,9 +26,9 @@ public final class JPADefaultEdmNameBuilder implements JPAEdmNameBuilder {
 
   private final String namespace;
 
-  public JPADefaultEdmNameBuilder(final String namespace) {
+  public JPADefaultEdmNameBuilder(@Nonnull final String namespace) {
     super();
-    this.namespace = namespace;
+    this.namespace = Objects.requireNonNull(namespace);
   }
 
   /**
@@ -31,8 +36,8 @@ public final class JPADefaultEdmNameBuilder implements JPAEdmNameBuilder {
    * Use JPA Embeddable Type Simple Name as Complex Type Name
    */
   @Override
-  public final String buildComplexTypeName(final EmbeddableType<?> jpaEnbeddedType) {
-    return jpaEnbeddedType.getJavaType().getSimpleName();
+  public final String buildComplexTypeName(final EmbeddableType<?> jpaEmbeddedType) {
+    return jpaEmbeddedType.getJavaType().getSimpleName();
   }
 
   /**
@@ -59,13 +64,13 @@ public final class JPADefaultEdmNameBuilder implements JPAEdmNameBuilder {
    */
   @Override
   public final String buildEntitySetName(final String entityTypeName) {
-    if (entityTypeName.charAt(entityTypeName.length() - 1) == 'y'
-        && entityTypeName.charAt(entityTypeName.length() - 2) != 'a'
-        && entityTypeName.charAt(entityTypeName.length() - 2) != 'e'
-        && entityTypeName.charAt(entityTypeName.length() - 2) != 'i'
-        && entityTypeName.charAt(entityTypeName.length() - 2) != 'o'
-        && entityTypeName.charAt(entityTypeName.length() - 2) != 'u') {
-      return entityTypeName.substring(0, entityTypeName.length() - 1) + "ie" + ENTITY_SET_SUFFIX;
+    if (entityTypeName.charAt(entityTypeName.length() - DISTANCE_LAST_CHAR) == 'y'
+        && entityTypeName.charAt(entityTypeName.length() - DISTANCE_NEXT_TO_LAST_CHAR) != 'a'
+        && entityTypeName.charAt(entityTypeName.length() - DISTANCE_NEXT_TO_LAST_CHAR) != 'e'
+        && entityTypeName.charAt(entityTypeName.length() - DISTANCE_NEXT_TO_LAST_CHAR) != 'i'
+        && entityTypeName.charAt(entityTypeName.length() - DISTANCE_NEXT_TO_LAST_CHAR) != 'o'
+        && entityTypeName.charAt(entityTypeName.length() - DISTANCE_NEXT_TO_LAST_CHAR) != 'u') {
+      return entityTypeName.substring(0, entityTypeName.length() - DISTANCE_LAST_CHAR) + "ie" + ENTITY_SET_SUFFIX;
     }
     return entityTypeName + ENTITY_SET_SUFFIX;
   }

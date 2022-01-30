@@ -22,4 +22,3 @@ public class DateTimeConverter implements AttributeConverter<LocalDateTime, Time
   }
 
 }
-

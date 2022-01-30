@@ -6,17 +6,13 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEnumeration;
 public enum FileAccess {
   Read((short) 1), Write((short) 2), Create((short) 4), Delete((short) 8);
 
-  private short value;
+  private final short value;
 
-  private FileAccess(short value) {
-    this.setValue(value);
+  private FileAccess(final short value) {
+    this.value = value;
   }
 
   public short getValue() {
     return value;
-  }
-
-  private void setValue(short value) {
-    this.value = value;
   }
 }

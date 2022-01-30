@@ -42,11 +42,11 @@ final class JPAMemberVisitor implements ExpressionVisitor<JPAPath> {
   }
 
   @Override
-  public JPAPath visitBinaryOperator(BinaryOperatorKind operator, JPAPath left, List<JPAPath> right)
+  public JPAPath visitBinaryOperator(final BinaryOperatorKind operator, final JPAPath left, final List<JPAPath> right)
       throws ExpressionVisitException, ODataApplicationException {
     return null;
   }
-  
+
   @Override
   public JPAPath visitUnaryOperator(final UnaryOperatorKind operator, final JPAPath operand)
       throws ExpressionVisitException, ODataApplicationException {
@@ -76,19 +76,18 @@ final class JPAMemberVisitor implements ExpressionVisitor<JPAPath> {
   public JPAPath visitMember(final Member member) throws ExpressionVisitException, ODataApplicationException {
     final UriResourceKind uriResourceKind = member.getResourcePath().getUriResourceParts().get(0).getKind();
 
-    if (uriResourceKind == UriResourceKind.primitiveProperty || uriResourceKind == UriResourceKind.complexProperty) {
-      if (!Util.hasNavigation(member.getResourcePath().getUriResourceParts())) {
-        final String path = Util.determineProptertyNavigationPath(member.getResourcePath().getUriResourceParts());
-        JPAPath selectItemPath = null;
-        try {
-          selectItemPath = jpaEntityType.getPath(path);
-        } catch (ODataJPAModelException e) {
-          throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-        }
-        if (selectItemPath != null) {
-          pathList.add(selectItemPath);
-          return selectItemPath;
-        }
+    if ((uriResourceKind == UriResourceKind.primitiveProperty || uriResourceKind == UriResourceKind.complexProperty)
+        && !Util.hasNavigation(member.getResourcePath().getUriResourceParts())) {
+      final String path = Util.determinePropertyNavigationPath(member.getResourcePath().getUriResourceParts());
+      JPAPath selectItemPath = null;
+      try {
+        selectItemPath = jpaEntityType.getPath(path);
+      } catch (final ODataJPAModelException e) {
+        throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+      }
+      if (selectItemPath != null) {
+        pathList.add(selectItemPath);
+        return selectItemPath;
       }
     }
     return null;
@@ -115,5 +114,4 @@ final class JPAMemberVisitor implements ExpressionVisitor<JPAPath> {
       ODataApplicationException {
     return null;
   }
-
 }

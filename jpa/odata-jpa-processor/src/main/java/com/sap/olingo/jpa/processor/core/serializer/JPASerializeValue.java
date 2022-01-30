@@ -98,8 +98,8 @@ final class JPASerializeValue extends JPASerializePrimitiveAbstract {
             .getType() instanceof EdmEntityType);
   }
 
-  private boolean isKey(final List<EdmKeyPropertyRef> keyist, final Property item) {
-    for (final EdmKeyPropertyRef key : keyist) {
+  private boolean isKey(final List<EdmKeyPropertyRef> keyList, final Property item) {
+    for (final EdmKeyPropertyRef key : keyList) {
       if (key.getName().equals(item.getName()))
         return true;
     }

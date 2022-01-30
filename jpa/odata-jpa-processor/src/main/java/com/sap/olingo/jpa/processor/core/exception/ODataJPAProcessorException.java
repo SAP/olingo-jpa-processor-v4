@@ -8,7 +8,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAMessageKey;
  * Copied from org.apache.olingo.odata2.jpa.processor.api.exception.ODataJPAModelException
  * See also org.apache.olingo.odata2.jpa.processor.core.exception.ODataJPAMessageServiceDefault
  */
-public class ODataJPAProcessorException extends ODataJPAProcessException {
+public class ODataJPAProcessorException extends ODataJPAProcessException { // NOSONAR
   /**
    *
    */
@@ -21,7 +21,6 @@ public class ODataJPAProcessorException extends ODataJPAProcessException {
     QUERY_SERVER_DRIVEN_PAGING_NOT_IMPLEMENTED,
     QUERY_SERVER_DRIVEN_PAGING_GONE,
     BATCH_CHANGE_SET_NOT_IMPLEMENTED,
-    BATCH_FAILED,
     NOT_SUPPORTED_CREATE,
     NOT_SUPPORTED_UPDATE,
     NOT_SUPPORTED_UPDATE_VALUE,
@@ -30,16 +29,21 @@ public class ODataJPAProcessorException extends ODataJPAProcessException {
     NOT_SUPPORTED_RESOURCE_TYPE,
     NOT_SUPPORTED_FUNC_WITH_NAVI,
     NOT_SUPPORTED_PROP_TYPE,
+    NOT_SUPPORTED_COUNT,
     PARAMETER_NULL,
     WRONG_RETURN_TYPE,
     RETURN_NULL,
     RETURN_MISSING_ENTITY,
-    ATTRIBUTE_RETRIVAL_FAILED,
+    ATTRIBUTE_RETRIEVAL_FAILED,
     ATTRIBUTE_NOT_FOUND,
     ODATA_MAXPAGESIZE_NOT_A_NUMBER,
     SETTER_NOT_FOUND,
     GETTER_NOT_FOUND,
-    BEFORE_IMAGE_MERGED;
+    BEFORE_IMAGE_MERGED,
+    ENTITY_TYPE_UNKNOWN,
+    FUNCTION_UNKNOWN,
+    ACTION_UNKNOWN,
+    ENUMERATION_UNKNOWN;
 
     @Override
     public String getKey() {
@@ -48,7 +52,7 @@ public class ODataJPAProcessorException extends ODataJPAProcessException {
 
   }
 
-  private static final String BUNDEL_NAME = "processor-exceptions-i18n";
+  private static final String BUNDLE_NAME = "processor-exceptions-i18n";
 
   public ODataJPAProcessorException(final Throwable e, final HttpStatusCode statusCode) {
     super(e, statusCode);
@@ -79,7 +83,7 @@ public class ODataJPAProcessorException extends ODataJPAProcessException {
 
   @Override
   protected String getBundleName() {
-    return BUNDEL_NAME;
+    return BUNDLE_NAME;
   }
 
 }

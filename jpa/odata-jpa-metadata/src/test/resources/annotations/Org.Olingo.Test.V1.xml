@@ -32,7 +32,7 @@
       </Term>
       <Term Name="Geo" SRID="1234" AppliesTo="Property Parameter Term">
         <Annotation Term="Core.Description" String="Test SRID" />
-      </Term>  
+      </Term>      
     </Schema>
     <Schema xmlns="http://docs.oasis-open.org/odata/ns/edm" Namespace="Org.OData.Capabilities.V1" Alias="Capabilities">
       <Annotation Term="Core.Description">

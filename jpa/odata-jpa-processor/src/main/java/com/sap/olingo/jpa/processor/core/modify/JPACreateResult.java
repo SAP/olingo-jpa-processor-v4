@@ -30,14 +30,14 @@ abstract class JPACreateResult implements JPAExpandResult {
   protected final JPAConversionHelper helper;
   protected final Map<String, List<String>> requestHeaders;
 
-  public JPACreateResult(final JPAEntityType et, final Map<String, List<String>> requestHeaders)
+  JPACreateResult(final JPAEntityType et, final Map<String, List<String>> requestHeaders)
       throws ODataJPAModelException {
 
     this.et = et;
     this.helper = new JPAConversionHelper();
     this.children = new HashMap<>(0);
     this.pathList = et.getPathList();
-    this.locale = ExpressionUtil.determineLocale(requestHeaders);
+    this.locale = ExpressionUtil.determineFallbackLocale(requestHeaders);
     this.requestHeaders = requestHeaders;
   }
 
@@ -47,7 +47,7 @@ abstract class JPACreateResult implements JPAExpandResult {
   }
 
   @Override
-  public JPAExpandResult getChild(JPAAssociationPath associationPath) {
+  public JPAExpandResult getChild(final JPAAssociationPath associationPath) {
     return children.get(associationPath);
   }
 
@@ -71,11 +71,11 @@ abstract class JPACreateResult implements JPAExpandResult {
     return false;
   }
 
-  protected void addValueToTuple(final JPATuple tuple, final JPAPath path, final int index, Object value)
+  protected void addValueToTuple(final JPATuple tuple, final JPAPath path, final int index, final Object value)
       throws ODataJPAProcessorException {
     if (path.getPath().get(index) instanceof JPADescriptionAttribute) {
       @SuppressWarnings("unchecked")
-      Collection<Object> desc = (Collection<Object>) value;
+      final Collection<Object> desc = (Collection<Object>) value;
       if (desc != null) {
         for (final Object entry : desc) {
           final Map<String, Object> descGetterMap = entryAsMap(entry);
@@ -83,8 +83,8 @@ abstract class JPACreateResult implements JPAExpandResult {
           final String providedLocale = determineLocale(descGetterMap, jpaAttribute);
           if (locale.getLanguage().equals(providedLocale)
               || locale.toString().equals(providedLocale)) {
-            final Object desciption = descGetterMap.get(jpaAttribute.getDescriptionAttribute().getInternalName());
-            tuple.addElement(path.getAlias(), path.getLeaf().getType(), desciption);
+            final Object description = descGetterMap.get(jpaAttribute.getDescriptionAttribute().getInternalName());
+            tuple.addElement(path.getAlias(), path.getLeaf().getType(), description);
             break;
           }
         }
@@ -114,7 +114,7 @@ abstract class JPACreateResult implements JPAExpandResult {
   protected abstract Map<String, Object> entryAsMap(final Object entry) throws ODataJPAProcessorException;
 
   protected boolean notContainsCollection(final JPAPath path) {
-    for (JPAElement e : path.getPath())
+    for (final JPAElement e : path.getPath())
       if (e instanceof JPAAttribute && ((JPAAttribute) e).isCollection())
         return false;
     return true;

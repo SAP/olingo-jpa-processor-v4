@@ -43,14 +43,14 @@ import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializer;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 
-public class TestCreateRequestEntity {
+class TestCreateRequestEntity {
   protected static final String PUNIT_NAME = "com.sap.olingo.jpa";
   protected static EntityManagerFactory emf;
   protected static JPAEdmProvider jpaEdm;
@@ -58,7 +58,7 @@ public class TestCreateRequestEntity {
 
   @BeforeAll
   public static void setupClass() throws ODataException {
-    JPAEdmMetadataPostProcessor pP = mock(JPAEdmMetadataPostProcessor.class);
+    final JPAEdmMetadataPostProcessor pP = mock(JPAEdmMetadataPostProcessor.class);
 
     ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
     emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, ds);
@@ -70,7 +70,7 @@ public class TestCreateRequestEntity {
   private JPACUDRequestProcessor cut;
   private Entity oDataEntity;
   private ServiceMetadata serviceMetadata;
-  private JPAODataCRUDContextAccess sessionContext;
+  private JPAODataSessionContextAccess sessionContext;
   private JPAODataRequestContextAccess requestContext;
   private UriInfo uriInfo;
   private UriResourceEntitySet uriEts;
@@ -80,13 +80,13 @@ public class TestCreateRequestEntity {
   private EdmEntitySet ets;
   private List<UriParameter> keyPredicates;
   private JPAConversionHelper convHelper;
-  private List<UriResource> pathParts = new ArrayList<>();
+  private final List<UriResource> pathParts = new ArrayList<>();
   private Map<String, List<String>> headers;
 
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
     odata = OData.newInstance();
-    sessionContext = mock(JPAODataCRUDContextAccess.class);
+    sessionContext = mock(JPAODataSessionContextAccess.class);
     requestContext = mock(JPAODataRequestContextAccess.class);
     serviceMetadata = mock(ServiceMetadata.class);
     uriInfo = mock(UriInfo.class);
@@ -115,102 +115,102 @@ public class TestCreateRequestEntity {
   }
 
   @Test
-  public void testCreateDataAndEtCreated() throws ODataJPAModelException, ODataException {
-    List<Property> properties = createProperties();
+  void testCreateDataAndEtCreated() throws ODataJPAModelException, ODataException {
+    final List<Property> properties = createProperties();
     createODataEntity(properties);
 
-    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
+    final JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
 
     assertNotNull(act.getData());
     assertNotNull(act.getEntityType());
   }
 
   @Test
-  public void testCreateEtName() throws ODataJPAModelException, ODataException {
-    List<Property> properties = createProperties();
+  void testCreateEtName() throws ODataJPAModelException, ODataException {
+    final List<Property> properties = createProperties();
     createODataEntity(properties);
 
-    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
+    final JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
 
     assertEquals("AdministrativeDivision", act.getEntityType().getExternalName());
   }
 
   @Test
-  public void testCreateDataHasProperty() throws ODataJPAModelException, ODataException {
-    List<Property> properties = createProperties();
+  void testCreateDataHasProperty() throws ODataJPAModelException, ODataException {
+    final List<Property> properties = createProperties();
     createODataEntity(properties);
 
-    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
-    String actValue = (String) act.getData().get("codeID");
+    final JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
+    final String actValue = (String) act.getData().get("codeID");
     assertNotNull(actValue);
     assertEquals("DE50", actValue);
   }
 
   @Test
-  public void testCreateEmptyRelatedEntities() throws ODataJPAModelException, ODataException {
-    List<Property> properties = createProperties();
+  void testCreateEmptyRelatedEntities() throws ODataJPAModelException, ODataException {
+    final List<Property> properties = createProperties();
     createODataEntity(properties);
 
-    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
+    final JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
 
     assertNotNull(act.getRelatedEntities());
     assertTrue(act.getRelatedEntities().isEmpty());
   }
 
   @Test
-  public void testCreateEmptyRelationLinks() throws ODataJPAModelException, ODataException {
-    List<Property> properties = createProperties();
+  void testCreateEmptyRelationLinks() throws ODataJPAModelException, ODataException {
+    final List<Property> properties = createProperties();
     createODataEntity(properties);
 
-    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
+    final JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
 
     assertNotNull(act.getRelationLinks());
     assertTrue(act.getRelationLinks().isEmpty());
   }
 
   @Test
-  public void testCreateDeepOneChildResultContainsEntityLink() throws ODataJPAModelException, ODataException {
-    List<Property> properties = createProperties();
+  void testCreateDeepOneChildResultContainsEntityLink() throws ODataJPAModelException, ODataException {
+    final List<Property> properties = createProperties();
     createODataEntity(properties);
 
-    List<Link> navigationLinks = new ArrayList<>();
+    final List<Link> navigationLinks = new ArrayList<>();
     addChildrenNavigationLinkDE501(navigationLinks);
     when(oDataEntity.getNavigationLinks()).thenReturn(navigationLinks);
 
-    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
+    final JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
 
-    Object actValue = findEntitryList(act.getRelatedEntities(), ("children"));
+    final Object actValue = findEntryList(act.getRelatedEntities(), ("children"));
     assertNotNull(actValue, "Is null");
     assertTrue(actValue instanceof List, "Wrong type");
   }
 
   @Test
-  public void testCreateDeepOneChildResultContainsEntityLinkSize() throws ODataJPAModelException, ODataException {
-    List<Property> properties = createProperties();
+  void testCreateDeepOneChildResultContainsEntityLinkSize() throws ODataJPAModelException, ODataException {
+    final List<Property> properties = createProperties();
     createODataEntity(properties);
 
-    List<Link> navigationLinks = new ArrayList<>();
+    final List<Link> navigationLinks = new ArrayList<>();
     addChildrenNavigationLinkDE501(navigationLinks);
     when(oDataEntity.getNavigationLinks()).thenReturn(navigationLinks);
 
-    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
+    final JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
 
-    Object actValue = findEntitryList(act.getRelatedEntities(), ("children"));
+    final Object actValue = findEntryList(act.getRelatedEntities(), ("children"));
     assertEquals(1, ((List<?>) actValue).size(), "Wrong size");
   }
 
   @Test
-  public void testCreateDeepOneChildResultContainsEntityLinkEntityType() throws ODataJPAModelException, ODataException {
-    List<Property> properties = createProperties();
+  void testCreateDeepOneChildResultContainsEntityLinkEntityType() throws ODataJPAModelException, ODataException {
+    final List<Property> properties = createProperties();
     createODataEntity(properties);
 
-    List<Link> navigationLinks = new ArrayList<>();
+    final List<Link> navigationLinks = new ArrayList<>();
     addChildrenNavigationLinkDE501(navigationLinks);
     when(oDataEntity.getNavigationLinks()).thenReturn(navigationLinks);
 
-    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
+    final JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
 
-    Object actValue = findEntitryList(act.getRelatedEntities(), ("children"));
+    final Object actValue = findEntryList(act.getRelatedEntities(), ("children"));
     assertNotNull(((List<?>) actValue).get(0));
     assertNotNull(((JPARequestEntity) ((List<?>) actValue).get(0)).getEntityType(), "Entity type not found");
     assertEquals("AdministrativeDivision", ((JPARequestEntity) ((List<?>) actValue).get(0))
@@ -218,73 +218,73 @@ public class TestCreateRequestEntity {
   }
 
   @Test
-  public void testCreateDeepOneChildResultContainsEntityLinkData() throws ODataJPAModelException, ODataException {
-    List<Property> properties = createProperties();
+  void testCreateDeepOneChildResultContainsEntityLinkData() throws ODataJPAModelException, ODataException {
+    final List<Property> properties = createProperties();
     createODataEntity(properties);
 
-    List<Link> navigationLinks = new ArrayList<>();
+    final List<Link> navigationLinks = new ArrayList<>();
     addChildrenNavigationLinkDE501(navigationLinks);
     when(oDataEntity.getNavigationLinks()).thenReturn(navigationLinks);
 
-    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
+    final JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
 
-    Object actValue = findEntitryList(act.getRelatedEntities(), ("children"));
+    final Object actValue = findEntryList(act.getRelatedEntities(), ("children"));
     assertNotNull(((List<?>) actValue).get(0));
     assertNotNull(((JPARequestEntity) ((List<?>) actValue).get(0)).getEntityType(), "Entity type not found");
-    Map<String, Object> actData = ((JPARequestEntity) ((List<?>) actValue).get(0)).getData();
+    final Map<String, Object> actData = ((JPARequestEntity) ((List<?>) actValue).get(0)).getData();
     assertNotNull(actData, "Data not found");
     assertNotNull(actData.get("codeID"), "CodeID not found");
     assertEquals("DE501", actData.get("codeID"), "Value not found");
   }
 
   @Test
-  public void testCreateDeepTwoChildResultContainsEntityLinkSize() throws ODataJPAModelException, ODataException {
-    List<Property> properties = createProperties();
+  void testCreateDeepTwoChildResultContainsEntityLinkSize() throws ODataJPAModelException, ODataException {
+    final List<Property> properties = createProperties();
     createODataEntity(properties);
 
-    List<Link> navigationLinks = new ArrayList<>();
+    final List<Link> navigationLinks = new ArrayList<>();
     addNavigationLinkDE502(navigationLinks);
     when(oDataEntity.getNavigationLinks()).thenReturn(navigationLinks);
 
-    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
+    final JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
 
-    Object actValue = findEntitryList(act.getRelatedEntities(), ("children"));
+    final Object actValue = findEntryList(act.getRelatedEntities(), ("children"));
     assertEquals(2, ((List<?>) actValue).size(), "Wrong size");
   }
 
   @Test
-  public void testCreateWithLinkToOne() throws ODataJPAProcessorException {
-    List<Property> properties = createProperties();
+  void testCreateWithLinkToOne() throws ODataJPAProcessorException {
+    final List<Property> properties = createProperties();
     createODataEntity(properties);
-    List<Link> bindingLinks = new ArrayList<>();
+    final List<Link> bindingLinks = new ArrayList<>();
     addParentBindingLink(bindingLinks);
     when(oDataEntity.getNavigationBindings()).thenReturn(bindingLinks);
 
-    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
+    final JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
 
-    Object actValue = findLinkList(act.getRelationLinks(), ("parent"));
+    final Object actValue = findLinkList(act.getRelationLinks(), ("parent"));
     assertNotNull(actValue);
     assertTrue(actValue instanceof List<?>);
   }
 
   @Test
-  public void testCreateWithLinkToMany() throws ODataJPAProcessorException {
-    List<Property> properties = createProperties();
+  void testCreateWithLinkToMany() throws ODataJPAProcessorException {
+    final List<Property> properties = createProperties();
     createODataEntity(properties);
-    List<Link> bindingLinks = new ArrayList<>();
+    final List<Link> bindingLinks = new ArrayList<>();
     addChildrenBindingLink(bindingLinks);
     when(oDataEntity.getNavigationBindings()).thenReturn(bindingLinks);
 
-    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
+    final JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
 
-    Object actValue = findLinkList(act.getRelationLinks(), ("children"));
+    final Object actValue = findLinkList(act.getRelationLinks(), ("children"));
     assertNotNull(actValue);
     assertTrue(actValue instanceof List<?>);
     assertEquals(2, ((List<?>) actValue).size());
   }
 
   @Test
-  public void testCreateDeepToOne() throws ODataJPAProcessorException {
+  void testCreateDeepToOne() throws ODataJPAProcessorException {
     final List<Property> properties = createProperties();
     createODataEntity(properties);
 
@@ -293,15 +293,15 @@ public class TestCreateRequestEntity {
     when(oDataEntity.getNavigationLinks()).thenReturn(navigationLinks);
     when(oDataEntity.getNavigationLink("Parent")).thenReturn(navigationLink);
 
-    JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
+    final JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
 
-    Object actValue = findEntitryList(act.getRelatedEntities(), ("parent"));
+    final Object actValue = findEntryList(act.getRelatedEntities(), ("parent"));
     assertNotNull(actValue);
     assertTrue(actValue instanceof List<?>);
   }
 
   @Test
-  public void testCreateOrgWithRoles() throws ODataJPAProcessorException {
+  void testCreateOrgWithRoles() throws ODataJPAProcessorException {
 
     final List<Property> properties = new ArrayList<>();
     createPropertyBuPaID(properties, "20");
@@ -336,11 +336,11 @@ public class TestCreateRequestEntity {
 
     assertNotNull(act);
     assertNotNull(act.getData());
-    assertNotNull(findEntitryList(act.getRelatedEntities(), ("roles")));
+    assertNotNull(findEntryList(act.getRelatedEntities(), ("roles")));
   }
 
   @Test
-  public void testCreateDeepOneChildViaComplex() throws ODataJPAModelException, ODataException {
+  void testCreateDeepOneChildViaComplex() throws ODataJPAModelException, ODataException {
     final List<Property> properties = new ArrayList<>();
     final List<Property> inlineProperties = new ArrayList<>();
     final Entity inlineEntity = mock(Entity.class);
@@ -360,12 +360,12 @@ public class TestCreateRequestEntity {
     createPrimitiveProperty(createdProperties, Timestamp.valueOf("2016-01-20 09:21:23.0"), "At");
 
     final JPARequestEntity act = cut.createRequestEntity(ets, oDataEntity, headers);
-    final Object actValue = findEntitryList(act.getRelatedEntities(), ("administrativeInformation"));
+    final Object actValue = findEntryList(act.getRelatedEntities(), ("administrativeInformation"));
 
     assertNotNull(actValue);
     assertNotNull(((List<?>) actValue).get(0));
     @SuppressWarnings("unchecked")
-    JPARequestEntity actDeepEntity = ((List<JPARequestEntity>) actValue).get(0);
+    final JPARequestEntity actDeepEntity = ((List<JPARequestEntity>) actValue).get(0);
     assertEquals("200", actDeepEntity.getData().get("iD"));
   }
 
@@ -393,7 +393,7 @@ public class TestCreateRequestEntity {
     return cProperties;
   }
 
-  private Link addParentNavigationLink(List<Link> navigationLinks) {
+  private Link addParentNavigationLink(final List<Link> navigationLinks) {
 
     final Link navigationLink = mock(Link.class);
     when(navigationLink.getTitle()).thenReturn("Parent");
@@ -405,24 +405,25 @@ public class TestCreateRequestEntity {
     return navigationLink;
   }
 
-  private void addParentBindingLink(List<Link> bindingLinks) {
-    Link bindingLink = mock(Link.class);
+  private void addParentBindingLink(final List<Link> bindingLinks) {
+    final Link bindingLink = mock(Link.class);
     when(bindingLink.getTitle()).thenReturn("Parent");
     bindingLinks.add(bindingLink);
     when(bindingLink.getBindingLink()).thenReturn(
         "AdministrativeDivisions(DivisionCode='DE1',CodeID='NUTS1',CodePublisher='Eurostat')");
   }
 
-  private void addChildrenNavigationLinkDE501(List<Link> navigationLinks) {
+  private void addChildrenNavigationLinkDE501(final List<Link> navigationLinks) {
     addChildrenNavigationLink(navigationLinks, "DE501", null);
   }
 
-  private void addNavigationLinkDE502(List<Link> navigationLinks) {
+  private void addNavigationLinkDE502(final List<Link> navigationLinks) {
 
     addChildrenNavigationLink(navigationLinks, "DE501", "DE502");
   }
 
-  private void addChildrenNavigationLink(List<Link> navigationLinks, String codeValue1, String codeValue2) {
+  private void addChildrenNavigationLink(final List<Link> navigationLinks, final String codeValue1,
+      final String codeValue2) {
     final Link navigationLink = mock(Link.class);
     when(navigationLink.getTitle()).thenReturn("Children");
     navigationLinks.add(navigationLink);
@@ -434,8 +435,8 @@ public class TestCreateRequestEntity {
     when(navigationEntity1.getProperties()).thenReturn(navigationEntityProperties1);//
     entityCollection.add(navigationEntity1);
     if (codeValue2 != null) {
-      Entity navigationEntity2 = mock(Entity.class);
-      List<Property> navigationEntityProperties2 = createPropertyCodeID(codeValue2);
+      final Entity navigationEntity2 = mock(Entity.class);
+      final List<Property> navigationEntityProperties2 = createPropertyCodeID(codeValue2);
       when(navigationEntity2.getProperties()).thenReturn(navigationEntityProperties2);//
       entityCollection.add(navigationEntity2);
     }
@@ -445,10 +446,10 @@ public class TestCreateRequestEntity {
 
   }
 
-  private void addChildrenBindingLink(List<Link> bindingLinks) {
-    List<String> links = new ArrayList<>();
+  private void addChildrenBindingLink(final List<Link> bindingLinks) {
+    final List<String> links = new ArrayList<>();
 
-    Link bindingLink = mock(Link.class);
+    final Link bindingLink = mock(Link.class);
     when(bindingLink.getTitle()).thenReturn("Children");
     bindingLinks.add(bindingLink);
     when(bindingLink.getBindingLinks()).thenReturn(links);
@@ -466,7 +467,7 @@ public class TestCreateRequestEntity {
   }
 
   private List<Property> createPropertyCodeID(final String codeID) {
-    List<Property> properties = new ArrayList<>();
+    final List<Property> properties = new ArrayList<>();
     createPrimitiveProperty(properties, codeID, "CodeID");
     return properties;
   }
@@ -485,25 +486,26 @@ public class TestCreateRequestEntity {
     properties.add(property);
   }
 
-  private List<Property> createPropertiesRoles(String BuPaId, String RoleCategory) {
-    List<Property> properties = new ArrayList<>();
+  private List<Property> createPropertiesRoles(final String BuPaId, final String RoleCategory) {
+    final List<Property> properties = new ArrayList<>();
     createPrimitiveProperty(properties, BuPaId, "BusinessPartnerID");
     createPrimitiveProperty(properties, RoleCategory, "RoleCategory");
     return properties;
   }
 
-  private Object findEntitryList(Map<JPAAssociationPath, List<JPARequestEntity>> relatedEntities,
-      String assoziationName) {
-    for (Entry<JPAAssociationPath, List<JPARequestEntity>> entity : relatedEntities.entrySet()) {
-      if (entity.getKey().getPath().get(0).getInternalName().equals(assoziationName))
+  private Object findEntryList(final Map<JPAAssociationPath, List<JPARequestEntity>> relatedEntities,
+      final String associationName) {
+    for (final Entry<JPAAssociationPath, List<JPARequestEntity>> entity : relatedEntities.entrySet()) {
+      if (entity.getKey().getPath().get(0).getInternalName().equals(associationName))
         return entity.getValue();
     }
     return null;
   }
 
-  private Object findLinkList(Map<JPAAssociationPath, List<JPARequestLink>> relationLink, String assoziationName) {
-    for (Entry<JPAAssociationPath, List<JPARequestLink>> entity : relationLink.entrySet()) {
-      if (entity.getKey().getPath().get(0).getInternalName().equals(assoziationName))
+  private Object findLinkList(final Map<JPAAssociationPath, List<JPARequestLink>> relationLink,
+      final String associationName) {
+    for (final Entry<JPAAssociationPath, List<JPARequestLink>> entity : relationLink.entrySet()) {
+      if (entity.getKey().getPath().get(0).getInternalName().equals(associationName))
         return entity.getValue();
     }
     return null;

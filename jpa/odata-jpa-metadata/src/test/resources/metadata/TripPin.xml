@@ -130,7 +130,7 @@
 			<EnumType Name="PersonGender">
 				<Member Name="Male" Value="0" />
 				<Member Name="Female" Value="1" />
-				<Member Name="Unknow" Value="2" />
+				<Member Name="Unknown" Value="2" />
 			</EnumType>
 			<EnumType Name="Feature">
 				<Member Name="Feature1" Value="0" />

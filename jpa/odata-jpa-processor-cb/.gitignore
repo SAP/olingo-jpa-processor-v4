@@ -1,0 +1,14 @@
+/.sts4-cache/
+
+target/
+**/target/
+/target/
+/.pmd
+/derby.log
+/test/
+/.settings/
+/*.log
+
+# JDT-specific (Eclipse Java Development Tools)
+.classpath
+/model/

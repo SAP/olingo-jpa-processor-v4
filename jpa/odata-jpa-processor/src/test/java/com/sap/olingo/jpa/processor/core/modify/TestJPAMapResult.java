@@ -32,7 +32,7 @@ public class TestJPAMapResult extends TestJPACreateResult {
     et = helper.getJPAEntityType("Organizations");
     children = new ArrayList<>();
     converter = new JPATupleChildConverter(helper.sd, OData.newInstance()
-        .createUriHelper(), new ServiceMetadataDouble(nameBuilder, "Organizations"));
+        .createUriHelper(), new ServiceMetadataDouble(nameBuilder, "Organizations"), requestContext);
   }
 
   @SuppressWarnings("unchecked")
@@ -52,6 +52,16 @@ public class TestJPAMapResult extends TestJPACreateResult {
     ((Map<String, Object>) jpaEntity).put("roleCategory", "A");
     cut = new JPAMapResult(et, (Map<String, Object>) jpaEntity, headers, converter);
 
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  protected void createCutGetResultEntityWithTransient() throws ODataJPAModelException, ODataApplicationException {
+    ((Map<String, Object>) jpaEntity).put("iD", "1222");
+    ((Map<String, Object>) jpaEntity).put("firstName", "Hans");
+    ((Map<String, Object>) jpaEntity).put("lastName", "Hubert");
+    ((Map<String, Object>) jpaEntity).put("fullName", "Hubert, Hans");
+    cut = new JPAMapResult(et, (Map<String, Object>) jpaEntity, headers, converter);
   }
 
   @SuppressWarnings("unchecked")
@@ -266,4 +276,5 @@ public class TestJPAMapResult extends TestJPACreateResult {
 
     cut = new JPAMapResult(et, (Map<String, Object>) jpaEntity, headers, converter);
   }
+
 }

@@ -8,7 +8,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 
 public interface JPAResultConverter {
 
-  public Object getResult(final JPAExpandResult jpaResult, final Collection<JPAPath> reqestedSelection)
+  public Object getResult(final JPAExpandResult jpaResult, final Collection<JPAPath> requestedSelection) 
       throws ODataApplicationException;
 
 }

@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.olingo.commons.api.ex.ODataException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -23,7 +22,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
 import com.sap.olingo.jpa.processor.core.testmodel.CommunicationData;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 
-public class TestCreateDeltaBasedResult extends TestJPAModifyProcessor {
+class TestCreateDeltaBasedResult extends TestJPAModifyProcessor {
   private JPACUDRequestProcessor cut;
   private List<JPAElement> pathElements;
   private Person beforeImagePerson;
@@ -31,7 +30,9 @@ public class TestCreateDeltaBasedResult extends TestJPAModifyProcessor {
   private JPAAssociationPath path;
 
   @BeforeEach
-  public void setup() throws ODataException {
+  @Override
+  public void setup() throws Exception {
+    super.setup();
     cut = new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext, new JPAConversionHelper());
     pathElements = new ArrayList<>(3);
     path = mock(JPAAssociationPath.class);
@@ -44,7 +45,7 @@ public class TestCreateDeltaBasedResult extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testShallReturnNullIfBeforeImageNotPresent() throws ODataJPAProcessorException {
+  void testShallReturnNullIfBeforeImageNotPresent() throws ODataJPAProcessorException {
 
     final JPAAssociationPath path = mock(JPAAssociationPath.class);
     final JPAElement pathItem = mock(JPAElement.class);
@@ -55,7 +56,7 @@ public class TestCreateDeltaBasedResult extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testThrowsExceptionIfBeforeIfManaged() throws ODataJPAProcessorException {
+  void testThrowsExceptionIfBeforeIfManaged() throws ODataJPAProcessorException {
     when(em.contains(beforeImagePerson)).thenReturn(Boolean.TRUE);
     assertThrows(ODataJPAProcessorException.class, () -> {
       cut.getLinkedInstanceBasedResultByDelta(currentImagePerson, path, Optional.ofNullable(beforeImagePerson));
@@ -63,7 +64,7 @@ public class TestCreateDeltaBasedResult extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testShallReturnNullIfTargetEmpty() throws ODataJPAProcessorException {
+  void testShallReturnNullIfTargetEmpty() throws ODataJPAProcessorException {
 
     prepareRole();
     final Object act = cut.getLinkedInstanceBasedResultByDelta(currentImagePerson, path, Optional.ofNullable(
@@ -72,7 +73,7 @@ public class TestCreateDeltaBasedResult extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testShallReturnNullIfNoDeltaFound() throws ODataJPAProcessorException {
+  void testShallReturnNullIfNoDeltaFound() throws ODataJPAProcessorException {
 
     prepareRole();
     final BusinessPartnerRole beforeRole = new BusinessPartnerRole();
@@ -86,7 +87,7 @@ public class TestCreateDeltaBasedResult extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testShallReturnsValueIfDeltaFoundBeforeEmpty() throws ODataJPAProcessorException {
+  void testShallReturnsValueIfDeltaFoundBeforeEmpty() throws ODataJPAProcessorException {
 
     prepareRole();
     final BusinessPartnerRole exp = new BusinessPartnerRole();
@@ -100,7 +101,7 @@ public class TestCreateDeltaBasedResult extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testShallReturnsValueIfDeltaFoundBeforeOneNowTwo() throws ODataJPAProcessorException {
+  void testShallReturnsValueIfDeltaFoundBeforeOneNowTwo() throws ODataJPAProcessorException {
 
     prepareRole();
     final BusinessPartnerRole exp = new BusinessPartnerRole(currentImagePerson, "A");
@@ -115,7 +116,7 @@ public class TestCreateDeltaBasedResult extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testShallReturnsValueIfDeltaFoundBeforeOneNowTwoInversOrder() throws ODataJPAProcessorException {
+  void testShallReturnsValueIfDeltaFoundBeforeOneNowTwoInversOrder() throws ODataJPAProcessorException {
 
     prepareRole();
     currentImagePerson.getRoles().add(new BusinessPartnerRole(currentImagePerson, "B"));
@@ -129,7 +130,7 @@ public class TestCreateDeltaBasedResult extends TestJPAModifyProcessor {
   }
 
   @Test
-  public void testShallReturnNewValueIfNotACollection() throws ODataJPAProcessorException {
+  void testShallReturnNewValueIfNotACollection() throws ODataJPAProcessorException {
     final CommunicationData exp = prepareBeforeImageCommunicationData();
     beforeImagePerson.setCommunicationData(exp);
     final Object act = cut.getLinkedInstanceBasedResultByDelta(currentImagePerson, path, Optional.ofNullable(

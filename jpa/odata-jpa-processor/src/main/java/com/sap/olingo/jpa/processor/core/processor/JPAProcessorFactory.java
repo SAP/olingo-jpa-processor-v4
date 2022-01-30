@@ -22,10 +22,10 @@ import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.queryoption.SystemQueryOption;
 import org.apache.olingo.server.api.uri.queryoption.SystemQueryOptionKind;
 
-import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.exception.JPAIllicalAccessException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
 import com.sap.olingo.jpa.processor.core.query.JPACountQuery;
@@ -33,13 +33,13 @@ import com.sap.olingo.jpa.processor.core.query.JPAJoinQuery;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializerFactory;
 
 public final class JPAProcessorFactory {
-  private final JPAODataCRUDContextAccess sessionContext;
+  private final JPAODataSessionContextAccess sessionContext;
   private final JPASerializerFactory serializerFactory;
   private final OData odata;
   private final ServiceMetadata serviceMetadata;
 
   public JPAProcessorFactory(final OData odata, final ServiceMetadata serviceMetadata,
-      final JPAODataCRUDContextAccess context) {
+      final JPAODataSessionContextAccess context) {
     super();
     this.sessionContext = context;
     this.serializerFactory = new JPASerializerFactory(odata, serviceMetadata, context);
@@ -50,18 +50,18 @@ public final class JPAProcessorFactory {
   public JPACUDRequestProcessor createCUDRequestProcessor(final UriInfo uriInfo, final ContentType responseFormat,
       final JPAODataRequestContextAccess context, final Map<String, List<String>> header) throws ODataException {
 
-    final JPAODataRequestContextAccess requestContext = new JPAODataRequestContextImpl(uriInfo, serializerFactory
+    final JPAODataRequestContextAccess requestContext = new JPAODataInternalRequestContext(uriInfo, serializerFactory
         .createCUDSerializer(responseFormat, uriInfo, Optional.ofNullable(header.get(HttpHeader.ODATA_MAX_VERSION))),
-        context);
+        context, header);
 
     return new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext,
         new JPAConversionHelper());
   }
 
   public JPACUDRequestProcessor createCUDRequestProcessor(final UriInfo uriInfo,
-      final JPAODataRequestContextAccess context) throws ODataException {
+      final JPAODataRequestContextAccess context, final Map<String, List<String>> header) throws ODataException {
 
-    final JPAODataRequestContextAccess requestContext = new JPAODataRequestContextImpl(uriInfo, context);
+    final JPAODataRequestContextAccess requestContext = new JPAODataInternalRequestContext(uriInfo, context, header);
 
     return new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext,
         new JPAConversionHelper());
@@ -70,9 +70,9 @@ public final class JPAProcessorFactory {
   public JPAActionRequestProcessor createActionProcessor(final UriInfo uriInfo, final ContentType responseFormat,
       final Map<String, List<String>> header, final JPAODataRequestContextAccess context) throws ODataException {
 
-    final JPAODataRequestContextAccess requestContext = new JPAODataRequestContextImpl(uriInfo,
+    final JPAODataRequestContextAccess requestContext = new JPAODataInternalRequestContext(uriInfo,
         responseFormat != null ? serializerFactory.createSerializer(responseFormat, uriInfo, Optional.ofNullable(header
-            .get(HttpHeader.ODATA_MAX_VERSION))) : null, context);
+            .get(HttpHeader.ODATA_MAX_VERSION))) : null, context, header);
 
     return new JPAActionRequestProcessor(odata, sessionContext, requestContext);
 
@@ -86,29 +86,30 @@ public final class JPAProcessorFactory {
     final JPAODataPage page = getPage(header, uriInfo, context);
     JPAODataRequestContextAccess requestContext;
     try {
-      requestContext = new JPAODataRequestContextImpl(page, serializerFactory
+      requestContext = new JPAODataInternalRequestContext(page, serializerFactory
           .createSerializer(responseFormat, page.getUriInfo(), Optional.ofNullable(header.get(
-              HttpHeader.ODATA_MAX_VERSION))), context);
-    } catch (JPAIllicalAccessException e) {
+              HttpHeader.ODATA_MAX_VERSION))), context, header);
+    } catch (final ODataJPAIllegalAccessException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
 
     switch (lastItem.getKind()) {
-    case count:
-      return new JPACountRequestProcessor(odata, sessionContext, requestContext);
-    case function:
-      checkFunctionPathSupported(resourceParts);
-      return new JPAFunctionRequestProcessor(odata, sessionContext, requestContext);
-    case complexProperty:
-    case primitiveProperty:
-    case navigationProperty:
-    case entitySet:
-    case value:
-      checkNavigationPathSupported(resourceParts);
-      return new JPANavigationRequestProcessor(odata, serviceMetadata, sessionContext, requestContext);
-    default:
-      throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
-          HttpStatusCode.NOT_IMPLEMENTED, lastItem.getKind().toString());
+      case count:
+        return new JPACountRequestProcessor(odata, sessionContext, requestContext);
+      case function:
+        checkFunctionPathSupported(resourceParts);
+        return new JPAFunctionRequestProcessor(odata, sessionContext, requestContext);
+      case complexProperty:
+      case primitiveProperty:
+      case navigationProperty:
+      case entitySet:
+      case singleton:
+      case value:
+        checkNavigationPathSupported(resourceParts);
+        return new JPANavigationRequestProcessor(odata, serviceMetadata, sessionContext, requestContext);
+      default:
+        throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
+            HttpStatusCode.NOT_IMPLEMENTED, lastItem.getKind().toString());
     }
   }
 
@@ -124,6 +125,7 @@ public final class JPAProcessorFactory {
           && resourceItem.getKind() != UriResourceKind.primitiveProperty
           && resourceItem.getKind() != UriResourceKind.navigationProperty
           && resourceItem.getKind() != UriResourceKind.entitySet
+          && resourceItem.getKind() != UriResourceKind.singleton
           && resourceItem.getKind() != UriResourceKind.value)
         throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
             HttpStatusCode.NOT_IMPLEMENTED, resourceItem.getKind().toString());
@@ -136,16 +138,16 @@ public final class JPAProcessorFactory {
     JPAODataPage page = new JPAODataPage(uriInfo, 0, Integer.MAX_VALUE, null);
     // Server-Driven-Paging
     if (serverDrivenPaging(uriInfo)) {
-      final String skiptoken = skipToken(uriInfo);
-      if (skiptoken != null && !skiptoken.isEmpty()) {
-        page = sessionContext.getPagingProvider().getNextPage(skiptoken);
+      final String skipToken = skipToken(uriInfo);
+      if (skipToken != null && !skipToken.isEmpty()) {
+        page = sessionContext.getPagingProvider().getNextPage(skipToken);
         if (page == null)
-          throw new ODataJPAProcessorException(QUERY_SERVER_DRIVEN_PAGING_GONE, HttpStatusCode.GONE, skiptoken);
+          throw new ODataJPAProcessorException(QUERY_SERVER_DRIVEN_PAGING_GONE, HttpStatusCode.GONE, skipToken);
       } else {
-        final JPACountQuery countQuery = new JPAJoinQuery(odata, sessionContext, headers,
-            new JPAODataRequestContextImpl(uriInfo, requestContext));
-        final Integer preferedPagesize = getPreferedPagesize(headers);
-        final JPAODataPage firstPage = sessionContext.getPagingProvider().getFirstPage(uriInfo, preferedPagesize,
+        final JPACountQuery countQuery = new JPAJoinQuery(odata, sessionContext,
+            new JPAODataInternalRequestContext(uriInfo, requestContext, headers));
+        final Integer preferredPagesize = getPreferredPagesize(headers);
+        final JPAODataPage firstPage = sessionContext.getPagingProvider().getFirstPage(uriInfo, preferredPagesize,
             countQuery, requestContext.getEntityManager());
         page = firstPage != null ? firstPage : page;
       }
@@ -153,15 +155,15 @@ public final class JPAProcessorFactory {
     return page;
   }
 
-  private Integer getPreferedPagesize(final Map<String, List<String>> headers) throws ODataJPAProcessorException {
+  private Integer getPreferredPagesize(final Map<String, List<String>> headers) throws ODataJPAProcessorException {
 
-    final List<String> preferedHeaders = getHeader("Prefer", headers);
-    if (preferedHeaders != null) {
-      for (String header : preferedHeaders) {
+    final List<String> preferredHeaders = getHeader("Prefer", headers);
+    if (preferredHeaders != null) {
+      for (final String header : preferredHeaders) {
         if (header.startsWith("odata.maxpagesize")) {
           try {
             return Integer.valueOf((header.split("=")[1]));
-          } catch (NumberFormatException e) {
+          } catch (final NumberFormatException e) {
             throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
           }
         }
@@ -172,7 +174,7 @@ public final class JPAProcessorFactory {
 
   private boolean serverDrivenPaging(final UriInfo uriInfo) throws ODataJPAProcessorException {
 
-    for (SystemQueryOption option : uriInfo.getSystemQueryOptions()) {
+    for (final SystemQueryOption option : uriInfo.getSystemQueryOptions()) {
       if (option.getKind() == SystemQueryOptionKind.SKIPTOKEN
           && sessionContext.getPagingProvider() == null)
         throw new ODataJPAProcessorException(QUERY_SERVER_DRIVEN_PAGING_NOT_IMPLEMENTED,
@@ -184,7 +186,7 @@ public final class JPAProcessorFactory {
   }
 
   private String skipToken(final UriInfo uriInfo) {
-    for (SystemQueryOption option : uriInfo.getSystemQueryOptions()) {
+    for (final SystemQueryOption option : uriInfo.getSystemQueryOptions()) {
       if (option.getKind() == SystemQueryOptionKind.SKIPTOKEN)
         return option.getText();
     }

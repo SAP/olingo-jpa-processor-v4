@@ -18,7 +18,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 @SuppressWarnings("rawtypes")
-public class TestJPAKeyPair {
+class TestJPAKeyPair {
   private JPAKeyPair cut;
   private JPAAttribute attribute1;
   private JPAAttribute attribute2;
@@ -29,7 +29,7 @@ public class TestJPAKeyPair {
   private List<JPAAttribute> keyDef;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     attribute1 = mock(JPAAttribute.class);
     attribute2 = mock(JPAAttribute.class);
     attribute3 = mock(JPAAttribute.class);
@@ -44,19 +44,19 @@ public class TestJPAKeyPair {
   }
 
   @Test
-  public void testCreatePairWithOnlyOneValue() {
+  void testCreatePairWithOnlyOneValue() {
     assertNotNull(cut);
   }
 
   @Test
-  public void testCreatePairWithOneValues() {
+  void testCreatePairWithOneValues() {
     cut.setValue(key1);
     assertFalse(cut.hasUpperBoundary());
     assertEquals(10, cut.getMin().get(attribute1));
   }
 
   @Test
-  public void testCreatePairWithTwoValues() throws ODataJPAQueryException {
+  void testCreatePairWithTwoValues() throws ODataJPAQueryException {
     cut.setValue(key1);
     cut.setValue(key2);
     assertEquals(10, cut.getMin().get(attribute1));
@@ -65,7 +65,7 @@ public class TestJPAKeyPair {
   }
 
   @Test
-  public void testCreatePairWithTwoValuesSecondLower() throws ODataJPAQueryException {
+  void testCreatePairWithTwoValuesSecondLower() throws ODataJPAQueryException {
     cut.setValue(key2);
     cut.setValue(key1);
     assertEquals(10, cut.getMin().get(attribute1));
@@ -74,7 +74,7 @@ public class TestJPAKeyPair {
   }
 
   @Test
-  public void testCreatePairWithThirdValuesHigher() throws ODataJPAQueryException {
+  void testCreatePairWithThirdValuesHigher() throws ODataJPAQueryException {
     key3.put(attribute1, Integer.valueOf(101));
     cut.setValue(key2);
     cut.setValue(key1);
@@ -84,7 +84,7 @@ public class TestJPAKeyPair {
   }
 
   @Test
-  public void testCreatePairWithThirdValuesLower() throws ODataJPAQueryException {
+  void testCreatePairWithThirdValuesLower() throws ODataJPAQueryException {
     key3.put(attribute1, Integer.valueOf(9));
     cut.setValue(key2);
     cut.setValue(key1);
@@ -94,7 +94,7 @@ public class TestJPAKeyPair {
   }
 
   @Test
-  public void testCreatePairWithThirdValuesBetween() throws ODataJPAQueryException {
+  void testCreatePairWithThirdValuesBetween() throws ODataJPAQueryException {
     key3.put(attribute1, Integer.valueOf(50));
     cut.setValue(key2);
     cut.setValue(key1);
@@ -104,7 +104,7 @@ public class TestJPAKeyPair {
   }
 
   @Test
-  public void testCreatePairWithOneCompound() {
+  void testCreatePairWithOneCompound() {
     fillKeyAttributes();
     cut.setValue(createCompoundKey("A", "B", "C"));
     assertFalse(cut.hasUpperBoundary());
@@ -112,7 +112,7 @@ public class TestJPAKeyPair {
   }
 
   @Test
-  public void testCreatePairWithTwoCompoundSame() {
+  void testCreatePairWithTwoCompoundSame() {
     fillKeyAttributes();
     cut.setValue(createCompoundKey("A", "B", "C"));
     cut.setValue(createCompoundKey("A", "B", "C"));
@@ -121,7 +121,7 @@ public class TestJPAKeyPair {
   }
 
   @Test
-  public void testCreatePairWithTwoCompoundLastBigger() {
+  void testCreatePairWithTwoCompoundLastBigger() {
     fillKeyAttributes();
     cut.setValue(createCompoundKey("A", "B", "C"));
     cut.setValue(createCompoundKey("A", "B", "D"));
@@ -131,7 +131,7 @@ public class TestJPAKeyPair {
   }
 
   @Test
-  public void testCreatePairWithTwoCompoundFirstBigger() {
+  void testCreatePairWithTwoCompoundFirstBigger() {
     fillKeyAttributes();
     cut.setValue(createCompoundKey("A", "B", "C"));
     cut.setValue(createCompoundKey("B", "B", "C"));
@@ -143,7 +143,7 @@ public class TestJPAKeyPair {
   }
 
   @Test
-  public void testCreatePairWithThreeCompoundLastKeyBigger() {
+  void testCreatePairWithThreeCompoundLastKeyBigger() {
     fillKeyAttributes();
     cut.setValue(createCompoundKey("A", "B", "C"));
     cut.setValue(createCompoundKey("B", "A", "D"));
@@ -156,7 +156,7 @@ public class TestJPAKeyPair {
   }
 
   @Test
-  public void testCreatePairWithThreeCompoundSecondBigger() {
+  void testCreatePairWithThreeCompoundSecondBigger() {
     fillKeyAttributes();
     cut.setValue(createCompoundKey("A", "B", "C"));
     cut.setValue(createCompoundKey("C", "B", "C"));
@@ -169,7 +169,7 @@ public class TestJPAKeyPair {
   }
 
   @Test
-  public void testCreatePairWithThreeCompoundLastKeySmallest() {
+  void testCreatePairWithThreeCompoundLastKeySmallest() {
     fillKeyAttributes();
     cut.setValue(createCompoundKey("B", "A", "D"));
     cut.setValue(createCompoundKey("C", "B", "C"));

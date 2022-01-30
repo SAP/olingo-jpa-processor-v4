@@ -54,11 +54,13 @@ class IntermediateOperationParameter extends IntermediateModelElement implements
 
   @Override
   public FullQualifiedName getTypeFQN() throws ODataJPAModelException {
-    return JPATypeConvertor.convertToEdmSimpleType(jpaParameter.type()).getFullQualifiedName();
+    return JPATypeConverter.convertToEdmSimpleType(jpaParameter.type()).getFullQualifiedName();
   }
 
   @Override
-  protected void lazyBuildEdmItem() throws ODataJPAModelException {}
+  protected void lazyBuildEdmItem() throws ODataJPAModelException {
+    // No build needed, as IntermediateOperationParameter is a facade for EdmParameter annotation
+  }
 
   @Override
   CsdlAbstractEdmItem getEdmItem() throws ODataJPAModelException {
@@ -71,7 +73,8 @@ class IntermediateOperationParameter extends IntermediateModelElement implements
       final SRID srid = SRID.valueOf(jpaParameter.srid().srid());
       srid.setDimension(jpaParameter.srid().dimension());
       return srid;
-    } else
+    } else {
       return null;
+    }
   }
 }

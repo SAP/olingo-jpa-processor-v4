@@ -44,7 +44,7 @@ public class TestJPASerializeEntityCollection extends TestJPAOperationSerializer
   }
 
   @Override
-  protected void initTest(final List<UriResource> resouceParts) {
+  protected void initTest(final List<UriResource> resourceParts) {
     annotatable = mock(EntityCollection.class);
     cut = new JPASerializeEntityCollection(serviceMetadata, serializer, uriHelper, uriInfo,
         ContentType.APPLICATION_JSON, context);
@@ -53,7 +53,7 @@ public class TestJPASerializeEntityCollection extends TestJPAOperationSerializer
   @Override
   protected <T> void verifySerializerCall(final ODataSerializer serializer, final String pattern)
       throws SerializerException {
-
+    
     verify(serializer).entityCollection(any(), any(), any(), argThat(createMatcher(pattern)));
   }
 }

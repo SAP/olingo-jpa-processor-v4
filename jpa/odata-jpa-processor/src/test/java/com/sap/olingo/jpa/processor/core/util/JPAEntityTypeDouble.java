@@ -2,11 +2,14 @@ package com.sap.olingo.jpa.processor.core.util;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.server.api.uri.UriResourceProperty;
 
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmQueryExtensionProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
@@ -14,23 +17,24 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPACollectionAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAProtectionInfo;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAQueryExtension;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 public class JPAEntityTypeDouble implements JPAEntityType {
   private final JPAEntityType base;
 
-  public JPAEntityTypeDouble(JPAEntityType base) {
+  public JPAEntityTypeDouble(final JPAEntityType base) {
     super();
     this.base = base;
   }
 
   @Override
-  public JPAAssociationAttribute getAssociation(String internalName) throws ODataJPAModelException {
+  public JPAAssociationAttribute getAssociation(final String internalName) throws ODataJPAModelException {
     return base.getAssociation(internalName);
   }
 
   @Override
-  public JPAAssociationPath getAssociationPath(String externalName) throws ODataJPAModelException {
+  public JPAAssociationPath getAssociationPath(final String externalName) throws ODataJPAModelException {
     return base.getAssociationPath(externalName);
   }
 
@@ -41,13 +45,13 @@ public class JPAEntityTypeDouble implements JPAEntityType {
   }
 
   @Override
-  public JPAAttribute getAttribute(UriResourceProperty uriResourceItem) throws ODataJPAModelException {
+  public Optional<JPAAttribute> getAttribute(final UriResourceProperty uriResourceItem) throws ODataJPAModelException {
     fail();
-    return null;
+    return Optional.empty();
   }
 
   @Override
-  public JPAAttribute getAttribute(String internalName) throws ODataJPAModelException {
+  public Optional<JPAAttribute> getAttribute(final String internalName) throws ODataJPAModelException {
     return base.getAttribute(internalName);
   }
 
@@ -59,42 +63,40 @@ public class JPAEntityTypeDouble implements JPAEntityType {
   @Override
   public List<JPAPath> getCollectionAttributesPath() throws ODataJPAModelException {
     fail();
-    return null;
-  }
-
-  @Override
-  public JPAAssociationPath getDeclaredAssociation(JPAAssociationPath associationPath) throws ODataJPAModelException {
-    fail();
-    return null;
-  }
-
-  @Override
-  public JPAAssociationPath getDeclaredAssociation(String externalName) throws ODataJPAModelException {
-    fail();
-    return null;
+    return Collections.emptyList();
   }
 
   @Override
   public List<JPAAssociationAttribute> getDeclaredAssociations() throws ODataJPAModelException {
     fail();
-    return null;
+    return Collections.emptyList();
   }
 
   @Override
   public List<JPAAttribute> getDeclaredAttributes() throws ODataJPAModelException {
-    fail();
-    return null;
+    return base.getDeclaredAttributes();
+  }
+
+  @Override
+  public Optional<JPAAttribute> getDeclaredAttribute(final String internalName) throws ODataJPAModelException {
+    return base.getDeclaredAttribute(internalName);
   }
 
   @Override
   public List<JPACollectionAttribute> getDeclaredCollectionAttributes() throws ODataJPAModelException {
     fail();
-    return null;
+    return Collections.emptyList();
   }
 
   @Override
-  public JPAPath getPath(String externalName) throws ODataJPAModelException {
+  public JPAPath getPath(final String externalName) throws ODataJPAModelException {
     return base.getPath(externalName);
+  }
+
+  @Override
+  public JPAPath getPath(final String externalName, final boolean respectIgnore) throws ODataJPAModelException {
+    fail();
+    return null;
   }
 
   @Override
@@ -125,7 +127,7 @@ public class JPAEntityTypeDouble implements JPAEntityType {
 
   @Override
   public String getInternalName() {
-    return getInternalName();
+    return base.getInternalName();
   }
 
   @Override
@@ -183,12 +185,12 @@ public class JPAEntityTypeDouble implements JPAEntityType {
   }
 
   @Override
-  public List<JPAPath> searchChildPath(JPAPath selectItemPath) {
+  public List<JPAPath> searchChildPath(final JPAPath selectItemPath) {
     return base.searchChildPath(selectItemPath);
   }
 
   @Override
-  public JPACollectionAttribute getCollectionAttribute(String externalName) throws ODataJPAModelException {
+  public JPACollectionAttribute getCollectionAttribute(final String externalName) throws ODataJPAModelException {
     return base.getCollectionAttribute(externalName);
   }
 
@@ -209,4 +211,9 @@ public class JPAEntityTypeDouble implements JPAEntityType {
     return false;
   }
 
+  @Override
+  public <X extends EdmQueryExtensionProvider> Optional<JPAQueryExtension<X>> getQueryExtention()
+      throws ODataJPAModelException {
+    return Optional.empty();
+  }
 }

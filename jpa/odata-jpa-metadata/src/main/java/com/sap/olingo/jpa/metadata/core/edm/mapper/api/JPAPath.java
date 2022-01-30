@@ -9,7 +9,7 @@ import java.util.List;
  */
 public interface JPAPath extends Comparable<JPAPath> {
 
-  final String PATH_SEPERATOR = "/";
+  final String PATH_SEPARATOR = "/";
 
   /**
    * External unique identifier for a path. Two path are seen as equal if they have the same alias
@@ -46,5 +46,11 @@ public interface JPAPath extends Comparable<JPAPath> {
    * @return
    */
   public boolean isPartOfGroups(final List<String> groups);
+
+  /**
+   * 
+   * @return True in case at least on of the elements of the path is a transient property
+   */
+  public boolean isTransient();
 
 }

@@ -16,37 +16,37 @@ import org.junit.jupiter.api.Test;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.ODataFunction;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.ODataFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaEmConstructor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaFunctions;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaOneFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaPrivateConstructor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaTwoParameterConstructor;
 
-public class TestIntermediateJavaFunction extends TestMappingRoot {
+class TestIntermediateJavaFunction extends TestMappingRoot {
   private TestHelper helper;
 
   @BeforeEach
-  public void setup() throws ODataJPAModelException {
+  void setup() throws ODataJPAModelException {
     helper = new TestHelper(emf.getMetamodel(), PUNIT_NAME);
   }
 
   @Test
-  public void checkInternalNameEqualMethodName() throws ODataJPAModelException {
-    IntermediateFunction act = createFunction(ExampleJavaOneFunction.class, "sum");
+  void checkInternalNameEqualMethodName() throws ODataJPAModelException {
+    final IntermediateFunction act = createFunction(ExampleJavaOneFunction.class, "sum");
 
     assertEquals("sum", act.getInternalName());
   }
 
   @Test
-  public void checkExternalNameEqualMethodName() throws ODataJPAModelException {
-    IntermediateFunction act = createFunction(ExampleJavaOneFunction.class, "sum");
+  void checkExternalNameEqualMethodName() throws ODataJPAModelException {
+    final IntermediateFunction act = createFunction(ExampleJavaOneFunction.class, "sum");
 
     assertEquals("Sum", act.getExternalName());
   }
 
   @Test
-  public void checkReturnsConvertedPrimitiveReturnType() throws ODataJPAModelException {
+  void checkReturnsConvertedPrimitiveReturnType() throws ODataJPAModelException {
     final IntermediateJavaFunction act = createFunction(ExampleJavaOneFunction.class, "sum");
 
     assertNotNull(act.getEdmItem());
@@ -55,7 +55,7 @@ public class TestIntermediateJavaFunction extends TestMappingRoot {
   }
 
   @Test
-  public void checkReturnsConvertedPrimitiveParameterTypes() throws ODataJPAModelException {
+  void checkReturnsConvertedPrimitiveParameterTypes() throws ODataJPAModelException {
     final IntermediateJavaFunction act = createFunction(ExampleJavaOneFunction.class, "sum");
 
     assertNotNull(act.getEdmItem());
@@ -68,7 +68,7 @@ public class TestIntermediateJavaFunction extends TestMappingRoot {
   }
 
   @Test
-  public void checkThrowsExcpetionForNonPrimitiveParameter() throws ODataJPAModelException {
+  void checkThrowsExcpetionForNonPrimitiveParameter() throws ODataJPAModelException {
     final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "errorNonPrimitiveParameter");
 
     assertThrows(ODataJPAModelException.class, () -> {
@@ -77,7 +77,7 @@ public class TestIntermediateJavaFunction extends TestMappingRoot {
   }
 
   @Test
-  public void checkReturnsFalseForIsBound() throws ODataJPAModelException {
+  void checkReturnsFalseForIsBound() throws ODataJPAModelException {
     final IntermediateJavaFunction act = createFunction(ExampleJavaOneFunction.class, "sum");
 
     assertNotNull(act.getEdmItem());
@@ -85,21 +85,21 @@ public class TestIntermediateJavaFunction extends TestMappingRoot {
   }
 
   @Test
-  public void checkReturnsTrueForHasFunctionImport() throws ODataJPAModelException {
+  void checkReturnsTrueForHasFunctionImport() throws ODataJPAModelException {
     final IntermediateJavaFunction act = createFunction(ExampleJavaOneFunction.class, "sum");
 
     assertTrue(act.hasImport());
   }
 
   @Test
-  public void checkReturnsAnnotatedName() throws ODataJPAModelException {
+  void checkReturnsAnnotatedName() throws ODataJPAModelException {
     final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "sum");
 
     assertEquals("Add", act.getExternalName());
   }
 
   @Test
-  public void checkIgnoresGivenIsBound() throws ODataJPAModelException {
+  void checkIgnoresGivenIsBound() throws ODataJPAModelException {
     final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "sum");
 
     assertFalse(act.getEdmItem().isBound());
@@ -107,14 +107,14 @@ public class TestIntermediateJavaFunction extends TestMappingRoot {
   }
 
   @Test
-  public void checkIgnoresGivenHasFunctionImport() throws ODataJPAModelException {
+  void checkIgnoresGivenHasFunctionImport() throws ODataJPAModelException {
     final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "sum");
 
     assertTrue(act.hasImport());
   }
 
   @Test
-  public void checkReturnsEnumerationTypeAsParameter() throws ODataJPAModelException {
+  void checkReturnsEnumerationTypeAsParameter() throws ODataJPAModelException {
     final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "returnEnumerationType");
 
     assertEquals("com.sap.olingo.jpa.AccessRights", act.getEdmItem().getParameters().get(0).getTypeFQN()
@@ -127,7 +127,7 @@ public class TestIntermediateJavaFunction extends TestMappingRoot {
   }
 
   @Test
-  public void checkIgnoresParameterAsPartFromEdmFunction() throws ODataJPAModelException {
+  void checkIgnoresParameterAsPartFromEdmFunction() throws ODataJPAModelException {
     final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "div");
 
     assertNotNull(act.getEdmItem());
@@ -137,7 +137,7 @@ public class TestIntermediateJavaFunction extends TestMappingRoot {
   }
 
   @Test
-  public void checkThrowsExceptionIfAnnotatedReturnTypeNEDeclairedType() throws ODataJPAModelException {
+  void checkThrowsExceptionIfAnnotatedReturnTypeNEDeclairedType() throws ODataJPAModelException {
     final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "errorReturnType");
     assertThrows(ODataJPAModelException.class, () -> {
       act.getEdmItem();
@@ -145,23 +145,32 @@ public class TestIntermediateJavaFunction extends TestMappingRoot {
   }
 
   @Test
-  public void checkReturnsFacetForNumbersOfReturnType() throws ODataJPAModelException {
+  void checkReturnsFacetForNumbersOfReturnType() throws ODataJPAModelException {
     final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "now");
     assertFalse(act.getEdmItem().getReturnType().isNullable());
-    assertEquals(Integer.valueOf(9), act.getEdmItem().getReturnType().getPrecision());
-    assertEquals(Integer.valueOf(3), act.getEdmItem().getReturnType().getScale());
+    assertEquals(9, act.getEdmItem().getReturnType().getPrecision());
+    assertEquals(3, act.getEdmItem().getReturnType().getScale());
   }
 
   @Test
-  public void checkReturnsFacetForStringsAndGeoOfReturnType() throws ODataJPAModelException {
+  void checkReturnsFacetForStringsAndGeoOfReturnType() throws ODataJPAModelException {
     final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "determineLocation");
-    assertEquals(Integer.valueOf(60), act.getEdmItem().getReturnType().getMaxLength());
+    assertEquals(60, act.getEdmItem().getReturnType().getMaxLength());
     assertEquals(Dimension.GEOGRAPHY, act.getEdmItem().getReturnType().getSrid().getDimension());
     assertEquals("4326", act.getEdmItem().getReturnType().getSrid().toString());
   }
 
   @Test
-  public void checkReturnsIsCollectionIfDefinedReturnTypeIsSubclassOfCollection() throws ODataJPAModelException {
+  void checkReturnsParameterFacetWithMapping() throws ODataJPAModelException {
+    final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "sum");
+
+    assertNotNull(act.getEdmItem().getParameters());
+    assertNotNull(act.getEdmItem().getParameters().get(0).getMapping());
+    assertEquals(Short.class, act.getEdmItem().getParameters().get(0).getMapping().getMappedJavaClass());
+  }
+
+  @Test
+  void checkReturnsIsCollectionIfDefinedReturnTypeIsSubclassOfCollection() throws ODataJPAModelException {
     final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "returnCollection");
 
     assertTrue(act.getEdmItem().getReturnType().isCollection());
@@ -169,7 +178,7 @@ public class TestIntermediateJavaFunction extends TestMappingRoot {
   }
 
   @Test
-  public void checkThrowsExceptionIfCollectionAndReturnTypeEmpty() throws ODataJPAModelException {
+  void checkThrowsExceptionIfCollectionAndReturnTypeEmpty() throws ODataJPAModelException {
     final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class,
         "returnCollectionWithoutReturnType");
     assertThrows(ODataJPAModelException.class, () -> {
@@ -178,14 +187,14 @@ public class TestIntermediateJavaFunction extends TestMappingRoot {
   }
 
   @Test
-  public void checkReturnsEmbeddableTypeAsReturnType() throws ODataJPAModelException {
+  void checkReturnsEmbeddableTypeAsReturnType() throws ODataJPAModelException {
     final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "returnEmbeddable");
 
     assertEquals("com.sap.olingo.jpa.ChangeInformation", act.getEdmItem().getReturnType().getType());
   }
 
   @Test
-  public void checkReturnsEmbeddableCollectionTypeAsReturnType() throws ODataJPAModelException {
+  void checkReturnsEmbeddableCollectionTypeAsReturnType() throws ODataJPAModelException {
     final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "returnEmbeddableCollection");
 
     assertEquals("com.sap.olingo.jpa.ChangeInformation", act.getEdmItem().getReturnType().getType());
@@ -193,28 +202,28 @@ public class TestIntermediateJavaFunction extends TestMappingRoot {
   }
 
   @Test
-  public void checkReturnsEntityTypeAsReturnType() throws ODataJPAModelException {
+  void checkReturnsEntityTypeAsReturnType() throws ODataJPAModelException {
     final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "returnEntity");
     assertEquals("com.sap.olingo.jpa.Person", act.getEdmItem().getReturnType().getType());
   }
 
   @Test
-  public void checkReturnsEnumerationTypeAsReturnType() throws ODataJPAModelException {
+  void checkReturnsEnumerationTypeAsReturnType() throws ODataJPAModelException {
 
     final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "returnEnumerationType");
-    assertEquals("com.sap.olingo.jpa.ABCClassifiaction", act.getEdmItem().getReturnType().getType());
+    assertEquals("com.sap.olingo.jpa.ABCClassification", act.getEdmItem().getReturnType().getType());
   }
 
   @Test
-  public void checkReturnsEnumerationCollectionTypeAsReturnType() throws ODataJPAModelException {
+  void checkReturnsEnumerationCollectionTypeAsReturnType() throws ODataJPAModelException {
     final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "returnEnumerationCollection");
 
-    assertEquals("com.sap.olingo.jpa.ABCClassifiaction", act.getEdmItem().getReturnType().getType());
+    assertEquals("com.sap.olingo.jpa.ABCClassification", act.getEdmItem().getReturnType().getType());
     assertTrue(act.getEdmItem().getReturnType().isCollection());
   }
 
   @Test
-  public void checkThrowsExcpetionOnNotSupportedReturnType() throws ODataJPAModelException {
+  void checkThrowsExcpetionOnNotSupportedReturnType() throws ODataJPAModelException {
     final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "wrongReturnType");
     assertThrows(ODataJPAModelException.class, () -> {
       act.getEdmItem();
@@ -222,37 +231,37 @@ public class TestIntermediateJavaFunction extends TestMappingRoot {
   }
 
   @Test
-  public void checkExceptConstructorWithoutParameter() throws ODataJPAModelException {
+  void checkExceptConstructorWithoutParameter() throws ODataJPAModelException {
     final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "sum");
     act.getEdmItem();
   }
 
   @Test
-  public void checkExceptConstructorWithEntityManagerParameter() throws ODataJPAModelException {
+  void checkExceptConstructorWithEntityManagerParameter() throws ODataJPAModelException {
     final IntermediateJavaFunction act = createFunction(ExampleJavaEmConstructor.class, "sum");
     act.getEdmItem();
   }
 
   @Test
-  public void checkThrowsExcpetionOnPrivateConstructor() throws ODataJPAModelException {
+  void checkThrowsExcpetionOnPrivateConstructor() throws ODataJPAModelException {
     assertThrows(ODataJPAModelException.class, () -> {
       createFunction(ExampleJavaPrivateConstructor.class, "sum");
     });
   }
 
   @Test
-  public void checkThrowsExcpetionOnNoConstructorAsSpecified() throws ODataJPAModelException {
+  void checkThrowsExcpetionOnNoConstructorAsSpecified() throws ODataJPAModelException {
     assertThrows(ODataJPAModelException.class, () -> {
       createFunction(ExampleJavaTwoParameterConstructor.class, "sum");
     });
   }
 
-  private IntermediateJavaFunction createFunction(Class<? extends ODataFunction> clazz, String method)
+  private IntermediateJavaFunction createFunction(final Class<? extends ODataFunction> clazz, final String method)
       throws ODataJPAModelException {
-    for (Method m : Arrays.asList(clazz.getMethods())) {
-      EdmFunction functionDescribtion = m.getAnnotation(EdmFunction.class);
-      if (functionDescribtion != null && method.equals(m.getName())) {
-        return new IntermediateJavaFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME), functionDescribtion, m,
+    for (final Method m : Arrays.asList(clazz.getMethods())) {
+      final EdmFunction functionDescription = m.getAnnotation(EdmFunction.class);
+      if (functionDescription != null && method.equals(m.getName())) {
+        return new IntermediateJavaFunction(new JPADefaultEdmNameBuilder(PUNIT_NAME), functionDescription, m,
             helper.schema);
       }
     }

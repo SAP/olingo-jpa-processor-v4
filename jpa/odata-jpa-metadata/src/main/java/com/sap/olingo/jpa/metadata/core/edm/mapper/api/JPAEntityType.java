@@ -1,7 +1,9 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.api;
 
 import java.util.List;
+import java.util.Optional;
 
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmQueryExtensionProvider;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 public interface JPAEntityType extends JPAStructuredType {
@@ -20,7 +22,8 @@ public interface JPAEntityType extends JPAStructuredType {
   public JPACollectionAttribute getCollectionAttribute(final String externalName) throws ODataJPAModelException;
 
   /**
-   * 
+   *
+   *
    * @return Mime type of streaming content
    * @throws ODataJPAModelException
    */
@@ -32,8 +35,7 @@ public interface JPAEntityType extends JPAStructuredType {
 
   /**
    * Returns a resolved list of all attributes that are marked as Id, so the attributes of an EmbeddedId are returned as
-   * separate entries. For compound keys has the opposite order of the attributes in the entity or embedded id
-   * respectively.
+   * separate entries. They are returned in the same order they are mentioned in the corresponding type.
    * @return
    * @throws ODataJPAModelException
    */
@@ -59,7 +61,7 @@ public interface JPAEntityType extends JPAStructuredType {
   public boolean hasCompoundKey();
 
   /**
-   * 
+   *
    * @return
    * @throws ODataJPAModelException
    */
@@ -68,7 +70,7 @@ public interface JPAEntityType extends JPAStructuredType {
   public JPAPath getStreamAttributePath() throws ODataJPAModelException;
 
   /**
-   * 
+   *
    * @return Name of the database table
    */
   public String getTableName();
@@ -79,4 +81,6 @@ public interface JPAEntityType extends JPAStructuredType {
 
   public List<JPAPath> searchChildPath(final JPAPath selectItemPath);
 
+  public <X extends EdmQueryExtensionProvider> Optional<JPAQueryExtension<X>> getQueryExtention()
+      throws ODataJPAModelException;
 }

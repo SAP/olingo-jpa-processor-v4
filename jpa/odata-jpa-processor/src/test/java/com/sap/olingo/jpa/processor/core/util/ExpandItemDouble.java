@@ -21,9 +21,9 @@ import org.apache.olingo.server.api.uri.queryoption.TopOption;
 public class ExpandItemDouble implements ExpandItem {
   private UriResourceNavigation target;
 
-  public ExpandItemDouble(final EdmEntityType naviTargetEntity) {
-    target = new UriResourceNavigationDouble(naviTargetEntity, new EdmNavigationPropertyDouble(
-        naviTargetEntity.getName()));
+  public ExpandItemDouble(final EdmEntityType navigationTargetEntity) {
+    target = new UriResourceNavigationDouble(navigationTargetEntity, new EdmNavigationPropertyDouble(
+        navigationTargetEntity.getName()));
   }
 
   @Override

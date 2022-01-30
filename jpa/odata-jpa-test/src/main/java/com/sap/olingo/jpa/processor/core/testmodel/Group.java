@@ -7,8 +7,10 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.Transient;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransient;
 
 @MappedSuperclass
 public class Group {
@@ -29,4 +31,7 @@ public class Group {
       insertable = false, updatable = false)
   private Person lead;
 
+  @EdmTransient(requiredAttributes = { "iD", "name" }, calculator = GroupNameCalculator.class)
+  @Transient
+  private String fullName;
 }

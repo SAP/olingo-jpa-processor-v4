@@ -1,7 +1,9 @@
 package com.sap.olingo.jpa.processor.core.api;
 
+import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -12,79 +14,54 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceException;
 import javax.sql.DataSource;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
-import org.apache.olingo.server.api.OData;
-import org.apache.olingo.server.api.ODataResponse;
-import org.apache.olingo.server.api.debug.DebugInformation;
-import org.apache.olingo.server.api.debug.DebugSupport;
-import org.apache.olingo.server.api.debug.DefaultDebugSupport;
-import org.apache.olingo.server.api.debug.RuntimeMeasurement;
 import org.apache.olingo.server.api.processor.ErrorProcessor;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPADefaultEdmNameBuilder;
 import com.sap.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseProcessorFactory;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 
-public final class JPAODataServiceContext implements JPAODataCRUDContext, JPAODataCRUDContextAccess {
+public final class JPAODataServiceContext implements JPAODataSessionContextAccess {
   /**
-   * 
+   *
    */
-  @Deprecated
-  private final JPAODataGetHandler jpaODataGetHandler;
-  private List<EdmxReference> references = new ArrayList<>(); //
-  private JPADebugSupportWrapper debugSupport; //
-  private JPAODataDatabaseOperations operationConverter; //
+  private static final Log LOGGER = LogFactory.getLog(JPAODataServiceContext.class);
+  private List<EdmxReference> references = new ArrayList<>();
+  private final JPAODataDatabaseOperations operationConverter;
   private JPAEdmProvider jpaEdm;
-  private JPAODataDatabaseProcessor databaseProcessor; //
-  private JPAEdmMetadataPostProcessor postProcessor; //
-  private JPACUDRequestHandler jpaCUDRequestHandler; //
-  private String[] packageName; //
-  private ErrorProcessor errorProcessor; //
-  private JPAODataPagingProvider pagingProvider;
-  private Optional<EntityManagerFactory> emf;
+  private final JPAODataDatabaseProcessor databaseProcessor;
+  private final JPAEdmMetadataPostProcessor postProcessor;
+  private final String[] packageName;
+  private final ErrorProcessor errorProcessor;
+  private final JPAODataPagingProvider pagingProvider;
+  private final Optional<? extends EntityManagerFactory> emf;
   private final String namespace;
-  private String mappingPath;
-  private boolean useAbsoluteContextURL;
+  private final String mappingPath;
+  private final JPAODataBatchProcessorFactory<JPAODataBatchProcessor> batchProcessorFactory;
+  private final boolean useAbsoluteContextURL;
 
   public static Builder with() {
     return new Builder();
   }
 
-  /**
-   * @deprecated will be removed with 1.0.0; use newly created builder (<code>JPAODataServiceContext.with()</code>)
-   * instead
-   */
-  @Deprecated
-  JPAODataServiceContext(JPAODataGetHandler jpaODataGetHandler) throws ODataException {
-    super();
-    this.jpaODataGetHandler = jpaODataGetHandler;
-    this.namespace = jpaODataGetHandler.namespace;
-    this.debugSupport = new JPADebugSupportWrapper(new DefaultDebugSupport());
-    operationConverter = new JPADefaultDatabaseProcessor();
-    try {
-      databaseProcessor = new JPAODataDatabaseProcessorFactory().create(this.jpaODataGetHandler.ds);
-    } catch (SQLException e) {
-      throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-    }
-
-  }
-
+  @SuppressWarnings("unchecked")
   private JPAODataServiceContext(final Builder builder) {
 
-    this.jpaODataGetHandler = null;
     operationConverter = builder.operationConverter;
     databaseProcessor = builder.databaseProcessor;
     references = builder.references;
     postProcessor = builder.postProcessor;
-    jpaCUDRequestHandler = null;
     packageName = builder.packageName;
     errorProcessor = builder.errorProcessor;
     pagingProvider = builder.pagingProvider;
@@ -92,12 +69,8 @@ public final class JPAODataServiceContext implements JPAODataCRUDContext, JPAODa
     emf = builder.emf;
     namespace = builder.namespace;
     mappingPath = builder.mappingPath;
+    batchProcessorFactory = (JPAODataBatchProcessorFactory<JPAODataBatchProcessor>) builder.batchProcessorFactory;
     useAbsoluteContextURL = builder.useAbsoluteContextURL;
-  }
-
-  @Override
-  public JPACUDRequestHandler getCUDRequestHandler() {
-    return jpaCUDRequestHandler;
   }
 
   @Override
@@ -106,14 +79,7 @@ public final class JPAODataServiceContext implements JPAODataCRUDContext, JPAODa
   }
 
   @Override
-  public DebugSupport getDebugSupport() {
-    return debugSupport;
-  }
-
-  @Override
   public JPAEdmProvider getEdmProvider() throws ODataException {
-    if (jpaEdm == null && jpaODataGetHandler != null && jpaODataGetHandler.jpaMetamodel != null)
-      jpaEdm = new JPAEdmProvider(namespace, jpaODataGetHandler.jpaMetamodel, postProcessor, packageName);
     return jpaEdm;
   }
 
@@ -126,7 +92,7 @@ public final class JPAODataServiceContext implements JPAODataCRUDContext, JPAODa
   }
 
   @Override
-  public Optional<EntityManagerFactory> getEntityManagerFactory() {
+  public Optional<? extends EntityManagerFactory> getEntityManagerFactory() {
     return emf;
   }
 
@@ -141,8 +107,8 @@ public final class JPAODataServiceContext implements JPAODataCRUDContext, JPAODa
   }
 
   @Override
-  public String[] getPackageName() {
-    return packageName;
+  public List<String> getPackageName() {
+    return Arrays.asList(packageName);
   }
 
   @Override
@@ -165,107 +131,9 @@ public final class JPAODataServiceContext implements JPAODataCRUDContext, JPAODa
     return useAbsoluteContextURL;
   }
 
-  /**
-   * @deprecated will be removed with 1.0.0;
-   */
-  @Deprecated
   @Override
-  public void initDebugger(String debugFormat) {
-    // method deprecated
-  }
-
-  /**
-   * @deprecated will be removed with 1.0.0; use newly created builder (<code>JPAODataServiceContext.with()</code>)
-   * instead
-   */
-  @Deprecated
-  @Override
-  public void setCUDRequestHandler(JPACUDRequestHandler jpaCUDRequestHandler) {
-    this.jpaCUDRequestHandler = jpaCUDRequestHandler;
-  }
-
-  /**
-   * @deprecated will be removed with 1.0.0; use newly created builder (<code>JPAODataServiceContext.with()</code>)
-   * instead
-   */
-  @Deprecated
-  @Override
-  public void setDatabaseProcessor(final JPAODataDatabaseProcessor databaseProcessor) {
-    this.databaseProcessor = databaseProcessor;
-  }
-
-  /**
-   * @deprecated will be removed with 1.0.0; use newly created builder (<code>JPAODataServiceContext.with()</code>)
-   * instead
-   */
-  @Deprecated
-  @Override
-  public void setDebugSupport(final DebugSupport jpaDebugSupport) {
-    this.debugSupport = new JPADebugSupportWrapper(jpaDebugSupport);
-  }
-
-  /**
-   * @deprecated will be removed with 1.0.0; use newly created builder (<code>JPAODataServiceContext.with()</code>)
-   * instead
-   */
-  @Deprecated
-  @Override
-  public void setErrorProcessor(ErrorProcessor errorProcessor) {
-    this.errorProcessor = errorProcessor;
-  }
-
-  /**
-   * @deprecated will be removed with 1.0.0; use newly created builder (<code>JPAODataServiceContext.with()</code>)
-   * instead
-   */
-  @Deprecated
-  @Override
-  public void setMetadataPostProcessor(final JPAEdmMetadataPostProcessor postProcessor) throws ODataException {
-    if (this.jpaODataGetHandler.jpaMetamodel != null)
-      jpaEdm = new JPAEdmProvider(this.jpaODataGetHandler.namespace, this.jpaODataGetHandler.jpaMetamodel,
-          postProcessor, packageName);
-    else
-      this.postProcessor = postProcessor;
-  }
-
-  /**
-   * @deprecated will be removed with 1.0.0; use newly created builder (<code>JPAODataServiceContext.with()</code>)
-   * instead
-   */
-  @Deprecated
-  @Override
-  public void setOperationConverter(final JPAODataDatabaseOperations jpaOperationConverter) {
-    operationConverter = jpaOperationConverter;
-  }
-
-  /**
-   * @deprecated will be removed with 1.0.0; use newly created builder (<code>JPAODataServiceContext.with()</code>)
-   * instead
-   */
-  @Deprecated
-  @Override
-  public void setPagingProvider(final JPAODataPagingProvider provider) {
-    this.pagingProvider = provider;
-  }
-
-  /**
-   * @deprecated will be removed with 1.0.0; use newly created builder (<code>JPAODataServiceContext.with()</code>)
-   * instead
-   */
-  @Deprecated
-  @Override
-  public void setReferences(final List<EdmxReference> references) {
-    this.references = references;
-  }
-
-  /**
-   * @deprecated will be removed with 1.0.0; use newly created builder (<code>JPAODataServiceContext.with()</code>)
-   * instead
-   */
-  @Deprecated
-  @Override
-  public void setTypePackage(final String... packageName) {
-    this.packageName = packageName;
+  public JPAODataBatchProcessorFactory<JPAODataBatchProcessor> getBatchProcessorFactory() {
+    return batchProcessorFactory;
   }
 
   public static class Builder {
@@ -278,25 +146,38 @@ public final class JPAODataServiceContext implements JPAODataCRUDContext, JPAODa
     private String[] packageName;
     private ErrorProcessor errorProcessor;
     private JPAODataPagingProvider pagingProvider;
-    private Optional<EntityManagerFactory> emf = Optional.empty();
+    private Optional<? extends EntityManagerFactory> emf = Optional.empty();
     private DataSource ds;
     private JPAEdmProvider jpaEdm;
     private JPAEdmNameBuilder nameBuilder;
     private String mappingPath;
+    private JPAODataBatchProcessorFactory<?> batchProcessorFactory;
     private boolean useAbsoluteContextURL = false;
 
-    public JPAODataCRUDContextAccess build() throws ODataException {
+    private Builder() {
+      super();
+    }
+
+    public JPAODataSessionContextAccess build() throws ODataException {
       try {
-        if (nameBuilder == null)
+        if (nameBuilder == null) {
+          LOGGER.trace("No name-builder provided, use JPADefaultEdmNameBuilder");
           nameBuilder = new JPADefaultEdmNameBuilder(namespace);
+        }
         if (packageName == null)
           packageName = new String[0];
         if (!emf.isPresent() && ds != null && namespace != null)
           emf = Optional.ofNullable(JPAEntityManagerFactory.getEntityManagerFactory(namespace, ds));
-        if (emf.isPresent())
+        createEmfWrapper();
+        if (emf.isPresent() && jpaEdm == null)
           jpaEdm = new JPAEdmProvider(emf.get().getMetamodel(), postProcessor, packageName, nameBuilder);
         if (databaseProcessor == null) {
+          LOGGER.trace("No database-processor provided, use JPAODataDatabaseProcessorFactory to create one");
           databaseProcessor = new JPAODataDatabaseProcessorFactory().create(ds);
+        }
+        if (batchProcessorFactory == null) {
+          LOGGER.trace("No batch-processor-factory provided, use default factory to create one");
+          batchProcessorFactory = new JPADefaultBatchProcessorFactory();
         }
       } catch (SQLException | PersistenceException e) {
         throw new ODataJPAFilterException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
@@ -346,7 +227,7 @@ public final class JPAODataServiceContext implements JPAODataCRUDContext, JPAODa
     }
 
     /**
-     * 
+     *
      * @param postProcessor
      * @return
      */
@@ -356,7 +237,7 @@ public final class JPAODataServiceContext implements JPAODataCRUDContext, JPAODa
     }
 
     /**
-     * 
+     *
      * @param jpaOperationConverter
      * @return
      */
@@ -388,7 +269,7 @@ public final class JPAODataServiceContext implements JPAODataCRUDContext, JPAODa
     }
 
     /**
-     * 
+     *
      * @param references
      * @return
      */
@@ -438,6 +319,12 @@ public final class JPAODataServiceContext implements JPAODataCRUDContext, JPAODa
       return this;
     }
 
+    public <T extends JPAODataBatchProcessor> Builder setBatchProcessorFactory(
+        final JPAODataBatchProcessorFactory<T> batchProcessorFactory) {
+      this.batchProcessorFactory = batchProcessorFactory;
+      return this;
+    }
+
     /**
      * Some clients, like Excel, require context url's with an absolute path. The default generation of relative paths
      * can be overruled.<br>
@@ -445,72 +332,31 @@ public final class JPAODataServiceContext implements JPAODataCRUDContext, JPAODa
      * @param useAbsoluteContextURL
      * @return
      */
-    public Builder setUseAbsoluteContextURL(boolean useAbsoluteContextURL) {
+    public Builder setUseAbsoluteContextURL(final boolean useAbsoluteContextURL) {
       this.useAbsoluteContextURL = useAbsoluteContextURL;
       return this;
     }
-  }
 
-  class JPADebugSupportWrapper implements DebugSupport {
-
-    private final DebugSupport debugSupport;
-    private JPAServiceDebugger debugger;
-
-    public JPADebugSupportWrapper(final DebugSupport debugSupport) {
-      super();
-      this.debugSupport = debugSupport;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.olingo.server.api.debug.DebugSupport#createDebugResponse(java.lang.String,
-     * org.apache.olingo.server.api.debug.DebugInformation)
-     */
-    @Override
-    public ODataResponse createDebugResponse(final String debugFormat, final DebugInformation debugInfo) {
-      joinRuntimeInfo(debugInfo);
-      return debugSupport.createDebugResponse(debugFormat, debugInfo);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.olingo.server.api.debug.DebugSupport#init(org.apache.olingo.server.api.OData)
-     */
-    @Override
-    public void init(final OData odata) {
-      debugSupport.init(odata);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.olingo.server.api.debug.DebugSupport#isUserAuthorized()
-     */
-    @Override
-    public boolean isUserAuthorized() {
-      return debugSupport.isUserAuthorized();
-    }
-
-    void setDebugger(final JPAServiceDebugger debugger) {
-      this.debugger = debugger;
-    }
-
-    private void joinRuntimeInfo(final DebugInformation debugInfo) {
-      // Olingo create a tree for runtime measurement in DebugTabRuntime.add(final RuntimeMeasurement
-      // runtimeMeasurement). The current algorithm (V4.3.0) not working well for batch requests if the own runtime info
-      // is just appended (addAll), so insert sorted:
-      final List<RuntimeMeasurement> olingoInfo = debugInfo.getRuntimeInformation();
-      int startIndex = 0;
-      for (RuntimeMeasurement m : debugger.getRuntimeInformation()) {
-        for (; startIndex < olingoInfo.size(); startIndex++) {
-          if (olingoInfo.get(startIndex).getTimeStarted() > m.getTimeStarted()) {
-            break;
-          }
+    @SuppressWarnings("unchecked")
+    private void createEmfWrapper() {
+      if (emf.isPresent()) {
+        try {
+          final Class<? extends EntityManagerFactory> wrapperClass = (Class<? extends EntityManagerFactory>) Class
+              .forName("com.sap.olingo.jpa.processor.cb.api.EntityManagerFactoryWrapper");
+          if (jpaEdm == null)
+            jpaEdm = new JPAEdmProvider(emf.get().getMetamodel(), postProcessor, packageName, nameBuilder);
+          emf = Optional.of(wrapperClass.getConstructor(EntityManagerFactory.class,
+              JPAServiceDocument.class).newInstance(emf.get(), jpaEdm.getServiceDocument()));
+          LOGGER.trace("Criteria Builder Extension found. It will be used");
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+            | NoSuchMethodException | SecurityException e) {
+          LOGGER.debug("Exception thrown while trying to create instance of emf wrapper", e);
+        } catch (final ClassNotFoundException e) {
+          // No Criteria Extension: everything is fine
+          LOGGER.trace("No Criteria Builder Extension found: use provided Entity Manager Factory");
+        } catch (final ODataException e) {
+          LOGGER.debug("Exception thrown while trying to create EdmProvider", e);
         }
-        olingoInfo.add(startIndex, m);
-        startIndex += 1;
       }
     }
   }

@@ -16,10 +16,9 @@ import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpress
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAnnotation;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.AppliesTo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateModelItemAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateModelItemAccess;
 
 abstract class IntermediateModelElement implements IntermediateModelItemAccess {
 
@@ -35,7 +34,7 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
     postProcessor = pP;
   }
 
-  public IntermediateModelElement(final JPAEdmNameBuilder nameBuilder, final String internalName) {
+  IntermediateModelElement(final JPAEdmNameBuilder nameBuilder, final String internalName) {
     super();
     this.nameBuilder = nameBuilder;
     this.internalName = internalName;
@@ -67,14 +66,7 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
     return toBeIgnored;
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateModelItemAccess#setExternalName(java.lang.String)
-   */
-  @Override
-  public void setExternalName(final String externalName) {
+  protected void setExternalName(final String externalName) {
     this.externalName = externalName;
   }
 
@@ -138,7 +130,7 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
    * @throws ODataJPAModelException
    */
   protected void getAnnotations(final List<CsdlAnnotation> edmAnnotations, final Member member,
-      final String internalName, final AppliesTo property) throws ODataJPAModelException {
+      final String internalName) throws ODataJPAModelException {
     if (member instanceof AnnotatedElement) {
       extractAnnotations(edmAnnotations, (AnnotatedElement) member, internalName);
     }
@@ -150,6 +142,20 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
     if (clazz instanceof AnnotatedElement) {
       extractAnnotations(edmAnnotations, clazz, internalName);
     }
+  }
+
+  /**
+   * @param t
+   * @return
+   */
+  protected final String buildFQTableName(final String schema, final String name) {
+    final StringBuilder fqt = new StringBuilder();
+    if (schema != null && !schema.isEmpty()) {
+      fqt.append(schema);
+      fqt.append(".");
+    }
+    fqt.append(name);
+    return fqt.toString();
   }
 
   private void extractAnnotations(final List<CsdlAnnotation> edmAnnotations, final AnnotatedElement element,
@@ -216,5 +222,13 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
   public String toString() {
     return "IntermediateModelElement [internalName=" + internalName + ", externalName="
         + externalName + ", toBeIgnored=" + toBeIgnored + "]";
+  }
+
+  /**
+   * @param value
+   * @return true if string value is null or empty
+   */
+  protected final boolean emptyString(final String value) {
+    return value == null || value.isEmpty();
   }
 }

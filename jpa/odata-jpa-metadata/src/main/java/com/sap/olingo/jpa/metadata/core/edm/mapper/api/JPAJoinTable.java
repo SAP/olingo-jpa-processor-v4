@@ -2,6 +2,7 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.api;
 
 import java.util.List;
 
+import com.sap.olingo.jpa.metadata.api.JPAJoinColumn;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 public interface JPAJoinTable {
@@ -21,6 +22,9 @@ public interface JPAJoinTable {
    * @return
    * @throws ODataJPAModelException
    */
-  public List<JPAOnConditionItem> getInversJoinColumns() throws ODataJPAModelException;
+  public List<JPAOnConditionItem> getInverseJoinColumns() throws ODataJPAModelException;
 
+  public <T extends JPAJoinColumn> List<T> getRawJoinInformation();
+
+  public <T extends JPAJoinColumn> List<T> getRawInverseJoinInformation() throws ODataJPAModelException;
 }

@@ -1,7 +1,7 @@
 package com.sap.olingo.jpa.processor.core.filter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 
-public class TestJPAOperationConverter {
+class TestJPAOperationConverter {
   private CriteriaBuilder cb;
 
   private Expression<Number> expressionLeft;
@@ -27,7 +27,7 @@ public class TestJPAOperationConverter {
 
   @SuppressWarnings("unchecked")
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
     cb = mock(CriteriaBuilder.class);
     extension = mock(JPAODataDatabaseOperations.class);
     cut = new JPAOperationConverter(cb, extension);
@@ -36,139 +36,135 @@ public class TestJPAOperationConverter {
   }
 
   @Test
-  public void testAddMemberMember() throws ODataApplicationException {
-    JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
+  void testAddMemberMember() throws ODataApplicationException {
+    final JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
     @SuppressWarnings("unchecked")
-    Expression<Number> result = mock(Path.class);
+    final Expression<Number> result = mock(Path.class);
     when(operator.getRight()).thenReturn(mock(JPAMemberOperator.class));
     when(operator.getOperator()).thenReturn(BinaryOperatorKind.ADD);
     when(operator.getLeft(cb)).thenReturn(expressionLeft);
     when(operator.getRightAsExpression()).thenReturn(expressionRight);
     when(cb.sum(expressionLeft, expressionRight)).thenReturn(result);
 
-    Expression<?> act = cut.convert(operator);
+    final Expression<?> act = cut.convert(operator);
     assertEquals(result, act);
   }
 
   @Test
-  public void testAddMemberLiteral() throws ODataApplicationException {
-    JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
+  void testAddMemberLiteral() throws ODataApplicationException {
+    final JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
     @SuppressWarnings("unchecked")
-    Expression<Number> result = mock(Path.class);
+    final Expression<Number> result = mock(Path.class);
     when(operator.getRight()).thenReturn(mock(JPALiteralOperator.class));
     when(operator.getOperator()).thenReturn(BinaryOperatorKind.ADD);
     when(operator.getLeft(cb)).thenReturn(expressionLeft);
     when(operator.getRightAsNumber(cb)).thenReturn(5);
     when(cb.sum(expressionLeft, 5)).thenReturn(result);
 
-    Expression<?> act = cut.convert(operator);
+    final Expression<?> act = cut.convert(operator);
     assertEquals(result, act);
   }
 
   @Test
-  public void testSubMemberMember() throws ODataApplicationException {
-    JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
+  void testSubMemberMember() throws ODataApplicationException {
+    final JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
     @SuppressWarnings("unchecked")
-    Expression<Number> result = mock(Path.class);
+    final Expression<Number> result = mock(Path.class);
     when(operator.getRight()).thenReturn(mock(JPAMemberOperator.class));
     when(operator.getOperator()).thenReturn(BinaryOperatorKind.SUB);
     when(operator.getLeft(cb)).thenReturn(expressionLeft);
     when(operator.getRightAsExpression()).thenReturn(expressionRight);
     when(cb.diff(expressionLeft, expressionRight)).thenReturn(result);
 
-    Expression<?> act = cut.convert(operator);
+    final Expression<?> act = cut.convert(operator);
     assertEquals(result, act);
   }
 
   @Test
-  public void testSubMemberLiteral() throws ODataApplicationException {
-    JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
+  void testSubMemberLiteral() throws ODataApplicationException {
+    final JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
     @SuppressWarnings("unchecked")
-    Expression<Number> result = mock(Path.class);
+    final Expression<Number> result = mock(Path.class);
     when(operator.getRight()).thenReturn(mock(JPALiteralOperator.class));
     when(operator.getOperator()).thenReturn(BinaryOperatorKind.SUB);
     when(operator.getLeft(cb)).thenReturn(expressionLeft);
     when(operator.getRightAsNumber(cb)).thenReturn(5);
     when(cb.diff(expressionLeft, 5)).thenReturn(result);
 
-    Expression<?> act = cut.convert(operator);
+    final Expression<?> act = cut.convert(operator);
     assertEquals(result, act);
   }
 
   @Test
-  public void testDivMemberMember() throws ODataApplicationException {
-    JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
+  void testDivMemberMember() throws ODataApplicationException {
+    final JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
     @SuppressWarnings("unchecked")
-    Expression<Number> result = mock(Path.class);
+    final Expression<Number> result = mock(Path.class);
     when(operator.getRight()).thenReturn(mock(JPAMemberOperator.class));
     when(operator.getOperator()).thenReturn(BinaryOperatorKind.DIV);
     when(operator.getLeft(cb)).thenReturn(expressionLeft);
     when(operator.getRightAsExpression()).thenReturn(expressionRight);
     when(cb.quot(expressionLeft, expressionRight)).thenReturn(result);
 
-    Expression<?> act = cut.convert(operator);
+    final Expression<?> act = cut.convert(operator);
     assertEquals(result, act);
   }
 
   @Test
-  public void testDivMemberLiteral() throws ODataApplicationException {
-    JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
+  void testDivMemberLiteral() throws ODataApplicationException {
+    final JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
     @SuppressWarnings("unchecked")
-    Expression<Number> result = mock(Path.class);
+    final Expression<Number> result = mock(Path.class);
     when(operator.getRight()).thenReturn(mock(JPALiteralOperator.class));
     when(operator.getOperator()).thenReturn(BinaryOperatorKind.DIV);
     when(operator.getLeft(cb)).thenReturn(expressionLeft);
     when(operator.getRightAsNumber(cb)).thenReturn(5);
     when(cb.quot(expressionLeft, 5)).thenReturn(result);
 
-    Expression<?> act = cut.convert(operator);
+    final Expression<?> act = cut.convert(operator);
     assertEquals(result, act);
   }
 
   @Test
-  public void testMulMemberMember() throws ODataApplicationException {
-    JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
+  void testMulMemberMember() throws ODataApplicationException {
+    final JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
     @SuppressWarnings("unchecked")
-    Expression<Number> result = mock(Path.class);
+    final Expression<Number> result = mock(Path.class);
     when(operator.getRight()).thenReturn(mock(JPAMemberOperator.class));
     when(operator.getOperator()).thenReturn(BinaryOperatorKind.MUL);
     when(operator.getLeft(cb)).thenReturn(expressionLeft);
     when(operator.getRightAsExpression()).thenReturn(expressionRight);
     when(cb.prod(expressionLeft, expressionRight)).thenReturn(result);
 
-    Expression<?> act = cut.convert(operator);
+    final Expression<?> act = cut.convert(operator);
     assertEquals(result, act);
   }
 
   @Test
-  public void testMulMemberLiteral() throws ODataApplicationException {
-    JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
+  void testMulMemberLiteral() throws ODataApplicationException {
+    final JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
     @SuppressWarnings("unchecked")
-    Expression<Number> result = mock(Path.class);
+    final Expression<Number> result = mock(Path.class);
     when(operator.getRight()).thenReturn(mock(JPALiteralOperator.class));
     when(operator.getOperator()).thenReturn(BinaryOperatorKind.MUL);
     when(operator.getLeft(cb)).thenReturn(expressionLeft);
     when(operator.getRightAsNumber(cb)).thenReturn(5);
     when(cb.prod(expressionLeft, 5)).thenReturn(result);
 
-    Expression<?> act = cut.convert(operator);
+    final Expression<?> act = cut.convert(operator);
     assertEquals(result, act);
   }
 
   @Test
-  public void testUnknownOperation_CallExtension() throws ODataApplicationException {
-    JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
+  void testUnknownOperation_CallExtension() throws ODataApplicationException {
+    final JPAArithmeticOperator operator = mock(JPAArithmeticOperatorImp.class);
     when(operator.getOperator()).thenReturn(BinaryOperatorKind.AND);
     when(extension.convert(operator)).thenThrow(new ODataApplicationException(null, HttpStatusCode.NOT_IMPLEMENTED
         .getStatusCode(), null));
 
-    try {
-      cut.convert(operator);
-    } catch (ODataApplicationException e) {
-      assertEquals(HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), e.getStatusCode());
-      return;
-    }
-    fail("Exception expecetd");
+    final ODataApplicationException act = assertThrows(ODataApplicationException.class, () -> cut.convert(operator));
+
+    assertEquals(HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), act.getStatusCode());
   }
 }
 

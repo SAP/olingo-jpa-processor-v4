@@ -1,7 +1,7 @@
 package com.sap.olingo.jpa.processor.core.processor;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 import org.apache.olingo.server.api.debug.RuntimeMeasurement;
 
@@ -20,7 +20,7 @@ public final class JPAEmptyDebugger implements JPAServiceDebugger {
   }
 
   @Override
-  public Collection<RuntimeMeasurement> getRuntimeInformation() {
+  public List<RuntimeMeasurement> getRuntimeInformation() {
     return new ArrayList<>();
   }
 }

@@ -21,35 +21,35 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
-public class TestCsdlDocumentReader {
+class TestCsdlDocumentReader {
   private static final String CORE_ANNOTATIONS = "annotations/Org.OData.Core.V1.xml";
   private CsdlDocumentReader cut;
   private Charset charset;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     cut = new CsdlDocumentReader();
     charset = Charset.defaultCharset();
   }
 
   @Test
-  public void testReadFromURIThrowsNullPointerOnNull() throws ODataJPAModelException, IOException {
+  void testReadFromURIThrowsNullPointerOnNull() throws ODataJPAModelException, IOException {
     assertThrows(NullPointerException.class, () -> cut.readFromURI(null));
   }
 
   @Test
-  public void testReadFromResourceThrowsNullPointerOnNull() throws ODataJPAModelException, IOException {
+  void testReadFromResourceThrowsNullPointerOnNull() throws ODataJPAModelException, IOException {
     assertThrows(NullPointerException.class, () -> cut.readFromResource(null, charset));
     assertThrows(NullPointerException.class, () -> cut.readFromResource(CORE_ANNOTATIONS, null));
   }
 
   @Test
-  public void testReadFromResourceReturnsNullOnEmptyPath() throws ODataJPAModelException, IOException {
+  void testReadFromResourceReturnsNullOnEmptyPath() throws ODataJPAModelException, IOException {
     assertNull(cut.readFromResource("", charset));
   }
 
   @Test
-  public void testReadFromResourceReturnsVocabulary() throws IOException, ODataJPAModelException {
+  void testReadFromResourceReturnsVocabulary() throws IOException, ODataJPAModelException {
 
     final CsdlDocument act = cut.readFromResource(CORE_ANNOTATIONS, charset);
     assertNotNull(act);
@@ -58,14 +58,14 @@ public class TestCsdlDocumentReader {
   }
 
   @Test
-  public void testReadFromResourceThrowsExceptionOnUnknownPath() throws IOException {
+  void testReadFromResourceThrowsExceptionOnUnknownPath() throws IOException {
     assertThrows(ODataJPAModelException.class, () -> {
       cut.readFromResource("annotations/Org.OData.Core.V2.xml", charset);
     });
   }
 
   @Test
-  public void testReadFromResourceThrowsExceptionOnEmptyXML() throws IOException, ODataJPAModelException {
+  void testReadFromResourceThrowsExceptionOnEmptyXML() throws IOException, ODataJPAModelException {
 
     assertThrows(IOException.class, () -> {
       cut.readFromResource("annotations/empty.xml", charset);
@@ -73,7 +73,7 @@ public class TestCsdlDocumentReader {
   }
 
   @Test
-  public void testReadDocumentContainsReferences() throws IOException, ODataJPAModelException {
+  void testReadDocumentContainsReferences() throws IOException, ODataJPAModelException {
 //  <edmx:Reference Uri="http://docs.oasis-open.org/odata/odata-vocabularies/v4.0/vocabularies/Org.OData.Validation.V1.xml">
 //    <edmx:Include Alias="Validation" Namespace="Org.OData.Validation.V1" />
 //  </edmx:Reference>
@@ -88,10 +88,9 @@ public class TestCsdlDocumentReader {
     assertEquals("Org.OData.Validation.V1", include.getNamespace());
   }
 
-  // TODO This test may not run because of proxy setting problems!! -> find alternative for Integration tests
-  @Disabled
+  @Disabled("This test may not run because of proxy setting problems!! -> find alternative for Integration tests")
   @Test
-  public void testReadFromURI() throws URISyntaxException, JsonParseException, JsonMappingException,
+  void testReadFromURI() throws URISyntaxException, JsonParseException, JsonMappingException,
       MalformedURLException, IOException {
     final URI uri = new URI("http://docs.oasis-open.org/odata/odata/v4.0/os/vocabularies/Org.OData.Core.V1.xml");
     final CsdlDocument actVocabulary = cut.readFromURI(uri);

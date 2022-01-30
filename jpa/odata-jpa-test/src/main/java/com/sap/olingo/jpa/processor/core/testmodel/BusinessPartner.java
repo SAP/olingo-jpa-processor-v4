@@ -26,7 +26,8 @@ import javax.persistence.Version;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAnnotation;
-import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssoziation;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmDescriptionAssociation;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunctions;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
@@ -36,6 +37,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 @DiscriminatorColumn(name = "\"Type\"")
 @Entity(name = "BusinessPartner")
 @Table(schema = "\"OLINGO\"", name = "\"BusinessPartner\"")
+@EdmEntityType(extensionProvider = EmptyQueryExtensionProvider.class)
 @EdmFunctions({
     @EdmFunction(
         name = "CountRoles",
@@ -75,33 +77,36 @@ public abstract class BusinessPartner implements KeyAccess {
   @Column(name = "\"Type\"", length = 1, insertable = false, updatable = false, nullable = false)
   protected String type;
 
-  @Column(name = "\"CreatedAt\"", precision = 3, insertable = false, updatable = false)
+  @Column(name = "\"CreatedAt\"", precision = 2, insertable = false, updatable = false)
   @Convert(converter = DateTimeConverter.class)
   private LocalDateTime creationDateTime;
 
   @EdmIgnore
   @Column(name = "\"CustomString1\"")
   @Convert(converter = StringConverter.class)
-  protected String customString1;
+  private String customString1;
+  
   @EdmIgnore
   @Column(name = "\"CustomString2\"")
-  protected String customString2;
+  private String customString2;
+  
   @EdmIgnore
   @Column(name = "\"CustomNum1\"", precision = 16, scale = 5)
-  protected BigDecimal customNum1;
+  private BigDecimal customNum1;
+  
   @EdmIgnore
   @Column(name = "\"CustomNum2\"", precision = 34)
-  protected BigDecimal customNum2;
+  private BigDecimal customNum2;
 
   @Column(name = "\"Country\"", length = 4)
   private String country;
 
   @EdmAnnotation(term = "Core.IsLanguageDependent", constantExpression = @EdmAnnotation.ConstantExpression(
       type = ConstantExpressionType.Bool, value = "true"))
-  @EdmDescriptionAssoziation(languageAttribute = "key/language", descriptionAttribute = "name",
+  @EdmDescriptionAssociation(languageAttribute = "key/language", descriptionAttribute = "name",
       valueAssignments = {
-          @EdmDescriptionAssoziation.valueAssignment(attribute = "key/codePublisher", value = "ISO"),
-          @EdmDescriptionAssoziation.valueAssignment(attribute = "key/codeID", value = "3166-1") })
+          @EdmDescriptionAssociation.valueAssignment(attribute = "key/codePublisher", value = "ISO"),
+          @EdmDescriptionAssociation.valueAssignment(attribute = "key/codeID", value = "3166-1") })
   @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "\"DivisionCode\"", referencedColumnName = "\"Country\"")
   private Collection<AdministrativeDivisionDescription> locationName;
@@ -117,7 +122,6 @@ public abstract class BusinessPartner implements KeyAccess {
           @JoinColumn(referencedColumnName = "\"Address.RegionCodePublisher\"", name = "\"CodePublisher\""),
           @JoinColumn(referencedColumnName = "\"Address.RegionCodeID\"", name = "\"CodeID\""),
           @JoinColumn(referencedColumnName = "\"Address.Region\"", name = "\"DivisionCode\"") })
-
   private PostalAddressData address = new PostalAddressData();
 
   @Embedded
@@ -126,19 +130,19 @@ public abstract class BusinessPartner implements KeyAccess {
   @OneToMany(mappedBy = "businessPartner", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
   private Collection<BusinessPartnerRole> roles;
 
-  public BusinessPartner() {
+  public BusinessPartner() { // NOSONAR
     super();
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj)
       return true;
     if (obj == null)
       return false;
     if (getClass() != obj.getClass())
       return false;
-    BusinessPartner other = (BusinessPartner) obj;
+    final BusinessPartner other = (BusinessPartner) obj;
     if (iD == null) {
       if (other.iD != null)
         return false;
@@ -270,7 +274,7 @@ public abstract class BusinessPartner implements KeyAccess {
   @PrePersist
   public void onCreate() {
     administrativeInformation = new AdministrativeInformation();
-    ChangeInformation created = new ChangeInformation("99", Date.valueOf(LocalDate.now()));
+    final ChangeInformation created = new ChangeInformation("99", Date.valueOf(LocalDate.now()));
     administrativeInformation.setCreated(created);
     administrativeInformation.setUpdated(created);
   }

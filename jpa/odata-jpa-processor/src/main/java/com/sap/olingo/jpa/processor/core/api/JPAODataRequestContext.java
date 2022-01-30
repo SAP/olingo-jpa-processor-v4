@@ -1,21 +1,34 @@
 package com.sap.olingo.jpa.processor.core.api;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+
 import javax.persistence.EntityManager;
 
 import org.apache.olingo.server.api.debug.DebugSupport;
 
+import com.sap.olingo.jpa.metadata.api.JPARequestParameterMap;
+import com.sap.olingo.jpa.processor.core.api.JPAODataExternalRequestContext.Builder;
+
 public interface JPAODataRequestContext {
+  public static Builder with() {
+    return new Builder();
+  }
 
-  public void setClaimsProvider(@Nullable final JPAODataClaimProvider provider);
+  public EntityManager getEntityManager();
 
-  public void setGroupsProvider(@Nullable final JPAODataGroupProvider provider);
+  public Optional<JPAODataClaimProvider> getClaimsProvider();
 
-  public void setEntityManager(@Nonnull final EntityManager em);
+  public Optional<JPAODataGroupProvider> getGroupsProvider();
 
-  public void setDebugSupport(@Nullable final DebugSupport debugSupport);
+  public JPACUDRequestHandler getCUDRequestHandler();
 
-  public void setTransactionFactory(@Nullable final JPAODataTransactionFactory transactionFactory);
+  public DebugSupport getDebuggerSupport();
 
+  public JPAODataTransactionFactory getTransactionFactory();
+
+  public JPARequestParameterMap getRequestParameter();
+
+  public List<Locale> getLocales();
 }

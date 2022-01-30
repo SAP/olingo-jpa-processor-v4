@@ -13,6 +13,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunctionImport;
+import org.apache.olingo.commons.api.edm.provider.CsdlSingleton;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
@@ -20,7 +21,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityContainerAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateEntityContainerAccess;
 
 /**
  * <a href=
@@ -33,6 +34,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityC
 final class IntermediateEntityContainer extends IntermediateModelElement implements IntermediateEntityContainerAccess {
   private final Map<String, IntermediateSchema> schemaList;
   private final Map<String, IntermediateEntitySet> entitySetListInternalKey;
+  private final Map<String, IntermediateSingleton> singletonListInternalKey;
 
   private CsdlEntityContainer edmContainer;
 
@@ -41,6 +43,7 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
     this.schemaList = schemaList;
     this.setExternalName(nameBuilder.buildContainerName());
     this.entitySetListInternalKey = new HashMap<>();
+    this.singletonListInternalKey = new HashMap<>();
   }
 
   @Override
@@ -49,7 +52,7 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
   }
 
   @Override
-  protected void lazyBuildEdmItem() throws ODataJPAModelException {
+  protected synchronized void lazyBuildEdmItem() throws ODataJPAModelException {
     if (edmContainer == null) {
       postProcessor.processEntityContainer(this);
       edmContainer = new CsdlEntityContainer();
@@ -58,20 +61,31 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
       edmContainer.setFunctionImports(buildFunctionImports());
       edmContainer.setActionImports(buildActionImports());
       edmContainer.setAnnotations(edmAnnotations);
-      // TODO Singleton
+      edmContainer.setSingletons(buildSingletons());
     }
   }
 
   @Override
   CsdlEntityContainer getEdmItem() throws ODataJPAModelException {
-    lazyBuildEdmItem();
+    if (edmContainer == null) {
+      lazyBuildEdmItem();
+    }
     return edmContainer;
   }
 
   IntermediateEntitySet getEntitySet(final String edmEntitySetName) throws ODataJPAModelException {
-    lazyBuildEdmItem();
+    if (edmContainer == null) {
+      lazyBuildEdmItem();
+    }
     return (IntermediateEntitySet) findModelElementByEdmItem(edmEntitySetName,
         entitySetListInternalKey);
+  }
+
+  IntermediateSingleton getSingleton(final String edmSingletonName) throws ODataJPAModelException {
+    if (edmContainer == null) {
+      lazyBuildEdmItem();
+    }
+    return (IntermediateSingleton) findModelElementByEdmItem(edmSingletonName, singletonListInternalKey);
   }
 
   /**
@@ -81,7 +95,9 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
    * @throws ODataJPAModelException
    */
   JPAEntitySet getEntitySet(final JPAEntityType entityType) throws ODataJPAModelException {
-    lazyBuildEdmItem();
+    if (edmContainer == null) {
+      lazyBuildEdmItem();
+    }
     for (final Entry<String, IntermediateEntitySet> entitySet : entitySetListInternalKey.entrySet()) {
       if (entitySet.getValue().getEntityType().getExternalFQN().equals(entityType.getExternalFQN())) {
         return entitySet.getValue();
@@ -101,13 +117,31 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
   private List<CsdlEntitySet> buildEntitySets() throws ODataJPAModelException {
     for (final Entry<String, IntermediateSchema> schema : schemaList.entrySet()) {
       for (final IntermediateEntityType<?> et : schema.getValue().getEntityTypes()) {
-        if (!et.ignore() || et.asEntitySet()) {
+        if ((!et.ignore() || et.asTopLevelOnly()) && et.asEntitySet()) {
           final IntermediateEntitySet es = new IntermediateEntitySet(nameBuilder, et);
           entitySetListInternalKey.put(es.internalName, es);
         }
       }
     }
     return (List<CsdlEntitySet>) extractEdmModelElements(entitySetListInternalKey);
+  }
+
+  /**
+   *
+   * @return List of Singletons
+   * @throws ODataJPAModelException
+   */
+  @SuppressWarnings("unchecked")
+  private List<CsdlSingleton> buildSingletons() throws ODataJPAModelException {
+    for (final Entry<String, IntermediateSchema> schema : schemaList.entrySet()) {
+      for (final IntermediateEntityType<?> et : schema.getValue().getEntityTypes()) {
+        if ((!et.ignore() || et.asTopLevelOnly()) && et.asSingleton()) {
+          final IntermediateSingleton singleton = new IntermediateSingleton(nameBuilder, et);
+          singletonListInternalKey.put(singleton.internalName, singleton);
+        }
+      }
+    }
+    return (List<CsdlSingleton>) extractEdmModelElements(singletonListInternalKey);
   }
 
   /**
@@ -136,11 +170,9 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
       final IntermediateSchema schema = namespace.getValue();
       final List<JPAFunction> functions = schema.getFunctions();
 
-      if (functions != null) {
-        for (final JPAFunction jpaFu : functions) {
-          if (!((IntermediateFunction) jpaFu).isBound() && ((IntermediateFunction) jpaFu).hasImport())
-            edmFunctionImports.add(buildFunctionImport(((IntermediateFunction) jpaFu).getEdmItem()));
-        }
+      for (final JPAFunction jpaFu : functions) {
+        if (!((IntermediateFunction) jpaFu).isBound() && ((IntermediateFunction) jpaFu).hasImport())
+          edmFunctionImports.add(buildFunctionImport(((IntermediateFunction) jpaFu).getEdmItem()));
       }
     }
     return edmFunctionImports;
@@ -154,11 +186,9 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
       final IntermediateSchema schema = namespace.getValue();
       final List<JPAAction> actions = schema.getActions();
 
-      if (actions != null) {
-        for (final JPAAction jpaAc : actions) {
-          if (((IntermediateJavaAction) jpaAc).hasImport())
-            edmActionImports.add(buildActionImport(((IntermediateJavaAction) jpaAc).getEdmItem()));
-        }
+      for (final JPAAction jpaAc : actions) {
+        if (((IntermediateJavaAction) jpaAc).hasImport())
+          edmActionImports.add(buildActionImport(((IntermediateJavaAction) jpaAc).getEdmItem()));
       }
     }
     return edmActionImports;

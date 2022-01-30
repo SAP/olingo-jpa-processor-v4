@@ -22,7 +22,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPADBAdaptorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 
-class JPA_DERBY_DatabaseProcessor extends JPAAbstractDatabaseProcessor { // NOSONAR
+public class JPA_DERBY_DatabaseProcessor extends JPAAbstractDatabaseProcessor { // NOSONAR
   private static final String SELECT_BASE_PATTERN = "SELECT * FROM TABLE ($FUNCTIONNAME$($PARAMETER$))";
   private static final String SELECT_COUNT_PATTERN = "SELECT COUNT(*) FROM TABLE ($FUNCTIONNAME$($PARAMETER$))";
 
@@ -34,13 +34,14 @@ class JPA_DERBY_DatabaseProcessor extends JPAAbstractDatabaseProcessor { // NOSO
         HttpStatusCode.NOT_IMPLEMENTED);
   }
 
+  /**
+   * See: <a href="https://db.apache.org/derby/docs/10.15/ref/rrefsqljtfinvoke.html">Derby: Function Invocation</a>
+   */
   @SuppressWarnings("unchecked")
   @Override
   public <T> java.util.List<T> executeFunctionQuery(final List<UriResource> uriResourceParts,
       final JPADataBaseFunction jpaFunction, final EntityManager em) throws ODataApplicationException {
-    /*
-     * See https://db.apache.org/derby/docs/10.15/ref/rrefsqljtfinvoke.html
-     */
+
     final UriResource last = uriResourceParts.get(uriResourceParts.size() - 1);
 
     if (last.getKind() == UriResourceKind.count) {

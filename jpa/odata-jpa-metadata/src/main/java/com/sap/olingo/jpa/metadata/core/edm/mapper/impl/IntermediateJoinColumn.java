@@ -2,7 +2,9 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import javax.persistence.JoinColumn;
 
-final class IntermediateJoinColumn {
+import com.sap.olingo.jpa.metadata.api.JPAJoinColumn;
+
+final class IntermediateJoinColumn implements JPAJoinColumn {
   private String name;
   private String referencedColumnName;
 
@@ -18,6 +20,7 @@ final class IntermediateJoinColumn {
     this.referencedColumnName = referencedColumnName;
   }
 
+  @Override
   public String getName() {
     return name;
   }
@@ -26,12 +29,18 @@ final class IntermediateJoinColumn {
     this.name = name;
   }
 
+  @Override
   public String getReferencedColumnName() {
     return referencedColumnName;
   }
 
   public void setReferencedColumnName(final String referencedColumnName) {
     this.referencedColumnName = referencedColumnName;
+  }
+
+  @Override
+  public String toString() {
+    return "IntermediateJoinColumn [name=" + name + ", referencedColumnName=" + referencedColumnName + "]";
   }
 
 }

@@ -33,23 +33,18 @@ public class CsdlDocument {
 
   public Map<String, CsdlSchema> getSchemas() {
 
-    if (service != null) {
-      return service.getSchemas().stream()
-          .collect(Collectors.toMap(Schema::getNamespace, Schema::asCsdlSchema));
-    }
+    if (service != null) return service.getSchemas().stream()
+        .collect(Collectors.toMap(Schema::getNamespace, Schema::asCsdlSchema));
     return Collections.emptyMap();
   }
 
   public Map<String, Map<String, CsdlTerm>> getTerms() {
 
-    if (service != null) {
-      return service.getSchemas().stream()
-          .collect(Collectors.toMap(
-              Schema::getNamespace,
-              schema -> schema.getTerms().stream()
-                  .collect(Collectors.toMap(CsdlTerm::getName, t -> t))));
-
-    }
-    return null;
+    if (service != null) return service.getSchemas().stream()
+        .collect(Collectors.toMap(
+            Schema::getNamespace,
+            schema -> schema.getTerms().stream()
+                .collect(Collectors.toMap(CsdlTerm::getName, t -> t))));
+    return Collections.emptyMap();
   }
 }

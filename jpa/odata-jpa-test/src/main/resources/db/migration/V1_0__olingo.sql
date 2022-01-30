@@ -44,7 +44,7 @@ insert into "BusinessPartner" values ('7', 0, '2', '','',null,null,'Seventh Org.
 insert into "BusinessPartner" values ('8', 0, '2', '','',null,null,'Eighth Org.','',null,'Test Road', '453','', 'Test City','29221','ISO', '3166-2','US-SC', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA', 2, null);
 insert into "BusinessPartner" values ('9', 0, '2', '','',null,null,'Ninth Org.','',null,'Test Road', '93','', 'Test City','55021','ISO', '3166-2','US-MN', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'USA', null, null);
 insert into "BusinessPartner" values ('10', 0, '2', '','',null,null,'Tenth Org.','',null,'Test Road', '12','', 'Test City','03921','ISO', '3166-2','US-ME', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU', null, null);
-insert into "BusinessPartner" values ('99', 0, '1', '','',null,null,'Max','Mustermann',null,'Test Starße', '12','', 'Teststadt','10115','ISO', '3166-2','DE-BE', 'DEU', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU', null, 2); 
+insert into "BusinessPartner" values ('99', 0, '1', '','',null,null,'Max','Mustermann','1999-04-01','Test Starße', '12','', 'Teststadt','10115','ISO', '3166-2','DE-BE', 'DEU', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU', null, 2); 
 insert into "BusinessPartner" values ('98', 0, '1', '','',null,null,'John','Doe',null,'Test Road', '55','', 'Test City','76321','ISO', '3166-2','US-TX', 'USA', '', '','','', '99','2016-01-20 09:21:23', '', null, 'DEU', null, null); 
 insert into "BusinessPartner" values ('97', 0, '1', '','',null,null,'Urs','Müller',null,'Test Straße', '23','', 'Test Dorf','4123','ISO', '3166-2','CH-BL', 'CHE', null,null,null,null, '99','2016-07-20 09:21:23', '', null, 'CHE', null, 9); 
 
@@ -287,7 +287,6 @@ insert into "AdministrativeDivisionDescription" values( 'ISO', '3166-2','US-WI',
 insert into "AdministrativeDivisionDescription" values( 'ISO', '3166-2','US-WY','en','Wyoming');
 insert into "AdministrativeDivisionDescription" values( 'ISO', '3166-2','US-DC','en','District of Columbia');
      
-
 insert into "AdministrativeDivisionDescription" values( 'Eurostat','NUTS1','BE1','de','Region Brüssel-Hauptstadt');
 insert into "AdministrativeDivisionDescription" values( 'Eurostat','NUTS1','BE2','de','Flämische Region');
 insert into "AdministrativeDivisionDescription" values( 'Eurostat','NUTS1','BE3','de','Wallonische Region');
@@ -553,7 +552,6 @@ insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','DEE','DEU',null
 insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','DEF','DEU',null,null,null,0,0);  
 insert into "AdministrativeDivision" values( 'Eurostat','NUTS1','DEG','DEU',null,null,null,0,0);
 
-
 insert into "AdministrativeDivision" values( 'Eurostat','NUTS2','BE10','BEL','NUTS1','BE1',null,0,0);
 insert into "AdministrativeDivision" values( 'Eurostat','NUTS2','BE21','BEL','NUTS1','BE2',null,0,0);
 insert into "AdministrativeDivision" values( 'Eurostat','NUTS2','BE22','BEL','NUTS1','BE2',null,0,0);
@@ -707,18 +705,19 @@ insert into "InhouseAddress" values( '502', 'MAIN',  '7',6 ,12 );
 CREATE TABLE "Collections" (
 	"ID" VARCHAR(32) NOT NULL ,
 	"Number" INTEGER,
+	"Timestamp" TIMESTAMP WITH TIME ZONE,
    PRIMARY KEY ("ID"));	
-insert into "Collections" values( '501',-1 );
-insert into "Collections" values( '502', 32 );   
-insert into "Collections" values( '503',6541 );
-insert into "Collections" values( '504', 3 );   
+insert into "Collections" values( '501',-1, null );
+insert into "Collections" values( '502', 32, null );   
+insert into "Collections" values( '503',6541, null );
+insert into "Collections" values( '504', 3, '2020-11-01 14:43:47+01:00');   
 
 CREATE TABLE "NestedComplex" (
 	"ID" VARCHAR(32) NOT NULL,
 	"Number" INTEGER NOT NULL,
 	"Figure1" INTEGER,
 	"Figure2" INTEGER,
-	"Figure3" INTEGER,
+	"Figure3" BIGINT,
    PRIMARY KEY ("ID", "Number"));		
    
 insert into "NestedComplex" values('501',1, 1, 1, 1);   
@@ -810,6 +809,17 @@ CREATE TABLE "JoinHiddenRelation" (
 	
 insert into "JoinHiddenRelation" values (2, 20);
 insert into "JoinHiddenRelation" values (2, 21);
+
+------Top Level-----------------------------
+
+CREATE TABLE "GeneralSettings"(
+	"Name" VARCHAR(255));
+	
+CREATE TABLE "DetailSettings"(
+	"Id" INTEGER NOT NULL ,
+	"Name" VARCHAR(255),
+	"GeneralName" VARCHAR(255),
+	PRIMARY KEY ("Id"));
 
 ------Authorizations------------------------	
 --top-secret;  --logo
@@ -938,4 +948,3 @@ CREATE TABLE "DummyToBeIgnored" (
 --						AND  a."CodeID" = "ID"
 --						AND  a."DivisionCode" = "Division" )
 --				);
-	 

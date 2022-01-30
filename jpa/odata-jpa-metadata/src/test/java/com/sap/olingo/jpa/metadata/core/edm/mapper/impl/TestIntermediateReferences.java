@@ -20,11 +20,11 @@ import org.junit.jupiter.api.Test;
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateEntityTypeAccess;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateNavigationPropertyAccess;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateReferenceList.IntermediateReferenceAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateEntityTypeAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateNavigationPropertyAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediatePropertyAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateReferenceList;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateReferenceList.IntermediateReferenceAccess;
 
 class TestIntermediateReferences extends TestMappingRoot {
 
@@ -37,12 +37,11 @@ class TestIntermediateReferences extends TestMappingRoot {
   private IntermediateReferences cut;
 
   @BeforeEach
-  void setup() throws ODataJPAModelException {
+  public void setup() throws ODataJPAModelException {
     cut = new IntermediateReferences();
   }
 
-  // TODO This test may not run because of proxy setting problems!! -> find alternative for Integration tests
-  @Disabled
+  @Disabled("This test may not run because of proxy setting problems!! -> find alternative for Integration tests")
   @Test
   void checkAddOnlyURI() throws ODataJPAModelException, URISyntaxException {
     final String uri = CORE_V1_URL;
@@ -142,7 +141,7 @@ class TestIntermediateReferences extends TestMappingRoot {
   }
 
   @Test
-  void checkReturnNullOnUnknowTerm() throws ODataJPAModelException {
+  void checkReturnNullOnUnknownTerm() throws ODataJPAModelException {
     final String uri = MEASURES_V1_URL;
     final IntermediateReferenceAccess ref = cut.addReference(uri, "annotations/Org.OData.Measures.V1.xml");
     ref.addInclude("Org.OData.Measures.V1", "Measures");
@@ -151,7 +150,7 @@ class TestIntermediateReferences extends TestMappingRoot {
   }
 
   @Test
-  void checkReturnNullOnUnknowNamespace() throws ODataJPAModelException {
+  void checkReturnNullOnUnknownNamespace() throws ODataJPAModelException {
     final String uri = MEASURES_V1_URL;
     final IntermediateReferenceAccess ref = cut.addReference(uri, "annotations/Org.OData.Measures.V1.xml");
     ref.addInclude("Org.OData.Measures.V1", "Measures");
@@ -168,7 +167,8 @@ class TestIntermediateReferences extends TestMappingRoot {
   }
 
   @Test
-  void checkThrowsExcpetionOnNullTermNamespace() throws ODataJPAModelException {
+  void checkThrowsExceptionOnNullTermNamespace() throws ODataJPAModelException {
+
     final String uri = MEASURES_V1_URL;
     final IntermediateReferenceAccess ref = cut.addReference(uri, "annotations/Org.OData.Measures.V1.xml");
     assertThrows(ODataJPAModelException.class, () -> ref.addIncludeAnnotation(null));

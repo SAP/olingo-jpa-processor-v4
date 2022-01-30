@@ -17,14 +17,14 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 public abstract class JPAAbstractFilter implements JPAFilterComplier, JPAFilterComplierAccess {
   final JPAEntityType jpaEntityType;
   final VisitableExpression expression;
-  final JPAAssociationPath assoziation;
+  final JPAAssociationPath association;
 
-  public JPAAbstractFilter(final JPAEntityType jpaEntityType, final VisitableExpression expression) {
+  JPAAbstractFilter(final JPAEntityType jpaEntityType, final VisitableExpression expression) {
     this(jpaEntityType, expression, null);
   }
 
-  public JPAAbstractFilter(final JPAEntityType jpaEntityType, final UriInfoResource uriResource,
-      final JPAAssociationPath assoziation) {
+  JPAAbstractFilter(final JPAEntityType jpaEntityType, final UriInfoResource uriResource,
+      final JPAAssociationPath association) {
     super();
     this.jpaEntityType = jpaEntityType;
     if (uriResource != null && uriResource.getFilterOption() != null) {
@@ -32,15 +32,15 @@ public abstract class JPAAbstractFilter implements JPAFilterComplier, JPAFilterC
     } else {
       this.expression = null;
     }
-    this.assoziation = assoziation;
+    this.association = association;
   }
 
-  public JPAAbstractFilter(final JPAEntityType jpaEntityType, final VisitableExpression expression,
+  JPAAbstractFilter(final JPAEntityType jpaEntityType, final VisitableExpression expression,
       final JPAAssociationPath association) {
     super();
     this.jpaEntityType = jpaEntityType;
     this.expression = expression;
-    this.assoziation = association;
+    this.association = association;
   }
 
   @Override
@@ -49,7 +49,7 @@ public abstract class JPAAbstractFilter implements JPAFilterComplier, JPAFilterC
     if (expression != null) {
       try {
         expression.accept(visitor);
-      } catch (ExpressionVisitException e) {
+      } catch (final ExpressionVisitException e) {
         throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
       }
       return Collections.unmodifiableList(visitor.get());
@@ -59,7 +59,7 @@ public abstract class JPAAbstractFilter implements JPAFilterComplier, JPAFilterC
   }
 
   @Override
-  public JPAAssociationPath getAssoziation() {
-    return assoziation;
+  public JPAAssociationPath getAssociation() {
+    return association;
   }
 }

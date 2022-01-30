@@ -2,12 +2,17 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.COMPLEX_PROPERTY_MISSING_PROTECTION_PATH;
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.PROPERTY_PRECISION_NOT_IN_RANGE;
+import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.TRANSIENT_CALCULATOR_TOO_MANY_CONSTRUCTORS;
+import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.TRANSIENT_KEY_NOT_SUPPORTED;
 
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +22,7 @@ import java.util.stream.Collectors;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Column;
 import javax.persistence.Convert;
+import javax.persistence.EntityManager;
 import javax.persistence.Lob;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.Attribute.PersistentAttributeType;
@@ -30,19 +36,23 @@ import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlMapping;
 import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 
+import com.sap.olingo.jpa.metadata.api.JPAHttpHeaderMap;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmGeospatial;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmIgnore;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtectedBy;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtections;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmSearchable;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransient;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransientPropertyCalculator;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmVisibleFor;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.AppliesTo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediatePropertyAccess;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediatePropertyAccess;
 
 /**
  * Properties can be classified by two different aspects:
@@ -63,7 +73,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
   protected final Attribute<?, ?> jpaAttribute;
   protected final IntermediateSchema schema;
   protected CsdlProperty edmProperty;
-  protected IntermediateStructuredType<?> type;
+  protected JPAStructuredType type;
   protected AttributeConverter<?, ?> valueConverter;
   protected String dbFieldName;
   protected Class<?> dbType;
@@ -71,8 +81,13 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
   protected final ManagedType<?> managedType;
   protected boolean isVersion;
   protected boolean searchable;
+  protected boolean conversionRequired;
+  private boolean isEnum;
+
   private final Map<String, JPAProtectionInfo> externalProtectedPathNames;
   private List<String> fieldGroups;
+  protected List<String> requiredAttributes;
+  private Constructor<? extends EdmTransientPropertyCalculator<?>> transientCalculatorConstructor;
 
   public IntermediateProperty(final JPAEdmNameBuilder nameBuilder, final Attribute<?, ?> jpaAttribute,
       final IntermediateSchema schema) throws ODataJPAModelException {
@@ -91,13 +106,28 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
 
   @SuppressWarnings("unchecked")
   @Override
+  public <T extends EdmTransientPropertyCalculator<?>> Constructor<T> getCalculatorConstructor()
+      throws ODataJPAModelException {
+    if (this.edmProperty == null) {
+      lazyBuildEdmItem();
+    }
+    return (Constructor<T>) transientCalculatorConstructor;
+  }
+
+  @Override
   public <X, Y extends Object> AttributeConverter<X, Y> getConverter() {
+    return conversionRequired ? getRawConverter() : null;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <X, Y extends Object> AttributeConverter<X, Y> getRawConverter() {
     return (AttributeConverter<X, Y>) valueConverter;
   }
 
   @Override
   public EdmPrimitiveTypeKind getEdmType() throws ODataJPAModelException {
-    return JPATypeConvertor.convertToEdmSimpleType(entityType);
+    return JPATypeConverter.convertToEdmSimpleType(entityType);
   }
 
   @Override
@@ -117,6 +147,14 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
     return new ArrayList<>(0);
   }
 
+  /**
+   * @return
+   */
+  @Override
+  public List<String> getRequiredProperties() {
+    return requiredAttributes;
+  }
+
   @Override
   public JPAStructuredType getStructuredType() {
     return type == null ? null : type;
@@ -124,10 +162,15 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
 
   @Override
   public Class<?> getType() {
-    if (valueConverter != null)
-      return jpaAttribute.getJavaType().isPrimitive() ? boxPrimitive(dbType) : dbType;
+    if (conversionRequired)
+      return dbType.isPrimitive() ? boxPrimitive(dbType) : dbType;
     else
-      return jpaAttribute.getJavaType().isPrimitive() ? boxPrimitive(entityType) : entityType;
+      return entityType.isPrimitive() ? boxPrimitive(entityType) : entityType;
+  }
+
+  @Override
+  public Class<?> getDbType() {
+    return dbType.isPrimitive() ? boxPrimitive(dbType) : dbType;
   }
 
   @Override
@@ -137,7 +180,12 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
 
   @Override
   public boolean isEnum() {
-    return schema.getEnumerationType(entityType) != null;
+    return isEnum;
+
+  }
+
+  private void determineIsEnum() {
+    isEnum = schema.getEnumerationType(entityType) != null;
   }
 
   @Override
@@ -150,40 +198,46 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
     return searchable;
   }
 
+  @Override
+  public boolean isTransient() {
+    return requiredAttributes != null;
+  }
+
   protected void buildProperty(final JPAEdmNameBuilder nameBuilder) throws ODataJPAModelException {
     // Set element specific attributes of super type
     this.setExternalName(nameBuilder.buildPropertyName(internalName));
-    entityType = dbType = determineEntityType();
+    entityType = dbType = determinePropertyType();
 
     if (this.jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
       determineIgnore();
       determineStructuredType();
       determineInternalTypesFromConverter();
       determineDBFieldName();
-      // TODO @Transient -> e.g. Calculated fields like formated name
+      determineTransient();
       determineSearchable();
       determineStreamInfo();
       determineIsVersion();
       determineProtection();
       determineFieldGroups();
-      checkConsistancy();
+      determineIsEnum();
+      checkConsistency();
     }
     postProcessor.processProperty(this, jpaAttribute.getDeclaringType().getJavaType().getCanonicalName());
     // Process annotations after post processing, as external name it could
     // have been changed
-    getAnnotations(edmAnnotations, this.jpaAttribute.getJavaMember(), internalName, AppliesTo.PROPERTY);
+    getAnnotations(edmAnnotations, this.jpaAttribute.getJavaMember(), internalName);
   }
 
-  protected FullQualifiedName determineTypeByPersistanceType(final Enum<?> persistanceType)
+  protected FullQualifiedName determineTypeByPersistenceType(final Enum<?> persistanceType)
       throws ODataJPAModelException {
-    if (persistanceType == PersistentAttributeType.BASIC || persistanceType == PersistenceType.BASIC) {
+    if (PersistentAttributeType.BASIC.equals(persistanceType) || PersistenceType.BASIC.equals(persistanceType)) {
       final IntermediateModelElement odataType = getODataPrimitiveType();
       if (odataType == null)
         return getSimpleType();
       else
         return odataType.getExternalFQN();
     }
-    if (persistanceType == PersistentAttributeType.EMBEDDED || persistanceType == PersistenceType.EMBEDDABLE)
+    if (PersistentAttributeType.EMBEDDED.equals(persistanceType) || PersistenceType.EMBEDDABLE.equals(persistanceType))
       return buildFQN(type.getExternalName());
     else
       return EdmPrimitiveTypeKind.Boolean.getFullQualifiedName();
@@ -195,12 +249,14 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
 
   @Override
   protected CsdlProperty getEdmItem() throws ODataJPAModelException {
-    lazyBuildEdmItem();
+    if (this.edmProperty == null) {
+      lazyBuildEdmItem();
+    }
     return edmProperty;
   }
 
   @Override
-  protected void lazyBuildEdmItem() throws ODataJPAModelException {
+  protected synchronized void lazyBuildEdmItem() throws ODataJPAModelException {
     if (edmProperty == null) {
       edmProperty = new CsdlProperty();
       edmProperty.setName(this.getExternalName());
@@ -215,7 +271,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
    * Check consistency of provided attribute e.g. check id attribute was annotated with unsupported annotations
    * @throws ODataJPAModelException
    */
-  abstract void checkConsistancy() throws ODataJPAModelException;
+  abstract void checkConsistency() throws ODataJPAModelException;
 
   CsdlMapping createMapper() {
     if (!isLob() && !(getConverter() == null && isEnum())) {
@@ -227,15 +283,15 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
     return null;
   }
 
-  abstract Class<?> determineEntityType();
+  abstract Class<?> determinePropertyType();
 
   abstract void determineIsVersion();
 
   void determineProtection() throws ODataJPAModelException {
-    final EdmProtections jpaProtectinons = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
+    final EdmProtections jpaProtections = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
         .getAnnotation(EdmProtections.class);
-    if (jpaProtectinons != null) {
-      for (final EdmProtectedBy jpaProtectedBy : jpaProtectinons.value()) {
+    if (jpaProtections != null) {
+      for (final EdmProtectedBy jpaProtectedBy : jpaProtections.value()) {
         determineOneProtection(jpaProtectedBy);
       }
     } else {
@@ -260,7 +316,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
 
   abstract FullQualifiedName determineType() throws ODataJPAModelException;
 
-  abstract String getDeafultValue() throws ODataJPAModelException;
+  abstract String getDefaultValue() throws ODataJPAModelException;
 
   /**
    * @return
@@ -274,13 +330,8 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
   }
 
   FullQualifiedName getSimpleType() throws ODataJPAModelException {
-    Class<?> javaType = null;
-    if (valueConverter != null) {
-      javaType = dbType;
-    } else {
-      javaType = entityType;
-    }
-    return JPATypeConvertor.convertToEdmSimpleType(javaType, jpaAttribute)
+
+    return JPATypeConverter.convertToEdmSimpleType(getType(), jpaAttribute)
         .getFullQualifiedName();
   }
 
@@ -327,22 +378,33 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
       if (jpaColumn != null) {
         edmProperty.setNullable(jpaColumn.nullable());
         edmProperty.setSrid(getSRID());
-        edmProperty.setDefaultValue(getDeafultValue());
+        edmProperty.setDefaultValue(getDefaultValue());
+        edmProperty.setMaxLength(determineMaxLength(jpaColumn));
+        determinePrecisionScale(jpaColumn);
         // TODO Attribute Unicode
-        if (edmProperty.getTypeAsFQNObject().equals(EdmPrimitiveTypeKind.String.getFullQualifiedName())
-            || edmProperty.getTypeAsFQNObject().equals(EdmPrimitiveTypeKind.Binary.getFullQualifiedName())) {
-          if (jpaColumn.length() > 0)
-            edmProperty.setMaxLength(jpaColumn.length());
-          if (isLob())
-            edmProperty.setMaxLength(null);
-        } else if (edmProperty.getType()
-            .equals(EdmPrimitiveTypeKind.Decimal.getFullQualifiedName().toString())) {
-          setPrecisionScale(jpaColumn);
-        } else {
-          setPrecisionScaleTemporal(jpaColumn);
-        }
       }
     }
+  }
+
+  private void determinePrecisionScale(final Column jpaColumn) throws ODataJPAModelException {
+    if (edmProperty.getType()
+        .equals(EdmPrimitiveTypeKind.Decimal.getFullQualifiedName().toString())) {
+      setPrecisionScale(jpaColumn);
+    } else {
+      setPrecisionScaleTemporal(jpaColumn);
+    }
+  }
+
+  private Integer determineMaxLength(final Column jpaColumn) {
+
+    if ((edmProperty.getTypeAsFQNObject().equals(EdmPrimitiveTypeKind.String.getFullQualifiedName())
+        || edmProperty.getTypeAsFQNObject().equals(EdmPrimitiveTypeKind.Binary.getFullQualifiedName()))
+        && !isLob()
+        && jpaColumn.length() > 0) {
+
+      return jpaColumn.length();
+    }
+    return null;
   }
 
   /**
@@ -381,7 +443,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
    * @param jpaColumn
    * @throws ODataJPAModelException
    */
-  private void setPrecisionScale(final Column jpaColumn) throws ODataJPAModelException {
+  private void setPrecisionScale(final Column jpaColumn) {
     if (jpaColumn.precision() > 0)
       edmProperty.setPrecision(jpaColumn.precision());
     if (edmProperty.getType().equals(EdmPrimitiveTypeKind.Decimal.getFullQualifiedName().toString())
@@ -397,23 +459,50 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
    */
   private String convertPath(final String internalPath) {
 
-    final String[] pathSegments = internalPath.split(JPAPath.PATH_SEPERATOR);
+    final String[] pathSegments = internalPath.split(JPAPath.PATH_SEPARATOR);
     final StringBuilder externalPath = new StringBuilder();
-    for (final String segement : pathSegments) {
-      externalPath.append(nameBuilder.buildPropertyName(segement));
-      externalPath.append(JPAPath.PATH_SEPERATOR);
+    for (final String segment : pathSegments) {
+      externalPath.append(nameBuilder.buildPropertyName(segment));
+      externalPath.append(JPAPath.PATH_SEPARATOR);
     }
     externalPath.deleteCharAt(externalPath.length() - 1);
 
     return externalPath.toString();
   }
 
+  /**
+   * @param calculator
+   * @return
+   * @throws ODataJPAModelException
+   */
+  @SuppressWarnings("unchecked")
+  private Constructor<? extends EdmTransientPropertyCalculator<?>> determineCalculatorConstructor(
+      final Class<? extends EdmTransientPropertyCalculator<?>> calculator) throws ODataJPAModelException {
+
+    if (calculator.getConstructors().length > 1)
+      throw new ODataJPAModelException(TRANSIENT_CALCULATOR_TOO_MANY_CONSTRUCTORS,
+          calculator.getName(), jpaAttribute.getName(),
+          jpaAttribute.getJavaMember().getDeclaringClass().getName());
+    final Constructor<?> c = calculator.getConstructors()[0];
+    if (c.getParameters() != null) {
+      for (final Parameter p : c.getParameters()) {
+        if (!(p.getType().isAssignableFrom(EntityManager.class)
+            || p.getType().isAssignableFrom(JPAParameter.class)
+            || p.getType().isAssignableFrom(JPAHttpHeaderMap.class)))
+          throw new ODataJPAModelException(MessageKeys.TRANSIENT_CALCULATOR_WRONG_PARAMETER,
+              calculator.getName(), jpaAttribute.getName(),
+              jpaAttribute.getJavaMember().getDeclaringClass().getName());
+      }
+    }
+    return (Constructor<? extends EdmTransientPropertyCalculator<?>>) c;
+  }
+
   private void determineDBFieldName() {
-    final Column jpaColunnDetails = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
+    final Column jpaColumnDetails = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
         .getAnnotation(Column.class);
-    if (jpaColunnDetails != null) {
+    if (jpaColumnDetails != null) {
       // TODO allow default name
-      dbFieldName = jpaColunnDetails.name();
+      dbFieldName = jpaColumnDetails.name();
       if (dbFieldName.isEmpty()) {
         final StringBuilder s = new StringBuilder(DB_FIELD_NAME_PATTERN);
         s.replace(1, 3, internalName);
@@ -449,12 +538,12 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
         .getAnnotation(Convert.class);
     if (jpaConverter != null) {
       try {
-        final Type[] convType = jpaConverter.converter().getGenericInterfaces();
-        final Type[] types = ((ParameterizedType) convType[0]).getActualTypeArguments();
+        final Type[] converterType = jpaConverter.converter().getGenericInterfaces();
+        final Type[] types = ((ParameterizedType) converterType[0]).getActualTypeArguments();
         entityType = (Class<?>) types[0];
         dbType = (Class<?>) types[1];
-        if (!JPATypeConvertor.isSupportedByOlingo(entityType))
-          valueConverter = (AttributeConverter<?, ?>) jpaConverter.converter().newInstance();
+        conversionRequired = !JPATypeConverter.isSupportedByOlingo(entityType);
+        valueConverter = (AttributeConverter<?, ?>) jpaConverter.converter().newInstance();
       } catch (InstantiationException | IllegalAccessException e) {
         throw new ODataJPAModelException(
             ODataJPAModelException.MessageKeys.TYPE_MAPPER_COULD_NOT_INSTANTIATED, e);
@@ -476,7 +565,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
         throw new ODataJPAModelException(COMPLEX_PROPERTY_MISSING_PROTECTION_PATH, this.managedType.getJavaType()
             .getCanonicalName(), this.internalName);
       }
-      externalNames.add(getExternalName() + JPAPath.PATH_SEPERATOR + convertPath(jpaProtectedBy.path()));
+      externalNames.add(getExternalName() + JPAPath.PATH_SEPARATOR + convertPath(jpaProtectedBy.path()));
     } else {
       externalNames.add(getExternalName());
     }
@@ -484,8 +573,29 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
         .wildcardSupported()));
   }
 
+  private List<String> determineRequiredAttributesTransient(final EdmTransient jpaTransient) {
+    return jpaTransient.requiredAttributes() == null ? Collections.emptyList() : Arrays.asList(
+        jpaTransient.requiredAttributes());
+  }
+
+  /**
+   * @throws ODataJPAModelException
+   *
+   */
+  void determineTransient() throws ODataJPAModelException {
+    final EdmTransient jpaTransient = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
+        .getAnnotation(EdmTransient.class);
+    if (jpaTransient != null) {
+      if (isKey())
+        throw new ODataJPAModelException(TRANSIENT_KEY_NOT_SUPPORTED,
+            jpaAttribute.getJavaMember().getDeclaringClass().getName());
+      requiredAttributes = determineRequiredAttributesTransient(jpaTransient);
+      transientCalculatorConstructor = determineCalculatorConstructor(jpaTransient.calculator());
+    }
+  }
+
   private boolean isLob() {
-    if (jpaAttribute != null) {
+    if (jpaAttribute != null && jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
       final AnnotatedElement annotatedElement = (AnnotatedElement) jpaAttribute.getJavaMember();
       if (annotatedElement != null && annotatedElement.getAnnotation(Lob.class) != null) {
         return true;
@@ -493,5 +603,4 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
     }
     return false;
   }
-
 }

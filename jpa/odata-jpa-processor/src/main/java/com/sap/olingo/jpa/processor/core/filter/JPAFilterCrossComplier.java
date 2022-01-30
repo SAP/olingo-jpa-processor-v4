@@ -58,18 +58,18 @@ public final class JPAFilterCrossComplier extends JPAAbstractFilter {
 
   public JPAFilterCrossComplier(final OData odata, final JPAServiceDocument sd,
       final JPAEntityType jpaEntityType, final JPAOperationConverter converter,
-      final JPAAbstractQuery parent, From<?, ?> from, final JPAAssociationPath assization,
+      final JPAAbstractQuery parent, From<?, ?> from, final JPAAssociationPath association,
       final JPAODataRequestContextAccess requestContext) {
 
-    this(odata, sd, jpaEntityType, converter, parent, assization, requestContext);
+    this(odata, sd, jpaEntityType, converter, parent, association, requestContext);
     this.root = from;
   }
 
   public JPAFilterCrossComplier(final OData odata, final JPAServiceDocument sd,
       final JPAEntityType jpaEntityType, final JPAOperationConverter converter, final JPAAbstractQuery parent,
-      final JPAAssociationPath assization, final JPAODataRequestContextAccess requestContext) {
+      final JPAAssociationPath association, final JPAODataRequestContextAccess requestContext) {
 
-    super(jpaEntityType, requestContext.getUriInfo(), assization);
+    super(jpaEntityType, requestContext.getUriInfo(), association);
     final Optional<JPAODataGroupProvider> groupsProvider = requestContext.getGroupsProvider();
     this.uriResourceParts = requestContext.getUriInfo().getUriResourceParts();
     this.converter = converter;

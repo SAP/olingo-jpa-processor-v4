@@ -5,9 +5,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 
+import javax.annotation.CheckForNull;
 import javax.persistence.metamodel.Metamodel;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.edm.EdmAction;
 import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.edm.EdmComplexType;
@@ -32,18 +36,20 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEnumerationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAProtectionInfo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 /**
  * http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/schemas/edmx.xsd
- * A Service Document can contain of multiple schemas, but only of
- * one Entity Container. This container is assigned to one of the
- * schemas.
+ * A Service Document can contain multiple schemas, but only
+ * one Entity Container. This container is assigned to one of the schemas.<p>
  * http://services.odata.org/V4/Northwind/Northwind.svc/$metadata
  */
 class IntermediateServiceDocument implements JPAServiceDocument {
+
+  private static final Log LOGGER = LogFactory.getLog(IntermediateServiceDocument.class);
   private final Metamodel jpaMetamodel;
   private final JPAEdmNameBuilder nameBuilder;
   private final IntermediateEntityContainer container;
@@ -51,6 +57,7 @@ class IntermediateServiceDocument implements JPAServiceDocument {
   private final IntermediateReferences references;
   private final JPAEdmMetadataPostProcessor pP;
   private final Reflections reflections;
+  private Map<String, JPAProtectionInfo> claims;
 
   IntermediateServiceDocument(final String namespace, final Metamodel jpaMetamodel,
       final JPAEdmMetadataPostProcessor postProcessor, final String[] packageName) throws ODataJPAModelException {
@@ -181,9 +188,15 @@ class IntermediateServiceDocument implements JPAServiceDocument {
    * @see com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getEntity(java.lang.String)
    */
   @Override
-  public JPAEntityType getEntity(final String edmEntitySetName) throws ODataJPAModelException {
-    final IntermediateEntitySet entitySet = container.getEntitySet(edmEntitySetName);
-    return entitySet != null ? entitySet.getEntityType() : null;
+  public JPAEntityType getEntity(final String edmTargetName) throws ODataJPAModelException {
+    final IntermediateTopLevelEntity target = determineTopLevelEntity(edmTargetName);
+    return target != null ? target.getEntityType() : null;
+  }
+
+  @CheckForNull
+  private IntermediateTopLevelEntity determineTopLevelEntity(final String edmTargetName) throws ODataJPAModelException {
+    final Optional<IntermediateTopLevelEntity> target = Optional.ofNullable(container.getEntitySet(edmTargetName));
+    return target.orElse(container.getSingleton(edmTargetName));
   }
 
   /*
@@ -260,7 +273,7 @@ class IntermediateServiceDocument implements JPAServiceDocument {
     try {
       return getEntity(entitySetOrSingleton.getEntityType().getFullQualifiedName()).hasEtag();
     } catch (final ODataJPAModelException e) {
-      // TODO Logging
+      LOGGER.debug("Error during binding target determination", e);
       return false;
     }
   }
@@ -278,9 +291,8 @@ class IntermediateServiceDocument implements JPAServiceDocument {
   public JPAEdmNameBuilder getNameBuilder() {
     return nameBuilder;
   }
-  
-  private void buildIntermediateSchemas()
-      throws ODataJPAModelException {
+
+  private void buildIntermediateSchemas() throws ODataJPAModelException {
     final IntermediateSchema schema = new IntermediateSchema(nameBuilder, jpaMetamodel, reflections);
     schemaListInternalKey.put(schema.internalName, schema);
   }
@@ -302,10 +314,10 @@ class IntermediateServiceDocument implements JPAServiceDocument {
     try {
       if (schemaListInternalKey.isEmpty())
         buildIntermediateSchemas();
-      for (final Entry<String, IntermediateSchema> schema : schemaListInternalKey.entrySet()) {
-        schemas.add(schema.getValue().getEdmItem());
+      for (final IntermediateSchema schema : schemaListInternalKey.values()) {
+        schemas.add(schema.getEdmItem());
       }
-    } catch (final Exception e) {
+    } catch (final ODataJPAModelException e) {
       schemaListInternalKey.clear();
       throw e;
     }
@@ -313,12 +325,13 @@ class IntermediateServiceDocument implements JPAServiceDocument {
   }
 
   private void setContainer() {
-
-    for (final Entry<String, IntermediateSchema> schema : schemaListInternalKey.entrySet()) {
-      schema.getValue().setContainer(container);
-      break;
+    for (final IntermediateSchema schema : schemaListInternalKey.values()) {
+      schema.setContainer(container);
+      // OData allows to combine multiple schemas in one metadata document. The container has to be added to one of
+      // those.
+      // We pick the first that we can get:
+      break; // NOSONAR
     }
-
   }
 
   @Override
@@ -338,4 +351,18 @@ class IntermediateServiceDocument implements JPAServiceDocument {
     return null;
   }
 
+  @Override
+  public Map<String, JPAProtectionInfo> getClaims() throws ODataJPAModelException {
+    if (claims == null) {
+      claims = new HashMap<>();
+      for (final IntermediateSchema schema : schemaListInternalKey.values()) {
+        for (final IntermediateEntityType<?> et : schema.getEntityTypes()) {
+          for (final JPAProtectionInfo protection : et.getProtections()) {
+            claims.put(protection.getClaimName(), protection);
+          }
+        }
+      }
+    }
+    return claims;
+  }
 }

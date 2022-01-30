@@ -46,22 +46,23 @@ import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.processor.core.api.JPAAbstractCUDRequestHandler;
-import com.sap.olingo.jpa.processor.core.api.JPAODataCRUDContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataTransactionFactory;
 import com.sap.olingo.jpa.processor.core.api.JPAODataTransactionFactory.JPAODataTransaction;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
-import com.sap.olingo.jpa.processor.core.query.EdmEntitySetInfo;
+import com.sap.olingo.jpa.processor.core.query.EdmBindingTargetInfo;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializer;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionKey;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
+import com.sap.olingo.jpa.processor.core.testmodel.Person;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 
-public abstract class TestJPAModifyProcessor {
+abstract class TestJPAModifyProcessor {
   protected static final String LOCATION_HEADER = "Organization('35')";
   protected static final String PREFERENCE_APPLIED = "return=minimal";
   protected static final String PUNIT_NAME = "com.sap.olingo.jpa";
@@ -71,7 +72,7 @@ public abstract class TestJPAModifyProcessor {
 
   @BeforeAll
   public static void setupClass() throws ODataException {
-    JPAEdmMetadataPostProcessor pP = mock(JPAEdmMetadataPostProcessor.class);
+    final JPAEdmMetadataPostProcessor pP = mock(JPAEdmMetadataPostProcessor.class);
 
     ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
     emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, ds);
@@ -82,7 +83,7 @@ public abstract class TestJPAModifyProcessor {
   protected JPACUDRequestProcessor processor;
   protected OData odata;
   protected ServiceMetadata serviceMetadata;
-  protected JPAODataCRUDContextAccess sessionContext;
+  protected JPAODataSessionContextAccess sessionContext;
   protected JPAODataRequestContextAccess requestContext;
   protected UriInfo uriInfo;
   protected UriResourceEntitySet uriEts;
@@ -90,7 +91,7 @@ public abstract class TestJPAModifyProcessor {
   protected JPAODataTransaction transaction;
   protected JPASerializer serializer;
   protected EdmEntitySet ets;
-  protected EdmEntitySetInfo etsInfo;
+  protected EdmBindingTargetInfo etsInfo;
   protected List<UriParameter> keyPredicates;
   protected JPAConversionHelper convHelper;
   protected List<UriResource> pathParts = new ArrayList<>();
@@ -100,15 +101,15 @@ public abstract class TestJPAModifyProcessor {
   protected JPAODataTransactionFactory factory;
 
   @BeforeEach
-  public void setUp() throws Exception {
+  public void setup() throws Exception {
     odata = OData.newInstance();
-    sessionContext = mock(JPAODataCRUDContextAccess.class);
+    sessionContext = mock(JPAODataSessionContextAccess.class);
     requestContext = mock(JPAODataRequestContextAccess.class);
     serviceMetadata = mock(ServiceMetadata.class);
     uriInfo = mock(UriInfo.class);
     keyPredicates = new ArrayList<>();
     ets = mock(EdmEntitySet.class);
-    etsInfo = mock(EdmEntitySetInfo.class);
+    etsInfo = mock(EdmBindingTargetInfo.class);
     serializer = mock(JPASerializer.class);
     uriEts = mock(UriResourceEntitySet.class);
     pathParts.add(uriEts);
@@ -131,12 +132,12 @@ public abstract class TestJPAModifyProcessor {
     when(uriEts.getKind()).thenReturn(UriResourceKind.entitySet);
     when(ets.getName()).thenReturn("Organizations");
     when(factory.createTransaction()).thenReturn(transaction);
-    when(etsInfo.getEdmEntitySet()).thenReturn(ets);
+    when(etsInfo.getEdmBindingTarget()).thenReturn(ets);
     processor = new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext, convHelper);
 
   }
 
-  protected ODataRequest prepareRepresentationRequest(JPAAbstractCUDRequestHandler spy)
+  protected ODataRequest prepareRepresentationRequest(final JPAAbstractCUDRequestHandler spy)
       throws ODataJPAProcessorException, SerializerException, ODataException {
 
     final ODataRequest request = prepareSimpleRequest("return=representation");
@@ -170,7 +171,7 @@ public abstract class TestJPAModifyProcessor {
     return request;
   }
 
-  protected ODataRequest prepareLinkRequest(JPAAbstractCUDRequestHandler spy)
+  protected ODataRequest prepareLinkRequest(final JPAAbstractCUDRequestHandler spy)
       throws ODataJPAProcessorException, SerializerException, ODataException {
 
     // .../AdministrativeDivisions(DivisionCode='DE60',CodeID='NUTS2',CodePublisher='Eurostat')
@@ -196,7 +197,7 @@ public abstract class TestJPAModifyProcessor {
     when(edmET.getKeyPredicateNames()).thenReturn(keyNames);
     when(edmET.getFullQualifiedName()).thenReturn(fqn);
 
-    EdmPrimitiveType type = EdmString.getInstance();
+    final EdmPrimitiveType type = EdmString.getInstance();
     EdmKeyPropertyRef refType = mock(EdmKeyPropertyRef.class);
     EdmProperty edmProperty = mock(EdmProperty.class);
     when(edmET.getKeyPropertyRef("DivisionCode")).thenReturn(refType);
@@ -235,7 +236,7 @@ public abstract class TestJPAModifyProcessor {
   }
 
   @SuppressWarnings("unchecked")
-  protected ODataRequest prepareSimpleRequest(String content) throws ODataException, ODataJPAProcessorException,
+  protected ODataRequest prepareSimpleRequest(final String content) throws ODataException, ODataJPAProcessorException,
       SerializerException {
 
     final EntityTransaction transaction = mock(EntityTransaction.class);
@@ -244,14 +245,48 @@ public abstract class TestJPAModifyProcessor {
     final ODataRequest request = mock(ODataRequest.class);
     when(request.getHeaders(HttpHeader.PREFER)).thenReturn(header);
     when(sessionContext.getEdmProvider()).thenReturn(jpaEdm);
-    when(etsInfo.getEdmEntitySet()).thenReturn(ets);
+    when(etsInfo.getEdmBindingTarget()).thenReturn(ets);
     header.add(content);
 
-    Entity odataEntity = mock(Entity.class);
+    final Entity odataEntity = mock(Entity.class);
     when(convHelper.convertInputStream(same(odata), same(request), same(ContentType.JSON), any(List.class)))
         .thenReturn(odataEntity);
     when(convHelper.convertKeyToLocal(ArgumentMatchers.eq(odata), ArgumentMatchers.eq(request), ArgumentMatchers.eq(
         ets), ArgumentMatchers.any(JPAEntityType.class), ArgumentMatchers.any())).thenReturn(LOCATION_HEADER);
+    return request;
+  }
+
+  protected ODataRequest preparePersonRequest(final JPAAbstractCUDRequestHandler spy)
+      throws ODataJPAProcessorException, SerializerException, ODataException {
+
+    final ODataRequest request = prepareSimpleRequest("return=representation");
+
+    when(requestContext.getCUDRequestHandler()).thenReturn(spy);
+    final Person person = new Person();
+    when(em.find(Person.class, "35")).thenReturn(person);
+    person.setID("35");
+    final Edm edm = mock(Edm.class);
+    when(serviceMetadata.getEdm()).thenReturn(edm);
+    final EdmEntityType edmET = mock(EdmEntityType.class);
+    final FullQualifiedName fqn = new FullQualifiedName("com.sap.olingo.jpa.Person");
+    when(edm.getEntityType(fqn)).thenReturn(edmET);
+    final List<String> keyNames = new ArrayList<>();
+    keyNames.add("ID");
+    when(edmET.getKeyPredicateNames()).thenReturn(keyNames);
+    final EdmKeyPropertyRef refType = mock(EdmKeyPropertyRef.class);
+    when(edmET.getKeyPropertyRef("ID")).thenReturn(refType);
+    when(edmET.getFullQualifiedName()).thenReturn(fqn);
+    final EdmProperty edmProperty = mock(EdmProperty.class);
+    when(refType.getProperty()).thenReturn(edmProperty);
+    when(refType.getName()).thenReturn("ID");
+    final EdmPrimitiveType type = mock(EdmPrimitiveType.class);
+    when(edmProperty.getType()).thenReturn(type);
+    when(type.toUriLiteral(ArgumentMatchers.any())).thenReturn("35");
+
+    when(serializer.serialize(ArgumentMatchers.eq(request), ArgumentMatchers.any(EntityCollection.class))).thenReturn(
+        serializerResult);
+    when(serializerResult.getContent()).thenReturn(new ByteArrayInputStream("{\"ID\":\"35\"}".getBytes()));
+
     return request;
   }
 }

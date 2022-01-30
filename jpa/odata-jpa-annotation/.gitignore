@@ -7,3 +7,4 @@ target/
 # --- EclipseIDE stuff START
 .settings/
 .metadata
+/.sts4-cache/

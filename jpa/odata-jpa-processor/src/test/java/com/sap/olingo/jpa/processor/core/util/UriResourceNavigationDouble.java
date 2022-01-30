@@ -15,11 +15,11 @@ public class UriResourceNavigationDouble implements UriResourceNavigation {
   private final EdmType type;
   private final EdmNavigationProperty property;
 
-  public UriResourceNavigationDouble(EdmEntityType naviTargetEntity) {
-    this(naviTargetEntity, null);
+  public UriResourceNavigationDouble(final EdmEntityType navigationTargetEntity) {
+    this(navigationTargetEntity, null);
   }
 
-  public UriResourceNavigationDouble(EdmType type, EdmNavigationProperty property) {
+  public UriResourceNavigationDouble(final EdmType type, final EdmNavigationProperty property) {
     super();
     this.type = type;
     this.property = property;
@@ -37,13 +37,13 @@ public class UriResourceNavigationDouble implements UriResourceNavigation {
   }
 
   @Override
-  public String getSegmentValue(boolean includeFilters) {
+  public String getSegmentValue(final boolean includeFilters) {
     fail();
     return null;
   }
 
   @Override
-  public String toString(boolean includeFilters) {
+  public String toString(final boolean includeFilters) {
     fail();
     return null;
   }
@@ -72,13 +72,11 @@ public class UriResourceNavigationDouble implements UriResourceNavigation {
 
   @Override
   public EdmType getTypeFilterOnCollection() {
-    fail();
     return null;
   }
 
   @Override
   public EdmType getTypeFilterOnEntry() {
-    fail();
     return null;
   }
 

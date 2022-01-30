@@ -22,7 +22,7 @@ import com.sap.olingo.jpa.processor.core.converter.JPACollectionResult;
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 
-public class JPACollectionQueryResult implements JPACollectionResult, JPAConvertableResult {
+public class JPACollectionQueryResult implements JPACollectionResult, JPAConvertibleResult {
   private static final Map<String, List<Tuple>> EMPTY_RESULT;
 
   private final Map<JPAAssociationPath, JPAExpandResult> childrenResult;
@@ -30,7 +30,7 @@ public class JPACollectionQueryResult implements JPACollectionResult, JPAConvert
   private Map<String, List<Object>> collectionResult;
   private final Map<String, Long> counts;
   private final JPAEntityType jpaEntityType;
-  private final JPAAssociationPath assoziation;
+  private final JPAAssociationPath association;
   private final Collection<JPAPath> requestedSelection;
 
   static {
@@ -49,21 +49,21 @@ public class JPACollectionQueryResult implements JPACollectionResult, JPAConvert
     return EMPTY_RESULT;
   }
 
-  public JPACollectionQueryResult(final JPAEntityType jpaEntityType, final JPAAssociationPath assoziation,
+  public JPACollectionQueryResult(final JPAEntityType jpaEntityType, final JPAAssociationPath association,
       final Collection<JPAPath> selectionPath) {
 
-    this(putEmptyResult(), Collections.emptyMap(), jpaEntityType, assoziation, selectionPath);
+    this(putEmptyResult(), Collections.emptyMap(), jpaEntityType, association, selectionPath);
   }
 
   public JPACollectionQueryResult(final Map<String, List<Tuple>> result, final Map<String, Long> counts,
-      final JPAEntityType jpaEntityType, final JPAAssociationPath assoziation,
+      final JPAEntityType jpaEntityType, final JPAAssociationPath association,
       final Collection<JPAPath> selectionPath) {
     super();
     this.childrenResult = new HashMap<>(1);
     this.jpaResult = result;
     this.counts = counts;
     this.jpaEntityType = jpaEntityType;
-    this.assoziation = assoziation;
+    this.association = association;
     this.requestedSelection = selectionPath;
   }
 
@@ -74,7 +74,7 @@ public class JPACollectionQueryResult implements JPACollectionResult, JPAConvert
     final Map<String, EntityCollection> result = new HashMap<>(1);
     final EntityCollection collection = new EntityCollection();
     final Entity odataEntity = new Entity();
-    final JPAAttribute leaf = (JPAAttribute) assoziation.getPath().get(assoziation.getPath().size() - 1);
+    final JPAAttribute leaf = (JPAAttribute) association.getPath().get(association.getPath().size() - 1);
 
     odataEntity.getProperties().add(new Property(
         null,
@@ -94,8 +94,8 @@ public class JPACollectionQueryResult implements JPACollectionResult, JPAConvert
   }
 
   @Override
-  public JPAAssociationPath getAssoziation() {
-    return assoziation;
+  public JPAAssociationPath getAssociation() {
+    return association;
   }
 
   @Override

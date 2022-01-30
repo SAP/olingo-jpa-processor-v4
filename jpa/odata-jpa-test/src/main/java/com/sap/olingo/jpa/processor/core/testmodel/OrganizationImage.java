@@ -14,7 +14,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmMediaStream;
 public class OrganizationImage {
   @Id
   @Column(name = "\"ID\"")
-  private String ID;
+  private String iD;
 
   @Column(name = "\"Image\"")
   @EdmMediaStream(contentTypeAttribute = "mimeType")
@@ -28,15 +28,15 @@ public class OrganizationImage {
   private AdministrativeInformation administrativeInformation = new AdministrativeInformation();
 
   public String getID() {
-    return ID;
+    return iD;
   }
 
   public void setID(final String iD) {
-    ID = iD;
+    this.iD = iD;
   }
 
   public byte[] getImage() {
-    return image;
+    return image.clone(); // For sonar
   }
 
   public void setImage(final byte[] image) {
@@ -63,19 +63,19 @@ public class OrganizationImage {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((ID == null) ? 0 : ID.hashCode());
+    result = prime * result + ((iD == null) ? 0 : iD.hashCode());
     return result;
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) return true;
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
-    OrganizationImage other = (OrganizationImage) obj;
-    if (ID == null) {
-      if (other.ID != null) return false;
-    } else if (!ID.equals(other.ID)) return false;
+    final OrganizationImage other = (OrganizationImage) obj;
+    if (iD == null) {
+      if (other.iD != null) return false;
+    } else if (!iD.equals(other.iD)) return false;
     return true;
   }
 }

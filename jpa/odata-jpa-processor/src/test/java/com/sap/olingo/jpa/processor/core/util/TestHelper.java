@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.processor.core.util;
 
 import java.lang.reflect.AnnotatedElement;
+import java.util.Optional;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.metamodel.Attribute;
@@ -62,7 +63,7 @@ public class TestHelper {
     return jpaEntity.getAssociation(attributeIntName);
   }
 
-  public JPAAttribute getJPAAttribute(final String entitySetName, final String attributeIntName)
+  public Optional<JPAAttribute> getJPAAttribute(final String entitySetName, final String attributeIntName)
       throws ODataJPAModelException {
     final JPAEntityType jpaEntity = sd.getEntity(entitySetName);
     return jpaEntity.getAttribute(attributeIntName);

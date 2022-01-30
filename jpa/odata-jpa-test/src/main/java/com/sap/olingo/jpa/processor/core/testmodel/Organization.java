@@ -26,7 +26,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 
 @Entity(name = "Organization")
 @DiscriminatorValue(value = "2")
-public class Organization extends BusinessPartner {
+public class Organization extends BusinessPartner { // NOSONAR
 
   public Organization() {
     type = "2";
@@ -52,7 +52,7 @@ public class Organization extends BusinessPartner {
 
   @Enumerated
   @Column(name = "\"ABCClass\"")
-  private ABCClassifiaction aBCClass;
+  private ABCClassification aBCClass;
 
   @ManyToMany(mappedBy = "supportedOrganizations")
   private List<Person> supportEngineers;
@@ -73,11 +73,11 @@ public class Organization extends BusinessPartner {
     this.name2 = name2;
   }
 
-  public ABCClassifiaction getABCClass() {
+  public ABCClassification getABCClass() {
     return aBCClass;
   }
 
-  public void setABCClass(ABCClassifiaction aBCClass) {
+  public void setABCClass(ABCClassification aBCClass) {
     this.aBCClass = aBCClass;
   }
 

@@ -11,10 +11,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 
-public class TestRetrieveSingleEntity extends TestBase {
+class TestRetrieveSingleEntity extends TestBase {
 
   @Test
-  public void testRetrieveWithOneKey() throws IOException, ODataException {
+   void testRetrieveWithOneKey() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations('3')");
     helper.assertStatus(200);
@@ -24,7 +24,7 @@ public class TestRetrieveSingleEntity extends TestBase {
   }
 
   @Test
-  public void testRetrieveWithTwoKeys() throws IOException, ODataException {
+  void testRetrieveWithTwoKeys() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "BusinessPartnerRoles(BusinessPartnerID='1',RoleCategory='A')");
@@ -36,7 +36,7 @@ public class TestRetrieveSingleEntity extends TestBase {
   }
 
   @Test
-  public void testRetrieveWithEmbeddedKey() throws IOException, ODataException {
+void testRetrieveWithEmbeddedKey() throws IOException, ODataException {
 
     IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisionDescriptions(DivisionCode='BE1',CodeID='NUTS1',CodePublisher='Eurostat',Language='en')");

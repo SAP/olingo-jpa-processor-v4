@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Test;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 
-public class TestFunctions {
+class TestFunctions {
   protected static final String PUNIT_NAME = "com.sap.olingo.jpa";
   private static final String ENTITY_MANAGER_DATA_SOURCE = "javax.persistence.nonJtaDataSource";
   private static EntityManagerFactory emf;
@@ -41,7 +41,7 @@ public class TestFunctions {
   @BeforeAll
   public static void setupClass() {
 
-    Map<String, Object> properties = new HashMap<>();
+    final Map<String, Object> properties = new HashMap<>();
 
     ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
 
@@ -54,15 +54,15 @@ public class TestFunctions {
   private CriteriaBuilder cb;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     em = emf.createEntityManager();
     cb = em.getCriteriaBuilder();
   }
 
-  @Disabled
+  @Disabled("Not implemented")
   @Test
-  public void TestProcedure() throws SQLException {
-    StoredProcedureQuery pc = em.createStoredProcedureQuery("\"OLINGO\".\"org.apache.olingo.jpa::Siblings\"");
+  void TestProcedure() throws SQLException {
+    final StoredProcedureQuery pc = em.createStoredProcedureQuery("\"OLINGO\".\"org.apache.olingo.jpa::Siblings\"");
 
     pc.registerStoredProcedureParameter("CodePublisher", String.class, ParameterMode.IN);
     pc.setParameter("CodePublisher", "Eurostat");
@@ -70,23 +70,23 @@ public class TestFunctions {
     pc.setParameter("CodeID", "NUTS2");
     pc.registerStoredProcedureParameter("DivisionCode", String.class, ParameterMode.IN);
     pc.setParameter("DivisionCode", "BE25");
-//    pc.setParameter("CodePublisher", "Eurostat");  
+//    pc.setParameter("CodePublisher", "Eurostat");
 //    pc.setParameter("CodeID", "NUTS2");
 //    pc.setParameter("DivisionCode", "BE25");
 
-    Connection conn = ds.getConnection();
-    DatabaseMetaData meta = conn.getMetaData();
-    ResultSet metaR = meta.getProcedures(conn.getCatalog(), "OLINGO", "%");
+    final Connection conn = ds.getConnection();
+    final DatabaseMetaData meta = conn.getMetaData();
+    final ResultSet metaR = meta.getProcedures(conn.getCatalog(), "OLINGO", "%");
 
     while (metaR.next()) {
-      String procedureCatalog = metaR.getString(1);
-      String procedureSchema = metaR.getString(2);
-      String procedureName = metaR.getString(3);
+      final String procedureCatalog = metaR.getString(1);
+      final String procedureSchema = metaR.getString(2);
+      final String procedureName = metaR.getString(3);
 //          reserved for future use
 //          reserved for future use
 //          reserved for future use
-      String remarks = metaR.getString(7);
-      Short procedureTYpe = metaR.getShort(8);
+      final String remarks = metaR.getString(7);
+      final Short procedureTYpe = metaR.getShort(8);
 //      String specificName = metaR.getString(9);
 
       System.out.println("procedureCatalog=" + procedureCatalog);
@@ -96,24 +96,24 @@ public class TestFunctions {
       System.out.println("procedureType=" + procedureTYpe);
 //      System.out.println("specificName=" + specificName);
     }
-    ResultSet rs = meta.getProcedureColumns(conn.getCatalog(),
+    final ResultSet rs = meta.getProcedureColumns(conn.getCatalog(),
         "OLINGO", "%", "%");
 
     while (rs.next()) {
       // get stored procedure metadata
-      String procedureCatalog = rs.getString(1);
-      String procedureSchema = rs.getString(2);
-      String procedureName = rs.getString(3);
-      String columnName = rs.getString(4);
-      short columnReturn = rs.getShort(5);
-      int columnDataType = rs.getInt(6);
-      String columnReturnTypeName = rs.getString(7);
-      int columnPrecision = rs.getInt(8);
-      int columnByteLength = rs.getInt(9);
-      short columnScale = rs.getShort(10);
-      short columnRadix = rs.getShort(11);
-      short columnNullable = rs.getShort(12);
-      String columnRemarks = rs.getString(13);
+      final String procedureCatalog = rs.getString(1);
+      final String procedureSchema = rs.getString(2);
+      final String procedureName = rs.getString(3);
+      final String columnName = rs.getString(4);
+      final short columnReturn = rs.getShort(5);
+      final int columnDataType = rs.getInt(6);
+      final String columnReturnTypeName = rs.getString(7);
+      final int columnPrecision = rs.getInt(8);
+      final int columnByteLength = rs.getInt(9);
+      final short columnScale = rs.getShort(10);
+      final short columnRadix = rs.getShort(11);
+      final short columnNullable = rs.getShort(12);
+      final String columnRemarks = rs.getString(13);
 
       System.out.println("stored Procedure name=" + procedureName);
       System.out.println("procedureCatalog=" + procedureCatalog);
@@ -132,44 +132,44 @@ public class TestFunctions {
     }
     conn.close();
     pc.execute();
-    List<?> r = pc.getResultList();
+    final List<?> r = pc.getResultList();
 
-    Object[] one = (Object[]) r.get(0);
+    final Object[] one = (Object[]) r.get(0);
     assertNotNull(one);
   }
 
-  @Disabled
+  @Disabled("Not implemented")
   @Test
-  public void TestScalarFunctionsWhere() {
+  void TestScalarFunctionsWhere() {
     CreateUDFDerby();
 
-    CriteriaQuery<Tuple> count = cb.createTupleQuery();
-    Root<?> adminDiv = count.from(AdministrativeDivision.class);
+    final CriteriaQuery<Tuple> count = cb.createTupleQuery();
+    final Root<?> adminDiv = count.from(AdministrativeDivision.class);
     count.multiselect(adminDiv);
     count.where(cb.equal(
         cb.function("IS_PRIME", boolean.class, cb.literal(5)),
-        new Boolean(true)));
+        Boolean.TRUE));
     // cb.literal
-    TypedQuery<Tuple> tq = em.createQuery(count);
-    List<Tuple> act = tq.getResultList();
+    final TypedQuery<Tuple> tq = em.createQuery(count);
+    final List<Tuple> act = tq.getResultList();
     assertNotNull(act);
     tq.getFirstResult();
   }
 
   private void CreateUDFDerby() {
-    EntityTransaction t = em.getTransaction();
+    final EntityTransaction t = em.getTransaction();
 
-    StringBuffer dropString = new StringBuffer("DROP FUNCTION IS_PRIME");
+    final StringBuffer dropString = new StringBuffer("DROP FUNCTION IS_PRIME");
 
-    StringBuffer sqlString = new StringBuffer();
+    final StringBuffer sqlString = new StringBuffer();
 
     sqlString.append("CREATE FUNCTION IS_PRIME(number Integer) RETURNS Integer ");
     sqlString.append("PARAMETER STYLE JAVA NO SQL LANGUAGE JAVA ");
     sqlString.append("EXTERNAL NAME 'com.sap.olingo.jpa.processor.core.test_udf.isPrime'");
 
     t.begin();
-    Query d = em.createNativeQuery(dropString.toString());
-    Query q = em.createNativeQuery(sqlString.toString());
+    final Query d = em.createNativeQuery(dropString.toString());
+    final Query q = em.createNativeQuery(sqlString.toString());
     d.executeUpdate();
     q.executeUpdate();
     t.commit();

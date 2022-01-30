@@ -23,7 +23,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 
-public class TestJPAFunctionSerializer {
+class TestJPAFunctionSerializer {
   protected static final String PUNIT_NAME = "com.sap.olingo.jpa";
   protected static EntityManagerFactory emf;
   protected static DataSource ds;
@@ -32,76 +32,76 @@ public class TestJPAFunctionSerializer {
   protected Map<String, List<String>> headers;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
-    Map<String, Object> properties = new HashMap<>();
+    final Map<String, Object> properties = new HashMap<>();
     properties.put("javax.persistence.nonJtaDataSource", ds);
     emf = Persistence.createEntityManagerFactory(PUNIT_NAME, properties);
     emf.getProperties();
   }
 
   @Test
-  public void testFunctionReturnsEntityType() throws IOException, ODataException, SQLException {
+  void testFunctionReturnsEntityType() throws IOException, ODataException, SQLException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds, "EntityType(A=1250)",
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds, "EntityType(A=1250)",
         "com.sap.olingo.jpa.processor.core.testobjects");
     helper.assertStatus(200);
-    ObjectNode r = helper.getValue();
-    assertNotNull(r.get("Area").asInt());
+    final ObjectNode r = helper.getValue();
+    assertNotNull(r.get("Area"));
     assertEquals(1250, r.get("Area").asInt());
   }
 
   @Test
-  public void testFunctionReturnsEntityTypeNull() throws IOException, ODataException, SQLException {
+  void testFunctionReturnsEntityTypeNull() throws IOException, ODataException, SQLException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds, "EntityType(A=0)",
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds, "EntityType(A=0)",
         "com.sap.olingo.jpa.processor.core.testobjects");
     helper.assertStatus(204);
   }
 
   @Test
-  public void testFunctionReturnsEntityTypeCollection() throws IOException, ODataException, SQLException {
+  void testFunctionReturnsEntityTypeCollection() throws IOException, ODataException, SQLException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds, "ListOfEntityType(A=1250)",
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds, "ListOfEntityType(A=1250)",
         "com.sap.olingo.jpa.processor.core.testobjects");
     helper.assertStatus(200);
-    ObjectNode r = helper.getValue();
-    ArrayNode values = (ArrayNode) r.get("value");
+    final ObjectNode r = helper.getValue();
+    final ArrayNode values = (ArrayNode) r.get("value");
     assertNotNull(values.get(0));
-    assertNotNull(values.get(0).get("Area").asInt());
+    assertNotNull(values.get(0).get("Area"));
     assertEquals(1250, values.get(0).get("Area").asInt());
     assertNotNull(values.get(1));
-    assertNotNull(values.get(1).get("Area").asInt());
+    assertNotNull(values.get(1).get("Area"));
     assertEquals(625, values.get(1).get("Area").asInt());
   }
 
   @Test
-  public void testFunctionReturnsPrimitiveType() throws IOException, ODataException, SQLException {
+  void testFunctionReturnsPrimitiveType() throws IOException, ODataException, SQLException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds, "PrimitiveValue(A=124)",
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds, "PrimitiveValue(A=124)",
         "com.sap.olingo.jpa.processor.core.testobjects");
     helper.assertStatus(200);
-    ObjectNode r = helper.getValue();
+    final ObjectNode r = helper.getValue();
     assertNotNull(r);
     assertNotNull(r.get("value"));
     assertEquals(124, r.get("value").asInt());
   }
 
   @Test
-  public void testFunctionReturnsPrimitiveTypeNull() throws IOException, ODataException, SQLException {
+  void testFunctionReturnsPrimitiveTypeNull() throws IOException, ODataException, SQLException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds, "PrimitiveValue(A=0)",
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds, "PrimitiveValue(A=0)",
         "com.sap.olingo.jpa.processor.core.testobjects");
     helper.assertStatus(204);
   }
 
   @Test
-  public void testFunctionReturnsPrimitiveTypeCollection() throws IOException, ODataException, SQLException {
+  void testFunctionReturnsPrimitiveTypeCollection() throws IOException, ODataException, SQLException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds, "ListOfPrimitiveValues(A=124)",
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds, "ListOfPrimitiveValues(A=124)",
         "com.sap.olingo.jpa.processor.core.testobjects");
     helper.assertStatus(200);
-    ArrayNode r = helper.getValues();
+    final ArrayNode r = helper.getValues();
     assertNotNull(r);
     assertNotNull(r.get(0));
     assertEquals(124, r.get(0).asInt());
@@ -110,75 +110,75 @@ public class TestJPAFunctionSerializer {
   }
 
   @Test
-  public void testFunctionReturnsComplexType() throws IOException, ODataException, SQLException {
+  void testFunctionReturnsComplexType() throws IOException, ODataException, SQLException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds, "ComplexType(A=124)",
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds, "ComplexType(A=124)",
         "com.sap.olingo.jpa.processor.core.testobjects");
     helper.assertStatus(200);
-    ObjectNode r = helper.getValue();
+    final ObjectNode r = helper.getValue();
     assertNotNull(r);
     assertNotNull(r.get("LandlinePhoneNumber"));
     assertEquals(124, r.get("LandlinePhoneNumber").asInt());
   }
 
   @Test
-  public void testFunctionReturnsComplexTypeNull() throws IOException, ODataException, SQLException {
+  void testFunctionReturnsComplexTypeNull() throws IOException, ODataException, SQLException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds, "ComplexType(A=0)",
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds, "ComplexType(A=0)",
         "com.sap.olingo.jpa.processor.core.testobjects");
     helper.assertStatus(204);
   }
 
   @Test
-  public void testFunctionReturnsComplexTypeCollection() throws IOException, ODataException, SQLException {
+  void testFunctionReturnsComplexTypeCollection() throws IOException, ODataException, SQLException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds, "ListOfComplexType(A='Willi')",
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds, "ListOfComplexType(A='Willi')",
         "com.sap.olingo.jpa.processor.core.testobjects");
     helper.assertStatus(200);
-    ArrayNode r = helper.getValues();
+    final ArrayNode r = helper.getValues();
     assertNotNull(r);
     assertNotNull(r.get(0));
     assertNotNull(r.get(0).get("Created"));
   }
 
   @Test
-  public void testUsesConverter() throws IOException, ODataException {
+  void testUsesConverter() throws IOException, ODataException {
 
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds, "ConvertBirthday()",
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds, "ConvertBirthday()",
         "com.sap.olingo.jpa.processor.core.testobjects");
     helper.assertStatus(200);
   }
 
   @Test
-  public void testFunctionReturnsEntityTypeWithCollection() throws IOException, ODataException {
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds, "ListOfEntityTypeWithCollction(A=1250)",
+  void testFunctionReturnsEntityTypeWithCollection() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds, "ListOfEntityTypeWithCollection(A=1250)",
         "com.sap.olingo.jpa.processor.core.testobjects");
     helper.assertStatus(200);
-    ObjectNode r = helper.getValue();
+    final ObjectNode r = helper.getValue();
     assertNotNull(r.get("value"));
-    ObjectNode person = (ObjectNode) r.get("value").get(0);
-    ArrayNode addr = (ArrayNode) person.get("InhouseAddress");
+    final ObjectNode person = (ObjectNode) r.get("value").get(0);
+    final ArrayNode addr = (ArrayNode) person.get("InhouseAddress");
     assertEquals(2, addr.size());
   }
 
   @Test
-  public void testFunctionReturnsEntityTypeWithDeepCollection() throws IOException, ODataException {
-    IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds, "EntityTypeWithDeepCollction(A=1250)",
+  void testFunctionReturnsEntityTypeWithDeepCollection() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, ds, "EntityTypeWithDeepCollection(A=1250)",
         "com.sap.olingo.jpa.processor.core.testobjects");
     helper.assertStatus(200);
-    ObjectNode r = helper.getValue();
+    final ObjectNode r = helper.getValue();
     assertNotNull(r.get("FirstLevel"));
-    ObjectNode first = (ObjectNode) r.get("FirstLevel");
+    final ObjectNode first = (ObjectNode) r.get("FirstLevel");
     assertEquals(10, first.get("LevelID").asInt());
 
     assertNotNull(first.get("SecondLevel"));
-    ObjectNode second = (ObjectNode) first.get("SecondLevel");
+    final ObjectNode second = (ObjectNode) first.get("SecondLevel");
     assertEquals(5L, second.get("Number").asLong());
-    ArrayNode addr = (ArrayNode) second.get("Address");
+    final ArrayNode addr = (ArrayNode) second.get("Address");
     assertEquals(2, addr.size());
     assertEquals("ADMIN", addr.get(1).get("TaskID").asText());
 
-    ArrayNode comment = (ArrayNode) second.get("Comment");
+    final ArrayNode comment = (ArrayNode) second.get("Comment");
     assertEquals(3, comment.size());
     assertEquals("Three", comment.get(2).asText());
   }
