@@ -17,7 +17,7 @@
 	</parent>
 
 	<properties>
-		<processor.version>1.1.0</processor.version>
+		<processor.version>1.0.8</processor.version>
 		<java.version>1.8</java.version>
         <eclipselink.version>2.7.9</eclipselink.version>
         <jpa.version>2.2.1</jpa.version>
@@ -96,7 +96,7 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>2.0.206</version>
+            <version>2.1.210</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>

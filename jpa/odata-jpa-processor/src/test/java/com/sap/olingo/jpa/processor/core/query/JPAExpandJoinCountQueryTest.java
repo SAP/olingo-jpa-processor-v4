@@ -2,13 +2,17 @@ package com.sap.olingo.jpa.processor.core.query;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+
+import javax.persistence.Tuple;
 
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.OData;
@@ -80,6 +84,36 @@ class JPAExpandJoinCountQueryTest extends TestBase {
     assertEquals(exp, act);
   }
 
+  @Test
+  void testConvertCountResultCanHandleInteger() throws ODataException {
+    final List<Tuple> intermediateResult = new ArrayList<>();
+    final Tuple row = mock(Tuple.class);
+    when(row.get(JPAAbstractQuery.COUNT_COLUMN_NAME)).thenReturn(Integer.valueOf(5));
+    intermediateResult.add(row);
+
+    cut = new JPAExpandJoinCountQuery(odata, requestContext, et, association, hops, keyBoundary);
+    final Map<String, Long> act = cut.convertCountResult(intermediateResult);
+
+    assertNotNull(act);
+    assertEquals(1, act.size());
+    assertEquals(5L, act.get(""));
+  }
+
+  @Test
+  void testConvertCountResultCanHandleLong() throws ODataException {
+    final List<Tuple> intermediateResult = new ArrayList<>();
+    final Tuple row = mock(Tuple.class);
+    when(row.get(JPAAbstractQuery.COUNT_COLUMN_NAME)).thenReturn(Long.valueOf(5));
+    intermediateResult.add(row);
+
+    cut = new JPAExpandJoinCountQuery(odata, requestContext, et, association, hops, keyBoundary);
+    final Map<String, Long> act = cut.convertCountResult(intermediateResult);
+
+    assertNotNull(act);
+    assertEquals(1, act.size());
+    assertEquals(5L, act.get(""));
+  }
+  
   private JPANavigationPropertyInfo createHop(final JPAAssociationPath exp) {
     final UriInfoResource uriInfo = mock(UriInfoResource.class);
     return new JPANavigationPropertyInfo(sd, exp, uriInfo, et);

@@ -174,8 +174,8 @@ public abstract class JPAAbstractExpandQuery extends JPAAbstractJoinQuery {
     for (final Tuple row : intermediateResult) {
       try {
         final String actualKey = buildConcatenatedKey(row, association);
-        final Long count = (Long) row.get(COUNT_COLUMN_NAME);
-        result.put(actualKey, count);
+        final Number count = (Number) row.get(COUNT_COLUMN_NAME);
+        result.put(actualKey, count.longValue());
       } catch (final ODataJPAModelException e) {
         throw new ODataJPAQueryException(e, HttpStatusCode.BAD_REQUEST);
       }

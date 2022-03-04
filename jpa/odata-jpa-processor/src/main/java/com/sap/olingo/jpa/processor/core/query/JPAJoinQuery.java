@@ -92,7 +92,7 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
      * .../Organizations('3')/Roles/$count
      */
     final int handle = debugger.startRuntimeMeasurement(this, "countResults");
-    final CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
+    final CriteriaQuery<Number> countQuery = cb.createQuery(Number.class);
     try {
       createFromClause(Collections.emptyList(), Collections.emptyList(), countQuery, lastInfo);
 
@@ -100,7 +100,7 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
       if (whereClause != null)
         countQuery.where(whereClause);
       countQuery.select(cb.countDistinct(target));
-      return em.createQuery(countQuery).getSingleResult();
+      return em.createQuery(countQuery).getSingleResult().longValue();
     } catch (final JPANoSelectionException e) {
       return 0L;
     } finally {
