@@ -35,7 +35,7 @@ class TestFunctionsHSQLDB {
   public static void setupClass() {
 
     final Map<String, Object> properties = new HashMap<>();
-    
+
     ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
 
     properties.put(ENTITY_MANAGER_DATA_SOURCE, ds);

@@ -31,6 +31,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataBatchProcessor;
+<<<<<<< HEAD
+=======
+import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContext;
+>>>>>>> odata-v4-jpa-processor/master
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestProcessor;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor;
@@ -45,6 +49,7 @@ public class IntegrationTestHelper {
   private static final String PUNIT_NAME = "com.sap.olingo.jpa";
   private static final String[] enumPackages = { "com.sap.olingo.jpa.processor.core.testmodel" };
   private final JPAODataSessionContextAccess sessionContext;
+  private final JPAODataRequestContext customContext;
 
   public IntegrationTestHelper(final EntityManagerFactory emf, final String urlPath, final StringBuilder requestBody)
       throws IOException, ODataException {
@@ -52,18 +57,19 @@ public class IntegrationTestHelper {
     final OData odata = OData.newInstance();
     final EntityManager em = emf.createEntityManager();
     final Map<String, List<String>> headers = Collections.emptyMap();
-    final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext();
     this.req = getRequestMock(uriPrefix + urlPath, requestBody, headers);
     this.resp = getResponseMock();
+    this.customContext = mock(JPAODataRequestContext.class);
     this.sessionContext = mock(JPAODataSessionContextAccess.class);
-
     final JPAEdmProvider edmProvider = new JPAEdmProvider(PUNIT_NAME, emf, null, enumPackages);
     when(sessionContext.getEdmProvider()).thenReturn(edmProvider);
     when(sessionContext.getDatabaseProcessor()).thenReturn(new JPADefaultDatabaseProcessor());
     when(sessionContext.getOperationConverter()).thenReturn(new JPADefaultDatabaseProcessor());
+    when(customContext.getEntityManager()).thenReturn(em);
     final ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(edmProvider,
         new ArrayList<EdmxReference>()));
-    requestContext.setEntityManager(em);
+    final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext(customContext,
+        sessionContext);
     handler.register(new JPAODataRequestProcessor(sessionContext, requestContext));
     handler.register(new JPAODataBatchProcessor(sessionContext, requestContext));
     handler.process(req, resp);
@@ -164,7 +170,11 @@ public class IntegrationTestHelper {
 
     @Override
     public void write(final int b) throws IOException {
+<<<<<<< HEAD
       buffer.add(Integer.valueOf(b));
+=======
+      buffer.add(b);
+>>>>>>> odata-v4-jpa-processor/master
     }
 
     public Iterator<Integer> getBuffer() {

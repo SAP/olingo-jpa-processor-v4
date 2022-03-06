@@ -114,7 +114,7 @@ class TestJPAQuerySelectClause extends TestQueryBase {
     jpaEntityType = helper.getJPAEntityType("AdministrativeDivisionDescriptions");
     buildRequestContext("AdministrativeDivisionDescriptions", "AdministrativeDivisionDescription");
 
-    cut = new JPAJoinQuery(null, context, requestContext);
+    cut = new JPAJoinQuery(null, requestContext);
 
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
     joinTables.put(jpaEntityType.getInternalName(), root);
@@ -149,7 +149,7 @@ class TestJPAQuerySelectClause extends TestQueryBase {
     joinTables.put(jpaEntityType.getInternalName(), root);
     buildRequestContext("Organizations", "Organization");
 
-    cut = new JPAJoinQuery(null, context, requestContext);
+    cut = new JPAJoinQuery(null, requestContext);
 
     final List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
         new UriInfoDouble(new SelectOptionDouble("Type,Name2"))).joinedPersistent(), root, Collections.emptyList());
@@ -167,7 +167,7 @@ class TestJPAQuerySelectClause extends TestQueryBase {
     joinTables.put(jpaEntityType.getInternalName(), root);
     fillJoinTable(root);
 
-    cut = new JPAJoinQuery(null, context, requestContext);
+    cut = new JPAJoinQuery(null, requestContext);
 
     final List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
         new UriInfoDouble(new SelectOptionDouble("Address"))).joinedPersistent(), root, Collections.emptyList());
@@ -236,7 +236,7 @@ class TestJPAQuerySelectClause extends TestQueryBase {
     fillJoinTable(root);
     buildUriInfo("Organizations", "Organization");
     requestContext.setUriInfo(uriInfo);
-    cut = new JPAJoinQuery(null, context, requestContext);
+    cut = new JPAJoinQuery(null, requestContext);
 
     final List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
         new UriInfoDouble(new SelectOptionDouble("Comment"))).joinedPersistent(), root, Collections.emptyList());
@@ -282,7 +282,7 @@ class TestJPAQuerySelectClause extends TestQueryBase {
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
     buildRequestContext("PersonImages", "PersonImage");
 
-    cut = new JPAJoinQuery(null, context, requestContext);
+    cut = new JPAJoinQuery(null, requestContext);
 
     final UriInfoDouble uriInfo = new UriInfoDouble(new SelectOptionDouble("Address"));
     final List<UriResource> uriResources = new ArrayList<>();
@@ -303,7 +303,7 @@ class TestJPAQuerySelectClause extends TestQueryBase {
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
     buildRequestContext("OrganizationImages", "OrganizationImage");
 
-    cut = new JPAJoinQuery(null, context, requestContext);
+    cut = new JPAJoinQuery(null, requestContext);
 
     final UriInfoDouble uriInfo = new UriInfoDouble(new SelectOptionDouble("Address"));
     final List<UriResource> uriResources = new ArrayList<>();
@@ -324,7 +324,7 @@ class TestJPAQuerySelectClause extends TestQueryBase {
     jpaEntityType = helper.getJPAEntityType("PersonImages");
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
     buildRequestContext("PersonImages", "PersonImage");
-    cut = new JPAJoinQuery(null, context, requestContext);
+    cut = new JPAJoinQuery(null, requestContext);
 
     final SelectOption selOpts = null;
     final UriInfoDouble uriInfo = new UriInfoDouble(selOpts);

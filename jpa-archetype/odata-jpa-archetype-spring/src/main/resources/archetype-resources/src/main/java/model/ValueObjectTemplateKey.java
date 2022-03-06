@@ -14,19 +14,19 @@ public class ValueObjectTemplateKey implements Serializable {
   @Id
   private Long entityId;
 
-  Long getEmploymentId() {
+  public Long getEntityId() {
     return entityId;
   }
 
-  void setEmploymentId(final Long employmentId) {
-    this.entityId = employmentId;
+  public void setEntityId(final Long entityId) {
+    this.entityId = entityId;
   }
 
-  String getId() {
+  public String getId() {
     return id;
   }
 
-  void setId(final String id) {
+  public void setId(final String id) {
     this.id = id;
   }
 

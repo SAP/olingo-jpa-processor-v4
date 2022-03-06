@@ -22,13 +22,13 @@ public class JPAODataDatabaseProcessorFactory {
       try (Connection connection = ds.getConnection()) {
         final DatabaseMetaData dbMetadata = connection.getMetaData();
         if (dbMetadata.getDatabaseProductName().equals(PRODUCT_NAME_POSTSQL)) {
-          LOGGER.trace("Create database-processor for H2");
+          LOGGER.trace("Create database-processor for PostgreSQL");
           return new JPA_POSTSQL_DatabaseProcessor();
         } else if (dbMetadata.getDatabaseProductName().equals(PRODUCT_NAME_HSQLDB)) {
           LOGGER.trace("Create database-processor for HSQLDB");
           return new JPA_HSQLDB_DatabaseProcessor();
         } else if (dbMetadata.getDatabaseProductName().equals(PRODUCT_NAME_H2)) {
-          LOGGER.trace("Create database-processor for PostgreSQL");
+          LOGGER.trace("Create database-processor for H2");
           return new JPA_HSQLDB_DatabaseProcessor();
         } else {
           LOGGER.trace("Create default database-processor");

@@ -56,7 +56,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPACUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataTransactionFactory.JPAODataTransaction;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAInvocationTargetException;
@@ -79,10 +78,10 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
   private final JPAConversionHelper helper;
 
   public JPACUDRequestProcessor(final OData odata, final ServiceMetadata serviceMetadata,
-      final JPAODataSessionContextAccess sessionContext, final JPAODataRequestContextAccess requestContext,
+      final JPAODataRequestContextAccess requestContext,
       final JPAConversionHelper cudHelper) throws ODataException {
 
-    super(odata, sessionContext, requestContext);
+    super(odata, requestContext);
     this.serviceMetadata = serviceMetadata;
     this.helper = cudHelper;
   }
@@ -189,7 +188,7 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
 
     // 2. Convert Key from URL to JPA
     try {
-      et = sessionContext.getEdmProvider().getServiceDocument().getEntity(edmEntitySet.getName());
+      et = sd.getEntity(edmEntitySet.getName());
       if (et == null)
         throw new ODataJPAProcessorException(ENTITY_TYPE_UNKNOWN, BAD_REQUEST, edmEntitySet.getName());
       final List<UriParameter> uriKeyPredicates = uriResourceEntitySet.getKeyPredicates();
@@ -327,7 +326,7 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       final Map<String, List<String>> headers) throws ODataJPAProcessorException {
 
     try {
-      final JPAEntityType et = sessionContext.getEdmProvider().getServiceDocument().getEntity(edmEntitySet.getName());
+      final JPAEntityType et = sd.getEntity(edmEntitySet.getName());
       if (et == null)
         throw new ODataJPAProcessorException(ENTITY_TYPE_UNKNOWN, BAD_REQUEST, edmEntitySet.getName());
       return createRequestEntity(et, odataEntity, new HashMap<>(0), headers, null);
@@ -340,7 +339,7 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       final Map<String, List<String>> headers) throws ODataJPAProcessorException {
 
     try {
-      final JPAEntityType et = sessionContext.getEdmProvider().getServiceDocument().getEntity(edmEntitySetInfo
+      final JPAEntityType et = sd.getEntity(edmEntitySetInfo
           .getName());
       if (et == null)
         throw new ODataJPAProcessorException(ENTITY_TYPE_UNKNOWN, BAD_REQUEST, edmEntitySetInfo.getName());
@@ -636,7 +635,7 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       final Map<String, List<String>> headers) throws ODataJPAProcessorException {
 
     try {
-      final JPAEntityType et = sessionContext.getEdmProvider().getServiceDocument().getEntity(edmEntitySetInfo
+      final JPAEntityType et = sd.getEntity(edmEntitySetInfo
           .getEdmBindingTarget().getName());
       final Map<String, Object> keys = helper.convertUriKeys(odata, et, edmEntitySetInfo.getKeyPredicates());
       final Map<String, Object> jpaAttributes = convertUriPath(et, resourceParts);

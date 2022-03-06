@@ -14,7 +14,6 @@ import org.apache.olingo.server.api.uri.UriInfoResource;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializer;
 
@@ -22,7 +21,6 @@ abstract class JPAAbstractRequestProcessor {
 
   protected final EntityManager em;
   protected final JPAServiceDocument sd;
-  protected final JPAODataSessionContextAccess sessionContext;
   protected final CriteriaBuilder cb;
   protected final UriInfoResource uriInfo;
   protected final JPASerializer serializer;
@@ -31,13 +29,12 @@ abstract class JPAAbstractRequestProcessor {
   protected int successStatusCode = HttpStatusCode.OK.getStatusCode();
   protected final JPAODataRequestContextAccess requestContext;
 
-  JPAAbstractRequestProcessor(final OData odata, final JPAODataSessionContextAccess context,
-      final JPAODataRequestContextAccess requestContext) throws ODataException {
+  JPAAbstractRequestProcessor(final OData odata, final JPAODataRequestContextAccess requestContext)
+      throws ODataException {
 
     this.em = requestContext.getEntityManager();
     this.cb = em.getCriteriaBuilder();
-    this.sessionContext = context;
-    this.sd = context.getEdmProvider().getServiceDocument();
+    this.sd = requestContext.getEdmProvider().getServiceDocument();
     this.uriInfo = requestContext.getUriInfo();
     this.serializer = requestContext.getSerializer();
     this.odata = odata;

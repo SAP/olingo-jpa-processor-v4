@@ -159,7 +159,8 @@ public class IntegrationTestHelper {
     when(externalContext.getGroupsProvider()).thenReturn(Optional.ofNullable(groups));
     when(externalContext.getDebuggerSupport()).thenReturn(new DefaultDebugSupport());
     when(externalContext.getRequestParameter()).thenReturn(mock(JPARequestParameterMap.class));
-    final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext(externalContext);
+    final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext(externalContext,
+        sessionContext);
 
     handler.register(new JPAODataRequestProcessor(sessionContext, requestContext));
     handler.register(new JPAODataBatchProcessor(sessionContext, requestContext));
@@ -356,7 +357,7 @@ public class IntegrationTestHelper {
 
     @Override
     public void write(final int b) throws IOException {
-      buffer.add(Integer.valueOf(b));
+      buffer.add(b);
     }
 
     public Iterator<Integer> getBuffer() {

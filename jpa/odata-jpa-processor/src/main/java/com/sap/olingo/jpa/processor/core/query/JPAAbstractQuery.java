@@ -37,6 +37,7 @@ import javax.persistence.criteria.Subquery;
 
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
+import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
@@ -67,7 +68,6 @@ import com.sap.olingo.jpa.processor.core.api.JPAClaimsPair;
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterComplier;
@@ -135,13 +135,13 @@ public abstract class JPAAbstractQuery {
     this.groups = Collections.emptyList();
   }
 
-  JPAAbstractQuery(final OData odata, final JPAServiceDocument sd, final JPAEntityType jpaEntityType,
-      final JPAODataRequestContextAccess requestContext) {
+  JPAAbstractQuery(final OData odata, final JPAEntityType jpaEntityType,
+      final JPAODataRequestContextAccess requestContext) throws ODataException {
     super();
     final Optional<JPAODataGroupProvider> groupsProvider = requestContext.getGroupsProvider();
     this.em = requestContext.getEntityManager();
     this.cb = em.getCriteriaBuilder();
-    this.sd = sd;
+    this.sd = requestContext.getEdmProvider().getServiceDocument();
     this.jpaEntity = jpaEntityType;
     this.debugger = requestContext.getDebugger();
     this.odata = odata;
@@ -464,7 +464,7 @@ public abstract class JPAAbstractQuery {
     return allPath;
   }
 
-  abstract JPAODataSessionContextAccess getContext();
+  abstract JPAODataRequestContextAccess getContext();
 
   @SuppressWarnings({ "unchecked" })
   private <Y extends Comparable<? super Y>> Predicate createBetween(final JPAClaimsPair<?> value, final Path<?> p) {

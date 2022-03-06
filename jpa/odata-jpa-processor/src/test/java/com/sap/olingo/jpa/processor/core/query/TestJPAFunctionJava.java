@@ -41,7 +41,6 @@ import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.processor.JPAFunctionRequestProcessor;
 import com.sap.olingo.jpa.processor.core.serializer.JPAOperationSerializer;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
@@ -52,7 +51,6 @@ class TestJPAFunctionJava {
 
   private JPAFunctionRequestProcessor cut;
   private OData odata;
-  private JPAODataSessionContextAccess context;
   private JPAODataRequestContextAccess requestContext;
   private UriInfo uriInfo;
   private List<UriResource> uriResources;
@@ -66,7 +64,6 @@ class TestJPAFunctionJava {
   @BeforeEach
   void setup() throws ODataException {
     odata = mock(OData.class);
-    context = mock(JPAODataSessionContextAccess.class);
     requestContext = mock(JPAODataRequestContextAccess.class);
     final EntityManager em = mock(EntityManager.class);
     uriInfo = mock(UriInfo.class);
@@ -79,7 +76,7 @@ class TestJPAFunctionJava {
     final EntityManagerFactory emf = Persistence.createEntityManagerFactory(PUNIT_NAME, properties);
     uriResources = new ArrayList<>();
     when(uriInfo.getUriResourceParts()).thenReturn(uriResources);
-    when(context.getEdmProvider()).thenReturn(new JPAEdmProvider(PUNIT_NAME, emf, null, new String[] {
+    when(requestContext.getEdmProvider()).thenReturn(new JPAEdmProvider(PUNIT_NAME, emf, null, new String[] {
         "com.sap.olingo.jpa.processor.core", "com.sap.olingo.jpa.processor.core.testmodel" }));
     when(requestContext.getUriInfo()).thenReturn(uriInfo);
     when(requestContext.getEntityManager()).thenReturn(em);
@@ -94,7 +91,7 @@ class TestJPAFunctionJava {
     uriResources.add(uriResource);
     when(uriResource.getFunction()).thenReturn(edmFunction);
 
-    cut = new JPAFunctionRequestProcessor(odata, context, requestContext);
+    cut = new JPAFunctionRequestProcessor(odata, requestContext);
   }
 
   @AfterEach

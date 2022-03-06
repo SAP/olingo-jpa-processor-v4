@@ -2,6 +2,10 @@ package com.sap.olingo.jpa.processor.cb.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+<<<<<<< HEAD
+=======
+import static org.mockito.ArgumentMatchers.any;
+>>>>>>> odata-v4-jpa-processor/master
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
@@ -58,7 +62,7 @@ class CompoundSelectionImplTest {
   @Test
   void testAsSQLFromExpression() {
     final StringBuilder statement = new StringBuilder();
-    when(((SqlConvertible) expression).asSQL(statement)).thenReturn(statement);
+    when(((SqlConvertible) expression).asSQL(any(StringBuilder.class))).thenReturn(statement);
     assertEquals(statement, cut.asSQL(statement));
   }
 
@@ -72,7 +76,7 @@ class CompoundSelectionImplTest {
     final StringBuilder statement = new StringBuilder();
 
     when(path.resolvePathElements()).thenReturn(Collections.singletonList(pathElement));
-    when(((SqlConvertible) pathElement).asSQL(statement)).thenReturn(statement);
+    when(((SqlConvertible) pathElement).asSQL(any(StringBuilder.class))).thenReturn(statement);
 
     selections.clear();
     selections.add(path);

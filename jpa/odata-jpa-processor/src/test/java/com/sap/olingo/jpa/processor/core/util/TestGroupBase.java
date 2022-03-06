@@ -58,9 +58,9 @@ public class TestGroupBase extends TestBase {
         null);
     final JPAODataRequestContext externalContext = mock(JPAODataRequestContext.class);
     when(externalContext.getEntityManager()).thenReturn(emf.createEntityManager());
-    requestContext = new JPAODataInternalRequestContext(externalContext);
+    requestContext = new JPAODataInternalRequestContext(externalContext, context);
     requestContext.setUriInfo(uriInfo);
-    cut = new JPAJoinQuery(null, context, requestContext);
+    cut = new JPAJoinQuery(null, requestContext);
 
     root = emf.getCriteriaBuilder().createTupleQuery().from(jpaEntityType.getTypeClass());
     joinTables = new HashMap<>();

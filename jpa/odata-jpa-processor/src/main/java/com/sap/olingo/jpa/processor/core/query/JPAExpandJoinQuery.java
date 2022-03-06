@@ -31,7 +31,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 /**
@@ -54,21 +53,18 @@ public final class JPAExpandJoinQuery extends JPAAbstractExpandQuery {
   private final Optional<JPAKeyBoundary> keyBoundary;
   private JPAQueryCreationResult tupleQuery;
 
-  public JPAExpandJoinQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
-      final JPAInlineItemInfo item, final JPAODataRequestContextAccess requestContext,
-      final Optional<JPAKeyBoundary> keyBoundary)
+  public JPAExpandJoinQuery(final OData odata, final JPAInlineItemInfo item,
+      final JPAODataRequestContextAccess requestContext, final Optional<JPAKeyBoundary> keyBoundary)
       throws ODataException {
 
-    super(odata, sessionContext, requestContext, item);
+    super(odata, requestContext, item);
     this.keyBoundary = keyBoundary;
   }
 
-  public JPAExpandJoinQuery(final OData odata, final JPAODataSessionContextAccess context,
-      final JPAAssociationPath association, final JPAEntityType entityType,
-      final JPAODataRequestContextAccess requestContext)
-      throws ODataException {
+  public JPAExpandJoinQuery(final OData odata, final JPAAssociationPath association, final JPAEntityType entityType,
+      final JPAODataRequestContextAccess requestContext) throws ODataException {
 
-    super(odata, context, entityType, requestContext, association);
+    super(odata, entityType, requestContext, association);
     this.keyBoundary = Optional.empty();
   }
 
@@ -214,9 +210,8 @@ public final class JPAExpandJoinQuery extends JPAAbstractExpandQuery {
   final Map<String, Long> count() throws ODataApplicationException {
     final int handle = debugger.startRuntimeMeasurement(this, "count");
     try {
-      final JPAExpandJoinCountQuery countQuery =
-          new JPAExpandJoinCountQuery(odata, context, requestContext, jpaEntity,
-              association, navigationInfo, keyBoundary);
+      final JPAExpandJoinCountQuery countQuery = new JPAExpandJoinCountQuery(odata, requestContext, jpaEntity,
+          association, navigationInfo, keyBoundary);
       return countQuery.count();
     } catch (final ODataException e) {
       throw new ODataJPAQueryException(e, INTERNAL_SERVER_ERROR);

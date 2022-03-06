@@ -37,7 +37,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaBuilder;
 import com.sap.olingo.jpa.processor.cb.ProcessorSubquery;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterComplier;
 
@@ -47,13 +46,11 @@ final class JPARowNumberFilterQuery extends JPAExpandFilterQuery {
   private final Set<JPAPath> outerSelections;
   private final boolean useInverse;
 
-  JPARowNumberFilterQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
-      final JPAODataRequestContextAccess requestContext, final JPANavigationPropertyInfo naviInfo,
-      final JPAAbstractQuery parent, final Optional<JPAAssociationPath> childAssociation,
-      final List<JPAPath> selections)
-      throws ODataException {
+  JPARowNumberFilterQuery(final OData odata, final JPAODataRequestContextAccess requestContext,
+      final JPANavigationPropertyInfo naviInfo, final JPAAbstractQuery parent,
+      final Optional<JPAAssociationPath> childAssociation, final List<JPAPath> selections) throws ODataException {
 
-    super(odata, sessionContext, requestContext, new JPANavigationPropertyInfo(naviInfo), parent, childAssociation
+    super(odata, requestContext, new JPANavigationPropertyInfo(naviInfo), parent, childAssociation
         .orElse(null));
 
     this.outerSelections = selections.stream().collect(toSet());
@@ -62,13 +59,11 @@ final class JPARowNumberFilterQuery extends JPAExpandFilterQuery {
     filter.compile();
   }
 
-  JPARowNumberFilterQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
-      final JPAODataRequestContextAccess requestContext, final JPANavigationPropertyInfo naviInfo,
-      final JPAAbstractQuery parent, final JPAAssociationPath association, final JPAAssociationPath childAssociation,
-      final SelectionPathInfo<JPAPath> selectionPath)
-      throws ODataException {
+  JPARowNumberFilterQuery(final OData odata, final JPAODataRequestContextAccess requestContext,
+      final JPANavigationPropertyInfo naviInfo, final JPAAbstractQuery parent, final JPAAssociationPath association,
+      final JPAAssociationPath childAssociation, final SelectionPathInfo<JPAPath> selectionPath) throws ODataException {
 
-    super(odata, sessionContext, requestContext, new JPANavigationPropertyInfo(naviInfo), parent, association,
+    super(odata, requestContext, new JPANavigationPropertyInfo(naviInfo), parent, association,
         childAssociation);
 
     this.outerSelections = selectionPath.joinedPersistent();

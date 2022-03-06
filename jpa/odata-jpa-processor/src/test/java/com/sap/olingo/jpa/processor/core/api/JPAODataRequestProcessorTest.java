@@ -1,7 +1,9 @@
 package com.sap.olingo.jpa.processor.core.api;
 
 import static com.sap.olingo.jpa.processor.core.api.example.JPAExampleModifyException.MessageKeys.MODIFY_NOT_ALLOWED;
+import static com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.MessageKeys.NO_METADATA_PROVIDER;
 import static org.apache.olingo.commons.api.format.ContentType.JSON;
+import static org.apache.olingo.commons.api.http.HttpStatusCode.INTERNAL_SERVER_ERROR;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -264,7 +266,7 @@ class JPAODataRequestProcessorTest {
   }
 
   @BeforeEach
-  void setup() throws DeserializerException, SerializerException {
+  void setup() throws ODataException {
     final List<String> versionList = Collections.singletonList(ODATA_VERSION);
     final Preferences prefer = mock(Preferences.class);
     odata = mock(OData.class);
@@ -273,6 +275,7 @@ class JPAODataRequestProcessorTest {
     deserializer = mock(ODataDeserializer.class);
     serializer = mock(ODataSerializer.class);
     serializerResult = mock(SerializerResult.class);
+    createServiceDocument();
     when(requestContext.getClaimsProvider()).thenReturn(Optional.ofNullable(claims));
     when(requestContext.getEntityManager()).thenReturn(em);
     when(requestContext.getRequestParameter()).thenReturn(mock(JPARequestParameterMap.class));
@@ -632,11 +635,17 @@ class JPAODataRequestProcessorTest {
 
   private JPAServiceDocument prepareRequest(final JPACUDRequestHandler handler) throws ODataException {
     resourceParts.clear();
+    final JPAServiceDocument sd = createServiceDocument();
+    when(requestContext.getCUDRequestHandler()).thenReturn(handler);
+    return sd;
+  }
+
+  private JPAServiceDocument createServiceDocument() throws ODataException {
     final JPAServiceDocument sd = mock(JPAServiceDocument.class);
     final JPAEdmProvider edmProvider = mock(JPAEdmProvider.class);
     when(sessionContext.getEdmProvider()).thenReturn(edmProvider);
+    when(requestContext.getEdmProvider()).thenReturn(edmProvider);
     when(edmProvider.getServiceDocument()).thenReturn(sd);
-    when(requestContext.getCUDRequestHandler()).thenReturn(handler);
     return sd;
   }
 
@@ -647,7 +656,8 @@ class JPAODataRequestProcessorTest {
     final JPAEntityType et = mock(JPAEntityType.class);
     final UriResourceEntitySet entitySet = createEntitySet(sd, et);
     resourceParts.add(entitySet);
-    when(sessionContext.getEdmProvider()).thenThrow(new ODataException("Dummy"));
+    when(requestContext.getEdmProvider())
+        .thenThrow(new ODataJPAProcessorException(NO_METADATA_PROVIDER, INTERNAL_SERVER_ERROR));
   }
 
   private static UriResourceComplexProperty createComplexType(final JPAEntityType et) throws ODataJPAModelException {

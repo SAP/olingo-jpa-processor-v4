@@ -57,9 +57,9 @@ class TestJPAQueryBuildSelectionPathList extends TestBase {
         ds, null);
     final JPAODataRequestContext externalContext = mock(JPAODataRequestContext.class);
     when(externalContext.getEntityManager()).thenReturn(emf.createEntityManager());
-    requestContext = new JPAODataInternalRequestContext(externalContext);
+    requestContext = new JPAODataInternalRequestContext(externalContext, sessionContext);
     requestContext.setUriInfo(uriInfo);
-    cut = new JPAJoinQuery(null, sessionContext, requestContext);
+    cut = new JPAJoinQuery(null, requestContext);
 
   }
 
@@ -272,7 +272,7 @@ class TestJPAQueryBuildSelectionPathList extends TestBase {
   void checkSelectTransientWithKey() throws ODataException, ODataJPAIllegalAccessException {
     buildUriInfo("Persons", "Person");
     requestContext.setUriInfo(uriInfo);
-    cut = new JPAJoinQuery(null, sessionContext, requestContext);
+    cut = new JPAJoinQuery(null, requestContext);
 
     final SelectionPathInfo<JPAPath> act = cut.buildSelectionPathList(new UriInfoDouble(new SelectOptionDouble(
         "FullName")));

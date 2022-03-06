@@ -46,14 +46,14 @@ public class JPAODataRequestHandler {
    * @param odata
    */
   JPAODataRequestHandler(final JPAODataSessionContextAccess serviceContext, final OData odata) {
-    this(serviceContext, null, odata);
+    this(serviceContext, JPAODataRequestContext.with().build(), odata);
   }
 
   JPAODataRequestHandler(final JPAODataSessionContextAccess serviceContext, final JPAODataRequestContext requestContext,
       final OData odata) {
     this.emf = serviceContext.getEntityManagerFactory();
     this.serviceContext = (JPAODataServiceContext) serviceContext;
-    this.requestContext = new JPAODataInternalRequestContext(requestContext);
+    this.requestContext = new JPAODataInternalRequestContext(requestContext, serviceContext);
     this.odata = odata;
   }
 
@@ -75,11 +75,7 @@ public class JPAODataRequestHandler {
   private void processInternal(final HttpServletRequest request, final HttpServletResponse response)
       throws ODataException {
 
-    final JPAEdmProvider jpaEdm = serviceContext.getEdmProvider() == null
-        && serviceContext instanceof JPAODataServiceContext
-            ? serviceContext.getEdmProvider(requestContext.getEntityManager())
-            : serviceContext.getEdmProvider();
-
+    final JPAEdmProvider jpaEdm = requestContext.getEdmProvider();
     final ODataHttpHandler handler = odata.createHandler(odata.createServiceMetadata(jpaEdm, jpaEdm.getReferences()));
     serviceContext.getEdmProvider().setRequestLocales(request.getLocales());
     final HttpServletRequest mappedRequest = prepareRequestMapping(request, serviceContext.getMappingPath());

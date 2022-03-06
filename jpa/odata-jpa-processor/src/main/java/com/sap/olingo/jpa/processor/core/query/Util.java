@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.edm.EdmBindingTarget;
@@ -227,7 +229,7 @@ public final class Util {
       throw new ODataJPAQueryException(NOT_SUPPORTED_RESOURCE_TYPE, BAD_REQUEST, uriResourceItem.getKind().name());
   }
 
-  public static EdmBindingTargetInfo determineModifyEntitySetAndKeys(final List<UriResource> resources) {
+  public static EdmBindingTargetInfo determineModifyEntitySetAndKeys(@Nonnull final List<UriResource> resources) {
     EdmEntitySet targetEdmEntitySet = null;
     List<UriParameter> targetKeyPredicates = new ArrayList<>();
     StringBuilder naviPropertyName = new StringBuilder();

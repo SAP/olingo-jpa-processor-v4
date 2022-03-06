@@ -149,6 +149,10 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
     return childQuery;
   }
 
+  Member getMember() {
+    return new SubMember(jpaMember);
+  }
+
   private VisitableExpression createExpression() {
     if (operator != null && methodCall == null) {
       return new JPAFilterExpression(new SubMember(jpaMember), operand.getLiteral(),
@@ -163,14 +167,14 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
     }
   }
 
-  private From<?, ?> determineFrom(int i, int size, JPAAbstractQuery parent) {
+  private From<?, ?> determineFrom(final int i, final int size, final JPAAbstractQuery parent) {
     return i == size - 1 ? from : parent.getRoot();
   }
 
-  private class SubMember implements Member {
+  private static class SubMember implements Member {
     private final JPAMemberOperator parentMember;
 
-    public SubMember(final JPAMemberOperator parentMember) {
+    SubMember(final JPAMemberOperator parentMember) {
       super();
       this.parentMember = parentMember;
     }
@@ -202,7 +206,7 @@ final class JPANavigationOperation extends JPAExistsOperation implements JPAExpr
 
   }
 
-  private class SubResource implements UriInfoResource {
+  private static class SubResource implements UriInfoResource {
     private final JPAMemberOperator parentMember;
 
     public SubResource(final JPAMemberOperator member) {

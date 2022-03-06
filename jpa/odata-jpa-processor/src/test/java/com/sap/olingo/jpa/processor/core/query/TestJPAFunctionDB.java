@@ -42,7 +42,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.processor.JPAFunctionRequestProcessor;
 import com.sap.olingo.jpa.processor.core.serializer.JPAOperationSerializer;
 
@@ -52,7 +51,6 @@ class TestJPAFunctionDB {
   private JPAODataDatabaseProcessor dbProcessor;
 
   private OData odata;
-  private JPAODataSessionContextAccess context;
   private JPAODataRequestContextAccess requestContext;
   private ODataRequest request;
   private ODataResponse response;
@@ -78,7 +76,6 @@ class TestJPAFunctionDB {
     odata = mock(OData.class);
     serializer = mock(JPAOperationSerializer.class);
     serializerResult = mock(SerializerResult.class);
-    context = mock(JPAODataSessionContextAccess.class);
     requestContext = mock(JPAODataRequestContextAccess.class);
     dbProcessor = mock(JPAODataDatabaseProcessor.class);
     sd = mock(JPAServiceDocument.class);
@@ -93,14 +90,14 @@ class TestJPAFunctionDB {
     when(requestContext.getUriInfo()).thenReturn(uriInfo);
     when(requestContext.getEntityManager()).thenReturn(em);
     when(uriInfo.getUriResourceParts()).thenReturn(uriResources);
-    when(context.getDatabaseProcessor()).thenReturn(dbProcessor);
-    when(context.getEdmProvider()).thenReturn(provider);
+    when(requestContext.getDatabaseProcessor()).thenReturn(dbProcessor);
+    when(requestContext.getEdmProvider()).thenReturn(provider);
     when(provider.getServiceDocument()).thenReturn(sd);
     uriResources.add(uriResource);
     when(uriResource.getFunction()).thenReturn(edmFunction);
     when(sd.getFunction(edmFunction)).thenReturn(function);
     when(function.getFunctionType()).thenReturn(EdmFunctionType.UserDefinedFunction);
-    cut = new JPAFunctionRequestProcessor(odata, context, requestContext);
+    cut = new JPAFunctionRequestProcessor(odata, requestContext);
   }
 
   @Test
