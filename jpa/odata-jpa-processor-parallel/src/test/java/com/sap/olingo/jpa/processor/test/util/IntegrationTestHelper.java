@@ -31,10 +31,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataBatchProcessor;
-<<<<<<< HEAD
-=======
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContext;
->>>>>>> odata-v4-jpa-processor/master
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestProcessor;
 import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor;
@@ -170,11 +167,7 @@ public class IntegrationTestHelper {
 
     @Override
     public void write(final int b) throws IOException {
-<<<<<<< HEAD
-      buffer.add(Integer.valueOf(b));
-=======
       buffer.add(b);
->>>>>>> odata-v4-jpa-processor/master
     }
 
     public Iterator<Integer> getBuffer() {

@@ -2,10 +2,7 @@ package com.sap.olingo.jpa.processor.cb.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-<<<<<<< HEAD
-=======
 import static org.mockito.ArgumentMatchers.any;
->>>>>>> odata-v4-jpa-processor/master
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
