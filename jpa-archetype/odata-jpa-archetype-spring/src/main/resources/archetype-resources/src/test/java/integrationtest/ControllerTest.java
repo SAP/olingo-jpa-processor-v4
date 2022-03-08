@@ -148,13 +148,6 @@ class ControllerTest {
         .get("/${punit}/v1/${value-object-table}s(EntityId=1,Id='2')")
         .then()
         .statusCode(HttpStatusCode.OK.getStatusCode());
-<<<<<<< HEAD
-
-  }
-
-  @AfterEach
-  void  teardown() {
-=======
     given()
         .contentType(ContentType.JSON)
         .accept(ContentType.JSON)
@@ -167,7 +160,6 @@ class ControllerTest {
 
   @AfterEach
   void  teardown() {
->>>>>>> odata-v4-jpa-processor/master
     RestAssuredMockMvc.reset();
   }
 }
