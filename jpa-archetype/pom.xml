@@ -16,6 +16,5 @@
 
     <modules>
         <module>odata-jpa-archetype-spring</module>
-        <module>odata-jpa-archetype-spring-scp</module>
     </modules>
 </project>
