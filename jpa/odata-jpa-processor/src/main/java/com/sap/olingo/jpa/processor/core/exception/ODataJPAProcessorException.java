@@ -43,7 +43,8 @@ public class ODataJPAProcessorException extends ODataJPAProcessException { // NO
     ENTITY_TYPE_UNKNOWN,
     FUNCTION_UNKNOWN,
     ACTION_UNKNOWN,
-    ENUMERATION_UNKNOWN;
+    ENUMERATION_UNKNOWN,
+    NO_METADATA_PROVIDER;
 
     @Override
     public String getKey() {

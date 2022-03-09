@@ -39,7 +39,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.cb.ProcessorSubquery;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterCrossComplier;
 import com.sap.olingo.jpa.processor.core.filter.JPAOperationConverter;
@@ -48,25 +48,22 @@ import com.sap.olingo.jpa.processor.core.processor.JPAODataInternalRequestContex
 class JPAExpandFilterQuery extends JPAAbstractSubQuery {
   final List<UriParameter> keyPredicates;
   final JPAODataRequestContextAccess requestContext;
-  final JPAODataSessionContextAccess sessionContext;
   final JPANavigationPropertyInfo navigationInfo;
   final Optional<JPAAssociationPath> childAssociation;
   final Map<String, From<?, ?>> joinTables;
 
-  JPAExpandFilterQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
-      final JPAODataRequestContextAccess requestContext, final JPANavigationPropertyInfo naviInfo,
-      final JPAAbstractQuery parent, final JPAAssociationPath childAssociation)
-      throws ODataException {
+  JPAExpandFilterQuery(final OData odata, final JPAODataRequestContextAccess requestContext,
+      final JPANavigationPropertyInfo naviInfo, final JPAAbstractQuery parent,
+      final JPAAssociationPath childAssociation) throws ODataException {
 
     super(odata,
-        sessionContext.getEdmProvider().getServiceDocument(),
+        requestContext.getEdmProvider().getServiceDocument(),
         (EdmEntityType) naviInfo.getUriResource().getType(),
         requestContext.getEntityManager(),
         parent,
         null,
         naviInfo.getAssociationPath(),
         requestContext.getClaimsProvider());
-    this.sessionContext = sessionContext;
     this.requestContext = requestContext;
     this.keyPredicates = naviInfo.getKeyPredicates();
     this.subQuery = parent.getQuery().subquery(this.jpaEntity.getKeyType());
@@ -78,21 +75,18 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
     setFilter(navigationInfo);
   }
 
-  public JPAExpandFilterQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
-      final JPAODataRequestContextAccess requestContext, final JPANavigationPropertyInfo naviInfo,
-      final JPAAbstractQuery parent, final JPAAssociationPath association, final JPAAssociationPath childAssociation)
-      throws ODataException {
+  public JPAExpandFilterQuery(final OData odata, final JPAODataRequestContextAccess requestContext,
+      final JPANavigationPropertyInfo naviInfo, final JPAAbstractQuery parent, final JPAAssociationPath association,
+      final JPAAssociationPath childAssociation) throws ODataException {
 
     super(odata,
-        sessionContext.getEdmProvider().getServiceDocument(),
+        requestContext.getEdmProvider().getServiceDocument(),
         (EdmEntityType) naviInfo.getUriResource().getType(),
         requestContext.getEntityManager(),
         parent,
         null,
         association,
         requestContext.getClaimsProvider());
-
-    this.sessionContext = sessionContext;
     this.requestContext = requestContext;
     this.keyPredicates = naviInfo.getKeyPredicates();
     this.subQuery = parent.getQuery().subquery(this.jpaEntity.getKeyType());
@@ -136,9 +130,9 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
   }
 
   protected final JPAFilterCrossComplier addFilterCompiler(final JPANavigationPropertyInfo naviInfo)
-      throws ODataJPAModelException {
+      throws ODataJPAModelException, ODataJPAProcessorException {
 
-    final JPAOperationConverter converter = new JPAOperationConverter(cb, sessionContext.getOperationConverter());
+    final JPAOperationConverter converter = new JPAOperationConverter(cb, requestContext.getOperationConverter());
     final JPAODataRequestContextAccess subContext = new JPAODataInternalRequestContext(naviInfo.getUriInfo(),
         requestContext);
     return new JPAFilterCrossComplier(odata, sd, naviInfo.getEntityType(), converter, this,
@@ -180,7 +174,7 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
     }
   }
 
-  void setFilter(final JPANavigationPropertyInfo naviInfo) throws ODataJPAModelException {
+  void setFilter(final JPANavigationPropertyInfo naviInfo) throws ODataJPAModelException, ODataJPAProcessorException {
     if (naviInfo.getFilterCompiler() == null)
       naviInfo.setFilterCompiler(addFilterCompiler(naviInfo));
   }
@@ -210,8 +204,8 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
 
       JPARowNumberFilterQuery rq;
       try {
-        rq = new JPARowNumberFilterQuery(odata, sessionContext, requestContext,
-            navigationInfo, parentQuery, childAssociation, jpaEntity.getKeyPath());
+        rq = new JPARowNumberFilterQuery(odata, requestContext, navigationInfo, parentQuery, childAssociation, jpaEntity
+            .getKeyPath());
       } catch (final ODataException e) {
         throw new ODataJPAQueryException(e, INTERNAL_SERVER_ERROR);
       }

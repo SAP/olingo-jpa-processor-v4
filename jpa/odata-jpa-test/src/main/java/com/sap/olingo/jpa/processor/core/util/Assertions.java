@@ -25,7 +25,7 @@ public class Assertions {
       final String expMessageKey, final Integer expStatusCode) {
 
     try {
-      final T act = assertThrows(expectedType, executable);  // NOSONAR
+      final T act = assertThrows(expectedType, executable); // NOSONAR
       final List<Method> methods = Arrays.asList(act.getClass().getMethods());
 
       if (hasMethod(methods, "getId")) {
@@ -51,7 +51,7 @@ public class Assertions {
     boolean found;
     for (final T expItem : exp) {
       found = false;
-      for (T actItem : act) {
+      for (final T actItem : act) {
         found = EqualsBuilder.reflectionEquals(expItem, actItem, true, reflection);
         if (found) {
           break;

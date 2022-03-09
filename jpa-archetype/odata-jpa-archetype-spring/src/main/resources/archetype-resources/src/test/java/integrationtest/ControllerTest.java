@@ -132,7 +132,7 @@ class ControllerTest {
   void  testCreateInstanceDeep() {
     given()
         .contentType(ContentType.JSON)
-        .accept(ContentType.JSON)
+        .accept(ContentType.JSON) 
         .body("{ \"Data\" : \"Hello World\", \"ValueObjects\" : [{\"Id\" : \"1\"}, {\"Id\" : \"2\"}] }")
         .when()
         .post("/${punit}/v1/${entity-table}s")
@@ -148,7 +148,14 @@ class ControllerTest {
         .get("/${punit}/v1/${value-object-table}s(EntityId=1,Id='2')")
         .then()
         .statusCode(HttpStatusCode.OK.getStatusCode());
-
+    given()
+        .contentType(ContentType.JSON)
+        .accept(ContentType.JSON)
+        .body("{ \"Data\" : \"Test\"}")
+        .when()
+        .patch("/test/v1/ValueObjectTemplates(EntityId=1,Id='2')")
+        .then()
+        .statusCode(HttpStatusCode.OK.getStatusCode());
   }
 
   @AfterEach

@@ -85,15 +85,15 @@ public abstract class BusinessPartner implements KeyAccess {
   @Column(name = "\"CustomString1\"")
   @Convert(converter = StringConverter.class)
   private String customString1;
-  
+
   @EdmIgnore
   @Column(name = "\"CustomString2\"")
   private String customString2;
-  
+
   @EdmIgnore
   @Column(name = "\"CustomNum1\"", precision = 16, scale = 5)
   private BigDecimal customNum1;
-  
+
   @EdmIgnore
   @Column(name = "\"CustomNum2\"", precision = 34)
   private BigDecimal customNum2;

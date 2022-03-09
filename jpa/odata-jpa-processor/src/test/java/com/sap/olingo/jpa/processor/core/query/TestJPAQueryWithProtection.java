@@ -620,13 +620,14 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     doReturn(protections).when(etSpy).getProtections();
     doReturn(etSpy).when(sdSpy).getEntity("BusinessPartnerProtecteds");
     doReturn(etSpy).when(sdSpy).getEntity(odataType);
-    final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext(externalContext);
+    final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext(externalContext,
+        contextSpy);
     try {
       requestContext.setUriInfo(uriInfo);
     } catch (final ODataJPAIllegalAccessException e) {
       fail();
     }
-    cut = new JPAJoinQuery(null, contextSpy, requestContext);
+    cut = new JPAJoinQuery(null, requestContext);
     cut.createFromClause(new ArrayList<JPAAssociationPath>(1), new ArrayList<JPAPath>(), cut.cq, null);
   }
 
@@ -644,13 +645,13 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     doReturn(etSpy).when(sdSpy).getEntity("ProtectionExamples");
     doReturn(etSpy).when(sdSpy).getEntity(odataType);
     doReturn(null).when(etSpy).getAssociation("");
-    final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext(externalContext);
+    final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext(externalContext, context);
     try {
       requestContext.setUriInfo(uriInfo);
     } catch (final ODataJPAIllegalAccessException e) {
       fail();
     }
-    cut = new JPAJoinQuery(null, contextSpy, requestContext);
+    cut = new JPAJoinQuery(null, requestContext);
     cut.createFromClause(new ArrayList<JPAAssociationPath>(1), new ArrayList<JPAPath>(), cut.cq, null);
   }
 }

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import java.util.Collection;
 import java.util.List;
@@ -21,7 +22,9 @@ import org.junit.jupiter.api.Test;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContext;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.converter.JPACollectionResult;
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
@@ -36,10 +39,14 @@ public abstract class TestJPACreateResult extends TestBase {
   protected Object jpaEntity;
   protected JPATupleChildConverter converter;
   protected JPAODataRequestContextAccess requestContext;
+  protected JPAODataRequestContext context;
+  protected JPAODataSessionContextAccess sessionContext;
 
   public TestJPACreateResult() {
     super();
-    requestContext = new JPAODataInternalRequestContext();
+    context = mock(JPAODataRequestContext.class);
+    sessionContext = mock(JPAODataSessionContextAccess.class);
+    requestContext = new JPAODataInternalRequestContext(context, sessionContext);
   }
 
   @Test
@@ -49,7 +56,7 @@ public abstract class TestJPACreateResult extends TestBase {
 
     createCutProvidesEmptyMap();
 
-    Map<JPAAssociationPath, JPAExpandResult> act = cut.getChildren();
+    final Map<JPAAssociationPath, JPAExpandResult> act = cut.getChildren();
 
     assertNotNull(act);
     assertEquals(1, act.size());
@@ -61,7 +68,7 @@ public abstract class TestJPACreateResult extends TestBase {
 
     createCutGetResultSimpleEntity();
 
-    List<Tuple> act = cut.getResult("root");
+    final List<Tuple> act = cut.getResult("root");
 
     assertNotNull(act);
     assertEquals(1, act.size());
@@ -74,7 +81,7 @@ public abstract class TestJPACreateResult extends TestBase {
 
     createCutGetResultEntityWithTransient();
 
-    List<Tuple> act = cut.getResult("root");
+    final List<Tuple> act = cut.getResult("root");
 
     assertNotNull(act);
     assertEquals(1, act.size());
@@ -87,7 +94,7 @@ public abstract class TestJPACreateResult extends TestBase {
 
     createCutGetResultWithOneLevelEmbedded();
 
-    List<Tuple> act = cut.getResult("root");
+    final List<Tuple> act = cut.getResult("root");
 
     assertNotNull(act);
     assertEquals(1, act.size());
@@ -100,7 +107,7 @@ public abstract class TestJPACreateResult extends TestBase {
 
     createCutGetResultWithTwoLevelEmbedded();
 
-    List<Tuple> act = cut.getResult("root");
+    final List<Tuple> act = cut.getResult("root");
     assertNotNull(act);
     assertEquals(1, act.size());
     assertEquals("01", act.get(0).get("ID"));
@@ -110,12 +117,12 @@ public abstract class TestJPACreateResult extends TestBase {
   @Test
   public void testGetResultWithOneLinked() throws ODataJPAModelException, ODataApplicationException {
     createCutGetResultWithWithOneLinked();
-    Map<JPAAssociationPath, JPAExpandResult> act = cut.getChildren();
+    final Map<JPAAssociationPath, JPAExpandResult> act = cut.getChildren();
     assertNotNull(act);
     assertEquals(1, act.size());
-    for (JPAAssociationPath actPath : act.keySet()) {
+    for (final JPAAssociationPath actPath : act.keySet()) {
       assertEquals("Children", actPath.getAlias());
-      List<Tuple> subResult = act.get(actPath).getResult("Eurostat/NUTS1/BE2");
+      final List<Tuple> subResult = act.get(actPath).getResult("Eurostat/NUTS1/BE2");
       assertEquals(1, subResult.size());
     }
   }
@@ -134,12 +141,12 @@ public abstract class TestJPACreateResult extends TestBase {
   @Test
   public void testGetResultWithTwoLinked() throws ODataJPAModelException, ODataApplicationException {
     createCutGetResultWithWithTwoLinked();
-    Map<JPAAssociationPath, JPAExpandResult> act = cut.getChildren();
+    final Map<JPAAssociationPath, JPAExpandResult> act = cut.getChildren();
     assertNotNull(act);
     assertEquals(1, act.size());
-    for (JPAAssociationPath actPath : act.keySet()) {
+    for (final JPAAssociationPath actPath : act.keySet()) {
       assertEquals("Children", actPath.getAlias());
-      List<Tuple> subResult = act.get(actPath).getResult("Eurostat/NUTS1/BE2");
+      final List<Tuple> subResult = act.get(actPath).getResult("Eurostat/NUTS1/BE2");
       assertEquals(2, subResult.size());
     }
   }
@@ -152,13 +159,13 @@ public abstract class TestJPACreateResult extends TestBase {
     assertDoesNotContain(cut.getResult("root"), "Comment");
     assertNotNull(act);
     assertFalse(act.isEmpty());
-    for (Entry<JPAAssociationPath, JPAExpandResult> entity : act.entrySet()) {
+    for (final Entry<JPAAssociationPath, JPAExpandResult> entity : act.entrySet()) {
       assertEquals(1, entity.getValue().getResults().size());
       assertEquals("Comment", entity.getKey().getAlias());
       final Collection<Object> actConverted = ((JPACollectionResult) entity.getValue()).getPropertyCollection(
           JPAExpandResult.ROOT_RESULT_KEY);
       assertEquals(2, actConverted.size());
-      for (Object o : actConverted) {
+      for (final Object o : actConverted) {
         assertNotNull(o);
         assertFalse(((String) o).isEmpty());
       }
@@ -169,17 +176,17 @@ public abstract class TestJPACreateResult extends TestBase {
   public void testGetResultWithComplexCollection() throws ODataJPAModelException, ODataApplicationException {
     createCutGetResultEntityWithComplexCollection();
 
-    Map<JPAAssociationPath, JPAExpandResult> act = cut.getChildren();
+    final Map<JPAAssociationPath, JPAExpandResult> act = cut.getChildren();
     assertDoesNotContain(cut.getResult("root"), "InhouseAddress");
     assertNotNull(act);
     assertFalse(act.isEmpty());
-    for (Entry<JPAAssociationPath, JPAExpandResult> entity : act.entrySet()) {
+    for (final Entry<JPAAssociationPath, JPAExpandResult> entity : act.entrySet()) {
       assertEquals(1, entity.getValue().getResults().size());
       assertEquals("InhouseAddress", entity.getKey().getAlias());
       final Collection<Object> actConverted = ((JPACollectionResult) entity.getValue()).getPropertyCollection(
           JPAExpandResult.ROOT_RESULT_KEY);
       assertEquals(2, actConverted.size());
-      for (Object o : actConverted) {
+      for (final Object o : actConverted) {
         assertNotNull(o);
         assertFalse(((ComplexValue) o).getValue().isEmpty());
       }
@@ -195,7 +202,7 @@ public abstract class TestJPACreateResult extends TestBase {
     assertDoesNotContain(cut.getResult("root"), "Complex/Address");
     assertNotNull(act);
     assertFalse(act.isEmpty());
-    for (Entry<JPAAssociationPath, JPAExpandResult> entity : act.entrySet()) {
+    for (final Entry<JPAAssociationPath, JPAExpandResult> entity : act.entrySet()) {
       if (entity.getKey().getAlias().equals("Complex/Address")) {
         found = true;
         assertEquals(1, entity.getValue().getResults().size());
@@ -203,7 +210,7 @@ public abstract class TestJPACreateResult extends TestBase {
         final Collection<Object> actConverted = ((JPACollectionResult) entity.getValue()).getPropertyCollection(
             JPAExpandResult.ROOT_RESULT_KEY);
         assertEquals(2, actConverted.size());
-        for (Object o : actConverted) {
+        for (final Object o : actConverted) {
           assertNotNull(o);
           assertFalse(((ComplexValue) o).getValue().isEmpty());
         }
@@ -222,7 +229,7 @@ public abstract class TestJPACreateResult extends TestBase {
     assertDoesNotContain(cut.getResult("root"), "Nested");
     assertNotNull(act);
     assertFalse(act.isEmpty());
-    for (Entry<JPAAssociationPath, JPAExpandResult> entity : act.entrySet()) {
+    for (final Entry<JPAAssociationPath, JPAExpandResult> entity : act.entrySet()) {
       if (entity.getKey().getAlias().equals("Nested")) {
         found = true;
         assertEquals(1, entity.getValue().getResults().size());
@@ -230,7 +237,7 @@ public abstract class TestJPACreateResult extends TestBase {
         final Collection<Object> actConverted = ((JPACollectionResult) entity.getValue()).getPropertyCollection(
             JPAExpandResult.ROOT_RESULT_KEY);
         assertEquals(2, actConverted.size());
-        for (Object o : actConverted) {
+        for (final Object o : actConverted) {
           assertNotNull(o);
           assertFalse(((ComplexValue) o).getValue().isEmpty());
         }
@@ -249,7 +256,7 @@ public abstract class TestJPACreateResult extends TestBase {
     assertDoesNotContain(cut.getResult("root"), "FirstLevel/SecondLevel/Address");
     assertNotNull(act);
     assertFalse(act.isEmpty());
-    for (Entry<JPAAssociationPath, JPAExpandResult> entity : act.entrySet()) {
+    for (final Entry<JPAAssociationPath, JPAExpandResult> entity : act.entrySet()) {
       if (entity.getKey().getAlias().equals("FirstLevel/SecondLevel/Address")) {
         found = true;
         assertEquals(1, entity.getValue().getResults().size());
@@ -257,7 +264,7 @@ public abstract class TestJPACreateResult extends TestBase {
         final Collection<Object> actConverted = ((JPACollectionResult) entity.getValue()).getPropertyCollection(
             JPAExpandResult.ROOT_RESULT_KEY);
         assertEquals(2, actConverted.size());
-        for (Object o : actConverted) {
+        for (final Object o : actConverted) {
           assertNotNull(o);
           assertFalse(((ComplexValue) o).getValue().isEmpty());
         }
@@ -273,8 +280,8 @@ public abstract class TestJPACreateResult extends TestBase {
   }
 
   private void assertDoesNotContain(final List<Tuple> result, final String prefix) {
-    for (Tuple t : result) {
-      for (TupleElement<?> e : t.getElements())
+    for (final Tuple t : result) {
+      for (final TupleElement<?> e : t.getElements())
         assertFalse(e.getAlias().startsWith(prefix), e.getAlias() + " violates prefix check: " + prefix);
     }
 

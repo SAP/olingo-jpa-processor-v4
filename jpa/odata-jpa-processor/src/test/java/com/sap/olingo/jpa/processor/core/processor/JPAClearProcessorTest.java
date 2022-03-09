@@ -59,7 +59,7 @@ class JPAClearProcessorTest extends TestJPAModifyProcessor {
   public void setup() throws Exception {
     super.setup();
     request = mock(ODataRequest.class);
-    processor = new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext,
+    processor = new JPACUDRequestProcessor(odata, serviceMetadata, requestContext,
         new JPAConversionHelper());
   }
 

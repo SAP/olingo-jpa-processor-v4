@@ -23,7 +23,6 @@ public interface JPAEntityType extends JPAStructuredType {
 
   /**
    *
-   *
    * @return Mime type of streaming content
    * @throws ODataJPAModelException
    */

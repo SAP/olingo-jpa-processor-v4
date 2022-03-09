@@ -43,7 +43,6 @@ import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializer;
@@ -70,7 +69,6 @@ class TestCreateRequestEntity {
   private JPACUDRequestProcessor cut;
   private Entity oDataEntity;
   private ServiceMetadata serviceMetadata;
-  private JPAODataSessionContextAccess sessionContext;
   private JPAODataRequestContextAccess requestContext;
   private UriInfo uriInfo;
   private UriResourceEntitySet uriEts;
@@ -86,7 +84,6 @@ class TestCreateRequestEntity {
   @BeforeEach
   void setUp() throws Exception {
     odata = OData.newInstance();
-    sessionContext = mock(JPAODataSessionContextAccess.class);
     requestContext = mock(JPAODataRequestContextAccess.class);
     serviceMetadata = mock(ServiceMetadata.class);
     uriInfo = mock(UriInfo.class);
@@ -100,7 +97,7 @@ class TestCreateRequestEntity {
     transaction = mock(EntityTransaction.class);
     headers = new HashMap<>(0);
 
-    when(sessionContext.getEdmProvider()).thenReturn(jpaEdm);
+    when(requestContext.getEdmProvider()).thenReturn(jpaEdm);
     when(requestContext.getEntityManager()).thenReturn(em);
     when(requestContext.getUriInfo()).thenReturn(uriInfo);
     when(requestContext.getSerializer()).thenReturn(serializer);
@@ -110,7 +107,7 @@ class TestCreateRequestEntity {
     when(uriEts.getKind()).thenReturn(UriResourceKind.entitySet);
     when(ets.getName()).thenReturn("AdministrativeDivisions");
     when(em.getTransaction()).thenReturn(transaction);
-    cut = new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext, convHelper);
+    cut = new JPACUDRequestProcessor(odata, serviceMetadata, requestContext, convHelper);
 
   }
 

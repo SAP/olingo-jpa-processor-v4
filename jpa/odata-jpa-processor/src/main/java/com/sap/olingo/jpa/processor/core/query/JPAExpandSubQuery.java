@@ -42,7 +42,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaQuery;
 import com.sap.olingo.jpa.processor.cb.ProcessorSubquery;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 /**
@@ -54,11 +53,10 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
  */
 public class JPAExpandSubQuery extends JPAAbstractExpandQuery {
 
-  public JPAExpandSubQuery(final OData odata, final JPAODataSessionContextAccess sessionContext,
-      final JPAInlineItemInfo item, final JPAODataRequestContextAccess requestContext)
-      throws ODataException {
+  public JPAExpandSubQuery(final OData odata, final JPAInlineItemInfo item,
+      final JPAODataRequestContextAccess requestContext) throws ODataException {
 
-    super(odata, sessionContext, requestContext, item);
+    super(odata, requestContext, item);
   }
 
   @Override
@@ -148,7 +146,7 @@ public class JPAExpandSubQuery extends JPAAbstractExpandQuery {
       if (hop.getUriInfo() != null) {
         final JPAAbstractQuery parent = hops.getLast();
         final JPAAssociationPath childAssociation = i > 0 ? navigationInfo.get(i - 1).getAssociationPath() : null;
-        hops.push(new JPAExpandFilterQuery(odata, context, requestContext, hop, parent, childAssociation));
+        hops.push(new JPAExpandFilterQuery(odata, requestContext, hop, parent, childAssociation));
         debugger.trace(this, "Sub query created: %s for %s", hops.getFirst().getQuery(), hops.getFirst().jpaEntity);
       }
     }
@@ -159,7 +157,7 @@ public class JPAExpandSubQuery extends JPAAbstractExpandQuery {
   final Map<String, Long> count() throws ODataApplicationException {
     final int handle = debugger.startRuntimeMeasurement(this, "count");
     try {
-      final JPAExpandSubCountQuery countQuery = new JPAExpandSubCountQuery(odata, context, requestContext, jpaEntity,
+      final JPAExpandSubCountQuery countQuery = new JPAExpandSubCountQuery(odata, requestContext, jpaEntity,
           association, navigationInfo);
       return countQuery.count();
     } catch (final ODataException e) {
@@ -269,7 +267,7 @@ public class JPAExpandSubQuery extends JPAAbstractExpandQuery {
       debugger.trace(this, "Row number required");
       final int lastIndex = navigationInfo.size() - 2;
       final JPAAssociationPath childAssociation = navigationInfo.get(lastIndex).getAssociationPath();
-      final JPARowNumberFilterQuery rq = new JPARowNumberFilterQuery(odata, context, requestContext, lastInfo,
+      final JPARowNumberFilterQuery rq = new JPARowNumberFilterQuery(odata, requestContext, lastInfo,
           this, association, childAssociation, selectionPath);
       return new JPAQueryPair(rq, this);
     } else {

@@ -28,6 +28,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransient;
 
 @Entity(name = "Person")
+
 @EdmFunction(
     name = "CheckRights",
     functionName = "CHECK_RIGHTS",

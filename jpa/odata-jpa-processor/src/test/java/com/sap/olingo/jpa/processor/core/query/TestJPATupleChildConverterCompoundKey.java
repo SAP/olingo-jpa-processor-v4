@@ -2,6 +2,7 @@ package com.sap.olingo.jpa.processor.core.query;
 
 import static com.sap.olingo.jpa.processor.core.converter.JPAExpandResult.ROOT_RESULT_KEY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,7 +19,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContext;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 import com.sap.olingo.jpa.processor.core.processor.JPAODataInternalRequestContext;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescriptionKey;
@@ -36,6 +39,8 @@ class TestJPATupleChildConverterCompoundKey extends TestBase {
   private UriHelperDouble uriHelper;
   private Map<String, String> keyPredicates;
   private JPAODataRequestContextAccess requestContext;
+  private JPAODataRequestContext context;
+  private JPAODataSessionContextAccess sessionContext;
 
   @BeforeEach
   void setup() throws ODataException {
@@ -43,7 +48,9 @@ class TestJPATupleChildConverterCompoundKey extends TestBase {
     jpaQueryResult = new ArrayList<>();
     uriHelper = new UriHelperDouble();
     keyPredicates = new HashMap<>();
-    requestContext = new JPAODataInternalRequestContext();
+    context = mock(JPAODataRequestContext.class);
+    sessionContext = mock(JPAODataSessionContextAccess.class);
+    requestContext = new JPAODataInternalRequestContext(context, sessionContext);
   }
 
   @Test

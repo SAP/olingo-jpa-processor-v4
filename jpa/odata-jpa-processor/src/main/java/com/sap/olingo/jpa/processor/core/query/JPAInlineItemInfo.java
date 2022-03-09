@@ -4,20 +4,22 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
 import org.apache.olingo.server.api.uri.UriInfoResource;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 
-public abstract class JPAInlineItemInfo {
+abstract class JPAInlineItemInfo {
 
   protected final JPAExpandItem uriInfo;
   protected final JPAAssociationPath expandAssociation;
   protected final List<JPANavigationPropertyInfo> hops;
   protected final List<JPANavigationPropertyInfo> parentHops;
 
-  JPAInlineItemInfo(final JPAExpandItem uriInfo,
-      final JPAAssociationPath expandAssociation, final List<JPANavigationPropertyInfo> parentHops) {
+  JPAInlineItemInfo(@Nonnull final JPAExpandItem uriInfo, @Nonnull final JPAAssociationPath expandAssociation,
+      @Nonnull final List<JPANavigationPropertyInfo> parentHops) {
 
     this.uriInfo = uriInfo;
     this.expandAssociation = expandAssociation;

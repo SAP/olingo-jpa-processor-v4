@@ -10,7 +10,7 @@ import javax.persistence.Embeddable;
 public class CompoundKey implements Serializable {
 
   /**
-   * 
+   *
    */
   private static final long serialVersionUID = -2350388598203342905L;
 

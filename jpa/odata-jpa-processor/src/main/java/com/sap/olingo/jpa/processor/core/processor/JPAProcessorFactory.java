@@ -54,8 +54,7 @@ public final class JPAProcessorFactory {
         .createCUDSerializer(responseFormat, uriInfo, Optional.ofNullable(header.get(HttpHeader.ODATA_MAX_VERSION))),
         context, header);
 
-    return new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext,
-        new JPAConversionHelper());
+    return new JPACUDRequestProcessor(odata, serviceMetadata, requestContext, new JPAConversionHelper());
   }
 
   public JPACUDRequestProcessor createCUDRequestProcessor(final UriInfo uriInfo,
@@ -63,8 +62,7 @@ public final class JPAProcessorFactory {
 
     final JPAODataRequestContextAccess requestContext = new JPAODataInternalRequestContext(uriInfo, context, header);
 
-    return new JPACUDRequestProcessor(odata, serviceMetadata, sessionContext, requestContext,
-        new JPAConversionHelper());
+    return new JPACUDRequestProcessor(odata, serviceMetadata, requestContext, new JPAConversionHelper());
   }
 
   public JPAActionRequestProcessor createActionProcessor(final UriInfo uriInfo, final ContentType responseFormat,
@@ -74,7 +72,7 @@ public final class JPAProcessorFactory {
         responseFormat != null ? serializerFactory.createSerializer(responseFormat, uriInfo, Optional.ofNullable(header
             .get(HttpHeader.ODATA_MAX_VERSION))) : null, context, header);
 
-    return new JPAActionRequestProcessor(odata, sessionContext, requestContext);
+    return new JPAActionRequestProcessor(odata, requestContext);
 
   }
 
@@ -95,10 +93,10 @@ public final class JPAProcessorFactory {
 
     switch (lastItem.getKind()) {
       case count:
-        return new JPACountRequestProcessor(odata, sessionContext, requestContext);
+        return new JPACountRequestProcessor(odata, requestContext);
       case function:
         checkFunctionPathSupported(resourceParts);
-        return new JPAFunctionRequestProcessor(odata, sessionContext, requestContext);
+        return new JPAFunctionRequestProcessor(odata, requestContext);
       case complexProperty:
       case primitiveProperty:
       case navigationProperty:
@@ -106,7 +104,7 @@ public final class JPAProcessorFactory {
       case singleton:
       case value:
         checkNavigationPathSupported(resourceParts);
-        return new JPANavigationRequestProcessor(odata, serviceMetadata, sessionContext, requestContext);
+        return new JPANavigationRequestProcessor(odata, serviceMetadata, requestContext);
       default:
         throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
             HttpStatusCode.NOT_IMPLEMENTED, lastItem.getKind().toString());
@@ -144,8 +142,8 @@ public final class JPAProcessorFactory {
         if (page == null)
           throw new ODataJPAProcessorException(QUERY_SERVER_DRIVEN_PAGING_GONE, HttpStatusCode.GONE, skipToken);
       } else {
-        final JPACountQuery countQuery = new JPAJoinQuery(odata, sessionContext,
-            new JPAODataInternalRequestContext(uriInfo, requestContext, headers));
+        final JPACountQuery countQuery = new JPAJoinQuery(odata, new JPAODataInternalRequestContext(uriInfo,
+            requestContext, headers));
         final Integer preferredPagesize = getPreferredPagesize(headers);
         final JPAODataPage firstPage = sessionContext.getPagingProvider().getFirstPage(uriInfo, preferredPagesize,
             countQuery, requestContext.getEntityManager());

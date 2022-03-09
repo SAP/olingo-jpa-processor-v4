@@ -38,19 +38,17 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.api.JPAODataSessionContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
   private final JPAAssociationPath association;
   private final Optional<JPAKeyBoundary> keyBoundary;
 
-  public JPACollectionJoinQuery(final OData odata, final JPAODataSessionContextAccess context,
-      final JPACollectionItemInfo item, final JPAODataRequestContextAccess requestContext,
-      final Optional<JPAKeyBoundary> keyBoundary)
+  public JPACollectionJoinQuery(final OData odata, final JPACollectionItemInfo item,
+      final JPAODataRequestContextAccess requestContext, final Optional<JPAKeyBoundary> keyBoundary)
       throws ODataException {
 
-    super(odata, context, item.getEntityType(), requestContext, new ArrayList<>(item.getHops().subList(0,
+    super(odata, item.getEntityType(), requestContext, new ArrayList<>(item.getHops().subList(0,
         item.getHops().size() - 1)));
     this.association = item.getExpandAssociation();
     this.keyBoundary = keyBoundary;

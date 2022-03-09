@@ -10,12 +10,14 @@ import javax.persistence.EntityManager;
 
 import org.apache.olingo.server.api.uri.UriInfoResource;
 
+import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.api.JPAHttpHeaderMap;
 import com.sap.olingo.jpa.metadata.api.JPARequestParameterMap;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmQueryExtensionProvider;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmTransientPropertyCalculator;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
+import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.serializer.JPASerializer;
 
@@ -49,6 +51,12 @@ public interface JPAODataRequestContextAccess {
 
   public @Nonnull JPARequestParameterMap getRequestParameter();
 
+  public JPAODataDatabaseProcessor getDatabaseProcessor();
+
+  public JPAEdmProvider getEdmProvider() throws ODataJPAProcessorException;
+
+  public JPAODataDatabaseOperations getOperationConverter();
+
   /**
    *
    * @return most significant locale. Used e.g. for description properties
@@ -57,7 +65,7 @@ public interface JPAODataRequestContextAccess {
 
   /**
    *
-   * @return list of locales provided for this request
+   * @return list of locale provided for this request
    */
   public List<Locale> getProvidedLocale();
 }

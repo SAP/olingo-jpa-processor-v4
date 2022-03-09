@@ -35,7 +35,7 @@ import com.sap.olingo.jpa.processor.core.util.UriInfoDouble;
 
 class TestJPAExpandQueryCreateResult extends TestBase {
   private JPAExpandJoinQuery cut;
-  private JPAODataSessionContextAccess context;
+  private JPAODataSessionContextAccess sessionContext;
   private JPAODataInternalRequestContext requestContext;
 
   @BeforeEach
@@ -43,15 +43,15 @@ class TestJPAExpandQueryCreateResult extends TestBase {
     helper = new TestHelper(emf, PUNIT_NAME);
     createHeaders();
     final EdmEntityType targetEntity = new EdmEntityTypeDouble(nameBuilder, "BusinessPartnerRole");
-    context = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null,
+    sessionContext = new JPAODataContextAccessDouble(new JPAEdmProvider(PUNIT_NAME, emf, null,
         TestBase.enumPackages), ds, null);
 
     final JPAODataRequestContext externalContext = mock(JPAODataRequestContext.class);
     when(externalContext.getEntityManager()).thenReturn(emf.createEntityManager());
-    requestContext = new JPAODataInternalRequestContext(externalContext);
+    requestContext = new JPAODataInternalRequestContext(externalContext, sessionContext);
     requestContext.setUriInfo(new UriInfoDouble(new ExpandItemDouble(targetEntity).getResourcePath()));
 
-    cut = new JPAExpandJoinQuery(null, context, helper.getJPAAssociationPath("Organizations", "Roles"),
+    cut = new JPAExpandJoinQuery(null, helper.getJPAAssociationPath("Organizations", "Roles"),
         helper.sd.getEntity(targetEntity), requestContext);
   }
 
@@ -238,8 +238,8 @@ class TestJPAExpandQueryCreateResult extends TestBase {
     final JPAAssociationPath exp = helper.getJPAAssociationPath("Organizations", "SupportEngineers");
 
     final EdmEntityType targetEntity = new EdmEntityTypeDouble(nameBuilder, "Person");
-    cut = new JPAExpandJoinQuery(null, context, helper.getJPAAssociationPath("Organizations", "SupportEngineers"),
-        helper.sd.getEntity(targetEntity), requestContext);
+    cut = new JPAExpandJoinQuery(null, helper.getJPAAssociationPath("Organizations",
+        "SupportEngineers"), helper.sd.getEntity(targetEntity), requestContext);
 
     final List<Tuple> result = new ArrayList<>();
     final HashMap<String, Object> oneResult = new HashMap<>();
