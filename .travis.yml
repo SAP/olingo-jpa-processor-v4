@@ -17,8 +17,12 @@ jobs:
           script: cd ./jpa && mvn clean verify 
           after_success:
               - mvn -q test jacoco:report coveralls:report
-        - name: "JDK: openjdk11"
-          jdk: openjdk11
+        - name: "JDK: sapmachine11"
+          before_install:
+            - curl -s "https://get.sdkman.io" | bash
+            - source "$HOME/.sdkman/bin/sdkman-init.sh"
+            - sdk install java 11.0.14-sapmchn
+            - sdk use java 11.0.14-sapmchn
           script: cd ./jpa && mvn -q verify
         - name: "JDK: openjdk17"
           jdk: openjdk17

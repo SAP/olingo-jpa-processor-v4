@@ -132,7 +132,7 @@ class ControllerTest {
   void  testCreateInstanceDeep() {
     given()
         .contentType(ContentType.JSON)
-        .accept(ContentType.JSON)
+        .accept(ContentType.JSON) 
         .body("{ \"Data\" : \"Hello World\", \"ValueObjects\" : [{\"Id\" : \"1\"}, {\"Id\" : \"2\"}] }")
         .when()
         .post("/${punit}/v1/${entity-table}s")
