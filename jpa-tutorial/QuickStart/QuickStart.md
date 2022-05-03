@@ -1,8 +1,8 @@
 # Quick Start
 
-This tutorial shall provide a first steps to create an OData V4 service based on JPA metadata. It builds the foundation for the upcoming tutorials.
+This tutorial shall provide a first step to create an OData V4 service based on JPA metadata. It builds the foundation for the upcoming once.
 
-Eclipse is used as IDE, but another IDE could be used as well. IDE should contain Spring support like the Eclipse Plugin _Spring Tools 4_.
+Eclipse is used as IDE, but another IDE could be used as well. The IDE should contain Spring support like the Eclipse Plugin _Spring Tools 4_.
 
 ## Prerequisites
 
@@ -19,7 +19,8 @@ In order to perform the tutorial you need:
 
 * A Java JDK 1.8 or higher
 * A Eclipse IDE for Java EE, or another one that provides the same functionality
-* Optional: Maven separately installed, to perform  Maven commands on without importing the JPA Processor projects into your IDE.
+* Optional: Maven separately installed, to perform  Maven commands in case the JPA Processor projects should not be imported into your IDE
+* Optional: Git separately installed.
 
 ## Preparing the Archetype
 
@@ -28,7 +29,7 @@ We start by cloning the repository. This can be done either via `git clone https
 <img src="../images/quick-start/GitClone.png" alt="Set default workspace"
 title="Workspace" width="300" height="255" />
 
-Open a shell, like the Windows console, navigate to the directory the repository had been cloned to and then to `odata-jpa-archetype-spring`. Starting from the home directory this could be e.g. `cd git\olingo-jpa-processor-v4\jpa-archetype\odata-jpa-archetype-spring`. We do tht to generate the archetype. This is done by execute `mvn clean install archetype:update-local-catalog`. Alternatively you can also use your IDE:
+Open a shell, like the Windows console, navigate to the directory the repository had been cloned to and then to `odata-jpa-archetype-spring`. Starting from the home directory this could be e.g. `cd git\olingo-jpa-processor-v4\jpa-archetype\odata-jpa-archetype-spring`. We do that to generate the archetype. This is done by execute `mvn clean install archetype:update-local-catalog`. Alternatively you can also use your IDE:
 
 <img src="../images/quick-start/runConfiguration.png" alt="Set default workspace"
 title="Workspace" width="300" height="255" />
@@ -46,7 +47,7 @@ This should contain the information about archetype:
     <archetype>
         <groupId>com.sap.olingo</groupId>
         <artifactId>odata-jpa-archetype-spring</artifactId>
-        <version>1.0.6</version>
+        <version>1.0.8</version>
     </archetype>
   </archetypes>
 </archetype-catalog>
@@ -88,7 +89,7 @@ After _Finish_ was pressed a project gets created:
 
 ## Test the Service
 
-1. The project contains already some integration tests, which we can execute. The test base on [rest assured](https://github.com/rest-assured/). They are located under `src/test/java` in package `com.exmple.trippin.integrationtest`. Right click on the project: _Run As -> JUnit Test_.
+1. The project contains already some integration tests, which we can execute. The test base on [REST Assured](https://github.com/rest-assured/). They are located under `src/test/java` in package `com.exmple.trippin.integrationtest`. Right click on the project: _Run As -> JUnit Test_.
 2. The service can be started. Right click on the project: _Run As -> Spring Boot App_. In the favoured browser you should be able to execute e.g. one of the following requests:
 
    * http://localhost:9010/Trippin/v1/
@@ -126,9 +127,9 @@ To use the JPA Processor the following dependency is all that is required:
   </dependency>
  ```
 
-* _odata-jpa-processor_ comes with a dependency to _odata-jpa-metadata_. The later one is responsible to convert the JPA annotations into OData metadata. The first one provides the necessary code to handle data requests like queries or changes. _odata-jpa-metadata_ can be used stand alone if the request handling should be done differently.
+* _odata-jpa-processor_ comes with a dependency to _odata-jpa-metadata_. The later one is responsible to convert the JPA annotations into OData metadata. The first one provides the necessary code to handle data requests like queries or changes. _odata-jpa-metadata_ can be used stand alone, if the request handling should be done differently.
 
-The other JPA Processor dependencies are optional:
+The other JPA Processor dependencies are **optional**:
 
 * _odata-jpa-spring-support_ contains a small set of parameter to be used in the Spring `application.yml`.
 * _odata-jpa-processor-cb_ contains an enhancement of JPAs Criteria Builder interface, which allows the JPA Processor to use window function ROW_NUMBER and LIMIT/OFFSET in sub queries. Two things have to be pointed out:
@@ -137,7 +138,7 @@ The other JPA Processor dependencies are optional:
 
 ### Configuration
 
-JPA Processor need to be customized to work properly. Package `com.example.trippin.config` contains two classes that provide this information. The first is `EclipseLinkJpaConfiguration`, which is needed to make use of [Eclipselink](http://www.eclipse.org/eclipselink/). For our service the most important part is in method `customerEntityManagerFactory`. Here we provide with `.packages(EntityTemplate.class)` a reference to a package that contains the JPA entities and so defines our persistence-unit. 
+JPA Processor need to be customized to work properly. Package `com.example.trippin.config` contains two classes that provide this information. The first is `EclipseLinkJpaConfiguration`, which is needed to make use of [Eclipselink](http://www.eclipse.org/eclipselink/). For our service the most important part is in method `customerEntityManagerFactory`. Here we provide with `.packages(EntityTemplate.class)` a reference to a package that contains the JPA entities and so defines our persistence-unit.
 
 The second one is `ProcessorConfiguration`. It has two methods. The first one creates a service context, which should be valid for the live time of the service:
 
@@ -184,8 +185,8 @@ For each request a Request Context needs to be created:
 
 For a start of a service development two instances are provided:
 
-1. For each request that shall process changing request an instance od a sub class of `JPAAbstractCUDRequestHandler` must be provided. The project uses a generic implementation `JPAExampleCUDRequestHandler`, which is handy during prototyping and model development, but was not created with the idea of productive usage, especially has this this the place to implement business logic.
-2. Olingo grants some insights into the request with the so called _Debug Support_. The JPA Process supports this as well. As our service shall provide the debug information, an instance of `DefaultDebugSupport` is provided. The debug information can be retrieved by adding `odata-debug=html` or `odata-debug=json` to the query. E.g.:  http://localhost:9010/Trippin/v1/Persons?odata-debug=html
+1. For each request that shall process changing requests an instance of a sub-class of `JPAAbstractCUDRequestHandler` must be provided. The project uses a generic implementation `JPAExampleCUDRequestHandler`, which is handy during prototyping and model development, but was not created with the intend of productive usage, especially as this is the place to implement business logic.
+2. Olingo grants some insights into the request processing with the so called _Debug Support_. The JPA Process supports this as well. As our service shall provide the debug information, an instance of `DefaultDebugSupport` is provided. The debug information can be retrieved by adding `odata-debug=html` or `odata-debug=json` to the query. E.g.:  http://localhost:9010/Trippin/v1/Persons?odata-debug=html
 
 ### Controller
 
@@ -206,6 +207,8 @@ The model is located in `com.example.trippin.model`. It contains as of now only 
 
 ## Next steps
 
-As of now only the previous set of tutorials exist:
-[Tutorials](/jpa-tutorial/Tutorials/Introduction/Introduction.md).
+To learn more about the options the JPA Processor provides a growing set of [tutorials](../Questions/Questions.md) is provided.
+
+In addition, a set of previous tutorials exist:
+[old tutorials](/jpa-tutorial/Tutorials/Introduction/Introduction.md).
 Even so they are not always up to date, they can be helpful.

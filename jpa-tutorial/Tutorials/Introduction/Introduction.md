@@ -102,6 +102,5 @@ Before we start we should have a look at the data model we want to create step-b
 
 ![Database Tables ](Model/DBTable.png)
 
-
 Now we can start with the first series of tutorial about [using Metadata generation](../Metadata/1-0-Overview.md). Later you can learn in a second series of tutorial [how to retrieve data](../RetrieveData/2-0-Overview.md). Last, but not least, we will see how to [manipulate data](../ChangeData/3-0-Overview.md).
 In addition there are documents handling some [special topics](../SpecialTopics/4-0-Overview.md).
