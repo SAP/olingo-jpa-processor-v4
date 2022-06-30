@@ -7,6 +7,7 @@ import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAMode
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -29,8 +30,11 @@ import javax.persistence.metamodel.Attribute.PersistentAttributeType;
 import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.Type.PersistenceType;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
+import org.apache.olingo.commons.api.edm.geo.Geospatial.Dimension;
 import org.apache.olingo.commons.api.edm.geo.SRID;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlMapping;
@@ -57,8 +61,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediatePropert
 /**
  * Properties can be classified by two different aspects:
  * <ol>
- * <li> If they are complex, so are structured, or primitive</li>
- * <li> If they are a collection of instances or if they are simple and can have up to one instance</li>
+ * <li>If they are complex, so are structured, or primitive</li>
+ * <li>If they are a collection of instances or if they are simple and can have up to one instance</li>
  * </ol>
  * So properties maybe e.g. a complex collection property or a simple primitive property
  * @author Oliver Grande
@@ -66,7 +70,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediatePropert
  */
 abstract class IntermediateProperty extends IntermediateModelElement implements IntermediatePropertyAccess,
     JPAAttribute {
-
+  private static final Log LOGGER = LogFactory.getLog(IntermediateProperty.class);
   private static final int UPPER_LIMIT_PRECISION_TEMP = 12;
   private static final int LOWER_LIMIT_PRECISION_TEMP = 0;
   private static final String DB_FIELD_NAME_PATTERN = "\"&1\"";
@@ -342,8 +346,10 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
       final EdmGeospatial spatialDetails = annotatedElement.getAnnotation(EdmGeospatial.class);
       if (spatialDetails != null) {
         final String srid = spatialDetails.srid();
+        final Dimension dimension = spatialDetails.dimension();
         if (srid.isEmpty())
-          result = SRID.valueOf(null);
+          // Set default values external: See https://issues.apache.org/jira/browse/OLINGO-1564
+          result = SRID.valueOf(dimension == Dimension.GEOMETRY ? "0" : "4326");
         else
           result = SRID.valueOf(srid);
         result.setDimension(spatialDetails.dimension());
@@ -509,8 +515,23 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
         dbFieldName = s.toString();
       }
     } else {
-      dbFieldName = internalName;
+      // Hibernate problem: Hibernate tested with 5.6.7 did not provide Column annotation
+      // for @Id attributes. Try another way to get the information
+      try {
+        if (jpaAttribute.getDeclaringType() != null) {
+          final Field declaringClass = jpaAttribute.getDeclaringType().getJavaType().getDeclaredField(jpaAttribute
+              .getName());
+          final Column jpaColumn = ((AnnotatedElement) declaringClass).getAnnotation(Column.class);
+          if (jpaColumn != null)
+            dbFieldName = jpaColumn.name();
+        }
+      } catch (NoSuchFieldException | SecurityException e) {
+        LOGGER.trace("Could not find field '" + jpaAttribute.getName() + "' of class '" + this.jpaAttribute
+            .getDeclaringType().getJavaType().getCanonicalName() + "'");
+      }
     }
+    if (dbFieldName == null || dbFieldName.isEmpty())
+      dbFieldName = internalName;
   }
 
   /**

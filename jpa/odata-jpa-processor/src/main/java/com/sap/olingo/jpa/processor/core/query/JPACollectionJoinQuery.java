@@ -258,7 +258,7 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
       JPANoSelectionException {
     final int handle = debugger.startRuntimeMeasurement(this, "createTupleQuery");
 
-    final Map<String, From<?, ?>> joinTables = createFromClause(new ArrayList<JPAAssociationPath>(1),
+    final Map<String, From<?, ?>> joinTables = createFromClause(new ArrayList<>(1),
         selectionPath.joinedPersistent(), cq, lastInfo);
     // TODO handle Join Column is ignored
     cq.multiselect(createSelectClause(joinTables, selectionPath.joinedPersistent(), target, groups));

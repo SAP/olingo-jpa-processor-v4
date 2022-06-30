@@ -511,7 +511,7 @@ class TestJPACUDRequestHelper {
     assertNotNull(act);
     assertEquals(1, act.size());
     final AccessRights[] actProperty = (AccessRights[]) act.get("accessRights");
-    assertArrayEquals(new Object[] { AccessRights.Delete }, actProperty);
+    assertArrayEquals(new Object[] { AccessRights.DELETE }, actProperty);
   }
 
   @Test
@@ -748,7 +748,7 @@ class TestJPACUDRequestHelper {
     final Map<String, Object> exp = cut.buildGetterMap(role);
     final Map<String, Object> act = cut.buildGetterMap(role);
 
-    assertTrue(exp == act);
+    assertEquals(exp, act);
   }
 
   private JPAStructuredType createMetadataForSimpleProperty(final String externalName, final String internalName)

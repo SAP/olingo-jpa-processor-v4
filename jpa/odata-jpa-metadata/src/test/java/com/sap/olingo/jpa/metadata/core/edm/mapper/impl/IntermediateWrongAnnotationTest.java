@@ -34,7 +34,7 @@ import com.sap.olingo.jpa.processor.core.errormodel.PersonDeepCollectionProtecte
 import com.sap.olingo.jpa.processor.core.errormodel.TeamWithTransientError;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 
-class TestIntermediateWrongAnnotation {
+class IntermediateWrongAnnotationTest {
   private TestHelper helper;
   protected static final String PUNIT_NAME = "error";
   protected static EntityManagerFactory emf;
@@ -54,7 +54,7 @@ class TestIntermediateWrongAnnotation {
         CollectionAttributeProtected.class);
 
     final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
-        () -> new IntermediateCollectionProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        () -> new IntermediateCollectionProperty<>(new JPADefaultEdmNameBuilder(PUNIT_NAME),
             jpaAttribute, helper.schema, entityType));
 
     assertEquals(NOT_SUPPORTED_PROTECTED_COLLECTION.name(), act.getId());
@@ -69,7 +69,7 @@ class TestIntermediateWrongAnnotation {
     final IntermediateStructuredType<?> entityType = helper.schema.getEntityType(PersonDeepCollectionProtected.class);
 
     final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
-        () -> new IntermediateCollectionProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        () -> new IntermediateCollectionProperty<>(new JPADefaultEdmNameBuilder(PUNIT_NAME),
             jpaAttribute, helper.schema, entityType));
 
     assertEquals(NOT_SUPPORTED_PROTECTED_COLLECTION.name(), act.getId());
@@ -125,7 +125,7 @@ class TestIntermediateWrongAnnotation {
     final IntermediateStructuredType<?> entityType = helper.schema.getEntityType(NavigationPropertyPartOfGroup.class);
 
     final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
-        () -> new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME), entityType, jpaAttribute,
+        () -> new IntermediateNavigationProperty<>(new JPADefaultEdmNameBuilder(PUNIT_NAME), entityType, jpaAttribute,
             helper.schema));
 
     assertEquals(NOT_SUPPORTED_NAVIGATION_PART_OF_GROUP.name(), act.getId());

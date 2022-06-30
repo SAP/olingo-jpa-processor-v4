@@ -1,8 +1,8 @@
 package com.sap.olingo.jpa.processor.core.query;
 
-import static com.sap.olingo.jpa.processor.core.testmodel.TestDataConstants.NO_ATTRIBUTES_BUSINESS_PARTNER_T;
-import static com.sap.olingo.jpa.processor.core.testmodel.TestDataConstants.NO_ATTRIBUTES_POSTAL_ADDRESS;
-import static com.sap.olingo.jpa.processor.core.testmodel.TestDataConstants.NO_ATTRIBUTES_POSTAL_ADDRESS_T;
+import static com.sap.olingo.jpa.processor.core.util.TestDataConstants.NO_ATTRIBUTES_BUSINESS_PARTNER_T;
+import static com.sap.olingo.jpa.processor.core.util.TestDataConstants.NO_ATTRIBUTES_POSTAL_ADDRESS;
+import static com.sap.olingo.jpa.processor.core.util.TestDataConstants.NO_ATTRIBUTES_POSTAL_ADDRESS_T;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -51,7 +51,7 @@ class TestJPAQuerySelectClause extends TestQueryBase {
 
     final List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
         new UriInfoDouble(new SelectOptionDouble("*"))).joinedPersistent(), root, Collections.emptyList());
-    assertEquals(jpaEntityType.getPathList().size() - NO_ATTRIBUTES_BUSINESS_PARTNER_T, selectClause.size());
+    assertEquals(jpaEntityType.getPathList().size() - NO_ATTRIBUTES_BUSINESS_PARTNER_T.value, selectClause.size());
   }
 
   @Test
@@ -61,7 +61,7 @@ class TestJPAQuerySelectClause extends TestQueryBase {
     final List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
         new UriInfoDouble(selOpts)).joinedPersistent(), root, Collections.emptyList());
 
-    assertEquals(jpaEntityType.getPathList().size() - NO_ATTRIBUTES_BUSINESS_PARTNER_T, selectClause.size());
+    assertEquals(jpaEntityType.getPathList().size() - NO_ATTRIBUTES_BUSINESS_PARTNER_T.value, selectClause.size());
   }
 
   @Test
@@ -171,7 +171,7 @@ class TestJPAQuerySelectClause extends TestQueryBase {
 
     final List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
         new UriInfoDouble(new SelectOptionDouble("Address"))).joinedPersistent(), root, Collections.emptyList());
-    assertEquals(NO_ATTRIBUTES_POSTAL_ADDRESS + 2 - NO_ATTRIBUTES_POSTAL_ADDRESS_T, selectClause.size());
+    assertEquals(NO_ATTRIBUTES_POSTAL_ADDRESS.value + 2 - NO_ATTRIBUTES_POSTAL_ADDRESS_T.value, selectClause.size());
   }
 
   @Test
@@ -269,7 +269,7 @@ class TestJPAQuerySelectClause extends TestQueryBase {
 
     final List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
         new UriInfoDouble(new SelectOptionDouble("Address"))).joinedPersistent(), root, Collections.emptyList());
-    assertEquals(NO_ATTRIBUTES_POSTAL_ADDRESS + 2 - NO_ATTRIBUTES_POSTAL_ADDRESS_T, selectClause
+    assertEquals(NO_ATTRIBUTES_POSTAL_ADDRESS.value + 2 - NO_ATTRIBUTES_POSTAL_ADDRESS_T.value, selectClause
         .size());
     assertContains(selectClause, "Address/CountryName");
     assertContains(selectClause, "ETag");
@@ -350,7 +350,7 @@ class TestJPAQuerySelectClause extends TestQueryBase {
     fillJoinTable(root);
     final List<Selection<?>> selectClause = cut.createSelectClause(joinTables, cut.buildSelectionPathList(
         new UriInfoDouble(new SelectOptionDouble("*"))).joinedPersistent(), root, Collections.emptyList());
-    assertEquals(jpaEntityType.getPathList().size() - NO_ATTRIBUTES_BUSINESS_PARTNER_T, selectClause.size());
+    assertEquals(jpaEntityType.getPathList().size() - NO_ATTRIBUTES_BUSINESS_PARTNER_T.value, selectClause.size());
   }
 
   private void assertContains(final List<Selection<?>> selectClause, final String alias) {

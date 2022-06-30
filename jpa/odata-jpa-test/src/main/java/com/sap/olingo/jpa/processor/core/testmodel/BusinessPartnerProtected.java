@@ -51,7 +51,7 @@ public class BusinessPartnerProtected {
   private String username;
 
   @Embedded
-  private AdministrativeInformation administrativeInformation = new AdministrativeInformation();
+  private final AdministrativeInformation administrativeInformation = new AdministrativeInformation();
 
   @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
   @JoinColumn(name = "\"BusinessPartnerID\"", referencedColumnName = "\"ID\"", insertable = false, updatable = false)
@@ -70,11 +70,11 @@ public class BusinessPartnerProtected {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) return true;
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
-    BusinessPartnerProtected other = (BusinessPartnerProtected) obj;
+    final BusinessPartnerProtected other = (BusinessPartnerProtected) obj;
     if (iD == null) {
       if (other.iD != null) return false;
     } else if (!iD.equals(other.iD)) return false;
@@ -109,7 +109,7 @@ public class BusinessPartnerProtected {
     return username;
   }
 
-  public void setID(String iD) {
+  public void setID(final String iD) {
     this.iD = iD;
   }
 

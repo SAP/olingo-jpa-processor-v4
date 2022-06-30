@@ -32,7 +32,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 /**
- * <p>For details about Schema metadata see:
+ * <p>
+ * For details about Schema metadata see:
  * <a href=
  * "https://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406397946"
  * >OData Version 4.0 Part 3 - 5 Schema </a>
@@ -122,8 +123,10 @@ final class IntermediateSchema extends IntermediateModelElement {
     return actions;
   }
 
-  IntermediateStructuredType<?> getComplexType(final Class<?> targetClass) {
-    return complexTypeListInternalKey.get(IntNameBuilder.buildStructuredTypeName(targetClass));
+  @SuppressWarnings("unchecked")
+  <T> IntermediateStructuredType<T> getComplexType(final Class<T> targetClass) {
+    return (IntermediateStructuredType<T>) complexTypeListInternalKey.get(IntNameBuilder.buildStructuredTypeName(
+        targetClass));
   }
 
   JPAStructuredType getComplexType(final String externalName) {
@@ -141,8 +144,10 @@ final class IntermediateSchema extends IntermediateModelElement {
     return edmSchema;
   }
 
-  IntermediateStructuredType<?> getEntityType(final Class<?> targetClass) {
-    return entityTypeListInternalKey.get(IntNameBuilder.buildStructuredTypeName(targetClass));
+  @SuppressWarnings("unchecked")
+  <T> IntermediateStructuredType<T> getEntityType(final Class<T> targetClass) {
+    return (IntermediateStructuredType<T>) entityTypeListInternalKey.get(IntNameBuilder.buildStructuredTypeName(
+        targetClass));
   }
 
   JPAEntityType getEntityType(final String externalName) {
@@ -189,29 +194,32 @@ final class IntermediateSchema extends IntermediateModelElement {
     return functions;
   }
 
-  IntermediateStructuredType<?> getStructuredType(final PluralAttribute<?, ?, ?> jpaAttribute) {
+  @SuppressWarnings("unchecked")
+  <T> IntermediateStructuredType<T> getStructuredType(final PluralAttribute<?, ?, ?> jpaAttribute) {
     IntermediateStructuredType<?> type = complexTypeListInternalKey.get(IntNameBuilder.buildStructuredTypeName(
         jpaAttribute.getElementType().getJavaType()));
     if (type == null)
       type = entityTypeListInternalKey.get(IntNameBuilder.buildStructuredTypeName(jpaAttribute.getElementType()
           .getJavaType()));
-    return type;
+    return (IntermediateStructuredType<T>) type;
   }
 
-  IntermediateStructuredType<?> getStructuredType(final Attribute<?, ?> jpaAttribute) {
+  @SuppressWarnings("unchecked")
+  <T> IntermediateStructuredType<T> getStructuredType(final Attribute<?, ?> jpaAttribute) {
     IntermediateStructuredType<?> type = complexTypeListInternalKey.get(IntNameBuilder.buildStructuredTypeName(
         jpaAttribute.getJavaType()));
     if (type == null)
       type = entityTypeListInternalKey.get(IntNameBuilder.buildStructuredTypeName(jpaAttribute.getJavaType()));
-    return type;
+    return (IntermediateStructuredType<T>) type;
   }
 
-  IntermediateStructuredType<?> getStructuredType(final Class<?> targetClass) {
+  @SuppressWarnings("unchecked")
+  <T> IntermediateStructuredType<T> getStructuredType(final Class<?> targetClass) {
     IntermediateStructuredType<?> type = entityTypeListInternalKey
         .get(IntNameBuilder.buildStructuredTypeName(targetClass));
     if (type == null)
       type = complexTypeListInternalKey.get(IntNameBuilder.buildStructuredTypeName(targetClass));
-    return type;
+    return (IntermediateStructuredType<T>) type;
   }
 
   void setContainer(final IntermediateEntityContainer container) {

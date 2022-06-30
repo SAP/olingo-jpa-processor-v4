@@ -4,7 +4,7 @@
 
     <groupId>com.sap.olingo</groupId>
     <artifactId>odata-jpa</artifactId>
-    <version>1.0.8</version>
+    <version>1.1.0</version>
     <packaging>pom</packaging>
 
     <name>odata-jpa</name>
@@ -13,12 +13,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.source>1.8</project.build.source>
         <maven.complier.version>3.8.0</maven.complier.version>
-        <odata.version>4.8.0</odata.version>
-        <jackson.version>2.13.1</jackson.version>
+        <odata.version>4.9.0</odata.version>
+        <jackson.version>2.13.2</jackson.version>
         <powermock.version>1.7.1</powermock.version>
         <coveralls.version>4.3.0</coveralls.version>
         <jpa.version>2.2.1</jpa.version>
-        <processor.version>1.0.8</processor.version>
+        <processor.version>1.1.0</processor.version>
+        <jacoco.version>0.8.7</jacoco.version>
         <sonar.coverage.jacoco.xmlReportPaths>
         	${project.basedir}/odata-jpa-coverage/target/site/jacoco-aggregate/jacoco.xml,
         	${project.basedir}/../odata-jpa-coverage/target/site/jacoco-aggregate/jacoco.xml
@@ -87,7 +88,7 @@
                 <plugin>
                     <groupId>org.sonarsource.scanner.maven</groupId>
                     <artifactId>sonar-maven-plugin</artifactId>
-                    <version>3.7.0.1746</version>
+                    <version>3.9.1.2184</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -96,7 +97,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.6</version>
+                <version>${jacoco.version}</version>
                 <executions>
                     <execution>
                         <id>prepare-agent</id>

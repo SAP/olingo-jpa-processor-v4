@@ -26,7 +26,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
 
-class TestJPAVisitor {
+class JPAVisitorTest {
 
   private JPAFilterComplierAccess compiler;
   private JPAAbstractQuery query;

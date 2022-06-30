@@ -18,7 +18,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.ODataFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaOneFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaTwoFunctions;
 
-class TestIntermediateFunctionFactory extends TestMappingRoot {
+class IntermediateFunctionFactoryTest extends TestMappingRoot {
   private TestHelper helper;
 
   private Reflections reflections;

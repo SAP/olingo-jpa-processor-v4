@@ -45,7 +45,7 @@ class IntermediateDataBaseFunction extends IntermediateFunction implements JPADa
   public List<JPAParameter> getParameter() {
     final List<JPAParameter> parameterList = new ArrayList<>();
     for (final EdmParameter jpaParameter : jpaFunction.parameter()) {
-      parameterList.add(new IntermediateFunctionParameter(jpaParameter));
+      parameterList.add(new IntermediateFunctionParameter(nameBuilder, jpaParameter));
     }
     return parameterList;
   }

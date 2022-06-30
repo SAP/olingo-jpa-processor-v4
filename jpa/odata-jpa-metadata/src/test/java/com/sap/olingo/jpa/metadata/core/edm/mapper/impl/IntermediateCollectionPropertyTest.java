@@ -42,7 +42,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 
 class IntermediateCollectionPropertyTest extends TestMappingRoot {
-  private IntermediateCollectionProperty cut;
+  private IntermediateCollectionProperty<?> cut;
   private TestHelper helper;
   private JPAEdmMetadataPostProcessor processor;
 
@@ -93,7 +93,7 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
         return List.class;
       }
     });
-    cut = new IntermediateCollectionProperty(nameBuilder, jpaAttribute, helper.schema, helper.schema.getEntityType(
+    cut = new IntermediateCollectionProperty<>(nameBuilder, jpaAttribute, helper.schema, helper.schema.getEntityType(
         Organization.class));
     assertEquals("Edm.String", cut.getEdmItem().getType());
     assertEquals(String.class, cut.getType());
@@ -104,7 +104,7 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
 
     final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         Person.class), "inhouseAddress");
-    final IntermediateCollectionProperty property = new IntermediateCollectionProperty(nameBuilder,
+    final IntermediateCollectionProperty<?> property = new IntermediateCollectionProperty<>(nameBuilder,
         jpaAttribute, helper.schema, helper.schema.getEntityType(Person.class));
     assertEquals(PUNIT_NAME + ".InhouseAddress", property.getEdmItem().getType());
   }
@@ -114,7 +114,7 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
 
     final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         Person.class), "inhouseAddress");
-    final IntermediateCollectionProperty property = new IntermediateCollectionProperty(nameBuilder,
+    final IntermediateCollectionProperty<?> property = new IntermediateCollectionProperty<>(nameBuilder,
         jpaAttribute, helper.schema, helper.schema.getEntityType(Person.class));
     assertFalse(property.ignore());
   }
@@ -124,7 +124,7 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
 
     final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         Organization.class), "comment");
-    final IntermediateCollectionProperty property = new IntermediateCollectionProperty(nameBuilder,
+    final IntermediateCollectionProperty<?> property = new IntermediateCollectionProperty<>(nameBuilder,
         jpaAttribute, helper.schema, helper.schema.getEntityType(Organization.class));
     assertEquals("\"Text\"", property.getDBFieldName());
   }
@@ -135,7 +135,7 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
     IntermediateSimpleProperty.setPostProcessor(processor);
     final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         Organization.class), "comment");
-    final IntermediateCollectionProperty property = new IntermediateCollectionProperty(nameBuilder,
+    final IntermediateCollectionProperty<?> property = new IntermediateCollectionProperty<>(nameBuilder,
         jpaAttribute, helper.schema, helper.schema.getEntityType(Organization.class));
     property.getEdmItem();
     verify(processor, atLeastOnce()).processProperty(property, ORG_CANONICAL_NAME);
@@ -146,7 +146,7 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
 
     final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         Person.class), "inhouseAddress");
-    final IntermediateCollectionProperty property = new IntermediateCollectionProperty(nameBuilder,
+    final IntermediateCollectionProperty<?> property = new IntermediateCollectionProperty<>(nameBuilder,
         jpaAttribute, helper.schema, helper.schema.getEntityType(Person.class));
 
     final List<CsdlAnnotation> annotations = property.getEdmItem().getAnnotations();
@@ -178,7 +178,7 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
   void checkAnnotations() throws ODataJPAModelException {
     final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         Person.class), "inhouseAddress");
-    final IntermediateCollectionProperty cut = new IntermediateCollectionProperty(new JPADefaultEdmNameBuilder(
+    final IntermediateCollectionProperty<?> cut = new IntermediateCollectionProperty<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME),
         jpaAttribute, helper.schema, helper.schema.getEntityType(Person.class));
 
@@ -199,7 +199,7 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
         CollectionFirstLevelComplex.class.getDeclaredField("transientCollection"),
         schema);
 
-    final IntermediateCollectionProperty cut = new IntermediateCollectionProperty(nameBuilder,
+    final IntermediateCollectionProperty<?> cut = new IntermediateCollectionProperty<>(nameBuilder,
         jpaAttribute, helper.schema, helper.schema.getStructuredType(CollectionFirstLevelComplex.class));
     assertTrue(cut.isTransient());
     assertEquals("Edm.String", cut.getEdmItem().getType());
@@ -210,7 +210,7 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
       SecurityException {
 
     final PluralAttribute<?, ?, ?> jpaAttribute = createTransientPluralAttribute();
-    final IntermediateCollectionProperty cut = new IntermediateCollectionProperty(nameBuilder,
+    final IntermediateCollectionProperty<?> cut = new IntermediateCollectionProperty<>(nameBuilder,
         jpaAttribute, helper.schema, helper.schema.getStructuredType(ComplexWithTransientComplexCollection.class));
     assertTrue(cut.isTransient());
     assertEquals("com.sap.olingo.jpa.InhouseAddress", cut.getEdmItem().getType());
@@ -262,7 +262,7 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
 
     final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         Person.class), "inhouseAddress");
-    final IntermediateCollectionProperty property = new IntermediateCollectionProperty(nameBuilder,
+    final IntermediateCollectionProperty<?> property = new IntermediateCollectionProperty<>(nameBuilder,
         jpaAttribute, helper.schema, helper.schema.getEntityType(Person.class));
 
     assertNull(property.getPartner());
@@ -274,7 +274,7 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
 
     final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         Person.class), "inhouseAddress");
-    final IntermediateCollectionProperty property = new IntermediateCollectionProperty(nameBuilder,
+    final IntermediateCollectionProperty<?> property = new IntermediateCollectionProperty<>(nameBuilder,
         jpaAttribute, helper.schema, helper.schema.getEntityType(Person.class));
 
     assertFalse(property.isAssociation());
@@ -286,7 +286,7 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
 
     final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         Person.class), "inhouseAddress");
-    final IntermediateCollectionProperty property = new IntermediateCollectionProperty(nameBuilder,
+    final IntermediateCollectionProperty<?> property = new IntermediateCollectionProperty<>(nameBuilder,
         jpaAttribute, helper.schema, helper.schema.getEntityType(Person.class));
 
     assertFalse(property.isSearchable());
@@ -298,22 +298,10 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
 
     final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         Person.class), "inhouseAddress");
-    final IntermediateCollectionProperty property = new IntermediateCollectionProperty(nameBuilder,
+    final IntermediateCollectionProperty<?> property = new IntermediateCollectionProperty<>(nameBuilder,
         jpaAttribute, helper.schema, helper.schema.getEntityType(Person.class));
 
     assertFalse(property.isEtag());
-  }
-
-  @Test
-  void checkGetJoinTableGetInverseAlias() throws ODataJPAModelException, NoSuchFieldException,
-      SecurityException {
-
-    final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
-        Person.class), "inhouseAddress");
-    final IntermediateCollectionProperty property = new IntermediateCollectionProperty(nameBuilder,
-        jpaAttribute, helper.schema, helper.schema.getEntityType(Person.class));
-
-    assertNull(property.getJoinTable().getInverseAlias("Dummy"));
   }
 
   @Test
@@ -322,7 +310,7 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
 
     final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         Person.class), "inhouseAddress");
-    final IntermediateCollectionProperty property = new IntermediateCollectionProperty(nameBuilder,
+    final IntermediateCollectionProperty<?> property = new IntermediateCollectionProperty<>(nameBuilder,
         jpaAttribute, helper.schema, helper.schema.getEntityType(Person.class));
 
     assertNotNull(property.getTargetEntity());
@@ -334,7 +322,7 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
 
     final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         Organization.class), "comment");
-    final IntermediateCollectionProperty property = new IntermediateCollectionProperty(nameBuilder,
+    final IntermediateCollectionProperty<?> property = new IntermediateCollectionProperty<>(nameBuilder,
         jpaAttribute, helper.schema, helper.schema.getEntityType(Organization.class));
 
     final JPAAttribute act = property.getTargetAttribute();
@@ -350,7 +338,7 @@ class IntermediateCollectionPropertyTest extends TestMappingRoot {
 
     final PluralAttribute<?, ?, ?> jpaAttribute = helper.getCollectionAttribute(helper.getEntityType(
         Person.class), "inhouseAddress");
-    final IntermediateCollectionProperty property = new IntermediateCollectionProperty(nameBuilder,
+    final IntermediateCollectionProperty<?> property = new IntermediateCollectionProperty<>(nameBuilder,
         jpaAttribute, helper.schema, helper.schema.getEntityType(Person.class));
 
     assertNull(property.getTargetAttribute());

@@ -12,7 +12,6 @@ import java.util.Map;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
@@ -30,6 +29,7 @@ class JPARequestLinkImplTest {
   private List<JPAOnConditionItem> items;
   private JPAConversionHelper helper;
   private JPAAssociationAttribute pathLeaf;
+  private JPAEntityType targetEntityType;
 
   @BeforeEach
   void setUp() throws ODataJPAModelException {
@@ -38,18 +38,31 @@ class JPARequestLinkImplTest {
     path = mock(JPAAssociationPath.class);
     pathLeaf = mock(JPAAssociationAttribute.class);
     when(path.getJoinColumnsList()).thenReturn(items);
+    when(path.getTargetType()).thenReturn(targetEntityType);
   }
 
-  @Disabled("Multiple String Keys")
   @Test
-  void testCreateMultipleStringKeysChildren() throws ODataJPAModelException, ODataException {
+  void testGetEntityType() {
     final String link = "AdministrativeDivisions(DivisionCode='DE100',CodeID='NUTS3',CodePublisher='Eurostat')";
     cut = new JPARequestLinkImpl(path, link, helper);
+    assertEquals(targetEntityType, cut.getEntityType());
+  }
 
-    items.add(createConditionItem("codePublisher", "CodePublisher", "codePublisher", "CodePublisher"));
-    items.add(createConditionItem("codeID", "CodeID", "parentCodeID", "ParentCodeID"));
-    items.add(createConditionItem("divisionCode", "DivisionCode", "parentDivisionCode", "ParentDivisionCode"));
+  @Test
+  void testCreateMultipleStringKeysChildren() throws ODataJPAModelException, ODataException {
+    createAdminDivisionChildrenRelation();
     final Map<String, Object> act = cut.getRelatedKeys();
+    assertNotNull(act);
+    assertEquals("DE100", act.get("divisionCode"));
+    assertEquals("NUTS3", act.get("codeID"));
+    assertEquals("Eurostat", act.get("codePublisher"));
+  }
+
+  @Test
+  void testCreateMultipleStringValuesChildren() throws ODataJPAModelException, ODataException {
+    createAdminDivisionChildrenRelation();
+    final Map<String, Object> act = cut.getValues();
+
     assertNotNull(act);
     assertEquals("DE100", act.get("parentDivisionCode"));
     assertEquals("NUTS3", act.get("parentCodeID"));
@@ -58,30 +71,8 @@ class JPARequestLinkImplTest {
 
   @Test
   void testCreateMultipleStringKeysParent() throws ODataJPAModelException, ODataException {
-    final String link = "AdministrativeDivisions(DivisionCode='DE100',CodeID='NUTS3',CodePublisher='Eurostat')";
-    cut = new JPARequestLinkImpl(path, link, helper);
-
-    items.add(createConditionItem("codePublisher", "CodePublisher", "codePublisher", "CodePublisher"));
-    items.add(createConditionItem("parentCodeID", "ParentCodeID", "codeID", "CodeID"));
-    items.add(createConditionItem("parentDivisionCode", "ParentDivisionCode", "divisionCode", "DivisionCode"));
+    createAdminDivisionParentRelation();
     final Map<String, Object> act = cut.getRelatedKeys();
-    assertNotNull(act);
-    assertEquals("DE100", act.get("divisionCode"));
-    assertEquals("NUTS3", act.get("codeID"));
-    assertEquals("Eurostat", act.get("codePublisher"));
-  }
-
-  @Disabled("Multiple String Values")
-  @Test
-  void testCreateMultipleStringValuesChildren() throws ODataJPAModelException, ODataException {
-    final String link = "AdministrativeDivisions(DivisionCode='DE100',CodeID='NUTS3',CodePublisher='Eurostat')";
-    cut = new JPARequestLinkImpl(path, link, helper);
-
-    items.add(createConditionItem("codePublisher", "CodePublisher", "codePublisher", "CodePublisher"));
-    items.add(createConditionItem("codeID", "CodeID", "parentCodeID", "ParentCodeID"));
-    items.add(createConditionItem("divisionCode", "DivisionCode", "parentDivisionCode", "ParentDivisionCode"));
-    final Map<String, Object> act = cut.getValues();
-
     assertNotNull(act);
     assertEquals("DE100", act.get("divisionCode"));
     assertEquals("NUTS3", act.get("codeID"));
@@ -90,12 +81,7 @@ class JPARequestLinkImplTest {
 
   @Test
   void testCreateMultipleStringValuesParent() throws ODataJPAModelException, ODataException {
-    final String link = "AdministrativeDivisions(DivisionCode='DE100',CodeID='NUTS3',CodePublisher='Eurostat')";
-    cut = new JPARequestLinkImpl(path, link, helper);
-
-    items.add(createConditionItem("codePublisher", "CodePublisher", "codePublisher", "CodePublisher"));
-    items.add(createConditionItem("parentCodeID", "ParentCodeID", "codeID", "CodeID"));
-    items.add(createConditionItem("parentDivisionCode", "ParentDivisionCode", "divisionCode", "DivisionCode"));
+    createAdminDivisionParentRelation();
     final Map<String, Object> act = cut.getValues();
 
     assertNotNull(act);
@@ -177,5 +163,23 @@ class JPARequestLinkImplTest {
     when(rightAttribute.getEdmType()).thenReturn(EdmPrimitiveTypeKind.String);
 
     return item;
+  }
+
+  private void createAdminDivisionChildrenRelation() throws ODataJPAModelException {
+    final String link = "AdministrativeDivisions(DivisionCode='DE100',CodeID='NUTS3',CodePublisher='Eurostat')";
+    cut = new JPARequestLinkImpl(path, link, helper);
+
+    items.add(createConditionItem("codePublisher", "CodePublisher", "codePublisher", "CodePublisher"));
+    items.add(createConditionItem("codeID", "CodeID", "parentCodeID", "ParentCodeID"));
+    items.add(createConditionItem("divisionCode", "DivisionCode", "parentDivisionCode", "ParentDivisionCode"));
+  }
+
+  private void createAdminDivisionParentRelation() throws ODataJPAModelException {
+    final String link = "AdministrativeDivisions(DivisionCode='DE100',CodeID='NUTS3',CodePublisher='Eurostat')";
+    cut = new JPARequestLinkImpl(path, link, helper);
+
+    items.add(createConditionItem("codePublisher", "CodePublisher", "codePublisher", "CodePublisher"));
+    items.add(createConditionItem("parentCodeID", "ParentCodeID", "codeID", "CodeID"));
+    items.add(createConditionItem("parentDivisionCode", "ParentDivisionCode", "divisionCode", "DivisionCode"));
   }
 }

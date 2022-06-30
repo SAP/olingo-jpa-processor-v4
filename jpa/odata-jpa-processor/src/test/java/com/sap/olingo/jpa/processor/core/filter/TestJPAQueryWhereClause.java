@@ -1,14 +1,22 @@
 package com.sap.olingo.jpa.processor.core.filter;
 
+import static org.apache.olingo.commons.api.http.HttpStatusCode.FORBIDDEN;
+import static org.apache.olingo.commons.api.http.HttpStatusCode.OK;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.io.IOException;
+import java.util.stream.Stream;
 
 import org.apache.olingo.commons.api.ex.ODataException;
+import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
@@ -103,146 +111,80 @@ class TestJPAQueryWhereClause extends TestBase {
     assertEquals("3", orgs.get(0).get("ID").asText());
   }
 
-  @Test
-  void testFilterOneNotEqual() throws IOException, ODataException {
+  static Stream<Arguments> getFilterQuery() {
+    return Stream.of(
+        arguments("OneNotEqual", "Organizations?$filter=ID ne '3'", 9),
+        arguments("OneGreaterEquals", "Organizations?$filter=ID ge '5'", 5), // '10' is smaller than '5' when comparing
+                                                                             // strings!
+        arguments("OneLowerThanTwo", "AdministrativeDivisions?$filter=DivisionCode lt CountryCode", 244),
+        arguments("OneGreaterThan", "Organizations?$filter=ID gt '5'", 4),
+        arguments("OneLowerThan", "Organizations?$filter=ID lt '5'", 5),
+        arguments("OneLowerEquals", "Organizations?$filter=ID le '5'", 6),
+        arguments("OneGreaterEqualsNumber", "AdministrativeDivisions?$filter=Area ge 119330610", 4),
+        arguments("OneAndEquals", "AdministrativeDivisions?$filter=CodePublisher eq 'Eurostat' and CodeID eq 'NUTS2'",
+            11),
+        arguments("OneOrEquals", "Organizations?$filter=ID eq '5' or ID eq '10'", 2),
+        arguments("OneNotLower", "AdministrativeDivisions?$filter=not (Area lt 50000000)", 24),
+        arguments("AddGreater", "AdministrativeDivisions?$filter=Area add 7000000 ge 50000000", 31),
+        arguments("SubGreater", "AdministrativeDivisions?$filter=Area sub 7000000 ge 60000000", 15),
+        arguments("DivGreater", "AdministrativeDivisions?$filter=Area gt 0 and Area div Population ge 6000", 9),
+        arguments("MulGreater", "AdministrativeDivisions?$filter=Area mul Population gt 0", 64),
+        arguments("Mod", "AdministrativeDivisions?$filter=Area gt 0 and Area mod 3578335 eq 0", 1),
+        arguments("Length", "AdministrativeDivisionDescriptions?$filter=length(Name) eq 10", 11),
+        arguments("Now", "Persons?$filter=AdministrativeInformation/Created/At lt now()", 3),
+        arguments("Contains", "AdministrativeDivisions?$filter=contains(CodeID,'166')", 110),
+        arguments("Endswith", "AdministrativeDivisions?$filter=endswith(CodeID,'166-1')", 4),
+        arguments("Startswith", "AdministrativeDivisions?$filter=startswith(DivisionCode,'DE-')", 16),
+        arguments("IndexOf", "AdministrativeDivisions?$filter=indexof(DivisionCode,'3') eq 4", 7),
+        arguments("SubstringStartIndex",
+            "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and substring(Name,6) eq 'Dakota'", 2),
+        arguments("SubstringStartEndIndex",
+            "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and substring(Name,0,5) eq 'North'", 2),
+        arguments("SubstringLengthCalculated",
+            "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and substring(Name,0,1 add 4) eq 'North'", 2),
+        arguments("ToLower",
+            "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and tolower(Name) eq 'brandenburg'", 1),
+        arguments("ToUpper",
+            "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and toupper(Name) eq 'HESSEN'", 1),
+        arguments("ToUpperInverse", "AdministrativeDivisions?$filter=toupper('nuts1') eq CodeID", 19),
+        arguments("Trim", "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and trim(Name) eq 'Sachsen'", 1),
+        arguments("Concat", "Persons?$filter=concat(concat(LastName,','),FirstName) eq 'Mustermann,Max'", 1),
+        arguments("OneHas", "Persons?$filter=AccessRights has com.sap.olingo.jpa.AccessRights'READ'", 1),
+        arguments("OnNull", "AdministrativeDivisions?$filter=CodePublisher eq 'ISO' and ParentCodeID eq null", 4));
+  }
 
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$filter=ID ne '3'");
+  @ParameterizedTest
+  @MethodSource("getFilterQuery")
+  void testFilterOne(final String text, final String queryString, final int numberOfResults)
+      throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, queryString);
     helper.assertStatus(200);
 
     final ArrayNode orgs = helper.getValues();
-    assertEquals(9, orgs.size());
+    assertEquals(numberOfResults, orgs.size(), text);
   }
 
-  @Test
-  void testFilterOneEnumNotEqual() throws IOException, ODataException {
+  static Stream<Arguments> getEnumQuery() {
+    return Stream.of(
+        arguments("OneEnumNotEqual", "Persons?$filter=AccessRights ne com.sap.olingo.jpa.AccessRights'WRITE'", "97"),
+        arguments("OneEnumEqualMultipleValues",
+            "Persons?$filter=AccessRights eq com.sap.olingo.jpa.AccessRights'READ,DELETE'", "97")
+    // @Disabled("Clarify if GT, LE .. not supported by OData or \"only\" by Olingo")
+    // arguments("OneEnumGreaterThan", "Persons?$filter=AccessRights gt com.sap.olingo.jpa.AccessRights'Read'", "99")
+    );
+  }
 
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Persons?$filter=AccessRights ne com.sap.olingo.jpa.AccessRights'Write'");
+  @ParameterizedTest
+  @MethodSource("getEnumQuery")
+  void testFilterEnum(final String text, final String queryString, final String result)
+      throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, queryString);
     helper.assertStatus(200);
 
     final ArrayNode persons = helper.getValues();
     assertEquals(1, persons.size());
-    assertEquals("97", persons.get(0).get("ID").asText());
-  }
-
-  @Test
-  void testFilterOneEnumEqualMultipleValues() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Persons?$filter=AccessRights eq com.sap.olingo.jpa.AccessRights'Read,Delete'");
-    helper.assertStatus(200);
-
-    final ArrayNode persons = helper.getValues();
-    assertEquals(1, persons.size());
-    assertEquals("97", persons.get(0).get("ID").asText());
-  }
-
-  @Test
-  void testFilterOneGreaterEqualsString() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$filter=ID ge '5'");
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(5, orgs.size()); // '10' is smaller than '5' when comparing strings!
-  }
-
-  @Test
-  void testFilterOneLowerThanTwoProperties() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisions?$filter=DivisionCode lt CountryCode");
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(244, orgs.size());
-  }
-
-  @Test
-  void testFilterOneGreaterThanString() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$filter=ID gt '5'");
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(4, orgs.size()); // '10' is smaller than '5' when comparing strings!
-  }
-
-  @Test
-  void testFilterOneLowerThanString() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$filter=ID lt '5'");
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(5, orgs.size());
-  }
-
-  @Test
-  void testFilterOneLowerEqualsString() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$filter=ID le '5'");
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(6, orgs.size());
-  }
-
-  @Test
-  void testFilterOneGreaterEqualsNumber() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisions?$filter=Area ge 119330610");
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(4, orgs.size());
-  }
-
-  @Disabled("Clarify if GT, LE .. not supported by OData or \"only\" by Olingo")
-  @Test
-  void testFilterOneEnumGreaterThan() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Persons?$filter=AccessRights gt com.sap.olingo.jpa.AccessRights'Read'");
-    helper.assertStatus(200);
-
-    final ArrayNode persons = helper.getValues();
-    assertEquals(1, persons.size());
-    assertEquals("99", persons.get(0).get("ID").asText());
-  }
-
-  @Test
-  void testFilterOneAndEquals() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisions?$filter=CodePublisher eq 'Eurostat' and CodeID eq 'NUTS2'");
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(11, orgs.size());
-  }
-
-  @Test
-  void testFilterOneOrEquals() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Organizations?$filter=ID eq '5' or ID eq '10'");
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(2, orgs.size());
-  }
-
-  @Test
-  void testFilterOneNotLower() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisions?$filter=not (Area lt 50000000)");
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(24, orgs.size());
+    assertEquals(result, persons.get(0).get("ID").asText(), text);
   }
 
   @Test
@@ -344,162 +286,6 @@ class TestJPAQueryWhereClause extends TestBase {
     helper.assertStatus(501);
   }
 
-  @Test
-  void testFilterAddGreater() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisions?$filter=Area add 7000000 ge 50000000");
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(31, orgs.size());
-  }
-
-  @Test
-  void testFilterSubGreater() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisions?$filter=Area sub 7000000 ge 60000000");
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(15, orgs.size());
-  }
-
-  @Test
-  void testFilterDivGreater() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisions?$filter=Area gt 0 and Area div Population ge 6000");
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(9, orgs.size());
-  }
-
-  @Test
-  void testFilterMulGreater() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisions?$filter=Area mul Population gt 0");
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(64, orgs.size());
-  }
-
-  @Test
-  void testFilterMod() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisions?$filter=Area gt 0 and Area mod 3578335 eq 0");
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(1, orgs.size());
-  }
-
-  @Test
-  void testFilterLength() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisionDescriptions?$filter=length(Name) eq 10");
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(11, orgs.size());
-  }
-
-  @Test
-  void testFilterNow() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Persons?$filter=AdministrativeInformation/Created/At lt now()");
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(3, orgs.size());
-  }
-
-  @Test
-  void testFilterContains() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisions?$filter=contains(CodeID,'166')");
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(110, orgs.size());
-  }
-
-  @Test
-  void testFilterEndswith() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisions?$filter=endswith(CodeID,'166-1')");
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(4, orgs.size());
-  }
-
-  @Test
-  void testFilterStartswith() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisions?$filter=startswith(DivisionCode,'DE-')");
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(16, orgs.size());
-  }
-
-  @Test
-  void testFilterIndexOf() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisions?$filter=indexof(DivisionCode,'3') eq 4");
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(7, orgs.size());
-  }
-
-  @Test
-  void testFilterSubstringStartIndex() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and substring(Name,6) eq 'Dakota'");
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(2, orgs.size());
-  }
-
-  @Test
-  void testFilterSubstringStartEndIndex() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and substring(Name,0,5) eq 'North'");
-
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(2, orgs.size());
-  }
-
-  @Test
-  void testFilterSubstringLengthCalculated() throws IOException, ODataException {
-    // substring(CompanyName, 1 add 4, 2 mul 3)
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and substring(Name,0,1 add 4) eq 'North'");
-
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(2, orgs.size());
-  }
-
   // Usage of mult currently creates parser error: The types 'Edm.Double' and '[Int64, Int32, Int16, Byte, SByte]' are
   // not compatible.
   @Disabled("Usage of mult currently creates parser error")
@@ -512,66 +298,6 @@ class TestJPAQueryWhereClause extends TestBase {
 
     final ArrayNode orgs = helper.getValues();
     assertEquals(2, orgs.size());
-  }
-
-  @Test
-  void testFilterToLower() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and tolower(Name) eq 'brandenburg'");
-
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(1, orgs.size());
-  }
-
-  @Test
-  void testFilterToUpper() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and toupper(Name) eq 'HESSEN'");
-
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(1, orgs.size());
-  }
-
-  @Test
-  void testFilterToUpperInverse() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisions?$filter=toupper('nuts1') eq CodeID");
-
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(19, orgs.size());
-  }
-
-  @Test
-  void testFilterTrim() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and trim(Name) eq 'Sachsen'");
-
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(1, orgs.size());
-  }
-
-  @Test
-  void testFilterConcat() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Persons?$filter=concat(concat(LastName,','),FirstName) eq 'Mustermann,Max'");
-
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(1, orgs.size());
   }
 
   @Test
@@ -977,18 +703,6 @@ class TestJPAQueryWhereClause extends TestBase {
   }
 
   @Test
-  void testFilterOneHas() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Persons?$filter=AccessRights has com.sap.olingo.jpa.AccessRights'Read'");
-
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(1, orgs.size());
-  }
-
-  @Test
   void testFilterNavigationTarget() throws IOException, ODataException {
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "AdministrativeDivisions(DivisionCode='BE2',CodeID='NUTS1',CodePublisher='Eurostat')/Children?$filter=DivisionCode eq 'BE21'");
@@ -1009,64 +723,29 @@ class TestJPAQueryWhereClause extends TestBase {
     helper.assertStatus(400); // Olingo rejects a bunch of functions.
   }
 
-  @Test
-  void testFilterCollectionPropertyAny() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Organizations?$select=ID&$filter=Comment/any(s:contains(s, 'just'))");
-
-    helper.assertStatus(200);
-    final ArrayNode org = helper.getValues();
-    assertNotNull(org);
-    assertEquals(1, org.size());
+  static Stream<Arguments> getFilterCollectionQuery() {
+    return Stream.of(
+        arguments("SimpleCount", "Persons?$filter=InhouseAddress/$count eq 2", 1),
+        arguments("DeepSimpleCount",
+            "CollectionDeeps?$filter=FirstLevel/SecondLevel/Comment/$count eq 2&$select=ID", 1),
+        arguments("DeepComplexCount",
+            "CollectionDeeps?$filter=FirstLevel/SecondLevel/Address/$count eq 2&$select=ID", 1),
+        arguments("Any", "Organizations?$select=ID&$filter=Comment/any(s:contains(s, 'just'))", 1),
+        arguments("AsPartOfComplexAny",
+            "CollectionDeeps?$filter=FirstLevel/SecondLevel/Address/any(s:s/TaskID eq 'DEV')", 1));
   }
 
-  @Test
-  void testFilterCollectionPropertySimpleCount() throws IOException, ODataException {
+  @ParameterizedTest
+  @MethodSource("getFilterCollectionQuery")
+  void testFilterCollectionProperty(final String text, final String queryString, final int result)
+      throws IOException, ODataException {
 
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Persons?$filter=InhouseAddress/$count eq 2");
-
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, queryString);
     helper.assertStatus(200);
+
     final ArrayNode deep = helper.getValues();
-    assertNotNull(deep);
-    assertEquals(1, deep.size());
-  }
+    assertEquals(result, deep.size());
 
-  @Test
-  void testFilterCollectionPropertyDeepSimpleCount() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "CollectionDeeps?$filter=FirstLevel/SecondLevel/Comment/$count eq 2&$select=ID");
-
-    helper.assertStatus(200);
-    final ArrayNode deep = helper.getValues();
-    assertNotNull(deep);
-    assertEquals(1, deep.size());
-  }
-
-  @Test
-  void testFilterCollectionPropertyDeepComplexCount() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "CollectionDeeps?$filter=FirstLevel/SecondLevel/Address/$count eq 2&$select=ID");
-
-    helper.assertStatus(200);
-    final ArrayNode deep = helper.getValues();
-    assertNotNull(deep);
-    assertEquals(1, deep.size());
-  }
-
-  @Test
-  void testFilterCollectionPropertyAsPartOfComplexAny() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "CollectionDeeps?$filter=FirstLevel/SecondLevel/Address/any(s:s/TaskID eq 'DEV')");
-
-    helper.assertStatus(200);
-    final ArrayNode org = helper.getValues();
-    assertNotNull(org);
-    assertEquals(1, org.size());
   }
 
   @Test
@@ -1135,61 +814,31 @@ class TestJPAQueryWhereClause extends TestBase {
     helper.assertStatus(403);
   }
 
-  @Test
-  void testFilterNavigationPropertyRequiresGroupsProvided() throws IOException, ODataException {
+  static Stream<Arguments> getFilterNavigationPropertyRequiresGroupsQuery() {
+    return Stream.of(
+        arguments("NavigationRequiresGroupsProvided",
+            "BusinessPartnerWithGroupss?$select=ID&$filter=Roles/any(d:d/Details eq 'A')", OK),
+        arguments("CollectionRequiresGroupsReturnsForbidden",
+            "BusinessPartnerWithGroupss?$select=ID&$filter=Comment/any(s:contains(s, 'just'))", FORBIDDEN),
+        arguments("CollectionRequiresGroupsProvided",
+            "BusinessPartnerWithGroupss?$select=ID&$filter=Comment/any(s:contains(s, 'just'))", OK),
+        arguments("CollectionProtectedPropertyRequiresGroupsReturnsForbidden",
+            "BusinessPartnerWithGroupss('99')/InhouseAddress?$filter=RoomNumber eq 1", FORBIDDEN),
+        arguments("CollectionProtectedPropertyRequiresGroupsProvided",
+            "BusinessPartnerWithGroupss('99')/InhouseAddress?$filter=RoomNumber eq 1", OK));
+  }
+
+  @ParameterizedTest
+  @MethodSource("getFilterNavigationPropertyRequiresGroupsQuery")
+  void testFilterNavigationPropertyRequiresGroups(final String text, final String queryString,
+      final HttpStatusCode result)
+      throws IOException, ODataException {
 
     final JPAODataGroupsProvider groups = new JPAODataGroupsProvider();
-    groups.addGroup("Company");
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "BusinessPartnerWithGroupss?$select=ID&$filter=Roles/any(d:d/Details eq 'A')", groups);
-    helper.assertStatus(200);
-  }
-
-  @Test
-  void testFilterCollectionPropertyRequiresGroupsReturnsForbidden() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "BusinessPartnerWithGroupss?$select=ID&$filter=Comment/any(s:contains(s, 'just'))");
-    helper.assertStatus(403);
-  }
-
-  @Test
-  void testFilterCollectionPropertyRequiresGroupsProvided() throws IOException, ODataException {
-
-    final JPAODataGroupsProvider groups = new JPAODataGroupsProvider();
-    groups.addGroup("Company");
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "BusinessPartnerWithGroupss?$select=ID&$filter=Comment/any(s:contains(s, 'just'))", groups);
-    helper.assertStatus(200);
-  }
-
-  @Test
-  void testFilterCollectionProtectedPropertyRequiresGroupsReturnsForbidden() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "BusinessPartnerWithGroupss('99')/InhouseAddress?$filter=RoomNumber eq 1");
-    helper.assertStatus(403);
-  }
-
-  @Test
-  void testFilterCollectionProtectedPropertyRequiresGroupsProvided() throws IOException, ODataException {
-
-    final JPAODataGroupsProvider groups = new JPAODataGroupsProvider();
-    groups.addGroup("Company");
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "BusinessPartnerWithGroupss('99')/InhouseAddress?$filter=RoomNumber eq 1", groups);
-    helper.assertStatus(200);
-  }
-
-  @Test
-  void testFilterOnNull() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisions?$filter=CodePublisher eq 'ISO' and ParentCodeID eq null");
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(4, orgs.size());
+    if (result != FORBIDDEN)
+      groups.addGroup("Company");
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf, queryString, groups);
+    helper.assertStatus(result.getStatusCode());
   }
 
   @Test

@@ -57,6 +57,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateEntityT
  */
 final class IntermediateEntityType<T> extends IntermediateStructuredType<T> implements JPAEntityType,
     IntermediateEntityTypeAccess {
+
   private Optional<JPAPath> etagPath;
   private Optional<Optional<JPAQueryExtension<EdmQueryExtensionProvider>>> extensionQueryProvider;
   private List<JPAAttribute> keyAttributes;
@@ -143,7 +144,8 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
 
   @Override
   public List<JPAAttribute> getKey() throws ODataJPAModelException {
-    if (edmStructuralType == null) {
+    if (!hasBuildStepPerformed(PROPERTY_BUILD)) {
+      // Properties need to be present otherwise they have to be build
       lazyBuildEdmItem();
     }
     if (keyAttributes == null) {
@@ -168,7 +170,7 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
       lazyBuildEdmItem();
     }
     final List<JPAPath> result = new ArrayList<>();
-    for (final Entry<String, IntermediateProperty> property : this.declaredPropertiesList.entrySet()) {
+    for (final Entry<String, IntermediateProperty> property : this.declaredPropertiesMap.entrySet()) {
       final JPAAttribute attribute = property.getValue();
       if (attribute instanceof IntermediateEmbeddedIdProperty) {
         result.add(intermediatePathMap.get(attribute.getExternalName()));
@@ -309,14 +311,15 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
       buildPropertyList();
       buildNaviPropertyList();
       addTransientProperties();
+      addVirtualProperties();
       determineExtensionQueryProvide();
       postProcessor.processEntityType(this);
 
       edmStructuralType = new CsdlEntityType();
       edmStructuralType.setName(getExternalName());
-      edmStructuralType.setProperties(extractEdmModelElements(declaredPropertiesList));
+      edmStructuralType.setProperties(extractEdmModelElements(declaredPropertiesMap));
       edmStructuralType.setNavigationProperties(extractEdmModelElements(
-          declaredNaviPropertiesList));
+          declaredNaviPropertiesMap));
       ((CsdlEntityType) edmStructuralType).setKey(extractEdmKeyElements());
       edmStructuralType.setAbstract(determineAbstract());
       edmStructuralType.setBaseType(determineBaseType());
@@ -400,7 +403,7 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
   private void addKeyAttribute(final List<JPAAttribute> intermediateKey, final Field[] keyFields)
       throws ODataJPAModelException {
     for (int i = 0; i < keyFields.length; i++) {
-      final JPAAttribute attribute = this.declaredPropertiesList.get(keyFields[i].getName());
+      final JPAAttribute attribute = this.declaredPropertiesMap.get(keyFields[i].getName());
       if (attribute != null && attribute.isKey()) {
         if (attribute.isComplex()) {
           intermediateKey.addAll(buildEmbeddedIdKey(attribute));
@@ -484,7 +487,7 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
   }
 
   private void determineHasEtag() throws ODataJPAModelException {
-    for (final Entry<String, IntermediateProperty> property : this.declaredPropertiesList.entrySet()) {
+    for (final Entry<String, IntermediateProperty> property : this.declaredPropertiesMap.entrySet()) {
       if (property.getValue().isEtag()) {
         etagPath = Optional.of(getPath(property.getValue().getExternalName(), false));
       }

@@ -45,7 +45,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.Country;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 
-class TestIntermediateDescriptionProperty extends TestMappingRoot {
+class IntermediateDescriptionPropertyTest extends TestMappingRoot {
   private TestHelper helper;
   private IntermediateDescriptionProperty cut;
   private JPAEdmMetadataPostProcessor processor;

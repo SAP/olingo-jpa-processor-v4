@@ -48,6 +48,7 @@ import com.sap.olingo.jpa.processor.core.errormodel.TeamWithTransientError;
 import com.sap.olingo.jpa.processor.core.testmodel.ABCClassification;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescription;
+import com.sap.olingo.jpa.processor.core.testmodel.AssociationOneToOneSource;
 import com.sap.olingo.jpa.processor.core.testmodel.BestOrganization;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerProtected;
@@ -66,8 +67,8 @@ import com.sap.olingo.jpa.processor.core.testmodel.PersonDeepProtectedHidden;
 import com.sap.olingo.jpa.processor.core.testmodel.PersonImage;
 import com.sap.olingo.jpa.processor.core.testmodel.SalesTeam;
 import com.sap.olingo.jpa.processor.core.testmodel.Singleton;
-import com.sap.olingo.jpa.processor.core.testmodel.TestDataConstants;
 import com.sap.olingo.jpa.processor.core.testmodel.TransientRefComplex;
+import com.sap.olingo.jpa.processor.core.util.TestDataConstants;
 
 class IntermediateEntityTypeTest extends TestMappingRoot {
   private IntermediateSchema schema;
@@ -104,7 +105,7 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
   void checkGetAllProperties() throws ODataJPAModelException {
     final IntermediateStructuredType<BusinessPartner> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), getEntityType(BusinessPartner.class), schema);
-    assertEquals(TestDataConstants.NO_DEC_ATTRIBUTES_BUSINESS_PARTNER, et.getEdmItem()
+    assertEquals(TestDataConstants.NO_DEC_ATTRIBUTES_BUSINESS_PARTNER.value, et.getEdmItem()
         .getProperties()
         .size(), "Wrong number of entities");
   }
@@ -215,7 +216,7 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
 
     final IntermediateStructuredType<BusinessPartner> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), getEntityType(BusinessPartner.class), schema);
-    assertEquals(TestDataConstants.NO_DEC_ATTRIBUTES_BUSINESS_PARTNER - 1, et.getEdmItem()
+    assertEquals(TestDataConstants.NO_DEC_ATTRIBUTES_BUSINESS_PARTNER.value - 1, et.getEdmItem()
         .getProperties().size(), "Wrong number of entities");
   }
 
@@ -259,11 +260,12 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
   void checkGetAllAttributesWithBaseType() throws ODataJPAModelException {
     final IntermediateStructuredType<Organization> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), getEntityType(Organization.class), schema);
-    final int exp = TestDataConstants.NO_ATTRIBUTES_BUSINESS_PARTNER
-        + TestDataConstants.NO_ATTRIBUTES_POSTAL_ADDRESS
-        + TestDataConstants.NO_ATTRIBUTES_COMMUNICATION_DATA
-        + 2 * TestDataConstants.NO_ATTRIBUTES_CHANGE_INFO
-        + TestDataConstants.NO_ATTRIBUTES_ORGANIZATION;
+    final int exp =
+        TestDataConstants.NO_ATTRIBUTES_BUSINESS_PARTNER.value
+            + TestDataConstants.NO_ATTRIBUTES_POSTAL_ADDRESS.value
+            + TestDataConstants.NO_ATTRIBUTES_COMMUNICATION_DATA.value
+            + 2 * TestDataConstants.NO_ATTRIBUTES_CHANGE_INFO.value
+            + TestDataConstants.NO_ATTRIBUTES_ORGANIZATION.value;
     assertEquals(exp, et.getPathList().size(), "Wrong number of entities");
   }
 
@@ -470,7 +472,7 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
     assertEquals(12, act.size());
     assertNotNull(et.getPath("Complex/Address"));
     assertTrue(et.getPath("Complex/Address").getLeaf().isCollection());
-    final IntermediateCollectionProperty actIntermediate = (IntermediateCollectionProperty) et.getPath(
+    final IntermediateCollectionProperty<?> actIntermediate = (IntermediateCollectionProperty<?>) et.getPath(
         "Complex/Address").getLeaf();
     assertTrue(actIntermediate.asAssociation().getSourceType() instanceof JPAEntityType);
     assertEquals(2, actIntermediate.asAssociation().getPath().size());
@@ -480,7 +482,7 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
           && p.getPath().get(0).getExternalName().equals("Complex")
           && p.getPath().get(1).getExternalName().equals("Address")) {
         assertTrue(p.getPath().get(1) instanceof IntermediateCollectionProperty);
-        final IntermediateCollectionProperty actProperty = (IntermediateCollectionProperty) p.getPath().get(1);
+        final IntermediateCollectionProperty<?> actProperty = (IntermediateCollectionProperty<?>) p.getPath().get(1);
         assertNotNull(actProperty.asAssociation());
         assertEquals(et, actProperty.asAssociation().getSourceType());
         break;
@@ -497,7 +499,7 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
     assertEquals(12, act.size());
     assertNotNull(et.getPath("Complex/Comment"));
     assertTrue(et.getPath("Complex/Comment").getLeaf().isCollection());
-    final IntermediateCollectionProperty actIntermediate = (IntermediateCollectionProperty) et.getPath(
+    final IntermediateCollectionProperty<?> actIntermediate = (IntermediateCollectionProperty<?>) et.getPath(
         "Complex/Comment").getLeaf();
     assertTrue(actIntermediate.asAssociation().getSourceType() instanceof JPAEntityType);
     assertEquals("Complex/Comment", actIntermediate.asAssociation().getAlias());
@@ -507,7 +509,7 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
           && p.getPath().get(0).getExternalName().equals("Complex")
           && p.getPath().get(1).getExternalName().equals("Comment")) {
         assertTrue(p.getPath().get(1) instanceof IntermediateCollectionProperty);
-        final IntermediateCollectionProperty actProperty = (IntermediateCollectionProperty) p.getPath().get(1);
+        final IntermediateCollectionProperty<?> actProperty = (IntermediateCollectionProperty<?>) p.getPath().get(1);
         assertNotNull(actProperty.asAssociation());
         assertEquals(et, actProperty.asAssociation().getSourceType());
         break;
@@ -524,7 +526,7 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
     assertEquals(9, act.size());
     assertNotNull(et.getPath("FirstLevel/SecondLevel/Comment"));
     assertTrue(et.getPath("FirstLevel/SecondLevel/Comment").getLeaf().isCollection());
-    final IntermediateCollectionProperty actIntermediate = (IntermediateCollectionProperty) et.getPath(
+    final IntermediateCollectionProperty<?> actIntermediate = (IntermediateCollectionProperty<?>) et.getPath(
         "FirstLevel/SecondLevel/Comment").getLeaf();
     assertTrue(actIntermediate.asAssociation().getSourceType() instanceof JPAEntityType);
     assertEquals(3, actIntermediate.asAssociation().getPath().size());
@@ -538,7 +540,7 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
 
     assertNotNull(et.getPath("FirstLevel/SecondLevel/Address"));
     assertTrue(et.getPath("FirstLevel/SecondLevel/Address").getLeaf().isCollection());
-    final IntermediateCollectionProperty actIntermediate = (IntermediateCollectionProperty) et.getPath(
+    final IntermediateCollectionProperty<?> actIntermediate = (IntermediateCollectionProperty<?>) et.getPath(
         "FirstLevel/SecondLevel/Address").getLeaf();
     assertTrue(actIntermediate.asAssociation().getSourceType() instanceof JPAEntityType);
     assertEquals(3, actIntermediate.asAssociation().getPath().size());
@@ -737,6 +739,14 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
     et.getEdmItem();
     assertTrue(et.getQueryExtention().isPresent());
     assertEquals(CurrentUserQueryExtension.class, et.getQueryExtention().get().getConstructor().getDeclaringClass());
+  }
+
+  @Test
+  void checkAddVirtualProperties() throws ODataJPAModelException {
+    final IntermediateEntityType<AssociationOneToOneSource> et = new IntermediateEntityType<>(
+        new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(AssociationOneToOneSource.class), schema);
+    et.getEdmItem();
+    assertNotNull(et.getPathByDBField("DEFAULTTARGET_ID"));
   }
 
   private void assertComplexDeep(final List<JPAProtectionInfo> act) {

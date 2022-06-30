@@ -47,7 +47,8 @@ import com.sap.olingo.jpa.processor.core.processor.JPARequestEntity;
 import com.sap.olingo.jpa.processor.core.processor.JPARequestLink;
 
 /**
- * Example implementation at a CUD handler. The main purpose is rapid prototyping.<p/>
+ * Example implementation at a CUD handler. The main purpose is rapid prototyping.
+ * <p/>
  * The implementation requires Getter and Setter. This includes getter for collection properties and collection
  * navigation properties that return at least empty collections.<br/>
  * To link entities constructor injection is used. So each dependent entity needs a constructor that takes a entity type
@@ -261,6 +262,15 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
     }
   }
 
+  /**
+   * The method is able to create OneTonOne relations as well as OneToMany relations. ManyToOne relations cloud only be
+   * handled in case a corresponding OneToMany relation exists.
+   * @param relationLinks
+   * @param instance
+   * @param util
+   * @param em
+   * @throws ODataJPAProcessException
+   */
   private void processBindingLinks(final Map<JPAAssociationPath, List<JPARequestLink>> relationLinks,
       final Object instance, final JPAModifyUtil util, final EntityManager em) throws ODataJPAProcessException {
 
@@ -270,8 +280,24 @@ public class JPAExampleCUDRequestHandler extends JPAAbstractCUDRequestHandler {
         final Object targetKey = util.createPrimaryKey((JPAEntityType) pathInfo.getTargetType(), requestLink
             .getRelatedKeys(), pathInfo.getSourceType());
         final Object target = em.find(pathInfo.getTargetType().getTypeClass(), targetKey);
-        util.linkEntities(instance, target, pathInfo);
+        if (target == null)
+          throw new JPAExampleModifyException(ENTITY_NOT_FOUND, HttpStatusCode.BAD_REQUEST);
+
+        try {
+          final JPAAssociationAttribute partner = pathInfo.getPartner();
+          if (pathInfo.isCollection() && partner != null) {
+            util.linkEntities(target, instance, partner.getPath());
+            // The following line would set the link also on the source side. Unfortunately can this lead to a deep
+            // expand e.g. in case of hierarchies, as JPA load association lazy.
+            // util.linkEntities(instance, target, pathInfo); //NOSONAR
+
+          } else
+            util.linkEntities(instance, target, pathInfo);
+        } catch (final ODataJPAModelException e) {
+          throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
+        }
       }
+
     }
   }
 

@@ -300,7 +300,7 @@ public class JPAEdmProvider extends CsdlAbstractEdmProvider {
     return serviceDocument.getEdmSchemas();
   }
 
-  public JPAServiceDocument getServiceDocument() {
+  public @Nonnull JPAServiceDocument getServiceDocument() {
     return serviceDocument;
   }
 

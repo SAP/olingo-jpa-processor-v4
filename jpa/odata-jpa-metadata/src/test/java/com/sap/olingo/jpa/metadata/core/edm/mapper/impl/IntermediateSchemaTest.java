@@ -16,9 +16,9 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEnumeration;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.testmodel.ABCClassification;
 import com.sap.olingo.jpa.processor.core.testmodel.AccessRights;
-import com.sap.olingo.jpa.processor.core.testmodel.TestDataConstants;
+import com.sap.olingo.jpa.processor.core.util.TestDataConstants;
 
-class TestIntermediateSchema extends TestMappingRoot {
+class IntermediateSchemaTest extends TestMappingRoot {
   private Reflections r;
 
   @BeforeEach
@@ -40,7 +40,7 @@ class TestIntermediateSchema extends TestMappingRoot {
   void checkSchemaGetAllEntityTypes() throws ODataJPAModelException {
     final IntermediateSchema schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf
         .getMetamodel(), r);
-    assertEquals(TestDataConstants.NO_ENTITY_TYPES, schema.getEdmItem().getEntityTypes().size(),
+    assertEquals(TestDataConstants.NO_ENTITY_TYPES.value, schema.getEdmItem().getEntityTypes().size(),
         "Wrong number of entities");
   }
 

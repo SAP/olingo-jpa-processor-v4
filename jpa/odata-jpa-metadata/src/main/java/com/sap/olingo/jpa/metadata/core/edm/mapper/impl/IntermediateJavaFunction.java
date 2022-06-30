@@ -73,7 +73,7 @@ class IntermediateJavaFunction extends IntermediateFunction implements JPAJavaFu
           throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.FUNC_PARAM_ANNOTATION_MISSING,
               declaredParameter.getName(), javaFunction.getName(), javaFunction
                   .getDeclaringClass().getName());
-        final JPAParameter parameter = new IntermediateFunctionParameter(definedParameter, nameBuilder
+        final JPAParameter parameter = new IntermediateFunctionParameter(nameBuilder, definedParameter, nameBuilder
             .buildPropertyName(definedParameter.name()), declaredParameter.getName(), types[i]);
         parameterList.add(parameter);
       }

@@ -34,7 +34,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.Me
  * in a Map the internal, JAVA attribute, names. Based on the JAVA naming
  * conventions the corresponding Setter is called, as long as the Setter has the
  * correct type.
- * 
+ *
  * @author Oliver Grande
  *
  */
@@ -52,7 +52,7 @@ public final class JPAModifyUtil {
    * <br>
    * For JPA entities having only one key, so do not use an IdClass, the
    * corresponding value in <code>jpaKeys</code> is returned
-   * 
+   *
    * @param et
    * @param jpaKeys
    * @return
@@ -74,7 +74,7 @@ public final class JPAModifyUtil {
   }
 
   /**
-   * 
+   *
    * @param et
    * @param instance
    * @return
@@ -103,7 +103,7 @@ public final class JPAModifyUtil {
    * existing setter and getter on the level of the sourceInstance. In case of to n associations it is expected that the
    * getter always returns a collection. In case structured properties are passed either a getter returns always an
    * instance or the corresponding type has a parameter less constructor.
-   * 
+   *
    * @param parentInstance
    * @param newInstance
    * @param pathInfo
@@ -125,7 +125,7 @@ public final class JPAModifyUtil {
 
   /**
    * Fills instance without filling its embedded components.
-   * 
+   *
    * @param jpaAttributes Map of attributes and values that shall be changed
    * @param instance JPA POJO instance to take the changes
    * @param st Entity Type
@@ -173,7 +173,7 @@ public final class JPAModifyUtil {
    * Fills instance and its embedded components. In case of embedded
    * components it first tries to get an existing instance. If that is non
    * provided a new one is created and set.
-   * 
+   *
    * @param jpaAttributes Map of attributes and values that shall be changed
    * @param instance JPA POJO instance to take the changes
    * @param st Entity Type

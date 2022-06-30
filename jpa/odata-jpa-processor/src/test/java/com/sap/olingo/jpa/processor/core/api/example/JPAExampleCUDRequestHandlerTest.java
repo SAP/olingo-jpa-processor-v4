@@ -23,6 +23,7 @@ import java.lang.reflect.Member;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -78,6 +79,7 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
   private JPARequestEntity requestEntity;
   private Map<String, Object> data;
   private Map<String, Object> keys;
+  private Map<JPAAssociationPath, List<JPARequestLink>> relationLinks;
 
   @BeforeEach
   void setup() throws ODataException {
@@ -87,11 +89,14 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
     metamodel = mock(Metamodel.class);
     data = new HashMap<>();
     keys = new HashMap<>();
+    relationLinks = new HashMap<>();
+
     doReturn(new JPAModifyUtil()).when(requestEntity).getModifyUtil();
     doReturn(data).when(requestEntity).getData();
     doReturn(keys).when(requestEntity).getKeys();
     doReturn(metamodel).when(em).getMetamodel();
     doReturn(emptySet()).when(metamodel).getEntities();
+    doReturn(relationLinks).when(requestEntity).getRelationLinks();
     cut = new JPAExampleCUDRequestHandler();
   }
 
@@ -194,7 +199,7 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
   }
 
   @Test
-  void checkCreateLinkedEntity() throws ODataJPAProcessException, ODataJPAModelException {
+  void checkCreateDeepEntity() throws ODataJPAProcessException, ODataJPAModelException {
     // http://localhost:8080/tutorial/v1/AdministrativeDivisions(DivisionCode='DE5',CodeID='NUTS1',CodePublisher='Eurostat')/Children
     // key = {divisionCode=DE5, codeID=NUTS1, codePublisher=Eurostat}
     // jpaDeepEntities = JPAAssPath ; JPARequestEntity
@@ -226,9 +231,124 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
     doReturn(parent).when(em).getReference(eq(et.getTypeClass()), any());
 
     final AdministrativeDivision act = (AdministrativeDivision) cut.createEntity(requestEntity, em);
+    cut.validateChanges(em);
     assertNotNull(act.getChildren());
     assertEquals(1, act.getChildren().size());
 
+  }
+
+  @Test
+  void checkCreateLinkedThrowsExceptionTargetNotFound() throws ODataJPAProcessException, ODataJPAModelException {
+    // http://localhost:8080/tutorial/v1/AdministrativeDivisions(DivisionCode='DE5',CodeID='NUTS1',CodePublisher='Eurostat')/Children
+    // key = {divisionCode=DE5, codeID=NUTS1, codePublisher=Eurostat}
+    // jpaDeepEntities = JPAAssPath ; JPARequestEntity
+
+    final JPAEntityType et = helper.getJPAEntityType("AdministrativeDivisions");
+    final JPAAssociationPath path = et.getAssociationPath("Parent");
+    final List<JPARequestLink> links = new ArrayList<>();
+    final JPARequestLink link = mock(JPARequestLink.class);
+    final AdministrativeDivisionKey parentKey = new AdministrativeDivisionKey("Eurostat", "NUTS1", "DE5");
+
+    doReturn(et).when(requestEntity).getEntityType();
+    data.put("divisionCode", "DE52");
+    data.put("codeID", "NUTS2");
+    data.put("codePublisher", "Eurostat");
+    doReturn(Collections.emptyMap()).when(requestEntity).getRelatedEntities();
+
+    final Map<String, Object> relatedKey = new HashMap<>();
+    relatedKey.put("divisionCode", "DE5");
+    relatedKey.put("codeID", "NUTS1");
+    relatedKey.put("codePublisher", "Eurostat");
+    doReturn(null).when(em).find(et.getTypeClass(), parentKey);
+
+    relationLinks.put(path, links);
+    doReturn(et).when(link).getEntityType();
+    doReturn(relatedKey).when(link).getRelatedKeys();
+    links.add(link);
+
+    cut.createEntity(requestEntity, em);
+    final ODataJPAProcessException act = assertThrows(ODataJPAProcessException.class, () -> cut.validateChanges(em));
+    assertEquals(HttpStatusCode.BAD_REQUEST.getStatusCode(), act.getStatusCode());
+  }
+
+  @Test
+  void checkCreateLinkedEntityOneToMany() throws ODataJPAProcessException, ODataJPAModelException {
+    // http://localhost:8080/tutorial/v1/AdministrativeDivisions(DivisionCode='DE5',CodeID='NUTS1',CodePublisher='Eurostat')/Children
+    // key = {divisionCode=DE5, codeID=NUTS1, codePublisher=Eurostat}
+    // jpaDeepEntities = JPAAssPath ; JPARequestEntity
+
+    final JPAEntityType et = helper.getJPAEntityType("AdministrativeDivisions");
+    final JPAAssociationPath path = et.getAssociationPath("Parent");
+    final List<JPARequestLink> links = new ArrayList<>();
+    final JPARequestLink link = mock(JPARequestLink.class);
+    final AdministrativeDivisionKey parentKey = new AdministrativeDivisionKey("Eurostat", "NUTS1", "DE5");
+    final AdministrativeDivision parent = new AdministrativeDivision(parentKey);
+
+    doReturn(et).when(requestEntity).getEntityType();
+    data.put("divisionCode", "DE52");
+    data.put("codeID", "NUTS2");
+    data.put("codePublisher", "Eurostat");
+    doReturn(Collections.emptyMap()).when(requestEntity).getRelatedEntities();
+
+    final Map<String, Object> relatedKey = new HashMap<>();
+    relatedKey.put("divisionCode", "DE5");
+    relatedKey.put("codeID", "NUTS1");
+    relatedKey.put("codePublisher", "Eurostat");
+    doReturn(parent).when(em).find(et.getTypeClass(), parentKey);
+
+    relationLinks.put(path, links);
+    doReturn(et).when(link).getEntityType();
+    doReturn(relatedKey).when(link).getRelatedKeys();
+    links.add(link);
+
+    final AdministrativeDivision act = (AdministrativeDivision) cut.createEntity(requestEntity, em);
+    cut.validateChanges(em);
+    assertNotNull(act.getParent());
+    assertEquals(parentKey.getCodeID(), act.getParentCodeID());
+    assertEquals(parentKey.getDivisionCode(), act.getParentDivisionCode());
+    assertEquals(parentKey.getCodePublisher(), act.getCodePublisher());
+  }
+
+  @Test
+  void checkCreateLinkedEntityManyToOne() throws ODataJPAProcessException, ODataJPAModelException {
+    // http://localhost:8080/tutorial/v1/AdministrativeDivisions(DivisionCode='DE5',CodeID='NUTS1',CodePublisher='Eurostat')/Children
+    // key = {divisionCode=DE5, codeID=NUTS1, codePublisher=Eurostat}
+    // jpaDeepEntities = JPAAssPath ; JPARequestEntity
+
+    final JPAEntityType et = helper.getJPAEntityType("AdministrativeDivisions");
+    final JPAAssociationPath path = et.getAssociationPath("Children");
+    final List<JPARequestLink> links = new ArrayList<>();
+    final JPARequestLink link = mock(JPARequestLink.class);
+    final AdministrativeDivisionKey key = new AdministrativeDivisionKey("Eurostat", "NUTS1", "DE5");
+    final AdministrativeDivision target = new AdministrativeDivision(key);
+    final AdministrativeDivisionKey childKey = new AdministrativeDivisionKey("Eurostat", "NUTS2", "DE52");
+    final AdministrativeDivision child = new AdministrativeDivision(childKey);
+
+    doReturn(et).when(requestEntity).getEntityType();
+    data.put("divisionCode", "DE5");
+    data.put("codeID", "NUTS1");
+    data.put("codePublisher", "Eurostat");
+    doReturn(Collections.emptyMap()).when(requestEntity).getRelatedEntities();
+    doReturn(null, target).when(em).find(et.getTypeClass(), key);
+
+    final Map<String, Object> relatedKey = new HashMap<>();
+    relatedKey.put("divisionCode", "DE52");
+    relatedKey.put("codeID", "NUTS2");
+    relatedKey.put("codePublisher", "Eurostat");
+    doReturn(child).when(em).find(et.getTypeClass(), childKey);
+
+    relationLinks.put(path, links);
+    doReturn(et).when(link).getEntityType();
+    doReturn(relatedKey).when(link).getRelatedKeys();
+    links.add(link);
+
+    final AdministrativeDivision act = (AdministrativeDivision) cut.createEntity(requestEntity, em);
+    cut.validateChanges(em);
+    assertEquals(act.getCodeID(), child.getParentCodeID());
+    assertEquals(act.getDivisionCode(), child.getParentDivisionCode());
+    assertEquals(act.getCodePublisher(), child.getCodePublisher());
+    assertNotNull(act.getChildren());
+    // assertEquals(1, act.getChildren().size()); //NOSONAR
   }
 
   @Test
@@ -616,8 +736,8 @@ class JPAExampleCUDRequestHandlerTest extends TestBase {
     childKeys.put("codePublisher", "Eurostat");
     doReturn(childKeys).when(link).getValues();
 
-    doReturn(parent).when(em).find(eq(et.getTypeClass()), eq(parent.getKey()));
-    doReturn(child).when(em).find(eq(et.getTypeClass()), eq(child.getKey()));
+    doReturn(parent).when(em).find(et.getTypeClass(), parent.getKey());
+    doReturn(child).when(em).find(et.getTypeClass(), child.getKey());
 
     final JPAUpdateResult act = cut.updateEntity(requestEntity, em, HttpMethod.DELETE);
 

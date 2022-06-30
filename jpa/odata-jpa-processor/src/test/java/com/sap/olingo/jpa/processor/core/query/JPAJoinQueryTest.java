@@ -32,6 +32,7 @@ import com.sap.olingo.jpa.processor.core.util.TestQueryBase;
 
 class JPAJoinQueryTest extends TestQueryBase {
   private CriteriaBuilder cb;
+  @SuppressWarnings("rawtypes")
   private CriteriaQuery cq;
   private EntityManager em;
   private JPAODataRequestContextAccess localContext;

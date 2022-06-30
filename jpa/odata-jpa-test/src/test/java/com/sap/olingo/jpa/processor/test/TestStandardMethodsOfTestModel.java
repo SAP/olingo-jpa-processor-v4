@@ -52,6 +52,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.Comment;
 import com.sap.olingo.jpa.processor.core.testmodel.CommunicationData;
 import com.sap.olingo.jpa.processor.core.testmodel.CountryKey;
 import com.sap.olingo.jpa.processor.core.testmodel.CountryRestriction;
+import com.sap.olingo.jpa.processor.core.testmodel.DummyToBeIgnored;
 import com.sap.olingo.jpa.processor.core.testmodel.InhouseAddress;
 import com.sap.olingo.jpa.processor.core.testmodel.InhouseAddressTable;
 import com.sap.olingo.jpa.processor.core.testmodel.InhouseAddressWithGroup;
@@ -135,7 +136,8 @@ class TestStandardMethodsOfTestModel {
         arguments(PersonDeepProtectedHidden.class),
         arguments(PostalAddressData.class),
         arguments(PostalAddressDataWithGroup.class),
-        arguments(User.class));
+        arguments(User.class),
+        arguments(DummyToBeIgnored.class));
   }
 
   static Stream<Arguments> testErrorEntities() {

@@ -8,7 +8,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 
 /**
  *
- * @author D023143
+ * @author Oliver Grande
  * @since 1.0.3
  */
 public interface IntermediateSingletonAccess extends JPAElement {

@@ -314,7 +314,7 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
     if (attributePath != null) {
       final Optional<JPAAttribute> transientProperty = attributePath.getPath()
           .stream()
-          .map(e -> (JPAAttribute) e)
+          .map(JPAAttribute.class::cast)
           .filter(JPAAttribute::isTransient)
           .findFirst();
       if (transientProperty.isPresent())

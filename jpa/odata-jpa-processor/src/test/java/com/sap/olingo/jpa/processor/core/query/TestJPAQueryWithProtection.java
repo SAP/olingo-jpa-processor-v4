@@ -32,6 +32,7 @@ import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.eclipse.persistence.internal.jpa.querydef.CompoundExpressionImpl;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -56,6 +57,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAIllegalAccessExceptio
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.processor.JPAODataInternalRequestContext;
 import com.sap.olingo.jpa.processor.core.testmodel.DeepProtectedExample;
+import com.sap.olingo.jpa.processor.core.util.Assertions;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.JPAEntityTypeDouble;
 import com.sap.olingo.jpa.processor.core.util.TestQueryBase;
@@ -178,6 +180,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     assertEquals(2, actExpand.size());
   }
 
+  @Tag(Assertions.CB_ONLY_TEST)
   @Test
   void testRestrictExpandResultWithTop() throws IOException, ODataException {
 
@@ -509,7 +512,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
   }
 
   @Test
-  void testAllowAllOnMultipleClaims() throws ODataException, JPANoSelectionException {
+  void testAllowAllOnMultipleClaims() throws ODataException, JPANoSelectionException, ODataJPAQueryException {
     prepareTestDeepProtected();
     when(etSpy.getProtections()).thenCallRealMethod();
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
@@ -645,7 +648,8 @@ class TestJPAQueryWithProtection extends TestQueryBase {
     doReturn(etSpy).when(sdSpy).getEntity("ProtectionExamples");
     doReturn(etSpy).when(sdSpy).getEntity(odataType);
     doReturn(null).when(etSpy).getAssociation("");
-    final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext(externalContext, context);
+    final JPAODataInternalRequestContext requestContext = new JPAODataInternalRequestContext(externalContext,
+        contextSpy);
     try {
       requestContext.setUriInfo(uriInfo);
     } catch (final ODataJPAIllegalAccessException e) {

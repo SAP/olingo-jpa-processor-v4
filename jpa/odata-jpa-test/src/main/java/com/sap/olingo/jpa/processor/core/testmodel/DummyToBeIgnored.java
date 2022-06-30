@@ -1,6 +1,5 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 
 import javax.persistence.Convert;
@@ -31,18 +30,17 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmParameter;
 })
 @Table(schema = "\"OLINGO\"", name = "\"DummyToBeIgnored\"")
 @EdmIgnore
-public class DummyToBeIgnored implements Serializable {
+public class DummyToBeIgnored {
 
   @Id
-  private String ID;
-  private static final long serialVersionUID = 1L;
+  private String iD;
 
   @Convert(converter = ByteConverter.class)
   private byte uuid;
 
   @EdmIgnore
   @OneToOne(optional = false, fetch = FetchType.LAZY)
-  @JoinColumn(name = "\"ID\"", insertable = false, updatable = false)
+  @JoinColumn(name = "iD", insertable = false, updatable = false)
   private BusinessPartner businessPartner;
 
   public DummyToBeIgnored() {
@@ -50,30 +48,30 @@ public class DummyToBeIgnored implements Serializable {
   }
 
   public String getID() {
-    return this.ID;
+    return this.iD;
   }
 
-  public void setID(String ID) {
-    this.ID = ID;
+  public void setID(final String ID) {
+    this.iD = ID;
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((ID == null) ? 0 : ID.hashCode());
+    result = prime * result + ((iD == null) ? 0 : iD.hashCode());
     return result;
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) return true;
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
-    DummyToBeIgnored other = (DummyToBeIgnored) obj;
-    if (ID == null) {
-      if (other.ID != null) return false;
-    } else if (!ID.equals(other.ID)) return false;
+    final DummyToBeIgnored other = (DummyToBeIgnored) obj;
+    if (iD == null) {
+      if (other.iD != null) return false;
+    } else if (!iD.equals(other.iD)) return false;
     return true;
   }
 

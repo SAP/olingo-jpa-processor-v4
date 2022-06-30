@@ -18,7 +18,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.ODataAction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaOneAction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaTwoActions;
 
-class TestIntermediateActionFactory extends TestMappingRoot {
+class IntermedRiateActionFactoryTest extends TestMappingRoot {
   private TestHelper helper;
 
   private Reflections reflections;

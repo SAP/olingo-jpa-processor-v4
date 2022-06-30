@@ -7,7 +7,6 @@ import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
-import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 
@@ -34,7 +33,7 @@ public final class JPACountRequestProcessor extends JPAAbstractGetRequestProcess
     final UriResource uriResource = uriInfo.getUriResourceParts().get(0);
 
     if (uriResource instanceof UriResourceEntitySet) {
-      final EntityCollection result = countEntities(request, uriInfo);
+      final EntityCollection result = countEntities();
       createSuccessResponse(response, ContentType.TEXT_PLAIN, serializer.serialize(request, result));
     } else {
       throw new ODataJPAProcessorException(ODataJPAProcessorException.MessageKeys.NOT_SUPPORTED_RESOURCE_TYPE,
@@ -42,7 +41,7 @@ public final class JPACountRequestProcessor extends JPAAbstractGetRequestProcess
     }
   }
 
-  protected final EntityCollection countEntities(final ODataRequest request, final UriInfoResource uriInfo)
+  protected final EntityCollection countEntities()
       throws ODataException {
 
     JPAJoinQuery query = null;

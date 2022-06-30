@@ -70,7 +70,8 @@ public class Person extends BusinessPartner {// #NOSONAR use equal method from B
   private AccessRights[] accessRights;
 
   @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
-  @JoinColumn(name = "\"ID\"", referencedColumnName = "\"ID\"", insertable = false, updatable = false, nullable = true)
+  @JoinColumn(name = "\"Image_ID\"", referencedColumnName = "\"ID\"", insertable = false, updatable = false,
+      nullable = true)
   private PersonImage image;
 
   @EdmAnnotation(term = "Core.Description", qualifier = "Address",
@@ -78,7 +79,7 @@ public class Person extends BusinessPartner {// #NOSONAR use equal method from B
           value = "Address for inhouse Mail"))
   @ElementCollection(fetch = FetchType.LAZY)
   @CollectionTable(schema = "\"OLINGO\"", name = "\"InhouseAddress\"",
-      joinColumns = @JoinColumn(name = "\"ID\""))
+      joinColumns = @JoinColumn(name = "\"ParentID\""))
   private List<InhouseAddress> inhouseAddress = new ArrayList<>();
 
   @ManyToMany

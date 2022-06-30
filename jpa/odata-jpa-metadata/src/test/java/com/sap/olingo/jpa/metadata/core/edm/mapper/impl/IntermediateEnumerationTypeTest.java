@@ -17,7 +17,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.FileAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.WrongMember;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.WrongType;
 
-class TestIntermediateEnumerationType extends TestMappingRoot {
+class IntermediateEnumerationTypeTest extends TestMappingRoot {
 
   private IntermediateEnumerationType cut;
 

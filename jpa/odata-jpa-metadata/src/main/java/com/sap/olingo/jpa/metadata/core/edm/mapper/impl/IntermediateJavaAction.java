@@ -53,9 +53,10 @@ class IntermediateJavaAction extends IntermediateOperation implements JPAAction 
     this.javaConstructor = IntermediateOperationHelper.determineConstructor(javaAction);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public Constructor<?> getConstructor() {
-    return javaConstructor;
+  public <T> Constructor<T> getConstructor() {
+    return (Constructor<T>) javaConstructor;
   }
 
   @Override

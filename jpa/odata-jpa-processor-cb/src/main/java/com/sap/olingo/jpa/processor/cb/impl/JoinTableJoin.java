@@ -39,6 +39,16 @@ class JoinTableJoin<Z, X> extends AbstractJoinImp<Z, X> {
     return JoinType.INNER;
   }
 
+  @Override
+  public int hashCode() {
+    return super.hashCode();
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    return super.equals(obj);
+  }
+
   private static class InnerJoin<Z, X> extends AbstractJoinImp<Z, X> {
     private final JoinType joinType;
     private final JPAAssociationPath association;
@@ -79,6 +89,18 @@ class JoinTableJoin<Z, X> extends AbstractJoinImp<Z, X> {
       ((SqlConvertible) on).asSQL(statement);
       return statement;
     }
+
+    @Override
+    public int hashCode() {
+      return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+      // As always a new alias is created super call is sufficant
+      return super.equals(obj);
+    }
+
   }
 
   @Override

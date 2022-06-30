@@ -14,7 +14,7 @@ import javax.persistence.TemporalType;
 
 /**
  * Test for time conversion
- * @author D023143
+ * @author Oliver Grande
  * @since 1.0.1
  * Created 2020-10-31
  */

@@ -50,9 +50,9 @@ final class IntermediateComplexType<T> extends IntermediateStructuredType<T> {
       edmStructuralType = new CsdlComplexType();
 
       edmStructuralType.setName(this.getExternalName());
-      edmStructuralType.setProperties((List<CsdlProperty>) extractEdmModelElements(declaredPropertiesList));
+      edmStructuralType.setProperties((List<CsdlProperty>) extractEdmModelElements(declaredPropertiesMap));
       edmStructuralType.setNavigationProperties((List<CsdlNavigationProperty>) extractEdmModelElements(
-          declaredNaviPropertiesList));
+          declaredNaviPropertiesMap));
       edmStructuralType.setBaseType(determineBaseType());
       // TODO Abstract
       // edmComplexType.setAbstract(isAbstract)

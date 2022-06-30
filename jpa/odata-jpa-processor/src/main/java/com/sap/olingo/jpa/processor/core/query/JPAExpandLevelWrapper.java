@@ -34,39 +34,30 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 // TODO In case of second level $expand expandItem.getResourcePath() returns an empty UriInfoResource => Bug or
 // Feature?
-public final class JPAExpandLevelWrapper implements JPAExpandItem {
+final class JPAExpandLevelWrapper implements JPAExpandItem {
   private final ExpandOption option;
   private final ExpandItem item;
   private final JPAEntityType jpaEntityType;
   private final LevelsExpandOption levelOptions;
 
-  public JPAExpandLevelWrapper(final JPAServiceDocument sd, final ExpandOption option)
+  JPAExpandLevelWrapper(final JPAServiceDocument sd, final ExpandOption option)
       throws ODataApplicationException {
 
     super();
     this.option = option;
     this.item = option.getExpandItems().get(0);
-    this.levelOptions = determineLevel(item);
+    this.levelOptions = determineLevel();
     try {
       this.jpaEntityType = sd.getEntity(Util.determineTargetEntityType(getUriResourceParts()));
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_ENTITY_UNKNOWN,
           HttpStatusCode.BAD_REQUEST, e, Util.determineTargetEntityType(getUriResourceParts()).getName());
     }
   }
 
-  public JPAExpandLevelWrapper(final ExpandOption option, final JPAEntityType jpaEntityType) {
-
-    super();
-    this.option = option;
-    this.item = option.getExpandItems().get(0);
-    this.levelOptions = determineLevel(item);
-    this.jpaEntityType = jpaEntityType;
-  }
-
   @Override
   public List<CustomQueryOption> getCustomQueryOptions() {
-    return null;
+    return Collections.emptyList();
   }
 
   @Override
@@ -147,15 +138,20 @@ public final class JPAExpandLevelWrapper implements JPAExpandItem {
     return null;
   }
 
-  private LevelsExpandOption determineLevel(ExpandItem item2) {
+  private LevelsExpandOption determineLevel() {
     return item.getLevelsOption();
+  }
+
+  @Override
+  public DeltaTokenOption getDeltaTokenOption() {
+    return null;
   }
 
   private class ExpandOptionWrapper implements ExpandOption {
     private final List<ExpandItem> items;
     private final ExpandOption parentOptions;
 
-    private ExpandOptionWrapper(ExpandOption expandOption) {
+    private ExpandOptionWrapper(final ExpandOption expandOption) {
       this.items = new ArrayList<>();
       this.items.add(new ExpandItemWrapper(expandOption.getExpandItems().get(0)));
       this.parentOptions = expandOption;
@@ -189,7 +185,7 @@ public final class JPAExpandLevelWrapper implements JPAExpandItem {
     private ExpandOption expandOption;
     private final LevelsExpandOption levelOption;
 
-    private ExpandItemWrapper(ExpandItem parentItem) {
+    private ExpandItemWrapper(final ExpandItem parentItem) {
       this.parentItem = parentItem;
       this.levelOption = new LevelsExpandOptionWrapper(parentItem.getLevelsOption().isMax(),
           parentItem.getLevelsOption().getValue());
@@ -277,7 +273,7 @@ public final class JPAExpandLevelWrapper implements JPAExpandItem {
     private final boolean isMax;
     private final int level;
 
-    private LevelsExpandOptionWrapper(boolean isMax, int parentLevel) {
+    private LevelsExpandOptionWrapper(final boolean isMax, final int parentLevel) {
       super();
       this.isMax = isMax;
       if (parentLevel != 0)
@@ -296,10 +292,5 @@ public final class JPAExpandLevelWrapper implements JPAExpandItem {
       return level;
     }
 
-  }
-
-  @Override
-  public DeltaTokenOption getDeltaTokenOption() {
-    return null;
   }
 }

@@ -8,13 +8,13 @@ final class IntermediateJoinColumn implements JPAJoinColumn {
   private String name;
   private String referencedColumnName;
 
-  public IntermediateJoinColumn(final JoinColumn jpaJoinColumn) {
+  IntermediateJoinColumn(final JoinColumn jpaJoinColumn) {
     super();
     this.name = jpaJoinColumn.name();
     this.referencedColumnName = jpaJoinColumn.referencedColumnName();
   }
 
-  public IntermediateJoinColumn(final String name, final String referencedColumnName) {
+  IntermediateJoinColumn(final String name, final String referencedColumnName) {
     super();
     this.name = name;
     this.referencedColumnName = referencedColumnName;

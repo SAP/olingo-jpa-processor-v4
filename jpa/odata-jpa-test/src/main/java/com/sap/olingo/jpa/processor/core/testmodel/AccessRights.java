@@ -4,7 +4,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEnumeration;
 
 @EdmEnumeration(isFlags = true, converter = AccessRightsConverter.class)
 public enum AccessRights {
-  Read((short) 1), Write((short) 2), Create((short) 4), Delete((short) 8);
+  READ((short) 1), WRITE((short) 2), CREATE((short) 4), DELETE((short) 8);
 
   private short value;
 

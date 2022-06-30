@@ -108,20 +108,6 @@ public abstract class JPAAbstractQuery {
   }
 
   JPAAbstractQuery(final OData odata, final JPAServiceDocument sd, final JPAEntityType jpaEntityType,
-      final EntityManager em, final JPAServiceDebugger debugger, final Optional<JPAODataClaimProvider> claimsProvider) {
-
-    super();
-    this.em = em;
-    this.cb = em.getCriteriaBuilder();
-    this.sd = sd;
-    this.jpaEntity = jpaEntityType;
-    this.debugger = debugger;
-    this.odata = odata;
-    this.claimsProvider = claimsProvider;
-    this.groups = Collections.emptyList();
-  }
-
-  JPAAbstractQuery(final OData odata, final JPAServiceDocument sd, final JPAEntityType jpaEntityType,
       final EntityManager em, final Optional<JPAODataClaimProvider> claimsProvider) {
 
     super();
@@ -205,7 +191,7 @@ public abstract class JPAAbstractQuery {
     }
   }
 
-  protected List<javax.persistence.criteria.Expression<?>> createGroupBy(final Map<String, From<?, ?>> joinTables,
+  protected List<javax.persistence.criteria.Expression<?>> createGroupBy(final Map<String, From<?, ?>> joinTables, // NOSONAR
       final From<?, ?> from, final Collection<JPAPath> selectionPathList) {
 
     final int handle = debugger.startRuntimeMeasurement(this, "createGroupBy");
@@ -246,7 +232,8 @@ public abstract class JPAAbstractQuery {
    * <a
    * href=
    * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398297"
-   * >OData Version 4.0 Part 1 - 11.2.4.1 System Query Option $select</a> <p>
+   * >OData Version 4.0 Part 1 - 11.2.4.1 System Query Option $select</a>
+   * <p>
    * See also:
    * <a
    * href=

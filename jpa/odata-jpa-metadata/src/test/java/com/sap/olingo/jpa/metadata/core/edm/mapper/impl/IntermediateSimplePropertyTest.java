@@ -11,7 +11,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -36,18 +35,20 @@ import javax.persistence.metamodel.ManagedType;
 import javax.persistence.metamodel.SingularAttribute;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
+import org.apache.olingo.commons.api.edm.geo.Geospatial.Dimension;
+import org.apache.olingo.commons.api.edm.geo.SRID;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmGeospatial;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtectedBy;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtections;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -60,6 +61,7 @@ import com.sap.olingo.jpa.processor.core.errormodel.TeamWithTransientCalculatorC
 import com.sap.olingo.jpa.processor.core.errormodel.TeamWithTransientCalculatorError;
 import com.sap.olingo.jpa.processor.core.errormodel.TeamWithTransientKey;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
+import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescription;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerProtected;
 import com.sap.olingo.jpa.processor.core.testmodel.Comment;
@@ -811,10 +813,50 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
     assertEquals("AdministrativeInformation/Created/At", actPath.get(0));
   }
 
-  @Disabled("Test for spatial data missing")
   @Test
-  void checkGetSRID() {
-    fail();
+  void checkGetSRIDDefaultValueGeography() throws ODataJPAModelException {
+    final Column jpaColumn = createDummyColumn();
+    final Attribute<?, ?> jpaAttribute = createDummyAttribute(jpaColumn);
+    final EdmGeospatial geo = mock(EdmGeospatial.class);
+    addTypeBigDecimal(jpaColumn, jpaAttribute);
+    when(((AnnotatedElement) jpaAttribute.getJavaMember()).getAnnotation(EdmGeospatial.class)).thenReturn(geo);
+    when(geo.srid()).thenReturn("");
+    when(geo.dimension()).thenReturn(Dimension.GEOGRAPHY);
+
+    final IntermediateSimpleProperty cut = new IntermediateSimpleProperty(nameBuilder, jpaAttribute, helper.schema);
+    final SRID act = cut.getSRID();
+    assertEquals("4326", act.toString());
+  }
+
+  @Test
+  void checkGetSRIDDefaultValueGeometry() throws ODataJPAModelException {
+    final Column jpaColumn = createDummyColumn();
+    final Attribute<?, ?> jpaAttribute = createDummyAttribute(jpaColumn);
+    final EdmGeospatial geo = mock(EdmGeospatial.class);
+    addTypeBigDecimal(jpaColumn, jpaAttribute);
+    when(((AnnotatedElement) jpaAttribute.getJavaMember()).getAnnotation(EdmGeospatial.class)).thenReturn(geo);
+    when(geo.srid()).thenReturn("");
+    when(geo.dimension()).thenReturn(Dimension.GEOMETRY);
+
+    final IntermediateSimpleProperty cut = new IntermediateSimpleProperty(nameBuilder, jpaAttribute, helper.schema);
+    final SRID act = cut.getSRID();
+    assertEquals("0", act.toString());
+  }
+
+  @Test
+  void checkGetSRIDExplictValue() throws ODataJPAModelException {
+    final Column jpaColumn = createDummyColumn();
+    final Attribute<?, ?> jpaAttribute = createDummyAttribute(jpaColumn);
+    final EdmGeospatial geo = mock(EdmGeospatial.class);
+    addTypeBigDecimal(jpaColumn, jpaAttribute);
+    when(((AnnotatedElement) jpaAttribute.getJavaMember()).getAnnotation(EdmGeospatial.class)).thenReturn(geo);
+    when(geo.srid()).thenReturn("31466");
+    when(geo.dimension()).thenReturn(Dimension.GEOGRAPHY);
+
+    final IntermediateSimpleProperty cut = new IntermediateSimpleProperty(nameBuilder, jpaAttribute, helper.schema);
+    final SRID act = cut.getSRID();
+    assertEquals(Dimension.GEOGRAPHY, act.getDimension());
+    assertEquals("31466", act.toString());
   }
 
   @Test
@@ -859,19 +901,35 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
   void checkGetPropertyPrecisionNullOnDecimalPrecision0() throws ODataJPAModelException {
     final Column jpaColumn = createDummyColumn();
     final Attribute<?, ?> jpaAttribute = createDummyAttribute(jpaColumn);
-
-    when(jpaColumn.precision()).thenReturn(-1);
-    when(jpaAttribute.getJavaType()).thenAnswer(new Answer<Class<?>>() {
-      @Override
-      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
-        return BigDecimal.class;
-      }
-    });
+    addTypeBigDecimal(jpaColumn, jpaAttribute);
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(nameBuilder,
         jpaAttribute, helper.schema);
     final CsdlProperty act = property.getEdmItem();
     assertNull(act.getPrecision());
+  }
 
+  @Test
+  void checkGetEdmType() throws ODataJPAModelException {
+    final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartnerProtected.class),
+        "eTag");
+    final IntermediateProperty property = new IntermediateSimpleProperty(nameBuilder, jpaAttribute, helper.schema);
+    assertEquals(EdmPrimitiveTypeKind.Int64, property.getEdmType());
+  }
+
+  @Test
+  void checkIsSearchableTrue() throws ODataJPAModelException {
+    final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(
+        AdministrativeDivisionDescription.class), "name");
+    final IntermediateProperty property = new IntermediateSimpleProperty(nameBuilder, jpaAttribute, helper.schema);
+    assertTrue(property.isSearchable());
+  }
+
+  @Test
+  void checkIsSearchableFalse() throws ODataJPAModelException {
+    final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(
+        AdministrativeDivision.class), "codePublisher");
+    final IntermediateProperty property = new IntermediateSimpleProperty(nameBuilder, jpaAttribute, helper.schema);
+    assertFalse(property.isSearchable());
   }
 
   private Attribute<?, ?> createDummyAttribute(final Column jpaColumn) {
@@ -929,4 +987,15 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
     @Override
     public void processEntityType(final IntermediateEntityTypeAccess entity) {}
   }
+
+  private void addTypeBigDecimal(final Column jpaColumn, final Attribute<?, ?> jpaAttribute) {
+    when(jpaColumn.precision()).thenReturn(-1);
+    when(jpaAttribute.getJavaType()).thenAnswer(new Answer<Class<?>>() {
+      @Override
+      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
+        return BigDecimal.class;
+      }
+    });
+  }
+
 }

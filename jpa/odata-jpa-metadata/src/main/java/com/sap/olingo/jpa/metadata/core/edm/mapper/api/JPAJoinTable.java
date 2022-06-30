@@ -9,10 +9,6 @@ public interface JPAJoinTable {
 
   public String getTableName();
 
-  public String getAlias(String dbFieldName);
-
-  public String getInverseAlias(String dbFieldName);
-
   public JPAEntityType getEntityType();
 
   public List<JPAOnConditionItem> getJoinColumns() throws ODataJPAModelException;

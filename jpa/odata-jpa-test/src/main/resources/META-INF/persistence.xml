@@ -77,6 +77,10 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.TransientRefComplex</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DateTimeTest</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.CurrentUser</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.AssociationOneToOneSource</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.AssociationOneToOneTarget</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.AssociationOneToManySource</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.AssociationOneToManyTarget</class>	
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
 		<properties>
 			<property name="javax.persistence.validation.mode" value="NONE" />

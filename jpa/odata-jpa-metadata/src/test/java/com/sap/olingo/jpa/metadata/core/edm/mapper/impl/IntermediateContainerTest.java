@@ -34,9 +34,9 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateNavigat
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediatePropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateReferenceList;
 import com.sap.olingo.jpa.processor.core.testmodel.BestOrganization;
-import com.sap.olingo.jpa.processor.core.testmodel.TestDataConstants;
+import com.sap.olingo.jpa.processor.core.util.TestDataConstants;
 
-class TestIntermediateContainer extends TestMappingRoot {
+class IntermediateContainerTest extends TestMappingRoot {
   private static final String PACKAGE1 = "com.sap.olingo.jpa.metadata.core.edm.mapper.impl";
   private static final String PACKAGE2 = "com.sap.olingo.jpa.processor.core.testmodel";
   private final HashMap<String, IntermediateSchema> schemas = new HashMap<>();
@@ -76,7 +76,7 @@ class TestIntermediateContainer extends TestMappingRoot {
 
     final IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), schemas);
-    assertEquals(TestDataConstants.NO_ENTITY_SETS, container.getEdmItem().getEntitySets().size());
+    assertEquals(TestDataConstants.NO_ENTITY_SETS.value, container.getEdmItem().getEntitySets().size());
   }
 
   @Test
@@ -84,7 +84,7 @@ class TestIntermediateContainer extends TestMappingRoot {
 
     final IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), schemas);
-    assertEquals(TestDataConstants.NO_SINGLETONS, container.getEdmItem().getSingletons().size());
+    assertEquals(TestDataConstants.NO_SINGLETONS.value, container.getEdmItem().getSingletons().size());
   }
 
   @Test
@@ -131,24 +131,6 @@ class TestIntermediateContainer extends TestMappingRoot {
   }
 
   @Test
-  void checkGetNavigationPropertyBindingsPath() throws ODataJPAModelException {
-
-    final IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(
-        PUNIT_NAME), schemas);
-
-    final List<CsdlEntitySet> entitySets = container.getEdmItem().getEntitySets();
-    for (final CsdlEntitySet entitySet : entitySets) {
-      if (entitySet.getName().equals("BusinessPartners")) {
-        for (final CsdlNavigationPropertyBinding binding : entitySet.getNavigationPropertyBindings()) {
-          if ("Roles".equals(binding.getPath()))
-            return;
-        }
-      }
-    }
-    fail();
-  }
-
-  @Test
   void checkGetNavigationPropertyBindingsTarget() throws ODataJPAModelException {
 
     final IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(
@@ -162,6 +144,24 @@ class TestIntermediateContainer extends TestMappingRoot {
             assertEquals("BusinessPartnerRoles", binding.getTarget());
             return;
           }
+        }
+      }
+    }
+    fail();
+  }
+
+  @Test
+  void checkGetNavigationPropertyBindingsPath() throws ODataJPAModelException {
+
+    final IntermediateEntityContainer container = new IntermediateEntityContainer(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), schemas);
+
+    final List<CsdlEntitySet> entitySets = container.getEdmItem().getEntitySets();
+    for (final CsdlEntitySet entitySet : entitySets) {
+      if (entitySet.getName().equals("BusinessPartners")) {
+        for (final CsdlNavigationPropertyBinding binding : entitySet.getNavigationPropertyBindings()) {
+          if ("Roles".equals(binding.getPath()))
+            return;
         }
       }
     }
@@ -228,7 +228,7 @@ class TestIntermediateContainer extends TestMappingRoot {
     final List<CsdlFunctionImport> funcImports = container.getEdmItem().getFunctionImports();
     for (final CsdlFunctionImport funcImport : funcImports) {
       if (funcImport.getName().equals("max")) {
-        fail("UnBound function must not generate a function import is not annotated");
+        fail("UnBound function must not generate a function import if not annotated");
       }
     }
   }

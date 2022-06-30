@@ -20,7 +20,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
 
-public final class JPARequestLinkImpl implements JPARequestLink {
+final class JPARequestLinkImpl implements JPARequestLink {
 
   private final JPAAssociationPath path;
   private final String bindingLink;
@@ -46,7 +46,7 @@ public final class JPARequestLinkImpl implements JPARequestLink {
   public Map<String, Object> getRelatedKeys() throws ODataJPAProcessorException {
     if (keys.size() == 0) try {
       buildKeys();
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
     }
     return keys;
@@ -56,7 +56,7 @@ public final class JPARequestLinkImpl implements JPARequestLink {
   public Map<String, Object> getValues() throws ODataJPAProcessorException {
     if (values.size() == 0) try {
       buildKeys();
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.BAD_REQUEST);
     }
     return values;
@@ -64,49 +64,47 @@ public final class JPARequestLinkImpl implements JPARequestLink {
 
   private void buildKeys() throws ODataJPAModelException, NoSuchMethodException, InstantiationException,
       IllegalAccessException, InvocationTargetException, EdmPrimitiveTypeException {
-    OData odata = OData.newInstance();
+    final OData odata = OData.newInstance();
 
     // TODO replace by Olingo OData Util
     final String[] entityTypeAndKey = bindingLink.split("[\\(\\)]");
     final String[] keyElements = entityTypeAndKey[1].split("[,=]");
     if (keyElements.length > 1) {
       for (int i = 0; i < keyElements.length; i += 2) {
-        for (JPAOnConditionItem item : path.getJoinColumnsList()) {
-          if (item.getLeftPath().getLeaf().getExternalName().equals(keyElements[i])) {
+        for (final JPAOnConditionItem item : path.getJoinColumnsList()) {
+          if (item.getLeftPath().getLeaf().getExternalName().equals(keyElements[i].trim())) {
 
-            keys.put(item.getLeftPath().getLeaf().getInternalName(), convertKeyValue(odata, keyElements[i + 1], item
-                .getLeftPath()));
-            values.put(item.getRightPath().getLeaf().getInternalName(), convertKeyValue(odata, keyElements[i + 1], item
-                .getRightPath()));
+            keys.put(item.getLeftPath().getLeaf().getInternalName(), convertKeyValue(odata, keyElements[i + 1].trim(),
+                item.getLeftPath()));
+            values.put(item.getRightPath().getLeaf().getInternalName(), convertKeyValue(odata, keyElements[i + 1]
+                .trim(), item.getRightPath()));
             break;
           }
-          if (item.getRightPath().getLeaf().getExternalName().equals(keyElements[i])) {
-            keys.put(item.getRightPath().getLeaf().getInternalName(), convertKeyValue(odata, keyElements[i + 1], item
-                .getRightPath()));
-            values.put(item.getLeftPath().getLeaf().getInternalName(), convertKeyValue(odata, keyElements[i + 1], item
-                .getLeftPath()));
-            break;
+          if (item.getRightPath().getLeaf().getExternalName().equals(keyElements[i].trim())) {
+            keys.put(item.getRightPath().getLeaf().getInternalName(), convertKeyValue(odata, keyElements[i + 1].trim(),
+                item.getRightPath()));
+            values.put(item.getLeftPath().getLeaf().getInternalName(), convertKeyValue(odata, keyElements[i + 1].trim(),
+                item.getLeftPath()));
           }
         }
       }
     } else {
       // If an entity has only one key property, it is allowed to omit the property name
-      List<JPAAttribute> targetKeys = ((JPAEntityType) path.getTargetType()).getKey();
-      String attributeName = targetKeys.get(0).getInternalName();
-      JPAOnConditionItem item = path.getJoinColumnsList().get(0);
+      final List<JPAAttribute> targetKeys = ((JPAEntityType) path.getTargetType()).getKey();
+      final String attributeName = targetKeys.get(0).getInternalName();
+      final JPAOnConditionItem item = path.getJoinColumnsList().get(0);
       if (item.getRightPath().getLeaf().getInternalName().equals(attributeName)) {
-        keys.put(item.getRightPath().getLeaf().getInternalName(), convertKeyValue(odata, keyElements[0], item
+        keys.put(item.getRightPath().getLeaf().getInternalName(), convertKeyValue(odata, keyElements[0].trim(), item
             .getRightPath()));
-        values.put(item.getLeftPath().getLeaf().getInternalName(), convertKeyValue(odata, keyElements[0], item
+        values.put(item.getLeftPath().getLeaf().getInternalName(), convertKeyValue(odata, keyElements[0].trim(), item
             .getLeftPath()));
         return;
       }
       if (item.getLeftPath().getLeaf().getInternalName().equals(attributeName)) {
-        keys.put(item.getLeftPath().getLeaf().getInternalName(), convertKeyValue(odata, keyElements[0], item
+        keys.put(item.getLeftPath().getLeaf().getInternalName(), convertKeyValue(odata, keyElements[0].trim(), item
             .getLeftPath()));
-        values.put(item.getRightPath().getLeaf().getInternalName(), convertKeyValue(odata, keyElements[0], item
+        values.put(item.getRightPath().getLeaf().getInternalName(), convertKeyValue(odata, keyElements[0].trim(), item
             .getRightPath()));
-        return;
       }
     }
   }
@@ -115,7 +113,7 @@ public final class JPARequestLinkImpl implements JPARequestLink {
       throws ODataJPAModelException, NoSuchMethodException, InstantiationException, IllegalAccessException,
       InvocationTargetException, EdmPrimitiveTypeException {
 
-    EdmPrimitiveType edmType = odata.createPrimitiveTypeInstance(path.getLeaf().getEdmType());
+    final EdmPrimitiveType edmType = odata.createPrimitiveTypeInstance(path.getLeaf().getEdmType());
     final Class<?> defaultType = edmType.getDefaultType();
     final Constructor<?> c = defaultType.getConstructor(String.class);
     final Object value = c.newInstance(edmType.fromUriLiteral(keyElementValue));

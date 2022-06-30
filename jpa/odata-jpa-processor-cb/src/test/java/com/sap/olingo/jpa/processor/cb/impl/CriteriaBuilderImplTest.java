@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 
 import javax.persistence.Tuple;
 import javax.persistence.criteria.CollectionJoin;
+import javax.persistence.criteria.CriteriaBuilder.Coalesce;
 import javax.persistence.criteria.CriteriaBuilder.Trimspec;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
@@ -35,6 +36,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
+import com.sap.olingo.jpa.processor.cb.impl.ExpressionImpl.ParameterExpression;
 import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
 import com.sap.olingo.jpa.processor.core.testmodel.AccessRights;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
@@ -266,7 +268,10 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
     assertNotNull(act);
     assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
     assertEquals(1, cut.getParameter().getParameter().size());
-    assertEquals("NUTS2", cut.getParameter().getParameter().get(1).getValue());
+    for (final ParameterExpression<?, ?> parameter : cut.getParameter().getParameter().values()) {
+      if (parameter.getPosition() == 1)
+        assertEquals("NUTS2", parameter.getValue());
+    }
   }
 
   @ParameterizedTest
@@ -294,7 +299,10 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
     assertNotNull(act);
     assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
     assertEquals(1, cut.getParameter().getParameter().size());
-    assertEquals(1000, cut.getParameter().getParameter().get(1).getValue());
+    for (final ParameterExpression<?, ?> parameter : cut.getParameter().getParameter().values()) {
+      if (parameter.getPosition() == 1)
+        assertEquals(1000, parameter.getValue());
+    }
   }
 
   @ParameterizedTest
@@ -310,7 +318,10 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
     assertNotNull(act);
     assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
     assertEquals(1, cut.getParameter().getParameter().size());
-    assertEquals(1000, cut.getParameter().getParameter().get(1).getValue());
+    for (final ParameterExpression<?, ?> parameter : cut.getParameter().getParameter().values()) {
+      if (parameter.getPosition() == 1)
+        assertEquals(1000, parameter.getValue());
+    }
   }
 
   @ParameterizedTest
@@ -701,6 +712,12 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
+  void testCreateCoalesceExpression() {
+    final Coalesce<String> act = cut.coalesce();
+    assertThrows(NotImplementedException.class, () -> act.value(""));
+  }
+
+  @Test
   void testCreateCoalesceExpressionWithExpressionValue() {
     final String exp = "COALESCE(E0.\"Area\", ?1)";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
@@ -725,6 +742,7 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
     final Expression<Double> act = cut.function("\"OLINGO\".\"PopulationDensity\"", Double.class,
         adminDiv.get("area"), adminDiv.get("population"));
     assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
+    assertEquals(Double.class, act.getJavaType());
   }
 
   @Test
@@ -732,10 +750,13 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
     // return cb.function(jpaFunction.getDBName(), jpaFunction.getResultParameter().getType(), jpaParameter);
     final String exp = "(E0.\"AccessRights\" = ?1)";
     final Root<?> person = q.from(Person.class);
-    final AccessRights[] rights = { AccessRights.Read, AccessRights.Delete };
+    final AccessRights[] rights = { AccessRights.READ, AccessRights.DELETE };
     final Expression<Boolean> act = cut.equal(person.get("accessRights"), rights);
     assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
-    assertEquals((short) 9, cut.getParameter().getParameter().get(1).getValue());
+    for (final ParameterExpression<?, ?> parameter : cut.getParameter().getParameter().values()) {
+      if (parameter.getPosition() == 1)
+        assertEquals((short) 9, parameter.getValue());
+    }
   }
 
   @Test
@@ -744,10 +765,13 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
     // AccessRights[] accessRights
     final String exp = "(E0.\"AccessRights\" = ?1)";
     final Root<?> person = q.from(Person.class);
-    final AccessRights[] rights = { AccessRights.Read, AccessRights.Delete };
+    final AccessRights[] rights = { AccessRights.READ, AccessRights.DELETE };
     final Expression<Boolean> act = cut.equal(person.get("accessRights"), cut.literal(rights));
     assertEquals(exp, ((SqlConvertible) act).asSQL(stmt).toString());
-    assertEquals((short) 9, cut.getParameter().getParameter().get(1).getValue());
+    for (final ParameterExpression<?, ?> parameter : cut.getParameter().getParameter().values()) {
+      if (parameter.getPosition() == 1)
+        assertEquals((short) 9, parameter.getValue());
+    }
   }
 
   @Test

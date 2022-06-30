@@ -100,10 +100,10 @@ public abstract class JPAAbstractSubQuery extends JPAAbstractQuery {
             p = p.join(association.getPath().get(i).getInternalName());
           this.queryRoot = p.join(association.getLeaf().getInternalName(), JoinType.LEFT);
         } else {
+          // At least for EclipseLink the order is of importance. First the join table has to be mentioned. It becomes
+          // the "leading" table. Otherwise EclipseLink replaces the join table within the WHERE clause.
+          this.queryJoinTable = subQuery.from(association.getJoinTable().getEntityType().getTypeClass());
           this.queryRoot = subQuery.from(this.jpaEntity.getTypeClass());
-          this.queryJoinTable = subQuery.from(association.getJoinTable()
-              .getEntityType()
-              .getTypeClass());
         }
       } else {
         throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_NOT_IMPLEMENTED,
@@ -177,7 +177,7 @@ public abstract class JPAAbstractSubQuery extends JPAAbstractQuery {
       final List<JPAOnConditionItem> right = association
           .getJoinTable()
           .getInverseJoinColumns(); // Person -->
-      createSelectClauseJoin(subQuery, queryRoot, right);
+      createSelectClauseJoin(subQuery, queryJoinTable, left);
       Expression<Boolean> whereCondition = createWhereByAssociation(from, queryJoinTable, left);
       whereCondition = cb.and(whereCondition, createWhereByAssociation(queryJoinTable, queryRoot, right));
       subQuery.where(applyAdditionalFilter(whereCondition));

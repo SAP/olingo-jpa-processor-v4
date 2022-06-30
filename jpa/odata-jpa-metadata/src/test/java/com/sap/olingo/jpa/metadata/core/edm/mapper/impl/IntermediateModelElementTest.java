@@ -17,8 +17,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
-class TestIntermediateModelElement {
-  private IntermediateModelElementTest cut;
+class IntermediateModelElementTest {
+  private IntermediateModelElementImpl cut;
 
   static Stream<Arguments> boxPrimitive() {
     return Stream.of(
@@ -42,7 +42,7 @@ class TestIntermediateModelElement {
 
   @BeforeEach
   void setup() {
-    cut = new IntermediateModelElementTest(new JPADefaultEdmNameBuilder("Dummy"), "Test");
+    cut = new IntermediateModelElementImpl(new JPADefaultEdmNameBuilder("Dummy"), "Test");
   }
 
   @ParameterizedTest
@@ -61,9 +61,9 @@ class TestIntermediateModelElement {
     assertNull(cut.findModelElementByEdmItem("Willi", new HashMap<>()));
   }
 
-  private class IntermediateModelElementTest extends IntermediateModelElement {
+  private class IntermediateModelElementImpl extends IntermediateModelElement {
 
-    public IntermediateModelElementTest(final JPADefaultEdmNameBuilder nameBuilder, final String internalName) {
+    public IntermediateModelElementImpl(final JPADefaultEdmNameBuilder nameBuilder, final String internalName) {
       super(nameBuilder, internalName);
     }
 

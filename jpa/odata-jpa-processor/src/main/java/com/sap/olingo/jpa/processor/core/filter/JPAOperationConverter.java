@@ -57,8 +57,8 @@ public class JPAOperationConverter {
           return (Expression<T>) cb.prod(jpaOperator.getLeft(cb), jpaOperator.getRightAsExpression());
       case MOD:
         if (jpaOperator.getRight() instanceof JPALiteralOperator)
-          return (Expression<T>) cb.mod(jpaOperator.getLeftAsIntExpression(), new Integer(jpaOperator.getRightAsNumber(
-              cb).toString()));
+          return (Expression<T>) cb.mod(jpaOperator.getLeftAsIntExpression(), Integer.valueOf(jpaOperator
+              .getRightAsNumber(cb).toString()));
         else
           return (Expression<T>) cb.mod(jpaOperator.getLeftAsIntExpression(), jpaOperator.getRightAsIntExpression());
 
@@ -84,10 +84,10 @@ public class JPAOperationConverter {
 
     switch (jpaOperator.getOperator()) {
       case EQ:
-        return equalExpression((l, r) -> (cb.equal(l, r)), (l, r) -> (cb.equal(l, r)), (l) -> (cb.isNull(l)),
+        return equalExpression((l, r) -> (cb.equal(l, r)), (l, r) -> (cb.equal(l, r)), l -> (cb.isNull(l)),
             jpaOperator);
       case NE:
-        return equalExpression((l, r) -> (cb.notEqual(l, r)), (l, r) -> (cb.notEqual(l, r)), (l) -> (cb.isNotNull(l)),
+        return equalExpression((l, r) -> (cb.notEqual(l, r)), (l, r) -> (cb.notEqual(l, r)), l -> (cb.isNotNull(l)),
             jpaOperator);
       case GE:
         return comparisonExpression((l, r) -> (cb.greaterThanOrEqualTo(l, r)), (l, r) -> (cb.greaterThanOrEqualTo(l,
@@ -223,7 +223,7 @@ public class JPAOperationConverter {
       else
         return (Expression<Integer>) jpaFunction.getParameter(parameterIndex).get();
     } else {
-      return cb.literal(new Integer(parameter.get().toString()) + offset);
+      return cb.literal(Integer.valueOf(parameter.get().toString()) + offset);
     }
   }
 

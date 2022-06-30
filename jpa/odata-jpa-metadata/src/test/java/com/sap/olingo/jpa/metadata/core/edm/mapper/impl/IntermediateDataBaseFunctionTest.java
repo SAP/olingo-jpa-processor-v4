@@ -33,7 +33,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 import com.sap.olingo.jpa.processor.core.util.Assertions;
 
-class TestIntermediateDataBaseFunction extends TestMappingRoot {
+class IntermediateDataBaseFunctionTest extends TestMappingRoot {
   private TestHelper helper;
 
   @BeforeEach

@@ -80,6 +80,7 @@ public class ODataJPAModelException extends ODataJPAException {
     ON_RIGHT_ATTRIBUTE_NULL,
     NO_JOIN_TABLE_TYPE,
     PATH_ELEMENT_NOT_FOUND,
+    DB_TYPE_NOT_DETERMINED,
     FILE_NOT_FOUND;
 
     @Override

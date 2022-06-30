@@ -24,7 +24,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescrip
  * Created: 22.03.2020
  *
  */
-class TestIntermediateEmbeddedIdProperty extends TestMappingRoot {
+class IntermediateEmbeddedIdPropertyTest extends TestMappingRoot {
   private TestHelper helper;
   private TestHelper errorHelper;
   private JPAEdmNameBuilder nameBuilder;

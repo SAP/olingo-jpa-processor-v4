@@ -326,6 +326,7 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
   }
 
   static final class ParameterExpression<T, S> extends ExpressionImpl<T> implements Parameter<T> {
+
     private final Integer index;
     private final S value;
     private Optional<AttributeConverter<S, T>> converter;
@@ -336,6 +337,12 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
       this.value = value;
       this.converter = Optional.empty();
       this.jpaPath = Optional.empty();
+    }
+
+    ParameterExpression(final Integer i, final S value, @Nullable final Expression<?> x) {
+      this.index = i;
+      this.value = value;
+      setPath(x);
     }
 
     @SuppressWarnings("unchecked")
@@ -351,6 +358,9 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
       if (x instanceof PathImpl && ((PathImpl<?>) x).path.isPresent()) {
         jpaPath = Optional.of(((PathImpl<?>) x).path.get()); // NOSONAR
         converter = Optional.ofNullable(jpaPath.get().getLeaf().getConverter());
+      } else {
+        this.converter = Optional.empty();
+        this.jpaPath = Optional.empty();
       }
     }
 
@@ -378,6 +388,24 @@ abstract class ExpressionImpl<T> implements Expression<T>, SqlConvertible {
     @Override
     public Class<? extends T> getJavaType() {
       return getParameterType();
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(jpaPath, value);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+      if (this == obj) return true;
+      if (!(obj instanceof ParameterExpression)) return false;
+      final ParameterExpression<?, ?> other = (ParameterExpression<?, ?>) obj;
+      return Objects.equals(jpaPath, other.jpaPath) && Objects.equals(value, other.value);
+    }
+
+    @Override
+    public String toString() {
+      return "ParameterExpression [jpaPath=" + jpaPath + ", value=" + value + ", index=" + index + "]";
     }
   }
 

@@ -11,6 +11,7 @@ import java.io.IOException;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -19,6 +20,7 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupsProvider;
+import com.sap.olingo.jpa.processor.core.util.Assertions;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 
@@ -916,5 +918,15 @@ class TestJPAProcessorExpand extends TestBase {
 
       assertTrue(bupas instanceof NullNode, "For id: " + id);
     }
+  }
+
+  @Tag(Assertions.CB_ONLY_TEST)
+  @Test
+  void testExpandToOneVitualProperty() throws IOException, ODataException {
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "AssociationOneToOneSources?$expand=DefaultTarget");
+    helper.assertStatus(200);
+    final ArrayNode sources = helper.getValues();
+    assertEquals(3, sources.size());
   }
 }
