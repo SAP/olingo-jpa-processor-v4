@@ -280,9 +280,7 @@ public final class Util {
           || resourcePart instanceof UriResourceEntitySet
           || resourcePart instanceof UriResourceSingleton) {
         if (source != null) {
-          if (resourcePart instanceof UriResourceProperty)
-            extendNavigationPath(associationName, ((UriResourceProperty) resourcePart).getProperty().getName());
-          else
+          if (resourcePart instanceof UriResourceNavigation)
             extendNavigationPath(associationName, ((UriResourceNavigation) resourcePart).getProperty().getName());
           pathList.add(new JPANavigationPropertyInfo(sd, source, determineAssociationPath(sd, source, associationName),
               null));
