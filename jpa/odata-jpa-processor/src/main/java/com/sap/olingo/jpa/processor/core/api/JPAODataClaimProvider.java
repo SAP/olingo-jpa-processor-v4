@@ -3,6 +3,8 @@ package com.sap.olingo.jpa.processor.core.api;
 import java.util.List;
 import java.util.Optional;
 
+import javax.annotation.Nonnull;
+
 /**
  * Container that provides claims
  * 
@@ -15,6 +17,7 @@ public interface JPAODataClaimProvider {
  * @param attributeName 
  * @return Provides a list claim values for a given attribute.
  */
+  @Nonnull
   List<JPAClaimsPair<?>> get(final String attributeName); // NOSONAR
   /**
    * 
