@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.sap.olingo.jpa.processor.core.util.IntegrationTestHelper;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 
@@ -102,6 +103,18 @@ class TestJPAQueryNavigation extends TestBase {
     assertEquals("99", created.get("By").asText());
   }
 
+  @Test
+  void testNavigationViaComplexTypeToPrimitive() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "Organizations('3')/AdministrativeInformation/Created/User/AdministrativeInformation/Created/At");
+    helper.assertStatus(200);
+
+    final ObjectNode admin = helper.getValue();
+    final TextNode at = (TextNode) admin.get("value");
+    assertNotNull(at);
+  }
+  
   @Test
   void testNavigationViaComplexType() throws IOException, ODataException {
 
