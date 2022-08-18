@@ -4,7 +4,7 @@
 
     <groupId>com.sap.olingo</groupId>
     <artifactId>odata-jpa</artifactId>
-    <version>1.0.8</version>
+    <version>1.0.9-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>odata-jpa</name>
@@ -13,12 +13,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.source>1.8</project.build.source>
         <maven.complier.version>3.8.0</maven.complier.version>
-        <odata.version>4.8.0</odata.version>
-        <jackson.version>2.13.1</jackson.version>
+        <odata.version>4.9.0</odata.version>
+        <jackson.version>2.13.3</jackson.version>
         <powermock.version>1.7.1</powermock.version>
         <coveralls.version>4.3.0</coveralls.version>
         <jpa.version>2.2.1</jpa.version>
-        <processor.version>1.0.8</processor.version>
+        <processor.version>1.0.9-SNAPSHOT</processor.version>
         <sonar.organization>sap-1</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>        
         <sonar.coverage.jacoco.xmlReportPaths>
