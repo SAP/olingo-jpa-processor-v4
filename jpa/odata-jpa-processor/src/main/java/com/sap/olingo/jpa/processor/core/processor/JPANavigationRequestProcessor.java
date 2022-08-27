@@ -86,7 +86,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
 
     final JPAConvertibleResult result = query.execute();
     // Read Expand and Collection
-    final Optional<JPAKeyBoundary> keyBoundary = result.getKeyBoundary(requestContext, query.getNavigationInfo());
+    final Optional<JPAKeyBoundary> keyBoundary = result.getKeyBoundary(requestContext, query.getNavigationInfo(), page);
     result.putChildren(readExpandEntities(request.getAllHeaders(), query.getNavigationInfo(), uriInfo, keyBoundary));
     // Convert tuple result into an OData Result
     final int converterHandle = debugger.startRuntimeMeasurement(this, "convertResult");
