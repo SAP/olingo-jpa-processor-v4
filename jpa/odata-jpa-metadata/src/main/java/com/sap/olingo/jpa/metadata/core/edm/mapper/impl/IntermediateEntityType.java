@@ -285,20 +285,20 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
   @SuppressWarnings("unchecked")
   @Override
   protected <I extends CsdlAbstractEdmItem> List<I> extractEdmModelElements(
-      final Map<String, ? extends IntermediateModelElement> mappingBuffer)
+      final Map<?, ? extends IntermediateModelElement> mappingBuffer)
       throws ODataJPAModelException {
 
     final List<I> extractionTarget = new ArrayList<>();
-    for (final Entry<String, ? extends IntermediateModelElement> element : mappingBuffer.entrySet()) {
-      if (!element.getValue().ignore()
+    for (final IntermediateModelElement element : mappingBuffer.values()) {
+      if (!element.ignore()
           // Skip Streams
-          && !(element.getValue() instanceof IntermediateSimpleProperty &&
-              ((IntermediateSimpleProperty) element.getValue()).isStream())) {
-        if (element.getValue() instanceof IntermediateEmbeddedIdProperty) {
+          && !(element instanceof IntermediateSimpleProperty &&
+              ((IntermediateSimpleProperty) element).isStream())) {
+        if (element instanceof IntermediateEmbeddedIdProperty) {
           extractionTarget.addAll((Collection<? extends I>) resolveEmbeddedId(
-              (IntermediateEmbeddedIdProperty) element.getValue()));
+              (IntermediateEmbeddedIdProperty) element));
         } else {
-          extractionTarget.add((I) element.getValue().getEdmItem());
+          extractionTarget.add((I) element.getEdmItem());
         }
       }
     }

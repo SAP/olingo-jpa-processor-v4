@@ -33,32 +33,32 @@ public abstract class IntermediateOperationFactory<O extends IntermediateOperati
       final Class<? extends Annotation> annotation)
       throws ODataJPAModelException {
 
-    final Map<String, O> funcList = new HashMap<>();
+    final Map<String, O> operations = new HashMap<>();
     if (reflections != null) {
       @SuppressWarnings("unchecked")
       final Set<Class<? extends ODataOperation>> operationClasses =
           (Set<Class<? extends ODataOperation>>) findJavaOperations(reflections, clazz);
 
       for (final Class<? extends ODataOperation> operationClass : operationClasses) {
-        processOneClass(nameBuilder, schema, annotation, funcList, operationClass);
+        processOneClass(nameBuilder, schema, annotation, operations, operationClass);
       }
     }
-    return funcList;
+    return operations;
   }
 
-  private Set<?> findJavaOperations(final Reflections reflections, final Class<? extends ODataOperation> clazz) {
+  Set<?> findJavaOperations(final Reflections reflections, final Class<? extends ODataOperation> clazz) {
     return reflections.getSubTypesOf(clazz);
   }
 
   private void processOneClass(final JPAEdmNameBuilder nameBuilder, final IntermediateSchema schema,
-      final Class<? extends Annotation> annotation, final Map<String, O> funcList,
+      final Class<? extends Annotation> annotation, final Map<String, O> operations,
       final Class<? extends ODataOperation> operationClass) throws ODataJPAModelException {
 
     for (final Method m : Arrays.asList(operationClass.getMethods())) {
       final Object operationDescription = m.getAnnotation(annotation);
       if (operationDescription != null) {
-        final IntermediateOperation func = createOperation(nameBuilder, schema, m, operationDescription);
-        funcList.put(func.getInternalName(), createOperation(nameBuilder, schema, m, operationDescription));
+        final IntermediateOperation operation = createOperation(nameBuilder, schema, m, operationDescription);
+        operations.put(operation.getInternalName(), createOperation(nameBuilder, schema, m, operationDescription));
       }
     }
   }

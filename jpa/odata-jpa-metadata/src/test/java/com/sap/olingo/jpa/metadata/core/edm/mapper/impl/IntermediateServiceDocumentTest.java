@@ -208,10 +208,24 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetAction() throws ODataJPAModelException {
+  void checkGetBoundAction() throws ODataJPAModelException {
     final EdmAction action = mock(EdmAction.class);
-    when(action.getNamespace()).thenReturn("com.sap.olingo.jpa");
+    when(action.getNamespace()).thenReturn(PUNIT_NAME);
     when(action.getName()).thenReturn("BoundNoImport");
+    when(action.getBindingParameterTypeFqn()).thenReturn(new FullQualifiedName(PUNIT_NAME, "Person"));
+    when(action.isBound()).thenReturn(true);
+    final JPAServiceDocument svc = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null,
+        new String[] { "com.sap.olingo.jpa.metadata.core.edm.mapper.testaction" });
+    assertNotNull(svc.getAction(action));
+  }
+
+  @Test
+  void checkGetUnBoundAction() throws ODataJPAModelException {
+    final EdmAction action = mock(EdmAction.class);
+    when(action.getNamespace()).thenReturn(PUNIT_NAME);
+    when(action.getName()).thenReturn("WithImport");
+    when(action.getBindingParameterTypeFqn()).thenReturn(null);
+    when(action.isBound()).thenReturn(false);
     final JPAServiceDocument svc = new IntermediateServiceDocument(PUNIT_NAME, emf.getMetamodel(), null,
         new String[] { "com.sap.olingo.jpa.metadata.core.edm.mapper.testaction" });
     assertNotNull(svc.getAction(action));
@@ -315,6 +329,9 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
     final EdmAction action = mock(EdmAction.class);
     when(action.getNamespace()).thenReturn("test");
     when(action.getName()).thenReturn("O_BoundNoImport");
+    when(action.getBindingParameterTypeFqn()).thenReturn(new FullQualifiedName("test", "Person"));
+    when(action.isBound()).thenReturn(true);
+
     assertNotNull(cut.getAction(action));
   }
 

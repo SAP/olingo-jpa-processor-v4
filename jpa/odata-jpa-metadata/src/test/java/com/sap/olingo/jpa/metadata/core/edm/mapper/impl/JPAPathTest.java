@@ -24,7 +24,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerWithGroups;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 
-class TestJPAPath extends TestMappingRoot {
+class JPAPathTest extends TestMappingRoot {
   private JPAEntityType organization;
   private JPAEntityType bupaWithGroup;
   private TestHelper helper;

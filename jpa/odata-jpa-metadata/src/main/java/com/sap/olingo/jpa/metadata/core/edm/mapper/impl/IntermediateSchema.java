@@ -1,11 +1,14 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.EmbeddableType;
@@ -14,6 +17,7 @@ import javax.persistence.metamodel.Metamodel;
 import javax.persistence.metamodel.PluralAttribute;
 
 import org.apache.olingo.commons.api.edm.EdmEnumType;
+import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlAction;
 import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
@@ -45,7 +49,7 @@ final class IntermediateSchema extends IntermediateModelElement {
   private final Map<String, IntermediateComplexType<?>> complexTypeListInternalKey;
   private final Map<String, IntermediateEntityType<?>> entityTypeListInternalKey;
   private final Map<String, IntermediateFunction> functionListInternalKey;
-  private final Map<String, IntermediateJavaAction> actionListInternalKey;
+  private final Map<ODataActionKey, IntermediateJavaAction> actionListByKey;
   private final Map<String, IntermediateEnumerationType> enumTypeListInternalKey;
   private IntermediateEntityContainer container;
   private final Reflections reflections;
@@ -61,7 +65,7 @@ final class IntermediateSchema extends IntermediateModelElement {
     this.complexTypeListInternalKey = buildComplexTypeList();
     this.entityTypeListInternalKey = buildEntityTypeList();
     this.functionListInternalKey = buildFunctionList();
-    this.actionListInternalKey = buildActionList();
+    this.actionListByKey = buildActionList();
   }
 
   public IntermediateEnumerationType getEnumerationType(final Class<?> enumType) {
@@ -95,7 +99,7 @@ final class IntermediateSchema extends IntermediateModelElement {
     edmSchema.setComplexTypes((List<CsdlComplexType>) extractEdmModelElements(complexTypeListInternalKey));
     edmSchema.setEntityTypes((List<CsdlEntityType>) extractEdmModelElements(entityTypeListInternalKey));
     edmSchema.setFunctions((List<CsdlFunction>) extractEdmModelElements(functionListInternalKey));
-    edmSchema.setActions((List<CsdlAction>) extractEdmModelElements(actionListInternalKey));
+    edmSchema.setActions((List<CsdlAction>) extractEdmModelElements(actionListByKey));
 //  edm:Annotations
 //  edm:Annotation
 //  edm:Term
@@ -106,21 +110,15 @@ final class IntermediateSchema extends IntermediateModelElement {
 
   }
 
-  JPAAction getAction(final String externalName) {
-    for (final Entry<String, IntermediateJavaAction> action : actionListInternalKey.entrySet()) {
-      if (action.getValue().getExternalName().equals(externalName) && !action.getValue().ignore())
-        return action.getValue();
-    }
-    return null;
+  @CheckForNull
+  JPAAction getAction(final String externalName, final FullQualifiedName actionFqn) {
+    return actionListByKey.get(new ODataActionKey(externalName, actionFqn));
   }
 
+  @SuppressWarnings("unchecked")
   @Nonnull
-  List<JPAAction> getActions() {
-    final ArrayList<JPAAction> actions = new ArrayList<>();
-    for (final Entry<String, IntermediateJavaAction> action : actionListInternalKey.entrySet()) {
-      actions.add(action.getValue());
-    }
-    return actions;
+  <S extends JPAAction> List<S> getActions() {
+    return Collections.unmodifiableList(new ArrayList<>((Collection<S>) actionListByKey.values()));
   }
 
   @SuppressWarnings("unchecked")
@@ -226,8 +224,8 @@ final class IntermediateSchema extends IntermediateModelElement {
     this.container = container;
   }
 
-  private Map<String, IntermediateJavaAction> buildActionList() throws ODataJPAModelException {
-    final HashMap<String, IntermediateJavaAction> actionList = new HashMap<>();
+  private Map<ODataActionKey, IntermediateJavaAction> buildActionList() throws ODataJPAModelException {
+    final HashMap<ODataActionKey, IntermediateJavaAction> actionList = new HashMap<>();
     final IntermediateActionFactory factory = new IntermediateActionFactory();
     actionList.putAll(factory.create(nameBuilder, reflections, this));
     return actionList;

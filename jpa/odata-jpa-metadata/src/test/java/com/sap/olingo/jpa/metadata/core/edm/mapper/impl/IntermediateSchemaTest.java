@@ -2,12 +2,15 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.HashSet;
 
+import org.apache.olingo.commons.api.edm.EdmEnumType;
+import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.reflections8.Reflections;
@@ -53,6 +56,9 @@ class IntermediateSchemaTest extends TestMappingRoot {
 
   @Test
   void checkSchemaGetEntityTypeByNameRightEntity() throws ODataJPAModelException {
+    final EdmEnumType enumType = mock(EdmEnumType.class);
+    final FullQualifiedName fqn = new FullQualifiedName(ADMIN_CANONICAL_NAME, ADDR_CANONICAL_NAME);
+    when(enumType.getFullQualifiedName()).thenReturn(fqn);
     final IntermediateSchema schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf
         .getMetamodel(), r);
     assertEquals("BusinessPartner", schema.getEdmItem().getEntityType("BusinessPartner").getName());
@@ -85,5 +91,25 @@ class IntermediateSchemaTest extends TestMappingRoot {
     final IntermediateSchema schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf
         .getMetamodel(), r);
     assertEquals(10, schema.getEdmItem().getFunctions().size(), "Wrong number of entities");
+  }
+
+  @Test
+  void checkSchemaGetEnumerationTypeByType() throws ODataJPAModelException {
+    final EdmEnumType type = mock(EdmEnumType.class);
+    final FullQualifiedName fqn = new FullQualifiedName(PUNIT_NAME, "ABCClassification");
+    final IntermediateSchema schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf
+        .getMetamodel(), r);
+    when(type.getFullQualifiedName()).thenReturn(fqn);
+    assertNotNull(schema.getEnumerationType(type));
+  }
+
+  @Test
+  void checkSchemaGetEnumerationTypeByTypeNotFound() throws ODataJPAModelException {
+    final EdmEnumType type = mock(EdmEnumType.class);
+    final FullQualifiedName fqn = new FullQualifiedName(PUNIT_NAME, "Classification");
+    final IntermediateSchema schema = new IntermediateSchema(new JPADefaultEdmNameBuilder(PUNIT_NAME), emf
+        .getMetamodel(), r);
+    when(type.getFullQualifiedName()).thenReturn(fqn);
+    assertNull(schema.getEnumerationType(type));
   }
 }

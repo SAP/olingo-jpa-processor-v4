@@ -39,6 +39,20 @@ public class JPAActionRequestProcessor extends JPAOperationRequestProcessor {
     super(odata, requestContext);
   }
 
+  /**
+   * Execution of an action. Action selection for overloaded actions, as described in
+   * <a href="https://docs.oasis-open.org/odata/odata/v4.01/odata-v4.01-part1-protocol.html#_Toc31359015">
+   * Action Overload Resolution (part1 protocol 11.5.5.2)</a> is done by Olingo. Example:
+   * <p>
+   * In case an action is defined with binding parameter Business Partner, the action is also available at
+   * Organizations. In this case Olingo provides the action with binding parameter Business Partner.
+   *
+   *
+   * @param request
+   * @param response
+   * @param requestFormat
+   * @throws ODataApplicationException
+   */
   public void performAction(final ODataRequest request, final ODataResponse response, final ContentType requestFormat)
       throws ODataApplicationException {
 

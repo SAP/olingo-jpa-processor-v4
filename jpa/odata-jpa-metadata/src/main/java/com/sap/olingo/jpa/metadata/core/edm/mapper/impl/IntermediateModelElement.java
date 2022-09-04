@@ -84,14 +84,13 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
 
   @SuppressWarnings("unchecked")
   protected <T extends CsdlAbstractEdmItem> List<? extends CsdlAbstractEdmItem> extractEdmModelElements(
-      final Map<String, ? extends IntermediateModelElement> mappingBuffer)
-      throws ODataJPAModelException {
+      final Map<?, ? extends IntermediateModelElement> mappingBuffer) throws ODataJPAModelException {
     final List<T> extractionTarget = new ArrayList<>();
 
-    for (final Entry<String, ? extends IntermediateModelElement> bufferItem : mappingBuffer.entrySet()) {
+    for (final IntermediateModelElement bufferItem : mappingBuffer.values()) {
 
-      if (!((IntermediateModelElement) bufferItem.getValue()).toBeIgnored) { // NOSONAR
-        final IntermediateModelElement element = bufferItem.getValue();
+      if (!bufferItem.toBeIgnored) { // NOSONAR
+        final IntermediateModelElement element = bufferItem;
         final CsdlAbstractEdmItem edmItem = element.getEdmItem();
         if (!element.ignore())
           extractionTarget.add((T) edmItem);

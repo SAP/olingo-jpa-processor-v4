@@ -17,6 +17,7 @@ import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.edm.EdmComplexType;
 import org.apache.olingo.commons.api.edm.EdmEnumType;
 import org.apache.olingo.commons.api.edm.EdmFunction;
+import org.apache.olingo.commons.api.edm.EdmOperation;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
@@ -44,7 +45,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 /**
  * http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/schemas/edmx.xsd
  * A Service Document can contain multiple schemas, but only
- * one Entity Container. This container is assigned to one of the schemas.<p>
+ * one Entity Container. This container is assigned to one of the schemas.
+ * <p>
  * http://services.odata.org/V4/Northwind/Northwind.svc/$metadata
  */
 class IntermediateServiceDocument implements JPAServiceDocument {
@@ -231,13 +233,13 @@ class IntermediateServiceDocument implements JPAServiceDocument {
    *
    * @see
    * com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getAction(org.apache.olingo.commons.api.edm.
-   * EdmFunction)
+   * EdmAction)
    */
   @Override
   public JPAAction getAction(final EdmAction action) {
     final IntermediateSchema schema = schemaListInternalKey.get(action.getNamespace());
     if (schema != null)
-      return schema.getAction(action.getName());
+      return schema.getAction(action.getName(), determineBindingParameter(action));
     return null;
   }
 
@@ -364,5 +366,10 @@ class IntermediateServiceDocument implements JPAServiceDocument {
       }
     }
     return claims;
+  }
+
+  @CheckForNull
+  private FullQualifiedName determineBindingParameter(final EdmOperation operation) {
+    return operation.isBound() ? operation.getBindingParameterTypeFqn() : null;
   }
 }

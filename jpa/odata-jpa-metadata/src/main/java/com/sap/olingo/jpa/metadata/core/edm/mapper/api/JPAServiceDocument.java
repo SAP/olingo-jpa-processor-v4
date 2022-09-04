@@ -70,6 +70,10 @@ public interface JPAServiceDocument extends CustomETagSupport {
   @CheckForNull
   JPAFunction getFunction(final EdmFunction function);
 
+  /**
+   * @param action
+   * @return null if action not found
+   */
   @CheckForNull
   JPAAction getAction(final EdmAction action);
 

@@ -1,5 +1,10 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
+import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.FUNC_CONSTRUCTOR_MISSING;
+import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.FUNC_RETURN_NOT_SUPPORTED;
+import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.FUNC_RETURN_TYPE_INVALID;
+import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.OPERATION_CONSTRUCTOR_WRONG_PARAMETER;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -13,9 +18,10 @@ import javax.persistence.EntityManager;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 
+import com.sap.olingo.jpa.metadata.api.JPAHttpHeaderMap;
+import com.sap.olingo.jpa.metadata.api.JPARequestParameterMap;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
 
 public class IntermediateOperationHelper {
 
@@ -24,22 +30,27 @@ public class IntermediateOperationHelper {
   }
 
   @SuppressWarnings("unchecked")
-  static <T> Constructor<T> determineConstructor(final Method javaFunction) throws ODataJPAModelException {
+  static <T> Constructor<T> determineConstructor(final Method javaOperation) throws ODataJPAModelException {
     Constructor<T> result = null;
-    final Constructor<T>[] constructors = (Constructor<T>[]) ((Class<T>) javaFunction.getDeclaringClass())
+    final Constructor<T>[] constructors = (Constructor<T>[]) ((Class<T>) javaOperation.getDeclaringClass())
         .getConstructors();
     for (final Constructor<T> constructor : Arrays.asList(constructors)) {
       final Parameter[] parameters = constructor.getParameters();
       if (parameters.length == 0)
         result = constructor;
-      else if (parameters.length == 1 && parameters[0].getType() == EntityManager.class) {
+      else {
+        for (final Parameter p : constructor.getParameters()) {
+          if (!(p.getType().isAssignableFrom(EntityManager.class)
+              || p.getType().isAssignableFrom(JPARequestParameterMap.class)
+              || p.getType().isAssignableFrom(JPAHttpHeaderMap.class)))
+            throw new ODataJPAModelException(OPERATION_CONSTRUCTOR_WRONG_PARAMETER,
+                javaOperation.getDeclaringClass().getName(), p.getName(), p.getType().getName());
+        }
         result = constructor;
-        break;
       }
     }
     if (result == null)
-      throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.FUNC_CONSTRUCTOR_MISSING, javaFunction
-          .getClass().getName());
+      throw new ODataJPAModelException(FUNC_CONSTRUCTOR_MISSING, javaOperation.getClass().getName());
     return result;
   }
 
@@ -63,12 +74,12 @@ public class IntermediateOperationHelper {
         return enumType.getExternalFQN();
       } else if (declaredReturnType.equals(Blob.class) || declaredReturnType.equals(Clob.class)) {
         // The return type '%1$s' used at method '%3$s' is not supported
-        throw new ODataJPAModelException(MessageKeys.FUNC_RETURN_NOT_SUPPORTED, declaredReturnType.getName(),
+        throw new ODataJPAModelException(FUNC_RETURN_NOT_SUPPORTED, declaredReturnType.getName(),
             operationName);
       } else {
         final EdmPrimitiveTypeKind edmType = JPATypeConverter.convertToEdmSimpleType(declaredReturnType);
         if (edmType == null)
-          throw new ODataJPAModelException(MessageKeys.FUNC_RETURN_TYPE_INVALID, definedReturnType.type().getName(),
+          throw new ODataJPAModelException(FUNC_RETURN_TYPE_INVALID, definedReturnType.type().getName(),
               declaredReturnType.getName(), operationName);
         return edmType.getFullQualifiedName();
       }

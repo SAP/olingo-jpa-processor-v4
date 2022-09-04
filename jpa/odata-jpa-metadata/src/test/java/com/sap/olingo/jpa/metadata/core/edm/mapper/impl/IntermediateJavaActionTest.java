@@ -25,6 +25,7 @@ import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmAction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.ODataAction;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.testaction.ActionWithOverload;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaActions;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaEmConstructor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaPrivateConstructor;
@@ -355,6 +356,13 @@ class IntermediateJavaActionTest extends TestMappingRoot {
     final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "boundNoImport");
     act.getEdmItem();
     assertTrue(act.isBound());
+  }
+
+  @Test
+  void checkConstructorWithThreeParameter() throws ODataJPAModelException {
+    final IntermediateJavaAction act = createAction(ActionWithOverload.class, "baseAction");
+    assertNotNull(act.getConstructor());
+    assertEquals(3, act.getConstructor().getParameterCount());
   }
 
   private IntermediateJavaAction createAction(final Class<? extends ODataAction> clazz, final String method)

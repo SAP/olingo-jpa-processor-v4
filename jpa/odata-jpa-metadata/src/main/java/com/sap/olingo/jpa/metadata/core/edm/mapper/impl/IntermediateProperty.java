@@ -3,6 +3,7 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.COMPLEX_PROPERTY_MISSING_PROTECTION_PATH;
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.PROPERTY_PRECISION_NOT_IN_RANGE;
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.TRANSIENT_CALCULATOR_TOO_MANY_CONSTRUCTORS;
+import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.TRANSIENT_CALCULATOR_WRONG_PARAMETER;
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.TRANSIENT_KEY_NOT_SUPPORTED;
 
 import java.lang.reflect.AnnotatedElement;
@@ -55,7 +56,6 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediatePropertyAccess;
 
 /**
@@ -495,7 +495,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
         if (!(p.getType().isAssignableFrom(EntityManager.class)
             || p.getType().isAssignableFrom(JPAParameter.class)
             || p.getType().isAssignableFrom(JPAHttpHeaderMap.class)))
-          throw new ODataJPAModelException(MessageKeys.TRANSIENT_CALCULATOR_WRONG_PARAMETER,
+          throw new ODataJPAModelException(TRANSIENT_CALCULATOR_WRONG_PARAMETER,
               calculator.getName(), jpaAttribute.getName(),
               jpaAttribute.getJavaMember().getDeclaringClass().getName());
       }
