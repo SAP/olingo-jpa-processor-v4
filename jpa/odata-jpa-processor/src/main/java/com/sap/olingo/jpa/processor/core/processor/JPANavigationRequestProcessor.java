@@ -86,7 +86,7 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
 
     final JPAConvertibleResult result = query.execute();
     // Read Expand and Collection
-    final Optional<JPAKeyBoundary> keyBoundary = result.getKeyBoundary(requestContext, query.getNavigationInfo());
+    final Optional<JPAKeyBoundary> keyBoundary = result.getKeyBoundary(requestContext, query.getNavigationInfo(), page);
     result.putChildren(readExpandEntities(request.getAllHeaders(), query.getNavigationInfo(), uriInfo, keyBoundary));
     // Convert tuple result into an OData Result
     final int converterHandle = debugger.startRuntimeMeasurement(this, "convertResult");
@@ -241,10 +241,12 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
    * <li>Server driven paging seems to be more complicated</li>
    * </ul>
    * and the goal is to implement a general solution, multiple round trips have been taken.
-   * <p>For a general overview see:
+   * <p>
+   * For a general overview see:
    * <a href=
    * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398298"
-   * >OData Version 4.0 Part 1 - 11.2.4.2 System Query Option $expand</a><p>
+   * >OData Version 4.0 Part 1 - 11.2.4.2 System Query Option $expand</a>
+   * <p>
    *
    * For a detailed description of the URI syntax see:
    * <a href=
