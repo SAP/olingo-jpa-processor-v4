@@ -246,13 +246,6 @@ final class IntermediateNavigationProperty<S> extends IntermediateModelElement i
     }
   }
 
-  PersistentAttributeType getCardinality() throws ODataJPAModelException {
-    if (edmNaviProperty == null) {
-      lazyBuildEdmItem();
-    }
-    return cardinality;
-  }
-
   @Override
   CsdlNavigationProperty getEdmItem() throws ODataJPAModelException {
     if (edmNaviProperty == null) {

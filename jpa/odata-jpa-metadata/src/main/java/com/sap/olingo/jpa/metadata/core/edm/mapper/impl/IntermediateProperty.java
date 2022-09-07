@@ -9,6 +9,7 @@ import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAMode
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -554,6 +555,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
     }
   }
 
+  @SuppressWarnings("unchecked")
   private void determineInternalTypesFromConverter() throws ODataJPAModelException {
     final Convert jpaConverter = ((AnnotatedElement) this.jpaAttribute.getJavaMember())
         .getAnnotation(Convert.class);
@@ -564,8 +566,9 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
         entityType = (Class<?>) types[0];
         dbType = (Class<?>) types[1];
         conversionRequired = !JPATypeConverter.isSupportedByOlingo(entityType);
-        valueConverter = (AttributeConverter<?, ?>) jpaConverter.converter().newInstance();
-      } catch (InstantiationException | IllegalAccessException e) {
+        valueConverter = (AttributeConverter<?, ?>) jpaConverter.converter().getDeclaredConstructor().newInstance();
+      } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+          | NoSuchMethodException | SecurityException e) {
         throw new ODataJPAModelException(
             ODataJPAModelException.MessageKeys.TYPE_MAPPER_COULD_NOT_INSTANTIATED, e);
       }

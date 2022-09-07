@@ -86,4 +86,18 @@ class IntermediateVirtualPropertyTest extends TestMappingRoot {
   void testGetType() {
     assertEquals(Integer.class, cut.getType());
   }
+
+  @Test
+  void testDetermineIsVersion() {
+    cut.determineIsVersion();
+    assertFalse(cut.isEtag());
+  }
+
+  @Test
+  void testType() throws ODataJPAModelException {
+    cut.checkConsistency();
+    cut.determineStreamInfo();
+    cut.determineStructuredType();
+    assertNull(cut.getStructuredType());
+  }
 }

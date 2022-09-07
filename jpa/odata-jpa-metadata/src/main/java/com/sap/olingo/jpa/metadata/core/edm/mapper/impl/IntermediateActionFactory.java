@@ -38,12 +38,10 @@ class IntermediateActionFactory extends IntermediateOperationFactory<Intermediat
 
     final Map<ODataActionKey, IntermediateJavaAction> operations = new HashMap<>();
     if (reflections != null) {
-      @SuppressWarnings("unchecked")
-      final Set<Class<? extends ODataOperation>> operationClasses =
-          (Set<Class<? extends ODataOperation>>) findJavaOperations(reflections, clazz);
+      final Set<?> operationClasses = findJavaOperations(reflections, clazz);
 
-      for (final Class<? extends ODataOperation> operationClass : operationClasses) {
-        for (final Method m : Arrays.asList(operationClass.getMethods())) {
+      for (final Object operationClass : operationClasses) {
+        for (final Method m : Arrays.asList(((Class<?>) operationClass).getMethods())) {
           final Object operationDescription = m.getAnnotation(annotation);
           if (operationDescription != null) {
             final IntermediateOperation operation = createOperation(nameBuilder, schema, m, operationDescription);

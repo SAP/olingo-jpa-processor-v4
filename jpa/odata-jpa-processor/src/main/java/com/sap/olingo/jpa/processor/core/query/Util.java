@@ -260,7 +260,8 @@ public final class Util {
   }
 
   /**
-   * Converts the OData navigation list into a intermediate one. Direction is top - down usage e.g. join query.<p>
+   * Converts the OData navigation list into a intermediate one. Direction is top - down usage e.g. join query.
+   * <p>
    * The method only supports queries that start with an entity set or singleton.
    * @param sd
    * @param resourceParts
@@ -280,9 +281,7 @@ public final class Util {
           || resourcePart instanceof UriResourceEntitySet
           || resourcePart instanceof UriResourceSingleton) {
         if (source != null) {
-          if (resourcePart instanceof UriResourceProperty)
-            extendNavigationPath(associationName, ((UriResourceProperty) resourcePart).getProperty().getName());
-          else
+          if (resourcePart instanceof UriResourceNavigation)
             extendNavigationPath(associationName, ((UriResourceNavigation) resourcePart).getProperty().getName());
           pathList.add(new JPANavigationPropertyInfo(sd, source, determineAssociationPath(sd, source, associationName),
               null));
@@ -332,7 +331,8 @@ public final class Util {
 
   /**
    * Finds the index of the first property after the last entity set or navigation resource. This is the resource that
-   * will be returned in case a complex or primitive type is requested.<p>
+   * will be returned in case a complex or primitive type is requested.
+   * <p>
    * Example1 : /Organizations -> -1<br>
    * Example2 : /Organizations('3')/AdministrativeInformation -> 1<br>
    * Example3 : /Organizations('3')/Roles -> -1<br>

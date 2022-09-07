@@ -71,6 +71,10 @@ public interface JPAServiceDocument extends CustomETagSupport {
   JPAFunction getFunction(final EdmFunction function);
 
   /**
+   * Find an Action. As the selection for overloaded actions, as described in
+   * <a href="https://docs.oasis-open.org/odata/odata/v4.01/odata-v4.01-part1-protocol.html#_Toc31359015">
+   * Action Overload Resolution (part1 protocol 11.5.5.2)</a> is done by Olingo, a resolution is not performed.
+   *
    * @param action
    * @return null if action not found
    */

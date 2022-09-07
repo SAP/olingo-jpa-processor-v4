@@ -1,6 +1,7 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -22,7 +23,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 class IntermediateEnumerationType extends IntermediateModelElement implements JPAEnumerationAttribute {
 
   private CsdlEnumType edmEnumType;
-  private Class<?> javaEnum;
+  private final Class<?> javaEnum;
   private EdmEnumeration annotation;
   private List<?> javaMembers;
 
@@ -33,7 +34,7 @@ class IntermediateEnumerationType extends IntermediateModelElement implements JP
   }
 
   @Override
-  public Object convert(List<String> values) throws ODataJPAModelException {
+  public Object convert(final List<String> values) throws ODataJPAModelException {
     if (values == null || values.isEmpty())
       return null;
     if (annotation.converter() == EdmEnumeration.DummyConverter.class)
@@ -53,7 +54,7 @@ class IntermediateEnumerationType extends IntermediateModelElement implements JP
     if (edmEnumType == null) {
       lazyBuildEdmItem();
     }
-    for (Object member : javaMembers)
+    for (final Object member : javaMembers)
       if (((T) member).name().equals(value))
         return (T) member;
     return null;
@@ -66,19 +67,23 @@ class IntermediateEnumerationType extends IntermediateModelElement implements JP
       lazyBuildEdmItem();
     }
     if (annotation.converter() != DummyConverter.class) {
-      try {
-        final AttributeConverter<Enum<?>[], T> converter = (AttributeConverter<Enum<?>[], T>) annotation.converter()
-            .newInstance();
-        return (E) (converter.convertToEntityAttribute(value)[0]);
-      } catch (InstantiationException | IllegalAccessException e) {
-        throw new ODataJPAModelException(e);
-      }
+      return (E) (createConverter().convertToEntityAttribute(value)[0]);
     } else {
-      for (Object member : javaMembers)
+      for (final Object member : javaMembers)
         if (((Enum<?>) member).ordinal() == (Integer) value)
           return (E) member;
     }
     return null;
+  }
+
+  @SuppressWarnings("unchecked")
+  private <T extends Number> AttributeConverter<Enum<?>[], T> createConverter() throws ODataJPAModelException {
+    try {
+      return (AttributeConverter<Enum<?>[], T>) annotation.converter().getDeclaredConstructor().newInstance();
+    } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+        | NoSuchMethodException | SecurityException e) {
+      throw new ODataJPAModelException(e);
+    }
   }
 
   @Override
@@ -92,14 +97,9 @@ class IntermediateEnumerationType extends IntermediateModelElement implements JP
   @SuppressWarnings("unchecked")
   @Override
   public <T extends Number> T valueOf(final String value) throws ODataJPAModelException {
-    try {
-      final AttributeConverter<Enum<?>[], ? extends Number> converter =
-          (AttributeConverter<Enum<?>[], ? extends Number>) annotation.converter().newInstance();
-      final Enum<?>[] array = getArray(javaEnum, 1, enumOf(value));
-      return (T) converter.convertToDatabaseColumn(array);
-    } catch (InstantiationException | IllegalAccessException e) {
-      throw new ODataJPAModelException(e);
-    }
+
+    final Enum<?>[] array = getArray(javaEnum, 1, enumOf(value));
+    return (T) createConverter().convertToDatabaseColumn(array);
   }
 
   @SuppressWarnings("unchecked")
@@ -110,14 +110,7 @@ class IntermediateEnumerationType extends IntermediateModelElement implements JP
     if (annotation.converter() == EdmEnumeration.DummyConverter.class)
       return valueOf(values.get(0));
     else {
-      try {
-        final AttributeConverter<Enum<?>[], T> converter = (AttributeConverter<Enum<?>[], T>) annotation.converter()
-            .newInstance();
-        return converter.convertToDatabaseColumn((Enum<?>[]) convert(values));
-      } catch (InstantiationException | IllegalAccessException e) {
-        throw new ODataJPAModelException(e);
-      }
-
+      return (T) createConverter().convertToDatabaseColumn((Enum<?>[]) convert(values));
     }
   }
 
@@ -149,9 +142,9 @@ class IntermediateEnumerationType extends IntermediateModelElement implements JP
     for (final Object constants : javaMembers) {
       if (constants instanceof Enum) {
         final Enum<?> e = (Enum<?>) constants;
-        CsdlEnumMember member = new CsdlEnumMember();
+        final CsdlEnumMember member = new CsdlEnumMember();
         member.setName(e.name());
-        Number value = valueOf(e.toString());
+        final Number value = valueOf(e.toString());
         if (determineIsFlag() && value.longValue() < 0L)
           // An Enumeration that is marked as Flag must not have a negative value: '%1$s - %2$s'.
           throw new ODataJPAModelException(MessageKeys.ENUMERATION_NO_NEGATIVE_VALUE, e.name(), javaEnum
@@ -191,13 +184,13 @@ class IntermediateEnumerationType extends IntermediateModelElement implements JP
   }
 
   @SuppressWarnings("unchecked")
-  private <E extends Enum<?>> E[] getArray(Class<?> javaEnum, int size, Enum<?> e) {
-    E[] arr = (E[]) Array.newInstance(javaEnum, size);
+  private <E extends Enum<?>> E[] getArray(final Class<?> javaEnum, final int size, final Enum<?> e) {
+    final E[] arr = (E[]) Array.newInstance(javaEnum, size);
     arr[0] = (E) e;
     return arr;
   }
 
-  private boolean isValidType(EdmPrimitiveTypeKind type) {
+  private boolean isValidType(final EdmPrimitiveTypeKind type) {
     // "Edm.Byte, Edm.SByte, Edm.Int16, Edm.Int32, or Edm.Int64."
     return type == EdmPrimitiveTypeKind.Byte
         || type == EdmPrimitiveTypeKind.Int16

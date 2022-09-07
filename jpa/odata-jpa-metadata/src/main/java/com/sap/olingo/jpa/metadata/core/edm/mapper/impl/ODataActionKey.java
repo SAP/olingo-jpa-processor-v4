@@ -8,6 +8,12 @@ import org.apache.olingo.commons.api.edm.provider.CsdlParameter;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
+/**
+ *
+ * @author Oliver Grande
+ * @since 1.1.0
+ * 04.09.2022
+ */
 class ODataActionKey {
 
   private final String externalName;

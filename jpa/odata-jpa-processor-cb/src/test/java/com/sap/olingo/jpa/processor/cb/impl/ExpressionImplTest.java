@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -118,13 +117,8 @@ class ExpressionImplTest {
 
     final FromImpl<?, ?> p = new FromImpl<>(type, ab, cb);
     final DistinctExpression<Long> act = new ExpressionImpl.DistinctExpression<>(p);
-
-    try {
-      act.asSQL(new StringBuilder());
-      fail("Missing exception");
-    } catch (final IllegalStateException e) {
-      // All fine
-    }
+    final StringBuilder sb = new StringBuilder();
+    assertThrows(IllegalStateException.class, () -> act.asSQL(sb));
   }
 
   private static class ExpressionTest extends ExpressionImpl<Long> {

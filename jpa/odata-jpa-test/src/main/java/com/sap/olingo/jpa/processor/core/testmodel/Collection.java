@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.ElementCollection;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -12,6 +13,8 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.Table;
+
+import com.sap.olingo.jpa.metadata.converter.OffsetDateTimeConverter;
 
 @Entity
 @Table(schema = "\"OLINGO\"", name = "\"Collections\"")
@@ -31,6 +34,7 @@ public class Collection {
       joinColumns = @JoinColumn(name = "\"ID\""))
   private List<CollectionNestedComplex> nested; // Must not be assigned to an ArrayList
 
+  @Convert(converter = OffsetDateTimeConverter.class)
   @Column(name = "\"Timestamp\"")
   private OffsetDateTime dateTime;
 

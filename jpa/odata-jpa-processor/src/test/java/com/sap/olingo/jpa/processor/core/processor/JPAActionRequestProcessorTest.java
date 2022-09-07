@@ -71,12 +71,14 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.serializer.JPAOperationSerializer;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
+import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.CommunicationData;
+import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testobjects.FileAccess;
 import com.sap.olingo.jpa.processor.core.testobjects.TestJavaActionNoParameter;
 import com.sap.olingo.jpa.processor.core.testobjects.TestJavaActions;
 
-class JPAActionProcessorTest {
+class JPAActionRequestProcessorTest {
 
   private JPAActionRequestProcessor cut;
   private ContentType requestFormat;
@@ -385,8 +387,38 @@ class JPAActionProcessorTest {
     assertEquals(20, TestJavaActionNoParameter.param2);
   }
 
+  @Test
+  void testCallsActionVoidBindingParameterAbstractCallBySubtype() throws ODataJPAProcessException,
+      NoSuchMethodException, SecurityException, ODataJPAModelException, NumberFormatException,
+      EdmPrimitiveTypeException, ODataApplicationException {
+
+    TestJavaActionNoParameter.resetCalls();
+    final Method m = setConstructorAndMethod("boundBindingSuperType", BusinessPartner.class);
+    when(edmAction.isBound()).thenReturn(Boolean.TRUE);
+    uriResources.add(0, bindingEntity);
+
+    final JPAParameter bindingParam = addParameter(m, null, "Root", 0);
+    when(bindingParam.getType()).thenAnswer(new Answer<Class<?>>() {
+      @Override
+      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
+        return BusinessPartner.class;
+      }
+    });
+    final JPAEntityType et = mock(JPAEntityType.class);
+    when(sd.getEntity((EdmType) any())).thenReturn(et);
+    when(et.getTypeClass()).thenAnswer(new Answer<Class<?>>() {
+      @Override
+      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
+        return Organization.class;
+      }
+    });
+    cut.performAction(request, response, requestFormat);
+    verify(response, times(1)).setStatusCode(204);
+  }
+
   private void setBindingParameter(final Method m) throws ODataJPAModelException, EdmPrimitiveTypeException {
     final JPAParameter bindingParam = addParameter(m, null, "Root", 0);
+
     when(bindingParam.getType()).thenAnswer(new Answer<Class<?>>() {
       @Override
       public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
@@ -408,6 +440,12 @@ class JPAActionProcessorTest {
     when(sd.getEntity((EdmType) any())).thenReturn(et);
     when(et.getPath("CodeID")).thenReturn(codePath);
     when(et.getAttribute("codeID")).thenReturn(Optional.of(code));
+    when(et.getTypeClass()).thenAnswer(new Answer<Class<?>>() {
+      @Override
+      public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
+        return AdministrativeDivision.class;
+      }
+    });
     when(codePath.getLeaf()).thenReturn(code);
     when(code.getInternalName()).thenReturn("codeID");
     when(code.getType()).thenAnswer(new Answer<Class<?>>() {

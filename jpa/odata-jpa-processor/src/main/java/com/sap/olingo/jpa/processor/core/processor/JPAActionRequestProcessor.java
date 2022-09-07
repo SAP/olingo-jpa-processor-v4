@@ -26,7 +26,7 @@ import org.apache.olingo.server.api.uri.UriResourceAction;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAction;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
@@ -105,8 +105,7 @@ public class JPAActionRequestProcessor extends JPAOperationRequestProcessor {
     for (int i = 0; i < methodParameter.length; i++) {
       final Parameter declaredParameter = methodParameter[i];
       if (i == 0 && resource.getAction().isBound()) {
-        parameter.add(createBindingParameter((UriResourceEntitySet) resourceList.get(resourceList.size() - 2),
-            jpaAction.getParameter(declaredParameter)));
+        parameter.add(createBindingParameter((UriResourceEntitySet) resourceList.get(resourceList.size() - 2)));
       } else {
         // Any nullable parameter values not specified in the request MUST be assumed to have the null value.
         // This is guaranteed by Olingo => no code needed
@@ -121,19 +120,22 @@ public class JPAActionRequestProcessor extends JPAOperationRequestProcessor {
     return parameter;
   }
 
-  private Object createBindingParameter(final UriResourceEntitySet entitySet, final JPAParameter parameter)
-      throws ODataJPAModelException, ODataApplicationException {
+  private Object createBindingParameter(final UriResourceEntitySet entitySet) throws ODataJPAModelException,
+      ODataApplicationException {
     try {
-
-      final JPAConversionHelper helper = new JPAConversionHelper();
-      final JPAModifyUtil util = new JPAModifyUtil();
-      final Constructor<?> c = parameter.getType().getConstructor();
-      final Map<String, Object> jpaAttributes = helper.convertUriKeys(odata, sd.getEntity(entitySet.getEntityType()),
-          entitySet.getKeyPredicates());
-      if (c != null) {
-        final Object param = c.newInstance();
-        util.setAttributesDeep(jpaAttributes, param, sd.getEntity(entitySet.getEntityType()));
-        return param;
+      final JPAEntityType et = sd.getEntity(entitySet.getType());
+      if (et != null) {
+        final JPAConversionHelper helper = new JPAConversionHelper();
+        final JPAModifyUtil util = new JPAModifyUtil();
+        // Take the constructor of the original binding parameter, as Olingo may have selected an action having a super
+        // type has binding parameter and the corresponding Java class is abstract.
+        final Constructor<?> c = et.getTypeClass().getConstructor();
+        final Map<String, Object> jpaAttributes = helper.convertUriKeys(odata, et, entitySet.getKeyPredicates());
+        if (c != null) {
+          final Object param = c.newInstance();
+          util.setAttributesDeep(jpaAttributes, param, sd.getEntity(entitySet.getEntityType()));
+          return param;
+        }
       }
     } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
         | IllegalArgumentException e) {

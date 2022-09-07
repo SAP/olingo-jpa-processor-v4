@@ -53,7 +53,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
  * Created: 10.02.2020
  *
  */
-class TestJPAEdmProvider {
+class JPAEdmProviderTest {
   private static final String PUNIT_NAME = "com.sap.olingo.jpa";
   private static final String[] enumPackages = { "com.sap.olingo.jpa.processor.core.testmodel" };
   private static EntityManagerFactory emf;

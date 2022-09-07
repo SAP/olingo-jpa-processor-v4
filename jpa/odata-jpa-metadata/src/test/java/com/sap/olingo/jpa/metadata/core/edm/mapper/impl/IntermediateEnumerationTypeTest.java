@@ -13,6 +13,7 @@ import org.mockito.MockitoAnnotations;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.DayOfWeek;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.EnumWithConverterError;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.FileAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.WrongMember;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.WrongType;
@@ -42,12 +43,25 @@ class IntermediateEnumerationTypeTest extends TestMappingRoot {
   @Test
   void checkIsFlagProvidesFalse() throws ODataJPAModelException {
     cut = new IntermediateEnumerationType(new JPADefaultEdmNameBuilder(PUNIT_NAME), DayOfWeek.class);
+    assertFalse(cut.isFlags());
+  }
+
+  @Test
+  void checkIsFlagProvidesTrue() throws ODataJPAModelException {
+    cut = new IntermediateEnumerationType(new JPADefaultEdmNameBuilder(PUNIT_NAME), FileAccess.class);
+    cut.getEdmItem();
+    assertTrue(cut.isFlags());
+  }
+
+  @Test
+  void checkIsFlagOnEdmTypeProvidesFalse() throws ODataJPAModelException {
+    cut = new IntermediateEnumerationType(new JPADefaultEdmNameBuilder(PUNIT_NAME), DayOfWeek.class);
     cut.getEdmItem();
     assertFalse(cut.getEdmItem().isFlags());
   }
 
   @Test
-  void checkIsFlagProvidesTrue() throws ODataJPAModelException {
+  void checkIsFlagOnEdmProvidesTrue() throws ODataJPAModelException {
     cut = new IntermediateEnumerationType(new JPADefaultEdmNameBuilder(PUNIT_NAME), FileAccess.class);
     cut.getEdmItem();
     assertTrue(cut.getEdmItem().isFlags());
@@ -153,5 +167,11 @@ class IntermediateEnumerationTypeTest extends TestMappingRoot {
   void checkOrdinalMemberProvidedFromNumberWithConverter() throws ODataJPAModelException {
     cut = new IntermediateEnumerationType(new JPADefaultEdmNameBuilder(PUNIT_NAME), FileAccess.class);
     assertEquals(FileAccess.Write, cut.enumOf((short) 2));
+  }
+
+  @Test
+  void checkValueOfRethrowsCOnstructorException() throws ODataJPAModelException {
+    cut = new IntermediateEnumerationType(new JPADefaultEdmNameBuilder(PUNIT_NAME), EnumWithConverterError.class);
+    assertThrows(ODataJPAModelException.class, () -> cut.lazyBuildEdmItem());
   }
 }

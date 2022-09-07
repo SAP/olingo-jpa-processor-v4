@@ -28,25 +28,23 @@ public abstract class IntermediateOperationFactory<O extends IntermediateOperati
   abstract O createOperation(final JPAEdmNameBuilder nameBuilder, final IntermediateSchema schema,
       final Method m, final Object functionDescription) throws ODataJPAModelException;
 
-  Map<String, O> createOperationMap(final JPAEdmNameBuilder nameBuilder,
-      final Reflections reflections, final IntermediateSchema schema, final Class<? extends ODataOperation> clazz,
-      final Class<? extends Annotation> annotation)
-      throws ODataJPAModelException {
+  @SuppressWarnings("unchecked")
+  Map<String, O> createOperationMap(final JPAEdmNameBuilder nameBuilder, final Reflections reflections,
+      final IntermediateSchema schema, final Class<? extends ODataOperation> clazz,
+      final Class<? extends Annotation> annotation) throws ODataJPAModelException {
 
     final Map<String, O> operations = new HashMap<>();
     if (reflections != null) {
-      @SuppressWarnings("unchecked")
-      final Set<Class<? extends ODataOperation>> operationClasses =
-          (Set<Class<? extends ODataOperation>>) findJavaOperations(reflections, clazz);
-
-      for (final Class<? extends ODataOperation> operationClass : operationClasses) {
-        processOneClass(nameBuilder, schema, annotation, operations, operationClass);
+      final Set<?> operationClasses = findJavaOperations(reflections, clazz);
+      for (final Object operationClass : operationClasses) {
+        processOneClass(nameBuilder, schema, annotation, operations, (Class<? extends ODataOperation>) operationClass);
       }
     }
     return operations;
   }
 
-  Set<?> findJavaOperations(final Reflections reflections, final Class<? extends ODataOperation> clazz) {
+  <T extends ODataOperation> Set<Class<? extends T>> findJavaOperations(final Reflections reflections,
+      final Class<T> clazz) {
     return reflections.getSubTypesOf(clazz);
   }
 

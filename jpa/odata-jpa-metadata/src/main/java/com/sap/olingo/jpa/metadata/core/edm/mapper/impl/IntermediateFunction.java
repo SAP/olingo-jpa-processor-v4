@@ -18,7 +18,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
 /**
- * Mapper, that is able to convert different metadata resources into a edm function metadata. It is important to know
+ * Mapper that is able to convert different metadata resources into a edm function metadata. It is important to know
  * that:
  * <cite>Functions MUST NOT have observable side effects and MUST return a single instance or a collection of instances
  * of any type.</cite>

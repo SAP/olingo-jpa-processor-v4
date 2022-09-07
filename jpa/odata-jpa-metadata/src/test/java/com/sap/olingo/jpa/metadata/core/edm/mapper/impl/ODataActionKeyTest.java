@@ -1,7 +1,6 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -65,14 +64,13 @@ class ODataActionKeyTest {
     assertNotEquals(0, cut.hashCode());
   }
 
-  @SuppressWarnings("unlikely-arg-type")
   @Test
   void checkEquals() throws ODataJPAModelException {
     final IntermediateOperation other = createBoundOperation(mock(CsdlAction.class), "Other");
 
     assertEquals(cut, cut);
-    assertFalse(cut.equals("Test"));
-    assertFalse(cut.equals(new ODataActionKey(other)));
+    assertNotEquals("Test", cut);
+    assertNotEquals(new ODataActionKey(other), cut);
   }
 
   @Test

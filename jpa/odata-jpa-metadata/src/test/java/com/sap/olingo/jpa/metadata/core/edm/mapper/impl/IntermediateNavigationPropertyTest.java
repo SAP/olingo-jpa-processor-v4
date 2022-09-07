@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
@@ -40,10 +41,12 @@ import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.api.JPAJoinColumn;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEnumeration;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmProtectedBy;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmVisibleFor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateEntityTypeAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateNavigationPropertyAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediatePropertyAccess;
@@ -99,6 +102,17 @@ class IntermediateNavigationPropertyTest extends TestMappingRoot {
             PUNIT_NAME), schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
 
     assertEquals("Roles", property.getEdmItem().getName(), "Wrong name");
+  }
+
+  @Test
+  void checkGetNameIfSource() throws ODataJPAModelException {
+    final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(
+        helper.getEntityType(BusinessPartnerRole.class), "organization");
+    final IntermediateNavigationProperty<BusinessPartner> property = new IntermediateNavigationProperty<>(
+        new JPADefaultEdmNameBuilder(
+            PUNIT_NAME), schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
+
+    assertEquals("Organization", property.getEdmItem().getName(), "Wrong name");
   }
 
   @Test
@@ -679,6 +693,22 @@ class IntermediateNavigationPropertyTest extends TestMappingRoot {
     assertFalse(property.isEtag());
   }
 
+  @Test
+  void checkGetRequiredProperties() throws ODataJPAModelException {
+    final IntermediateNavigationProperty<JoinSource> property = new IntermediateNavigationProperty<>(
+        new JPADefaultEdmNameBuilder(
+            PUNIT_NAME), schema.getEntityType(JoinSource.class), createDummyAttribute(), schema);
+    assertTrue(property.getRequiredProperties().isEmpty());
+  }
+
+  @Test
+  void checkToString() throws ODataJPAModelException {
+    final IntermediateNavigationProperty<JoinSource> property = new IntermediateNavigationProperty<>(
+        new JPADefaultEdmNameBuilder(
+            PUNIT_NAME), schema.getEntityType(JoinSource.class), createDummyAttribute(), schema);
+    final String act = property.toString();
+    assertTrue(act.toLowerCase().contains("willi"));
+  }
 //  @Test
 //  void checkSetAnnotations() throws ODataJPAModelException {
 //    final IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(
@@ -753,6 +783,68 @@ class IntermediateNavigationPropertyTest extends TestMappingRoot {
     assertEquals(1, act.size());
     assertEquals("DEFAULTSOURCE_KEY", act.get(0).getName());
     assertEquals("key", act.get(0).getReferencedColumnName());
+  }
+
+  @Test
+  void checkConsistencyThrowsExceptionIfProtected() throws ODataJPAModelException {
+    final EdmProtectedBy jpaProtectedBy = mock(EdmProtectedBy.class);
+    final Attribute<?, ?> attribute = createDummyAttribute();
+    final Member member = attribute.getJavaMember();
+    when(((AnnotatedElement) member).getAnnotation(EdmProtectedBy.class)).thenReturn(jpaProtectedBy);
+    final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
+        () -> new IntermediateNavigationProperty<>(
+            new JPADefaultEdmNameBuilder(
+                PUNIT_NAME), schema.getEntityType(JoinSource.class), attribute, schema));
+    assertEquals(MessageKeys.NOT_SUPPORTED_PROTECTED_NAVIGATION.getKey(), act.getId());
+  }
+
+  @Test
+  void checkConsistencyThrowsExceptionHaveFieldGroup() throws ODataJPAModelException {
+    final EdmVisibleFor jpaFieldGroups = mock(EdmVisibleFor.class);
+    final Attribute<?, ?> attribute = createDummyAttribute();
+    final Member member = attribute.getJavaMember();
+    when(((AnnotatedElement) member).getAnnotation(EdmVisibleFor.class)).thenReturn(jpaFieldGroups);
+    final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
+        () -> new IntermediateNavigationProperty<>(
+            new JPADefaultEdmNameBuilder(
+                PUNIT_NAME), schema.getEntityType(JoinSource.class), attribute, schema));
+    assertEquals(MessageKeys.NOT_SUPPORTED_NAVIGATION_PART_OF_GROUP.getKey(), act.getId());
+  }
+
+  @Test
+  void checkGetStructuredTypeCallsLazyBuild() throws ODataJPAModelException {
+    final EntityType<?> et = helper.getEntityType(AdministrativeDivision.class);
+
+    final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(et, "parent");
+    final IntermediateNavigationProperty<?> cut = new IntermediateNavigationProperty<>(
+        new JPADefaultEdmNameBuilder(
+            PUNIT_NAME), schema.getEntityType(et.getJavaType()), jpaAttribute, schema);
+
+    assertNotNull(cut.getStructuredType());
+  }
+
+  @Test
+  void checkGetTargetEntityCallsLazyBuild() throws ODataJPAModelException {
+    final EntityType<?> et = helper.getEntityType(AdministrativeDivision.class);
+
+    final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(et, "parent");
+    final IntermediateNavigationProperty<?> cut = new IntermediateNavigationProperty<>(
+        new JPADefaultEdmNameBuilder(
+            PUNIT_NAME), schema.getEntityType(et.getJavaType()), jpaAttribute, schema);
+
+    assertNotNull(cut.getTargetEntity());
+  }
+
+  @Test
+  void checkGetRequiredDbColumnsCallsLazyBuild() throws ODataJPAModelException {
+    final EntityType<?> et = helper.getEntityType(AdministrativeDivision.class);
+
+    final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(et, "parent");
+    final IntermediateNavigationProperty<?> cut = new IntermediateNavigationProperty<>(
+        new JPADefaultEdmNameBuilder(
+            PUNIT_NAME), schema.getEntityType(et.getJavaType()), jpaAttribute, schema);
+
+    assertFalse(cut.getRequiredDbColumns().isEmpty());
   }
 
   private Attribute<?, ?> createDummyAttribute() {

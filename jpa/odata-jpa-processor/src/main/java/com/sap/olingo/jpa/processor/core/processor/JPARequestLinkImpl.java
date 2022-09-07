@@ -70,41 +70,53 @@ final class JPARequestLinkImpl implements JPARequestLink {
     final String[] entityTypeAndKey = bindingLink.split("[\\(\\)]");
     final String[] keyElements = entityTypeAndKey[1].split("[,=]");
     if (keyElements.length > 1) {
-      for (int i = 0; i < keyElements.length; i += 2) {
-        for (final JPAOnConditionItem item : path.getJoinColumnsList()) {
-          if (item.getLeftPath().getLeaf().getExternalName().equals(keyElements[i].trim())) {
-
-            keys.put(item.getLeftPath().getLeaf().getInternalName(), convertKeyValue(odata, keyElements[i + 1].trim(),
-                item.getLeftPath()));
-            values.put(item.getRightPath().getLeaf().getInternalName(), convertKeyValue(odata, keyElements[i + 1]
-                .trim(), item.getRightPath()));
-            break;
-          }
-          if (item.getRightPath().getLeaf().getExternalName().equals(keyElements[i].trim())) {
-            keys.put(item.getRightPath().getLeaf().getInternalName(), convertKeyValue(odata, keyElements[i + 1].trim(),
-                item.getRightPath()));
-            values.put(item.getLeftPath().getLeaf().getInternalName(), convertKeyValue(odata, keyElements[i + 1].trim(),
-                item.getLeftPath()));
-          }
-        }
-      }
+      buildCompoundKeys(odata, keyElements);
     } else {
-      // If an entity has only one key property, it is allowed to omit the property name
-      final List<JPAAttribute> targetKeys = ((JPAEntityType) path.getTargetType()).getKey();
-      final String attributeName = targetKeys.get(0).getInternalName();
-      final JPAOnConditionItem item = path.getJoinColumnsList().get(0);
-      if (item.getRightPath().getLeaf().getInternalName().equals(attributeName)) {
-        keys.put(item.getRightPath().getLeaf().getInternalName(), convertKeyValue(odata, keyElements[0].trim(), item
-            .getRightPath()));
-        values.put(item.getLeftPath().getLeaf().getInternalName(), convertKeyValue(odata, keyElements[0].trim(), item
-            .getLeftPath()));
-        return;
-      }
-      if (item.getLeftPath().getLeaf().getInternalName().equals(attributeName)) {
-        keys.put(item.getLeftPath().getLeaf().getInternalName(), convertKeyValue(odata, keyElements[0].trim(), item
-            .getLeftPath()));
-        values.put(item.getRightPath().getLeaf().getInternalName(), convertKeyValue(odata, keyElements[0].trim(), item
-            .getRightPath()));
+      buildSimpleKeys(odata, keyElements);
+    }
+  }
+
+  private void buildSimpleKeys(final OData odata, final String[] keyElements) throws ODataJPAModelException,
+      NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException,
+      EdmPrimitiveTypeException {
+    // If an entity has only one key property, it is allowed to omit the property name
+    final List<JPAAttribute> targetKeys = ((JPAEntityType) path.getTargetType()).getKey();
+    final String attributeName = targetKeys.get(0).getInternalName();
+    final JPAOnConditionItem item = path.getJoinColumnsList().get(0);
+    if (item.getRightPath().getLeaf().getInternalName().equals(attributeName)) {
+      keys.put(item.getRightPath().getLeaf().getInternalName(), convertKeyValue(odata, keyElements[0].trim(), item
+          .getRightPath()));
+      values.put(item.getLeftPath().getLeaf().getInternalName(), convertKeyValue(odata, keyElements[0].trim(), item
+          .getLeftPath()));
+      return;
+    }
+    if (item.getLeftPath().getLeaf().getInternalName().equals(attributeName)) {
+      keys.put(item.getLeftPath().getLeaf().getInternalName(), convertKeyValue(odata, keyElements[0].trim(), item
+          .getLeftPath()));
+      values.put(item.getRightPath().getLeaf().getInternalName(), convertKeyValue(odata, keyElements[0].trim(), item
+          .getRightPath()));
+    }
+  }
+
+  private void buildCompoundKeys(final OData odata, final String[] keyElements) throws ODataJPAModelException,
+      NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException,
+      EdmPrimitiveTypeException {
+    for (int i = 0; i < keyElements.length; i += 2) {
+      for (final JPAOnConditionItem item : path.getJoinColumnsList()) {
+        if (item.getLeftPath().getLeaf().getExternalName().equals(keyElements[i].trim())) {
+
+          keys.put(item.getLeftPath().getLeaf().getInternalName(), convertKeyValue(odata, keyElements[i + 1].trim(),
+              item.getLeftPath()));
+          values.put(item.getRightPath().getLeaf().getInternalName(), convertKeyValue(odata, keyElements[i + 1]
+              .trim(), item.getRightPath()));
+          break;
+        }
+        if (item.getRightPath().getLeaf().getExternalName().equals(keyElements[i].trim())) {
+          keys.put(item.getRightPath().getLeaf().getInternalName(), convertKeyValue(odata, keyElements[i + 1].trim(),
+              item.getRightPath()));
+          values.put(item.getLeftPath().getLeaf().getInternalName(), convertKeyValue(odata, keyElements[i + 1].trim(),
+              item.getLeftPath()));
+        }
       }
     }
   }
