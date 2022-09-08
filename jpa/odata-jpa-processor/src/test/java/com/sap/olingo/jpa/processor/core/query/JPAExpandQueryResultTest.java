@@ -32,7 +32,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
-import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 import com.sap.olingo.jpa.processor.core.util.TupleDouble;
@@ -72,7 +72,7 @@ class JPAExpandQueryResultTest extends TestBase {
   }
 
   @Test
-  void checkGetKeyBoundaryEmptyBoundaryNoTopSkipPageEmpty() throws ODataJPAModelException, ODataJPAQueryException {
+  void checkGetKeyBoundaryEmptyBoundaryNoTopSkipPageEmpty() throws ODataJPAModelException, ODataJPAProcessException {
 
     cut = new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType("Organizations"),
         Collections.emptyList());
@@ -82,7 +82,7 @@ class JPAExpandQueryResultTest extends TestBase {
 
   @Test
   void checkGetKeyBoundaryEmptyBoundaryExpandWithoutTopSkip() throws ODataJPAModelException,
-      ODataJPAQueryException {
+      ODataJPAProcessException {
 
     cut = new JPAExpandQueryResult(queryResult, null, helper.getJPAEntityType("AdministrativeDivisionDescriptions"),
         Collections.emptyList());
@@ -92,7 +92,7 @@ class JPAExpandQueryResultTest extends TestBase {
   }
 
   @Test
-  void checkGetKeyBoundaryEmptyBoundaryNoExpand() throws ODataJPAModelException, ODataJPAQueryException {
+  void checkGetKeyBoundaryEmptyBoundaryNoExpand() throws ODataJPAModelException, ODataJPAProcessException {
 
     final Map<String, Object> key = new HashMap<>(1);
     final TupleDouble tuple = new TupleDouble(key);
@@ -117,7 +117,7 @@ class JPAExpandQueryResultTest extends TestBase {
   }
 
   @Test
-  void checkGetKeyBoundaryEmptyBoundaryNoResult() throws ODataJPAModelException, ODataJPAQueryException {
+  void checkGetKeyBoundaryEmptyBoundaryNoResult() throws ODataJPAModelException, ODataJPAProcessException {
 
     queryResult.put("root", Collections.emptyList());
 
@@ -131,7 +131,7 @@ class JPAExpandQueryResultTest extends TestBase {
   }
 
   @Test
-  void checkGetKeyBoundaryOneResultWithTop() throws ODataJPAModelException, ODataJPAQueryException {
+  void checkGetKeyBoundaryOneResultWithTop() throws ODataJPAModelException, ODataJPAProcessException {
 
     final Map<String, Object> key = new HashMap<>(1);
     final TupleDouble tuple = new TupleDouble(key);
@@ -147,7 +147,7 @@ class JPAExpandQueryResultTest extends TestBase {
   }
 
   @Test
-  void checkGetKeyBoundaryOneResultWithSkip() throws ODataJPAModelException, ODataJPAQueryException {
+  void checkGetKeyBoundaryOneResultWithSkip() throws ODataJPAModelException, ODataJPAProcessException {
 
     addTuple(12);
     cut = new JPAExpandQueryResult(queryResult, null, et, Collections.emptyList());
@@ -160,7 +160,7 @@ class JPAExpandQueryResultTest extends TestBase {
   }
 
   @Test
-  void checkGetKeyBoundaryContainsNoHops() throws ODataJPAModelException, ODataJPAQueryException {
+  void checkGetKeyBoundaryContainsNoHops() throws ODataJPAModelException, ODataJPAProcessException {
 
     addTuple(12);
     cut = new JPAExpandQueryResult(queryResult, null, et, Collections.emptyList());
@@ -173,7 +173,7 @@ class JPAExpandQueryResultTest extends TestBase {
   }
 
   @Test
-  void checkGetKeyBoundaryTwoResultWithSkip() throws ODataJPAModelException, ODataJPAQueryException {
+  void checkGetKeyBoundaryTwoResultWithSkip() throws ODataJPAModelException, ODataJPAProcessException {
 
     addTuple(12);
     addTuple(15);
@@ -188,7 +188,7 @@ class JPAExpandQueryResultTest extends TestBase {
   }
 
   @Test
-  void checkGetKeyBoundaryOneCompoundResultWithTop() throws ODataJPAModelException, ODataJPAQueryException {
+  void checkGetKeyBoundaryOneCompoundResultWithTop() throws ODataJPAModelException, ODataJPAProcessException {
 
     final Map<String, Object> key = new HashMap<>(1);
     final TupleDouble tuple = new TupleDouble(key);
@@ -208,7 +208,7 @@ class JPAExpandQueryResultTest extends TestBase {
   }
 
   @Test
-  void checkGetKeyBoundaryCollectionRequested() throws ODataJPAModelException, ODataJPAQueryException {
+  void checkGetKeyBoundaryCollectionRequested() throws ODataJPAModelException, ODataJPAProcessException {
 
     addTuple(12);
     addTuple(15);
@@ -223,7 +223,7 @@ class JPAExpandQueryResultTest extends TestBase {
   }
 
   @Test
-  void checkGetKeyBoundaryEmptyBoundaryNoTopSkipPageSkip() throws ODataJPAModelException, ODataJPAQueryException {
+  void checkGetKeyBoundaryEmptyBoundaryNoTopSkipPageSkip() throws ODataJPAModelException, ODataJPAProcessException {
 
     addTuple(12);
     when(uriInfo.getExpandOption()).thenReturn(expand);
@@ -235,7 +235,7 @@ class JPAExpandQueryResultTest extends TestBase {
   }
 
   @Test
-  void checkGetKeyBoundaryEmptyBoundaryNoTopSkipPageTop() throws ODataJPAModelException, ODataJPAQueryException {
+  void checkGetKeyBoundaryEmptyBoundaryNoTopSkipPageTop() throws ODataJPAModelException, ODataJPAProcessException {
 
     addTuple(12);
     when(uriInfo.getExpandOption()).thenReturn(expand);

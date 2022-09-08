@@ -36,6 +36,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAKeyPairException;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 
@@ -248,14 +249,14 @@ class TestJPAExpandJoinQuery extends TestBase {
     return item;
   }
 
-  private void setSimpleKey(final Integer value) throws ODataJPAModelException {
+  private void setSimpleKey(final Integer value) throws ODataJPAModelException, ODataJPAKeyPairException {
     simpleKey = new HashMap<>(1);
     simpleKey.put(helper.getJPAEntityType("Organizations").getKey().get(0), value);
     orgPair.setValue(simpleKey);
   }
 
   private void setComplexKey(final String key1, final String key2, final String key3)
-      throws ODataJPAModelException {
+      throws ODataJPAModelException, ODataJPAKeyPairException {
     simpleKey = new HashMap<>(3);
     final JPAEntityType et = helper.getJPAEntityType("AdministrativeDivisions");
     simpleKey.put(et.getKey().get(0), key1);

@@ -3,14 +3,18 @@ package com.sap.olingo.jpa.processor.core.query;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.AttributeConverter;
+
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAKeyPairException;
 
 /**
- * A pair of comparable entity keys<br>
+ * A pair of comparable entity keys.<br>
  * Such a pair is used to forward the lowest and highest key value from a query to the dependent $expand query in case
- * the original query was restricted by <code>$top</code> and/or <code>$skip</code>.<br>
- * The pair is seen as closed interval, that is min and max are seen as part of the result.
- * 
+ * the original query was restricted by <code>$top</code> and/or <code>$skip</code>.
+ * The pair is seen as closed interval, that is min and max are seen as part of the result. In case an attribute of the
+ * key has a conversion, the converted value is used for the comparison.
+ *
  * @author Oliver Grande
  * Created: 13.10.2019
  * @since 0.3.6
@@ -49,24 +53,47 @@ public class JPAKeyPair {
     return max != null && !min.equals(max);
   }
 
-  @SuppressWarnings("unchecked")
-  public void setValue(final Map<JPAAttribute, Comparable> value) {
+  public void setValue(final Map<JPAAttribute, Comparable> keyValues) throws ODataJPAKeyPairException {
 
     for (final JPAAttribute keyElement : keyDefinition) {
+      final Comparable value = keyValues.get(keyElement);
       if (min == null || min.get(keyElement) == null
-          || (value.get(keyElement) != null
-              && value.get(keyElement).compareTo(min.get(keyElement)) < 0)) {
+          || (value != null
+              && compareValues(value, min, keyElement) < 0)) {
         if (max == null)
           max = min;
-        min = value;
+        min = keyValues;
         return;
-      } else if (max == null || value.get(keyElement).compareTo(max.get(keyElement)) > 0) {
-        max = value;
+      } else if (max == null || compareValues(value, max, keyElement) > 0) {
+        max = keyValues;
         return;
-      } else if (value.get(keyElement).compareTo(max.get(keyElement)) != 0) {
+      } else if (compareValues(value, max, keyElement) != 0) {
         return;
       }
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  private int compareValues(final Comparable value, final Map<JPAAttribute, Comparable> comp,
+      final JPAAttribute keyElement) throws ODataJPAKeyPairException {
+
+    final Comparable minValue = comp.get(keyElement);
+    if (keyElement.getRawConverter() != null) {
+      try {
+        final AttributeConverter<Object, Object> converter = keyElement.getRawConverter();
+        if (keyElement.getDbType() == Byte[].class || keyElement.getDbType() == byte[].class) {
+          return new ComparableByteArray(
+              ComparableByteArray.unboxedArray(converter.convertToDatabaseColumn(value))).compareTo(
+                  ComparableByteArray.unboxedArray(converter.convertToDatabaseColumn(minValue)));
+        }
+        return ((Comparable) converter.convertToDatabaseColumn(value))
+            .compareTo(converter.convertToDatabaseColumn(minValue));
+      } catch (final ClassCastException e) {
+        throw new ODataJPAKeyPairException(e, keyElement.getDbType() == null ? keyElement.getType().getSimpleName()
+            : keyElement.getDbType().getSimpleName());
+      }
+    }
+    return value.compareTo(minValue);
   }
 
   @Override

@@ -12,6 +12,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 public interface JPAConvertibleResult {
@@ -44,7 +45,8 @@ public interface JPAConvertibleResult {
    * @throws ODataJPAQueryException
    */
   default Optional<JPAKeyBoundary> getKeyBoundary(final JPAODataRequestContextAccess requestContext,
-      final List<JPANavigationPropertyInfo> hops, final JPAODataPage page) throws ODataJPAQueryException {
+      final List<JPANavigationPropertyInfo> hops, final JPAODataPage page) throws ODataJPAProcessException {
+
     return Optional.empty();
   }
 }
