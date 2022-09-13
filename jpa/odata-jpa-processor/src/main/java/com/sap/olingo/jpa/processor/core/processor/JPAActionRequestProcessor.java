@@ -10,12 +10,12 @@ import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.olingo.commons.api.data.Annotatable;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.ex.ODataException;
 import org.apache.olingo.commons.api.format.ContentType;
-import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataRequest;
@@ -105,7 +105,8 @@ public class JPAActionRequestProcessor extends JPAOperationRequestProcessor {
     for (int i = 0; i < methodParameter.length; i++) {
       final Parameter declaredParameter = methodParameter[i];
       if (i == 0 && resource.getAction().isBound()) {
-        parameter.add(createBindingParameter((UriResourceEntitySet) resourceList.get(resourceList.size() - 2)));
+        parameter.add(createBindingParameter((UriResourceEntitySet) resourceList.get(resourceList.size() - 2))
+            .orElse(null));
       } else {
         // Any nullable parameter values not specified in the request MUST be assumed to have the null value.
         // This is guaranteed by Olingo => no code needed
@@ -120,35 +121,14 @@ public class JPAActionRequestProcessor extends JPAOperationRequestProcessor {
     return parameter;
   }
 
-  private Object createBindingParameter(final UriResourceEntitySet entitySet) throws ODataJPAModelException,
+  private Optional<Object> createBindingParameter(final UriResourceEntitySet entitySet) throws ODataJPAModelException,
       ODataApplicationException {
-    try {
-      final JPAEntityType et = sd.getEntity(entitySet.getType());
-      if (et != null) {
-        final JPAConversionHelper helper = new JPAConversionHelper();
-        final JPAModifyUtil util = new JPAModifyUtil();
-        // Take the constructor of the original binding parameter, as Olingo may have selected an action having a super
-        // type has binding parameter and the corresponding Java class is abstract.
-        final Constructor<?> c = et.getTypeClass().getConstructor();
-        final Map<String, Object> jpaAttributes = helper.convertUriKeys(odata, et, entitySet.getKeyPredicates());
-        if (c != null) {
-          final Object param = c.newInstance();
-          util.setAttributesDeep(jpaAttributes, param, sd.getEntity(entitySet.getEntityType()));
-          return param;
-        }
-      }
-    } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
-        | IllegalArgumentException e) {
-      throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-    } catch (final InvocationTargetException e) {
-      final Throwable cause = e.getCause();
-      if (cause instanceof ODataApplicationException) {
-        throw (ODataApplicationException) cause;
-      } else {
-        throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
-      }
+
+    final JPAEntityType et = sd.getEntity(entitySet.getType());
+    if (et != null) {
+      return new JPAInstanceCreator<>(odata, et).createInstance(entitySet.getKeyPredicates());
     }
-    return null;
+    return Optional.empty();
   }
 
   protected Object createInstance(final Constructor<?> c) throws InstantiationException, IllegalAccessException,

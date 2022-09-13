@@ -109,4 +109,9 @@ class IntermediateVirtualProperty extends IntermediateProperty {
   boolean isPartOfGroup() {
     return false;
   }
+
+  @Override
+  public Class<?> getJavaType() {
+    return dbType;
+  }
 }

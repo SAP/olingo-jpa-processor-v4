@@ -23,6 +23,7 @@ import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -601,6 +602,7 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
     assertTrue(property.conversionRequired);
     assertEquals(Timestamp.class, property.getType());
     assertEquals(Timestamp.class, property.getDbType());
+    assertEquals(LocalDateTime.class, property.getJavaType());
   }
 
   @Test
@@ -613,6 +615,7 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
     assertFalse(property.conversionRequired);
     assertEquals(LocalDate.class, property.getType());
     assertEquals(Date.class, property.getDbType());
+    assertEquals(LocalDate.class, property.getJavaType());
   }
 
   @Test

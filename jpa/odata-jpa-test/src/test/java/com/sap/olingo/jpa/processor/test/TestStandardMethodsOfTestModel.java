@@ -50,6 +50,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.CollectionPartOfComplex;
 import com.sap.olingo.jpa.processor.core.testmodel.CollectionSecondLevelComplex;
 import com.sap.olingo.jpa.processor.core.testmodel.Comment;
 import com.sap.olingo.jpa.processor.core.testmodel.CommunicationData;
+import com.sap.olingo.jpa.processor.core.testmodel.Country;
 import com.sap.olingo.jpa.processor.core.testmodel.CountryKey;
 import com.sap.olingo.jpa.processor.core.testmodel.CountryRestriction;
 import com.sap.olingo.jpa.processor.core.testmodel.DummyToBeIgnored;
@@ -69,6 +70,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.PersonDeepProtectedHidden;
 import com.sap.olingo.jpa.processor.core.testmodel.PersonImage;
 import com.sap.olingo.jpa.processor.core.testmodel.PostalAddressData;
 import com.sap.olingo.jpa.processor.core.testmodel.PostalAddressDataWithGroup;
+import com.sap.olingo.jpa.processor.core.testmodel.Team;
 import com.sap.olingo.jpa.processor.core.testmodel.User;
 
 /**
@@ -118,6 +120,7 @@ class TestStandardMethodsOfTestModel {
         arguments(CollectionFirstLevelComplex.class),
         arguments(CollectionSecondLevelComplex.class),
         arguments(Comment.class),
+        arguments(Country.class),
         arguments(CountryKey.class),
         arguments(CountryRestriction.class),
         arguments(InhouseAddress.class),
@@ -136,6 +139,7 @@ class TestStandardMethodsOfTestModel {
         arguments(PersonDeepProtectedHidden.class),
         arguments(PostalAddressData.class),
         arguments(PostalAddressDataWithGroup.class),
+        arguments(Team.class),
         arguments(User.class),
         arguments(DummyToBeIgnored.class));
   }
@@ -153,7 +157,11 @@ class TestStandardMethodsOfTestModel {
         arguments(com.sap.olingo.jpa.processor.core.errormodel.NavigationPropertyPartOfGroup.class),
         arguments(com.sap.olingo.jpa.processor.core.errormodel.KeyPartOfGroup.class),
         arguments(com.sap.olingo.jpa.processor.core.errormodel.MandatoryPartOfGroup.class),
-        arguments(com.sap.olingo.jpa.processor.core.errormodel.PersonDeepCollectionProtected.class));
+        arguments(com.sap.olingo.jpa.processor.core.errormodel.PersonDeepCollectionProtected.class),
+        arguments(com.sap.olingo.jpa.processor.core.errormodel.TeamWithTransientCalculatorConstructorError.class),
+        arguments(com.sap.olingo.jpa.processor.core.errormodel.TeamWithTransientCalculatorError.class),
+        arguments(com.sap.olingo.jpa.processor.core.errormodel.TeamWithTransientKey.class),
+        arguments(com.sap.olingo.jpa.processor.core.errormodel.TeamWithTransientCalculatorError.class));
   }
 
   @BeforeEach

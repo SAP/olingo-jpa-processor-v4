@@ -66,6 +66,12 @@ public interface JPAAttribute extends JPAElement {
    */
   public @CheckForNull Class<?> getDbType();
 
+  /**
+   * @return The type of the attribute as defined in the entity.
+   *
+   */
+  public @CheckForNull Class<?> getJavaType();
+
   public boolean isAssociation();
 
   /**

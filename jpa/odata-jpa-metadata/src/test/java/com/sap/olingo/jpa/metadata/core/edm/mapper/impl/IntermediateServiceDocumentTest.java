@@ -32,6 +32,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAProtectionInfo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescriptionKey;
+import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionKey;
 
 class IntermediateServiceDocumentTest extends TestMappingRoot {
 
@@ -205,6 +207,16 @@ class IntermediateServiceDocumentTest extends TestMappingRoot {
     when(type.getNamespace()).thenReturn("Unknown");
     when(type.getName()).thenReturn("BoundNoImport");
     assertNull(cut.getComplexType(type));
+  }
+
+  @Test
+  void checkGetComplexTypeByClass() throws ODataJPAModelException {
+    assertNotNull(cut.getComplexType(AdministrativeDivisionDescriptionKey.class));
+  }
+
+  @Test
+  void checkGetComplexTypeByClassReturnNullOnUnkown() throws ODataJPAModelException {
+    assertNull(cut.getComplexType(AdministrativeDivisionKey.class));
   }
 
   @Test

@@ -2,6 +2,7 @@ package com.sap.olingo.jpa.processor.core.processor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -21,6 +22,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.modify.JPAConversionHelper;
 
 class JPARequestLinkImplTest {
@@ -95,7 +97,7 @@ class JPARequestLinkImplTest {
     final String link = "BusinessPartners('123456')";
     cut = new JPARequestLinkImpl(path, link, helper);
 
-    completeJPAPath();
+    completeJPAPath(false);
 
     final Map<String, Object> act = cut.getRelatedKeys();
     assertNotNull(act);
@@ -106,14 +108,53 @@ class JPARequestLinkImplTest {
   void testCreateSingleStringValue() throws ODataJPAModelException, ODataException {
     final String link = "BusinessPartners('123456')";
     cut = new JPARequestLinkImpl(path, link, helper);
-    completeJPAPath();
-
+    completeJPAPath(false);
     final Map<String, Object> act = cut.getValues();
     assertNotNull(act);
     assertEquals("123456", act.get("businessPartnerID"));
   }
 
-  private void completeJPAPath() throws ODataJPAModelException {
+  @Test
+  void testCreateSingleStringKeyInverse() throws ODataJPAModelException, ODataException {
+    final String link = "BusinessPartners('123456')";
+    cut = new JPARequestLinkImpl(path, link, helper);
+
+    completeJPAPath(true);
+
+    final Map<String, Object> act = cut.getRelatedKeys();
+    assertNotNull(act);
+    assertEquals("123456", act.get("ID"));
+  }
+
+  @Test
+  void testCreateSingleStringValueInverse() throws ODataJPAModelException, ODataException {
+    final String link = "BusinessPartners('123456')";
+    cut = new JPARequestLinkImpl(path, link, helper);
+    completeJPAPath(true);
+    final Map<String, Object> act = cut.getValues();
+    assertNotNull(act);
+    assertEquals("123456", act.get("businessPartnerID"));
+  }
+
+  @Test
+  void testCreateSingleStringValueThrowsException() throws ODataJPAModelException, ODataException {
+    final String link = "BusinessPartners('123456')";
+    when(path.getJoinColumnsList()).thenThrow(ODataJPAModelException.class);
+    cut = new JPARequestLinkImpl(path, link, helper);
+
+    assertThrows(ODataJPAProcessorException.class, () -> cut.getValues());
+  }
+
+  @Test
+  void testCreateSingleStringKeyThrowsException() throws ODataJPAModelException, ODataException {
+    final String link = "BusinessPartners('123456')";
+    when(path.getJoinColumnsList()).thenThrow(ODataJPAModelException.class);
+    cut = new JPARequestLinkImpl(path, link, helper);
+
+    assertThrows(ODataJPAProcessorException.class, () -> cut.getRelatedKeys());
+  }
+
+  private void completeJPAPath(final Boolean inverted) throws ODataJPAModelException {
     final JPAEntityType targetEt = mock(JPAEntityType.class);
     final JPAEntityType sourceEt = mock(JPAEntityType.class);
     final JPAAttribute bupaKey = mock(JPAAttribute.class);
@@ -131,7 +172,10 @@ class JPARequestLinkImplTest {
     when(roleKey2.getInternalName()).thenReturn("roleCategory");
     when(roleKey2.getExternalName()).thenReturn("BusinessPartnerRole");
 
-    items.add(createConditionItem("businessPartnerID", "BusinessPartnerID", "ID", "ID"));
+    if (inverted)
+      items.add(createConditionItem("ID", "ID", "businessPartnerID", "BusinessPartnerID"));
+    else
+      items.add(createConditionItem("businessPartnerID", "BusinessPartnerID", "ID", "ID"));
     when(path.getLeaf()).thenReturn(pathLeaf);
     when(pathLeaf.getInternalName()).thenReturn("businessPartner");
     when(path.getTargetType()).thenReturn(targetEt);

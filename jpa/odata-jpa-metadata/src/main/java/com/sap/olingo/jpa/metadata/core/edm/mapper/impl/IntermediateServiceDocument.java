@@ -173,6 +173,22 @@ class IntermediateServiceDocument implements JPAServiceDocument {
    * (non-Javadoc)
    *
    * @see
+   * com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument#getComplexType(java.lang.Class)
+   */
+  @Override
+  public JPAStructuredType getComplexType(final Class<?> typeClass) {
+    for (final IntermediateSchema schema : schemaListInternalKey.values()) {
+      final IntermediateStructuredType<?> result = schema.getComplexType(typeClass);
+      if (result != null)
+        return result;
+    }
+    return null;
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see
    * com.sap.olingo.jpa.metadata.core.edm.mapper.impl.JPAServiceDocument#getEntity(org.apache.olingo.commons.api.edm.
    * FullQualifiedName)
    */

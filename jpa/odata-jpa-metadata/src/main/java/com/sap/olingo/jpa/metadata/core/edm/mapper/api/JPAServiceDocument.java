@@ -92,6 +92,9 @@ public interface JPAServiceDocument extends CustomETagSupport {
   JPAStructuredType getComplexType(final EdmComplexType edmComplexType);
 
   @CheckForNull
+  JPAStructuredType getComplexType(Class<?> typeClass);
+
+  @CheckForNull
   JPAEnumerationAttribute getEnumType(final EdmEnumType type);
 
   @CheckForNull

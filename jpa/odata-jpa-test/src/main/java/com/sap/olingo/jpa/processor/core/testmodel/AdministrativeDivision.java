@@ -245,4 +245,10 @@ public class AdministrativeDivision implements KeyAccess {
     final AdministrativeDivision other = (AdministrativeDivision) obj;
     return other.getKey().equals(getKey());
   }
+
+  @Override
+  public String toString() {
+    return "AdministrativeDivision [codePublisher=" + codePublisher + ", codeID=" + codeID + ", divisionCode="
+        + divisionCode + "]";
+  }
 }

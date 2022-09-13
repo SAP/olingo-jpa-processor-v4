@@ -138,4 +138,9 @@ class JPAAttributeWrapper implements JPAAttribute {
   public List<String> getRequiredProperties() {
     return Collections.emptyList();
   }
+
+  @Override
+  public Class<?> getJavaType() {
+    return null;
+  }
 }

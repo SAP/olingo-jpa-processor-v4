@@ -109,6 +109,11 @@ final class IntermediateNavigationProperty<S> extends IntermediateModelElement i
   }
 
   @Override
+  public Class<?> getJavaType() {
+    return null;
+  }
+
+  @Override
   public EdmPrimitiveTypeKind getEdmType() {
     return null;
   }
@@ -653,4 +658,5 @@ final class IntermediateNavigationProperty<S> extends IntermediateModelElement i
     }
     return null;
   }
+
 }

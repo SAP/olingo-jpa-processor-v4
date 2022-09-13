@@ -8,8 +8,11 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.lang.reflect.Method;
 import java.math.BigInteger;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +33,7 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionKey;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
+import com.sap.olingo.jpa.processor.core.testmodel.Country;
 import com.sap.olingo.jpa.processor.core.testmodel.Organization;
 import com.sap.olingo.jpa.processor.core.testmodel.Person;
 import com.sap.olingo.jpa.processor.core.testmodel.PostalAddressData;
@@ -38,7 +42,7 @@ import com.sap.olingo.jpa.processor.core.testobjects.OrganizationWithoutGetter;
 import com.sap.olingo.jpa.processor.core.util.TestBase;
 import com.sap.olingo.jpa.processor.core.util.TestHelper;
 
-class TestModifyUtil extends TestBase {
+class JPAModifyUtilTest extends TestBase {
   private JPAModifyUtil cut;
   private Map<String, Object> jpaAttributes;
   private BusinessPartner partner;
@@ -50,7 +54,17 @@ class TestModifyUtil extends TestBase {
     jpaAttributes = new HashMap<>();
     partner = new Organization();
     helper = new TestHelper(emf, PUNIT_NAME);
-    org = helper.getJPAEntityType("Organizations");
+    org = helper.getJPAEntityType(Organization.class);
+  }
+
+  @Test
+  void testBuildMethodNameSuffix() throws ODataJPAModelException {
+    assertEquals("CreationDateTime", cut.buildMethodNameSuffix(org.getAttribute("creationDateTime").get()));
+  }
+
+  @Test
+  void testSetterName() throws ODataJPAModelException {
+    assertEquals("setCreationDateTime", cut.buildSetterName(org.getAttribute("creationDateTime").get()));
   }
 
   @Test
@@ -359,6 +373,35 @@ class TestModifyUtil extends TestBase {
     assertThrows(ODataJPAProcessorException.class, () -> {
       cut.setForeignKey(source, target, path);
     });
+  }
+
+  @Test
+  void testBuildSetterList() throws ODataJPAModelException {
+    final List<JPAAttribute> attributes = Arrays.asList(org.getAttribute("creationDateTime").get(),
+        org.getAttribute("country").get());
+
+    final Map<JPAAttribute, Method> act = cut.buildSetterList(org.getTypeClass(), attributes);
+
+    assertEquals(2, act.size());
+    assertNotNull(act.get(org.getAttribute("creationDateTime").get()));
+    assertNotNull(act.get(org.getAttribute("country").get()));
+    assertEquals(LocalDateTime.class, act.get(org.getAttribute("creationDateTime").get()).getParameterTypes()[0]);
+  }
+
+  @Test
+  void testBuildSetterListContainsNullIfForMissingSetter() throws ODataJPAModelException {
+
+    final JPAEntityType country = helper.getJPAEntityType(Country.class);
+
+    final List<JPAAttribute> attributes = Arrays.asList(country.getAttribute("code").get(),
+        country.getAttribute("name").get());
+
+    final Map<JPAAttribute, Method> act = cut.buildSetterList(country.getTypeClass(), attributes);
+
+    assertEquals(2, act.size());
+    assertNotNull(act.get(country.getAttribute("code").get()));
+    assertNull(act.get(country.getAttribute("name").get()));
+    assertEquals(String.class, act.get(country.getAttribute("code").get()).getParameterTypes()[0]);
   }
 
   private JPAEntityType createSingleKeyEntityType() throws ODataJPAModelException {

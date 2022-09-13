@@ -7,10 +7,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
@@ -39,12 +44,38 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException.Me
  *
  */
 public final class JPAModifyUtil {
-
+  private static final Log LOGGER = LogFactory.getLog(JPAModifyUtil.class);
   private JPAStructuredType st = null;
 
-  public String buildMethodNameSuffix(final JPAElement pathItem) {
+  public String buildMethodNameSuffix(@Nonnull final JPAElement pathItem) {
     final String relationName = pathItem.getInternalName();
     return relationName.substring(0, 1).toUpperCase() + relationName.substring(1);
+  }
+
+  String buildSetterName(@Nonnull final JPAElement pathItem) {
+    return "set" + buildMethodNameSuffix(pathItem);
+  }
+
+  /**
+   * Creates a list of setter names from a list of {@link JPAAttribute}
+   * @param st
+   * @param pathItem
+   * @return
+   */
+  Map<JPAAttribute, Method> buildSetterList(@Nonnull final Class<?> type,
+      @Nonnull final List<JPAAttribute> attributes) {
+
+    final Map<JPAAttribute, Method> result = new HashMap<>(attributes.size());
+
+    for (final JPAAttribute attribute : attributes) {
+      try {
+        result.put(attribute, type.getMethod(buildSetterName(attribute), attribute.getJavaType()));
+      } catch (NoSuchMethodException | SecurityException e) {
+        LOGGER.warn("Exception thrown while building setter list: " + e.getLocalizedMessage());
+        result.put(attribute, null);
+      }
+    }
+    return result;
   }
 
   /**

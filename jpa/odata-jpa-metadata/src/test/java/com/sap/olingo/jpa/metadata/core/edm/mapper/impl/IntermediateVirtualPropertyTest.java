@@ -88,6 +88,11 @@ class IntermediateVirtualPropertyTest extends TestMappingRoot {
   }
 
   @Test
+  void testGetJavaType() {
+    assertEquals(Integer.class, cut.getJavaType());
+  }
+
+  @Test
   void testDetermineIsVersion() {
     cut.determineIsVersion();
     assertFalse(cut.isEtag());

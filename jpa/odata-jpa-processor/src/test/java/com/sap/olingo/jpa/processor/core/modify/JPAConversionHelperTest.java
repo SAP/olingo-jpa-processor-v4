@@ -32,7 +32,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 
-public abstract class TestJPAConversionHelper {
+public abstract class JPAConversionHelperTest {
 
   protected JPAConversionHelper cut;
   protected EdmEntitySet edmEntitySet;
@@ -40,7 +40,7 @@ public abstract class TestJPAConversionHelper {
   protected OData odata;
   protected JPAEntityType et;
 
-  public TestJPAConversionHelper() {
+  public JPAConversionHelperTest() {
     super();
   }
 
