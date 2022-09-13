@@ -66,3 +66,4 @@ hs_err_pid*
 
 # --- Derby stuff
 **/jpa-processor/test/**
+/.vscode/
