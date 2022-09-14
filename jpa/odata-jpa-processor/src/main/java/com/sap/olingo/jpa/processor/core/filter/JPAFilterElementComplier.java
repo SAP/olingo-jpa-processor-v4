@@ -54,7 +54,7 @@ public final class JPAFilterElementComplier extends JPAAbstractFilter {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sap.olingo.jpa.processor.core.filter.JPAFilterComplier#compile()
    */
   @Override
@@ -108,9 +108,10 @@ public final class JPAFilterElementComplier extends JPAAbstractFilter {
     return expression;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public From<?, ?> getRoot() {
-    return parent.getRoot();
+  public <S, T> From<S, T> getRoot() {
+    return (From<S, T>) parent.getRoot();
   }
 
   @Override

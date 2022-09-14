@@ -25,7 +25,7 @@ import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
 
 /**
  * Cross compiles Olingo generated AST of an OData filter into JPA criteria builder where condition.
- * 
+ *
  * Details can be found:
  * <ul>
  * <li><a href=
@@ -58,7 +58,7 @@ public final class JPAFilterCrossComplier extends JPAAbstractFilter {
 
   public JPAFilterCrossComplier(final OData odata, final JPAServiceDocument sd,
       final JPAEntityType jpaEntityType, final JPAOperationConverter converter,
-      final JPAAbstractQuery parent, From<?, ?> from, final JPAAssociationPath association,
+      final JPAAbstractQuery parent, final From<?, ?> from, final JPAAssociationPath association,
       final JPAODataRequestContextAccess requestContext) {
 
     this(odata, sd, jpaEntityType, converter, parent, association, requestContext);
@@ -83,7 +83,7 @@ public final class JPAFilterCrossComplier extends JPAAbstractFilter {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sap.olingo.jpa.processor.core.filter.JPAFilterComplier#compile()
    */
   @Override
@@ -137,11 +137,12 @@ public final class JPAFilterCrossComplier extends JPAAbstractFilter {
     return parent;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public From<?, ?> getRoot() {
+  public <S, T> From<S, T> getRoot() {
     if (root == null)
-      return parent.getRoot();
-    return root;
+      return (From<S, T>) parent.getRoot();
+    return (From<S, T>) root;
   }
 
   @Override

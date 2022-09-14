@@ -89,8 +89,9 @@ public class JPAKeyPair {
         return ((Comparable) converter.convertToDatabaseColumn(value))
             .compareTo(converter.convertToDatabaseColumn(minValue));
       } catch (final ClassCastException e) {
-        throw new ODataJPAKeyPairException(e, keyElement.getDbType() == null ? keyElement.getType().getSimpleName()
-            : keyElement.getDbType().getSimpleName());
+        final Class<?> dbType = keyElement.getDbType();
+        throw new ODataJPAKeyPairException(e, dbType == null ? keyElement.getType().getSimpleName()
+            : dbType.getSimpleName());
       }
     }
     return value.compareTo(minValue);

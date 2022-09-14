@@ -32,7 +32,7 @@ interface JPAFilterComplierAccess {
 
   JPAOperationConverter getConverter();
 
-  From<?, ?> getRoot();
+  <S, T> From<S, T> getRoot();
 
   JPAServiceDebugger getDebugger();
 
