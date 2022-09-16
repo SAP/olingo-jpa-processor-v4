@@ -40,6 +40,8 @@ class TypeConverterTest {
         arguments(Long.valueOf(5), Byte.valueOf("5"), Long.class),
         arguments(Long.valueOf(5), Short.valueOf((short) 5), Long.class),
         arguments(Long.valueOf(5), Integer.valueOf(5), Long.class),
+        arguments(Long.valueOf(5), BigInteger.valueOf(5), Long.class),
+        arguments(Long.valueOf(5), BigDecimal.valueOf(5), Long.class),
 
         arguments(Float.valueOf(5), Byte.valueOf("5"), Float.class),
         arguments(Float.valueOf(5), Short.valueOf((short) 5), Float.class),
@@ -60,6 +62,7 @@ class TypeConverterTest {
         arguments(BigInteger.TEN, Short.valueOf((short) 10), BigInteger.class),
         arguments(BigInteger.TEN, Integer.valueOf(10), BigInteger.class),
         arguments(BigInteger.TEN, Long.valueOf(10), BigInteger.class),
+        arguments(BigInteger.TEN, BigDecimal.valueOf(10), BigInteger.class),
 
         arguments(BigDecimal.TEN, Byte.valueOf("10"), BigDecimal.class),
         arguments(BigDecimal.TEN, Short.valueOf((short) 10), BigDecimal.class),
@@ -93,14 +96,11 @@ class TypeConverterTest {
 
         arguments(Float.valueOf(5.3F), Long.class),
         arguments(Double.valueOf(5), Long.class),
-        arguments(BigInteger.TEN, Long.class),
-        arguments(BigDecimal.TEN, Long.class),
-
         arguments(Double.valueOf(5), Float.class),
 
         arguments(Float.valueOf(10), BigInteger.class),
-        arguments(Double.valueOf(10), BigInteger.class),
-        arguments(BigDecimal.TEN, BigInteger.class));
+        arguments(Double.valueOf(10), BigInteger.class));
+    // arguments(BigDecimal.TEN, BigInteger.class));
   }
 
   static Stream<Arguments> infinityValueConversion() {

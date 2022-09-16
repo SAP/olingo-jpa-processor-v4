@@ -209,9 +209,9 @@ class TypeConverter {
     if (target == Integer.class || target == int.class) return source == Byte.class || source == Short.class
         || source == Long.class;
     if (target == Long.class || target == long.class) return source == Byte.class || source == Short.class
-        || source == Integer.class;
+        || source == Integer.class || source == BigInteger.class || source == BigDecimal.class;
     if (target == BigInteger.class) return source == Byte.class || source == Short.class || source == Integer.class
-        || source == Long.class;
+        || source == Long.class || source == BigDecimal.class;
     if (target == Float.class || target == float.class) return source == Byte.class || source == Short.class
         || source == Integer.class || source == Long.class || source == BigInteger.class || source == BigDecimal.class;
     if (target == Double.class || target == double.class) return source == Byte.class || source == Short.class
