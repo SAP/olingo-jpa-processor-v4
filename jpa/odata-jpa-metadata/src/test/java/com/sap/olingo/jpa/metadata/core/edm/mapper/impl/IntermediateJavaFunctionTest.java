@@ -12,6 +12,8 @@ import java.util.Arrays;
 import org.apache.olingo.commons.api.edm.geo.Geospatial.Dimension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
@@ -67,13 +69,18 @@ class IntermediateJavaFunctionTest extends TestMappingRoot {
     assertEquals("Edm.Int32", act.getEdmItem().getParameter("B").getType());
   }
 
-  @Test
-  void checkThrowsExcpetionForNonPrimitiveParameter() throws ODataJPAModelException {
-    final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "errorNonPrimitiveParameter");
+  @ParameterizedTest
+  @CsvSource({
+      "errorNonPrimitiveParameter, ForNonPrimitiveParameter",
+      "errorReturnType, AnnotatedReturnTypeNEDeclairedType",
+      "returnCollectionWithoutReturnType, CollectionAndReturnTypeEmpty",
+      "wrongReturnType, NotSupportedReturnType"
+  })
+  void checkThrowsExcpetionForParameterError(final String functionName, final String message)
+      throws ODataJPAModelException {
 
-    assertThrows(ODataJPAModelException.class, () -> {
-      act.getEdmItem();
-    });
+    final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, functionName);
+    assertThrows(ODataJPAModelException.class, () -> act.getEdmItem(), message);
   }
 
   @Test
@@ -137,14 +144,6 @@ class IntermediateJavaFunctionTest extends TestMappingRoot {
   }
 
   @Test
-  void checkThrowsExceptionIfAnnotatedReturnTypeNEDeclairedType() throws ODataJPAModelException {
-    final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "errorReturnType");
-    assertThrows(ODataJPAModelException.class, () -> {
-      act.getEdmItem();
-    });
-  }
-
-  @Test
   void checkReturnsFacetForNumbersOfReturnType() throws ODataJPAModelException {
     final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "now");
     assertFalse(act.getEdmItem().getReturnType().isNullable());
@@ -175,15 +174,6 @@ class IntermediateJavaFunctionTest extends TestMappingRoot {
 
     assertTrue(act.getEdmItem().getReturnType().isCollection());
     assertEquals("Edm.String", act.getEdmItem().getReturnType().getType());
-  }
-
-  @Test
-  void checkThrowsExceptionIfCollectionAndReturnTypeEmpty() throws ODataJPAModelException {
-    final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class,
-        "returnCollectionWithoutReturnType");
-    assertThrows(ODataJPAModelException.class, () -> {
-      act.getEdmItem();
-    });
   }
 
   @Test
@@ -220,14 +210,6 @@ class IntermediateJavaFunctionTest extends TestMappingRoot {
 
     assertEquals("com.sap.olingo.jpa.ABCClassification", act.getEdmItem().getReturnType().getType());
     assertTrue(act.getEdmItem().getReturnType().isCollection());
-  }
-
-  @Test
-  void checkThrowsExcpetionOnNotSupportedReturnType() throws ODataJPAModelException {
-    final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "wrongReturnType");
-    assertThrows(ODataJPAModelException.class, () -> {
-      act.getEdmItem();
-    });
   }
 
   @Test
