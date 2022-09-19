@@ -85,7 +85,6 @@ final class IntermediateNavigationProperty<S> extends IntermediateModelElement i
     this.schema = schema;
     this.sourceType = parent;
     buildNaviProperty();
-
   }
 
   @Override
@@ -231,8 +230,12 @@ final class IntermediateNavigationProperty<S> extends IntermediateModelElement i
 
   @Override
   public String toString() {
-    return getExternalName() + ": [sourceType=" + sourceType + ", targetType=" + targetType + ", partner="
-        + partner + ", joinTable=" + joinTable + "]";
+    return getExternalName() + ": [sourceType=" + sourceType + ", targetType=" + targetType
+        + ", partner=" + partnerToString() + ", joinTable=" + joinTable + "]";
+  }
+
+  private String partnerToString() {
+    return partner == null ? "null" : partner.getExternalName();
   }
 
   @Override
@@ -424,6 +427,7 @@ final class IntermediateNavigationProperty<S> extends IntermediateModelElement i
   }
 
   private void evaluateAnnotation() {
+
     if (this.jpaAttribute.getJavaMember() instanceof AnnotatedElement) {
       final EdmIgnore jpaIgnore = ((AnnotatedElement) this.jpaAttribute.getJavaMember()).getAnnotation(
           EdmIgnore.class);
@@ -544,6 +548,8 @@ final class IntermediateNavigationProperty<S> extends IntermediateModelElement i
           edmNaviProperty.setPartner(partner.getExternalName());
         }
       }
+      if (LOGGER.isTraceEnabled())
+        LOGGER.trace(getExternalName() + ": Found partner = " + partnerToString());
     }
   }
 

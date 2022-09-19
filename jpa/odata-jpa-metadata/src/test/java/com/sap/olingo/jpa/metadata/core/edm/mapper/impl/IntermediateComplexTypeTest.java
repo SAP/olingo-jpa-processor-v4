@@ -105,7 +105,7 @@ class IntermediateComplexTypeTest extends TestMappingRoot {
     IntermediateModelElement.setPostProcessor(pPDouble);
 
     final IntermediateComplexType<PostalAddressData> ct = new IntermediateComplexType<>(new JPADefaultEdmNameBuilder(
-        PUNIT_NAME), getEmbeddableType("PostalAddressData"), schema);
+        PUNIT_NAME), getEmbeddableType(PostalAddressData.class), schema);
     // In case nullable = true, nullable is not past to $metadata, as this is the default
     assertTrue(ct.getEdmItem().getProperty("POBox").isNullable());
   }
@@ -116,7 +116,7 @@ class IntermediateComplexTypeTest extends TestMappingRoot {
     IntermediateModelElement.setPostProcessor(pPDouble);
 
     final IntermediateComplexType<PostalAddressData> ct = new IntermediateComplexType<>(new JPADefaultEdmNameBuilder(
-        PUNIT_NAME), getEmbeddableType("PostalAddressData"), schema);
+        PUNIT_NAME), getEmbeddableType(PostalAddressData.class), schema);
     assertEquals(1, ct.getEdmItem().getNavigationProperties().size(), "Wrong number of entities");
   }
 
@@ -126,7 +126,7 @@ class IntermediateComplexTypeTest extends TestMappingRoot {
     IntermediateModelElement.setPostProcessor(pPDouble);
 
     final IntermediateComplexType<PostalAddressData> ct = new IntermediateComplexType<>(new JPADefaultEdmNameBuilder(
-        PUNIT_NAME), getEmbeddableType("PostalAddressData"), schema);
+        PUNIT_NAME), getEmbeddableType(PostalAddressData.class), schema);
     assertNotNull(ct.getEdmItem().getNavigationProperty("AdministrativeDivision").getName());
   }
 

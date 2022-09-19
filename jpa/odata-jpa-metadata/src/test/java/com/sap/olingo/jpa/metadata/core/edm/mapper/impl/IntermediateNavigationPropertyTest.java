@@ -59,6 +59,8 @@ import com.sap.olingo.jpa.processor.core.testmodel.AssociationOneToOneTarget;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerProtected;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRole;
+import com.sap.olingo.jpa.processor.core.testmodel.ChangeInformation;
+import com.sap.olingo.jpa.processor.core.testmodel.Collection;
 import com.sap.olingo.jpa.processor.core.testmodel.DummyToBeIgnored;
 import com.sap.olingo.jpa.processor.core.testmodel.EntityTypeOnly;
 import com.sap.olingo.jpa.processor.core.testmodel.JoinComplex;
@@ -710,6 +712,18 @@ class IntermediateNavigationPropertyTest extends TestMappingRoot {
     final String act = property.toString();
     assertTrue(act.toLowerCase().contains("willi"));
   }
+
+  @Test
+  void checkToStringNoPartner() throws ODataJPAModelException {
+    final EmbeddableType<ChangeInformation> jpaEmbeddable = helper.getEmbeddableType(ChangeInformation.class);
+    final Attribute<?, ?> attribute = jpaEmbeddable.getAttribute("user");
+    final IntermediateNavigationProperty<?> property = new IntermediateNavigationProperty<>(
+        new JPADefaultEdmNameBuilder(
+            PUNIT_NAME), schema.getEntityType(Collection.class), attribute, schema);
+
+    assertNotNull(property.toString());
+  }
+
 //  @Test
 //  void checkSetAnnotations() throws ODataJPAModelException {
 //    final IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPAEdmNameBuilder(
