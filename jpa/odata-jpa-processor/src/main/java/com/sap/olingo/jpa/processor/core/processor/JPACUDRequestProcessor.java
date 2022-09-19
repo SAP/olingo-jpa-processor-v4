@@ -339,8 +339,7 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
       final Map<String, List<String>> headers) throws ODataJPAProcessorException {
 
     try {
-      final JPAEntityType et = sd.getEntity(edmEntitySetInfo
-          .getName());
+      final JPAEntityType et = sd.getEntity(edmEntitySetInfo.getName());
       if (et == null)
         throw new ODataJPAProcessorException(ENTITY_TYPE_UNKNOWN, BAD_REQUEST, edmEntitySetInfo.getName());
       final Map<String, Object> keys = helper.convertUriKeys(odata, et, edmEntitySetInfo.getKeyPredicates());

@@ -340,7 +340,14 @@ class TestJPAQueryCollection extends TestBase {
     final ArrayNode collection = (ArrayNode) result.get("value");
     assertEquals(2, collection.size());
     assertFalse(collection.get(0).get("Log") instanceof NullNode);
+  }
 
+  @Test
+  void testSelectCollectionContainsTransient() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "CollectionWithTransients('501')");
+    helper.assertStatus(200);
   }
 
   @Test

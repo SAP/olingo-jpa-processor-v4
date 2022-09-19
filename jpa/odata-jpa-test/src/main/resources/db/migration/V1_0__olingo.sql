@@ -710,7 +710,7 @@ CREATE TABLE "Collections" (
    PRIMARY KEY ("ID"));	
 insert into "Collections" values( '501',-1, null );
 insert into "Collections" values( '502', 32, null );   
-insert into "Collections" values( '503',6541, null );
+insert into "Collections" values( '503',6541, '2020-11-01 14:43:47-12:00' );
 insert into "Collections" values( '504', 3, '2020-11-01 14:43:47+01:00');   
 
 CREATE TABLE "NestedComplex" (

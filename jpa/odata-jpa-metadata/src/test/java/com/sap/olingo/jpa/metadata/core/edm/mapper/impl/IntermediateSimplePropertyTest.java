@@ -65,6 +65,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivisionDescription;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerProtected;
+import com.sap.olingo.jpa.processor.core.testmodel.Collection;
 import com.sap.olingo.jpa.processor.core.testmodel.Comment;
 import com.sap.olingo.jpa.processor.core.testmodel.CommunicationData;
 import com.sap.olingo.jpa.processor.core.testmodel.DummyToBeIgnored;
@@ -273,12 +274,11 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
 
   @Test
   void checkGetPropertyMapperWithConverter() throws ODataJPAModelException {
-    final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(Person.class), "birthDay");
+    final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(Collection.class), "localDateTime");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
-        jpaAttribute,
-        helper.schema);
+        jpaAttribute, helper.schema);
     assertNotNull(property.getEdmItem().getMapping());
-    assertEquals(Date.class, property.getEdmItem().getMapping().getMappedJavaClass());
+    assertEquals(java.util.Date.class, property.getEdmItem().getMapping().getMappedJavaClass());
   }
 
   @Test

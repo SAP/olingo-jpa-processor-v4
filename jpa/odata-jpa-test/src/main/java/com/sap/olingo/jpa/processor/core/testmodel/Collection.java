@@ -1,5 +1,6 @@
 package com.sap.olingo.jpa.processor.core.testmodel;
 
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -37,6 +38,10 @@ public class Collection {
   @Convert(converter = OffsetDateTimeConverter.class)
   @Column(name = "\"Timestamp\"")
   private OffsetDateTime dateTime;
+
+  @Convert(converter = LocalDateTimeConverter.class)
+  @Column(name = "\"Timestamp\"", insertable = false, updatable = false)
+  private LocalDateTime localDateTime;
 
   public String getID() {
     return iD;

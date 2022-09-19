@@ -469,7 +469,7 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
         PUNIT_NAME), getEntityType(Collection.class), schema);
     final List<JPAPath> act = et.getPathList();
 
-    assertEquals(12, act.size());
+    assertEquals(13, act.size());
     assertNotNull(et.getPath("Complex/Address"));
     assertTrue(et.getPath("Complex/Address").getLeaf().isCollection());
     final IntermediateCollectionProperty<?> actIntermediate = (IntermediateCollectionProperty<?>) et.getPath(
@@ -496,7 +496,7 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
         PUNIT_NAME), getEntityType(Collection.class), schema);
     final List<JPAPath> act = et.getPathList();
 
-    assertEquals(12, act.size());
+    assertEquals(13, act.size());
     assertNotNull(et.getPath("Complex/Comment"));
     assertTrue(et.getPath("Complex/Comment").getLeaf().isCollection());
     final IntermediateCollectionProperty<?> actIntermediate = (IntermediateCollectionProperty<?>) et.getPath(

@@ -1,19 +1,16 @@
 package com.sap.olingo.jpa.processor.test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.util.UUID;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 
 import com.sap.olingo.jpa.processor.core.testmodel.UUIDToStringConverter;
 
-final class UUIDToStringConverterTest {
-  @Test
-  void testConversion() {
-    final UUIDToStringConverter cut = new UUIDToStringConverter();
-    final UUID exp = UUID.randomUUID();
+final class UUIDToStringConverterTest extends AbstractConverterTest<UUID, String> {
 
-    assertEquals(exp, cut.convertToEntityAttribute(cut.convertToDatabaseColumn(exp)));
+  @BeforeEach
+  void setup() {
+    cut = new UUIDToStringConverter();
+    exp = UUID.randomUUID();
   }
 }

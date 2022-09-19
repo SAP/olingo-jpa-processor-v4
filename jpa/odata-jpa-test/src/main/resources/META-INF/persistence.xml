@@ -75,6 +75,7 @@
 		<class>com.sap.olingo.jpa.processor.core.testmodel.EntityTypeOnly</class>
 		<class>com.sap.olingo.jpa.metadata.converter.TimeInstantLongConverter</class>
 		<class>com.sap.olingo.jpa.metadata.converter.OffsetDateTimeConverter</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.LocalDateTimeConverter</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.TransientRefComplex</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.DateTimeTest</class>
 		<class>com.sap.olingo.jpa.processor.core.testmodel.CurrentUser</class>
@@ -128,6 +129,7 @@
         <class>com.sap.olingo.jpa.processor.core.errormodel.CompoundKey</class>
         <class>com.sap.olingo.jpa.processor.core.errormodel.TeamWithTransientEmbeddableKey</class>
         <class>com.sap.olingo.jpa.processor.core.errormodel.SingletonAsEntitySet</class>
+		<class>com.sap.olingo.jpa.processor.core.testmodel.LocalDateTimeConverter</class>
 		<exclude-unlisted-classes>true</exclude-unlisted-classes>
 		<properties>
 			<property name="eclipselink.logging.parameters" value="true" />

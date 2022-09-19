@@ -344,6 +344,7 @@ class IntermediateNavigationPropertyTest extends TestMappingRoot {
     final IntermediateNavigationProperty<?> property = new IntermediateNavigationProperty<>(
         new JPADefaultEdmNameBuilder(
             PUNIT_NAME), schema.getEntityType(BusinessPartner.class), jpaAttribute, schema);
+    assertTrue(property.isMapped());
     assertEquals(1, property.getProperty().getReferentialConstraints().size());
   }
 

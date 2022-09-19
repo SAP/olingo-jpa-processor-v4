@@ -68,8 +68,8 @@ class TypeConverterTest {
         arguments(BigDecimal.TEN, Short.valueOf((short) 10), BigDecimal.class),
         arguments(BigDecimal.TEN, Integer.valueOf(10), BigDecimal.class),
         arguments(BigDecimal.TEN, Long.valueOf(10), BigDecimal.class),
-        arguments(BigDecimal.valueOf(Double.valueOf(10)), Float.valueOf(10), BigDecimal.class),
-        arguments(BigDecimal.valueOf(Double.valueOf(10)), Double.valueOf(10), BigDecimal.class),
+        arguments(BigDecimal.valueOf(10.0), Float.valueOf(10), BigDecimal.class),
+        arguments(BigDecimal.valueOf(10.0), Double.valueOf(10), BigDecimal.class),
         arguments(BigDecimal.TEN, BigInteger.TEN, BigDecimal.class),
 
         arguments(Short.valueOf((short) 10), Byte.valueOf("10"), short.class),
@@ -158,6 +158,11 @@ class TypeConverterTest {
         arguments(Duration.ofHours(3L), "PT3H", Duration.class));
   }
 
+  static Stream<Arguments> throwsExceptionConversion() {
+    return Stream.of(
+        arguments(OffsetDateTime.parse("2007-12-03T10:15:30+01:00"), LocalDateTime.class));
+  }
+
   @Test
   void testToString() {
     assertEquals("123456789", convert(Integer.valueOf(123456789), String.class));
@@ -233,5 +238,20 @@ class TypeConverterTest {
   void testConvertTemporalThrowsExceptionOnUnsupportwed() {
     final Timestamp timestamp = Timestamp.valueOf("2007-12-03 00:00:00");
     assertThrows(IllegalArgumentException.class, () -> convert(timestamp, ZonedDateTime.class));
+  }
+
+  @Test
+  void testConvertStringToCharacter() {
+    assertEquals('A', convert("A", Character.class));
+  }
+
+  @Test
+  void testConvertStringToCharacterEmpty() {
+    assertEquals(' ', convert("", Character.class));
+  }
+
+  @Test
+  void testConvertStringToCharacterThrowsExceptionOnWrongLength() {
+    assertThrows(IllegalArgumentException.class, () -> convert("AA", Character.class));
   }
 }

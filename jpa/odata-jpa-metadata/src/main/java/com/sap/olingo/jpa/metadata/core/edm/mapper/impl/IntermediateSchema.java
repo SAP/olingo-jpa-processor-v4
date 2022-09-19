@@ -143,6 +143,7 @@ final class IntermediateSchema extends IntermediateModelElement {
   }
 
   @SuppressWarnings("unchecked")
+  @CheckForNull
   <T> IntermediateStructuredType<T> getEntityType(final Class<T> targetClass) {
     return (IntermediateStructuredType<T>) entityTypeListInternalKey.get(IntNameBuilder.buildStructuredTypeName(
         targetClass));

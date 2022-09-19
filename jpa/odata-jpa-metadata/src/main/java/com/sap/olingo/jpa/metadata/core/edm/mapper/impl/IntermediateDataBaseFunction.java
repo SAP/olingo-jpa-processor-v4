@@ -61,9 +61,13 @@ class IntermediateDataBaseFunction extends IntermediateFunction implements JPADa
 
   @Override
   public JPAOperationResultParameter getResultParameter() {
-    return new IntermediateOperationResultParameter(this, jpaFunction.returnType(),
-        jpaFunction.returnType().type().equals(Object.class) ? schema.getEntityType(jpaDefiningPOJO).getTypeClass()
-            : jpaFunction.returnType().type());
+    final IntermediateStructuredType<?> et = schema.getEntityType(jpaDefiningPOJO);
+    if (et != null)
+      return new IntermediateOperationResultParameter(this, jpaFunction.returnType(),
+          jpaFunction.returnType().type().equals(Object.class) ? et.getTypeClass()
+              : jpaFunction.returnType().type());
+    throw new IllegalArgumentException("Cloud not determine return paramter. " + jpaDefiningPOJO
+        + " can not be mapped to an entity type");
   }
 
   @Override
@@ -150,26 +154,37 @@ class IntermediateDataBaseFunction extends IntermediateFunction implements JPADa
   private FullQualifiedName determineReturnType(final ReturnType returnType) throws ODataJPAModelException {
 
     if (returnType.type() == Object.class) {
-      final IntermediateStructuredType<?> et = schema.getEntityType(jpaDefiningPOJO);
-      this.setIgnore(et.ignore()); // If the result type shall be ignored, ignore also a function that returns it
-      return buildFQN(et.getEdmItem().getName());
+      return determineReturnTypeObject();
     } else {
-      final IntermediateStructuredType<?> st = schema.getStructuredType(returnType.type());
-      if (st != null) {
-        this.setIgnore(st.ignore()); // If the result type shall be ignored, ignore also a function that returns it
-        return buildFQN(st.getEdmItem().getName());
+      return determineStructuredReturnType(returnType);
+    }
+  }
+
+  private FullQualifiedName determineStructuredReturnType(final ReturnType returnType) throws ODataJPAModelException {
+    final IntermediateStructuredType<?> st = schema.getStructuredType(returnType.type());
+    if (st != null) {
+      this.setIgnore(st.ignore()); // If the result type shall be ignored, ignore also a function that returns it
+      return buildFQN(st.getEdmItem().getName());
+    } else {
+      final IntermediateEnumerationType enumType = schema.getEnumerationType(returnType.type());
+      if (enumType != null) {
+        return enumType.getExternalFQN();
       } else {
-        final IntermediateEnumerationType enumType = schema.getEnumerationType(returnType.type());
-        if (enumType != null) {
-          return enumType.getExternalFQN();
-        } else {
-          final EdmPrimitiveTypeKind pt = JPATypeConverter.convertToEdmSimpleType(returnType.type());
-          if (pt != null)
-            return pt.getFullQualifiedName();
-          else
-            throw new ODataJPAModelException(MessageKeys.FUNC_RETURN_TYPE_UNKNOWN);
-        }
+        final EdmPrimitiveTypeKind pt = JPATypeConverter.convertToEdmSimpleType(returnType.type());
+        if (pt != null)
+          return pt.getFullQualifiedName();
+        else
+          throw new ODataJPAModelException(MessageKeys.FUNC_RETURN_TYPE_UNKNOWN);
       }
     }
+  }
+
+  private FullQualifiedName determineReturnTypeObject() throws ODataJPAModelException {
+    final IntermediateStructuredType<?> et = schema.getEntityType(jpaDefiningPOJO);
+    if (et == null)
+      throw new IllegalArgumentException("Cloud not determine return paramter. " + jpaDefiningPOJO
+          + " can not be mapped to an entity type");
+    this.setIgnore(et.ignore()); // If the result type shall be ignored, ignore also a function that returns it
+    return buildFQN(et.getEdmItem().getName());
   }
 }

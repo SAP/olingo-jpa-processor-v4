@@ -48,6 +48,7 @@ public final class JPATypeConverter {
     types.add(Integer.class);
     types.add(java.math.BigDecimal.class);
     types.add(java.math.BigInteger.class);
+    types.add(java.sql.Date.class);
     types.add(java.sql.Time.class);
     types.add(java.sql.Timestamp.class);
     types.add(java.util.Calendar.class);
@@ -76,6 +77,7 @@ public final class JPATypeConverter {
     types.add(BigInteger.class);
     types.add(Byte.class);
     types.add(Boolean.class);
+    types.add(java.sql.Date.class);
     types.add(java.sql.Time.class);
     types.add(java.time.LocalTime.class);
     types.add(java.time.Duration.class);
@@ -83,14 +85,14 @@ public final class JPATypeConverter {
     types.add(java.time.OffsetDateTime.class);
     types.add(java.time.ZonedDateTime.class);
     types.add(java.time.Instant.class);
-    types.add(java.sql.Date.class);
     types.add(Calendar.class);
     types.add(Timestamp.class);
+    types.add(java.util.Calendar.class);
     types.add(java.util.Date.class);
     types.add(UUID.class);
     return types;
   }
-  
+
   public static EdmPrimitiveTypeKind convertToEdmSimpleType(final Class<?> type) throws ODataJPAModelException {
     return convertToEdmSimpleType(type, null);
   }
@@ -201,6 +203,11 @@ public final class JPATypeConverter {
    * {@link org.apache.olingo.commons.core.edm.primitivetype.EdmDateTimeOffset#internalValueToString
    * EdmDateTimeOffset.internalValueToString}</li>
    * </ul>
+   * Not longer supported are e.g.:
+   * <ul>
+   * <li>For EdmDate:
+   * {@link java.sql.Date}
+   * </ul>
    * @param type
    * @return
    */
@@ -211,8 +218,7 @@ public final class JPATypeConverter {
 
   private static EdmPrimitiveTypeKind convertGeography(final Class<?> jpaType, final Attribute<?, ?> currentAttribute)
       throws ODataJPAModelException {
-    
-    
+
     if (jpaType.equals(org.apache.olingo.commons.api.edm.geo.Point.class))
       return EdmPrimitiveTypeKind.GeographyPoint;
     else if (jpaType.equals(org.apache.olingo.commons.api.edm.geo.MultiPoint.class))

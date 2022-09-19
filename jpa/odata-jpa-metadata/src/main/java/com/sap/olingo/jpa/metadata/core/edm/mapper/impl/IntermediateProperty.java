@@ -284,7 +284,7 @@ abstract class IntermediateProperty extends IntermediateModelElement implements 
   abstract void checkConsistency() throws ODataJPAModelException;
 
   CsdlMapping createMapper() {
-    if (!isLob() && !(getConverter() == null && isEnum())) {
+    if (!isLob() && !(getConverter() == null || isEnum())) {
       final CsdlMapping mapping = new CsdlMapping();
       mapping.setInternalName(this.getExternalName());
       mapping.setMappedJavaClass(dbType);

@@ -116,6 +116,10 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
     return list == null ? Collections.emptyList() : list;
   }
 
+  protected String returnNullIfEmpty(final String value) {
+    return value == null || value.isEmpty() ? null : value;
+  }
+
   abstract CsdlAbstractEdmItem getEdmItem() throws ODataJPAModelException;
 
   /**
