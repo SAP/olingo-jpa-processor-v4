@@ -440,7 +440,7 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
       final JPAAssociationAttribute assoc = declaredNaviPropertiesMap.get(jpaAttribute.getName());
       if (assoc != null)
         return assoc;
-      return new IntermediateNavigationProperty<>(nameBuilder, sourceType, jpaAttribute, schema);
+      return new IntermediateNavigationProperty<>(nameBuilder, this, jpaAttribute, schema);
     }
     return null;
   }

@@ -32,6 +32,7 @@ import org.reflections8.Reflections;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEnumeration;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
@@ -747,6 +748,19 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
         new JPADefaultEdmNameBuilder(PUNIT_NAME), getEntityType(AssociationOneToOneSource.class), schema);
     et.getEdmItem();
     assertNotNull(et.getPathByDBField("DEFAULTTARGET_ID"));
+  }
+
+  @Test
+  void checkGetCorrespondingAssociation() throws ODataJPAModelException {
+    final IntermediateEntityType<BusinessPartner> bupa = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(BusinessPartner.class), schema);
+    final IntermediateEntityType<BusinessPartnerRole> role = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(BusinessPartnerRole.class), schema);
+
+    final JPAAssociationAttribute act = bupa.getCorrespondingAssociation(role, "businessPartner");
+
+    assertEquals(role.getExternalName(), act.getTargetEntity().getExternalName());
+    assertEquals(bupa.getExternalName(), act.getStructuredType().getExternalName());
   }
 
   private void assertComplexDeep(final List<JPAProtectionInfo> act) {

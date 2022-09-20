@@ -90,17 +90,6 @@ class TestJPAQueryWhereClause extends TestBase {
   }
 
   @Test
-  void testFilterOneEqualsTwoProperties() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisions?$filter=DivisionCode eq CountryCode");
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(4, orgs.size());
-  }
-
-  @Test
   void testFilterOneEqualsInvert() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf, "Organizations?$filter='3' eq ID");
@@ -150,7 +139,40 @@ class TestJPAQueryWhereClause extends TestBase {
         arguments("Trim", "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and trim(Name) eq 'Sachsen'", 1),
         arguments("Concat", "Persons?$filter=concat(concat(LastName,','),FirstName) eq 'Mustermann,Max'", 1),
         arguments("OneHas", "Persons?$filter=AccessRights has com.sap.olingo.jpa.AccessRights'READ'", 1),
-        arguments("OnNull", "AdministrativeDivisions?$filter=CodePublisher eq 'ISO' and ParentCodeID eq null", 4));
+        arguments("OnNull", "AdministrativeDivisions?$filter=CodePublisher eq 'ISO' and ParentCodeID eq null", 4),
+        arguments("OneEqualsTwoProperties", "AdministrativeDivisions?$filter=DivisionCode eq CountryCode", 4),
+        arguments("NavigationPropertyToManyValueAnyNoRestriction", "Organizations?$select=ID&$filter=Roles/any()", 4),
+        arguments("NavigationPropertyToManyValueAnyMultiParameter",
+            "Organizations?$select=ID&$filter=Roles/any(d:d/RoleCategory eq 'A' and d/BusinessPartnerID eq '1')", 1),
+        arguments("NavigationPropertyToManyValueNotAny",
+            "Organizations?$filter=not (Roles/any(d:d/RoleCategory eq 'A'))", 7),
+        arguments("NavigationPropertyToManyValueAny",
+            "Organizations?$select=ID&$filter=Roles/any(d:d/RoleCategory eq 'A')", 3),
+        arguments("NavigationPropertyToManyValueAll",
+            "Organizations?$select=ID&$filter=Roles/all(d:d/RoleCategory eq 'A')", 1),
+        // https://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398301
+        // Example 43: return all Categories with less than 10 products
+        arguments("CountNavigationProperty", "Organizations?$select=ID&$filter=Roles/$count eq 2", 1),
+        arguments("CountNavigationPropertyMultipleHops",
+            "Organizations?$select=ID&$filter=AdministrativeInformation/Created/User/Roles/$count ge 2", 8),
+        arguments("NavigationPropertyToOneValue", "AdministrativeDivisions?$filter=Parent/CodeID eq 'NUTS1'", 11),
+        arguments("NavigationPropertyToOneValueAndEquals",
+            "AdministrativeDivisions?$filter=Parent/CodeID eq 'NUTS1' and DivisionCode eq 'BE34'", 1),
+        arguments("NavigationPropertyToOneValueTwoHops",
+            "AdministrativeDivisions?$filter=Parent/Parent/CodeID eq 'NUTS1' and DivisionCode eq 'BE212'", 1),
+        arguments("NavigationPropertyToOneValueViaComplexType",
+            "Organizations?$filter=AdministrativeInformation/Created/User/LastName eq 'Mustermann'", 8),
+        arguments("NavigationPropertyDescriptionViaComplexTypeWOSubselectSelectAll",
+            "Organizations?$filter=Address/RegionName eq 'Kalifornien'", 3),
+        arguments("NavigationPropertyDescriptionViaComplexTypeWOSubselectSelectId",
+            "Organizations?$filter=Address/RegionName eq 'Kalifornien'&$select=ID", 3),
+        arguments("NavigationPropertyDescriptionToOneValueViaComplexTypeWSubselect1",
+            "Organizations?$filter=AdministrativeInformation/Created/User/LocationName eq 'Schweiz'", 1),
+        arguments("NavigationPropertyDescriptionToOneValueViaComplexTypeWSubselect2",
+            "Organizations?$filter=AdministrativeInformation/Created/User/LocationName eq 'Schweiz'&$select=ID", 1),
+        arguments("SubstringStartEndIndexToLower",
+            "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and tolower(substring(Name,0,5)) eq 'north'",
+            2));
   }
 
   @ParameterizedTest
@@ -301,17 +323,6 @@ class TestJPAQueryWhereClause extends TestBase {
   }
 
   @Test
-  void testFilterNavigationPropertyToManyValueAny() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Organizations?$select=ID&$filter=Roles/any(d:d/RoleCategory eq 'A')");
-
-    helper.assertStatus(200);
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(3, orgs.size());
-  }
-
-  @Test
   void testFilterNavigationPropertyToManyValueAnyProtected() throws IOException, ODataException {
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add("UserId", new JPAClaimsPair<>("Willi"));
@@ -352,39 +363,6 @@ class TestJPAQueryWhereClause extends TestBase {
   }
 
   @Test
-  void testFilterNavigationPropertyToManyValueNotAny() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Organizations?$filter=not (Roles/any(d:d/RoleCategory eq 'A'))");
-
-    helper.assertStatus(200);
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(7, orgs.size());
-  }
-
-  @Test
-  void testFilterNavigationPropertyToManyValueAnyMultiParameter() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Organizations?$select=ID&$filter=Roles/any(d:d/RoleCategory eq 'A' and d/BusinessPartnerID eq '1')");
-
-    helper.assertStatus(200);
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(1, orgs.size());
-  }
-
-  @Test
-  void testFilterNavigationPropertyToManyValueAnyNoRestriction() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Organizations?$select=ID&$filter=Roles/any()");
-
-    helper.assertStatus(200);
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(4, orgs.size());
-  }
-
-  @Test
   void testFilterNavigationStartsWithAll() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -394,29 +372,6 @@ class TestJPAQueryWhereClause extends TestBase {
     final ArrayNode pers = helper.getValues();
     assertEquals(1, pers.size());
     assertEquals("97", pers.get(0).get("ID").asText());
-  }
-
-  @Test
-  void testFilterNavigationPropertyToManyValueAll() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Organizations?$select=ID&$filter=Roles/all(d:d/RoleCategory eq 'A')");
-
-    helper.assertStatus(200);
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(1, orgs.size());
-  }
-
-  @Test
-  void testFilterCountNavigationProperty() throws IOException, ODataException {
-    // https://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398301
-    // Example 43: return all Categories with less than 10 products
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Organizations?$select=ID&$filter=Roles/$count eq 2");
-
-    helper.assertStatus(200);
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(1, orgs.size());
   }
 
   @Test
@@ -462,96 +417,6 @@ class TestJPAQueryWhereClause extends TestBase {
   }
 
   @Test
-  void testFilterCountNavigationPropertyMultipleHops() throws IOException, ODataException {
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Organizations?$select=ID&$filter=AdministrativeInformation/Created/User/Roles/$count ge 2");
-
-    helper.assertStatus(200);
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(8, orgs.size());
-  }
-
-  @Test
-  void testFilterNavigationPropertyToOneValue() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisions?$filter=Parent/CodeID eq 'NUTS1'");
-
-    helper.assertStatus(200);
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(11, orgs.size());
-  }
-
-  @Test
-  void testFilterNavigationPropertyToOneValueAndEquals() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisions?$filter=Parent/CodeID eq 'NUTS1' and DivisionCode eq 'BE34'");
-
-    helper.assertStatus(200);
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(1, orgs.size());
-  };
-
-  @Test
-  void testFilterNavigationPropertyToOneValueTwoHops() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisions?$filter=Parent/Parent/CodeID eq 'NUTS1' and DivisionCode eq 'BE212'");
-
-    helper.assertStatus(200);
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(1, orgs.size());
-  };
-
-  @Test
-  void testFilterNavigationPropertyToOneValueViaComplexType() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Organizations?$filter=AdministrativeInformation/Created/User/LastName eq 'Mustermann'");
-
-    helper.assertStatus(200);
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(8, orgs.size());
-  };
-
-  @Test
-  void testFilterNavigationPropertyDescriptionViaComplexTypeWOSubselectSelectAll() throws IOException,
-      ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Organizations?$filter=Address/RegionName eq 'Kalifornien'");
-
-    helper.assertStatus(200);
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(3, orgs.size());
-  };
-
-  @Test
-  void testFilterNavigationPropertyDescriptionViaComplexTypeWOSubselectSelectId() throws IOException,
-      ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Organizations?$filter=Address/RegionName eq 'Kalifornien'&$select=ID");
-
-    helper.assertStatus(200);
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(3, orgs.size());
-  };
-
-  @Test
-  void testFilterNavigationPropertyDescriptionToOneValueViaComplexTypeWSubselect1() throws IOException,
-      ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Organizations?$filter=AdministrativeInformation/Created/User/LocationName eq 'Schweiz'");
-
-    helper.assertStatus(200);
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(1, orgs.size());
-  };
-
-  @Test
   void testFilterNavigationPropertyContainsProtectedDeep() throws IOException, ODataException {
 
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
@@ -579,18 +444,6 @@ class TestJPAQueryWhereClause extends TestBase {
     helper.assertStatus(200);
     final ArrayNode orgs = helper.getValues();
     assertEquals(3, orgs.size());
-  };
-
-  @Test
-  void testFilterNavigationPropertyDescriptionToOneValueViaComplexTypeWSubselect2() throws IOException,
-      ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "Organizations?$filter=AdministrativeInformation/Created/User/LocationName eq 'Schweiz'&$select=ID");
-
-    helper.assertStatus(200);
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(1, orgs.size());
   };
 
   @Test
@@ -688,18 +541,6 @@ class TestJPAQueryWhereClause extends TestBase {
     assertNotNull(org);
     assertEquals(1, org.size());
     assertEquals(3, org.get(0).get("Roles").size());
-  }
-
-  @Test
-  void testFilterSubstringStartEndIndexToLower() throws IOException, ODataException {
-
-    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
-        "AdministrativeDivisionDescriptions?$filter=Language eq 'de' and tolower(substring(Name,0,5)) eq 'north'");
-
-    helper.assertStatus(200);
-
-    final ArrayNode orgs = helper.getValues();
-    assertEquals(2, orgs.size());
   }
 
   @Test

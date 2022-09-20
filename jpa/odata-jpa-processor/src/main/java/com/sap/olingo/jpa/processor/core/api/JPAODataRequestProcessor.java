@@ -106,18 +106,7 @@ public final class JPAODataRequestProcessor
       throws ODataApplicationException, ODataLibraryException {
     // Set NULL: .../Organizations('4')/Address
 
-    try {
-      final JPACUDRequestProcessor p = factory.createCUDRequestProcessor(uriInfo, requestContext, request
-          .getAllHeaders());
-      p.clearFields(request, response);
-    } catch (ODataApplicationException | ODataLibraryException e) {
-      if (e.getCause() instanceof RollbackException)
-        handleRollbackException((RollbackException) e.getCause());
-      throw e;
-    } catch (final ODataException e) {
-      throw new ODataApplicationException(e.getLocalizedMessage(),
-          HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), null, e);
-    }
+    performClearFields(request, response, uriInfo);
   }
 
   @Override
@@ -128,6 +117,23 @@ public final class JPAODataRequestProcessor
       final JPACUDRequestProcessor p = this.factory.createCUDRequestProcessor(uriInfo, requestContext, request
           .getAllHeaders());
       p.deleteEntity(request, response);
+    } catch (ODataApplicationException | ODataLibraryException e) {
+      if (e.getCause() instanceof RollbackException)
+        handleRollbackException((RollbackException) e.getCause());
+      throw e;
+    } catch (final ODataException e) {
+      throw new ODataApplicationException(e.getLocalizedMessage(),
+          HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), null, e);
+    }
+  }
+
+  private void performClearFields(final ODataRequest request, final ODataResponse response, final UriInfo uriInfo)
+      throws ODataApplicationException, ODataLibraryException { // NOSONAR
+
+    try {
+      final JPACUDRequestProcessor p = factory.createCUDRequestProcessor(uriInfo, requestContext, request
+          .getAllHeaders());
+      p.clearFields(request, response);
     } catch (ODataApplicationException | ODataLibraryException e) {
       if (e.getCause() instanceof RollbackException)
         handleRollbackException((RollbackException) e.getCause());
@@ -152,18 +158,8 @@ public final class JPAODataRequestProcessor
     // are nullable.On success, the service MUST respond with 204 No Content and an empty body.
     //
     // Nullable checked by Olingo Core
-    try {
-      final JPACUDRequestProcessor p = factory.createCUDRequestProcessor(uriInfo, requestContext, request
-          .getAllHeaders());
-      p.clearFields(request, response);
-    } catch (ODataApplicationException | ODataLibraryException e) {
-      if (e.getCause() instanceof RollbackException)
-        handleRollbackException((RollbackException) e.getCause());
-      throw e;
-    } catch (final ODataException e) {
-      throw new ODataApplicationException(e.getLocalizedMessage(),
-          HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), null, e);
-    }
+
+    performClearFields(request, response, uriInfo);
   }
 
   @Override
@@ -401,18 +397,8 @@ public final class JPAODataRequestProcessor
       final UriInfo uriInfo) throws ODataApplicationException, ODataLibraryException {
     // Set NULL: .../Organizations('4')/Comment
     // See deletePrimitive
-    try {
-      final JPACUDRequestProcessor p = factory.createCUDRequestProcessor(uriInfo, requestContext, request
-          .getAllHeaders());
-      p.clearFields(request, response);
-    } catch (ODataApplicationException | ODataLibraryException e) {
-      if (e.getCause() instanceof RollbackException)
-        handleRollbackException((RollbackException) e.getCause());
-      throw e;
-    } catch (final ODataException e) {
-      throw new ODataApplicationException(e.getLocalizedMessage(),
-          HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), null, e);
-    }
+
+    performClearFields(request, response, uriInfo);
   }
 
   @Override
@@ -428,18 +414,8 @@ public final class JPAODataRequestProcessor
       throws ODataApplicationException, ODataLibraryException {
     // Set NULL: .../Persons('4')/InhouseAddress
     // See deletePrimitive
-    try {
-      final JPACUDRequestProcessor p = factory.createCUDRequestProcessor(uriInfo, requestContext, request
-          .getAllHeaders());
-      p.clearFields(request, response);
-    } catch (ODataApplicationException | ODataLibraryException e) {
-      if (e.getCause() instanceof RollbackException)
-        handleRollbackException((RollbackException) e.getCause());
-      throw e;
-    } catch (final ODataException e) {
-      throw new ODataApplicationException(e.getLocalizedMessage(),
-          HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), null, e);
-    }
+
+    performClearFields(request, response, uriInfo);
   }
 
   @Override

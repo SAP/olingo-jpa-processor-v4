@@ -62,6 +62,16 @@ class JPAKeyPairTest {
   }
 
   @Test
+  void testToStringContainsMinMax() throws ODataJPAKeyPairException {
+    cut.setValue(key1);
+    cut.setValue(key2);
+    final String act = cut.toString();
+
+    assertTrue(act.contains("10"));
+    assertTrue(act.contains("100"));
+  }
+
+  @Test
   void testCreatePairWithOneValues() throws ODataJPAKeyPairException {
     cut.setValue(key1);
     assertFalse(cut.hasUpperBoundary());
