@@ -8,9 +8,11 @@ import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.server.api.ODataApplicationException;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
+import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 public interface JPAConvertibleResult {
@@ -41,8 +43,8 @@ public interface JPAConvertibleResult {
    * @return
    * @throws ODataJPAQueryException
    */
-  default Optional<JPAKeyBoundary> getKeyBoundary(JPAODataRequestContextAccess requestContext,
-      final List<JPANavigationPropertyInfo> hops) throws ODataJPAQueryException {
+  default Optional<JPAKeyBoundary> getKeyBoundary(final JPAODataRequestContextAccess requestContext,
+      final List<JPANavigationPropertyInfo> hops, final JPAODataPage page) throws ODataJPAProcessException {
     return Optional.empty();
   }
 }
