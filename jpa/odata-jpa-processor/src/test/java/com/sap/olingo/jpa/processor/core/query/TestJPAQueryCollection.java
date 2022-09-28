@@ -344,6 +344,14 @@ class TestJPAQueryCollection extends TestBase {
   }
 
   @Test
+  void testSelectCollectionContainsTransient() throws IOException, ODataException {
+
+    final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
+        "CollectionWithTransients('501')");
+    helper.assertStatus(200);
+  }
+
+  @Test
   void testPathToCollections() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
