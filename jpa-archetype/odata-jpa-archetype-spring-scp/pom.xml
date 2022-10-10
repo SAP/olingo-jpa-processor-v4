@@ -10,27 +10,25 @@
     <name>odata-jpa-archetype</name>
 
 
-    <url>https://github.com/SAP/olingo-jpa-processor-v4</url>
-    <packaging>jar</packaging>
+	<url>https://github.com/SAP/olingo-jpa-processor-v4</url>
+	<packaging>maven-archetype</packaging>
 
-    <properties>
-        <java.version>1.8</java.version>
-    </properties>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>${project.build.source}</source>
-                    <target>${project.build.source}</target>
-                    <showWarnings>true</showWarnings>
-                    <showDeprecation>true</showDeprecation>
-                    <compilerArgument>-Xlint:unchecked</compilerArgument>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+	<build>
+		<extensions>
+			<extension>
+				<groupId>org.apache.maven.archetype</groupId>
+				<artifactId>archetype-packaging</artifactId>
+				<version>3.1.1</version>
+			</extension>
+		</extensions>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-archetype-plugin</artifactId>
+					<version>3.2.1</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
 </project>

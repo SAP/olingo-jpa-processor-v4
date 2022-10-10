@@ -36,7 +36,7 @@ class ParameterBuffer {
     } else {
       // Hibernate does not allow provisioning of parameter that are not used in a query
       param = (ParameterExpression<T, S>) parameterByHash.get(param.hashCode());
-      LOG.trace("Parameter fround in buffer: " + param);
+      LOG.trace("Parameter found in buffer: " + param);
     }
     return param;
   }
