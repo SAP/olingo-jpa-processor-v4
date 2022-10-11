@@ -69,6 +69,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.PersonImage;
 import com.sap.olingo.jpa.processor.core.testmodel.SalesTeam;
 import com.sap.olingo.jpa.processor.core.testmodel.Singleton;
 import com.sap.olingo.jpa.processor.core.testmodel.TransientRefComplex;
+import com.sap.olingo.jpa.processor.core.testmodel.TransientRefIgnore;
 import com.sap.olingo.jpa.processor.core.util.TestDataConstants;
 
 class IntermediateEntityTypeTest extends TestMappingRoot {
@@ -638,6 +639,13 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
   void checkTransientWithRefComplex() throws ODataJPAModelException {
     final IntermediateEntityType<TransientRefComplex> et = new IntermediateEntityType<>(nameBuilder,
         getEntityType(TransientRefComplex.class), schema);
+    assertTrue(et.getAttribute("concatenatedName").get().isTransient());
+  }
+
+  @Test
+  void checkTransientWithRefIgnore() throws ODataJPAModelException {
+    final IntermediateEntityType<TransientRefIgnore> et = new IntermediateEntityType<>(nameBuilder,
+        getEntityType(TransientRefIgnore.class), schema);
     assertTrue(et.getAttribute("concatenatedAddr").get().isTransient());
   }
 
@@ -761,6 +769,53 @@ class IntermediateEntityTypeTest extends TestMappingRoot {
 
     assertEquals(role.getExternalName(), act.getTargetEntity().getExternalName());
     assertEquals(bupa.getExternalName(), act.getStructuredType().getExternalName());
+  }
+
+  @Test
+  void checkGetAttributeReturnsKnownAttribute() throws ODataJPAModelException {
+    final IntermediateEntityType<BusinessPartner> bupa = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(BusinessPartner.class), schema);
+    final Optional<JPAAttribute> act = bupa.getAttribute("eTag");
+    assertNotNull(act);
+    assertTrue(act.isPresent());
+    assertEquals("eTag", act.get().getInternalName());
+  }
+
+  @Test
+  void checkGetAttributeReturnsEmptyWhenIgnore() throws ODataJPAModelException {
+    final IntermediateEntityType<BusinessPartner> bupa = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(BusinessPartner.class), schema);
+    final Optional<JPAAttribute> act = bupa.getAttribute("customString1");
+    assertNotNull(act);
+    assertFalse(act.isPresent());
+  }
+
+  @Test
+  void checkGetAttributeReturnsEmptyWhenUnknown() throws ODataJPAModelException {
+    final IntermediateEntityType<BusinessPartner> bupa = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(BusinessPartner.class), schema);
+    final Optional<JPAAttribute> act = bupa.getAttribute("willi");
+    assertNotNull(act);
+    assertFalse(act.isPresent());
+  }
+
+  @Test
+  void checkGetAttributeReturnsEmptyWhenIgnoreRespected() throws ODataJPAModelException {
+    final IntermediateEntityType<BusinessPartner> bupa = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(BusinessPartner.class), schema);
+    final Optional<JPAAttribute> act = bupa.getAttribute("customString1");
+    assertNotNull(act);
+    assertFalse(act.isPresent());
+  }
+
+  @Test
+  void checkGetAttributeReturnsIgnoreIfNotRespected() throws ODataJPAModelException {
+    final IntermediateEntityType<BusinessPartner> bupa = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(BusinessPartner.class), schema);
+    final Optional<JPAAttribute> act = bupa.getAttribute("customString1", false);
+    assertNotNull(act);
+    assertTrue(act.isPresent());
+    assertEquals("customString1", act.get().getInternalName());
   }
 
   private void assertComplexDeep(final List<JPAProtectionInfo> act) {

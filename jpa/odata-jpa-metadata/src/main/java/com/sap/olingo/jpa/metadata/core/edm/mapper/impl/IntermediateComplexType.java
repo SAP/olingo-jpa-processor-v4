@@ -16,13 +16,19 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 /**
  * Complex Types are used to structure Entity Types by grouping properties that belong together. Complex Types can
  * contain of
- * <ul> <li> Properties <li> Navigation Properties</ul>
+ * <ul>
+ * <li>Properties
+ * <li>Navigation Properties
+ * </ul>
  * This means that they can contain of primitive, complex, or enumeration type, or a collection of primitive, complex,
- * or enumeration types.<p>
+ * or enumeration types.
+ * <p>
  * <b>Limitation:</b> As of now the attributes BaseType, Abstract and OpenType are not supported. There is also no
- * support for nested complex types <p>
+ * support for nested complex types
+ * <p>
  * Complex Types are generated from JPA Embeddable Types.
- * <p>For details about Complex Type metadata see:
+ * <p>
+ * For details about Complex Type metadata see:
  * <a href=
  * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406397985"
  * >OData Version 4.0 Part 3 - 9 Complex Type</a>
@@ -73,11 +79,11 @@ final class IntermediateComplexType<T> extends IntermediateStructuredType<T> {
     return (CsdlComplexType) edmStructuralType;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   protected IntermediateStructuredType<? super T> getBaseType() {
     final Class<?> baseType = jpaManagedType.getJavaType().getSuperclass();
     if (baseType != null) {
-      @SuppressWarnings("unchecked")
       final IntermediateStructuredType<? super T> baseComplex = (IntermediateStructuredType<? super T>) schema
           .getComplexType(baseType);
       if (baseComplex != null)

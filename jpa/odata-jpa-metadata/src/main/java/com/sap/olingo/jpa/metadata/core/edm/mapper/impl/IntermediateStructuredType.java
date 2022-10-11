@@ -131,12 +131,18 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
 
   @Override
   public Optional<JPAAttribute> getAttribute(final String internalName) throws ODataJPAModelException {
+    return getAttribute(internalName, true);
+  }
+
+  @Override
+  public Optional<JPAAttribute> getAttribute(final String internalName, final boolean respectIgnore)
+      throws ODataJPAModelException {
     if (edmStructuralType == null)
       lazyBuildEdmItem();
     Optional<JPAAttribute> result = Optional.ofNullable(declaredPropertiesMap.get(internalName));
     if (!result.isPresent() && getBaseType() != null)
       result = getBaseType().getAttribute(internalName);
-    else if (result.isPresent() && ((IntermediateModelElement) result.get()).ignore())
+    else if (result.isPresent() && respectIgnore && ((IntermediateModelElement) result.get()).ignore())
       return Optional.empty();
     return result;
   }
@@ -357,11 +363,12 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
    * return null in case the entity has a MappedSuperclass.
    * @return Determined super type or null
    */
-  protected <S extends T> IntermediateStructuredType<S> getBaseType() {
+  protected IntermediateStructuredType<? super T> getBaseType() {
     final Class<?> baseType = jpaManagedType.getJavaType().getSuperclass();
     if (baseType != null) {
       @SuppressWarnings("unchecked")
-      final IntermediateStructuredType<S> baseEntity = (IntermediateStructuredType<S>) schema.getEntityType(baseType);
+      final IntermediateStructuredType<? super T> baseEntity = (IntermediateStructuredType<? super T>) schema
+          .getEntityType(baseType);
       if (baseEntity != null)
         return baseEntity;
     }
@@ -908,9 +915,9 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
 
     IntermediateStructuredType<?> hop = this;
     for (final String pathPart : internalPath.split(JPAPath.PATH_SEPARATOR)) {
-      final JPAAttribute required = hop.getAttribute(pathPart).orElseThrow(
+      final JPAAttribute required = hop.getAttribute(pathPart, false).orElseThrow(
           // The transient attribute '%1$s' of class '%2$s' requires '%3$s', which is not known
-          () -> new ODataJPAModelException(PROPERTY_REQUIRED_UNKNOWN, propertyName, getInternalName(), internalName));
+          () -> new ODataJPAModelException(PROPERTY_REQUIRED_UNKNOWN, propertyName, getInternalName(), internalPath));
       if (required.isComplex())
         hop = (IntermediateStructuredType<?>) required.getStructuredType();
     }

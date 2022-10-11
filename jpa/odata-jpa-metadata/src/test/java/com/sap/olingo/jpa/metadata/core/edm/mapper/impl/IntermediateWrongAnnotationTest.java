@@ -82,7 +82,7 @@ class IntermediateWrongAnnotationTest {
         NavigationAttributeProtected.class), "teams");
 
     final ODataJPAModelException act = assertThrows(ODataJPAModelException.class,
-        () -> new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(PUNIT_NAME),
+        () -> new IntermediateNavigationProperty<NavigationAttributeProtected>(new JPADefaultEdmNameBuilder(PUNIT_NAME),
             helper.schema.getEntityType(NavigationAttributeProtected.class), jpaAttribute, helper.schema));
 
     assertEquals(NOT_SUPPORTED_PROTECTED_NAVIGATION.name(), act.getId());
