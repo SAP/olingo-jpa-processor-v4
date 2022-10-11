@@ -52,9 +52,12 @@ Or to the complete processor:
 
 The core of this project became stable. Some of the addons are still in the state of incubation, so some incompatible changes my come up. Nevertheless feel free to use the JPA processor and the addons where ever it helps.
 
-## How to obtain support
 
-For bugs, questions and ideas for enhancement please open an issue in github.
+## Contributing
+
+If you want to report a bug or have suggestions to improve the JPA Processor, read up on our [guidelines for contributing](./CONTRIBUTING.md) to learn about our submission process, coding rules and more.
+
+We'd love all and any contributions.
 
 ## To-Do (upcoming-changes)
 
