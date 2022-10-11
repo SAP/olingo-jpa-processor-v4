@@ -21,7 +21,7 @@ The tutorials from the previous major version is still available under: [Tutoria
 
 ## Requirements
 
-The JPA Processor requires, minimum Java version [1.8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html). The current version comes with [Olingo 4.8.0](https://github.com/apache/olingo-odata4). If you want to be updated about Olingo changes subscribe to Olingo's [user mailing list](user-subscribe@olingo.apache.org).
+The JPA Processor requires, minimum Java version [1.8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html). The current version comes with [Olingo 4.9.0](https://github.com/apache/olingo-odata4). If you want to be updated about Olingo changes subscribe to Olingo's [user mailing list](user-subscribe@olingo.apache.org).
 
 Even so no JPA implementation is preferred, as long as it supports [JSR-338 Java Persistence 2.2](https://jcp.org/en/jsr/detail?id=338), it has to be stated that all test have been performed with [Eclipselink 2.7.9](http://www.eclipse.org/eclipselink/). If you have any problem e.g. with [Hibernate](http://hibernate.org) or [OpenJPA](https://openjpa.apache.org/), create an [issue](https://github.com/SAP/olingo-jpa-processor-v4/issues), but there is no guaranty that it can be solved, as e.g. Hibernate implements some JPA interfaces "differently" than EclipseLink.
 
@@ -72,7 +72,7 @@ New versions will follow [Semantic Versioning](https://semver.org).
 
 ## License
 
-Copyright (c) 2016-2021 SAP SE or an SAP affiliate company and olingo-jpa-processor-v4 contributors. Please see our [LICENSE.txt](LICENSE.txt) for copyright and license information.
+Copyright (c) 2016-2022 SAP SE or an SAP affiliate company and olingo-jpa-processor-v4 contributors. Please see our [LICENSE.txt](LICENSE.txt) for copyright and license information.
 Detailed information including third-party components and their licensing/copyright information is available via the [REUSE tool](https://api.reuse.software/info/github.com/SAP/olingo-jpa-processor-v4).
 
 ## Release Notes
@@ -98,3 +98,4 @@ Detailed information including third-party components and their licensing/copyri
 |0.3.11| - Solutions for issue [#138](https://github.com/SAP/olingo-jpa-processor-v4/issues/138)|No|
 |1.0.6|- Transient Properties<br> - Singletons<br> - Entity Types without Entity Set<br> - Rework Request Context<br> - Deprecation of annotation  EdmAsEntitySet   |Yes|
 |1.0.8|- Solution for issue [#145](https://github.com/SAP/olingo-jpa-processor-v4/issues/145) |No|
+|1.0.9| - Solutions for issue [#164](https://github.com/SAP/olingo-jpa-processor-v4/issues/164), [#155](https://github.com/SAP/olingo-jpa-processor-v4/issues/155)<br>|No|
