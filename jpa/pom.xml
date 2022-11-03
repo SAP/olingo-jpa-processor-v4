@@ -12,6 +12,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.source>1.8</project.build.source>
+        <project.build.target>1.8</project.build.target>
         <maven.complier.version>3.8.0</maven.complier.version>
         <odata.version>4.9.0</odata.version>
         <jackson.version>2.13.3</jackson.version>
@@ -78,7 +79,7 @@
                     <version>${maven.complier.version}</version>
                     <configuration>
                         <source>${project.build.source}</source>
-                        <target>${project.build.source}</target>
+                        <target>${project.build.target}</target>
                         <showWarnings>true</showWarnings>
                         <showDeprecation>true</showDeprecation>
                         <compilerArgument>-Xlint:unchecked</compilerArgument>
@@ -88,7 +89,7 @@
                 <plugin>
                     <groupId>org.sonarsource.scanner.maven</groupId>
                     <artifactId>sonar-maven-plugin</artifactId>
-                    <version>3.7.0.1746</version>
+                    <version>LATEST</version>
                 </plugin>
             </plugins>
         </pluginManagement>

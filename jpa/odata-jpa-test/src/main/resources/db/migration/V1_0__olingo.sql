@@ -706,12 +706,15 @@ insert into "InhouseAddress" values( '502', 'MAIN',  '7',6 ,12 );
 CREATE TABLE "Collections" (
 	"ID" VARCHAR(32) NOT NULL ,
 	"Number" INTEGER,
-	"Timestamp" TIMESTAMP WITH TIME ZONE,
+	"Timestamp" TIMESTAMP, -- WITH TIME ZONE,
    PRIMARY KEY ("ID"));	
 insert into "Collections" values( '501',-1, null );
 insert into "Collections" values( '502', 32, null );   
-insert into "Collections" values( '503',6541, '2020-11-01 14:43:47-12:00' );
-insert into "Collections" values( '504', 3, '2020-11-01 14:43:47+01:00');   
+--insert into "Collections" values( '503',6541, '2020-11-01 14:43:47-12:00' );
+--insert into "Collections" values( '504', 3, '2020-11-01 14:43:47+01:00');   
+insert into "Collections" values( '503',6541, '2020-11-01 14:43:47' );
+insert into "Collections" values( '504', 3, '2020-11-01 14:43:47');   
+
 
 CREATE TABLE "NestedComplex" (
 	"ID" VARCHAR(32) NOT NULL,
