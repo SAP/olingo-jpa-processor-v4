@@ -67,7 +67,7 @@ class SimpleJoin<Z, X> extends AbstractJoinImp<Z, X> {
   public boolean equals(final Object obj) {
     if (this == obj) return true;
     if (!super.equals(obj)) return false;
-    if (!(obj instanceof SimpleJoin)) return false;
+    if (!(obj instanceof SimpleJoin)) return false; // NOSONAR
     final SimpleJoin<?, ?> other = (SimpleJoin<?, ?>) obj;
     return Objects.equals(association, other.association) && joinType == other.joinType;
   }

@@ -54,7 +54,7 @@ class ODataActionKey {
   @Override
   public boolean equals(final Object obj) {
     if (this == obj) return true;
-    if (!(obj instanceof ODataActionKey)) return false;
+    if (!(obj instanceof ODataActionKey)) return false; // NOSONAR
     final ODataActionKey other = (ODataActionKey) obj;
     return Objects.equals(bindingParameterType, other.bindingParameterType) && Objects.equals(externalName,
         other.externalName);

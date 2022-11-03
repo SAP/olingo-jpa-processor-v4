@@ -43,7 +43,7 @@ class ComparableByteArray implements Comparable<byte[]> {
   @Override
   public boolean equals(final Object obj) {
     if (this == obj) return true;
-    if (!(obj instanceof ComparableByteArray)) return false;
+    if (!(obj instanceof ComparableByteArray)) return false; // NOSONAR
     final ComparableByteArray other = (ComparableByteArray) obj;
     return Arrays.equals(bytes, other.bytes);
   }
