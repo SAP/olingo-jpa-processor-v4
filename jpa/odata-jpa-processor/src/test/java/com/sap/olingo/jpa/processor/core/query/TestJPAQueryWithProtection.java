@@ -132,7 +132,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
 
   @ParameterizedTest
   @CsvSource({
-      "200, 'Willi;Marvin', 13",
+      "200, 'Willi;Marvin', 16",
       "200, 'Willi', 3", })
   void testRestrictOnePropertyCount(final int statusCodeValue, final String claimEntries,
       final int noResults) throws IOException, ODataException {
@@ -209,7 +209,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
 
   @ParameterizedTest
   @CsvSource({
-      "200, 'Willi;Marvin', 13",
+      "200, 'Willi;Marvin', 16",
       "200, 'Willi', 3", })
   void testRestrictOnePropertyInlineCount(final int statusCodeValue, final String claimEntries,
       final int noResults) throws IOException, ODataException {

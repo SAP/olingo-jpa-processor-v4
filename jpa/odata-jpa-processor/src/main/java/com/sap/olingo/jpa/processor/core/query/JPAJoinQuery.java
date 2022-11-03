@@ -99,7 +99,7 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
       final javax.persistence.criteria.Expression<Boolean> whereClause = createWhere();
       if (whereClause != null)
         countQuery.where(whereClause);
-      countQuery.select(cb.countDistinct(target));
+      countQuery.select(cb.count(target));
       return em.createQuery(countQuery).getSingleResult().longValue();
     } catch (final JPANoSelectionException e) {
       return 0L;

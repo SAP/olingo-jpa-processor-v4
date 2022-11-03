@@ -74,6 +74,7 @@ class JPAJoinQueryTest extends TestQueryBase {
     final Expression<Long> countExpression = mock(Expression.class);
     when(cb.createQuery(any())).thenReturn(cq);
     doReturn(countExpression).when(cb).countDistinct(any());
+    doReturn(countExpression).when(cb).count(any());
     when(em.createQuery(any(CriteriaQuery.class))).thenReturn(typedQuery);
     when(typedQuery.getSingleResult()).thenReturn(5);
     final Long act = ((JPAJoinQuery) cut).countResults();
@@ -87,6 +88,7 @@ class JPAJoinQueryTest extends TestQueryBase {
     final Expression<Long> countExpression = mock(Expression.class);
     when(cb.createQuery(any())).thenReturn(cq);
     doReturn(countExpression).when(cb).countDistinct(any());
+    doReturn(countExpression).when(cb).count(any());
     when(em.createQuery(any(CriteriaQuery.class))).thenReturn(typedQuery);
     when(typedQuery.getSingleResult()).thenReturn(5L);
     final Long act = ((JPAJoinQuery) cut).countResults();
