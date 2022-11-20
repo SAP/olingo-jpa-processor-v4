@@ -77,6 +77,11 @@ class IntermediateJavaAction extends IntermediateOperation implements JPAAction 
           throw new ODataJPAModelException(ACTION_PARAM_ANNOTATION_MISSING,
               declaredParameter.getName(), javaAction.getName(), javaAction
                   .getDeclaringClass().getName());
+        if (definedParameter.name().isEmpty())
+          // Fallback not possible. Reflection does not contain parameter name, just returns e.g. arg1
+          // Name of parameter required. Name missing at function '%1$s' in class '%2$s'.
+          throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.FUNC_PARAM_NAME_REQUIRED,
+              javaAction.getName(), javaAction.getDeclaringClass().getName());
         final JPAParameter parameter = new IntermediateOperationParameter(
             nameBuilder,
             definedParameter,

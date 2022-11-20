@@ -48,6 +48,13 @@ class IntermediateJavaFunctionTest extends TestMappingRoot {
   }
 
   @Test
+  void checkEmptyParameterNameThrowsException() throws ODataJPAModelException {
+    final IntermediateFunction act = createFunction(ExampleJavaFunctions.class, "nameEmpty");
+
+    assertThrows(ODataJPAModelException.class, () -> act.getParameter("rights"));
+  }
+
+  @Test
   void checkReturnsConvertedPrimitiveReturnType() throws ODataJPAModelException {
     final IntermediateJavaFunction act = createFunction(ExampleJavaOneFunction.class, "sum");
 

@@ -106,4 +106,9 @@ public class ExampleJavaFunctions implements ODataFunction {
       @EdmParameter(name = "Person") final Person person) {
     return null;
   }
+
+  @EdmFunction(name = "", returnType = @ReturnType())
+  public Integer nameEmpty(@EdmParameter(name = "") final AccessRights rights) {
+    return 0;
+  }
 }

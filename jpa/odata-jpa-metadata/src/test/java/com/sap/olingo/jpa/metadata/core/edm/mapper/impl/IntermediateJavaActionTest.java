@@ -122,6 +122,13 @@ class IntermediateJavaActionTest extends TestMappingRoot {
   }
 
   @Test
+  void checkEmptyParameterNameThrowsException() throws ODataJPAModelException {
+    final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "nameEmpty");
+
+    assertThrows(ODataJPAModelException.class, () -> act.getParameter());
+  }
+
+  @Test
   void checkReturnsReturnTypeConvertedPrimitiveReturnType() throws ODataJPAModelException {
     final IntermediateJavaAction act = createAction(ExampleJavaActions.class, "unboundWithImport");
 
