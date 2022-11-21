@@ -133,6 +133,9 @@ class IntermediateJavaFunction extends IntermediateFunction implements JPAJavaFu
     final CsdlReturnType edmResultType = new CsdlReturnType();
     final Class<?> declaredReturnType = javaFunction.getReturnType();
 
+    if (definedReturnType.type() == Void.class || "void".equals(declaredReturnType
+        .getCanonicalName()))
+      throw new ODataJPAModelException(MessageKeys.FUNC_RETURN_TYPE_EXP, javaFunction.getName());
     if (IntermediateOperationHelper.isCollection(declaredReturnType)) {
       if (definedReturnType.type() == Object.class)
         // Type parameter expected for %1$s

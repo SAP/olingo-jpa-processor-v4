@@ -18,6 +18,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAParameter;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.ODataFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaEmConstructor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.testobjects.ExampleJavaFunctions;
@@ -217,6 +218,17 @@ class IntermediateJavaFunctionTest extends TestMappingRoot {
 
     assertEquals("com.sap.olingo.jpa.ABCClassification", act.getEdmItem().getReturnType().getType());
     assertTrue(act.getEdmItem().getReturnType().isCollection());
+  }
+
+  @Test
+  void checkThrowsExcpetionOnVoidAsReturnType() throws ODataJPAModelException {
+    // The function MUST specify a return type using the edm:ReturnType element. The return type must be a primitive,
+    // entity or complex type, or a collection of primitive, entity or complex types.
+    final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "returnsNothing");
+
+    final ODataJPAModelException e = assertThrows(ODataJPAModelException.class, () -> act.getEdmItem().getReturnType()
+        .getType());
+    assertEquals(MessageKeys.FUNC_RETURN_TYPE_EXP.toString(), e.getId());
   }
 
   @Test
