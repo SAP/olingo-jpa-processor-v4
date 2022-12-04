@@ -67,10 +67,15 @@ class ODataActionKeyTest {
   @Test
   void checkEquals() throws ODataJPAModelException {
     final IntermediateOperation other = createBoundOperation(mock(CsdlAction.class), "Other");
+    final IntermediateOperation other2 = createBoundOperation(mock(CsdlAction.class), "Other");
+
+    when(((CsdlAction) other2.getEdmItem()).getParameters().get(0).getTypeFQN())
+        .thenReturn(new FullQualifiedName("Dummy", TYPE_NAME));
 
     assertEquals(cut, cut);
-    assertNotEquals("Test", cut);
+    assertNotEquals(cut, "Test"); // NOSONAR
     assertNotEquals(new ODataActionKey(other), cut);
+    assertNotEquals(new ODataActionKey(other2), cut);
   }
 
   @Test

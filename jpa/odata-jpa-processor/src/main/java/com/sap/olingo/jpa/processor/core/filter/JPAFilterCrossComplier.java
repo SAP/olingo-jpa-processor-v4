@@ -128,7 +128,7 @@ public final class JPAFilterCrossComplier extends JPAAbstractFilter {
   }
 
   @Override
-  public OData getOdata() {
+  public OData getOData() {
     return odata;
   }
 

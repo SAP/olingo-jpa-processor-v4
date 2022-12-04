@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,6 +19,7 @@ import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartnerRoleKey;
 import com.sap.olingo.jpa.processor.core.testmodel.DataSourceHelper;
 import com.sap.olingo.jpa.processor.core.testmodel.InstanceRestrictionKey;
 import com.sap.olingo.jpa.processor.core.testmodel.MembershipKey;
+import com.sap.olingo.jpa.processor.core.testmodel.TemporalWithValidityPeriodKey;
 
 /**
  * @author Oliver Grande
@@ -102,5 +104,19 @@ class TestEqualHashCodeMethodsTestModel extends TestEqualHashCodeMethods {
     assertEquals(-1, cut.compareTo(new AdministrativeDivisionKey("B", "C", "B")));
     assertEquals(1, cut.compareTo(new AdministrativeDivisionKey("A", "B", "B")));
     assertEquals(-1, cut.compareTo(new AdministrativeDivisionKey("C", "B", "B")));
+  }
+
+  @Test
+  void testTemporalWithValidityPeriodKeyEqual() {
+    final LocalDate now = LocalDate.now();
+    final TemporalWithValidityPeriodKey cut = new TemporalWithValidityPeriodKey("12", now);
+    assertFalse(cut.equals(null));// NOSONAR
+    assertTrue(cut.equals(cut));// NOSONAR
+    assertTrue(cut.equals(new TemporalWithValidityPeriodKey("12", now)));// NOSONAR
+    assertFalse(cut.equals(new TemporalWithValidityPeriodKey()));// NOSONAR
+    assertFalse(cut.equals(new TemporalWithValidityPeriodKey("12", now.minusDays(1L))));// NOSONAR
+    assertFalse(cut.equals(new TemporalWithValidityPeriodKey("11", now)));// NOSONAR
+    assertFalse(new TemporalWithValidityPeriodKey(null, now).equals(cut));// NOSONAR
+    assertFalse(new TemporalWithValidityPeriodKey("12", null).equals(cut));// NOSONAR
   }
 }

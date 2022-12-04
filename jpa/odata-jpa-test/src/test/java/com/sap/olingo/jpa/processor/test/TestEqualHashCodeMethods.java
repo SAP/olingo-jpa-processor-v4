@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -120,6 +121,8 @@ abstract class TestEqualHashCodeMethods {
       return counter.toString();
     if (javaType == Integer.class)
       return counter;
+    if (javaType == LocalDate.class)
+      return LocalDate.now().plusDays(counter.longValue());
     return null;
   }
 

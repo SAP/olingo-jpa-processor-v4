@@ -38,6 +38,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEnumerationAttribute;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAFunction;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAJavaFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -62,13 +64,18 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
   }
 
   @Override
-  public OData getOdata() {
-    return jpaComplier.getOdata();
+  public OData getOData() {
+    return jpaComplier.getOData();
   }
 
   @Override
   public From<?, ?> getRoot() {
     return jpaComplier.getRoot();
+  }
+
+  @Override
+  public JPAEntityType getEntityType() {
+    return jpaComplier.getJpaEntityType();
   }
 
   @Override
@@ -160,7 +167,7 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
   public JPAOperator visitLiteral(final Literal literal) throws ExpressionVisitException, ODataApplicationException {
     final int handle = debugger.startRuntimeMeasurement(this, "visitBinaryOperator");
     debugger.stopRuntimeMeasurement(handle);
-    return new JPALiteralOperator(this.jpaComplier.getOdata(), literal);
+    return new JPALiteralOperator(this.jpaComplier.getOData(), literal);
   }
 
   @Override
@@ -181,11 +188,14 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
       return new JPAAggregationOperationImp(jpaComplier.getRoot(), jpaComplier.getConverter());
     } else if (isCustomFunction(member.getResourcePath())) {
       final UriResource resource = member.getResourcePath().getUriResourceParts().get(0);
-      final JPADataBaseFunction jpaFunction = (JPADataBaseFunction) this.jpaComplier.getSd().getFunction(
+      final JPAFunction jpaFunction = this.jpaComplier.getSd().getFunction(
           ((UriResourceFunction) resource).getFunction());
-      final List<UriParameter> odataParams = ((UriResourceFunction) resource).getParameters();
       debugger.stopRuntimeMeasurement(handle);
-      return new JPAFunctionOperator(this, odataParams, jpaFunction);
+      if (jpaFunction instanceof JPADataBaseFunction) {
+        final List<UriParameter> odataParams = ((UriResourceFunction) resource).getParameters();
+        return new JPADBFunctionOperator(this, odataParams, (JPADataBaseFunction) jpaFunction);
+      } else
+        return new JPAJavaFunctionOperator(this, (UriResourceFunction) resource, (JPAJavaFunction) jpaFunction);
     }
     debugger.stopRuntimeMeasurement(handle);
     return new JPAMemberOperator(this.jpaComplier.getRoot(), member, jpaComplier

@@ -44,7 +44,7 @@ abstract class JPAExistsOperation implements JPAOperator {
     this.sd = jpaComplier.getSd();
     this.em = jpaComplier.getEntityManager();
     this.converter = jpaComplier.getConverter();
-    this.odata = jpaComplier.getOdata();
+    this.odata = jpaComplier.getOData();
     this.from = jpaComplier.getRoot();
     this.claimsProvider = jpaComplier.getClaimsProvider();
     this.groups = jpaComplier.getGroups();

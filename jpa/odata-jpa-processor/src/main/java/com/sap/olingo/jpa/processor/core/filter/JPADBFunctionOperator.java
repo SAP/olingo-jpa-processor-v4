@@ -24,18 +24,18 @@ import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 
 /**
- * Handle OData Functions that are implemented e.g. as user defined data base functions. This will be mapped
+ * Handle OData Functions that are implemented as user defined data base functions. This will be mapped
  * to JPA criteria builder function().
- * 
+ *
  * @author Oliver Grande
  *
  */
-final class JPAFunctionOperator implements JPAOperator {
+final class JPADBFunctionOperator implements JPAOperator {
   private final JPADataBaseFunction jpaFunction;
   private final JPAVisitor visitor;
   private final List<UriParameter> uriParams;
 
-  public JPAFunctionOperator(final JPAVisitor jpaVisitor, final List<UriParameter> uriParams,
+  public JPADBFunctionOperator(final JPAVisitor jpaVisitor, final List<UriParameter> uriParams,
       final JPADataBaseFunction jpaFunction) {
 
     super();
@@ -62,7 +62,7 @@ final class JPAFunctionOperator implements JPAOperator {
     List<JPAParameter> parameters;
     try {
       parameters = jpaFunction.getParameter();
-    } catch (ODataJPAModelException e) {
+    } catch (final ODataJPAModelException e) {
       throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
     final Expression<?>[] jpaParameter = new Expression<?>[parameters.size()];
@@ -71,13 +71,13 @@ final class JPAFunctionOperator implements JPAOperator {
       final UriParameter p = findUriParameter(parameters.get(i));
 
       if (p != null && p.getText() != null) {
-        final JPALiteralOperator operator = new JPALiteralOperator(visitor.getOdata(), new ParameterLiteral(p
+        final JPALiteralOperator operator = new JPALiteralOperator(visitor.getOData(), new ParameterLiteral(p
             .getText()));
         jpaParameter[i] = cb.literal(operator.get(parameters.get(i)));
       } else if (p != null && p.getExpression() != null) {
         try {
           jpaParameter[i] = (Expression<?>) p.getExpression().accept(visitor).get();
-        } catch (ExpressionVisitException e) {
+        } catch (final ExpressionVisitException e) {
           throw new ODataJPAFilterException(e, HttpStatusCode.NOT_IMPLEMENTED);
         }
       } else {

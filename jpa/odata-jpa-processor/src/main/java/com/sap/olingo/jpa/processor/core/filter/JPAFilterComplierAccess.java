@@ -24,7 +24,7 @@ interface JPAFilterComplierAccess {
 
   JPAServiceDocument getSd();
 
-  OData getOdata();
+  OData getOData();
 
   EntityManager getEntityManager();
 

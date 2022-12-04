@@ -6,6 +6,8 @@ import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.CheckForNull;
+
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.geo.SRID;
@@ -96,6 +98,16 @@ class IntermediateJavaFunction extends IntermediateFunction implements JPAJavaFu
   }
 
   @Override
+  @CheckForNull
+  public JPAParameter getParameter(final Parameter declaredParameter) throws ODataJPAModelException {
+    for (final JPAParameter param : getParameter()) {
+      if (param.getInternalName().equals(declaredParameter.getName()))
+        return param;
+    }
+    return null;
+  }
+
+  @Override
   public JPAOperationResultParameter getResultParameter() {
     return new IntermediateOperationResultParameter(this, jpaFunction.returnType(), javaFunction.getReturnType(),
         IntermediateOperationHelper.isCollection(javaFunction.getReturnType()));
@@ -145,6 +157,7 @@ class IntermediateJavaFunction extends IntermediateFunction implements JPAJavaFu
           schema, javaFunction.getName()));
     } else {
       if (definedReturnType.type() != Object.class
+          && declaredReturnType != Object.class
           && !definedReturnType.type().getCanonicalName().equals(declaredReturnType.getCanonicalName()))
         // The return type %1$s from EdmFunction does not match type %2$s declared at method %3$s
         throw new ODataJPAModelException(MessageKeys.FUNC_RETURN_TYPE_INVALID, definedReturnType.type().getName(),
@@ -179,7 +192,7 @@ class IntermediateJavaFunction extends IntermediateFunction implements JPAJavaFu
 
   @Override
   boolean hasImport() {
-    return true;
+    return jpaFunction.hasFunctionImport();
   }
 
   @Override

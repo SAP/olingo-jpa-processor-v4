@@ -9,6 +9,8 @@ import java.util.List;
 
 import org.apache.olingo.commons.api.edm.geo.Geospatial.Dimension;
 
+import com.sap.olingo.jpa.metadata.api.JPAHttpHeaderMap;
+import com.sap.olingo.jpa.metadata.api.JPARequestParameterMap;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmFunction.ReturnType;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmGeospatial;
@@ -23,7 +25,11 @@ import com.sap.olingo.jpa.processor.core.testmodel.PostalAddressData;
 
 public class ExampleJavaFunctions implements ODataFunction {
 
-  @EdmFunction(name = "Add", isBound = true, hasFunctionImport = false, returnType = @ReturnType)
+  public ExampleJavaFunctions(final JPARequestParameterMap parameterMap, final JPAHttpHeaderMap header) {
+    super();
+  }
+
+  @EdmFunction(name = "Add", isBound = true, hasFunctionImport = true, returnType = @ReturnType)
   public Integer sum(
       @EdmParameter(name = "A") final short a, @EdmParameter(name = "B") final int b) {
     return a + b;

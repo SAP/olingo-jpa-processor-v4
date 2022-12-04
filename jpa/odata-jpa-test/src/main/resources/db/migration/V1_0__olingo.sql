@@ -938,6 +938,19 @@ insert into "AssociationOneToOneTarget" values ('TA', 'SC');
 insert into "AssociationOneToOneTarget" values ('TB', 'SC');
 
 
+------Temporal Data-------------------------
+
+CREATE TABLE "TemporalWithValidityPeriod"(
+	"ID" VARCHAR(32) NOT NULL,
+	"StartDate" DATE NOT NULL,
+	"EndDate" DATE NOT NULL,
+	"Value" VARCHAR(255),
+ PRIMARY KEY ("ID", "StartDate"));
+ 
+ INSERT INTO "TemporalWithValidityPeriod" values ('99', '2022-01-01', '2022-10-31','Plumber');
+ INSERT INTO "TemporalWithValidityPeriod" values ('99', '2022-11-01', '9999-12-31','Electrician');
+ INSERT INTO "TemporalWithValidityPeriod" values ('98', '2022-01-01', '9999-12-31','Architect');
+ 
 --------------------------------------------
 CREATE TABLE "DummyToBeIgnored" (
 	"ID" VARCHAR(32) NOT NULL ,

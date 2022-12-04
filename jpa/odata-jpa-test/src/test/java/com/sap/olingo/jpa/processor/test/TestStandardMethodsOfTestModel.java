@@ -71,6 +71,8 @@ import com.sap.olingo.jpa.processor.core.testmodel.PersonImage;
 import com.sap.olingo.jpa.processor.core.testmodel.PostalAddressData;
 import com.sap.olingo.jpa.processor.core.testmodel.PostalAddressDataWithGroup;
 import com.sap.olingo.jpa.processor.core.testmodel.Team;
+import com.sap.olingo.jpa.processor.core.testmodel.TemporalWithValidityPeriod;
+import com.sap.olingo.jpa.processor.core.testmodel.TemporalWithValidityPeriodKey;
 import com.sap.olingo.jpa.processor.core.testmodel.User;
 
 /**
@@ -140,6 +142,8 @@ class TestStandardMethodsOfTestModel {
         arguments(PostalAddressData.class),
         arguments(PostalAddressDataWithGroup.class),
         arguments(Team.class),
+        arguments(TemporalWithValidityPeriod.class),
+        arguments(TemporalWithValidityPeriodKey.class),
         arguments(User.class),
         arguments(DummyToBeIgnored.class));
   }
@@ -223,10 +227,10 @@ class TestStandardMethodsOfTestModel {
     assertNotNull(constructor);
     final Object instance = constructor.newInstance();
 
-    for (final Method hashcode : methods) {
-      if ("hashCode".equals(hashcode.getName())
-          && hashcode.getParameterCount() == 0) {
-        assertNotEquals(0, hashcode.invoke(instance));
+    for (final Method hashCode : methods) {
+      if ("hashCode".equals(hashCode.getName())
+          && hashCode.getParameterCount() == 0) {
+        assertNotEquals(0, hashCode.invoke(instance));
       }
     }
   }

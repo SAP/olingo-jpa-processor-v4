@@ -85,7 +85,7 @@ public final class JPAFilterElementComplier extends JPAAbstractFilter {
   }
 
   @Override
-  public OData getOdata() {
+  public OData getOData() {
     return odata;
   }
 

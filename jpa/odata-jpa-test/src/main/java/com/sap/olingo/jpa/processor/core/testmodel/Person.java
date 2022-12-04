@@ -17,6 +17,7 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
@@ -93,6 +94,11 @@ public class Person extends BusinessPartner {// #NOSONAR use equal method from B
       joinColumns = @JoinColumn(name = "\"PersonID\"", referencedColumnName = "\"ID\""),
       inverseJoinColumns = @JoinColumn(name = "\"TeamID\"", referencedColumnName = "\"TeamKey\""))
   private List<Team> teams;
+
+  @OneToMany
+  @JoinColumn(name = "\"ID\"", referencedColumnName = "\"ID\"", insertable = false, updatable = false,
+      nullable = true)
+  private List<TemporalWithValidityPeriod> jobs;
 
   public Person() {
     type = "1";

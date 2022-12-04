@@ -1,13 +1,18 @@
 package com.sap.olingo.jpa.processor.core.filter;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.From;
 
 import org.apache.olingo.commons.api.edm.EdmFunction;
 import org.apache.olingo.server.api.ODataApplicationException;
@@ -15,19 +20,25 @@ import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceFunction;
+import org.apache.olingo.server.api.uri.queryoption.expression.BinaryOperatorKind;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitException;
 import org.apache.olingo.server.api.uri.queryoption.expression.Member;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
 
 class JPAVisitorTest {
 
+  private JPAEntityType et;
+  private From<?, ?> from;
+  private CriteriaBuilder cb;
   private JPAFilterComplierAccess compiler;
   private JPAAbstractQuery query;
   private JPAExpressionVisitor cut;
@@ -40,13 +51,49 @@ class JPAVisitorTest {
     converter = new JPAOperationConverter(mock(CriteriaBuilder.class), extension);
     compiler = mock(JPAFilterComplierAccess.class);
     query = mock(JPAAbstractQuery.class);
+    from = mock(From.class);
+    et = mock(JPAEntityType.class);
+    cb = mock(CriteriaBuilder.class);
 
+    doReturn(from).when(compiler).getRoot();
+    when(compiler.getJpaEntityType()).thenReturn(et);
     when(compiler.getConverter()).thenReturn(converter);
     when(compiler.getParent()).thenReturn(query);
     when(compiler.getDebugger()).thenReturn(mock(JPAServiceDebugger.class));
     when(query.getDebugger()).thenReturn(mock(JPAServiceDebugger.class));
 
     cut = new JPAVisitor(compiler);
+  }
+
+  @Test
+  void testGetEntityType() {
+    assertEquals(et, cut.getEntityType());
+  }
+
+  @Test
+  void testGetRoot() {
+    assertEquals(from, cut.getRoot());
+  }
+
+  @Test
+  void testVisitAliasThrowsException() {
+    assertThrows(ODataJPAFilterException.class, () -> cut.visitAlias("Test"));
+  }
+
+  @Test
+  void testVisitLambdaExpressionThrowsException() {
+    assertThrows(ODataJPAFilterException.class, () -> cut.visitLambdaExpression(null, null, null));
+  }
+
+  @Test
+  void testVisitLambdaReferenceThrowsException() {
+    assertThrows(ODataJPAFilterException.class, () -> cut.visitLambdaReference("Test"));
+  }
+
+  @Test
+  void testVisitBinaryOperatorThrowsException() {
+    assertThrows(ODataJPAFilterException.class, () -> cut.visitBinaryOperator(BinaryOperatorKind.IN, null,
+        Collections.emptyList()));
   }
 
   @Test
@@ -72,7 +119,7 @@ class JPAVisitorTest {
     when(sd.getFunction(edmFunction)).thenReturn(jpaFunction);
     when(uriFunction.getParameters()).thenReturn(new ArrayList<UriParameter>());
 
-    assertTrue(cut.visitMember(member) instanceof JPAFunctionOperator);
+    assertTrue(cut.visitMember(member) instanceof JPADBFunctionOperator);
   }
 
 }

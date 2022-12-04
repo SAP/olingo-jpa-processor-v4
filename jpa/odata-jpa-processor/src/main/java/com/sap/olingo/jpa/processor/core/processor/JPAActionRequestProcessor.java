@@ -4,7 +4,6 @@ import static com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorExcep
 import static org.apache.olingo.commons.api.http.HttpStatusCode.BAD_REQUEST;
 import static org.apache.olingo.commons.api.http.HttpStatusCode.INTERNAL_SERVER_ERROR;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
@@ -62,7 +61,7 @@ public class JPAActionRequestProcessor extends JPAOperationRequestProcessor {
       final JPAAction jpaAction = sd.getAction(resource.getAction());
       if (jpaAction == null)
         throw new ODataJPAProcessorException(ACTION_UNKNOWN, BAD_REQUEST, resource.getAction().getName());
-      final Object instance = createInstance(jpaAction.getConstructor());
+      final Object instance = createInstance(em, jpaAction);
 
       final ODataDeserializer deserializer = odata.createDeserializer(requestFormat);
       final Map<String, org.apache.olingo.commons.api.data.Parameter> actionParameter =
@@ -129,16 +128,6 @@ public class JPAActionRequestProcessor extends JPAOperationRequestProcessor {
       return new JPAInstanceCreator<>(odata, et).createInstance(entitySet.getKeyPredicates());
     }
     return Optional.empty();
-  }
-
-  protected Object createInstance(final Constructor<?> c) throws InstantiationException, IllegalAccessException,
-      InvocationTargetException {
-    Object instance;
-    if (c.getParameterCount() == 1)
-      instance = c.newInstance(em);
-    else
-      instance = c.newInstance();
-    return instance;
   }
 
 }

@@ -13,8 +13,9 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.extension;
  * <li>An Entity Manager: javax.persistence.EntityManager</li>
  * <li>All header: com.sap.olingo.jpa.metadata.api.JPAHttpHeaderMap</li>
  * <li>Access to own request parameter: com.sap.olingo.jpa.metadata.api.JPARequestParameterMap</li>
+ * <li></li>
  * </ul>
- * *
+ *
  * @author Oliver Grande
  *
  */

@@ -64,9 +64,11 @@ class SimpleJoinTest extends BuilderBaseTest {
     assertNotEquals(0, cut.hashCode());
   }
 
+  @SuppressWarnings("unlikely-arg-type")
   @Test
   void testEquals() {
     assertTrue(cut.equals(cut)); // NOSONAR
     assertFalse(cut.equals(null)); // NOSONAR
+    assertFalse(cut.equals("Willi")); // NOSONAR
   }
 }

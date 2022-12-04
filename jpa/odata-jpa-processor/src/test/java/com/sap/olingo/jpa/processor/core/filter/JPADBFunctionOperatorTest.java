@@ -1,8 +1,8 @@
 package com.sap.olingo.jpa.processor.core.filter;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -22,11 +22,13 @@ import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPADataBaseFunction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOperationResultParameter;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.testmodel.AdministrativeDivision;
 
-class TestJPAFunctionOperator {
+class JPADBFunctionOperatorTest {
   private CriteriaBuilder cb;
-  private JPAFunctionOperator cut;
+  private JPADBFunctionOperator cut;
   private UriResourceFunction uriFunction;
   private JPAVisitor jpaVisitor;
   private JPADataBaseFunction jpaFunction;
@@ -48,7 +50,7 @@ class TestJPAFunctionOperator {
 
     uriParams = new ArrayList<>();
 
-    cut = new JPAFunctionOperator(jpaVisitor, uriParams, jpaFunction);
+    cut = new JPADBFunctionOperator(jpaVisitor, uriParams, jpaFunction);
   }
 
   @SuppressWarnings("unchecked")
@@ -72,12 +74,7 @@ class TestJPAFunctionOperator {
     when(jpaFunction.getDBName()).thenReturn("org.apache.olingo.jpa::Siblings");
     when(jpaResultParam.isCollection()).thenReturn(true);
 
-    try {
-      cut.get();
-    } catch (final ODataApplicationException e) {
-      return;
-    }
-    fail("Function provided not checked");
+    assertThrows(ODataApplicationException.class, () -> cut.get(), "Function provided not checked");
   }
 
   @Test
@@ -89,5 +86,22 @@ class TestJPAFunctionOperator {
 
     assertThrows(ODataApplicationException.class, () -> cut.get());
 
+  }
+
+  @Test
+  void testAbortOnParameterReadException() throws ODataJPAModelException {
+
+    when(jpaFunction.getDBName()).thenReturn("org.apache.olingo.jpa::Siblings");
+    doReturn(Integer.valueOf(5).getClass()).when(jpaResultParam).getType();
+    when(jpaFunction.getParameter()).thenThrow(ODataJPAModelException.class);
+
+    final ODataJPAProcessorException act = assertThrows(ODataJPAProcessorException.class, () -> cut.get());
+    assertEquals(500, act.getStatusCode());
+  }
+
+  @Test
+  void testReturnsName() {
+    when(jpaFunction.getDBName()).thenReturn("org.apache.olingo.jpa::Siblings");
+    assertEquals("org.apache.olingo.jpa::Siblings", cut.getName());
   }
 }
