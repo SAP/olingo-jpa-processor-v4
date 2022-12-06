@@ -34,7 +34,6 @@ import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitEx
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
@@ -126,23 +125,6 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
     if (selectItemPath == null)
       throw new ODataJPAQueryException(QUERY_PREPARATION_INVALID_SELECTION_PATH, BAD_REQUEST);
     return selectItemPath;
-  }
-
-  @Override
-  protected void expandPath(final JPAEntityType jpaEntity, final SelectionPathInfo<JPAPath> jpaSelectionInfo,
-      final String selectItem, final boolean targetIsCollection) throws ODataJPAModelException, ODataJPAQueryException {
-
-    final JPAPath selectItemPath = jpaEntity.getPath(selectItem);
-    if (selectItemPath == null)
-      throw new ODataJPAQueryException(QUERY_PREPARATION_INVALID_SELECTION_PATH, BAD_REQUEST);
-    if (selectItemPath.getLeaf().isComplex()) {
-      // Complex Type
-      final List<JPAPath> p = jpaEntity.searchChildPath(selectItemPath);
-      jpaSelectionInfo.getODataSelections().addAll(p);
-    } else {
-      // Primitive Type
-      jpaSelectionInfo.getODataSelections().add(selectItemPath);
-    }
   }
 
   @Override
