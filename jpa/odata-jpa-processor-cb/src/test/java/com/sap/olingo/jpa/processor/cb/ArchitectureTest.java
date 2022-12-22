@@ -22,6 +22,7 @@ class ArchitectureTest { // NOSONAR
 
   @ArchTest
   static final ArchRule layerRule = layeredArchitecture()
+      .consideringAllDependencies()
       .layer("Api").definedBy("..api..")
       .layer("Implementation").definedBy("..impl..")
       .layer("Reuse").definedBy("..joiner..", "..exeptions..")

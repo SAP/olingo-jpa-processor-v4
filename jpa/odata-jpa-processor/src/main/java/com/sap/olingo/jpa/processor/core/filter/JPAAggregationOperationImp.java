@@ -17,7 +17,7 @@ class JPAAggregationOperationImp implements JPAAggregationOperation {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.sap.olingo.jpa.processor.core.filter.JPAAggregationOperation#get()
    */
   @Override
@@ -30,8 +30,9 @@ class JPAAggregationOperationImp implements JPAAggregationOperation {
     return JPAFilterAggregationType.COUNT;
   }
 
-  Expression<?> getPath() {
-    return root;
+  @SuppressWarnings("unchecked")
+  <S> Expression<S> getPath() {
+    return (Expression<S>) root;
   }
 
   @Override

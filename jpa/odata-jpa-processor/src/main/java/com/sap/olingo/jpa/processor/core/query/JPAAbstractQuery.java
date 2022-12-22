@@ -146,7 +146,7 @@ public abstract class JPAAbstractQuery {
    */
   public abstract <T> AbstractQuery<T> getQuery();
 
-  public abstract From<?, ?> getRoot();
+  public abstract <S, T> From<S, T> getRoot();
 
   protected javax.persistence.criteria.Expression<Boolean> addWhereClause(
       javax.persistence.criteria.Expression<Boolean> whereCondition,

@@ -55,7 +55,7 @@ abstract class JPAExistsOperation implements JPAOperator {
     return converter.cb.exists(getExistsQuery());
   }
 
-  abstract Subquery<?> getExistsQuery() throws ODataApplicationException;
+  abstract <S> Subquery<S> getExistsQuery() throws ODataApplicationException;
 
   protected List<JPANavigationPropertyInfo> determineAssociations(final JPAServiceDocument sd,
       final List<UriResource> resourceParts) throws ODataApplicationException {
@@ -115,7 +115,7 @@ abstract class JPAExistsOperation implements JPAOperator {
     return false;
   }
 
-  public boolean isCollection(UriResource resourcePart) {
+  public boolean isCollection(final UriResource resourcePart) {
 
     return (resourcePart instanceof UriResourceProperty && ((UriResourceProperty) resourcePart).isCollection());
   }

@@ -83,7 +83,7 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
   protected abstract void lazyBuildEdmItem() throws ODataJPAModelException;
 
   @SuppressWarnings("unchecked")
-  protected <T extends CsdlAbstractEdmItem> List<? extends CsdlAbstractEdmItem> extractEdmModelElements(
+  protected <T extends CsdlAbstractEdmItem> List<T> extractEdmModelElements(
       final Map<?, ? extends IntermediateModelElement> mappingBuffer) throws ODataJPAModelException {
     final List<T> extractionTarget = new ArrayList<>();
 

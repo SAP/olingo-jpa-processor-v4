@@ -116,20 +116,22 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
     return (AbstractQuery<T>) cq;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public From<?, ?> getRoot() {
-    return target;
+  public <S, T> From<S, T> getRoot() {
+    return (From<S, T>) target;
   }
 
   /**
    * Applies the $skip and $top options of the OData request to the query. The values are defined as follows:
    * <ul>
-   * <li> The $top system query option specifies a non-negative integer n that limits the number of items returned from
+   * <li>The $top system query option specifies a non-negative integer n that limits the number of items returned from
    * a collection.
-   * <li> The $skip system query option specifies a non-negative integer n that excludes the first n items of the
+   * <li>The $skip system query option specifies a non-negative integer n that excludes the first n items of the
    * queried collection from the result.
    * </ul>
-   * These values can be restricted by a page provided by server driven paging<p>
+   * These values can be restricted by a page provided by server driven paging
+   * <p>
    * For details see:
    * <a href=
    * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398306"

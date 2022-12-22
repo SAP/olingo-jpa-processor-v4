@@ -18,11 +18,6 @@ import javax.persistence.metamodel.PluralAttribute;
 
 import org.apache.olingo.commons.api.edm.EdmEnumType;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
-import org.apache.olingo.commons.api.edm.provider.CsdlAction;
-import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
-import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
-import org.apache.olingo.commons.api.edm.provider.CsdlEnumType;
-import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.reflections8.Reflections;
 
@@ -95,11 +90,11 @@ final class IntermediateSchema extends IntermediateModelElement {
   protected synchronized void lazyBuildEdmItem() throws ODataJPAModelException {
     edmSchema = new CsdlSchema();
     edmSchema.setNamespace(nameBuilder.getNamespace());
-    edmSchema.setEnumTypes((List<CsdlEnumType>) extractEdmModelElements(enumTypeListInternalKey));
-    edmSchema.setComplexTypes((List<CsdlComplexType>) extractEdmModelElements(complexTypeListInternalKey));
-    edmSchema.setEntityTypes((List<CsdlEntityType>) extractEdmModelElements(entityTypeListInternalKey));
-    edmSchema.setFunctions((List<CsdlFunction>) extractEdmModelElements(functionListInternalKey));
-    edmSchema.setActions((List<CsdlAction>) extractEdmModelElements(actionListByKey));
+    edmSchema.setEnumTypes(extractEdmModelElements(enumTypeListInternalKey));
+    edmSchema.setComplexTypes(extractEdmModelElements(complexTypeListInternalKey));
+    edmSchema.setEntityTypes(extractEdmModelElements(entityTypeListInternalKey));
+    edmSchema.setFunctions(extractEdmModelElements(functionListInternalKey));
+    edmSchema.setActions(extractEdmModelElements(actionListByKey));
 //  edm:Annotations
 //  edm:Annotation
 //  edm:Term

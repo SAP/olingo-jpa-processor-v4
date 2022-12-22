@@ -36,11 +36,12 @@ abstract class JPALambdaOperation extends JPAExistsOperation {
   }
 
   @Override
-  protected Subquery<?> getExistsQuery() throws ODataApplicationException {
+  protected <S> Subquery<S> getExistsQuery() throws ODataApplicationException {
     return getSubQuery(determineExpression());
   }
 
-  protected final Subquery<?> getSubQuery(final Expression expression) throws ODataApplicationException {
+  @SuppressWarnings("unchecked")
+  protected final <S> Subquery<S> getSubQuery(final Expression expression) throws ODataApplicationException {
     final List<UriResource> allUriResourceParts = new ArrayList<>(uriResourceParts);
     allUriResourceParts.addAll(member.getUriResourceParts());
 
@@ -70,7 +71,7 @@ abstract class JPALambdaOperation extends JPAExistsOperation {
     for (int i = queryList.size() - 1; i >= 0; i--) {
       childQuery = queryList.get(i).getSubQuery(childQuery);
     }
-    return childQuery;
+    return (Subquery<S>) childQuery;
   }
 
   Expression determineExpression() {

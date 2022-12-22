@@ -1,14 +1,10 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
-import java.util.List;
-
 import javax.persistence.metamodel.EmbeddableType;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
-import org.apache.olingo.commons.api.edm.provider.CsdlNavigationProperty;
-import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -46,7 +42,6 @@ final class IntermediateComplexType<T> extends IntermediateStructuredType<T> {
 
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   protected synchronized void lazyBuildEdmItem() throws ODataJPAModelException {
     if (edmStructuralType == null) {
@@ -56,9 +51,8 @@ final class IntermediateComplexType<T> extends IntermediateStructuredType<T> {
       edmStructuralType = new CsdlComplexType();
 
       edmStructuralType.setName(this.getExternalName());
-      edmStructuralType.setProperties((List<CsdlProperty>) extractEdmModelElements(declaredPropertiesMap));
-      edmStructuralType.setNavigationProperties((List<CsdlNavigationProperty>) extractEdmModelElements(
-          declaredNaviPropertiesMap));
+      edmStructuralType.setProperties(extractEdmModelElements(declaredPropertiesMap));
+      edmStructuralType.setNavigationProperties(extractEdmModelElements(declaredNaviPropertiesMap));
       edmStructuralType.setBaseType(determineBaseType());
       // TODO Abstract
       // edmComplexType.setAbstract(isAbstract)

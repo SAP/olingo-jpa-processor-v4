@@ -58,7 +58,8 @@ public final class ExpressionUtil {
    * @param jpaPath
    * @return
    */
-  public static Path<?> convertToCriteriaPath(final Map<String, From<?, ?>> joinTables, final From<?, ?> root,
+  @SuppressWarnings("unchecked")
+  public static <T> Path<T> convertToCriteriaPath(final Map<String, From<?, ?>> joinTables, final From<?, ?> root,
       final List<JPAElement> jpaPath) {
     Path<?> p = root;
     for (final JPAElement jpaPathElement : jpaPath)
@@ -70,9 +71,10 @@ public final class ExpressionUtil {
       } else {
         p = p.get(jpaPathElement.getInternalName());
       }
-    return p;
+    return (Path<T>) p;
   }
 
+  @SuppressWarnings("unchecked")
   public static Path<?> convertToCriteriaPath(final From<?, ?> root, final List<JPAElement> jpaPath) {
     Path<?> p = root;
     for (final JPAElement jpaPathElement : jpaPath)
@@ -88,7 +90,6 @@ public final class ExpressionUtil {
    * @return
    * @throws ODataJPAQueryException
    */
-  @SuppressWarnings("unchecked")
   public static List<Path<Object>> convertToCriteriaPathList(final From<?, ?> root, final JPAEntityType et,
       final List<JPAAttribute> jpaAttributes) throws ODataJPAQueryException {
 
@@ -96,6 +97,7 @@ public final class ExpressionUtil {
       final List<Path<Object>> result = new ArrayList<>(jpaAttributes.size());
       for (final JPAAttribute attribute : jpaAttributes) {
         final JPAPath path = et.getPath(attribute.getExternalName());
+        @SuppressWarnings("unchecked")
         final Path<Object> p = (Path<Object>) convertToCriteriaPath(root, path.getPath());
         p.alias(path.getAlias());
         result.add(p);

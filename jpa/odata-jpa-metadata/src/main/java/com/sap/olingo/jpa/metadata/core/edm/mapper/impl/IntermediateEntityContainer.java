@@ -113,7 +113,6 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
    * @param Entity Type
    * @return Entity Set
    */
-  @SuppressWarnings("unchecked")
   private List<CsdlEntitySet> buildEntitySets() throws ODataJPAModelException {
     for (final Entry<String, IntermediateSchema> schema : schemaList.entrySet()) {
       for (final IntermediateEntityType<?> et : schema.getValue().getEntityTypes()) {
@@ -123,7 +122,7 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
         }
       }
     }
-    return (List<CsdlEntitySet>) extractEdmModelElements(entitySetListInternalKey);
+    return extractEdmModelElements(entitySetListInternalKey);
   }
 
   /**
@@ -131,7 +130,6 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
    * @return List of Singletons
    * @throws ODataJPAModelException
    */
-  @SuppressWarnings("unchecked")
   private List<CsdlSingleton> buildSingletons() throws ODataJPAModelException {
     for (final Entry<String, IntermediateSchema> schema : schemaList.entrySet()) {
       for (final IntermediateEntityType<?> et : schema.getValue().getEntityTypes()) {
@@ -141,12 +139,13 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
         }
       }
     }
-    return (List<CsdlSingleton>) extractEdmModelElements(singletonListInternalKey);
+    return extractEdmModelElements(singletonListInternalKey);
   }
 
   /**
    * Creates the FunctionImports. Function Imports have to be created for <i>unbound</i> functions. These are functions,
-   * which do not depend on an entity set. E.g. .../MyFunction(). <p>
+   * which do not depend on an entity set. E.g. .../MyFunction().
+   * <p>
    * Details are described in : <a href=
    * "https://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-complete.html#_Toc406398042"
    * >OData Version 4.0 Part 3 - 13.6 Element edm:FunctionImport</a>
@@ -196,7 +195,8 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
 
   /**
    * Creates the ActionImports. Function Imports have to be created for <i>unbound</i> actions. These are actions,
-   * which do not depend on an entity set. E.g. .../MyAction(). <p>
+   * which do not depend on an entity set. E.g. .../MyAction().
+   * <p>
    * Details are described in : <a href=
    * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part3-csdl/odata-v4.0-errata02-os-part3-csdl-
    * complete.html#_Toc406398038">13.5 Element edm:ActionImport</a>
