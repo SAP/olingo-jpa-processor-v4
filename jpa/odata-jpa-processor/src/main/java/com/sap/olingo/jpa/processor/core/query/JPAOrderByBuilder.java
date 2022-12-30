@@ -47,6 +47,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPANotImplementedException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
@@ -76,19 +77,23 @@ final class JPAOrderByBuilder {
 
   /**
    * Create a list of order by for the root (non $expand) query part. Beside the $orderby query option, it also take
-   * $top
-   * and $skip into account, so that for the later once a stable sorting is guaranteed.<p>
+   * $top, $skip and an optional server driven paging into account, so that for the later once a stable sorting is
+   * guaranteed.
+   * <p>
    * If asc or desc is not specified, the service MUST order by the specified property in ascending order.
    * See: <a href=
    * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398305"
-   * >OData Version 4.0 Part 1 - 11.2.5.2 System Query Option $orderby</a> <p>
+   * >OData Version 4.0 Part 1 - 11.2.5.2 System Query Option $orderby</a>
+   * <p>
    *
    * Some OData example requests:<br>
    * .../Organizations?$orderby=Address/Country --> one item, two resourcePaths
    * [...ComplexProperty,...PrimitiveProperty]<br>
    * .../Organizations?$orderby=Roles/$count --> one item, two resourcePaths [...NavigationProperty,...Count]<br>
-   * .../Organizations?$orderby=Roles/$count desc,Address/Country asc -->two items <p>
-   * SQL example to order by number of entities<p>
+   * .../Organizations?$orderby=Roles/$count desc,Address/Country asc -->two items
+   * <p>
+   * SQL example to order by number of entities
+   * <p>
    * <code>
    * SELECT t0."BusinessPartnerID" ,COUNT(t1."BusinessPartnerID")<br>
    * <pre>FROM "OLINGO"."org.apache.olingo.jpa::BusinessPartner" t0 <br>
@@ -106,7 +111,7 @@ final class JPAOrderByBuilder {
    */
   @Nonnull
   List<Order> createOrderByList(@Nonnull final Map<String, From<?, ?>> joinTables,
-      @Nonnull final UriInfoResource uriResource) throws ODataApplicationException {
+      @Nonnull final UriInfoResource uriResource, @Nullable final JPAODataPage page) throws ODataApplicationException {
 
     final List<Order> result = new ArrayList<>();
     final Set<Path<?>> orderBys = new HashSet<>();
@@ -115,8 +120,9 @@ final class JPAOrderByBuilder {
         LOGGER.trace(LOG_ORDER_BY);
         addOrderByFromUriResource(joinTables, result, orderBys, uriResource.getOrderByOption());
       }
-      if (uriResource.getTopOption() != null || uriResource.getSkipOption() != null) {
-        LOGGER.trace("Determined $top/$skip: add primary key to Order By");
+      if (uriResource.getTopOption() != null || uriResource.getSkipOption() != null
+          || (page != null && page.getTop() != Integer.MAX_VALUE)) {
+        LOGGER.trace("Determined $top/$skip or page: add primary key to Order By");
         addOrderByPrimaryKey(result, orderBys);
       }
     } catch (final ODataJPAModelException e) {
@@ -132,7 +138,8 @@ final class JPAOrderByBuilder {
 
   /**
    * Create a list of order by for $expand query part. It does not take top and skip into account, but the
-   * association.<p>
+   * association.
+   * <p>
    */
   @Nonnull
   List<Order> createOrderByList(@Nonnull final Map<String, From<?, ?>> joinTables,

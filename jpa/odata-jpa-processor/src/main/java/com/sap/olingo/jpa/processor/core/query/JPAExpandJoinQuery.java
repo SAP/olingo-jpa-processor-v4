@@ -34,14 +34,18 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 /**
- * A query to retrieve the expand entities.<p> According to
+ * A query to retrieve the expand entities.
+ * <p>
+ * According to
  * <a href=
  * "http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part2-url-conventions/odata-v4.0-errata02-os-part2-url-conventions-complete.html#_Toc406398162"
  * >OData Version 4.0 Part 2 - 5.1.2 System Query Option $expand</a> the following query options are allowed:
  * <ul>
- * <li>expandCountOption = <b>filter</b>/ search<p>
+ * <li>expandCountOption = <b>filter</b>/ search
+ * <p>
  * <li>expandRefOption = expandCountOption/ <b>orderby</b> / <b>skip</b> / <b>top</b> / inlinecount
- * <li>expandOption = expandRefOption/ <b>select</b>/ <b>expand</b> / <b>levels</b> <p>
+ * <li>expandOption = expandRefOption/ <b>select</b>/ <b>expand</b> / <b>levels</b>
+ * <p>
  * </ul>
  * As of now only the bold once are supported
  * <p>
@@ -69,7 +73,8 @@ public final class JPAExpandJoinQuery extends JPAAbstractExpandQuery {
   }
 
   /**
-   * Process a expand query, which may contains a $skip and/or a $top option.<p>
+   * Process a expand query, which may contains a $skip and/or a $top option.
+   * <p>
    * This is a tricky problem, as it can not be done easily with SQL. It could be that a database offers special
    * solutions. There is an worth reading blog regards this topic:
    * <a href="http://www.xaprb.com/blog/2006/12/07/how-to-select-the-firstleastmax-row-per-group-in-sql/">How to select
@@ -237,7 +242,8 @@ public final class JPAExpandJoinQuery extends JPAAbstractExpandQuery {
       cq.where(whereClause);
 
     final List<Order> orderBy = createOrderByJoinCondition(association);
-    orderBy.addAll(new JPAOrderByBuilder(jpaEntity, target, cb, groups).createOrderByList(joinTables, uriResource));
+    orderBy.addAll(new JPAOrderByBuilder(jpaEntity, target, cb, groups).createOrderByList(joinTables, uriResource,
+        page));
 
     cq.orderBy(orderBy);
     if (!orderByAttributes.isEmpty())
