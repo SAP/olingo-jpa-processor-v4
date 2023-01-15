@@ -38,6 +38,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAOnConditionItem;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.cb.ProcessorSubquery;
+import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
@@ -193,7 +194,7 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
   private List<Order> createOrderBy(final Subquery<?> childQuery) throws ODataApplicationException {
     if (!hasRowLimit(childQuery)) {
       final JPAOrderByBuilder orderByBuilder = new JPAOrderByBuilder(jpaEntity, queryRoot, cb, groups);
-      return orderByBuilder.createOrderByList(joinTables, navigationInfo.getUriInfo());
+      return orderByBuilder.createOrderByList(joinTables, navigationInfo.getUriInfo(), (JPAODataPage)null);
     }
     return emptyList();
   }

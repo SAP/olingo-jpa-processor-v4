@@ -237,7 +237,7 @@ public final class JPAExpandJoinQuery extends JPAAbstractExpandQuery {
       cq.where(whereClause);
 
     final List<Order> orderBy = createOrderByJoinCondition(association);
-    orderBy.addAll(new JPAOrderByBuilder(jpaEntity, target, cb, groups).createOrderByList(joinTables, uriResource));
+    orderBy.addAll(new JPAOrderByBuilder(jpaEntity, target, cb, groups).createOrderByList(joinTables, uriResource, page));
 
     cq.orderBy(orderBy);
     if (!orderByAttributes.isEmpty())
