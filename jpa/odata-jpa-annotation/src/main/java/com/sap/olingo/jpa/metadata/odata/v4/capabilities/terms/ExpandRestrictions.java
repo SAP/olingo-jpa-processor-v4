@@ -9,6 +9,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import com.sap.olingo.jpa.metadata.odata.v4.general.Applicability;
+import com.sap.olingo.jpa.metadata.odata.v4.general.Vocabulary;
+
 /**
  * OData core annotation <a href =
  * "https://github.com/oasis-tcs/odata-vocabularies/blob/main/vocabularies/Org.OData.Capabilities.V1.xml#L524"><i>ExpandRestrictions</i></a>:
@@ -22,11 +25,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RUNTIME)
 @Target(TYPE)
-/**
- * @author Oliver Grande
- * @since pom_version
- * 07.12.2022
- */
+@Vocabulary(alias = "Capabilities", appliesTo = { Applicability.ENTITY_SET, Applicability.SINGLETON })
 public @interface ExpandRestrictions {
   /**
    * $expand is supported

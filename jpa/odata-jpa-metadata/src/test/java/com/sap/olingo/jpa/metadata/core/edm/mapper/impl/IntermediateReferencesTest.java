@@ -9,13 +9,19 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
+import org.apache.olingo.commons.api.edm.provider.CsdlNamed;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
@@ -26,7 +32,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediatePropert
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateReferenceList;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateReferenceList.IntermediateReferenceAccess;
 
-class TestIntermediateReferences extends TestMappingRoot {
+class IntermediateReferencesTest extends TestMappingRoot {
 
   private static final String TEST_V1_URL =
       "http://org.example/odata/odata/v4.0/os/vocabularies/Org.Olingo.Test.V1.xml";
@@ -162,8 +168,16 @@ class TestIntermediateReferences extends TestMappingRoot {
   void checkAddIncludeWithoutNameSpace() throws ODataJPAModelException {
     final String uri = MEASURES_V1_URL;
     final IntermediateReferenceAccess ref = cut.addReference(uri, "annotations/Org.OData.Measures.V1.xml");
-    ref.addInclude("Org.OData.Measures.V1");
-    assertTrue(cut.aliasDirectory.isEmpty());
+    ref.addInclude("Org.OData.Org.OData.Core.V1");
+    assertEquals(1, cut.aliasDirectory.size());
+  }
+
+  @Test
+  void checkAddIncludeWithNameSpace() throws ODataJPAModelException {
+    final String uri = MEASURES_V1_URL;
+    final IntermediateReferenceAccess ref = cut.addReference(uri, "annotations/Org.OData.Measures.V1.xml");
+    ref.addInclude("Org.OData.Org.OData.Core.V1", "Core");
+    assertEquals(2, cut.aliasDirectory.size());
   }
 
   @Test
@@ -179,6 +193,27 @@ class TestIntermediateReferences extends TestMappingRoot {
     final String uri = MEASURES_V1_URL;
     final IntermediateReferenceAccess ref = cut.addReference(uri, "annotations/Org.OData.Measures.V1.xml");
     assertThrows(ODataJPAModelException.class, () -> ref.addIncludeAnnotation(""));
+  }
+
+  private static Stream<Arguments> getTypeFqn() {
+    return Stream.of(
+        Arguments.of(new FullQualifiedName("Org.OData.Core.V1", "RevisionType"), "Complex type via namespace"),
+        Arguments.of(new FullQualifiedName("Core", "RevisionType"), "Complex type via alice"),
+        Arguments.of(new FullQualifiedName("Org.OData.Core.V1", "Tag"), "Simple type via namespace"),
+        Arguments.of(new FullQualifiedName("Core", "Tag"), "Simple type via alice"),
+        Arguments.of(new FullQualifiedName("Org.OData.Core.V1", "Permission"), "Simple type via namespace"),
+        Arguments.of(new FullQualifiedName("Core", "Permission"), "Enumeration type via namespace"));
+  }
+
+  @ParameterizedTest
+  @MethodSource("getTypeFqn")
+  void checkGetType(final FullQualifiedName fqn, final String testDescription)
+      throws ODataJPAModelException {
+
+    cut.addReference(CORE_V1_URL, "annotations/Org.OData.Core.V1.xml");
+    final Optional<CsdlNamed> act = cut.getType(fqn);
+    assertNotNull(act);
+    assertTrue(act.isPresent(), testDescription);
   }
 
   class PostProcessor extends JPAEdmMetadataPostProcessor {

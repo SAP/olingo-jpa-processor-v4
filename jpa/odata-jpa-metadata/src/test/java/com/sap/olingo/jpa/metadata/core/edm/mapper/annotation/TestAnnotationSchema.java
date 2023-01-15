@@ -63,7 +63,7 @@ class TestAnnotationSchema {
     final Map<String, ? extends CsdlSchema> act = cutCore.getSchemas();
     assertNotNull(act.get("Org.OData.Core.V1"));
     final CsdlSchema schema = act.get("Org.OData.Core.V1");
-    assertEquals(28, schema.getTerms().size());
+    assertEquals(40, schema.getTerms().size());
   }
 
   @Test
@@ -72,7 +72,7 @@ class TestAnnotationSchema {
     final Map<String, ? extends CsdlSchema> act = cutCore.getSchemas();
     assertNotNull(act.get("Org.OData.Core.V1"));
     final CsdlSchema schema = act.get("Org.OData.Core.V1");
-    assertEquals(4, schema.getTypeDefinitions().size());
+    assertEquals(7, schema.getTypeDefinitions().size());
     assertNotNull(schema.getTypeDefinition("Tag"));
     assertEquals("Edm.Boolean", schema.getTypeDefinition("Tag").getUnderlyingType());
   }
@@ -111,7 +111,7 @@ class TestAnnotationSchema {
     final Map<String, ? extends CsdlSchema> act = cutCore.getSchemas();
     assertNotNull(act.get("Org.OData.Core.V1"));
     final CsdlSchema schema = act.get("Org.OData.Core.V1");
-    assertEquals(1, schema.getEnumTypes().size());
+    assertEquals(3, schema.getEnumTypes().size());
     assertNotNull(schema.getEnumType("Permission"));
     assertEquals(5, schema.getEnumType("Permission").getMembers().size());
     assertEquals("3", schema.getEnumType("Permission").getMember("ReadWrite").getValue());
@@ -230,7 +230,7 @@ class TestAnnotationSchema {
   void testGetEnum() throws IOException, ODataJPAModelException {
     final CsdlSchema act = cutCapabilities.getSchemas()
         .get("Org.OData.Capabilities.V1");
-    assertEquals(4, act.getEnumTypes().size());
+    assertEquals(5, act.getEnumTypes().size());
   }
 
   @Test

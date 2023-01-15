@@ -36,6 +36,11 @@ public interface JPAAttribute extends JPAElement {
 
   public CsdlAbstractEdmItem getProperty() throws ODataJPAModelException;
 
+  /**
+   * Returns the complex type if Attributes is structured and Null if not. Check with {@link #isComplex()}
+   * @return
+   * @throws ODataJPAModelException
+   */
   public JPAStructuredType getStructuredType() throws ODataJPAModelException;
 
   /**

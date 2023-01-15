@@ -9,6 +9,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import com.sap.olingo.jpa.metadata.odata.v4.general.Applicability;
+import com.sap.olingo.jpa.metadata.odata.v4.general.Vocabulary;
+
 /**
  * OData core annotation
  * <a href=
@@ -24,6 +27,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RUNTIME)
 @Target(TYPE)
+@Vocabulary(alias = "Capabilities", appliesTo = { Applicability.ENTITY_SET })
 public @interface FilterRestrictions {
   /** $filter is supported */
   boolean filterable() default true;

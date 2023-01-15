@@ -2,6 +2,7 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.INVALID_TOP_LEVEL_SETTING;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -332,6 +333,10 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
     }
   }
 
+  private <A extends Annotation> Optional<A> getAnnotation(final Class<?> annotated, final Class<A> type) {
+    return Optional.ofNullable(annotated.getAnnotation(type));
+  }
+
   /**
    * The top level representation of this entity type is entity set.
    * @return
@@ -433,9 +438,9 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
   }
 
   private void checkTopLevelTypeConsistency() throws ODataJPAModelException {
-    final EdmAsEntitySet jpaAsEntitySet = this.jpaManagedType.getJavaType().getAnnotation(EdmAsEntitySet.class);
-    final EdmEntityType jpaEntityType = this.jpaManagedType.getJavaType().getAnnotation(EdmEntityType.class);
-    if (jpaAsEntitySet != null && jpaEntityType != null)
+    final Optional<EdmAsEntitySet> jpaAsEntitySet = getAnnotation(jpaJavaType, EdmAsEntitySet.class);
+    final Optional<EdmEntityType> jpaEntityType = getAnnotation(jpaJavaType, EdmEntityType.class);
+    if (jpaAsEntitySet.isPresent() && jpaEntityType.isPresent())
       throw new ODataJPAModelException(INVALID_TOP_LEVEL_SETTING, getInternalName());
   }
 
@@ -445,12 +450,12 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
   }
 
   private boolean determineAsEntitySet() {
-    final EdmAsEntitySet jpaAsEntitySet = this.jpaManagedType.getJavaType().getAnnotation(EdmAsEntitySet.class);
-    final EdmEntityType jpaEntityType = this.jpaManagedType.getJavaType().getAnnotation(EdmEntityType.class);
-    return jpaAsEntitySet != null
-        || jpaEntityType == null
-        || jpaEntityType.as() == EdmTopLevelElementRepresentation.AS_ENTITY_SET
-        || jpaEntityType.as() == EdmTopLevelElementRepresentation.AS_ENTITY_SET_ONLY;
+    final Optional<EdmAsEntitySet> jpaAsEntitySet = getAnnotation(jpaJavaType, EdmAsEntitySet.class);
+    final Optional<EdmEntityType> jpaEntityType = getAnnotation(jpaJavaType, EdmEntityType.class);
+    return jpaAsEntitySet.isPresent()
+        || !jpaEntityType.isPresent()
+        || jpaEntityType.get().as() == EdmTopLevelElementRepresentation.AS_ENTITY_SET
+        || jpaEntityType.get().as() == EdmTopLevelElementRepresentation.AS_ENTITY_SET_ONLY;
   }
 
   private boolean determineAsSingleton() {
@@ -460,22 +465,22 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
   }
 
   private boolean determineAsTopLevelOnly() {
-    final EdmAsEntitySet jpaAsEntitySet = this.jpaManagedType.getJavaType().getAnnotation(EdmAsEntitySet.class);
-    final EdmEntityType jpaEntityType = this.jpaManagedType.getJavaType().getAnnotation(EdmEntityType.class);
-    return jpaAsEntitySet != null
-        || (jpaEntityType != null
-            && (jpaEntityType.as() == EdmTopLevelElementRepresentation.AS_ENTITY_SET_ONLY
-                || jpaEntityType.as() == EdmTopLevelElementRepresentation.AS_SINGLETON_ONLY));
+    final Optional<EdmAsEntitySet> jpaAsEntitySet = getAnnotation(jpaJavaType, EdmAsEntitySet.class);
+    final Optional<EdmEntityType> jpaEntityType = getAnnotation(jpaJavaType, EdmEntityType.class);
+    return jpaAsEntitySet.isPresent()
+        || (jpaEntityType.isPresent()
+            && (jpaEntityType.get().as() == EdmTopLevelElementRepresentation.AS_ENTITY_SET_ONLY
+                || jpaEntityType.get().as() == EdmTopLevelElementRepresentation.AS_SINGLETON_ONLY));
   }
 
   @SuppressWarnings("unchecked")
   private Optional<JPAQueryExtension<EdmQueryExtensionProvider>> determineExtensionQueryProvide()
       throws ODataJPAModelException {
     extensionQueryProvider = Optional.of(Optional.empty());
-    final EdmEntityType jpaEntityType = this.jpaManagedType.getJavaType().getAnnotation(EdmEntityType.class);
-    if (jpaEntityType != null) {
+    final Optional<EdmEntityType> jpaEntityType = getAnnotation(jpaJavaType, EdmEntityType.class);
+    if (jpaEntityType.isPresent()) {
       final Class<EdmQueryExtensionProvider> provider = (Class<EdmQueryExtensionProvider>) jpaEntityType
-          .extensionProvider();
+          .get().extensionProvider();
       final Class<?> defaultProvider = EdmQueryExtensionProvider.class;
       if (provider != null && provider != defaultProvider)
         extensionQueryProvider = Optional.of(Optional.of(new JPAQueryExtensionProvider<>(

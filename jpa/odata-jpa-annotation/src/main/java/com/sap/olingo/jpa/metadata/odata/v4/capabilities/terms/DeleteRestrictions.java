@@ -9,6 +9,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import com.sap.olingo.jpa.metadata.odata.v4.general.Applicability;
+import com.sap.olingo.jpa.metadata.odata.v4.general.Vocabulary;
+
 /**
  * OData core annotation <a href =
  * "https://github.com/oasis-tcs/odata-vocabularies/blob/main/vocabularies/Org.OData.Capabilities.V1.xml#L787"><i>DeleteRestrictions</i></a>:
@@ -23,6 +26,8 @@ import java.lang.annotation.Target;
  */
 @Retention(RUNTIME)
 @Target(TYPE)
+@Vocabulary(alias = "Capabilities", appliesTo = { Applicability.ENTITY_SET, Applicability.SINGLETON,
+    Applicability.ENTITY_TYPE })
 public @interface DeleteRestrictions {
   /**
    * Entities can be deleted

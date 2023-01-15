@@ -16,8 +16,7 @@ public enum FilterExpressionType {
   SINGLE_VALUE("SingleValue"),
   /**
    * Property can be used in multiple `eq` and `in` clauses, combined by `or` (which is logically equivalent to a
-   * single.
-   * `in` clause)
+   * single `in` clause)
    */
   MULTI_VALUE("MultiValue"),
   /**
@@ -54,5 +53,11 @@ public enum FilterExpressionType {
 
   public String getValue() {
     return value;
+  }
+
+  @Override
+  public String toString() {
+    return value;
+
   }
 }

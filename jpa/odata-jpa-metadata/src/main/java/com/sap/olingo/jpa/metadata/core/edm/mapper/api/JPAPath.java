@@ -48,8 +48,8 @@ public interface JPAPath extends Comparable<JPAPath> {
   public boolean isPartOfGroups(final List<String> groups);
 
   /**
-   * 
-   * @return True in case at least on of the elements of the path is a transient property
+   *
+   * @return True in case at least one of the elements of the path is a transient property
    */
   public boolean isTransient();
 

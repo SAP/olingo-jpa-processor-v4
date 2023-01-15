@@ -40,7 +40,7 @@ class TermTest {
     final Map<String, Map<String, CsdlTerm>> act = cutCore.getTerms();
     assertNotNull(act.get("Org.OData.Core.V1"));
     final Map<String, CsdlTerm> terms = act.get("Org.OData.Core.V1");
-    assertEquals(28, terms.size());
+    assertEquals(40, terms.size());
   }
 
   @Test

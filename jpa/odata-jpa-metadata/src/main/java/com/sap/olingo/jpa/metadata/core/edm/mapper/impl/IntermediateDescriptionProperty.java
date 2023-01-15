@@ -109,7 +109,8 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
           edmProperty.setMaxLength(descriptionProperty.getEdmItem().getMaxLength());
 
           fixedValues = convertFixedValues(association.valueAssignments());
-          localFieldPath = convertAttributeToPath(!languageAttribute.isEmpty() ? languageAttribute : localeAttribute);
+          localFieldPath = ((IntermediateStructuredType<?>) targetEntity).convertStringToPath(!languageAttribute
+              .isEmpty() ? languageAttribute : localeAttribute);
         } else {
           throw new ODataJPAModelException(ODataJPAModelException.MessageKeys.DESCRIPTION_ANNOTATION_MISSING,
               sourceType.getInternalName(), this.internalName);
@@ -141,34 +142,12 @@ final class IntermediateDescriptionProperty extends IntermediateSimpleProperty i
     }
   }
 
-  private JPAPath convertAttributeToPath(final String attribute) throws ODataJPAModelException {
-    final String[] pathItems = attribute.split(JPAPath.PATH_SEPARATOR);
-    if (pathItems.length > 1) {
-      final List<JPAElement> targetPath = new ArrayList<>();
-      IntermediateSimpleProperty nextHop = (IntermediateSimpleProperty) targetEntity.getAttribute(pathItems[0])
-          .orElseThrow(() -> new ODataJPAModelException(MessageKeys.PATH_ELEMENT_NOT_FOUND, pathItems[0], attribute));
-      targetPath.add(nextHop);
-      for (int i = 1; i < pathItems.length; i++) {
-        if (nextHop.isComplex()) {
-          nextHop = (IntermediateSimpleProperty) nextHop.getStructuredType().getAttribute(pathItems[i])
-              .orElseThrow(() -> new ODataJPAModelException(MessageKeys.PATH_ELEMENT_NOT_FOUND, pathItems[0],
-                  attribute));
-          targetPath.add(nextHop);
-        }
-      }
-      return new JPAPathImpl(nextHop.getExternalName(), nextHop.getDBFieldName(), targetPath);
-    } else {
-      final IntermediateSimpleProperty p = (IntermediateSimpleProperty) targetEntity.getAttribute(attribute)
-          .orElseThrow(() -> new ODataJPAModelException(MessageKeys.PATH_ELEMENT_NOT_FOUND, pathItems[0], attribute));
-      return new JPAPathImpl(p.getExternalName(), p.getDBFieldName(), p);
-    }
-  }
-
   private HashMap<JPAPath, String> convertFixedValues(final valueAssignment[] valueAssignments)
       throws ODataJPAModelException {
     final HashMap<JPAPath, String> result = new HashMap<>();
     for (final EdmDescriptionAssociation.valueAssignment value : valueAssignments) {
-      result.put(convertAttributeToPath(value.attribute()), value.value());
+      result.put(((IntermediateStructuredType<?>) targetEntity).convertStringToPath(value.attribute()),
+          value.value());
     }
     return result;
   }

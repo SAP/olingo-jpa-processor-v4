@@ -10,6 +10,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import com.sap.olingo.jpa.metadata.odata.v4.general.Applicability;
+import com.sap.olingo.jpa.metadata.odata.v4.general.Vocabulary;
+
 /**
  * OData core annotation <a href=
  * "https://github.com/oasis-tcs/odata-vocabularies/blob/main/vocabularies/Org.OData.Core.V1.xml#L436"><i>AutoExpand</i></a>:
@@ -25,11 +28,7 @@ import java.lang.annotation.Target;
 
 @Retention(RUNTIME)
 @Target({ TYPE, FIELD })
-/**
- * @author Oliver Grande
- * @since pom_version
- * 08.12.2022
- */
+@Vocabulary(alias = "Core", appliesTo = { Applicability.NAVIGATION_PROPERTY })
 public @interface AutoExpand {
   boolean value() default true;
 }

@@ -2,6 +2,8 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.COMPLEX_PROPERTY_WRONG_PROTECTION_PATH;
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.DB_TYPE_NOT_DETERMINED;
+import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.PATH_ELEMENT_NOT_EMBEDDABLE;
+import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.PATH_ELEMENT_NOT_FOUND;
 import static com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys.PROPERTY_REQUIRED_UNKNOWN;
 import static javax.persistence.metamodel.Attribute.PersistentAttributeType.BASIC;
 import static javax.persistence.metamodel.Attribute.PersistentAttributeType.ELEMENT_COLLECTION;
@@ -69,7 +71,8 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAProtectionInfo;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
-abstract class IntermediateStructuredType<T> extends IntermediateModelElement implements JPAStructuredType {
+abstract class IntermediateStructuredType<T> extends IntermediateModelElement implements JPAStructuredType,
+    IntermediateAnnotatable {
 //
   static final int PROPERTY_BUILD = 2; // Declared properties have been build, virtual and transient may be missing
   static final int NAVIGATION_BUILD = 4;
@@ -80,6 +83,7 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
   protected final Map<String, JPAPath> intermediatePathMap;
   protected final Map<String, JPAAssociationPathImpl> resolvedAssociationPathMap;
   protected final ManagedType<T> jpaManagedType;
+  protected final Class<T> jpaJavaType;
   protected final Optional<MappedSuperclassType<? super T>> mappedSuperclass;
   protected final IntermediateSchema schema;
   protected List<JPAProtectionInfo> protectedAttributes;
@@ -97,6 +101,7 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
     this.declaredNaviPropertiesMap = new HashMap<>();
     this.resolvedAssociationPathMap = new HashMap<>();
     this.jpaManagedType = jpaManagedType;
+    this.jpaJavaType = this.jpaManagedType.getJavaType();
     this.schema = schema;
     this.mappedSuperclass = determineMappedSuperclass(jpaManagedType);
     this.streamProperty = Optional.empty();
@@ -766,7 +771,7 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
     return null;
   }
 
-  private void lazyBuildCompleteAssociationPathMap() throws ODataJPAModelException {
+  private synchronized void lazyBuildCompleteAssociationPathMap() throws ODataJPAModelException {
     JPAAssociationPathImpl associationPath;
     lazyBuildCompletePathMap();
     // TODO check if ignore has to be handled
@@ -792,7 +797,7 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
     }
   }
 
-  private void lazyBuildCompletePathMap() throws ODataJPAModelException {
+  private synchronized void lazyBuildCompletePathMap() throws ODataJPAModelException {
     ArrayList<JPAElement> pathList;
     if (edmStructuralType == null)
       lazyBuildEdmItem();
@@ -921,6 +926,62 @@ abstract class IntermediateStructuredType<T> extends IntermediateModelElement im
       if (required.isComplex())
         hop = (IntermediateStructuredType<?>) required.getStructuredType();
     }
+  }
+
+  /**
+   * Converts a path given as a string of internal (Java) attribute names into a JPAPath.
+   * @param internalPath
+   * @return
+   * @throws ODataJPAModelException
+   */
+  @Override
+  public JPAPath convertStringToPath(final String internalPath) throws ODataJPAModelException {
+
+    lazyBuildCompletePathMap();
+    final String[] pathItems = internalPath.split(JPAPath.PATH_SEPARATOR);
+    final StringBuilder targetPath = new StringBuilder();
+
+    IntermediateStructuredType<?> st = this;
+
+    for (final String pathItem : pathItems) {
+      if (st == null)
+        throw new ODataJPAModelException(PATH_ELEMENT_NOT_EMBEDDABLE, pathItem, internalPath);
+      final IntermediateSimpleProperty nextHop = (IntermediateSimpleProperty) st.getAttribute(pathItem)
+          .orElseThrow(() -> new ODataJPAModelException(PATH_ELEMENT_NOT_FOUND, pathItem, internalPath));
+      if (!(nextHop.isComplex() && nextHop.isKey()))
+        // In case of @EmbeddedId the path gets resolved, as OData does not support keys with a complex type.
+        targetPath.append(nextHop.getExternalName()).append(JPAPath.PATH_SEPARATOR);
+
+      st = (IntermediateStructuredType<?>) nextHop.getStructuredType();
+    }
+    targetPath.deleteCharAt(targetPath.length() - 1);
+    return resolvedPathMap.get(targetPath.toString());
+  }
+
+  @Override
+  public JPAAssociationPath convertStringToNavigationPath(final String internalPath) throws ODataJPAModelException {
+    lazyBuildCompleteAssociationPathMap();
+    final String[] pathItems = internalPath.split(JPAPath.PATH_SEPARATOR);
+    final StringBuilder targetPath = new StringBuilder();
+
+    JPAStructuredType st = this;
+
+    for (final String pathItem : pathItems) {
+      if (st == null)
+        throw new ODataJPAModelException(PATH_ELEMENT_NOT_EMBEDDABLE, pathItem, internalPath);
+      JPAAttribute nextHop = st.getAssociation(pathItem);
+      if (nextHop == null) {
+        nextHop = st.getAttribute(pathItem)
+            .orElseThrow(() -> new ODataJPAModelException(PATH_ELEMENT_NOT_FOUND, pathItem, internalPath));
+        st = nextHop.getStructuredType();
+      } else {
+        // Prevent a path that contains two navigations like parent/parent
+        st = null;
+      }
+      targetPath.append(nextHop.getExternalName()).append(JPAPath.PATH_SEPARATOR);
+    }
+    targetPath.deleteCharAt(targetPath.length() - 1);
+    return resolvedAssociationPathMap.get(targetPath.toString());
   }
 
   protected abstract static class TransientAttribute<X, Y> implements Attribute<X, Y> {

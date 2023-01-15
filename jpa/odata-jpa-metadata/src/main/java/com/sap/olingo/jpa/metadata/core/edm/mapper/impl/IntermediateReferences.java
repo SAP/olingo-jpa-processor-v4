@@ -13,10 +13,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
+import org.apache.olingo.commons.api.edm.provider.CsdlNamed;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
 import org.apache.olingo.commons.api.edmx.EdmxReference;
@@ -51,6 +53,13 @@ final class IntermediateReferences implements IntermediateReferenceList {
   }
 
   @Override
+  public IntermediateReferenceAccess addReference(@Nonnull final String uri, @Nonnull final String path)
+      throws ODataJPAModelException {
+
+    return addReference(uri, path, Charset.defaultCharset());
+  }
+
+  @Override
   public IntermediateReferenceAccess addReference(@Nonnull final String uri, @Nonnull final String path,
       @Nonnull final Charset charset) throws ODataJPAModelException {
 
@@ -69,29 +78,41 @@ final class IntermediateReferences implements IntermediateReferenceList {
     }
   }
 
-  @Override
-  public IntermediateReferenceAccess addReference(@Nonnull final String uri, @Nonnull final String path)
-      throws ODataJPAModelException {
-
-    return addReference(uri, path, Charset.defaultCharset());
-  }
-
-  public CsdlTerm getTerm(final FullQualifiedName termName) {
-    Map<String, CsdlTerm> schema = terms.get(termName.getNamespace());
-    if (schema == null) for (final IntermediateReference r : references) {
-      final String namespace = r.convertAlias(termName.getNamespace());
-      if (namespace != null) schema = terms.get(namespace);
-    }
-    if (schema == null)
-      return null;
-    return schema.get(termName.getName());
-  }
-
   public List<CsdlSchema> getSchemas() {
     final List<CsdlSchema> result = new ArrayList<>();
     for (final Entry<String, CsdlSchema> schema : schemas.entrySet())
       result.add(schema.getValue());
     return result;
+  }
+
+  public CsdlTerm getTerm(final FullQualifiedName termName) {
+    Map<String, CsdlTerm> termsMap = terms.get(termName.getNamespace());
+    if (termsMap == null) {
+      final String namespace = convertAlias(termName.getNamespace());
+      if (namespace != null) termsMap = terms.get(namespace);
+    }
+    if (termsMap == null)
+      return null;
+    return termsMap.get(termName.getName());
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T extends CsdlNamed> Optional<T> getType(final FullQualifiedName fqn) {
+    // namespace of fqn can either be the namespace of the schema or the alias of the schema
+    final Optional<CsdlSchema> schema = Optional.ofNullable(Optional.ofNullable(schemas.get(fqn.getNamespace()))
+        .orElseGet(() -> schemas.get(convertAlias(fqn.getNamespace()))));
+    final Optional<T> complexType = schema.map(s -> (T) s.getComplexType(fqn.getName()));
+    if (!complexType.isPresent()) {
+      final Optional<T> simpleType = schema.map(s -> (T) s.getTypeDefinition(fqn.getName()));
+      if (!simpleType.isPresent())
+        return schema.map(s -> (T) s.getEnumType(fqn.getName()));
+      return simpleType;
+    }
+    return complexType;
+  }
+
+  String convertAlias(final String alias) {
+    return aliasDirectory.get(alias);
   }
 
   List<EdmxReference> getEdmReferences() {
@@ -103,13 +124,28 @@ final class IntermediateReferences implements IntermediateReferenceList {
     return edmxReferences;
   }
 
+  Optional<CsdlSchema> getSchema(final String namespace) {
+    return Optional.ofNullable(Optional.ofNullable(schemas.get(namespace))
+        .orElseGet(() -> schemas.get(convertAlias(namespace))));
+  }
+
   private IntermediateReference createReference(final URI sourceURI, final String path, final CsdlDocument vocabulary) {
 
     final IntermediateReference reference = new IntermediateReference(sourceURI, path);
     schemas.putAll(vocabulary.getSchemas());
     terms.putAll(vocabulary.getTerms());
     references.add(reference);
+    aliasDirectory.putAll(getAliases(vocabulary.getSchemas()));
     return reference;
+  }
+
+  private Map<String, String> getAliases(final Map<String, CsdlSchema> schemas) {
+    final Map<String, String> aliases = new HashMap<>();
+    for (final Entry<String, CsdlSchema> schema : schemas.entrySet()) {
+      if (schema.getValue().getAlias() != null)
+        aliases.put(schema.getValue().getAlias(), schema.getKey());
+    }
+    return aliases;
   }
 
   private class IntermediateReference implements IntermediateReferenceList.IntermediateReferenceAccess {
@@ -124,10 +160,6 @@ final class IntermediateReferences implements IntermediateReferenceList {
       this.uri = uri;
       this.path = path;
       edmxReference = new EdmxReference(uri);
-    }
-
-    String convertAlias(final String alias) {
-      return aliasDirectory.get(alias);
     }
 
     @Override
@@ -173,22 +205,6 @@ final class IntermediateReferences implements IntermediateReferenceList {
       return edmxReference;
     }
 
-    private class IntermediateReferenceInclude {
-
-      private final String namespace;
-      private final String alias;
-
-      public IntermediateReferenceInclude(final String namespace, final String alias) {
-
-        this.namespace = namespace;
-        this.alias = alias;
-      }
-
-      EdmxReferenceInclude getEdmInclude() {
-        return new EdmxReferenceInclude(namespace, alias);
-      }
-    }
-
     private class IntermediateReferenceAnnotationInclude {
 
       private final String termNamespace;
@@ -208,6 +224,22 @@ final class IntermediateReferences implements IntermediateReferenceList {
 
       EdmxReferenceIncludeAnnotation getEdmIncludeAnnotation() {
         return new EdmxReferenceIncludeAnnotation(termNamespace, qualifier, targetNamespace);
+      }
+    }
+
+    private class IntermediateReferenceInclude {
+
+      private final String namespace;
+      private final String alias;
+
+      public IntermediateReferenceInclude(final String namespace, final String alias) {
+
+        this.namespace = namespace;
+        this.alias = alias;
+      }
+
+      EdmxReferenceInclude getEdmInclude() {
+        return new EdmxReferenceInclude(namespace, alias);
       }
     }
   }
