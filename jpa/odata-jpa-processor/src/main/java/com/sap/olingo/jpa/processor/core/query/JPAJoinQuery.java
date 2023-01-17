@@ -126,7 +126,7 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
       if (whereClause != null)
         cq.where(whereClause);
 
-      cq.orderBy(new JPAOrderByBuilder(jpaEntity, target, cb, groups).createOrderByList(joinTables, uriResource));
+      cq.orderBy(new JPAOrderByBuilder(jpaEntity, target, cb, groups).createOrderByList(joinTables, uriResource, page));
 
       if (!orderByNaviAttributes.isEmpty())
         cq.groupBy(createGroupBy(joinTables, root, selectionPath.joinedPersistent()));
