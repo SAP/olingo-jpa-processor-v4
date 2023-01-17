@@ -45,6 +45,7 @@ import org.junit.jupiter.api.Test;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPANotImplementedException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
@@ -69,6 +70,7 @@ class TestJPAOrderByBuilder extends TestBase {
   private JPAEntityType jpaAdminEntity;
   private JPAEntityType jpaOrgEntity;
   private List<String> groups;
+  private JPAODataPage page;
 
   @BeforeEach
   void setup() throws ODataJPAModelException, ODataException {
@@ -84,12 +86,13 @@ class TestJPAOrderByBuilder extends TestBase {
     skip = mock(SkipOption.class);
     orderBy = mock(OrderByOption.class);
     uriResource = mock(UriInfoResource.class);
+    page = null;
     joinTables = new HashMap<>();
   }
 
   @Test
   void testNoTopSkipOrderByReturnsEmptyList() throws IOException, ODataException {
-    final List<Order> act = cut.createOrderByList(joinTables, uriResource);
+    final List<Order> act = cut.createOrderByList(joinTables, uriResource, page);
     assertEquals(0, act.size());
   }
 
@@ -98,7 +101,7 @@ class TestJPAOrderByBuilder extends TestBase {
     when(uriResource.getTopOption()).thenReturn(top);
     when(top.getValue()).thenReturn(5);
 
-    final List<Order> act = cut.createOrderByList(joinTables, uriResource);
+    final List<Order> act = cut.createOrderByList(joinTables, uriResource, page);
 
     assertEquals(4, act.size());
     assertEquals(4, act.stream()
@@ -112,7 +115,7 @@ class TestJPAOrderByBuilder extends TestBase {
     when(uriResource.getSkipOption()).thenReturn(skip);
     when(skip.getValue()).thenReturn(5);
 
-    final List<Order> act = cut.createOrderByList(joinTables, uriResource);
+    final List<Order> act = cut.createOrderByList(joinTables, uriResource, page);
 
     assertEquals(4, act.size());
     assertEquals(4, act.stream()
@@ -128,7 +131,7 @@ class TestJPAOrderByBuilder extends TestBase {
     when(uriResource.getSkipOption()).thenReturn(skip);
     when(skip.getValue()).thenReturn(5);
 
-    final List<Order> act = cut.createOrderByList(joinTables, uriResource);
+    final List<Order> act = cut.createOrderByList(joinTables, uriResource, page);
 
     assertEquals(4, act.size());
     assertEquals(4, act.stream()
@@ -141,7 +144,7 @@ class TestJPAOrderByBuilder extends TestBase {
   void testOrderByEmptyReturnsEmptyList() throws ODataApplicationException {
     when(uriResource.getOrderByOption()).thenReturn(orderBy);
     when(orderBy.getOrders()).thenReturn(Collections.emptyList());
-    final List<Order> act = cut.createOrderByList(joinTables, uriResource);
+    final List<Order> act = cut.createOrderByList(joinTables, uriResource, page);
     assertEquals(0, act.size());
   }
 
@@ -149,7 +152,7 @@ class TestJPAOrderByBuilder extends TestBase {
   void testOrderByOneProperty() throws ODataApplicationException, ODataJPAModelException {
     createOrderByItem("Name");
     when(uriResource.getOrderByOption()).thenReturn(orderBy);
-    final List<Order> act = cut.createOrderByList(joinTables, uriResource);
+    final List<Order> act = cut.createOrderByList(joinTables, uriResource, page);
     assertEquals(1, act.size());
     assertFalse(act.get(0).isAscending());
   }
@@ -159,7 +162,7 @@ class TestJPAOrderByBuilder extends TestBase {
     cut = new JPAOrderByBuilder(jpaOrgEntity, orgTarget, cb, groups);
     createComplexOrderByItem();
     when(uriResource.getOrderByOption()).thenReturn(orderBy);
-    final List<Order> act = cut.createOrderByList(joinTables, uriResource);
+    final List<Order> act = cut.createOrderByList(joinTables, uriResource, page);
     assertEquals(1, act.size());
     assertFalse(act.get(0).isAscending());
   }
@@ -172,7 +175,7 @@ class TestJPAOrderByBuilder extends TestBase {
     when(part.getKind()).thenReturn(UriResourceKind.function);
 
     assertThrows(ODataJPANotImplementedException.class,
-        () -> cut.createOrderByList(joinTables, uriResource));
+        () -> cut.createOrderByList(joinTables, uriResource, page));
   }
 
   @Test
@@ -189,7 +192,7 @@ class TestJPAOrderByBuilder extends TestBase {
     when(navigationProperty.getName()).thenReturn("Roles");
     joinTables.put("Roles", cb.createQuery().from(getHelper().getEntityType(BusinessPartnerRole.class)));
 
-    final List<Order> act = cut.createOrderByList(joinTables, uriResource);
+    final List<Order> act = cut.createOrderByList(joinTables, uriResource, page);
 
     assertEquals(1, act.size());
     assertTrue(act.get(0).isAscending());
@@ -210,7 +213,7 @@ class TestJPAOrderByBuilder extends TestBase {
     when(navigationProperty.getName()).thenReturn("Roles");
     joinTables.put("Roles", cb.createQuery().from(getHelper().getEntityType(BusinessPartnerRole.class)));
 
-    final List<Order> act = cut.createOrderByList(joinTables, uriResource);
+    final List<Order> act = cut.createOrderByList(joinTables, uriResource, page);
 
     assertEquals(1, act.size());
     assertFalse(act.get(0).isAscending());
@@ -240,7 +243,7 @@ class TestJPAOrderByBuilder extends TestBase {
     joinTables.put("FirstLevel/SecondLevel/Comment",
         cb.createQuery().from(getHelper().getEntityType(BusinessPartnerRole.class)));
 
-    final List<Order> act = cut.createOrderByList(joinTables, uriResource);
+    final List<Order> act = cut.createOrderByList(joinTables, uriResource, page);
 
     assertEquals(1, act.size());
     assertTrue(act.get(0).isAscending());
@@ -253,7 +256,7 @@ class TestJPAOrderByBuilder extends TestBase {
     when(uriResource.getOrderByOption()).thenReturn(orderBy);
     cut = new JPAOrderByBuilder(jpaOrgEntity, orgTarget, cb, groups);
     assertThrows(ODataJPAProcessorException.class,
-        () -> cut.createOrderByList(joinTables, uriResource));
+        () -> cut.createOrderByList(joinTables, uriResource, page));
   }
 
   @Test
@@ -262,7 +265,7 @@ class TestJPAOrderByBuilder extends TestBase {
     when(uriResource.getOrderByOption()).thenReturn(orderBy);
     cut = new JPAOrderByBuilder(jpaAdminEntity, adminTarget, cb, groups);
     assertThrows(ODataJPAProcessorException.class,
-        () -> cut.createOrderByList(joinTables, uriResource));
+        () -> cut.createOrderByList(joinTables, uriResource, page));
   }
 
   @Test
@@ -274,7 +277,7 @@ class TestJPAOrderByBuilder extends TestBase {
 
     cut = new JPAOrderByBuilder(jpaEntity, target, cb, groups);
     final ODataJPAQueryException act = assertThrows(ODataJPAQueryException.class,
-        () -> cut.createOrderByList(joinTables, uriResource));
+        () -> cut.createOrderByList(joinTables, uriResource, page));
     assertEquals(HttpStatusCode.FORBIDDEN.getStatusCode(), act.getStatusCode());
   }
 
@@ -286,7 +289,7 @@ class TestJPAOrderByBuilder extends TestBase {
     cut = new JPAOrderByBuilder(jpaEntity, target, cb, groups);
     createOrderByItem("Country");
 
-    final List<Order> act = cut.createOrderByList(joinTables, uriResource);
+    final List<Order> act = cut.createOrderByList(joinTables, uriResource, page);
 
     assertEquals(1, act.size());
     assertFalse(act.get(0).isAscending());
@@ -299,7 +302,7 @@ class TestJPAOrderByBuilder extends TestBase {
     when(uriResource.getOrderByOption()).thenReturn(orderBy);
     when(uriResource.getTopOption()).thenReturn(top);
 
-    final List<Order> act = cut.createOrderByList(joinTables, uriResource);
+    final List<Order> act = cut.createOrderByList(joinTables, uriResource, page);
 
     assertFalse(act.isEmpty());
     assertEquals(String.class, act.get(0).getExpression().getJavaType());
@@ -314,10 +317,96 @@ class TestJPAOrderByBuilder extends TestBase {
     createOrderByItem("FullName");
 
     final ODataJPAQueryException act = assertThrows(ODataJPAQueryException.class,
-        () -> cut.createOrderByList(joinTables, uriResource));
+        () -> cut.createOrderByList(joinTables, uriResource, page));
     assertEquals(HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), act.getStatusCode());
   }
+  
+  @Test
+  void testPagePresentOnlyTopValue() throws IOException, ODataException {
+    page = mock(JPAODataPage.class);
+    when(page.getTop()).thenReturn(Integer.valueOf(10));
 
+    final List<Order> act = cut.createOrderByList(joinTables, uriResource, page);
+
+    assertEquals(4, act.size());
+    assertEquals(4, act.stream()
+        .filter(Order::isAscending)
+        .collect(Collectors.toList()).size());
+    assertOrder(act);
+  }
+  
+  @Test
+  void testPagePresentMaxTopValueNoOdering() throws IOException, ODataException {
+    page = mock(JPAODataPage.class);
+    when(page.getTop()).thenReturn(Integer.MAX_VALUE);
+
+    final List<Order> act = cut.createOrderByList(joinTables, uriResource, page);
+
+    assertEquals(0, act.size());
+  }
+
+  @Test
+  void testPagePresentOnlySkipValue() throws IOException, ODataException {
+    page = mock(JPAODataPage.class);
+    when(page.getSkip()).thenReturn(Integer.valueOf(10));
+
+    final List<Order> act = cut.createOrderByList(joinTables, uriResource, page);
+
+    assertEquals(4, act.size());
+    assertEquals(4, act.stream()
+        .filter(Order::isAscending)
+        .collect(Collectors.toList()).size());
+    assertOrder(act);
+  }
+  
+  @Test
+  void testPageAndTopPresent() throws IOException, ODataException {
+    page = mock(JPAODataPage.class);
+    when(page.getSkip()).thenReturn(Integer.valueOf(10));
+    when(top.getValue()).thenReturn(5);
+    when(uriResource.getTopOption()).thenReturn(top);
+    
+    final List<Order> act = cut.createOrderByList(joinTables, uriResource, page);
+
+    assertEquals(4, act.size());
+    assertEquals(4, act.stream()
+        .filter(Order::isAscending)
+        .collect(Collectors.toList()).size());
+    assertOrder(act);
+  }
+
+  
+  @Test
+  void testPageMaxTopValueAndTopPresent() throws IOException, ODataException {
+    page = mock(JPAODataPage.class);
+    when(page.getSkip()).thenReturn(Integer.MAX_VALUE);
+    when(top.getValue()).thenReturn(5);
+    when(uriResource.getTopOption()).thenReturn(top);
+    
+    final List<Order> act = cut.createOrderByList(joinTables, uriResource, page);
+
+    assertEquals(4, act.size());
+    assertEquals(4, act.stream()
+        .filter(Order::isAscending)
+        .collect(Collectors.toList()).size());
+    assertOrder(act);
+  }
+  
+  @Test
+  void testOrderByPropertyAndPage() throws IOException, ODataException {
+    createOrderByItem("DivisionCode");
+    page = mock(JPAODataPage.class);
+    when(page.getSkip()).thenReturn(Integer.valueOf(10));
+    when(uriResource.getOrderByOption()).thenReturn(orderBy);
+
+    final List<Order> act = cut.createOrderByList(joinTables, uriResource, page);
+
+    assertFalse(act.isEmpty());
+    assertEquals(String.class, act.get(0).getExpression().getJavaType());
+    assertEquals("DivisionCode", act.get(0).getExpression().getAlias());
+    assertEquals(5, act.size());
+  }
+  
   private List<UriResource> createOrderByClause(final Boolean isDescending) {
     final OrderByItem item = mock(OrderByItem.class);
     final Member expresion = mock(Member.class);
