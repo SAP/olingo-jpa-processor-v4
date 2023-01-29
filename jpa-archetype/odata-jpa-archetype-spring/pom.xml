@@ -8,7 +8,6 @@
 	</parent>
 	<artifactId>odata-jpa-archetype-spring</artifactId>
 	<name>Archetype - odata-jpa-archetype-spring</name>
-
 	<url>https://github.com/SAP/olingo-jpa-processor-v4</url>
 	<packaging>maven-archetype</packaging>
 

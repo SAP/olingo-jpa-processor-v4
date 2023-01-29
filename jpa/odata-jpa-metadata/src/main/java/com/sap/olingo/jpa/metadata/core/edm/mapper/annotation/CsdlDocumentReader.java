@@ -1,22 +1,19 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.annotation;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URI;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.util.Objects;
-import java.util.Optional;
-
-import javax.annotation.Nonnull;
-
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException.MessageKeys;
+
+import javax.annotation.Nonnull;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URI;
+import java.nio.charset.Charset;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  *
@@ -40,16 +37,16 @@ public class CsdlDocumentReader {
   }
 
   String loadXML(@Nonnull final String path, @Nonnull final Charset charset) throws IOException,
-      ODataJPAModelException {
+          ODataJPAModelException {
 
-    final Optional<URL> url = Optional.ofNullable(this.getClass().getClassLoader().getResource(path));
-    final File file = new File(url.orElseThrow(
-        () -> new ODataJPAModelException(MessageKeys.FILE_NOT_FOUND, path)).getFile());
+    final Optional<InputStream> reader = Optional.ofNullable(this.getClass().getClassLoader().getResourceAsStream(path));
+
     final StringBuilder content = new StringBuilder();
 
-    try (final FileInputStream reader = new FileInputStream(file);
-        final InputStreamReader input = new InputStreamReader(reader, charset);
-        final BufferedReader br = new BufferedReader(input)) {
+    try (
+            final InputStreamReader input = new InputStreamReader(reader.orElseThrow(
+                    () -> new ODataJPAModelException(MessageKeys.FILE_NOT_FOUND, path)), charset);
+            final BufferedReader br = new BufferedReader(input)) {
       String line;
       while ((line = br.readLine()) != null) {
         content.append(line);
@@ -68,12 +65,12 @@ public class CsdlDocumentReader {
    * @throws NullPointerException
    */
   public CsdlDocument readFromResource(@Nonnull final String path, @Nonnull final Charset charset)
-      throws IOException, ODataJPAModelException {
+          throws IOException, ODataJPAModelException {
 
     if (Objects.requireNonNull(path).isEmpty())
       return null;
     return xmlMapper.readValue(loadXML(path, Objects.requireNonNull(charset)),
-        CsdlDocument.class);
+            CsdlDocument.class);
   }
 
   /**
