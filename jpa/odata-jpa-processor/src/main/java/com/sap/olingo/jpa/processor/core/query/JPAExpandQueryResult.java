@@ -24,9 +24,11 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
+import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
+import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 /**
@@ -190,13 +192,14 @@ public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertib
 
   @Override
   public Optional<JPAKeyBoundary> getKeyBoundary(final JPAODataRequestContextAccess requestContext,
-      final List<JPANavigationPropertyInfo> hops) throws ODataJPAQueryException {
+      final List<JPANavigationPropertyInfo> hops, final JPAODataPage page) throws ODataJPAProcessException {
     try {
       if (!jpaResult.get(ROOT_RESULT_KEY).isEmpty()
           && (requestContext.getUriInfo().getExpandOption() != null
               || collectionPropertyRequested(requestContext))
-          && (requestContext.getUriInfo().getTopOption() != null
-              || requestContext.getUriInfo().getSkipOption() != null)) {
+          && ((requestContext.getUriInfo().getTopOption() != null
+              || requestContext.getUriInfo().getSkipOption() != null)
+              || (page != null && (page.getSkip() != 0 || page.getTop() != Integer.MAX_VALUE)))) {
         final JPAKeyPair boundary = new JPAKeyPair(jpaEntityType.getKey());
         for (final Tuple tuple : jpaResult.get(ROOT_RESULT_KEY)) {
           @SuppressWarnings("rawtypes")
@@ -208,7 +211,7 @@ public final class JPAExpandQueryResult implements JPAExpandResult, JPAConvertib
     } catch (final ODataJPAModelException e) {
       throw new ODataJPAQueryException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
-    return JPAConvertibleResult.super.getKeyBoundary(requestContext, hops);
+    return JPAConvertibleResult.super.getKeyBoundary(requestContext, hops, page);
   }
 
   private boolean collectionPropertyRequested(final JPAODataRequestContextAccess requestContext)
