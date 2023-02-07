@@ -137,7 +137,7 @@ class TupleImplTest {
   }
 
   @Test
-  void testGetByAliseWithCastThrowsExceptionOnInvalidValue() {
+  void testGetByAliasWithCastThrowsExceptionOnInvalidValue() {
     assertThrows(IllegalArgumentException.class, () -> cut.get("Willi", Number.class));
   }
 

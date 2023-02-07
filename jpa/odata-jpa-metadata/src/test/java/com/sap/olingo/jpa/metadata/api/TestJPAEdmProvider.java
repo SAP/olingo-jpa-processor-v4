@@ -248,7 +248,7 @@ class TestJPAEdmProvider {
   }
 
   @Test
-  void checkGetFunctionsReturnsNullOnUnknownschema() throws ODataException {
+  void checkGetFunctionsReturnsNullOnUnknownSchema() throws ODataException {
     final List<CsdlFunction> act = cut.getFunctions(new FullQualifiedName("Hallo", "Welt"));
     assertNull(act);
   }

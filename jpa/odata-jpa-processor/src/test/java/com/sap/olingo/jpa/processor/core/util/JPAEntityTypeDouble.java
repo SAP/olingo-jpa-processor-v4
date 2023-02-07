@@ -212,7 +212,7 @@ public class JPAEntityTypeDouble implements JPAEntityType {
   }
 
   @Override
-  public <X extends EdmQueryExtensionProvider> Optional<JPAQueryExtension<X>> getQueryExtention()
+  public <X extends EdmQueryExtensionProvider> Optional<JPAQueryExtension<X>> getQueryExtension()
       throws ODataJPAModelException {
     return Optional.empty();
   }

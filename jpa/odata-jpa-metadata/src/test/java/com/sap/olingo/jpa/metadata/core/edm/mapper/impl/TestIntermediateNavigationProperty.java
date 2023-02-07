@@ -179,7 +179,7 @@ class TestIntermediateNavigationProperty extends TestMappingRoot {
   }
 
   @Test
-  void checkGetPropertyFacetsColletionFalseOnToOne() throws ODataJPAModelException {
+  void checkGetPropertyFacetsCollectionFalseOnToOne() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getDeclaredAttribute(helper.getEntityType(Person.class),
         "image");
     final IntermediateNavigationProperty property = new IntermediateNavigationProperty(new JPADefaultEdmNameBuilder(
@@ -485,7 +485,7 @@ class TestIntermediateNavigationProperty extends TestMappingRoot {
   }
 
   @Test
-  void checkGetJoinTableJoinColumnsMissingInvers() throws ODataJPAModelException {
+  void checkGetJoinTableJoinColumnsMissingInverse() throws ODataJPAModelException {
     final EmbeddableType<JoinComplex> jpaEmbeddable = helper.getEmbeddableType(JoinComplex.class);
     final IntermediateComplexType<JoinComplex> property = new IntermediateComplexType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), jpaEmbeddable, schema);

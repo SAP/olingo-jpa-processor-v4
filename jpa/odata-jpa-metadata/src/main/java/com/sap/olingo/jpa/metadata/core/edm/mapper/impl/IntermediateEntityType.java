@@ -202,7 +202,7 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
   }
 
   @Override
-  public Optional<JPAQueryExtension<EdmQueryExtensionProvider>> getQueryExtention() throws ODataJPAModelException {
+  public Optional<JPAQueryExtension<EdmQueryExtensionProvider>> getQueryExtension() throws ODataJPAModelException {
     return extensionQueryProvider.orElse(determineExtensionQueryProvide());
   }
 
@@ -479,7 +479,7 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
             provider)));
     }
     if (!extensionQueryProvider.get().isPresent() && getBaseType() != null)
-      extensionQueryProvider = Optional.ofNullable(((IntermediateEntityType<?>) getBaseType()).getQueryExtention());
+      extensionQueryProvider = Optional.ofNullable(((IntermediateEntityType<?>) getBaseType()).getQueryExtension());
     return extensionQueryProvider.get();
   }
 
@@ -515,4 +515,5 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
       throws ODataJPAModelException {
     return ((IntermediateComplexType<?>) embeddedId.getStructuredType()).getEdmItem().getProperties();
   }
+
 }

@@ -40,7 +40,7 @@ class JPAODataGroupsProviderTest {
   }
 
   @Test
-  void getReturnsOneIgnoreNullSeperateProvidedGroup() {
+  void getReturnsOneIgnoreNullSeparateProvidedGroup() {
     cut.addGroup("Willi");
     cut.addGroup(null);
     assertEquals(1, cut.getGroups().size());

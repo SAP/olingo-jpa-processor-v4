@@ -7,7 +7,7 @@ package com.sap.olingo.jpa.processor.core.exception;
  * Created: 03.07.2019
  *
  */
-public class JPAIllicalAccessException extends Exception {
+public class JPAIllegalAccessException extends Exception {
 
   /**
    * 

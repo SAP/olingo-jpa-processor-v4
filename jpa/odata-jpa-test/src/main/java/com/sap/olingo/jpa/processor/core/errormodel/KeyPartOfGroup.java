@@ -26,19 +26,19 @@ public class KeyPartOfGroup {
   @Column(name = "\"ETag\"", nullable = false)
   protected long eTag;
 
-  public String getiD() {
+  public String getID() {
     return iD;
   }
 
-  public void setiD(final String iD) {
+  public void setID(final String iD) {
     this.iD = iD;
   }
 
-  public long geteTag() {
+  public long getETag() {
     return eTag;
   }
 
-  public void seteTag(final long eTag) {
+  public void setETag(final long eTag) {
     this.eTag = eTag;
   }
 

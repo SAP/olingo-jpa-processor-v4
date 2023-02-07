@@ -85,7 +85,7 @@ public class BusinessPartnerProtected {
     return iD;
   }
 
-  public long geteTag() {
+  public long getETag() {
     return eTag;
   }
 

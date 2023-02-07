@@ -65,7 +65,7 @@ class TestSelectionPathInfo {
   }
 
   @Test
-  void testJoinedPersistantDoesNotReturnTransient() {
+  void testJoinedPersistentDoesNotReturnTransient() {
     final Set<Integer> first = new HashSet<>(Arrays.asList(1, 3, 5, 7, 9, 2));
     final Set<Integer> second = new HashSet<>(Arrays.asList(1, 4, 6, 2));
     final Set<Integer> third = new HashSet<>(Arrays.asList(7, 8));

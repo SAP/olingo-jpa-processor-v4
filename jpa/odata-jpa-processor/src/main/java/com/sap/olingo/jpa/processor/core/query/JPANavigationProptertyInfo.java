@@ -34,7 +34,7 @@ public final class JPANavigationProptertyInfo {
    */
   public JPANavigationProptertyInfo(final JPANavigationProptertyInfo original) {
 
-    this.navigationTarget = original.getUriResiource();
+    this.navigationTarget = original.getUriResource();
     this.associationPath = original.getAssociationPath();
     this.keyPredicates = original.getKeyPredicates();
     this.uriInfo = original.getUriInfo();
@@ -68,7 +68,7 @@ public final class JPANavigationProptertyInfo {
     return associationPath;
   }
 
-  public UriResourcePartTyped getUriResiource() {
+  public UriResourcePartTyped getUriResource() {
     return navigationTarget;
   }
 
@@ -84,7 +84,7 @@ public final class JPANavigationProptertyInfo {
   JPAEntityType getEntityType() throws ODataJPAModelException {
     if (et != null)
       return et;
-    return sd.getEntity(getUriResiource().getType());
+    return sd.getEntity(getUriResource().getType());
   }
 
   JPAFilterComplier getFilterCompiler() {

@@ -41,7 +41,7 @@ class AggregationExpressionTest extends BuilderBaseTest {
   }
 
   @Test
-  void testGetExpressionReturnsProvideedExpression() {
+  void testGetExpressionReturnsProvidedExpression() {
     cut = new ExpressionImpl.AggregationExpression<>(SqlAggregation.COUNT, path);
     assertEquals(path, cut.getExpression());
   }

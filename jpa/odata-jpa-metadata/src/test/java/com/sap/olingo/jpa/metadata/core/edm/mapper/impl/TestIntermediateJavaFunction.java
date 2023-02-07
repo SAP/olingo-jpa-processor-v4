@@ -68,7 +68,7 @@ class TestIntermediateJavaFunction extends TestMappingRoot {
   }
 
   @Test
-  void checkThrowsExcpetionForNonPrimitiveParameter() throws ODataJPAModelException {
+  void checkThrowsExceptionForNonPrimitiveParameter() throws ODataJPAModelException {
     final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "errorNonPrimitiveParameter");
 
     assertThrows(ODataJPAModelException.class, () -> {
@@ -137,7 +137,7 @@ class TestIntermediateJavaFunction extends TestMappingRoot {
   }
 
   @Test
-  void checkThrowsExceptionIfAnnotatedReturnTypeNEDeclairedType() throws ODataJPAModelException {
+  void checkThrowsExceptionIfAnnotatedReturnTypeNEDeclaredType() throws ODataJPAModelException {
     final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "errorReturnType");
     assertThrows(ODataJPAModelException.class, () -> {
       act.getEdmItem();
@@ -223,7 +223,7 @@ class TestIntermediateJavaFunction extends TestMappingRoot {
   }
 
   @Test
-  void checkThrowsExcpetionOnNotSupportedReturnType() throws ODataJPAModelException {
+  void checkThrowsExceptionOnNotSupportedReturnType() throws ODataJPAModelException {
     final IntermediateJavaFunction act = createFunction(ExampleJavaFunctions.class, "wrongReturnType");
     assertThrows(ODataJPAModelException.class, () -> {
       act.getEdmItem();
@@ -243,14 +243,14 @@ class TestIntermediateJavaFunction extends TestMappingRoot {
   }
 
   @Test
-  void checkThrowsExcpetionOnPrivateConstructor() throws ODataJPAModelException {
+  void checkThrowsExceptionOnPrivateConstructor() throws ODataJPAModelException {
     assertThrows(ODataJPAModelException.class, () -> {
       createFunction(ExampleJavaPrivateConstructor.class, "sum");
     });
   }
 
   @Test
-  void checkThrowsExcpetionOnNoConstructorAsSpecified() throws ODataJPAModelException {
+  void checkThrowsExceptionOnNoConstructorAsSpecified() throws ODataJPAModelException {
     assertThrows(ODataJPAModelException.class, () -> {
       createFunction(ExampleJavaTwoParameterConstructor.class, "sum");
     });

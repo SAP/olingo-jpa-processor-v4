@@ -266,7 +266,7 @@ class JPAODataInternalRequestContextTest {
     cut = new JPAODataInternalRequestContext(page, serializer, contextAccess, header);
     final JPAEntityType et = mock(JPAEntityType.class);
     final JPAQueryExtension extension = mock(JPAQueryExtension.class);
-    when(et.getQueryExtention()).thenReturn(Optional.of(extension));
+    when(et.getQueryExtension()).thenReturn(Optional.of(extension));
     when(extension.getConstructor()).thenAnswer(new Answer<Constructor<? extends EdmQueryExtensionProvider>>() {
       @Override
       public Constructor<? extends EdmQueryExtensionProvider> answer(final InvocationOnMock invocation)

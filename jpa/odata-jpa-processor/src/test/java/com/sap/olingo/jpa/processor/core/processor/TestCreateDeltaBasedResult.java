@@ -116,7 +116,7 @@ class TestCreateDeltaBasedResult extends TestJPAModifyProcessor {
   }
 
   @Test
-  void testShallReturnsValueIfDeltaFoundBeforeOneNowTwoInversOrder() throws ODataJPAProcessorException {
+  void testShallReturnsValueIfDeltaFoundBeforeOneNowTwoInverseOrder() throws ODataJPAProcessorException {
 
     prepareRole();
     currentImagePerson.getRoles().add(new BusinessPartnerRole(currentImagePerson, "B"));

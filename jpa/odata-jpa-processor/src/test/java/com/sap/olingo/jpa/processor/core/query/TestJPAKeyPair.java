@@ -258,25 +258,25 @@ class TestJPAKeyPair {
   }
 
   @Test
-  void testCreatePairConvertsionTargetNotComparable() throws ODataJPAKeyPairException {
+  void testCreatePairConversionTargetNotComparable() throws ODataJPAKeyPairException {
     final JPAAttribute attribute = mock(JPAAttribute.class);
     when(attribute.getDbType()).thenAnswer(new Answer<Class<?>>() {
       @Override
       public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
-        return NotCopmarible.class;
+        return NotCompatible.class;
       }
     });
-    when(attribute.getConverter()).thenAnswer(new Answer<NotCopmaribleConverter>() {
+    when(attribute.getConverter()).thenAnswer(new Answer<NotCompatibleConverter>() {
       @Override
-      public NotCopmaribleConverter answer(final InvocationOnMock invocation) throws Throwable {
-        return new NotCopmaribleConverter();
+      public NotCompatibleConverter answer(final InvocationOnMock invocation) throws Throwable {
+        return new NotCompatibleConverter();
       }
     });
 
-    when(attribute.getRawConverter()).thenAnswer(new Answer<NotCopmaribleConverter>() {
+    when(attribute.getRawConverter()).thenAnswer(new Answer<NotCompatibleConverter>() {
       @Override
-      public NotCopmaribleConverter answer(final InvocationOnMock invocation) throws Throwable {
-        return new NotCopmaribleConverter();
+      public NotCompatibleConverter answer(final InvocationOnMock invocation) throws Throwable {
+        return new NotCompatibleConverter();
       }
     });
 
@@ -311,19 +311,19 @@ class TestJPAKeyPair {
     return key;
   }
 
-  private static class NotCopmarible {
+  private static class NotCompatible {
 
   }
 
-  private static class NotCopmaribleConverter implements AttributeConverter<String, NotCopmarible> {
+  private static class NotCompatibleConverter implements AttributeConverter<String, NotCompatible> {
 
     @Override
-    public NotCopmarible convertToDatabaseColumn(final String attribute) {
-      return new NotCopmarible();
+    public NotCompatible convertToDatabaseColumn(final String attribute) {
+      return new NotCompatible();
     }
 
     @Override
-    public String convertToEntityAttribute(final NotCopmarible dbData) {
+    public String convertToEntityAttribute(final NotCompatible dbData) {
       return "Test";
     }
   }

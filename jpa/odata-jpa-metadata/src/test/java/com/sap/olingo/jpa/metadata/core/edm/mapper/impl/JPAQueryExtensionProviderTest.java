@@ -34,7 +34,7 @@ class JPAQueryExtensionProviderTest {
   }
 
   @Test
-  void checkThrowsExceptionWrongParametr() {
+  void checkThrowsExceptionWrongParameter() {
     assertThrows(ODataJPAModelException.class, () -> new JPAQueryExtensionProvider<>(
         ExtensionProviderWithWrongParameter.class).getConstructor());
   }
