@@ -480,7 +480,7 @@ final class IntermediateEntityType<T> extends IntermediateStructuredType<T> impl
     }
     if (!extensionQueryProvider.get().isPresent() && getBaseType() != null)
       extensionQueryProvider = Optional.ofNullable(((IntermediateEntityType<?>) getBaseType()).getQueryExtension());
-    return extensionQueryProvider.get();
+    return extensionQueryProvider.orElseGet(Optional::empty);
   }
 
   private void determineHasEtag() throws ODataJPAModelException {
