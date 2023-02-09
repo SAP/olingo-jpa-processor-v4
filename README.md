@@ -101,4 +101,4 @@ Detailed information including third-party components and their licensing/copyri
 |0.3.11| - Solutions for issue [#138](https://github.com/SAP/olingo-jpa-processor-v4/issues/138)|No|
 |1.0.6|- Transient Properties<br> - Singletons<br> - Entity Types without Entity Set<br> - Rework Request Context<br> - Deprecation of annotation  EdmAsEntitySet   |Yes|
 |1.0.8|- Solution for issue [#145](https://github.com/SAP/olingo-jpa-processor-v4/issues/145) |No|
-|1.0.9| - Solutions for issue [#164](https://github.com/SAP/olingo-jpa-processor-v4/issues/164), [#155](https://github.com/SAP/olingo-jpa-processor-v4/issues/155)<br>|No|
+|1.0.9|- Update Olingo dependency to 4.9.0<br> - Solutions for issues [#164](https://github.com/SAP/olingo-jpa-processor-v4/issues/164), [#155](https://github.com/SAP/olingo-jpa-processor-v4/issues/155), [#191](https://github.com/SAP/olingo-jpa-processor-v4/issues/191), [#156](https://github.com/SAP/olingo-jpa-processor-v4/issues/156)<br>|No|
