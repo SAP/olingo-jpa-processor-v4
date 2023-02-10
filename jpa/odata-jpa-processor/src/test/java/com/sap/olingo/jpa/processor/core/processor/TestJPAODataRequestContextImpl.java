@@ -124,7 +124,7 @@ class TestJPAODataRequestContextImpl {
   }
 
   @Test
-  void testCopyConstructorCopysExternalAndAddsUriInfo() throws ODataJPAIllegalAccessException,
+  void testCopyConstructorCopiesExternalAndAddsUriInfo() throws ODataJPAIllegalAccessException,
       ODataJPAProcessorException {
     fillContextForCopyConstructor();
     final JPASerializer serializer = mock(JPASerializer.class);
@@ -140,7 +140,7 @@ class TestJPAODataRequestContextImpl {
   }
 
   @Test
-  void testCopyConstructorCopysExternalAndAddsPageSerializer() throws ODataJPAProcessorException {
+  void testCopyConstructorCopiesExternalAndAddsPageSerializer() throws ODataJPAProcessorException {
     fillContextForCopyConstructor();
     final UriInfo uriInfo = mock(UriInfo.class);
     final JPAODataInternalRequestContext act = new JPAODataInternalRequestContext(uriInfo, cut);
@@ -150,7 +150,7 @@ class TestJPAODataRequestContextImpl {
   }
 
   @Test
-  void testCopyConstructorCopysExternalAndAddsUriInfoSerializer() throws ODataJPAProcessorException {
+  void testCopyConstructorCopiesExternalAndAddsUriInfoSerializer() throws ODataJPAProcessorException {
     fillContextForCopyConstructor();
     final UriInfo uriInfo = mock(UriInfo.class);
     final JPASerializer serializer = mock(JPASerializer.class);
@@ -164,7 +164,7 @@ class TestJPAODataRequestContextImpl {
   }
 
   @Test
-  void testCopyConstructorCopysExternalAndAddsUriInfoSerializerNull() throws ODataJPAProcessorException {
+  void testCopyConstructorCopiesExternalAndAddsUriInfoSerializerNull() throws ODataJPAProcessorException {
     fillContextForCopyConstructor();
     final UriInfo uriInfo = mock(UriInfo.class);
     final Map<String, List<String>> header = Collections.emptyMap();

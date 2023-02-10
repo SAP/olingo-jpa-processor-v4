@@ -36,7 +36,7 @@ import javax.persistence.criteria.Subquery;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaBuilder;
 import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaQuery;
-import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
+import com.sap.olingo.jpa.processor.cb.exceptions.NotImplementedException;
 import com.sap.olingo.jpa.processor.cb.impl.ExpressionImpl.ParameterExpression;
 import com.sap.olingo.jpa.processor.cb.impl.PredicateImpl.BinaryExpressionPredicate.Operation;
 import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;

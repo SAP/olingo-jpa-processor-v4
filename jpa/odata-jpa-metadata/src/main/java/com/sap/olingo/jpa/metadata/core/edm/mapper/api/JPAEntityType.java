@@ -80,6 +80,6 @@ public interface JPAEntityType extends JPAStructuredType {
 
   public List<JPAPath> searchChildPath(final JPAPath selectItemPath);
 
-  public <X extends EdmQueryExtensionProvider> Optional<JPAQueryExtension<X>> getQueryExtention()
+  public <X extends EdmQueryExtensionProvider> Optional<JPAQueryExtension<X>> getQueryExtension()
       throws ODataJPAModelException;
 }

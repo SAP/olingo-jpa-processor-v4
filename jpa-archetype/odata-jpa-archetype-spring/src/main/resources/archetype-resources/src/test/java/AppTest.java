@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 class AppTest {
 
   /**
-   * Rigourous Test :-)
+   * Rigorous Test :-)
    */
   @Test
   void testApp() {

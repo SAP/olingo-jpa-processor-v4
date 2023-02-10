@@ -49,7 +49,7 @@ public class ComplexProtectedNoPath {
     return iD;
   }
 
-  public long geteTag() {
+  public long getETag() {
     return eTag;
   }
 
@@ -57,7 +57,7 @@ public class ComplexProtectedNoPath {
     this.iD = iD;
   }
 
-  public void seteTag(long eTag) {
+  public void setETag(long eTag) {
     this.eTag = eTag;
   }
 

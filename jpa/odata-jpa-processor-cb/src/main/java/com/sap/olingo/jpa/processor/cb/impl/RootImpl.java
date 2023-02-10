@@ -5,7 +5,7 @@ import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.EntityType;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
-import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
+import com.sap.olingo.jpa.processor.cb.exceptions.NotImplementedException;
 
 class RootImpl<X> extends FromImpl<X, X> implements Root<X> {
 

@@ -98,7 +98,7 @@ public abstract class TestJPA_XXX_DatabaseProcessor {
   }
 
   @Test
-  public void testAbortsOnNotImplementedChaning() throws ODataJPAModelException {
+  public void testAbortsOnNotImplementedChanging() throws ODataJPAModelException {
 
     createFunctionWithOneParameter();
     final UriResourceCount uriResourceCount = mock(UriResourceCount.class);

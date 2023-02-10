@@ -23,7 +23,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
+import com.sap.olingo.jpa.processor.cb.exceptions.NotImplementedException;
 
 class ExpressionImplTest {
   private static final String PUNIT_NAME = "com.sap.olingo.jpa";

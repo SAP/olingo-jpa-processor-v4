@@ -3,6 +3,8 @@
  */
 package com.sap.olingo.jpa.processor.core.errormodel;
 
+import java.util.Objects;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -26,20 +28,34 @@ public class KeyPartOfGroup {
   @Column(name = "\"ETag\"", nullable = false)
   protected long eTag;
 
-  public String getiD() {
+  public String getID() {
     return iD;
   }
 
-  public void setiD(final String iD) {
+  public void setID(final String iD) {
     this.iD = iD;
   }
 
-  public long geteTag() {
+  public long getETag() {
     return eTag;
   }
 
-  public void seteTag(final long eTag) {
+  public void setETag(final long eTag) {
     this.eTag = eTag;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(eTag, iD);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
+    KeyPartOfGroup other = (KeyPartOfGroup) obj;
+    return eTag == other.eTag && Objects.equals(iD, other.iD);
   }
 
 }

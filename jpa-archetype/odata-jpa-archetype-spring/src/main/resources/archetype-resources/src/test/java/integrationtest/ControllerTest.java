@@ -106,7 +106,7 @@ class ControllerTest {
         .getResource("requests/CreateEntityViaBatch.txt").toURI();
 
     File myFile = new File(uri);
-    final String responce = given()
+    final String response = given()
         .contentType("multipart/mixed;boundary=abc")
         .body(myFile)
         .when()
@@ -123,7 +123,7 @@ class ControllerTest {
         .then()
         .statusCode(HttpStatusCode.OK.getStatusCode());
 
-    final String[] partResults = responce.split("--changeset");
+    final String[] partResults = response.split("--changeset");
     assertTrue(partResults[1].contains("HTTP/1.1 201"));
     assertTrue(partResults[2].contains("HTTP/1.1 400"));
   }

@@ -143,7 +143,7 @@ class TestJPAQueryFromClause extends TestBase {
   }
 
   @Test
-  void checkFromListDescriptionAssozationAllFields() throws ODataApplicationException, ODataJPAModelException,
+  void checkFromListDescriptionAssociationAllFields() throws ODataApplicationException, ODataJPAModelException,
       JPANoSelectionException {
     final List<JPAAssociationPath> orderBy = new ArrayList<>();
     final List<JPAPath> descriptionPathList = new ArrayList<>();
@@ -159,7 +159,7 @@ class TestJPAQueryFromClause extends TestBase {
   }
 
   @Test
-  void checkFromListDescriptionAssozationAllFields2() throws ODataApplicationException, ODataJPAModelException,
+  void checkFromListDescriptionAssociationAllFields2() throws ODataApplicationException, ODataJPAModelException,
       JPANoSelectionException {
     final List<JPAAssociationPath> orderBy = new ArrayList<>();
     final List<JPAPath> descriptionPathList = new ArrayList<>();

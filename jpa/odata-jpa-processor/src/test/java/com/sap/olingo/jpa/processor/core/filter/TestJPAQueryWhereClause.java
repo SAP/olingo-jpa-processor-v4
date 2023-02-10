@@ -318,7 +318,7 @@ class TestJPAQueryWhereClause extends TestBase {
   }
 
   @Test
-  void testFilterhComparisonViaNavigationContainingFunction() throws IOException, ODataException {
+  void testFilterComparisonViaNavigationContainingFunction() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "BusinessPartnerRoles?$filter=tolower(Organization/Name1) eq 'third org.'");
@@ -328,7 +328,7 @@ class TestJPAQueryWhereClause extends TestBase {
   }
 
   @Test
-  void testFilterhComparisonTwoFunctionsContainingNavigationNotSupported() throws IOException, ODataException {
+  void testFilterComparisonTwoFunctionsContainingNavigationNotSupported() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "BusinessPartnerRoles?$filter=tolower(Organization/Name1) eq tolower(Organization/Name2)");
@@ -336,7 +336,7 @@ class TestJPAQueryWhereClause extends TestBase {
   }
 
   @Test
-  void testFilterhComparisonViaNavigationContainingNestedFunctionNotSupported() throws IOException,
+  void testFilterComparisonViaNavigationContainingNestedFunctionNotSupported() throws IOException,
       ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -868,7 +868,7 @@ class TestJPAQueryWhereClause extends TestBase {
   };
 
   @Test
-  void testFilterNavigationPropertyAndExandThatNavigationProperty() throws IOException,
+  void testFilterNavigationPropertyAndExpandThatNavigationProperty() throws IOException,
       ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -1001,7 +1001,7 @@ class TestJPAQueryWhereClause extends TestBase {
   }
 
   @Test
-  void testFilterCollectionSinplePropertyThrowsError() throws IOException, ODataException {
+  void testFilterCollectionSimplePropertyThrowsError() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations?$select=ID&$filter=contains(Comment, 'just')");

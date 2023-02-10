@@ -35,7 +35,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
+import com.sap.olingo.jpa.processor.cb.exceptions.NotImplementedException;
 import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
 import com.sap.olingo.jpa.processor.core.testmodel.BusinessPartner;
 import com.sap.olingo.jpa.processor.core.testmodel.CurrentUser;
@@ -246,7 +246,7 @@ class FromImplTest extends BuilderBaseTest {
   }
 
   @Test
-  void testJoinThrowsExceptionOnUnknowAttribute() {
+  void testJoinThrowsExceptionOnUnknownAttribute() {
     assertThrows(IllegalArgumentException.class, () -> cut.join("dummy"));
   }
 }

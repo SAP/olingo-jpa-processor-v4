@@ -103,7 +103,6 @@ public final class JPATypeConverter {
    * The JPA Type input.
    * @return The corresponding EdmPrimitiveTypeKind.
    * @throws ODataJPAModelException
-   * @throws org.apache.olingo.odata2.jpa.processor.api.exception.ODataJPARuntimeException
    *
    * @see EdmPrimitiveTypeKind
    */

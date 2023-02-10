@@ -16,7 +16,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Selection;
 import javax.persistence.criteria.Subquery;
 
-import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
+import com.sap.olingo.jpa.processor.cb.exceptions.NotImplementedException;
 import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
 import com.sap.olingo.jpa.processor.cb.joiner.StringBuilderCollector;
 

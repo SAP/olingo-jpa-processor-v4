@@ -59,7 +59,7 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
   /*
    * (non-Javadoc)
    *
-   * @see com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateModelItemAccess#ignore()
+   * @see com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateModelItemAccess#ignore()
    */
   @Override
   public boolean ignore() {
@@ -73,7 +73,7 @@ abstract class IntermediateModelElement implements IntermediateModelItemAccess {
   /*
    * (non-Javadoc)
    *
-   * @see com.sap.olingo.jpa.metadata.core.edm.mapper.extention.IntermediateModelItemAccess#setIgnore(boolean)
+   * @see com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateModelItemAccess#setIgnore(boolean)
    */
   @Override
   public void setIgnore(final boolean ignore) {

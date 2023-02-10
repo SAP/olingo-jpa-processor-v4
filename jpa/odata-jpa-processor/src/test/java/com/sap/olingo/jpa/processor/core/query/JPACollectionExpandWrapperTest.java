@@ -85,7 +85,7 @@ class JPACollectionExpandWrapperTest {
   }
 
   @TestFactory
-  Stream<DynamicTest> testMethodsReturninfNull() {
+  Stream<DynamicTest> testMethodsReturningNull() {
     return Stream.of("getExpandOption", "getFormatOption", "getDeltaTokenOption", "getOrderByOption", "getSearchOption",
         "getSkipOption", "getSkipTokenOption", "getTopOption", "getApplyOption", "getIdOption")
         .map(method -> dynamicTest(method, () -> assertNull(executeMethod(method))));

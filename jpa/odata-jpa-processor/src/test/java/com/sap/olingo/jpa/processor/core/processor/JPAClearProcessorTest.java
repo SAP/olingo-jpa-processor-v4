@@ -372,7 +372,7 @@ class JPAClearProcessorTest extends TestJPAModifyProcessor {
   }
 
   @Test
-  void testCallsValidateChangesOnSuccessfullProcessing() throws ODataException {
+  void testCallsValidateChangesOnSuccessfulProcessing() throws ODataException {
     final ODataResponse response = new ODataResponse();
     final ODataRequest request = prepareSimpleRequest();
 
@@ -384,7 +384,7 @@ class JPAClearProcessorTest extends TestJPAModifyProcessor {
   }
 
   @Test
-  void testDoesNotCallsValidateChangesOnForginTransaction() throws ODataException {
+  void testDoesNotCallsValidateChangesOnForeignTransaction() throws ODataException {
     final ODataResponse response = new ODataResponse();
     final ODataRequest request = prepareSimpleRequest();
 

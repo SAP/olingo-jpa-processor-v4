@@ -313,7 +313,7 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetConverterReturnedCOnvertionRequiered() throws ODataJPAModelException {
+  void checkGetConverterReturnedConversionRequired() throws ODataJPAModelException {
     final PostProcessorSetName pPDouble = new PostProcessorSetName();
     IntermediateModelElement.setPostProcessor(pPDouble);
 
@@ -350,7 +350,7 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetConverterNullConvertionNotRequired() throws ODataJPAModelException {
+  void checkGetConverterNullConversionNotRequired() throws ODataJPAModelException {
     final PostProcessorSetName pPDouble = new PostProcessorSetName();
     IntermediateModelElement.setPostProcessor(pPDouble);
 
@@ -362,7 +362,7 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetRawConverterReturnedConvertionRequiered() throws ODataJPAModelException {
+  void checkGetRawConverterReturnedConversionRequired() throws ODataJPAModelException {
     final PostProcessorSetName pPDouble = new PostProcessorSetName();
     IntermediateModelElement.setPostProcessor(pPDouble);
 
@@ -387,7 +387,7 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetRawConverterReturnsConvertionNotRequired() throws ODataJPAModelException {
+  void checkGetRawConverterReturnsConversionNotRequired() throws ODataJPAModelException {
     final PostProcessorSetName pPDouble = new PostProcessorSetName();
     IntermediateModelElement.setPostProcessor(pPDouble);
 
@@ -408,7 +408,7 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetPropertyDefaultValueIgnortOnAbstractClass() throws ODataJPAModelException {
+  void checkGetPropertyDefaultValueIgnoredOnAbstractClass() throws ODataJPAModelException {
     final Attribute<?, ?> jpaAttribute = helper.getAttribute(helper.getEntityType(BusinessPartner.class),
         "iD");
     final IntermediateSimpleProperty property = new IntermediateSimpleProperty(nameBuilder,
@@ -557,7 +557,7 @@ class IntermediateSimplePropertyTest extends TestMappingRoot {
   }
 
   @Test
-  void checkGetPropertyGetCalculatorNullOnPersistantProperty() throws ODataJPAModelException,
+  void checkGetPropertyGetCalculatorNullOnPersistentProperty() throws ODataJPAModelException,
       NoSuchFieldException,
       SecurityException {
 

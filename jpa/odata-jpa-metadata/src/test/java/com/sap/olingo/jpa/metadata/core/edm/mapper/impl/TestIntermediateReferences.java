@@ -175,7 +175,7 @@ class TestIntermediateReferences extends TestMappingRoot {
   }
 
   @Test
-  void checkThrowsExcpetionOnEmptyTermNamespace() throws ODataJPAModelException {
+  void checkThrowsExceptionOnEmptyTermNamespace() throws ODataJPAModelException {
     final String uri = MEASURES_V1_URL;
     final IntermediateReferenceAccess ref = cut.addReference(uri, "annotations/Org.OData.Measures.V1.xml");
     assertThrows(ODataJPAModelException.class, () -> ref.addIncludeAnnotation(""));
