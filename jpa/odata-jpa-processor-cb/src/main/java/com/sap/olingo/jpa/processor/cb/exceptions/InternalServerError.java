@@ -1,4 +1,4 @@
-package com.sap.olingo.jpa.processor.cb.exeptions;
+package com.sap.olingo.jpa.processor.cb.exceptions;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 

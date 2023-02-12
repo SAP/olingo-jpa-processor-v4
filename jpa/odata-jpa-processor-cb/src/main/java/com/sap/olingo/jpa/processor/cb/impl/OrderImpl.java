@@ -6,7 +6,7 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Order;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.cb.exeptions.InternalServerError;
+import com.sap.olingo.jpa.processor.cb.exceptions.InternalServerError;
 import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
 
 class OrderImpl implements Order, SqlConvertible {

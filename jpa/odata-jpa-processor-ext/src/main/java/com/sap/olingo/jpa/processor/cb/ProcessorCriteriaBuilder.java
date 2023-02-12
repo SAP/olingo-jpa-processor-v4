@@ -41,7 +41,7 @@ public interface ProcessorCriteriaBuilder extends CriteriaBuilder {
     WindowFunction<T> orderBy(final List<Order> order);
     /**
      * Takes an array of simple path expressions.
-     * @param parh
+     * @param path
      * @return
      */
     WindowFunction<T> partitionBy(final Path<?>... path);

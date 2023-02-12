@@ -34,7 +34,7 @@ class InheritanceInfoTest {
   }
 
   @Test
-  void testDisciminatorColumn() {
+  void testDiscriminatorColumn() {
     doReturn(Organization.class).when(et).getTypeClass();
     cut = new InheritanceInfo(et);
     assertTrue(cut.getBaseClass().isPresent());

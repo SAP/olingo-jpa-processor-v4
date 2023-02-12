@@ -266,7 +266,7 @@ class JPAODataBatchProcessorTest {
   }
 
   @Test
-  void whenNotContinueOnErrorSecondPerformedNoFailuer() throws ODataApplicationException, ODataLibraryException {
+  void whenNotContinueOnErrorSecondPerformedNoFailure() throws ODataApplicationException, ODataLibraryException {
     final List<BatchRequestPart> requestParts = createBatchRequest();
     final ODataResponsePart resp1 = mock(ODataResponsePart.class);
     final ODataResponsePart resp2 = mock(ODataResponsePart.class);

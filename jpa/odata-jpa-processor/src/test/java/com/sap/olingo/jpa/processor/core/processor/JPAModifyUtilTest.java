@@ -350,7 +350,7 @@ class JPAModifyUtilTest extends TestBase {
   }
 
   @Test
-  void testSetForeignKeyTrhowsExceptionOnMissingGetter() throws ODataJPAModelException,
+  void testSetForeignKeyThrowsExceptionOnMissingGetter() throws ODataJPAModelException,
       ODataJPAProcessorException {
     final OrganizationWithoutGetter source = new OrganizationWithoutGetter("100");
     final BusinessPartnerRole target = new BusinessPartnerRole();
@@ -363,7 +363,7 @@ class JPAModifyUtilTest extends TestBase {
   }
 
   @Test
-  void testSetForeignKeyTrhowsExceptionOnMissingSetter() throws ODataJPAModelException,
+  void testSetForeignKeyThrowsExceptionOnMissingSetter() throws ODataJPAModelException,
       ODataJPAProcessorException {
     final Organization source = new Organization("100");
     final BusinessPartnerRoleWithoutSetter target = new BusinessPartnerRoleWithoutSetter();

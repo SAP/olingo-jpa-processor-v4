@@ -1,4 +1,4 @@
-package com.sap.olingo.jpa.processor.cb.exeptions;
+package com.sap.olingo.jpa.processor.cb.exceptions;
 
 public class NotImplementedException extends RuntimeException {
 

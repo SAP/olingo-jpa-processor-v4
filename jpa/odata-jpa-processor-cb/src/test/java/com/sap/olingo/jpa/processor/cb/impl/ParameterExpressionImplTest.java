@@ -137,7 +137,7 @@ class ParameterExpressionImplTest {
   }
 
   @Test
-  void testToStringConatinsValue() {
+  void testToStringContainsValue() {
     assertTrue(cut.toString().contains("Value"));
   }
 

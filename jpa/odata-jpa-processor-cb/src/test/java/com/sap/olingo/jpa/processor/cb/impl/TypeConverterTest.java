@@ -235,7 +235,7 @@ class TypeConverterTest {
   }
 
   @Test
-  void testConvertTemporalThrowsExceptionOnUnsupportwed() {
+  void testConvertTemporalThrowsExceptionOnUnsupported() {
     final Timestamp timestamp = Timestamp.valueOf("2007-12-03 00:00:00");
     assertThrows(IllegalArgumentException.class, () -> convert(timestamp, ZonedDateTime.class));
   }

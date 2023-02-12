@@ -50,7 +50,7 @@ class JPAInstanceCreatorTest {
   @Test
   void testGetConstructorWithIdClass() throws ODataJPAModelException, ODataJPAProcessorException {
     fillCompoundKey();
-    buildTypeWithComboundKey(ClassWithIdClassConstructor.class);
+    buildTypeWithCompoundKey(ClassWithIdClassConstructor.class);
     cut = new JPAInstanceCreator<>(odata, et);
 
     final Optional<Constructor<Object>> c = cut.determinePreferedConstructor();
@@ -62,7 +62,7 @@ class JPAInstanceCreatorTest {
   @Test
   void testGetConstructorWithCompoundKey() throws ODataJPAModelException, ODataJPAProcessorException {
     fillCompoundKey();
-    buildTypeWithComboundKey(ClassWithMultipleKeysSetter.class);
+    buildTypeWithCompoundKey(ClassWithMultipleKeysSetter.class);
     cut = new JPAInstanceCreator<>(odata, et);
 
     final Optional<Constructor<Object>> c = cut.determinePreferedConstructor();
@@ -72,9 +72,9 @@ class JPAInstanceCreatorTest {
   }
 
   @Test
-  void testGetConstructorNoSetterRetunsNull() throws ODataJPAModelException, ODataJPAProcessorException {
+  void testGetConstructorNoSetterReturnsNull() throws ODataJPAModelException, ODataJPAProcessorException {
     fillCompoundKey();
-    buildTypeWithComboundKey(ClassWithMultipleKeysConstructor.class);
+    buildTypeWithCompoundKey(ClassWithMultipleKeysConstructor.class);
     cut = new JPAInstanceCreator<>(odata, et);
 
     final Optional<Constructor<Object>> c = cut.determinePreferedConstructor();
@@ -171,7 +171,7 @@ class JPAInstanceCreatorTest {
   @Test
   void testCreateInstanceWithIdClass() throws ODataJPAProcessorException, ODataJPAModelException {
     fillCompoundKey();
-    buildTypeWithComboundKey(ClassWithIdClassConstructor.class);
+    buildTypeWithCompoundKey(ClassWithIdClassConstructor.class);
     final UriParameter keyParam1 = fillUriParameter("id1", "'Test'");
     final UriParameter keyParam2 = fillUriParameter("id2", "12");
     final UriParameter keyParam3 = fillUriParameter("id3", "'654645'");
@@ -191,7 +191,7 @@ class JPAInstanceCreatorTest {
   @Test
   void testCreateInstanceWithCompoundKeySetter() throws ODataJPAProcessorException, ODataJPAModelException {
     fillCompoundKey();
-    buildTypeWithComboundKey(ClassWithMultipleKeysSetter.class);
+    buildTypeWithCompoundKey(ClassWithMultipleKeysSetter.class);
     final UriParameter keyParam1 = fillUriParameter("id1", "'Test'");
     final UriParameter keyParam2 = fillUriParameter("id2", "12");
     final UriParameter keyParam3 = fillUriParameter("id3", "'654645'");
@@ -270,7 +270,7 @@ class JPAInstanceCreatorTest {
   @Test
   void testCreateInstanceReturnsEmptyIdClassNoConstructor() throws ODataJPAProcessorException, ODataJPAModelException {
     fillCompoundKey();
-    buildTypeWithComboundKey(ClassWithIdClassWithoutConstructor.class, ClassWithMultipleKeysConstructor.class);
+    buildTypeWithCompoundKey(ClassWithIdClassWithoutConstructor.class, ClassWithMultipleKeysConstructor.class);
     final UriParameter keyParam1 = fillUriParameter("id1", "'Test'");
     final UriParameter keyParam2 = fillUriParameter("id2", "12");
     final UriParameter keyParam3 = fillUriParameter("id3", "'654645'");
@@ -290,11 +290,11 @@ class JPAInstanceCreatorTest {
     return keyParam1;
   }
 
-  private void buildTypeWithComboundKey(final Class<?> typeClazz) {
-    buildTypeWithComboundKey(typeClazz, ClassWithMultipleKeysSetter.class);
+  private void buildTypeWithCompoundKey(final Class<?> typeClazz) {
+    buildTypeWithCompoundKey(typeClazz, ClassWithMultipleKeysSetter.class);
   }
 
-  private void buildTypeWithComboundKey(final Class<?> typeClazz, final Class<?> idClass) {
+  private void buildTypeWithCompoundKey(final Class<?> typeClazz, final Class<?> idClass) {
 
     when(et.getTypeClass()).thenAnswer(new Answer<Class<?>>() {
       @Override

@@ -198,7 +198,7 @@ class TestJPAQueryWithProtection extends TestQueryBase {
   }
 
   @Test
-  void testThrowsUnauthorizedOnMissingClaimforRestrictExpandResult() throws IOException, ODataException {
+  void testThrowsUnauthorizedOnMissingClaimForRestrictExpandResult() throws IOException, ODataException {
 
     final JPAODataClaimsProvider claims = new JPAODataClaimsProvider();
     claims.add("UserId", new JPAClaimsPair<>("Marvin"));

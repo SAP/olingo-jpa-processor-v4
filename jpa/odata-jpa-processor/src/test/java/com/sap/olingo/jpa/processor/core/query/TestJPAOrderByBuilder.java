@@ -251,7 +251,7 @@ class TestJPAOrderByBuilder extends TestBase {
   }
 
   @Test
-  void testThrowsBadRequestExcpetionOnUnkownProperty() throws ODataApplicationException, ODataJPAModelException {
+  void testThrowsBadRequestExceptionOnUnknownProperty() throws ODataApplicationException, ODataJPAModelException {
     createOrderByItem("Name");
     when(uriResource.getOrderByOption()).thenReturn(orderBy);
     cut = new JPAOrderByBuilder(jpaOrgEntity, orgTarget, cb, groups);
@@ -260,7 +260,7 @@ class TestJPAOrderByBuilder extends TestBase {
   }
 
   @Test
-  void testThrowsBadRequestExcpetionOnUnkownComplex() throws ODataApplicationException, ODataJPAModelException {
+  void testThrowsBadRequestExceptionOnUnknownComplex() throws ODataApplicationException, ODataJPAModelException {
     createComplexOrderByItem();
     when(uriResource.getOrderByOption()).thenReturn(orderBy);
     cut = new JPAOrderByBuilder(jpaAdminEntity, adminTarget, cb, groups);
@@ -310,7 +310,7 @@ class TestJPAOrderByBuilder extends TestBase {
   }
 
   @Test
-  void testThrowExceptionOrderByTransientPrimitveSimpleProperty() throws IOException, ODataException {
+  void testThrowExceptionOrderByTransientPrimitiveSimpleProperty() throws IOException, ODataException {
     final JPAEntityType jpaEntity = getHelper().getJPAEntityType(Person.class);
     final From<?, ?> target = cb.createQuery().from(getHelper().getEntityType(Person.class));
     cut = new JPAOrderByBuilder(jpaEntity, target, cb, groups);
@@ -336,7 +336,7 @@ class TestJPAOrderByBuilder extends TestBase {
   }
 
   @Test
-  void testPagePresentMaxTopValueNoOdering() throws IOException, ODataException {
+  void testPagePresentMaxTopValueNoOrdering() throws IOException, ODataException {
     page = mock(JPAODataPage.class);
     when(page.getTop()).thenReturn(Integer.MAX_VALUE);
 
@@ -408,13 +408,13 @@ class TestJPAOrderByBuilder extends TestBase {
 
   private List<UriResource> createOrderByClause(final Boolean isDescending) {
     final OrderByItem item = mock(OrderByItem.class);
-    final Member expresion = mock(Member.class);
+    final Member expression = mock(Member.class);
     final UriInfo uriInfo = mock(UriInfo.class);
     final List<UriResource> pathParts = new ArrayList<>();
-    when(item.getExpression()).thenReturn(expresion);
+    when(item.getExpression()).thenReturn(expression);
     if (isDescending != null)
       when(item.isDescending()).thenReturn(isDescending);
-    when(expresion.getResourcePath()).thenReturn(uriInfo);
+    when(expression.getResourcePath()).thenReturn(uriInfo);
     when(uriInfo.getUriResourceParts()).thenReturn(pathParts);
     when(uriResource.getOrderByOption()).thenReturn(orderBy);
     when(orderBy.getOrders()).thenReturn(Collections.singletonList(item));

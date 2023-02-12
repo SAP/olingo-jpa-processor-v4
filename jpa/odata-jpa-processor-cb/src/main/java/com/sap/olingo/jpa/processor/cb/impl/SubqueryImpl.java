@@ -31,7 +31,7 @@ import javax.persistence.metamodel.EntityType;
 
 import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaQuery;
 import com.sap.olingo.jpa.processor.cb.ProcessorSubquery;
-import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
+import com.sap.olingo.jpa.processor.cb.exceptions.NotImplementedException;
 import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
 
 /**

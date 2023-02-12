@@ -205,7 +205,7 @@ class JPAKeyPairTest {
   }
 
   @Test
-  void testCreatePairConvertsionString() {
+  void testCreatePairConversionString() {
     final JPAAttribute attributeUUID = mock(JPAAttribute.class);
     when(attributeUUID.getConverter()).thenAnswer(new Answer<UUIDToStringConverter>() {
       @Override
@@ -233,7 +233,7 @@ class JPAKeyPairTest {
   }
 
   @Test
-  void testCreatePairConvertsionByteArray() {
+  void testCreatePairConversionByteArray() {
     final JPAAttribute attributeUUID = mock(JPAAttribute.class);
     when(attributeUUID.getDbType()).thenAnswer(new Answer<Class<?>>() {
       @Override
@@ -268,25 +268,25 @@ class JPAKeyPairTest {
   }
 
   @Test
-  void testCreatePairConvertsionTargetNotComparable() throws ODataJPAKeyPairException {
+  void testCreatePairConversionTargetNotComparable() throws ODataJPAKeyPairException {
     final JPAAttribute attribute = mock(JPAAttribute.class);
     when(attribute.getDbType()).thenAnswer(new Answer<Class<?>>() {
       @Override
       public Class<?> answer(final InvocationOnMock invocation) throws Throwable {
-        return NotCopmarible.class;
+        return NotComparable.class;
       }
     });
-    when(attribute.getConverter()).thenAnswer(new Answer<NotCopmaribleConverter>() {
+    when(attribute.getConverter()).thenAnswer(new Answer<NotComparableConverter>() {
       @Override
-      public NotCopmaribleConverter answer(final InvocationOnMock invocation) throws Throwable {
-        return new NotCopmaribleConverter();
+      public NotComparableConverter answer(final InvocationOnMock invocation) throws Throwable {
+        return new NotComparableConverter();
       }
     });
 
-    when(attribute.getRawConverter()).thenAnswer(new Answer<NotCopmaribleConverter>() {
+    when(attribute.getRawConverter()).thenAnswer(new Answer<NotComparableConverter>() {
       @Override
-      public NotCopmaribleConverter answer(final InvocationOnMock invocation) throws Throwable {
-        return new NotCopmaribleConverter();
+      public NotComparableConverter answer(final InvocationOnMock invocation) throws Throwable {
+        return new NotComparableConverter();
       }
     });
 
@@ -321,19 +321,19 @@ class JPAKeyPairTest {
     return key;
   }
 
-  private static class NotCopmarible {
+  private static class NotComparable {
 
   }
 
-  private static class NotCopmaribleConverter implements AttributeConverter<String, NotCopmarible> {
+  private static class NotComparableConverter implements AttributeConverter<String, NotComparable> {
 
     @Override
-    public NotCopmarible convertToDatabaseColumn(final String attribute) {
-      return new NotCopmarible();
+    public NotComparable convertToDatabaseColumn(final String attribute) {
+      return new NotComparable();
     }
 
     @Override
-    public String convertToEntityAttribute(final NotCopmarible dbData) {
+    public String convertToEntityAttribute(final NotComparable dbData) {
       return "Test";
     }
   }

@@ -245,7 +245,7 @@ class IntermediateDataBaseFunctionTest extends TestMappingRoot {
   }
 
   @Test
-  void checkThrowsExcpetionOnEntitySetGivenUnbound() throws ODataJPAModelException {
+  void checkThrowsExceptionOnEntitySetGivenUnbound() throws ODataJPAModelException {
     final EdmFunction func = createBoundFunction();
     when(func.isBound()).thenReturn(false);
 
@@ -255,7 +255,7 @@ class IntermediateDataBaseFunctionTest extends TestMappingRoot {
   }
 
   @Test
-  void checkThrowsExcpetionOnEntitySetGivenNoEntityReturnType() throws ODataJPAModelException {
+  void checkThrowsExceptionOnEntitySetGivenNoEntityReturnType() throws ODataJPAModelException {
     final EdmFunction func = createBoundFunction();
     when(func.returnType().type()).thenAnswer(new Answer<Class<?>>() {
       @Override

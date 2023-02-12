@@ -29,7 +29,7 @@ import org.mockito.stubbing.Answer;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
-import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
+import com.sap.olingo.jpa.processor.cb.exceptions.NotImplementedException;
 import com.sap.olingo.jpa.processor.cb.impl.ExpressionImpl.DistinctExpression;
 import com.sap.olingo.jpa.processor.core.testmodel.Country;
 

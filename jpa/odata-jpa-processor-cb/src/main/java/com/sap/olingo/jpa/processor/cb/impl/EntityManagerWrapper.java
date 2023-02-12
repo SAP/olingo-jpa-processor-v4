@@ -26,7 +26,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.cb.ProcessorCriteriaBuilder;
-import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
+import com.sap.olingo.jpa.processor.cb.exceptions.NotImplementedException;
 
 public class EntityManagerWrapper implements EntityManager { // NOSONAR
   private static final Log LOG = LogFactory.getLog(EntityManagerWrapper.class);

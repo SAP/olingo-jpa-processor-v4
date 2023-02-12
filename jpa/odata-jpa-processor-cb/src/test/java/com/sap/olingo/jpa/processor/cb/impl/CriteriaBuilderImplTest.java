@@ -35,7 +35,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import com.sap.olingo.jpa.processor.cb.exeptions.NotImplementedException;
+import com.sap.olingo.jpa.processor.cb.exceptions.NotImplementedException;
 import com.sap.olingo.jpa.processor.cb.impl.ExpressionImpl.ParameterExpression;
 import com.sap.olingo.jpa.processor.cb.joiner.SqlConvertible;
 import com.sap.olingo.jpa.processor.core.testmodel.AccessRights;
@@ -568,7 +568,7 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  void testCreateLikeExpressionWithStrngLiteral() {
+  void testCreateLikeExpressionWithStringLiteral() {
     final String exp = "(E0.\"CodeID\" LIKE ?1 ESCAPE ?2)";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Expression<String> p = cut.literal("6-1");
@@ -577,7 +577,7 @@ class CriteriaBuilderImplTest extends BuilderBaseTest {
   }
 
   @Test
-  void testCreateNotLikeExpressionWithStrngLiteral() {
+  void testCreateNotLikeExpressionWithStringLiteral() {
     final String exp = "(NOT (E0.\"CodeID\" LIKE ?1 ESCAPE ?2))";
     final Root<?> adminDiv = q.from(AdministrativeDivision.class);
     final Expression<String> p = cut.literal("6-1");

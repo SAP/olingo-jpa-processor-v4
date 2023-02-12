@@ -447,7 +447,7 @@ class TestJPAQueryWhereClause extends TestBase {
   };
 
   @Test
-  void testFilterNavigationPropertyAndExandThatNavigationProperty() throws IOException,
+  void testFilterNavigationPropertyAndExpandThatNavigationProperty() throws IOException,
       ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
@@ -556,7 +556,7 @@ class TestJPAQueryWhereClause extends TestBase {
   }
 
   @Test
-  void testFilterCollectionSinplePropertyThrowsError() throws IOException, ODataException {
+  void testFilterCollectionSimplePropertyThrowsError() throws IOException, ODataException {
 
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
         "Organizations?$select=ID&$filter=contains(Comment, 'just')");

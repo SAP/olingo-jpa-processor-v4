@@ -223,7 +223,7 @@ class TestJPAQueryOrderByClause extends TestBase {
   }
 
   @Test
-  void testOrderByOnTransientPrimitveSimpleProperty() throws IOException, ODataException {
+  void testOrderByOnTransientPrimitiveSimpleProperty() throws IOException, ODataException {
 
     final JPAODataGroupsProvider groups = new JPAODataGroupsProvider();
     final IntegrationTestHelper helper = new IntegrationTestHelper(emf,
