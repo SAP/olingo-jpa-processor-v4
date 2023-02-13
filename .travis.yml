@@ -16,7 +16,7 @@ jobs:
           jdk: openjdk8
           script: cd ./jpa && mvn clean verify 
           after_success:
-              - mvn -q test jacoco:report coveralls:report
+              - mvn -q test jacoco:report
         - name: "JDK: sapmachine11"
           before_install:
             - curl -s "https://get.sdkman.io" | bash
