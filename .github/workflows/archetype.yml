@@ -1,4 +1,4 @@
-name: Build OData JPA Processor
+name: Build Archetype
 on:
   push:
     branches:
