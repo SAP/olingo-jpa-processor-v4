@@ -4,7 +4,7 @@ The JPA Processor generates out of the JPA annotations or metadata the correspon
 
 Our service has an entity set _Persons_, which shall be named _People_ instead.
 
-The names of the artifacts are created by a class implementing interface [JPAEdmNameBuilder](https://github.com/SAP/olingo-jpa-processor-v4/blob/master/jpa/odata-jpa-metadata/src/main/java/com/sap/olingo/jpa/metadata/core/edm/mapper/api/JPAEdmNameBuilder.java). As mentioned, for our service, we just want to override _Persons_. For the rest we take the default names.
+The names of the artifacts are created by a class implementing interface [JPAEdmNameBuilder](https://github.com/SAP/olingo-jpa-processor-v4/blob/main/jpa/odata-jpa-metadata/src/main/java/com/sap/olingo/jpa/metadata/core/edm/mapper/api/JPAEdmNameBuilder.java). As mentioned, for our service, we just want to override _Persons_. For the rest we take the default names.
 
 As a first step we create an implementation of `JPAEdmNameBuilder` called `APINameBuilder`. It creates an instance of `JPADefaultEdmNameBuilder` to fallback to the default names and returns `People` as entity set name for entity type `Person`:
 
