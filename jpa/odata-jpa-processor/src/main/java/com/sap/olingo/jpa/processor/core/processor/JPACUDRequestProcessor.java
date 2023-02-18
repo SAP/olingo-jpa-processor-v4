@@ -57,6 +57,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.core.api.JPACUDRequestHandler;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAODataTransactionFactory.JPAODataTransaction;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurment;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAInvocationTargetException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
@@ -88,85 +89,75 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
 
   public void clearFields(final ODataRequest request, final ODataResponse response) throws ODataJPAProcessException {
 
-    final int handle = debugger.startRuntimeMeasurement(this, "clearFields");
-    final JPACUDRequestHandler handler = requestContext.getCUDRequestHandler();
-    final EdmBindingTargetInfo edmEntitySetInfo = Util.determineBindingTargetAndKeys(uriInfo.getUriResourceParts());
+    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "clearFields")) {
+      final JPACUDRequestHandler handler = requestContext.getCUDRequestHandler();
+      final EdmBindingTargetInfo edmEntitySetInfo = Util.determineBindingTargetAndKeys(uriInfo.getUriResourceParts());
 
-    final JPARequestEntity requestEntity = createRequestEntity(edmEntitySetInfo, uriInfo.getUriResourceParts(), request
-        .getAllHeaders());
+      final JPARequestEntity requestEntity = createRequestEntity(edmEntitySetInfo, uriInfo.getUriResourceParts(),
+          request.getAllHeaders());
+      JPAODataTransaction ownTransaction = null;
+      final boolean foreignTransaction = requestContext.getTransactionFactory().hasActiveTransaction();
 
-    JPAODataTransaction ownTransaction = null;
-    final boolean foreignTransaction = requestContext.getTransactionFactory().hasActiveTransaction();
-
-    if (!foreignTransaction)
-      ownTransaction = requestContext.getTransactionFactory().createTransaction();
-    try {
-      final int updateHandle = debugger.startRuntimeMeasurement(handler, DEBUG_UPDATE_ENTITY);
-      handler.updateEntity(requestEntity, em, determineHttpVerb(request, uriInfo.getUriResourceParts()));
       if (!foreignTransaction)
-        handler.validateChanges(em);
-      debugger.stopRuntimeMeasurement(updateHandle);
-    } catch (final ODataJPAProcessException e) {
-      checkForRollback(ownTransaction, foreignTransaction);
-      debugger.stopRuntimeMeasurement(handle);
-      throw e;
-    } catch (final Exception e) {
-      checkForRollback(ownTransaction, foreignTransaction);
-      debugger.stopRuntimeMeasurement(handle);
-      throw new ODataJPAProcessorException(e, INTERNAL_SERVER_ERROR);
+        ownTransaction = requestContext.getTransactionFactory().createTransaction();
+      try (JPARuntimeMeasurment updateMeassument = debugger.newMeasurement(this, DEBUG_UPDATE_ENTITY)) {
+        handler.updateEntity(requestEntity, em, determineHttpVerb(request, uriInfo.getUriResourceParts()));
+        if (!foreignTransaction)
+          handler.validateChanges(em);
+      } catch (final ODataJPAProcessException e) {
+        checkForRollback(ownTransaction, foreignTransaction);
+        throw e;
+      } catch (final Exception e) {
+        checkForRollback(ownTransaction, foreignTransaction);
+        throw new ODataJPAProcessorException(e, INTERNAL_SERVER_ERROR);
+      }
+      if (!foreignTransaction)
+        ownTransaction.commit();
+      response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
     }
-    if (!foreignTransaction)
-      ownTransaction.commit();
-    debugger.stopRuntimeMeasurement(handle);
-    response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
   }
 
   public void createEntity(final ODataRequest request, final ODataResponse response, final ContentType requestFormat,
       final ContentType responseFormat) throws ODataApplicationException, ODataLibraryException {
 
-    final int handle = debugger.startRuntimeMeasurement(this, DEBUG_CREATE_ENTITY);
-    final JPACUDRequestHandler handler = requestContext.getCUDRequestHandler();
+    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, DEBUG_CREATE_ENTITY)) {
+      final JPACUDRequestHandler handler = requestContext.getCUDRequestHandler();
+      final EdmBindingTargetInfo edmEntitySetInfo = Util.determineModifyEntitySetAndKeys(uriInfo.getUriResourceParts());
+      final Entity odataEntity = helper.convertInputStream(odata, request, requestFormat, uriInfo
+          .getUriResourceParts());
 
-    final EdmBindingTargetInfo edmEntitySetInfo = Util.determineModifyEntitySetAndKeys(uriInfo.getUriResourceParts());
-    final Entity odataEntity = helper.convertInputStream(odata, request, requestFormat, uriInfo.getUriResourceParts());
+      final JPARequestEntity requestEntity = createRequestEntity(edmEntitySetInfo, odataEntity, request
+          .getAllHeaders());
 
-    final JPARequestEntity requestEntity = createRequestEntity(edmEntitySetInfo, odataEntity, request.getAllHeaders());
-
-    // Create entity
-    Object result = null;
-    JPAODataTransaction ownTransaction = null;
-    final boolean foreignTransaction = requestContext.getTransactionFactory().hasActiveTransaction();
-    if (!foreignTransaction)
-      ownTransaction = requestContext.getTransactionFactory().createTransaction();
-    try {
-      final int createHandle = debugger.startRuntimeMeasurement(handler, DEBUG_CREATE_ENTITY);
-      result = handler.createEntity(requestEntity, em);
+      // Create entity
+      Object result = null;
+      JPAODataTransaction ownTransaction = null;
+      final boolean foreignTransaction = requestContext.getTransactionFactory().hasActiveTransaction();
       if (!foreignTransaction)
-        handler.validateChanges(em);
-      debugger.stopRuntimeMeasurement(createHandle);
-    } catch (final ODataJPAProcessException e) {
-      checkForRollback(ownTransaction, foreignTransaction);
-      debugger.stopRuntimeMeasurement(handle);
-      throw e;
-    } catch (final Exception e) {
-      checkForRollback(ownTransaction, foreignTransaction);
-      debugger.stopRuntimeMeasurement(handle);
-      throw new ODataJPAProcessorException(e, INTERNAL_SERVER_ERROR);
+        ownTransaction = requestContext.getTransactionFactory().createTransaction();
+      try (JPARuntimeMeasurment createMeassument = debugger.newMeasurement(this, DEBUG_CREATE_ENTITY)) {
+        result = handler.createEntity(requestEntity, em);
+        if (!foreignTransaction)
+          handler.validateChanges(em);
+      } catch (final ODataJPAProcessException e) {
+        checkForRollback(ownTransaction, foreignTransaction);
+        throw e;
+      } catch (final Exception e) {
+        checkForRollback(ownTransaction, foreignTransaction);
+        throw new ODataJPAProcessorException(e, INTERNAL_SERVER_ERROR);
+      }
+
+      if (result != null && result.getClass() != requestEntity.getEntityType().getTypeClass()
+          && !(result instanceof Map<?, ?>)) {
+        checkForRollback(ownTransaction, foreignTransaction);
+        throw new ODataJPAProcessorException(WRONG_RETURN_TYPE, INTERNAL_SERVER_ERROR, result.getClass().toString(),
+            requestEntity.getEntityType().getTypeClass().toString());
+      }
+      if (!foreignTransaction)
+        ownTransaction.commit();
+
+      createCreateResponse(request, response, responseFormat, requestEntity, edmEntitySetInfo, result);
     }
-
-    if (result != null && result.getClass() != requestEntity.getEntityType().getTypeClass()
-        && !(result instanceof Map<?, ?>)) {
-      checkForRollback(ownTransaction, foreignTransaction);
-      debugger.stopRuntimeMeasurement(handle);
-      throw new ODataJPAProcessorException(WRONG_RETURN_TYPE, INTERNAL_SERVER_ERROR, result.getClass().toString(),
-          requestEntity.getEntityType().getTypeClass().toString());
-    }
-
-    if (!foreignTransaction)
-      ownTransaction.commit();
-
-    createCreateResponse(request, response, responseFormat, requestEntity, edmEntitySetInfo, result);
-    debugger.stopRuntimeMeasurement(handle);
   }
 
   /*
@@ -175,133 +166,129 @@ public final class JPACUDRequestProcessor extends JPAAbstractRequestProcessor {
    * DELETE http://host/service/Products(0)/Category/$ref
    */
   public void deleteEntity(final ODataRequest request, final ODataResponse response) throws ODataJPAProcessException {
-    final int handle = debugger.startRuntimeMeasurement(this, "deleteEntity");
-    final JPACUDRequestHandler handler = requestContext.getCUDRequestHandler();
-    final JPAEntityType et;
-    final Map<String, Object> jpaKeyPredicates = new HashMap<>();
 
-    // 1. Retrieve the entity set which belongs to the requested entity
-    final List<UriResource> resourcePaths = uriInfo.getUriResourceParts();
-    // Note: only in our example we can assume that the first segment is the EntitySet
-    final UriResourceEntitySet uriResourceEntitySet = (UriResourceEntitySet) resourcePaths.get(0);
-    final EdmEntitySet edmEntitySet = uriResourceEntitySet.getEntitySet();
+    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "deleteEntity")) {
+      final JPACUDRequestHandler handler = requestContext.getCUDRequestHandler();
+      final JPAEntityType et;
+      final Map<String, Object> jpaKeyPredicates = new HashMap<>();
 
-    // 2. Convert Key from URL to JPA
-    try {
-      et = sd.getEntity(edmEntitySet.getName());
-      if (et == null)
-        throw new ODataJPAProcessorException(ENTITY_TYPE_UNKNOWN, BAD_REQUEST, edmEntitySet.getName());
-      final List<UriParameter> uriKeyPredicates = uriResourceEntitySet.getKeyPredicates();
-      for (final UriParameter uriParam : uriKeyPredicates) {
-        final JPAAttribute attribute = et.getPath(uriParam.getName()).getLeaf();
-        jpaKeyPredicates.put(attribute.getInternalName(), ExpressionUtil.convertValueOnAttribute(odata, attribute,
-            uriParam.getText(), true));
+      // 1. Retrieve the entity set which belongs to the requested entity
+      final List<UriResource> resourcePaths = uriInfo.getUriResourceParts();
+      // Note: only in our example we can assume that the first segment is the EntitySet
+      final UriResourceEntitySet uriResourceEntitySet = (UriResourceEntitySet) resourcePaths.get(0);
+      final EdmEntitySet edmEntitySet = uriResourceEntitySet.getEntitySet();
+
+      // 2. Convert Key from URL to JPA
+      try {
+        et = sd.getEntity(edmEntitySet.getName());
+        if (et == null)
+          throw new ODataJPAProcessorException(ENTITY_TYPE_UNKNOWN, BAD_REQUEST, edmEntitySet.getName());
+        final List<UriParameter> uriKeyPredicates = uriResourceEntitySet.getKeyPredicates();
+        for (final UriParameter uriParam : uriKeyPredicates) {
+          final JPAAttribute attribute = et.getPath(uriParam.getName()).getLeaf();
+          jpaKeyPredicates.put(attribute.getInternalName(), ExpressionUtil.convertValueOnAttribute(odata, attribute,
+              uriParam.getText(), true));
+        }
+      } catch (final ODataException e) {
+        throw new ODataJPAProcessorException(e, BAD_REQUEST);
       }
-    } catch (final ODataException e) {
-      throw new ODataJPAProcessorException(e, BAD_REQUEST);
-    }
-    final JPARequestEntity requestEntity = createRequestEntity(et, jpaKeyPredicates, request.getAllHeaders());
+      final JPARequestEntity requestEntity = createRequestEntity(et, jpaKeyPredicates, request.getAllHeaders());
 
-    // 3. Perform Delete
-    JPAODataTransaction ownTransaction = null;
-    final boolean foreignTransaction = requestContext.getTransactionFactory().hasActiveTransaction();
-    if (!foreignTransaction)
-      ownTransaction = requestContext.getTransactionFactory().createTransaction();
-    try {
-      final int deleteHandle = debugger.startRuntimeMeasurement(handler, "deleteEntity");
-      handler.deleteEntity(requestEntity, em);
+      // 3. Perform Delete
+      JPAODataTransaction ownTransaction = null;
+      final boolean foreignTransaction = requestContext.getTransactionFactory().hasActiveTransaction();
       if (!foreignTransaction)
-        handler.validateChanges(em);
-      debugger.stopRuntimeMeasurement(deleteHandle);
-    } catch (final ODataJPAProcessException e) {
-      checkForRollback(ownTransaction, foreignTransaction);
-      debugger.stopRuntimeMeasurement(handle);
-      throw e;
-    } catch (final Throwable e) { // NOSONAR
-      checkForRollback(ownTransaction, foreignTransaction);
-      debugger.stopRuntimeMeasurement(handle);
-      throw new ODataJPAProcessorException(e, INTERNAL_SERVER_ERROR);
-    }
-    if (!foreignTransaction)
-      ownTransaction.commit();
+        ownTransaction = requestContext.getTransactionFactory().createTransaction();
+      try (JPARuntimeMeasurment deleteMeassument = debugger.newMeasurement(this, "deleteEntity")) {
+        handler.deleteEntity(requestEntity, em);
+        if (!foreignTransaction)
+          handler.validateChanges(em);
+      } catch (final ODataJPAProcessException e) {
+        checkForRollback(ownTransaction, foreignTransaction);
+        throw e;
+      } catch (final Throwable e) { // NOSONAR
+        checkForRollback(ownTransaction, foreignTransaction);
+        throw new ODataJPAProcessorException(e, INTERNAL_SERVER_ERROR);
+      }
+      if (!foreignTransaction)
+        ownTransaction.commit();
 
-    // 4. configure the response object
-    response.setStatusCode(NO_CONTENT.getStatusCode());
-    debugger.stopRuntimeMeasurement(handle);
+      // 4. configure the response object
+      response.setStatusCode(NO_CONTENT.getStatusCode());
+    }
   }
 
   public void updateEntity(final ODataRequest request, final ODataResponse response, final ContentType requestFormat,
       final ContentType responseFormat) throws ODataJPAProcessException, ODataLibraryException {
 
-    final int handle = debugger.startRuntimeMeasurement(this, DEBUG_UPDATE_ENTITY);
-    final JPACUDRequestHandler handler = requestContext.getCUDRequestHandler();
-    final EdmBindingTargetInfo edmEntitySetInfo = Util.determineModifyEntitySetAndKeys(uriInfo.getUriResourceParts());
-    final Entity odataEntity = helper.convertInputStream(odata, request, requestFormat, uriInfo.getUriResourceParts());
+    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, DEBUG_UPDATE_ENTITY)) {
+      final JPACUDRequestHandler handler = requestContext.getCUDRequestHandler();
+      final EdmBindingTargetInfo edmEntitySetInfo = Util.determineModifyEntitySetAndKeys(uriInfo.getUriResourceParts());
+      final Entity odataEntity = helper.convertInputStream(odata, request, requestFormat, uriInfo
+          .getUriResourceParts());
 
-    // http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752300
-    // 11.4.3 Update an Entity
-    // ...
-    // The entity MUST NOT contain related entities as inline content. It MAY contain binding information for
-    // navigation properties. For single-valued navigation properties this replaces the relationship. For
-    // collection-valued navigation properties this adds to the relationship.
-    // TODO navigation properties this replaces the relationship
-    final JPARequestEntity requestEntity = createRequestEntity(edmEntitySetInfo, odataEntity, request.getAllHeaders());
-
-    // Update entity
-    JPAUpdateResult updateResult = null;
-
-    JPAODataTransaction ownTransaction = null;
-    final boolean foreignTransaction = requestContext.getTransactionFactory().hasActiveTransaction();
-    if (!foreignTransaction)
-      ownTransaction = requestContext.getTransactionFactory().createTransaction();
-    try {
       // http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752300
       // 11.4.3 Update an Entity
-      // Services SHOULD support PATCH as the preferred means of updating an entity. ... .Services MAY additionally
-      // support PUT, but should be aware of the potential for data-loss in round-tripping properties that the client
-      // may not know about in advance, such as open or added properties, or properties not specified in metadata.
-      // 11.4.4 Upsert an Entity
-      // To ensure that an update request is not treated as an insert, the client MAY specify an If-Match header in the
-      // update request. The service MUST NOT treat an update request containing an If-Match header as an insert.
-      // A PUT or PATCH request MUST NOT be treated as an update if an If-None-Match header is specified with a value of
-      // "*".
-      updateResult = handler.updateEntity(requestEntity, em, determineHttpVerb(request, uriInfo.getUriResourceParts()));
+      // ...
+      // The entity MUST NOT contain related entities as inline content. It MAY contain binding information for
+      // navigation properties. For single-valued navigation properties this replaces the relationship. For
+      // collection-valued navigation properties this adds to the relationship.
+      // TODO navigation properties this replaces the relationship
+      final JPARequestEntity requestEntity = createRequestEntity(edmEntitySetInfo, odataEntity, request
+          .getAllHeaders());
+
+      // Update entity
+      JPAUpdateResult updateResult = null;
+
+      JPAODataTransaction ownTransaction = null;
+      final boolean foreignTransaction = requestContext.getTransactionFactory().hasActiveTransaction();
       if (!foreignTransaction)
-        handler.validateChanges(em);
-    } catch (final ODataJPAProcessException e) {
-      checkForRollback(ownTransaction, foreignTransaction);
-      throw e;
-    } catch (final Throwable e) {
-      checkForRollback(ownTransaction, foreignTransaction);
-      throw new ODataJPAProcessorException(e, INTERNAL_SERVER_ERROR);
-    } finally {
-      debugger.stopRuntimeMeasurement(handle);
-    }
-    if (updateResult == null) {
-      checkForRollback(ownTransaction, foreignTransaction);
-      debugger.stopRuntimeMeasurement(handle);
-      throw new ODataJPAProcessorException(RETURN_NULL, INTERNAL_SERVER_ERROR);
-    }
-    if (updateResult.getModifiedEntity() != null && !requestEntity.getEntityType().getTypeClass().isInstance(
-        updateResult.getModifiedEntity())) {
-      checkForRollback(ownTransaction, foreignTransaction);
-      debugger.stopRuntimeMeasurement(handle);
-      throw new ODataJPAProcessorException(WRONG_RETURN_TYPE, INTERNAL_SERVER_ERROR,
-          updateResult.getModifiedEntity().getClass().toString(), requestEntity.getEntityType().getTypeClass()
-              .toString());
-    }
-    if (!foreignTransaction)
-      ownTransaction.commit();
+        ownTransaction = requestContext.getTransactionFactory().createTransaction();
+      try {
+        // http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part1-protocol/odata-v4.0-errata03-os-part1-protocol-complete.html#_Toc453752300
+        // 11.4.3 Update an Entity
+        // Services SHOULD support PATCH as the preferred means of updating an entity. ... .Services MAY additionally
+        // support PUT, but should be aware of the potential for data-loss in round-tripping properties that the client
+        // may not know about in advance, such as open or added properties, or properties not specified in metadata.
+        // 11.4.4 Upsert an Entity
+        // To ensure that an update request is not treated as an insert, the client MAY specify an If-Match header in
+        // the
+        // update request. The service MUST NOT treat an update request containing an If-Match header as an insert.
+        // A PUT or PATCH request MUST NOT be treated as an update if an If-None-Match header is specified with a value
+        // of
+        // "*".
+        updateResult = handler.updateEntity(requestEntity, em, determineHttpVerb(request, uriInfo
+            .getUriResourceParts()));
+        if (!foreignTransaction)
+          handler.validateChanges(em);
+      } catch (final ODataJPAProcessException e) {
+        checkForRollback(ownTransaction, foreignTransaction);
+        throw e;
+      } catch (final Throwable e) {
+        checkForRollback(ownTransaction, foreignTransaction);
+        throw new ODataJPAProcessorException(e, INTERNAL_SERVER_ERROR);
+      }
+      if (updateResult == null) {
+        checkForRollback(ownTransaction, foreignTransaction);
+        throw new ODataJPAProcessorException(RETURN_NULL, INTERNAL_SERVER_ERROR);
+      }
+      if (updateResult.getModifiedEntity() != null && !requestEntity.getEntityType().getTypeClass().isInstance(
+          updateResult.getModifiedEntity())) {
+        checkForRollback(ownTransaction, foreignTransaction);
+        throw new ODataJPAProcessorException(WRONG_RETURN_TYPE, INTERNAL_SERVER_ERROR,
+            updateResult.getModifiedEntity().getClass().toString(), requestEntity.getEntityType().getTypeClass()
+                .toString());
+      }
+      if (!foreignTransaction)
+        ownTransaction.commit();
 
-    if (updateResult.wasCreate()) {
-      createCreateResponse(request, response, responseFormat, requestEntity.getEntityType(),
-          (EdmEntitySet) edmEntitySetInfo.getEdmBindingTarget(), updateResult.getModifiedEntity()); // Singleton
-      debugger.stopRuntimeMeasurement(handle);
-    } else {
-      createUpdateResponse(request, response, responseFormat, requestEntity, edmEntitySetInfo, updateResult);
-      debugger.stopRuntimeMeasurement(handle);
+      if (updateResult.wasCreate()) {
+        createCreateResponse(request, response, responseFormat, requestEntity.getEntityType(),
+            (EdmEntitySet) edmEntitySetInfo.getEdmBindingTarget(), updateResult.getModifiedEntity()); // Singleton
+      } else {
+        createUpdateResponse(request, response, responseFormat, requestEntity, edmEntitySetInfo, updateResult);
+      }
     }
-
   }
 
   private void checkForRollback(final JPAODataTransaction ownTransaction, final boolean foreignTransaction)

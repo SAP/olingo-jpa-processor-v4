@@ -6,6 +6,9 @@ import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
 
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AppliesTo;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.JPAReferences;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntitySet;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
@@ -23,9 +26,10 @@ final class IntermediateEntitySet extends IntermediateTopLevelEntity implements 
     JPAEntitySet {
   private CsdlEntitySet edmEntitySet;
 
-  IntermediateEntitySet(final JPAEdmNameBuilder nameBuilder, final IntermediateEntityType<?> et)
+  IntermediateEntitySet(final JPAEdmNameBuilder nameBuilder, final IntermediateEntityType<?> et,
+      final List<AnnotationProvider> annotationProvider, final JPAReferences references)
       throws ODataJPAModelException {
-    super(nameBuilder, et);
+    super(nameBuilder, et, annotationProvider, references);
     setExternalName(nameBuilder.buildEntitySetName(et.getEdmItem()));
   }
 
@@ -51,6 +55,7 @@ final class IntermediateEntitySet extends IntermediateTopLevelEntity implements 
   @Override
   protected synchronized void lazyBuildEdmItem() throws ODataJPAModelException {
     if (edmEntitySet == null) {
+      retrieveAnnotations();
       postProcessor.processEntitySet(this);
       edmEntitySet = new CsdlEntitySet();
 
@@ -75,4 +80,8 @@ final class IntermediateEntitySet extends IntermediateTopLevelEntity implements 
     return edmEntitySet;
   }
 
+  private void retrieveAnnotations() {
+    for (final AnnotationProvider provider : annotationProvider)
+      edmAnnotations.addAll(provider.getAnnotations(AppliesTo.ENTITY_SET, this, references));
+  }
 }

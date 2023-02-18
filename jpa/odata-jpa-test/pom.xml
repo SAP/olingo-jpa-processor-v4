@@ -6,9 +6,7 @@
 		<artifactId>odata-jpa</artifactId>
 		<version>1.1.1</version>
 	</parent>
-
 	<artifactId>odata-jpa-test</artifactId>
-
 	<name>odata-jpa-test</name>
 	<url>https://github.com/SAP/olingo-jpa-processor-v4</url>
 	<properties>
@@ -39,6 +37,11 @@
 		<dependency>
 			<groupId>com.sap.olingo</groupId>
 			<artifactId>odata-jpa-annotation</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sap.olingo</groupId>
+			<artifactId>odata-jpa-odata-vocabularies</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

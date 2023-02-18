@@ -15,6 +15,8 @@ import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlFunctionImport;
 import org.apache.olingo.commons.api.edm.provider.CsdlSingleton;
 
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.JPAReferences;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntitySet;
@@ -35,15 +37,20 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
   private final Map<String, IntermediateSchema> schemaList;
   private final Map<String, IntermediateEntitySet> entitySetListInternalKey;
   private final Map<String, IntermediateSingleton> singletonListInternalKey;
+  private final List<AnnotationProvider> annotationProvider;
+  private final JPAReferences refrences;
 
   private CsdlEntityContainer edmContainer;
 
-  IntermediateEntityContainer(final JPAEdmNameBuilder nameBuilder, final Map<String, IntermediateSchema> schemaList) {
+  IntermediateEntityContainer(final JPAEdmNameBuilder nameBuilder, final Map<String, IntermediateSchema> schemaList,
+      final List<AnnotationProvider> annotationProvider, final JPAReferences refrences) {
     super(nameBuilder, nameBuilder.buildContainerName());
     this.schemaList = schemaList;
     this.setExternalName(nameBuilder.buildContainerName());
     this.entitySetListInternalKey = new HashMap<>();
     this.singletonListInternalKey = new HashMap<>();
+    this.annotationProvider = annotationProvider;
+    this.refrences = refrences;
   }
 
   @Override
@@ -73,11 +80,11 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
     return edmContainer;
   }
 
-  IntermediateEntitySet getEntitySet(final String edmEntitySetName) throws ODataJPAModelException {
+  IntermediateTopLevelEntity getEntitySet(final String edmEntitySetName) throws ODataJPAModelException {
     if (edmContainer == null) {
       lazyBuildEdmItem();
     }
-    return (IntermediateEntitySet) findModelElementByEdmItem(edmEntitySetName,
+    return (IntermediateTopLevelEntity) findModelElementByEdmItem(edmEntitySetName,
         entitySetListInternalKey);
   }
 
@@ -117,7 +124,7 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
     for (final Entry<String, IntermediateSchema> schema : schemaList.entrySet()) {
       for (final IntermediateEntityType<?> et : schema.getValue().getEntityTypes()) {
         if ((!et.ignore() || et.asTopLevelOnly()) && et.asEntitySet()) {
-          final IntermediateEntitySet es = new IntermediateEntitySet(nameBuilder, et);
+          final IntermediateEntitySet es = new IntermediateEntitySet(nameBuilder, et, annotationProvider, refrences);
           entitySetListInternalKey.put(es.internalName, es);
         }
       }
@@ -134,7 +141,8 @@ final class IntermediateEntityContainer extends IntermediateModelElement impleme
     for (final Entry<String, IntermediateSchema> schema : schemaList.entrySet()) {
       for (final IntermediateEntityType<?> et : schema.getValue().getEntityTypes()) {
         if ((!et.ignore() || et.asTopLevelOnly()) && et.asSingleton()) {
-          final IntermediateSingleton singleton = new IntermediateSingleton(nameBuilder, et);
+          final IntermediateSingleton singleton = new IntermediateSingleton(nameBuilder, et, annotationProvider,
+              refrences);
           singletonListInternalKey.put(singleton.internalName, singleton);
         }
       }

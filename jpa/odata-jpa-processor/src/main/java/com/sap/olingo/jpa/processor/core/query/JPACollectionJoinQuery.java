@@ -37,6 +37,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAElement;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurment;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
@@ -55,21 +56,19 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
 
   @Override
   public JPACollectionQueryResult execute() throws ODataApplicationException {
-    final int handle = debugger.startRuntimeMeasurement(this, "executeStandardQuery");
-    try {
+
+    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "executeStandardQuery")) {
       final SelectionPathInfo<JPAPath> requestedSelection = buildSelectionPathList(this.uriResource);
       final TypedQuery<Tuple> tupleQuery = createTupleQuery(requestedSelection);
-      final int resultHandle = debugger.startRuntimeMeasurement(tupleQuery, "getResultList");
-      final List<Tuple> intermediateResult = tupleQuery.getResultList();
-      debugger.stopRuntimeMeasurement(resultHandle);
-
+      List<Tuple> intermediateResult;
+      try (JPARuntimeMeasurment resultMeassument = debugger.newMeasurement(this, "getResultList")) {
+        intermediateResult = tupleQuery.getResultList();
+      }
       final Map<String, List<Tuple>> result = convertResult(intermediateResult, association, 0, Long.MAX_VALUE);
       return new JPACollectionQueryResult(result, new HashMap<>(1), jpaEntity, this.association,
           requestedSelection.joinedRequested());
     } catch (final JPANoSelectionException e) {
       return new JPACollectionQueryResult(this.jpaEntity, association, Collections.emptyList());
-    } finally {
-      debugger.stopRuntimeMeasurement(handle);
     }
   }
 
@@ -132,26 +131,26 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
       final Collection<JPAPath> jpaPathList, final From<?, ?> target, final List<String> groups)
       throws ODataApplicationException { // NOSONAR Allow
     // subclasses to throw an exception
+    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "createSelectClause")) {
+      final List<Selection<?>> selections = new ArrayList<>();
+      // Based on an error in Eclipse Link first the join columns have to be selected. Otherwise the alias is assigned
+      // to
+      // the wrong column. E.g. if Organization Comment shall be read Eclipse Link automatically selects also the Order
+      // column and if the join column is added later the select clause would look as follows: SELECT t0."Text,
+      // t0."Order", t1,"ID". Eclipse Link will then return the value of the Order column for the alias of the ID
+      // column.
+      createAdditionSelectionForJoinTable(selections);
 
-    final int handle = debugger.startRuntimeMeasurement(this, "createSelectClause");
-    final List<Selection<?>> selections = new ArrayList<>();
-    // Based on an error in Eclipse Link first the join columns have to be selected. Otherwise the alias is assigned to
-    // the wrong column. E.g. if Organization Comment shall be read Eclipse Link automatically selects also the Order
-    // column and if the join column is added later the select clause would look as follows: SELECT t0."Text,
-    // t0."Order", t1,"ID". Eclipse Link will then return the value of the Order column for the alias of the ID column.
-    createAdditionSelectionForJoinTable(selections);
-
-    // Build select clause
-    for (final JPAPath jpaPath : jpaPathList) {
-      if (jpaPath.isPartOfGroups(groups)) {
-        final Path<?> p = ExpressionUtil.convertToCriteriaPath(joinTables, target, jpaPath.getPath());
-        p.alias(jpaPath.getAlias());
-        selections.add(p);
+      // Build select clause
+      for (final JPAPath jpaPath : jpaPathList) {
+        if (jpaPath.isPartOfGroups(groups)) {
+          final Path<?> p = ExpressionUtil.convertToCriteriaPath(joinTables, target, jpaPath.getPath());
+          p.alias(jpaPath.getAlias());
+          selections.add(p);
+        }
       }
+      return selections;
     }
-
-    debugger.stopRuntimeMeasurement(handle);
-    return selections;
   }
 
   /**
@@ -238,52 +237,43 @@ public class JPACollectionJoinQuery extends JPAAbstractJoinQuery {
   private TypedQuery<Tuple> createTupleQuery(final SelectionPathInfo<JPAPath> selectionPath)
       throws ODataApplicationException,
       JPANoSelectionException {
-    final int handle = debugger.startRuntimeMeasurement(this, "createTupleQuery");
 
-    final Map<String, From<?, ?>> joinTables = createFromClause(new ArrayList<>(1),
-        selectionPath.joinedPersistent(), cq, lastInfo);
-    // TODO handle Join Column is ignored
-    cq.multiselect(createSelectClause(joinTables, selectionPath.joinedPersistent(), target, groups));
-    cq.distinct(true);
-    final javax.persistence.criteria.Expression<Boolean> whereClause = createWhere();
-    if (whereClause != null)
-      cq.where(whereClause);
+    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "createTupleQuery")) {
+      final Map<String, From<?, ?>> joinTables = createFromClause(new ArrayList<>(1),
+          selectionPath.joinedPersistent(), cq, lastInfo);
+      // TODO handle Join Column is ignored
+      cq.multiselect(createSelectClause(joinTables, selectionPath.joinedPersistent(), target, groups));
+      cq.distinct(true);
+      final javax.persistence.criteria.Expression<Boolean> whereClause = createWhere();
+      if (whereClause != null)
+        cq.where(whereClause);
 
-    final List<Order> orderBy = createOrderByJoinCondition(association);
-    orderBy.addAll(new JPAOrderByBuilder(jpaEntity, target, cb, groups).createOrderByList(joinTables));
-    cq.orderBy(orderBy);
+      final List<Order> orderBy = createOrderByJoinCondition(association);
+      orderBy.addAll(new JPAOrderByBuilder(jpaEntity, target, cb, groups).createOrderByList(joinTables));
+      cq.orderBy(orderBy);
 
-    final TypedQuery<Tuple> query = em.createQuery(cq);
-    debugger.stopRuntimeMeasurement(handle);
-    return query;
+      return em.createQuery(cq);
+    }
   }
 
   private Expression<Boolean> createWhere() throws ODataApplicationException {
 
-    final int handle = debugger.startRuntimeMeasurement(this, "createWhere");
-
-    javax.persistence.criteria.Expression<Boolean> whereCondition = null;
-    // Given keys: Organizations('1')/Roles(...)
-    try {
+    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "createWhere")) {
+      javax.persistence.criteria.Expression<Boolean> whereCondition = null;
+      // Given keys: Organizations('1')/Roles(...)
       whereCondition = createKeyWhere(navigationInfo);
       whereCondition = addWhereClause(whereCondition, createBoundary(navigationInfo, keyBoundary));
-    } catch (final ODataApplicationException e) {
-      debugger.stopRuntimeMeasurement(handle);
-      throw e;
-    }
-
-    for (final JPANavigationPropertyInfo info : this.navigationInfo) {
-      if (info.getFilterCompiler() != null) {
-        try {
-          whereCondition = addWhereClause(whereCondition, info.getFilterCompiler().compile());
-        } catch (final ExpressionVisitException e) {
-          debugger.stopRuntimeMeasurement(handle);
-          throw new ODataJPAQueryException(QUERY_PREPARATION_FILTER_ERROR, BAD_REQUEST, e);
+      for (final JPANavigationPropertyInfo info : this.navigationInfo) {
+        if (info.getFilterCompiler() != null) {
+          try {
+            whereCondition = addWhereClause(whereCondition, info.getFilterCompiler().compile());
+          } catch (final ExpressionVisitException e) {
+            throw new ODataJPAQueryException(QUERY_PREPARATION_FILTER_ERROR, BAD_REQUEST, e);
+          }
         }
       }
+      return whereCondition;
     }
-    debugger.stopRuntimeMeasurement(handle);
-    return whereCondition;
   }
 
   private From<?, ?> determineParentFrom() throws ODataJPAQueryException {

@@ -27,6 +27,7 @@ import org.apache.olingo.server.api.prefer.Preferences;
 import org.apache.olingo.server.api.processor.BatchProcessor;
 
 import com.sap.olingo.jpa.processor.core.api.JPAODataTransactionFactory.JPAODataTransaction;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurment;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPATransactionException;
 
@@ -62,25 +63,25 @@ public class JPAODataBatchProcessor implements BatchProcessor {
   public final void processBatch(final BatchFacade facade, final ODataRequest request, final ODataResponse response)
       throws ODataApplicationException, ODataLibraryException {
 
-    final int handle = requestContext.getDebugger().startRuntimeMeasurement(this, "processBatch");
-    final String boundary = facade.extractBoundaryFromContentType(request.getHeader(HttpHeader.CONTENT_TYPE));
-    final BatchOptions options = BatchOptions.with()
-        .rawBaseUri(request.getRawBaseUri())
-        .rawServiceResolutionUri(request.getRawServiceResolutionUri())
-        .build();
-    final List<BatchRequestPart> requestParts = odata.createFixedFormatDeserializer()
-        .parseBatchRequest(request.getBody(), boundary, options);
-    final List<ODataResponsePart> responseParts = executeBatchParts(facade, requestParts,
-        continueOnError(odata.createPreferences(request.getHeaders(HttpHeader.PREFER))));
+    try (JPARuntimeMeasurment meassument = requestContext.getDebugger().newMeasurement(this, "processBatch")) {
+      final String boundary = facade.extractBoundaryFromContentType(request.getHeader(HttpHeader.CONTENT_TYPE));
+      final BatchOptions options = BatchOptions.with()
+          .rawBaseUri(request.getRawBaseUri())
+          .rawServiceResolutionUri(request.getRawServiceResolutionUri())
+          .build();
+      final List<BatchRequestPart> requestParts = odata.createFixedFormatDeserializer()
+          .parseBatchRequest(request.getBody(), boundary, options);
+      final List<ODataResponsePart> responseParts = executeBatchParts(facade, requestParts,
+          continueOnError(odata.createPreferences(request.getHeaders(HttpHeader.PREFER))));
 
-    final String responseBoundary = "batch_" + UUID.randomUUID().toString();
-    final InputStream responseContent = odata.createFixedFormatSerializer().batchResponse(responseParts,
-        responseBoundary);
+      final String responseBoundary = "batch_" + UUID.randomUUID().toString();
+      final InputStream responseContent = odata.createFixedFormatSerializer().batchResponse(responseParts,
+          responseBoundary);
 
-    response.setHeader(HttpHeader.CONTENT_TYPE, ContentType.MULTIPART_MIXED + ";boundary=" + responseBoundary);
-    response.setContent(responseContent);
-    response.setStatusCode(HttpStatusCode.ACCEPTED.getStatusCode());
-    requestContext.getDebugger().stopRuntimeMeasurement(handle);
+      response.setHeader(HttpHeader.CONTENT_TYPE, ContentType.MULTIPART_MIXED + ";boundary=" + responseBoundary);
+      response.setContent(responseContent);
+      response.setStatusCode(HttpStatusCode.ACCEPTED.getStatusCode());
+    }
   }
 
   protected List<ODataResponsePart> executeBatchParts(final BatchFacade facade,
@@ -100,7 +101,8 @@ public class JPAODataBatchProcessor implements BatchProcessor {
   }
 
   /**
-   * Processing one change set of a $batch request. <p>
+   * Processing one change set of a $batch request.
+   * <p>
    * <i>OData Version 4.0 Part 1: Protocol Plus Errata 02 11.7.4 Responding
    * to a Batch Request</i> states: <br>
    * <cite>All operations in a change set represent a single change unit so a
@@ -127,9 +129,8 @@ public class JPAODataBatchProcessor implements BatchProcessor {
      * To keep things simple, we dispatch the requests within the Change Set
      * to the other processor interfaces.
      */
-    final int handle = requestContext.getDebugger().startRuntimeMeasurement(this, "processChangeSet");
     final List<ODataResponse> responses = new ArrayList<>();
-    try {
+    try (JPARuntimeMeasurment meassument = requestContext.getDebugger().newMeasurement(this, "processChangeSet")) {
       final JPAODataTransaction t = requestContext.getTransactionFactory().createTransaction();
       try {
         for (final ODataRequest request : requests) {
@@ -166,26 +167,21 @@ public class JPAODataBatchProcessor implements BatchProcessor {
              * ODataResponsePart and setting the second parameter
              * "isChangeSet" to false.
              */
-            requestContext.getDebugger().stopRuntimeMeasurement(handle);
             return new ODataResponsePart(response, false);
           }
         }
         requestContext.getCUDRequestHandler().validateChanges(requestContext.getEntityManager());
         t.commit();
-        requestContext.getDebugger().stopRuntimeMeasurement(handle);
         return new ODataResponsePart(responses, true);
       } catch (ODataApplicationException | ODataLibraryException e) {
         // In case of ODataLibraryException the batch request is malformed or the processor implementation is not
         // correct. Throwing an exception will stop the whole batch request not only the Change Set!
         t.rollback();
-        requestContext.getDebugger().stopRuntimeMeasurement(handle);
         throw e;
       } catch (final RollbackException e) {
         if (e.getCause() instanceof OptimisticLockException) {
-          requestContext.getDebugger().stopRuntimeMeasurement(handle);
           throw new ODataJPAProcessorException(e.getCause().getCause(), HttpStatusCode.PRECONDITION_FAILED);
         }
-        requestContext.getDebugger().stopRuntimeMeasurement(handle);
         throw new ODataJPAProcessorException(e, HttpStatusCode.INTERNAL_SERVER_ERROR);
       }
     } catch (final ODataJPATransactionException e) {
@@ -194,14 +190,16 @@ public class JPAODataBatchProcessor implements BatchProcessor {
   }
 
   /**
-   * OData Version 4.0 Part 1: Protocol Plus Errata 02 11.7.2 Batch Request Body states: <p>
+   * OData Version 4.0 Part 1: Protocol Plus Errata 02 11.7.2 Batch Request Body states:
+   * <p>
    * <cite>
    * The service MUST process the requests within a batch request sequentially. Processing stops on the first error
    * unless the odata.continue-on-error preference is specified. </cite>
    * <p>
    *
    * <i>odata.continue-on-error</i> is explained in OData Version 4.0 Part 1: Protocol Plus Errata 02 8.2.8.3 Preference
-   * odata.continue-on-error and states:<p>
+   * odata.continue-on-error and states:
+   * <p>
    * <cite>
    * The odata.continue-on-error preference on a batch request is used to request that, upon encountering a request
    * within the batch that returns an error, the service return the error for that request and continue processing

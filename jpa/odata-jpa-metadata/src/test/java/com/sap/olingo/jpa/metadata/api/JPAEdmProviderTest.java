@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Collections;
 import java.util.List;
 
 import javax.persistence.EntityManagerFactory;
@@ -96,7 +97,7 @@ class JPAEdmProviderTest {
   @Test
   void checkGetSchemas() throws ODataException {
     final JPAEdmNameBuilder nameBuilder = new CustomJPANameBuilder();
-    cut = new JPAEdmProvider(emf.getMetamodel(), null, null, nameBuilder);
+    cut = new JPAEdmProvider(emf.getMetamodel(), null, null, nameBuilder, Collections.emptyList());
     final JPAServiceDocument act = cut.getServiceDocument();
     assertNotNull(act);
     assertEquals(nameBuilder, act.getNameBuilder());

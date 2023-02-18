@@ -31,6 +31,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurment;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 /**
@@ -61,12 +62,9 @@ public final class JPAExpandJoinCountQuery extends JPAAbstractExpandQuery {
 
   @Override
   public JPAExpandQueryResult execute() throws ODataApplicationException {
-    final int handle = debugger.startRuntimeMeasurement(this, "execute");
-    try {
-      //
+
+    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "execute")) {
       return null;
-    } finally {
-      debugger.stopRuntimeMeasurement(handle);
     }
   }
 
@@ -102,23 +100,23 @@ public final class JPAExpandJoinCountQuery extends JPAAbstractExpandQuery {
 
   @Override
   final Map<String, Long> count() throws ODataApplicationException {
-    final int handle = debugger.startRuntimeMeasurement(this, "count");
 
-    if (countRequested(lastInfo)) {
-      final CriteriaQuery<Tuple> countQuery = cb.createTupleQuery();
-      createCountFrom(countQuery);
-      final List<Selection<?>> selectionPath = buildExpandJoinPath(target);
-      countQuery.multiselect(addCount(selectionPath));
-      final javax.persistence.criteria.Expression<Boolean> whereClause = createWhere();
-      if (whereClause != null)
-        countQuery.where(whereClause);
-      countQuery.groupBy(buildExpandCountGroupBy(target));
-      final TypedQuery<Tuple> query = em.createQuery(countQuery);
-      final List<Tuple> intermediateResult = query.getResultList();
-      return convertCountResult(intermediateResult);
+    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "count")) {
+      if (countRequested(lastInfo)) {
+        final CriteriaQuery<Tuple> countQuery = cb.createTupleQuery();
+        createCountFrom(countQuery);
+        final List<Selection<?>> selectionPath = buildExpandJoinPath(target);
+        countQuery.multiselect(addCount(selectionPath));
+        final javax.persistence.criteria.Expression<Boolean> whereClause = createWhere();
+        if (whereClause != null)
+          countQuery.where(whereClause);
+        countQuery.groupBy(buildExpandCountGroupBy(target));
+        final TypedQuery<Tuple> query = em.createQuery(countQuery);
+        final List<Tuple> intermediateResult = query.getResultList();
+        return convertCountResult(intermediateResult);
+      }
+      return emptyMap();
     }
-    debugger.stopRuntimeMeasurement(handle);
-    return emptyMap();
   }
 
   void createCountFrom(final CriteriaQuery<Tuple> countQuery) throws ODataJPAQueryException {
@@ -137,8 +135,7 @@ public final class JPAExpandJoinCountQuery extends JPAAbstractExpandQuery {
 
   private Expression<Boolean> createWhere() throws ODataApplicationException {
 
-    final int handle = debugger.startRuntimeMeasurement(this, "createWhere");
-    try {
+    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "createWhere")) {
       javax.persistence.criteria.Expression<Boolean> whereCondition = null;
       // Given keys: Organizations('1')/Roles(...)
       whereCondition = createKeyWhere(navigationInfo);
@@ -146,8 +143,6 @@ public final class JPAExpandJoinCountQuery extends JPAAbstractExpandQuery {
       whereCondition = addWhereClause(whereCondition, createExpandWhere());
       whereCondition = addWhereClause(whereCondition, createProtectionWhere(claimsProvider));
       return whereCondition;
-    } finally {
-      debugger.stopRuntimeMeasurement(handle);
     }
   }
 

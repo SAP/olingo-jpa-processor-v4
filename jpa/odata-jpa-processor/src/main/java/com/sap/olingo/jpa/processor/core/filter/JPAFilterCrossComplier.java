@@ -21,6 +21,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurment;
 import com.sap.olingo.jpa.processor.core.query.JPAAbstractQuery;
 
 /**
@@ -89,17 +90,14 @@ public final class JPAFilterCrossComplier extends JPAAbstractFilter {
   @Override
   @SuppressWarnings("unchecked")
   public Expression<Boolean> compile() throws ExpressionVisitException, ODataApplicationException {
-    final int handle = parent.getDebugger().startRuntimeMeasurement("JPAFilterCrossComplier", "compile");
 
-    if (expression == null) {
-      parent.getDebugger().stopRuntimeMeasurement(handle);
-      return null;
+    try (JPARuntimeMeasurment meassument = parent.getDebugger().newMeasurement(this, "firstTest")) {
+      if (expression == null) {
+        return null;
+      }
+      final ExpressionVisitor<JPAOperator> visitor = new JPAVisitor(this);
+      return (Expression<Boolean>) expression.accept(visitor).get();
     }
-    final ExpressionVisitor<JPAOperator> visitor = new JPAVisitor(this);
-    final Expression<Boolean> finalExpression = (Expression<Boolean>) expression.accept(visitor).get();
-
-    parent.getDebugger().stopRuntimeMeasurement(handle);
-    return finalExpression;
   }
 
   @Override

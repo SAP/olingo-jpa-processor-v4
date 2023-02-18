@@ -44,6 +44,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurment;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAFilterException;
 import com.sap.olingo.jpa.processor.core.query.Util;
 
@@ -88,8 +89,7 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
   public JPAOperator visitBinaryOperator(final BinaryOperatorKind operator, final JPAOperator left,
       final JPAOperator right) throws ExpressionVisitException, ODataApplicationException {
 
-    final int handle = debugger.startRuntimeMeasurement(this, "visitBinaryOperator"); // NOSONAR
-    try {
+    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "visitBinaryOperator")) {
       if (operator == BinaryOperatorKind.AND || operator == BinaryOperatorKind.OR) {
         // Connecting operations have to be handled first, as JPANavigationOperation do not need special treatment
         return new JPABooleanOperatorImp(this.jpaComplier.getConverter(), operator, (JPAExpression) left,
@@ -115,8 +115,6 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
           || operator == BinaryOperatorKind.MOD) {
         return new JPAArithmeticOperatorImp(this.jpaComplier.getConverter(), operator, left, right);
       }
-    } finally {
-      debugger.stopRuntimeMeasurement(handle);
     }
     throw new ODataJPAFilterException(NOT_SUPPORTED_OPERATOR, NOT_IMPLEMENTED, operator.name());
   }
@@ -132,20 +130,19 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
   public JPAEnumerationOperator visitEnum(final EdmEnumType type, final List<String> enumValues)
       throws ExpressionVisitException, ODataApplicationException {
 
-    final int handle = debugger.startRuntimeMeasurement(this, "visitEnum");
-    final JPAEnumerationAttribute jpaEnumerationAttribute = this.jpaComplier.getSd().getEnumType(type);
-    try {
-      if (jpaEnumerationAttribute == null)
-        throw new IllegalArgumentException(type.getFullQualifiedName().getFullQualifiedNameAsString() + " unknown");
-      if (!jpaEnumerationAttribute.isFlags() && enumValues.size() > 1)
-        throw new ODataJPAFilterException(NOT_SUPPORTED_FILTER, NOT_IMPLEMENTED,
-            "Collection of Enumerations if not flags");
-    } catch (final ODataJPAModelException | IllegalArgumentException e) {
-      throw new ODataJPAFilterException(e, INTERNAL_SERVER_ERROR);
-    } finally {
-      debugger.stopRuntimeMeasurement(handle);
+    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "visitEnum")) {
+      final JPAEnumerationAttribute jpaEnumerationAttribute = this.jpaComplier.getSd().getEnumType(type);
+      try {
+        if (jpaEnumerationAttribute == null)
+          throw new IllegalArgumentException(type.getFullQualifiedName().getFullQualifiedNameAsString() + " unknown");
+        if (!jpaEnumerationAttribute.isFlags() && enumValues.size() > 1)
+          throw new ODataJPAFilterException(NOT_SUPPORTED_FILTER, NOT_IMPLEMENTED,
+              "Collection of Enumerations if not flags");
+      } catch (final ODataJPAModelException | IllegalArgumentException e) {
+        throw new ODataJPAFilterException(e, INTERNAL_SERVER_ERROR);
+      }
+      return new JPAEnumerationOperator(this.jpaComplier.getSd().getEnumType(type), enumValues);
     }
-    return new JPAEnumerationOperator(this.jpaComplier.getSd().getEnumType(type), enumValues);
   }
 
   @Override
@@ -165,62 +162,59 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
 
   @Override
   public JPAOperator visitLiteral(final Literal literal) throws ExpressionVisitException, ODataApplicationException {
-    final int handle = debugger.startRuntimeMeasurement(this, "visitBinaryOperator");
-    debugger.stopRuntimeMeasurement(handle);
-    return new JPALiteralOperator(this.jpaComplier.getOData(), literal);
+
+    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "visitLiteral")) {
+      return new JPALiteralOperator(this.jpaComplier.getOData(), literal);
+    }
   }
 
   @Override
   public JPAOperator visitMember(final Member member) throws ExpressionVisitException, ODataApplicationException {
 
-    final int handle = debugger.startRuntimeMeasurement(this, "visitMember");
-    final JPAPath attributePath = determineAttributePath(this.jpaComplier.getJpaEntityType(), member,
-        jpaComplier.getAssociation());
-    checkTransient(attributePath);
-    if (getLambdaType(member.getResourcePath()) == UriResourceKind.lambdaAny) {
-      debugger.stopRuntimeMeasurement(handle);
-      return new JPALambdaAnyOperation(this.jpaComplier, member);
-    } else if (getLambdaType(member.getResourcePath()) == UriResourceKind.lambdaAll) {
-      debugger.stopRuntimeMeasurement(handle);
-      return new JPALambdaAllOperation(this.jpaComplier, member);
-    } else if (isAggregation(member.getResourcePath())) {
-      debugger.stopRuntimeMeasurement(handle);
-      return new JPAAggregationOperationImp(jpaComplier.getRoot(), jpaComplier.getConverter());
-    } else if (isCustomFunction(member.getResourcePath())) {
-      final UriResource resource = member.getResourcePath().getUriResourceParts().get(0);
-      final JPAFunction jpaFunction = this.jpaComplier.getSd().getFunction(
-          ((UriResourceFunction) resource).getFunction());
-      debugger.stopRuntimeMeasurement(handle);
-      if (jpaFunction instanceof JPADataBaseFunction) {
-        final List<UriParameter> odataParams = ((UriResourceFunction) resource).getParameters();
-        return new JPADBFunctionOperator(this, odataParams, (JPADataBaseFunction) jpaFunction);
-      } else
-        return new JPAJavaFunctionOperator(this, (UriResourceFunction) resource, (JPAJavaFunction) jpaFunction);
+    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "visitMember")) {
+      final JPAPath attributePath = determineAttributePath(this.jpaComplier.getJpaEntityType(), member,
+          jpaComplier.getAssociation());
+      checkTransient(attributePath);
+      if (getLambdaType(member.getResourcePath()) == UriResourceKind.lambdaAny) {
+        return new JPALambdaAnyOperation(this.jpaComplier, member);
+      } else if (getLambdaType(member.getResourcePath()) == UriResourceKind.lambdaAll) {
+        return new JPALambdaAllOperation(this.jpaComplier, member);
+      } else if (isAggregation(member.getResourcePath())) {
+        return new JPAAggregationOperationImp(jpaComplier.getRoot(), jpaComplier.getConverter());
+      } else if (isCustomFunction(member.getResourcePath())) {
+        final UriResource resource = member.getResourcePath().getUriResourceParts().get(0);
+        final JPAFunction jpaFunction = this.jpaComplier.getSd().getFunction(
+            ((UriResourceFunction) resource).getFunction());
+        if (jpaFunction instanceof JPADataBaseFunction) {
+          final List<UriParameter> odataParams = ((UriResourceFunction) resource).getParameters();
+          return new JPADBFunctionOperator(this, odataParams, (JPADataBaseFunction) jpaFunction);
+        } else
+          return new JPAJavaFunctionOperator(this, (UriResourceFunction) resource, (JPAJavaFunction) jpaFunction);
+      }
+      return new JPAMemberOperator(this.jpaComplier.getRoot(), member, jpaComplier
+          .getAssociation(), this.jpaComplier.getGroups(), attributePath);
     }
-    debugger.stopRuntimeMeasurement(handle);
-    return new JPAMemberOperator(this.jpaComplier.getRoot(), member, jpaComplier
-        .getAssociation(), this.jpaComplier.getGroups(), attributePath);
   }
 
   @Override
   public JPAOperator visitMethodCall(final MethodKind methodCall, final List<JPAOperator> parameters)
       throws ExpressionVisitException, ODataApplicationException {
 
-    final int handle = debugger.startRuntimeMeasurement(this, "visitMethodCall");
-    if (!parameters.isEmpty()) {
-      if (parameters.get(0) instanceof JPANavigationOperation ||
-          (parameters.size() == 2 && parameters.get(1) instanceof JPANavigationOperation))
-        throw new ODataJPAFilterException(NOT_SUPPORTED_FILTER, NOT_IMPLEMENTED,
-            "Nested method calls together with navigation");
-      if (hasNavigation(parameters.get(0)) || (parameters.size() == 2 && hasNavigation(parameters.get(1)))) {
-        return new JPANavigationOperation(this.jpaComplier, methodCall, parameters);
+    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "visitMethodCall")) {
+      if (!parameters.isEmpty()) {
+        if (parameters.get(0) instanceof JPANavigationOperation ||
+            (parameters.size() == 2 && parameters.get(1) instanceof JPANavigationOperation))
+          throw new ODataJPAFilterException(NOT_SUPPORTED_FILTER, NOT_IMPLEMENTED,
+              "Nested method calls together with navigation");
+        if (hasNavigation(parameters.get(0)) || (parameters.size() == 2 && hasNavigation(parameters.get(1)))) {
+          return new JPANavigationOperation(this.jpaComplier, methodCall, parameters);
+        }
       }
+      JPAMethodCall method = new JPAMethodCallImp(this.jpaComplier.getConverter(), methodCall, parameters);
+      if (method.get() instanceof Predicate)
+        method = new JPAMethodBasedExpression(this.jpaComplier.getConverter(), methodCall, parameters);
+      return method;
     }
-    JPAMethodCall method = new JPAMethodCallImp(this.jpaComplier.getConverter(), methodCall, parameters);
-    if (method.get() instanceof Predicate)
-      method = new JPAMethodBasedExpression(this.jpaComplier.getConverter(), methodCall, parameters);
-    debugger.stopRuntimeMeasurement(handle);
-    return method;
   }
 
   @Override
@@ -231,13 +225,14 @@ class JPAVisitor implements JPAExpressionVisitor { // NOSONAR
   @Override
   public JPAOperator visitUnaryOperator(final UnaryOperatorKind operator, final JPAOperator operand)
       throws ExpressionVisitException, ODataApplicationException {
-    final int handle = debugger.startRuntimeMeasurement(this, "visitBinaryOperator");
-    if (operator == UnaryOperatorKind.NOT) {
-      debugger.stopRuntimeMeasurement(handle);
-      return new JPAUnaryBooleanOperatorImp(this.jpaComplier.getConverter(), operator, (JPAExpression) operand);
-    } else {
-      debugger.stopRuntimeMeasurement(handle);
-      throw new ODataJPAFilterException(NOT_SUPPORTED_OPERATOR, NOT_IMPLEMENTED, operator.name());
+
+    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "visitUnaryOperator")) {
+
+      if (operator == UnaryOperatorKind.NOT) {
+        return new JPAUnaryBooleanOperatorImp(this.jpaComplier.getConverter(), operator, (JPAExpression) operand);
+      } else {
+        throw new ODataJPAFilterException(NOT_SUPPORTED_OPERATOR, NOT_IMPLEMENTED, operator.name());
+      }
     }
   }
 

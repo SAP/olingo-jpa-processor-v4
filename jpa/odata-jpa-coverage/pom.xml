@@ -38,12 +38,27 @@
         </dependency>
         <dependency>
             <groupId>com.sap.olingo</groupId>
+            <artifactId>odata-jpa-processor-ext</artifactId>
+            <version>${project.version}</version>
+        </dependency>        
+        <dependency>
+            <groupId>com.sap.olingo</groupId>
             <artifactId>odata-jpa-test</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sap.olingo</groupId>
+            <artifactId>odata-jpa-odata-vocabularies</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sap.olingo</groupId>
             <artifactId>odata-jpa-processor-parallel</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sap.olingo</groupId>
+            <artifactId>odata-jpa-vocabularies</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

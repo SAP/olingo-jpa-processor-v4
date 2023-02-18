@@ -31,6 +31,8 @@ import org.reflections8.util.ConfigurationBuilder;
 import org.reflections8.util.FilterBuilder;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataVocabularyReadException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAction;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntitySet;
@@ -62,9 +64,10 @@ class IntermediateServiceDocument implements JPAServiceDocument {
   private Map<String, JPAProtectionInfo> claims;
 
   IntermediateServiceDocument(final String namespace, final Metamodel jpaMetamodel,
-      final JPAEdmMetadataPostProcessor postProcessor, final String[] packageName) throws ODataJPAModelException {
+      final JPAEdmMetadataPostProcessor postProcessor, final String[] packageName,
+      final List<AnnotationProvider> annotationProvider) throws ODataJPAModelException {
 
-    this(new JPADefaultEdmNameBuilder(namespace), jpaMetamodel, postProcessor, packageName);
+    this(new JPADefaultEdmNameBuilder(namespace), jpaMetamodel, postProcessor, packageName, annotationProvider);
   }
 
   /**
@@ -72,10 +75,12 @@ class IntermediateServiceDocument implements JPAServiceDocument {
    * @param metamodel
    * @param postProcessor
    * @param packageName
+   * @param annotationProvider
    * @throws ODataJPAModelException
    */
   IntermediateServiceDocument(final JPAEdmNameBuilder nameBuilder, final Metamodel jpaMetamodel,
-      final JPAEdmMetadataPostProcessor postProcessor, final String[] packageName) throws ODataJPAModelException {
+      final JPAEdmMetadataPostProcessor postProcessor, final String[] packageName,
+      final List<AnnotationProvider> annotationProvider) throws ODataJPAModelException {
 
     this.pP = postProcessor != null ? postProcessor : new DefaultEdmPostProcessor();
     IntermediateModelElement.setPostProcessor(pP);
@@ -83,12 +88,26 @@ class IntermediateServiceDocument implements JPAServiceDocument {
     this.reflections = createReflections(packageName);
     this.references = new IntermediateReferences();
     pP.provideReferences(this.references);
+    addReferencestFromAnnotationProvider(annotationProvider);
     this.nameBuilder = nameBuilder;
     this.jpaMetamodel = jpaMetamodel;
     this.schemaListInternalKey = new HashMap<>();
     buildIntermediateSchemas();
-    this.container = new IntermediateEntityContainer(nameBuilder, schemaListInternalKey);
+    this.container = new IntermediateEntityContainer(nameBuilder, schemaListInternalKey, annotationProvider,
+        references);
     setContainer();
+  }
+
+  private void addReferencestFromAnnotationProvider(final List<AnnotationProvider> annotationProvider)
+      throws ODataJPAModelException {
+
+    try {
+      for (final AnnotationProvider provider : annotationProvider) {
+        provider.addReferences(this.references);
+      }
+    } catch (final ODataVocabularyReadException e) {
+      throw new ODataJPAModelException(e);
+    }
   }
 
   /*
@@ -277,7 +296,7 @@ class IntermediateServiceDocument implements JPAServiceDocument {
    */
   @Override
   public CsdlTerm getTerm(final FullQualifiedName termName) {
-    return this.references.getTerm(termName);
+    return this.references.getTerm(termName).orElse(null);
   }
 
   /*

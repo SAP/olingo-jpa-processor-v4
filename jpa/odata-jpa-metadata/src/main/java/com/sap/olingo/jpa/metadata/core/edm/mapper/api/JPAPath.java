@@ -2,12 +2,14 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.api;
 
 import java.util.List;
 
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataPropertyPath;
+
 /**
  * A path within an JPA entity to an attribute.
  * @author Oliver Grande
  *
  */
-public interface JPAPath extends Comparable<JPAPath> {
+public interface JPAPath extends ODataPropertyPath, Comparable<JPAPath> {
 
   final String PATH_SEPARATOR = "/";
 

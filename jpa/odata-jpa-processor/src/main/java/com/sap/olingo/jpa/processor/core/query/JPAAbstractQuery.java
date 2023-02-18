@@ -69,6 +69,7 @@ import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataGroupProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
 import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurment;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterComplier;
 import com.sap.olingo.jpa.processor.core.processor.JPAEmptyDebugger;
@@ -194,14 +195,13 @@ public abstract class JPAAbstractQuery {
   protected List<javax.persistence.criteria.Expression<?>> createGroupBy(final Map<String, From<?, ?>> joinTables, // NOSONAR
       final From<?, ?> from, final Collection<JPAPath> selectionPathList) {
 
-    final int handle = debugger.startRuntimeMeasurement(this, "createGroupBy");
-    final List<javax.persistence.criteria.Expression<?>> groupBy = new ArrayList<>();
-    for (final JPAPath jpaPath : selectionPathList) {
-      groupBy.add(ExpressionUtil.convertToCriteriaPath(joinTables, from, jpaPath.getPath()));
+    try (JPARuntimeMeasurment serializerMeassument = debugger.newMeasurement(this, "createGroupBy")) {
+      final List<javax.persistence.criteria.Expression<?>> groupBy = new ArrayList<>();
+      for (final JPAPath jpaPath : selectionPathList) {
+        groupBy.add(ExpressionUtil.convertToCriteriaPath(joinTables, from, jpaPath.getPath()));
+      }
+      return groupBy;
     }
-
-    debugger.stopRuntimeMeasurement(handle);
-    return groupBy;
   }
 
   protected <T, S> Join<T, S> createJoinFromPath(final String alias, final List<JPAElement> pathList,
@@ -250,19 +250,19 @@ public abstract class JPAAbstractQuery {
       final Collection<JPAPath> requestedProperties, final From<?, ?> target, final List<String> groups)
       throws ODataApplicationException { // NOSONAR Allow subclasses to throw an exception
 
-    final int handle = debugger.startRuntimeMeasurement(this, "createSelectClause");
-    final List<Selection<?>> selections = new ArrayList<>();
+    try (JPARuntimeMeasurment serializerMeassument = debugger.newMeasurement(this, "createSelectClause")) {
+      final List<Selection<?>> selections = new ArrayList<>();
 
-    // Build select clause
-    for (final JPAPath jpaPath : requestedProperties) {
-      if (jpaPath.isPartOfGroups(groups)) {
-        final Path<?> p = ExpressionUtil.convertToCriteriaPath(joinTables, target, jpaPath.getPath());
-        p.alias(jpaPath.getAlias());
-        selections.add(p);
+      // Build select clause
+      for (final JPAPath jpaPath : requestedProperties) {
+        if (jpaPath.isPartOfGroups(groups)) {
+          final Path<?> p = ExpressionUtil.convertToCriteriaPath(joinTables, target, jpaPath.getPath());
+          p.alias(jpaPath.getAlias());
+          selections.add(p);
+        }
       }
+      return selections;
     }
-    debugger.stopRuntimeMeasurement(handle);
-    return selections;
   }
 
   protected javax.persistence.criteria.Expression<Boolean> createProtectionWhereForEntityType(

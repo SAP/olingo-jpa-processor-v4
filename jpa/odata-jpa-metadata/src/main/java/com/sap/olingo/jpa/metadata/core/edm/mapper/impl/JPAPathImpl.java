@@ -99,8 +99,8 @@ final class JPAPathImpl implements JPAPath {
   }
 
   @Override
-  public boolean isTransient() {
-    return isTransient.orElseGet(this::determineIsTransient);
+  public String getPathAsString() {
+    return getAlias();
   }
 
   @Override
@@ -129,6 +129,11 @@ final class JPAPathImpl implements JPAPath {
   }
 
   @Override
+  public boolean isTransient() {
+    return isTransient.orElseGet(this::determineIsTransient);
+  }
+
+  @Override
   public String toString() {
     return "JPAPathImpl [alias=" + alias + ", pathElements=" + pathElements + ", dbFieldName=" + dbFieldName
         + ", ignore=" + ignore + ", fieldGroups=" + fieldGroups + "]";
@@ -154,6 +159,16 @@ final class JPAPathImpl implements JPAPath {
     return groups == null ? EMPTY_FILED_GROUPS : groups;
   }
 
+  private Boolean determineIsTransient() {
+    isTransient = Optional.of(
+        pathElements.stream()
+            .filter(JPAAttribute.class::isInstance)
+            .map(JPAAttribute.class::cast)
+            .anyMatch(JPAAttribute::isTransient));
+    return isTransient.get();
+
+  }
+
   /**
    * @param groups
    * @return
@@ -164,15 +179,5 @@ final class JPAPathImpl implements JPAPath {
         return true;
     }
     return false;
-  }
-
-  private Boolean determineIsTransient() {
-    isTransient = Optional.of(
-        pathElements.stream()
-            .filter(JPAAttribute.class::isInstance)
-            .map(JPAAttribute.class::cast)
-            .anyMatch(JPAAttribute::isTransient));
-    return isTransient.get();
-
   }
 }

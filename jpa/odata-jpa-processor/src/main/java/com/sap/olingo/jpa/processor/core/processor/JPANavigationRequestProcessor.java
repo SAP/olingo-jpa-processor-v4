@@ -35,6 +35,7 @@ import org.apache.olingo.server.api.uri.queryoption.SystemQueryOptionKind;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurment;
 import com.sap.olingo.jpa.processor.core.converter.JPAExpandResult;
 import com.sap.olingo.jpa.processor.core.converter.JPATupleChildConverter;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPANotImplementedException;
@@ -73,78 +74,82 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
   public <K extends Comparable<K>> void retrieveData(final ODataRequest request, final ODataResponse response,
       final ContentType responseFormat) throws ODataException {
 
-    final int handle = debugger.startRuntimeMeasurement(this, "retrieveData");
-    checkRequestSupported();
-    // Create a JPQL Query and execute it
-    JPAJoinQuery query = null;
-    try {
-      query = new JPAJoinQuery(odata, requestContext);
-    } catch (final ODataException e) {
-      debugger.stopRuntimeMeasurement(handle);
-      throw new ODataJPAProcessorException(QUERY_PREPARATION_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR, e);
-    }
+    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "retrieveData")) {
 
-    final JPAConvertibleResult result = query.execute();
-    // Read Expand and Collection
-    final Optional<JPAKeyBoundary> keyBoundary = result.getKeyBoundary(requestContext, query.getNavigationInfo(), page);
-    result.putChildren(readExpandEntities(request.getAllHeaders(), query.getNavigationInfo(), uriInfo, keyBoundary));
-    // Convert tuple result into an OData Result
-    final int converterHandle = debugger.startRuntimeMeasurement(this, "convertResult");
-    EntityCollection entityCollection;
-    try {
-      entityCollection = result.asEntityCollection(new JPATupleChildConverter(sd, odata.createUriHelper(),
-          serviceMetadata, requestContext)).get(ROOT_RESULT_KEY);
-      debugger.stopRuntimeMeasurement(converterHandle);
-    } catch (final ODataApplicationException e) {
-      debugger.stopRuntimeMeasurement(converterHandle);
-      debugger.stopRuntimeMeasurement(handle);
-      throw new ODataJPAProcessorException(QUERY_RESULT_CONV_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR, e);
-    }
-    // Set Next Link
-    entityCollection.setNext(buildNextLink(page));
-    // Count results if requested
-    final CountOption countOption = uriInfo.getCountOption();
-    if (countOption != null && countOption.getValue())
-      entityCollection.setCount(new JPAJoinQuery(odata, requestContext)
-          .countResults().intValue());
+      checkRequestSupported();
+      // Create a JPQL Query and execute it
+      JPAJoinQuery query = null;
+      try {
+        query = new JPAJoinQuery(odata, requestContext);
+      } catch (final ODataException e) {
+        throw new ODataJPAProcessorException(QUERY_PREPARATION_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR, e);
+      }
 
-    /*
-     * See part 1:
-     * -9.1.1 Response Code 200 OK: A request that does not create a resource returns 200 OK if it is completed
-     * successfully and the value of the resource is not null. In this case, the response body MUST contain the value of
-     * the resource specified in the request URL.
-     * - 9.2.1 Response Code 404 Not Found: 404 Not Found indicates that the resource specified by the request URL does
-     * not exist. The response body MAY provide additional information.
-     * - 11.2.1 Requesting Individual Entities:
-     * -- If no entity exists with the key values specified in the request URL, the service responds with 404 Not Found.
-     * - 11.2.3 Requesting Individual Properties:
-     * -- If the property is single-valued and has the null value, the service responds with 204 No Content.
-     * -- If the property is not available, for example due to permissions, the service responds with 404 Not Found.
-     * - 11.2.6 Requesting Related Entities:
-     * -- If the navigation property does not exist on the entity indicated by the request URL, the service returns 404
-     * Not Found.
-     * -- If the relationship terminates on a collection, the response MUST be the format-specific representation of the
-     * collection of related entities. If no entities are related, the response is the format-specific representation of
-     * an empty collection.
-     * -- If the relationship terminates on a single entity, the response MUST be the format-specific representation of
-     * the related single entity. If no entity is related, the service returns 204 No Content.
-     */
-    if (hasNoContent(entityCollection.getEntities()))
-      response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
-    else if (doesNotExists(entityCollection.getEntities()))
-      response.setStatusCode(HttpStatusCode.NOT_FOUND.getStatusCode());
-    // 200 OK indicates that either a result was found or that the a Entity Collection query had no result
-    else if (entityCollection.getEntities() != null) {
-      final int serializerHandle = debugger.startRuntimeMeasurement(serializer, "serialize");
-      final SerializerResult serializerResult = serializer.serialize(request, entityCollection);
-      debugger.stopRuntimeMeasurement(serializerHandle);
-      createSuccessResponse(response, responseFormat, serializerResult);
-    } else {
-      // A request returns 204 No Content if the requested resource has the null value, or if the service applies a
-      // return=minimal preference. In this case, the response body MUST be empty.
-      response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
+      final JPAConvertibleResult result = query.execute();
+      // Read Expand and Collection
+      final Optional<JPAKeyBoundary> keyBoundary = result.getKeyBoundary(requestContext, query.getNavigationInfo(),
+          page);
+      result.putChildren(readExpandEntities(request.getAllHeaders(), query.getNavigationInfo(), uriInfo, keyBoundary));
+      // Convert tuple result into an OData Result
+      EntityCollection entityCollection;
+      try (JPARuntimeMeasurment converterMeassument = debugger.newMeasurement(this, "convertResult")) {
+        entityCollection = result.asEntityCollection(new JPATupleChildConverter(sd, odata.createUriHelper(),
+            serviceMetadata, requestContext)).get(ROOT_RESULT_KEY);
+      } catch (final ODataApplicationException e) {
+        throw new ODataJPAProcessorException(QUERY_RESULT_CONV_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR, e);
+      }
+      // Set Next Link
+      entityCollection.setNext(buildNextLink(page));
+      // Count results if requested
+      final CountOption countOption = uriInfo.getCountOption();
+      if (countOption != null && countOption.getValue())
+        entityCollection.setCount(new JPAJoinQuery(odata, requestContext)
+            .countResults().intValue());
+
+      /*
+       * See part 1:
+       * -9.1.1 Response Code 200 OK: A request that does not create a resource returns 200 OK if it is completed
+       * successfully and the value of the resource is not null. In this case, the response body MUST contain the value
+       * of
+       * the resource specified in the request URL.
+       * - 9.2.1 Response Code 404 Not Found: 404 Not Found indicates that the resource specified by the request URL
+       * does
+       * not exist. The response body MAY provide additional information.
+       * - 11.2.1 Requesting Individual Entities:
+       * -- If no entity exists with the key values specified in the request URL, the service responds with 404 Not
+       * Found.
+       * - 11.2.3 Requesting Individual Properties:
+       * -- If the property is single-valued and has the null value, the service responds with 204 No Content.
+       * -- If the property is not available, for example due to permissions, the service responds with 404 Not Found.
+       * - 11.2.6 Requesting Related Entities:
+       * -- If the navigation property does not exist on the entity indicated by the request URL, the service returns
+       * 404
+       * Not Found.
+       * -- If the relationship terminates on a collection, the response MUST be the format-specific representation of
+       * the
+       * collection of related entities. If no entities are related, the response is the format-specific representation
+       * of
+       * an empty collection.
+       * -- If the relationship terminates on a single entity, the response MUST be the format-specific representation
+       * of
+       * the related single entity. If no entity is related, the service returns 204 No Content.
+       */
+      if (hasNoContent(entityCollection.getEntities()))
+        response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
+      else if (doesNotExists(entityCollection.getEntities()))
+        response.setStatusCode(HttpStatusCode.NOT_FOUND.getStatusCode());
+      // 200 OK indicates that either a result was found or that the a Entity Collection query had no result
+      else if (entityCollection.getEntities() != null) {
+        try (JPARuntimeMeasurment serializerMeassument = debugger.newMeasurement(this, "serialize")) {
+          final SerializerResult serializerResult = serializer.serialize(request, entityCollection);
+          createSuccessResponse(response, responseFormat, serializerResult);
+        }
+      } else {
+        // A request returns 204 No Content if the requested resource has the null value, or if the service applies a
+        // return=minimal preference. In this case, the response body MUST be empty.
+        response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
+      }
     }
-    debugger.stopRuntimeMeasurement(handle);
   }
 
   private void checkRequestSupported() throws ODataJPAProcessException {
@@ -264,40 +269,39 @@ public final class JPANavigationRequestProcessor extends JPAAbstractGetRequestPr
       final List<JPANavigationPropertyInfo> parentHops, final UriInfoResource uriResourceInfo,
       final Optional<JPAKeyBoundary> keyBoundary) throws ODataException {
 
-    final int handle = debugger.startRuntimeMeasurement(this, "readExpandEntities");
-    final JPAExpandQueryFactory factory = new JPAExpandQueryFactory(odata, requestContext, cb);
-    final Map<JPAAssociationPath, JPAExpandResult> allExpResults = new HashMap<>();
-    // x/a?$expand=b/c($expand=d,e/f)&$filter=...&$top=3&$orderBy=...
-    // For performance reasons the expand query should only return results for the results of the higher-level query.
-    // The solution for restrictions like a given key or a given filter condition, as it can be propagated to a
-    // sub-query.
-    // For $top and $skip things are more difficult as the Subquery does not support LIMIT and OFFSET, this is
-    // done on the TypedQuery created out of the CriteriaQuery. In addition not all databases support LIMIT within a
-    // sub-query used within EXISTS.
-    // Solution: Forward the highest and lowest key from the root and create a "between" those.
+    try (JPARuntimeMeasurment serializerMeassument = debugger.newMeasurement(this, "readExpandEntities")) {
+      final JPAExpandQueryFactory factory = new JPAExpandQueryFactory(odata, requestContext, cb);
+      final Map<JPAAssociationPath, JPAExpandResult> allExpResults = new HashMap<>();
+      // x/a?$expand=b/c($expand=d,e/f)&$filter=...&$top=3&$orderBy=...
+      // For performance reasons the expand query should only return results for the results of the higher-level query.
+      // The solution for restrictions like a given key or a given filter condition, as it can be propagated to a
+      // sub-query.
+      // For $top and $skip things are more difficult as the Subquery does not support LIMIT and OFFSET, this is
+      // done on the TypedQuery created out of the CriteriaQuery. In addition not all databases support LIMIT within a
+      // sub-query used within EXISTS.
+      // Solution: Forward the highest and lowest key from the root and create a "between" those.
 
-    final List<JPAExpandItemInfo> itemInfoList = new JPAExpandItemInfoFactory()
-        .buildExpandItemInfo(sd, uriResourceInfo, parentHops);
-    for (final JPAExpandItemInfo item : itemInfoList) {
-      final JPAAbstractExpandQuery expandQuery = factory.createQuery(item, keyBoundary);
-      final JPAExpandQueryResult expandResult = expandQuery.execute();
-      if (expandResult.getNoResults() > 0)
-        // Only go to the next hop if the current one has a result
-        expandResult.putChildren(readExpandEntities(headers, item.getHops(), item.getUriInfo(), keyBoundary));
-      allExpResults.put(item.getExpandAssociation(), expandResult);
-    }
+      final List<JPAExpandItemInfo> itemInfoList = new JPAExpandItemInfoFactory()
+          .buildExpandItemInfo(sd, uriResourceInfo, parentHops);
+      for (final JPAExpandItemInfo item : itemInfoList) {
+        final JPAAbstractExpandQuery expandQuery = factory.createQuery(item, keyBoundary);
+        final JPAExpandQueryResult expandResult = expandQuery.execute();
+        if (expandResult.getNoResults() > 0)
+          // Only go to the next hop if the current one has a result
+          expandResult.putChildren(readExpandEntities(headers, item.getHops(), item.getUriInfo(), keyBoundary));
+        allExpResults.put(item.getExpandAssociation(), expandResult);
+      }
 
-    // process collection attributes
-    final List<JPACollectionItemInfo> collectionInfoList = new JPAExpandItemInfoFactory()
-        .buildCollectionItemInfo(sd, uriResourceInfo, parentHops, requestContext.getGroupsProvider());
-    for (final JPACollectionItemInfo item : collectionInfoList) {
-      final JPACollectionJoinQuery collectionQuery = new JPACollectionJoinQuery(odata, item,
-          new JPAODataInternalRequestContext(item.getUriInfo(), requestContext, headers), keyBoundary);
-      final JPAExpandResult expandResult = collectionQuery.execute();
-      allExpResults.put(item.getExpandAssociation(), expandResult);
+      // process collection attributes
+      final List<JPACollectionItemInfo> collectionInfoList = new JPAExpandItemInfoFactory()
+          .buildCollectionItemInfo(sd, uriResourceInfo, parentHops, requestContext.getGroupsProvider());
+      for (final JPACollectionItemInfo item : collectionInfoList) {
+        final JPACollectionJoinQuery collectionQuery = new JPACollectionJoinQuery(odata, item,
+            new JPAODataInternalRequestContext(item.getUriInfo(), requestContext, headers), keyBoundary);
+        final JPAExpandResult expandResult = collectionQuery.execute();
+        allExpResults.put(item.getExpandAssociation(), expandResult);
+      }
+      return allExpResults;
     }
-    debugger.stopRuntimeMeasurement(handle);
-    return allExpResults;
   }
-
 }

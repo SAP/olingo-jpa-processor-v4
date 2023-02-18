@@ -1,12 +1,20 @@
 package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlNavigationPropertyBinding;
 
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmQueryExtensionProvider;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.JPAAnnotatable;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.JPAReferences;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataNavigationPath;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataPathNotFoundException;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataPropertyPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationAttribute;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
@@ -16,13 +24,20 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAStructuredType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPATopLevelEntity;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 
-abstract class IntermediateTopLevelEntity extends IntermediateModelElement implements JPATopLevelEntity {
+abstract class IntermediateTopLevelEntity extends IntermediateModelElement implements JPATopLevelEntity,
+    JPAAnnotatable {
 
   final IntermediateEntityType<?> entityType;
+  final List<AnnotationProvider> annotationProvider;
+  final JPAReferences references;
 
-  IntermediateTopLevelEntity(final JPAEdmNameBuilder nameBuilder, final IntermediateEntityType<?> et) {
+  IntermediateTopLevelEntity(final JPAEdmNameBuilder nameBuilder, final IntermediateEntityType<?> et,
+      final List<AnnotationProvider> annotationProvider, final JPAReferences references) {
+
     super(nameBuilder, IntNameBuilder.buildEntitySetName(nameBuilder, et));
     this.entityType = et;
+    this.annotationProvider = annotationProvider;
+    this.references = references;
   }
 
   protected List<CsdlNavigationPropertyBinding> determinePropertyBinding() throws ODataJPAModelException {
@@ -78,5 +93,26 @@ abstract class IntermediateTopLevelEntity extends IntermediateModelElement imple
   public Optional<JPAQueryExtension<EdmQueryExtensionProvider>> getQueryExtension()
       throws ODataJPAModelException {
     return getEntityType().getQueryExtension();
+  }
+
+  @Override
+  public ODataPropertyPath convertStringToPath(final String internalPath) throws ODataPathNotFoundException {
+    return entityType.convertStringToPath(internalPath);
+  }
+
+  @Override
+  public ODataNavigationPath convertStringToNavigationPath(final String internalPath)
+      throws ODataPathNotFoundException {
+    return entityType.convertStringToNavigationPath(internalPath);
+  }
+
+  @Override
+  public Annotation javaAnnotation(final String name) {
+    return entityType.javaAnnotation(name);
+  }
+
+  @Override
+  public Map<String, Annotation> javaAnnotations(final String packageName) {
+    return entityType.javaAnnotations(packageName);
   }
 }

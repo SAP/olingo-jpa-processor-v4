@@ -11,6 +11,7 @@ import javax.sql.DataSource;
 import org.apache.olingo.commons.api.edmx.EdmxReference;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
 import com.sap.olingo.jpa.processor.core.database.JPADefaultDatabaseProcessor;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseOperations;
 import com.sap.olingo.jpa.processor.core.database.JPAODataDatabaseProcessorFactory;
@@ -52,7 +53,7 @@ public class JPAODataContextAccessDouble implements JPAODataSessionContextAccess
   public JPAODataDatabaseProcessor getDatabaseProcessor() {
     try {
       return new JPAODataDatabaseProcessorFactory().create(ds);
-    } catch (SQLException e) {
+    } catch (final SQLException e) {
       fail();
     }
     return null;
@@ -66,5 +67,11 @@ public class JPAODataContextAccessDouble implements JPAODataSessionContextAccess
   @Override
   public JPAODataPagingProvider getPagingProvider() {
     return pagingProvider;
+  }
+
+  @Override
+  public List<AnnotationProvider> getAnnotationProvider() {
+    fail();
+    return null;
   }
 }

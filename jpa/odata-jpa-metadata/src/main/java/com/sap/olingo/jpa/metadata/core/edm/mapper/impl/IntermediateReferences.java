@@ -9,6 +9,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,12 +26,17 @@ import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.commons.api.edmx.EdmxReferenceInclude;
 import org.apache.olingo.commons.api.edmx.EdmxReferenceIncludeAnnotation;
 
-import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.CsdlDocument;
-import com.sap.olingo.jpa.metadata.core.edm.mapper.annotation.CsdlDocumentReader;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AppliesTo;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.JPAReferences;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ODataVocabularyReadException;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.ReferenceAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateReferenceList;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.vocabularies.CsdlDocument;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.vocabularies.CsdlDocumentReader;
+import com.sap.olingo.jpa.metadata.core.edm.mapper.vocabularies.ODataJPAVocabulariesException;
 
-final class IntermediateReferences implements IntermediateReferenceList {
+final class IntermediateReferences implements IntermediateReferenceList, JPAReferences {
 
   final List<IntermediateReference> references = new ArrayList<>();
   private List<EdmxReference> edmxReferences = new ArrayList<>();
@@ -72,10 +78,25 @@ final class IntermediateReferences implements IntermediateReferenceList {
       return createReference(sourceURI, path, vocabulary);
     } catch (final URISyntaxException e) {
       throw new ODataJPAModelException(e);
-    } catch (final IOException e) {
+    } catch (final IOException | ODataJPAVocabulariesException e) {
       // Parsing of %1$s failed with message %2$s
       throw new ODataJPAModelException(ANNOTATION_PARSE_ERROR, e, path, e.getMessage());
     }
+  }
+
+  @Override
+  public ReferenceAccess addReference(@Nonnull final URI uri, @Nonnull final String path)
+      throws ODataVocabularyReadException {
+    try {
+      return addReference(uri.toString(), path);
+    } catch (final ODataJPAModelException e) {
+      throw new ODataVocabularyReadException(uri, path, e);
+    }
+  }
+
+  @Override
+  public String convertAlias(final String alias) {
+    return aliasDirectory.get(alias);
   }
 
   public List<CsdlSchema> getSchemas() {
@@ -85,34 +106,54 @@ final class IntermediateReferences implements IntermediateReferenceList {
     return result;
   }
 
-  public CsdlTerm getTerm(final FullQualifiedName termName) {
+  @Override
+  public Optional<CsdlTerm> getTerm(final FullQualifiedName termName) {
     Map<String, CsdlTerm> termsMap = terms.get(termName.getNamespace());
     if (termsMap == null) {
-      final String namespace = convertAlias(termName.getNamespace());
-      if (namespace != null) termsMap = terms.get(namespace);
+      termsMap =
+          Optional.ofNullable(convertAlias(termName.getNamespace()))
+              .map(terms::get)
+              .orElseGet(Collections::emptyMap);
     }
-    if (termsMap == null)
-      return null;
-    return termsMap.get(termName.getName());
+    return Optional.ofNullable(termsMap.get(termName.getName()));
   }
 
+  @Override
+  public List<CsdlTerm> getTerms(final String schemaAlias, final AppliesTo appliesTo) {
+    final List<CsdlTerm> result = new ArrayList<>();
+    final Optional<List<CsdlTerm>> termsOfSchema = getSchema(schemaAlias).map(CsdlSchema::getTerms);
+    if (termsOfSchema.isPresent()) {
+      for (final CsdlTerm term : termsOfSchema.get()) {
+        term.getAppliesTo().stream()
+            .filter(a -> a.equals(appliesTo.value()))
+            .findFirst()
+            .ifPresent(applies -> result.add(term));
+      }
+    }
+    return result;
+  }
+
+  @Override
   @SuppressWarnings("unchecked")
   public <T extends CsdlNamed> Optional<T> getType(final FullQualifiedName fqn) {
     // namespace of fqn can either be the namespace of the schema or the alias of the schema
-    final Optional<CsdlSchema> schema = Optional.ofNullable(Optional.ofNullable(schemas.get(fqn.getNamespace()))
-        .orElseGet(() -> schemas.get(convertAlias(fqn.getNamespace()))));
-    final Optional<T> complexType = schema.map(s -> (T) s.getComplexType(fqn.getName()));
-    if (!complexType.isPresent()) {
-      final Optional<T> simpleType = schema.map(s -> (T) s.getTypeDefinition(fqn.getName()));
-      if (!simpleType.isPresent())
-        return schema.map(s -> (T) s.getEnumType(fqn.getName()));
-      return simpleType;
-    }
-    return complexType;
-  }
+    final Optional<CsdlSchema> schema = getSchema(fqn.getNamespace());
 
-  String convertAlias(final String alias) {
-    return aliasDirectory.get(alias);
+    if (schema.isPresent()) {
+      final CsdlSchema s = schema.get();
+      final FullQualifiedName alternativeName = new FullQualifiedName(s.getNamespace(), fqn.getName());
+      T type = (T) Optional.ofNullable(s.getComplexType(fqn.getName()))
+          .orElseGet(() -> s.getComplexType(alternativeName.getFullQualifiedNameAsString()));
+      if (type == null) {
+        type = (T) Optional.ofNullable(s.getTypeDefinition(fqn.getName()))
+            .orElseGet(() -> s.getTypeDefinition(alternativeName.getFullQualifiedNameAsString()));
+      }
+      if (type == null) {
+        type = (T) s.getEnumType(fqn.getName());
+      }
+      return Optional.of(type);
+    }
+    return Optional.empty();
   }
 
   List<EdmxReference> getEdmReferences() {
@@ -124,6 +165,7 @@ final class IntermediateReferences implements IntermediateReferenceList {
     return edmxReferences;
   }
 
+  @SuppressWarnings("unlikely-arg-type")
   Optional<CsdlSchema> getSchema(final String namespace) {
     return Optional.ofNullable(Optional.ofNullable(schemas.get(namespace))
         .orElseGet(() -> schemas.get(convertAlias(namespace))));

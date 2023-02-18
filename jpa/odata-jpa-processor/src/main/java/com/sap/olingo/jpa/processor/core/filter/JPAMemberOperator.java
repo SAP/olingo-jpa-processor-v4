@@ -106,7 +106,7 @@ public class JPAMemberOperator implements JPAOperator {
 
   private void checkGroup(final List<String> groups) throws ODataJPAFilterException {
     JPAPath orgPath = attributePath;
-    if (association != null && association.getPath() != null && attributePath != null) {
+    if (association != null && association.getPathAsString() != null && attributePath != null) {
       final JPAAttribute st = ((JPAAttribute) this.association.getPath().get(0));
       if (st.isComplex()) {
         try {

@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * @author Oliver Grande
- * @since pom_version
+ * @since 1.0.9
  * 18.01.2022
  */
 class EdmEnumerationTest {

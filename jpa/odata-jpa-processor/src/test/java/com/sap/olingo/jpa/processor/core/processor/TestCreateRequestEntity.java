@@ -40,6 +40,8 @@ import org.junit.jupiter.api.Test;
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
 import com.sap.olingo.jpa.metadata.api.JPAEdmProvider;
 import com.sap.olingo.jpa.metadata.api.JPAEntityManagerFactory;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.JPAReferences;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAAssociationPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
@@ -54,14 +56,17 @@ class TestCreateRequestEntity {
   protected static EntityManagerFactory emf;
   protected static JPAEdmProvider jpaEdm;
   protected static DataSource ds;
+  protected static List<AnnotationProvider> annotationProvider;
+  protected static JPAReferences refrences;
 
   @BeforeAll
   public static void setupClass() throws ODataException {
     final JPAEdmMetadataPostProcessor pP = mock(JPAEdmMetadataPostProcessor.class);
+    annotationProvider = new ArrayList<>();
 
     ds = DataSourceHelper.createDataSource(DataSourceHelper.DB_HSQLDB);
     emf = JPAEntityManagerFactory.getEntityManagerFactory(PUNIT_NAME, ds);
-    jpaEdm = new JPAEdmProvider(PUNIT_NAME, emf.getMetamodel(), pP, TestBase.enumPackages);
+    jpaEdm = new JPAEdmProvider(PUNIT_NAME, emf.getMetamodel(), pP, TestBase.enumPackages, annotationProvider);
 
   }
 

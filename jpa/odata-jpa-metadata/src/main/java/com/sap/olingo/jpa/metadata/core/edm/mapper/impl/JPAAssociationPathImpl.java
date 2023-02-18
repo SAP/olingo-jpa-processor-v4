@@ -166,6 +166,11 @@ final class JPAAssociationPathImpl implements JPAAssociationPath {
   }
 
   @Override
+  public String getPathAsString() {
+    return getAlias();
+  }
+
+  @Override
   public List<JPAPath> getRightColumnsList() throws ODataJPAModelException {
     final List<JPAPath> result = new ArrayList<>();
     for (final JPAJoinColumn column : this.joinColumns) {

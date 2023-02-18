@@ -31,6 +31,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAServiceDocument;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurment;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery {
@@ -91,11 +92,9 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
      * .../Organizations/$count
      * .../Organizations('3')/Roles/$count
      */
-    final int handle = debugger.startRuntimeMeasurement(this, "countResults");
-    final CriteriaQuery<Number> countQuery = cb.createQuery(Number.class);
-    try {
+    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "countResults")) {
+      final CriteriaQuery<Number> countQuery = cb.createQuery(Number.class);
       createFromClause(Collections.emptyList(), Collections.emptyList(), countQuery, lastInfo);
-
       final javax.persistence.criteria.Expression<Boolean> whereClause = createWhere();
       if (whereClause != null)
         countQuery.where(whereClause);
@@ -103,19 +102,16 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
       return em.createQuery(countQuery).getSingleResult().longValue();
     } catch (final JPANoSelectionException e) {
       return 0L;
-    } finally {
-      debugger.stopRuntimeMeasurement(handle);
     }
   }
 
   @Override
   public JPAConvertibleResult execute() throws ODataApplicationException {
     // Pre-process URI parameter, so they can be used at different places
-    final int handle = debugger.startRuntimeMeasurement(this, "execute");
-
-    final List<JPAAssociationPath> orderByNaviAttributes = extractOrderByNaviAttributes(uriResource.getOrderByOption());
     final SelectionPathInfo<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
-    try {
+    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "execute")) {
+      final List<JPAAssociationPath> orderByNaviAttributes = extractOrderByNaviAttributes(uriResource
+          .getOrderByOption());
       final Map<String, From<?, ?>> joinTables = createFromClause(orderByNaviAttributes,
           selectionPath.joinedPersistent(), cq, lastInfo);
 
@@ -135,16 +131,14 @@ public class JPAJoinQuery extends JPAAbstractJoinQuery implements JPACountQuery 
       addTopSkip(tq);
 
       final HashMap<String, List<Tuple>> result = new HashMap<>(1);
-      final int resultHandle = debugger.startRuntimeMeasurement(tq, "getResultList");
-      final List<Tuple> intermediateResult = tq.getResultList();
-
-      debugger.stopRuntimeMeasurement(resultHandle);
+      List<Tuple> intermediateResult;
+      try (JPARuntimeMeasurment resultMeassument = debugger.newMeasurement(this, "getResultList")) {
+        intermediateResult = tq.getResultList();
+      }
       result.put(ROOT_RESULT_KEY, intermediateResult);
       return returnResult(selectionPath.joinedRequested(), result);
     } catch (final JPANoSelectionException e) {
       return returnEmptyResult(selectionPath.joinedRequested());
-    } finally {
-      debugger.stopRuntimeMeasurement(handle);
     }
   }
 

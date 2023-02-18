@@ -2,13 +2,18 @@ package com.sap.olingo.jpa.metadata.core.edm.mapper.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+
+import javax.persistence.Entity;
 
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlSingleton;
@@ -19,7 +24,10 @@ import org.junit.jupiter.api.Test;
 import org.reflections8.Reflections;
 
 import com.sap.olingo.jpa.metadata.api.JPAEdmMetadataPostProcessor;
+import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.annotation.EdmEnumeration;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.JPAReferences;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateEntityTypeAccess;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.extension.IntermediateNavigationPropertyAccess;
@@ -33,6 +41,8 @@ import com.sap.olingo.jpa.processor.core.testmodel.Singleton;
 class IntermediateSingletonTest extends TestMappingRoot {
   private IntermediateSchema schema;
   private JPADefaultEdmNameBuilder nameBuilder;
+  private List<AnnotationProvider> annotationProvider;
+  private JPAReferences refrences;
 
   @BeforeEach
   void setup() throws ODataJPAModelException {
@@ -41,6 +51,8 @@ class IntermediateSingletonTest extends TestMappingRoot {
     when(r.getTypesAnnotatedWith(EdmEnumeration.class)).thenReturn(new HashSet<>(Arrays.asList(
         ABCClassification.class)));
 
+    annotationProvider = new ArrayList<>();
+    refrences = mock(JPAReferences.class);
     nameBuilder = new JPADefaultEdmNameBuilder(PUNIT_NAME);
     schema = new IntermediateSchema(nameBuilder, emf.getMetamodel(), r);
   }
@@ -49,7 +61,7 @@ class IntermediateSingletonTest extends TestMappingRoot {
   void checkNewSingleton() throws ODataJPAModelException {
     final IntermediateEntityType<Singleton> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), getEntityType(Singleton.class), schema);
-    final IntermediateSingleton singleton = new IntermediateSingleton(nameBuilder, et);
+    final IntermediateSingleton singleton = new IntermediateSingleton(nameBuilder, et, annotationProvider, refrences);
     assertNotNull(singleton);
   }
 
@@ -57,7 +69,7 @@ class IntermediateSingletonTest extends TestMappingRoot {
   void checkGetInternalName() throws ODataJPAModelException {
     final IntermediateEntityType<Singleton> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), getEntityType(Singleton.class), schema);
-    final IntermediateSingleton singleton = new IntermediateSingleton(nameBuilder, et);
+    final IntermediateSingleton singleton = new IntermediateSingleton(nameBuilder, et, annotationProvider, refrences);
     assertNotNull(singleton.getInternalName());
   }
 
@@ -65,7 +77,7 @@ class IntermediateSingletonTest extends TestMappingRoot {
   void checkGetExternalName() throws ODataJPAModelException {
     final IntermediateEntityType<Singleton> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), getEntityType(Singleton.class), schema);
-    final IntermediateSingleton singleton = new IntermediateSingleton(nameBuilder, et);
+    final IntermediateSingleton singleton = new IntermediateSingleton(nameBuilder, et, annotationProvider, refrences);
     assertNotNull(singleton.getExternalName());
     assertEquals("Singleton", singleton.getExternalName());
   }
@@ -74,7 +86,7 @@ class IntermediateSingletonTest extends TestMappingRoot {
   void checkGetExternalFQN() throws ODataJPAModelException {
     final IntermediateEntityType<Singleton> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), getEntityType(Singleton.class), schema);
-    final IntermediateSingleton singleton = new IntermediateSingleton(nameBuilder, et);
+    final IntermediateSingleton singleton = new IntermediateSingleton(nameBuilder, et, annotationProvider, refrences);
     assertNotNull(singleton.getExternalFQN());
     assertEquals(PUNIT_NAME, singleton.getExternalFQN().getNamespace());
     assertEquals("Singleton", singleton.getExternalFQN().getName());
@@ -84,7 +96,7 @@ class IntermediateSingletonTest extends TestMappingRoot {
   void checkGetEdmItem() throws ODataJPAModelException {
     final IntermediateEntityType<Singleton> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), getEntityType(Singleton.class), schema);
-    final IntermediateSingleton singleton = new IntermediateSingleton(nameBuilder, et);
+    final IntermediateSingleton singleton = new IntermediateSingleton(nameBuilder, et, annotationProvider, refrences);
     final CsdlSingleton item = singleton.getEdmItem();
     assertNotNull(item);
   }
@@ -93,7 +105,7 @@ class IntermediateSingletonTest extends TestMappingRoot {
   void checkGetEdmItemValues() throws ODataJPAModelException {
     final IntermediateEntityType<Singleton> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), getEntityType(Singleton.class), schema);
-    final IntermediateSingleton singleton = new IntermediateSingleton(nameBuilder, et);
+    final IntermediateSingleton singleton = new IntermediateSingleton(nameBuilder, et, annotationProvider, refrences);
     final CsdlSingleton item = singleton.getEdmItem();
     assertEquals("Singleton", item.getName());
     assertEquals(PUNIT_NAME + ".Singleton", item.getType());
@@ -106,7 +118,7 @@ class IntermediateSingletonTest extends TestMappingRoot {
     IntermediateModelElement.setPostProcessor(new PostProcessor());
     final IntermediateEntityType<Singleton> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), getEntityType(Singleton.class), schema);
-    final IntermediateSingleton singleton = new IntermediateSingleton(nameBuilder, et);
+    final IntermediateSingleton singleton = new IntermediateSingleton(nameBuilder, et, annotationProvider, refrences);
     final CsdlSingleton item = singleton.getEdmItem();
     final List<CsdlAnnotation> act = item.getAnnotations();
     assertEquals(1, act.size());
@@ -118,9 +130,36 @@ class IntermediateSingletonTest extends TestMappingRoot {
     IntermediateModelElement.setPostProcessor(new PostProcessor());
     final IntermediateEntityType<CurrentUser> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), getEntityType(CurrentUser.class), schema);
-    final IntermediateSingleton singleton = new IntermediateSingleton(nameBuilder, et);
+    final IntermediateSingleton singleton = new IntermediateSingleton(nameBuilder, et, annotationProvider, refrences);
     final CsdlSingleton item = singleton.getEdmItem();
     assertEquals(PUNIT_NAME + ".Person", item.getType());
+  }
+
+  @Test
+  void checkJavaAnnotationsOneAnnotation() {
+    final IntermediateEntityType<Singleton> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(Singleton.class), schema);
+    final Map<String, Annotation> act = et.javaAnnotations(EdmEntityType.class.getPackage().getName());
+    assertEquals(1, act.size());
+    assertNotNull(act.get("EdmEntityType"));
+  }
+
+  @Test
+  void checkJavaAnnotationsTwoAnnotations() {
+    final IntermediateEntityType<Singleton> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(Singleton.class), schema);
+    final Map<String, Annotation> act = et.javaAnnotations(Entity.class.getPackage().getName());
+    assertEquals(2, act.size());
+    assertNotNull(act.get("Table"));
+    assertNotNull(act.get("Entity"));
+  }
+
+  @Test
+  void checkJavaAnnotationsNoAnnotations() {
+    final IntermediateEntityType<Singleton> et = new IntermediateEntityType<>(new JPADefaultEdmNameBuilder(
+        PUNIT_NAME), getEntityType(Singleton.class), schema);
+    final Map<String, Annotation> act = et.javaAnnotations(Test.class.getPackage().toString());
+    assertTrue(act.isEmpty());
   }
 
   private class PostProcessor extends JPAEdmMetadataPostProcessor {

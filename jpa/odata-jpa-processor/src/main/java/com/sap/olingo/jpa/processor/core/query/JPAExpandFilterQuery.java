@@ -40,6 +40,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.cb.ProcessorSubquery;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurment;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 import com.sap.olingo.jpa.processor.core.filter.JPAFilterCrossComplier;
@@ -112,22 +113,22 @@ class JPAExpandFilterQuery extends JPAAbstractSubQuery {
   @Override
   public <T> Subquery<T> getSubQuery(@Nullable final Subquery<?> childQuery) throws ODataApplicationException {
     // Last childQuery == null
-    final int handle = debugger.startRuntimeMeasurement(this, "createSubQuery");
-    final ProcessorSubquery<T> nextQuery = (ProcessorSubquery<T>) this.subQuery;
-    final JPAQueryPair queries = createQueries(childQuery);
-    final List<JPAAssociationPath> orderByAttributes = extractOrderByNaviAttributes(navigationInfo.getUriInfo()
-        .getOrderByOption());
-    createRoots(childQuery, queries, nextQuery);
-    buildJoinTable(orderByAttributes, emptyList(), childQuery);
-    final List<JPAPath> selections = selectionPathIn();
-    nextQuery.where(createWhere(childQuery));
-    nextQuery.multiselect(selectIn(childQuery, selections));
-    nextQuery.orderBy(createOrderBy(childQuery));
-    nextQuery.setFirstResult(getSkipValue(childQuery));
-    nextQuery.setMaxResults(getTopValue(childQuery));
-    nextQuery.groupBy(createGroupBy(childQuery, orderByAttributes, selections));
-    debugger.stopRuntimeMeasurement(handle);
-    return nextQuery;
+    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "createSubQuery")) {
+      final ProcessorSubquery<T> nextQuery = (ProcessorSubquery<T>) this.subQuery;
+      final JPAQueryPair queries = createQueries(childQuery);
+      final List<JPAAssociationPath> orderByAttributes = extractOrderByNaviAttributes(navigationInfo.getUriInfo()
+          .getOrderByOption());
+      createRoots(childQuery, queries, nextQuery);
+      buildJoinTable(orderByAttributes, emptyList(), childQuery);
+      final List<JPAPath> selections = selectionPathIn();
+      nextQuery.where(createWhere(childQuery));
+      nextQuery.multiselect(selectIn(childQuery, selections));
+      nextQuery.orderBy(createOrderBy(childQuery));
+      nextQuery.setFirstResult(getSkipValue(childQuery));
+      nextQuery.setMaxResults(getTopValue(childQuery));
+      nextQuery.groupBy(createGroupBy(childQuery, orderByAttributes, selections));
+      return nextQuery;
+    }
   }
 
   protected final JPAFilterCrossComplier addFilterCompiler(final JPANavigationPropertyInfo naviInfo)

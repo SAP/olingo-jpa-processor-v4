@@ -31,6 +31,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEntityType;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAPath;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurment;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
 
 /**
@@ -87,21 +88,19 @@ public final class JPAExpandJoinQuery extends JPAAbstractExpandQuery {
    */
   @Override
   public JPAExpandQueryResult execute() throws ODataApplicationException {
-    final int handle = debugger.startRuntimeMeasurement(this, "execute");
 
-    try {
+    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "execute")) {
       tupleQuery = createTupleQuery();
-      final int resultHandle = debugger.startRuntimeMeasurement(tupleQuery, "getResultList");
-      final List<Tuple> intermediateResult = tupleQuery.getQuery().getResultList();
-      debugger.stopRuntimeMeasurement(resultHandle);
+      List<Tuple> intermediateResult;
+      try (JPARuntimeMeasurment resultMeassument = debugger.newMeasurement(tupleQuery, "getResultList")) {
+        intermediateResult = tupleQuery.getQuery().getResultList();
+      }
       // Simplest solution for the top/skip problem. Read all and throw away, what is not requested
       final Map<String, List<Tuple>> result = convertResult(intermediateResult, association, determineSkip(),
           determineTop());
       return new JPAExpandQueryResult(result, count(), jpaEntity, tupleQuery.getSelection().joinedRequested());
     } catch (final JPANoSelectionException e) {
       return new JPAExpandQueryResult(emptyMap(), emptyMap(), this.jpaEntity, emptyList());
-    } finally {
-      debugger.stopRuntimeMeasurement(handle);
     }
   }
 
@@ -213,52 +212,48 @@ public final class JPAExpandJoinQuery extends JPAAbstractExpandQuery {
 
   @Override
   final Map<String, Long> count() throws ODataApplicationException {
-    final int handle = debugger.startRuntimeMeasurement(this, "count");
-    try {
+
+    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "count")) {
       final JPAExpandJoinCountQuery countQuery = new JPAExpandJoinCountQuery(odata, requestContext, jpaEntity,
           association, navigationInfo, keyBoundary);
       return countQuery.count();
     } catch (final ODataException e) {
       throw new ODataJPAQueryException(e, INTERNAL_SERVER_ERROR);
-    } finally {
-      debugger.stopRuntimeMeasurement(handle);
     }
   }
 
   private JPAQueryCreationResult createTupleQuery() throws ODataApplicationException, JPANoSelectionException {
-    final int handle = debugger.startRuntimeMeasurement(this, "createTupleQuery");
 
-    final List<JPAAssociationPath> orderByAttributes = extractOrderByNaviAttributes(uriResource.getOrderByOption());
-    final SelectionPathInfo<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
-    final Map<String, From<?, ?>> joinTables = createFromClause(orderByAttributes, selectionPath.joinedPersistent(), cq,
-        lastInfo);
+    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "createTupleQuery")) {
+      final List<JPAAssociationPath> orderByAttributes = extractOrderByNaviAttributes(uriResource.getOrderByOption());
+      final SelectionPathInfo<JPAPath> selectionPath = buildSelectionPathList(this.uriResource);
+      final Map<String, From<?, ?>> joinTables = createFromClause(orderByAttributes, selectionPath.joinedPersistent(),
+          cq, lastInfo);
+      // TODO handle Join Column is ignored
+      cq.multiselect(createSelectClause(joinTables, selectionPath.joinedPersistent(), target, groups));
+      if (orderByAttributes.isEmpty())
+        cq.distinct(true);
+      final javax.persistence.criteria.Expression<Boolean> whereClause = createWhere();
+      if (whereClause != null)
+        cq.where(whereClause);
 
-    // TODO handle Join Column is ignored
-    cq.multiselect(createSelectClause(joinTables, selectionPath.joinedPersistent(), target, groups));
-    if (orderByAttributes.isEmpty())
-      cq.distinct(true);
-    final javax.persistence.criteria.Expression<Boolean> whereClause = createWhere();
-    if (whereClause != null)
-      cq.where(whereClause);
+      final List<Order> orderBy = createOrderByJoinCondition(association);
+      orderBy.addAll(new JPAOrderByBuilder(jpaEntity, target, cb, groups).createOrderByList(joinTables, uriResource,
+          page));
 
-    final List<Order> orderBy = createOrderByJoinCondition(association);
-    orderBy.addAll(new JPAOrderByBuilder(jpaEntity, target, cb, groups).createOrderByList(joinTables, uriResource,
-        page));
+      cq.orderBy(orderBy);
+      if (!orderByAttributes.isEmpty())
+        cq.groupBy(createGroupBy(joinTables, target, selectionPath.joinedPersistent()));
 
-    cq.orderBy(orderBy);
-    if (!orderByAttributes.isEmpty())
-      cq.groupBy(createGroupBy(joinTables, target, selectionPath.joinedPersistent()));
+      final TypedQuery<Tuple> query = em.createQuery(cq);
 
-    final TypedQuery<Tuple> query = em.createQuery(cq);
-
-    debugger.stopRuntimeMeasurement(handle);
-    return new JPAQueryCreationResult(query, selectionPath);
+      return new JPAQueryCreationResult(query, selectionPath);
+    }
   }
 
   private Expression<Boolean> createWhere() throws ODataApplicationException {
 
-    final int handle = debugger.startRuntimeMeasurement(this, "createWhere");
-    try {
+    try (JPARuntimeMeasurment meassument = debugger.newMeasurement(this, "createWhere")) {
       javax.persistence.criteria.Expression<Boolean> whereCondition = null;
       // Given keys: Organizations('1')/Roles(...)
       whereCondition = createKeyWhere(navigationInfo);
@@ -266,8 +261,6 @@ public final class JPAExpandJoinQuery extends JPAAbstractExpandQuery {
       whereCondition = addWhereClause(whereCondition, createExpandWhere());
       whereCondition = addWhereClause(whereCondition, createProtectionWhere(claimsProvider));
       return whereCondition;
-    } finally {
-      debugger.stopRuntimeMeasurement(handle);
     }
   }
 

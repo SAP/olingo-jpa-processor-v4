@@ -541,7 +541,7 @@ class IntermediateNavigationPropertyTest extends TestMappingRoot {
   @Test
   void checkGetJoinTableJoinColumnsMissingInverse() throws ODataJPAModelException {
     final EmbeddableType<JoinComplex> jpaEmbeddable = helper.getEmbeddableType(JoinComplex.class);
-    final IntermediateComplexType<JoinComplex> property = new IntermediateComplexType<>(new JPADefaultEdmNameBuilder(
+    final IntermediateStructuredType<?> property = new IntermediateComplexType<>(new JPADefaultEdmNameBuilder(
         PUNIT_NAME), jpaEmbeddable, schema);
     final JPAAssociationAttribute association = property.getAssociation("oneToManyComplex");
     final JPAAssociationPath path = association.getPath();

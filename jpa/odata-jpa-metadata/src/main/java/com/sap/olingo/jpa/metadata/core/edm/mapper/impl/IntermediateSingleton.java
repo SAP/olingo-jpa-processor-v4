@@ -6,6 +6,8 @@ import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
 import org.apache.olingo.commons.api.edm.provider.CsdlSingleton;
 
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.AnnotationProvider;
+import com.sap.olingo.jpa.metadata.core.edm.extension.vocabularies.JPAReferences;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPAEdmNameBuilder;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.api.JPASingleton;
 import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelException;
@@ -23,9 +25,10 @@ final class IntermediateSingleton extends IntermediateTopLevelEntity implements 
 
   private CsdlSingleton edmSingleton;
 
-  IntermediateSingleton(final JPAEdmNameBuilder nameBuilder, final IntermediateEntityType<?> et)
+  IntermediateSingleton(final JPAEdmNameBuilder nameBuilder, final IntermediateEntityType<?> et,
+      final List<AnnotationProvider> annotationProvider, final JPAReferences references)
       throws ODataJPAModelException {
-    super(nameBuilder, et);
+    super(nameBuilder, et, annotationProvider, references);
     setExternalName(nameBuilder.buildSingletonName(et.getEdmItem()));
   }
 

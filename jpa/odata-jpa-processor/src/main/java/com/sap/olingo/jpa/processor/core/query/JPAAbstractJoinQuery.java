@@ -58,6 +58,7 @@ import com.sap.olingo.jpa.metadata.core.edm.mapper.exception.ODataJPAModelExcept
 import com.sap.olingo.jpa.processor.core.api.JPAODataClaimProvider;
 import com.sap.olingo.jpa.processor.core.api.JPAODataPage;
 import com.sap.olingo.jpa.processor.core.api.JPAODataRequestContextAccess;
+import com.sap.olingo.jpa.processor.core.api.JPAServiceDebugger.JPARuntimeMeasurment;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAProcessorException;
 import com.sap.olingo.jpa.processor.core.exception.ODataJPAQueryException;
@@ -315,40 +316,34 @@ public abstract class JPAAbstractJoinQuery extends JPAAbstractQuery implements J
   protected javax.persistence.criteria.Expression<Boolean> createWhere(final UriInfoResource uriInfo,
       final List<JPANavigationPropertyInfo> navigationInfo) throws ODataApplicationException {
 
-    final int handle = debugger.startRuntimeMeasurement(this, "createWhere");
-    javax.persistence.criteria.Expression<Boolean> whereCondition = null;
-    // Given keys: Organizations('1')/Roles(...)
-    try {
+    try (JPARuntimeMeasurment serializerMeassument = debugger.newMeasurement(this, "createWhere")) {
+      javax.persistence.criteria.Expression<Boolean> whereCondition = null;
+      // Given keys: Organizations('1')/Roles(...)
       whereCondition = createKeyWhere(navigationInfo);
-    } catch (final ODataApplicationException e) {
-      debugger.stopRuntimeMeasurement(handle);
-      throw e;
-    }
+      // http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398301
+      // http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part2-url-conventions/odata-v4.0-errata02-os-part2-url-conventions-complete.html#_Toc406398094
+      // https://tools.oasis-open.org/version-control/browse/wsvn/odata/trunk/spec/ABNF/odata-abnf-construction-rules.txt
+      try {
+        whereCondition = addWhereClause(whereCondition, navigationInfo.get(navigationInfo.size() - 1)
+            .getFilterCompiler()
+            .compile());
+      } catch (final ExpressionVisitException e) {
+        throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_FILTER_ERROR,
+            HttpStatusCode.BAD_REQUEST, e);
+      }
 
-    // http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part1-protocol/odata-v4.0-errata02-os-part1-protocol-complete.html#_Toc406398301
-    // http://docs.oasis-open.org/odata/odata/v4.0/errata02/os/complete/part2-url-conventions/odata-v4.0-errata02-os-part2-url-conventions-complete.html#_Toc406398094
-    // https://tools.oasis-open.org/version-control/browse/wsvn/odata/trunk/spec/ABNF/odata-abnf-construction-rules.txt
-    try {
-      whereCondition = addWhereClause(whereCondition, navigationInfo.get(navigationInfo.size() - 1).getFilterCompiler()
-          .compile());
-    } catch (final ExpressionVisitException e) {
-      debugger.stopRuntimeMeasurement(handle);
-      throw new ODataJPAQueryException(ODataJPAQueryException.MessageKeys.QUERY_PREPARATION_FILTER_ERROR,
-          HttpStatusCode.BAD_REQUEST, e);
+      if (uriInfo.getSearchOption() != null && uriInfo.getSearchOption().getSearchExpression() != null)
+        whereCondition = addWhereClause(whereCondition,
+            requestContext.getDatabaseProcessor().createSearchWhereClause(cb, this.cq, target, jpaEntity, uriInfo
+                .getSearchOption()));
+      final Optional<EdmQueryExtensionProvider> queryEnhancement = requestContext.getQueryEnhancement(jpaEntity);
+      if (queryEnhancement.isPresent()) {
+        debugger.trace(this, "Query Enhancement found. Add WHERE condition of: %s", queryEnhancement.get().getClass()
+            .getName());
+        whereCondition = addWhereClause(whereCondition, queryEnhancement.get().getFilterExtension(cb, target));
+      }
+      return whereCondition;
     }
-
-    if (uriInfo.getSearchOption() != null && uriInfo.getSearchOption().getSearchExpression() != null)
-      whereCondition = addWhereClause(whereCondition,
-          requestContext.getDatabaseProcessor().createSearchWhereClause(cb, this.cq, target, jpaEntity, uriInfo
-              .getSearchOption()));
-    final Optional<EdmQueryExtensionProvider> queryEnhancement = requestContext.getQueryEnhancement(jpaEntity);
-    if (queryEnhancement.isPresent()) {
-      debugger.trace(this, "Query Enhancement found. Add WHERE condition of: %s", queryEnhancement.get().getClass()
-          .getName());
-      whereCondition = addWhereClause(whereCondition, queryEnhancement.get().getFilterExtension(cb, target));
-    }
-    debugger.stopRuntimeMeasurement(handle);
-    return whereCondition;
   }
 
   protected JPANavigationPropertyInfo determineLastInfo(final List<JPANavigationPropertyInfo> navigationInfo) {
