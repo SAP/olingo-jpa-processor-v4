@@ -15,7 +15,7 @@ At the current state the JPA Processor provide support for:
 2. Processing Get requests by converting them into Criteria Builder queries.
 3. Supporting entity manipulations.
 
-To get started make use of the [Quicks Start](/jpa-tutorial/QuickStart/QuickStart.md) tutorial.
+To get started make use of the [Quicks Start](/jpa-tutorial/QuickStart/QuickStart.adoc) tutorial.
 
 The tutorials from the previous major version is still available under: [Tutorials](/jpa-tutorial/Tutorials/Introduction/Introduction.md).
 

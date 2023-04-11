@@ -4,15 +4,16 @@ Before we go ahead we want to do some changes to the current state of the servic
 
 When you build a service step by step, it is easier for testing to have a in-memory database and use some demo data created with the migration script. Otherwise we would need to create additional migration scripts for each change we make, which does not make sense and would be a lot a work . Therefore we change `application.yml`, so that H2 in-memory is used:
 
-```yml
+[source,yml]
+----
 logging:
   level:
     org:
-      springframework: INFO
+      springframework: INFO <!--1-->
     com:
       sap:
         olingo:
-          jpa: TRACE      
+          jpa: TRACE     
 odata:
   jpa:
     punit_name: Trippin
@@ -34,11 +35,12 @@ spring:
   servlet:
     multipart:
       enabled: false
-```
+----
 
-Next we rename class `EntityTemplate` to `Person` and add a list of attributes, which let a this entity look more like a person:
+Next we rename class `EntityTemplate` to `Person` and add a list of attributes, which let this entity look more like a person:
 
-```Java
+[source,java]
+----
 import java.util.Collection;
 import java.util.Objects;
 
@@ -141,13 +143,14 @@ public class Person {
   }
 
 }
-```
+----
 
 Next we delete `ValueObjectTemplateKey`.
 
 The service becomes consistent after we renamed `ValueObjectTemplate` to `Trip`, clean it up and also add some new attributes:
 
-```Java
+[source,java]
+----
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
@@ -257,11 +260,12 @@ public class Trip {
   }
 
 }
-```
+----
 
 To get the service running again, we have to update the migration script `V1_0__jpa.sql` as well:
 
-```SQL
+[source,sql]
+----
 SET schema "Trippin";
 
 CREATE SEQUENCE "TripId";
@@ -331,8 +335,7 @@ insert into "Trip" values (20, 'sandyosborn', 'a88f675d-9199-4392-9656-b08e3b46d
 insert into "Trip" values (21, 'ursulabright', 'a88f675d-9199-4392-9656-b08e3b46df8a', 'Study trip', 1550.3, 'This is a 2 weeks study trip', '2014-01-01T00:00:00Z', '2014-01-14T00:00:00Z');
 insert into "Trip" values (22, 'genevievereeves', 'a88f675d-9199-4392-9656-b08e3b46df8a', 'Study trip', 1550.3, 'This is a 2 weeks study trip', '2014-01-01T00:00:00Z', '2014-01-14T00:00:00Z');
 insert into "Trip" values (23, 'kristakemp', 'a88f675d-9199-4392-9656-b08e3b46df8a', 'Study trip', 1550.3, 'This is a 2 weeks study trip', '2014-01-01T00:00:00Z', '2014-01-14T00:00:00Z');
-
-```
+----
 
 We can start the service and perform some requests like:
 
