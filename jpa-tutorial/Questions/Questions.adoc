@@ -2,9 +2,9 @@
 
 The tutorials are arranged along a number of questions. The example service will grow by each answer, but it should not be necessary to follow each question to understand a certain tutorial.
 
-Before starting we need to perform some xref:Preparation.adoc[preparing next steps].
+Before starting, we need to xref:Preparation.adoc[prepare the next steps].
 
-Now we are ready to go ahead:
+Having done that, we are ready to go ahead:
 
 . xref:HowToUpgradeTo1.adoc[What needs to be done to come from 0.3.x to 1.x?]
 . xref:NameBuilding.adoc[How to get own names for the OData artifacts?]

@@ -232,7 +232,7 @@ The model is located in `com.example.trippin.model`. It contains as of now only 
 == Next steps
 
 To learn more about the options the JPA Processor provides a growing set of 
-xref:../Questions/Questions.md[tutorials] is provided.
+xref:../Questions/Questions.adoc[tutorials] is provided.
 
 In addition, a set of previous tutorials exist:
 xref:/jpa-tutorial/Tutorials/Introduction/Introduction.md[old tutorials].
